@@ -1,0 +1,5 @@
+<horizontal preffered-height="60">
+    <vertical preferred-width="100">
+        <button text="~template-button-text"/>
+    </vertical>
+</horizontal>

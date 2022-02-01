@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 3534689996
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: plugin_name
+      Dependencies: {}

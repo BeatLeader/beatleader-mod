@@ -1,0 +1,5 @@
+﻿<horizontal preffered-height="60">
+    <vertical preferred-width="100">
+        <toggle-setting text="Enabled" value="enabled-value"/>
+    </vertical>
+</horizontal>

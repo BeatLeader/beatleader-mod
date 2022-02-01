@@ -1,0 +1,6 @@
+.idea
+.vscode
+.vs
+bin
+obj
+BeatLeader.csproj.user

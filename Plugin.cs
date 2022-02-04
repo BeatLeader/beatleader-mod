@@ -1,4 +1,5 @@
-﻿using IPA;
+﻿using BeatLeader.API;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
@@ -44,6 +45,7 @@ namespace BeatLeader {
         public void OnApplicationStart() {
             ObserveEnabled();
             SettingsPanelUIHelper.AddTab();
+            Authentication.Login();
         }
 
         private static void ObserveEnabled() {

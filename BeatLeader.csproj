@@ -41,6 +41,11 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Steamworks.NET">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Steamworks.NET.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -124,9 +129,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="0_Harmony\InstallersPatches\LevelDataEnhancerPatch.cs" />
+    <Compile Include="2_Core\API\Authentication.cs" />
     <Compile Include="2_Core\Installers\OnAppInitInstaller.cs" />
     <Compile Include="2_Core\Installers\OnGameplayCoreInstaller.cs" />
     <Compile Include="2_Core\Installers\OnMenuInstaller.cs" />
+    <Compile Include="2_Core\Managers\ReplayEnhancer\MapEnhancer.cs" />
+    <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
     <Compile Include="2_Core\Managers\MonkeyHeadManager.cs" />
     <Compile Include="0_Harmony\HarmonyHelper.cs" />
@@ -136,7 +145,11 @@
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />
     <Compile Include="1_Config\PluginConfig.cs" />
+    <Compile Include="2_Core\Models\QuestReplay.cs" />
+    <Compile Include="2_Core\Models\Replay.cs" />
     <Compile Include="3_AssetBundle\BundleLoader.cs" />
+    <Compile Include="7_Utils\FileManager.cs" />
+    <Compile Include="7_Utils\SteamHelper.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
@@ -153,6 +166,7 @@
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks">
@@ -167,6 +181,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

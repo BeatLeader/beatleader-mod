@@ -9,6 +9,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using Transform = BeatLeader.Models.Transform;
 
 namespace BeatLeader {
     [UsedImplicitly]
@@ -16,26 +17,18 @@ namespace BeatLeader {
     {
         #region Constructor
 
-        private readonly PlayerTransforms _playerTransforms;
-        private readonly BeatmapObjectManager _beatmapObjectManager;
-        private readonly BeatmapObjectSpawnController _beatSpawnController;
-        private readonly StandardLevelScenesTransitionSetupDataSO _transitionSetup;
-        private readonly ScoreController _scoreController;
+        [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
+        [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
+        [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
+        [Inject] [UsedImplicitly] private StandardLevelScenesTransitionSetupDataSO _transitionSetup;
+        [Inject] [UsedImplicitly] private PauseController _pauseController;
+        [Inject] [UsedImplicitly] private AudioTimeSyncController _timeSyncController;
+        [Inject] [UsedImplicitly] private ScoreController _scoreController;
         private readonly PlayerHeightDetector _playerHeightDetector;
-        private readonly PauseController _pauseController;
-        private AudioTimeSyncController _timeSyncController;
-
         private readonly Replay _replay = new();
 
-        public ReplayRecorder(BeatmapObjectManager beatmapObjectManager) {
-            _beatmapObjectManager = beatmapObjectManager;
-
-            _beatSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
-            _scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().Last();
+        public ReplayRecorder() {
             _playerHeightDetector = Resources.FindObjectsOfTypeAll<PlayerHeightDetector>().Last();
-            _playerTransforms = Resources.FindObjectsOfTypeAll<PlayerTransforms>().Last();
-            _transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-            _pauseController = Resources.FindObjectsOfTypeAll<PauseController>().LastOrDefault();
 
             UserEnhancer.Enhance(_replay);
             MapEnhancer.Enhance(_replay);
@@ -43,8 +36,6 @@ namespace BeatLeader {
             _replay.info.version = "0.0.1";
             _replay.info.gameVersion = "1.18.3";
             _replay.info.timestamp = Convert.ToString((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
-
-            WaitForAudioTimeSyncController();
         }
 
         #endregion
@@ -107,28 +98,29 @@ namespace BeatLeader {
 
         #endregion
 
-        public void Tick()
-        {
-            if (_timeSyncController != null && _playerTransforms != null ) {
+        //You're most likely updating before player transforms changed (in other words: recorder is one frame behind)
+        //Use ILateTickable to be sure
+        public void Tick() {
+            if (_timeSyncController == null || _playerTransforms == null) return;
             
-                Frame frame = new();
-                frame.time = _timeSyncController.songTime;
-                frame.fps = Mathf.RoundToInt(1.0f / Time.deltaTime);
+            var frame = new Frame() {
+                time = _timeSyncController.songTime,
+                fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
+                head = new Transform {
+                    rotation = _playerTransforms.headPseudoLocalRot,
+                    position = _playerTransforms.headPseudoLocalPos
+                },
+                leftHand = new Transform {
+                    rotation = _playerTransforms.leftHandPseudoLocalRot,
+                    position = _playerTransforms.leftHandPseudoLocalPos
+                },
+                rightHand = new Transform {
+                    rotation = _playerTransforms.rightHandPseudoLocalRot,
+                    position = _playerTransforms.rightHandPseudoLocalPos
+                }
+            };
 
-                frame.head = new();
-                frame.head.rotation = _playerTransforms.headPseudoLocalRot;
-                frame.head.position = _playerTransforms.headPseudoLocalPos;
-
-                frame.leftHand = new();
-                frame.leftHand.rotation = _playerTransforms.leftHandPseudoLocalRot;
-                frame.leftHand.position = _playerTransforms.leftHandPseudoLocalPos;
-
-                frame.rightHand = new();
-                frame.rightHand.rotation = _playerTransforms.rightHandPseudoLocalRot;
-                frame.rightHand.position = _playerTransforms.rightHandPseudoLocalPos;
-
-                _replay.frames.Add(frame);
-            }
+            _replay.frames.Add(frame);
         }
 
         #region OnNoteWasSpawned
@@ -320,20 +312,6 @@ namespace BeatLeader {
         }
 
         #endregion
-
-        private async void WaitForAudioTimeSyncController()
-        {
-            await Task.Delay(500);
-
-            try
-            {
-                _timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().LastOrDefault(x => x.isActiveAndEnabled);
-            }
-            catch
-            {
-                Plugin.Log.Error("BSD : Could not get song length !");
-            }
-        }
 
         private void OnBeatSpawnControllerDidInit()
         {

@@ -41,6 +41,9 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Colors">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
+    </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Steamworks.NET.dll</HintPath>
       <Private>False</Private>

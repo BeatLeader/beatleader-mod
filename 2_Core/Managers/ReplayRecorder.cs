@@ -16,17 +16,13 @@ namespace BeatLeader {
     {
         #region Constructor
 
-        private readonly GameScenesManager _gameScenesManager;
-        private readonly SaberManager _saberManager;
         private readonly PlayerTransforms _playerTransforms;
         private readonly BeatmapObjectManager _beatmapObjectManager;
-        private readonly GameplayModifiersModelSO _modifierData;
-        private readonly BeatmapObjectSpawnController _beatmapObjectSpawnController;
-        private readonly PlayerDataModel _playerData;
         private readonly BeatmapObjectSpawnController _beatSpawnController;
-        private StandardLevelScenesTransitionSetupDataSO _transitionSetup;
+        private readonly StandardLevelScenesTransitionSetupDataSO _transitionSetup;
         private readonly ScoreController _scoreController;
         private readonly PlayerHeightDetector _playerHeightDetector;
+        private readonly PauseController _pauseController;
         private AudioTimeSyncController _timeSyncController;
 
         private readonly Replay _replay = new();
@@ -34,25 +30,19 @@ namespace BeatLeader {
         public ReplayRecorder(BeatmapObjectManager beatmapObjectManager) {
             _beatmapObjectManager = beatmapObjectManager;
 
-            
             _beatSpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().First();
             _scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().Last();
             _playerHeightDetector = Resources.FindObjectsOfTypeAll<PlayerHeightDetector>().Last();
-            _saberManager = Resources.FindObjectsOfTypeAll<SaberManager>().Last();
             _playerTransforms = Resources.FindObjectsOfTypeAll<PlayerTransforms>().Last();
-            _gameScenesManager = Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault();
             _transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-
-            Plugin.Log.Info($"Transition setup" + _transitionSetup.ToString());
-
-            _transitionSetup.didFinishEvent += OnTransitionSetupOnDidFinishEvent;
-
+            _pauseController = Resources.FindObjectsOfTypeAll<PauseController>().LastOrDefault();
 
             UserEnhancer.Enhance(_replay);
             MapEnhancer.Enhance(_replay);
 
             _replay.info.version = "0.0.1";
             _replay.info.gameVersion = "1.18.3";
+            _replay.info.timestamp = Convert.ToString((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
 
             WaitForAudioTimeSyncController();
         }
@@ -62,7 +52,7 @@ namespace BeatLeader {
         #region NoteIdHandling
 
         private readonly Dictionary<int, NoteCutInfo> _cutInfoCache = new();
-        private readonly Dictionary<int, NoteCutEvent> _cutEventCache = new();
+        private readonly Dictionary<int, NoteEvent> _noteEventCache = new();
 
         private readonly Dictionary<int, SwingRatingCounterDidFinishReceiver> _finishReceiversCache = new();
         private readonly Dictionary<int, SwingRatingCounterDidChangeReceiver> _changeReceiversCache = new();
@@ -76,19 +66,22 @@ namespace BeatLeader {
 
         #endregion
 
+        private Pause _currentPause;
+        private DateTime _pauseStartTime;
+
         #region Events Subscription
 
         public void Initialize() {
-            _gameScenesManager.transitionDidFinishEvent += OnGameSceneLoaded;
-            _saberManager.didUpdateSaberPositionsEvent += OnDidUpdateSaberPositions;
             _beatmapObjectManager.noteWasSpawnedEvent += OnNoteWasSpawned;
             _beatmapObjectManager.obstacleWasSpawnedEvent += OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent += OnNoteWasMissed;
             _beatmapObjectManager.noteWasCutEvent += OnNoteWasCut;
             _beatmapObjectManager.noteWasDespawnedEvent += OnNoteWasDespawned;
-            
+            _transitionSetup.didFinishEvent += OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent += OnBeatSpawnControllerDidInit;
             _scoreController.comboBreakingEventHappenedEvent += OnBreakCombo;
+            _pauseController.didPauseEvent += OnPause;
+            _pauseController.didResumeEvent += OnResume;
             if (_replay.info.height == 0)
             {
                 _playerHeightDetector.playerHeightDidChangeEvent += OnPlayerHeightChange;
@@ -96,8 +89,6 @@ namespace BeatLeader {
         }
 
         public void Dispose() {
-            _gameScenesManager.transitionDidFinishEvent -= OnGameSceneLoaded;
-            _saberManager.didUpdateSaberPositionsEvent -= OnDidUpdateSaberPositions;
             _beatmapObjectManager.noteWasSpawnedEvent -= OnNoteWasSpawned;
             _beatmapObjectManager.obstacleWasSpawnedEvent -= OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent -= OnNoteWasMissed;
@@ -106,6 +97,8 @@ namespace BeatLeader {
             _transitionSetup.didFinishEvent -= OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent -= OnBeatSpawnControllerDidInit;
             _scoreController.comboBreakingEventHappenedEvent -= OnBreakCombo;
+            _pauseController.didPauseEvent -= OnPause;
+            _pauseController.didResumeEvent -= OnResume;
             if (_replay.info.height == 0)
             {
                 _playerHeightDetector.playerHeightDidChangeEvent -= OnPlayerHeightChange;
@@ -118,25 +111,24 @@ namespace BeatLeader {
         {
             if (_timeSyncController != null && _playerTransforms != null ) {
             
-                Frame headFrame = new();
-                headFrame.time = _timeSyncController.songTime;
-                headFrame.transform = new();
-                headFrame.transform.rotation = _playerTransforms.headPseudoLocalRot.eulerAngles;
-                headFrame.transform.position = _playerTransforms.headPseudoLocalPos;
+                Frame frame = new();
+                frame.time = _timeSyncController.songTime;
+                frame.fps = Mathf.RoundToInt(1.0f / Time.deltaTime);
 
-                _replay.head.Add(headFrame);
+                frame.head = new();
+                frame.head.rotation = _playerTransforms.headPseudoLocalRot;
+                frame.head.position = _playerTransforms.headPseudoLocalPos;
+
+                frame.leftHand = new();
+                frame.leftHand.rotation = _playerTransforms.leftHandPseudoLocalRot;
+                frame.leftHand.position = _playerTransforms.leftHandPseudoLocalPos;
+
+                frame.rightHand = new();
+                frame.rightHand.rotation = _playerTransforms.rightHandPseudoLocalRot;
+                frame.rightHand.position = _playerTransforms.rightHandPseudoLocalPos;
+
+                _replay.frames.Add(frame);
             }
-        }
-
-        private void OnGameSceneLoaded(ScenesTransitionSetupDataSO transitionSetupData, DiContainer diContainer)
-        {
-            Plugin.Log.Info($"OnGameSceneLoaded");
-            _gameScenesManager.transitionDidFinishEvent -= OnGameSceneLoaded;
-            _transitionSetup = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-
-            Plugin.Log.Info($"Transition setup" + _transitionSetup.ToString());
-
-            _transitionSetup.didFinishEvent += OnTransitionSetupOnDidFinishEvent;
         }
 
         #region OnNoteWasSpawned
@@ -147,12 +139,10 @@ namespace BeatLeader {
 
             var noteData = noteController.noteData;
 
-            NoteCutEvent cutEvent = new();
-            cutEvent.noteHash = noteData.lineIndex ^ (int)noteData.noteLineLayer ^ (int)noteData.colorType ^ (int)noteData.cutDirection;
-            cutEvent.spawnTime = _timeSyncController.songTime;
-            _cutEventCache[noteId] = cutEvent;
-
-            //Plugin.Log.Info($"Note_{noteId} was spawned!");
+            NoteEvent noteEvent = new();
+            noteEvent.noteID = noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
+            noteEvent.spawnTime = _timeSyncController.songTime;
+            _noteEventCache[noteId] = noteEvent;
         }
 
         #endregion
@@ -167,11 +157,9 @@ namespace BeatLeader {
             var obstacleData = obstacleController.obstacleData;
 
             WallEvent wallEvent = new();
-            wallEvent.wallHash = obstacleData.lineIndex ^ (int)obstacleData.obstacleType ^ obstacleData.width;
+            wallEvent.wallID = obstacleData.lineIndex * 100 + (int)obstacleData.obstacleType * 10 + obstacleData.width;
             wallEvent.spawnTime = _timeSyncController.songTime;
             _wallEventCache[wallId] = wallEvent;
-
-            //Plugin.Log.Info($"Wall_{_wallId} was spawned!");
         }
 
         #endregion
@@ -183,16 +171,11 @@ namespace BeatLeader {
 
             if (noteController.noteData.colorType != ColorType.None)
             {
-                var cutEvent = _cutEventCache[noteId];
-
-                NoteMissEvent missEvent = new();
-                missEvent.spawnTime = cutEvent.spawnTime;
-                missEvent.noteHash = cutEvent.noteHash;
-                missEvent.missTime = _timeSyncController.songTime;
-                _replay.misses.Add(missEvent);
+                var noteEvent = _noteEventCache[noteId];
+                noteEvent.eventTime = _timeSyncController.songTime;
+                noteEvent.eventType = NoteEventType.miss;
+                _replay.notes.Add(noteEvent);
             }
-
-            //Plugin.Log.Info($"Note_{noteId} was missed!");
         }
 
         #endregion
@@ -221,10 +204,25 @@ namespace BeatLeader {
         private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo) {
             var noteId = _noteIdCache[noteController];
 
-            //Plugin.Log.Info($"Note_{noteId} was cut!");
+            var noteEvent = _noteEventCache[noteId];
+            noteEvent.eventTime = _timeSyncController.songTime;
+
+            if (noteController.noteData.colorType == ColorType.None)
+            {
+                noteEvent.eventType = NoteEventType.bomb;
+            }
+
+            _replay.notes.Add(noteEvent);
 
             if (noteCutInfo.swingRatingCounter == null) return;
             _cutInfoCache[noteId] = noteCutInfo;
+
+            if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
+                noteEvent.eventType = NoteEventType.good;
+            } else {
+                noteEvent.eventType = NoteEventType.bad;
+                PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
+            }
 
             var counterDidChangeReceiver = new SwingRatingCounterDidChangeReceiver(noteId, OnSwingRatingCounterDidChange);
             noteCutInfo.swingRatingCounter.RegisterDidChangeReceiver(counterDidChangeReceiver);
@@ -240,7 +238,6 @@ namespace BeatLeader {
         #region OnSwingRatingCounterDidChange
 
         private void OnSwingRatingCounterDidChange(ISaberSwingRatingCounter swingRatingCounter, int noteId, float rating) {
-            //Plugin.Log.Info($"Note_{noteId} post-swing rating changed to {rating}!");
 
             var cutInfo = _cutInfoCache[noteId];
 
@@ -250,11 +247,9 @@ namespace BeatLeader {
                 out var cutDistanceRawScore
             );
 
-            var cutEvent = _cutEventCache[noteId];
+            var cutEvent = _noteEventCache[noteId];
             var noteCutInfo = cutEvent.noteCutInfo = new();
             noteCutInfo.beforeCutRating = swingRatingCounter.beforeCutRating;
-
-            //Plugin.Log.Info($"pre: {beforeCutRawScore} acc: {cutDistanceRawScore} post: {afterCutRawScore}");
         }
 
         #endregion
@@ -265,8 +260,6 @@ namespace BeatLeader {
             swingRatingCounter.UnregisterDidChangeReceiver(_changeReceiversCache[noteId]);
             swingRatingCounter.UnregisterDidFinishReceiver(_finishReceiversCache[noteId]);
 
-            //Plugin.Log.Info($"Note_{noteId} post-swing rating finished!");
-
             var cutInfo = _cutInfoCache[noteId];
 
             ScoreModel.RawScoreWithoutMultiplier(swingRatingCounter, cutInfo.cutDistanceToCenter,
@@ -275,27 +268,10 @@ namespace BeatLeader {
                 out var cutDistanceRawScore
             );
 
-            var cutEvent = _cutEventCache[noteId];
+            var cutEvent = _noteEventCache[noteId];
             var noteCutInfo = cutEvent.noteCutInfo;
-
-            noteCutInfo.speedOK = cutInfo.speedOK;
-            noteCutInfo.directionOK = cutInfo.directionOK;
-            noteCutInfo.saberTypeOK = cutInfo.saberTypeOK;
-            noteCutInfo.wasCutTooSoon = cutInfo.wasCutTooSoon;
-            noteCutInfo.saberSpeed = cutInfo.saberSpeed;
-            noteCutInfo.saberDir = cutInfo.saberDir;
-            noteCutInfo.saberType = (int)cutInfo.saberType;
-            noteCutInfo.timeDeviation = cutInfo.timeDeviation;
-            noteCutInfo.cutDirDeviation = cutInfo.cutDirDeviation;
-            noteCutInfo.cutPoint = cutInfo.cutPoint;
-            noteCutInfo.cutNormal = cutInfo.cutNormal;
-            noteCutInfo.cutDistanceToCenter = cutInfo.cutDistanceToCenter;
-            noteCutInfo.cutAngle = cutInfo.cutAngle;
+            PopulateNoteCutInfo(noteCutInfo, cutInfo);
             noteCutInfo.afterCutRating = swingRatingCounter.afterCutRating;
-
-            _replay.cuts.Add(cutEvent);
-
-           // Plugin.Log.Info($"pre: {beforeCutRawScore} acc: {cutDistanceRawScore} post: {afterCutRawScore}");
         }
 
         #endregion
@@ -305,8 +281,6 @@ namespace BeatLeader {
         private void OnNoteWasDespawned(NoteController noteController) {
             var noteId = _noteId++;
             _noteIdCache[noteController] = noteId;
-
-            //Plugin.Log.Info($"Note_{noteId} was Despawned!");
         }
 
         #endregion
@@ -361,29 +335,6 @@ namespace BeatLeader {
             }
         }
 
-        private void OnDidUpdateSaberPositions(Saber left, Saber right)
-        {
-            if (left != null && _timeSyncController != null)
-            {
-                Frame leftSaber = new();
-                leftSaber.time = _timeSyncController.songTime;
-                leftSaber.transform = new();
-                leftSaber.transform.rotation = left.transform.eulerAngles;
-                leftSaber.transform.position = left.transform.position;
-                _replay.left.Add(leftSaber);
-            }
-            
-            if (right != null && _timeSyncController != null)
-            {
-                Frame rightSaber = new();
-                rightSaber.time = _timeSyncController.songTime;
-                rightSaber.transform = new();
-                rightSaber.transform.rotation = left.transform.eulerAngles;
-                rightSaber.transform.position = left.transform.position;
-                _replay.right.Add(rightSaber);
-            }
-        }
-
         private void OnBeatSpawnControllerDidInit()
         {
             _replay.info.jumpDistance = _beatSpawnController.jumpDistance;
@@ -391,11 +342,10 @@ namespace BeatLeader {
 
         private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
-            Plugin.Log.Info($"OnTransitionSetupOnDidFinishEvent");
+            _replay.info.score = _scoreController.prevFrameRawScore;
             switch (results.levelEndStateType)
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
-                    Plugin.Log.Info("Level finished");
                     FileManager.WriteReplay(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
@@ -403,7 +353,7 @@ namespace BeatLeader {
                         Plugin.Log.Info("Restart");
                     else
                         _replay.info.failTime = _timeSyncController.songTime;
-                        Plugin.Log.Info("Failed");
+                        FileManager.WriteReplay(_replay);
                     break;
             }
 
@@ -424,8 +374,37 @@ namespace BeatLeader {
             automaticHeight.height = height;
             automaticHeight.time = _timeSyncController.songTime;
 
-            _replay.height.Add(automaticHeight);
+            _replay.heights.Add(automaticHeight);
 
+        }
+
+        private void OnPause()
+        {
+            _currentPause = new();
+            _currentPause.time = _timeSyncController.songTime;
+            _pauseStartTime = DateTime.Now;
+        }
+
+        private void OnResume()
+        {
+            _currentPause.duration = DateTime.Now.ToUnixTime() - _pauseStartTime.ToUnixTime();
+            _replay.pauses.Add(_currentPause);
+        }
+
+        private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo) {
+            noteCutInfo.speedOK = cutInfo.speedOK;
+            noteCutInfo.directionOK = cutInfo.directionOK;
+            noteCutInfo.saberTypeOK = cutInfo.saberTypeOK;
+            noteCutInfo.wasCutTooSoon = cutInfo.wasCutTooSoon;
+            noteCutInfo.saberSpeed = cutInfo.saberSpeed;
+            noteCutInfo.saberDir = cutInfo.saberDir;
+            noteCutInfo.saberType = (int)cutInfo.saberType;
+            noteCutInfo.timeDeviation = cutInfo.timeDeviation;
+            noteCutInfo.cutDirDeviation = cutInfo.cutDirDeviation;
+            noteCutInfo.cutPoint = cutInfo.cutPoint;
+            noteCutInfo.cutNormal = cutInfo.cutNormal;
+            noteCutInfo.cutDistanceToCenter = cutInfo.cutDistanceToCenter;
+            noteCutInfo.cutAngle = cutInfo.cutAngle;
         }
     }
 }

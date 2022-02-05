@@ -11,7 +11,7 @@ namespace ReplayDecoder
         static void Main()
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "BS Replay Files|*.bsr";
+            ofd.Filter = "BS Open Replay |*.bsor";
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 

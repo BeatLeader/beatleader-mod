@@ -15,7 +15,17 @@ namespace BeatLeader.Utils
             var folderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
             Directory.CreateDirectory(Path.GetDirectoryName(folderPath));
 
-            using BinaryWriter file = new BinaryWriter(File.Open(folderPath + replay.info.playerID + (replay.info.speed != 0 ? "-practice" : "") + (replay.info.failTime != 0 ? "-fail" : "") + "-" + replay.info.songName + "-" + replay.info.mapper + "-" + replay.info.hash + ".bsor", FileMode.OpenOrCreate), Encoding.UTF8);
+            string filename = folderPath + replay.info.playerID + (replay.info.speed != 0 ? "-practice" : "") + (replay.info.failTime != 0 ? "-fail" : "") + "-" + replay.info.songName + "-" + replay.info.difficulty + "-" + replay.info.mode + "-" + replay.info.hash + ".bsor";
+            if (File.Exists(filename)) {
+                Stream stream = File.Open(filename, FileMode.Open);
+                int arrayLength = (int)stream.Length;
+                byte[] buffer = new byte[arrayLength];
+                stream.Read(buffer, 0, arrayLength);
+                stream.Close();
+
+                if (ReplayDecoder.Decode(buffer).info.score > replay.info.score) return;
+            }
+            using BinaryWriter file = new BinaryWriter(File.Open(filename, FileMode.OpenOrCreate), Encoding.UTF8);
 
             ReplayEncoder.Encode(replay, file);
             file.Close();

@@ -45,7 +45,6 @@ namespace BeatLeader {
         public void OnApplicationStart() {
             ObserveEnabled();
             SettingsPanelUIHelper.AddTab();
-            Authentication.Login();
         }
 
         private static void ObserveEnabled() {

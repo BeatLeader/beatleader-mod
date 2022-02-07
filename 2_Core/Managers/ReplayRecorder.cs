@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using HarmonyLib;
+using IPA.Loader;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -28,13 +31,16 @@ namespace BeatLeader {
         private readonly Replay _replay = new();
 
         public ReplayRecorder() {
+            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) return; // Playing SS replay
+
             _playerHeightDetector = Resources.FindObjectsOfTypeAll<PlayerHeightDetector>().Last();
 
             UserEnhancer.Enhance(_replay);
             MapEnhancer.Enhance(_replay);
 
-            _replay.info.version = "0.0.1";
-            _replay.info.gameVersion = "1.18.3";
+            PluginMetadata metaData = PluginManager.GetPluginFromId("BeatLeader");
+            _replay.info.version = metaData.HVersion.ToString();
+            _replay.info.gameVersion = Application.version;
             _replay.info.timestamp = Convert.ToString((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
         }
 
@@ -101,7 +107,7 @@ namespace BeatLeader {
         //You're most likely updating before player transforms changed (in other words: recorder is one frame behind)
         //Use ILateTickable to be sure
         public void Tick() {
-            if (_timeSyncController == null || _playerTransforms == null) return;
+            if (_timeSyncController == null || _playerTransforms == null || _currentPause != null) return;
             
             var frame = new Frame() {
                 time = _timeSyncController.songTime,
@@ -206,15 +212,16 @@ namespace BeatLeader {
 
             _replay.notes.Add(noteEvent);
 
-            if (noteCutInfo.swingRatingCounter == null) return;
             _cutInfoCache[noteId] = noteCutInfo;
-
+            
             if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
                 noteEvent.eventType = NoteEventType.good;
             } else {
                 noteEvent.eventType = NoteEventType.bad;
+                noteEvent.noteCutInfo = new();
                 PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
             }
+            if (noteCutInfo.swingRatingCounter == null) return;
 
             var counterDidChangeReceiver = new SwingRatingCounterDidChangeReceiver(noteId, OnSwingRatingCounterDidChange);
             noteCutInfo.swingRatingCounter.RegisterDidChangeReceiver(counterDidChangeReceiver);
@@ -252,7 +259,7 @@ namespace BeatLeader {
             swingRatingCounter.UnregisterDidChangeReceiver(_changeReceiversCache[noteId]);
             swingRatingCounter.UnregisterDidFinishReceiver(_finishReceiversCache[noteId]);
 
-            var cutInfo = _cutInfoCache[noteId];
+            NoteCutInfo cutInfo = _cutInfoCache[noteId];
 
             ScoreModel.RawScoreWithoutMultiplier(swingRatingCounter, cutInfo.cutDistanceToCenter,
                 out var beforeCutRawScore,
@@ -367,6 +374,7 @@ namespace BeatLeader {
         {
             _currentPause.duration = DateTime.Now.ToUnixTime() - _pauseStartTime.ToUnixTime();
             _replay.pauses.Add(_currentPause);
+            _currentPause = null;
         }
 
         private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo) {
@@ -384,5 +392,7 @@ namespace BeatLeader {
             noteCutInfo.cutDistanceToCenter = cutInfo.cutDistanceToCenter;
             noteCutInfo.cutAngle = cutInfo.cutAngle;
         }
+
+        private static MethodBase ScoreSaber_playbackEnabled = AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
     }
 }

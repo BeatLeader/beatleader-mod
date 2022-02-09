@@ -8,6 +8,7 @@ using LogLevel = IPA.Logging.Logger.Level;
 using System.Linq;
 using IPA.Utilities;
 using System.Threading.Tasks;
+using UnityEngine.XR;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer
 {
@@ -79,7 +80,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                 Plugin.Log.Debug($"UserInfo found: {userInfo.platformUserId}: {userInfo.userName} on {userInfo.platform}");
                 userName = userInfo.userName;
                 userID = userInfo.platformUserId;
-                hmd = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.Head).name + "-" + UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.Head).manufacturer;
+                hmd = XRDevice.model + "-" + XRDevice.family;
                 if (userInfo.platform == UserInfo.Platform.Steam)
                     userPlatform = "steam";
                 else if (userInfo.platform == UserInfo.Platform.Oculus)

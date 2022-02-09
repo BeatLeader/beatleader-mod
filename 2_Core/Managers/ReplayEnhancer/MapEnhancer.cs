@@ -18,6 +18,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
         public static bool useTestNoteCutSoundEffects;
         public static EnvironmentInfoSO environmentInfo;
         public static ColorScheme colorScheme;
+        public static float energy;
 
         public static void Enhance(Replay replay)
         {
@@ -51,7 +52,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             if (gameplayModifiers.ghostNotes) { result.Add("GN"); }
             if (gameplayModifiers.noArrows) { result.Add("NA"); }
             if (gameplayModifiers.noBombs) { result.Add("NB"); }
-            if (gameplayModifiers.noFailOn0Energy) { result.Add("NF"); }
+            if (gameplayModifiers.noFailOn0Energy && energy == 0) { result.Add("NF"); }
             if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) { result.Add("NO"); }
 
             return result;

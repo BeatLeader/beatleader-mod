@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Installers;
 using HarmonyLib;
+using IPA.Utilities;
 using JetBrains.Annotations;
 using static PlayerSaveData;
 
@@ -25,6 +26,7 @@ namespace BeatLeader
             MapEnhancer.useTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
             MapEnhancer.environmentInfo = environmentInfoSO;
             MapEnhancer.colorScheme = overrideColorScheme;
+            gameplayModifiers.SetField("_failOnSaberClash", true);
         }
     }
 }

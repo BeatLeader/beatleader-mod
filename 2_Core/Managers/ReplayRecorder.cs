@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -27,16 +26,19 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private PauseController _pauseController;
         [Inject] [UsedImplicitly] private AudioTimeSyncController _timeSyncController;
         [Inject] [UsedImplicitly] private ScoreController _scoreController;
+        [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
+        private Pause _currentPause;
+        private WallEvent _currentWallEvent;
+        private DateTime _pauseStartTime;
 
         public ReplayRecorder() {
             if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) return; // Playing SS replay
 
             _playerHeightDetector = Resources.FindObjectsOfTypeAll<PlayerHeightDetector>().Last();
 
-            UserEnhancer.Enhance(_replay);
-            MapEnhancer.Enhance(_replay);
+            UserEnhancer.Enhance(_replay); 
 
             PluginMetadata metaData = PluginManager.GetPluginFromId("BeatLeader");
             _replay.info.version = metaData.HVersion.ToString();
@@ -62,9 +64,6 @@ namespace BeatLeader {
         private int _wallId;
 
         #endregion
-
-        private Pause _currentPause;
-        private DateTime _pauseStartTime;
 
         #region Events Subscription
 
@@ -104,6 +103,8 @@ namespace BeatLeader {
 
         #endregion
 
+        #region Movements recording
+
         //You're most likely updating before player transforms changed (in other words: recorder is one frame behind)
         //Use ILateTickable to be sure
         public void Tick() {
@@ -127,7 +128,19 @@ namespace BeatLeader {
             };
 
             _replay.frames.Add(frame);
+
+            if (_currentWallEvent != null) {
+                PlayerHeadAndObstacleInteraction phaoi = _scoreController.GetField<PlayerHeadAndObstacleInteraction, ScoreController>("_playerHeadAndObstacleInteraction");
+
+                if (phaoi != null && phaoi.intersectingObstacles.Count == 0)
+                {
+                    _currentWallEvent.energy = _gameEnergyCounter.energy;
+                    _currentWallEvent = null;
+                }
+            }
         }
+
+        #endregion
 
         #region OnNoteWasSpawned
 
@@ -139,7 +152,7 @@ namespace BeatLeader {
 
             NoteEvent noteEvent = new();
             noteEvent.noteID = noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
-            noteEvent.spawnTime = _timeSyncController.songTime;
+            noteEvent.spawnTime = noteData.time;
             _noteEventCache[noteId] = noteEvent;
         }
 
@@ -186,12 +199,10 @@ namespace BeatLeader {
 
             if (phaoi != null && phaoi.intersectingObstacles.Count > 0)
             {
-                foreach (var wall in phaoi.intersectingObstacles)
-                {
-                    WallEvent wallEvent = _wallEventCache[_wallCache[wall]];
-                    wallEvent.time = _timeSyncController.songTime;
-                    _replay.walls.Add(wallEvent);
-                }
+                WallEvent wallEvent = _wallEventCache[_wallCache[phaoi.intersectingObstacles[0]]];
+                wallEvent.time = _timeSyncController.songTime;
+                _replay.walls.Add(wallEvent);
+                _currentWallEvent = wallEvent;
             }
         }
 
@@ -216,6 +227,7 @@ namespace BeatLeader {
             
             if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
                 noteEvent.eventType = NoteEventType.good;
+                noteEvent.noteCutInfo = new();
             } else {
                 noteEvent.eventType = NoteEventType.bad;
                 noteEvent.noteCutInfo = new();
@@ -247,7 +259,7 @@ namespace BeatLeader {
             );
 
             var cutEvent = _noteEventCache[noteId];
-            var noteCutInfo = cutEvent.noteCutInfo = new();
+            var noteCutInfo = cutEvent.noteCutInfo;
             noteCutInfo.beforeCutRating = swingRatingCounter.beforeCutRating;
         }
 
@@ -320,14 +332,19 @@ namespace BeatLeader {
 
         #endregion
 
+        #region JD
         private void OnBeatSpawnControllerDidInit()
         {
             _replay.info.jumpDistance = _beatSpawnController.jumpDistance;
         }
+        #endregion
 
+        #region Map finish
         private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
             _replay.info.score = _scoreController.prevFrameRawScore;
+            MapEnhancer.energy = results.energy; 
+            MapEnhancer.Enhance(_replay);
             switch (results.levelEndStateType)
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
@@ -352,7 +369,9 @@ namespace BeatLeader {
                     break;
             }
         }
+        #endregion
 
+        #region Height
         private void OnPlayerHeightChange(float height)
         {
             AutomaticHeight automaticHeight = new();
@@ -362,7 +381,9 @@ namespace BeatLeader {
             _replay.heights.Add(automaticHeight);
 
         }
+        #endregion
 
+        #region Pause
         private void OnPause()
         {
             _currentPause = new();
@@ -376,7 +397,9 @@ namespace BeatLeader {
             _replay.pauses.Add(_currentPause);
             _currentPause = null;
         }
+        #endregion
 
+        #region Utils
         private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo) {
             noteCutInfo.speedOK = cutInfo.speedOK;
             noteCutInfo.directionOK = cutInfo.directionOK;
@@ -394,5 +417,6 @@ namespace BeatLeader {
         }
 
         private static MethodBase ScoreSaber_playbackEnabled = AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
+        #endregion
     }
 }

@@ -26,7 +26,6 @@ namespace BeatLeader
             MapEnhancer.useTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
             MapEnhancer.environmentInfo = environmentInfoSO;
             MapEnhancer.colorScheme = overrideColorScheme;
-            gameplayModifiers.SetField("_failOnSaberClash", true);
         }
     }
 }

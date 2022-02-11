@@ -1,3 +1,4 @@
+using BeatLeader.Core.Managers.ReplayEnhancer;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -9,6 +10,7 @@ namespace BeatLeader.Installers
             Plugin.Log.Info("OnGameplayCoreInstaller");
 
             Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
+            Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
         }
     }
 }

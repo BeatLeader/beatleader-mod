@@ -49,6 +49,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="Oculus.VR, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Oculus.VR.dll</HintPath>
+    </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Steamworks.NET.dll</HintPath>
       <Private>False</Private>
@@ -148,6 +152,7 @@
     <Compile Include="2_Core\Installers\OnGameplayCoreInstaller.cs" />
     <Compile Include="2_Core\Installers\OnMenuInstaller.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\MapEnhancer.cs" />
+    <Compile Include="2_Core\Managers\ReplayEnhancer\TrackingDeviceEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
     <Compile Include="2_Core\Managers\MonkeyHeadManager.cs" />

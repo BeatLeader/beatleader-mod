@@ -27,6 +27,7 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private AudioTimeSyncController _timeSyncController;
         [Inject] [UsedImplicitly] private ScoreController _scoreController;
         [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
+        [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
         private Pause _currentPause;
@@ -345,6 +346,7 @@ namespace BeatLeader {
             _replay.info.score = _scoreController.prevFrameRawScore;
             MapEnhancer.energy = results.energy; 
             MapEnhancer.Enhance(_replay);
+            _trackingDeviceEnhancer.Enhance(_replay);
             switch (results.levelEndStateType)
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:

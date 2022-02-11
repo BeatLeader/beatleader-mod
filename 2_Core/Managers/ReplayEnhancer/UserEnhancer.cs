@@ -20,7 +20,6 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
         static string userName = null;
         static string userID = null;
         static string userPlatform = null;
-        static string hmd = null;
 
         private static Task<UserInfo> getUserTask;
         private static IPlatformUserModel _platformUserModel;
@@ -43,7 +42,6 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             await GetUserAsync();
             replay.info.playerID = userID;
             replay.info.platform = userPlatform;
-            replay.info.hmd = hmd;
             replay.info.playerName = userName;
         }
 
@@ -80,7 +78,6 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                 Plugin.Log.Debug($"UserInfo found: {userInfo.platformUserId}: {userInfo.userName} on {userInfo.platform}");
                 userName = userInfo.userName;
                 userID = userInfo.platformUserId;
-                hmd = XRDevice.model + "-" + XRDevice.family;
                 if (userInfo.platform == UserInfo.Platform.Steam)
                     userPlatform = "steam";
                 else if (userInfo.platform == UserInfo.Platform.Oculus)

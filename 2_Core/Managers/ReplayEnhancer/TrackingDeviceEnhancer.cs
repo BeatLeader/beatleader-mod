@@ -19,6 +19,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             _trackingDataProcessors.Add(VRPlatformSDK.Oculus, ProcessOculus);
             _trackingDataProcessors.Add(VRPlatformSDK.Unknown, ProcessUnknown);
         }
+        
         public void Enhance(Replay replay)
         {
             VRPlatformSDK trackingSystem = _vRPlatformHelper.vrPlatformSDK;
@@ -55,6 +56,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                     replay.info.hmd = "Unknown";
                     break;
             }
+            replay.info.controller = "Unknown";
         }
 
         private void ProcessUnknown(Replay replay)

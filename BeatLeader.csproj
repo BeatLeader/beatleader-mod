@@ -166,6 +166,8 @@
     <Compile Include="2_Core\Models\QuestReplay.cs" />
     <Compile Include="2_Core\Models\Replay.cs" />
     <Compile Include="3_AssetBundle\BundleLoader.cs" />
+    <Compile Include="7_Utils\ScoreUtil.cs" />
+    <Compile Include="7_Utils\UploadManager.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\SteamHelper.cs" />
     <Compile Include="Plugin.cs" />

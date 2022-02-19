@@ -350,14 +350,14 @@ namespace BeatLeader {
             switch (results.levelEndStateType)
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
-                    FileManager.WriteReplay(_replay);
+                    ScoreUtil.ProcessReplay(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
                     if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
                         Plugin.Log.Info("Restart");
                     else
                         _replay.info.failTime = _timeSyncController.songTime;
-                        FileManager.WriteReplay(_replay);
+                        ScoreUtil.ProcessReplay(_replay);
                     break;
             }
 

@@ -20,7 +20,7 @@ namespace BeatLeader {
 
         public static void RemovePatches() {
             if (!_initialized) return;
-            _harmony.UnpatchAll(Plugin.HarmonyId);
+            _harmony.UnpatchSelf();
         }
     }
 }

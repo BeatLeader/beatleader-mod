@@ -9,20 +9,15 @@ namespace BeatLeader {
     public class MonkeyHeadManager : IInitializable, IDisposable, ITickable {
         #region Constructor
 
-        private readonly GameObject _monkey;
-
         public MonkeyHeadManager() {
-            _monkey = Object.Instantiate(BundleLoader.MonkeyPrefab, Vector3.up, Quaternion.identity);
-            _monkey.transform.localScale = Vector3.one * 0.1f;
+            Object.Instantiate(BundleLoader.MonkeyPrefab, new Vector3(1.0f, 1.0f, -0.4f), Quaternion.identity);
         }
 
         #endregion
 
         public void Initialize() { }
 
-        public void Tick() {
-            _monkey.transform.Rotate(0, 0, 1);
-        }
+        public void Tick() { }
 
         public void Dispose() { }
     }

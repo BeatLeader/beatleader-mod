@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Models;
 using System;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Net.Http;
 
@@ -12,8 +13,12 @@ namespace BeatLeader.Utils
         private static readonly int _retry = 3;
         private static readonly HttpClient _client = new();
 
+        public static string authToken;
+
         public async static void UploadReplay(Replay replay)
         {
+            if (authToken == null) return; // auth failed, no upload
+
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
@@ -22,7 +27,19 @@ namespace BeatLeader.Utils
                 try
                 {
                     ByteArrayContent content = new(stream.ToArray());
-                    HttpResponseMessage response = await _client.PostAsync(_url, content);
+                    //HttpResponseMessage response = await _client.PostAsync(_url, content);
+
+                    var httpRequestMessage = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Post,
+                        RequestUri = new Uri(_url + "?ticket=" + authToken),
+                        //Headers = {
+                            //{ HttpRequestHeader.Authorization.ToString(), authToken }
+                        //},
+                        Content = content
+                    };
+
+                    HttpResponseMessage response = _client.SendAsync(httpRequestMessage).Result;
 
                     Plugin.Log.Debug(response.ToString());
                     if (response.Content != null) { Plugin.Log.Debug(await response.Content.ReadAsStringAsync()); }

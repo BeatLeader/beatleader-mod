@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BeatLeader.Models;
 
 namespace BeatLeader.Utils
@@ -24,7 +25,7 @@ namespace BeatLeader.Utils
 
             if (localHighScore < replay.info.score) {
                 FileManager.WriteReplay(replay);
-                UploadManager.UploadReplay(replay);
+                Task.Run(() => UploadManager.UploadReplay(replay));
             }
         }
     }

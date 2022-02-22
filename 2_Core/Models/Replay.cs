@@ -464,8 +464,8 @@ namespace BeatLeader.Models
             {
                 WallEvent wall = new WallEvent();
                 wall.wallID = DecodeInt(buffer, ref pointer);
-                wall.time = DecodeFloat(buffer, ref pointer);
                 wall.energy = DecodeFloat(buffer, ref pointer);
+                wall.time = DecodeFloat(buffer, ref pointer);
                 wall.spawnTime = DecodeFloat(buffer, ref pointer);
                 result.Add(wall);
             }

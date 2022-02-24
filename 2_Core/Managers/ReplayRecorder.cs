@@ -33,6 +33,7 @@ namespace BeatLeader {
         private Pause _currentPause;
         private WallEvent _currentWallEvent;
         private DateTime _pauseStartTime;
+        private bool _stopRecording;
 
         public ReplayRecorder() {
             if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) return; // Playing SS replay
@@ -45,6 +46,8 @@ namespace BeatLeader {
             _replay.info.version = metaData.HVersion.ToString();
             _replay.info.gameVersion = Application.version;
             _replay.info.timestamp = Convert.ToString((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
+
+            _stopRecording = false;
         }
 
         #endregion
@@ -109,7 +112,7 @@ namespace BeatLeader {
         //You're most likely updating before player transforms changed (in other words: recorder is one frame behind)
         //Use ILateTickable to be sure
         public void Tick() {
-            if (_timeSyncController == null || _playerTransforms == null || _currentPause != null) return;
+            if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
             
             var frame = new Frame() {
                 time = _timeSyncController.songTime,
@@ -343,6 +346,7 @@ namespace BeatLeader {
         #region Map finish
         private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
+            _stopRecording = true;
             _replay.info.score = _scoreController.prevFrameRawScore;
             MapEnhancer.energy = results.energy; 
             MapEnhancer.Enhance(_replay);
@@ -350,14 +354,20 @@ namespace BeatLeader {
             switch (results.levelEndStateType)
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
+                    Plugin.Log.Info("Level Cleared. Save replay");
                     ScoreUtil.ProcessReplay(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
                     if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
+                    {
                         Plugin.Log.Info("Restart");
+                    }
                     else
+                    {
                         _replay.info.failTime = _timeSyncController.songTime;
+                        Plugin.Log.Info("Level Failed. Save replay");
                         ScoreUtil.ProcessReplay(_replay);
+                    }
                     break;
             }
 

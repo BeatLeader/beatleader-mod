@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using System.Net.Http;
 
 namespace BeatLeader.Utils
@@ -15,27 +16,28 @@ namespace BeatLeader.Utils
 
         public static string authToken;
 
-        public async static void UploadReplay(Replay replay)
+        public async static Task UploadReplay(Replay replay)
         {
-            if (authToken == null) return; // auth failed, no upload
+            if (authToken == null)
+            {
+                Plugin.Log.Debug("No auth token, skip replay upload");
+                return; // auth failed, no upload
+            }
 
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
             for (int i = 0; i < _retry; i++)
             {
+                Plugin.Log.Debug($"Attempt to upload replay {i + 1}/{_retry}");
                 try
                 {
                     ByteArrayContent content = new(stream.ToArray());
-                    //HttpResponseMessage response = await _client.PostAsync(_url, content);
 
                     var httpRequestMessage = new HttpRequestMessage
                     {
                         Method = HttpMethod.Post,
                         RequestUri = new Uri(_url + "?ticket=" + authToken),
-                        //Headers = {
-                            //{ HttpRequestHeader.Authorization.ToString(), authToken }
-                        //},
                         Content = content
                     };
 

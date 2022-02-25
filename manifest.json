@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "BeatLeader",
   "name": "BeatLeader",
@@ -7,7 +7,9 @@
   "description": "",
   "gameVersion": "1.18.3",
   "dependsOn": {
-    "BSIPA": "^4.0.5"
+    "BSIPA": "^4.2.0",
+    "BeatSaberMarkupLanguage": "^1.5.1",
+    "SiraUtil": "^3.0.0"
   },
   "features": []
 }

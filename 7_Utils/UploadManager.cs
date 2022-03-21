@@ -48,6 +48,7 @@ namespace BeatLeader.Utils
 
                     if (response.IsSuccessStatusCode)
                     {
+                        Plugin.Log.Debug("Upload success");
                         // TODO : notify UI to update leaderboard View
                         return; // if OK - stop retry cycle
                     }

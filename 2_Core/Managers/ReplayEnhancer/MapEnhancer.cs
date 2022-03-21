@@ -1,10 +1,5 @@
 ﻿using BeatLeader.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static PlayerSaveData;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer
 {
@@ -54,6 +49,12 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             if (gameplayModifiers.noBombs) { result.Add("NB"); }
             if (gameplayModifiers.noFailOn0Energy && energy == 0) { result.Add("NF"); }
             if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) { result.Add("NO"); }
+            if (gameplayModifiers.strictAngles) { result.Add("SA"); }
+            if (gameplayModifiers.proMode) { result.Add("PM"); }
+            if (gameplayModifiers.smallCubes) { result.Add("SC"); }
+            if (gameplayModifiers.failOnSaberClash) { result.Add("CS"); }
+            if (gameplayModifiers.instaFail) { result.Add("IF"); }
+            if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) { result.Add("BE"); }
 
             return result;
         }

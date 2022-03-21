@@ -36,8 +36,6 @@ namespace BeatLeader {
         private bool _stopRecording;
 
         public ReplayRecorder() {
-            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) return; // Playing SS replay
-
             _playerHeightDetector = Resources.FindObjectsOfTypeAll<PlayerHeightDetector>().Last();
 
             UserEnhancer.Enhance(_replay); 
@@ -113,7 +111,7 @@ namespace BeatLeader {
         //Use ILateTickable to be sure
         public void Tick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
-            
+
             var frame = new Frame() {
                 time = _timeSyncController.songTime,
                 fps = Mathf.RoundToInt(1.0f / Time.deltaTime),

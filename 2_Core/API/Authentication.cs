@@ -7,6 +7,10 @@ namespace BeatLeader.API
 {
     class Authentication : IInitializable
     {
+        private byte[]? m_Ticket;
+        private uint m_pcbTicket;
+        private HAuthTicket m_HAuthTicket;
+
         public void Initialize()
         {
             Login();
@@ -16,37 +20,49 @@ namespace BeatLeader.API
         {
             if (!SteamManager.Initialized)
             {
-                Plugin.Log.Error($"SteamManager is not initialized!");
+                Plugin.Log.Error("SteamManager is not initialized!");
+                return;
             }
-            void OnAuthTicketResponse(GetAuthSessionTicketResponse_t response)
+
+            Plugin.Log.Debug("Start of a steam auth process");
+            m_GetAuthSessionTicketResponse = Callback<GetAuthSessionTicketResponse_t>.Create(OnGetAuthSessionTicketResponse);
+
+            m_Ticket = new byte[1024];
+            m_HAuthTicket = SteamUser.GetAuthSessionTicket(m_Ticket, 1024, out m_pcbTicket);
+        }
+
+        private void DropAuthData()
+        {
+            m_Ticket = null;
+            m_pcbTicket = 0;
+            m_HAuthTicket = HAuthTicket.Invalid;
+        }
+
+        protected Callback<GetAuthSessionTicketResponse_t>? m_GetAuthSessionTicketResponse;
+
+        void OnGetAuthSessionTicketResponse(GetAuthSessionTicketResponse_t response)
+        {
+            if (!m_HAuthTicket.Equals(response.m_hAuthTicket))
             {
-                if (SteamHelper.Instance.lastTicket == response.m_hAuthTicket)
-                {
+                Plugin.Log.Debug("Unknown auth ticket");
+                return;
+            }
 
-                }
-
-                SteamHelper.Instance.lastTicketResult = response.m_eResult;
-                byte[] authTicket = new byte[1024];
-
-                var authTicketResult = SteamUser.GetAuthSessionTicket(authTicket, 1024, out var length);
-                Array.Resize(ref authTicket, (int)length);
-                var authticketStr = BitConverter.ToString(authTicket).Replace("-", "");
-                Plugin.Log.Error("Auth ticket 2: " + authticketStr);
-            };
-
-            var steamId = SteamUser.GetSteamID();
-            string authTicketHexString = "";
-
-            byte[] authTicket = new byte[1024];
-            var authTicketResult = SteamUser.GetAuthSessionTicket(authTicket, 1024, out var length);
-
-            if (authTicketResult != HAuthTicket.Invalid)
+            Array.Resize(ref m_Ticket, (int)m_pcbTicket);
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            foreach (byte b in m_Ticket)
             {
-                Array.Resize(ref authTicket, (int)length);
+                sb.AppendFormat("{0:x2}", b);
+            }
+            var token = sb.ToString();
 
-                var beginAuthSessionResult = SteamUser.BeginAuthSession(authTicket, (int)length, steamId);
-                Plugin.Log.Error("Auth ticket 1" + BitConverter.ToString(authTicket).Replace("-", ""));
-                if (UploadManager.authToken == null) UploadManager.authToken = BitConverter.ToString(authTicket).Replace("-", "");
+            Plugin.Log.Debug("Hex encoded ticket: " + token);
+
+            if (m_HAuthTicket != HAuthTicket.Invalid)
+            {
+                var steamId = SteamUser.GetSteamID();
+
+                EBeginAuthSessionResult beginAuthSessionResult = SteamUser.BeginAuthSession(m_Ticket, (int)m_pcbTicket, steamId);
                 switch (beginAuthSessionResult)
                 {
                     case EBeginAuthSessionResult.k_EBeginAuthSessionResultOK:
@@ -56,29 +72,29 @@ namespace BeatLeader.API
                         SteamUser.EndAuthSession(steamId);
 
 
-                        //        switch (result)
-                        //        {
-                        //            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultDoesNotHaveLicense:
-                        //                yield break;
-                        //            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultHasLicense:
-                        //                if (SteamHelper.Instance.m_GetAuthSessionTicketResponse == null)
-                                          //SteamHelper.Instance.m_GetAuthSessionTicketResponse = Callback<GetAuthSessionTicketResponse_t>.Create(OnAuthTicketResponse);
+                        switch (result)
+                        {
+                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultDoesNotHaveLicense:
+                                Plugin.Log.Debug("License check: User does not have a license to current game");
+                                DropAuthData();
+                                break;
+                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultHasLicense:
 
+                                if (UploadManager.authToken == null)
+                                {
+                                    UploadManager.authToken = token;
+                                }
 
-                        //                SteamHelper.Instance.lastTicket = SteamUser.GetAuthSessionTicket(authTicket, 1024, out length);
-                        //                if (SteamHelper.Instance.lastTicket != HAuthTicket.Invalid)
-                        //                {
-                        //                    Array.Resize(ref authTicket, (int)length);
-                        //                    authTicketHexString = BitConverter.ToString(authTicket).Replace("-", "");
-                        //                }
-
-                        //                break;
-                        //            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultNoAuth:
-                        //                yield break;
-                        //        }
+                                break;
+                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultNoAuth:
+                                Plugin.Log.Debug("License check: Unauthorized");
+                                DropAuthData();
+                                break;
+                        }
                         break;
-                        //    default:
-                        //        yield break;
+                    default:
+                        Plugin.Log.Error("Auth check error: " + beginAuthSessionResult.ToString());
+                        break;
                 }
             }
         }

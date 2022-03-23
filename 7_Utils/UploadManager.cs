@@ -43,11 +43,13 @@ namespace BeatLeader.Utils
 
                     HttpResponseMessage response = _client.SendAsync(httpRequestMessage).Result;
 
-                    Plugin.Log.Debug(response.ToString());
-                    if (response.Content != null) { Plugin.Log.Debug(await response.Content.ReadAsStringAsync()); }
+                    var body = response.Content.ReadAsStringAsync().Result;
+                    Plugin.Log.Debug($"StatusCode: {response.StatusCode}, ReasonPhrase: '{response.ReasonPhrase}'");
+                    if (body != null && !body.StartsWith("{")) { Plugin.Log.Debug($"Response content: {body}"); }
 
                     if (response.IsSuccessStatusCode)
                     {
+                        Plugin.Log.Debug("Upload success");
                         // TODO : notify UI to update leaderboard View
                         return; // if OK - stop retry cycle
                     }

@@ -1,5 +1,4 @@
-﻿using BeatLeader.API;
-using IPA;
+﻿using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
@@ -55,10 +54,10 @@ namespace BeatLeader {
         private static void OnEnabledChanged(bool enabled) {
             if (enabled) {
                 HarmonyHelper.ApplyPatches();
-                ModPanelUIHelper.AddTab();
+                // ModPanelUIHelper.AddTab(); -- Template with "HelloWorld!" button
             } else {
                 HarmonyHelper.RemovePatches();
-                ModPanelUIHelper.RemoveTab();
+                // ModPanelUIHelper.RemoveTab();
             }
         }
 

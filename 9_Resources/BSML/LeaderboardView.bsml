@@ -1,0 +1,5 @@
+<horizontal preffered-height="50">
+    <vertical preferred-width="100" bg="round-rect-panel">
+        <text text="~placeholder-text" font-size="10" align="Center"/>
+    </vertical>
+</horizontal>

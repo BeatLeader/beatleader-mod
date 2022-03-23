@@ -117,7 +117,13 @@
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="BeatmapCore">
-      <HintPath>.$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+    </Reference>
+    <Reference Include="LeaderboardCore">
+      <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
+    </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
     </Reference>
     <Reference Include="BSML">
       <Private>False</Private>
@@ -130,6 +136,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
+    <None Remove="9_Resources\BSML\LeaderboardPanel.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\LeaderboardPanel.bsml" />
+    <None Remove="9_Resources\BSML\LeaderboardView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\LeaderboardView.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="System.Net.Http" />

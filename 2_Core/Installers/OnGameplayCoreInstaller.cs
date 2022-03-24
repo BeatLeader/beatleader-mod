@@ -24,7 +24,7 @@ namespace BeatLeader.Installers
                 Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
                 return;
             }
-            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith("custom_level_")))
+            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
             {
                 Plugin.Log.Debug("OST level detected. No recording.");
                 return;

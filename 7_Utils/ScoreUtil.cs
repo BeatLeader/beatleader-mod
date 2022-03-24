@@ -1,5 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
 using BeatLeader.Models;
 
 namespace BeatLeader.Utils
@@ -13,7 +13,8 @@ namespace BeatLeader.Utils
             bool practice = replay.info.speed != 0;
             bool fail = replay.info.failTime > 0;
 
-            if (practice || fail) {
+            if (practice || fail)
+            {
                 Plugin.Log.Debug("Practice/fail, only local replay would be saved");
 
                 FileManager.WriteReplay(replay); // save the last replay
@@ -33,7 +34,8 @@ namespace BeatLeader.Utils
                 FileManager.WriteReplay(replay);
                 await Task.Run(() => UploadManager.UploadReplay(replay));
             }
-            else {
+            else
+            {
                 Plugin.Log.Debug("No new PB, score would not be uploaded/rewritten");
             }
         }

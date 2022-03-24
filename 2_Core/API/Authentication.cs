@@ -20,7 +20,7 @@ namespace BeatLeader.API
         {
             if (!SteamManager.Initialized)
             {
-                Plugin.Log.Error("SteamManager is not initialized!");
+                Plugin.Log.Debug("SteamManager is not initialized!");
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace BeatLeader.API
                 switch (beginAuthSessionResult)
                 {
                     case EBeginAuthSessionResult.k_EBeginAuthSessionResultOK:
-                        Plugin.Log.Error("Auth OK");
+                        Plugin.Log.Debug("Auth OK");
                         var result = SteamUser.UserHasLicenseForApp(steamId, new AppId_t(620980));
 
                         SteamUser.EndAuthSession(steamId);

@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
+using ModestTree;
 
 namespace BeatLeader {
     internal partial class LeaderboardView {
@@ -11,6 +10,7 @@ namespace BeatLeader {
         private void InitializeScoresSection() {
             _leaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarter;
             _leaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
+            UpdateTableLayout(10, 1_000_000, true);
         }
 
         private void DisposeScoresSection() {
@@ -22,40 +22,38 @@ namespace BeatLeader {
 
         #region Events
 
-        private void OnScoreRequestStarter() {
-            PlaceholderText = "Loading...";
+        private void OnInfoButtonClicked(int index) {
+            //TODO: Open Modal
+            Plugin.Log.Info($"Info button clicked: {index}");
         }
 
-        private void OnScoresFetched(List<Score> scores) {
-            Plugin.Log.Debug("Processing scores for UI");
-            if (scores.Count > 0) {
-                var txt = "";
-                scores.ForEach(score => {
-                    //txt += $"#{score.rank}\t{score.player.name}\t\t{score.pp}pp\t{score.baseScore} ({(int)(score.accuracy*10000) / 100}%)\n";
-                    txt += String.Format("#{0,-3} {1,-20} {2,6:.00}pp {3,-10} ({4:.00}%) \n", score.rank, score.player.name, score.pp, score.baseScore,
-                        score.accuracy * 100);
-                });
-                Plugin.Log.Debug("Updating score panel");
-                Plugin.Log.Debug(txt);
-                PlaceholderText = txt;
-            } else {
-                PlaceholderText = "No scores found";
+        private void OnScoreRequestStarter() {
+            //TODO: Spinner
+            for (var i = 0; i < 10; i++) {
+                ClearScore(i);
             }
         }
 
-        #endregion
+        private void OnScoresFetched(List<Score> scores) {
+            if (scores.IsEmpty()) {
+                for (var i = 0; i < 10; i++) {
+                    ClearScore(i);
+                }
 
-        #region PlaceholderText
+                UpdateTableLayout(0, 0, false);
+            } else {
+                var hasPP = false;
 
-        [UsedImplicitly] private string _placeholderText = "Such scores!";
+                for (var i = 0; i < 10; i++) {
+                    if (i < scores.Count) {
+                        SetScore(i, scores[i]);
+                        if (scores[i].pp > 0) hasPP = true;
+                    } else {
+                        ClearScore(i);
+                    }
+                }
 
-        [UIValue("placeholder-text")]
-        public string PlaceholderText {
-            get { return _placeholderText; }
-            set {
-                if (_placeholderText.Equals(value)) return;
-                _placeholderText = value;
-                NotifyPropertyChanged();
+                UpdateTableLayout(scores.Last().rank, scores.First().baseScore, hasPP);
             }
         }
 

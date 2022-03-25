@@ -2,10 +2,10 @@
 {
     internal class Score
     {
-        public double accuracy;
+        public float accuracy;
         public int baseScore;
         public string modifiers;
-        public double pp;
+        public float pp;
         public int rank;
         public Player player;
     }

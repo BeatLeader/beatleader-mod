@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 namespace BeatLeader.Manager {
     [UsedImplicitly]
     internal class LeaderboardEvents {
+        //-- INPUT ------------------
+
         #region ScoresRequestStarted
 
         // Called before a score request to server started
@@ -50,6 +52,8 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        //-- OUTPUT -----------------
+
         #region IsLeaderboardVisibleChangedEvent
 
         // Called when the leaderboard panel visibility changes
@@ -57,6 +61,66 @@ namespace BeatLeader.Manager {
 
         public void NotifyIsLeaderboardVisibleChanged(bool value) {
             IsLeaderboardVisibleChangedEvent?.Invoke(value);
+        }
+
+        #endregion
+
+        #region UpButtonWasPressed
+
+        public event Action UpButtonWasPressedAction;
+
+        public void NotifyUpButtonWasPressed() {
+            UpButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
+
+        #region GlobalButtonWasPressed
+
+        public event Action GlobalButtonWasPressedAction;
+
+        public void NotifyGlobalButtonWasPressed() {
+            GlobalButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
+
+        #region AroundButtonWasPressed
+
+        public event Action AroundButtonWasPressedAction;
+
+        public void NotifyAroundButtonWasPressed() {
+            AroundButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
+
+        #region FriendsButtonWasPressed
+
+        public event Action FriendsButtonWasPressedAction;
+
+        public void NotifyFriendsButtonWasPressed() {
+            FriendsButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
+
+        #region CountryButtonWasPressed
+
+        public event Action CountryButtonWasPressedAction;
+
+        public void NotifyCountryButtonWasPressed() {
+            CountryButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
+
+        #region DownButtonWasPressed
+
+        public event Action DownButtonWasPressedAction;
+
+        public void NotifyDownButtonWasPressed() {
+            DownButtonWasPressedAction?.Invoke();
         }
 
         #endregion

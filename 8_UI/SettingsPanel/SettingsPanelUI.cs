@@ -3,7 +3,7 @@ using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
 
 namespace BeatLeader {
-    public class SettingsPanelUI : NotifiableSingleton<SettingsPanelUI> {
+    internal partial class SettingsPanelUI : NotifiableSingleton<SettingsPanelUI> {
         #region Enabled Toggle
 
         [UIValue("enabled-value")]

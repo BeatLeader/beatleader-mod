@@ -1,5 +1,5 @@
 namespace BeatLeader {
-    internal static class SettingsPanelUIHelper {
+    internal partial class SettingsPanelUI {
         private const string ResourcePath = Plugin.ResourcesPath + ".BSML.SettingsPanelUI.bsml";
         private const string TabName = Plugin.FancyName;
 
@@ -10,7 +10,7 @@ namespace BeatLeader {
             PersistentSingleton<BeatSaberMarkupLanguage.Settings.BSMLSettings>.instance.AddSettingsMenu(
                 TabName,
                 ResourcePath,
-                PersistentSingleton<SettingsPanelUI>.instance
+                instance
             );
             _tabActive = true;
         }

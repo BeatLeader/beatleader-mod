@@ -1,3 +1,4 @@
+using System;
 using BeatLeader.Installers;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -8,8 +9,12 @@ namespace BeatLeader {
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
         private static void Postfix(MainSettingsMenuViewControllersInstaller __instance) {
-            var container = __instance.GetContainer();
-            OnMenuInstaller.Install(container);
+            try {
+                var container = __instance.GetContainer();
+                OnMenuInstaller.Install(container);
+            } catch (Exception ex) {
+                Plugin.Log.Critical($"---\nMenuInstaller exception: {ex.Message}\n{ex.StackTrace}\n---");
+            }
         }
     }
 }

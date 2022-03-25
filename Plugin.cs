@@ -43,7 +43,7 @@ namespace BeatLeader {
         [UsedImplicitly]
         public void OnApplicationStart() {
             ObserveEnabled();
-            SettingsPanelUIHelper.AddTab();
+            SettingsPanelUI.AddTab();
         }
 
         private static void ObserveEnabled() {
@@ -54,10 +54,10 @@ namespace BeatLeader {
         private static void OnEnabledChanged(bool enabled) {
             if (enabled) {
                 HarmonyHelper.ApplyPatches();
-                // ModPanelUIHelper.AddTab(); -- Template with "HelloWorld!" button
+                // ModPanelUI.AddTab(); -- Template with "HelloWorld!" button
             } else {
                 HarmonyHelper.RemovePatches();
-                // ModPanelUIHelper.RemoveTab();
+                // ModPanelUI.RemoveTab();
             }
         }
 

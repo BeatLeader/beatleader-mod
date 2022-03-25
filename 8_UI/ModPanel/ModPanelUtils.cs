@@ -1,5 +1,5 @@
 namespace BeatLeader {
-    public static class ModPanelUIHelper {
+    internal partial class ModPanelUI {
         private const string ResourcePath = Plugin.ResourcesPath + ".BSML.ModPanelUI.bsml";
         private const string TabName = Plugin.FancyName;
 
@@ -10,7 +10,7 @@ namespace BeatLeader {
             PersistentSingleton<BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup>.instance.AddTab(
                 TabName,
                 ResourcePath,
-                PersistentSingleton<ModPanelUI>.instance
+                instance
             );
             _tabActive = true;
         }

@@ -80,9 +80,9 @@ namespace BeatLeader.API
                                 break;
                             case EUserHasLicenseForAppResult.k_EUserHasLicenseResultHasLicense:
 
-                                if (UploadManager.authToken == null)
+                                if (BLContext.steamAuthToken == null)
                                 {
-                                    UploadManager.authToken = token;
+                                    BLContext.steamAuthToken = token;
                                 }
 
                                 break;

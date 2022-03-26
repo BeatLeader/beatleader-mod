@@ -1,7 +1,6 @@
 ﻿using BeatLeader.Models;
 using System;
 using System.IO;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -10,14 +9,13 @@ namespace BeatLeader.Utils
 {
     class UploadManager
     {
-        private static readonly string _url = "https://beatleader.azurewebsites.net/replay";
+        private static readonly string _url = BLConstants.REPLAY_UPLOAD_URL;
         private static readonly int _retry = 3;
         private static readonly HttpClient _client = new();
 
-        public static string authToken;
-
         public async static Task UploadReplay(Replay replay)
         {
+            string authToken = BLContext.steamAuthToken;
             if (authToken == null)
             {
                 Plugin.Log.Debug("No auth token, skip replay upload");
@@ -41,7 +39,7 @@ namespace BeatLeader.Utils
                         Content = content
                     };
 
-                    HttpResponseMessage response = _client.SendAsync(httpRequestMessage).Result;
+                    HttpResponseMessage response = await _client.SendAsync(httpRequestMessage);
 
                     var body = response.Content.ReadAsStringAsync().Result;
                     Plugin.Log.Debug($"StatusCode: {response.StatusCode}, ReasonPhrase: '{response.ReasonPhrase}'");

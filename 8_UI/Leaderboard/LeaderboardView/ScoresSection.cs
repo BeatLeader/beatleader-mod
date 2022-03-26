@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Models;
 using ModestTree;
+
+using BeatLeader.Models;
 
 namespace BeatLeader {
     internal partial class LeaderboardView {
@@ -34,7 +35,8 @@ namespace BeatLeader {
             }
         }
 
-        private void OnScoresFetched(List<Score> scores) {
+        private void OnScoresFetched(Paged<List<Score>> scoresData) {
+            List<Score> scores = scoresData.data;
             if (scores.IsEmpty()) {
                 for (var i = 0; i < 10; i++) {
                     ClearScore(i);

@@ -39,6 +39,7 @@ namespace BeatLeader.DataManager
             }
 
             _leaderboardEvents.PublishProfile(profile);
+            BLContext.profile = profile;
         }
 
         public void Dispose()
@@ -47,7 +48,7 @@ namespace BeatLeader.DataManager
 
         private async Task<Profile> loadProfile(string userID, CancellationToken token)
         {
-            return await _httpUtils.getData<Profile>(String.Format(BLConstants.PROFILE_BY_ID, userID), token, null);
+            return await _httpUtils.GetData<Profile>(String.Format(BLConstants.PROFILE_BY_ID, userID), token, null);
         }
     }
 }

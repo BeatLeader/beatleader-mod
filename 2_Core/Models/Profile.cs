@@ -15,5 +15,6 @@ namespace BeatLeader.Models
         public string country;
         public int countryRank;
         public float pp;
+        public string role;
     }
 }

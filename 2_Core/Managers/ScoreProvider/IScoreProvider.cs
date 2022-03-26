@@ -8,9 +8,9 @@ namespace BeatLeader.ScoreProvider
 {
     internal interface IScoreProvider
     {
-        public Task<List<Score>> getScores(IDifficultyBeatmap difficultyBeatmap, int page, CancellationToken scoreRequestToken);
+        public Task<Paged<List<Score>>> getScores(IDifficultyBeatmap difficultyBeatmap, int page, CancellationToken scoreRequestToken);
 
-        public PlatformLeaderboardsModel.ScoresScope getScope();
+        public ScoresScope getScope();
 
     }
 }

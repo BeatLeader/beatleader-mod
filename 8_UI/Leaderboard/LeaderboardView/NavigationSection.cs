@@ -25,7 +25,7 @@ namespace BeatLeader {
             //Disable arrows to prevent multiple requests
         }
 
-        private void NavigationOnScoresFetched(List<Score> scores) {
+        private void NavigationOnScoresFetched(Paged<List<Score>> scoresData) {
             //Show arrows if there is more scores
         }
 

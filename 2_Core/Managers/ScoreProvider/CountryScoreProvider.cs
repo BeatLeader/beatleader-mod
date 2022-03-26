@@ -8,18 +8,18 @@ using BeatLeader.Utils;
 
 namespace BeatLeader.ScoreProvider
 {
-    internal class GlobalScoreProvider : IScoreProvider
+    internal class CountryScoreProvider : IScoreProvider
     {
         private readonly HttpUtils _httpUtils;
 
-        public GlobalScoreProvider(HttpUtils httpUtils)
+        public CountryScoreProvider(HttpUtils httpUtils)
         {
             _httpUtils = httpUtils;
         }
 
         public ScoresScope getScope()
         {
-            return ScoresScope.Global;
+            return ScoresScope.Country;
         }
 
         public async Task<Paged<List<Score>>> getScores(IDifficultyBeatmap difficultyBeatmap, int page, CancellationToken scoreRequestToken)
@@ -27,10 +27,12 @@ namespace BeatLeader.ScoreProvider
             string hash = difficultyBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             string diff = difficultyBeatmap.difficulty.ToString();
             string mode = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+
             string userId = BLContext.profile.id;
+            string country = BLContext.profile.country;
 
             return await _httpUtils.GetPagedData<List<Score>>(
-                String.Format(BLConstants.GLOBAL_SCORES_BY_HASH, hash, diff, mode, userId, page, BLConstants.SCORE_PAGE_SIZE),
+                String.Format(BLConstants.COUNTRY_SCORES_BY_HASH, hash, diff, mode, userId, page, BLConstants.SCORE_PAGE_SIZE, country),
                 scoreRequestToken,
                 new());
         }

@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 
 namespace BeatLeader.Utils
 {
     class ScoreUtil
     {
-        public async static void ProcessReplay(Replay replay)
+
+        public static async void ProcessReplay(Replay replay)
         {
             if (replay.info.score <= 0) return; // no lightshow here
 
@@ -32,7 +31,7 @@ namespace BeatLeader.Utils
             {
                 Plugin.Log.Debug("New PB, upload incoming");
                 FileManager.WriteReplay(replay);
-                await Task.Run(() => UploadManager.UploadReplay(replay));
+                await UploadManager.UploadReplay(replay);
             }
             else
             {

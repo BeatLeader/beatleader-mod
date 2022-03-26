@@ -22,9 +22,9 @@ namespace BeatLeader.Manager {
         #region ScoresFetched
 
         // Called after a score data response is processed
-        public event Action<List<Score>> ScoresFetchedEvent;
+        public event Action<Paged<List<Score>>> ScoresFetchedEvent;
 
-        public void PublishScores(List<Score> scores) {
+        public void PublishScores(Paged<List<Score>> scores) {
             ScoresFetchedEvent?.Invoke(scores);
         }
 

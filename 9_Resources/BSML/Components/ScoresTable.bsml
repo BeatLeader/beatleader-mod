@@ -1,0 +1,5 @@
+<vertical preferred-width="90" bg="round-rect-panel">
+    <macro.for-each items='score-rows'>
+        <macro.reparent transform="root"/>
+    </macro.for-each>
+</vertical>

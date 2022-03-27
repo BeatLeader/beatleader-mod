@@ -1,37 +1,42 @@
 using System.Collections.Generic;
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
-namespace BeatLeader {
-    internal partial class LeaderboardView {
-        #region Init/Dispose
+namespace BeatLeader.Components {
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.LeaderboardNavigation.bsml")]
+    internal class LeaderboardNavigation : ReeUiComponent {
+        #region Initialize/Dispose
 
-        private void InitializeNavigationSection() {
-            _leaderboardEvents.ScoresRequestStartedEvent += NavigationOnScoreRequestStarted;
-            _leaderboardEvents.ScoresFetchedEvent += NavigationOnScoresFetched;
+        private LeaderboardEvents _leaderboardEvents;
+
+        public void Initialize(LeaderboardEvents leaderboardEvents) {
+            _leaderboardEvents = leaderboardEvents;
+            _leaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarted;
+            _leaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
         }
 
-        private void DisposeNavigationSection() {
-            _leaderboardEvents.ScoresRequestStartedEvent -= NavigationOnScoreRequestStarted;
-            _leaderboardEvents.ScoresFetchedEvent -= NavigationOnScoresFetched;
+        public void Dispose() {
+            _leaderboardEvents.ScoresRequestStartedEvent -= OnScoreRequestStarted;
+            _leaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
         }
 
         #endregion
 
         #region Events
 
-        private void NavigationOnScoreRequestStarted() {
+        private void OnScoreRequestStarted() {
             //Disable arrows to prevent multiple requests
         }
 
-        private void NavigationOnScoresFetched(Paged<List<Score>> scoresData) {
+        private void OnScoresFetched(Paged<List<Score>> scoresData) {
             //Show arrows if there is more scores
         }
 
         #endregion
 
-        #region Buttons
+        #region Callbacks
 
         [UIAction("nav-up-on-click")]
         [UsedImplicitly]

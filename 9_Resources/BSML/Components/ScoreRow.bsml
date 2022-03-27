@@ -1,0 +1,35 @@
+<horizontal preferred-height="6" spacing="0.2" bg="panel-top-gradient" bg-color="~background-color"
+            pad-left="2" pad-right="2" pad-top="1" pad-bottom="1">
+    <!--  STYLE  -->
+    <macro.define name="font-size" value="3.8"/>
+
+    <!--  RANK  -->
+    <vertical preferred-width="~rank-column-width">
+        <text text="~rank-text" overflow-mode="Overflow" font-size="~font-size" align="Center"/>
+    </vertical>
+
+    <!--  NAME  -->
+    <vertical preferred-width="~name-column-width">
+        <text text="~name-text" overflow-mode="Overflow" font-size="~font-size" align="Left"/>
+    </vertical>
+
+    <!--  ACC  -->
+    <vertical preferred-width="~acc-column-width">
+        <text text="~acc-text" overflow-mode="Overflow" font-size="~font-size" align="Center"/>
+    </vertical>
+
+    <!--  PP  -->
+    <vertical preferred-width="~pp-column-width" active="~pp-is-active">
+        <text text="~pp-text" overflow-mode="Overflow" font-size="~font-size" align="Center"/>
+    </vertical>
+
+    <!--  SCORE  -->
+    <vertical preferred-width="~score-column-width">
+        <text text="~score-text" overflow-mode="Overflow" font-size="~font-size" align="Right"/>
+    </vertical>
+
+    <!--  Info  -->
+    <vertical preferred-width="~info-column-width" pad-left="2">
+        <button preferred-width="~info-column-width" text="?" font-size="~font-size" on-click="info-on-click" active="~info-is-active"/>
+    </vertical>
+</horizontal>

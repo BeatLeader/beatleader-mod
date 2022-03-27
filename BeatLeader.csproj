@@ -107,6 +107,10 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.XRModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="VRUI">
+      <HintPath>$(BeatSaberDir)\Beat Saber\Beat Saber_Data\Managed\VRUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Zenject">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
@@ -139,10 +143,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-    <None Remove="9_Resources\BSML\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\LeaderboardPanel.bsml" />
-    <None Remove="9_Resources\BSML\LeaderboardView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\LeaderboardView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\PlayerInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreRow.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoresTable.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\LeaderboardNavigation.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\ModPanelUI.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\SettingsPanelUI.bsml" />
+    <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="System.Net.Http" />
@@ -158,13 +167,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="9_Resources\BSML\ModPanelUI.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\SettingsPanelUI.bsml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />

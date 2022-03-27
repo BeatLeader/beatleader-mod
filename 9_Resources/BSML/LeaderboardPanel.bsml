@@ -1,5 +1,7 @@
-<horizontal min-height="16" preferred-height="16">
-    <vertical min-width="100" preferred-width="100" bg="round-rect-panel">
-        <text text="~placeholder-text" font-size="5" align="Center"/>
-    </vertical>
-</horizontal>
+<vertical min-width="100" preferred-width="100">
+    <horizontal min-height="16" preferred-height="16" bg="round-rect-panel">
+        <macro.as-host host="player-info">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
+    </horizontal>
+</vertical>

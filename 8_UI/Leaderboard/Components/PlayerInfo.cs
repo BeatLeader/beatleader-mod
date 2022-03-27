@@ -1,18 +1,22 @@
-using System;
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
-namespace BeatLeader {
-    internal partial class LeaderboardPanel {
-        #region Init/Dispose
+namespace BeatLeader.Components {
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.PlayerInfo.bsml")]
+    internal class PlayerInfo : ReeUiComponent {
+        #region Initialize/Dispose
 
-        private void InitializeProfileSection() {
+        private LeaderboardEvents _leaderboardEvents;
+
+        public void Initialize(LeaderboardEvents leaderboardEvents) {
+            _leaderboardEvents = leaderboardEvents;
             _leaderboardEvents.UserProfileStartedEvent += OnProfileRequestStarted;
             _leaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
         }
 
-        private void DisposeProfileSection() {
+        public void Dispose() {
             _leaderboardEvents.UserProfileStartedEvent -= OnProfileRequestStarted;
             _leaderboardEvents.UserProfileFetchedEvent -= OnProfileFetched;
         }
@@ -29,7 +33,7 @@ namespace BeatLeader {
             if (p == null) {
                 PlaceholderText = "Internet error or profile does not exist.";
             } else {
-                string txt = String.Format("#{0} ({1} #{2}) {3}\n{4:.00}pp", p.rank, p.country, p.countryRank, p.name, p.pp);
+                var txt = $"#{p.rank} ({p.country} #{p.countryRank}) {p.name}\n{p.pp:.00}pp";
                 PlaceholderText = txt;
             }
         }
@@ -38,7 +42,8 @@ namespace BeatLeader {
 
         #region PlaceholderText
 
-        [UsedImplicitly] private string _placeholderText = "WOW, Such panel!";
+        [UsedImplicitly]
+        private string _placeholderText = "WOW, Such panel!";
 
         [UIValue("placeholder-text")]
         public string PlaceholderText {

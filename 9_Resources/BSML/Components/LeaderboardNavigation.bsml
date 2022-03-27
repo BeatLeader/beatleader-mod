@@ -1,0 +1,29 @@
+<horizontal preferred-height="30">
+    <macro.define name="nav-section-width" value="8"/>
+    <macro.define name="font-size" value="2"/>
+
+    <vertical preferred-width="~nav-section-width" bg="round-rect-panel">
+        <!--  SCROLL UP BUTTON  -->
+        <button preferred-width="~nav-section-width" text="up" font-size="~font-size" on-click="nav-up-on-click"/>
+
+        <!--  GLOBAL LEADERBOARD BUTTON  -->
+        <button preferred-width="~nav-section-width" text="global" font-size="~font-size"
+                on-click="nav-global-on-click"/>
+
+        <!--  AROUND LEADERBOARD BUTTON  -->
+        <button preferred-width="~nav-section-width" text="around" font-size="~font-size"
+                on-click="nav-around-on-click"/>
+
+        <!--  FRIENDS LEADERBOARD BUTTON  -->
+        <button preferred-width="~nav-section-width" text="friends" font-size="~font-size"
+                on-click="nav-friends-on-click"/>
+
+        <!--  COUNTRY LEADERBOARD BUTTON  -->
+        <button preferred-width="~nav-section-width" text="country" font-size="~font-size"
+                on-click="nav-country-on-click"/>
+
+        <!--  SCROLL DOWN BUTTON  -->
+        <button preferred-width="~nav-section-width" text="down" font-size="~font-size"
+                on-click="nav-down-on-click"/>
+    </vertical>
+</horizontal>

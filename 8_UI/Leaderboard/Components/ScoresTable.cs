@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoresTable.bsml")]
-    internal class ScoresTable : ReeUiComponent {
+    internal class ScoresTable : ReeUIComponent {
         #region Constructor
 
         private const int RowsCount = 10;
@@ -25,17 +25,14 @@ namespace BeatLeader.Components {
 
         #region Initialize/Dispose
 
-        private LeaderboardEvents _leaderboardEvents;
-
-        public void Initialize(LeaderboardEvents leaderboardEvents) {
-            _leaderboardEvents = leaderboardEvents;
-            _leaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarted;
-            _leaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
+        protected override void OnInitialize() {
+            LeaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarted;
+            LeaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
         }
 
-        public void Dispose() {
-            _leaderboardEvents.ScoresRequestStartedEvent -= OnScoreRequestStarted;
-            _leaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
+        protected override void OnDispose() {
+            LeaderboardEvents.ScoresRequestStartedEvent -= OnScoreRequestStarted;
+            LeaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
         }
 
         #endregion

@@ -6,20 +6,17 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.LeaderboardNavigation.bsml")]
-    internal class LeaderboardNavigation : ReeUiComponent {
+    internal class LeaderboardNavigation : ReeUIComponent {
         #region Initialize/Dispose
 
-        private LeaderboardEvents _leaderboardEvents;
-
-        public void Initialize(LeaderboardEvents leaderboardEvents) {
-            _leaderboardEvents = leaderboardEvents;
-            _leaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarted;
-            _leaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
+        protected override void OnInitialize() {
+            LeaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarted;
+            LeaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
         }
 
-        public void Dispose() {
-            _leaderboardEvents.ScoresRequestStartedEvent -= OnScoreRequestStarted;
-            _leaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
+        protected override void OnDispose() {
+            LeaderboardEvents.ScoresRequestStartedEvent -= OnScoreRequestStarted;
+            LeaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
         }
 
         #endregion
@@ -38,40 +35,34 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        [UIAction("nav-up-on-click")]
-        [UsedImplicitly]
+        [UIAction("nav-up-on-click"), UsedImplicitly]
         private void NavUpOnClick() {
-            _leaderboardEvents.NotifyUpButtonWasPressed();
+            LeaderboardEvents.NotifyUpButtonWasPressed();
         }
 
-        [UIAction("nav-global-on-click")]
-        [UsedImplicitly]
+        [UIAction("nav-global-on-click"), UsedImplicitly]
         private void NavGlobalOnClick() {
-            _leaderboardEvents.NotifyGlobalButtonWasPressed();
+            LeaderboardEvents.NotifyGlobalButtonWasPressed();
         }
 
-        [UIAction("nav-around-on-click")]
-        [UsedImplicitly]
+        [UIAction("nav-around-on-click"), UsedImplicitly]
         private void NavAroundOnClick() {
-            _leaderboardEvents.NotifyAroundButtonWasPressed();
+            LeaderboardEvents.NotifyAroundButtonWasPressed();
         }
 
-        [UIAction("nav-friends-on-click")]
-        [UsedImplicitly]
+        [UIAction("nav-friends-on-click"), UsedImplicitly]
         private void NavFriendsOnClick() {
-            _leaderboardEvents.NotifyFriendsButtonWasPressed();
+            LeaderboardEvents.NotifyFriendsButtonWasPressed();
         }
 
-        [UIAction("nav-country-on-click")]
-        [UsedImplicitly]
+        [UIAction("nav-country-on-click"), UsedImplicitly]
         private void NavCountryOnClick() {
-            _leaderboardEvents.NotifyCountryButtonWasPressed();
+            LeaderboardEvents.NotifyCountryButtonWasPressed();
         }
 
-        [UIAction("nav-down-on-click")]
-        [UsedImplicitly]
+        [UIAction("nav-down-on-click"), UsedImplicitly]
         private void NavDownOnClick() {
-            _leaderboardEvents.NotifyDownButtonWasPressed();
+            LeaderboardEvents.NotifyDownButtonWasPressed();
         }
 
         #endregion

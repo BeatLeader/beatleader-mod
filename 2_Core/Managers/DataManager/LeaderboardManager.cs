@@ -13,7 +13,6 @@ namespace BeatLeader.DataManager
     internal class LeaderboardManager : INotifyLeaderboardSet, IInitializable, IDisposable
     {
         private readonly List<IScoreProvider> _scoreProviders;
-        private readonly LeaderboardEvents _leaderboardEvents;
 
         private IScoreProvider? _selectedScoreProvider;
         private int _lastSelectedPage = 1;
@@ -21,35 +20,34 @@ namespace BeatLeader.DataManager
 
         private CancellationTokenSource? scoreRequestToken;
 
-        public LeaderboardManager(List<IScoreProvider> scoreProviders, LeaderboardEvents leaderboardEvents)
+        public LeaderboardManager(List<IScoreProvider> scoreProviders)
         {
             _scoreProviders = scoreProviders;
             _selectedScoreProvider = _scoreProviders.Find(provider => provider.getScope() == ScoresScope.Global);
-            _leaderboardEvents = leaderboardEvents;
         }
 
         #region Initialize/Dispose section
 
         public void Initialize()
         {
-            _leaderboardEvents.GlobalButtonWasPressedAction += SelectGlobalScoreProvider;
-            _leaderboardEvents.CountryButtonWasPressedAction += SelectCountryScoreProvider;
-            _leaderboardEvents.AroundButtonWasPressedAction += SelectAroundMeScoreProvider;
-            //_leaderboardEvents.RefreshButtonWasPressedAction += LoadScores;
+            LeaderboardEvents.GlobalButtonWasPressedAction += SelectGlobalScoreProvider;
+            LeaderboardEvents.CountryButtonWasPressedAction += SelectCountryScoreProvider;
+            LeaderboardEvents.AroundButtonWasPressedAction += SelectAroundMeScoreProvider;
+            //LeaderboardEvents.RefreshButtonWasPressedAction += LoadScores;
 
-            _leaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
-            _leaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
+            LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
+            LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
         }
 
         public void Dispose()
         {
-            _leaderboardEvents.GlobalButtonWasPressedAction -= SelectGlobalScoreProvider;
-            _leaderboardEvents.CountryButtonWasPressedAction -= SelectCountryScoreProvider;
-            _leaderboardEvents.AroundButtonWasPressedAction -= SelectAroundMeScoreProvider;
+            LeaderboardEvents.GlobalButtonWasPressedAction -= SelectGlobalScoreProvider;
+            LeaderboardEvents.CountryButtonWasPressedAction -= SelectCountryScoreProvider;
+            LeaderboardEvents.AroundButtonWasPressedAction -= SelectAroundMeScoreProvider;
             //_leaderboardEvents.RefreshButtonWasPressedAction -= LoadScores;
 
-            _leaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
-            _leaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
+            LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
+            LeaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
         }
 
         #endregion
@@ -68,11 +66,11 @@ namespace BeatLeader.DataManager
             scoreRequestToken?.Cancel();
             scoreRequestToken = new CancellationTokenSource();
 
-            _leaderboardEvents.ScoreRequestStarted();
+            LeaderboardEvents.ScoreRequestStarted();
 
             Paged<List<Score>> scores = await _selectedScoreProvider.getScores(_lastSelectedBeatmap, _lastSelectedPage, scoreRequestToken.Token);
 
-            _leaderboardEvents.PublishScores(scores);
+            LeaderboardEvents.PublishScores(scores);
         }
 
         #region Select score scope

@@ -5,15 +5,15 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.Manager {
     [UsedImplicitly]
-    internal class LeaderboardEvents {
+    internal static class LeaderboardEvents {
         //-- INPUT ------------------
 
         #region ScoresRequestStarted
 
         // Called before a score request to server started
-        public event Action ScoresRequestStartedEvent;
+        public static event Action ScoresRequestStartedEvent;
 
-        public void ScoreRequestStarted() {
+        public static void ScoreRequestStarted() {
             ScoresRequestStartedEvent?.Invoke();
         }
 
@@ -22,9 +22,9 @@ namespace BeatLeader.Manager {
         #region ScoresFetched
 
         // Called after a score data response is processed
-        public event Action<Paged<List<Score>>> ScoresFetchedEvent;
+        public static event Action<Paged<List<Score>>> ScoresFetchedEvent;
 
-        public void PublishScores(Paged<List<Score>> scores) {
+        public static void PublishScores(Paged<List<Score>> scores) {
             ScoresFetchedEvent?.Invoke(scores);
         }
 
@@ -33,9 +33,9 @@ namespace BeatLeader.Manager {
         #region ProfileRequestStarted
 
         // Called before a profile request to server started
-        public event Action UserProfileStartedEvent;
+        public static event Action UserProfileStartedEvent;
 
-        public void ProfileRequestStarted() {
+        public static void ProfileRequestStarted() {
             UserProfileStartedEvent?.Invoke();
         }
 
@@ -44,9 +44,9 @@ namespace BeatLeader.Manager {
         #region PublishProfile
 
         // Called after a profile data response is processed
-        public event Action<Profile> UserProfileFetchedEvent;
+        public static event Action<Profile> UserProfileFetchedEvent;
 
-        public void PublishProfile(Profile profile) {
+        public static void PublishProfile(Profile profile) {
             UserProfileFetchedEvent?.Invoke(profile);
         }
 
@@ -57,9 +57,9 @@ namespace BeatLeader.Manager {
         #region IsLeaderboardVisibleChangedEvent
 
         // Called when the leaderboard panel visibility changes
-        public event Action<bool> IsLeaderboardVisibleChangedEvent;
+        public static event Action<bool> IsLeaderboardVisibleChangedEvent;
 
-        public void NotifyIsLeaderboardVisibleChanged(bool value) {
+        public static void NotifyIsLeaderboardVisibleChanged(bool value) {
             IsLeaderboardVisibleChangedEvent?.Invoke(value);
         }
 
@@ -67,9 +67,9 @@ namespace BeatLeader.Manager {
 
         #region UpButtonWasPressed
 
-        public event Action UpButtonWasPressedAction;
+        public static event Action UpButtonWasPressedAction;
 
-        public void NotifyUpButtonWasPressed() {
+        public static void NotifyUpButtonWasPressed() {
             UpButtonWasPressedAction?.Invoke();
         }
 
@@ -77,9 +77,9 @@ namespace BeatLeader.Manager {
 
         #region GlobalButtonWasPressed
 
-        public event Action GlobalButtonWasPressedAction;
+        public static event Action GlobalButtonWasPressedAction;
 
-        public void NotifyGlobalButtonWasPressed() {
+        public static void NotifyGlobalButtonWasPressed() {
             GlobalButtonWasPressedAction?.Invoke();
         }
 
@@ -87,9 +87,9 @@ namespace BeatLeader.Manager {
 
         #region AroundButtonWasPressed
 
-        public event Action AroundButtonWasPressedAction;
+        public static event Action AroundButtonWasPressedAction;
 
-        public void NotifyAroundButtonWasPressed() {
+        public static void NotifyAroundButtonWasPressed() {
             AroundButtonWasPressedAction?.Invoke();
         }
 
@@ -97,9 +97,9 @@ namespace BeatLeader.Manager {
 
         #region FriendsButtonWasPressed
 
-        public event Action FriendsButtonWasPressedAction;
+        public static event Action FriendsButtonWasPressedAction;
 
-        public void NotifyFriendsButtonWasPressed() {
+        public static void NotifyFriendsButtonWasPressed() {
             FriendsButtonWasPressedAction?.Invoke();
         }
 
@@ -107,9 +107,9 @@ namespace BeatLeader.Manager {
 
         #region CountryButtonWasPressed
 
-        public event Action CountryButtonWasPressedAction;
+        public static event Action CountryButtonWasPressedAction;
 
-        public void NotifyCountryButtonWasPressed() {
+        public static void NotifyCountryButtonWasPressed() {
             CountryButtonWasPressedAction?.Invoke();
         }
 
@@ -117,9 +117,9 @@ namespace BeatLeader.Manager {
 
         #region DownButtonWasPressed
 
-        public event Action DownButtonWasPressedAction;
+        public static event Action DownButtonWasPressedAction;
 
-        public void NotifyDownButtonWasPressed() {
+        public static void NotifyDownButtonWasPressed() {
             DownButtonWasPressedAction?.Invoke();
         }
 

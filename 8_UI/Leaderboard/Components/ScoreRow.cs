@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreRow.bsml")]
-    internal class ScoreRow : ReeUiComponent {
+    internal class ScoreRow : ReeUIComponent {
         #region SetScore
 
         public void SetScore(Score score, bool highlight) {

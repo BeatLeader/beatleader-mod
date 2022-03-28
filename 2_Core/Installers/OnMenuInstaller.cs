@@ -25,7 +25,6 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<GlobalScoreProvider>().AsSingle();
             Container.BindInterfacesAndSelfTo<CountryScoreProvider>().AsSingle();
             Container.BindInterfacesAndSelfTo<AroundMeScoreProvider>().AsSingle();
-            Container.BindInterfacesAndSelfTo<LeaderboardEvents>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<HttpUtils>().AsSingle();
             Container.BindInterfacesAndSelfTo<ProfileManager>().AsSingle();

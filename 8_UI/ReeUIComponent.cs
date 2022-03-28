@@ -6,23 +6,38 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader {
-    internal abstract class ReeUiComponent : MonoBehaviour, INotifyPropertyChanged {
+    internal abstract class ReeUIComponent : MonoBehaviour, INotifyPropertyChanged {
         #region Static
 
-        public static T Instantiate<T>(Action<T> postInitAction) where T : ReeUiComponent {
+        public static T Instantiate<T>(Action<T> postInitAction) where T : ReeUIComponent {
             var result = Instantiate<T>();
             postInitAction.Invoke(result);
             return result;
         }
 
-        public static T Instantiate<T>() where T : ReeUiComponent {
-            var go = new GameObject(nameof(T));
-            var component = go.AddComponent<T>();
+        public static T Instantiate<T>() where T : ReeUIComponent {
+            var component = CreateRootGameObject(nameof(T)).AddComponent<T>();
             component.Initialize();
             return component;
         }
+
+        private static GameObject CreateRootGameObject(string name) {
+            var gameObject = new GameObject(name);
+            gameObject.AddComponent<VerticalLayoutGroup>();
+            gameObject.AddComponent<LayoutElement>();
+            return gameObject;
+        }
+
+        #endregion
+
+        #region Events
+
+        protected virtual void OnInitialize() { }
+
+        protected virtual void OnDispose() { }
 
         #endregion
 
@@ -38,24 +53,24 @@ namespace BeatLeader {
             var customAttribute = type.GetCustomAttribute<ViewDefinitionAttribute>();
             var content = customAttribute == null ? FallbackContent : Utilities.GetResourceContent(type.Assembly, customAttribute.Definition);
             PersistentSingleton<BSMLParser>.instance.Parse(content, gameObject, this);
-            AdjustHierarchy();
             _initialized = true;
+            OnInitialize();
         }
 
-        private void AdjustHierarchy() {
-            _root = transform.GetChild(0);
-            _root.SetParent(null, true);
-            transform.SetParent(_root, false);
+        #endregion
+
+        #region OnDestroy
+
+        private void OnDestroy() {
+            OnDispose();
         }
 
         #endregion
 
         #region Root
 
-        private Transform _root;
-
         [UIValue("root"), UsedImplicitly]
-        protected virtual Transform Root => _root;
+        protected virtual Transform Root => transform;
 
         #endregion
 

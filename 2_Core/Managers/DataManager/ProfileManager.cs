@@ -13,13 +13,11 @@ namespace BeatLeader.DataManager
     internal class ProfileManager : IInitializable, IDisposable
     {
         private readonly HttpUtils _httpUtils;
-        private readonly LeaderboardEvents _leaderboardEvents;
 
         private CancellationTokenSource? _profileRequestToken;
 
-        public ProfileManager(LeaderboardEvents leaderboardEvents, HttpUtils httpUtils)
+        public ProfileManager(HttpUtils httpUtils)
         {
-            _leaderboardEvents = leaderboardEvents;
             _httpUtils = httpUtils;
         }
 
@@ -28,7 +26,7 @@ namespace BeatLeader.DataManager
             _profileRequestToken?.Cancel();
             _profileRequestToken = new CancellationTokenSource();
 
-            _leaderboardEvents.ProfileRequestStarted();
+            LeaderboardEvents.ProfileRequestStarted();
 
             string userID = SteamUser.GetSteamID().m_SteamID.ToString();
             Profile profile = await loadProfile(userID, _profileRequestToken.Token);
@@ -38,7 +36,7 @@ namespace BeatLeader.DataManager
                 return;
             }
 
-            _leaderboardEvents.PublishProfile(profile);
+            LeaderboardEvents.PublishProfile(profile);
             BLContext.profile = profile;
         }
 

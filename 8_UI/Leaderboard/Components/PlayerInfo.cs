@@ -5,20 +5,17 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.PlayerInfo.bsml")]
-    internal class PlayerInfo : ReeUiComponent {
+    internal class PlayerInfo : ReeUIComponent {
         #region Initialize/Dispose
 
-        private LeaderboardEvents _leaderboardEvents;
-
-        public void Initialize(LeaderboardEvents leaderboardEvents) {
-            _leaderboardEvents = leaderboardEvents;
-            _leaderboardEvents.UserProfileStartedEvent += OnProfileRequestStarted;
-            _leaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
+        protected override void OnInitialize() {
+            LeaderboardEvents.UserProfileStartedEvent += OnProfileRequestStarted;
+            LeaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
         }
 
-        public void Dispose() {
-            _leaderboardEvents.UserProfileStartedEvent -= OnProfileRequestStarted;
-            _leaderboardEvents.UserProfileFetchedEvent -= OnProfileFetched;
+        protected override void OnDispose() {
+            LeaderboardEvents.UserProfileStartedEvent -= OnProfileRequestStarted;
+            LeaderboardEvents.UserProfileFetchedEvent -= OnProfileFetched;
         }
 
         #endregion
@@ -42,10 +39,9 @@ namespace BeatLeader.Components {
 
         #region PlaceholderText
 
-        [UsedImplicitly]
         private string _placeholderText = "WOW, Such panel!";
 
-        [UIValue("placeholder-text")]
+        [UIValue("placeholder-text"), UsedImplicitly]
         public string PlaceholderText {
             get => _placeholderText;
             set {

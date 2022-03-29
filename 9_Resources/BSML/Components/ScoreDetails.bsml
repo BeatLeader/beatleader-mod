@@ -1,0 +1,5 @@
+<horizontal pref-height="30">
+    <vertical pref-width="40">
+        <text text="~placeholder-text" font-size="5" align="Center"/>
+    </vertical>
+</horizontal>

@@ -123,6 +123,17 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
+        //-- INTERNAL -----------------
+
+        #region ScoreInfoButtonWasPressed
+
+        public static event Action<Score> ScoreInfoButtonWasPressed;
+
+        public static void NotifyScoreInfoButtonWasPressed(Score score) {
+            ScoreInfoButtonWasPressed?.Invoke(score);
+        }
+
+        #endregion
 
         public static event Action ProfileRefreshEvent;
 

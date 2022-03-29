@@ -1,4 +1,5 @@
 using System.Globalization;
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -23,7 +24,10 @@ namespace BeatLeader.Components {
 
         #region SetScore
 
+        private Score _score;
+
         public void SetScore(Score score, bool highlight) {
+            _score = score;
             RankText = FormatRank(score.rank);
             NameText = FormatName(score.player.name);
             AccText = FormatAcc(score.accuracy);
@@ -34,6 +38,7 @@ namespace BeatLeader.Components {
         }
 
         public void ClearScore() {
+            _score = null;
             FadeOut();
         }
 
@@ -369,7 +374,8 @@ namespace BeatLeader.Components {
 
         [UIAction("info-on-click"), UsedImplicitly]
         private void InfoOnClick() {
-            Plugin.Log.Info("Info click");
+            if (_score == null) return;
+            LeaderboardEvents.NotifyScoreInfoButtonWasPressed(_score);
         }
 
         private bool _infoIsActive;

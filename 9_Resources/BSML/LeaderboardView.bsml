@@ -1,5 +1,12 @@
 <vertical min-width="100" preferred-width="100" anchor-pos-x="3" anchor-pos-y="5" pad-right="5">
     <horizontal min-height="60" preferred-height="60" spacing="2">
+        <!--  SCORE MODAl  -->
+        <modal id='scores-modal' clickerino-offerino-closerino='true' size-delta-x='65' size-delta-y='35'>
+            <macro.as-host host="score-details">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+        </modal>
+
         <!--  NAVIGATION  -->
         <vertical pad-top="10" pad-bottom="10">
             <macro.as-host host="pagination">

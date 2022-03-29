@@ -1,5 +1,5 @@
 <horizontal min-height="16" preferred-height="16" spacing="4" pad-left="5" pad-right="5">
-    <vertical min-width="16" preferred-width="16" bg="round-rect-panel">
+    <vertical min-width="16" preferred-width="16">
         <macro.as-host host="logo">
             <macro.reparent transform="root"/>
         </macro.as-host>

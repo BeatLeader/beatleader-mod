@@ -1,13 +1,20 @@
+using System;
 using BeatLeader.Components;
 using BeatLeader.Manager;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
+using HMUI;
 using JetBrains.Annotations;
+using Zenject;
 
 namespace BeatLeader.ViewControllers {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.LeaderboardView.bsml")]
-    internal class LeaderboardView : BSMLAutomaticViewController {
+    internal class LeaderboardView : BSMLAutomaticViewController, IInitializable, IDisposable {
         #region Components
+
+        [UIValue("score-details"), UsedImplicitly]
+        private ScoreDetails _scoreDetails = ReeUIComponent.Instantiate<ScoreDetails>();
 
         [UIValue("scores-table"), UsedImplicitly]
         private ScoresTable _scoresTable = ReeUIComponent.Instantiate<ScoresTable>();
@@ -20,6 +27,27 @@ namespace BeatLeader.ViewControllers {
 
         #endregion
 
+        #region Initialize/Dispose
+
+        public void Initialize() {
+            LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
+        }
+
+        public void Dispose() {
+            LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
+        }
+
+        #endregion
+
+        #region Events
+
+        private void OnScoreInfoButtonWasPressed(Score score) {
+            _scoreDetails.SetScore(score);
+            ShowScoreModal();
+        }
+
+        #endregion
+
         #region OnEnable & OnDisable
 
         protected void OnEnable() {
@@ -28,6 +56,24 @@ namespace BeatLeader.ViewControllers {
 
         protected void OnDisable() {
             LeaderboardEvents.NotifyIsLeaderboardVisibleChanged(false);
+            HideScoreModal();
+        }
+
+        #endregion
+
+        #region ScoresModal
+
+        [UIComponent("scores-modal"), UsedImplicitly]
+        private ModalView _scoresModal;
+
+        private void ShowScoreModal() {
+            if (_scoresModal == null) return;
+            _scoresModal.Show(true, true);
+        }
+
+        private void HideScoreModal() {
+            if (_scoresModal == null) return;
+            _scoresModal.Hide(true);
         }
 
         #endregion

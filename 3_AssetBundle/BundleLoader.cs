@@ -29,6 +29,7 @@ namespace BeatLeader {
         #region Assets
 
         public static GameObject MonkeyPrefab;
+        public static Material LogoMaterial;
 
         #endregion
 
@@ -36,6 +37,7 @@ namespace BeatLeader {
 
         private static void LoadAssets(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
+            LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
         }
 
         #endregion

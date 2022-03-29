@@ -1,5 +1,4 @@
 using BeatLeader.DataManager;
-using BeatLeader.Manager;
 using BeatLeader.ScoreProvider;
 using BeatLeader.Utils;
 using BeatLeader.ViewControllers;

@@ -140,6 +140,7 @@
   <ItemGroup>
     <EmbeddedResource Include="9_Resources\BSML\Components\Logo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScopeSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreDetails.bsml" />
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="9_Resources\BSML\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\LeaderboardView.bsml" />

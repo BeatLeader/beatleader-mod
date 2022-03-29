@@ -3,6 +3,8 @@ using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Logo.bsml")]
@@ -14,6 +16,7 @@ namespace BeatLeader.Components {
             LeaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
             LeaderboardEvents.ScoresRequestStartedEvent += OnScoresRequestStarted;
             LeaderboardEvents.ScoresFetchedEvent += OnScoresRequestFinished;
+            SetMaterial();
         }
 
         protected override void OnDispose() {
@@ -49,7 +52,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Spinner
+        #region UpdateState
 
         private bool _loadingProfile;
         private bool _loadingScores;
@@ -57,6 +60,20 @@ namespace BeatLeader.Components {
         private void UpdateState() {
             var loading = _loadingProfile || _loadingScores;
             PlaceholderText = loading ? "Icon" : "Spinner";
+        }
+
+        #endregion
+
+        #region Image & Material
+
+        [UIComponent("logo-image"), UsedImplicitly]
+        private Image _logoImage;
+
+        private Material _materialInstance;
+
+        private void SetMaterial() {
+            _materialInstance = Object.Instantiate(BundleLoader.LogoMaterial);
+            _logoImage.material = _materialInstance;
         }
 
         #endregion

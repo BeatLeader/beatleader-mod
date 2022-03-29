@@ -2,29 +2,39 @@ using System.Globalization;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreRow.bsml")]
     internal class ScoreRow : ReeUIComponent {
+        #region Hierarchy
+
+        public void SetActive(bool value) {
+            IsActive = value;
+        }
+
+        public void SetHierarchyIndex(int value) {
+            transform.SetSiblingIndex(value);
+        }
+
+        #endregion
+
         #region SetScore
 
         public void SetScore(Score score, bool highlight) {
-            RankText = $"{score.rank}";
+            RankText = FormatRank(score.rank);
             NameText = FormatName(score.player.name);
             AccText = FormatAcc(score.accuracy);
             PpText = FormatPP(score.pp);
             ScoreText = FormatScore(score.baseScore);
             InfoIsActive = true;
-            BackgroundColor = highlight ? HighlightColor : FadedColor;
+            FadeIn(highlight);
         }
 
         public void ClearScore() {
-            RankText = "";
-            NameText = "";
-            AccText = "";
-            PpText = "";
-            ScoreText = "";
-            InfoIsActive = false;
+            FadeOut();
         }
 
         #endregion
@@ -84,32 +94,115 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Background
+        #region Animation
 
-        private const string HighlightColor = "#FFAC3899";
-        private const string FadedColor = "#00000000";
+        private const float FadeFromOffset = -3.0f;
+        private const float FadeToOffset = 5.0f;
+        private const float FadeSpeed = 12.0f;
+        private float _currentAlpha;
+        private float _targetAlpha;
+        private float _currentOffset;
+        private float _targetOffset;
+        private Color _backgroundColor;
 
-        private string _backgroundColor = "";
+        private void FadeIn(bool highlight) {
+            _backgroundColor = highlight ? _highlightColor : _fadedColor;
+            _targetAlpha = 1.0f;
+            _currentOffset = FadeFromOffset;
+            _targetOffset = 0.0f;
+        }
 
-        [UIValue("background-color")]
-        [UsedImplicitly]
-        private string BackgroundColor {
-            get => _backgroundColor;
+        private void FadeOut() {
+            _targetAlpha = 0.0f;
+            _targetOffset = FadeToOffset;
+        }
+
+        private void LateUpdate() {
+            var t = Time.deltaTime * FadeSpeed;
+            LerpOffset(t);
+            LerpAlpha(t);
+        }
+
+        private void LerpOffset(float t) {
+            if (_currentOffset.Equals(_targetOffset)) return;
+            _currentOffset = Mathf.Lerp(_currentOffset, _targetOffset, t);
+            HorizontalOffset = _currentOffset;
+        }
+
+        private void LerpAlpha(float t) {
+            if (_currentAlpha.Equals(_targetAlpha)) return;
+            _currentAlpha = Mathf.Lerp(_currentAlpha, _targetAlpha, t);
+            ApplyAlpha();
+        }
+
+        private void ApplyAlpha() {
+            _rankTmp.alpha = _currentAlpha;
+            _nameTmp.alpha = _currentAlpha;
+            _accTmp.alpha = _currentAlpha;
+            _ppTmp.alpha = _currentAlpha;
+            _scoreTmp.alpha = _currentAlpha;
+            _infoTmp.alpha = _currentAlpha;
+
+            _backgroundImage.color = new Color(
+                _backgroundColor.r,
+                _backgroundColor.g,
+                _backgroundColor.b,
+                _backgroundColor.a * _currentAlpha
+            );
+        }
+
+        #endregion
+
+        #region OffsetNode
+
+        private float _horizontalOffset;
+
+        [UIValue("horizontal-offset"), UsedImplicitly]
+        private float HorizontalOffset {
+            get => _horizontalOffset;
             set {
-                if (_backgroundColor.Equals(value)) return;
-                _backgroundColor = value;
+                if (_horizontalOffset.Equals(value)) return;
+                _horizontalOffset = value;
                 NotifyPropertyChanged();
             }
         }
 
         #endregion
 
+        #region IsActive
+
+        private bool _isActive = true;
+
+        [UIValue("is-active"), UsedImplicitly]
+        private bool IsActive {
+            get => _isActive;
+            set {
+                if (_isActive.Equals(value)) return;
+                _isActive = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region Background
+
+        private readonly Color _highlightColor = new Color(0f, 0.95f, 1f, 0.4f);
+        private readonly Color _fadedColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+
+        [UIComponent("bg-image"), UsedImplicitly]
+        private Image _backgroundImage;
+
+        #endregion
+
         #region Rank
+
+        [UIComponent("rank-tmp"), UsedImplicitly]
+        private TextMeshProUGUI _rankTmp;
 
         private string _rankText = "";
 
-        [UIValue("rank-text")]
-        [UsedImplicitly]
+        [UIValue("rank-text"), UsedImplicitly]
         public string RankText {
             get => _rankText;
             set {
@@ -121,8 +214,7 @@ namespace BeatLeader.Components {
 
         private float _rankColumnWidth;
 
-        [UIValue("rank-column-width")]
-        [UsedImplicitly]
+        [UIValue("rank-column-width"), UsedImplicitly]
         private float RankColumnWidth {
             get => _rankColumnWidth;
             set {
@@ -136,10 +228,12 @@ namespace BeatLeader.Components {
 
         #region Name
 
+        [UIComponent("name-tmp"), UsedImplicitly]
+        private TextMeshProUGUI _nameTmp;
+
         private string _nameText = "";
 
-        [UIValue("name-text")]
-        [UsedImplicitly]
+        [UIValue("name-text"), UsedImplicitly]
         private string NameText {
             get => _nameText;
             set {
@@ -151,8 +245,7 @@ namespace BeatLeader.Components {
 
         private float _nameColumnWidth;
 
-        [UIValue("name-column-width")]
-        [UsedImplicitly]
+        [UIValue("name-column-width"), UsedImplicitly]
         private float NameColumnWidth {
             get => _nameColumnWidth;
             set {
@@ -166,10 +259,12 @@ namespace BeatLeader.Components {
 
         #region Acc
 
+        [UIComponent("acc-tmp"), UsedImplicitly]
+        private TextMeshProUGUI _accTmp;
+
         private string _accText = "";
 
-        [UIValue("acc-text")]
-        [UsedImplicitly]
+        [UIValue("acc-text"), UsedImplicitly]
         private string AccText {
             get => _accText;
             set {
@@ -181,8 +276,7 @@ namespace BeatLeader.Components {
 
         private float _accColumnWidth;
 
-        [UIValue("acc-column-width")]
-        [UsedImplicitly]
+        [UIValue("acc-column-width"), UsedImplicitly]
         private float AccColumnWidth {
             get => _accColumnWidth;
             set {
@@ -196,10 +290,12 @@ namespace BeatLeader.Components {
 
         #region Pp
 
+        [UIComponent("pp-tmp"), UsedImplicitly]
+        private TextMeshProUGUI _ppTmp;
+
         private bool _ppIsActive;
 
-        [UIValue("pp-is-active")]
-        [UsedImplicitly]
+        [UIValue("pp-is-active"), UsedImplicitly]
         private bool PpIsActive {
             get => _ppIsActive;
             set {
@@ -211,8 +307,7 @@ namespace BeatLeader.Components {
 
         private string _ppText = "";
 
-        [UIValue("pp-text")]
-        [UsedImplicitly]
+        [UIValue("pp-text"), UsedImplicitly]
         private string PpText {
             get => _ppText;
             set {
@@ -224,8 +319,7 @@ namespace BeatLeader.Components {
 
         private float _ppColumnWidth;
 
-        [UIValue("pp-column-width")]
-        [UsedImplicitly]
+        [UIValue("pp-column-width"), UsedImplicitly]
         private float PpColumnWidth {
             get => _ppColumnWidth;
             set {
@@ -239,10 +333,12 @@ namespace BeatLeader.Components {
 
         #region Score
 
+        [UIComponent("score-tmp"), UsedImplicitly]
+        private TextMeshProUGUI _scoreTmp;
+
         private string _scoreText = "";
 
-        [UIValue("score-text")]
-        [UsedImplicitly]
+        [UIValue("score-text"), UsedImplicitly]
         private string ScoreText {
             get => _scoreText;
             set {
@@ -254,8 +350,7 @@ namespace BeatLeader.Components {
 
         private float _scoreColumnWidth;
 
-        [UIValue("score-column-width")]
-        [UsedImplicitly]
+        [UIValue("score-column-width"), UsedImplicitly]
         private float ScoreColumnWidth {
             get => _scoreColumnWidth;
             set {
@@ -269,16 +364,17 @@ namespace BeatLeader.Components {
 
         #region Info
 
-        [UIAction("info-on-click")]
-        [UsedImplicitly]
+        [UIComponent("info-tmp"), UsedImplicitly]
+        private TextMeshProUGUI _infoTmp;
+
+        [UIAction("info-on-click"), UsedImplicitly]
         private void InfoOnClick() {
             Plugin.Log.Info("Info click");
         }
 
         private bool _infoIsActive;
 
-        [UIValue("info-is-active")]
-        [UsedImplicitly]
+        [UIValue("info-is-active"), UsedImplicitly]
         private bool InfoIsActive {
             get => _infoIsActive;
             set {
@@ -290,8 +386,7 @@ namespace BeatLeader.Components {
 
         private float _infoColumnWidth;
 
-        [UIValue("info-column-width")]
-        [UsedImplicitly]
+        [UIValue("info-column-width"), UsedImplicitly]
         private float InfoColumnWidth {
             get => _infoColumnWidth;
             set {

@@ -1,0 +1,18 @@
+<horizontal preferred-height="14">
+    <macro.define name="nav-section-width" value="8"/>
+    <macro.define name="font-size" value="3"/>
+
+    <vertical preferred-width="~nav-section-width">
+        <!--  GLOBAL BUTTON  -->
+        <button preferred-width="~nav-section-width" text="global" font-size="~font-size" 
+                id="global-component" on-click="global-on-click"/>
+
+        <!--  FRIENDS BUTTON  -->
+        <button preferred-width="~nav-section-width" text="friends" font-size="~font-size" 
+                id="friends-component" on-click="friends-on-click"/>
+
+        <!--  COUNTRY BUTTON  -->
+        <button preferred-width="~nav-section-width" text="country" font-size="~font-size"
+                id="country-component" on-click="country-on-click"/>
+    </vertical>
+</horizontal>

@@ -1,9 +1,15 @@
-<vertical min-width="100" preferred-width="100" anchor-pos-x="3" anchor-pos-y="5">
+<vertical min-width="100" preferred-width="100" anchor-pos-x="3" anchor-pos-y="5" pad-right="5">
     <horizontal min-height="60" preferred-height="60" spacing="2">
         <!--  NAVIGATION  -->
-        <macro.as-host host="leaderboard-navigation">
-            <macro.reparent transform="root"/>
-        </macro.as-host>
+        <vertical pad-top="10" pad-bottom="10">
+            <macro.as-host host="pagination">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+
+            <macro.as-host host="scope-selector">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+        </vertical>
 
         <!--  SCORES TABLE  -->
         <macro.as-host host="scores-table">

@@ -12,8 +12,11 @@ namespace BeatLeader.ViewControllers {
         [UIValue("scores-table"), UsedImplicitly]
         private ScoresTable _scoresTable = ReeUIComponent.Instantiate<ScoresTable>();
 
-        [UIValue("leaderboard-navigation"), UsedImplicitly]
-        private LeaderboardNavigation _navigation = ReeUIComponent.Instantiate<LeaderboardNavigation>();
+        [UIValue("pagination"), UsedImplicitly]
+        private Pagination _pagination = ReeUIComponent.Instantiate<Pagination>();
+
+        [UIValue("scope-selector"), UsedImplicitly]
+        private ScopeSelector _scopeSelector = ReeUIComponent.Instantiate<ScopeSelector>();
 
         #endregion
 

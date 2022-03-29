@@ -1,0 +1,18 @@
+<horizontal preferred-height="14">
+    <macro.define name="nav-section-width" value="8"/>
+    <macro.define name="font-size" value="3"/>
+
+    <vertical preferred-width="~nav-section-width">
+        <!--  SCROLL UP BUTTON  -->
+        <button preferred-width="~nav-section-width" text="up" font-size="~font-size" 
+                on-click="up-on-click"/>
+
+        <!--  AROUND BUTTON  -->
+        <button preferred-width="~nav-section-width" text="around" font-size="~font-size"
+                on-click="around-on-click"/>
+
+        <!--  SCROLL DOWN BUTTON  -->
+        <button preferred-width="~nav-section-width" text="down" font-size="~font-size"
+                on-click="down-on-click"/>
+    </vertical>
+</horizontal>

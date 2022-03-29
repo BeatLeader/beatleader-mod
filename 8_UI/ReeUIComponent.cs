@@ -19,7 +19,7 @@ namespace BeatLeader {
         }
 
         public static T Instantiate<T>() where T : ReeUIComponent {
-            var component = CreateRootGameObject(nameof(T)).AddComponent<T>();
+            var component = CreateRootGameObject(typeof(T).Name).AddComponent<T>();
             component.Initialize();
             return component;
         }

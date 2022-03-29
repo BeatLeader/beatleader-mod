@@ -5,8 +5,8 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.LeaderboardNavigation.bsml")]
-    internal class LeaderboardNavigation : ReeUIComponent {
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Pagination.bsml")]
+    internal class Pagination : ReeUIComponent {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
@@ -35,32 +35,17 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        [UIAction("nav-up-on-click"), UsedImplicitly]
+        [UIAction("up-on-click"), UsedImplicitly]
         private void NavUpOnClick() {
             LeaderboardEvents.NotifyUpButtonWasPressed();
         }
 
-        [UIAction("nav-global-on-click"), UsedImplicitly]
-        private void NavGlobalOnClick() {
-            LeaderboardEvents.NotifyGlobalButtonWasPressed();
-        }
-
-        [UIAction("nav-around-on-click"), UsedImplicitly]
+        [UIAction("around-on-click"), UsedImplicitly]
         private void NavAroundOnClick() {
             LeaderboardEvents.NotifyAroundButtonWasPressed();
         }
-
-        [UIAction("nav-friends-on-click"), UsedImplicitly]
-        private void NavFriendsOnClick() {
-            LeaderboardEvents.NotifyFriendsButtonWasPressed();
-        }
-
-        [UIAction("nav-country-on-click"), UsedImplicitly]
-        private void NavCountryOnClick() {
-            LeaderboardEvents.NotifyCountryButtonWasPressed();
-        }
-
-        [UIAction("nav-down-on-click"), UsedImplicitly]
+        
+        [UIAction("down-on-click"), UsedImplicitly]
         private void NavDownOnClick() {
             LeaderboardEvents.NotifyDownButtonWasPressed();
         }

@@ -1,5 +1,5 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -9,6 +9,18 @@ using UnityEngine;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoresTable.bsml")]
     internal class ScoresTable : ReeUIComponent {
+        #region Components
+
+        [UIValue("extra-row"), UsedImplicitly]
+        private readonly ScoreRow _extraRow = Instantiate<ScoreRow>();
+
+        [UIValue("score-rows"), UsedImplicitly]
+        private readonly List<object> _scoreRowsObj = new();
+
+        private readonly List<ScoreRow> _scoreRows = new();
+
+        #endregion
+
         #region Constructor
 
         private const int RowsCount = 10;
@@ -40,99 +52,37 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnScoreRequestStarted() {
-            //TODO: Spinner
-            for (var i = 0; i < 10; i++) {
-                ClearScore(i);
-            }
+            StartCoroutine(ClearScoresCoroutine());
         }
 
         private void OnScoresFetched(Paged<List<Score>> scoresData) {
-            var scores = scoresData.data;
-
-            var maximalRank = 0;
-            var maximalScore = 0;
-            var hasPP = false;
-
-            for (var i = 0; i < _scoreRows.Count; i++) {
-                if (i < scores.Count) {
-                    var score = scores[i];
-                    if (score.pp > 0) hasPP = true;
-                    if (score.rank > maximalRank) maximalRank = score.rank;
-                    if (score.baseScore > maximalScore) maximalScore = score.baseScore;
-                    SetScore(i, score);
-                } else {
-                    ClearScore(i);
-                }
-            }
-
-            UpdateTableLayout(scores.Last().rank, scores.First().baseScore, hasPP);
+            StartCoroutine(SetScoresCoroutine(scoresData.data));
         }
 
         #endregion
 
-        #region Rows
+        #region Animations
 
-        [UIValue("score-rows"), UsedImplicitly]
-        private readonly List<object> _scoreRowsObj = new();
+        private const float DelayPerRow = 0.016f;
 
-        private readonly List<ScoreRow> _scoreRows = new();
-
-        #endregion
-
-        #region SetScores
-
-        private void ClearScores() {
+        private IEnumerator ClearScoresCoroutine() {
             foreach (var row in _scoreRows) {
                 row.ClearScore();
+                yield return new WaitForSeconds(DelayPerRow);
             }
-
-            UpdateTableLayout(0, 0, false);
         }
 
-        private void SetScores(IReadOnlyList<Score> scores, [CanBeNull] Score playerScore) {
+        private IEnumerator SetScoresCoroutine(IReadOnlyList<Score> scores) {
             var maximalRank = 0;
             var maximalScore = 0;
             var hasPP = false;
 
-            for (var i = 0; i < RowsCount; i++) {
-                if (i < scores.Count) {
-                    var score = scores[i];
-                    SetScore(i, score);
-                    if (score.pp > 0) hasPP = true;
-                    if (score.baseScore > maximalScore) maximalScore = score.baseScore;
-                    if (score.rank > maximalRank) maximalRank = score.rank;
-                } else ClearScore(i);
+            foreach (var score in scores) {
+                if (score.pp > 0) hasPP = true;
+                if (score.baseScore > maximalScore) maximalScore = score.baseScore;
+                if (score.rank > maximalRank) maximalRank = score.rank;
             }
 
-            UpdateTableLayout(maximalRank, maximalScore, hasPP);
-        }
-
-        private void SetScore(int rowIndex, Score score) {
-            _scoreRows[rowIndex].SetScore(score, rowIndex == 4);
-        }
-
-        private void ClearScore(int rowIndex) {
-            _scoreRows[rowIndex].ClearScore();
-        }
-
-        #endregion
-
-        #region RecalculateTableLayout //TODO: Make automatic 
-
-        private const float TotalWidth = 85.0f;
-        private const float Spacing = 1.0f;
-        private const float Pad = 2.0f;
-        private const int ColumnsCount = 6;
-
-        private const float RankMinWidth = 3.0f;
-        private const float AccMinWidth = 11.0f;
-        private const float PPMinWidth = 11.0f;
-        private const float ScoreMinWidth = 10.0f;
-        private const float InfoMinWidth = 7.0f;
-
-        private const float ApproxCharacterWidth = 1.5f;
-
-        private void UpdateTableLayout(int maximalRank, int maximalScore, bool hasPP) {
             CalculateColumns(maximalRank, maximalScore, hasPP,
                 out var rankColumnWidth,
                 out var nameColumnWidth,
@@ -141,6 +91,14 @@ namespace BeatLeader.Components {
                 out var scoreColumnWidth,
                 out var infoColumnWidth
             );
+
+            for (var i = 0; i < RowsCount; i++) {
+                if (i < scores.Count) {
+                    _scoreRows[i].SetScore(scores[i], i == 4);
+                } else _scoreRows[i].ClearScore();
+
+                yield return new WaitForSeconds(DelayPerRow);
+            }
 
             foreach (var row in _scoreRows) {
                 row.UpdateLayout(
@@ -154,6 +112,23 @@ namespace BeatLeader.Components {
                 );
             }
         }
+
+        #endregion
+
+        #region RecalculateTableLayout //TODO: Make automatic 
+
+        private const float TotalWidth = 85.0f;
+        private const float Spacing = 1.0f;
+        private const float Pad = 2.0f;
+        private const int ColumnsCount = 6;
+
+        private const float RankMinWidth = 3.0f;
+        private const float AccMinWidth = 9.0f;
+        private const float PPMinWidth = 9.0f;
+        private const float ScoreMinWidth = 3.0f;
+        private const float InfoMinWidth = 7.0f;
+
+        private const float ApproxCharacterWidth = 1.2f;
 
         private static void CalculateColumns(int maximalRank, int maximalScore, bool hasPP,
             out float rankColumnWidth,

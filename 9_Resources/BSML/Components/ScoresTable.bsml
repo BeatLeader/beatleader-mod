@@ -1,4 +1,12 @@
-<vertical preferred-width="90" bg="round-rect-panel">
+<vertical preferred-width="85">
+    <!--    <macro.as-host host="extra-row">-->
+    <!--        <macro.reparent transform="root"/>-->
+    <!--    </macro.as-host>-->
+
+    <!--    <macro.as-host host="extra-row-separator">-->
+    <!--        <macro.reparent transform="root"/>-->
+    <!--    </macro.as-host>-->
+
     <macro.for-each items='score-rows'>
         <macro.reparent transform="root"/>
     </macro.for-each>

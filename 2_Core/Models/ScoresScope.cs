@@ -1,9 +1,7 @@
 ﻿namespace BeatLeader.Models
 {
-    internal enum ScoresScope
-    {
+    internal enum ScoresScope {
         Global,
-        Around_me,
         Friends,
         Country
     }

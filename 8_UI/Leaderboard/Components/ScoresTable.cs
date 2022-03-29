@@ -55,7 +55,7 @@ namespace BeatLeader.Components {
             StartCoroutine(ClearScoresCoroutine());
         }
 
-        private void OnScoresFetched(Paged<List<Score>> scoresData) {
+        private void OnScoresFetched(Paged<Score> scoresData) {
             StartCoroutine(SetScoresCoroutine(scoresData.data));
         }
 

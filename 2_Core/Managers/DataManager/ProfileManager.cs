@@ -21,32 +21,30 @@ namespace BeatLeader.DataManager
             _httpUtils = httpUtils;
         }
 
-        public async void Initialize()
-        {
+        public void Initialize() {
+            LeaderboardEvents.ProfileRefreshEvent += UpdateProfile;
+            UpdateProfile();
+        }
+
+        public void Dispose() {
+            LeaderboardEvents.ProfileRefreshEvent -= UpdateProfile;
+        }
+
+        private async void UpdateProfile() {
             _profileRequestToken?.Cancel();
             _profileRequestToken = new CancellationTokenSource();
 
             LeaderboardEvents.ProfileRequestStarted();
 
             string userID = SteamUser.GetSteamID().m_SteamID.ToString();
-            Profile profile = await loadProfile(userID, _profileRequestToken.Token);
-            if (profile == null)
-            {
+            Profile profile = await _httpUtils.GetData<Profile>(String.Format(BLConstants.PROFILE_BY_ID, userID), _profileRequestToken.Token, null);
+            if (profile == null) {
                 Plugin.Log.Debug($"No profile for id {userID} was found. Abort");
                 return;
             }
 
             LeaderboardEvents.PublishProfile(profile);
             BLContext.profile = profile;
-        }
-
-        public void Dispose()
-        {
-        }
-
-        private async Task<Profile> loadProfile(string userID, CancellationToken token)
-        {
-            return await _httpUtils.GetData<Profile>(String.Format(BLConstants.PROFILE_BY_ID, userID), token, null);
         }
     }
 }

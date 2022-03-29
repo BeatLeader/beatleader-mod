@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using BeatLeader.Models;
 using JetBrains.Annotations;
 
@@ -22,9 +21,9 @@ namespace BeatLeader.Manager {
         #region ScoresFetched
 
         // Called after a score data response is processed
-        public static event Action<Paged<List<Score>>> ScoresFetchedEvent;
+        public static event Action<Paged<Score>> ScoresFetchedEvent;
 
-        public static void PublishScores(Paged<List<Score>> scores) {
+        public static void PublishScores(Paged<Score> scores) {
             ScoresFetchedEvent?.Invoke(scores);
         }
 
@@ -124,5 +123,17 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
+
+        public static event Action ProfileRefreshEvent;
+
+        internal static void RequestProfileRefresh() {
+            ProfileRefreshEvent?.Invoke();
+        }
+
+        public static event Action LeaderboardRefreshEvent;
+
+        internal static void RequestLeaderboardRefresh() {
+            LeaderboardRefreshEvent?.Invoke();
+        }
     }
 }

@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BeatLeader.Utils
-{
-    internal static class BLConstants
-    {
+namespace BeatLeader.Utils {
+    internal static class BLConstants {
 
         #region Basic links
 
@@ -19,14 +17,11 @@ namespace BeatLeader.Utils
 
         #region Leaderboard requests
 
-        public static readonly string GLOBAL_SCORES_BY_HASH = // /v2/scores/{hash}/{diff}/{mode}?player={playerId}&page={page}&count={count}
-            BEATLEADER_API_URL + "/v2/scores/{0}/{1}/{2}?player={3}&page={4}&count={5}";
+        public static readonly string SCORES_BY_HASH_PAGED = // /v2/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}
+            BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/standard/{3}/page?{4}";
 
-        public static readonly string COUNTRY_SCORES_BY_HASH = // /v2/scores/{hash}/{diff}/{mode}?player={playerId}&page={page}&count={count}&country={country}
-            BEATLEADER_API_URL + "/v2/scores/{0}/{1}/{2}?player={3}&page={4}&count={5}&country={6}";
-
-        public static readonly string AROUNG_ME_SCORES_BY_HASH = // /v2/scores/{hash}/{diff}/{mode}?player={playerId}&page={page}&count={count}&aroundPlayer={aroundPlayer}
-            BEATLEADER_API_URL + "/v2/scores/{0}/{1}/{2}?player={3}&page={4}&count={5}&aroundPlayer={6}";
+        public static readonly string SCORES_BY_HASH_SEEK = // /v2/scores/{hash}/{diff}/{mode}/{context}/{scope}/around?player={playerId}&count={count}
+            BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/standard/{3}/around?{4}";
 
         public static readonly int SCORE_PAGE_SIZE = 10;
 
@@ -34,5 +29,11 @@ namespace BeatLeader.Utils
 
         public static readonly string PROFILE_BY_ID = // /player/{user_id}
             BEATLEADER_API_URL + "/player/{0}";
+
+        internal class Param {
+            public static readonly string PLAYER = "player";
+            public static readonly string PAGE = "page";
+            public static readonly string COUNT = "count";
+        }
     }
 }

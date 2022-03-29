@@ -32,7 +32,7 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        private void OnScoresRequestFinished(Paged<List<Score>> paged) {
+        private void OnScoresRequestFinished(Paged<Score> paged) {
             _loadingScores = true;
             UpdateState();
         }

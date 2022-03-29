@@ -1,7 +1,11 @@
-﻿namespace BeatLeader.Models {
+﻿using System.Collections.Generic;
+
+namespace BeatLeader.Models {
+
     internal class Paged<T> {
         public Metadata metadata;
-        public T data;
+        public List<T> data;
+        public T? selection;
     }
 
     internal class Metadata {

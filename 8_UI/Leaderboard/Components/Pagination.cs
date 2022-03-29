@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -27,7 +26,7 @@ namespace BeatLeader.Components {
             //Disable arrows to prevent multiple requests
         }
 
-        private void OnScoresFetched(Paged<List<Score>> scoresData) {
+        private void OnScoresFetched(Paged<Score> scoresData) {
             //Show arrows if there is more scores
         }
 

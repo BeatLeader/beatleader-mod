@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
+using BeatLeader.Manager;
 
 namespace BeatLeader.Utils
 {
@@ -48,7 +49,10 @@ namespace BeatLeader.Utils
                     if (response.IsSuccessStatusCode)
                     {
                         Plugin.Log.Debug("Upload success");
-                        // TODO : notify UI to update leaderboard View
+
+                        LeaderboardEvents.RequestProfileRefresh();
+                        LeaderboardEvents.RequestLeaderboardRefresh();
+
                         return; // if OK - stop retry cycle
                     }
                 }

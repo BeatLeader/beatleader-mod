@@ -1,0 +1,11 @@
+<horizontal active="~is-active" pref-height="7">
+    <vertical pref-width="85" min-width="85" spacing="1">
+        <macro.as-host host="score-row">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
+
+        <horizontal pref-height="1" min-height="1" pad-right="60">
+            <image id="divider-icon" src="#RowSeparatorIcon" preserve-aspect="true"/>
+        </horizontal>
+    </vertical>
+</horizontal>

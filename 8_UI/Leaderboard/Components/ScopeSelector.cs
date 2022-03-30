@@ -2,18 +2,20 @@ using System;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScopeSelector.bsml")]
     internal class ScopeSelector : ReeUIComponent {
-        #region Initialize/Dispose
+        #region Start
 
-        protected override void OnInitialize() { }
-
-        protected override void OnDispose() { }
+        private void Start() {
+            SelectScope(ScoresScope.Global);
+            SetMaterials();
+        }
 
         #endregion
 
@@ -21,30 +23,26 @@ namespace BeatLeader.Components {
 
         private ScoresScope _currentScope;
 
-        private void Start() {
-            SelectScope(ScoresScope.Global);
-        }
-
         private void SelectScope(ScoresScope newScope) {
             _currentScope = newScope;
 
             switch (newScope) {
                 case ScoresScope.Global:
-                    _globalText.faceColor = SelectedColor;
-                    _friendsText.faceColor = FadedColor;
-                    _countryText.faceColor = FadedColor;
+                    SetColor(_globalComponent, true);
+                    SetColor(_friendsComponent, false);
+                    SetColor(_countryComponent, false);
                     LeaderboardEvents.NotifyGlobalButtonWasPressed();
                     break;
                 case ScoresScope.Friends:
-                    _globalText.faceColor = FadedColor;
-                    _friendsText.faceColor = SelectedColor;
-                    _countryText.faceColor = FadedColor;
+                    SetColor(_globalComponent, false);
+                    SetColor(_friendsComponent, true);
+                    SetColor(_countryComponent, false);
                     LeaderboardEvents.NotifyFriendsButtonWasPressed();
                     break;
                 case ScoresScope.Country:
-                    _globalText.faceColor = FadedColor;
-                    _friendsText.faceColor = FadedColor;
-                    _countryText.faceColor = SelectedColor;
+                    SetColor(_globalComponent, false);
+                    SetColor(_friendsComponent, false);
+                    SetColor(_countryComponent, true);
                     LeaderboardEvents.NotifyCountryButtonWasPressed();
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(newScope), newScope, null);
@@ -55,17 +53,29 @@ namespace BeatLeader.Components {
 
         #region Colors
 
-        private static readonly Color SelectedColor = Color.white;
-        private static readonly Color FadedColor = Color.gray;
+        private static readonly Color SelectedColor = new Color(0f, 1.0f, 1f, 0.6f);
+        private static readonly Color FadedColor = new Color(0.8f, 0.8f, 0.8f, 0.2f);
+        private static readonly Color FadedHoverColor = new Color(0.5f, 0.5f, 0.5f, 0.2f);
 
         [UIComponent("global-component"), UsedImplicitly]
-        private TextMeshProUGUI _globalText;
+        private ClickableImage _globalComponent;
 
         [UIComponent("friends-component"), UsedImplicitly]
-        private TextMeshProUGUI _friendsText;
+        private ClickableImage _friendsComponent;
 
         [UIComponent("country-component"), UsedImplicitly]
-        private TextMeshProUGUI _countryText;
+        private ClickableImage _countryComponent;
+
+        private void SetMaterials() {
+            _globalComponent.material = BundleLoader.UIAdditiveGlowMaterial;
+            _friendsComponent.material = BundleLoader.UIAdditiveGlowMaterial;
+            _countryComponent.material = BundleLoader.UIAdditiveGlowMaterial;
+        }
+
+        private static void SetColor(ClickableImage image, bool selected) {
+            image.DefaultColor = selected ? SelectedColor : FadedColor;
+            image.HighlightColor = selected ? SelectedColor : FadedHoverColor;
+        }
 
         #endregion
 

@@ -1,18 +1,17 @@
-<horizontal preferred-height="14">
-    <macro.define name="nav-section-width" value="8"/>
-    <macro.define name="font-size" value="3"/>
+<horizontal pref-height="16">
+    <vertical pref-width="8" spacing="1" pad="1" bg="round-rect-panel" bg-color="#000000AA">
+        <macro.define name="icon-height" value="4"/>
 
-    <vertical preferred-width="~nav-section-width">
         <!--  SCROLL UP BUTTON  -->
-        <button preferred-width="~nav-section-width" text="up" font-size="~font-size" 
-                on-click="up-on-click"/>
+        <clickable-image src="#TriangleDownIcon" id="up-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="up-on-click"/>
 
         <!--  AROUND BUTTON  -->
-        <button preferred-width="~nav-section-width" text="around" font-size="~font-size"
-                on-click="around-on-click"/>
+        <clickable-image src="#PlayerIcon" id="around-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="around-on-click"/>
 
         <!--  SCROLL DOWN BUTTON  -->
-        <button preferred-width="~nav-section-width" text="down" font-size="~font-size"
-                on-click="down-on-click"/>
+        <clickable-image src="#TriangleDownIcon" id="down-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="down-on-click"/>
     </vertical>
 </horizontal>

@@ -6,7 +6,6 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeatLeader {
     internal abstract class ReeUIComponent : MonoBehaviour, INotifyPropertyChanged {
@@ -19,16 +18,9 @@ namespace BeatLeader {
         }
 
         public static T Instantiate<T>() where T : ReeUIComponent {
-            var component = CreateRootGameObject(typeof(T).Name).AddComponent<T>();
+            var component = new GameObject(typeof(T).Name).AddComponent<T>();
             component.Initialize();
             return component;
-        }
-
-        private static GameObject CreateRootGameObject(string name) {
-            var gameObject = new GameObject(name);
-            gameObject.AddComponent<VerticalLayoutGroup>();
-            gameObject.AddComponent<LayoutElement>();
-            return gameObject;
         }
 
         #endregion
@@ -49,12 +41,23 @@ namespace BeatLeader {
 
         private void Initialize() {
             if (_initialized) return;
+            Parse();
+            AdjustHierarchy();
+            _initialized = true;
+            OnInitialize();
+        }
+
+        private void Parse() {
             var type = GetType();
             var customAttribute = type.GetCustomAttribute<ViewDefinitionAttribute>();
             var content = customAttribute == null ? FallbackContent : Utilities.GetResourceContent(type.Assembly, customAttribute.Definition);
             PersistentSingleton<BSMLParser>.instance.Parse(content, gameObject, this);
-            _initialized = true;
-            OnInitialize();
+        }
+
+        private void AdjustHierarchy() {
+            _root = transform.GetChild(0);
+            _root.SetParent(null);
+            transform.SetParent(_root);
         }
 
         #endregion
@@ -69,8 +72,10 @@ namespace BeatLeader {
 
         #region Root
 
+        private Transform _root;
+
         [UIValue("root"), UsedImplicitly]
-        protected virtual Transform Root => transform;
+        protected virtual Transform Root => _root;
 
         #endregion
 

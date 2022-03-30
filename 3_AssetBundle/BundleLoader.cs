@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -30,6 +31,16 @@ namespace BeatLeader {
 
         public static GameObject MonkeyPrefab;
         public static Material LogoMaterial;
+        public static Material UIAdditiveGlowMaterial;
+        
+        [UsedImplicitly]
+        public static Sprite LocationIcon;
+        
+        [UsedImplicitly]
+        public static Sprite RowSeparatorIcon;
+        
+        [UsedImplicitly]
+        public static Sprite ScoreDetailsIcon;
 
         #endregion
 
@@ -38,6 +49,10 @@ namespace BeatLeader {
         private static void LoadAssets(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
+            UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
+            LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
+            RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
+            ScoreDetailsIcon = assetBundle.LoadAsset<Sprite>("ScoreDetailsIcon");
         }
 
         #endregion

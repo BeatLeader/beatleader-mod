@@ -1,51 +1,42 @@
-<vertical active="~is-active" preferred-width="85" min-width="85">
-    <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" preferred-height="5" min-height="5"
-                spacing="0.2" pad-left="2" pad-right="2" pad-top="1" pad-bottom="1"
-                id="bg-image" bg="panel-top-gradient">
-        <!--  STYLE  -->
-        <macro.define name="font-size" value="3.4"/>
+<horizontal pref-height="5" min-height="5">
+    <vertical pref-width="85" min-width="85">
+        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="0.2" pad="1"
+                    pref-height="5" min-height="5" id="bg-image" bg="round-rect-panel">
+            <!--  STYLE  -->
+            <macro.define name="font-size" value="3.4"/>
 
-        <!--  RANK  -->
-        <vertical preferred-width="~rank-column-width">
-            <horizontal>
+            <!--  RANK  -->
+            <vertical pref-width="~rank-column-width">
                 <text id="rank-tmp" text="~rank-text" word-wrapping="false" font-size="~font-size" align="Center"/>
-            </horizontal>
-        </vertical>
+            </vertical>
 
-        <!--  NAME  -->
-        <vertical preferred-width="~name-column-width">
-            <horizontal>
-                <text id="name-tmp" text="~name-text" overflow-mode="Ellipsis" word-wrapping="false" font-size="~font-size" align="Left"/>
-            </horizontal>
-        </vertical>
+            <!--  NAME  -->
+            <vertical pref-width="~name-column-width">
+                <horizontal>
+                    <text id="name-tmp" text="~name-text" overflow-mode="Ellipsis" word-wrapping="false" font-size="~font-size" align="Left"/>
+                </horizontal>
+            </vertical>
 
-        <!--  ACC  -->
-        <vertical preferred-width="~acc-column-width">
-            <horizontal>
+            <!--  ACC  -->
+            <vertical pref-width="~acc-column-width">
                 <text id="acc-tmp" text="~acc-text" word-wrapping="false" font-size="~font-size" align="Center"/>
-            </horizontal>
-        </vertical>
+            </vertical>
 
-        <!--  PP  -->
-        <vertical preferred-width="~pp-column-width" active="~pp-is-active">
-            <horizontal>
+            <!--  PP  -->
+            <vertical pref-width="~pp-column-width" active="~pp-is-active">
                 <text id="pp-tmp" text="~pp-text" word-wrapping="false" font-size="~font-size" align="Center"/>
-            </horizontal>
-        </vertical>
+            </vertical>
 
-        <!--  SCORE  -->
-        <vertical preferred-width="~score-column-width">
-            <horizontal>
+            <!--  SCORE  -->
+            <vertical pref-width="~score-column-width">
                 <text id="score-tmp" text="~score-text" word-wrapping="false" font-size="~font-size" align="Right"/>
-            </horizontal>
-        </vertical>
+            </vertical>
 
-        <!--  Info  -->
-        <vertical preferred-width="~info-column-width" pad-left="2">
-            <horizontal>
-                <clickable-text id="info-tmp" active="~info-is-active" on-click="info-on-click"
-                                text="?" font-size="~font-size" align="Center"/>
-            </horizontal>
-        </vertical>
-    </horizontal>
-</vertical>
+            <!--  Info  -->
+            <vertical pref-width="~info-column-width">
+                <clickable-image src="#ScoreDetailsIcon" id="info-component" pref-height="5" preserve-aspect="true"
+                                 active="~info-is-active" on-click="info-on-click"/>
+            </vertical>
+        </horizontal>
+    </vertical>
+</horizontal>

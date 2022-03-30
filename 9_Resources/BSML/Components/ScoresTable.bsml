@@ -1,11 +1,7 @@
-<vertical preferred-width="85">
-    <!--    <macro.as-host host="extra-row">-->
-    <!--        <macro.reparent transform="root"/>-->
-    <!--    </macro.as-host>-->
-
-    <!--    <macro.as-host host="extra-row-separator">-->
-    <!--        <macro.reparent transform="root"/>-->
-    <!--    </macro.as-host>-->
+<vertical preferred-width="85" pad-top="~vertical-padding" pad-bottom="~vertical-padding">
+    <macro.as-host host="extra-score-row">
+        <macro.reparent transform="root"/>
+    </macro.as-host>
 
     <macro.for-each items='score-rows'>
         <macro.reparent transform="root"/>

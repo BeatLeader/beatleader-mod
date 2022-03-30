@@ -1,7 +1,10 @@
+using System;
 using System.Globalization;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -10,14 +13,14 @@ using UnityEngine.UI;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreRow.bsml")]
     internal class ScoreRow : ReeUIComponent {
-        #region Hierarchy
+        #region OnInitialize
 
-        public void SetActive(bool value) {
-            IsActive = value;
+        protected override void OnInitialize() {
+            ApplyAlpha();
         }
 
         public void SetHierarchyIndex(int value) {
-            transform.SetSiblingIndex(value);
+            Root.SetSiblingIndex(value);
         }
 
         #endregion
@@ -26,7 +29,9 @@ namespace BeatLeader.Components {
 
         private Score _score;
 
-        public void SetScore(Score score, bool highlight) {
+        public void SetScore(Score score) {
+            var highlight = string.Equals(score.player.name, BLContext.profile?.name, StringComparison.Ordinal);
+            
             _score = score;
             RankText = FormatRank(score.rank);
             NameText = FormatName(score.player.name);
@@ -146,7 +151,8 @@ namespace BeatLeader.Components {
             _accTmp.alpha = _currentAlpha;
             _ppTmp.alpha = _currentAlpha;
             _scoreTmp.alpha = _currentAlpha;
-            _infoTmp.alpha = _currentAlpha;
+
+            _infoComponent.color = _infoComponent.color.ColorWithAlpha(_currentAlpha);
 
             _backgroundImage.color = new Color(
                 _backgroundColor.r,
@@ -158,7 +164,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region OffsetNode
+        #region HorizontalOffset
 
         private float _horizontalOffset;
 
@@ -192,8 +198,8 @@ namespace BeatLeader.Components {
 
         #region Background
 
-        private readonly Color _highlightColor = new Color(0f, 0.95f, 1f, 0.4f);
-        private readonly Color _fadedColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+        private readonly Color _highlightColor = new Color(1.0f, 1.0f, 1f, 1.0f);
+        private readonly Color _fadedColor = new Color(0.1f, 0.1f, 0.1f, 0.1f);
 
         [UIComponent("bg-image"), UsedImplicitly]
         private Image _backgroundImage;
@@ -369,8 +375,8 @@ namespace BeatLeader.Components {
 
         #region Info
 
-        [UIComponent("info-tmp"), UsedImplicitly]
-        private TextMeshProUGUI _infoTmp;
+        [UIComponent("info-component"), UsedImplicitly]
+        private ClickableImage _infoComponent;
 
         [UIAction("info-on-click"), UsedImplicitly]
         private void InfoOnClick() {

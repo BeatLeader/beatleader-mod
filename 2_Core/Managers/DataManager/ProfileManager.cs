@@ -40,6 +40,7 @@ namespace BeatLeader.DataManager
             Player profile = await _httpUtils.GetData<Player>(String.Format(BLConstants.PROFILE_BY_ID, userID), _profileRequestToken.Token, null);
             if (profile == null) {
                 Plugin.Log.Debug($"No profile for id {userID} was found. Abort");
+                LeaderboardEvents.NotifyProfileRequestFailed();
                 return;
             }
 

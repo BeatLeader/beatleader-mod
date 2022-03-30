@@ -51,6 +51,16 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region ProfileRequestFailed
+
+        public static event Action ProfileRequestFailedEvent;
+
+        public static void NotifyProfileRequestFailed() {
+            ProfileRequestFailedEvent?.Invoke();
+        }
+
+        #endregion
+
         #region PublishProfile
 
         // Called after a profile data response is processed

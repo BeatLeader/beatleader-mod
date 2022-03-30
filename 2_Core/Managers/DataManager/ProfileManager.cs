@@ -22,12 +22,12 @@ namespace BeatLeader.DataManager
         }
 
         public void Initialize() {
-            LeaderboardEvents.ProfileRefreshEvent += UpdateProfile;
+            LeaderboardEvents.UploadSuccessAction += UpdateProfile;
             UpdateProfile();
         }
 
         public void Dispose() {
-            LeaderboardEvents.ProfileRefreshEvent -= UpdateProfile;
+            LeaderboardEvents.UploadSuccessAction -= UpdateProfile;
         }
 
         private async void UpdateProfile() {
@@ -37,7 +37,7 @@ namespace BeatLeader.DataManager
             LeaderboardEvents.ProfileRequestStarted();
 
             string userID = SteamUser.GetSteamID().m_SteamID.ToString();
-            Profile profile = await _httpUtils.GetData<Profile>(String.Format(BLConstants.PROFILE_BY_ID, userID), _profileRequestToken.Token, null);
+            Player profile = await _httpUtils.GetData<Player>(String.Format(BLConstants.PROFILE_BY_ID, userID), _profileRequestToken.Token, null);
             if (profile == null) {
                 Plugin.Log.Debug($"No profile for id {userID} was found. Abort");
                 return;

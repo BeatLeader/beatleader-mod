@@ -26,27 +26,25 @@ namespace BeatLeader.DataManager {
         #region Initialize/Dispose section
 
         public void Initialize() {
-            LeaderboardEvents.LeaderboardRefreshEvent += LoadScores;
+            LeaderboardEvents.UploadSuccessAction += LoadScores;
 
-            LeaderboardEvents.GlobalButtonWasPressedAction += SelectGlobalScoreProvider;
-            LeaderboardEvents.CountryButtonWasPressedAction += SelectCountryScoreProvider;
+            LeaderboardEvents.ScopeWasSelectedAction += ChangeScoreProvider;
             //LeaderboardEvents.RefreshButtonWasPressedAction += LoadScores;
 
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
-            LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
+            LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
         }
 
         public void Dispose() {
-            LeaderboardEvents.LeaderboardRefreshEvent -= LoadScores;
+            LeaderboardEvents.UploadSuccessAction -= LoadScores;
 
-            LeaderboardEvents.GlobalButtonWasPressedAction -= SelectGlobalScoreProvider;
-            LeaderboardEvents.CountryButtonWasPressedAction -= SelectCountryScoreProvider;
+            LeaderboardEvents.ScopeWasSelectedAction -= ChangeScoreProvider;
             //_leaderboardEvents.RefreshButtonWasPressedAction -= LoadScores;
 
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
-            LeaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
             LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;
+            LeaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
         }
 
         #endregion
@@ -69,7 +67,11 @@ namespace BeatLeader.DataManager {
 
             Paged<Score> scores = await _selectedScoreProvider.GetScores(_lastSelectedBeatmap, _lastSelectedPage, scoreRequestToken.Token);
 
-            LeaderboardEvents.PublishScores(scores);
+            if (scores == null) {
+                LeaderboardEvents.NotifyScoresFetchFailed();
+            } else {
+                LeaderboardEvents.PublishScores(scores);
+            }
         }
 
         private async void SeekScores() {
@@ -79,24 +81,20 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.ScoreRequestStarted();
 
             Paged<Score> scores = await _selectedScoreProvider.SeekScores(_lastSelectedBeatmap, scoreRequestToken.Token);
-            _lastSelectedPage = scores.metadata.page;
 
-            LeaderboardEvents.PublishScores(scores);
+            if (scores == null) {
+                LeaderboardEvents.NotifyScoresFetchFailed();
+            } else {
+                _lastSelectedPage = scores.metadata.page;
+                LeaderboardEvents.PublishScores(scores);
+            }
         }
 
         #endregion
 
         #region Select score scope
 
-        public void SelectGlobalScoreProvider() {
-            ChangeScoreProvider(ScoresScope.Global);
-        }
-
-        public void SelectCountryScoreProvider() {
-            ChangeScoreProvider(ScoresScope.Country);
-        }
-
-        public void ChangeScoreProvider(ScoresScope scope) {
+        private void ChangeScoreProvider(ScoresScope scope) {
             Plugin.Log.Debug($"Attempt to switch score score from [{_selectedScoreProvider.getScope()}] to [{scope}]");
 
             IScoreProvider scoreProvider = _scoreProviders.Find(provider => provider.getScope() == scope);

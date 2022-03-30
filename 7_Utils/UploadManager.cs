@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
 using BeatLeader.Manager;
+using Newtonsoft.Json;
 
 namespace BeatLeader.Utils
 {
@@ -23,12 +24,14 @@ namespace BeatLeader.Utils
                 return; // auth failed, no upload
             }
 
+            LeaderboardEvents.NotifyUploadStarted();
+
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
-            for (int i = 0; i < _retry; i++)
+            for (int i = 1; i <= _retry; i++)
             {
-                Plugin.Log.Debug($"Attempt to upload replay {i + 1}/{_retry}");
+                Plugin.Log.Debug($"Attempt to upload replay {i}/{_retry}");
                 try
                 {
                     ByteArrayContent content = new(stream.ToArray());
@@ -42,16 +45,22 @@ namespace BeatLeader.Utils
 
                     HttpResponseMessage response = await _client.SendAsync(httpRequestMessage);
 
-                    var body = response.Content.ReadAsStringAsync().Result;
+                    var body = await response.Content.ReadAsStringAsync();
                     Plugin.Log.Debug($"StatusCode: {response.StatusCode}, ReasonPhrase: '{response.ReasonPhrase}'");
                     if (body != null && !body.StartsWith("{")) { Plugin.Log.Debug($"Response content: {body}"); }
 
                     if (response.IsSuccessStatusCode)
                     {
+                        Plugin.Log.Debug(body);
+                        var options = new JsonSerializerSettings() {
+                            MissingMemberHandling = MissingMemberHandling.Ignore,
+                            NullValueHandling = NullValueHandling.Ignore
+                        };
+                        Score score = JsonConvert.DeserializeObject<Score>(body, options);
+                        // Plugin.Log.Debug(score.player.name); update profile from score.player ?
                         Plugin.Log.Debug("Upload success");
 
-                        LeaderboardEvents.RequestProfileRefresh();
-                        LeaderboardEvents.RequestLeaderboardRefresh();
+                        LeaderboardEvents.NotifyUploadSuccess();
 
                         return; // if OK - stop retry cycle
                     }
@@ -60,6 +69,7 @@ namespace BeatLeader.Utils
                 {
                     Plugin.Log.Debug("Exception");
                     Plugin.Log.Debug(e);
+                    LeaderboardEvents.NotifyUploadFailed(i == _retry, i);
                 }
             }
             Plugin.Log.Debug("Cannot upload replay");

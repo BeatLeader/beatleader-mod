@@ -45,7 +45,7 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        private void OnProfileFetched(Profile p) {
+        private void OnProfileFetched(Player p) {
             _loadingProfile = false;
             UpdateState();
         }

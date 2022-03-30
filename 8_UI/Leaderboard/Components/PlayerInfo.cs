@@ -26,7 +26,7 @@ namespace BeatLeader.Components {
             PlaceholderText = "Loading...";
         }
 
-        private void OnProfileFetched(Profile p) {
+        private void OnProfileFetched(Player p) {
             if (p == null) {
                 PlaceholderText = "Internet error or profile does not exist.";
             } else {

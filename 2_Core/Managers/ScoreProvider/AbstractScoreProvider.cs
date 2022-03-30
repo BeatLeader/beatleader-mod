@@ -32,7 +32,7 @@ namespace BeatLeader.ScoreProvider {
                     { BLConstants.Param.PAGE, page  }
                 })),
                 scoreRequestToken,
-                new());
+                null);
         }
 
         public async Task<Paged<Score>> SeekScores(IDifficultyBeatmap difficultyBeatmap, CancellationToken scoreRequestToken) {
@@ -49,7 +49,7 @@ namespace BeatLeader.ScoreProvider {
                     { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
                 })),
                 scoreRequestToken,
-                new());
+                null);
         }
     }
 }

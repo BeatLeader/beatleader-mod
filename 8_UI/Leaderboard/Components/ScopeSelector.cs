@@ -31,19 +31,19 @@ namespace BeatLeader.Components {
                     SetColor(_globalComponent, true);
                     SetColor(_friendsComponent, false);
                     SetColor(_countryComponent, false);
-                    LeaderboardEvents.NotifyGlobalButtonWasPressed();
+                    LeaderboardEvents.NotifyScopeWasSelected(ScoresScope.Global);
                     break;
                 case ScoresScope.Friends:
                     SetColor(_globalComponent, false);
                     SetColor(_friendsComponent, true);
                     SetColor(_countryComponent, false);
-                    LeaderboardEvents.NotifyFriendsButtonWasPressed();
+                    LeaderboardEvents.NotifyScopeWasSelected(ScoresScope.Friends);
                     break;
                 case ScoresScope.Country:
                     SetColor(_globalComponent, false);
                     SetColor(_friendsComponent, false);
                     SetColor(_countryComponent, true);
-                    LeaderboardEvents.NotifyCountryButtonWasPressed();
+                    LeaderboardEvents.NotifyScopeWasSelected(ScoresScope.Country);
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(newScope), newScope, null);
             }

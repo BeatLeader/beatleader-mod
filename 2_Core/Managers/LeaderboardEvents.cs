@@ -18,6 +18,17 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region ScoresFetchFailed
+
+        // Called after a score data response is processed
+        public static event Action ScoresFetchFailedEvent;
+
+        public static void NotifyScoresFetchFailed() {
+            ScoresFetchFailedEvent?.Invoke();
+        }
+
+        #endregion
+
         #region ScoresFetched
 
         // Called after a score data response is processed
@@ -43,13 +54,41 @@ namespace BeatLeader.Manager {
         #region PublishProfile
 
         // Called after a profile data response is processed
-        public static event Action<Profile> UserProfileFetchedEvent;
+        public static event Action<Player> UserProfileFetchedEvent;
 
-        public static void PublishProfile(Profile profile) {
+        public static void PublishProfile(Player profile) {
             UserProfileFetchedEvent?.Invoke(profile);
         }
 
         #endregion
+
+        #region NotifyUploadStarted
+        public static event Action UploadStartedAction;
+
+        public static void NotifyUploadStarted() {
+            UploadStartedAction?.Invoke();
+        }
+
+        #endregion
+
+        #region NotifyUploadFailed
+
+        public static event Action<bool, int> UploadFailedAction;
+
+        public static void NotifyUploadFailed(bool completely, int retry) {
+            UploadFailedAction?.Invoke(completely, retry);
+        }
+
+        #endregion
+
+        #region NotifyUploadSuccess
+        public static event Action UploadSuccessAction;
+
+        public static void NotifyUploadSuccess() {
+            UploadSuccessAction?.Invoke();
+        }
+
+        # endregion
 
         //-- OUTPUT -----------------
 
@@ -74,16 +113,6 @@ namespace BeatLeader.Manager {
 
         #endregion
 
-        #region GlobalButtonWasPressed
-
-        public static event Action GlobalButtonWasPressedAction;
-
-        public static void NotifyGlobalButtonWasPressed() {
-            GlobalButtonWasPressedAction?.Invoke();
-        }
-
-        #endregion
-
         #region AroundButtonWasPressed
 
         public static event Action AroundButtonWasPressedAction;
@@ -94,32 +123,22 @@ namespace BeatLeader.Manager {
 
         #endregion
 
-        #region FriendsButtonWasPressed
-
-        public static event Action FriendsButtonWasPressedAction;
-
-        public static void NotifyFriendsButtonWasPressed() {
-            FriendsButtonWasPressedAction?.Invoke();
-        }
-
-        #endregion
-
-        #region CountryButtonWasPressed
-
-        public static event Action CountryButtonWasPressedAction;
-
-        public static void NotifyCountryButtonWasPressed() {
-            CountryButtonWasPressedAction?.Invoke();
-        }
-
-        #endregion
-
         #region DownButtonWasPressed
 
         public static event Action DownButtonWasPressedAction;
 
         public static void NotifyDownButtonWasPressed() {
             DownButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
+
+        #region ScopeWasSelected
+
+        public static event Action<ScoresScope> ScopeWasSelectedAction;
+
+        public static void NotifyScopeWasSelected(ScoresScope scope) {
+            ScopeWasSelectedAction?.Invoke(scope);
         }
 
         #endregion
@@ -134,17 +153,5 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
-
-        public static event Action ProfileRefreshEvent;
-
-        internal static void RequestProfileRefresh() {
-            ProfileRefreshEvent?.Invoke();
-        }
-
-        public static event Action LeaderboardRefreshEvent;
-
-        internal static void RequestLeaderboardRefresh() {
-            LeaderboardRefreshEvent?.Invoke();
-        }
     }
 }

@@ -1,3 +1,5 @@
-<horizontal>
-    <text text="~placeholder-text" font-size="5" align="Center"/>
-</horizontal>
+<vertical pref-width="75" bg="round-rect-panel">
+    <horizontal>
+        <text text="~placeholder-text" font-size="5" align="Center"/>
+    </horizontal>
+</vertical>

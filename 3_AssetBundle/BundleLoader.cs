@@ -41,6 +41,9 @@ namespace BeatLeader {
         
         [UsedImplicitly]
         public static Sprite ScoreDetailsIcon;
+        
+        [UsedImplicitly]
+        public static Sprite BeatLeaderLogoGradient;
 
         #endregion
 
@@ -53,6 +56,7 @@ namespace BeatLeader {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
             ScoreDetailsIcon = assetBundle.LoadAsset<Sprite>("ScoreDetailsIcon");
+            BeatLeaderLogoGradient = assetBundle.LoadAsset<Sprite>("BeatLeaderLogoGradient");
         }
 
         #endregion

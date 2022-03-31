@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -9,21 +8,110 @@ using UnityEngine.UI;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Logo.bsml")]
     internal class Logo : ReeUIComponent {
+        #region Animation
+
+        private static readonly int GlowPropertyId = Shader.PropertyToID("_Glow");
+        private static readonly int DotScalePropertyId = Shader.PropertyToID("_DotScale");
+        private static readonly int BlockScalePropertyId = Shader.PropertyToID("_BlockScale");
+        private static readonly int CornerRadiusPropertyId = Shader.PropertyToID("_CornerRadius");
+        private static readonly int ThicknessPropertyId = Shader.PropertyToID("_Thickness");
+        private static readonly int SpinnerRotationPropertyId = Shader.PropertyToID("_SpinnerRotation");
+        private static readonly int SpinnerAmplitudePropertyId = Shader.PropertyToID("_SpinnerAmplitude");
+
+        private const float IdleGlow = 0.15f;
+        private const float IdleDotScale = 0.25f;
+        private const float IdleBlockScale = 0.7f;
+        private const float IdleCornerRadius = 0.2f;
+        private const float IdleThickness = 0.08f;
+        private const float IdleFill = 1.0f;
+        private const float IdleRotationSpeed = 0.0f;
+
+        private const float ThinkingGlow = 0.7f;
+        private const float ThinkingDotScale = 0.1f;
+        private const float ThinkingBlockScale = 0.5f;
+        private const float ThinkingCornerRadius = 0.5f;
+        private const float ThinkingThickness = 0.12f;
+        private const float ThinkingFill = 0.4f;
+        private const float ThinkingRotationSpeed = 12.0f;
+
+        private float _glow = IdleGlow;
+        private float _dotScale = IdleDotScale;
+        private float _blockScale = IdleBlockScale;
+        private float _cornerRadius = IdleCornerRadius;
+        private float _thickness = IdleThickness;
+        private float _fill = IdleFill;
+        private float _rotationSpeed = IdleRotationSpeed;
+        private float _spinnerRotation;
+
+        private void Update() {
+            var deltaTime = Time.deltaTime;
+            var slowT = deltaTime * 10f;
+            var fastT = deltaTime * 20f;
+
+            if (_isThinking) {
+                _glow = Mathf.Lerp(_glow, ThinkingGlow, fastT);
+                _dotScale = Mathf.Lerp(_dotScale, ThinkingDotScale, slowT);
+                _blockScale = Mathf.Lerp(_blockScale, ThinkingBlockScale, slowT);
+                _cornerRadius = Mathf.Lerp(_cornerRadius, ThinkingCornerRadius, slowT);
+                _thickness = Mathf.Lerp(_thickness, ThinkingThickness, slowT);
+                _fill = Mathf.Lerp(_fill, ThinkingFill, slowT);
+                _rotationSpeed = ThinkingRotationSpeed;
+            } else {
+                _glow = Mathf.Lerp(_glow, IdleGlow, fastT);
+                _dotScale = Mathf.Lerp(_dotScale, IdleDotScale, slowT);
+                _blockScale = Mathf.Lerp(_blockScale, IdleBlockScale, slowT);
+                _cornerRadius = Mathf.Lerp(_cornerRadius, IdleCornerRadius, slowT);
+                _thickness = Mathf.Lerp(_thickness, IdleThickness, slowT);
+                _fill = Mathf.Lerp(_fill, IdleFill, fastT);
+                _rotationSpeed = Mathf.Lerp(_rotationSpeed, IdleRotationSpeed, slowT);
+            }
+
+            _spinnerRotation += _rotationSpeed * deltaTime;
+            SetMaterialProperties();
+        }
+
+        private void SetMaterialProperties() {
+            _materialInstance.SetFloat(GlowPropertyId, _glow);
+            _materialInstance.SetFloat(DotScalePropertyId, _dotScale);
+            _materialInstance.SetFloat(BlockScalePropertyId, _blockScale);
+            _materialInstance.SetFloat(CornerRadiusPropertyId, _cornerRadius);
+            _materialInstance.SetFloat(ThicknessPropertyId, _thickness);
+            _materialInstance.SetFloat(SpinnerAmplitudePropertyId, _fill);
+            _materialInstance.SetFloat(SpinnerRotationPropertyId, _spinnerRotation);
+        }
+
+        #endregion
+
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
             LeaderboardEvents.UserProfileStartedEvent += OnProfileRequestStarted;
             LeaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
+            LeaderboardEvents.ProfileRequestFailedEvent += OnProfileRequestFailed;
+
             LeaderboardEvents.ScoresRequestStartedEvent += OnScoresRequestStarted;
             LeaderboardEvents.ScoresFetchedEvent += OnScoresRequestFinished;
+            LeaderboardEvents.ScoresFetchFailedEvent += OnScoresRequestFailed;
+
+            LeaderboardEvents.UploadStartedAction += OnUploadStarted;
+            LeaderboardEvents.UploadSuccessAction += OnUploadSuccess;
+            LeaderboardEvents.UploadFailedAction += OnUploadFailed;
+
             SetMaterial();
         }
 
         protected override void OnDispose() {
             LeaderboardEvents.UserProfileStartedEvent -= OnProfileRequestStarted;
             LeaderboardEvents.UserProfileFetchedEvent -= OnProfileFetched;
+            LeaderboardEvents.ProfileRequestFailedEvent -= OnProfileRequestFailed;
+
             LeaderboardEvents.ScoresRequestStartedEvent -= OnScoresRequestStarted;
             LeaderboardEvents.ScoresFetchedEvent -= OnScoresRequestFinished;
+            LeaderboardEvents.ScoresFetchFailedEvent -= OnScoresRequestFailed;
+
+            LeaderboardEvents.UploadStartedAction -= OnUploadStarted;
+            LeaderboardEvents.UploadSuccessAction -= OnUploadSuccess;
+            LeaderboardEvents.UploadFailedAction -= OnUploadFailed;
         }
 
         #endregion
@@ -31,12 +119,17 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnScoresRequestStarted() {
-            _loadingScores = false;
+            _loadingScores = true;
             UpdateState();
         }
 
         private void OnScoresRequestFinished(Paged<Score> paged) {
-            _loadingScores = true;
+            _loadingScores = false;
+            UpdateState();
+        }
+
+        private void OnScoresRequestFailed() {
+            _loadingScores = false;
             UpdateState();
         }
 
@@ -50,16 +143,37 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
+        private void OnProfileRequestFailed() {
+            _loadingProfile = false;
+            UpdateState();
+        }
+
+        private void OnUploadStarted() {
+            _uploadingScore = true;
+            UpdateState();
+        }
+
+        private void OnUploadSuccess() {
+            _uploadingScore = false;
+            UpdateState();
+        }
+
+        private void OnUploadFailed(bool completely, int retry) {
+            _uploadingScore = !completely;
+            UpdateState();
+        }
+
         #endregion
 
         #region UpdateState
 
+        private bool _uploadingScore;
         private bool _loadingProfile;
         private bool _loadingScores;
+        private bool _isThinking;
 
         private void UpdateState() {
-            var loading = _loadingProfile || _loadingScores;
-            PlaceholderText = loading ? "Icon" : "Spinner";
+            _isThinking = _loadingProfile || _loadingScores || _uploadingScore;
         }
 
         #endregion
@@ -74,22 +188,6 @@ namespace BeatLeader.Components {
         private void SetMaterial() {
             _materialInstance = Object.Instantiate(BundleLoader.LogoMaterial);
             _logoImage.material = _materialInstance;
-        }
-
-        #endregion
-
-        #region PlaceholderText
-
-        private string _placeholderText = "WOW, Such panel!";
-
-        [UIValue("placeholder-text"), UsedImplicitly]
-        public string PlaceholderText {
-            get => _placeholderText;
-            set {
-                if (_placeholderText.Equals(value)) return;
-                _placeholderText = value;
-                NotifyPropertyChanged();
-            }
         }
 
         #endregion

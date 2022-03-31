@@ -1,13 +1,17 @@
-<horizontal min-height="16" preferred-height="16" spacing="4" pad-left="5" pad-right="5">
-    <vertical min-width="16" preferred-width="16">
-        <macro.as-host host="logo">
-            <macro.reparent transform="root"/>
-        </macro.as-host>
-    </vertical>
-    
-    <vertical min-width="70" preferred-width="70" bg="round-rect-panel">
-        <macro.as-host host="player-info">
-            <macro.reparent transform="root"/>
-        </macro.as-host>
+<horizontal pref-height="20" min-height="20" anchor-pos-y="2" pad-left="5" pad-right="5">
+    <vertical pref-width="90" min-width="90" spacing="1">
+        <horizontal pref-height="5" bg="round-rect-panel">
+            <text text="Status message" align="Left"/>
+        </horizontal>
+
+        <horizontal pref-height="14" spacing="1">
+            <macro.as-host host="logo">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+
+            <macro.as-host host="player-info">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+        </horizontal>
     </vertical>
 </horizontal>

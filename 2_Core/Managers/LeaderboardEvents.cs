@@ -152,6 +152,7 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
+        
         //-- INTERNAL -----------------
 
         #region ScoreInfoButtonWasPressed

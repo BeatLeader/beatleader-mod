@@ -1,5 +1,9 @@
 <horizontal pref-height="30">
-    <vertical pref-width="40">
-        <text text="~placeholder-text" font-size="5" align="Center"/>
-    </vertical>
+    <macro.as-host host="player-avatar">
+        <macro.reparent transform="root"/>
+    </macro.as-host>
+
+<!--    <vertical pref-width="40">-->
+<!--        <text text="~placeholder-text" font-size="5" align="Center"/>-->
+<!--    </vertical>-->
 </horizontal>

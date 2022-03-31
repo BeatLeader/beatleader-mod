@@ -17,7 +17,7 @@ namespace BeatLeader.ViewControllers {
         private ScoreDetails _scoreDetails = ReeUIComponent.Instantiate<ScoreDetails>();
 
         [UIValue("scores-table"), UsedImplicitly]
-        private ScoresTable _scoresTable = ReeUIComponent.Instantiate<ScoresTable>();
+        private ScoresTable _scoresTable = ReeUIComponent.Instantiate<ScoresTable>(false);
 
         [UIValue("pagination"), UsedImplicitly]
         private Pagination _pagination = ReeUIComponent.Instantiate<Pagination>();

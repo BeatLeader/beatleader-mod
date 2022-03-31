@@ -1,0 +1,5 @@
+<vertical pref-width="20">
+    <horizontal>
+        <image id="image-component" src="#BeatLeaderLogoGradient" pref-height="20" preserve-aspect="true"/>
+    </horizontal>
+</vertical>

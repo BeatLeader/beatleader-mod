@@ -17,8 +17,11 @@ namespace BeatLeader {
             return result;
         }
 
-        public static T Instantiate<T>() where T : ReeUIComponent {
-            var component = new GameObject(typeof(T).Name).AddComponent<T>();
+        public static T Instantiate<T>(bool bindSelf = true) where T : ReeUIComponent {
+            var gameObject = new GameObject(typeof(T).Name);
+            gameObject.SetActive(!bindSelf);
+            var component = gameObject.AddComponent<T>();
+            component.BindSelf = bindSelf;
             component.Initialize();
             return component;
         }
@@ -31,6 +34,12 @@ namespace BeatLeader {
 
         protected virtual void OnDispose() { }
 
+        protected virtual void OnBind() { }
+
+        protected virtual void OnActivate(bool firstTime) { }
+
+        protected virtual void OnDeactivate() { }
+
         #endregion
 
         #region Initialize
@@ -42,7 +51,6 @@ namespace BeatLeader {
         private void Initialize() {
             if (_initialized) return;
             Parse();
-            AdjustHierarchy();
             _initialized = true;
             OnInitialize();
         }
@@ -54,28 +62,63 @@ namespace BeatLeader {
             PersistentSingleton<BSMLParser>.instance.Parse(content, gameObject, this);
         }
 
-        private void AdjustHierarchy() {
-            _root = transform.GetChild(0);
-            _root.SetParent(null);
-            transform.SetParent(_root);
+        #endregion
+
+        #region AlwaysActive
+
+        private bool BindSelf { get; set; }
+
+        #endregion
+
+        #region OnTransformParentChanged
+
+        [UIValue("root"), UsedImplicitly]
+        protected virtual Transform Root => transform;
+
+        private bool _attached;
+
+        protected virtual void OnTransformParentChanged() {
+            var tmp = transform;
+            if (_attached || tmp.childCount == 0) return;
+            var rootNodeTransform = tmp.GetChild(0);
+            rootNodeTransform.SetParent(tmp.parent, true);
+            if (!BindSelf) tmp.SetParent(null);
+            gameObject.SetActive(true);
+            _attached = true;
+            OnBind();
+
+            if (!gameObject.activeInHierarchy) return;
+            OnActivate(_firstTime);
+            _firstTime = false;
+        }
+
+        #endregion
+
+        #region OnEnable & OnDisable
+
+        public bool IsActive { get; private set; }
+        private bool _firstTime = true;
+
+        protected virtual void OnEnable() {
+            if (!_attached) return;
+            IsActive = true;
+            OnActivate(_firstTime);
+            _firstTime = false;
+        }
+
+        protected virtual void OnDisable() {
+            if (!_attached) return;
+            OnDeactivate();
+            IsActive = false;
         }
 
         #endregion
 
         #region OnDestroy
 
-        private void OnDestroy() {
+        protected virtual void OnDestroy() {
             OnDispose();
         }
-
-        #endregion
-
-        #region Root
-
-        private Transform _root;
-
-        [UIValue("root"), UsedImplicitly]
-        protected virtual Transform Root => _root;
 
         #endregion
 

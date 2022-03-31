@@ -99,6 +99,12 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.VRModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
       <Private>False</Private>
@@ -140,6 +146,7 @@
   <ItemGroup>
     <EmbeddedResource Include="9_Resources\BSML\Components\ExtraScoreRow.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Logo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\PlayerAvatar.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScopeSelector.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreDetails.bsml" />
     <EmbeddedResource Include="manifest.json" />

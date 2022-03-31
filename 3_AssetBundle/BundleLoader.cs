@@ -31,6 +31,7 @@ namespace BeatLeader {
 
         public static GameObject MonkeyPrefab;
         public static Material LogoMaterial;
+        public static Material PlayerAvatarMaterial;
         public static Material UIAdditiveGlowMaterial;
         
         [UsedImplicitly]
@@ -52,6 +53,7 @@ namespace BeatLeader {
         private static void LoadAssets(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
+            PlayerAvatarMaterial = assetBundle.LoadAsset<Material>("PlayerAvatarMaterial");
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");

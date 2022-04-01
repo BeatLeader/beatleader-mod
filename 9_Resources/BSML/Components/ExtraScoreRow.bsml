@@ -1,5 +1,5 @@
 <horizontal active="~is-active" pref-height="7">
-    <vertical pref-width="85" min-width="85" spacing="1">
+    <vertical pref-width="80" min-width="80" spacing="1">
         <macro.as-host host="score-row">
             <macro.reparent transform="root"/>
         </macro.as-host>

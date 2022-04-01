@@ -145,16 +145,11 @@ namespace BeatLeader.Components {
 
         #region ExtraRowUtils
 
-        private const int PaddingWithExtraRow = 0;
-        private const int PaddingWithoutExtraRow = 4;
-
         private void HideExtraRow() {
-            VerticalPadding = PaddingWithoutExtraRow;
             _extraRow.SetActive(false);
         }
 
         private void ShowExtraRow() {
-            VerticalPadding = PaddingWithExtraRow;
             _extraRow.SetActive(true);
         }
 
@@ -192,7 +187,7 @@ namespace BeatLeader.Components {
 
         #region RecalculateTableLayout //TODO: Make automatic 
 
-        private const float TotalWidth = 85.0f;
+        private const float TotalWidth = 80.0f;
         private const float Spacing = 1.0f;
         private const float Pad = 2.0f;
         private const int ColumnsCount = 6;
@@ -266,22 +261,6 @@ namespace BeatLeader.Components {
             result -= accColumnWidth;
 
             return result;
-        }
-
-        #endregion
-
-        #region VerticalPadding
-
-        private int _verticalPadding;
-
-        [UIValue("vertical-padding"), UsedImplicitly]
-        public int VerticalPadding {
-            get => _verticalPadding;
-            set {
-                if (_verticalPadding.Equals(value)) return;
-                _verticalPadding = value;
-                NotifyPropertyChanged();
-            }
         }
 
         #endregion

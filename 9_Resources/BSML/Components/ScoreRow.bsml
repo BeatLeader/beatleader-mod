@@ -1,12 +1,13 @@
-<horizontal pref-height="5" min-height="5">
-    <vertical pref-width="85" min-width="85">
-        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="0.2" pad="1" pref-height="5">
-            <!--  STYLE  -->
-            <macro.define name="font-size" value="3.4"/>
-
+<horizontal pref-height="5.2">
+    <!--  STYLE  -->
+    <macro.define name="font-size" value="3.4"/>
+    <macro.define name="row-height" value="5.2"/>
+    
+    <vertical pref-width="80" min-width="80">
+        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="0.2" pad="1" pref-height="~row-height">
             <!--  BACKGROUND  -->
-            <vertical ignore-layout="true" pref-width="85">
-                <image src="#TransparentPixel" id="background-component" pref-height="5" pref-width="85"/>
+            <vertical ignore-layout="true" pref-width="80">
+                <image src="#TransparentPixel" id="background-component" pref-height="~row-height" pref-width="80"/>
             </vertical>
 
             <!--  RANK  -->
@@ -37,8 +38,8 @@
             </vertical>
 
             <!--  CLICKABLE AREA  -->
-            <vertical ignore-layout="true" pref-width="85">
-                <clickable-image src="#TransparentPixel" id="info-component" pref-height="5" pref-width="85"
+            <vertical ignore-layout="true" pref-width="80">
+                <clickable-image src="#TransparentPixel" id="info-component" pref-height="~row-height" pref-width="80"
                                  active="~clickable" on-click="info-on-click"/>
             </vertical>
         </horizontal>

@@ -1,4 +1,4 @@
-<vertical preferred-width="85" pad-top="~vertical-padding" pad-bottom="~vertical-padding">
+<vertical preferred-width="80" vertical-fit="PreferredSize">
     <macro.as-host host="extra-score-row">
         <macro.reparent transform="root"/>
     </macro.as-host>

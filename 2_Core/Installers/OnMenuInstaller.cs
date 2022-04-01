@@ -19,6 +19,7 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<LeaderboardView>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardPanel>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LeaderboardHeaderManager>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<GlobalScoreProvider>().AsSingle();

@@ -6,6 +6,13 @@ using JetBrains.Annotations;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.PlayerInfo.bsml")]
     internal class PlayerInfo : ReeUIComponent {
+        #region Components
+
+        [UIValue("avatar"), UsedImplicitly]
+        private PlayerAvatar _avatar = Instantiate<PlayerAvatar>();
+
+        #endregion
+
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
@@ -30,6 +37,7 @@ namespace BeatLeader.Components {
             if (p == null) {
                 PlaceholderText = "Internet error or profile does not exist.";
             } else {
+                _avatar.SetAvatar(p.avatar);
                 var txt = $"#{p.rank} ({p.country} #{p.countryRank}) {p.name}\n{p.pp:.00}pp";
                 PlaceholderText = txt;
             }

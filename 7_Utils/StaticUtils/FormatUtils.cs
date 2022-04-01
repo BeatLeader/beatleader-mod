@@ -40,7 +40,7 @@ namespace BeatLeader {
 
         #region FormatPP
 
-        private const string PPColor = "#B238FF";
+        private const string PPColor = "#B856FF";
 
         public static string FormatPP(float value) {
             return $"<color={PPColor}>{value:F2}<size=70%>pp";

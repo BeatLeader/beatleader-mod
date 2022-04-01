@@ -1,4 +1,4 @@
-<horizontal pref-height="20" min-height="20" anchor-pos-y="2" pad-left="5" pad-right="5">
+<horizontal pref-height="20" min-height="20" anchor-pos-y="2" pad-left="0" pad-right="5">
     <vertical pref-width="90" min-width="90" spacing="1">
         <horizontal pref-height="5" bg="round-rect-panel">
             <text text="Status message" align="Left"/>

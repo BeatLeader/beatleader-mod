@@ -1,5 +1,13 @@
-<vertical pref-width="75" bg="round-rect-panel">
-    <horizontal>
-        <text text="~placeholder-text" font-size="5" align="Center"/>
+<vertical pref-width="70">
+    <horizontal pref-height="14" spacing="2">
+        <vertical pref-width="54" bg="round-rect-panel">
+            <text text="~placeholder-text" font-size="5" align="Center"/>
+        </vertical>
+
+        <vertical pref-width="14">
+            <macro.as-host host="avatar">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+        </vertical>
     </horizontal>
 </vertical>

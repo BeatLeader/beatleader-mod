@@ -26,11 +26,11 @@ namespace BeatLeader.Components {
         private const float IdleFill = 1.0f;
         private const float IdleRotationSpeed = 0.0f;
 
-        private const float ThinkingGlow = 0.7f;
+        private const float ThinkingGlow = 0.9f;
         private const float ThinkingDotScale = 0.1f;
         private const float ThinkingBlockScale = 0.5f;
         private const float ThinkingCornerRadius = 0.5f;
-        private const float ThinkingThickness = 0.12f;
+        private const float ThinkingThickness = 0.16f;
         private const float ThinkingFill = 0.4f;
         private const float ThinkingRotationSpeed = 12.0f;
 
@@ -41,21 +41,35 @@ namespace BeatLeader.Components {
         private float _thickness = IdleThickness;
         private float _fill = IdleFill;
         private float _rotationSpeed = IdleRotationSpeed;
+        private float _targetSpinnerRotation;
         private float _spinnerRotation;
+
+        private bool _isThinking;
+        private const float HalfPI = Mathf.PI / 2;
+
+        private bool Thinking {
+            get => _isThinking;
+            set {
+                if (_isThinking.Equals(value)) return;
+                _isThinking = value;
+                if (value) return;
+                _targetSpinnerRotation = Mathf.CeilToInt(_spinnerRotation / HalfPI) * HalfPI;
+            }
+        }
 
         private void Update() {
             var deltaTime = Time.deltaTime;
             var slowT = deltaTime * 10f;
             var fastT = deltaTime * 20f;
 
-            if (_isThinking) {
+            if (Thinking) {
                 _glow = Mathf.Lerp(_glow, ThinkingGlow, fastT);
                 _dotScale = Mathf.Lerp(_dotScale, ThinkingDotScale, slowT);
                 _blockScale = Mathf.Lerp(_blockScale, ThinkingBlockScale, slowT);
                 _cornerRadius = Mathf.Lerp(_cornerRadius, ThinkingCornerRadius, slowT);
                 _thickness = Mathf.Lerp(_thickness, ThinkingThickness, slowT);
                 _fill = Mathf.Lerp(_fill, ThinkingFill, slowT);
-                _rotationSpeed = ThinkingRotationSpeed;
+                _spinnerRotation += ThinkingRotationSpeed * deltaTime;
             } else {
                 _glow = Mathf.Lerp(_glow, IdleGlow, fastT);
                 _dotScale = Mathf.Lerp(_dotScale, IdleDotScale, slowT);
@@ -63,10 +77,9 @@ namespace BeatLeader.Components {
                 _cornerRadius = Mathf.Lerp(_cornerRadius, IdleCornerRadius, slowT);
                 _thickness = Mathf.Lerp(_thickness, IdleThickness, slowT);
                 _fill = Mathf.Lerp(_fill, IdleFill, fastT);
-                _rotationSpeed = Mathf.Lerp(_rotationSpeed, IdleRotationSpeed, slowT);
+                _spinnerRotation = Mathf.Lerp(_spinnerRotation, _targetSpinnerRotation, fastT);
             }
 
-            _spinnerRotation += _rotationSpeed * deltaTime;
             SetMaterialProperties();
         }
 
@@ -170,10 +183,9 @@ namespace BeatLeader.Components {
         private bool _uploadingScore;
         private bool _loadingProfile;
         private bool _loadingScores;
-        private bool _isThinking;
 
         private void UpdateState() {
-            _isThinking = _loadingProfile || _loadingScores || _uploadingScore;
+            Thinking = _loadingProfile || _loadingScores || _uploadingScore;
         }
 
         #endregion

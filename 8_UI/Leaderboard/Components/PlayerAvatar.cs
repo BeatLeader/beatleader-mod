@@ -25,18 +25,21 @@ namespace BeatLeader.Components {
         private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
 
         private string _url;
+        private bool _updateRequired;
 
         public void SetAvatar(string url) {
             _url = url;
+            _updateRequired = true;
             UpdateAvatar();
         }
 
         private void UpdateAvatar() {
-            if (!IsActive) return;
+            if (!IsActive || !_updateRequired) return;
             SetMaterialLazy();
             _materialInstance.SetFloat(FadeValuePropertyId, 1);
             var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url, false, OnAvatarLoadSuccess, OnAvatarLoadFailed);
             StartCoroutine(loadTask);
+            _updateRequired = false;
         }
 
         private void OnAvatarLoadSuccess(AvatarImage avatarImage) {
@@ -46,7 +49,9 @@ namespace BeatLeader.Components {
             StartCoroutine(avatarImage.PlaybackCoroutine);
         }
 
-        private void OnAvatarLoadFailed(string reason) { }
+        private void OnAvatarLoadFailed(string reason) {
+            //TODO: something
+        }
 
         #endregion
 

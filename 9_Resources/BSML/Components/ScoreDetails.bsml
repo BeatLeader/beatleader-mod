@@ -1,9 +1,31 @@
 <horizontal pref-height="30">
-    <macro.as-host host="player-avatar">
-        <macro.reparent transform="root"/>
-    </macro.as-host>
+    <vertical pref-width="44" ignore-layout="true" pad="2">
+        <!--  AVATAR  -->
+        <horizontal ignore-layout="true" pref-height="28" anchor-pos-y="30" pad="2">
+            <macro.as-host host="player-avatar">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
 
-<!--    <vertical pref-width="40">-->
-<!--        <text text="~placeholder-text" font-size="5" align="Center"/>-->
-<!--    </vertical>-->
+            <vertical ignore-layout="true" anchor-pos-y="-11">
+                <horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
+                    <vertical pad="2" bg="round-rect-panel" bg-color="#000000EE">
+                        <text text="~player-global-rank" align="Center"/>
+                    </vertical>
+                    <vertical pad="2" bg="round-rect-panel" bg-color="#000000EE">
+                        <text text="~player-name" align="Center"/>
+                    </vertical>
+                    <vertical pad="2" bg="round-rect-panel" bg-color="#000000EE">
+                        <text text="~player-pp" align="Center"/>
+                    </vertical>
+                </horizontal>
+            </vertical>
+        </horizontal>
+
+        <!--  SCORE DETAILS  -->
+        <horizontal pref-height="30" spacing="1">
+            <vertical pref-width="40" bg="round-rect-panel">
+                
+            </vertical>
+        </horizontal>
+    </vertical>
 </horizontal>

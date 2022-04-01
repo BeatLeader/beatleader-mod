@@ -1,5 +1,2 @@
-<vertical pref-width="20">
-    <horizontal>
-        <image id="image-component" src="#BeatLeaderLogoGradient" pref-height="20" preserve-aspect="true"/>
-    </horizontal>
-</vertical>
+<image anchor-min-x="0" anchor-min-y="0" anchor-max-="1" anchor-max-y="1" 
+       id="image-component" src="#BeatLeaderLogoGradient" preserve-aspect="true"/>

@@ -1,5 +1,5 @@
-<horizontal pref-height="16">
-    <vertical pref-width="8" spacing="1" pad="1" bg="round-rect-panel" bg-color="#000000AA">
+<horizontal pref-height="18">
+    <vertical pref-width="8" spacing="1" pad="2" bg="round-rect-panel" bg-color="#000000AA">
         <macro.define name="icon-height" value="4"/>
 
         <!--  SCROLL UP BUTTON  -->

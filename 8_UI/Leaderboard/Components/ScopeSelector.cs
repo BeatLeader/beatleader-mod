@@ -53,7 +53,7 @@ namespace BeatLeader.Components {
 
         #region Colors
 
-        private static readonly Color SelectedColor = new Color(0f, 1.0f, 1f, 0.6f);
+        private static readonly Color SelectedColor = new Color(0.0f, 0.4f, 1.0f, 1.0f);
         private static readonly Color FadedColor = new Color(0.8f, 0.8f, 0.8f, 0.2f);
         private static readonly Color FadedHoverColor = new Color(0.5f, 0.5f, 0.5f, 0.2f);
 

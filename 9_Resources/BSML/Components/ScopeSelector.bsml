@@ -1,7 +1,7 @@
-<horizontal preferred-height="16">
+<horizontal preferred-height="18">
     <macro.define name="icon-height" value="4"/>
 
-    <vertical pref-width="8" spacing="1" pad="1" bg="round-rect-panel" bg-color="#000000AA">
+    <vertical pref-width="8" spacing="1" pad="2" bg="round-rect-panel" bg-color="#000000AA">
         <!--  GLOBAL BUTTON  -->
         <clickable-image src="#GlobalIcon" id="global-component" pref-height="~icon-height" preserve-aspect="true"
                          on-click="global-on-click" hover-hint="Global"/>

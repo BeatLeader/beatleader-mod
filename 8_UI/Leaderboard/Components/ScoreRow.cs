@@ -1,14 +1,12 @@
-using System;
-using System.Globalization;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreRow.bsml")]
@@ -16,6 +14,7 @@ namespace BeatLeader.Components {
         #region OnInitialize
 
         protected override void OnInitialize() {
+            SetMaterials();
             ApplyAlpha();
         }
 
@@ -27,23 +26,24 @@ namespace BeatLeader.Components {
 
         #region SetScore
 
-        private Score _score;
+        private Score? _score;
 
         public void SetScore(Score score) {
-            var highlight = string.Equals(score.player.name, BLContext.profile?.name, StringComparison.Ordinal);
-            
+            SetHighlight(score.player.IsCurrentPlayer());
+
             _score = score;
-            RankText = FormatRank(score.rank);
-            NameText = FormatName(score.player.name);
-            AccText = FormatAcc(score.accuracy);
-            PpText = FormatPP(score.pp);
-            ScoreText = FormatScore(score.baseScore);
-            InfoIsActive = true;
-            FadeIn(highlight);
+            RankText = $"{score.rank}";
+            NameText = score.player.name;
+            AccText = FormatUtils.FormatAcc(score.accuracy);
+            PpText = FormatUtils.FormatPP(score.pp);
+            ScoreText = FormatUtils.FormatScore(score.baseScore);
+            Clickable = true;
+            FadeIn();
         }
 
         public void ClearScore() {
             _score = null;
+            Clickable = false;
             FadeOut();
         }
 
@@ -57,7 +57,6 @@ namespace BeatLeader.Components {
             float accColumnWidth,
             float ppColumnWidth,
             float scoreColumnWidth,
-            float infoColumnWidth,
             bool ppColumnActive
         ) {
             RankColumnWidth = rankColumnWidth;
@@ -65,41 +64,7 @@ namespace BeatLeader.Components {
             AccColumnWidth = accColumnWidth;
             PpColumnWidth = ppColumnWidth;
             ScoreColumnWidth = scoreColumnWidth;
-            InfoColumnWidth = infoColumnWidth;
             PpIsActive = ppColumnActive;
-        }
-
-        #endregion
-
-        #region Format
-
-        public static readonly NumberFormatInfo ScoreFormatInfo = new CultureInfo("en-US", false).NumberFormat;
-        private const string AccColor = "#FFFF32";
-        private const string PPColor = "#3277FF";
-
-        static ScoreRow() {
-            ScoreFormatInfo.NumberGroupSeparator = " ";
-        }
-
-        private static string FormatRank(int value) {
-            return $"<i>{value}";
-        }
-
-        private static string FormatName(string value) {
-            return $"<i>{value}";
-        }
-
-        private static string FormatScore(int value) {
-            var formattedScore = value.ToString("N0", ScoreFormatInfo);
-            return $"<i>{formattedScore}";
-        }
-
-        private static string FormatAcc(float value) {
-            return $"<i><color={AccColor}>{value * 100.0f:F2}<size=70%>%";
-        }
-
-        private static string FormatPP(float value) {
-            return $"<i><color={PPColor}>{value:F2}<size=70%>pp";
         }
 
         #endregion
@@ -113,10 +78,8 @@ namespace BeatLeader.Components {
         private float _targetAlpha;
         private float _currentOffset;
         private float _targetOffset;
-        private Color _backgroundColor;
 
-        private void FadeIn(bool highlight) {
-            _backgroundColor = highlight ? _highlightColor : _fadedColor;
+        private void FadeIn() {
             _targetAlpha = 1.0f;
             _currentOffset = FadeFromOffset;
             _targetOffset = 0.0f;
@@ -152,14 +115,8 @@ namespace BeatLeader.Components {
             _ppTmp.alpha = _currentAlpha;
             _scoreTmp.alpha = _currentAlpha;
 
-            _infoComponent.color = _infoComponent.color.ColorWithAlpha(_currentAlpha);
-
-            _backgroundImage.color = new Color(
-                _backgroundColor.r,
-                _backgroundColor.g,
-                _backgroundColor.b,
-                _backgroundColor.a * _currentAlpha
-            );
+            _backgroundComponent.color = _backgroundColor.ColorWithAlpha(_backgroundColor.a * _currentAlpha);
+            _infoComponent.color = _infoComponent.color.ColorWithAlpha(_infoComponent.color.a * _currentAlpha);
         }
 
         #endregion
@@ -193,16 +150,6 @@ namespace BeatLeader.Components {
                 NotifyPropertyChanged();
             }
         }
-
-        #endregion
-
-        #region Background
-
-        private readonly Color _highlightColor = new Color(1.0f, 1.0f, 1f, 1.0f);
-        private readonly Color _fadedColor = new Color(0.1f, 0.1f, 0.1f, 0.1f);
-
-        [UIComponent("bg-image"), UsedImplicitly]
-        private Image _backgroundImage;
 
         #endregion
 
@@ -373,7 +320,29 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Info
+        #region ClickableArea
+
+        private readonly Color _ownScoreColor = new Color(0.7f, 0f, 0.7f, 0.3f);
+        private readonly Color _someoneElseScoreColor = new Color(0.07f, 0f, 0.14f, 0.05f);
+
+        private readonly Color _underlineIdleColor = new Color(0.1f, 0.3f, 0.4f, 0.0f);
+        private readonly Color _underlineHoverColor = new Color(0.0f, 0.4f, 1.0f, 1.0f);
+
+        private Color _backgroundColor;
+
+        private void SetHighlight(bool highlight) {
+            _backgroundColor = highlight ? _ownScoreColor : _someoneElseScoreColor;
+        }
+
+        private void SetMaterials() {
+            _backgroundComponent.material = BundleLoader.ScoreBackgroundMaterial;
+            _infoComponent.material = BundleLoader.ScoreUnderlineMaterial;
+            _infoComponent.DefaultColor = _underlineIdleColor;
+            _infoComponent.HighlightColor = _underlineHoverColor;
+        }
+
+        [UIComponent("background-component"), UsedImplicitly]
+        private ImageView _backgroundComponent;
 
         [UIComponent("info-component"), UsedImplicitly]
         private ClickableImage _infoComponent;
@@ -384,26 +353,14 @@ namespace BeatLeader.Components {
             LeaderboardEvents.NotifyScoreInfoButtonWasPressed(_score);
         }
 
-        private bool _infoIsActive;
+        private bool _clickable;
 
-        [UIValue("info-is-active"), UsedImplicitly]
-        private bool InfoIsActive {
-            get => _infoIsActive;
+        [UIValue("clickable"), UsedImplicitly]
+        private bool Clickable {
+            get => _clickable;
             set {
-                if (_infoIsActive.Equals(value)) return;
-                _infoIsActive = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private float _infoColumnWidth;
-
-        [UIValue("info-column-width"), UsedImplicitly]
-        private float InfoColumnWidth {
-            get => _infoColumnWidth;
-            set {
-                if (_infoColumnWidth.Equals(value)) return;
-                _infoColumnWidth = value;
+                if (_clickable.Equals(value)) return;
+                _clickable = value;
                 NotifyPropertyChanged();
             }
         }

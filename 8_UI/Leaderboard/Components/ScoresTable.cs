@@ -100,7 +100,6 @@ namespace BeatLeader.Components {
                 out var accColumnWidth,
                 out var ppColumnWidth,
                 out var scoreColumnWidth,
-                out var infoColumnWidth,
                 out var hasPP
             );
 
@@ -111,7 +110,6 @@ namespace BeatLeader.Components {
                     accColumnWidth,
                     ppColumnWidth,
                     scoreColumnWidth,
-                    infoColumnWidth,
                     hasPP
                 );
             }
@@ -203,7 +201,6 @@ namespace BeatLeader.Components {
         private const float AccMinWidth = 9.0f;
         private const float PPMinWidth = 9.0f;
         private const float ScoreMinWidth = 3.0f;
-        private const float InfoMinWidth = 5.0f;
 
         private const float ApproxCharacterWidth = 1.2f;
 
@@ -213,7 +210,6 @@ namespace BeatLeader.Components {
             out float accColumnWidth,
             out float ppColumnWidth,
             out float scoreColumnWidth,
-            out float infoColumnWidth,
             out bool hasPP
         ) {
             var maximalRank = 0;
@@ -236,8 +232,7 @@ namespace BeatLeader.Components {
             accColumnWidth = AccMinWidth;
             ppColumnWidth = PPMinWidth;
             scoreColumnWidth = CalculateScoreWidth(maximalScore);
-            infoColumnWidth = InfoMinWidth;
-            nameColumnWidth = CalculateNameWidth(rankColumnWidth, accColumnWidth, ppColumnWidth, scoreColumnWidth, infoColumnWidth, hasPP);
+            nameColumnWidth = CalculateNameWidth(rankColumnWidth, accColumnWidth, ppColumnWidth, scoreColumnWidth, hasPP);
         }
 
         private static float CalculateRankWidth(int maximalRank) {
@@ -246,7 +241,7 @@ namespace BeatLeader.Components {
         }
 
         private static float CalculateScoreWidth(int maximalScore) {
-            var charCount = maximalScore.ToString("N0", ScoreRow.ScoreFormatInfo).Length;
+            var charCount = maximalScore.ToString("N0", FormatUtils.ScoreFormatInfo).Length;
             return Mathf.Max(ScoreMinWidth, ApproxCharacterWidth * charCount);
         }
 
@@ -255,7 +250,6 @@ namespace BeatLeader.Components {
             float accColumnWidth,
             float ppColumnWidth,
             float scoreColumnWidth,
-            float infoColumnWidth,
             bool hasPP
         ) {
             var result = TotalWidth - Pad * 2;
@@ -270,7 +264,6 @@ namespace BeatLeader.Components {
             result -= rankColumnWidth;
             result -= scoreColumnWidth;
             result -= accColumnWidth;
-            result -= infoColumnWidth;
 
             return result;
         }

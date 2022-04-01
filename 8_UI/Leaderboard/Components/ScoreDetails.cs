@@ -15,22 +15,57 @@ namespace BeatLeader.Components {
         #region SetScore
 
         public void SetScore(Score score) {
-            PlaceholderText = $"Look at this awesome {score.player.name}`s score!\n{score.baseScore}\nKEKA";
+            PlayerName = score.player.name;
+            PlayerRank = $"#{score.player.rank}";
+            PlayerPp = FormatUtils.FormatPP(score.player.pp);
+
             _playerAvatar.SetAvatar(score.player.avatar);
         }
 
         #endregion
 
-        #region PlaceholderText
+        #region playerName
 
-        private string _placeholderText = "WOW, Such details!";
+        private string _playerName = "";
 
-        [UIValue("placeholder-text"), UsedImplicitly]
-        public string PlaceholderText {
-            get => _placeholderText;
+        [UIValue("player-name"), UsedImplicitly]
+        public string PlayerName {
+            get => _playerName;
             set {
-                if (_placeholderText.Equals(value)) return;
-                _placeholderText = value;
+                if (_playerName.Equals(value)) return;
+                _playerName = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region playerRank
+
+        private string _playerRank = "";
+
+        [UIValue("player-global-rank"), UsedImplicitly]
+        public string PlayerRank {
+            get => _playerRank;
+            set {
+                if (_playerRank.Equals(value)) return;
+                _playerRank = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region playerPp
+
+        private string _playerPp = "";
+
+        [UIValue("player-pp"), UsedImplicitly]
+        public string PlayerPp {
+            get => _playerPp;
+            set {
+                if (_playerPp.Equals(value)) return;
+                _playerPp = value;
                 NotifyPropertyChanged();
             }
         }

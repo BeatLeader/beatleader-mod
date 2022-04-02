@@ -99,6 +99,15 @@ namespace BeatLeader.Manager {
         }
 
         # endregion
+        
+        #region ShowStatusMessage
+        public static event Action<string, float> StatusMessageEvent;
+
+        public static void ShowStatusMessage(string message, float duration) {
+            StatusMessageEvent?.Invoke(message, duration);
+        }
+
+        # endregion
 
         //-- OUTPUT -----------------
 

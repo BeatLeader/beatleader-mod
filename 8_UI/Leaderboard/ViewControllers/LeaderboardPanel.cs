@@ -8,6 +8,9 @@ namespace BeatLeader.ViewControllers {
     internal class LeaderboardPanel : BSMLAutomaticViewController {
         #region Components
 
+        [UIValue("status-bar"), UsedImplicitly]
+        private StatusBar _statusBar = ReeUIComponent.Instantiate<StatusBar>();
+
         [UIValue("logo"), UsedImplicitly]
         private Logo _logo = ReeUIComponent.Instantiate<Logo>();
 

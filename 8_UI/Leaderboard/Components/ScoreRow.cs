@@ -34,10 +34,13 @@ namespace BeatLeader.Components {
             _score = score;
             RankText = FormatUtils.FormatRank(score.rank, false);
             NameText = FormatUtils.FormatUserName(score.player.name);
+            ModifiersText = FormatUtils.FormatModifiers(score.modifiers);
             AccText = FormatUtils.FormatAcc(score.accuracy);
             PpText = FormatUtils.FormatPP(score.pp);
             ScoreText = FormatUtils.FormatScore(score.baseScore);
             Clickable = true;
+            
+            UpdateFlexibleColumns(score.modifiers);
             FadeIn();
         }
 
@@ -51,19 +54,31 @@ namespace BeatLeader.Components {
 
         #region UpdateLayout
 
+        private float _flexibleWidth;
+
+        private void UpdateFlexibleColumns(string modifiersString) {
+            TableLayoutUtils.CalculateFlexibleWidths(_flexibleWidth, modifiersString,
+                out var nameColumnWidth,
+                out var modifiersColumnWidth
+            );
+
+            NameColumnWidth = nameColumnWidth;
+            ModifiersColumnWidth = modifiersColumnWidth;
+        }
+
         public void UpdateLayout(
             float rankColumnWidth,
-            float nameColumnWidth,
             float accColumnWidth,
             float ppColumnWidth,
             float scoreColumnWidth,
+            float flexibleWidth,
             bool ppColumnActive
         ) {
             RankColumnWidth = rankColumnWidth;
-            NameColumnWidth = nameColumnWidth;
             AccColumnWidth = accColumnWidth;
             PpColumnWidth = ppColumnWidth;
             ScoreColumnWidth = scoreColumnWidth;
+            _flexibleWidth = flexibleWidth;
             PpIsActive = ppColumnActive;
         }
 
@@ -111,6 +126,7 @@ namespace BeatLeader.Components {
         private void ApplyAlpha() {
             _rankTmp.alpha = _currentAlpha;
             _nameTmp.alpha = _currentAlpha;
+            _modifiersTmp.alpha = _currentAlpha;
             _accTmp.alpha = _currentAlpha;
             _ppTmp.alpha = _currentAlpha;
             _scoreTmp.alpha = _currentAlpha;
@@ -209,6 +225,37 @@ namespace BeatLeader.Components {
             set {
                 if (_nameColumnWidth.Equals(value)) return;
                 _nameColumnWidth = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region Modifiers
+
+        [UIComponent("modifiers-tmp"), UsedImplicitly]
+        private TextMeshProUGUI _modifiersTmp;
+
+        private string _modifiersText = "";
+
+        [UIValue("modifiers-text"), UsedImplicitly]
+        private string ModifiersText {
+            get => _modifiersText;
+            set {
+                if (_modifiersText.Equals(value)) return;
+                _modifiersText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private float _modifiersColumnWidth;
+
+        [UIValue("modifiers-column-width"), UsedImplicitly]
+        private float ModifiersColumnWidth {
+            get => _modifiersColumnWidth;
+            set {
+                if (_modifiersColumnWidth.Equals(value)) return;
+                _modifiersColumnWidth = value;
                 NotifyPropertyChanged();
             }
         }

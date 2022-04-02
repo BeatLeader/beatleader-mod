@@ -1,0 +1,5 @@
+<horizontal ignore-layout="true" anchor-pos-x="-17" pref-height="40">
+    <vertical pref-width="60" pad="2">
+        <text id="text-component" text="~message-text" font-size="6" align="Center"/>
+    </vertical>
+</horizontal>

@@ -60,7 +60,6 @@ namespace BeatLeader {
                 avatarImage = TryLoadGif(handler.data);
                 Cache[url] = avatarImage;
             } catch (Exception e) {
-                Debug.Log($"Gif enhance failed! {e.Message}");
                 var isUsableTexture = (handler.texture != null) && (handler.texture.width != 8);
                 avatarImage = AvatarImage.Static(isUsableTexture ? handler.texture : BundleLoader.FileError.texture);
                 if (isUsableTexture) Cache[url] = avatarImage;

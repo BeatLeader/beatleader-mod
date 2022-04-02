@@ -7,6 +7,11 @@
             </macro.as-host>
         </modal>
 
+        <!--  EMPTY BOARD MESSAGE  -->
+        <macro.as-host host="empty-board-message">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
+
         <!--  NAVIGATION  -->
         <vertical spacing="4" vertical-fit="PreferredSize">
             <macro.as-host host="pagination">

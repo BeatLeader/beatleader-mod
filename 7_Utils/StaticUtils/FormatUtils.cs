@@ -1,4 +1,5 @@
 using System.Globalization;
+using UnityEngine;
 
 namespace BeatLeader {
     public static class FormatUtils {
@@ -32,28 +33,29 @@ namespace BeatLeader {
 
         #endregion
 
+        #region FormatModifiers
+
+        private const string ModifiersColor = "#999999";
+
+        public static string FormatModifiers(string modifiers) {
+            return $"<color={ModifiersColor}>{modifiers}";
+        }
+
+        #endregion
+
         #region FormatAcc
 
-        private const string AccColorSSPlus = "#8F48DB";
-        private const string AccColorSS = "#BF2A42";
-        private const string AccColorSPlus = "#FF6347";
-        private const string AccColorS = "#59B0F4";
-        private const string AccColorA = "#3CB371";
-        private const string AccColorMeh = "#EEFF9E";
+        private static readonly Color LowAccColor = new Color(0.93f, 1f, 0.62f);
+        private static readonly Color HighAccColor = new Color(1f, 0.39f, 0.28f);
 
         public static string FormatAcc(float value) {
-            return $"<color={GetAccColorString(value)}>{value * 100.0f:F2}<size=70%>%";
+            return $"<color=#{GetAccColorString(value)}>{value * 100.0f:F2}<size=70%>%";
         }
 
         private static string GetAccColorString(float acc) {
-            return acc switch {
-                >= 0.95f => AccColorSSPlus,
-                >= 0.9f => AccColorSS,
-                >= 0.85f => AccColorSPlus,
-                >= 0.8f => AccColorS,
-                >= 0.7f => AccColorA,
-                _ => AccColorMeh
-            };
+            var lerpValue = Mathf.Pow(acc, 14.0f);
+            var color = Color.Lerp(LowAccColor, HighAccColor, lerpValue);
+            return ColorUtility.ToHtmlStringRGBA(color);
         }
 
         #endregion

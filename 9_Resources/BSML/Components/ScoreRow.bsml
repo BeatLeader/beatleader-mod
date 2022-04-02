@@ -1,10 +1,11 @@
 <horizontal pref-height="5.2">
     <!--  STYLE  -->
     <macro.define name="font-size" value="3.4"/>
+    <macro.define name="modifiers-font-size" value="2.4"/>
     <macro.define name="row-height" value="5.2"/>
     
     <vertical pref-width="80" min-width="80">
-        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="0.2" pad="1" pref-height="~row-height">
+        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="1" pad="1" pref-height="~row-height">
             <!--  BACKGROUND  -->
             <vertical ignore-layout="true" pref-width="80">
                 <image src="#TransparentPixel" id="background-component" pref-height="~row-height" pref-width="80"/>
@@ -20,6 +21,11 @@
                 <horizontal>
                     <text id="name-tmp" text="~name-text" overflow-mode="Ellipsis" word-wrapping="false" font-size="~font-size" italics="true" align="Left"/>
                 </horizontal>
+            </vertical>
+
+            <!--  MODIFIERS  -->
+            <vertical pref-width="~modifiers-column-width">
+                <text id="modifiers-tmp" text="~modifiers-text" word-wrapping="false" font-size="~modifiers-font-size" italics="true" align="Right"/>
             </vertical>
 
             <!--  ACC  -->

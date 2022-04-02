@@ -25,6 +25,9 @@ namespace BeatLeader.ViewControllers {
         [UIValue("scope-selector"), UsedImplicitly]
         private ScopeSelector _scopeSelector = ReeUIComponent.Instantiate<ScopeSelector>();
 
+        [UIValue("empty-board-message"), UsedImplicitly]
+        private EmptyBoardMessage _emptyBoardMessage = ReeUIComponent.Instantiate<EmptyBoardMessage>();
+
         #endregion
 
         #region Initialize/Dispose

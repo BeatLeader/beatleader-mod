@@ -26,14 +26,14 @@ namespace BeatLeader.Components {
 
         #region SetScore
 
-        private Score? _score;
+        private Score _score;
 
         public void SetScore(Score score) {
             SetHighlight(score.player.IsCurrentPlayer());
 
             _score = score;
-            RankText = $"{score.rank}";
-            NameText = score.player.name;
+            RankText = FormatUtils.FormatRank(score.rank, false);
+            NameText = FormatUtils.FormatUserName(score.player.name);
             AccText = FormatUtils.FormatAcc(score.accuracy);
             PpText = FormatUtils.FormatPP(score.pp);
             ScoreText = FormatUtils.FormatScore(score.baseScore);

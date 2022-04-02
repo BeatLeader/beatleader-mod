@@ -10,7 +10,7 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnActivate(bool firstTime) {
-            UpdateAvatar();
+            if (_url != null) UpdateAvatar();
         }
 
         protected override void OnDeactivate() {
@@ -25,32 +25,26 @@ namespace BeatLeader.Components {
         private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
 
         private string _url;
-        private bool _updateRequired;
 
         public void SetAvatar(string url) {
             _url = url;
-            _updateRequired = true;
-            UpdateAvatar();
+            if (IsActive) UpdateAvatar();
         }
 
         private void UpdateAvatar() {
-            if (!IsActive || !_updateRequired) return;
-            SetMaterialLazy();
-            _materialInstance.SetFloat(FadeValuePropertyId, 1);
+            ShowSpinner();
             var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url, false, OnAvatarLoadSuccess, OnAvatarLoadFailed);
             StartCoroutine(loadTask);
-            _updateRequired = false;
         }
 
         private void OnAvatarLoadSuccess(AvatarImage avatarImage) {
-            _materialInstance.SetFloat(FadeValuePropertyId, 0);
-            _materialInstance.SetTexture(AvatarTexturePropertyId, avatarImage.Texture);
+            ShowTexture(avatarImage.Texture);
             if (avatarImage.PlaybackCoroutine == null) return;
             StartCoroutine(avatarImage.PlaybackCoroutine);
         }
 
         private void OnAvatarLoadFailed(string reason) {
-            //TODO: something
+            ShowTexture(BundleLoader.FileError.texture);
         }
 
         #endregion
@@ -62,6 +56,17 @@ namespace BeatLeader.Components {
 
         private Material _materialInstance;
         private bool _materialSet;
+
+        private void ShowSpinner() {
+            SetMaterialLazy();
+            _materialInstance.SetFloat(FadeValuePropertyId, 0);
+        }
+
+        private void ShowTexture(Texture texture) {
+            SetMaterialLazy();
+            _materialInstance.SetFloat(FadeValuePropertyId, 1);
+            _materialInstance.SetTexture(AvatarTexturePropertyId, texture);
+        }
 
         private void SetMaterialLazy() {
             if (_materialSet) return;

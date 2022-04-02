@@ -11,11 +11,11 @@ namespace BeatLeader {
         #region Initialize & Dispose
 
         public void Initialize() {
-            LeaderboardEvents.IsLeaderboardVisibleChangedEvent += Test;
+            LeaderboardEvents.IsLeaderboardVisibleChangedEvent += OnVisibilityChanged;
         }
 
         public void Dispose() {
-            LeaderboardEvents.IsLeaderboardVisibleChangedEvent -= Test;
+            LeaderboardEvents.IsLeaderboardVisibleChangedEvent -= OnVisibilityChanged;
         }
 
         #endregion
@@ -51,7 +51,7 @@ namespace BeatLeader {
 
         #region Events
 
-        private void Test(bool visible) {
+        private void OnVisibilityChanged(bool visible) {
             if (visible) {
                 LazyInit();
                 OnEnable();

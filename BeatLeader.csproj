@@ -12,7 +12,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>9.0</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <VersionType>Unofficial</VersionType>
     <CommitHash>local</CommitHash>
     <GitBranch></GitBranch>

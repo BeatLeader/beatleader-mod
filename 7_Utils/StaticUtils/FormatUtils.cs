@@ -2,6 +2,24 @@ using System.Globalization;
 
 namespace BeatLeader {
     public static class FormatUtils {
+        #region FormatRank
+
+        public static string FormatRank(int rank, bool withPrefix) {
+            return $"{(withPrefix ? "#" : "")}{rank}";
+        }
+
+        #endregion
+
+        #region FormatUsername
+
+        public static string FormatUserName(string userName) {
+            return $"<noparse>{userName}</noparse>";
+        }
+
+        #endregion
+
+        #region FormatScore
+
         public static readonly NumberFormatInfo ScoreFormatInfo = new CultureInfo("en-US", false).NumberFormat;
 
         static FormatUtils() {
@@ -11,6 +29,8 @@ namespace BeatLeader {
         public static string FormatScore(int value) {
             return value.ToString("N0", ScoreFormatInfo);
         }
+
+        #endregion
 
         #region FormatAcc
 

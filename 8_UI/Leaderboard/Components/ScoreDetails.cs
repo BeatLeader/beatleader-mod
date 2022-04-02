@@ -15,8 +15,8 @@ namespace BeatLeader.Components {
         #region SetScore
 
         public void SetScore(Score score) {
-            PlayerName = score.player.name;
-            PlayerRank = $"#{score.player.rank}";
+            PlayerName = FormatUtils.FormatUserName(score.player.name);
+            PlayerRank = FormatUtils.FormatRank(score.player.rank, true);
             PlayerPp = FormatUtils.FormatPP(score.player.pp);
 
             _playerAvatar.SetAvatar(score.player.avatar);

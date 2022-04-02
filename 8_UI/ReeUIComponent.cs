@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BeatLeader {
     internal abstract class ReeUIComponent : MonoBehaviour, INotifyPropertyChanged {
@@ -19,11 +20,18 @@ namespace BeatLeader {
 
         public static T Instantiate<T>(bool bindSelf = true) where T : ReeUIComponent {
             var gameObject = new GameObject(typeof(T).Name);
+            gameObject.transform.SetParent(GetTemporaryParent());
             gameObject.SetActive(!bindSelf);
             var component = gameObject.AddComponent<T>();
             component.BindSelf = bindSelf;
             component.Initialize();
             return component;
+        }
+
+        //Protects from Destroy on scene change until proper BSML hierarchy is applied
+        private static Transform GetTemporaryParent() {
+            var currentScene = SceneManager.GetActiveScene();
+            return currentScene.GetRootGameObjects()[0].transform;
         }
 
         #endregion
@@ -72,14 +80,21 @@ namespace BeatLeader {
 
         #region OnTransformParentChanged
 
+        private bool _rootWasRequested;
+
         [UIValue("root"), UsedImplicitly]
-        protected virtual Transform Root => transform;
+        protected virtual Transform Root {
+            get {
+                _rootWasRequested = true;
+                return transform;
+            }
+        }
 
         private bool _attached;
 
         protected virtual void OnTransformParentChanged() {
             var tmp = transform;
-            if (_attached || tmp.childCount == 0) return;
+            if (_attached || !_rootWasRequested || tmp.childCount == 0) return;
             var rootNodeTransform = tmp.GetChild(0);
             rootNodeTransform.SetParent(tmp.parent, true);
             if (!BindSelf) tmp.SetParent(null);

@@ -54,18 +54,16 @@ namespace BeatLeader {
                 yield break;
             }
 
+            var isUsableTexture = (handler.texture != null) && (handler.texture.width != 8);
+
             var avatarImage = new AvatarImage {
-                Texture = handler.texture,
+                Texture = isUsableTexture ? handler.texture : BundleLoader.FileError.texture,
                 PlaybackCoroutine = null
             };
 
-            try {
-                EnhanceGif(handler.data, ref avatarImage);
-            } catch (Exception) {
-                // ignored
-            }
+            var enhanced = TryEnhanceGif(handler.data, ref avatarImage);
 
-            Cache[url] = avatarImage;
+            if (enhanced || isUsableTexture) Cache[url] = avatarImage;
             onSuccessCallback.Invoke(avatarImage);
         }
 
@@ -73,16 +71,19 @@ namespace BeatLeader {
 
         #region EnhanceGif
 
-        private static void EnhanceGif(byte[] data, ref AvatarImage avatarImage) {
-            var reader = new BinaryReader(new MemoryStream(data));
+        private static bool TryEnhanceGif(byte[] data, ref AvatarImage avatarImage) {
+            try {
+                var reader = new BinaryReader(new MemoryStream(data));
+                var gifLoader = new GIFLoader();
+                var image = gifLoader.Load(reader);
+                var tex = new Texture2D(image.screen.width, image.screen.height);
 
-            var gifLoader = new GIFLoader();
-            var image = gifLoader.Load(reader);
-
-            var tex = new Texture2D(image.screen.width, image.screen.height);
-
-            avatarImage.Texture = tex;
-            avatarImage.PlaybackCoroutine = GifPlaybackCoroutine(tex, image);
+                avatarImage.Texture = tex;
+                avatarImage.PlaybackCoroutine = GifPlaybackCoroutine(tex, image);
+                return true;
+            } catch (Exception) {
+                return false;
+            }
         }
 
         private static IEnumerator GifPlaybackCoroutine(Texture2D texture, GIFImage gifImage) {

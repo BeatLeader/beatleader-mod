@@ -54,50 +54,37 @@ namespace BeatLeader {
                 yield break;
             }
 
-            var isUsableTexture = (handler.texture != null) && (handler.texture.width != 8);
+            AvatarImage avatarImage;
 
-            var avatarImage = new AvatarImage {
-                Texture = isUsableTexture ? handler.texture : BundleLoader.FileError.texture,
-                PlaybackCoroutine = null
-            };
+            try {
+                avatarImage = TryLoadGif(handler.data);
+                Cache[url] = avatarImage;
+            } catch (Exception e) {
+                Debug.Log($"Gif enhance failed! {e.Message}");
+                var isUsableTexture = (handler.texture != null) && (handler.texture.width != 8);
+                avatarImage = AvatarImage.Static(isUsableTexture ? handler.texture : BundleLoader.FileError.texture);
+                if (isUsableTexture) Cache[url] = avatarImage;
+            }
 
-            var enhanced = TryEnhanceGif(handler.data, ref avatarImage);
-
-            if (enhanced || isUsableTexture) Cache[url] = avatarImage;
             onSuccessCallback.Invoke(avatarImage);
         }
 
         #endregion
 
-        #region EnhanceGif
+        #region TryLoadGif
 
-        private static bool TryEnhanceGif(byte[] data, ref AvatarImage avatarImage) {
-            try {
-                var reader = new BinaryReader(new MemoryStream(data));
-                var gifLoader = new GIFLoader();
-                var image = gifLoader.Load(reader);
-                var tex = new Texture2D(image.screen.width, image.screen.height);
+        private static AvatarImage TryLoadGif(byte[] data) {
+            var reader = new BinaryReader(new MemoryStream(data));
+            var image = new GIFLoader().Load(reader);
 
-                avatarImage.Texture = tex;
-                avatarImage.PlaybackCoroutine = GifPlaybackCoroutine(tex, image);
-                return true;
-            } catch (Exception) {
-                return false;
-            }
-        }
+            var tex = new Texture2D(
+                image.screen.width,
+                image.screen.height,
+                TextureFormat.RGBA32,
+                false
+            );
 
-        private static IEnumerator GifPlaybackCoroutine(Texture2D texture, GIFImage gifImage) {
-            if (gifImage.imageData.Count == 0) yield break;
-
-            var colors = texture.GetPixels32();
-            while (true) {
-                foreach (var frame in gifImage.imageData) {
-                    frame.DrawTo(colors, texture.width, texture.height);
-                    texture.SetPixels32(colors);
-                    texture.Apply();
-                    yield return new WaitForSeconds(frame.graphicControl.fdelay);
-                }
-            }
+            return AvatarImage.Animated(tex, image);
         }
 
         #endregion

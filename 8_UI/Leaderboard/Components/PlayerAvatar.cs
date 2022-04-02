@@ -7,6 +7,24 @@ using UnityEngine;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.PlayerAvatar.bsml")]
     internal class PlayerAvatar : ReeUIComponent {
+        #region BufferTexture
+
+        private const int Width = 256;
+        private const int Height = 256;
+
+        private RenderTexture _bufferTexture;
+
+        protected override void OnInitialize() {
+            _bufferTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.Default, 5);
+            _bufferTexture.Create();
+        }
+
+        protected override void OnDispose() {
+            _bufferTexture.Release();
+        }
+
+        #endregion
+
         #region Events
 
         protected override void OnActivate(bool firstTime) {
@@ -38,9 +56,8 @@ namespace BeatLeader.Components {
         }
 
         private void OnAvatarLoadSuccess(AvatarImage avatarImage) {
-            ShowTexture(avatarImage.Texture);
-            if (avatarImage.PlaybackCoroutine == null) return;
-            StartCoroutine(avatarImage.PlaybackCoroutine);
+            ShowTexture(_bufferTexture);
+            StartCoroutine(avatarImage.PlaybackCoroutine(_bufferTexture));
         }
 
         private void OnAvatarLoadFailed(string reason) {

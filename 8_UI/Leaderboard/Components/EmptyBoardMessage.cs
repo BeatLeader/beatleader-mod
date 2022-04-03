@@ -36,19 +36,37 @@ namespace BeatLeader.Components {
         }
 
         private void OnScoresFetched(Paged<Score> scoreData) {
-            if (scoreData.data.IsEmpty()) {
-                SetText(
-                    GoodNewsColor,
-                    "No scores yet",
-                    "Be the first!"
-                );
-                FadeIn();
-            } else {
-                FadeOut();
+            if (scoreData.data == null) {
+                OnError();
+                return;
             }
+
+            if (scoreData.data.IsEmpty()) {
+                OnEmpty();
+                return;
+            }
+
+            OnFull();
         }
 
         private void OnScoresRequestFailed() {
+            OnError();
+        }
+
+        private void OnFull() {
+            FadeOut();
+        }
+
+        private void OnEmpty() {
+            SetText(
+                GoodNewsColor,
+                "No scores yet",
+                "Be the first!"
+            );
+            FadeIn();
+        }
+
+        private void OnError() {
             SetText(
                 BadNewsColor,
                 "Oops!",

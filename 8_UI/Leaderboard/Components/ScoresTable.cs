@@ -14,12 +14,34 @@ namespace BeatLeader.Components {
         #region Components
 
         [UIValue("extra-score-row"), UsedImplicitly]
-        private readonly ExtraScoreRow _extraRow = Instantiate<ExtraScoreRow>(it => it.SetActive(false));
+        private readonly ScoreRow _extraRow = Instantiate<ScoreRow>();
+
+        [UIValue("top-row-divider"), UsedImplicitly]
+        private readonly ScoreRowDivider _topRowDivider = Instantiate<ScoreRowDivider>();
+
+        [UIValue("bottom-row-divider"), UsedImplicitly]
+        private readonly ScoreRowDivider _bottomRowDivider = Instantiate<ScoreRowDivider>();
 
         [UIValue("score-rows"), UsedImplicitly]
         private readonly List<object> _scoreRowsObj = new();
 
         private readonly List<ScoreRow> _mainRows = new();
+
+        #endregion
+
+        #region Test
+
+        protected override void OnBind() {
+            Plugin.Log.Notice("--- OnBind!");
+        }
+
+        protected override void OnActivate(bool firstTime) {
+            Plugin.Log.Notice($"--- OnActivate {firstTime}!");
+        }
+
+        protected override void OnDeactivate() {
+            Plugin.Log.Notice($"--- OnDeactivate!");
+        }
 
         #endregion
 
@@ -58,12 +80,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnScoresFetched(Paged<Score> scoresData) {
-            if (scoresData.data == null) {
-                Plugin.Log.Error("scoresData.data is null!");
-                return;
-            }
-
-            if (scoresData.data.IsEmpty()) return; //TODO: Display "You can be the first!" message
+            if (scoresData.data == null || scoresData.data.IsEmpty()) return;
             StartCoroutine(SetScoresCoroutine(scoresData));
         }
 
@@ -79,6 +96,9 @@ namespace BeatLeader.Components {
                 _extraRow.ClearScore();
                 yield return new WaitForSeconds(DelayPerRow);
             }
+
+            _topRowDivider.FadeOut();
+            _bottomRowDivider.FadeOut();
 
             foreach (var row in _mainRows) {
                 row.ClearScore();
@@ -116,8 +136,11 @@ namespace BeatLeader.Components {
 
             var extraRowState = UpdateExtraRowState(scoresData);
 
+            if (scoresData.metadata.page > 1) _topRowDivider.FadeIn();
+            if (scoresData.metadata.page < (float) scoresData.metadata.total / scoresData.metadata.itemsPerPage) _bottomRowDivider.FadeIn();
+
             if (extraRowState == ExtraRowState.Top) {
-                UpdateRowLayout(_extraRow.ScoreRow);
+                UpdateRowLayout(_extraRow);
                 _extraRow.SetScore(scoresData.selection);
                 yield return new WaitForSeconds(DelayPerRow);
             }
@@ -134,7 +157,7 @@ namespace BeatLeader.Components {
             }
 
             if (extraRowState == ExtraRowState.Bottom) {
-                UpdateRowLayout(_extraRow.ScoreRow);
+                UpdateRowLayout(_extraRow);
                 _extraRow.SetScore(scoresData.selection);
             }
 
@@ -145,35 +168,28 @@ namespace BeatLeader.Components {
 
         #region ExtraRowUtils
 
-        private void HideExtraRow() {
-            _extraRow.SetActive(false);
-        }
-
-        private void ShowExtraRow() {
-            _extraRow.SetActive(true);
-        }
+        private const int BottomSiblingIndex = MainRowsCount + 2;
+        private const int TopSiblingIndex = 0;
 
         private ExtraRowState UpdateExtraRowState(Paged<Score> scoresData) {
             if (scoresData.selection == null) {
-                HideExtraRow();
+                _extraRow.SetActive(false);
                 return ExtraRowState.Hidden;
             }
 
             if (scoresData.selection.rank < scoresData.data.First().rank) {
-                ShowExtraRow();
-                _extraRow.SetHierarchyIndex(0);
-                _extraRow.SetRowPosition(true);
+                _extraRow.SetHierarchyIndex(TopSiblingIndex);
+                _extraRow.SetActive(true);
                 return ExtraRowState.Top;
             }
 
             if (scoresData.selection.rank > scoresData.data.Last().rank) {
-                ShowExtraRow();
-                _extraRow.SetHierarchyIndex(MainRowsCount + 1);
-                _extraRow.SetRowPosition(false);
+                _extraRow.SetHierarchyIndex(BottomSiblingIndex);
+                _extraRow.SetActive(true);
                 return ExtraRowState.Bottom;
             }
 
-            HideExtraRow();
+            _extraRow.SetActive(false);
             return ExtraRowState.Hidden;
         }
 

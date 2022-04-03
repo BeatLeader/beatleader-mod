@@ -1,5 +1,7 @@
+using System.Linq;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
@@ -37,7 +39,7 @@ namespace BeatLeader.Components {
                 return;
             }
             UpInteractable = scoresData.metadata.page > 1;
-            AroundInteractable = scoresData.selection != null;
+            AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => it.player.IsCurrentPlayer());
             DownInteractable = scoresData.metadata.page * scoresData.metadata.itemsPerPage < scoresData.metadata.total;
         }
 

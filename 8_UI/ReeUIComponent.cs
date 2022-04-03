@@ -64,6 +64,7 @@ namespace BeatLeader {
         }
 
         private void Parse() {
+            _root = transform;
             var type = GetType();
             var customAttribute = type.GetCustomAttribute<ViewDefinitionAttribute>();
             var content = customAttribute == null ? FallbackContent : Utilities.GetResourceContent(type.Assembly, customAttribute.Definition);
@@ -78,33 +79,46 @@ namespace BeatLeader {
 
         #endregion
 
-        #region OnTransformParentChanged
+        #region Root
 
+        private Transform _root;
         private bool _rootWasRequested;
 
         [UIValue("root"), UsedImplicitly]
         protected virtual Transform Root {
             get {
                 _rootWasRequested = true;
-                return transform;
+                return _root;
             }
         }
 
-        private bool _attached;
+        #endregion
+
+        #region OnTransformParentChanged
+
+        private bool _isHierarchySet;
 
         protected virtual void OnTransformParentChanged() {
-            var tmp = transform;
-            if (_attached || !_rootWasRequested || tmp.childCount == 0) return;
-            var rootNodeTransform = tmp.GetChild(0);
-            rootNodeTransform.SetParent(tmp.parent, true);
-            if (!BindSelf) tmp.SetParent(null);
-            gameObject.SetActive(true);
-            _attached = true;
+            if (_isHierarchySet || !_rootWasRequested) return;
+            _isHierarchySet = true;
+
+            AdjustHierarchy();
             OnBind();
 
             if (!gameObject.activeInHierarchy) return;
             OnActivate(_firstTime);
             _firstTime = false;
+        }
+
+        private void AdjustHierarchy() {
+            var self = transform;
+            if (self.childCount == 0) return;
+            var realRoot = self.GetChild(0);
+            realRoot.SetParent(self.parent, true);
+            _root = realRoot;
+
+            if (!BindSelf) transform.SetParent(GetTemporaryParent());
+            gameObject.SetActive(true);
         }
 
         #endregion
@@ -115,14 +129,14 @@ namespace BeatLeader {
         private bool _firstTime = true;
 
         protected virtual void OnEnable() {
-            if (!_attached) return;
+            if (!_isHierarchySet) return;
             IsActive = true;
             OnActivate(_firstTime);
             _firstTime = false;
         }
 
         protected virtual void OnDisable() {
-            if (!_attached) return;
+            if (!_isHierarchySet) return;
             OnDeactivate();
             IsActive = false;
         }

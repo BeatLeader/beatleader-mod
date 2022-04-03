@@ -17,7 +17,7 @@ namespace BeatLeader.Utils {
             modifiedScore = 69420,
             modifiers = "LOL,KEK",
             pp = 322.0f,
-            rank = 69,
+            rank = 19,
             player = new Player {
                 id = "0",
                 rank = 1337,

@@ -24,6 +24,14 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region SetActive
+        
+        public void SetActive(bool value) {
+            IsActive = value;
+        }
+
+        #endregion
+
         #region SetScore
 
         private Score _score;
@@ -39,7 +47,7 @@ namespace BeatLeader.Components {
             PpText = FormatUtils.FormatPP(score.pp);
             ScoreText = FormatUtils.FormatScore(score.modifiedScore);
             Clickable = true;
-            
+
             UpdateFlexibleColumns(score.modifiers);
             FadeIn();
         }

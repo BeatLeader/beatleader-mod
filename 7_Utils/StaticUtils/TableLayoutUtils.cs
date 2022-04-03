@@ -49,13 +49,13 @@ namespace BeatLeader {
 
             if (scoresData.selection != null) {
                 if (scoresData.selection.pp > 0) hasPP = true;
-                if (scoresData.selection.baseScore > maximalScore) maximalScore = scoresData.selection.baseScore;
+                if (scoresData.selection.modifiedScore > maximalScore) maximalScore = scoresData.selection.modifiedScore;
                 if (scoresData.selection.rank > maximalRank) maximalRank = scoresData.selection.rank;
             }
 
             foreach (var score in scoresData.data) {
                 if (score.pp > 0) hasPP = true;
-                if (score.baseScore > maximalScore) maximalScore = score.baseScore;
+                if (score.modifiedScore > maximalScore) maximalScore = score.modifiedScore;
                 if (score.rank > maximalRank) maximalRank = score.rank;
             }
 

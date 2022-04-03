@@ -8,12 +8,13 @@ namespace BeatLeader.Utils {
         public static string steamAuthToken;
 
         public static bool IsCurrentPlayer(this Player player) {
-            return string.Equals(player.name, profile?.name, StringComparison.Ordinal);
+            return string.Equals(player.id, profile?.id, StringComparison.Ordinal);
         }
         
         public static Score TestScore => new Score {
             accuracy = 0.9641f,
             baseScore = 69420,
+            modifiedScore = 69420,
             modifiers = "LOL,KEK",
             pp = 322.0f,
             rank = 69,

@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using HarmonyLib;
 using IPA.Loader;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -15,8 +12,7 @@ using Transform = BeatLeader.Models.Transform;
 
 namespace BeatLeader {
     [UsedImplicitly]
-    public class ReplayRecorder : IInitializable, IDisposable, ITickable
-    {
+    public class ReplayRecorder : IInitializable, IDisposable, ITickable {
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
@@ -27,6 +23,7 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private PlayerHeadAndObstacleInteraction _phaoi;
         [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
         [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
+
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
         private Pause _currentPause;
@@ -72,6 +69,8 @@ namespace BeatLeader {
             {
                 _playerHeightDetector.playerHeightDidChangeEvent += OnPlayerHeightChange;
             }
+
+            ScoreUtil.EnableSubmission();
         }
 
         public void Dispose() {

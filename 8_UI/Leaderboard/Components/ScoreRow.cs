@@ -37,7 +37,7 @@ namespace BeatLeader.Components {
             ModifiersText = FormatUtils.FormatModifiers(score.modifiers);
             AccText = FormatUtils.FormatAcc(score.accuracy);
             PpText = FormatUtils.FormatPP(score.pp);
-            ScoreText = FormatUtils.FormatScore(score.baseScore);
+            ScoreText = FormatUtils.FormatScore(score.modifiedScore);
             Clickable = true;
             
             UpdateFlexibleColumns(score.modifiers);

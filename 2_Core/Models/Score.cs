@@ -4,6 +4,7 @@
     {
         public float accuracy;
         public int baseScore;
+        public int modifiedScore;
         public string modifiers;
         public float pp;
         public int rank;

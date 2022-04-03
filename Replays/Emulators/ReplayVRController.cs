@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.XR;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replays.Emulators
 {
     public class ReplayVRController : VRController
     {

@@ -25,7 +25,7 @@ namespace BeatLeader.Replays.ReplayEnhancers
 
             info.mode = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             info.environment = environmentInfo.environmentName;
-            info.modifiers = string.Join(",", modifiers());
+            info.modifiers = string.Join(",", GetSongModifiers());
             info.leftHanded = playerSpecificSettings.leftHanded;
             info.height = playerSpecificSettings.automaticPlayerHeight ? 0 : playerSpecificSettings.playerHeight;
 
@@ -36,25 +36,40 @@ namespace BeatLeader.Replays.ReplayEnhancers
             }
         }
 
-        private static List<string> modifiers()
+        private static List<string> GetSongModifiers()
         {
             List<string> result = new();
 
-            if (gameplayModifiers.disappearingArrows) { result.Add("DA"); }
-            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) { result.Add("FS"); }
-            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) { result.Add("SS"); }
-            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.SuperFast) { result.Add("SF"); }
-            if (gameplayModifiers.ghostNotes) { result.Add("GN"); }
-            if (gameplayModifiers.noArrows) { result.Add("NA"); }
-            if (gameplayModifiers.noBombs) { result.Add("NB"); }
-            if (gameplayModifiers.noFailOn0Energy && energy == 0) { result.Add("NF"); }
-            if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) { result.Add("NO"); }
-            if (gameplayModifiers.strictAngles) { result.Add("SA"); }
-            if (gameplayModifiers.proMode) { result.Add("PM"); }
-            if (gameplayModifiers.smallCubes) { result.Add("SC"); }
-            if (gameplayModifiers.failOnSaberClash) { result.Add("CS"); }
-            if (gameplayModifiers.instaFail) { result.Add("IF"); }
-            if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) { result.Add("BE"); }
+            if (gameplayModifiers.disappearingArrows) 
+                result.Add("DA");
+            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Faster) 
+                result.Add("FS");
+            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.Slower) 
+                result.Add("SS");
+            if (gameplayModifiers.songSpeed == GameplayModifiers.SongSpeed.SuperFast) 
+                result.Add("SF");
+            if (gameplayModifiers.ghostNotes) 
+                result.Add("GN");
+            if (gameplayModifiers.noArrows) 
+                result.Add("NA");
+            if (gameplayModifiers.noBombs) 
+                result.Add("NB");
+            if (gameplayModifiers.noFailOn0Energy && energy == 0) 
+                result.Add("NF");
+            if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles)
+                result.Add("NO");
+            if (gameplayModifiers.strictAngles) 
+                result.Add("SA");
+            if (gameplayModifiers.proMode) 
+                result.Add("PM");
+            if (gameplayModifiers.smallCubes) 
+                result.Add("SC");
+            if (gameplayModifiers.failOnSaberClash) 
+                result.Add("CS");
+            if (gameplayModifiers.instaFail) 
+                result.Add("IF");
+            if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery)
+                result.Add("BE");
 
             return result;
         }

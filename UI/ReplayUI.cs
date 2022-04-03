@@ -50,11 +50,11 @@ namespace BeatLeader.UI
             isPatched = true;
         }
         private static void SetButtonState(bool state) => replayButton.interactable = state;
-        public static void CheckIsReplayExists(string name)
+        public static void CheckIsReplayExists(IDifficultyBeatmap beatmap)
         {
-            if (ReplayDataHelper.TryGetReplayBySongName(name, ReplayDataHelper.Result.Completed, ReplayDataHelper.Score.Best, out Replay replay))
+            if (ReplayDataHelper.TryGetReplayBySongInfo(beatmap, out Replay replay, ReplayDataHelper.Result.Completed, ReplayDataHelper.Score.Best))
             {
-                Plugin.Log.Notice($"Preloaded replay: {replay.info.songName}/{replay.info.failTime}/{replay.info.score}");
+                Plugin.Log.Notice($"Preloaded replay: {replay.info.songName}/{replay.info.difficulty}/{replay.info.mode} | {replay.info.score}/{replay.info.failTime}");
                 SetButtonState(true);
                 replayData = replay;
             }
@@ -64,5 +64,6 @@ namespace BeatLeader.UI
                 replayData = null;
             }
         }
+        public static void NotifyReplayEnded() => isStartedAsReplay = false;
     }
 }

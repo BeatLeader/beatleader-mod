@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BeatLeader.Installers;
 using BeatLeader.Replays.Models;
+using BeatLeader.Replays.Emulators;
 using BeatLeader.UI;
 using BeatLeader.Utils;
 using Zenject;
@@ -59,7 +60,7 @@ namespace BeatLeader.Replays
         public static void UninstallPatch()
         {
             Plugin.Log.Warn("Uninstalling replay patch");
-            isStartedAsReplay = false;
+            ReplayUI.NotifyReplayEnded();
             player = null;
             EventsHandler.MenuSceneLoaded -= UninstallPatch;
         }

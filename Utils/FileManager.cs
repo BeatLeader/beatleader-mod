@@ -11,7 +11,7 @@ namespace BeatLeader.Utils
 {
     class FileManager
     {
-        public static string replayFolderPath => @"UserData\BeatLeader\Replays";
+        public static string replayFolderPath => @"UserData\BeatLeader\Replays\";
 
         static FileManager()
         {

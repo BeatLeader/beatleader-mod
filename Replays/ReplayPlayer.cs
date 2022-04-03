@@ -7,6 +7,7 @@ using System.Threading;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Replays.Models;
+using BeatLeader.Replays.Emulators;
 
 namespace BeatLeader.Replays
 {
@@ -18,12 +19,16 @@ namespace BeatLeader.Replays
         public ReplayVRController rightHand;
         public ReplayVRController leftHand;
         private Frame previousFrame;
-
-        private bool isPlaying;
-        private int currentFrame;
         private int totalFramesCount;
+        private int currentFrame;
 
         public event Action<Frame> frameWasUpdated;
+
+        public bool isPlaying
+        {
+            get;
+            private set;
+        }
 
         public void Start()
         {
@@ -35,19 +40,11 @@ namespace BeatLeader.Replays
         {
             if (!isPlaying) return;
             PlayFrame(replayData.GetFrameByTime(songSyncController.songTime));
-            if (currentFrame < totalFramesCount)
-            {
-                currentFrame++;
-            }
-            else
-            {
-                currentFrame = 0;
-                isPlaying = false;
-            }
+            currentFrame++;
         }
         private void PlayFrame(Frame frame)
         {
-            if (frame == null & frame == previousFrame) return;
+            if (frame == null | frame == previousFrame) return;
 
             var LeftHandPos = new UnityEngine.Vector3(frame.leftHand.position.x, frame.leftHand.position.y, frame.leftHand.position.z);
             var RightHandPos = new UnityEngine.Vector3(frame.rightHand.position.x, frame.rightHand.position.y, frame.rightHand.position.z);

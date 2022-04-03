@@ -29,9 +29,8 @@ namespace BeatLeader.Installers
         }
         private void InitPlayer()
         {
-            Debug.LogWarning($"modifiers - {ReplayUI.replayData.info.modifiers}");
-            Container.Bind<Replay>().FromInstance(ReplayUI.replayData).AsSingle();
             Container.Bind<ReplayPlayer>().AsSingle();
+            Container.Bind<Replay>().FromInstance(ReplayUI.replayData).AsSingle();
             MovementPatchHelper.InstallPatch();
             MovementPatchHelper.player.InjectAllFields(Container);
             EventsHandler.MenuSceneLoaded += MovementPatchHelper.UninstallPatch;

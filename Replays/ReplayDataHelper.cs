@@ -135,80 +135,7 @@ namespace BeatLeader.Replays
         }
         #endregion
 
-        public static bool TryGetReplayBySongName(string name, Result replayResult, Score replayScore, out Replay replay)
-        {
-            string[] replaysPaths = Directory.GetFiles(FileManager.replayFolderPath);
-            List<Replay> matchedReplays = new List<Replay>();
-            List<int> cellsToRemove = new List<int>();
-            replay = null;
-
-            foreach (var path in replaysPaths)
-            {
-                Replay extractedReplay = FileManager.ReadReplay(path);
-                if (extractedReplay.info.songName == name)
-                    matchedReplays.Add(extractedReplay);
-            }
-            if (matchedReplays.Count == 0) return false;
-            switch (replayResult)
-            {
-                case Result.Completed:
-                    for (int i = 0; i < matchedReplays.Count; i++)
-                    {
-                        if (matchedReplays[i].info.failTime != 0)
-                        {
-                            cellsToRemove.Add(i);
-                        }
-                    }
-                    break;
-                case Result.Failed:
-                    for (int i = 0; i < matchedReplays.Count; i++)
-                    {
-                        if (matchedReplays[i].info.failTime == 0)
-                        {
-                            cellsToRemove.Add(i);
-                        }
-                    }
-                    break;
-            }
-
-            foreach (int index in cellsToRemove)
-            {
-                matchedReplays.RemoveAt(index);
-            }
-            cellsToRemove.Clear();
-            if (matchedReplays.Count == 0) return false;
-
-            int scoreIndex = -1;
-            switch (replayScore)
-            {
-                case Score.Best:
-                    float bestScore = 0;
-                    for (int i = 0; i < matchedReplays.Count; i++)
-                    {
-                        if (matchedReplays[i].info.score > bestScore)
-                        {
-                            bestScore = matchedReplays[i].info.score;
-                            scoreIndex = i;
-                        }
-                    }
-                    break;
-                case Score.Lowest:
-                    float lowestScore = float.MaxValue;
-                    for (int i = 0; i < matchedReplays.Count; i++)
-                    {
-                        if (matchedReplays[i].info.score < lowestScore)
-                        {
-                            lowestScore = matchedReplays[i].info.score;
-                            scoreIndex = i;
-                        }
-                    }
-                    break;
-            }
-            if (matchedReplays.Count == 0) return false;
-
-            replay = scoreIndex != -1 ? matchedReplays[scoreIndex] : matchedReplays[0];
-            return true;
-        }
+        #region Replaying
         public static Frame GetFrameByTime(this Replay replay, float time)
         {
             for (int i = 0; i < replay.frames.Count; i++)
@@ -278,5 +205,86 @@ namespace BeatLeader.Replays
             }
             return replayModifiers;
         }
+        public static bool TryGetReplayBySongInfo(IDifficultyBeatmap data, out Replay replay, Result replayResult = Result.NA, Score replayScore = Score.NA)
+        {
+            return TryGetReplayBySongInfo(data.level.songName, data.difficulty.ToString(), data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName, out replay, replayResult, replayScore);
+        }
+        public static bool TryGetReplayBySongInfo(string name, string difficulty, string mode, out Replay replay, Result replayResult = Result.NA, Score replayScore = Score.NA)
+        {
+            string[] replaysPaths = Directory.GetFiles(FileManager.replayFolderPath);
+            List<Replay> matchedReplays = new List<Replay>();
+            List<int> cellsToRemove = new List<int>();
+            replay = null;
+
+            foreach (var path in replaysPaths)
+            {
+                Replay extractedReplay = FileManager.ReadReplay(path);
+                if (extractedReplay.info.songName == name && extractedReplay.info.difficulty == difficulty && extractedReplay.info.mode == mode)
+                {
+                    matchedReplays.Add(extractedReplay);
+                }
+            }
+            if (matchedReplays.Count == 0) return false;
+            switch (replayResult)
+            {
+                case Result.Completed:
+                    for (int i = 0; i < matchedReplays.Count; i++)
+                    {
+                        if (matchedReplays[i].info.failTime != 0)
+                        {
+                            cellsToRemove.Add(i);
+                        }
+                    }
+                    break;
+                case Result.Failed:
+                    for (int i = 0; i < matchedReplays.Count; i++)
+                    {
+                        if (matchedReplays[i].info.failTime == 0)
+                        {
+                            cellsToRemove.Add(i);
+                        }
+                    }
+                    break;
+            }
+
+            foreach (int index in cellsToRemove)
+            {
+                matchedReplays.RemoveAt(index);
+            }
+            cellsToRemove.Clear();
+            if (matchedReplays.Count == 0) return false;
+
+            int scoreIndex = -1;
+            switch (replayScore)
+            {
+                case Score.Best:
+                    float bestScore = 0;
+                    for (int i = 0; i < matchedReplays.Count; i++)
+                    {
+                        if (matchedReplays[i].info.score > bestScore)
+                        {
+                            bestScore = matchedReplays[i].info.score;
+                            scoreIndex = i;
+                        }
+                    }
+                    break;
+                case Score.Lowest:
+                    float lowestScore = float.MaxValue;
+                    for (int i = 0; i < matchedReplays.Count; i++)
+                    {
+                        if (matchedReplays[i].info.score < lowestScore)
+                        {
+                            lowestScore = matchedReplays[i].info.score;
+                            scoreIndex = i;
+                        }
+                    }
+                    break;
+            }
+            if (matchedReplays.Count == 0) return false;
+
+            replay = scoreIndex != -1 ? matchedReplays[scoreIndex] : matchedReplays[0];
+            return true;
+        }
+        #endregion
     }
 }

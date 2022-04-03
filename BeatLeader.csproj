@@ -37,6 +37,9 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BeatmapCore">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+    </Reference>
     <Reference Include="Colors">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
     </Reference>
@@ -84,6 +87,9 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
@@ -116,9 +122,6 @@
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="BeatmapCore">
-      <HintPath>.$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
-    </Reference>
     <Reference Include="BSML">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
@@ -147,11 +150,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="9_Resources\BSML\ModPanelUI.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\SettingsPanelUI.bsml" />
+    <EmbeddedResource Include="Resources\BSML\ModPanelUI.bsml" />
+    <EmbeddedResource Include="Resources\BSML\SettingsPanelUI.bsml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
+    <EmbeddedResource Include="Resources\AssetBundles\asset_bundle" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />

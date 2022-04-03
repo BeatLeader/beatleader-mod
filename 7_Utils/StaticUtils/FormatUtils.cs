@@ -31,7 +31,9 @@ namespace BeatLeader {
         private const int Day = 24 * Hour;
         private const int Month = 30 * Day;
 
-        public static string GetRelativeTimeString(DateTime dateTime) {
+        public static string GetRelativeTimeString(string timeSet) {
+            var dateTime = long.Parse(timeSet).AsUnixTime();
+
             var ts = new TimeSpan(DateTime.UtcNow.Ticks - dateTime.Ticks);
             var delta = Math.Abs(ts.TotalSeconds);
 
@@ -102,7 +104,7 @@ namespace BeatLeader {
         private static readonly Color HighAccColor = new Color(1f, 0.39f, 0.28f);
 
         public static string FormatAcc(float value) {
-            return $"<color=#{GetAccColorString(value)}>{value * 100.0f:F2}<size=70%>%";
+            return $"<color=#{GetAccColorString(value)}>{value * 100.0f:F2}<size=70%>%</size>";
         }
 
         private static string GetAccColorString(float acc) {
@@ -118,7 +120,7 @@ namespace BeatLeader {
         private const string PPColor = "#B856FF";
 
         public static string FormatPP(float value) {
-            return $"<color={PPColor}>{value:F2}<size=70%>pp";
+            return $"<color={PPColor}>{value:F2}<size=70%>pp</size>";
         }
 
         #endregion

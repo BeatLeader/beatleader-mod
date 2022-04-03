@@ -29,22 +29,6 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Test
-
-        protected override void OnBind() {
-            Plugin.Log.Notice("--- OnBind!");
-        }
-
-        protected override void OnActivate(bool firstTime) {
-            Plugin.Log.Notice($"--- OnActivate {firstTime}!");
-        }
-
-        protected override void OnDeactivate() {
-            Plugin.Log.Notice($"--- OnDeactivate!");
-        }
-
-        #endregion
-
         #region Constructor
 
         private const int MainRowsCount = 10;

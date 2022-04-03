@@ -25,7 +25,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region SetActive
-        
+
         public void SetActive(bool value) {
             IsActive = value;
         }

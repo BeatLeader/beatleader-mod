@@ -24,12 +24,17 @@ namespace BeatLeader.Components {
 
         public void SetCountry(string country) {
             _country = country;
-            if (IsActive) UpdateImage();
+            if (gameObject.activeInHierarchy) UpdateImage();
         }
 
         private void UpdateImage() {
+            Clear();
             var loadTask = CountryFlagsStorage.GetCountryFlagCoroutine(_country, false, OnLoadSuccess, OnLoadFailed);
             StartCoroutine(loadTask);
+        }
+
+        private void Clear() {
+            SetSprite(BundleLoader.TransparentPixel);
         }
 
         private void OnLoadSuccess(Sprite sprite) {

@@ -6,17 +6,17 @@
             </horizontal>
 
             <horizontal active="~stats-active" spacing="4" pref-height="4" horizontal-fit="PreferredSize">
-                <horizontal spacing="1">
+                <horizontal pref-height="4" spacing="1">
                     <image src="#GlobalIcon" pref-height="4" pref-width="4" preserve-aspect="true"/>
-                    <text text="~global-rank-text" align="Center"/>
+                    <text text="~global-rank-text" align="Midline"/>
                 </horizontal>
-                <horizontal spacing="1">
+                <horizontal pref-height="4" spacing="1">
                     <macro.as-host host="country-flag">
                         <macro.reparent transform="root"/>
                     </macro.as-host>
-                    <text text="~country-rank-text" align="Center"/>
+                    <text text="~country-rank-text" align="Midline"/>
                 </horizontal>
-                <horizontal>
+                <horizontal pref-height="4">
                     <text text="~pp-text" align="Center"/>
                 </horizontal>
             </horizontal>

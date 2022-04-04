@@ -116,7 +116,7 @@ namespace BeatLeader {
             realRoot.SetParent(self.parent, true);
             _root = realRoot;
 
-            if (!BindSelf) transform.SetParent(GetTemporaryParent());
+            transform.SetParent(BindSelf ? realRoot : GetTemporaryParent());
             gameObject.SetActive(true);
         }
 

@@ -1,9 +1,11 @@
 name: Build
 
-on:
-    workflow_dispatch:
-    push:
-        branches: [ master, testCI ]
+on: 
+  push:
+    branches: [ master, testCI ]
+    tags: v*
+  pull_request:
+    branches: [ master ]
 
 jobs:
     Build:
@@ -13,7 +15,7 @@ jobs:
             - name: Setup dotnet
               uses: actions/setup-dotnet@v1
               with:
-                  dotnet-version: 5.0.x
+                  dotnet-version: 6.0.x
             - name: Acquire SIRA References
               uses: ProjectSIRA/download-sira-stripped@1.0.0
               with:
@@ -40,3 +42,10 @@ jobs:
               with:
                   name: ${{ steps.Build.outputs.filename }}
                   path: ${{ steps.Build.outputs.artifactpath }}
+            - name: Release
+              uses: softprops/action-gh-release@v1
+              if: startsWith(github.ref, 'refs/tags/')
+              with:
+                files: ${{ steps.Build.outputs.artifactpath }}
+              env: 
+                GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

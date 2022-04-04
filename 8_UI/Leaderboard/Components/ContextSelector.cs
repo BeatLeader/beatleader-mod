@@ -36,7 +36,6 @@ namespace BeatLeader.Components {
             }
             
             _currentContext = newContext;
-            LeaderboardEvents.NotifyContextWasSelected(_currentContext);
         }
 
         #endregion
@@ -75,6 +74,7 @@ namespace BeatLeader.Components {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            LeaderboardEvents.NotifyContextWasSelected(_currentContext);
         }
 
         #endregion

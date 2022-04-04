@@ -22,11 +22,12 @@ namespace BeatLeader.ScoreProvider {
             string diff = difficultyBeatmap.difficulty.ToString();
             string mode = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             string scope = this.getScope().ToString().ToLowerInvariant();
+            string context = BLContext.scoresContext.ToString().ToLower();
 
             string userId = BLContext.profile.id;
 
             return await _httpUtils.GetPagedData<Score>(
-                String.Format(BLConstants.SCORES_BY_HASH_PAGED, hash, diff, mode, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
+                String.Format(BLConstants.SCORES_BY_HASH_PAGED, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
                     { BLConstants.Param.PLAYER, userId },
                     { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
                     { BLConstants.Param.PAGE, page  }
@@ -40,11 +41,12 @@ namespace BeatLeader.ScoreProvider {
             string diff = difficultyBeatmap.difficulty.ToString();
             string mode = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             string scope = this.getScope().ToString().ToLowerInvariant();
+            string context = BLContext.scoresContext.ToString().ToLower();
 
             string userId = BLContext.profile.id;
 
             return await _httpUtils.GetPagedData<Score>(
-                String.Format(BLConstants.SCORES_BY_HASH_SEEK, hash, diff, mode, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
+                String.Format(BLConstants.SCORES_BY_HASH_SEEK, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
                     { BLConstants.Param.PLAYER, userId },
                     { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
                 })),

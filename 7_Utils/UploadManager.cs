@@ -47,10 +47,13 @@ namespace BeatLeader.Utils
 
                     var body = await response.Content.ReadAsStringAsync();
                     Plugin.Log.Debug($"StatusCode: {response.StatusCode}, ReasonPhrase: '{response.ReasonPhrase}'");
-                    if (body != null && !body.StartsWith("{")) { Plugin.Log.Debug($"Response content: {body}"); }
+                    if (body != null && body.Length > 0) {
+                        if (!(body.StartsWith("{") || body.StartsWith("[") || body.StartsWith("<"))) {
+                            Plugin.Log.Debug($"Response content: {body}");
+                        }
+                    }
 
-                    if (response.IsSuccessStatusCode)
-                    {
+                    if (response.IsSuccessStatusCode) {
                         Plugin.Log.Debug(body);
                         var options = new JsonSerializerSettings() {
                             MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -63,6 +66,8 @@ namespace BeatLeader.Utils
                         LeaderboardEvents.NotifyUploadSuccess();
 
                         return; // if OK - stop retry cycle
+                    } else {
+                        LeaderboardEvents.NotifyUploadFailed(i == _retry, i);
                     }
                 }
                 catch (Exception e)

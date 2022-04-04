@@ -6,6 +6,7 @@ namespace BeatLeader.Utils {
     internal static class BLContext {
         public static Player? profile;
         public static string steamAuthToken;
+        public static ScoresContext scoresContext = DefaultScoresContext;
 
         public static bool IsCurrentPlayer(this Player player) {
             return string.Equals(player.id, profile?.id, StringComparison.Ordinal);

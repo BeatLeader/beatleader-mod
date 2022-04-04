@@ -7,6 +7,7 @@ using Zenject;
 using BeatLeader.Models;
 using BeatLeader.ScoreProvider;
 using BeatLeader.Manager;
+using BeatLeader.Utils;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : INotifyLeaderboardSet, IInitializable, IDisposable {
@@ -29,7 +30,7 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.UploadSuccessAction += LoadScores;
 
             LeaderboardEvents.ScopeWasSelectedAction += ChangeScoreProvider;
-            //LeaderboardEvents.RefreshButtonWasPressedAction += LoadScores;
+            LeaderboardEvents.ContextWasSelectedAction += ChangeScoreContext;
 
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
@@ -40,7 +41,7 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.UploadSuccessAction -= LoadScores;
 
             LeaderboardEvents.ScopeWasSelectedAction -= ChangeScoreProvider;
-            //_leaderboardEvents.RefreshButtonWasPressedAction -= LoadScores;
+            LeaderboardEvents.ContextWasSelectedAction -= ChangeScoreContext;
 
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;
@@ -95,7 +96,7 @@ namespace BeatLeader.DataManager {
         #region Select score scope
 
         private void ChangeScoreProvider(ScoresScope scope) {
-            Plugin.Log.Debug($"Attempt to switch score score from [{_selectedScoreProvider.getScope()}] to [{scope}]");
+            Plugin.Log.Debug($"Attempt to switch score scope from [{_selectedScoreProvider.getScope()}] to [{scope}]");
 
             IScoreProvider scoreProvider = _scoreProviders.Find(provider => provider.getScope() == scope);
             if (scoreProvider.getScope() != _selectedScoreProvider.getScope()) {
@@ -104,6 +105,17 @@ namespace BeatLeader.DataManager {
 
                 LoadScores();
             }
+        }
+
+        #endregion
+
+        #region Select score context
+
+        private void ChangeScoreContext(ScoresContext context) {
+            Plugin.Log.Debug($"Attempt to switch score context from [{BLContext.scoresContext}] to [{context}]");
+
+            BLContext.scoresContext = context;
+            LoadScores();
         }
 
         #endregion

@@ -18,10 +18,10 @@ namespace BeatLeader.Utils {
         #region Leaderboard requests
 
         public static readonly string SCORES_BY_HASH_PAGED = // /v2/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}
-            BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/standard/{3}/page?{4}";
+            BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
 
         public static readonly string SCORES_BY_HASH_SEEK = // /v2/scores/{hash}/{diff}/{mode}/{context}/{scope}/around?player={playerId}&count={count}
-            BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/standard/{3}/around?{4}";
+            BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
 
         public static readonly int SCORE_PAGE_SIZE = 10;
 

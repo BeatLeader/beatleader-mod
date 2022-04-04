@@ -16,11 +16,6 @@ namespace BeatLeader.Components {
         private void Start() {
             SelectContext(BLContext.DefaultScoresContext);
             SetMaterials();
-
-            foreach (var sprite in Resources.FindObjectsOfTypeAll<Sprite>()) {
-                Plugin.Log.Notice(sprite.name);
-                Thread.Sleep(1);
-            }
         }
 
         #endregion

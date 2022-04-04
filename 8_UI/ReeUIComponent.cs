@@ -21,7 +21,6 @@ namespace BeatLeader {
         public static T Instantiate<T>(bool bindSelf = true) where T : ReeUIComponent {
             var gameObject = new GameObject(typeof(T).Name);
             gameObject.transform.SetParent(GetTemporaryParent());
-            gameObject.SetActive(!bindSelf);
             var component = gameObject.AddComponent<T>();
             component.BindSelf = bindSelf;
             component.Initialize();

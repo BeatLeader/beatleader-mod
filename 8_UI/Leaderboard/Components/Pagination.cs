@@ -35,9 +35,13 @@ namespace BeatLeader.Components {
 
         private void OnScoresFetched(Paged<Score> scoresData) {
             if (scoresData.metadata == null) {
-                Plugin.Log.Error($"scoresData.metadata is null!");
+                Plugin.Log.Error("scoresData.metadata is null!");
+                UpInteractable = false;
+                AroundInteractable = false;
+                DownInteractable = false;
                 return;
             }
+
             UpInteractable = scoresData.metadata.page > 1;
             AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => it.player.IsCurrentPlayer());
             DownInteractable = scoresData.metadata.page * scoresData.metadata.itemsPerPage < scoresData.metadata.total;
@@ -107,6 +111,7 @@ namespace BeatLeader.Components {
 
         [UIComponent("down-component"), UsedImplicitly]
         private ClickableImage _downComponent;
+
         private void FlipUpButton() {
             _upComponent.transform.Rotate(0, 0, 180);
         }

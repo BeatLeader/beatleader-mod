@@ -12,15 +12,20 @@ namespace BeatLeader.Components {
         [UIValue("player-avatar"), UsedImplicitly]
         private PlayerAvatar _playerAvatar = Instantiate<PlayerAvatar>();
 
+        [UIValue("country-flag"), UsedImplicitly]
+        private CountryFlag _countryFlag = Instantiate<CountryFlag>();
+
         #endregion
 
         #region SetScore
 
         public void SetScore(Score score) {
             _playerAvatar.SetAvatar(score.player.avatar);
+            _countryFlag.SetCountry(score.player.country);
 
             PlayerName = FormatUtils.FormatUserName(score.player.name);
-            PlayerRank = FormatUtils.FormatRank(score.player.rank, true);
+            PlayerGlobalRank = FormatUtils.FormatRank(score.player.rank, true);
+            PlayerCountryRank = FormatUtils.FormatRank(score.player.countryRank, true);
             PlayerPp = FormatUtils.FormatPP(score.player.pp);
 
             TimeSetText = GetTimeSetString(score);
@@ -90,16 +95,32 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region playerRank
+        #region PlayerGlobalRank
 
-        private string _playerRank = "";
+        private string _playerGlobalRank = "";
 
         [UIValue("player-global-rank"), UsedImplicitly]
-        public string PlayerRank {
-            get => _playerRank;
+        public string PlayerGlobalRank {
+            get => _playerGlobalRank;
             set {
-                if (_playerRank.Equals(value)) return;
-                _playerRank = value;
+                if (_playerGlobalRank.Equals(value)) return;
+                _playerGlobalRank = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region PlayerCountryRank
+
+        private string _playerCountryRank = "";
+
+        [UIValue("player-country-rank"), UsedImplicitly]
+        public string PlayerCountryRank {
+            get => _playerCountryRank;
+            set {
+                if (_playerCountryRank.Equals(value)) return;
+                _playerCountryRank = value;
                 NotifyPropertyChanged();
             }
         }

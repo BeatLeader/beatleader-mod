@@ -7,16 +7,19 @@
             </macro.as-host>
 
             <vertical ignore-layout="true" anchor-pos-y="-11">
-                <horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
-                    <vertical pad="2" bg="round-rect-panel" bg-color="#000000EE">
+                <horizontal spacing="1" horizontal-fit="PreferredSize">
+                    <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
                         <text text="~player-global-rank" align="Center"/>
-                    </vertical>
-                    <vertical pad="2" bg="round-rect-panel" bg-color="#000000EE">
+                    </horizontal>
+                    <horizontal pref-height="6" pad="1" spacing="1" bg="round-rect-panel" bg-color="#000000EE">
+                        <macro.as-host host="country-flag">
+                            <macro.reparent transform="root"/>
+                        </macro.as-host>
                         <text text="~player-name" align="Center"/>
-                    </vertical>
-                    <vertical pad="2" bg="round-rect-panel" bg-color="#000000EE">
+                    </horizontal>
+                    <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
                         <text text="~player-pp" align="Center"/>
-                    </vertical>
+                    </horizontal>
                 </horizontal>
             </vertical>
         </horizontal>

@@ -28,7 +28,7 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnActivate(bool firstTime) {
-            if (_url != null) UpdateAvatar();
+            UpdateAvatar();
         }
 
         protected override void OnDeactivate() {
@@ -46,10 +46,11 @@ namespace BeatLeader.Components {
 
         public void SetAvatar(string url) {
             _url = url;
-            if (IsActive) UpdateAvatar();
+            UpdateAvatar();
         }
 
         private void UpdateAvatar() {
+            if (!gameObject.activeInHierarchy || _url == null) return;
             ShowSpinner();
             var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url, false, OnAvatarLoadSuccess, OnAvatarLoadFailed);
             StartCoroutine(loadTask);

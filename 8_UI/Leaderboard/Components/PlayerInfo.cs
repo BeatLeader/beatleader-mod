@@ -9,7 +9,7 @@ namespace BeatLeader.Components {
         #region Components
 
         [UIValue("avatar"), UsedImplicitly]
-        private PlayerAvatar _avatar = Instantiate<PlayerAvatar>();
+        private PlayerAvatar _avatar = Instantiate<PlayerAvatar>(false);
 
         #endregion
 

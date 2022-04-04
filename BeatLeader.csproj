@@ -144,6 +144,7 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="9_Resources\BSML\Components\ContextSelector.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\CountryFlag.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\EmptyBoardMessage.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Logo.bsml" />

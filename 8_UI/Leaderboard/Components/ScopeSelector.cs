@@ -1,11 +1,11 @@
 using System;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScopeSelector.bsml")]
@@ -13,7 +13,7 @@ namespace BeatLeader.Components {
         #region Start
 
         private void Start() {
-            SelectScope(ScoresScope.Global);
+            SelectScope(BLContext.DefaultScoresScope);
             SetMaterials();
         }
 

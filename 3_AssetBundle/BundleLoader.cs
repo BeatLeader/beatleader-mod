@@ -51,6 +51,9 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite FileError;
 
+        [UsedImplicitly]
+        public static Sprite ModifiersIcon;
+
         #endregion
 
         #region LoadAssets
@@ -69,6 +72,7 @@ namespace BeatLeader {
             BeatLeaderLogoGradient = assetBundle.LoadAsset<Sprite>("BeatLeaderLogoGradient");
             TransparentPixel = assetBundle.LoadAsset<Sprite>("TransparentPixel");
             FileError = assetBundle.LoadAsset<Sprite>("FileError");
+            ModifiersIcon = assetBundle.LoadAsset<Sprite>("ModifiersIcon");
         }
 
         #endregion

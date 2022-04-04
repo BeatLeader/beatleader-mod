@@ -13,12 +13,16 @@
         </macro.as-host>
 
         <!--  NAVIGATION  -->
-        <vertical spacing="4" vertical-fit="PreferredSize">
+        <vertical spacing="3" pad-top="10" vertical-fit="PreferredSize">
             <macro.as-host host="pagination">
                 <macro.reparent transform="root"/>
             </macro.as-host>
 
             <macro.as-host host="scope-selector">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+
+            <macro.as-host host="context-selector">
                 <macro.reparent transform="root"/>
             </macro.as-host>
         </vertical>

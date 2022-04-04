@@ -10,5 +10,8 @@ namespace BeatLeader.Utils {
         public static bool IsCurrentPlayer(this Player player) {
             return string.Equals(player.id, profile?.id, StringComparison.Ordinal);
         }
+
+        public static ScoresContext DefaultScoresContext => ScoresContext.Modifiers;
+        public static ScoresScope DefaultScoresScope => ScoresScope.Global;
     }
 }

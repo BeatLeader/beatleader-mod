@@ -103,7 +103,7 @@ namespace BeatLeader.Manager {
         #region ShowStatusMessage
         public static event Action<string, float> StatusMessageEvent;
 
-        public static void ShowStatusMessage(string message, float duration) {
+        public static void ShowStatusMessage(string message, float duration = 1f) {
             StatusMessageEvent?.Invoke(message, duration);
         }
 
@@ -158,6 +158,16 @@ namespace BeatLeader.Manager {
 
         public static void NotifyScopeWasSelected(ScoresScope scope) {
             ScopeWasSelectedAction?.Invoke(scope);
+        }
+
+        #endregion
+
+        #region ContextWasSelected
+
+        public static event Action<ScoresContext> ContextWasSelectedAction;
+
+        public static void NotifyContextWasSelected(ScoresContext context) {
+            ContextWasSelectedAction?.Invoke(context);
         }
 
         #endregion

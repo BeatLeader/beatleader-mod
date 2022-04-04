@@ -56,7 +56,7 @@ namespace BeatLeader.API
             }
             var token = sb.ToString();
 
-            Plugin.Log.Debug("Hex encoded ticket: " + token);
+            Plugin.Log.Info("Hex encoded ticket: " + token);
 
             if (m_HAuthTicket != HAuthTicket.Invalid)
             {

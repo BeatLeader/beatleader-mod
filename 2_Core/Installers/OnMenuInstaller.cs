@@ -4,6 +4,7 @@ using BeatLeader.Utils;
 using BeatLeader.ViewControllers;
 using JetBrains.Annotations;
 using Zenject;
+using SiraUtil.Zenject;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]

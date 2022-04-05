@@ -7,6 +7,7 @@
   "description": "",
   "gameVersion": "1.21.0",
   "dependsOn": {
+    "LeaderboardCore": "^1.1.0",
     "BeatSaberMarkupLanguage": "^1.5.1",
     "BSIPA": "^4.0.5"
   },

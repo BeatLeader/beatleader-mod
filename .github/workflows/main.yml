@@ -3,7 +3,7 @@ name: Build
 on:
     workflow_dispatch:
     push:
-        branches: [ master, testCI ]
+        branches: [ master, testCI, 1191support ]
 
 jobs:
     Build:

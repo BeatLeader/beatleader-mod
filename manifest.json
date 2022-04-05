@@ -5,7 +5,7 @@
   "author": "",
   "version": "0.2.0",
   "description": "",
-  "gameVersion": "1.21.0",
+  "gameVersion": "1.19.1",
   "dependsOn": {
     "LeaderboardCore": "^1.1.0",
     "BeatSaberMarkupLanguage": "^1.5.1",

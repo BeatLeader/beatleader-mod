@@ -1,37 +1,34 @@
 using System.Reflection;
 using BeatLeader.Core.Managers.ReplayEnhancer;
+using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Zenject;
 
-namespace BeatLeader.Installers
-{
+namespace BeatLeader.Installers {
     [UsedImplicitly]
-    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller>
-    {
-        public override void InstallBindings()
-        {
+    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
+        public override void InstallBindings() {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
 
             InitRecorder();
         }
 
-        private void InitRecorder()
-        {
+        private void InitRecorder() {
             #region Gates
-            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
-            {
+            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
                 Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
                 return;
             }
-            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
-            {
+            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId))) {
                 Plugin.Log.Debug("OST level detected. No recording.");
                 return;
             }
             #endregion
 
             Plugin.Log.Debug("Starting a BL Replay Recorder.");
+
+            Container.BindInterfacesAndSelfTo<HttpUtils>().AsSingle();
             Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
             Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
         }

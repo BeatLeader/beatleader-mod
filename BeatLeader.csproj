@@ -199,10 +199,6 @@
     <Compile Include="2_Core\Managers\ReplayEnhancer\TrackingDeviceEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
-    <Compile Include="2_Core\Managers\ScoreProvider\AbstractScoreProvider.cs" />
-    <Compile Include="2_Core\Managers\ScoreProvider\CountryScoreProvider.cs" />
-    <Compile Include="2_Core\Managers\ScoreProvider\GlobalScoreProvider.cs" />
-    <Compile Include="2_Core\Managers\ScoreProvider\IScoreProvider.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
     <Compile Include="2_Core\Models\Paged.cs" />
     <Compile Include="2_Core\Models\Player.cs" />
@@ -222,7 +218,6 @@
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
-    <Compile Include="7_Utils\UploadManager.cs" />
     <Compile Include="7_Utils\UtilityClasses\GifLoader.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ContextSelector.cs" />
     <Compile Include="8_UI\Leaderboard\Components\CountryFlag.cs" />

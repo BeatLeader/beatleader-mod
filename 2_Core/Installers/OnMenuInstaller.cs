@@ -1,5 +1,4 @@
 using BeatLeader.DataManager;
-using BeatLeader.ScoreProvider;
 using BeatLeader.Utils;
 using BeatLeader.ViewControllers;
 using JetBrains.Annotations;
@@ -21,12 +20,10 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardHeaderManager>().AsSingle();
 
-            Container.BindInterfacesAndSelfTo<LeaderboardManager>().AsSingle();
-            Container.BindInterfacesAndSelfTo<GlobalScoreProvider>().AsSingle();
-            Container.BindInterfacesAndSelfTo<CountryScoreProvider>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<ProfileManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.BindInterfacesAndSelfTo<HttpUtils>().AsSingle();
-            Container.BindInterfacesAndSelfTo<ProfileManager>().AsSingle();
         }
     }
 }

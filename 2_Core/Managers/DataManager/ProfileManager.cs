@@ -1,51 +1,49 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Steamworks;
-using Zenject;
-
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using BeatLeader.Manager;
+using Steamworks;
+using UnityEngine;
+using Zenject;
 
-namespace BeatLeader.DataManager
-{
-    internal class ProfileManager : IInitializable, IDisposable
-    {
-        private readonly HttpUtils _httpUtils;
+namespace BeatLeader.DataManager {
+    internal class ProfileManager : MonoBehaviour {
+        private HttpUtils _httpUtils;
+        private Coroutine _profileTask;
 
-        private CancellationTokenSource? _profileRequestToken;
-
-        public ProfileManager(HttpUtils httpUtils)
-        {
+        [Inject]
+        public void Construct(HttpUtils httpUtils) {
             _httpUtils = httpUtils;
         }
 
-        public void Initialize() {
+        private void Start() {
             LeaderboardEvents.UploadSuccessAction += UpdateProfile;
             UpdateProfile();
         }
 
-        public void Dispose() {
+        private void OnDestroy() {
             LeaderboardEvents.UploadSuccessAction -= UpdateProfile;
         }
 
-        private async void UpdateProfile() {
-            _profileRequestToken?.Cancel();
-            _profileRequestToken = new CancellationTokenSource();
+        private void UpdateProfile() {
+            if (_profileTask != null) {
+                StopCoroutine(_profileTask);
+            }
 
             LeaderboardEvents.ProfileRequestStarted();
 
             string userID = SteamUser.GetSteamID().m_SteamID.ToString();
-            Player profile = await _httpUtils.GetData<Player>(String.Format(BLConstants.PROFILE_BY_ID, userID), _profileRequestToken.Token, null);
-            if (profile == null) {
-                Plugin.Log.Debug($"No profile for id {userID} was found. Abort");
-                LeaderboardEvents.NotifyProfileRequestFailed();
-                return;
-            }
-
-            LeaderboardEvents.PublishProfile(profile);
-            BLContext.profile = profile;
+            _profileTask = StartCoroutine(
+                _httpUtils.GetData<Player>(String.Format(BLConstants.PROFILE_BY_ID, userID),
+                profile => {
+                    LeaderboardEvents.PublishProfile(profile);
+                    BLContext.profile = profile;
+                },
+                () => {
+                    Plugin.Log.Debug($"No profile for id {userID} was found. Abort");
+                    LeaderboardEvents.NotifyProfileRequestFailed();
+                    return;
+                }));
         }
     }
 }

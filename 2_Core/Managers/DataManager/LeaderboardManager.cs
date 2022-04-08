@@ -1,32 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using BeatLeader.Manager;
+using BeatLeader.Models;
+using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
+using UnityEngine;
 using Zenject;
 
-using BeatLeader.Models;
-using BeatLeader.ScoreProvider;
-using BeatLeader.Manager;
-using BeatLeader.Utils;
-
 namespace BeatLeader.DataManager {
-    internal class LeaderboardManager : INotifyLeaderboardSet, IInitializable, IDisposable {
-        private readonly List<IScoreProvider> _scoreProviders;
+    internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
 
-        private IScoreProvider _selectedScoreProvider;
+        private ScoresScope _selectedScoreScope;
+        private ScoresContext _selectedScoreContext;
         private int _lastSelectedPage = 1;
         private IDifficultyBeatmap _lastSelectedBeatmap;
 
-        private CancellationTokenSource? scoreRequestToken;
+        private Coroutine _scoresTask;
+        private HttpUtils _httpUtils;
 
-        public LeaderboardManager(List<IScoreProvider> scoreProviders) {
-            _scoreProviders = scoreProviders;
-            _selectedScoreProvider = _scoreProviders.Find(provider => provider.getScope() == ScoresScope.Global);
+        [Inject]
+        public void Construct(HttpUtils httpUtils) {
+            _httpUtils = httpUtils;
+
+            _selectedScoreScope = ScoresScope.Global;
+            _selectedScoreContext = BLContext.DefaultScoresContext;
         }
 
         #region Initialize/Dispose section
 
-        public void Initialize() {
+        public void Start() {
             LeaderboardEvents.UploadSuccessAction += LoadScores;
 
             LeaderboardEvents.ScopeWasSelectedAction += ChangeScoreProvider;
@@ -37,7 +39,7 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
         }
 
-        public void Dispose() {
+        private void OnDestroy() {
             LeaderboardEvents.UploadSuccessAction -= LoadScores;
 
             LeaderboardEvents.ScopeWasSelectedAction -= ChangeScoreProvider;
@@ -60,35 +62,61 @@ namespace BeatLeader.DataManager {
 
         #region score fetching
 
-        private async void LoadScores() {
-            scoreRequestToken?.Cancel();
-            scoreRequestToken = new CancellationTokenSource();
+        private void LoadScores() {
+            if (_scoresTask != null) {
+                StopCoroutine(_scoresTask);
+            }
 
             LeaderboardEvents.ScoreRequestStarted();
 
-            Paged<Score> scores = await _selectedScoreProvider.GetScores(_lastSelectedBeatmap, _lastSelectedPage, scoreRequestToken.Token);
+            string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
+            string diff = _lastSelectedBeatmap.difficulty.ToString();
+            string mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            string scope = _selectedScoreScope.ToString().ToLowerInvariant();
+            string context = _selectedScoreContext.ToString().ToLower();
 
-            if (scores == null) {
-                LeaderboardEvents.NotifyScoresFetchFailed();
-            } else {
-                LeaderboardEvents.PublishScores(scores);
-            }
+            string userId = BLContext.profile.id;
+
+            _scoresTask = StartCoroutine(_httpUtils.GetPagedData<Score>(
+                String.Format(BLConstants.SCORES_BY_HASH_PAGED, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
+                    { BLConstants.Param.PLAYER, userId },
+                    { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
+                    { BLConstants.Param.PAGE, _lastSelectedPage }
+                })),
+                paged => {
+                    _lastSelectedPage = paged.metadata.page;
+                    LeaderboardEvents.PublishScores(paged);
+                }, () => {
+                    LeaderboardEvents.NotifyScoresFetchFailed();
+                }));
         }
 
-        private async void SeekScores() {
-            scoreRequestToken?.Cancel();
-            scoreRequestToken = new CancellationTokenSource();
+        private void SeekScores() {
+            if (_scoresTask != null) {
+                StopCoroutine(_scoresTask);
+            }
 
             LeaderboardEvents.ScoreRequestStarted();
 
-            Paged<Score> scores = await _selectedScoreProvider.SeekScores(_lastSelectedBeatmap, scoreRequestToken.Token);
+            string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
+            string diff = _lastSelectedBeatmap.difficulty.ToString();
+            string mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            string scope = _selectedScoreScope.ToString().ToLowerInvariant();
+            string context = _selectedScoreContext.ToString().ToLower();
 
-            if (scores == null) {
-                LeaderboardEvents.NotifyScoresFetchFailed();
-            } else {
-                _lastSelectedPage = scores.metadata.page;
-                LeaderboardEvents.PublishScores(scores);
-            }
+            string userId = BLContext.profile.id;
+
+            _scoresTask = StartCoroutine(_httpUtils.GetPagedData<Score>(
+                String.Format(BLConstants.SCORES_BY_HASH_SEEK, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
+                    { BLConstants.Param.PLAYER, userId },
+                    { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
+                })),
+                paged => {
+                    _lastSelectedPage = paged.metadata.page;
+                    LeaderboardEvents.PublishScores(paged);
+                }, () => {
+                    LeaderboardEvents.NotifyScoresFetchFailed();
+                }));
         }
 
         #endregion
@@ -96,11 +124,10 @@ namespace BeatLeader.DataManager {
         #region Select score scope
 
         private void ChangeScoreProvider(ScoresScope scope) {
-            Plugin.Log.Debug($"Attempt to switch score scope from [{_selectedScoreProvider.getScope()}] to [{scope}]");
+            Plugin.Log.Debug($"Attempt to switch score scope from [{_selectedScoreScope}] to [{scope}]");
 
-            IScoreProvider scoreProvider = _scoreProviders.Find(provider => provider.getScope() == scope);
-            if (scoreProvider.getScope() != _selectedScoreProvider.getScope()) {
-                _selectedScoreProvider = scoreProvider;
+            if (_selectedScoreScope != scope) {
+                _selectedScoreScope = scope;
                 _lastSelectedPage = 1;
 
                 LoadScores();
@@ -112,10 +139,14 @@ namespace BeatLeader.DataManager {
         #region Select score context
 
         private void ChangeScoreContext(ScoresContext context) {
-            Plugin.Log.Debug($"Attempt to switch score context from [{BLContext.scoresContext}] to [{context}]");
+            Plugin.Log.Debug($"Attempt to switch score context from [{_selectedScoreContext}] to [{context}]");
 
-            BLContext.scoresContext = context;
-            LoadScores();
+            if (_selectedScoreContext != context) {
+                _selectedScoreContext = context;
+                _lastSelectedPage = 1;
+
+                LoadScores();
+            }
         }
 
         #endregion

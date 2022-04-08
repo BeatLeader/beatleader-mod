@@ -26,6 +26,7 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private ScoreController _scoreController;
         [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
         [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
+        [Inject] [UsedImplicitly] private ScoreUtil _scoreUtil;
 
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
@@ -354,7 +355,7 @@ namespace BeatLeader {
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
                     Plugin.Log.Info("Level Cleared. Save replay");
-                    ScoreUtil.ProcessReplay(_replay);
+                    _scoreUtil.ProcessReplay(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
                     if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
@@ -365,7 +366,7 @@ namespace BeatLeader {
                     {
                         _replay.info.failTime = _timeSyncController.songTime;
                         Plugin.Log.Info("Level Failed. Save replay");
-                        ScoreUtil.ProcessReplay(_replay);
+                        _scoreUtil.ProcessReplay(_replay);
                     }
                     break;
             }

@@ -29,8 +29,8 @@ namespace BeatLeader {
 
         //Protects from Destroy on scene change until proper BSML hierarchy is applied
         private static Transform GetTemporaryParent() {
-            var currentScene = SceneManager.GetActiveScene();
-            return currentScene.GetRootGameObjects()[0].transform;
+            var lastLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
+            return lastLoadedScene.GetRootGameObjects()[0].transform;
         }
 
         #endregion

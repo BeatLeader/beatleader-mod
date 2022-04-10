@@ -27,8 +27,17 @@ namespace BeatLeader.Utils {
 
         #endregion
 
+        #region Profile
         public static readonly string PROFILE_BY_ID = // /player/{user_id}
             BEATLEADER_API_URL + "/player/{0}";
+
+        #endregion
+
+        #region Modifiers
+
+        public static readonly string MODIFIERS_URL = BEATLEADER_API_URL + "/modifiers";
+
+        #endregion
 
         internal class Param {
             public static readonly string PLAYER = "player";

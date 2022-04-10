@@ -22,7 +22,7 @@ namespace BeatLeader.Installers {
                 return;
             }
 
-            Container.Bind<ScoreUtil>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<ScoreUtil>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             _scoreUtilInstance = Container.TryResolve<ScoreUtil>();
         }
         #endregion

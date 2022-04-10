@@ -3,23 +3,24 @@ using Steamworks;
 using System;
 using Zenject;
 
-namespace BeatLeader.API
-{
-    class Authentication : IInitializable
-    {
+namespace BeatLeader.API {
+    class Authentication : IInitializable, IDisposable {
         private byte[]? m_Ticket;
         private uint m_pcbTicket;
         private HAuthTicket m_HAuthTicket;
 
-        public void Initialize()
-        {
+        public void Initialize() {
             Login();
         }
 
-        private void Login()
-        {
-            if (!SteamManager.Initialized)
-            {
+        public void Dispose() {
+            if (m_GetAuthSessionTicketResponse != null) {
+                m_GetAuthSessionTicketResponse.Dispose();
+            }
+        }
+
+        private void Login() {
+            if (!SteamManager.Initialized) {
                 Plugin.Log.Debug("SteamManager is not initialized!");
                 return;
             }
@@ -31,8 +32,7 @@ namespace BeatLeader.API
             m_HAuthTicket = SteamUser.GetAuthSessionTicket(m_Ticket, 1024, out m_pcbTicket);
         }
 
-        private void DropAuthData()
-        {
+        private void DropAuthData() {
             m_Ticket = null;
             m_pcbTicket = 0;
             m_HAuthTicket = HAuthTicket.Invalid;
@@ -40,31 +40,27 @@ namespace BeatLeader.API
 
         protected Callback<GetAuthSessionTicketResponse_t>? m_GetAuthSessionTicketResponse;
 
-        void OnGetAuthSessionTicketResponse(GetAuthSessionTicketResponse_t response)
-        {
-            if (!m_HAuthTicket.Equals(response.m_hAuthTicket))
-            {
-                Plugin.Log.Debug("Unknown auth ticket");
+        void OnGetAuthSessionTicketResponse(GetAuthSessionTicketResponse_t response) {
+            Plugin.Log.Debug($"OnGetAuthSessionTicketResponse({response.m_eResult}, {response.m_hAuthTicket})");
+            if (!m_HAuthTicket.Equals(response.m_hAuthTicket)) {
+                Plugin.Log.Debug("Unknown auth handler");
                 return;
             }
 
             Array.Resize(ref m_Ticket, (int)m_pcbTicket);
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            foreach (byte b in m_Ticket)
-            {
+            System.Text.StringBuilder sb = new();
+            foreach (byte b in m_Ticket) {
                 sb.AppendFormat("{0:x2}", b);
             }
             var token = sb.ToString();
 
-            Plugin.Log.Info("Hex encoded ticket: " + token);
+            Plugin.Log.Debug("Hex encoded ticket: " + token);
 
-            if (m_HAuthTicket != HAuthTicket.Invalid)
-            {
+            if (m_HAuthTicket != HAuthTicket.Invalid) {
                 var steamId = SteamUser.GetSteamID();
 
                 EBeginAuthSessionResult beginAuthSessionResult = SteamUser.BeginAuthSession(m_Ticket, (int)m_pcbTicket, steamId);
-                switch (beginAuthSessionResult)
-                {
+                switch (beginAuthSessionResult) {
                     case EBeginAuthSessionResult.k_EBeginAuthSessionResultOK:
                         Plugin.Log.Debug("Auth OK");
                         var result = SteamUser.UserHasLicenseForApp(steamId, new AppId_t(620980));
@@ -72,16 +68,14 @@ namespace BeatLeader.API
                         SteamUser.EndAuthSession(steamId);
 
 
-                        switch (result)
-                        {
+                        switch (result) {
                             case EUserHasLicenseForAppResult.k_EUserHasLicenseResultDoesNotHaveLicense:
                                 Plugin.Log.Debug("License check: User does not have a license to current game");
                                 DropAuthData();
                                 break;
                             case EUserHasLicenseForAppResult.k_EUserHasLicenseResultHasLicense:
 
-                                if (BLContext.steamAuthToken == null)
-                                {
+                                if (BLContext.steamAuthToken == null) {
                                     BLContext.steamAuthToken = token;
                                 }
 
@@ -97,6 +91,8 @@ namespace BeatLeader.API
                         break;
                 }
             }
+
+            m_GetAuthSessionTicketResponse.Dispose();
         }
     }
 }

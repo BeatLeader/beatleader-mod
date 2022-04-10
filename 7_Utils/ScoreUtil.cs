@@ -1,4 +1,5 @@
-﻿using BeatLeader.Models;
+﻿using System.Collections.Generic;
+using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
 
@@ -10,10 +11,23 @@ namespace BeatLeader.Utils {
         internal static bool BS_UtilsSubmission = true;
 
         private HttpUtils _httpUtils;
+        private Dictionary<string, float> _modifiers;
 
         [Inject]
         public void Construct(HttpUtils httpUtils) {
             _httpUtils = httpUtils;
+        }
+
+        private void Start() {
+            StartCoroutine(_httpUtils.GetData<Dictionary<string, float>>(BLConstants.MODIFIERS_URL,
+                modifiers => {
+                    _modifiers = modifiers;
+                },
+                () => {
+                    Plugin.Log.Error("Can't fetch values for modifiers");
+                },
+                3)
+            );
         }
 
         public void ProcessReplay(Replay replay) {
@@ -30,20 +44,39 @@ namespace BeatLeader.Utils {
             }
 
             var localReplay = FileManager.ReadReplay(FileManager.ToFileName(replay));
-            int localHighScore = localReplay == null ? int.MinValue : localReplay.info.score;
-            Plugin.Log.Debug($"Local PB from replay = {localHighScore}");
+            int localHighScore = localReplay == null ? int.MinValue : ScoreWithModifiers(replay);
+            Plugin.Log.Debug($"Local PB from replay: {localHighScore}");
 
             // int serverHighScore = TODO
+            // still todo
 
             if (localHighScore < replay.info.score) {
                 Plugin.Log.Debug("New PB, upload incoming");
-                FileManager.WriteReplay(replay);
                 if (ShouldSubmit()) {
+                    FileManager.WriteReplay(replay);
                     StartCoroutine(_httpUtils.UploadReplay(replay));
+                } else {
+                    Plugin.Log.Debug("Score submission was disabled");
                 }
             } else {
                 Plugin.Log.Debug("No new PB, score would not be uploaded/rewritten");
             }
+        }
+
+        private int ScoreWithModifiers(Replay replay) {
+            float factor = 1;
+            string modifiers = replay.info.modifiers;
+            int score = replay.info.score;
+
+            // well .. that's unfortunate -.-
+            if (modifiers == null || modifiers.Length == 0) { return score; }
+
+            foreach (string mod in modifiers.Split(',')) {
+                if (_modifiers.ContainsKey(mod)) {
+                    factor += _modifiers[mod];
+                }
+            }
+            return (int)(score * factor);
         }
 
         internal static void EnableSubmission() {

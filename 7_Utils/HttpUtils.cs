@@ -13,76 +13,83 @@ namespace BeatLeader.Utils {
 
         #region Get single entity
 
-        internal IEnumerator GetData<T>(string url, Action<T> onSuccess, Action onFail) {
-            var uri = new Uri(url);
-            Plugin.Log.Debug($"Request url = {uri}");
+        internal IEnumerator GetData<T>(string url, Action<T> onSuccess, Action onFail, int retry = 1) {
+            Plugin.Log.Debug($"Request url = {url}");
 
-            var handler = new DownloadHandlerBuffer();
+            for (int i = 1; i <= retry; i++) {
 
-            var request = new UnityWebRequest(url) {
-                downloadHandler = handler
-            };
+                var handler = new DownloadHandlerBuffer();
 
-            yield return request.SendWebRequest();
-            Plugin.Log.Debug($"StatusCode: {request.responseCode}");
-
-            if (request.isHttpError || request.isNetworkError) {
-                onFail.Invoke();
-                yield break;
-            }
-
-            try {
-                var options = new JsonSerializerSettings() {
-                    MissingMemberHandling = MissingMemberHandling.Ignore,
-                    NullValueHandling = NullValueHandling.Ignore
+                var request = new UnityWebRequest(url) {
+                    downloadHandler = handler
                 };
-                var result = JsonConvert.DeserializeObject<T>(handler.text, options);
-                onSuccess.Invoke(result);
-            } catch (Exception) {
-                onFail.Invoke();
+
+                yield return request.SendWebRequest();
+                Plugin.Log.Debug($"StatusCode: {request.responseCode}");
+
+                if (request.isHttpError || request.isNetworkError) {
+                    Plugin.Log.Debug("Connection error or non success http code.");
+                    continue;
+                }
+
+                try {
+                    var options = new JsonSerializerSettings() {
+                        MissingMemberHandling = MissingMemberHandling.Ignore,
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+                    var result = JsonConvert.DeserializeObject<T>(handler.text, options);
+                    onSuccess.Invoke(result);
+                    yield break;
+                } catch (Exception e) {
+                    Plugin.Log.Debug(e);
+                }
             }
+            onFail.Invoke();
         }
 
         #endregion
 
         #region get list of entities
 
-        internal IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action onFail) {
+        internal IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action onFail, int retry = 1) {
             var uri = new Uri(url);
             Plugin.Log.Debug($"Request url = {uri}");
 
-            var handler = new DownloadHandlerBuffer();
-            var request = new UnityWebRequest(url) {
-                downloadHandler = handler
-            };
+            for (int i = 1; i <= retry; i++) {
 
-            yield return request.SendWebRequest();
-            Plugin.Log.Debug($"StatusCode: {request.responseCode}");
-
-            if (request.isHttpError || request.isNetworkError) {
-                onFail.Invoke();
-                yield break;
-            }
-
-            try {
-                var options = new JsonSerializerSettings() {
-                    MissingMemberHandling = MissingMemberHandling.Ignore,
-                    NullValueHandling = NullValueHandling.Ignore
+                var handler = new DownloadHandlerBuffer();
+                var request = new UnityWebRequest(url) {
+                    downloadHandler = handler
                 };
-                var result = JsonConvert.DeserializeObject<Paged<T>>(handler.text, options);
-                onSuccess.Invoke(result);
-            } catch (Exception) {
-                onFail.Invoke();
+
+                yield return request.SendWebRequest();
+                Plugin.Log.Debug($"StatusCode: {request.responseCode}");
+
+                if (request.isHttpError || request.isNetworkError) {
+                    continue;
+                }
+
+                try {
+                    var options = new JsonSerializerSettings() {
+                        MissingMemberHandling = MissingMemberHandling.Ignore,
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+                    var result = JsonConvert.DeserializeObject<Paged<T>>(handler.text, options);
+                    onSuccess.Invoke(result);
+                    yield break;
+                } catch (Exception e) {
+                    Plugin.Log.Debug(e);
+                }
             }
+            onFail.Invoke();
+            yield break;
         }
 
         #endregion
 
         #region ReplayUpload
 
-        private static readonly int _retry = 3;
-
-        public IEnumerator UploadReplay(Replay replay) {
+        public IEnumerator UploadReplay(Replay replay, int retry = 3) {
 
             string authToken = BLContext.steamAuthToken;
             if (authToken == null) {
@@ -95,8 +102,8 @@ namespace BeatLeader.Utils {
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
-            for (int i = 1; i <= _retry; i++) {
-                Plugin.Log.Debug($"Attempt to upload replay {i}/{_retry}");
+            for (int i = 1; i <= retry; i++) {
+                Plugin.Log.Debug($"Attempt to upload replay {i}/{retry}");
 
                 var request = new UnityWebRequest(BLConstants.REPLAY_UPLOAD_URL + "?ticket=" + authToken, UnityWebRequest.kHttpVerbPOST) {
                     downloadHandler = new DownloadHandlerBuffer(),
@@ -117,7 +124,7 @@ namespace BeatLeader.Utils {
                 try {
                     if (request.isNetworkError || request.isHttpError) {
                         Plugin.Log.Debug($"Error: {request.error}");
-                        LeaderboardEvents.NotifyUploadFailed(i == _retry, i);
+                        LeaderboardEvents.NotifyUploadFailed(i == retry, i);
                     } else {
                         Plugin.Log.Debug(body);
                         var options = new JsonSerializerSettings() {
@@ -135,7 +142,7 @@ namespace BeatLeader.Utils {
                 } catch (Exception e) {
                     Plugin.Log.Debug("Exception");
                     Plugin.Log.Debug(e);
-                    LeaderboardEvents.NotifyUploadFailed(i == _retry, i);
+                    LeaderboardEvents.NotifyUploadFailed(i == retry, i);
                 }
             }
             Plugin.Log.Debug("Cannot upload replay");

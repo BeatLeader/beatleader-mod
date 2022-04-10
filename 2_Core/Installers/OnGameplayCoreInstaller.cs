@@ -1,6 +1,5 @@
 using System.Reflection;
 using BeatLeader.Core.Managers.ReplayEnhancer;
-using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Zenject;
@@ -28,7 +27,6 @@ namespace BeatLeader.Installers {
 
             Plugin.Log.Debug("Starting a BL Replay Recorder.");
 
-            Container.BindInterfacesAndSelfTo<HttpUtils>().AsSingle();
             Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
             Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
         }

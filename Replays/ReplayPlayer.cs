@@ -11,6 +11,7 @@ using Zenject;
 using IPA.Utilities;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
+using BeatLeader.Utils;
 using BeatLeader.Replays.Models;
 using BeatLeader.Replays.Emulators;
 using BeatLeader.UI.ReplayUI;
@@ -50,6 +51,11 @@ namespace BeatLeader.Replays
             beatmapObjectManager.noteWasSpawnedEvent += AddNoteToCutQueue;
             new ReplayPlaybackMenuController().Init(MovementPatchHelper.menuLeftHand, (int)songSyncController.songLength);
             isPlaying = replayData != null ? true : false;
+            foreach (var item in controller.GetEvents())
+            {
+                Debug.LogWarning(item.Key);
+                Debug.Log($"{item.Value.Target}+{item.Value.Method}");
+            }
         }
         public void Update()
         {

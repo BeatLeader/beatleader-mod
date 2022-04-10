@@ -34,18 +34,17 @@ namespace BeatLeader.Installers
         public override void InstallBindings()
         {
             if (!ReplayMenuUI.isStartedAsReplay) return;
-            // InitPlayer();
             Container.BindMemoryPool<ReplayCutScoringElement, ReplayCutScoringElement.Pool>().WithInitialSize(30);
             var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
             var gameplayData = scoreController.gameObject;
             gameplayData.SetActive(false);
-
+            
             GameObject.Destroy(scoreController);
             var modifiedScoreController = gameplayData.AddComponent<ReplayScoreController>().InjectAllFields(Container);
-
+            
             Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
             ZenjectExpansion.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
-
+            
             modifiedScoreController.SetEnabled(true);
             gameplayData.SetActive(true);
         }

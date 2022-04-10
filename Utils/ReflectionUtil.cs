@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatLeader.Utils
 {
@@ -29,7 +30,7 @@ namespace BeatLeader.Utils
             foreach (var item in events)
             {
                 var field = type.GetType().GetField(item.Key, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-                if (field != null && field.FieldType == item.Value.GetType())
+                if (field != null)
                 {
                     field.SetValue(type, item.Value);
                 }

@@ -19,7 +19,7 @@ namespace BeatLeader.Replays.Emulators
         protected ScoreMultiplierCounter.MultiplierEventType _wouldBeCorrectCutBestPossibleMultiplierEventType;
         private protected int _cutScore;
 
-        protected override int executionOrder => 0;
+        protected override int executionOrder => 100000;
         public virtual void Init(NoteCutInfo noteCutInfo, Replay replay)
         {
             base.noteData = noteCutInfo.noteData;
@@ -44,7 +44,8 @@ namespace BeatLeader.Replays.Emulators
             }
             var noteEvent = noteCutInfo.noteData.GetNoteEvent(replay);
             _cutScore = noteEvent.ComputeNoteScore();
-            Debug.LogWarning(_cutScore);
+            isFinished = true;
+            //Debug.LogWarning(_cutScore);
         }
     }
 }

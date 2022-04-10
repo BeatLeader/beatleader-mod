@@ -11,7 +11,6 @@ namespace BeatLeader.Utils.Expansions
 {
     public static class ZenjectExpansion
     {
-        //накидал на скорую руку, не бейте сильно
         public static T InjectAllFields<T>(this T type, DiContainer container)
         {
             if (type == null & container == null) return default;
@@ -47,6 +46,10 @@ namespace BeatLeader.Utils.Expansions
         }
         public static U InjectAllFieldsOfType<T, U>(this U type, DiContainer container)
         {
+            return InjectAllFieldsOfType(typeof(T), type, container);
+        }
+        public static U InjectAllFieldsOfType<U>(Type injectType, U type, DiContainer container)
+        {
             if (type == null & container == null) return default;
             BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             FieldInfo[] fields = type.GetType().GetFields(flags);
@@ -54,7 +57,7 @@ namespace BeatLeader.Utils.Expansions
 
             foreach (FieldInfo field in fields)
             {
-                if (field.FieldType != typeof(T) & field == null) continue;
+                if (field.FieldType != injectType & field == null) continue;
                 foreach (var attr in field.GetCustomAttributes())
                 {
                     if (attr is InjectAttribute)
@@ -63,10 +66,9 @@ namespace BeatLeader.Utils.Expansions
                     }
                 }
             }
-
             foreach (PropertyInfo property in properties)
             {
-                if (property.PropertyType != typeof(T) && !property.CanWrite & property == null) continue;
+                if (property.PropertyType != injectType && !property.CanWrite & property == null) continue;
                 foreach (var attr in property.GetCustomAttributes())
                 {
                     if (attr is InjectAttribute)
@@ -75,7 +77,6 @@ namespace BeatLeader.Utils.Expansions
                     }
                 }
             }
-
             return type;
         }
         public static T InjectAllFieldsOfTypeFromInstance<T, U>(this T type, U instance)
@@ -88,7 +89,7 @@ namespace BeatLeader.Utils.Expansions
             foreach (FieldInfo field in fields)
             {
                 if (field.FieldType == typeof(U))
-                { 
+                {
                     Debug.LogWarning(field.FieldType);
                     foreach (var attr in field.GetCustomAttributes())
                     {
@@ -116,6 +117,24 @@ namespace BeatLeader.Utils.Expansions
             }
 
             return type;
+        } //pseudo inject))
+        public static void InjectAllFieldsOfTypeFromTypes<T>(this T type, List<Type> types, DiContainer container)
+        {
+            foreach (var item in types)
+            {
+                InjectAllFieldsOfType(typeof(T), item, container);
+            }
+        }
+        public static void InjectAllFieldsOfTypeOnFindedGameObjects<T>(List<Type> objects, DiContainer container)
+        {
+            foreach (var item in objects)
+            {
+                var instance = Resources.FindObjectsOfTypeAll(item).FirstOrDefault();
+                if (instance != null)
+                {
+                    InjectAllFieldsOfType(typeof(T), instance, container);
+                }
+            }
         }
     }
 }

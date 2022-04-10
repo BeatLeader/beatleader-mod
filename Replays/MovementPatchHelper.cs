@@ -19,6 +19,8 @@ namespace BeatLeader.Replays
         public static ReplayPlayer player;
         public static ReplayVRController leftReplayController => player.leftHand;
         public static ReplayVRController rightReplayController => player.rightHand;
+        public static GameObject menuLeftHand;
+        public static GameObject menuRightHand;
 
         public static void InstallPatch()
         {
@@ -38,7 +40,9 @@ namespace BeatLeader.Replays
                 }
             }
             if (rightHand == null & leftHand == null) return;
-
+            var menu = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+            menuLeftHand = menu.transform.Find("MenuControllers/ControllerLeft").gameObject;
+            menuRightHand = menu.transform.Find("MenuControllers/ControllerRight").gameObject;
             var leftGo = leftHand.gameObject;
             var rightGo = rightHand.gameObject;
 
@@ -54,13 +58,11 @@ namespace BeatLeader.Replays
             player = new GameObject("ReplayPlayer").AddComponent<ReplayPlayer>();
             player.leftHand = leftReplayController;
             player.rightHand = rightReplayController;
-            //player.replayData = ReplayUI.replayData;
-            //CreateFakeSabers(out VRController leftHand, out VRController rightHand);
         }
         public static void UninstallPatch()
         {
             Plugin.Log.Warn("Uninstalling replay patch");
-            ReplayUI.NotifyReplayEnded();
+            ReplayMenuUI.NotifyReplayEnded();
             player = null;
             EventsHandler.MenuSceneLoaded -= UninstallPatch;
         }

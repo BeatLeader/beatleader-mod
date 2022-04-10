@@ -1,0 +1,6 @@
+﻿<bg>
+	<horizontal>
+		<button text="~play-button-text" on-click="play-button-clicked" pref-width="10" pref-height="10"/>
+		<slider-setting text="" interactable="false" value="current-time" apply-on-change="true" min="0" max="~song-time" integer-only="true" show-buttons="false" increment="1"/>
+	</horizontal>
+</bg>

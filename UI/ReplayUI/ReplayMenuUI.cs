@@ -15,7 +15,7 @@ using BeatLeader.Replays;
 
 namespace BeatLeader.UI
 {
-    internal class ReplayUI
+    internal class ReplayMenuUI
     {
         private protected static GameObject levelWrapContainer;
         private static NoTransitionsButton replayButton;

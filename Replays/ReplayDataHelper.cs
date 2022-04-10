@@ -2,11 +2,10 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using IPA.Utilities;
 using BeatLeader.Replays.Models;
 using BeatLeader.Utils;
+using ReplayNoteCutInfo = BeatLeader.Replays.Models.NoteCutInfo;
 using UnityEngine;
 
 namespace BeatLeader.Replays
@@ -105,7 +104,7 @@ namespace BeatLeader.Replays
             NA
         }
 
-        #region Environment
+        #region Environments
         public static string GetEnvironmentSerializedNameByEnvironmentName(string name)
         {
             name = name.Replace(" ", "");
@@ -136,6 +135,35 @@ namespace BeatLeader.Replays
         #endregion
 
         #region Replaying
+        public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
+        {
+            return GetNoteEventByID(noteData.ComputeNoteID(), replay);
+        }
+        public static NoteEvent GetNoteEvent(this NoteController noteController, Replay replay)
+        {
+            return GetNoteEventByID(noteController.noteData.ComputeNoteID(), replay);
+        }
+        public static NoteEvent GetNoteEventByID(int ID, Replay replay)
+        {
+            foreach (var item in replay.notes)
+            {
+                if (item.noteID == ID)
+                {
+                    return item;
+                }
+            }
+            return default;
+        }
+        public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, Replay replay)
+        {
+            var noteEvent = GetNoteEvent(noteController, replay);
+            if (noteEvent != null)
+            {
+                return ReplayNoteCutInfo.Parse(noteEvent.noteCutInfo, noteController.noteData, noteController.worldRotation, noteController.inverseWorldRotation,
+                    noteController.noteTransform.localRotation, noteController.noteTransform.position);
+            }
+            return default;
+        }
         public static Frame GetFrameByTime(this Replay replay, float time)
         {
             for (int i = 0; i < replay.frames.Count; i++)
@@ -284,6 +312,38 @@ namespace BeatLeader.Replays
 
             replay = scoreIndex != -1 ? matchedReplays[scoreIndex] : matchedReplays[0];
             return true;
+        }
+        #endregion
+
+        #region Computing
+        public static int ComputeNoteID(this NoteData noteData)
+        {
+            return noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
+        }
+        public static int ComputeNoteScore(this NoteEvent note)
+        {
+            if (note.eventType == NoteEventType.good)
+            {
+                var cut = note.noteCutInfo;
+                double beforeCutRawScore = Math.Round(70 * cut.beforeCutRating);
+                double afterCutRawScore = Math.Round(30 * cut.afterCutRating);
+                double num = 1 - Mathf.Clamp(cut.cutDistanceToCenter / 0.3f, 0.0f, 1.0f);
+                double cutDistanceRawScore = Math.Round(15 * num);
+                return (int)beforeCutRawScore + (int)afterCutRawScore + (int)cutDistanceRawScore;
+            }
+            else
+            {
+                switch (note.eventType)
+                {
+                    case NoteEventType.bad:
+                        return -2;
+                    case NoteEventType.miss:
+                        return -3;
+                    case NoteEventType.bomb:
+                        return -4;
+                }
+            }
+            return -1;
         }
         #endregion
     }

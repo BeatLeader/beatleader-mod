@@ -11,6 +11,6 @@ public static class LevelDetailRefreshablePatch
 {
     private static void Postfix(StandardLevelDetailView __instance)
     {
-        ReplayUI.CheckIsReplayExists(__instance.selectedDifficultyBeatmap);
+        ReplayMenuUI.CheckIsReplayExists(__instance.selectedDifficultyBeatmap);
     }
 }

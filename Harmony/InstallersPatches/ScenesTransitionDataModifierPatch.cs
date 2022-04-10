@@ -17,8 +17,8 @@ namespace BeatLeader
     {
         private static void Prefix(ScenesTransitionSetupDataSO scenesTransitionSetupData)
         {
-            if (!ReplayUI.isStartedAsReplay) return;
-            var replayData = ReplayUI.replayData;
+            if (!ReplayMenuUI.isStartedAsReplay) return;
+            var replayData = ReplayMenuUI.replayData;
             for (int i = 0; i < scenesTransitionSetupData.scenes.Length; i++)
             {
                 var scene = scenesTransitionSetupData.scenes[i];

@@ -1,5 +1,6 @@
 using System.Reflection;
 using BeatLeader.UI;
+using BeatLeader.UI.ReplayUI;
 using BeatLeader.Replays.Models;
 using BeatLeader.Replays;
 using BeatLeader.Replays.ReplayEnhancers;
@@ -21,7 +22,7 @@ namespace BeatLeader.Installers
         {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
 
-            if (!ReplayUI.isStartedAsReplay)
+            if (!ReplayMenuUI.isStartedAsReplay)
                 InitRecorder();
             else
                 InitPlayer();
@@ -30,7 +31,7 @@ namespace BeatLeader.Installers
         private void InitPlayer()
         {
             Container.Bind<ReplayPlayer>().AsSingle();
-            Container.Bind<Replay>().FromInstance(ReplayUI.replayData).AsSingle();
+            Container.Bind<Replay>().FromInstance(ReplayMenuUI.replayData).AsSingle();
             MovementPatchHelper.InstallPatch();
             MovementPatchHelper.player.InjectAllFields(Container);
             EventsHandler.MenuSceneLoaded += MovementPatchHelper.UninstallPatch;

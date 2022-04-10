@@ -48,7 +48,8 @@ namespace BeatLeader {
         private static void SubscribeInstallers()
         {
             Zenjector.afterAppInstalled += OnAppInitInstaller.Install;
-            Zenjector.beforeGameplayCoreInstalled += ReplaySceneSetupDataInstaller.Install;
+            Zenjector.beforeGameplayCoreInstalled += ReplayPreInstaller.Install;
+            Zenjector.afterGameplayCoreInstalled += ReplayAfterInstaller.Install;
             Zenjector.afterGameplayCoreInstalled += OnGameplayCoreInstaller.Install;
             Zenjector.afterMenuInstalled += OnMenuInstaller.Install;
         }
@@ -76,7 +77,7 @@ namespace BeatLeader {
             if (enabled) {
                 HarmonyHelper.ApplyPatches();
                 ModPanelUIHelper.AddTab();
-                EventsHandler.MenuSceneLoadedFresh += ReplayUI.PatchUI;
+                EventsHandler.MenuSceneLoadedFresh += ReplayMenuUI.PatchUI;
             } else {
                 HarmonyHelper.RemovePatches();
                 ModPanelUIHelper.RemoveTab();

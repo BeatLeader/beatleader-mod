@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using IPA.Utilities;
+using GameNoteCutInfo = NoteCutInfo;
+using UnityVector3 = UnityEngine.Vector3;
+using UnityQuaternion = UnityEngine.Quaternion;
 
 namespace BeatLeader.Replays.Models
 {
@@ -19,13 +21,12 @@ namespace BeatLeader.Replays.Models
         public List<AutomaticHeight> heights = new List<AutomaticHeight>();
         public List<Pause> pauses = new List<Pause>();
     }
-
     public class ReplayInfo
     {
         public string version;
         public string gameVersion;
         public string timestamp;
-        
+
         public string playerID;
         public string playerName;
         public string platform;
@@ -51,7 +52,6 @@ namespace BeatLeader.Replays.Models
         public float failTime;
         public float speed;
     }
-
     public class Frame
     {
         public float time;
@@ -59,8 +59,7 @@ namespace BeatLeader.Replays.Models
         public Transform head;
         public Transform leftHand;
         public Transform rightHand;
-    };
-
+    }
     public enum NoteEventType
     {
         good = 0,
@@ -68,7 +67,6 @@ namespace BeatLeader.Replays.Models
         miss = 2,
         bomb = 3
     }
-
     public class NoteEvent
     {
         public int noteID;
@@ -76,30 +74,42 @@ namespace BeatLeader.Replays.Models
         public float spawnTime;
         public NoteEventType eventType;
         public NoteCutInfo noteCutInfo;
-    };
-
+    }
     public class WallEvent
     {
         public int wallID;
         public float energy;
         public float time;
         public float spawnTime;
-    };
-
+    }
     public class AutomaticHeight
     {
         public float height;
         public float time;
-    };
-
+    }
     public class Pause
     {
         public long duration;
         public float time;
-    };
-
+    }
     public class NoteCutInfo
     {
+        public static GameNoteCutInfo Parse(NoteCutInfo info, NoteData data, UnityQuaternion worldRotation, UnityQuaternion inverseWorldRotation, UnityQuaternion noteRotation, UnityVector3 notePosition)
+        {
+            return new GameNoteCutInfo(data, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
+           info.saberSpeed, (UnityVector3)info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
+           (UnityVector3)info.cutPoint, (UnityVector3)info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
+           worldRotation, inverseWorldRotation, noteRotation, notePosition, new SaberMovementData());
+        }
+        public static GameNoteCutInfo Parse(NoteCutInfo info, NoteController controller)
+        {
+            return new GameNoteCutInfo(controller.noteData, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
+            info.saberSpeed, (UnityVector3)info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
+            (UnityVector3)info.cutPoint, (UnityVector3)info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
+            controller.worldRotation, controller.inverseWorldRotation, controller.noteTransform.localRotation, 
+            controller.noteTransform.position, new SaberMovementData());
+        }
+
         public bool speedOK;
         public bool directionOK;
         public bool saberTypeOK;
@@ -115,8 +125,7 @@ namespace BeatLeader.Replays.Models
         public float cutAngle;
         public float beforeCutRating;
         public float afterCutRating;
-    };
-
+    }
     public enum StructType
     {
         info = 0,
@@ -126,41 +135,68 @@ namespace BeatLeader.Replays.Models
         heights = 4,
         pauses = 5
     }
-
     public struct Vector3
     {
-        public static implicit operator Vector3(UnityEngine.Vector3 unityVector) => new Vector3(unityVector);
-        Vector3 (UnityEngine.Vector3 unityVector)
+        public Vector3(UnityVector3 unityVector)
         {
             x = unityVector.x;
             y = unityVector.y;
             z = unityVector.z;
         }
+
+        public static implicit operator UnityVector3(Vector3 vector)
+        => new UnityEngine.Vector3(vector.x, vector.y, vector.z);
+        public static implicit operator Vector3(UnityVector3 vector)
+        => new Vector3(vector);
+
         public float x;
         public float y;
         public float z;
     }
-
     public struct Quaternion
     {
-        public static implicit operator Quaternion(UnityEngine.Quaternion unityQuaternion) => new Quaternion(unityQuaternion);
-        Quaternion (UnityEngine.Quaternion unityQuaternion)
+        public Quaternion(UnityQuaternion unityQuaternion)
         {
             x = unityQuaternion.x;
             y = unityQuaternion.y;
             z = unityQuaternion.z;
             w = unityQuaternion.w;
         }
+
+        public static implicit operator UnityQuaternion(Quaternion quaternion)
+        => new UnityEngine.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        public static implicit operator Quaternion(UnityQuaternion quaternion)
+        => new Quaternion(quaternion);
+
         public float x;
         public float y;
         public float z;
         public float w;
     }
-
     public class Transform
     {
-        public Vector3 position;
-        public Quaternion rotation;
+        public Transform() { }
+        public Transform(UnityEngine.Transform transform)
+        {
+            this.localPosition = transform.localPosition;
+            this.localRotation = transform.localRotation;
+        }
+        public Transform(Vector3 position, Quaternion rotation)
+        {
+            this.localPosition = position;
+            this.localRotation = rotation;
+        }
+        public Transform(UnityVector3 position, UnityQuaternion rotation)
+        {
+            this.localPosition = position;
+            this.localRotation = rotation;
+        }
+
+        public static implicit operator Transform(UnityEngine.Transform transform)
+        => new Transform(transform);
+
+        public Vector3 localPosition;
+        public Quaternion localRotation;
     }
 
     public static class ReplayEncoder
@@ -238,12 +274,12 @@ namespace BeatLeader.Replays.Models
             {
                 stream.Write(frame.time);
                 stream.Write(frame.fps);
-                EncodeVector(frame.head.position, stream);
-                EncodeQuaternion(frame.head.rotation, stream);
-                EncodeVector(frame.leftHand.position, stream);
-                EncodeQuaternion(frame.leftHand.rotation, stream);
-                EncodeVector(frame.rightHand.position, stream);
-                EncodeQuaternion(frame.rightHand.rotation, stream);
+                EncodeVector(frame.head.localPosition, stream);
+                EncodeQuaternion(frame.head.localRotation, stream);
+                EncodeVector(frame.leftHand.localPosition, stream);
+                EncodeQuaternion(frame.leftHand.localRotation, stream);
+                EncodeVector(frame.rightHand.localPosition, stream);
+                EncodeQuaternion(frame.rightHand.localRotation, stream);
             }
         }
 
@@ -256,7 +292,8 @@ namespace BeatLeader.Replays.Models
                 stream.Write(note.eventTime);
                 stream.Write(note.spawnTime);
                 stream.Write((int)note.eventType);
-                if (note.eventType == NoteEventType.good || note.eventType == NoteEventType.bad) {
+                if (note.eventType == NoteEventType.good || note.eventType == NoteEventType.bad)
+                {
                     EncodeNoteInfo(note.noteCutInfo, stream);
                 }
             }
@@ -335,7 +372,6 @@ namespace BeatLeader.Replays.Models
             stream.Write(quaternion.w);
         }
     }
-
     static class ReplayDecoder
     {
         public static Replay Decode(byte[] buffer)
@@ -375,7 +411,7 @@ namespace BeatLeader.Replays.Models
                         case StructType.pauses:
                             replay.pauses = DecodePauses(buffer, ref pointer);
                             break;
-                        }
+                    }
                 }
 
                 return replay;
@@ -388,39 +424,39 @@ namespace BeatLeader.Replays.Models
 
         private static ReplayInfo DecodeInfo(byte[] buffer, ref int pointer)
         {
-                ReplayInfo result = new ReplayInfo();
+            ReplayInfo result = new ReplayInfo();
 
-                result.version = DecodeString(buffer, ref pointer);
-                result.gameVersion = DecodeString(buffer, ref pointer);
-                result.timestamp = DecodeString(buffer, ref pointer);
+            result.version = DecodeString(buffer, ref pointer);
+            result.gameVersion = DecodeString(buffer, ref pointer);
+            result.timestamp = DecodeString(buffer, ref pointer);
 
-                result.playerID = DecodeString(buffer, ref pointer);
-                result.playerName = DecodeString(buffer, ref pointer);
-                result.platform = DecodeString(buffer, ref pointer);
+            result.playerID = DecodeString(buffer, ref pointer);
+            result.playerName = DecodeString(buffer, ref pointer);
+            result.platform = DecodeString(buffer, ref pointer);
 
-                result.trackingSytem = DecodeString(buffer, ref pointer);
-                result.hmd = DecodeString(buffer, ref pointer);
-                result.controller = DecodeString(buffer, ref pointer);
+            result.trackingSytem = DecodeString(buffer, ref pointer);
+            result.hmd = DecodeString(buffer, ref pointer);
+            result.controller = DecodeString(buffer, ref pointer);
 
-                result.hash = DecodeString(buffer, ref pointer);
-                result.songName = DecodeString(buffer, ref pointer);
-                result.mapper = DecodeString(buffer, ref pointer);
-                result.difficulty = DecodeString(buffer, ref pointer);
-                
-                result.score = DecodeInt(buffer, ref pointer);
-                result.mode = DecodeString(buffer, ref pointer);
-                result.environment = DecodeString(buffer, ref pointer);
-                result.modifiers = DecodeString(buffer, ref pointer);
-                result.jumpDistance = DecodeFloat(buffer, ref pointer);
-                result.leftHanded = DecodeBool(buffer, ref pointer);
-                result.height = DecodeFloat(buffer, ref pointer);
+            result.hash = DecodeString(buffer, ref pointer);
+            result.songName = DecodeString(buffer, ref pointer);
+            result.mapper = DecodeString(buffer, ref pointer);
+            result.difficulty = DecodeString(buffer, ref pointer);
 
-                result.startTime = DecodeFloat(buffer, ref pointer);
-                result.failTime = DecodeFloat(buffer, ref pointer);
-                result.speed = DecodeFloat(buffer, ref pointer);
+            result.score = DecodeInt(buffer, ref pointer);
+            result.mode = DecodeString(buffer, ref pointer);
+            result.environment = DecodeString(buffer, ref pointer);
+            result.modifiers = DecodeString(buffer, ref pointer);
+            result.jumpDistance = DecodeFloat(buffer, ref pointer);
+            result.leftHanded = DecodeBool(buffer, ref pointer);
+            result.height = DecodeFloat(buffer, ref pointer);
 
-                return result;
-         }
+            result.startTime = DecodeFloat(buffer, ref pointer);
+            result.failTime = DecodeFloat(buffer, ref pointer);
+            result.speed = DecodeFloat(buffer, ref pointer);
+
+            return result;
+        }
 
         private static List<Frame> DecodeFrames(byte[] buffer, ref int pointer)
         {
@@ -507,7 +543,8 @@ namespace BeatLeader.Replays.Models
             result.eventTime = DecodeFloat(buffer, ref pointer);
             result.spawnTime = DecodeFloat(buffer, ref pointer);
             result.eventType = (NoteEventType)DecodeInt(buffer, ref pointer);
-            if (result.eventType == NoteEventType.good || result.eventType == NoteEventType.bad) {
+            if (result.eventType == NoteEventType.good || result.eventType == NoteEventType.bad)
+            {
                 result.noteCutInfo = DecodeCutInfo(buffer, ref pointer);
             }
 
@@ -537,11 +574,7 @@ namespace BeatLeader.Replays.Models
 
         private static Transform DecodeEuler(byte[] buffer, ref int pointer)
         {
-            Transform result = new Transform();
-            result.position = DecodeVector3(buffer, ref pointer);
-            result.rotation = DecodeQuaternion(buffer, ref pointer);
-
-            return result;
+            return new Transform(DecodeVector3(buffer, ref pointer), DecodeQuaternion(buffer, ref pointer));
         }
 
         private static Vector3 DecodeVector3(byte[] buffer, ref int pointer)

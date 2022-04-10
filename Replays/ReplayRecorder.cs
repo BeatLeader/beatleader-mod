@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,20 +14,21 @@ using UnityEngine;
 using Zenject;
 using Transform = BeatLeader.Replays.Models.Transform;
 
-namespace BeatLeader.Replays {
+namespace BeatLeader.Replays
+{
     [UsedImplicitly]
     public class ReplayRecorder : IInitializable, IDisposable, ITickable
     {
-        [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
-        [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
-        [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
-        [Inject] [UsedImplicitly] private StandardLevelScenesTransitionSetupDataSO _transitionSetup;
-        [Inject] [UsedImplicitly] private PauseController _pauseController;
-        [Inject] [UsedImplicitly] private AudioTimeSyncController _timeSyncController;
-        [Inject] [UsedImplicitly] private ScoreController _scoreController;
-        [Inject] [UsedImplicitly] private PlayerHeadAndObstacleInteraction _phaoi;
-        [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
-        [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
+        [Inject][UsedImplicitly] private PlayerTransforms _playerTransforms;
+        [Inject][UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
+        [Inject][UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
+        [Inject][UsedImplicitly] private StandardLevelScenesTransitionSetupDataSO _transitionSetup;
+        [Inject][UsedImplicitly] private PauseController _pauseController;
+        [Inject][UsedImplicitly] private AudioTimeSyncController _timeSyncController;
+        [Inject][UsedImplicitly] private ScoreController _scoreController;
+        [Inject][UsedImplicitly] private PlayerHeadAndObstacleInteraction _phaoi;
+        [Inject][UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
+        [Inject][UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
         private Pause _currentPause;
@@ -34,10 +36,11 @@ namespace BeatLeader.Replays {
         private DateTime _pauseStartTime;
         private bool _stopRecording;
 
-        public ReplayRecorder() {
+        public ReplayRecorder()
+        {
             _playerHeightDetector = Resources.FindObjectsOfTypeAll<PlayerHeightDetector>().Last();
 
-            UserEnhancer.Enhance(_replay); 
+            UserEnhancer.Enhance(_replay);
 
             PluginMetadata metaData = PluginManager.GetPluginFromId("BeatLeader");
             _replay.info.version = metaData.HVersion.ToString();
@@ -56,7 +59,8 @@ namespace BeatLeader.Replays {
         private readonly Dictionary<int, WallEvent> _wallEventCache = new();
         private int _wallId;
 
-        public void Initialize() {
+        public void Initialize()
+        {
             _beatmapObjectManager.noteWasAddedEvent += OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent += OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent += OnNoteWasMissed;
@@ -74,7 +78,8 @@ namespace BeatLeader.Replays {
             }
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             _beatmapObjectManager.noteWasAddedEvent -= OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent -= OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent -= OnNoteWasMissed;
@@ -92,30 +97,23 @@ namespace BeatLeader.Replays {
             }
         }
 
-        public void Tick() {
+        public void Tick()
+        {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
-            var frame = new Frame() 
+            var frame = new Frame()
             {
                 time = _timeSyncController.songTime,
                 fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
-                head = new Transform {
-                    rotation = _playerTransforms.headPseudoLocalRot,
-                    position = _playerTransforms.headPseudoLocalPos
-                },
-                leftHand = new Transform {
-                    rotation = _playerTransforms.leftHandPseudoLocalRot,
-                    position = _playerTransforms.leftHandPseudoLocalPos
-                },
-                rightHand = new Transform {
-                    rotation = _playerTransforms.rightHandPseudoLocalRot,
-                    position = _playerTransforms.rightHandPseudoLocalPos
-                }
+                head = new Transform(_playerTransforms.headPseudoLocalPos, _playerTransforms.headPseudoLocalRot),
+                leftHand = new Transform(_playerTransforms.leftHandPseudoLocalPos, _playerTransforms.leftHandPseudoLocalRot),
+                rightHand = new Transform(_playerTransforms.rightHandPseudoLocalPos, _playerTransforms.rightHandPseudoLocalRot)
             };
 
             _replay.frames.Add(frame);
 
-            if (_currentWallEvent != null) {
+            if (_currentWallEvent != null)
+            {
                 if (_phaoi != null && !_phaoi.playerHeadIsInObstacle)
                 {
                     _currentWallEvent.energy = _gameEnergyCounter.energy;
@@ -123,9 +121,9 @@ namespace BeatLeader.Replays {
                 }
             }
         }
+        private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation)
+        {
 
-        private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
-            
             var noteId = _noteId++;
             _noteIdCache[noteData] = noteId;
             NoteEvent noteEvent = new();
@@ -147,7 +145,8 @@ namespace BeatLeader.Replays {
             _wallEventCache[wallId] = wallEvent;
         }
 
-        private void OnNoteWasMissed(NoteController noteController) {
+        private void OnNoteWasMissed(NoteController noteController)
+        {
             var noteId = _noteIdCache[noteController.noteData];
 
             if (noteController.noteData.colorType != ColorType.None)
@@ -170,8 +169,8 @@ namespace BeatLeader.Replays {
             }
         }
 
-        private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo) {
-            
+        private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
+        {
             var noteId = _noteIdCache[noteCutInfo.noteData];
 
             var noteEvent = _noteEventCache[noteId];
@@ -183,19 +182,22 @@ namespace BeatLeader.Replays {
             }
 
             _replay.notes.Add(noteEvent);
-            
-            if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
+            noteEvent.noteCutInfo = new();
+            if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon)
+            {
                 noteEvent.eventType = NoteEventType.good;
-                noteEvent.noteCutInfo = new();
-            } else {
-                noteEvent.eventType = NoteEventType.bad;
-                noteEvent.noteCutInfo = new();
-                PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
             }
+            else
+            {
+                noteEvent.eventType = NoteEventType.bad;
+            }
+            PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
         }
 
-        private void OnScoringDidFinish(ScoringElement scoringElement) {
-            if (scoringElement is GoodCutScoringElement goodCut) {
+        private void OnScoringDidFinish(ScoringElement scoringElement)
+        {
+            if (scoringElement is GoodCutScoringElement goodCut)
+            {
                 var noteId = _noteIdCache[goodCut.cutScoreBuffer.noteCutInfo.noteData];
 
                 var cutEvent = _noteEventCache[noteId];
@@ -215,7 +217,7 @@ namespace BeatLeader.Replays {
         {
             _stopRecording = true;
             _replay.info.score = results.multipliedScore;
-            MapEnhancer.energy = results.energy; 
+            MapEnhancer.energy = results.energy;
             MapEnhancer.Enhance(_replay);
             _trackingDeviceEnhancer.Enhance(_replay);
             switch (results.levelEndStateType)
@@ -241,22 +243,21 @@ namespace BeatLeader.Replays {
             switch (results.levelEndAction)
             {
                 case LevelCompletionResults.LevelEndAction.Quit:
-                    
+
                     break;
                 case LevelCompletionResults.LevelEndAction.Restart:
-                    
+
                     break;
             }
         }
 
         private void OnPlayerHeightChange(float height)
         {
-            AutomaticHeight automaticHeight = new();
+            AutomaticHeight automaticHeight = new AutomaticHeight();
             automaticHeight.height = height;
             automaticHeight.time = _timeSyncController.songTime;
 
             _replay.heights.Add(automaticHeight);
-
         }
 
         private void OnPause()
@@ -273,7 +274,8 @@ namespace BeatLeader.Replays {
             _currentPause = null;
         }
 
-        private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo) {
+        private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo)
+        {
             noteCutInfo.speedOK = cutInfo.speedOK;
             noteCutInfo.directionOK = cutInfo.directionOK;
             noteCutInfo.saberTypeOK = cutInfo.saberTypeOK;

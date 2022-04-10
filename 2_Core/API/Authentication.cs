@@ -67,23 +67,22 @@ namespace BeatLeader.API {
 
                         SteamUser.EndAuthSession(steamId);
 
-
                         switch (result) {
-                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultDoesNotHaveLicense:
-                                Plugin.Log.Debug("License check: User does not have a license to current game");
-                                DropAuthData();
-                                break;
-                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultHasLicense:
-
-                                if (BLContext.steamAuthToken == null) {
+                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultDoesNotHaveLicense: {
+                                    Plugin.Log.Debug("License check: User does not have a license to current game");
+                                    DropAuthData();
+                                    break;
+                                }
+                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultHasLicense: {
                                     BLContext.steamAuthToken = token;
+                                    break;
                                 }
 
-                                break;
-                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultNoAuth:
-                                Plugin.Log.Debug("License check: Unauthorized");
-                                DropAuthData();
-                                break;
+                            case EUserHasLicenseForAppResult.k_EUserHasLicenseResultNoAuth: {
+                                    Plugin.Log.Debug("License check: Unauthorized");
+                                    DropAuthData();
+                                    break;
+                                }
                         }
                         break;
                     default:

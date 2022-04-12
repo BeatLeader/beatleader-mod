@@ -9,7 +9,7 @@ namespace BeatLeader.Utils {
 
         #region Basic links
 
-        public static readonly string REPLAY_UPLOAD_URL = "https://beatleader.azurewebsites.net/replay";
+        public static readonly string REPLAY_UPLOAD_URL = "https://api.beatleader.xyz/replay";
 
         public static readonly string BEATLEADER_API_URL = "https://api.beatleader.xyz";
 

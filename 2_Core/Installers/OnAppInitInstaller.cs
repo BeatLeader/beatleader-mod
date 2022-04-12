@@ -7,7 +7,7 @@ namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnAppInitInstaller : Installer<OnAppInitInstaller> {
         public override void InstallBindings() {
-            Plugin.Log.Info("OnAppInitInstaller");
+            Plugin.Log.Debug("OnAppInitInstaller");
 
             Container.BindInterfacesAndSelfTo<Authentication>().AsSingle();
             Container.BindInterfacesAndSelfTo<HttpUtils>().AsSingle();

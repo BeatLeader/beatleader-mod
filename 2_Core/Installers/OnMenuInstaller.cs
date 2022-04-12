@@ -9,10 +9,10 @@ namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnMenuInstaller : Installer<OnMenuInstaller> {
         public override void InstallBindings() {
-            Plugin.Log.Info("OnMenuInstaller");
+            Plugin.Log.Debug("OnMenuInstaller");
 
             BindLeaderboard();
-            Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
+            // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }
 
         private void BindLeaderboard() {

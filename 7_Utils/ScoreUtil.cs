@@ -44,13 +44,13 @@ namespace BeatLeader.Utils {
             }
 
             var localReplay = FileManager.ReadReplay(FileManager.ToFileName(replay));
-            int localHighScore = localReplay == null ? int.MinValue : ScoreWithModifiers(replay);
+            int localHighScore = localReplay == null ? int.MinValue : ScoreWithModifiers(localReplay);
             Plugin.Log.Debug($"Local PB from replay: {localHighScore}");
 
             // int serverHighScore = TODO
             // still todo
 
-            if (localHighScore < replay.info.score) {
+            if (localHighScore < ScoreWithModifiers(replay)) {
                 Plugin.Log.Debug("New PB, upload incoming");
                 if (ShouldSubmit()) {
                     FileManager.WriteReplay(replay);

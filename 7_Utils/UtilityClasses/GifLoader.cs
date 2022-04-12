@@ -442,12 +442,12 @@ namespace B83.Image.GIF
             GIFImage img = new GIFImage();
             if (!ReadFileHeader(aReader, img))
             {
-                Debug.LogWarning("Gif header magic wrong or unknown version: '" + img.header.Magic + "' / '" + img.header.Version + "'");
+                // Debug.LogWarning("Gif header magic wrong or unknown version: '" + img.header.Magic + "' / '" + img.header.Version + "'");
                 return null;
             }
             if (!ReadScreenDescriptor(aReader, img))
             {
-                Debug.LogWarning("Error reading GIF screen descriptor or global color table");
+                // Debug.LogWarning("Error reading GIF screen descriptor or global color table");
                 return null;
             }
             while (true)
@@ -509,7 +509,7 @@ namespace B83.Image.GIF
                 case EExtensionType.Application: return ReadApplicationBlock(aReader);
                 default:
                     {
-                        Debug.LogWarning("Encountered unknown extension type: 0x" + extType.ToString("x2") + " at " + aReader.BaseStream.Position);
+                        // Debug.LogWarning("Encountered unknown extension type: 0x" + extType.ToString("x2") + " at " + aReader.BaseStream.Position);
                         return ReadGenericExtension(aReader, extType);
                     }
             }

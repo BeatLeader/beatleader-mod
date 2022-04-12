@@ -5,7 +5,8 @@ using System.Linq;
 using IPA.Utilities;
 using BeatLeader.Replays.Models;
 using BeatLeader.Utils;
-using ReplayNoteCutInfo = BeatLeader.Replays.Models.NoteCutInfo;
+using static BeatLeader.Replays.Models.Replay;
+using ReplayNoteCutInfo = BeatLeader.Replays.Models.Replay.NoteCutInfo;
 using UnityEngine;
 
 namespace BeatLeader.Replays
@@ -131,6 +132,12 @@ namespace BeatLeader.Replays
             info.SetField("_environmentName", replay.info.environment);
             info.SetField("_serializedName", GetEnvironmentSerializedNameByEnvironmentName(replay.info.environment));
             info.sceneInfo.SetField("_sceneName", replay.info.environment);
+        }
+        public static StandardLevelScenesTransitionSetupDataSO GenerateScenesTransitionData(IDifficultyBeatmap difficultyBeatmap)
+        {
+            StandardLevelScenesTransitionSetupDataSO scenesTransitionSetupDataSO = new StandardLevelScenesTransitionSetupDataSO();
+            //scenesTransitionSetupDataSO.Init(difficultyBeatmap.difficulty.ToString(), difficultyBeatmap, );
+            return null;
         }
         #endregion
 
@@ -315,7 +322,39 @@ namespace BeatLeader.Replays
         }
         #endregion
 
+        #region Recording
+        public static void AddItemToReplay(this Replay replay, HeightInfo height)
+        {
+            if (replay == null & height == null) return;
+            replay.heights.Add(height);
+        }
+        public static void AddItemToReplay(this Replay replay, PauseInfo pause)
+        {
+            if (replay == null & pause == null) return;
+            replay.pauses.Add(pause);
+        }
+        public static void AddItemToReplay(this Replay replay, NoteEvent noteEvent)
+        {
+            if (replay == null & noteEvent == null) return;
+            replay.notes.Add(noteEvent);
+        }
+        public static void AddItemToReplay(this Replay replay, WallEvent wallEvent)
+        {
+            if (replay == null & wallEvent == null) return;
+            replay.walls.Add(wallEvent);
+        }
+        public static void AddItemToReplay(this Replay replay, Frame frame)
+        {
+            if (replay == null & frame == null) return;
+            replay.frames.Add(frame);
+        }
+        #endregion
+
         #region Computing
+        public static int ComputeObstacleID(this ObstacleData obstacleData)
+        {
+            return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
+        }
         public static int ComputeNoteID(this NoteData noteData)
         {
             return noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;

@@ -13,6 +13,7 @@ namespace BeatLeader.Utils
     {
         private static GameScenesManager gameScenesManager;
 
+        public static event Action<IDifficultyBeatmap> LevelViewUpdated;
         public static event Action GameSceneLoaded;
         public static event Action MenuSceneLoadedFresh;
         public static event Action MenuSceneLoaded;
@@ -52,6 +53,10 @@ namespace BeatLeader.Utils
         {
             GameSceneLoaded?.Invoke();
             gameScenesManager.transitionDidFinishEvent -= InvokeGameSceneLoadedEvent;
+        }
+        public static void InvokeLevelViewUpdatedEvent(IDifficultyBeatmap level)
+        {
+            LevelViewUpdated?.Invoke(level);
         }
     }
 }

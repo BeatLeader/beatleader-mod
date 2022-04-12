@@ -48,6 +48,8 @@ namespace BeatLeader.Replays
 
             GameObject.Destroy(leftHand);
             GameObject.Destroy(rightHand);
+            GameObject.Destroy(leftGo.transform.Find("LeftSaber").GetComponent<BoxCollider>());
+            GameObject.Destroy(rightGo.transform.Find("RightSaber").GetComponent<BoxCollider>());
 
             var leftReplayController = leftGo.AddComponent<ReplayVRController>();
             var rightReplayController = rightGo.AddComponent<ReplayVRController>();

@@ -12,9 +12,9 @@ using BeatLeader.Utils.Expansions;
 using Zenject;
 using UnityEngine;
 
-namespace BeatLeader.Installers
+namespace BeatLeader.Replays.Installers
 {
-    internal class ReplayAfterInstaller : Installer<ReplayAfterInstaller>
+    internal class PlayerInstaller : Installer<PlayerInstaller>
     {
         private readonly List<Type> scoreControllerBindings = new List<Type>()
         {

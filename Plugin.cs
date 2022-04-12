@@ -33,6 +33,7 @@ namespace BeatLeader {
             InitializeAssets();
             SubscribeInstallers();
             EventsHandler.Init();
+            SubscribeEvents();
         }
 
         private static void InitializeAssets() 
@@ -43,6 +44,11 @@ namespace BeatLeader {
         private static void InitializeConfig(Config config) 
         {
             ConfigFileData.Instance = config.Generated<ConfigFileData>();
+        }
+
+        private static void SubscribeEvents()
+        {
+            EventsHandler.LevelViewUpdated += ReplayMenuUI.CheckIsReplayExists;
         }
 
         private static void SubscribeInstallers()

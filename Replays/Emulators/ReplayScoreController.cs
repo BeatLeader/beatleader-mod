@@ -78,7 +78,6 @@ namespace BeatLeader.Replays.Emulators
             float num2 = _audioTimeSyncController.songTime + 0.15f;
             int num3 = 0;
             bool flag = false;
-            //part 1
             foreach (ScoringElement item in _sortedScoringElementsWithoutMultiplier)
             {
                 if (item.time < num2 || item.time > num)
@@ -97,12 +96,11 @@ namespace BeatLeader.Replays.Emulators
 
                 break;
             }
-            //part 1 ok
 
             _sortedScoringElementsWithoutMultiplier.RemoveRange(0, num3);
             if (flag)
             {
-                this.multiplierDidChangeEvent?.Invoke(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);
+                multiplierDidChangeEvent?.Invoke(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);
             }
 
             bool flag2 = false;
@@ -111,7 +109,7 @@ namespace BeatLeader.Replays.Emulators
             {
                 if (item2.isFinished)
                 {
-                    if ((float)item2.maxPossibleCutScore > 0f)
+                    if (item2.maxPossibleCutScore > 0f)
                     {
                         flag2 = true;
                         _multipliedScore += item2.cutScore * item2.multiplier;
@@ -119,7 +117,7 @@ namespace BeatLeader.Replays.Emulators
                     }
 
                     _scoringElementsToRemove.Add(item2);
-                    this.scoringForNoteFinishedEvent?.Invoke(item2);
+                    scoringForNoteFinishedEvent?.Invoke(item2);
                 }
             }
 
@@ -141,7 +139,7 @@ namespace BeatLeader.Replays.Emulators
             {
                 _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
                 _immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_immediateMaxPossibleMultipliedScore, totalMultiplier);
-                this.scoreDidChangeEvent?.Invoke(_multipliedScore, _modifiedScore);
+                scoreDidChangeEvent?.Invoke(_multipliedScore, _modifiedScore);
             }
         }
         public virtual void HandleNoteWasSpawned(NoteController noteController)
@@ -158,9 +156,9 @@ namespace BeatLeader.Replays.Emulators
                 if (noteCutInfo.allIsOK)
                 {
                     ReplayCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
-                    replayCutScoringElement.Init(noteCutInfo, ReplayMenuUI.replayData);
+                    replayCutScoringElement.Init(noteCutInfo, noteCutInfo.noteData.GetNoteEvent(ReplayMenuUI.replayData));
                     ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, replayCutScoringElement);
-                    this.scoringForNoteStartedEvent?.Invoke(replayCutScoringElement);
+                    scoringForNoteStartedEvent?.Invoke(replayCutScoringElement);
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
                 }
                 else
@@ -168,7 +166,7 @@ namespace BeatLeader.Replays.Emulators
                     BadCutScoringElement badCutScoringElement = _badCutScoringElementPool.Spawn();
                     badCutScoringElement.Init(noteCutInfo.noteData);
                     ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, badCutScoringElement);
-                    this.scoringForNoteStartedEvent?.Invoke(badCutScoringElement);
+                    scoringForNoteStartedEvent?.Invoke(badCutScoringElement);
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
                 }
             }

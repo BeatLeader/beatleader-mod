@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BeatLeader.Utils;
 using HarmonyLib;
 using BeatLeader.UI;
 
 [HarmonyPatch(typeof(StandardLevelDetailView), "RefreshContent")]
-public static class LevelDetailRefreshablePatch
+public static class LevelDetailUpdatedPatch
 {
     private static void Postfix(StandardLevelDetailView __instance)
     {
-        ReplayMenuUI.CheckIsReplayExists(__instance.selectedDifficultyBeatmap);
+        EventsHandler.InvokeLevelViewUpdatedEvent(__instance.selectedDifficultyBeatmap);
     }
 }

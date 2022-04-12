@@ -45,7 +45,7 @@ namespace BeatLeader.UI.ReplayUI
 
         [UIAction("play-button-clicked")] private void Clicked()
         {
-            MovementPatchHelper.player.isPlaying = !MovementPatchHelper.player.isPlaying;
+            //MovementPatchHelper.player.isPlaying = !MovementPatchHelper.player.isPlaying;
             if (!MovementPatchHelper.player.isPlaying)
             {
                 MovementPatchHelper.player.songSyncController.Pause();

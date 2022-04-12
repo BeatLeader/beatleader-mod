@@ -11,9 +11,9 @@ using BeatLeader.Replays;
 using BeatLeader.UI;
 using Zenject;
 
-namespace BeatLeader.Installers
+namespace BeatLeader.Replays.Installers
 {
-    internal class ReplayPreInstaller : Installer<ReplayPreInstaller>
+    internal class PlayerScenePatchInstaller : Installer<PlayerScenePatchInstaller>
     {
         public override void InstallBindings()
         {

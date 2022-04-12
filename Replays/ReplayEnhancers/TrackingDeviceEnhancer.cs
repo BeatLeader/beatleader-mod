@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.XR;
+using Zenject;
 
 namespace BeatLeader.Replays.ReplayEnhancers
 {
-    class TrackingDeviceEnhancer
+    public class TrackingDeviceEnhancer
     {
         private readonly IVRPlatformHelper _vRPlatformHelper;
         private readonly Dictionary<VRPlatformSDK, Action<Replay>> _trackingDataProcessors = new Dictionary<VRPlatformSDK, Action<Replay>>();
 
-        public TrackingDeviceEnhancer(IVRPlatformHelper vRPlatformHelper)
+        [Inject] public TrackingDeviceEnhancer(IVRPlatformHelper vRPlatformHelper)
         {
             _vRPlatformHelper = vRPlatformHelper;
 

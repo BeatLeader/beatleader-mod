@@ -9,16 +9,15 @@ using System.Threading;
 using UnityEngine;
 using Zenject;
 using IPA.Utilities;
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatLeader.Utils;
 using BeatLeader.Replays.Models;
 using BeatLeader.Replays.Emulators;
 using BeatLeader.UI.ReplayUI;
-using ReplayNoteCutInfo = BeatLeader.Replays.Models.NoteCutInfo;
-using ReplayVector3 = BeatLeader.Replays.Models.Vector3;
-using ReplayQuaternion = BeatLeader.Replays.Models.Quaternion;
-using ReplayTransform = BeatLeader.Replays.Models.Transform;
+using static BeatLeader.Replays.Models.Replay;
+using ReplayNoteCutInfo = BeatLeader.Replays.Models.Replay.NoteCutInfo;
+using ReplayVector3 = BeatLeader.Replays.Models.Replay.Vector3;
+using ReplayQuaternion = BeatLeader.Replays.Models.Replay.Quaternion;
+using ReplayTransform = BeatLeader.Replays.Models.Replay.Transform;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Transform = UnityEngine.Transform;
@@ -30,39 +29,36 @@ namespace BeatLeader.Replays
         [Inject] public IScoreController controller;
         [Inject] public BeatmapObjectManager beatmapObjectManager;
         [Inject] public AudioTimeSyncController songSyncController;
-        [Inject] public Replay replayData;
 
         public ReplayVRController rightHand;
         public ReplayVRController leftHand;
+        public Replay replayData;
 
-        private List<(NoteController, NoteEvent)> notesToCut;
+        private List<(NoteController, NoteEvent)> notesToCut = new List<(NoteController, NoteEvent)>();
         private Frame previousFrame;
-        private int totalFramesCount;
-        private int currentFrame;
-        public bool isPlaying;
+        private protected bool _isPlaying;
+        public bool isPlaying => _isPlaying;
 
         public event Action<Frame> frameWasUpdated;
 
+        public void Init(Replay replay, ReplayVRController leftHand, ReplayVRController rightHand)
+        {
+            this.replayData = replay;
+            this.leftHand = leftHand;
+            this.rightHand = rightHand;
+            _isPlaying = true;
+        }
         public void Start()
         {
-            currentFrame = 0;
-            totalFramesCount = replayData.frames.Count;
-            notesToCut = new List<(NoteController, NoteEvent)>();
             beatmapObjectManager.noteWasSpawnedEvent += AddNoteToCutQueue;
-            new ReplayPlaybackMenuController().Init(MovementPatchHelper.menuLeftHand, (int)songSyncController.songLength);
-            isPlaying = replayData != null ? true : false;
-            foreach (var item in controller.GetEvents())
-            {
-                Debug.LogWarning(item.Key);
-                Debug.Log($"{item.Value.Target}+{item.Value.Method}");
-            }
+            //new ReplayPlaybackMenuController().Init(MovementPatchHelper.menuLeftHand, (int)songSyncController.songLength);
+            //_isPlaying = replayData != null ? true : false;
         }
         public void Update()
         {
             if (!isPlaying) return;
-            PlayFrame(replayData.GetFrameByTime(songSyncController.songTime));
-            currentFrame++;
-            //InvokeNotesInQueue();
+            //PlayFrame(replayData.GetFrameByTime(songSyncController.songTime));
+            InvokeNotesInQueue();
         }
         public void AddNoteToCutQueue(NoteController controller)
         {
@@ -80,9 +76,12 @@ namespace BeatLeader.Replays
         }
         private void InvokeNotesInQueue()
         {
-            foreach (var note in notesToCut)
+            List<int> notesToRemove = new List<int>();
+            for (int i = 0; i < notesToCut.Count; i++)
             {
-                if (songSyncController.songTime >= note.Item2.eventTime)
+                var note = notesToCut[i];
+                Debug.Log(note.Item2.eventTime);
+                if (songSyncController.songTime >= note.Item2.eventTime && songSyncController.songTime <= note.Item2.eventTime + 0.15f)
                 {
                     try
                     {
@@ -94,9 +93,20 @@ namespace BeatLeader.Replays
                         }
                     }
                     catch (Exception ex) { }
+                    notesToRemove.Add(i);
                 }
             }
-            notesToCut.Clear();
+            //foreach (var index in notesToRemove)
+            //{
+            //    notesToCut.RemoveAt(index);
+            //}
+            int indexOffset = 0;
+            notesToRemove.Sort();
+            for (int i = 0; i < notesToRemove.Count; i++)
+            {
+                notesToCut.Remove(notesToCut[i - indexOffset]);
+                indexOffset++;
+            }
         }
     }
 }

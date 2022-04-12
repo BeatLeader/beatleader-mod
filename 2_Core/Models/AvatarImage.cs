@@ -52,6 +52,7 @@ namespace BeatLeader.Models {
                     _originalTexture.Apply();
                     Graphics.Blit(_originalTexture, targetTexture);
                     yield return new WaitForSeconds(frame.graphicControl.fdelay);
+                    frame.Dispose(colors, _originalTexture.width, _originalTexture.height);
                 }
             }
         }

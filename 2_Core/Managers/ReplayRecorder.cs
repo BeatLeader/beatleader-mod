@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Core.Managers.NoteEnhancer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Loader;
+using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -195,13 +197,15 @@ namespace BeatLeader {
 
         private void OnScoringDidFinish(ScoringElement scoringElement) {
             if (scoringElement is GoodCutScoringElement goodCut) {
-                var noteId = _noteIdCache[goodCut.cutScoreBuffer.noteCutInfo.noteData];
-
+                CutScoreBuffer cutScoreBuffer = goodCut.GetField<CutScoreBuffer, GoodCutScoringElement>("_cutScoreBuffer");
+                SaberSwingRatingCounter saberSwingRatingCounter = cutScoreBuffer.GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
+                
+                var noteId = _noteIdCache[cutScoreBuffer.noteCutInfo.noteData];
+                
                 var cutEvent = _noteEventCache[noteId];
                 var noteCutInfo = cutEvent.noteCutInfo;
-                PopulateNoteCutInfo(noteCutInfo, goodCut.cutScoreBuffer.noteCutInfo);
-                noteCutInfo.beforeCutRating = goodCut.cutScoreBuffer.beforeCutSwingRating;
-                noteCutInfo.afterCutRating = goodCut.cutScoreBuffer.afterCutSwingRating;
+                PopulateNoteCutInfo(noteCutInfo, cutScoreBuffer.noteCutInfo);
+                SwingRatingEnhancer.Enhance(noteCutInfo, saberSwingRatingCounter);
             }
         }
 

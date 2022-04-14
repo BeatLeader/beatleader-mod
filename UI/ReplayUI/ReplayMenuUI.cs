@@ -8,8 +8,10 @@ using TMPro;
 using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
+using BeatLeader.Utils.Expansions;
 using BeatLeader.Replays.Models;
 using BeatLeader.Utils;
+using BeatLeader.Utils.Json;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Tags;
 using BeatLeader.Replays;
@@ -55,18 +57,9 @@ namespace BeatLeader.UI
         }
         private static void StartButtonClicked()
         {
-            var go = LevelWrapContainer.GetComponent<StandardLevelDetailView>();
-            var events = go.GetEvents();
-            Debug.Log(events.Count);
-            foreach (var item in events)
-            {
-                Debug.LogWarning(item.Key);
-                foreach (var item2 in item.Value.GetInvocationList())
-                {
-                    Debug.Log(item2.Target + " " + item2.Method);
-                }
-            }
-            Debug.LogWarning(ReplayJsonSerializer.Serialize(replayData));
+            var actionButton = Resources.FindObjectsOfTypeAll<NoTransitionsButton>().FirstOrDefault(x => x.gameObject.name == "ActionButton");
+            actionButton.onClick.Invoke();
+            _systemHelper.StartWithRecorder();
         }
         private static void SetButtonState(bool state) => _replayButton.interactable = state;
         public static void CheckIsReplayExists(IDifficultyBeatmap beatmap)

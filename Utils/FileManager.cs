@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using BeatLeader.Utils.Json;
 
 namespace BeatLeader.Utils
 {
@@ -24,9 +25,7 @@ namespace BeatLeader.Utils
         public static void WriteReplay(Replay replay)
         {
             string filename = ToFileName(replay);
-            using BinaryWriter file = new(File.Open(filename, FileMode.OpenOrCreate), Encoding.UTF8);
-            ReplayEncoder.Encode(replay, file);
-            file.Close();
+            File.WriteAllText($@"C:\Users\{Environment.UserName}\Desktop\replay.bsor", JsonUtil.ToJson(replay));
         }
 
         public static string ToFileName(Replay replay)
@@ -50,7 +49,7 @@ namespace BeatLeader.Utils
                 stream.Read(buffer, 0, arrayLength);
                 stream.Close();
 
-                return ReplayDecoder.Decode(buffer);
+                return null;//ReplayDecoder.Decode(buffer);
             }
             catch (Exception e)
             {

@@ -15,6 +15,7 @@ using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Tags;
 using BeatSaberMarkupLanguage.ViewControllers;
+using static BeatLeader.Replays.Models.Replay;
 using Zenject;
 
 namespace BeatLeader.UI.ReplayUI

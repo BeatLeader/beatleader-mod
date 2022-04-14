@@ -41,10 +41,10 @@ namespace BeatLeader.Utils
             var events = GetEvents(sender);
             SetEvents(reciever, events);
         }
-        public static List<FieldInfo> GetFields<T>(this T type, Func<FieldInfo, bool> searchFilter)
+        public static List<FieldInfo> GetFields<T>(this T type, BindingFlags flags, Func<FieldInfo, bool> searchFilter)
         {
             List<FieldInfo> sortedFields = new List<FieldInfo>();
-            var fields = type.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            var fields = type.GetType().GetFields(flags);
             foreach (var field in fields)
             {
                 if (searchFilter == null)
@@ -61,7 +61,7 @@ namespace BeatLeader.Utils
         }
         public static List<FieldInfo> GetFields<T>(this T type)
         {
-            return GetFields<T>(type, null);
+            return GetFields<T>(type, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null);
         }
     }
 }

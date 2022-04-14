@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BeatLeader.Utils;
 using BeatLeader.Utils.Expansions;
 using UnityEngine;
 using IPA.Utilities;
@@ -26,9 +27,7 @@ namespace BeatLeader.Replays.Installers
             sceneSetupData.playerSpecificSettings.SetField("_automaticPlayerHeight", false);
 
             Container.Rebind<GameplayCoreSceneSetupData>().FromInstance(sceneSetupData).AsCached();
-            
-            Resources.FindObjectsOfTypeAll<GameplayCoreInstaller>().FirstOrDefault()
-                .InjectAllFieldsOfType<GameplayCoreSceneSetupData, GameplayCoreInstaller>(Container);
+            Resources.FindObjectsOfTypeAll<GameplayCoreInstaller>().FirstOrDefault().InjectAllFieldsOfType<GameplayCoreSceneSetupData, GameplayCoreInstaller>(Container);
         }
     }
 }

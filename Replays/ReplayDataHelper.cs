@@ -361,7 +361,7 @@ namespace BeatLeader.Replays
         }
         public static int ComputeNoteScore(this NoteEvent note)
         {
-            if (note.eventType == NoteEventType.good)
+            if (note.cutResult == NoteCutResult.Good)
             {
                 var cut = note.noteCutInfo;
                 double beforeCutRawScore = Math.Round(70 * cut.beforeCutRating);
@@ -372,15 +372,14 @@ namespace BeatLeader.Replays
             }
             else
             {
-                switch (note.eventType)
+                switch (note.cutResult)
                 {
-                    case NoteEventType.bad:
+                    case NoteCutResult.Bad:
                         return -2;
-                    case NoteEventType.miss:
+                    case NoteCutResult.Miss:
                         return -3;
-                    case NoteEventType.bomb:
-                        return -4;
                 }
+                if (note.noteType == NoteType.Bomb) return -4;
             }
             return -1;
         }

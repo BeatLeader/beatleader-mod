@@ -129,6 +129,15 @@ namespace BeatLeader.Replays
             NoteEvent noteEvent = new NoteEvent();
             noteEvent.noteID = noteData.ComputeNoteID();
             noteEvent.spawnTime = noteData.time;
+            switch(noteData.gameplayType)
+            {
+                case NoteData.GameplayType.Normal:
+                    noteEvent.noteType = NoteType.Note;
+                    break;
+                case NoteData.GameplayType.Bomb:
+                    noteEvent.noteType = NoteType.Bomb;
+                    break;
+            }
             _tempNoteEvents.Add(noteEvent.noteID, (noteData, noteEvent));
         }
         private void OnObstacleWasSpawned(ObstacleController obstacleController)
@@ -144,7 +153,7 @@ namespace BeatLeader.Replays
             {
                 var noteEvent = _tempNoteEvents[noteController.noteData.ComputeNoteID()].Item2;
                 noteEvent.eventTime = _replayDataProvider.timeSyncController.songTime;
-                noteEvent.eventType = NoteEventType.miss;
+                noteEvent.cutResult = NoteCutResult.Miss;
                 _tempReplay.AddItemToReplay(noteEvent);
             }
         }
@@ -165,17 +174,17 @@ namespace BeatLeader.Replays
 
             if (noteController.noteData.colorType == ColorType.None)
             {
-                noteEvent.eventType = NoteEventType.bomb;
+                noteEvent.noteType = NoteType.Bomb;
             }
 
             noteEvent.noteCutInfo = noteCutInfo;
             if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon)
             {
-                noteEvent.eventType = NoteEventType.good;
+                noteEvent.cutResult = NoteCutResult.Good;
             }
             else
             {
-                noteEvent.eventType = NoteEventType.bad;
+                noteEvent.cutResult = NoteCutResult.Bad;
             }
 
             _tempReplay.AddItemToReplay(noteEvent);

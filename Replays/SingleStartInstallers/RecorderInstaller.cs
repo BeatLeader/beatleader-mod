@@ -1,9 +1,13 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
+using BeatLeader.Utils;
+using BeatLeader.Replays.Models;
 using BeatLeader.Replays.ReplayEnhancers;
 using HarmonyLib;
+using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.SingleStartInstallers
+namespace BeatLeader.Replays.Installers
 {
     internal class RecorderInstaller : Installer<RecorderInstaller>
     {
@@ -22,8 +26,13 @@ namespace BeatLeader.Replays.SingleStartInstallers
                 return;
             }
             Plugin.Log.Debug("Starting a BL Replay Recorder");
-            Container.Bind<ReplayRecorder>().AsSingle();
             Container.Bind<TrackingDeviceEnhancer>().AsTransient();
+            Container.Bind<ReplayDataProvider>().AsSingle().NonLazy();
+            var go = new GameObject("ReplayRecorder");
+            go.AddComponent<ReplayRecorder>();
+            Container.Bind<ReplayRecorder>().FromComponentOn(go).AsSingle().NonLazy();
+            
+            Zenjector.beforeGameplayCoreInstalled -= Install;
         }
     }
 }

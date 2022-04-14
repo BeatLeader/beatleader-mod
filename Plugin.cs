@@ -48,14 +48,12 @@ namespace BeatLeader {
 
         private static void SubscribeEvents()
         {
-            EventsHandler.LevelViewUpdated += ReplayMenuUI.CheckIsReplayExists;
+            //EventsHandler.LevelViewUpdated += ReplayMenuUI.CheckIsReplayExists;
         }
 
         private static void SubscribeInstallers()
         {
             Zenjector.afterAppInstalled += OnAppInitInstaller.Install;
-            Zenjector.beforeGameplayCoreInstalled += ReplayPreInstaller.Install;
-            Zenjector.afterGameplayCoreInstalled += ReplayAfterInstaller.Install;
             Zenjector.afterGameplayCoreInstalled += OnGameplayCoreInstaller.Install;
             Zenjector.afterMenuInstalled += OnMenuInstaller.Install;
         }

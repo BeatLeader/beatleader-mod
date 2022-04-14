@@ -10,9 +10,18 @@ using UnityQuaternion = UnityEngine.Quaternion;
 
 namespace BeatLeader.Replays.Models
 {
-    [Serializable]
-    public class Replay
+    [Serializable] public class Replay
     {
+        public Replay()
+        {
+            this.info = new();
+            this.frames = new();
+            this.notes = new();
+            this.walls = new();
+            this.heights = new();
+            this.pauses = new();
+        }
+
         [Serializable] public class ReplayInfo
         {
             public string version;
@@ -58,7 +67,8 @@ namespace BeatLeader.Replays.Models
             public int noteID;
             public float eventTime;
             public float spawnTime;
-            public NoteEventType eventType;
+            public NoteType noteType;
+            public NoteCutResult cutResult;
             public NoteCutInfo noteCutInfo;
         }
         [Serializable] public class WallEvent
@@ -196,29 +206,26 @@ namespace BeatLeader.Replays.Models
             public float beforeCutRating;
             public float afterCutRating;
         }
-        public enum NoteEventType
+        public enum NoteType
         {
-            good = 0,
-            bad = 1,
-            miss = 2,
-            bomb = 3
+            Note,
+            Slider,
+            BurstSlider,
+            Bomb
         }
-        public enum StructType
+        public enum NoteCutResult
         {
-            info = 0,
-            frames = 1,
-            notes = 2,
-            walls = 3,
-            heights = 4,
-            pauses = 5
+            Good,
+            Bad,
+            Miss
         }
 
-        public ReplayInfo info = new ReplayInfo();
+        public ReplayInfo info;
 
-        public List<Frame> frames = new List<Frame>();
-        public List<NoteEvent> notes = new List<NoteEvent>();
-        public List<WallEvent> walls = new List<WallEvent>();
-        public List<HeightInfo> heights = new List<HeightInfo>();
-        public List<PauseInfo> pauses = new List<PauseInfo>();
+        public List<Frame> frames;
+        public List<NoteEvent> notes;
+        public List<WallEvent> walls;
+        public List<HeightInfo> heights;
+        public List<PauseInfo> pauses;
     }
 }

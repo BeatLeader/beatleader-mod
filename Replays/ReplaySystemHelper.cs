@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BeatLeader.Replays.Installers;
+using BeatLeader.Utils;
 using BeatLeader.Replays.Models;
 using UnityEngine;
 using Zenject;
@@ -20,9 +22,10 @@ namespace BeatLeader.Replays
         public ReplayPlayer player => _player;
         public Replay replay => _replay;
 
-        public void InstallRecorder()
+        public void StartWithRecorder()
         {
-
+            Zenjector.beforeGameplayCoreInstalled += RecorderInstaller.Install;
+            
         }
         public void StartInReplayMode(StandardLevelScenesTransitionSetupDataSO transitionData, Replay replay)
         {

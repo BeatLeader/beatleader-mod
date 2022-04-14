@@ -25,7 +25,7 @@ namespace BeatLeader.Utils
             }
 
             MemoryStream stream = new();
-            ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
+            //ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
             for (int i = 0; i < _retry; i++)
             {

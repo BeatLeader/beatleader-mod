@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatLeader.Replays.Models;
+using static BeatLeader.Replays.Models.Replay;
 using UnityEngine;
 
 namespace BeatLeader.Replays.Emulators

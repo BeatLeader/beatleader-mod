@@ -178,6 +178,8 @@
     <Compile Include="0_Harmony\InstallersPatches\GameInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\LevelDataEnhancerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\MenuInstallerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\PreSwingRatingEnhancerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
     <Compile Include="1_Config\ConfigDefaults.cs" />
@@ -196,6 +198,7 @@
     <Compile Include="2_Core\Managers\Leaderboard\LeaderboardHeaderManager.cs" />
     <Compile Include="2_Core\Managers\MonkeyHeadManager.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\MapEnhancer.cs" />
+    <Compile Include="2_Core\Managers\NoteEnhancer\SwingRatingEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\TrackingDeviceEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />

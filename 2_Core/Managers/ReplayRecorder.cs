@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using BeatLeader.Core.Managers.NoteEnhancer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -264,7 +265,6 @@ namespace BeatLeader {
 
             var cutEvent = _noteEventCache[noteId];
             var noteCutInfo = cutEvent.noteCutInfo;
-            noteCutInfo.beforeCutRating = swingRatingCounter.beforeCutRating;
         }
 
         #endregion
@@ -286,7 +286,7 @@ namespace BeatLeader {
             var cutEvent = _noteEventCache[noteId];
             var noteCutInfo = cutEvent.noteCutInfo;
             PopulateNoteCutInfo(noteCutInfo, cutInfo);
-            noteCutInfo.afterCutRating = swingRatingCounter.afterCutRating;
+            SwingRatingEnhancer.Enhance(noteCutInfo, (SaberSwingRatingCounter)swingRatingCounter);
         }
 
         #endregion

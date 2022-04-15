@@ -25,7 +25,6 @@ namespace BeatLeader
 
 		static void Postfix(SaberSwingRatingCounter __instance, BladeMovementDataElement newData, BladeMovementDataElement prevData, bool prevDataAreValid) {
             PostSwingRatingContainer container = SwingRatingEnhancer.postSwingMap[__instance];
-            Plugin.Log.Critical("ProcessNewData");
             bool _rateAfterCut = __instance.GetField<bool, SaberSwingRatingCounter>("_rateAfterCut");
             Plane _notePlane = __instance.GetField<Plane, SaberSwingRatingCounter>("_notePlane");
             if (!container.AlreadyCut && !_notePlane.SameSide(newData.topPos, prevData.topPos))

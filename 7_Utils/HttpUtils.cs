@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using Newtonsoft.Json;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BeatLeader.Utils {
@@ -90,19 +93,22 @@ namespace BeatLeader.Utils {
         #region ReplayUpload
 
         public IEnumerator UploadReplay(Replay replay, int retry = 3) {
-
-            string authToken = BLContext.steamAuthToken;
-            if (authToken == null) {
-                Plugin.Log.Debug("No auth token, skip replay upload");
-                yield break; // auth failed, no upload
-            }
-
             LeaderboardEvents.NotifyUploadStarted();
 
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
             for (int i = 1; i <= retry; i++) {
+                Task<string> ticketTask = Authentication.SteamTicket();
+                yield return new WaitUntil(() => ticketTask.IsCompleted);
+
+                string authToken = ticketTask.Result;
+                if (authToken == null)
+                {
+                    Plugin.Log.Debug("No auth token, skip replay upload");
+                    yield break; // auth failed, no upload
+                }
+
                 Plugin.Log.Debug($"Attempt to upload replay {i}/{retry}");
 
                 var request = new UnityWebRequest(BLConstants.REPLAY_UPLOAD_URL + "?ticket=" + authToken, UnityWebRequest.kHttpVerbPOST) {

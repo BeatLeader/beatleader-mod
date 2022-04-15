@@ -66,6 +66,7 @@ namespace BeatLeader.Components {
         }
 
         private void ShowMessage(string message, float duration = DefaultDuration) {
+            if (!gameObject.activeInHierarchy) return;
             StopAllCoroutines();
             StartCoroutine(ShowMessageCoroutine(message, duration));
         }

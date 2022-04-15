@@ -9,22 +9,12 @@ using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
-
-        private ScoresScope _selectedScoreScope;
-        private ScoresContext _selectedScoreContext;
+        private ScoresScope _selectedScoreScope = ScoresScope.Global;
+        private ScoresContext _selectedScoreContext = BLContext.DefaultScoresContext;
         private int _lastSelectedPage = 1;
         private IDifficultyBeatmap _lastSelectedBeatmap;
 
         private Coroutine _scoresTask;
-        private HttpUtils _httpUtils;
-
-        [Inject]
-        public void Construct(HttpUtils httpUtils) {
-            _httpUtils = httpUtils;
-
-            _selectedScoreScope = ScoresScope.Global;
-            _selectedScoreContext = BLContext.DefaultScoresContext;
-        }
 
         #region Initialize/Dispose section
 
@@ -77,7 +67,7 @@ namespace BeatLeader.DataManager {
 
             string userId = BLContext.profile.id;
 
-            _scoresTask = StartCoroutine(_httpUtils.GetPagedData<Score>(
+            _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                 String.Format(BLConstants.SCORES_BY_HASH_PAGED, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
                     { BLConstants.Param.PLAYER, userId },
                     { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
@@ -106,7 +96,7 @@ namespace BeatLeader.DataManager {
 
             string userId = BLContext.profile.id;
 
-            _scoresTask = StartCoroutine(_httpUtils.GetPagedData<Score>(
+            _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                 String.Format(BLConstants.SCORES_BY_HASH_SEEK, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
                     { BLConstants.Param.PLAYER, userId },
                     { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }

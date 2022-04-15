@@ -60,12 +60,20 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnScoreRequestStarted() {
-            StartCoroutine(ClearScoresCoroutine());
+            if (gameObject.activeInHierarchy) {
+                StartCoroutine(ClearScoresCoroutine());
+            } else {
+                ClearScoresInstant();
+            }
         }
 
         private void OnScoresFetched(Paged<Score> scoresData) {
             if (scoresData.data == null || scoresData.data.IsEmpty()) return;
-            StartCoroutine(SetScoresCoroutine(scoresData));
+            if (gameObject.activeInHierarchy) {
+                StartCoroutine(SetScoresCoroutine(scoresData));
+            } else {
+                SetScoresInstant(scoresData);
+            }
         }
 
         #endregion
@@ -138,6 +146,77 @@ namespace BeatLeader.Components {
                 }
 
                 yield return new WaitForSeconds(DelayPerRow);
+            }
+
+            if (extraRowState == ExtraRowState.Bottom) {
+                UpdateRowLayout(_extraRow);
+                _extraRow.SetScore(scoresData.selection);
+            }
+
+            _lastExtraRowState = extraRowState;
+        }
+
+        #endregion
+
+        #region Instant
+
+        private void ClearScoresInstant() {
+            if (_lastExtraRowState == ExtraRowState.Top) {
+                _extraRow.ClearScore();
+            }
+
+            _topRowDivider.FadeOut();
+            _bottomRowDivider.FadeOut();
+
+            foreach (var row in _mainRows) {
+                row.ClearScore();
+            }
+
+            if (_lastExtraRowState == ExtraRowState.Bottom) {
+                _extraRow.ClearScore();
+            }
+
+            _lastExtraRowState = ExtraRowState.Hidden;
+        }
+
+        private void SetScoresInstant(Paged<Score> scoresData) {
+            TableLayoutUtils.CalculateColumns(scoresData,
+                out var rankColumnWidth,
+                out var accColumnWidth,
+                out var ppColumnWidth,
+                out var scoreColumnWidth,
+                out var flexibleWidth,
+                out var hasPP
+            );
+
+            void UpdateRowLayout(ScoreRow row) {
+                row.UpdateLayout(
+                    rankColumnWidth,
+                    accColumnWidth,
+                    ppColumnWidth,
+                    scoreColumnWidth,
+                    flexibleWidth,
+                    hasPP
+                );
+            }
+
+            var extraRowState = UpdateExtraRowState(scoresData);
+
+            if (scoresData.metadata.page > 1) _topRowDivider.FadeIn();
+            if (scoresData.metadata.page < (float) scoresData.metadata.total / scoresData.metadata.itemsPerPage) _bottomRowDivider.FadeIn();
+
+            if (extraRowState == ExtraRowState.Top) {
+                UpdateRowLayout(_extraRow);
+                _extraRow.SetScore(scoresData.selection);
+            }
+
+            for (var i = 0; i < MainRowsCount; i++) {
+                var row = _mainRows[i];
+                UpdateRowLayout(row);
+
+                if (i < scoresData.data.Count) {
+                    row.SetScore(scoresData.data[i]);
+                }
             }
 
             if (extraRowState == ExtraRowState.Bottom) {

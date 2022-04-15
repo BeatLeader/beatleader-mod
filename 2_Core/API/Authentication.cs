@@ -1,37 +1,27 @@
-﻿using Steamworks;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Steamworks;
 
 namespace BeatLeader.API {
-    class Authentication {
+    internal static class Authentication {
         public static async Task<string> SteamTicket() {
             if (!SteamManager.Initialized) {
                 Plugin.Log.Error("SteamManager is not initialized!");
                 return null;
             }
 
-            TaskCompletionSource<bool> getAuthResponseTcs = new TaskCompletionSource<bool>();
-            Callback<GetAuthSessionTicketResponse_t> getAuthSessionTicketCallback = new Callback<GetAuthSessionTicketResponse_t>((Callback<GetAuthSessionTicketResponse_t>.DispatchDelegate)(resp => getAuthResponseTcs.TrySetResult(resp.m_eResult == EResult.k_EResultOK)));
+            var getAuthResponseTcs = new TaskCompletionSource<bool>();
+            var getAuthSessionTicketCallback = new Callback<GetAuthSessionTicketResponse_t>(resp => getAuthResponseTcs.TrySetResult(resp.m_eResult == EResult.k_EResultOK));
 
-            string? ticket = null;
+            string ticket = null;
 
-            byte[]? m_Ticket = new byte[1024];
-            uint m_pcbTicket;
-            if (SteamUser.GetAuthSessionTicket(m_Ticket, 1024, out m_pcbTicket) != HAuthTicket.Invalid) {
-                Array.Resize(ref m_Ticket, (int)m_pcbTicket);
-                System.Text.StringBuilder sb = new();
-                foreach (byte b in m_Ticket)
-                {
-                    sb.AppendFormat("{0:x2}", b);
-                }
-                ticket = sb.ToString();
+            const int ticketBufferSize = 1024;
+            var byteBuffer = new byte[ticketBufferSize];
+            if (SteamUser.GetAuthSessionTicket(byteBuffer, ticketBufferSize, out var ticketLength) != HAuthTicket.Invalid) {
+                ticket = BitConverter.ToString(byteBuffer, 0, (int) ticketLength).Replace("-", "");
             }
 
-            Task task = await Task.WhenAny(new Task[2]
-            {
-                (Task) getAuthResponseTcs.Task,
-                Task.Delay(TimeSpan.FromSeconds(10.0))
-            });
+            await Task.WhenAny(getAuthResponseTcs.Task, Task.Delay(TimeSpan.FromSeconds(10.0))).ConfigureAwait(false);
 
             getAuthSessionTicketCallback.Dispose();
             return !getAuthResponseTcs.Task.IsCompleted || !getAuthResponseTcs.Task.Result ? null : ticket;

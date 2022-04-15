@@ -1,5 +1,6 @@
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
@@ -18,6 +19,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             LeaderboardEvents.UserProfileStartedEvent += OnProfileRequestStarted;
             LeaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
+            OnProfileFetched(BLContext.profile);
         }
 
         protected override void OnDispose() {

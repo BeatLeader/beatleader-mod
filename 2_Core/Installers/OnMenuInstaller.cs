@@ -1,5 +1,3 @@
-using BeatLeader.DataManager;
-using BeatLeader.Utils;
 using BeatLeader.ViewControllers;
 using JetBrains.Annotations;
 using Zenject;
@@ -19,11 +17,6 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<LeaderboardPanel>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardHeaderManager>().AsSingle();
-
-            Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<ProfileManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            Container.BindInterfacesAndSelfTo<HttpUtils>().AsSingle();
         }
     }
 }

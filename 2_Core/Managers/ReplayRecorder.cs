@@ -14,7 +14,7 @@ using Transform = BeatLeader.Models.Transform;
 
 namespace BeatLeader {
     [UsedImplicitly]
-    public class ReplayRecorder : IInitializable, IDisposable, ITickable {
+    public class ReplayRecorder : IInitializable, IDisposable, ILateTickable {
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
@@ -94,7 +94,7 @@ namespace BeatLeader {
             }
         }
 
-        public void Tick() {
+        public void LateTick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
             var frame = new Frame() {

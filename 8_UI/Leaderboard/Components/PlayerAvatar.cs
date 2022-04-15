@@ -45,6 +45,7 @@ namespace BeatLeader.Components {
         private string _url;
 
         public void SetAvatar(string url) {
+            if (url.Equals(_url)) return;
             _url = url;
             UpdateAvatar();
         }

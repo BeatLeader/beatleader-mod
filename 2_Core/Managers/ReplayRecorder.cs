@@ -16,7 +16,7 @@ using Transform = BeatLeader.Models.Transform;
 
 namespace BeatLeader {
     [UsedImplicitly]
-    public class ReplayRecorder : IInitializable, IDisposable, ITickable {
+    public class ReplayRecorder : IInitializable, IDisposable, ILateTickable {
         #region Constructor
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
@@ -27,7 +27,6 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private ScoreController _scoreController;
         [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
         [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
-        [Inject] [UsedImplicitly] private ScoreUtil _scoreUtil;
 
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
@@ -110,9 +109,8 @@ namespace BeatLeader {
 
         #region Movements recording
 
-        //You're most likely updating before player transforms changed (in other words: recorder is one frame behind)
-        //Use ILateTickable to be sure
-        public void Tick() {
+        
+        public void LateTick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
             var frame = new Frame() {
@@ -355,7 +353,7 @@ namespace BeatLeader {
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
                     Plugin.Log.Info("Level Cleared. Save replay");
-                    _scoreUtil.ProcessReplay(_replay);
+                    ScoreUtil.instance.ProcessReplayAsync(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
                     if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
@@ -366,7 +364,7 @@ namespace BeatLeader {
                     {
                         _replay.info.failTime = _timeSyncController.songTime;
                         Plugin.Log.Info("Level Failed. Save replay");
-                        _scoreUtil.ProcessReplay(_replay);
+                        ScoreUtil.instance.ProcessReplayAsync(_replay);
                     }
                     break;
             }

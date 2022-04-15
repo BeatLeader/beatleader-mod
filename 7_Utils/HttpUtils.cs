@@ -12,11 +12,10 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BeatLeader.Utils {
-    internal class HttpUtils {
-
+    internal static class HttpUtils {
         #region Get single entity
 
-        internal IEnumerator GetData<T>(string url, Action<T> onSuccess, Action onFail, int retry = 1) {
+        internal static IEnumerator GetData<T>(string url, Action<T> onSuccess, Action onFail, int retry = 1) {
             Plugin.Log.Debug($"Request url = {url}");
 
             for (int i = 1; i <= retry; i++) {
@@ -54,7 +53,7 @@ namespace BeatLeader.Utils {
 
         #region get list of entities
 
-        internal IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action onFail, int retry = 1) {
+        internal static IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action onFail, int retry = 1) {
             var uri = new Uri(url);
             Plugin.Log.Debug($"Request url = {uri}");
 
@@ -92,7 +91,7 @@ namespace BeatLeader.Utils {
 
         #region ReplayUpload
 
-        public IEnumerator UploadReplay(Replay replay, int retry = 3) {
+        public static IEnumerator UploadReplay(Replay replay, int retry = 3) {
             LeaderboardEvents.NotifyUploadStarted();
 
             MemoryStream stream = new();
@@ -106,7 +105,7 @@ namespace BeatLeader.Utils {
                 if (authToken == null)
                 {
                     Plugin.Log.Debug("No auth token, skip replay upload");
-                    yield break; // auth failed, no upload
+                    break; // auth failed, no upload
                 }
 
                 Plugin.Log.Debug($"Attempt to upload replay {i}/{retry}");

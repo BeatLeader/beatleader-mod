@@ -56,7 +56,6 @@ namespace BeatLeader {
         private readonly Dictionary<int, NoteEvent> _noteEventCache = new();
 
         private readonly Dictionary<int, SwingRatingCounterDidFinishReceiver> _finishReceiversCache = new();
-        private readonly Dictionary<int, SwingRatingCounterDidChangeReceiver> _changeReceiversCache = new();
 
         private readonly Dictionary<NoteController, int> _noteIdCache = new();
         private int _noteId;
@@ -172,7 +171,7 @@ namespace BeatLeader {
 
             WallEvent wallEvent = new();
             wallEvent.wallID = obstacleData.lineIndex * 100 + (int)obstacleData.obstacleType * 10 + obstacleData.width;
-            wallEvent.spawnTime = _timeSyncController.songTime;
+            wallEvent.spawnTime = obstacleData.time;
             _wallEventCache[wallId] = wallEvent;
         }
 
@@ -238,10 +237,6 @@ namespace BeatLeader {
             }
             if (noteCutInfo.swingRatingCounter == null) return;
 
-            var counterDidChangeReceiver = new SwingRatingCounterDidChangeReceiver(noteId, OnSwingRatingCounterDidChange);
-            noteCutInfo.swingRatingCounter.RegisterDidChangeReceiver(counterDidChangeReceiver);
-            _changeReceiversCache[noteId] = counterDidChangeReceiver;
-
             var counterDidFinishReceiver = new SwingRatingCounterDidFinishReceiver(noteId, OnSwingRatingCounterDidFinish);
             noteCutInfo.swingRatingCounter.RegisterDidFinishReceiver(counterDidFinishReceiver);
             _finishReceiversCache[noteId] = counterDidFinishReceiver;
@@ -249,28 +244,9 @@ namespace BeatLeader {
 
         #endregion
 
-        #region OnSwingRatingCounterDidChange
-
-        private void OnSwingRatingCounterDidChange(ISaberSwingRatingCounter swingRatingCounter, int noteId, float rating) {
-
-            var cutInfo = _cutInfoCache[noteId];
-
-            ScoreModel.RawScoreWithoutMultiplier(swingRatingCounter, cutInfo.cutDistanceToCenter,
-                out var beforeCutRawScore,
-                out var afterCutRawScore,
-                out var cutDistanceRawScore
-            );
-
-            var cutEvent = _noteEventCache[noteId];
-            var noteCutInfo = cutEvent.noteCutInfo;
-        }
-
-        #endregion
-
         #region OnSwingRatingCounterDidFinish
 
         private void OnSwingRatingCounterDidFinish(ISaberSwingRatingCounter swingRatingCounter, int noteId) {
-            swingRatingCounter.UnregisterDidChangeReceiver(_changeReceiversCache[noteId]);
             swingRatingCounter.UnregisterDidFinishReceiver(_finishReceiversCache[noteId]);
 
             NoteCutInfo cutInfo = _cutInfoCache[noteId];
@@ -294,24 +270,6 @@ namespace BeatLeader {
         private void OnNoteWasDespawned(NoteController noteController) {
             var noteId = _noteId++;
             _noteIdCache[noteController] = noteId;
-        }
-
-        #endregion
-
-        #region SwingRatingCounterDidChangeReceiver
-
-        private class SwingRatingCounterDidChangeReceiver : ISaberSwingRatingCounterDidChangeReceiver {
-            private readonly Action<ISaberSwingRatingCounter, int, float> _finishEvent;
-            private readonly int _noteId;
-
-            public SwingRatingCounterDidChangeReceiver(int noteId, Action<ISaberSwingRatingCounter, int, float> finishEvent) {
-                _finishEvent = finishEvent;
-                _noteId = noteId;
-            }
-
-            public void HandleSaberSwingRatingCounterDidChange(ISaberSwingRatingCounter saberSwingRatingCounter, float rating) {
-                _finishEvent.Invoke(saberSwingRatingCounter, _noteId, rating);
-            }
         }
 
         #endregion

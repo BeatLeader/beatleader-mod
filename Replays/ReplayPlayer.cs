@@ -44,7 +44,7 @@ namespace BeatLeader.Replays
 
         public void Start()
         {
-            replayData = ReplaySystemHelper.replay;
+            replayData = ReplayMenuUI.replay;
             comparators = new List<SimpleNoteCutComparator>();
             PatchOriginalSabers();
             beatmapObjectManager.noteWasSpawnedEvent += AddNoteComparator;
@@ -53,7 +53,7 @@ namespace BeatLeader.Replays
         public void Update()
         {
             if (!isPlaying) return;
-            //PlayFrame(replayData.GetFrameByTime(songSyncController.songTime));
+            PlayFrame(replayData.GetFrameByTime(songSyncController.songTime));
         }
         private void PlayFrame(Frame frame)
         {
@@ -90,11 +90,12 @@ namespace BeatLeader.Replays
         }
         private void AddNoteComparator(NoteController controller)
         {
-            if (controller.noteData.gameplayType != NoteData.GameplayType.Bomb)
+            NoteEvent noteCutEvent = controller.GetNoteEvent(replayData);
+            if (noteCutEvent != null && noteCutEvent.eventType != NoteEventType.miss)
             {
                 var comparator = controller.gameObject.AddComponent<SimpleNoteCutComparator>();
                 comparator.timeSyncController = songSyncController;
-                comparator.noteCutEvent = controller.GetNoteEvent(replayData);
+                comparator.noteCutEvent = noteCutEvent;
                 comparators.Add(comparator);
             }
         }

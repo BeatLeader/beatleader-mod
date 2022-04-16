@@ -255,10 +255,13 @@
     <Compile Include="Replays\Emulators\ReplayScoreController.cs" />
     <Compile Include="Replays\Emulators\FakeVRController.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
+    <Compile Include="Replays\EventsHandler.cs" />
     <Compile Include="Replays\FakePlayerManager.cs" />
+    <Compile Include="Replays\ReplayMenuUI.cs" />
     <Compile Include="Replays\ReplayPlayer.cs" />
     <Compile Include="Replays\ReplaySabersHelper.cs" />
     <Compile Include="Replays\ReplaySystemHelper.cs" />
+    <Compile Include="Replays\SimpleFlyingScoreSpawner.cs" />
     <Compile Include="Replays\SimpleNoteCutComparator.cs" />
     <Compile Include="Replays\SimpleNoteCutter.cs" />
   </ItemGroup>

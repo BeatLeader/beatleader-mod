@@ -17,6 +17,7 @@ namespace BeatLeader.Replays.Emulators
         [Inject] protected readonly MissScoringElement.Pool _missScoringElementPool;
         [Inject] protected readonly ReplayCutScoringElement.Pool _replayCutScoringElementPool;
         [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
+        [Inject] protected readonly SimpleFlyingScoreSpawner _simpleFlyingScoreSpawner;
         protected GameplayModifiersModelSO _gameplayModifiersModel;
         protected List<GameplayModifierParamsSO> _gameplayModifierParams;
 
@@ -56,7 +57,6 @@ namespace BeatLeader.Replays.Emulators
             _beatmapObjectManager.noteWasCutEvent += HandleNoteWasCut;
             _beatmapObjectManager.noteWasMissedEvent += HandleNoteWasMissed;
             _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
-            scoreDidChangeEvent += (int mod, int mul) => Debug.LogWarning($"{mod} + {mul}");
         }
         public virtual void OnDestroy()
         {
@@ -134,7 +134,6 @@ namespace BeatLeader.Replays.Emulators
                 _prevMultiplierFromModifiers = totalMultiplier;
                 flag2 = true;
             }
-
             if (flag2)
             {
                 _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
@@ -156,7 +155,7 @@ namespace BeatLeader.Replays.Emulators
                 if (noteCutInfo.allIsOK)
                 {
                     ReplayCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
-                    replayCutScoringElement.Init(noteController, noteCutInfo);
+                    replayCutScoringElement.Init(noteController, noteCutInfo, _simpleFlyingScoreSpawner);
                     ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, replayCutScoringElement);
                     scoringForNoteStartedEvent?.Invoke(replayCutScoringElement);
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);

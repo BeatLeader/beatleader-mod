@@ -226,15 +226,5 @@ namespace BeatLeader.Components
         }
 
         #endregion
-
-        #region ReplayMenu
-
-        [UIAction("start-replay")] 
-        public void StartReplay()
-        {
-            ReplaySystemHelper.StartInReplayMode(ReplayDataManager.GetReplay());
-        }
-
-        #endregion
     }
 }

@@ -52,17 +52,7 @@ namespace BeatLeader.ViewControllers {
         private void OnScoreInfoButtonWasPressed(Score score) 
         {
             _scoreDetails.SetScore(score);
-            UpdateReplayData();
             ShowScoreModal();
-        }
-
-        #endregion
-
-        #region ReplayData
-
-        private void UpdateReplayData()
-        {
-            ReplayDataManager.GetReplay();
         }
 
         #endregion

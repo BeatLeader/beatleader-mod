@@ -14,6 +14,7 @@ namespace BeatLeader //удалите это после того, как буд�
         private static void Postfix(StandardLevelDetailView __instance)
         {
             ReplayDataManager.lastBeatmapData = __instance.selectedDifficultyBeatmap;
+            ReplayMenuUI.CheckIsReplayExists(__instance.selectedDifficultyBeatmap);
         }
     }
 }

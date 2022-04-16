@@ -7,7 +7,8 @@ using IPALogger = IPA.Logging.Logger;
 namespace BeatLeader {
     [Plugin(RuntimeOptions.SingleStartInit)]
     [UsedImplicitly]
-    public class Plugin {
+    public class Plugin 
+    {
         #region Constants
 
         internal const string ResourcesPath = "BeatLeader._9_Resources";
@@ -21,10 +22,13 @@ namespace BeatLeader {
         internal static IPALogger Log { get; private set; }
 
         [Init]
-        public Plugin(IPALogger logger, Config config) {
+        public Plugin(IPALogger logger, Config config) 
+        {
             Log = logger;
             InitializeConfig(config);
             InitializeAssets();
+            EventsHandler.Init();
+            EventsHandler.MenuSceneLoadedFresh += ReplayMenuUI.PatchUI;
         }
 
         private static void InitializeAssets() {

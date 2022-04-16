@@ -1,3 +1,4 @@
+using System;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -11,35 +12,29 @@ using UnityEngine;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreRow.bsml")]
     internal class ScoreRow : ReeUIComponent {
-        #region OnInitialize
+        #region Events
 
         protected override void OnInitialize() {
             SetMaterials();
-            ApplyAlpha();
+            FadeOut();
         }
 
-        public void SetHierarchyIndex(int value) {
-            Root.SetSiblingIndex(value);
-        }
-
-        #endregion
-
-        #region SetActive
-
-        public void SetActive(bool value) {
-            IsActive = value;
+        protected override void OnActivate(bool firstTime) {
+            _currentAlpha = _targetAlpha;
+            _currentOffset = _targetOffset;
+            _updateRequired = true;
         }
 
         #endregion
 
-        #region SetScore
+        #region Interaction
 
         private Score _score;
 
         public void SetScore(Score score) {
-            SetHighlight(score.player.IsCurrentPlayer());
-
             _score = score;
+            
+            SetHighlight(score.player.IsCurrentPlayer());
             RankText = FormatUtils.FormatRank(score.rank, false);
             NameText = FormatUtils.FormatUserName(score.player.name);
             ModifiersText = FormatUtils.FormatModifiers(score.modifiers);
@@ -47,8 +42,8 @@ namespace BeatLeader.Components {
             PpText = FormatUtils.FormatPP(score.pp);
             ScoreText = FormatUtils.FormatScore(score.modifiedScore);
             Clickable = true;
-
-            UpdateFlexibleColumns(score.modifiers);
+            UpdateFlexibleColumns(_score.modifiers);
+            
             FadeIn();
         }
 
@@ -56,6 +51,14 @@ namespace BeatLeader.Components {
             _score = null;
             Clickable = false;
             FadeOut();
+        }
+
+        public void SetActive(bool value) {
+            IsActive = value;
+        }
+
+        public void SetHierarchyIndex(int value) {
+            Root.SetSiblingIndex(value);
         }
 
         #endregion
@@ -101,6 +104,7 @@ namespace BeatLeader.Components {
         private float _targetAlpha;
         private float _currentOffset;
         private float _targetOffset;
+        private bool _updateRequired;
 
         private void FadeIn() {
             _targetAlpha = 1.0f;
@@ -115,23 +119,29 @@ namespace BeatLeader.Components {
 
         private void LateUpdate() {
             var t = Time.deltaTime * FadeSpeed;
-            LerpOffset(t);
-            LerpAlpha(t);
+            if (LerpOffset(t)) _updateRequired = true;
+            if (LerpAlpha(t)) _updateRequired = true;
+            if (!_updateRequired) return;
+            
+            ApplyVisualChanges();
+            _updateRequired = false;
         }
 
-        private void LerpOffset(float t) {
-            if (_currentOffset.Equals(_targetOffset)) return;
+        private bool LerpOffset(float t) {
+            if (Math.Abs(_currentOffset - _targetOffset) < 1e-6f) return false;
             _currentOffset = Mathf.Lerp(_currentOffset, _targetOffset, t);
-            HorizontalOffset = _currentOffset;
+            return true;
         }
 
-        private void LerpAlpha(float t) {
-            if (_currentAlpha.Equals(_targetAlpha)) return;
+        private bool LerpAlpha(float t) {
+            if (Math.Abs(_currentAlpha - _targetAlpha) < 1e-6f) return false;
             _currentAlpha = Mathf.Lerp(_currentAlpha, _targetAlpha, t);
-            ApplyAlpha();
+            return true;
         }
 
-        private void ApplyAlpha() {
+        private void ApplyVisualChanges() {
+            HorizontalOffset = _currentOffset;
+            
             _rankTmp.alpha = _currentAlpha;
             _nameTmp.alpha = _currentAlpha;
             _modifiersTmp.alpha = _currentAlpha;

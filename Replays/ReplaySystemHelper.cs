@@ -3,48 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatLeader.Replays.Installers;
 using BeatLeader.Utils;
-using BeatLeader.Replays.Models;
+using BeatLeader.Models;
+using UnityEngine.Events;   
 using UnityEngine;
 using Zenject;
+using HMUI;
 
 namespace BeatLeader.Replays
 {
-    public class ReplaySystemHelper
+    public class ReplaySystemHelper 
     {
-        [Inject] private GameScenesManager _gameScenesManager;
-        private protected StandardLevelScenesTransitionSetupDataSO _scenesTransitionSetupDataSO;
-        private protected ReplayPlayer _player;
-        private protected Replay _replay;
+        private protected static UnityEvent _actionButtonEvent;
+        private protected static ReplayPlayer _player;
+        private protected static Replay _replay;
+        private protected static bool _asReplay;
 
-        public StandardLevelScenesTransitionSetupDataSO scenesTransitionSetupDataSO => _scenesTransitionSetupDataSO;
-        public ReplayPlayer player => _player;
-        public Replay replay => _replay;
-
-        public void StartWithRecorder()
+        private static UnityEvent ActionButtonEvent
         {
-            Zenjector.beforeGameplayCoreInstalled += RecorderInstaller.Install;
-            
+            get => _actionButtonEvent = _actionButtonEvent == null ? Resources.FindObjectsOfTypeAll<NoTransitionsButton>().First(x => x.name == "ActionButton").onClick : _actionButtonEvent;
         }
-        public void StartInReplayMode(StandardLevelScenesTransitionSetupDataSO transitionData, Replay replay)
+        public static ReplayPlayer player => _player;
+        public static Replay replay => _replay;
+        public static bool asReplay => _asReplay;
+
+        public static void StartInReplayMode(Replay replay)
         {
-            _gameScenesManager.transitionDidFinishEvent += CreateFakePlayer;
-            _scenesTransitionSetupDataSO = transitionData;
+            _asReplay = true;
             _replay = replay;
-            _gameScenesManager.PushScenes(_scenesTransitionSetupDataSO);
-        }
-        public void StopAndDisposeReplayStuff()
-        {
-            _scenesTransitionSetupDataSO = null;
-            _replay = null;
-            GameObject.Destroy(_player);
-        }
-        private void CreateFakePlayer(ScenesTransitionSetupDataSO data, DiContainer container)
-        {
-            _player = new GameObject("ReplayPlayer").AddComponent<ReplayPlayer>();
-            _player.Init(_replay, ReplaySabersHelper.CreateFakeReplaySaber(SaberType.SaberA), ReplaySabersHelper.CreateFakeReplaySaber(SaberType.SaberB));
-            _gameScenesManager.transitionDidFinishEvent -= CreateFakePlayer;
+            ActionButtonEvent.Invoke();
         }
     }
 }

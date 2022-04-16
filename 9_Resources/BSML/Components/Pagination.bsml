@@ -1,0 +1,17 @@
+<horizontal pref-height="18">
+    <vertical pref-width="8" spacing="1" pad="2" bg="round-rect-panel" bg-color="#000000AA">
+        <macro.define name="icon-height" value="4"/>
+
+        <!--  SCROLL UP BUTTON  -->
+        <clickable-image src="#TriangleDownIcon" id="up-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="up-on-click"/>
+
+        <!--  AROUND BUTTON  -->
+        <clickable-image src="#PlayerIcon" id="around-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="around-on-click"/>
+
+        <!--  SCROLL DOWN BUTTON  -->
+        <clickable-image src="#TriangleDownIcon" id="down-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="down-on-click"/>
+    </vertical>
+</horizontal>

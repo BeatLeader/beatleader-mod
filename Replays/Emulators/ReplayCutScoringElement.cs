@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static BeatLeader.Replays.Models.Replay;
+using BeatLeader.Models;
+using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.Replays.Emulators
@@ -20,7 +21,7 @@ namespace BeatLeader.Replays.Emulators
         private protected int _cutScore;
 
         protected override int executionOrder => 100000;
-        public virtual void Init(NoteCutInfo noteCutInfo, NoteEvent noteEvent)
+        public virtual void Init(NoteController noteController, NoteCutInfo noteCutInfo)
         {
             noteData = noteCutInfo.noteData;
             switch (noteData.scoringType)
@@ -42,7 +43,12 @@ namespace BeatLeader.Replays.Emulators
                     _wouldBeCorrectCutBestPossibleMultiplierEventType = ScoreMultiplierCounter.MultiplierEventType.Neutral;
                     break;
             }
-            _cutScore = noteEvent.ComputeNoteScore();
+
+            SimpleNoteCutComparator comparator = noteController.GetComponent<SimpleNoteCutComparator>();
+            if (comparator != null)
+            {
+                _cutScore = comparator.noteCutEvent.ComputeNoteScore();
+            }
             isFinished = true;
         }
     }

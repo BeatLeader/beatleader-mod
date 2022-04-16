@@ -1,22 +1,33 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A652D071-E511-4BD2-B49A-992C12385342}</ProjectGuid>
     <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BeatLeader</RootNamespace>
     <AssemblyName>BeatLeader</AssemblyName>
-    <AssemblyVersion>0.0.1</AssemblyVersion>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
-    <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
+    <LocalRefsDir Condition="Exists('.\Refs')">.\Refs</LocalRefsDir>
     <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
+    <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     <!--<PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>-->
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>9.0</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <VersionType>Unofficial</VersionType>
     <CommitHash>local</CommitHash>
-    <GitBranch></GitBranch>
-    <GitModified></GitModified>
+    <GitBranch>
+    </GitBranch>
+    <GitModified>
+    </GitModified>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <Optimize>false</Optimize>
@@ -27,7 +38,7 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
@@ -37,15 +48,16 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BeatmapCore">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
-    </Reference>
     <Reference Include="Colors">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
     </Reference>
     <Reference Include="Hive.Versioning">
       <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
       <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Oculus.VR, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -53,6 +65,18 @@
     </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Steamworks.NET.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="netstandard">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Main">
@@ -82,18 +106,14 @@
     <Reference Include="UnityEngine.AssetBundleModule">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.JSONSerializeModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
@@ -108,6 +128,12 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.VRModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
       <Private>False</Private>
@@ -115,34 +141,147 @@
     <Reference Include="UnityEngine.XRModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.XRModule.dll</HintPath>
       <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Zenject">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Zenject-usage">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="0Harmony">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="BeatmapCore">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+    </Reference>
+    <Reference Include="LeaderboardCore">
+      <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
+    </Reference>
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
     </Reference>
     <Reference Include="BSML">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="GameplayCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
     </Reference>
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="0_Harmony\HarmonyHelper.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\AppInstallerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\GameInstallerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\LevelDataEnhancerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\MenuInstallerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\PreSwingRatingEnhancerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />
+    <Compile Include="0_Harmony\LevelDetailViewPatch.cs" />
+    <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
+    <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
+    <Compile Include="1_Config\ConfigDefaults.cs" />
+    <Compile Include="1_Config\ConfigFileData.cs" />
+    <Compile Include="1_Config\PluginConfig.cs" />
+    <Compile Include="2_Core\API\Authentication.cs" />
+    <Compile Include="2_Core\AvatarStorage.cs" />
+    <Compile Include="2_Core\CountryFlagsStorage.cs" />
+    <Compile Include="2_Core\Installers\OnAppInitInstaller.cs" />
+    <Compile Include="2_Core\Installers\OnGameplayCoreInstaller.cs" />
+    <Compile Include="2_Core\Installers\OnMenuInstaller.cs" />
+    <Compile Include="2_Core\Managers\DataManager\LeaderboardManager.cs" />
+    <Compile Include="2_Core\Managers\DataManager\ProfileManager.cs" />
+    <Compile Include="2_Core\Managers\Leaderboard\BeatLeaderCustomLeaderboard.cs" />
+    <Compile Include="2_Core\Managers\Leaderboard\LeaderboardEvents.cs" />
+    <Compile Include="2_Core\Managers\Leaderboard\LeaderboardHeaderManager.cs" />
+    <Compile Include="2_Core\Managers\MonkeyHeadManager.cs" />
+    <Compile Include="2_Core\Managers\ReplayEnhancer\MapEnhancer.cs" />
+    <Compile Include="2_Core\Managers\NoteEnhancer\SwingRatingEnhancer.cs" />
+    <Compile Include="2_Core\Managers\ReplayEnhancer\TrackingDeviceEnhancer.cs" />
+    <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
+    <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
+    <Compile Include="2_Core\Models\AvatarImage.cs" />
+    <Compile Include="2_Core\Models\Paged.cs" />
+    <Compile Include="2_Core\Models\Player.cs" />
+    <Compile Include="2_Core\Models\QuestReplay.cs" />
+    <Compile Include="2_Core\Models\Replay.cs" />
+    <Compile Include="2_Core\Models\Score.cs" />
+    <Compile Include="2_Core\Models\ScoresContext.cs" />
+    <Compile Include="2_Core\Models\ScoresScope.cs" />
+    <Compile Include="3_AssetBundle\BundleLoader.cs" />
+    <Compile Include="3_AssetBundle\MonkeySpinner.cs" />
+    <Compile Include="7_Utils\BLConstants.cs" />
+    <Compile Include="7_Utils\BLContext.cs" />
+    <Compile Include="7_Utils\FileManager.cs" />
+    <Compile Include="7_Utils\HttpUtils.cs" />
+    <Compile Include="7_Utils\ScoreUtil.cs" />
+    <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
+    <Compile Include="7_Utils\UtilityClasses\GifLoader.cs" />
+    <Compile Include="7_Utils\ZenjectExpansion.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ContextSelector.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\CountryFlag.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\EmptyBoardMessage.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Logo.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Pagination.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\PlayerAvatar.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\PlayerInfo.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScopeSelector.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreDetails.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreRow.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreRowDivider.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoresTable.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\StatusBar.cs" />
+    <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardPanel.cs" />
+    <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardView.cs" />
+    <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
+    <Compile Include="8_UI\ModPanel\ModPanelUtils.cs" />
+    <Compile Include="8_UI\ReeUIComponent.cs" />
+    <Compile Include="2_Core\Managers\DataManager\ReplayDataManager.cs" />
+    <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
+    <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Replays\Emulators\ReplayCutScoringElement.cs" />
+    <Compile Include="Replays\Emulators\ReplayScoreController.cs" />
+    <Compile Include="Replays\Emulators\FakeVRController.cs" />
+    <Compile Include="7_Utils\ReplayDataHelper.cs" />
+    <Compile Include="Replays\FakePlayerManager.cs" />
+    <Compile Include="Replays\ReplayPlayer.cs" />
+    <Compile Include="Replays\ReplaySabersHelper.cs" />
+    <Compile Include="Replays\ReplaySystemHelper.cs" />
+    <Compile Include="Replays\SimpleNoteCutComparator.cs" />
+    <Compile Include="Replays\SimpleNoteCutter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="9_Resources\BSML\Components\ContextSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\CountryFlag.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\EmptyBoardMessage.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Logo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\PlayerAvatar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScopeSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreDetails.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreRowDivider.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\StatusBar.bsml" />
     <EmbeddedResource Include="manifest.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="System.Net.Http" />
-    <None Remove="UI\ReplayUI\BSML\ReplayPlayback.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\LeaderboardPanel.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\LeaderboardView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\PlayerInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreRow.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoresTable.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Pagination.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\ModPanelUI.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\SettingsPanelUI.bsml" />
+    <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
@@ -151,23 +290,17 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3">
+    <PackageReference Include="BeatSaberModdingTools.Tasks">
+      <Version>1.4.3</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\BSML\ModPanelUI.bsml" />
-    <EmbeddedResource Include="Resources\BSML\SettingsPanelUI.bsml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\AssetBundles\asset_bundle" />
-    <EmbeddedResource Include="UI\ReplayUI\BSML\ReplayPlayback.bsml" />
+    <PackageReference Include="NETStandard.Library">
+      <Version>2.0.3</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\Icons\" />
-  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,9 +1,9 @@
-﻿using BeatLeader.UI;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Replays.Emulators
 {
@@ -156,7 +156,7 @@ namespace BeatLeader.Replays.Emulators
                 if (noteCutInfo.allIsOK)
                 {
                     ReplayCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
-                    replayCutScoringElement.Init(noteCutInfo, noteCutInfo.noteData.GetNoteEvent(ReplayMenuUI.replayData));
+                    replayCutScoringElement.Init(noteController, noteCutInfo);
                     ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, replayCutScoringElement);
                     scoringForNoteStartedEvent?.Invoke(replayCutScoringElement);
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);

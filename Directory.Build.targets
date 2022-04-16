@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- This file contains the build tasks and targets for verifying the manifest, zipping Release builds,
      and copying the plugin to to your Beat Saber folder. Only edit this if you know what you are doing. -->
 <Project>
@@ -25,11 +25,6 @@
       <Output TaskParameter="BasePluginVersion" PropertyName="BasePluginVersion" />
       <Output TaskParameter="GameVersion" PropertyName="GameVersion" />
     </GetManifestInfo>
-    <PropertyGroup>
-      <AssemblyVersion>$(BasePluginVersion)</AssemblyVersion>
-      <FileVersion>$(BasePluginVersion)</FileVersion>
-      <InformationalVersion>$(BasePluginVersion)</InformationalVersion>
-    </PropertyGroup>
     <GetCommitInfo ProjectDir="$(ProjectDir)">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
       <Output TaskParameter="Branch" PropertyName="Branch" />

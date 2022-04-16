@@ -1,0 +1,31 @@
+<vertical pref-width="70">
+    <horizontal pref-height="14" spacing="2">
+        <vertical pref-width="54">
+            <horizontal>
+                <text text="~name-text" overflow-mode="Ellipsis" word-wrapping="false" font-size="6" align="Center"/>
+            </horizontal>
+
+            <horizontal active="~stats-active" spacing="4" pref-height="4" horizontal-fit="PreferredSize">
+                <horizontal pref-height="4" spacing="1">
+                    <image src="#GlobalIcon" pref-height="4" pref-width="4" preserve-aspect="true"/>
+                    <text text="~global-rank-text" align="Midline"/>
+                </horizontal>
+                <horizontal pref-height="4" spacing="1">
+                    <macro.as-host host="country-flag">
+                        <macro.reparent transform="root"/>
+                    </macro.as-host>
+                    <text text="~country-rank-text" align="Midline"/>
+                </horizontal>
+                <horizontal pref-height="4">
+                    <text text="~pp-text" align="Center"/>
+                </horizontal>
+            </horizontal>
+        </vertical>
+
+        <vertical pref-width="14">
+            <macro.as-host host="avatar">
+                <macro.reparent transform="root"/>
+            </macro.as-host>
+        </vertical>
+    </horizontal>
+</vertical>

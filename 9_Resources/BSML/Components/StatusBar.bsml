@@ -1,0 +1,5 @@
+<vertical pref-width="80">
+    <horizontal>
+        <text text="~message-text" overflow-mode="Ellipsis" word-wrapping="false" italics="true" align="Center"/>
+    </horizontal>
+</vertical>

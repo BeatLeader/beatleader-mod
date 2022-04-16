@@ -11,7 +11,7 @@ namespace BeatLeader.Replays
 {
     public class ReplaySabersHelper
     {
-        public static ReplayVRController CreateFakeReplaySaber(SaberType saberType)
+        public static FakeVRController CreateFakeReplaySaber(SaberType saberType)
         {
             switch (saberType)
             {
@@ -23,7 +23,7 @@ namespace BeatLeader.Replays
                             var replaySaber = GameObject.Instantiate(saber);
                             replaySaber.name = "LeftReplaySaber";
                             GameObject.Destroy(replaySaber.GetComponent<VRController>());
-                            var replayVRController = replaySaber.gameObject.AddComponent<ReplayVRController>();
+                            var replayVRController = replaySaber.gameObject.AddComponent<FakeVRController>();
                             replayVRController.node = XRNode.LeftHand;
                             return replayVRController;
                         }
@@ -37,7 +37,7 @@ namespace BeatLeader.Replays
                             var replaySaber = GameObject.Instantiate(saber);
                             replaySaber.name = "RightReplaySaber";
                             GameObject.Destroy(replaySaber.GetComponent<VRController>());
-                            var replayVRController = replaySaber.gameObject.AddComponent<ReplayVRController>();
+                            var replayVRController = replaySaber.gameObject.AddComponent<FakeVRController>();
                             replayVRController.node = XRNode.RightHand;
                             return replayVRController;
                         }

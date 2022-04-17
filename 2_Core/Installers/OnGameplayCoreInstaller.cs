@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using BeatLeader.Utils;
-using BeatLeader.Replays;
+using BeatLeader.Replays.Tools;
 using BeatLeader.Replays.Emulators;
 using BeatLeader.Replays.Scoring;
 using BeatLeader.Core.Managers.ReplayEnhancer;
@@ -29,7 +29,7 @@ namespace BeatLeader.Installers
             //typeof(NoteCutScoreSpawner),
             typeof(BeatmapObjectExecutionRatingsRecorder),
             typeof(VRsenalScoreLogger),
-            typeof(ReplayPlayer)
+            typeof(FakePlayer)
         };
 
         public override void InstallBindings() 
@@ -73,10 +73,9 @@ namespace BeatLeader.Installers
             
             Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
             ZenjectExpansion.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
-            Container.Bind<ReplayPlayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<FakePlayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            //Container.Bind<FlyingScoreSpawner>().FromInstance(Resources.FindObjectsOfTypeAll<FlyingScoreSpawner>().First()).AsSingle();
-            Container.Bind<SimpleCutScoreSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             modifiedScoreController.SetEnabled(true);
             gameplayData.SetActive(true);

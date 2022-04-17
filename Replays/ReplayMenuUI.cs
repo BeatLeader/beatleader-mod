@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using BeatLeader.Utils;
 using BeatLeader.Models;
+using BeatLeader.Replays.Emulators;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Tags;
 using BeatLeader.Replays;
@@ -23,7 +24,7 @@ namespace BeatLeader
         private protected static NoTransitionsButton _replayButton;
         private protected static GameObject _levelWrapContainer;
         private protected static UnityEvent _actionButtonEvent;
-        private protected static ReplayPlayer _player;
+        private protected static FakePlayer _player;
 
         private protected static Replay _replay;
         private protected static IDifficultyBeatmap _beatmapDifficulty;
@@ -39,7 +40,7 @@ namespace BeatLeader
         {
             get => _actionButtonEvent = _actionButtonEvent == null ? Resources.FindObjectsOfTypeAll<NoTransitionsButton>().First(x => x.name == "ActionButton").onClick : _actionButtonEvent;
         }
-        public static ReplayPlayer player => _player;
+        public static FakePlayer player => _player;
         public static Replay replay => _replay;
         public static bool asReplay => _asReplay;
         public static bool isPatched => _isPatched;
@@ -66,6 +67,7 @@ namespace BeatLeader
         private static void SetButtonState(bool state) => _replayButton.interactable = state;
         public static Task CheckIsReplayExists(IDifficultyBeatmap beatmap)
         {
+            _asReplay = false;
             SetButtonState(false);
             if (ReplayDataHelper.TryGetReplayBySongInfo(beatmap, out Replay replay, ReplayDataHelper.Result.Completed, ReplayDataHelper.Score.Best))
             {
@@ -81,6 +83,6 @@ namespace BeatLeader
             return Task.CompletedTask;
         }
         public static void NotifyReplayEnded() => _asReplay = false;
-        public static void SetPlayer(ReplayPlayer player) => _player = player;
+        public static void SetPlayer(FakePlayer player) => _player = player;
     }
 }

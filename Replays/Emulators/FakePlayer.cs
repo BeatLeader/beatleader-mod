@@ -21,9 +21,9 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Transform = UnityEngine.Transform;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replays.Emulators
 {
-    public class ReplayPlayer : MonoBehaviour
+    public class FakePlayer : MonoBehaviour
     {
         [Inject] private protected IScoreController controller;
         [Inject] private protected BeatmapObjectManager beatmapObjectManager;

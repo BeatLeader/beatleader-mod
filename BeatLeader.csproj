@@ -251,7 +251,9 @@
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Replays\Emulators\SimpleCutScoreSpawner.cs" />
+    <Compile Include="Replays\SabersManager.cs" />
+    <Compile Include="Replays\Tools\SimpleCutScoreEffectSpawner.cs" />
+    <Compile Include="Replays\PlaybackController.cs" />
     <Compile Include="Replays\Scoring\SimpleCutScoreBuffer.cs" />
     <Compile Include="Replays\Scoring\SimpleCutScoringElement.cs" />
     <Compile Include="Replays\Emulators\ReplayScoreController.cs" />
@@ -259,11 +261,10 @@
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="Replays\EventsHandler.cs" />
     <Compile Include="Replays\ReplayMenuUI.cs" />
-    <Compile Include="Replays\ReplayPlayer.cs" />
+    <Compile Include="Replays\Emulators\FakePlayer.cs" />
     <Compile Include="Replays\Scoring\SimpleSwingRatingCounter.cs" />
-    <Compile Include="Replays\SimpleFlyingScoreSpawner.cs" />
-    <Compile Include="Replays\SimpleNoteCutComparator.cs" />
-    <Compile Include="Replays\SimpleNoteCutter.cs" />
+    <Compile Include="Replays\Tools\SimpleNoteCutComparator.cs" />
+    <Compile Include="Replays\Tools\SimpleNoteCutter.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="9_Resources\BSML\Components\ContextSelector.bsml" />

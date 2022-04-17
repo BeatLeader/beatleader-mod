@@ -7,9 +7,9 @@ using BeatLeader.Replays.Scoring;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Emulators
+namespace BeatLeader.Replays.Tools
 {
-    public class SimpleCutScoreSpawner : MonoBehaviour, IFlyingObjectEffectDidFinishEvent
+    public class SimpleCutScoreEffectSpawner : MonoBehaviour, IFlyingObjectEffectDidFinishEvent
     {
         [Inject] protected readonly FlyingScoreEffect.Pool _flyingScoreEffectPool;
         [Inject] protected readonly FlyingScoreSpawner.InitData _initData;

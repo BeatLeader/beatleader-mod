@@ -92,10 +92,10 @@ namespace BeatLeader.Manager {
         #endregion
 
         #region NotifyUploadSuccess
-        public static event Action UploadSuccessAction;
+        public static event Action<Score> UploadSuccessAction;
 
-        public static void NotifyUploadSuccess() {
-            UploadSuccessAction?.Invoke();
+        public static void NotifyUploadSuccess(Score score) {
+            UploadSuccessAction?.Invoke(score);
         }
 
         # endregion

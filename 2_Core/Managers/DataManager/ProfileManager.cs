@@ -4,19 +4,18 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using Steamworks;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class ProfileManager : MonoBehaviour {
         private Coroutine _profileTask;
 
         private void Start() {
-            LeaderboardEvents.UploadSuccessAction += UpdateProfile;
+            LeaderboardEvents.UploadSuccessAction += UpdateFromScore;
             UpdateProfile();
         }
 
         private void OnDestroy() {
-            LeaderboardEvents.UploadSuccessAction -= UpdateProfile;
+            LeaderboardEvents.UploadSuccessAction -= UpdateFromScore;
         }
 
         private void UpdateProfile() {
@@ -38,6 +37,13 @@ namespace BeatLeader.DataManager {
                     LeaderboardEvents.NotifyProfileRequestFailed();
                     return;
                 }));
+        }
+
+        private void UpdateFromScore(Score score) {
+            if (score?.player != null) {
+                LeaderboardEvents.PublishProfile(score.player);
+                BLContext.profile = score.player;
+            }
         }
     }
 }

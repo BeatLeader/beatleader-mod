@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using BeatLeader.Utils;
 using BeatLeader.Replays;
 using BeatLeader.Replays.Emulators;
+using BeatLeader.Replays.Scoring;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using HarmonyLib;
-using JetBrains.Annotations;
+using IPA.Utilities;
 using Zenject;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace BeatLeader.Installers
             typeof(PrepareLevelCompletionResults),
             typeof(MultiplayerLocalActiveClient),
             typeof(ScoreMultiplierUIController),
-            typeof(NoteCutScoreSpawner),
+            //typeof(NoteCutScoreSpawner),
             typeof(BeatmapObjectExecutionRatingsRecorder),
             typeof(VRsenalScoreLogger),
             typeof(ReplayPlayer)
@@ -61,25 +62,21 @@ namespace BeatLeader.Installers
         {
             if (!ReplayMenuUI.asReplay) return;
 
-            Container.Bind<SimpleFlyingScoreSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindMemoryPool<ReplayCutScoringElement, ReplayCutScoringElement.Pool>().WithInitialSize(30);
-
-            //var scoreSpawner = Resources.FindObjectsOfTypeAll<NoteCutScoreSpawner>().FirstOrDefault();
-            //if (scoreSpawner != null)
-            //{
-            //    GameObject.Destroy(scoreSpawner);
-            //}
+            Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
 
             var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
             var gameplayData = scoreController.gameObject;
             gameplayData.SetActive(false);
-
+            
             GameObject.Destroy(scoreController);
             var modifiedScoreController = gameplayData.AddComponent<ReplayScoreController>().InjectAllFields(Container);
-
+            
             Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
             ZenjectExpansion.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
             Container.Bind<ReplayPlayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
+            //Container.Bind<FlyingScoreSpawner>().FromInstance(Resources.FindObjectsOfTypeAll<FlyingScoreSpawner>().First()).AsSingle();
+            Container.Bind<SimpleCutScoreSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             modifiedScoreController.SetEnabled(true);
             gameplayData.SetActive(true);

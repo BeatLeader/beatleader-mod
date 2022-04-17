@@ -76,11 +76,11 @@ namespace BeatLeader
             }
             else
             {
-                SetButtonState(false);
                 _replay = null;
             }
             return Task.CompletedTask;
         }
         public static void NotifyReplayEnded() => _asReplay = false;
+        public static void SetPlayer(ReplayPlayer player) => _player = player;
     }
 }

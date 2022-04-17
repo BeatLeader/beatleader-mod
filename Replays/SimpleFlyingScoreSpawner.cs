@@ -42,7 +42,7 @@ namespace BeatLeader.Replays
             //indicator.enabled = enabled;
             flyingScoreEffect.SetField("_color", color);
             flyingScoreEffect.SetField("_colorAMultiplier", (((float)score > (float)maxPossibleScore * 0.9f) ? 1f : 0.3f));
-            flyingScoreEffect.RefreshScore(score, 115);
+            flyingScoreEffect.RefreshScore(score, maxPossibleScore);
             flyingScoreEffect.InitAndPresent(0.7f, targetPos, rot, false);
         }
         public virtual void HandleFlyingObjectEffectDidFinish(FlyingObjectEffect flyingObjectEffect)

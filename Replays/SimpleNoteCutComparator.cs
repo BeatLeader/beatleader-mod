@@ -39,12 +39,12 @@ namespace BeatLeader.Replays
         public void HandleNoteControllerNoteWasCut()
         {
             noteController.noteWasCutEvent.Remove(this);
+            Destroy(noteCutter);
             Destroy(this);
         }
         public void HandleNoteControllerNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            noteController.noteWasCutEvent.Remove(this);
-            Destroy(this);
+            HandleNoteControllerNoteWasCut();
         }
     }
 }

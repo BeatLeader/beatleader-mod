@@ -31,8 +31,8 @@ namespace BeatLeader.Replays.Emulators
         public void SetTransform(ReplayTransform transform)
         {
             _lastTrackedPosition = transform.position;
-            this.transform.localPosition = transform.position;
-            this.transform.localRotation = transform.rotation;
+            this.transform.position = transform.position;
+            this.transform.rotation = transform.rotation;
         }
     }
 }

@@ -59,6 +59,8 @@ namespace BeatLeader.Replays
         {
             if (frame == null | frame == previousFrame) return;
 
+            //ReplayTransform leftHandTransform = new ReplayTransform(Mathf.Lerp();
+
             leftHand.SetTransform(frame.leftHand);
             rightHand.SetTransform(frame.rightHand);
 
@@ -98,6 +100,21 @@ namespace BeatLeader.Replays
                 comparator.noteCutEvent = noteCutEvent;
                 comparators.Add(comparator);
             }
+        }
+        private float ComputeLerp(Frame current, Frame next)
+        {
+            return (float)((songSyncController.songTime - current.time) / Mathf.Max((float)1E-06, next.time - current.time));
+        }
+        public SimpleNoteCutComparator GetComparatorByID(int ID)
+        {
+            foreach (var comparator in comparators)
+            {
+                if (comparator.noteID == ID)
+                {
+                    return comparator;
+                }
+            }
+            return null;
         }
     }
 }

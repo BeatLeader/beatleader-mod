@@ -8,22 +8,25 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Emulators
+namespace BeatLeader.Replays.Scoring
 {
-    public class ReplayCutScoringElement : ScoringElement
+    public class SimpleCutScoringElement : ScoringElement, ICutScoreBufferDidFinishReceiver
     {
-        public class Pool : Pool<ReplayCutScoringElement> { }
+        public class Pool : Pool<SimpleCutScoringElement> { }
 
         public override ScoreMultiplierCounter.MultiplierEventType wouldBeCorrectCutBestPossibleMultiplierEventType => _wouldBeCorrectCutBestPossibleMultiplierEventType;
         public override ScoreMultiplierCounter.MultiplierEventType multiplierEventType => _multiplierEventType;
-        public override int cutScore => _cutScore;
 
         protected ScoreMultiplierCounter.MultiplierEventType _multiplierEventType;
         protected ScoreMultiplierCounter.MultiplierEventType _wouldBeCorrectCutBestPossibleMultiplierEventType;
-        private protected int _cutScore;
 
+        protected SimpleCutScoreBuffer _cutScoreBuffer;
+
+        public SimpleCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         protected override int executionOrder => 100000;
-        public virtual void Init(NoteController noteController, NoteCutInfo noteCutInfo, SimpleFlyingScoreSpawner scoreSpawner)
+        public override int cutScore => _cutScoreBuffer.cutScore;
+
+        public virtual void Init(NoteCutInfo noteCutInfo)
         {
             noteData = noteCutInfo.noteData;
             switch (noteData.scoringType)
@@ -45,14 +48,22 @@ namespace BeatLeader.Replays.Emulators
                     _wouldBeCorrectCutBestPossibleMultiplierEventType = ScoreMultiplierCounter.MultiplierEventType.Neutral;
                     break;
             }
-
-            SimpleNoteCutComparator comparator = noteController.GetComponent<SimpleNoteCutComparator>();
-            if (comparator != null)
+            _cutScoreBuffer = new SimpleCutScoreBuffer();
+            if (_cutScoreBuffer.Init(in noteCutInfo))
             {
-                _cutScore = comparator.noteCutEvent.ComputeNoteScore();
+                _cutScoreBuffer.RegisterDidFinishReceiver(this);
+                isFinished = false;
             }
-            scoreSpawner.SpawnFlyingScore(noteController.worldRotation, noteController.inverseWorldRotation, noteCutInfo.cutPoint, _cutScore, new Color(0.8f, 0.8f, 0.8f));
+            else
+            {
+                isFinished = true;
+            }
+            _cutScoreBuffer.Refresh();
+        }
+        public virtual void HandleCutScoreBufferDidFinish(CutScoreBuffer cutScoreBuffer)
+        {
             isFinished = true;
+            _cutScoreBuffer.UnregisterDidFinishReceiver(this);
         }
     }
 }

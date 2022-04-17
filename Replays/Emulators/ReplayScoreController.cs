@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Replays.Scoring;
 using BeatLeader.Utils;
 
 namespace BeatLeader.Replays.Emulators
@@ -15,9 +16,8 @@ namespace BeatLeader.Replays.Emulators
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] protected readonly BadCutScoringElement.Pool _badCutScoringElementPool;
         [Inject] protected readonly MissScoringElement.Pool _missScoringElementPool;
-        [Inject] protected readonly ReplayCutScoringElement.Pool _replayCutScoringElementPool;
+        [Inject] protected readonly SimpleCutScoringElement.Pool _replayCutScoringElementPool;
         [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
-        [Inject] protected readonly SimpleFlyingScoreSpawner _simpleFlyingScoreSpawner;
         protected GameplayModifiersModelSO _gameplayModifiersModel;
         protected List<GameplayModifierParamsSO> _gameplayModifierParams;
 
@@ -154,10 +154,11 @@ namespace BeatLeader.Replays.Emulators
             {
                 if (noteCutInfo.allIsOK)
                 {
-                    ReplayCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
-                    replayCutScoringElement.Init(noteController, noteCutInfo, _simpleFlyingScoreSpawner);
+                    SimpleCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
+                    replayCutScoringElement.Init(noteCutInfo);
                     ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, replayCutScoringElement);
                     scoringForNoteStartedEvent?.Invoke(replayCutScoringElement);
+                    noteController.GetComponent<SimpleNoteCutComparator>().HandleNoteControllerNoteWasCut();
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
                 }
                 else
@@ -193,10 +194,10 @@ namespace BeatLeader.Replays.Emulators
         {
             if (scoringElement != null)
             {
-                ReplayCutScoringElement replayCutScoringElement;
-                if ((replayCutScoringElement = (scoringElement as ReplayCutScoringElement)) != null)
+                SimpleCutScoringElement replayCutScoringElement;
+                if ((replayCutScoringElement = (scoringElement as SimpleCutScoringElement)) != null)
                 {
-                    ReplayCutScoringElement item = replayCutScoringElement;
+                    SimpleCutScoringElement item = replayCutScoringElement;
                     _replayCutScoringElementPool.Despawn(item);
                     return;
                 }

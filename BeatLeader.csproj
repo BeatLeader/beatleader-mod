@@ -173,6 +173,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="0_Harmony\RecorderPatches\RecorderUtilPatch.cs" />
     <Compile Include="0_Harmony\HarmonyHelper.cs" />
     <Compile Include="0_Harmony\InstallersPatches\AppInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\GameInstallerPatch.cs" />
@@ -216,6 +217,7 @@
     <Compile Include="7_Utils\BLContext.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\HttpUtils.cs" />
+    <Compile Include="7_Utils\RecorderUtils.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
     <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />

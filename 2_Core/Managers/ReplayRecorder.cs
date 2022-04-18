@@ -143,7 +143,7 @@ namespace BeatLeader {
 
             WallEvent wallEvent = new();
             wallEvent.wallID = obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
-            wallEvent.spawnTime = _timeSyncController.songTime;
+            wallEvent.spawnTime = obstacleData.time;
             _wallEventCache[wallId] = wallEvent;
         }
 

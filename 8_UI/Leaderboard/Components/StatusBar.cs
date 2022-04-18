@@ -1,5 +1,6 @@
 using System.Collections;
 using BeatLeader.Manager;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -41,7 +42,7 @@ namespace BeatLeader.Components {
             ShowBadNews($"Score upload failed. {postfix}");
         }
 
-        private void OnScoreUploadSuccess() {
+        private void OnScoreUploadSuccess(Score score) {
             ShowGoodNews("Score uploaded!");
         }
 

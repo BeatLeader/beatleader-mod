@@ -19,7 +19,7 @@ namespace BeatLeader.DataManager {
         #region Initialize/Dispose section
 
         public void Start() {
-            LeaderboardEvents.UploadSuccessAction += LoadScores;
+            LeaderboardEvents.UploadSuccessAction += OnUploadSuccess;
 
             LeaderboardEvents.ScopeWasSelectedAction += ChangeScoreProvider;
             LeaderboardEvents.ContextWasSelectedAction += ChangeScoreContext;
@@ -30,7 +30,7 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnDestroy() {
-            LeaderboardEvents.UploadSuccessAction -= LoadScores;
+            LeaderboardEvents.UploadSuccessAction -= OnUploadSuccess;
 
             LeaderboardEvents.ScopeWasSelectedAction -= ChangeScoreProvider;
             LeaderboardEvents.ContextWasSelectedAction -= ChangeScoreContext;
@@ -110,6 +110,10 @@ namespace BeatLeader.DataManager {
         }
 
         #endregion
+
+        private void OnUploadSuccess(Score score) {
+            LoadScores();
+        }
 
         #region Select score scope
 

@@ -166,7 +166,7 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        private void OnUploadSuccess() {
+        private void OnUploadSuccess(Score score) {
             _uploadingScore = false;
             UpdateState();
         }

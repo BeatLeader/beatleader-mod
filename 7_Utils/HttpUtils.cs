@@ -102,8 +102,7 @@ namespace BeatLeader.Utils {
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
 
                 string authToken = ticketTask.Result;
-                if (authToken == null)
-                {
+                if (authToken == null) {
                     Plugin.Log.Debug("No auth token, skip replay upload");
                     break; // auth failed, no upload
                 }
@@ -137,10 +136,9 @@ namespace BeatLeader.Utils {
                             NullValueHandling = NullValueHandling.Ignore
                         };
                         Score score = JsonConvert.DeserializeObject<Score>(body, options);
-                        // Plugin.Log.Debug(score.player.name); update profile from score.player ?
                         Plugin.Log.Debug("Upload success");
 
-                        LeaderboardEvents.NotifyUploadSuccess();
+                        LeaderboardEvents.NotifyUploadSuccess(score);
 
                         yield break; // if OK - stop retry cycle
                     }

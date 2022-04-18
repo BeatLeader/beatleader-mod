@@ -1,5 +1,6 @@
 using System.Reflection;
 using BeatLeader.Core.Managers.ReplayEnhancer;
+using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Zenject;
@@ -14,21 +15,29 @@ namespace BeatLeader.Installers {
         }
 
         private void InitRecorder() {
-            #region Gates
-            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
-                Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
-                return;
-            }
-            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId))) {
-                Plugin.Log.Debug("OST level detected. No recording.");
-                return;
-            }
-            #endregion
+            RecorderUtils.buffer = RecorderUtils.shouldRecord;
 
-            Plugin.Log.Debug("Starting a BL Replay Recorder.");
+            if (RecorderUtils.shouldRecord) {
+                RecorderUtils.shouldRecord = false;
 
-            Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
-            Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
+                #region Gates
+                if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
+                    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
+                    return;
+                }
+                if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId))) {
+                    Plugin.Log.Debug("OST level detected. No recording.");
+                    return;
+                }
+                #endregion
+
+                Plugin.Log.Debug("Starting a BL Replay Recorder.");
+
+                Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
+                Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
+            } else {
+                //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
+            }
         }
 
         private static readonly MethodBase ScoreSaber_playbackEnabled = AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");

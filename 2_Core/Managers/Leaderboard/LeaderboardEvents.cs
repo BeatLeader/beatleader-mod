@@ -40,6 +40,39 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region ScoreStatsRequestStarted
+
+        // Called before a score request to server started
+        public static event Action ScoreStatsRequestStartedEvent;
+
+        public static void ScoreStatsRequestStarted() {
+            ScoreStatsRequestStartedEvent?.Invoke();
+        }
+
+        #endregion
+
+        #region ScoreStatsFetchFailed
+
+        // Called after a score data response is processed
+        public static event Action ScoreStatsFetchFailedEvent;
+
+        public static void NotifyScoreStatsFetchFailed() {
+            ScoreStatsFetchFailedEvent?.Invoke();
+        }
+
+        #endregion
+
+        #region ScoreStatsFetched
+
+        // Called after a score data response is processed
+        public static event Action<ScoreStats> ScoreStatsFetchedEvent;
+
+        public static void PublishStats(ScoreStats stats) {
+            ScoreStatsFetchedEvent?.Invoke(stats);
+        }
+
+        #endregion
+
         #region ProfileRequestStarted
 
         // Called before a profile request to server started

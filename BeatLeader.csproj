@@ -193,6 +193,7 @@
     <Compile Include="2_Core\Installers\OnGameplayCoreInstaller.cs" />
     <Compile Include="2_Core\Installers\OnMenuInstaller.cs" />
     <Compile Include="2_Core\Managers\DataManager\LeaderboardManager.cs" />
+    <Compile Include="2_Core\Managers\DataManager\ScoreStatsManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ProfileManager.cs" />
     <Compile Include="2_Core\Managers\Leaderboard\BeatLeaderCustomLeaderboard.cs" />
     <Compile Include="2_Core\Managers\Leaderboard\LeaderboardEvents.cs" />
@@ -209,6 +210,7 @@
     <Compile Include="2_Core\Models\Player.cs" />
     <Compile Include="2_Core\Models\QuestReplay.cs" />
     <Compile Include="2_Core\Models\Replay.cs" />
+    <Compile Include="2_Core\Models\ScoreStats.cs" />
     <Compile Include="2_Core\Models\Score.cs" />
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />

@@ -12,16 +12,16 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             LeaderboardEvents.StatusMessageEvent += OnStatusMessage;
-            LeaderboardEvents.ProfileRequestFailedEvent += OnProfileRequestFailed;
-            LeaderboardEvents.UploadSuccessAction += OnScoreUploadSuccess;
-            LeaderboardEvents.UploadFailedAction += OnScoreUploadFailed;
+            LeaderboardState.ProfileRequest.FailedEvent += OnProfileRequestFailed;
+            LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
+            LeaderboardState.UploadRequest.FailedEvent += OnScoreUploadFailed;
         }
 
         protected override void OnDispose() {
             LeaderboardEvents.StatusMessageEvent -= OnStatusMessage;
-            LeaderboardEvents.ProfileRequestFailedEvent -= OnProfileRequestFailed;
-            LeaderboardEvents.UploadSuccessAction -= OnScoreUploadSuccess;
-            LeaderboardEvents.UploadFailedAction -= OnScoreUploadFailed;
+            LeaderboardState.ProfileRequest.FailedEvent -= OnProfileRequestFailed;
+            LeaderboardState.UploadRequest.FinishedEvent -= OnScoreUploadSuccess;
+            LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
         }
 
         protected override void OnDeactivate() {
@@ -33,13 +33,12 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnProfileRequestFailed() {
-            ShowBadNews("Profile update failed");
+        private void OnProfileRequestFailed(string reason) {
+            ShowBadNews($"Profile update failed! {reason}");
         }
 
-        private void OnScoreUploadFailed(bool completely, int retry) {
-            var postfix = completely ? "No more retries" : $" Retry attempt {retry}";
-            ShowBadNews($"Score upload failed. {postfix}");
+        private void OnScoreUploadFailed(string reason) {
+            ShowBadNews($"Score upload failed! {reason}");
         }
 
         private void OnScoreUploadSuccess(Score score) {

@@ -1,5 +1,4 @@
 ﻿using System;
-using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -11,19 +10,19 @@ namespace BeatLeader.DataManager {
         private void LoadStats(int scoreId) {
             if (_scoreStatsTask != null) {
                 StopCoroutine(_scoreStatsTask);
+                LeaderboardState.ScoreStatsRequest.TryNotifyCancelled();
             }
 
-            LeaderboardEvents.ScoreStatsRequestStarted();
+            LeaderboardState.ScoreStatsRequest.NotifyStarted();
 
             _scoreStatsTask = StartCoroutine(
                 HttpUtils.GetData<ScoreStats>(String.Format(BLConstants.SCORE_STATS_BY_ID, scoreId),
                 stats => {
-                    LeaderboardEvents.PublishStats(stats);
-
+                    LeaderboardState.ScoreStatsRequest.NotifyFinished(stats);
                 },
-                () => {
+                reason => {
                     Plugin.Log.Debug($"No score stats for id {scoreId} was found. Abort");
-                    LeaderboardEvents.NotifyScoreStatsFetchFailed();
+                    LeaderboardState.ScoreStatsRequest.NotifyFailed(reason);
                 }));
         }
     }

@@ -198,6 +198,7 @@
     <Compile Include="2_Core\Managers\Leaderboard\BeatLeaderCustomLeaderboard.cs" />
     <Compile Include="2_Core\Managers\Leaderboard\LeaderboardEvents.cs" />
     <Compile Include="2_Core\Managers\Leaderboard\LeaderboardHeaderManager.cs" />
+    <Compile Include="2_Core\Managers\Leaderboard\LeaderboardState.cs" />
     <Compile Include="2_Core\Managers\MonkeyHeadManager.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\MapEnhancer.cs" />
     <Compile Include="2_Core\Managers\NoteEnhancer\SwingRatingEnhancer.cs" />
@@ -227,6 +228,7 @@
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
     <Compile Include="7_Utils\UtilityClasses\GifLoader.cs" />
+    <Compile Include="7_Utils\UtilityClasses\RequestStateHandler.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ContextSelector.cs" />

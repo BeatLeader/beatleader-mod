@@ -5,7 +5,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using BeatLeader.API;
-using BeatLeader.Manager;
 using BeatLeader.Models;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -15,9 +14,10 @@ namespace BeatLeader.Utils {
     internal static class HttpUtils {
         #region Get single entity
 
-        internal static IEnumerator GetData<T>(string url, Action<T> onSuccess, Action onFail, int retry = 1) {
+        internal static IEnumerator GetData<T>(string url, Action<T> onSuccess, Action<string> onFail, int retry = 1) {
             Plugin.Log.Debug($"Request url = {url}");
 
+            var failReason = "";
             for (int i = 1; i <= retry; i++) {
 
                 var handler = new DownloadHandlerBuffer();
@@ -31,6 +31,7 @@ namespace BeatLeader.Utils {
 
                 if (request.isHttpError || request.isNetworkError) {
                     Plugin.Log.Debug("Connection error or non success http code.");
+                    failReason = "Connection error or non success http code.";
                     continue;
                 }
 
@@ -44,19 +45,21 @@ namespace BeatLeader.Utils {
                     yield break;
                 } catch (Exception e) {
                     Plugin.Log.Debug(e);
+                    failReason = e.Message;
                 }
             }
-            onFail.Invoke();
+            onFail.Invoke(failReason);
         }
 
         #endregion
 
         #region get list of entities
 
-        internal static IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action onFail, int retry = 1) {
+        internal static IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action<string> onFail, int retry = 1) {
             var uri = new Uri(url);
             Plugin.Log.Debug($"Request url = {uri}");
 
+            var failReason = "";
             for (int i = 1; i <= retry; i++) {
 
                 var handler = new DownloadHandlerBuffer();
@@ -81,10 +84,10 @@ namespace BeatLeader.Utils {
                     yield break;
                 } catch (Exception e) {
                     Plugin.Log.Debug(e);
+                    failReason = e.Message;
                 }
             }
-            onFail.Invoke();
-            yield break;
+            onFail.Invoke(failReason);
         }
 
         #endregion
@@ -92,12 +95,14 @@ namespace BeatLeader.Utils {
         #region ReplayUpload
 
         public static IEnumerator UploadReplay(Replay replay, int retry = 3) {
-            LeaderboardEvents.NotifyUploadStarted();
+            LeaderboardState.UploadRequest.NotifyStarted();
 
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
             for (int i = 1; i <= retry; i++) {
+                string GetFailMessage(string reason) => $"Attempt {i}/{retry} failed! {reason}";
+
                 Task<string> ticketTask = Authentication.SteamTicket();
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
 
@@ -128,7 +133,7 @@ namespace BeatLeader.Utils {
                 try {
                     if (request.isNetworkError || request.isHttpError) {
                         Plugin.Log.Debug($"Error: {request.error}");
-                        LeaderboardEvents.NotifyUploadFailed(i == retry, i);
+                        LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage($"Network error: {request.responseCode}"));
                     } else {
                         Plugin.Log.Debug(body);
                         var options = new JsonSerializerSettings() {
@@ -138,14 +143,14 @@ namespace BeatLeader.Utils {
                         Score score = JsonConvert.DeserializeObject<Score>(body, options);
                         Plugin.Log.Debug("Upload success");
 
-                        LeaderboardEvents.NotifyUploadSuccess(score);
+                        LeaderboardState.UploadRequest.NotifyFinished(score);
 
                         yield break; // if OK - stop retry cycle
                     }
                 } catch (Exception e) {
                     Plugin.Log.Debug("Exception");
                     Plugin.Log.Debug(e);
-                    LeaderboardEvents.NotifyUploadFailed(i == retry, i);
+                    LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage($"Internal error: {e.Message}"));
                 }
             }
             Plugin.Log.Debug("Cannot upload replay");

@@ -19,7 +19,7 @@ namespace BeatLeader.DataManager {
         #region Initialize/Dispose section
 
         public void Start() {
-            LeaderboardEvents.UploadSuccessAction += OnUploadSuccess;
+            LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
 
             LeaderboardEvents.ScopeWasSelectedAction += ChangeScoreProvider;
             LeaderboardEvents.ContextWasSelectedAction += ChangeScoreContext;
@@ -30,7 +30,7 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnDestroy() {
-            LeaderboardEvents.UploadSuccessAction -= OnUploadSuccess;
+            LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
 
             LeaderboardEvents.ScopeWasSelectedAction -= ChangeScoreProvider;
             LeaderboardEvents.ContextWasSelectedAction -= ChangeScoreContext;
@@ -55,9 +55,10 @@ namespace BeatLeader.DataManager {
         private void LoadScores() {
             if (_scoresTask != null) {
                 StopCoroutine(_scoresTask);
+                LeaderboardState.ScoresRequest.TryNotifyCancelled();
             }
 
-            LeaderboardEvents.ScoreRequestStarted();
+            LeaderboardState.ScoresRequest.NotifyStarted();
 
             string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             string diff = _lastSelectedBeatmap.difficulty.ToString();
@@ -75,18 +76,19 @@ namespace BeatLeader.DataManager {
                 })),
                 paged => {
                     _lastSelectedPage = paged.metadata.page;
-                    LeaderboardEvents.PublishScores(paged);
-                }, () => {
-                    LeaderboardEvents.NotifyScoresFetchFailed();
+                    LeaderboardState.ScoresRequest.NotifyFinished(paged);
+                }, reason => {
+                    LeaderboardState.ScoresRequest.NotifyFailed(reason);
                 }));
         }
 
         private void SeekScores() {
             if (_scoresTask != null) {
                 StopCoroutine(_scoresTask);
+                LeaderboardState.ScoresRequest.TryNotifyCancelled();
             }
 
-            LeaderboardEvents.ScoreRequestStarted();
+            LeaderboardState.ScoresRequest.NotifyStarted();
 
             string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             string diff = _lastSelectedBeatmap.difficulty.ToString();
@@ -103,9 +105,9 @@ namespace BeatLeader.DataManager {
                 })),
                 paged => {
                     _lastSelectedPage = paged.metadata.page;
-                    LeaderboardEvents.PublishScores(paged);
-                }, () => {
-                    LeaderboardEvents.NotifyScoresFetchFailed();
+                    LeaderboardState.ScoresRequest.NotifyFinished(paged);
+                }, reason => {
+                    LeaderboardState.ScoresRequest.NotifyFailed(reason);
                 }));
         }
 

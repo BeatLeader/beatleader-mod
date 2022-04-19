@@ -1,7 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -46,20 +46,33 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
+            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.ScoresRequestStartedEvent -= OnScoreRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
+            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
         }
 
         #endregion
 
         #region Events
 
-        private void OnScoreRequestStarted() {
+        private void OnScoresRequestStateChanged(RequestState requestState) {
+            switch (requestState) {
+                case RequestState.Uninitialized:
+                case RequestState.Started:
+                case RequestState.Failed:
+                    ClearScores();
+                    break;
+                case RequestState.Finished:
+                    ShowScores(LeaderboardState.ScoresRequest.Result);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null);
+            }
+        }
+
+        private void ClearScores() {
             if (gameObject.activeInHierarchy) {
                 StartCoroutine(ClearScoresCoroutine());
             } else {
@@ -67,7 +80,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnScoresFetched(Paged<Score> scoresData) {
+        private void ShowScores(Paged<Score> scoresData) {
             if (scoresData.data == null || scoresData.data.IsEmpty()) return;
             if (gameObject.activeInHierarchy) {
                 StartCoroutine(SetScoresCoroutine(scoresData));

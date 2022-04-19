@@ -32,7 +32,7 @@ namespace BeatLeader.Utils {
             if (_modifiers != null) yield break;
             yield return HttpUtils.GetData<Dictionary<string, float>>(BLConstants.MODIFIERS_URL,
                 modifiers => _modifiers = modifiers,
-                () => Plugin.Log.Error("Can't fetch values for modifiers"),
+                reason => Plugin.Log.Error($"Can't fetch values for modifiers. Reason: {reason}"),
                 3);
         }
 

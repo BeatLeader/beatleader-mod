@@ -1,9 +1,9 @@
-using BeatLeader.Manager;
-using BeatLeader.Models;
+using System;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.Logo.bsml")]
@@ -98,81 +98,56 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.UserProfileStartedEvent += OnProfileRequestStarted;
-            LeaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
-            LeaderboardEvents.ProfileRequestFailedEvent += OnProfileRequestFailed;
-
-            LeaderboardEvents.ScoresRequestStartedEvent += OnScoresRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent += OnScoresRequestFinished;
-            LeaderboardEvents.ScoresFetchFailedEvent += OnScoresRequestFailed;
-
-            LeaderboardEvents.UploadStartedAction += OnUploadStarted;
-            LeaderboardEvents.UploadSuccessAction += OnUploadSuccess;
-            LeaderboardEvents.UploadFailedAction += OnUploadFailed;
-
             SetMaterial();
+            
+            LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
+            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            LeaderboardState.UploadRequest.StateChangedEvent += OnUploadRequestStateChanged;
+            OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
+            OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
+            OnUploadRequestStateChanged(LeaderboardState.UploadRequest.State);
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.UserProfileStartedEvent -= OnProfileRequestStarted;
-            LeaderboardEvents.UserProfileFetchedEvent -= OnProfileFetched;
-            LeaderboardEvents.ProfileRequestFailedEvent -= OnProfileRequestFailed;
-
-            LeaderboardEvents.ScoresRequestStartedEvent -= OnScoresRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent -= OnScoresRequestFinished;
-            LeaderboardEvents.ScoresFetchFailedEvent -= OnScoresRequestFailed;
-
-            LeaderboardEvents.UploadStartedAction -= OnUploadStarted;
-            LeaderboardEvents.UploadSuccessAction -= OnUploadSuccess;
-            LeaderboardEvents.UploadFailedAction -= OnUploadFailed;
+            LeaderboardState.ProfileRequest.StateChangedEvent -= OnProfileRequestStateChanged;
+            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            LeaderboardState.UploadRequest.StateChangedEvent -= OnUploadRequestStateChanged;
         }
 
         #endregion
 
         #region Events
 
-        private void OnScoresRequestStarted() {
-            _loadingScores = true;
+        private void OnProfileRequestStateChanged(RequestState requestState) {
+            _loadingProfile = requestState switch {
+                RequestState.Uninitialized => false,
+                RequestState.Started => true,
+                RequestState.Failed => false,
+                RequestState.Finished => false,
+                _ => throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null)
+            };
             UpdateState();
         }
 
-        private void OnScoresRequestFinished(Paged<Score> paged) {
-            _loadingScores = false;
+        private void OnScoresRequestStateChanged(RequestState requestState) {
+            _loadingScores = requestState switch {
+                RequestState.Uninitialized => false,
+                RequestState.Started => true,
+                RequestState.Failed => false,
+                RequestState.Finished => false,
+                _ => throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null)
+            };
             UpdateState();
         }
 
-        private void OnScoresRequestFailed() {
-            _loadingScores = false;
-            UpdateState();
-        }
-
-        private void OnProfileRequestStarted() {
-            _loadingProfile = true;
-            UpdateState();
-        }
-
-        private void OnProfileFetched(Player p) {
-            _loadingProfile = false;
-            UpdateState();
-        }
-
-        private void OnProfileRequestFailed() {
-            _loadingProfile = false;
-            UpdateState();
-        }
-
-        private void OnUploadStarted() {
-            _uploadingScore = true;
-            UpdateState();
-        }
-
-        private void OnUploadSuccess(Score score) {
-            _uploadingScore = false;
-            UpdateState();
-        }
-
-        private void OnUploadFailed(bool completely, int retry) {
-            _uploadingScore = !completely;
+        private void OnUploadRequestStateChanged(RequestState requestState) {
+            _uploadingScore = requestState switch {
+                RequestState.Uninitialized => false,
+                RequestState.Started => true,
+                RequestState.Failed => false,
+                RequestState.Finished => false,
+                _ => throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null)
+            };
             UpdateState();
         }
 

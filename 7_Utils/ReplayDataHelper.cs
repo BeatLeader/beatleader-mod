@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using IPA.Utilities;
@@ -135,6 +136,11 @@ namespace BeatLeader.Utils
         #endregion
 
         #region Replaying
+        public static async Task<NoteEvent> GetNoteEventAsync(this NoteData noteData, Replay replay)
+        {
+            var noteEvent = await Task.Run(() => GetNoteEventByID(noteData.ComputeNoteID(), noteData.time, replay));
+            return noteEvent;
+        }
         public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
         {
             return GetNoteEventByID(noteData.ComputeNoteID(), noteData.time, replay);
@@ -312,34 +318,6 @@ namespace BeatLeader.Utils
 
             replay = scoreIndex != -1 ? matchedReplays[scoreIndex] : matchedReplays[0];
             return true;
-        }
-        #endregion
-
-        #region Recording
-        public static void AddItemToReplay(this Replay replay, AutomaticHeight height)
-        {
-            if (replay == null & height == null) return;
-            replay.heights.Add(height);
-        }   
-        public static void AddItemToReplay(this Replay replay, Pause pause)
-        {
-            if (replay == null & pause == null) return;
-            replay.pauses.Add(pause);
-        }
-        public static void AddItemToReplay(this Replay replay, NoteEvent noteEvent)
-        {
-            if (replay == null & noteEvent == null) return;
-            replay.notes.Add(noteEvent);
-        }
-        public static void AddItemToReplay(this Replay replay, WallEvent wallEvent)
-        {
-            if (replay == null & wallEvent == null) return;
-            replay.walls.Add(wallEvent);
-        }
-        public static void AddItemToReplay(this Replay replay, Frame frame)
-        {
-            if (replay == null & frame == null) return;
-            replay.frames.Add(frame);
         }
         #endregion
 

@@ -6,7 +6,7 @@ using Zenject;
 using BeatLeader.Replays.Scoring;
 using BeatLeader.Utils;
 
-namespace BeatLeader.Replays.Emulators
+namespace BeatLeader.Replays.Scoring
 {
     public class ReplayScoreController : MonoBehaviour, IScoreController
     {

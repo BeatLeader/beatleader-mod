@@ -224,7 +224,7 @@ namespace BeatLeader {
             switch (results.levelEndStateType)
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
-                    Plugin.Log.Info("Level Cleared. Save replay");
+                    Plugin.Log.Info("Level Cleared. Saving replay");
                     _scoreUtil.ProcessReplay(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
@@ -235,7 +235,7 @@ namespace BeatLeader {
                     else
                     {
                         _replay.info.failTime = _timeSyncController.songTime;
-                        Plugin.Log.Info("Level Failed. Save replay");
+                        Plugin.Log.Info("Level Failed. Saving replay");
                         _scoreUtil.ProcessReplay(_replay);
                     }
                     break;

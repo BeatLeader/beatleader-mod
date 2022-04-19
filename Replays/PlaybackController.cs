@@ -13,11 +13,13 @@ namespace BeatLeader.Replays
     public class PlaybackController : MonoBehaviour
     {
         [Inject] protected readonly SimpleCutScoreEffectSpawner _cutScoreEffectSpawner;
+        [Inject] protected readonly NoteComparatorsHandler _noteComparatorsHandler;
+        [Inject] protected readonly MenuSabersManager _menuSabersManager;
         [Inject] protected readonly FakePlayer _fakePlayer;
-
+ 
         public void Start()
         {
-
+            _menuSabersManager.ShowMenuControllers();
         }
     }
 }

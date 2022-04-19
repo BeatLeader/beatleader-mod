@@ -21,16 +21,16 @@ namespace BeatLeader
 {
     internal class ReplayMenuUI
     {
-        private protected static NoTransitionsButton _replayButton;
-        private protected static GameObject _levelWrapContainer;
-        private protected static UnityEvent _actionButtonEvent;
-        private protected static FakePlayer _player;
+        protected static NoTransitionsButton _replayButton;
+        protected static GameObject _levelWrapContainer;
+        protected static UnityEvent _actionButtonEvent;
+        protected static FakePlayer _player;
 
-        private protected static Replay _replay;
-        private protected static IDifficultyBeatmap _beatmapDifficulty;
+        protected static Replay _replay;
+        protected static IDifficultyBeatmap _beatmapDifficulty;
 
-        private protected static bool _asReplay;
-        private static bool _isPatched;
+        protected static bool _asReplay;
+        protected static bool _isPatched;
 
         public static GameObject LevelWrapContainer
         {

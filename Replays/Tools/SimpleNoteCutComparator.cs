@@ -16,8 +16,9 @@ namespace BeatLeader.Replays
         public SimpleNoteCutter noteCutter;
         public NoteController noteController;
         public NoteEvent noteCutEvent;
+        private bool _availableForCut;
 
-        public bool availableForCut;
+        public bool availableForCut => _availableForCut;
         public float cutTime => noteCutEvent.eventTime;
         public int noteID => noteCutEvent.noteID;
 
@@ -26,7 +27,7 @@ namespace BeatLeader.Replays
             noteController = GetComponent<NoteController>();
             noteCutter = gameObject.AddComponent<SimpleNoteCutter>();
             noteController.noteWasCutEvent.Add(this);
-            availableForCut = true;
+            _availableForCut = true;
         }
         public void Update()
         {

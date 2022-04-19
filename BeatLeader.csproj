@@ -251,18 +251,19 @@
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Replays\SabersManager.cs" />
+    <Compile Include="Replays\MenuSabersManager.cs" />
+    <Compile Include="Replays\Movement\MovementManager.cs" />
+    <Compile Include="Replays\Tools\NoteComparatorsHandler.cs" />
     <Compile Include="Replays\Tools\SimpleCutScoreEffectSpawner.cs" />
     <Compile Include="Replays\PlaybackController.cs" />
     <Compile Include="Replays\Scoring\SimpleCutScoreBuffer.cs" />
     <Compile Include="Replays\Scoring\SimpleCutScoringElement.cs" />
-    <Compile Include="Replays\Emulators\ReplayScoreController.cs" />
-    <Compile Include="Replays\Emulators\FakeVRController.cs" />
+    <Compile Include="Replays\Scoring\ReplayScoreController.cs" />
+    <Compile Include="Replays\Movement\FakeVRController.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="Replays\EventsHandler.cs" />
     <Compile Include="Replays\ReplayMenuUI.cs" />
-    <Compile Include="Replays\Emulators\FakePlayer.cs" />
-    <Compile Include="Replays\Scoring\SimpleSwingRatingCounter.cs" />
+    <Compile Include="Replays\Movement\FakePlayer.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutComparator.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutter.cs" />
   </ItemGroup>

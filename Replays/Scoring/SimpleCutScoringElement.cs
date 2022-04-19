@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IPA.Utilities;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -21,9 +22,8 @@ namespace BeatLeader.Replays.Scoring
         protected ScoreMultiplierCounter.MultiplierEventType _wouldBeCorrectCutBestPossibleMultiplierEventType;
 
         protected SimpleCutScoreBuffer _cutScoreBuffer;
-
-        public SimpleCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         protected override int executionOrder => 100000;
+        public IReadonlyCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         public override int cutScore => _cutScoreBuffer.cutScore;
 
         public virtual void Init(NoteCutInfo noteCutInfo)
@@ -48,6 +48,7 @@ namespace BeatLeader.Replays.Scoring
                     _wouldBeCorrectCutBestPossibleMultiplierEventType = ScoreMultiplierCounter.MultiplierEventType.Neutral;
                     break;
             }
+
             _cutScoreBuffer = new SimpleCutScoreBuffer();
             if (_cutScoreBuffer.Init(in noteCutInfo))
             {
@@ -58,7 +59,6 @@ namespace BeatLeader.Replays.Scoring
             {
                 isFinished = true;
             }
-            _cutScoreBuffer.Refresh();
         }
         public virtual void HandleCutScoreBufferDidFinish(CutScoreBuffer cutScoreBuffer)
         {

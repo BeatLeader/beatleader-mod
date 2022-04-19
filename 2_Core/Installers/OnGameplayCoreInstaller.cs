@@ -3,6 +3,8 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using BeatLeader.Utils;
+using BeatLeader.Models;
+using BeatLeader.Replays;
 using BeatLeader.Replays.Tools;
 using BeatLeader.Replays.Emulators;
 using BeatLeader.Replays.Scoring;
@@ -62,6 +64,7 @@ namespace BeatLeader.Installers
         {
             if (!ReplayMenuUI.asReplay) return;
 
+            #region ScoreController patch
             Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
 
             var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
@@ -73,12 +76,18 @@ namespace BeatLeader.Installers
             
             Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
             ZenjectExpansion.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
-            Container.Bind<FakePlayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             modifiedScoreController.SetEnabled(true);
             gameplayData.SetActive(true);
+            #endregion
+
+            Container.Bind<Replay>().FromInstance(ReplayMenuUI.replay).AsSingle();
+            Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<NoteComparatorsHandler>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<MovementManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<FakePlayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
     }
 }

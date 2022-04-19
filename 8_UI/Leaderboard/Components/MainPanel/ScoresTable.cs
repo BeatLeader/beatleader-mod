@@ -9,7 +9,7 @@ using ModestTree;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoresTable.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScoresTable.bsml")]
     internal class ScoresTable : ReeUIComponent {
         #region Components
 

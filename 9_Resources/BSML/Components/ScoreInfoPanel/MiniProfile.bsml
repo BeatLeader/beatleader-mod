@@ -1,0 +1,24 @@
+<horizontal pref-height="28">
+    <vertical pref-width="28" pad-bottom="4">
+        <macro.as-host host="player-avatar">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
+    </vertical>
+
+    <vertical ignore-layout="true" anchor-pos-y="-11">
+        <horizontal spacing="1" horizontal-fit="PreferredSize">
+            <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
+                <text text="~player-global-rank" align="Center"/>
+            </horizontal>
+            <horizontal pref-height="6" pad="1" spacing="1" bg="round-rect-panel" bg-color="#000000EE">
+                <macro.as-host host="country-flag">
+                    <macro.reparent transform="root"/>
+                </macro.as-host>
+                <text text="~player-name" align="Center"/>
+            </horizontal>
+            <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
+                <text text="~player-pp" align="Center"/>
+            </horizontal>
+        </horizontal>
+    </vertical>
+</horizontal>

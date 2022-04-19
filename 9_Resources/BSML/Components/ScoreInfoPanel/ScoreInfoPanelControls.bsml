@@ -1,0 +1,9 @@
+<horizontal pref-height="6" spacing="1">
+    <macro.define name="font-size" value="3"/>
+
+    <!--    temp buttons   -->
+    <button text="overview" font-size="~font-size"/>
+    <button text="accuracy" font-size="~font-size"/>
+    <button text="graph" font-size="~font-size"/>
+    <button text="replay" font-size="~font-size"/>
+</horizontal>

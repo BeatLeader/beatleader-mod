@@ -5,12 +5,12 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.PlayerAvatar.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Basic.PlayerAvatar.bsml")]
     internal class PlayerAvatar : ReeUIComponent {
         #region BufferTexture
 
-        private const int Width = 256;
-        private const int Height = 256;
+        private const int Width = 200;
+        private const int Height = 200;
 
         private RenderTexture _bufferTexture;
 

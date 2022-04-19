@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScopeSelector.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScopeSelector.bsml")]
     internal class ScopeSelector : ReeUIComponent {
         #region Start
 

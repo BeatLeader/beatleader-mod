@@ -1,0 +1,21 @@
+<horizontal pref-height="30">
+    <vertical pad="2" bg="round-rect-panel">
+        <!--  STYLE  -->
+        <macro.define name="font-size" value="4"/>
+        <macro.define name="details-font-size" value="3.4"/>
+
+        <horizontal>
+            <text text="~timeset-text" word-wrapping="false" font-size="~font-size" align="Center"/>
+        </horizontal>
+
+        <horizontal pref-height="12" spacing="2" horizontal-fit="PreferredSize">
+            <text text="~score-text" word-wrapping="false" font-size="~font-size" align="Center"/>
+            <text text="~acc-text" word-wrapping="false" font-size="~font-size" align="Center"/>
+            <text text="~pp-text" word-wrapping="false" font-size="~font-size" align="Center"/>
+        </horizontal>
+
+        <horizontal>
+            <text text="~details-text" word-wrapping="false" font-size="~details-font-size" align="Center"/>
+        </horizontal>
+    </vertical>
+</horizontal>

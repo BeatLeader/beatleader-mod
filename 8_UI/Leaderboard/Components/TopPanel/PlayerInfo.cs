@@ -5,7 +5,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.PlayerInfo.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.PlayerInfo.bsml")]
     internal class PlayerInfo : ReeUIComponent {
         #region Components
 

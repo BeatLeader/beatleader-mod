@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ContextSelector.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ContextSelector.bsml")]
     internal class ContextSelector : ReeUIComponent {
         #region Start
 

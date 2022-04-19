@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.EmptyBoardMessage.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.EmptyBoardMessage.bsml")]
     internal class EmptyBoardMessage : ReeUIComponent {
         #region OnInitialize
 

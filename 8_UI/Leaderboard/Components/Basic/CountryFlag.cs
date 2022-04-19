@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.CountryFlag.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Basic.CountryFlag.bsml")]
     internal class CountryFlag : ReeUIComponent {
         #region Events
 

@@ -5,29 +5,11 @@ using JetBrains.Annotations;
 using ModestTree;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreDetails.bsml")]
-    internal class ScoreDetails : ReeUIComponent {
-        #region Components
-
-        [UIValue("player-avatar"), UsedImplicitly]
-        private PlayerAvatar _playerAvatar = Instantiate<PlayerAvatar>();
-
-        [UIValue("country-flag"), UsedImplicitly]
-        private CountryFlag _countryFlag = Instantiate<CountryFlag>();
-
-        #endregion
-
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreOverview.bsml")]
+    internal class ScoreOverview : ReeUIComponent {
         #region SetScore
 
         public void SetScore(Score score) {
-            _playerAvatar.SetAvatar(score.player.avatar);
-            _countryFlag.SetCountry(score.player.country);
-
-            PlayerName = FormatUtils.FormatUserName(score.player.name);
-            PlayerGlobalRank = FormatUtils.FormatRank(score.player.rank, true);
-            PlayerCountryRank = FormatUtils.FormatRank(score.player.countryRank, true);
-            PlayerPp = FormatUtils.FormatPP(score.player.pp);
-
             TimeSetText = GetTimeSetString(score);
             ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "score");
             AccText = GetStringWithLabel(FormatUtils.FormatAcc(score.accuracy), "accuracy");
@@ -78,71 +60,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-
-        #region playerName
-
-        private string _playerName = "";
-
-        [UIValue("player-name"), UsedImplicitly]
-        public string PlayerName {
-            get => _playerName;
-            set {
-                if (_playerName.Equals(value)) return;
-                _playerName = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region PlayerGlobalRank
-
-        private string _playerGlobalRank = "";
-
-        [UIValue("player-global-rank"), UsedImplicitly]
-        public string PlayerGlobalRank {
-            get => _playerGlobalRank;
-            set {
-                if (_playerGlobalRank.Equals(value)) return;
-                _playerGlobalRank = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region PlayerCountryRank
-
-        private string _playerCountryRank = "";
-
-        [UIValue("player-country-rank"), UsedImplicitly]
-        public string PlayerCountryRank {
-            get => _playerCountryRank;
-            set {
-                if (_playerCountryRank.Equals(value)) return;
-                _playerCountryRank = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region playerPp
-
-        private string _playerPp = "";
-
-        [UIValue("player-pp"), UsedImplicitly]
-        public string PlayerPp {
-            get => _playerPp;
-            set {
-                if (_playerPp.Equals(value)) return;
-                _playerPp = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
+        
         #region TimeSetText
 
         private string _timeSetText = "";

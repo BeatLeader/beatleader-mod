@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.StatusBar.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.StatusBar.bsml")]
     internal class StatusBar : ReeUIComponent {
         #region Initialize/Dispose
 

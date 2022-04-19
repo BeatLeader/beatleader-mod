@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Pagination.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.Pagination.bsml")]
     internal class Pagination : ReeUIComponent {
         #region Initialize/Dispose
 

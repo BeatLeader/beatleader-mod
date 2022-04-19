@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Logo.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.Logo.bsml")]
     internal class Logo : ReeUIComponent {
         #region Animation
 

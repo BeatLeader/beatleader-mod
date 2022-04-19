@@ -9,8 +9,8 @@ using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
-        private ScoresScope _selectedScoreScope = ScoresScope.Global;
-        private ScoresContext _selectedScoreContext = BLContext.DefaultScoresContext;
+        private ScoresScope _selectedScoreScope;
+        private ScoresContext _selectedScoreContext;
         private int _lastSelectedPage = 1;
         private IDifficultyBeatmap _lastSelectedBeatmap;
 
@@ -20,20 +20,21 @@ namespace BeatLeader.DataManager {
 
         public void Start() {
             LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
-
-            LeaderboardEvents.ScopeWasSelectedAction += ChangeScoreProvider;
-            LeaderboardEvents.ContextWasSelectedAction += ChangeScoreContext;
+            LeaderboardState.ScoresContextChangedEvent += ChangeScoreContext;
+            LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
 
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
+
+            _selectedScoreContext = LeaderboardState.ScoresContext;
+            _selectedScoreScope = LeaderboardState.ScoresScope;
         }
 
         private void OnDestroy() {
             LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
-
-            LeaderboardEvents.ScopeWasSelectedAction -= ChangeScoreProvider;
-            LeaderboardEvents.ContextWasSelectedAction -= ChangeScoreContext;
+            LeaderboardState.ScoresContextChangedEvent -= ChangeScoreContext;
+            LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
 
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;

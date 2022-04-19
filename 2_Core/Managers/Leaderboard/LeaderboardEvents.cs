@@ -19,17 +19,6 @@ namespace BeatLeader.Manager {
 
         //-- OUTPUT -----------------
 
-        #region IsLeaderboardVisibleChangedEvent
-
-        // Called when the leaderboard panel visibility changes
-        public static event Action<bool> IsLeaderboardVisibleChangedEvent;
-
-        public static void NotifyIsLeaderboardVisibleChanged(bool value) {
-            IsLeaderboardVisibleChangedEvent?.Invoke(value);
-        }
-
-        #endregion
-
         #region UpButtonWasPressed
 
         public static event Action UpButtonWasPressedAction;
@@ -56,26 +45,6 @@ namespace BeatLeader.Manager {
 
         public static void NotifyDownButtonWasPressed() {
             DownButtonWasPressedAction?.Invoke();
-        }
-
-        #endregion
-
-        #region ScopeWasSelected
-
-        public static event Action<ScoresScope> ScopeWasSelectedAction;
-
-        public static void NotifyScopeWasSelected(ScoresScope scope) {
-            ScopeWasSelectedAction?.Invoke(scope);
-        }
-
-        #endregion
-
-        #region ContextWasSelected
-
-        public static event Action<ScoresContext> ContextWasSelectedAction;
-
-        public static void NotifyContextWasSelected(ScoresContext context) {
-            ContextWasSelectedAction?.Invoke(context);
         }
 
         #endregion

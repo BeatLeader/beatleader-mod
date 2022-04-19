@@ -1,8 +1,5 @@
 using System;
-using System.Threading;
-using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
@@ -14,18 +11,17 @@ namespace BeatLeader.Components {
         #region Start
 
         private void Start() {
-            SelectContext(BLContext.DefaultScoresContext);
             SetMaterials();
+            LeaderboardState.ScoresContextChangedEvent += OnScoresContextChanged;
+            OnScoresContextChanged(LeaderboardState.ScoresContext);
         }
 
         #endregion
 
-        #region SetScope
+        #region OnScoresContextChanged
 
-        private ScoresContext _currentContext;
-
-        private void SelectContext(ScoresContext newContext) {
-            switch (newContext) {
+        private void OnScoresContextChanged(ScoresContext scoresContext) {
+            switch (scoresContext) {
                 case ScoresContext.Standard:
                     SetColor(_modifiersComponent, false);
                     break;
@@ -34,8 +30,6 @@ namespace BeatLeader.Components {
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
-            
-            _currentContext = newContext;
         }
 
         #endregion
@@ -64,17 +58,11 @@ namespace BeatLeader.Components {
 
         [UIAction("modifiers-on-click"), UsedImplicitly]
         private void NavModifiersOnClick() {
-            switch (_currentContext) {
-                case ScoresContext.Standard:
-                    SelectContext(ScoresContext.Modifiers);
-                    break;
-                case ScoresContext.Modifiers:
-                    SelectContext(ScoresContext.Standard);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            LeaderboardEvents.NotifyContextWasSelected(_currentContext);
+            LeaderboardState.ScoresContext = LeaderboardState.ScoresContext switch {
+                ScoresContext.Standard => ScoresContext.Modifiers,
+                ScoresContext.Modifiers => ScoresContext.Standard,
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         #endregion

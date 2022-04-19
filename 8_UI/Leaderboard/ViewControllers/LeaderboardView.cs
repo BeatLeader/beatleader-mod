@@ -58,11 +58,11 @@ namespace BeatLeader.ViewControllers {
         #region OnEnable & OnDisable
 
         protected void OnEnable() {
-            LeaderboardEvents.NotifyIsLeaderboardVisibleChanged(true);
+            LeaderboardState.IsVisible = true;
         }
 
         protected void OnDisable() {
-            LeaderboardEvents.NotifyIsLeaderboardVisibleChanged(false);
+            LeaderboardState.IsVisible = false;
             HideScoreModal();
         }
 

@@ -1,6 +1,7 @@
 using System.Text;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
+using IPA.Config.Data;
 using JetBrains.Annotations;
 using ModestTree;
 
@@ -15,6 +16,14 @@ namespace BeatLeader.Components {
             AccText = GetStringWithLabel(FormatUtils.FormatAcc(score.accuracy), "accuracy");
             PpText = GetStringWithLabel(FormatUtils.FormatPP(score.pp), "pp");
             DetailsText = GetDetailsString(score);
+        }
+
+        #endregion
+        
+        #region SetActive
+
+        public void SetActive(bool value) {
+            Active = value;
         }
 
         #endregion
@@ -57,6 +66,22 @@ namespace BeatLeader.Components {
             if (score.wallsHit > 0) sb.Append($"<color={Faded}>Walls hit: <color={Bad}>{score.wallsHit}</color>    ");
 
             return sb.ToString();
+        }
+
+        #endregion
+
+        #region Active
+
+        private bool _active = true;
+
+        [UIValue("active"), UsedImplicitly]
+        private bool Active {
+            get => _active;
+            set {
+                if (_active.Equals(value)) return;
+                _active = value;
+                NotifyPropertyChanged();
+            }
         }
 
         #endregion

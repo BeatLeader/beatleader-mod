@@ -12,14 +12,14 @@
         </macro.as-host>
 
         <!--  ACCURACY DETAILS  -->
-        <!--        <macro.as-host host="accuracy-details">-->
-        <!--            <macro.reparent transform="root"/>-->
-        <!--        </macro.as-host>-->
+        <macro.as-host host="accuracy-details">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
 
         <!--  ACCURACY GRAPH  -->
-        <!--        <macro.as-host host="accuracy-graph">-->
-        <!--            <macro.reparent transform="root"/>-->
-        <!--        </macro.as-host>-->
+        <macro.as-host host="accuracy-graph">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
 
         <!--  CONTROLS  -->
         <macro.as-host host="controls">

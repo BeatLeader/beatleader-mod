@@ -73,6 +73,7 @@ namespace BeatLeader.Manager {
         #endregion
 
         #region NotifyUploadStarted
+
         public static event Action UploadStartedAction;
 
         public static void NotifyUploadStarted() {
@@ -92,6 +93,7 @@ namespace BeatLeader.Manager {
         #endregion
 
         #region NotifyUploadSuccess
+
         public static event Action<Score> UploadSuccessAction;
 
         public static void NotifyUploadSuccess(Score score) {
@@ -99,8 +101,9 @@ namespace BeatLeader.Manager {
         }
 
         # endregion
-        
+
         #region ShowStatusMessage
+
         public static event Action<string, float> StatusMessageEvent;
 
         public static void ShowStatusMessage(string message, float duration = 1f) {
@@ -171,7 +174,17 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
-        
+
+        #region ReplayButtonWasPressed
+
+        public static event Action<Score> ReplayButtonWasPressedAction;
+
+        public static void NotifyReplayButtonWasPressed(Score score) {
+            ReplayButtonWasPressedAction?.Invoke(score);
+        }
+
+        #endregion
+
         //-- INTERNAL -----------------
 
         #region ScoreInfoButtonWasPressed
@@ -180,6 +193,16 @@ namespace BeatLeader.Manager {
 
         public static void NotifyScoreInfoButtonWasPressed(Score score) {
             ScoreInfoButtonWasPressed?.Invoke(score);
+        }
+
+        #endregion
+
+        #region ScoreInfoPanelTabWasSelected
+
+        public static event Action<ScoreInfoPanelTab> ScoreInfoPanelTabWasSelected;
+
+        public static void NotifyScoreInfoPanelTabWasSelected(ScoreInfoPanelTab tab) {
+            ScoreInfoPanelTabWasSelected?.Invoke(tab);
         }
 
         #endregion

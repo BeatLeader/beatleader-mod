@@ -1,0 +1,5 @@
+<horizontal active="~active" spacing="1" pref-height="30">
+    <vertical pref-width="60" pad="2" bg="round-rect-panel">
+        <text text="Graph" align="Center"/>
+    </vertical>
+</horizontal>

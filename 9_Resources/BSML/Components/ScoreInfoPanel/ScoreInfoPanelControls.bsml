@@ -1,9 +1,9 @@
-<horizontal pref-height="6" spacing="1">
+<horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
     <macro.define name="font-size" value="3"/>
 
     <!--    temp buttons   -->
-    <button text="overview" font-size="~font-size"/>
-    <button text="accuracy" font-size="~font-size"/>
-    <button text="graph" font-size="~font-size"/>
-    <button text="replay" font-size="~font-size"/>
+    <button text="overview" font-size="~font-size" on-click="overview-on-click"/>
+    <button text="accuracy" font-size="~font-size" on-click="accuracy-on-click"/>
+    <button text="graph" font-size="~font-size" on-click="graph-on-click"/>
+    <button text="replay" font-size="~font-size" on-click="replay-on-click"/>
 </horizontal>

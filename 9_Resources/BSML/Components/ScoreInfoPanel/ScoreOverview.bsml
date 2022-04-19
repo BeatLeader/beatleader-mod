@@ -1,4 +1,4 @@
-<horizontal pref-height="30">
+<horizontal active="~active" pref-height="30">
     <vertical pad="2" bg="round-rect-panel">
         <!--  STYLE  -->
         <macro.define name="font-size" value="4"/>

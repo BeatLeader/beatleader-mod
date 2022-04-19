@@ -62,5 +62,22 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        #region ScoreInfoPanelTab
+
+        public static event Action<ScoreInfoPanelTab> ScoreInfoPanelTabChangedEvent;
+
+        private static ScoreInfoPanelTab _scoreInfoPanelTab = ScoreInfoPanelTab.Overview;
+
+        public static ScoreInfoPanelTab ScoreInfoPanelTab {
+            get => _scoreInfoPanelTab;
+            set {
+                if (_scoreInfoPanelTab.Equals(value)) return;
+                _scoreInfoPanelTab = value;
+                ScoreInfoPanelTabChangedEvent?.Invoke(value);
+            }
+        }
+
+        #endregion
     }
 }

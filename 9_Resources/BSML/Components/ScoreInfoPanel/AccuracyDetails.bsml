@@ -1,13 +1,43 @@
-<horizontal active="~active" spacing="1" pref-height="30">
-    <vertical pref-width="20" pad="2" bg="round-rect-panel">
-        <text text="LeftHand" align="Center"/>
-    </vertical>
+<horizontal active="~active" pref-height="30">
+    <macro.define name="circle-size" value="12"/>
+    <macro.define name="font-size" value="3"/>
     
-    <vertical pref-width="20" pad="2" bg="round-rect-panel">
-        <text text="RightHand" align="Center"/>
-    </vertical>
-    
-    <vertical pref-width="40" pad="2" bg="round-rect-panel">
-        <text text="Grid" align="Center"/>
+    <vertical pad="2" spacing="1" bg="round-rect-panel" bg-color="#00000055">
+        <horizontal pref-height="~circle-size" pad-bottom="1" spacing="1" horizontal-fit="PreferredSize">
+            <vertical pad-left="1" pad-right="1" bg="round-rect-panel">
+                <text text="~left-pre-score" font-size="~font-size" align="Center"/>
+                <text text="~left-acc-score" font-size="~font-size" align="Center"/>
+                <text text="~left-post-score" font-size="~font-size" align="Center"/>
+            </vertical>
+            <vertical pref-width="~circle-size" bg="round-rect-panel">
+                <text text="~left-total-score" font-size="~font-size" align="Center"/>
+            </vertical>
+            <vertical pref-width="~circle-size" bg="round-rect-panel">
+                <text text="~right-total-score" font-size="~font-size" align="Center"/>
+            </vertical>
+            <vertical pad-left="1" pad-right="1" bg="round-rect-panel">
+                <text text="~right-pre-score" font-size="~font-size" align="Center"/>
+                <text text="~right-acc-score" font-size="~font-size" align="Center"/>
+                <text text="~right-post-score" font-size="~font-size" align="Center"/>
+            </vertical>
+        </horizontal>
+        
+        <horizontal pref-height="4" pad-left="1" pad-right="1" bg="round-rect-panel">
+            <text text="~left-td" font-size="~font-size" align="Center"/>
+            <text text="TD" font-size="~font-size" align="Center"/>
+            <text text="~right-td" font-size="~font-size" align="Center"/>
+        </horizontal>
+        
+        <horizontal pref-height="4" pad-left="1" pad-right="1" bg="round-rect-panel">
+            <text text="~left-pre-percentage" font-size="~font-size" align="Center"/>
+            <text text="PRE" font-size="~font-size" align="Center"/>
+            <text text="~right-pre-percentage" font-size="~font-size" align="Center"/>
+        </horizontal>
+        
+        <horizontal pref-height="4" pad-left="1" pad-right="1" bg="round-rect-panel">
+            <text text="~left-post-percentage" font-size="~font-size" align="Center"/>
+            <text text="POST" font-size="~font-size" align="Center"/>
+            <text text="~right-post-percentage" font-size="~font-size" align="Center"/>
+        </horizontal>
     </vertical>
 </horizontal>

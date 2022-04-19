@@ -59,6 +59,16 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region OnScoreStatsRequested
+
+        public static event Action<int> ScoreStatsRequestedEvent;
+
+        public static void RequestScoreStats(int scoreId) {
+            ScoreStatsRequestedEvent?.Invoke(scoreId);
+        }
+
+        #endregion
+
         //-- INTERNAL -----------------
 
         #region ScoreInfoButtonWasPressed
@@ -67,16 +77,6 @@ namespace BeatLeader.Manager {
 
         public static void NotifyScoreInfoButtonWasPressed(Score score) {
             ScoreInfoButtonWasPressed?.Invoke(score);
-        }
-
-        #endregion
-
-        #region ScoreInfoPanelTabWasSelected
-
-        public static event Action<ScoreInfoPanelTab> ScoreInfoPanelTabWasSelected;
-
-        public static void NotifyScoreInfoPanelTabWasSelected(ScoreInfoPanelTab tab) {
-            ScoreInfoPanelTabWasSelected?.Invoke(tab);
         }
 
         #endregion

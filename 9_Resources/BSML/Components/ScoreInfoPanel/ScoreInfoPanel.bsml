@@ -6,6 +6,11 @@
             <macro.reparent transform="root"/>
         </macro.as-host>
 
+        <!--  SCORE STATS LOADING SCREEN  -->
+        <macro.as-host host="score-stats-loading-screen">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
+
         <!--  SCORE OVERVIEW  -->
         <macro.as-host host="score-overview">
             <macro.reparent transform="root"/>
@@ -13,6 +18,11 @@
 
         <!--  ACCURACY DETAILS  -->
         <macro.as-host host="accuracy-details">
+            <macro.reparent transform="root"/>
+        </macro.as-host>
+
+        <!--  ACCURACY GRID  -->
+        <macro.as-host host="accuracy-grid">
             <macro.reparent transform="root"/>
         </macro.as-host>
 

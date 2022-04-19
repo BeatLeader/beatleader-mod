@@ -6,27 +6,34 @@ using JetBrains.Annotations;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreInfoPanelControls.bsml")]
     internal class ScoreInfoPanelControls : ReeUIComponent {
-        #region SetScore
+        #region Events
+
+        protected override void OnInitialize() {
+            LeaderboardState.ScoreInfoPanelTabChangedEvent += OnScoreInfoPanelTabChanged;
+            OnScoreInfoPanelTabChanged(LeaderboardState.ScoreInfoPanelTab);
+        }
+
+        protected override void OnDispose() {
+            LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnScoreInfoPanelTabChanged;
+        }
+
+        #endregion
+        
+        #region Reset
 
         private Score _score;
 
         public void SetScore(Score score) {
-            SelectTab(DefaultTab);
             _score = score;
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Overview;
         }
 
         #endregion
 
-        #region SelectTab
-
-        public const ScoreInfoPanelTab DefaultTab = ScoreInfoPanelTab.Overview;
-        private ScoreInfoPanelTab _currentTab = DefaultTab;
-
-        private void SelectTab(ScoreInfoPanelTab tab) {
-            if (tab.Equals(_currentTab)) return;
-
-            _currentTab = tab;
-            LeaderboardEvents.NotifyScoreInfoPanelTabWasSelected(tab);
+        #region OnScoreInfoPanelTabChanged
+        
+        private void OnScoreInfoPanelTabChanged(ScoreInfoPanelTab tab) {
+            //TODO: Highlight selected tab button
         }
 
         #endregion
@@ -35,17 +42,22 @@ namespace BeatLeader.Components {
 
         [UIAction("overview-on-click"), UsedImplicitly]
         private void OverviewOnClick() {
-            SelectTab(ScoreInfoPanelTab.Overview);
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Overview;
         }
 
         [UIAction("accuracy-on-click"), UsedImplicitly]
         private void AccuracyOnClick() {
-            SelectTab(ScoreInfoPanelTab.Accuracy);
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Accuracy;
+        }
+
+        [UIAction("grid-on-click"), UsedImplicitly]
+        private void GridOnClick() {
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Grid;
         }
 
         [UIAction("graph-on-click"), UsedImplicitly]
         private void GraphOnClick() {
-            SelectTab(ScoreInfoPanelTab.Graph);
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Graph;
         }
 
         [UIAction("replay-on-click"), UsedImplicitly]

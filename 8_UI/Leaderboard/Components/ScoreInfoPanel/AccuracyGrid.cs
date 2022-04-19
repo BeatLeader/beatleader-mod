@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 using ModestTree;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyGraph.bsml")]
-    internal class AccuracyGraph : ReeUIComponent {
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyGrid.bsml")]
+    internal class AccuracyGrid : ReeUIComponent {
         #region Components
 
         //TODO: Graph?

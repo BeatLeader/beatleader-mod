@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -6,6 +7,14 @@ using UnityEngine;
 namespace BeatLeader.DataManager {
     internal class ScoreStatsManager : MonoBehaviour {
         private Coroutine _scoreStatsTask;
+        
+        private void Start() {
+            LeaderboardEvents.ScoreStatsRequestedEvent += LoadStats;
+        }
+
+        private void OnDestroy() {
+            LeaderboardEvents.ScoreStatsRequestedEvent -= LoadStats;
+        }
 
         private void LoadStats(int scoreId) {
             if (_scoreStatsTask != null) {

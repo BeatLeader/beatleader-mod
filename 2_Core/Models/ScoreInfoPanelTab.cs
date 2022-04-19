@@ -2,6 +2,7 @@
     internal enum ScoreInfoPanelTab {
         Overview,
         Accuracy,
+        Grid,
         Graph
     }
 }

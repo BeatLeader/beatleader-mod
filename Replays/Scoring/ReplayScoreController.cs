@@ -151,7 +151,7 @@ namespace BeatLeader.Replays.Scoring
         }
         public virtual void HandleNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            if (noteCutInfo.noteData.scoringType != NoteData.ScoringType.Ignore && noteController != null)
+            if (noteController != null && noteCutInfo.noteData != null && noteCutInfo.noteData.scoringType != NoteData.ScoringType.Ignore)
             {
                 if (noteCutInfo.allIsOK)
                 {

@@ -80,12 +80,12 @@ namespace BeatLeader.Installers
             gameplayData.SetActive(true);
             #endregion
 
-            Debug.LogWarning(Container.Resolve<AvatarPartsModel>());
             Container.Bind<Replay>().FromInstance(ReplayMenuUI.replay).AsSingle();
             Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MovementManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }

@@ -19,7 +19,7 @@ using Zenject;
 
 namespace BeatLeader
 {
-    internal class ReplayMenuUI
+    internal class ReplayMenuUI //боль и страдания, это временное решение для теста
     {
         protected static NoTransitionsButton _replayButton;
         protected static GameObject _levelWrapContainer;

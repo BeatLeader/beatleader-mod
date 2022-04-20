@@ -55,7 +55,8 @@ namespace BeatLeader.Replays.Movement
         }
         private GameObject CreateFakeHead()
         {
-            GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject head = new GameObject("FakeHead");
             head.name = "ReplayFakeHead";
             head.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             var collider = head.AddComponent<BoxCollider>();

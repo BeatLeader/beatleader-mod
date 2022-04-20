@@ -11,9 +11,9 @@ using Zenject;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class SimpleCutScoringElement : ScoringElement, ICutScoreBufferDidFinishReceiver
+    public class NoteEventCutScoringElement : ScoringElement, ICutScoreBufferDidFinishReceiver
     {
-        public class Pool : Pool<SimpleCutScoringElement> { }
+        public class Pool : Pool<NoteEventCutScoringElement> { }
 
         public override ScoreMultiplierCounter.MultiplierEventType wouldBeCorrectCutBestPossibleMultiplierEventType => _wouldBeCorrectCutBestPossibleMultiplierEventType;
         public override ScoreMultiplierCounter.MultiplierEventType multiplierEventType => _multiplierEventType;
@@ -21,12 +21,12 @@ namespace BeatLeader.Replays.Scoring
         protected ScoreMultiplierCounter.MultiplierEventType _multiplierEventType;
         protected ScoreMultiplierCounter.MultiplierEventType _wouldBeCorrectCutBestPossibleMultiplierEventType;
 
-        protected SimpleCutScoreBuffer _cutScoreBuffer;
+        protected NoteEventCutScoreBuffer _cutScoreBuffer;
         protected override int executionOrder => 100000;
         public IReadonlyCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         public override int cutScore => _cutScoreBuffer.cutScore;
 
-        public virtual void Init(NoteCutInfo noteCutInfo)
+        public virtual void Init(NoteCutInfo noteCutInfo, Replay replay)
         {
             noteData = noteCutInfo.noteData;
             switch (noteData.scoringType)
@@ -49,8 +49,8 @@ namespace BeatLeader.Replays.Scoring
                     break;
             }
 
-            _cutScoreBuffer = new SimpleCutScoreBuffer();
-            if (_cutScoreBuffer.Init(in noteCutInfo))
+            _cutScoreBuffer = new NoteEventCutScoreBuffer();
+            if (_cutScoreBuffer.Init(in noteCutInfo, replay))
             {
                 _cutScoreBuffer.RegisterDidFinishReceiver(this);
                 isFinished = false;

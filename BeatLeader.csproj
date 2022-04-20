@@ -256,8 +256,8 @@
     <Compile Include="Replays\Tools\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="Replays\Tools\SimpleCutScoreEffectSpawner.cs" />
     <Compile Include="Replays\PlaybackController.cs" />
-    <Compile Include="Replays\Scoring\SimpleCutScoreBuffer.cs" />
-    <Compile Include="Replays\Scoring\SimpleCutScoringElement.cs" />
+    <Compile Include="Replays\Scoring\NoteEventCutScoreBuffer.cs" />
+    <Compile Include="Replays\Scoring\NoteEventCutScoringElement.cs" />
     <Compile Include="Replays\Scoring\ReplayScoreController.cs" />
     <Compile Include="Replays\Movement\FakeVRController.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />

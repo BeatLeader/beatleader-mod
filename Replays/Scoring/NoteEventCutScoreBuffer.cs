@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using BeatLeader.Replays;
@@ -7,7 +8,7 @@ using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class SimpleCutScoreBuffer : CutScoreBuffer
+    public class NoteEventCutScoreBuffer : CutScoreBuffer
     {
         #region If using IReadonlyCutScoreBuffer
         /*protected NoteCutInfo _noteCutInfo;
@@ -31,6 +32,7 @@ namespace BeatLeader.Replays.Scoring
         #endregion
 
         protected NoteEvent _noteEvent;
+        protected Replay _replay;
 
         private void Change()
         {
@@ -56,27 +58,29 @@ namespace BeatLeader.Replays.Scoring
         }
         private async void StartNoteEventCalculating(NoteCutInfo noteCutInfo)
         {
-            _noteEvent = await noteCutInfo.noteData.GetNoteEventAsync(ReplayMenuUI.replay);
-            if (_noteEvent != null)
+            _noteEvent = await noteCutInfo.noteData.GetNoteEventAsync(_replay);
+            if (_noteEvent != null && _noteEvent.noteCutInfo != null)
             {
-                RefreshScores();
                 _noteCutInfo = ReplayNoteCutInfo.Parse(_noteEvent.noteCutInfo, noteCutInfo.noteData, noteCutInfo.worldRotation, noteCutInfo.inverseWorldRotation, noteCutInfo.noteRotation, noteCutInfo.notePosition);
+                RefreshScores();
                 Finish();
             }
         }
         public override void RefreshScores()
         {
-            if (_noteEvent != null)
+            if (_noteEvent != null && _noteEvent.noteCutInfo != null)
             {
+                Debug.LogWarning($"before - {_noteEvent.noteCutInfo.beforeCutRating}, after - {_noteEvent.noteCutInfo.afterCutRating}, distance - {_noteEvent.noteCutInfo.cutDistanceToCenter}");
                 _beforeCutScore = (int)Mathf.Clamp((float)Math.Round(70 * _noteEvent.noteCutInfo.beforeCutRating), 0, 70);
                 _afterCutScore = (int)Mathf.Clamp((float)Math.Round(30 * _noteEvent.noteCutInfo.afterCutRating), 0, 30);
                 _centerDistanceCutScore = (int)Math.Round(15 * (1 - Mathf.Clamp(_noteEvent.noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f)));
             }
         }
-        public override bool Init(in NoteCutInfo noteCutInfo)
+        public virtual bool Init(in NoteCutInfo noteCutInfo, Replay replay)
         {
             _initialized = true;
             _noteScoreDefinition = ScoreModel.GetNoteScoreDefinition(noteCutInfo.noteData.scoringType);
+            _replay = replay;
             if (_noteEvent != null)
             {
                 RefreshScores();
@@ -90,6 +94,11 @@ namespace BeatLeader.Replays.Scoring
                 StartNoteEventCalculating(noteCutInfo);
                 return true;
             }
+        }
+        public override bool Init(in NoteCutInfo noteCutInfo)
+        {
+            Debug.LogWarning("Called wrong init!"); //yea, i hate it
+            return false;
         }
     }
 }

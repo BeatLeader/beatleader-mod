@@ -62,9 +62,10 @@ namespace BeatLeader.Installers
         private void InitPlayer()
         {
             if (!ReplayMenuUI.asReplay) return;
+            Container.Bind<Replay>().FromInstance(ReplayMenuUI.replay).AsSingle();
 
             #region ScoreController patch
-            Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
+            Container.BindMemoryPool<NoteEventCutScoringElement, NoteEventCutScoringElement.Pool>().WithInitialSize(30);
 
             var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
             var gameplayData = scoreController.gameObject;
@@ -80,7 +81,6 @@ namespace BeatLeader.Installers
             gameplayData.SetActive(true);
             #endregion
 
-            Container.Bind<Replay>().FromInstance(ReplayMenuUI.replay).AsSingle();
             Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

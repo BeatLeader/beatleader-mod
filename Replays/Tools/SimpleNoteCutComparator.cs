@@ -33,7 +33,10 @@ namespace BeatLeader.Replays.Tools
         {
             if (timeSyncController != null && timeSyncController.songTime >= cutTime && availableForCut)
             {
-                noteCutter.Cut(ReplayNoteCutInfo.Parse(noteCutEvent.noteCutInfo, noteController));
+                if (noteCutEvent != null && noteCutEvent.noteCutInfo != null)
+                {
+                    noteCutter.Cut(ReplayNoteCutInfo.Parse(noteCutEvent.noteCutInfo, noteController));
+                }
                 HandleNoteControllerNoteWasCut();
             }
         }

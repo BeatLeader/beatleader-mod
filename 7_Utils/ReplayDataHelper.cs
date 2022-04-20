@@ -136,6 +136,11 @@ namespace BeatLeader.Utils
         #endregion
 
         #region Replaying
+        public static async Task<NoteEvent> GetNoteEventAsync(this NoteController noteController, Replay replay)
+        {
+            var noteEvent = await Task.Run(() => GetNoteEventByID(noteController.noteData.ComputeNoteID(), noteController.noteData.time, replay));
+            return noteEvent;
+        }
         public static async Task<NoteEvent> GetNoteEventAsync(this NoteData noteData, Replay replay)
         {
             var noteEvent = await Task.Run(() => GetNoteEventByID(noteData.ComputeNoteID(), noteData.time, replay));

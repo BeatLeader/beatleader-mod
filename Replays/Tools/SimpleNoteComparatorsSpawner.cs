@@ -24,10 +24,10 @@ namespace BeatLeader.Replays.Tools
         {
             _beatmapObjectManager.noteWasSpawnedEvent -= AddNoteComparator;
         }
-        private void AddNoteComparator(NoteController controller)
+        private async void AddNoteComparator(NoteController controller)
         {
-            NoteEvent noteCutEvent = controller.GetNoteEvent(_replay);
-            if (noteCutEvent != null && noteCutEvent.eventType != NoteEventType.miss)
+            NoteEvent noteCutEvent = await controller.GetNoteEventAsync(_replay);
+            if (noteCutEvent != null && noteCutEvent.eventType != NoteEventType.miss && noteCutEvent.noteCutInfo != null)
             {
                 SimpleNoteCutComparator comparator = controller.gameObject.AddComponent<SimpleNoteCutComparator>();
                 comparator.timeSyncController = _songSyncController;

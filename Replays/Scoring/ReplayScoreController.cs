@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Replays.Tools;
+using BeatLeader.Models;
 using BeatLeader.Replays.Scoring;
 using BeatLeader.Utils;
 
@@ -11,13 +12,14 @@ namespace BeatLeader.Replays.Scoring
 {
     public class ReplayScoreController : MonoBehaviour, IScoreController
     {
+        [Inject] protected readonly Replay _replay;
         [Inject] protected readonly GameplayModifiers _gameplayModifiers;
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly IGameEnergyCounter _gameEnergyCounter;
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] protected readonly BadCutScoringElement.Pool _badCutScoringElementPool;
         [Inject] protected readonly MissScoringElement.Pool _missScoringElementPool;
-        [Inject] protected readonly SimpleCutScoringElement.Pool _replayCutScoringElementPool;
+        [Inject] protected readonly NoteEventCutScoringElement.Pool _replayCutScoringElementPool;
         [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
         protected GameplayModifiersModelSO _gameplayModifiersModel;
         protected List<GameplayModifierParamsSO> _gameplayModifierParams;
@@ -30,7 +32,7 @@ namespace BeatLeader.Replays.Scoring
         protected readonly List<ScoringElement> _scoringElementsToRemove = new List<ScoringElement>(50);
 
         public int multipliedScore => _multipliedScore;
-        public int modifiedScore => _modifiedScore; 
+        public int modifiedScore => _modifiedScore;
         public int immediateMaxPossibleMultipliedScore => _immediateMaxPossibleMultipliedScore;
         public int immediateMaxPossibleModifiedScore => _immediateMaxPossibleModifiedScore;
 
@@ -151,16 +153,17 @@ namespace BeatLeader.Replays.Scoring
         }
         public virtual void HandleNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            if (noteController != null && noteCutInfo.noteData != null && noteCutInfo.noteData.scoringType != NoteData.ScoringType.Ignore)
+            noteController.GetComponent<SimpleNoteCutComparator>()?.HandleNoteControllerNoteWasCut();
+            if (noteCutInfo.noteData.scoringType != NoteData.ScoringType.Ignore)
             {
                 if (noteCutInfo.allIsOK)
                 {
-                    SimpleCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
-                    replayCutScoringElement.Init(noteCutInfo);
+                    NoteEventCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
+                    replayCutScoringElement.Init(noteCutInfo, _replay);
                     ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, replayCutScoringElement);
                     scoringForNoteStartedEvent?.Invoke(replayCutScoringElement);
-                    noteController.GetComponent<SimpleNoteCutComparator>().HandleNoteControllerNoteWasCut();
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
+
                 }
                 else
                 {
@@ -195,10 +198,10 @@ namespace BeatLeader.Replays.Scoring
         {
             if (scoringElement != null)
             {
-                SimpleCutScoringElement replayCutScoringElement;
-                if ((replayCutScoringElement = (scoringElement as SimpleCutScoringElement)) != null)
+                NoteEventCutScoringElement replayCutScoringElement;
+                if ((replayCutScoringElement = (scoringElement as NoteEventCutScoringElement)) != null)
                 {
-                    SimpleCutScoringElement item = replayCutScoringElement;
+                    NoteEventCutScoringElement item = replayCutScoringElement;
                     _replayCutScoringElementPool.Despawn(item);
                     return;
                 }

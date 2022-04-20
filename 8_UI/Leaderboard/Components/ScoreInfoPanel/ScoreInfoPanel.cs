@@ -72,11 +72,11 @@ namespace BeatLeader.Components {
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
             _accuracyGraph.SetActive(false);
-            _scoreStatsLoadingScreen.SetActive(false);
             
             switch (LeaderboardState.ScoreInfoPanelTab) {
                 case ScoreInfoPanelTab.Overview:
                     _scoreOverview.SetActive(true);
+                    _scoreStatsLoadingScreen.SetActive(false);
                     break;
                 case ScoreInfoPanelTab.Accuracy:
                     _accuracyDetails.SetActive(!_showLoadingScreen);
@@ -103,6 +103,7 @@ namespace BeatLeader.Components {
 
         private void SetScoreStats(ScoreStats scoreStats) {
             _accuracyDetails.SetScoreStats(scoreStats);
+            _accuracyGrid.SetScoreStats(scoreStats);
             _showLoadingScreen = false;
             UpdateVisibility();
         }

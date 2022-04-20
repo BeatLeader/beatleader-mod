@@ -2,7 +2,7 @@
     <macro.define name="circle-size" value="12"/>
     <macro.define name="font-size" value="3"/>
     
-    <vertical pad="2" spacing="1" bg="round-rect-panel" bg-color="#00000055">
+    <vertical pad="2" spacing="1" bg="round-rect-panel" bg-color="#00000088">
         <horizontal pref-height="~circle-size" pad-bottom="1" spacing="1" horizontal-fit="PreferredSize">
             <vertical pad-left="1" pad-right="1" bg="round-rect-panel">
                 <text text="~left-pre-score" font-size="~font-size" align="Center"/>

@@ -38,22 +38,22 @@ namespace BeatLeader {
         #region Notify
 
         public void NotifyStarted() {
-            StartedEvent?.Invoke();
             State = RequestState.Started;
+            StartedEvent?.Invoke();
         }
 
         public void NotifyFailed(string reason) {
             Result = default;
             FailReason = reason;
-            FailedEvent?.Invoke(reason);
             State = RequestState.Failed;
+            FailedEvent?.Invoke(reason);
         }
 
         public void NotifyFinished(T result) {
             Result = result;
             FailReason = "";
-            FinishedEvent?.Invoke(result);
             State = RequestState.Finished;
+            FinishedEvent?.Invoke(result);
         }
 
         public void TryNotifyCancelled() {

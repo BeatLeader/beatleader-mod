@@ -1,5 +1,24 @@
 <horizontal active="~active" pref-height="30">
-    <vertical pref-width="60" pad="2" bg="round-rect-panel">
-        <text text="Grid" align="Center"/>
+    <vertical pad="2" spacing="1" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#00000088">
+        <!--  TOP LINE LAYER  -->
+        <horizontal spacing="1" horizontal-fit="PreferredSize">
+            <macro.for-each items="top-layer-cells">
+                <macro.reparent transform="root"/>
+            </macro.for-each>
+        </horizontal>
+
+        <!--  UPPER LINE LAYER  -->
+        <horizontal spacing="1" horizontal-fit="PreferredSize">
+            <macro.for-each items="upper-layer-cells">
+                <macro.reparent transform="root"/>
+            </macro.for-each>
+        </horizontal>
+
+        <!--  BASE LINE LAYER  -->
+        <horizontal spacing="1" horizontal-fit="PreferredSize">
+            <macro.for-each items="base-layer-cells">
+                <macro.reparent transform="root"/>
+            </macro.for-each>
+        </horizontal>
     </vertical>
 </horizontal>

@@ -62,7 +62,7 @@ namespace BeatLeader.Components {
         }
 
         private static string FormatSwingPercentage(float value) {
-            return $"{value * 100f:F2}<size=70%>%";
+            return $"{value * 100f:F2}<size=60%>%";
         }
 
         #endregion

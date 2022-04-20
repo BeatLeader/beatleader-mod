@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using BeatLeader.Utils;
 using BeatLeader.Models;
-using BeatLeader.Replays.Emulators;
+using BeatLeader.Replays.Movement;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Tags;
 using BeatLeader.Replays;
@@ -24,7 +24,7 @@ namespace BeatLeader
         protected static NoTransitionsButton _replayButton;
         protected static GameObject _levelWrapContainer;
         protected static UnityEvent _actionButtonEvent;
-        protected static FakePlayer _player;
+        protected static Replayer _player;
 
         protected static Replay _replay;
         protected static IDifficultyBeatmap _beatmapDifficulty;
@@ -40,11 +40,15 @@ namespace BeatLeader
         {
             get => _actionButtonEvent = _actionButtonEvent == null ? Resources.FindObjectsOfTypeAll<NoTransitionsButton>().First(x => x.name == "ActionButton").onClick : _actionButtonEvent;
         }
-        public static FakePlayer player => _player;
+        public static Replayer player => _player;
         public static Replay replay => _replay;
         public static bool asReplay => _asReplay;
         public static bool isPatched => _isPatched;
 
+        public static void Refresh(IDifficultyBeatmap difficulty)
+        {
+            CheckIsReplayExists(difficulty);
+        }
         public static void PatchUI()
         {
             if (_isPatched) return;
@@ -65,12 +69,16 @@ namespace BeatLeader
             ActionButtonEvent.Invoke();
         }
         private static void SetButtonState(bool state) => _replayButton.interactable = state;
-        public static Task CheckIsReplayExists(IDifficultyBeatmap beatmap)
+        public static async void CheckIsReplayExists(IDifficultyBeatmap beatmap)
         {
             _asReplay = false;
             SetButtonState(false);
-            if (ReplayDataHelper.TryGetReplayBySongInfo(beatmap, out Replay replay, ReplayDataHelper.Result.Completed, ReplayDataHelper.Score.Best))
+            Debug.LogWarning("Finding...");
+            List<Replay> replays = await Task.Run(() => ReplayDataHelper.TryGetReplaysBySongInfoAsync(beatmap));
+            Debug.LogWarning("Complete");
+            if (replays != null)
             {
+                var replay = replays.GetReplayWithScore(ReplayDataHelper.Score.Best);
                 Plugin.Log.Notice($"Preloaded replay: {replay.info.songName}/{replay.info.difficulty}/{replay.info.mode} | {replay.info.score}/{replay.info.failTime}");
                 SetButtonState(true);
                 _replay = replay;
@@ -80,9 +88,7 @@ namespace BeatLeader
             {
                 _replay = null;
             }
-            return Task.CompletedTask;
         }
         public static void NotifyReplayEnded() => _asReplay = false;
-        public static void SetPlayer(FakePlayer player) => _player = player;
     }
 }

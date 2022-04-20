@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatLeader.Replays.Emulators;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replays.Movement
 {
     public class MovementManager : MonoBehaviour
     {

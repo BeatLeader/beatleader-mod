@@ -10,7 +10,6 @@ using UnityEngine;
 using Zenject;
 using IPA.Utilities;
 using BeatLeader.Utils;
-using BeatLeader.Replays.Emulators;
 using BeatLeader.Models;
 using BeatLeader.Replays;
 using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
@@ -21,9 +20,9 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Transform = UnityEngine.Transform;
 
-namespace BeatLeader.Replays.Emulators
+namespace BeatLeader.Replays.Movement
 {
-    public class FakePlayer : MonoBehaviour
+    public class Replayer : MonoBehaviour
     {
         [Inject] protected readonly IScoreController _controller;
         [Inject] protected readonly AudioTimeSyncController _songSyncController;

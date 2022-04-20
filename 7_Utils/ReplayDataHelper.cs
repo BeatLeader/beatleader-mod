@@ -239,85 +239,101 @@ namespace BeatLeader.Utils
             }
             return replayModifiers;
         }
-        public static bool TryGetReplayBySongInfo(IDifficultyBeatmap data, out Replay replay, Result replayResult = Result.NA, Score replayScore = Score.NA)
+        public static Replay GetReplayWithScore(this List<Replay> replays, Score score)
         {
-            return TryGetReplayBySongInfo(data.level.songName, data.difficulty.ToString(), data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName, out replay, replayResult, replayScore);
-        }
-        public static bool TryGetReplayBySongInfo(string name, string difficulty, string mode, out Replay replay, Result replayResult = Result.NA, Score replayScore = Score.NA)
-        {
-            string[] replaysPaths = FileManager.GetAllReplaysPaths();
-            List<Replay> matchedReplays = new List<Replay>();
-            List<int> cellsToRemove = new List<int>();
-            replay = null;
-
-            foreach (var path in replaysPaths)
-            {
-                Replay extractedReplay = FileManager.ReadReplay(path);
-                if (extractedReplay.info.songName == name && extractedReplay.info.difficulty == difficulty && extractedReplay.info.mode == mode)
-                {
-                    matchedReplays.Add(extractedReplay);
-                }
-            }
-            if (matchedReplays.Count == 0) return false;
-            switch (replayResult)
-            {
-                case Result.Completed:
-                    for (int i = 0; i < matchedReplays.Count; i++)
-                    {
-                        if (matchedReplays[i].info.failTime != 0)
-                        {
-                            cellsToRemove.Add(i);
-                        }
-                    }
-                    break;
-                case Result.Failed:
-                    for (int i = 0; i < matchedReplays.Count; i++)
-                    {
-                        if (matchedReplays[i].info.failTime == 0)
-                        {
-                            cellsToRemove.Add(i);
-                        }
-                    }
-                    break;
-            }
-
-            foreach (int index in cellsToRemove)
-            {
-                matchedReplays.RemoveAt(index);
-            }
-            cellsToRemove.Clear();
-            if (matchedReplays.Count == 0) return false;
-
             int scoreIndex = -1;
-            switch (replayScore)
+            switch (score)
             {
                 case Score.Best:
                     float bestScore = 0;
-                    for (int i = 0; i < matchedReplays.Count; i++)
+                    for (int i = 0; i < replays.Count; i++)
                     {
-                        if (matchedReplays[i].info.score > bestScore)
+                        if (replays[i].info.score > bestScore)
                         {
-                            bestScore = matchedReplays[i].info.score;
+                            bestScore = replays[i].info.score;
                             scoreIndex = i;
                         }
                     }
                     break;
                 case Score.Lowest:
                     float lowestScore = float.MaxValue;
-                    for (int i = 0; i < matchedReplays.Count; i++)
+                    for (int i = 0; i < replays.Count; i++)
                     {
-                        if (matchedReplays[i].info.score < lowestScore)
+                        if (replays[i].info.score < lowestScore)
                         {
-                            lowestScore = matchedReplays[i].info.score;
+                            lowestScore = replays[i].info.score;
                             scoreIndex = i;
                         }
                     }
                     break;
             }
-            if (matchedReplays.Count == 0) return false;
+            if (replays.Count == 0) return null;
+            return scoreIndex != -1 ? replays[scoreIndex] : replays[0];
+        }
+        public static bool TryGetReplaysBySongInfo(this IDifficultyBeatmap data, out List<Replay> replays)
+        {
+            bool condition = TryGetReplays(out List<Replay> replays2, (Replay replay) => replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
+            if (condition)
+            {
+                replays = replays2;
+                return true;
+            }
+            else
+            {
+                replays = null;
+                return false;
+            }
+        }
+        public static async Task<List<Replay>> TryGetReplaysBySongInfoAsync(this IDifficultyBeatmap data)
+        {
+            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
+            if (replays != null)
+            {
+                return replays;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static bool TryGetReplays(out List<Replay> replays, Func<Replay, bool> filter)
+        {
+            string[] replaysPaths = FileManager.GetAllReplaysPaths();
+            replays = new List<Replay>();
 
-            replay = scoreIndex != -1 ? matchedReplays[scoreIndex] : matchedReplays[0];
-            return true;
+            foreach (var path in replaysPaths)
+            {
+                Replay extractedReplay = FileManager.ReadReplay(path);
+                if (filter(extractedReplay))
+                {
+                    replays.Add(extractedReplay);
+                }
+            }
+            if (replays.Count <= 0)
+            {
+                return false;
+            }
+            else return true;
+        }
+        public static async Task<List<Replay>> TryGetReplaysAsync(Func<Replay, bool> filter)
+        {
+            string[] replaysPaths = await Task.Run(() => FileManager.GetAllReplaysPaths());
+            List<Replay> replays = new List<Replay>();
+
+            foreach (var path in replaysPaths)
+            {
+                Replay extractedReplay = await Task.Run(() => FileManager.ReadReplay(path));
+                if (filter(extractedReplay))
+                {
+
+                    replays.Add(extractedReplay);
+                }
+            }
+            if (replays.Count > 0)
+            {
+                return replays;
+            }
+            else return null;
         }
         #endregion
 

@@ -246,14 +246,14 @@
     <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUtils.cs" />
     <Compile Include="8_UI\ReeUIComponent.cs" />
-    <Compile Include="2_Core\Managers\DataManager\ReplayDataManager.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Replays\MenuSabersManager.cs" />
     <Compile Include="Replays\Movement\MovementManager.cs" />
-    <Compile Include="Replays\Tools\NoteComparatorsHandler.cs" />
+    <Compile Include="Replays\Tools\SimpleAvatarController.cs" />
+    <Compile Include="Replays\Tools\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="Replays\Tools\SimpleCutScoreEffectSpawner.cs" />
     <Compile Include="Replays\PlaybackController.cs" />
     <Compile Include="Replays\Scoring\SimpleCutScoreBuffer.cs" />
@@ -263,7 +263,7 @@
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="Replays\EventsHandler.cs" />
     <Compile Include="Replays\ReplayMenuUI.cs" />
-    <Compile Include="Replays\Movement\FakePlayer.cs" />
+    <Compile Include="Replays\Movement\Replayer.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutComparator.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutter.cs" />
   </ItemGroup>

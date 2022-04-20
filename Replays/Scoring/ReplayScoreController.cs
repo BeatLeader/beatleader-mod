@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Replays.Tools;
 using BeatLeader.Replays.Scoring;
 using BeatLeader.Utils;
 

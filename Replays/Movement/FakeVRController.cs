@@ -5,7 +5,7 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Transform = UnityEngine.Transform;
 
-namespace BeatLeader.Replays.Emulators
+namespace BeatLeader.Replays.Movement
 {
     public class FakeVRController : VRController
     {

@@ -8,9 +8,9 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replays.Tools
 {
-    public class NoteComparatorsHandler : MonoBehaviour
+    public class SimpleNoteComparatorsSpawner : MonoBehaviour
     {
         [Inject] private protected BeatmapObjectManager _beatmapObjectManager;
         [Inject] private protected AudioTimeSyncController _songSyncController;

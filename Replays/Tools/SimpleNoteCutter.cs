@@ -5,7 +5,7 @@ using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replays.Tools
 {
     public class SimpleNoteCutter : MonoBehaviour
     {

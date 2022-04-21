@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IPA.Utilities;
-using BeatLeader.Replays.Tools;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -12,7 +11,7 @@ using Zenject;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class NoteEventCutScoringElement : ScoringElement
+    public class NoteEventCutScoringElement : ScoringElement, ICutScoreBufferDidFinishReceiver
     {
         public class Pool : Pool<NoteEventCutScoringElement> { }
 
@@ -23,11 +22,11 @@ namespace BeatLeader.Replays.Scoring
         protected ScoreMultiplierCounter.MultiplierEventType _wouldBeCorrectCutBestPossibleMultiplierEventType;
 
         protected NoteEventCutScoreBuffer _cutScoreBuffer;
-        protected override int executionOrder => _cutScoreBuffer.noteScoreDefinition.executionOrder;
+        protected override int executionOrder => 100000;
         public IReadonlyCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         public override int cutScore => _cutScoreBuffer.cutScore;
 
-        public virtual void Init(in NoteCutInfo noteCutInfo, NoteEvent noteEvent)
+        public virtual void Init(NoteCutInfo noteCutInfo, Replay replay)
         {
             noteData = noteCutInfo.noteData;
             switch (noteData.scoringType)
@@ -51,10 +50,20 @@ namespace BeatLeader.Replays.Scoring
             }
 
             _cutScoreBuffer = new NoteEventCutScoreBuffer();
-            if (!_cutScoreBuffer.Init(in noteCutInfo, noteEvent))
+            if (_cutScoreBuffer.Init(in noteCutInfo, replay))
+            {
+                _cutScoreBuffer.RegisterDidFinishReceiver(this);
+                isFinished = false;
+            }
+            else
             {
                 isFinished = true;
             }
+        }
+        public virtual void HandleCutScoreBufferDidFinish(CutScoreBuffer cutScoreBuffer)
+        {
+            isFinished = true;
+            _cutScoreBuffer.UnregisterDidFinishReceiver(this);
         }
     }
 }

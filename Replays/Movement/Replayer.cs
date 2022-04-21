@@ -46,41 +46,17 @@ namespace BeatLeader.Replays.Movement
         public void Update()
         {
             if (!isPlaying) return;
-
-            int i = _replay.GetFrameByTime(_songSyncController.songTime, out Frame frame);
-            Frame nextFrame = _replay.frames[_replay.frames.Count > i ? i + 1 : i];
-            PlayFrame(frame, true, nextFrame);
+            PlayFrame(_replay.GetFrameByTime(_songSyncController.songTime));
         }
-        private void PlayFrame(Frame frame, bool lerp = false, Frame nextFrame = null)
+        private void PlayFrame(Frame frame)
         {
             if (frame == null | frame == previousFrame) return;
 
-            if (lerp && nextFrame != null && previousFrame != null)
-            {
-                float slerp = ComputeLerp(frame, nextFrame);
-                leftHand.SetTransform(LerpVector(previousFrame.leftHand.position, frame.leftHand.position, slerp), 
-                    LerpQuaternion(previousFrame.leftHand.rotation, frame.leftHand.rotation, slerp));
-                rightHand.SetTransform(LerpVector(previousFrame.rightHand.position, frame.rightHand.position, slerp),
-                    LerpQuaternion(previousFrame.rightHand.rotation, frame.rightHand.rotation, slerp));
-                head.SetTransform(LerpVector(previousFrame.head.position, frame.head.position, slerp),
-                    LerpQuaternion(previousFrame.head.rotation, frame.head.rotation, slerp));
-            }
-            else
-            {
-                leftHand.SetTransform(frame.leftHand);
-                rightHand.SetTransform(frame.rightHand);
-                head.SetTransform(frame.head);
-            }
+            leftHand.SetTransform(frame.leftHand);
+            rightHand.SetTransform(frame.rightHand);
+            head.SetTransform(frame.head);
 
             previousFrame = frame;
-        }
-        private Quaternion LerpQuaternion(Quaternion a, Quaternion b, float c)
-        {
-            return new Quaternion(Mathf.Lerp(a.x, b.x, c), Mathf.Lerp(a.y, b.y, c), Mathf.Lerp(a.z, b.z, c), Mathf.Lerp(a.w, b.w, c));
-        }
-        private Vector3 LerpVector(Vector3 a, Vector3 b, float c)
-        {
-            return new Vector3(Mathf.Lerp(a.x, b.x, c), Mathf.Lerp(a.y, b.y, c), Mathf.Lerp(a.z, b.z, c));
         }
         private float ComputeLerp(Frame current, Frame next)
         {

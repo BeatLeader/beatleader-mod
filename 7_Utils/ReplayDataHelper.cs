@@ -146,38 +146,6 @@ namespace BeatLeader.Utils
             var noteEvent = await Task.Run(() => GetNoteEventByID(noteData.ComputeNoteID(), noteData.time, replay));
             return noteEvent;
         }
-        public static async Task<List<Replay>> TryGetReplaysBySongInfoAsync(this IDifficultyBeatmap data)
-        {
-            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
-            if (replays != null)
-            {
-                return replays;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        public static async Task<List<Replay>> TryGetReplaysAsync(Func<Replay, bool> filter)
-        {
-            string[] replaysPaths = await Task.Run(() => FileManager.GetAllReplaysPaths());
-            List<Replay> replays = new List<Replay>();
-
-            foreach (var path in replaysPaths)
-            {
-                Replay extractedReplay = await Task.Run(() => FileManager.ReadReplay(path));
-                if (filter(extractedReplay))
-                {
-
-                    replays.Add(extractedReplay);
-                }
-            }
-            if (replays.Count > 0)
-            {
-                return replays;
-            }
-            else return null;
-        }
         public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
         {
             return GetNoteEventByID(noteData.ComputeNoteID(), noteData.time, replay);
@@ -206,19 +174,6 @@ namespace BeatLeader.Utils
                     noteController.noteTransform.localRotation, noteController.noteTransform.position);
             }
             return default;
-        }
-        public static int GetFrameByTime(this Replay replay, float time, out Frame frame)
-        {
-            for (int i = 0; i < replay.frames.Count; i++)
-            {
-                frame = replay.frames[i];
-                if (frame.time >= time && frame != null)
-                {
-                    return i;
-                }
-            }
-            frame = null;
-            return 0;
         }
         public static Frame GetFrameByTime(this Replay replay, float time)
         {
@@ -334,6 +289,18 @@ namespace BeatLeader.Utils
                 return false;
             }
         }
+        public static async Task<List<Replay>> TryGetReplaysBySongInfoAsync(this IDifficultyBeatmap data)
+        {
+            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
+            if (replays != null)
+            {
+                return replays;
+            }
+            else
+            {
+                return null;
+            }
+        }
         public static bool TryGetReplays(out List<Replay> replays, Func<Replay, bool> filter)
         {
             string[] replaysPaths = FileManager.GetAllReplaysPaths();
@@ -352,6 +319,26 @@ namespace BeatLeader.Utils
                 return false;
             }
             else return true;
+        }
+        public static async Task<List<Replay>> TryGetReplaysAsync(Func<Replay, bool> filter)
+        {
+            string[] replaysPaths = await Task.Run(() => FileManager.GetAllReplaysPaths());
+            List<Replay> replays = new List<Replay>();
+
+            foreach (var path in replaysPaths)
+            {
+                Replay extractedReplay = await Task.Run(() => FileManager.ReadReplay(path));
+                if (filter(extractedReplay))
+                {
+
+                    replays.Add(extractedReplay);
+                }
+            }
+            if (replays.Count > 0)
+            {
+                return replays;
+            }
+            else return null;
         }
         #endregion
 

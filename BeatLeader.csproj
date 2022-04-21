@@ -215,6 +215,11 @@
     <Compile Include="2_Core\Models\Score.cs" />
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
+    <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
+    <Compile Include="3_AssetBundle\AccuracyGraph\GraphMeshHelper.cs" />
+    <Compile Include="3_AssetBundle\AccuracyGraph\GraphPoint.cs" />
+    <Compile Include="3_AssetBundle\AccuracyGraph\GraphSpline.cs" />
+    <Compile Include="3_AssetBundle\AccuracyGraph\GraphSplineSegment.cs" />
     <Compile Include="3_AssetBundle\BundleLoader.cs" />
     <Compile Include="3_AssetBundle\MonkeySpinner.cs" />
     <Compile Include="7_Utils\BLConstants.cs" />
@@ -227,8 +232,10 @@
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
+    <Compile Include="7_Utils\UtilityClasses\CyclicBuffer.cs" />
     <Compile Include="7_Utils\UtilityClasses\GifLoader.cs" />
     <Compile Include="7_Utils\UtilityClasses\RequestStateHandler.cs" />
+    <Compile Include="7_Utils\UtilityClasses\ScreenViewTransform.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ContextSelector.cs" />
@@ -239,7 +246,7 @@
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowDivider.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoresTable.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyDetails.cs" />
-    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGraph.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGraphPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGrid.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGridCell.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanel.cs" />

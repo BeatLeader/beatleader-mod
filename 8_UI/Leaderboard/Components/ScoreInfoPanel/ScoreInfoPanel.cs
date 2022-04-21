@@ -25,7 +25,7 @@ namespace BeatLeader.Components {
         private AccuracyGrid _accuracyGrid = Instantiate<AccuracyGrid>();
 
         [UIValue("accuracy-graph"), UsedImplicitly]
-        private AccuracyGraph _accuracyGraph = Instantiate<AccuracyGraph>();
+        private AccuracyGraphPanel _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>();
 
         [UIValue("controls"), UsedImplicitly]
         private ScoreInfoPanelControls _controls = Instantiate<ScoreInfoPanelControls>();
@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
             _scoreOverview.SetActive(false);
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
-            _accuracyGraph.SetActive(false);
+            _accuracyGraphPanel.SetActive(false);
             
             switch (LeaderboardState.ScoreInfoPanelTab) {
                 case ScoreInfoPanelTab.Overview:
@@ -87,7 +87,7 @@ namespace BeatLeader.Components {
                     _scoreStatsLoadingScreen.SetActive(_showLoadingScreen);
                     break;
                 case ScoreInfoPanelTab.Graph:
-                    _accuracyGraph.SetActive(!_showLoadingScreen);
+                    _accuracyGraphPanel.SetActive(!_showLoadingScreen);
                     _scoreStatsLoadingScreen.SetActive(_showLoadingScreen);
                     break;
                 default: throw new ArgumentOutOfRangeException();
@@ -104,6 +104,7 @@ namespace BeatLeader.Components {
         private void SetScoreStats(ScoreStats scoreStats) {
             _accuracyDetails.SetScoreStats(scoreStats);
             _accuracyGrid.SetScoreStats(scoreStats);
+            _accuracyGraphPanel.SetScoreStats(scoreStats);
             _showLoadingScreen = false;
             UpdateVisibility();
         }
@@ -115,7 +116,7 @@ namespace BeatLeader.Components {
             _scoreOverview.SetScore(score);
             _accuracyDetails.Clear();
             _accuracyGrid.Clear();
-            _accuracyGraph.Clear();
+            _accuracyGraphPanel.Clear();
             _controls.SetScore(score);
             UpdateVisibility();
         }

@@ -30,6 +30,7 @@ namespace BeatLeader {
         #region Assets
 
         public static GameObject MonkeyPrefab;
+        public static GameObject AccuracyGraphPrefab;
         public static Material LogoMaterial;
         public static Material PlayerAvatarMaterial;
         public static Material UIAdditiveGlowMaterial;
@@ -60,6 +61,7 @@ namespace BeatLeader {
 
         private static void LoadAssets(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
+            AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
 
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
             PlayerAvatarMaterial = assetBundle.LoadAsset<Material>("PlayerAvatarMaterial");

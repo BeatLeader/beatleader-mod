@@ -28,7 +28,7 @@ namespace BeatLeader.Installers
             typeof(PrepareLevelCompletionResults),
             typeof(MultiplayerLocalActiveClient),
             typeof(ScoreMultiplierUIController),
-            //typeof(NoteCutScoreSpawner),
+            typeof(NoteCutScoreSpawner),
             typeof(BeatmapObjectExecutionRatingsRecorder),
             typeof(VRsenalScoreLogger),
         };
@@ -63,6 +63,7 @@ namespace BeatLeader.Installers
         {
             if (!ReplayMenuUI.asReplay) return;
             Container.Bind<Replay>().FromInstance(ReplayMenuUI.replay).AsSingle();
+            Container.Bind<SimpleScoringInterlayer>().AsSingle();
 
             #region ScoreController patch
             Container.BindMemoryPool<NoteEventCutScoringElement, NoteEventCutScoringElement.Pool>().WithInitialSize(30);
@@ -83,7 +84,7 @@ namespace BeatLeader.Installers
 
             Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            //Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MovementManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

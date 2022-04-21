@@ -266,6 +266,7 @@
     <Compile Include="Replays\Movement\Replayer.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutComparator.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutter.cs" />
+    <Compile Include="Replays\Tools\SimpleScoringInterlayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="9_Resources\BSML\Components\ContextSelector.bsml" />

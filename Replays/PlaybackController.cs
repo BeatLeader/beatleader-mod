@@ -12,7 +12,7 @@ namespace BeatLeader.Replays
 {
     public class PlaybackController : MonoBehaviour
     {
-        [Inject] protected readonly SimpleCutScoreEffectSpawner _cutScoreEffectSpawner;
+        //[Inject] protected readonly SimpleCutScoreEffectSpawner _cutScoreEffectSpawner;
         [Inject] protected readonly SimpleNoteComparatorsSpawner _noteComparatorsHandler;
         [Inject] protected readonly MenuSabersManager _menuSabersManager;
         [Inject] protected readonly Replayer _replayer;

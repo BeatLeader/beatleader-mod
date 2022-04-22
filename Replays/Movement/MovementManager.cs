@@ -11,6 +11,7 @@ namespace BeatLeader.Replays.Movement
 {
     public class MovementManager : MonoBehaviour
     {
+        [Inject] protected readonly ReplayManualInstaller.InitData _initData;
         [Inject] protected readonly PlayerTransforms _playerTransforms;
 
         private FakeVRController _leftHand;
@@ -23,12 +24,13 @@ namespace BeatLeader.Replays.Movement
 
         public void Start()
         {
-            CreateAndHandleFakeBody();
-        }
-        public void CreateAndHandleFakeBody()
-        {
             _playerTransforms.SetField("_headTransform", CreateFakeHead().transform);
             PatchOriginalSabers();
+            if (_initData.noteSyncMode)
+            {
+                Destroy(_leftHand.GetComponentInChildren<BoxCollider>());
+                Destroy(_rightHand.GetComponentInChildren<BoxCollider>());
+            }
         }
         private void PatchOriginalSabers()
         {
@@ -55,8 +57,8 @@ namespace BeatLeader.Replays.Movement
         }
         private GameObject CreateFakeHead()
         {
-            //GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            GameObject head = new GameObject("FakeHead");
+            GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //GameObject head = new GameObject("FakeHead");
             head.name = "ReplayFakeHead";
             head.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             var collider = head.AddComponent<BoxCollider>();

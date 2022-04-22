@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IPA.Utilities;
+using BeatLeader.Replays.Interfaces;
+using BeatLeader.Replays.Tools;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -11,9 +13,9 @@ using Zenject;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class NoteEventCutScoringElement : ScoringElement, ICutScoreBufferDidFinishReceiver
+    public class SimpleCutScoringElement : ScoringElement
     {
-        public class Pool : Pool<NoteEventCutScoringElement> { }
+        public class Pool : Pool<SimpleCutScoringElement> { }
 
         public override ScoreMultiplierCounter.MultiplierEventType wouldBeCorrectCutBestPossibleMultiplierEventType => _wouldBeCorrectCutBestPossibleMultiplierEventType;
         public override ScoreMultiplierCounter.MultiplierEventType multiplierEventType => _multiplierEventType;
@@ -21,14 +23,14 @@ namespace BeatLeader.Replays.Scoring
         protected ScoreMultiplierCounter.MultiplierEventType _multiplierEventType;
         protected ScoreMultiplierCounter.MultiplierEventType _wouldBeCorrectCutBestPossibleMultiplierEventType;
 
-        protected NoteEventCutScoreBuffer _cutScoreBuffer;
-        protected override int executionOrder => 100000;
+        protected SimpleCutScoreBufferWithComparator _cutScoreBuffer;
+        protected override int executionOrder => cutScoreBuffer.noteScoreDefinition.executionOrder;
         public IReadonlyCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         public override int cutScore => _cutScoreBuffer.cutScore;
 
-        public virtual void Init(NoteCutInfo noteCutInfo, Replay replay)
+        public virtual void Init(SimpleNoteCutComparator comparator)
         {
-            noteData = noteCutInfo.noteData;
+            noteData = comparator.noteController.noteData;
             switch (noteData.scoringType)
             {
                 case NoteData.ScoringType.Ignore:
@@ -49,21 +51,9 @@ namespace BeatLeader.Replays.Scoring
                     break;
             }
 
-            _cutScoreBuffer = new NoteEventCutScoreBuffer();
-            if (_cutScoreBuffer.Init(in noteCutInfo, replay))
-            {
-                _cutScoreBuffer.RegisterDidFinishReceiver(this);
-                isFinished = false;
-            }
-            else
-            {
-                isFinished = true;
-            }
-        }
-        public virtual void HandleCutScoreBufferDidFinish(CutScoreBuffer cutScoreBuffer)
-        {
+            _cutScoreBuffer = new SimpleCutScoreBufferWithComparator();
+            _cutScoreBuffer.Init(comparator);
             isFinished = true;
-            _cutScoreBuffer.UnregisterDidFinishReceiver(this);
         }
     }
 }

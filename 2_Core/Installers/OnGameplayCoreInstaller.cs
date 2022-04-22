@@ -14,9 +14,9 @@ using IPA.Utilities;
 using Zenject;
 using UnityEngine;
 
-namespace BeatLeader.Installers 
+namespace BeatLeader.Installers
 {
-    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> 
+    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller>
     {
         private static readonly MethodBase ScoreSaber_playbackEnabled = AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
         private readonly List<Type> scoreControllerBindings = new List<Type>()
@@ -28,27 +28,30 @@ namespace BeatLeader.Installers
             typeof(PrepareLevelCompletionResults),
             typeof(MultiplayerLocalActiveClient),
             typeof(ScoreMultiplierUIController),
-            //typeof(NoteCutScoreSpawner),
+            typeof(NoteCutScoreSpawner),
             typeof(BeatmapObjectExecutionRatingsRecorder),
             typeof(VRsenalScoreLogger),
         };
 
-        public override void InstallBindings() 
+        public override void InstallBindings()
         {
-            Plugin.Log.Debug("OnGameplayCoreInstaller");
-
-            InitPlayer();
-            InitRecorder();
+            if (ReplayMenuUI.asReplay)
+            {
+                new ReplayManualInstaller().ManualInstall(ReplayMenuUI.replay, 
+                    new ReplayManualInstaller.InitData(true, true, false, true, true), Container);
+            }
+            else InitRecorder();
         }
-        private void InitRecorder() 
+        private void InitRecorder()
         {
-            if (ReplayMenuUI.asReplay) return;
             #region Gates
-            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
+            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
+            {
                 Plugin.Log.Warn("SS replay is running, BL Replay Recorder will not be started!");
                 return;
             }
-            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId))) {
+            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
+            {
                 Plugin.Log.Notice("OST level detected! Recording unavailable!");
                 return;
             }
@@ -58,36 +61,6 @@ namespace BeatLeader.Installers
 
             Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
             Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
-        }
-        private void InitPlayer()
-        {
-            if (!ReplayMenuUI.asReplay) return;
-            Container.Bind<Replay>().FromInstance(ReplayMenuUI.replay).AsSingle();
-
-            #region ScoreController patch
-            Container.BindMemoryPool<NoteEventCutScoringElement, NoteEventCutScoringElement.Pool>().WithInitialSize(30);
-
-            var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
-            var gameplayData = scoreController.gameObject;
-            gameplayData.SetActive(false);
-            
-            GameObject.Destroy(scoreController);
-            var modifiedScoreController = gameplayData.AddComponent<ReplayScoreController>().InjectAllFields(Container);
-            
-            Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
-            ZenjectExpansion.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
-
-            modifiedScoreController.SetEnabled(true);
-            gameplayData.SetActive(true);
-            #endregion
-
-            Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<MovementManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
     }
 }

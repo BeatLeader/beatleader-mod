@@ -1,24 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
+﻿using BeatLeader.Utils;
+using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
-using IPA.Utilities;
-using BeatLeader.Utils;
-using BeatLeader.Models;
-using BeatLeader.Replays;
-using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
-using ReplayVector3 = BeatLeader.Models.Vector3;
-using ReplayQuaternion = BeatLeader.Models.Quaternion;
-using ReplayTransform = BeatLeader.Models.Transform;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
-using Transform = UnityEngine.Transform;
 
 namespace BeatLeader.Replays.Movement
 {
@@ -26,37 +11,60 @@ namespace BeatLeader.Replays.Movement
     {
         [Inject] protected readonly IScoreController _controller;
         [Inject] protected readonly AudioTimeSyncController _songSyncController;
+        [Inject] protected readonly ReplayManualInstaller.InitData _initData;
         [Inject] protected readonly MovementManager _movementManager;
         [Inject] protected readonly Replay _replay;
+
+        protected Frame _currentFrame;
+        protected int _currentFrameIndex;
+        protected bool _lerpEnabled;
+        protected bool _isPlaying;
 
         private FakeVRController leftHand => _movementManager.leftHand;
         private FakeVRController rightHand => _movementManager.rightHand;
         private FakeVRController head => _movementManager.head;
-
-        private Frame previousFrame;
-        private bool _lerpEnabled;
-        private bool _isPlaying;
-
+        private Frame nextFrame => _replay.frames[_replay.frames.Count - 1 > _currentFrameIndex ? _currentFrameIndex + 1 : _currentFrameIndex];
+        private Frame previousFrame => _replay.frames[_currentFrameIndex > 0 ? _currentFrameIndex - 1 : _currentFrameIndex];
         public bool isPlaying => _isPlaying;
 
         public void Start()
         {
+            _lerpEnabled = _initData.movementLerp;
             _isPlaying = true;
         }
         public void Update()
         {
-            if (!isPlaying) return;
-            PlayFrame(_replay.GetFrameByTime(_songSyncController.songTime));
+            if (isPlaying)
+            {
+                int index = _replay.GetFrameByTime(_songSyncController.songTime, out _currentFrame);
+                _currentFrameIndex = index != 0 ? index : _currentFrameIndex;
+                PlayFrame(_currentFrame, nextFrame);
+            }
         }
-        private void PlayFrame(Frame frame)
+        private void PlayFrame(Frame frame, Frame nextFrame)
         {
-            if (frame == null | frame == previousFrame) return;
-
-            leftHand.SetTransform(frame.leftHand);
-            rightHand.SetTransform(frame.rightHand);
-            head.SetTransform(frame.head);
-
-            previousFrame = frame;
+            if (frame != null && frame != previousFrame)
+            {
+                if (_lerpEnabled && nextFrame != null && frame != null)
+                {
+                    float slerp = ComputeLerp(frame, nextFrame);
+                    leftHand.SetTransform(
+                        Vector3.Lerp(frame.leftHand.position, frame.leftHand.position, slerp),
+                        Quaternion.Lerp(frame.leftHand.rotation, frame.leftHand.rotation, slerp));
+                    rightHand.SetTransform(
+                        Vector3.Lerp(frame.rightHand.position, frame.rightHand.position, slerp),
+                        Quaternion.Lerp(frame.rightHand.rotation, frame.rightHand.rotation, slerp));
+                    head.SetTransform(
+                        Vector3.Lerp(frame.head.position, frame.head.position, slerp),
+                        Quaternion.Lerp(frame.head.rotation, frame.head.rotation, slerp));
+                }
+                else
+                {
+                    leftHand.SetTransform(frame.leftHand);
+                    rightHand.SetTransform(frame.rightHand);
+                    head.SetTransform(frame.head);
+                }
+            }
         }
         private float ComputeLerp(Frame current, Frame next)
         {

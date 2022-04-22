@@ -13,13 +13,19 @@ namespace BeatLeader.Replays.Scoring
     public class ReplayScoreController : MonoBehaviour, IScoreController
     {
         [Inject] protected readonly Replay _replay;
+        [Inject] protected readonly ReplayManualInstaller.InitData _initData;
+        [Inject] protected readonly SimpleScoringInterlayer.Pool _interlayerPool;
+        [Inject] protected readonly SimpleCutScoringElement.Pool _simpleCutScoringElementPool;
+
+        protected bool _compatibilityMode;
+
+        #region BaseGame stuff
         [Inject] protected readonly GameplayModifiers _gameplayModifiers;
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly IGameEnergyCounter _gameEnergyCounter;
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] protected readonly BadCutScoringElement.Pool _badCutScoringElementPool;
         [Inject] protected readonly MissScoringElement.Pool _missScoringElementPool;
-        [Inject] protected readonly NoteEventCutScoringElement.Pool _replayCutScoringElementPool;
         [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
         protected GameplayModifiersModelSO _gameplayModifiersModel;
         protected List<GameplayModifierParamsSO> _gameplayModifierParams;
@@ -46,6 +52,7 @@ namespace BeatLeader.Replays.Scoring
         public event Action<int, float> multiplierDidChangeEvent;
         public event Action<ScoringElement> scoringForNoteStartedEvent;
         public event Action<ScoringElement> scoringForNoteFinishedEvent;
+        #endregion
 
         public virtual void SetEnabled(bool enabled)
         {
@@ -60,6 +67,7 @@ namespace BeatLeader.Replays.Scoring
             _beatmapObjectManager.noteWasCutEvent += HandleNoteWasCut;
             _beatmapObjectManager.noteWasMissedEvent += HandleNoteWasMissed;
             _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
+            _compatibilityMode = _initData.compatibilityMode;
         }
         public virtual void OnDestroy()
         {
@@ -153,17 +161,27 @@ namespace BeatLeader.Replays.Scoring
         }
         public virtual void HandleNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            noteController.GetComponent<SimpleNoteCutComparator>()?.HandleNoteControllerNoteWasCut();
+            var comparator = noteController.GetComponentInChildren<SimpleNoteCutComparator>();
             if (noteCutInfo.noteData.scoringType != NoteData.ScoringType.Ignore)
             {
                 if (noteCutInfo.allIsOK)
                 {
-                    NoteEventCutScoringElement replayCutScoringElement = _replayCutScoringElementPool.Spawn();
-                    replayCutScoringElement.Init(noteCutInfo, _replay);
-                    ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, replayCutScoringElement);
-                    scoringForNoteStartedEvent?.Invoke(replayCutScoringElement);
-                    _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
+                    SimpleCutScoringElement inElement = _simpleCutScoringElementPool.Spawn();
+                    ScoringElement outElement = inElement;
+                    inElement.Init(comparator);
+                    comparator?.HandleNoteControllerNoteWasCut();
 
+                    if (_compatibilityMode)
+                    {
+                        SimpleScoringInterlayer interlayer = _interlayerPool.Spawn();
+                        interlayer.Init(inElement);
+                        outElement = interlayer.scoringElement;
+                        _interlayerPool.Despawn(interlayer);
+                    }
+                    
+                    ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, outElement);
+                    scoringForNoteStartedEvent?.Invoke(outElement);
+                    _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
                 }
                 else
                 {
@@ -198,13 +216,8 @@ namespace BeatLeader.Replays.Scoring
         {
             if (scoringElement != null)
             {
-                NoteEventCutScoringElement replayCutScoringElement;
-                if ((replayCutScoringElement = (scoringElement as NoteEventCutScoringElement)) != null)
-                {
-                    NoteEventCutScoringElement item = replayCutScoringElement;
-                    _replayCutScoringElementPool.Despawn(item);
-                    return;
-                }
+                if (scoringElement as GoodCutScoringElement != null) return;
+                if (scoringElement as SimpleCutScoringElement != null) return;
 
                 BadCutScoringElement badCutScoringElement;
                 if ((badCutScoringElement = (scoringElement as BadCutScoringElement)) != null)

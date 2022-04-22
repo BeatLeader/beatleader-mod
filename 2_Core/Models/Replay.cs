@@ -106,11 +106,6 @@ namespace BeatLeader.Models
         controller.worldRotation, controller.inverseWorldRotation, controller.noteTransform.localRotation,
         controller.noteTransform.position, new SaberMovementData());
 
-        public static implicit operator GameNoteCutInfo(NoteCutInfo info)
-        => new GameNoteCutInfo(null, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
-        info.saberSpeed, (UnityVector3)info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
-        (UnityVector3)info.cutPoint, (UnityVector3)info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
-        new Quaternion(), new Quaternion(), new Quaternion(), new Vector3(), new SaberMovementData());
         public static implicit operator NoteCutInfo(GameNoteCutInfo info)
         => new NoteCutInfo()
         {

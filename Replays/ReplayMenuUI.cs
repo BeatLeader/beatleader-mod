@@ -31,6 +31,7 @@ namespace BeatLeader
 
         protected static bool _asReplay;
         protected static bool _isPatched;
+        protected static bool _inSearch;
 
         public static GameObject LevelWrapContainer
         {
@@ -71,22 +72,27 @@ namespace BeatLeader
         private static void SetButtonState(bool state) => _replayButton.interactable = state;
         public static async void CheckIsReplayExists(IDifficultyBeatmap beatmap)
         {
-            _asReplay = false;
-            SetButtonState(false);
-            Debug.LogWarning("Finding...");
-            List<Replay> replays = await Task.Run(() => ReplayDataHelper.TryGetReplaysBySongInfoAsync(beatmap));
-            Debug.LogWarning("Complete");
-            if (replays != null)
+            if (!_inSearch)
             {
-                var replay = replays.GetReplayWithScore(ReplayDataHelper.Score.Best);
-                Plugin.Log.Notice($"Preloaded replay: {replay.info.songName}/{replay.info.difficulty}/{replay.info.mode} | {replay.info.score}/{replay.info.failTime}");
-                SetButtonState(true);
-                _replay = replay;
-                _beatmapDifficulty = beatmap;
-            }
-            else
-            {
-                _replay = null;
+                _inSearch = true;
+                _asReplay = false;
+                SetButtonState(false);
+                Debug.LogWarning("Finding...");
+                List<Replay> replays = await Task.Run(() => ReplayDataHelper.TryGetReplaysBySongInfoAsync(beatmap));
+                Debug.LogWarning("Complete");
+                if (replays != null)
+                {
+                    var replay = replays.GetReplayWithScore(ReplayDataHelper.Score.Best);
+                    Plugin.Log.Notice($"Preloaded replay: {replay.info.songName}/{replay.info.difficulty}/{replay.info.mode} | {replay.info.score}/{replay.info.failTime}");
+                    SetButtonState(true);
+                    _replay = replay;
+                    _beatmapDifficulty = beatmap;
+                }
+                else
+                {
+                    _replay = null;
+                }
+                _inSearch = false;
             }
         }
         public static void NotifyReplayEnded() => _asReplay = false;

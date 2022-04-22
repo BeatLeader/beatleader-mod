@@ -250,14 +250,17 @@
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Replays\Interfaces\ISimpleCutScoreBuffer.cs" />
+    <Compile Include="Replays\Interfaces\ISimpleScoringInterlayer.cs" />
     <Compile Include="Replays\MenuSabersManager.cs" />
     <Compile Include="Replays\Movement\MovementManager.cs" />
+    <Compile Include="Replays\ReplayManualInstaller.cs" />
     <Compile Include="Replays\Tools\SimpleAvatarController.cs" />
     <Compile Include="Replays\Tools\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="Replays\Tools\SimpleCutScoreEffectSpawner.cs" />
     <Compile Include="Replays\PlaybackController.cs" />
-    <Compile Include="Replays\Scoring\NoteEventCutScoreBuffer.cs" />
-    <Compile Include="Replays\Scoring\NoteEventCutScoringElement.cs" />
+    <Compile Include="Replays\Scoring\SimpleCutScoreBufferWithComparator.cs" />
+    <Compile Include="Replays\Scoring\SimpleCutScoringElement.cs" />
     <Compile Include="Replays\Scoring\ReplayScoreController.cs" />
     <Compile Include="Replays\Movement\FakeVRController.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
@@ -266,6 +269,7 @@
     <Compile Include="Replays\Movement\Replayer.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutComparator.cs" />
     <Compile Include="Replays\Tools\SimpleNoteCutter.cs" />
+    <Compile Include="Replays\Tools\SimpleScoringInterlayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="9_Resources\BSML\Components\ContextSelector.bsml" />

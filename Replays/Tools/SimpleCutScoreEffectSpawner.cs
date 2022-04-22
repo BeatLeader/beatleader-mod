@@ -54,13 +54,13 @@ namespace BeatLeader.Replays.Tools
         public virtual void HandleScoringForNoteStarted(ScoringElement scoringElement)
         {
             GoodCutScoringElement goodCutScoringElement;
-            NoteEventCutScoringElement simpleCutScoringElement;
+            SimpleCutScoringElement simpleCutScoringElement;
 
             if ((goodCutScoringElement = (scoringElement as GoodCutScoringElement)) != null)
             {
                 SpawnFlyingScore(goodCutScoringElement.cutScoreBuffer, new Color(0.8f, 0.8f, 0.8f));
             }
-            else if ((simpleCutScoringElement = (scoringElement as NoteEventCutScoringElement)) != null)
+            else if ((simpleCutScoringElement = (scoringElement as SimpleCutScoringElement)) != null)
             {
                 SpawnFlyingScore(simpleCutScoringElement.cutScoreBuffer, new Color(0.8f, 0.8f, 0.8f));
             }

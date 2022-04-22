@@ -36,6 +36,7 @@ namespace BeatLeader {
         public static Material UIAdditiveGlowMaterial;
         public static Material ScoreBackgroundMaterial;
         public static Material ScoreUnderlineMaterial;
+        public static Material AccGridBackgroundMaterial;
 
         [UsedImplicitly]
         public static Sprite LocationIcon;
@@ -55,6 +56,18 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite ModifiersIcon;
 
+        [UsedImplicitly]
+        public static Sprite OverviewIcon;
+
+        [UsedImplicitly]
+        public static Sprite DetailsIcon;
+
+        [UsedImplicitly]
+        public static Sprite GridIcon;
+
+        [UsedImplicitly]
+        public static Sprite GraphIcon;
+
         #endregion
 
         #region LoadAssets
@@ -68,6 +81,7 @@ namespace BeatLeader {
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
             ScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("ScoreBackgroundMaterial");
             ScoreUnderlineMaterial = assetBundle.LoadAsset<Material>("ScoreUnderlineMaterial");
+            AccGridBackgroundMaterial = assetBundle.LoadAsset<Material>("AccGridBackgroundMaterial");
 
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
@@ -75,6 +89,10 @@ namespace BeatLeader {
             TransparentPixel = assetBundle.LoadAsset<Sprite>("TransparentPixel");
             FileError = assetBundle.LoadAsset<Sprite>("FileError");
             ModifiersIcon = assetBundle.LoadAsset<Sprite>("ModifiersIcon");
+            OverviewIcon = assetBundle.LoadAsset<Sprite>("BL_OverviewIcon");
+            DetailsIcon = assetBundle.LoadAsset<Sprite>("BL_DetailsIcon");
+            GridIcon = assetBundle.LoadAsset<Sprite>("BL_GridIcon");
+            GraphIcon = assetBundle.LoadAsset<Sprite>("BL_GraphIcon");
         }
 
         #endregion

@@ -50,9 +50,26 @@ namespace BeatLeader.Components {
 
         public void SetScoreStats(ScoreStats scoreStats) {
             var tracker = scoreStats.accuracyTracker;
+            var range = GetScoresRange(tracker.gridAcc);
+
             for (var i = 0; i < TotalCellsCount; i++) {
-                _accuracyGridCells[i].SetScore(tracker.gridAcc[i]);
+                var score = tracker.gridAcc[i];
+                var quality = range.GetRatioClamped(score);
+                _accuracyGridCells[i].SetScore(score, quality);
             }
+        }
+
+        private static Range GetScoresRange(float[] scores) {
+            var max = float.MinValue;
+            var min = float.MaxValue;
+
+            foreach (var score in scores) {
+                if (score == 0) continue;
+                if (score > max) max = score;
+                if (score < min) min = score;
+            }
+
+            return new Range(min, max);
         }
 
         #endregion

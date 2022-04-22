@@ -6,8 +6,8 @@ namespace BeatLeader {
     public class AccuracyGraph : Graphic {
         #region Serialized
 
-        [SerializeField] private int resolution = 20;
-        [SerializeField] private float thickness = 0.1f;
+        [SerializeField] private int resolution = 200;
+        [SerializeField] private float thickness = 0.2f;
 
         #endregion
 
@@ -50,6 +50,8 @@ namespace BeatLeader {
 
         #region PostProcessPoints
 
+        private const float MinimalXForScaling = 0.05f;
+
         private static void PostProcessPoints(float[] points, out List<Vector2> positions, out Rect viewRect) {
             positions = new List<Vector2>();
 
@@ -59,15 +61,16 @@ namespace BeatLeader {
             for (var i = 0; i < points.Length; i++) {
                 var x = (float) i / (points.Length - 1);
                 var y = points[i];
+                positions.Add(new Vector2(x, y));
+                if (x < MinimalXForScaling) continue;
                 if (y > yMax) yMax = y;
                 if (y < yMin) yMin = y;
-                positions.Add(new Vector2(x, y));
             }
-
-            ReducePositionsList(positions);
             
             var margin = (yMax - yMin) * 0.1f;
             viewRect = Rect.MinMaxRect(0, yMin - margin, 1, yMax + margin);
+
+            ReducePositionsList(positions, viewRect);
         }
 
         #endregion
@@ -77,14 +80,14 @@ namespace BeatLeader {
         private const float ReduceAngleMargin = 5f;
         private const float ReduceProximityMargin = 0.1f;
 
-        private static void ReducePositionsList(IList<Vector2> positions) {
+        private static void ReducePositionsList(IList<Vector2> positions, Rect viewRect) {
             var startIndex = 1;
             while (startIndex < positions.Count - 1) {
                 var i = startIndex;
                 for (; i < positions.Count - 1; i++) {
-                    var prev = positions[i - 1];
-                    var curr = positions[i];
-                    var next = positions[i + 1];
+                    var prev = Rect.PointToNormalized(viewRect, positions[i - 1]);
+                    var curr = Rect.PointToNormalized(viewRect, positions[i]);
+                    var next = Rect.PointToNormalized(viewRect, positions[i + 1]);
 
                     var a = next - curr;
                     var b = curr - prev;

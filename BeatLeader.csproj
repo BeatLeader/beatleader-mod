@@ -234,6 +234,7 @@
     <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
     <Compile Include="7_Utils\UtilityClasses\CyclicBuffer.cs" />
     <Compile Include="7_Utils\UtilityClasses\GifLoader.cs" />
+    <Compile Include="7_Utils\UtilityClasses\Range.cs" />
     <Compile Include="7_Utils\UtilityClasses\RequestStateHandler.cs" />
     <Compile Include="7_Utils\UtilityClasses\ScreenViewTransform.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />

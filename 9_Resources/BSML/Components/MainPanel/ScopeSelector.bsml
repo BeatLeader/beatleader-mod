@@ -5,14 +5,10 @@
         <!--  GLOBAL BUTTON  -->
         <clickable-image src="#GlobalIcon" id="global-component" pref-height="~icon-height" preserve-aspect="true"
                          on-click="global-on-click" hover-hint="Global"/>
-
-        <!--  FRIENDS BUTTON KNOB  -->
-        <image src="#FriendsIcon" image-color="#333333" pref-height="~icon-height" preserve-aspect="true" 
-               hover-hint="Friends (Coming soon)"/>
         
-        <!--  FRIENDS BUTTON (INACTIVE)  -->
-        <clickable-image active="false" src="#FriendsIcon" id="friends-component" pref-height="~icon-height" preserve-aspect="true"
-                         on-click="friends-on-click"/>
+        <!--  FRIENDS BUTTON  -->
+        <clickable-image src="#FriendsIcon" id="friends-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="friends-on-click" hover-hint="Friends"/>
 
         <!--  COUNTRY BUTTON  -->
         <clickable-image src="#LocationIcon" id="country-component" pref-height="~icon-height" preserve-aspect="true"

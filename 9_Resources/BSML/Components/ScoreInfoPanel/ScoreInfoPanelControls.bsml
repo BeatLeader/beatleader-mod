@@ -1,10 +1,22 @@
 <horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
-    <macro.define name="font-size" value="3"/>
+    <macro.define name="icon-width" value="4"/>
+    
+    <!--  OVERVIEW BUTTON  -->
+    <clickable-image src="#BL_OverviewIcon" id="overview-component" pref-width="~icon-width" preserve-aspect="true"
+                     on-click="overview-on-click"/>
 
-    <!--    temp buttons   -->
-    <button text="overview" font-size="~font-size" on-click="overview-on-click"/>
-    <button text="acc" font-size="~font-size" on-click="accuracy-on-click"/>
-    <button text="grid" font-size="~font-size" on-click="grid-on-click"/>
-    <button text="graph" font-size="~font-size" on-click="graph-on-click"/>
-    <button text="replay" font-size="~font-size" on-click="replay-on-click"/>
+    <!--  ACCURACY BUTTON  -->
+    <clickable-image src="#BL_DetailsIcon" id="accuracy-component" pref-width="~icon-width" preserve-aspect="true"
+                     on-click="accuracy-on-click"/>
+
+    <!--  GRID BUTTON  -->
+    <clickable-image src="#BL_GridIcon" id="grid-component" pref-width="~icon-width" preserve-aspect="true"
+                     on-click="grid-on-click"/>
+
+    <!--  GRAPH BUTTON  -->
+    <clickable-image src="#BL_GraphIcon" id="graph-component" pref-width="~icon-width" preserve-aspect="true"
+                     on-click="graph-on-click"/>
+
+    <!--  REPLAY BUTTON (INACTIVE) -->
+    <button active="false" text="Replay" font-size="4" on-click="replay-on-click"/>
 </horizontal>

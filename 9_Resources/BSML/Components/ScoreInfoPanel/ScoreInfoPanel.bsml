@@ -1,6 +1,5 @@
 <horizontal>
-    <vertical spacing="1" vertical-fit="PreferredSize"
-              ignore-layout="true" anchor-pos-y="30">
+    <vertical spacing="1" vertical-fit="PreferredSize" ignore-layout="true" anchor-pos-y="30">
         <!--  MINI PROFILE  -->
         <macro.as-host host="mini-profile">
             <macro.reparent transform="root"/>

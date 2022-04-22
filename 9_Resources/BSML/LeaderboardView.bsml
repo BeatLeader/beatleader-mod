@@ -1,8 +1,7 @@
 <vertical min-width="95" preferred-width="95" anchor-pos-x="3" anchor-pos-y="5" pad-right="5">
     <horizontal min-height="60" preferred-height="60" spacing="5">
         <!--  SCORE MODAl  -->
-        <modal id="scores-modal" click-off-closes="true"
-               size-delta-x='60' size-delta-y='6'>
+        <modal id="scores-modal" click-off-closes="true" size-delta-x='24' size-delta-y='6'>
             <macro.as-host host="score-details">
                 <macro.reparent transform="root"/>
             </macro.as-host>

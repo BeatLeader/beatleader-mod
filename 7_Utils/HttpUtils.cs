@@ -23,7 +23,8 @@ namespace BeatLeader.Utils {
                 var handler = new DownloadHandlerBuffer();
 
                 var request = new UnityWebRequest(url) {
-                    downloadHandler = handler
+                    downloadHandler = handler,
+                    timeout = 30
                 };
 
                 yield return request.SendWebRequest();
@@ -64,7 +65,8 @@ namespace BeatLeader.Utils {
 
                 var handler = new DownloadHandlerBuffer();
                 var request = new UnityWebRequest(url) {
-                    downloadHandler = handler
+                    downloadHandler = handler,
+                    timeout = 30
                 };
 
                 yield return request.SendWebRequest();

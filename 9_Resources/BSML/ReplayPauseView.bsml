@@ -1,0 +1,13 @@
+﻿
+<vertical preferred-width="100" pad="5" child-align="MiddleLeft">
+  <background bg="round-rect-panel">
+    <horizontal child-align="MiddleLeft">
+      <image preserve-aspect="true" preferred-width="25" preferred-height="25" />
+      <vertical>
+        <text text="Song Name" font-size="6"/>
+        <text text="Difficulty" font-size="3" />
+        <text text="star" font-size="3"/>
+      </vertical>
+    </horizontal>
+  </background>
+</vertical>

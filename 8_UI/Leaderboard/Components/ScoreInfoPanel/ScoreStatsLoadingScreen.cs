@@ -1,10 +1,6 @@
 using System;
-using System.Text;
-using System.Windows.Forms;
-using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using ModestTree;
 
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreStatsLoadingScreen.bsml")]

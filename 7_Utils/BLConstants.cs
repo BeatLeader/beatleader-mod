@@ -33,6 +33,13 @@ namespace BeatLeader.Utils {
 
         #endregion
 
+        #region Score stats
+
+        public static readonly string SCORE_STATS_BY_ID = // score/statistic/{scoreId}
+            BEATLEADER_API_URL + "/score/statistic/{0}";
+
+        #endregion
+
         #region Modifiers
 
         public static readonly string MODIFIERS_URL = BEATLEADER_API_URL + "/modifiers";

@@ -10,7 +10,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreRow.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScoreRow.bsml")]
     internal class ScoreRow : ReeUIComponent {
         #region Events
 

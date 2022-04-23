@@ -1,51 +1,43 @@
 using System;
-using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScopeSelector.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScopeSelector.bsml")]
     internal class ScopeSelector : ReeUIComponent {
         #region Start
 
         private void Start() {
-            SelectScope(BLContext.DefaultScoresScope);
             SetMaterials();
+            LeaderboardState.ScoresScopeChangedEvent += OnScoresScopeChanged;
+            OnScoresScopeChanged(LeaderboardState.ScoresScope);
         }
 
         #endregion
 
-        #region SetScope
+        #region OnScoresScopeChanged
 
-        private ScoresScope _currentScope;
-
-        private void SelectScope(ScoresScope newScope) {
-            _currentScope = newScope;
-
-            switch (newScope) {
+        private void OnScoresScopeChanged(ScoresScope scoresScope) {
+            switch (scoresScope) {
                 case ScoresScope.Global:
                     SetColor(_globalComponent, true);
                     SetColor(_friendsComponent, false);
                     SetColor(_countryComponent, false);
-                    LeaderboardEvents.NotifyScopeWasSelected(ScoresScope.Global);
                     break;
                 case ScoresScope.Friends:
                     SetColor(_globalComponent, false);
                     SetColor(_friendsComponent, true);
                     SetColor(_countryComponent, false);
-                    LeaderboardEvents.NotifyScopeWasSelected(ScoresScope.Friends);
                     break;
                 case ScoresScope.Country:
                     SetColor(_globalComponent, false);
                     SetColor(_friendsComponent, false);
                     SetColor(_countryComponent, true);
-                    LeaderboardEvents.NotifyScopeWasSelected(ScoresScope.Country);
                     break;
-                default: throw new ArgumentOutOfRangeException(nameof(newScope), newScope, null);
+                default: throw new ArgumentOutOfRangeException(nameof(scoresScope), scoresScope, null);
             }
         }
 
@@ -83,20 +75,17 @@ namespace BeatLeader.Components {
 
         [UIAction("global-on-click"), UsedImplicitly]
         private void NavGlobalOnClick() {
-            if (_currentScope.Equals(ScoresScope.Global)) return;
-            SelectScope(ScoresScope.Global);
+            LeaderboardState.ScoresScope = ScoresScope.Global;
         }
 
         [UIAction("friends-on-click"), UsedImplicitly]
         private void NavFriendsOnClick() {
-            if (_currentScope.Equals(ScoresScope.Friends)) return;
-            SelectScope(ScoresScope.Friends);
+            LeaderboardState.ScoresScope = ScoresScope.Friends;
         }
 
         [UIAction("country-on-click"), UsedImplicitly]
         private void NavCountryOnClick() {
-            if (_currentScope.Equals(ScoresScope.Country)) return;
-            SelectScope(ScoresScope.Country);
+            LeaderboardState.ScoresScope = ScoresScope.Country;
         }
 
         #endregion

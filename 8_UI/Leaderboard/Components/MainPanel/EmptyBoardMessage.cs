@@ -1,4 +1,4 @@
-using BeatLeader.Manager;
+using System;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -7,21 +7,18 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.EmptyBoardMessage.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.EmptyBoardMessage.bsml")]
     internal class EmptyBoardMessage : ReeUIComponent {
         #region OnInitialize
 
         protected override void OnInitialize() {
-            LeaderboardEvents.ScoresRequestStartedEvent += OnScoresRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
-            LeaderboardEvents.ScoresFetchFailedEvent += OnScoresRequestFailed;
+            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
             ApplyAlpha();
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.ScoresRequestStartedEvent -= OnScoresRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
-            LeaderboardEvents.ScoresFetchFailedEvent -= OnScoresRequestFailed;
+            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
         }
 
         #endregion
@@ -30,6 +27,22 @@ namespace BeatLeader.Components {
 
         private const string GoodNewsColor = "#88FF88";
         private const string BadNewsColor = "#FF8888";
+
+        private void OnScoresRequestStateChanged(RequestState requestState) {
+            switch (requestState) {
+                case RequestState.Uninitialized:
+                case RequestState.Started:
+                    OnScoresRequestStarted();
+                    break;
+                case RequestState.Failed:
+                    OnScoresRequestFailed(LeaderboardState.ScoresRequest.FailReason);
+                    break;
+                case RequestState.Finished:
+                    OnScoresFetched(LeaderboardState.ScoresRequest.Result);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null);
+            }
+        }
 
         private void OnScoresRequestStarted() {
             FadeOut();
@@ -49,7 +62,7 @@ namespace BeatLeader.Components {
             OnFull();
         }
 
-        private void OnScoresRequestFailed() {
+        private void OnScoresRequestFailed(string reason) {
             OnError();
         }
 

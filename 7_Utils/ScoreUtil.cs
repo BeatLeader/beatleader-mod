@@ -1,17 +1,15 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using BeatLeader.Models;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.Utils {
     internal class ScoreUtil : PersistentSingleton<ScoreUtil> {
         #region Submission
-        
+
         internal static bool Submission = true;
         internal static bool SiraSubmission = true;
         internal static bool BS_UtilsSubmission = true;
-        
+
         internal static void EnableSubmission() {
             Submission = true;
             SiraSubmission = true;
@@ -25,35 +23,26 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region Modifiers
-        
-        private Dictionary<string, float> _modifiers;
-
-        private IEnumerator UpdateModifiersIfNeeded() {
-            if (_modifiers != null) yield break;
-            yield return HttpUtils.GetData<Dictionary<string, float>>(BLConstants.MODIFIERS_URL,
-                modifiers => _modifiers = modifiers,
-                reason => Plugin.Log.Error($"Can't fetch values for modifiers. Reason: {reason}"),
-                3);
-        }
 
         private int ScoreWithModifiers(Replay replay) {
             float factor = 1;
-            string modifiers = replay.info.modifiers;
+            string replayModifiers = replay.info.modifiers;
             int score = replay.info.score;
 
             // well .. that's unfortunate -.-
-            if (_modifiers == null || _modifiers.Count == 0) { return score; }
+            if (!(ModifiersUtils.instance.HasModifiers)) { return score; }
 
-            foreach (string mod in modifiers.Split(',')) {
-                if (_modifiers.ContainsKey(mod)) {
-                    factor += _modifiers[mod];
+            var modifiers = ModifiersUtils.instance.Modifiers;
+            foreach (string mod in replayModifiers.Split(',')) {
+                if (modifiers.ContainsKey(mod)) {
+                    factor += modifiers[mod];
                 }
             }
             return (int)(score * factor);
         }
 
         #endregion
-        
+
         #region ProcessReplay
 
         public void ProcessReplayAsync(Replay replay) {
@@ -72,8 +61,6 @@ namespace BeatLeader.Utils {
                 FileManager.WriteReplay(replay); // save the last replay
                 yield break;
             }
-
-            yield return UpdateModifiersIfNeeded();
 
             var localReplay = FileManager.ReadReplay(FileManager.ToFileName(replay));
             int localHighScore = localReplay == null ? int.MinValue : ScoreWithModifiers(localReplay);
@@ -94,7 +81,7 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Debug("No new PB, score would not be uploaded/rewritten");
             }
         }
-        
+
         #endregion
     }
 }

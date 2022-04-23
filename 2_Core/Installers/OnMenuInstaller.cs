@@ -1,3 +1,4 @@
+using BeatLeader.DataManager;
 using BeatLeader.ViewControllers;
 using JetBrains.Annotations;
 using Zenject;
@@ -9,6 +10,7 @@ namespace BeatLeader.Installers {
             Plugin.Log.Debug("OnMenuInstaller");
 
             BindLeaderboard();
+            Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }
 

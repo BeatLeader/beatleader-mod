@@ -70,7 +70,7 @@ namespace BeatLeader.ViewControllers {
 
         #region ScoresModal
 
-        private static readonly Vector3 ModalOffset = new(0.0f, -0.7f, 0.0f);
+        private static readonly Vector3 ModalOffset = new(0.0f, -0.6f, 0.0f);
 
         [UIComponent("scores-modal"), UsedImplicitly]
         private ModalView _scoresModal;

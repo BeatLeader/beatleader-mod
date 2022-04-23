@@ -1,4 +1,6 @@
+using System;
 using System.Text;
+using System.Windows.Forms;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -7,6 +9,41 @@ using ModestTree;
 namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreStatsLoadingScreen.bsml")]
     internal class ScoreStatsLoadingScreen : ReeUIComponent {
+        #region Initialize
+
+        protected override void OnInitialize() {
+            LeaderboardState.ScoreStatsRequest.StateChangedEvent += OnScoreStatsRequestStateChanged;
+            OnScoreStatsRequestStateChanged(LeaderboardState.ScoreStatsRequest.State);
+        }
+
+        protected override void OnDispose() {
+            LeaderboardState.ScoreStatsRequest.StateChangedEvent -= OnScoreStatsRequestStateChanged;
+        }
+
+        #endregion
+
+        #region Events
+
+        private const string FailMessage = "<color=#FF8888>Oops!\n<size=60%>Something went wrong";
+
+        private void OnScoreStatsRequestStateChanged(RequestState state) {
+            switch (state) {
+                case RequestState.Started:
+                    Text = "Loading...";
+                    break;
+                case RequestState.Failed:
+                    Text = FailMessage;
+                    break;
+                case RequestState.Uninitialized:
+                case RequestState.Finished:
+                    Text = "";
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
+        }
+
+        #endregion
+        
         #region SetActive
 
         public void SetActive(bool value) {
@@ -25,6 +62,22 @@ namespace BeatLeader.Components {
             set {
                 if (_active.Equals(value)) return;
                 _active = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+        
+        #region text
+
+        private string _text = "";
+
+        [UIValue("text"), UsedImplicitly]
+        private string Text {
+            get => _text;
+            set {
+                if (_text.Equals(value)) return;
+                _text = value;
                 NotifyPropertyChanged();
             }
         }

@@ -55,8 +55,9 @@ namespace BeatLeader.Components {
                 case ScoreInfoPanelTab.Accuracy:
                 case ScoreInfoPanelTab.Grid:
                 case ScoreInfoPanelTab.Graph:
-                    if (_score == null) return;
-                    LeaderboardEvents.RequestScoreStats(_score.id);
+                    if (_score != null && _scoreStatsUpdateRequired) {
+                        LeaderboardEvents.RequestScoreStats(_score.id);
+                    }
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(tab), tab, null);
             }
@@ -79,16 +80,16 @@ namespace BeatLeader.Components {
                     _scoreStatsLoadingScreen.SetActive(false);
                     break;
                 case ScoreInfoPanelTab.Accuracy:
-                    _accuracyDetails.SetActive(!_showLoadingScreen);
-                    _scoreStatsLoadingScreen.SetActive(_showLoadingScreen);
+                    _accuracyDetails.SetActive(!_scoreStatsUpdateRequired);
+                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Grid:
-                    _accuracyGrid.SetActive(!_showLoadingScreen);
-                    _scoreStatsLoadingScreen.SetActive(_showLoadingScreen);
+                    _accuracyGrid.SetActive(!_scoreStatsUpdateRequired);
+                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Graph:
-                    _accuracyGraphPanel.SetActive(!_showLoadingScreen);
-                    _scoreStatsLoadingScreen.SetActive(_showLoadingScreen);
+                    _accuracyGraphPanel.SetActive(!_scoreStatsUpdateRequired);
+                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
@@ -98,25 +99,22 @@ namespace BeatLeader.Components {
 
         #region SetScore
 
-        private bool _showLoadingScreen;
+        private bool _scoreStatsUpdateRequired;
         private Score _score;
 
         private void SetScoreStats(ScoreStats scoreStats) {
             _accuracyDetails.SetScoreStats(scoreStats);
             _accuracyGrid.SetScoreStats(scoreStats);
             _accuracyGraphPanel.SetScoreStats(scoreStats);
-            _showLoadingScreen = false;
+            _scoreStatsUpdateRequired = false;
             UpdateVisibility();
         }
 
         public void SetScore(Score score) {
             _score = score;
-            _showLoadingScreen = true;
+            _scoreStatsUpdateRequired = true;
             _miniProfile.SetPlayer(score.player);
             _scoreOverview.SetScore(score);
-            _accuracyDetails.Clear();
-            _accuracyGrid.Clear();
-            _accuracyGraphPanel.Clear();
             _controls.SetScore(score);
             UpdateVisibility();
         }

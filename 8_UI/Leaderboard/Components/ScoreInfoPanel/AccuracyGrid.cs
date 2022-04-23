@@ -74,16 +74,6 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Clear
-
-        public void Clear() {
-            for (var i = 0; i < TotalCellsCount; i++) {
-                _accuracyGridCells[i].Clear();
-            }
-        }
-
-        #endregion
-
         #region SetActive
 
         public void SetActive(bool value) {

@@ -1,0 +1,14 @@
+<horizontal id="background" pref-height="4.6" pad-left="1" pad-right="1" bg="round-rect-panel">
+    <macro.define name="column-width" value="12"/>
+    <macro.define name="font-size" value="3.6"/>
+
+    <vertical pref-width="~column-width">
+        <text text="~left-value" font-size="~font-size" align="Center"/>
+    </vertical>
+    <vertical pref-width="~column-width">
+        <text text="~label" font-size="~font-size" align="Center"/>
+    </vertical>
+    <vertical pref-width="~column-width">
+        <text text="~right-value" font-size="~font-size" align="Center"/>
+    </vertical>
+</horizontal>

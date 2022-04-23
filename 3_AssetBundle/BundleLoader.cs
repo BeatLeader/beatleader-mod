@@ -37,6 +37,8 @@ namespace BeatLeader {
         public static Material ScoreBackgroundMaterial;
         public static Material ScoreUnderlineMaterial;
         public static Material AccGridBackgroundMaterial;
+        public static Material HandAccIndicatorMaterial;
+        public static Material AccDetailsRowMaterial;
 
         [UsedImplicitly]
         public static Sprite LocationIcon;
@@ -82,6 +84,8 @@ namespace BeatLeader {
             ScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("ScoreBackgroundMaterial");
             ScoreUnderlineMaterial = assetBundle.LoadAsset<Material>("ScoreUnderlineMaterial");
             AccGridBackgroundMaterial = assetBundle.LoadAsset<Material>("AccGridBackgroundMaterial");
+            HandAccIndicatorMaterial = assetBundle.LoadAsset<Material>("HandAccIndicatorMaterial");
+            AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
 
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");

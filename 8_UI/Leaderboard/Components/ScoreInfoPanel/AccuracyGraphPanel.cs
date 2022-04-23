@@ -32,14 +32,6 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Clear
-
-        public void Clear() {
-            _accuracyGraph.SetPoints(Array.Empty<float>(), 0f);
-        }
-
-        #endregion
-
         #region SetActive
 
         public void SetActive(bool value) {

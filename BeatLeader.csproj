@@ -246,6 +246,9 @@
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRow.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowDivider.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoresTable.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyDetailsAverages.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyDetailsRow.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyPieChart.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyDetails.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGraphPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGrid.cs" />
@@ -279,9 +282,12 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowDivider.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoresTable.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetails.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsAverages.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsRow.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGraph.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGrid.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGridCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyPieChart.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\MiniProfile.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml" />

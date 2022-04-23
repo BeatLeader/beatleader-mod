@@ -27,9 +27,9 @@ namespace BeatLeader.Components {
             Text = FormatText(score);
         }
 
-        public void Clear() {
+        private void Clear() {
             _backgroundImage.color = EmptyColor;
-            Text = "-";
+            Text = "";
         }
 
         #endregion
@@ -38,7 +38,7 @@ namespace BeatLeader.Components {
 
         private static readonly Color GoodColor = new Color(0f, 0.2f, 1.0f, 1.0f);
         private static readonly Color BadColor = new Color(0.0f, 0.1f, 0.3f, 0.1f);
-        private static readonly Color EmptyColor = new Color(0.2f, 0.2f, 0.2f, 0.0f);
+        private static readonly Color EmptyColor = new Color(0.1f, 0.1f, 0.1f, 0.0f);
 
         private static Color GetColor(float quality) {
             var t = quality * quality;

@@ -1,0 +1,5 @@
+<horizontal active="~active" pref-height="30">
+    <vertical id="graph-container" pref-width="50" pad="2" bg="round-rect-panel">
+        <text ignore-layout="true" text="WIP" align="Center"/>
+    </vertical>
+</horizontal>

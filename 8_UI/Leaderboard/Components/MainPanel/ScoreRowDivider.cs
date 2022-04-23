@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreRowDivider.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScoreRowDivider.bsml")]
     internal class ScoreRowDivider : ReeUIComponent {
         #region OnInitialize
 

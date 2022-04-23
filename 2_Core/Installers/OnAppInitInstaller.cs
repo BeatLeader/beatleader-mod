@@ -1,5 +1,4 @@
 using BeatLeader.DataManager;
-using BeatLeader.Utils;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -11,6 +10,7 @@ namespace BeatLeader.Installers {
             
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ProfileManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<ScoreStatsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
     }
 }

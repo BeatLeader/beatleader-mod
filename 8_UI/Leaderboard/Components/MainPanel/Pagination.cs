@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -8,43 +9,54 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Pagination.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.Pagination.bsml")]
     internal class Pagination : ReeUIComponent {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.ScoresRequestStartedEvent += OnScoreRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent += OnScoresFetched;
             FlipUpButton();
+            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoreRequestStateChangedEvent;
+            OnScoreRequestStateChangedEvent(LeaderboardState.ScoresRequest.State);
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.ScoresRequestStartedEvent -= OnScoreRequestStarted;
-            LeaderboardEvents.ScoresFetchedEvent -= OnScoresFetched;
+            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoreRequestStateChangedEvent;
         }
 
         #endregion
 
         #region Events
 
-        private void OnScoreRequestStarted() {
-            UpInteractable = false;
-            AroundInteractable = false;
-            DownInteractable = false;
+        private void OnScoreRequestStateChangedEvent(RequestState state) {
+            switch (state) {
+                case RequestState.Started:
+                case RequestState.Uninitialized:
+                case RequestState.Failed:
+                    DisableAllInteraction();
+                    break;
+                case RequestState.Finished:
+                    OnScoresFetched(LeaderboardState.ScoresRequest.Result);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            }
         }
 
         private void OnScoresFetched(Paged<Score> scoresData) {
             if (scoresData.metadata == null) {
                 Plugin.Log.Error("scoresData.metadata is null!");
-                UpInteractable = false;
-                AroundInteractable = false;
-                DownInteractable = false;
+                DisableAllInteraction();
                 return;
             }
 
             UpInteractable = scoresData.metadata.page > 1;
             AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => it.player.IsCurrentPlayer());
             DownInteractable = scoresData.metadata.page * scoresData.metadata.itemsPerPage < scoresData.metadata.total;
+        }
+
+        private void DisableAllInteraction() {
+            UpInteractable = false;
+            AroundInteractable = false;
+            DownInteractable = false;
         }
 
         #endregion
@@ -85,9 +97,9 @@ namespace BeatLeader.Components {
 
         #region Colors
 
-        private static readonly Color HoveredColor = new Color(0.5f, 0.5f, 0.5f);
-        private static readonly Color ActiveColor = new Color(1.0f, 1.0f, 1.0f);
-        private static readonly Color InactiveColor = new Color(0.2f, 0.2f, 0.2f);
+        private static readonly Color HoveredColor = new(0.5f, 0.5f, 0.5f);
+        private static readonly Color ActiveColor = new(1.0f, 1.0f, 1.0f);
+        private static readonly Color InactiveColor = new(0.2f, 0.2f, 0.2f);
 
         private static void SetColors(ClickableImage image, bool interactable) {
             if (interactable) {

@@ -1,3 +1,4 @@
+using System;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -5,7 +6,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.PlayerInfo.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.PlayerInfo.bsml")]
     internal class PlayerInfo : ReeUIComponent {
         #region Components
 
@@ -17,19 +18,40 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.UserProfileStartedEvent += OnProfileRequestStarted;
-            LeaderboardEvents.UserProfileFetchedEvent += OnProfileFetched;
-            OnProfileFetched(BLContext.profile);
+            LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
+            OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.UserProfileStartedEvent -= OnProfileRequestStarted;
-            LeaderboardEvents.UserProfileFetchedEvent -= OnProfileFetched;
+            LeaderboardState.ProfileRequest.StateChangedEvent -= OnProfileRequestStateChanged;
         }
 
         #endregion
 
         #region Events
+        
+        private void OnProfileRequestStateChanged(RequestState requestState) {
+            switch (requestState) {
+                case RequestState.Uninitialized:
+                    OnProfileRequestFailed("Error");
+                    break;
+                case RequestState.Failed:
+                    OnProfileRequestFailed(LeaderboardState.ProfileRequest.FailReason);
+                    break;
+                case RequestState.Started:
+                    OnProfileRequestStarted();
+                    break;
+                case RequestState.Finished:
+                    OnProfileFetched(LeaderboardState.ProfileRequest.Result);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null);
+            }
+        }
+
+        private void OnProfileRequestFailed(string reason) {
+            NameText = reason;
+            StatsActive = false;
+        }
 
         private void OnProfileRequestStarted() {
             NameText = "Loading...";
@@ -37,18 +59,13 @@ namespace BeatLeader.Components {
         }
 
         private void OnProfileFetched(Player player) {
-            if (player == null) {
-                NameText = "Error";
-                StatsActive = false;
-            } else {
-                _countryFlag.SetCountry(player.country);
-                _avatar.SetAvatar(player.avatar);
-                NameText = FormatUtils.FormatUserName(player.name);
-                GlobalRankText = FormatUtils.FormatRank(player.rank, true);
-                CountryRankText = FormatUtils.FormatRank(player.countryRank, true);
-                PpText = FormatUtils.FormatPP(player.pp);
-                StatsActive = true;
-            }
+            _countryFlag.SetCountry(player.country);
+            _avatar.SetAvatar(player.avatar);
+            NameText = FormatUtils.FormatUserName(player.name);
+            GlobalRankText = FormatUtils.FormatRank(player.rank, true);
+            CountryRankText = FormatUtils.FormatRank(player.countryRank, true);
+            PpText = FormatUtils.FormatPP(player.pp);
+            StatsActive = true;
         }
 
         #endregion

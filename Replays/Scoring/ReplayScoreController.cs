@@ -13,6 +13,7 @@ namespace BeatLeader.Replays.Scoring
     public class ReplayScoreController : MonoBehaviour, IScoreController
     {
         [Inject] protected readonly Replay _replay;
+        [Inject] protected readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
         [Inject] protected readonly ReplayManualInstaller.InitData _initData;
         [Inject] protected readonly SimpleScoringInterlayer.Pool _interlayerPool;
         [Inject] protected readonly SimpleCutScoringElement.Pool _simpleCutScoringElementPool;
@@ -161,14 +162,25 @@ namespace BeatLeader.Replays.Scoring
         }
         public virtual void HandleNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            var comparator = noteController.GetComponentInChildren<SimpleNoteCutComparator>();
             if (noteCutInfo.noteData.scoringType != NoteData.ScoringType.Ignore)
             {
                 if (noteCutInfo.allIsOK)
                 {
+                    SimpleScoringData scoringData = new SimpleScoringData();
+                    if (_simpleNoteComparatorsSpawner.TryGetLoadedComparator(noteController, out SimpleNoteCutComparator comparator))
+                    {
+                        scoringData = new SimpleScoringData(comparator.noteController.noteData, comparator.noteCutEvent,
+                            comparator.noteController.worldRotation, comparator.noteController.inverseWorldRotation,
+                            comparator.noteController.noteTransform.localRotation, comparator.noteController.noteTransform.position, false);
+                    }
+                    else
+                    {
+                        scoringData = new SimpleScoringData(noteController, noteController.GetNoteEvent(_replay), false);
+                    }
+
                     SimpleCutScoringElement inElement = _simpleCutScoringElementPool.Spawn();
                     ScoringElement outElement = inElement;
-                    inElement.Init(comparator);
+                    inElement.Init(scoringData);
                     comparator?.HandleNoteControllerNoteWasCut();
 
                     if (_compatibilityMode)
@@ -178,7 +190,8 @@ namespace BeatLeader.Replays.Scoring
                         outElement = interlayer.scoringElement;
                         _interlayerPool.Despawn(interlayer);
                     }
-                    
+
+                    DespawnScoringElement(inElement);
                     ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, outElement);
                     scoringForNoteStartedEvent?.Invoke(outElement);
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
@@ -217,7 +230,14 @@ namespace BeatLeader.Replays.Scoring
             if (scoringElement != null)
             {
                 if (scoringElement as GoodCutScoringElement != null) return;
-                if (scoringElement as SimpleCutScoringElement != null) return;
+
+                SimpleCutScoringElement simpleCutScoringElement;
+                if ((simpleCutScoringElement = (scoringElement as SimpleCutScoringElement)) != null)
+                {
+                    SimpleCutScoringElement item2 = simpleCutScoringElement;
+                    _simpleCutScoringElementPool.Despawn(item2);
+                    return;
+                }
 
                 BadCutScoringElement badCutScoringElement;
                 if ((badCutScoringElement = (scoringElement as BadCutScoringElement)) != null)

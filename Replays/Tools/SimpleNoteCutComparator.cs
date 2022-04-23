@@ -13,7 +13,18 @@ namespace BeatLeader.Replays.Tools
 {
     public class SimpleNoteCutComparator : MonoBehaviour, INoteControllerNoteWasCutEvent
     {
-        public class Factory : PlaceholderFactory<SimpleNoteCutComparator> { }
+        public class Pool : MonoMemoryPool<SimpleNoteCutComparator>
+        {
+            protected override void Reinitialize(SimpleNoteCutComparator item)
+            {
+                Destroy(item._noteCutter);
+                item._noteCutEvent = null;
+                item._noteController = null;
+                item._availableForCut = false;
+                item._initialized = false;
+                item._isFinished = false;
+            }
+        }
 
         [Inject] public AudioTimeSyncController timeSyncController;
 
@@ -22,10 +33,12 @@ namespace BeatLeader.Replays.Tools
         protected NoteController _noteController;
         protected bool _availableForCut;
         protected bool _initialized;
+        protected bool _isFinished;
 
         public NoteEvent noteCutEvent => _noteCutEvent;
         public NoteController noteController => _noteController;
         public bool availableForCut => _availableForCut;
+        public bool isFinished => _isFinished;
         public float cutTime => _noteCutEvent.eventTime;
         public int noteID => _noteCutEvent.noteID;
 
@@ -53,7 +66,7 @@ namespace BeatLeader.Replays.Tools
         {
             _noteController.noteWasCutEvent.Remove(this);
             Destroy(_noteCutter);
-            Destroy(this);
+            _isFinished = true;
         }
         public void HandleNoteControllerNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {

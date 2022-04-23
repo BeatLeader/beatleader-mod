@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Utils;
 using BeatLeader.Models;
+using BeatLeader.Replays.Interfaces;
 using UnityEngine;
 using Zenject;
 using Vector3 = UnityEngine.Vector3;
@@ -7,7 +8,7 @@ using Quaternion = UnityEngine.Quaternion;
 
 namespace BeatLeader.Replays.Movement
 {
-    public class Replayer : MonoBehaviour
+    public class Replayer : MonoBehaviour, IStateChangeable
     {
         [Inject] protected readonly IScoreController _controller;
         [Inject] protected readonly AudioTimeSyncController _songSyncController;
@@ -40,6 +41,10 @@ namespace BeatLeader.Replays.Movement
                 _currentFrameIndex = index != 0 ? index : _currentFrameIndex;
                 PlayFrame(_currentFrame, nextFrame);
             }
+        }
+        public void SetEnabled(bool state)
+        {
+            _isPlaying = state;
         }
         private void PlayFrame(Frame frame, Frame nextFrame)
         {

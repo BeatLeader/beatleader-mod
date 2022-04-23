@@ -23,14 +23,14 @@ namespace BeatLeader.Replays.Scoring
         protected ScoreMultiplierCounter.MultiplierEventType _multiplierEventType;
         protected ScoreMultiplierCounter.MultiplierEventType _wouldBeCorrectCutBestPossibleMultiplierEventType;
 
-        protected SimpleCutScoreBufferWithComparator _cutScoreBuffer;
+        protected SimpleCutScoreBuffer _cutScoreBuffer;
         protected override int executionOrder => cutScoreBuffer.noteScoreDefinition.executionOrder;
         public IReadonlyCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         public override int cutScore => _cutScoreBuffer.cutScore;
 
-        public virtual void Init(SimpleNoteCutComparator comparator)
+        public virtual void Init(SimpleScoringData data)
         {
-            noteData = comparator.noteController.noteData;
+            noteData = data.noteData;
             switch (noteData.scoringType)
             {
                 case NoteData.ScoringType.Ignore:
@@ -51,8 +51,8 @@ namespace BeatLeader.Replays.Scoring
                     break;
             }
 
-            _cutScoreBuffer = new SimpleCutScoreBufferWithComparator();
-            _cutScoreBuffer.Init(comparator);
+            _cutScoreBuffer = new SimpleCutScoreBuffer();
+            _cutScoreBuffer.Init(data);
             isFinished = true;
         }
     }

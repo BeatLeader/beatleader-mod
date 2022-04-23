@@ -14,9 +14,9 @@ namespace BeatLeader.Replays.Movement
         [Inject] protected readonly ReplayManualInstaller.InitData _initData;
         [Inject] protected readonly PlayerTransforms _playerTransforms;
 
-        private FakeVRController _leftHand;
-        private FakeVRController _rightHand;
-        private FakeVRController _head;
+        protected FakeVRController _leftHand;
+        protected FakeVRController _rightHand;
+        protected FakeVRController _head;
 
         public FakeVRController leftHand => _leftHand;
         public FakeVRController rightHand => _rightHand;
@@ -57,8 +57,8 @@ namespace BeatLeader.Replays.Movement
         }
         private GameObject CreateFakeHead()
         {
-            GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            //GameObject head = new GameObject("FakeHead");
+            //GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject head = new GameObject("FakeHead");
             head.name = "ReplayFakeHead";
             head.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             var collider = head.AddComponent<BoxCollider>();

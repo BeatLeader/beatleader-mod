@@ -17,13 +17,9 @@ namespace BeatLeader.Replays.Tools
         }
         public void Cut(NoteCutInfo noteCutInfo)
         {
-            var subscribers = noteController.GetField<LazyCopyHashSet<INoteControllerNoteWasCutEvent>, NoteController>("_noteWasCutEvent");
-            if (subscribers != null)
+            foreach (var item in ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)noteController.noteWasCutEvent).items)
             {
-                foreach (var item in subscribers.items)
-                {
-                    item.HandleNoteControllerNoteWasCut(noteController, noteCutInfo);
-                }
+                item.HandleNoteControllerNoteWasCut(noteController, noteCutInfo);
             }
         }
     }

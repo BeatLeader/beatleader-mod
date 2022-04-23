@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BeatLeader.Utils;
 using BeatLeader.Models;
-using BeatLeader.Replays;
-using BeatLeader.Replays.Tools;
 using UnityEngine;
 using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
-using BeatLeader.Replays.Interfaces;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class SimpleCutScoreBufferWithComparator : IReadonlyCutScoreBuffer
+    public class SimpleCutScoreBuffer : IReadonlyCutScoreBuffer
     {
         protected NoteCutInfo _noteCutInfo;
-        protected SimpleNoteCutComparator _noteCutComparator;
+        protected NoteEvent _noteEvent;
         protected ScoreModel.NoteScoreDefinition _noteScoreDefinition;
         protected int _afterCutScore;
         protected int _beforeCutScore;
@@ -28,33 +24,30 @@ namespace BeatLeader.Replays.Scoring
         public int centerDistanceCutScore => _centerDistanceCutScore;
         public int afterCutScore => _afterCutScore;
         public ScoreModel.NoteScoreDefinition noteScoreDefinition => _noteScoreDefinition;
-        public SimpleNoteCutComparator noteCutComparator => _noteCutComparator;
-        public NoteEvent noteEvent => _noteCutComparator.noteCutEvent;
+        public NoteEvent noteEvent => _noteEvent;
         public NoteCutInfo noteCutInfo => _noteCutInfo;
         public float beforeCutSwingRating => 0;
         public float afterCutSwingRating => 0;
 
         public virtual void RefreshScores()
         {
-            if (noteEvent != null && noteEvent.noteCutInfo != null)
+            if (_noteEvent != null && noteEvent.noteCutInfo != null)
             {
-                _beforeCutScore = (int)Mathf.Clamp((float)Math.Round(70 * noteEvent.noteCutInfo.beforeCutRating), 0, 70);
-                _afterCutScore = (int)Mathf.Clamp((float)Math.Round(30 * noteEvent.noteCutInfo.afterCutRating), 0, 30);
-                _centerDistanceCutScore = (int)Math.Round(15 * (1 - Mathf.Clamp(noteEvent.noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f)));
+                _beforeCutScore = (int)Mathf.Clamp((float)Math.Round(70 * _noteEvent.noteCutInfo.beforeCutRating), 0, 70);
+                _afterCutScore = (int)Mathf.Clamp((float)Math.Round(30 * _noteEvent.noteCutInfo.afterCutRating), 0, 30);
+                _centerDistanceCutScore = (int)Math.Round(15 * (1 - Mathf.Clamp(_noteEvent.noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f)));
             }
         }
-        public virtual void Init(SimpleNoteCutComparator comparator)
+        public virtual void Init(SimpleScoringData data)
         {
             _initialized = true;
-            _noteCutComparator = comparator;
-            _noteCutInfo = comparator.noteController.GetNoteCutInfo(noteEvent);
-            _noteScoreDefinition = ScoreModel.GetNoteScoreDefinition(_noteCutInfo.noteData.scoringType);
-            if (noteEvent != null)
-            {
-                RefreshScores();
-                _isFinished = true;
-                _initialized = false;
-            }
+            _noteEvent = data.noteEvent;
+            if (data.noteEvent.noteCutInfo != null)
+                _noteCutInfo = ReplayNoteCutInfo.Parse(data.noteEvent.noteCutInfo, data.noteData, data.worldRotation, data.inverseWorldRotation, data.noteRotation, data.notePosition);
+            _noteScoreDefinition = ScoreModel.GetNoteScoreDefinition(data.noteData.scoringType);
+            RefreshScores();
+            _isFinished = true;
+            _initialized = false;
         }
         public void RegisterDidChangeReceiver(ICutScoreBufferDidChangeReceiver receiver) { }
         public void RegisterDidFinishReceiver(ICutScoreBufferDidFinishReceiver receiver) { }

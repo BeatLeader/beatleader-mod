@@ -20,16 +20,14 @@ namespace BeatLeader.Replays
         public class InitData
         {
             public readonly bool compatibilityMode;
-            public readonly bool noteSyncMode;
             public readonly bool generateInRealTime;
-            public readonly bool generateAsync;
+            public readonly bool noteSyncMode;
             public readonly bool movementLerp;
 
-            public InitData(bool compatibilityMode, bool generateInRealTime, bool generateAsync, bool noteSyncMode, bool movementLerp)
+            public InitData(bool compatibilityMode, bool generateInRealTime, bool noteSyncMode, bool movementLerp)
             {
                 this.compatibilityMode = compatibilityMode;
                 this.generateInRealTime = generateInRealTime;
-                this.generateAsync = generateAsync;
                 this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
             }
@@ -55,6 +53,11 @@ namespace BeatLeader.Replays
             Container.Bind<InitData>().FromInstance(data).AsSingle();
             Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
             Container.BindMemoryPool<SimpleScoringInterlayer, SimpleScoringInterlayer.Pool>().WithInitialSize(30);
+            Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(50)
+                .FromComponentInNewPrefab(new GameObject("ComparatorPrefab")
+                .AddComponent<SimpleNoteCutComparator>());
+            Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<PlayerViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             #region ScoreController patch
             var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
@@ -72,16 +75,11 @@ namespace BeatLeader.Replays
             #endregion
 
             Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             if (!data.compatibilityMode) Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MovementManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            Container.BindFactory<SimpleNoteCutComparator, SimpleNoteCutComparator.Factory>()
-                .FromComponentInNewPrefab(new GameObject("ComparatorPrefab")
-                .AddComponent<SimpleNoteCutComparator>());
         }
     }
 }

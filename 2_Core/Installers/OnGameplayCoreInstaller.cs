@@ -38,7 +38,7 @@ namespace BeatLeader.Installers
             if (ReplayMenuUI.asReplay)
             {
                 new ReplayManualInstaller().ManualInstall(ReplayMenuUI.replay, 
-                    new ReplayManualInstaller.InitData(true, true, false, true, true), Container);
+                    new ReplayManualInstaller.InitData(true, true, false, true), Container);
             }
             else InitRecorder();
         }

@@ -9,9 +9,8 @@ namespace BeatLeader.Replays.Interfaces
     public interface ISimpleScoringInterlayer
     {
         ScoringElement scoringElement { get; }
-        IReadonlyCutScoreBuffer cutScoreBuffer { get; }
 
+        void Init(ScoringElement scoringElement);
         void ConvertScoringElement(ScoringElement element, IReadonlyCutScoreBuffer buffer);
-        void ConvertBuffer(IReadonlyCutScoreBuffer buffer);
     }
 }

@@ -14,20 +14,19 @@ namespace BeatLeader.Replays.Tools
 {
     public class SimpleScoringInterlayer : ISimpleScoringInterlayer
     {
-        public class Pool : MemoryPool<SimpleScoringInterlayer>
+        public class Pool : MemoryPool<SimpleScoringInterlayer> 
         {
-            protected override void Reinitialize(SimpleScoringInterlayer scoringInterlayer)
+            protected override void Reinitialize(SimpleScoringInterlayer item)
             {
-                scoringInterlayer.Reinitialize();
+                item._isFinished = false;
+                item._scoringElement = null;
             }
         }
 
         protected ScoringElement _scoringElement;
-        protected CutScoreBuffer _cutScoreBuffer;
         protected bool _isFinished;
 
         public virtual ScoringElement scoringElement => _scoringElement;
-        public virtual IReadonlyCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         public bool isFinished => _isFinished;
 
         public virtual void Init(ScoringElement scoringElement)
@@ -48,28 +47,22 @@ namespace BeatLeader.Replays.Tools
                 ConvertBuffer(scoringElementWithInterlayer.cutScoreBuffer);
                 goodCutScoringElement.SetField("_multiplierEventType", scoringElementWithInterlayer.multiplierEventType);
                 goodCutScoringElement.SetField("_wouldBeCorrectCutBestPossibleMultiplierEventType", scoringElementWithInterlayer.wouldBeCorrectCutBestPossibleMultiplierEventType);
-                goodCutScoringElement.SetField("_cutScoreBuffer", _cutScoreBuffer);
+                goodCutScoringElement.SetField("_cutScoreBuffer", ConvertBuffer(buffer));
                 goodCutScoringElement.GetType().GetProperty("noteData").SetValue(goodCutScoringElement, scoringElementWithInterlayer.noteData);
                 goodCutScoringElement.GetType().GetProperty("isFinished").SetValue(goodCutScoringElement, true);
                 _scoringElement = goodCutScoringElement;
             }
         }
-        public virtual void ConvertBuffer(IReadonlyCutScoreBuffer buffer)
+        public virtual CutScoreBuffer ConvertBuffer(IReadonlyCutScoreBuffer buffer)
         {
             CutScoreBuffer cutScoreBuffer = new CutScoreBuffer();
-            cutScoreBuffer.SetField("_noteCutInfo", buffer.noteCutInfo); 
-            cutScoreBuffer.SetField("_noteScoreDefinition", buffer.noteScoreDefinition); 
-            cutScoreBuffer.SetField("_afterCutScore", buffer.afterCutScore); 
-            cutScoreBuffer.SetField("_beforeCutScore", buffer.beforeCutScore); 
-            cutScoreBuffer.SetField("_centerDistanceCutScore", buffer.centerDistanceCutScore); 
-            cutScoreBuffer.SetField("_isFinished", buffer.isFinished); 
-            _cutScoreBuffer = cutScoreBuffer;
-        }
-        protected void Reinitialize()
-        {
-            _isFinished = false;
-            _scoringElement = null;
-            _cutScoreBuffer = null;
+            cutScoreBuffer.SetField("_noteCutInfo", buffer.noteCutInfo);
+            cutScoreBuffer.SetField("_noteScoreDefinition", buffer.noteScoreDefinition);
+            cutScoreBuffer.SetField("_afterCutScore", buffer.afterCutScore);
+            cutScoreBuffer.SetField("_beforeCutScore", buffer.beforeCutScore);
+            cutScoreBuffer.SetField("_centerDistanceCutScore", buffer.centerDistanceCutScore);
+            cutScoreBuffer.SetField("_isFinished", buffer.isFinished);
+            return cutScoreBuffer;
         }
     }
 }

@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
-using BeatLeader.Replays.Tools;
+using BeatLeader.Replays.MapEmitating;
 using BeatLeader.Models;
 using BeatLeader.Replays.Scoring;
 using BeatLeader.Utils;
@@ -177,6 +177,7 @@ namespace BeatLeader.Replays.Scoring
                     {
                         scoringData = new SimpleScoringData(noteController, noteController.GetNoteEvent(_replay), false);
                     }
+                    if (scoringData.noteEvent.noteCutInfo == null | scoringData.noteEvent.eventType == NoteEventType.miss) return;
 
                     SimpleCutScoringElement inElement = _simpleCutScoringElementPool.Spawn();
                     ScoringElement outElement = inElement;

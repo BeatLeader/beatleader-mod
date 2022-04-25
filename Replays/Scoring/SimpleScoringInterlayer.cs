@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using IPA.Utilities;
 using BeatLeader.Replays.Interfaces;
-using BeatLeader.Replays.Scoring;
 using Zenject;
 
-namespace BeatLeader.Replays.Tools
+namespace BeatLeader.Replays.Scoring
 {
     public class SimpleScoringInterlayer : ISimpleScoringInterlayer
     {

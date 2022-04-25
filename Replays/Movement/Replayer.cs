@@ -54,14 +54,14 @@ namespace BeatLeader.Replays.Movement
                 {
                     float slerp = ComputeLerp(frame, nextFrame);
                     leftHand.SetTransform(
-                        Vector3.Lerp(frame.leftHand.position, frame.leftHand.position, slerp),
-                        Quaternion.Lerp(frame.leftHand.rotation, frame.leftHand.rotation, slerp));
+                        Vector3.Lerp(frame.leftHand.position, nextFrame.leftHand.position, slerp),
+                        Quaternion.Lerp(frame.leftHand.rotation, nextFrame.leftHand.rotation, slerp));
                     rightHand.SetTransform(
-                        Vector3.Lerp(frame.rightHand.position, frame.rightHand.position, slerp),
-                        Quaternion.Lerp(frame.rightHand.rotation, frame.rightHand.rotation, slerp));
+                        Vector3.Lerp(frame.rightHand.position, nextFrame.rightHand.position, slerp),
+                        Quaternion.Lerp(frame.rightHand.rotation, nextFrame.rightHand.rotation, slerp));
                     head.SetTransform(
-                        Vector3.Lerp(frame.head.position, frame.head.position, slerp),
-                        Quaternion.Lerp(frame.head.rotation, frame.head.rotation, slerp));
+                        Vector3.Lerp(frame.head.position, nextFrame.head.position, slerp),
+                        Quaternion.Lerp(frame.head.rotation, nextFrame.head.rotation, slerp));
                 }
                 else
                 {

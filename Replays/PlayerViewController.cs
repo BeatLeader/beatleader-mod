@@ -13,23 +13,27 @@ namespace BeatLeader.Replays
     public class PlayerViewController : MonoBehaviour
     {
         [Inject] protected readonly MovementManager _movementManager;
-        [Inject] protected readonly MainCamera _mainCamera;
 
         protected Camera _camera;
-        protected float _rotationSmooth = 4;
-        protected float _positionSmooth = 4;
+        protected float _rotationSmooth = 2;
+        protected float _positionSmooth = 2;
+        protected bool _initialized;
 
         public void Start()
         {
-            _camera = new GameObject("ReplayCamera").AddComponent<Camera>();
+            _camera = Resources.FindObjectsOfTypeAll<SmoothCamera>().First(x => x.transform.parent.name == "LocalPlayerGameCore").GetField<Camera, SmoothCamera>("_camera");
             _camera.fieldOfView = 120;
-            //_mainCamera.transform.SetParent(_movementManager.head.transform);
+            _camera.enabled = true;
+            _initialized = true;
         }
         public void LateUpdate()
         {
-            Vector3 position = Vector3.Lerp(_camera.transform.position, _movementManager.head.position, Time.deltaTime * _positionSmooth);
-            Quaternion rotation2 = Quaternion.Slerp(_camera.transform.rotation, _movementManager.head.rotation, Time.deltaTime * _rotationSmooth);
-            _camera.transform.SetPositionAndRotation(position, rotation2);
+            if (_movementManager.initialized && _initialized)
+            {
+                Vector3 position = Vector3.Lerp(_camera.transform.position, _movementManager.head.position, Time.deltaTime * _positionSmooth);
+                Quaternion rotation = Quaternion.Slerp(_camera.transform.rotation, _movementManager.head.rotation, Time.deltaTime * _rotationSmooth);
+                _camera.transform.SetPositionAndRotation(position, rotation);
+            }
         }
     }
 }

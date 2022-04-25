@@ -42,8 +42,7 @@ namespace BeatLeader.Replays.Scoring
         {
             _initialized = true;
             _noteEvent = data.noteEvent;
-            if (data.noteEvent.noteCutInfo != null)
-                _noteCutInfo = ReplayNoteCutInfo.Parse(data.noteEvent.noteCutInfo, data.noteData, data.worldRotation, data.inverseWorldRotation, data.noteRotation, data.notePosition);
+            _noteCutInfo = ReplayNoteCutInfo.Parse(data.noteEvent.noteCutInfo, data.noteData, data.worldRotation, data.inverseWorldRotation, data.noteRotation, data.notePosition);
             _noteScoreDefinition = ScoreModel.GetNoteScoreDefinition(data.noteData.scoringType);
             RefreshScores();
             _isFinished = true;

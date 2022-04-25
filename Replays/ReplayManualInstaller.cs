@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using BeatLeader.Replays;
-using BeatLeader.Replays.Tools;
+using BeatLeader.Replays.Managers;
+using BeatLeader.Replays.MapEmitating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Scoring;
 using BeatLeader.Core.Managers.ReplayEnhancer;
@@ -58,6 +59,7 @@ namespace BeatLeader.Replays
                 .AddComponent<SimpleNoteCutComparator>());
             Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlayerViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            //Container.Bind<NonVRUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy(); //fpfc form
 
             #region ScoreController patch
             var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();

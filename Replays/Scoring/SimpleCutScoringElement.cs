@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IPA.Utilities;
 using BeatLeader.Replays.Interfaces;
-using BeatLeader.Replays.Tools;
+using BeatLeader.Replays.MapEmitating;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;

@@ -17,10 +17,11 @@ namespace BeatLeader.Replays.Movement
         protected FakeVRController _leftHand;
         protected FakeVRController _rightHand;
         protected FakeVRController _head;
-
+        protected bool _initialized;
         public FakeVRController leftHand => _leftHand;
         public FakeVRController rightHand => _rightHand;
         public FakeVRController head => _head;
+        public bool initialized => _initialized;
 
         public void Start()
         {
@@ -28,9 +29,11 @@ namespace BeatLeader.Replays.Movement
             PatchOriginalSabers();
             if (_initData.noteSyncMode)
             {
+                Destroy(Resources.FindObjectsOfTypeAll<CuttingManager>().FirstOrDefault());
                 Destroy(_leftHand.GetComponentInChildren<BoxCollider>());
                 Destroy(_rightHand.GetComponentInChildren<BoxCollider>());
             }
+            _initialized = true;
         }
         private void PatchOriginalSabers()
         {

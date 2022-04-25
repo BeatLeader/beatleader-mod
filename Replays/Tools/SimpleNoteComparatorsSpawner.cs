@@ -8,7 +8,7 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Tools
+namespace BeatLeader.Replays.MapEmitating
 {
     public class SimpleNoteComparatorsSpawner : MonoBehaviour
     {

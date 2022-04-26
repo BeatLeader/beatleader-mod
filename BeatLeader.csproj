@@ -144,6 +144,9 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="VRUI, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\Games\Steam\steamapps\common\Beat Saber v1.21.0\Beat Saber_Data\Managed\VRUI.dll</HintPath>
+    </Reference>
     <Reference Include="Zenject">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
@@ -223,6 +226,8 @@
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
+    <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
+    <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphUtils.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\GraphMeshHelper.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\GraphPoint.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\GraphSpline.cs" />
@@ -292,7 +297,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetails.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsAverages.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsRow.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGraph.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGraphPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGrid.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGridCell.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyPieChart.bsml" />

@@ -1,0 +1,7 @@
+<horizontal active="~active" pref-height="30" bg="round-rect-panel">
+    <vertical id="graph-container" pref-width="60" bg="round-rect-panel"/>
+    
+    <horizontal id="cursor-hint" pref-height="5" pad="1" ignore-layout="true" bg="round-rect-panel" horizontal-fit="PreferredSize" anchor-pos-y="-12">
+        <text text="~cursor-text" font-size="3.8" align="Midline"/>
+    </horizontal>
+</horizontal>

@@ -1,104 +1,60 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace BeatLeader {
-    public class AccuracyGraph : Graphic {
+    [RequireComponent(typeof(RectTransform))]
+    public class AccuracyGraph: UIBehaviour {
         #region Serialized
 
-        [SerializeField] private int resolution = 200;
-        [SerializeField] private float thickness = 0.2f;
+        [SerializeField] private AccuracyGraphLine graphLine;
+        [SerializeField] private Material backgroundMaterial;
+
+        public Canvas Canvas => graphLine.canvas;
 
         #endregion
 
-        #region Start
+        #region Construct
 
-        private GraphMeshHelper _graphMeshHelper;
+        private Material _backgroundMaterialInstance;
 
-        protected override void Start() {
-            base.Start();
-            _graphMeshHelper = new GraphMeshHelper(resolution, 1, thickness);
+        public void Construct(Image backgroundImage) {
+            _backgroundMaterialInstance = Instantiate(backgroundMaterial);
+            backgroundImage.material = _backgroundMaterialInstance;
         }
 
         #endregion
 
-        #region OnPopulateMesh
+        #region Setup
 
-        protected override void OnPopulateMesh(VertexHelper vh) {
-            var screenRect = RectTransformUtility.PixelAdjustRect(rectTransform, canvas);
-            var screenViewTransform = new ScreenViewTransform(screenRect, _viewRect);
-
-            _graphMeshHelper.SetPoints(_points);
-            _graphMeshHelper.PopulateMesh(vh, screenViewTransform, _canvasRadius);
-        }
-
-        #endregion
-
-        #region SetPoints
-
-        private List<Vector2> _points;
-        private float _canvasRadius;
         private Rect _viewRect = Rect.MinMaxRect(0, 0, 1, 1);
+        private float _songDuration = 1.0f;
 
-        public void SetPoints(float[] points, float canvasRadius) {
-            PostProcessPoints(points, out _points, out _viewRect);
-            _canvasRadius = canvasRadius;
-            SetVerticesDirty();
-        }
-
-        #endregion
-
-        #region PostProcessPoints
-
-        private const float MinimalXForScaling = 0.05f;
-
-        private static void PostProcessPoints(float[] points, out List<Vector2> positions, out Rect viewRect) {
-            positions = new List<Vector2>();
-
-            var yMin = float.MaxValue;
-            var yMax = float.MinValue;
-
-            for (var i = 0; i < points.Length; i++) {
-                var x = (float) i / (points.Length - 1);
-                var y = points[i];
-                positions.Add(new Vector2(x, y));
-                if (x < MinimalXForScaling) continue;
-                if (y > yMax) yMax = y;
-                if (y < yMin) yMin = y;
-            }
+        public void Setup(List<Vector2> positions, Rect viewRect, float canvasRadius, float songDuration) {
+            _songDuration = songDuration;
+            _viewRect = viewRect;
             
-            var margin = (yMax - yMin) * 0.1f;
-            viewRect = Rect.MinMaxRect(0, yMin - margin, 1, yMax + margin);
-
-            ReducePositionsList(positions, viewRect);
+            graphLine.Setup(positions, _viewRect, canvasRadius);
+            UpdateBackground();
         }
 
         #endregion
 
-        #region ReducePositionsList
+        #region Shader
 
-        private const float ReduceAngleMargin = 5f;
-        private const float ReduceProximityMargin = 0.1f;
+        private static readonly int ViewRectPropertyId = Shader.PropertyToID("_ViewRect");
+        private static readonly int SongDurationPropertyId = Shader.PropertyToID("_SongDuration");
+        private static readonly int CursorPositionPropertyId = Shader.PropertyToID("_CursorPosition");
 
-        private static void ReducePositionsList(IList<Vector2> positions, Rect viewRect) {
-            var startIndex = 1;
-            while (startIndex < positions.Count - 1) {
-                var i = startIndex;
-                for (; i < positions.Count - 1; i++) {
-                    var prev = Rect.PointToNormalized(viewRect, positions[i - 1]);
-                    var curr = Rect.PointToNormalized(viewRect, positions[i]);
-                    var next = Rect.PointToNormalized(viewRect, positions[i + 1]);
+        private void UpdateBackground() {
+            var viewRectVector = new Vector4(_viewRect.xMin, _viewRect.yMin, _viewRect.xMax, _viewRect.yMax);
+            _backgroundMaterialInstance.SetVector(ViewRectPropertyId, viewRectVector);
+            _backgroundMaterialInstance.SetFloat(SongDurationPropertyId, _songDuration);
+        }
 
-                    var a = next - curr;
-                    var b = curr - prev;
-                    if (a.magnitude > ReduceProximityMargin || b.magnitude > ReduceProximityMargin) continue;
-                    if (Vector2.Angle(a, b) > ReduceAngleMargin) continue;
-                    positions.RemoveAt(i);
-                    break;
-                }
-
-                startIndex = i;
-            }
+        public void SetCursor(float viewTime) {
+            _backgroundMaterialInstance.SetFloat(CursorPositionPropertyId, viewTime);
         }
 
         #endregion

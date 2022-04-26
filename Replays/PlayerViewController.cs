@@ -12,28 +12,58 @@ namespace BeatLeader.Replays
 {
     public class PlayerViewController : MonoBehaviour
     {
+        public class InitData
+        {
+            public readonly int fieldOfView;
+            public readonly int smoothness;
+            public readonly bool forceRefresh;
+
+            public InitData(int smoothness, int fieldOfView, bool forceRefresh)
+            {
+                this.smoothness = smoothness;
+                this.fieldOfView = fieldOfView;
+                this.forceRefresh = forceRefresh;
+            }
+        }
+
         [Inject] protected readonly MovementManager _movementManager;
+        [Inject] protected readonly MainCamera _mainCamera;
+        [Inject] protected readonly InitData _data;
 
         protected Camera _camera;
-        protected float _rotationSmooth = 2;
-        protected float _positionSmooth = 2;
+        protected float _smoothness;
+        protected float _fieldOfView;
+        protected bool _forceRefresh;
         protected bool _initialized;
 
         public void Start()
         {
             _camera = Resources.FindObjectsOfTypeAll<SmoothCamera>().First(x => x.transform.parent.name == "LocalPlayerGameCore").GetField<Camera, SmoothCamera>("_camera");
-            _camera.fieldOfView = 120;
-            _camera.enabled = true;
-            _initialized = true;
+            _mainCamera.camera.fieldOfView = 130;
+            _smoothness = _data.smoothness;
+            _fieldOfView = _data.fieldOfView;
+            _forceRefresh = _data.forceRefresh;
+            RefreshPlayerCamera();
         }
         public void LateUpdate()
         {
-            if (_movementManager.initialized && _initialized)
+            if (_forceRefresh && !_camera.enabled) RefreshPlayerCamera();
+            if (!_initialized && _movementManager.initialized)
             {
-                Vector3 position = Vector3.Lerp(_camera.transform.position, _movementManager.head.position, Time.deltaTime * _positionSmooth);
-                Quaternion rotation = Quaternion.Slerp(_camera.transform.rotation, _movementManager.head.rotation, Time.deltaTime * _rotationSmooth);
+                _mainCamera.transform.SetParent(_movementManager.head.transform, false);
+                _initialized = true;
+            }
+            else if (_movementManager.initialized)
+            {
+                Vector3 position = Vector3.Lerp(_camera.transform.position, _mainCamera.transform.position, Time.deltaTime * _smoothness);
+                Quaternion rotation = Quaternion.Slerp(_camera.transform.rotation, _mainCamera.transform.rotation, Time.deltaTime * _smoothness);
                 _camera.transform.SetPositionAndRotation(position, rotation);
             }
+        }
+        public void RefreshPlayerCamera()
+        {
+            _camera.fieldOfView = _fieldOfView;
+            _camera.enabled = true;
         }
     }
 }

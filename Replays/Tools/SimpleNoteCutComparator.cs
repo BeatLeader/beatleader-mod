@@ -42,15 +42,6 @@ namespace BeatLeader.Replays.MapEmitating
         public float cutTime => _noteCutEvent.eventTime;
         public int noteID => _noteCutEvent.noteID;
 
-        public void Init(NoteController noteController, NoteEvent noteCutEvent)
-        {
-            _noteController = noteController;
-            _noteCutEvent = noteCutEvent;
-            _noteCutter = _noteController.gameObject.AddComponent<SimpleNoteCutter>();
-            _noteController.noteWasCutEvent.Add(this);
-            _availableForCut = true;
-            _initialized = true;
-        }
         public void Update()
         {
             if (_initialized && availableForCut && timeSyncController != null && timeSyncController.songTime >= cutTime)
@@ -65,6 +56,15 @@ namespace BeatLeader.Replays.MapEmitating
         public void SetUnavailableForCut()
         {
             _availableForCut = false;
+        }
+        public void Init(NoteController noteController, NoteEvent noteCutEvent)
+        {
+            _noteController = noteController;
+            _noteCutEvent = noteCutEvent;
+            _noteCutter = _noteController.gameObject.AddComponent<SimpleNoteCutter>();
+            _noteController.noteWasCutEvent.Add(this);
+            _availableForCut = true;
+            _initialized = true;
         }
         public void HandleNoteControllerNoteWasCut()
         {

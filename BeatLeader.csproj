@@ -156,6 +156,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="VRUI, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\VRUI.dll</HintPath>
+    </Reference>
     <Reference Include="Zenject">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
@@ -269,14 +273,14 @@
     <Compile Include="Replays\Forms\NonVRReplayUI.Designer.cs">
       <DependentUpon>NonVRReplayUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="Replays\Interfaces\ISimpleCutScoreBuffer.cs" />
-    <Compile Include="Replays\Interfaces\ISimpleScoringInterlayer.cs" />
     <Compile Include="Replays\Interfaces\IStateChangeable.cs" />
     <Compile Include="Replays\Managers\NonVRUIManager.cs" />
     <Compile Include="Replays\MenuSabersManager.cs" />
     <Compile Include="Replays\Movement\MovementManager.cs" />
     <Compile Include="Replays\PlayerViewController.cs" />
     <Compile Include="Replays\ReplayManualInstaller.cs" />
+    <Compile Include="Replays\Scoring\Constructors\CutScoreBufferWithConstructor.cs" />
+    <Compile Include="Replays\Scoring\Constructors\GoodCutScoringElementWithConstructor.cs" />
     <Compile Include="Replays\Scoring\SimpleScoringData.cs" />
     <Compile Include="Replays\Tools\SimpleAvatarController.cs" />
     <Compile Include="Replays\Tools\SimpleNoteComparatorsSpawner.cs" />

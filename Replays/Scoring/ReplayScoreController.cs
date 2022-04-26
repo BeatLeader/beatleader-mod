@@ -177,7 +177,12 @@ namespace BeatLeader.Replays.Scoring
                     {
                         scoringData = new SimpleScoringData(noteController, noteController.GetNoteEvent(_replay), false);
                     }
-                    if (scoringData.noteEvent.noteCutInfo == null | scoringData.noteEvent.eventType == NoteEventType.miss) return;
+
+                    if (scoringData.noteEvent.noteCutInfo == null | scoringData.noteEvent.eventType == NoteEventType.miss)
+                    {
+                        Debug.LogWarning("Null?");
+                        return;
+                    }
 
                     SimpleCutScoringElement inElement = _simpleCutScoringElementPool.Spawn();
                     ScoringElement outElement = inElement;

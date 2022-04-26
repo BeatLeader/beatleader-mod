@@ -29,7 +29,7 @@ namespace BeatLeader.Replays.Movement
             PatchOriginalSabers();
             if (_initData.noteSyncMode)
             {
-                Destroy(Resources.FindObjectsOfTypeAll<CuttingManager>().FirstOrDefault());
+                Resources.FindObjectsOfTypeAll<CuttingManager>().FirstOrDefault().enabled = false;
                 Destroy(_leftHand.GetComponentInChildren<BoxCollider>());
                 Destroy(_rightHand.GetComponentInChildren<BoxCollider>());
             }

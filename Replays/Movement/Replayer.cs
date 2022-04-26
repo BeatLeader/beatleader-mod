@@ -52,7 +52,7 @@ namespace BeatLeader.Replays.Movement
             {
                 if (_lerpEnabled && nextFrame != null && frame != null)
                 {
-                    float slerp = ComputeLerp(frame, nextFrame);
+                    float slerp = ComputeLerp(frame.time, nextFrame.time);
                     leftHand.SetTransform(
                         Vector3.Lerp(frame.leftHand.position, nextFrame.leftHand.position, slerp),
                         Quaternion.Lerp(frame.leftHand.rotation, nextFrame.leftHand.rotation, slerp));
@@ -71,9 +71,9 @@ namespace BeatLeader.Replays.Movement
                 }
             }
         }
-        private float ComputeLerp(Frame current, Frame next)
+        private float ComputeLerp(float currentTime, float nextTime)
         {
-            return (float)((_songSyncController.songTime - current.time) / Mathf.Max((float)1E-06, next.time - current.time));
+            return (float)((_songSyncController.songTime - currentTime) / Mathf.Max((float)1E-06, nextTime - currentTime));
         }
     }
 }

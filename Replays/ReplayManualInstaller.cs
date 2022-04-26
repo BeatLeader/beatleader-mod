@@ -9,7 +9,7 @@ using BeatLeader.Replays.Managers;
 using BeatLeader.Replays.MapEmitating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Scoring;
-using BeatLeader.Core.Managers.ReplayEnhancer;
+using VRUIControls;
 using IPA.Utilities;
 using Zenject;
 using UnityEngine;
@@ -24,13 +24,32 @@ namespace BeatLeader.Replays
             public readonly bool generateInRealTime;
             public readonly bool noteSyncMode;
             public readonly bool movementLerp;
+            public readonly bool overrideCamera; //works only in fpfc
+            public readonly bool forceRefreshCamera; //allows to fix problems with camera re-enabling caused by RUE or another thing
+            public readonly int fieldOfView; 
+            public readonly int smoothness; //0-10, 0 - disabled
 
-            public InitData(bool compatibilityMode, bool generateInRealTime, bool noteSyncMode, bool movementLerp)
+            public InitData(bool noteSyncMode, bool movementLerp, bool generateInRealTime, bool compatibilityMode)
             {
-                this.compatibilityMode = compatibilityMode;
-                this.generateInRealTime = generateInRealTime;
                 this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
+                this.generateInRealTime = generateInRealTime;
+                this.compatibilityMode = compatibilityMode;
+                this.overrideCamera = false;
+                this.fieldOfView = 0;
+                this.smoothness = 0;
+                this.forceRefreshCamera = false;
+            }
+            public InitData(bool noteSyncMode, bool movementLerp, bool generateInRealTime, bool compatibilityMode, bool overrideCamera, int fieldOfView, int smoothness, bool forceRefreshCamera)
+            {
+                this.noteSyncMode = noteSyncMode;
+                this.movementLerp = movementLerp;
+                this.generateInRealTime = generateInRealTime;
+                this.compatibilityMode = compatibilityMode;
+                this.overrideCamera = overrideCamera;
+                this.fieldOfView = fieldOfView;
+                this.smoothness = smoothness;
+                this.forceRefreshCamera = forceRefreshCamera;
             }
         }
 
@@ -58,7 +77,13 @@ namespace BeatLeader.Replays
                 .FromComponentInNewPrefab(new GameObject("ComparatorPrefab")
                 .AddComponent<SimpleNoteCutComparator>());
             Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<PlayerViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            if (Container.Resolve<IVRPlatformHelper>().GetType() == typeof(DevicelessVRHelper))
+            {
+                Container.Bind<PlayerViewController.InitData>()
+                    .FromInstance(new PlayerViewController.InitData(data.smoothness, data.fieldOfView, data.forceRefreshCamera)).AsSingle();
+                Container.Bind<PlayerViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);
+            }
             //Container.Bind<NonVRUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy(); //fpfc form
 
             #region ScoreController patch

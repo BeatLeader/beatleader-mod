@@ -38,23 +38,23 @@ namespace BeatLeader.Installers
             if (ReplayMenuUI.asReplay)
             {
                 new ReplayManualInstaller().ManualInstall(ReplayMenuUI.replay, 
-                    new ReplayManualInstaller.InitData(true, true, false, true), Container);
+                    new ReplayManualInstaller.InitData(true, true, true, true, true, 130, 2, true), Container);
             }
             else InitRecorder();
         }
         private void InitRecorder()
         {
             #region Gates
-            if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
-            {
-                Plugin.Log.Warn("SS replay is running, BL Replay Recorder will not be started!");
-                return;
-            }
-            if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
-            {
-                Plugin.Log.Notice("OST level detected! Recording unavailable!");
-                return;
-            }
+            //if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
+            //{
+            //    Plugin.Log.Warn("SS replay is running, BL Replay Recorder will not be started!");
+            //    return;
+            //}
+            //if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
+            //{
+            //    Plugin.Log.Notice("OST level detected! Recording unavailable!");
+            //    return;
+            //}
             #endregion
 
             Plugin.Log.Debug("Starting a BL Replay Recorder.");

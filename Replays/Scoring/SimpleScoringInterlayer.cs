@@ -11,9 +11,9 @@ using Zenject;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class SimpleScoringInterlayer : ISimpleScoringInterlayer
+    public class SimpleScoringInterlayer
     {
-        public class Pool : MemoryPool<SimpleScoringInterlayer> 
+        public class Pool : MemoryPool<SimpleScoringInterlayer>
         {
             protected override void Reinitialize(SimpleScoringInterlayer item)
             {
@@ -39,28 +39,15 @@ namespace BeatLeader.Replays.Scoring
         }
         public virtual void ConvertScoringElement(ScoringElement element, IReadonlyCutScoreBuffer buffer)
         {
-            SimpleCutScoringElement scoringElementWithInterlayer;
-            if ((scoringElementWithInterlayer = (element as SimpleCutScoringElement)) != null)
-            {
-                GoodCutScoringElement goodCutScoringElement = new GoodCutScoringElement();
-                ConvertBuffer(scoringElementWithInterlayer.cutScoreBuffer);
-                goodCutScoringElement.SetField("_multiplierEventType", scoringElementWithInterlayer.multiplierEventType);
-                goodCutScoringElement.SetField("_wouldBeCorrectCutBestPossibleMultiplierEventType", scoringElementWithInterlayer.wouldBeCorrectCutBestPossibleMultiplierEventType);
-                goodCutScoringElement.SetField("_cutScoreBuffer", ConvertBuffer(buffer));
-                goodCutScoringElement.GetType().GetProperty("noteData").SetValue(goodCutScoringElement, scoringElementWithInterlayer.noteData);
-                goodCutScoringElement.GetType().GetProperty("isFinished").SetValue(goodCutScoringElement, true);
-                _scoringElement = goodCutScoringElement;
-            }
+            GoodCutScoringElement goodCutScoringElement = new GoodCutScoringElementWithConstructor(
+                ConvertBuffer(buffer), element.multiplierEventType,
+                element.wouldBeCorrectCutBestPossibleMultiplierEventType);
+            _scoringElement = goodCutScoringElement;
         }
-        public virtual CutScoreBuffer ConvertBuffer(IReadonlyCutScoreBuffer buffer)
+        private CutScoreBuffer ConvertBuffer(IReadonlyCutScoreBuffer buffer)
         {
-            CutScoreBuffer cutScoreBuffer = new CutScoreBuffer();
-            cutScoreBuffer.SetField("_noteCutInfo", buffer.noteCutInfo);
-            cutScoreBuffer.SetField("_noteScoreDefinition", buffer.noteScoreDefinition);
-            cutScoreBuffer.SetField("_afterCutScore", buffer.afterCutScore);
-            cutScoreBuffer.SetField("_beforeCutScore", buffer.beforeCutScore);
-            cutScoreBuffer.SetField("_centerDistanceCutScore", buffer.centerDistanceCutScore);
-            cutScoreBuffer.SetField("_isFinished", buffer.isFinished);
+            CutScoreBuffer cutScoreBuffer = new CutScoreBufferWithConstructor(buffer.noteCutInfo, buffer.noteScoreDefinition,
+                buffer.afterCutScore, buffer.beforeCutScore, buffer.centerDistanceCutScore);
             return cutScoreBuffer;
         }
     }

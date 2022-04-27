@@ -29,6 +29,10 @@ namespace BeatLeader.Installers {
                     Plugin.Log.Debug("OST level detected. No recording.");
                     return;
                 }
+                if (GetSetupDataSO()?.gameMode != "Solo") {
+                    Plugin.Log.Debug("Not a \"Solo\" game mode");
+                    return;
+                }
                 #endregion
 
                 Plugin.Log.Debug("Starting a BL Replay Recorder.");
@@ -40,6 +44,15 @@ namespace BeatLeader.Installers {
             }
         }
 
+        private StandardLevelScenesTransitionSetupDataSO GetSetupDataSO() {
+            try {
+                return Container.TryResolve<StandardLevelScenesTransitionSetupDataSO>();
+            } catch {
+                return null;
+            }
+        }
+
+        // TODO: remove this after verifying of an "allowed flows" strategy
         private static readonly MethodBase ScoreSaber_playbackEnabled = AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
     }
 }

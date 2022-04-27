@@ -17,6 +17,16 @@ namespace BeatLeader.Manager {
 
         # endregion
 
+        #region SceneTransitionStarted
+
+        public static event Action SceneTransitionStartedEvent;
+
+        public static void NotifySceneTransitionStarted() {
+            SceneTransitionStartedEvent?.Invoke();
+        }
+
+        # endregion
+
         //-- OUTPUT -----------------
 
         #region UpButtonWasPressed

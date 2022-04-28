@@ -129,7 +129,7 @@ namespace BeatLeader {
             var noteId = _noteId++;
             _noteIdCache[noteData] = noteId;
             NoteEvent noteEvent = new();
-            noteEvent.noteID = noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
+            noteEvent.noteID = ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
             noteEvent.spawnTime = noteData.time;
             _noteEventCache[noteId] = noteEvent;
         }

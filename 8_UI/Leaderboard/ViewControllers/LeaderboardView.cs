@@ -81,19 +81,15 @@ namespace BeatLeader.ViewControllers {
         [UIComponent("scores-modal"), UsedImplicitly]
         private ModalView _scoresModal;
 
-        private bool _modalVisible;
-
         private void ShowScoreModal() {
-            if (_modalVisible || _scoresModal == null) return;
+            if (_scoresModal == null) return;
             _scoresModal.Show(true, true);
             _scoresModal.transform.position += ModalOffset;
-            _modalVisible = true;
         }
 
         private void HideScoreModal(bool animated) {
-            if (!_modalVisible || _scoresModal == null) return;
+            if (_scoresModal == null) return;
             _scoresModal.Hide(animated);
-            _modalVisible = false;
         }
 
         #endregion

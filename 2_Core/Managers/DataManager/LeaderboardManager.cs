@@ -20,20 +20,20 @@ namespace BeatLeader.DataManager {
 
         public void Start() {
             LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
-            LeaderboardState.ScoresContextChangedEvent += ChangeScoreContext;
+            PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
 
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
 
-            _selectedScoreContext = LeaderboardState.ScoresContext;
+            _selectedScoreContext = PluginConfig.ScoresContext;
             _selectedScoreScope = LeaderboardState.ScoresScope;
         }
 
         private void OnDestroy() {
             LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
-            LeaderboardState.ScoresContextChangedEvent -= ChangeScoreContext;
+            PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
 
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;

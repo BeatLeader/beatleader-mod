@@ -12,8 +12,8 @@ namespace BeatLeader.Components {
 
         private void Start() {
             SetMaterials();
-            LeaderboardState.ScoresContextChangedEvent += OnScoresContextChanged;
-            OnScoresContextChanged(LeaderboardState.ScoresContext);
+            PluginConfig.ScoresContextChangedEvent += OnScoresContextChanged;
+            OnScoresContextChanged(PluginConfig.ScoresContext);
         }
 
         #endregion
@@ -58,7 +58,7 @@ namespace BeatLeader.Components {
 
         [UIAction("modifiers-on-click"), UsedImplicitly]
         private void NavModifiersOnClick() {
-            LeaderboardState.ScoresContext = LeaderboardState.ScoresContext switch {
+            PluginConfig.ScoresContext = PluginConfig.ScoresContext switch {
                 ScoresContext.Standard => ScoresContext.Modifiers,
                 ScoresContext.Modifiers => ScoresContext.Standard,
                 _ => throw new ArgumentOutOfRangeException()

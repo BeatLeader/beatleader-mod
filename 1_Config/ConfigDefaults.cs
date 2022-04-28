@@ -1,5 +1,7 @@
+using BeatLeader.Models;
+
 namespace BeatLeader {
-    public static class ConfigDefaults {
+    internal static class ConfigDefaults {
         #region ConfigVersion
 
         public const string ConfigVersion = "1.0";
@@ -9,6 +11,12 @@ namespace BeatLeader {
         #region Enabled
 
         public const bool Enabled = true;
+
+        #endregion
+
+        #region ScoresContext
+
+        public static readonly ScoresContext ScoresContext = ScoresContext.Modifiers;
 
         #endregion
     }

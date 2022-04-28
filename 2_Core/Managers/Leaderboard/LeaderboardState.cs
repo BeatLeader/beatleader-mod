@@ -29,23 +29,6 @@ namespace BeatLeader {
 
         #endregion
 
-        #region ScoresContext
-
-        public static event Action<ScoresContext> ScoresContextChangedEvent;
-
-        private static ScoresContext _scoresContext = ScoresContext.Modifiers;
-
-        public static ScoresContext ScoresContext {
-            get => _scoresContext;
-            set {
-                if (_scoresContext.Equals(value)) return;
-                _scoresContext = value;
-                ScoresContextChangedEvent?.Invoke(value);
-            }
-        }
-
-        #endregion
-
         #region ScoresScope
 
         public static event Action<ScoresScope> ScoresScopeChangedEvent;

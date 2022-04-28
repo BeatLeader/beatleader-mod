@@ -61,6 +61,7 @@ namespace BeatLeader {
         #region TransformPointFrom3DToCanvas
 
         public static Vector2 TransformPointFrom3DToCanvas(Vector3 point, float canvasRadius) {
+            if (canvasRadius < 1e-10f) return point;
             var x = Mathf.Asin(point.x / canvasRadius) * canvasRadius;
             return new Vector2(x, point.y);
         }

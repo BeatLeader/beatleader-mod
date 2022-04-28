@@ -5,7 +5,6 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
@@ -51,7 +50,7 @@ namespace BeatLeader.DataManager {
             LoadScores();
         }
 
-        #region score fetching
+        #region Score fetching
 
         private void LoadScores() {
             if (_scoresTask != null) {
@@ -61,13 +60,14 @@ namespace BeatLeader.DataManager {
 
             LeaderboardState.ScoresRequest.NotifyStarted();
 
+            if (BLContext.NoPlayerData) { return; }
+            string userId = BLContext.profile.id;
+
             string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             string diff = _lastSelectedBeatmap.difficulty.ToString();
             string mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             string scope = _selectedScoreScope.ToString().ToLowerInvariant();
             string context = _selectedScoreContext.ToString().ToLower();
-
-            string userId = BLContext.profile.id;
 
             _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                 String.Format(BLConstants.SCORES_BY_HASH_PAGED, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
@@ -91,13 +91,14 @@ namespace BeatLeader.DataManager {
 
             LeaderboardState.ScoresRequest.NotifyStarted();
 
+            if (BLContext.NoPlayerData) { return; }
+            string userId = BLContext.profile.id;
+
             string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             string diff = _lastSelectedBeatmap.difficulty.ToString();
             string mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             string scope = _selectedScoreScope.ToString().ToLowerInvariant();
             string context = _selectedScoreContext.ToString().ToLower();
-
-            string userId = BLContext.profile.id;
 
             _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                 String.Format(BLConstants.SCORES_BY_HASH_SEEK, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {

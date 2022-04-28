@@ -13,8 +13,8 @@ namespace BeatLeader.DataManager {
         [Inject] private GameplaySetupViewController _gameplayController;
         private GameplayModifiersPanelController _modifiersController;
 
-        private readonly string _positiveColor = "#FF00BB";
-        private readonly string _multiplierColor = "#A67AFF";
+        private readonly string _positiveColor = "#00FF77";
+        private readonly string _multiplierColor = "#00FFFF";
 
         private enum State { Default, Overriden }
         private State _state = State.Default;

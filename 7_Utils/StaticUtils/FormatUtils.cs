@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using ModestTree;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -93,7 +94,7 @@ namespace BeatLeader {
         private const string ModifiersColor = "#999999";
 
         public static string FormatModifiers(string modifiers) {
-            return $"<color={ModifiersColor}>{modifiers}";
+            return modifiers.IsEmpty() ? "" : $"<color={ModifiersColor}>{modifiers}";
         }
 
         #endregion

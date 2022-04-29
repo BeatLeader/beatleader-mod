@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using BeatLeader.Models;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
 
@@ -6,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace BeatLeader {
     [UsedImplicitly]
-    public class ConfigFileData {
+    internal class ConfigFileData {
         public static ConfigFileData Instance { get; set; }
 
         #region ConfigVersion
@@ -18,6 +19,12 @@ namespace BeatLeader {
         #region Enabled
 
         public bool Enabled = ConfigDefaults.Enabled;
+
+        #endregion
+
+        #region ScoresContext
+
+        public ScoresContext ScoresContext = ConfigDefaults.ScoresContext;
 
         #endregion
     }

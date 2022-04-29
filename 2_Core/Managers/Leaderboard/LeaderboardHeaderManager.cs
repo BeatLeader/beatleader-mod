@@ -11,11 +11,11 @@ namespace BeatLeader {
         #region Initialize & Dispose
 
         public void Initialize() {
-            LeaderboardEvents.IsLeaderboardVisibleChangedEvent += OnVisibilityChanged;
+            LeaderboardState.IsVisibleChangedEvent += OnVisibilityChanged;
         }
 
         public void Dispose() {
-            LeaderboardEvents.IsLeaderboardVisibleChangedEvent -= OnVisibilityChanged;
+            LeaderboardState.IsVisibleChangedEvent -= OnVisibilityChanged;
         }
 
         #endregion

@@ -1,0 +1,26 @@
+<horizontal active="~active" pref-height="30">
+    <macro.define name="spacing" value="1"/>
+    
+    <vertical pad="2" spacing="~spacing" bg="round-rect-panel">
+        <!--  TOP LINE LAYER  -->
+        <horizontal spacing="~spacing" horizontal-fit="PreferredSize">
+            <macro.for-each items="top-layer-cells">
+                <macro.reparent transform="root"/>
+            </macro.for-each>
+        </horizontal>
+
+        <!--  UPPER LINE LAYER  -->
+        <horizontal spacing="~spacing" horizontal-fit="PreferredSize">
+            <macro.for-each items="upper-layer-cells">
+                <macro.reparent transform="root"/>
+            </macro.for-each>
+        </horizontal>
+
+        <!--  BASE LINE LAYER  -->
+        <horizontal spacing="~spacing" horizontal-fit="PreferredSize">
+            <macro.for-each items="base-layer-cells">
+                <macro.reparent transform="root"/>
+            </macro.for-each>
+        </horizontal>
+    </vertical>
+</horizontal>

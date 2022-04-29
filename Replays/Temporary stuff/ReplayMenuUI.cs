@@ -34,7 +34,7 @@ namespace BeatLeader
         protected static bool _isPatched;
         protected static bool _inSearch;
 
-        public static ReplayMenuLauncher laucher;
+        public static ReplayMenuLauncher launcher;
 
         public static GameObject LevelWrapContainer
         {
@@ -74,7 +74,7 @@ namespace BeatLeader
         public static void StartInReplayMode()
         {
             _asReplay = true;
-            laucher.StartLevelWithReplay(_beatmapDifficulty, _previewBeatmapLevel, _replay);
+            launcher.StartLevelWithReplay(_beatmapDifficulty, _previewBeatmapLevel, _replay);
         }
         private static void SetButtonState(bool state) => _replayButton.interactable = state;
         public static async void CheckIsReplayExists(IDifficultyBeatmap beatmap)

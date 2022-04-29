@@ -1,0 +1,7 @@
+<vertical pref-width="8" pad-left="1" pad-right="1">
+    <macro.define name="font-size" value="3.4"/>
+    
+    <text text="~pre-score" word-wrapping="false" font-size="~font-size" align="Center"/>
+    <text text="~acc-score" word-wrapping="false" font-size="~font-size" align="Center"/>
+    <text text="~post-score" word-wrapping="false" font-size="~font-size" align="Center"/>
+</vertical>

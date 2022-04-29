@@ -14,7 +14,7 @@ using Transform = BeatLeader.Models.Transform;
 
 namespace BeatLeader {
     [UsedImplicitly]
-    public class ReplayRecorder : IInitializable, IDisposable, ITickable {
+    public class ReplayRecorder : IInitializable, IDisposable, ILateTickable {
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
@@ -25,7 +25,6 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private PlayerHeadAndObstacleInteraction _phaoi;
         [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
         [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
-        [Inject] [UsedImplicitly] private ScoreUtil _scoreUtil;
 
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
@@ -94,7 +93,7 @@ namespace BeatLeader {
             }
         }
 
-        public void Tick() {
+        public void LateTick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
             var frame = new Frame() {
@@ -130,7 +129,7 @@ namespace BeatLeader {
             var noteId = _noteId++;
             _noteIdCache[noteData] = noteId;
             NoteEvent noteEvent = new();
-            noteEvent.noteID = noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
+            noteEvent.noteID = ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
             noteEvent.spawnTime = noteData.time;
             _noteEventCache[noteId] = noteEvent;
         }
@@ -144,7 +143,7 @@ namespace BeatLeader {
 
             WallEvent wallEvent = new();
             wallEvent.wallID = obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
-            wallEvent.spawnTime = _timeSyncController.songTime;
+            wallEvent.spawnTime = obstacleData.time;
             _wallEventCache[wallId] = wallEvent;
         }
 
@@ -224,8 +223,8 @@ namespace BeatLeader {
             switch (results.levelEndStateType)
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
-                    Plugin.Log.Info("Level Cleared. Saving replay");
-                    _scoreUtil.ProcessReplay(_replay);
+                    Plugin.Log.Info("Level Cleared. Save replay");
+                    ScoreUtil.instance.ProcessReplayAsync(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
                     if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
@@ -235,8 +234,8 @@ namespace BeatLeader {
                     else
                     {
                         _replay.info.failTime = _timeSyncController.songTime;
-                        Plugin.Log.Info("Level Failed. Saving replay");
-                        _scoreUtil.ProcessReplay(_replay);
+                        Plugin.Log.Info("Level Failed. Save replay");
+                        ScoreUtil.instance.ProcessReplayAsync(_replay);
                     }
                     break;
             }

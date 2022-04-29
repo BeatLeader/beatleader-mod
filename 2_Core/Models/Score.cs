@@ -2,6 +2,7 @@
 {
     internal class Score
     {
+        public int id;
         public float accuracy;
         public int baseScore;
         public int modifiedScore;

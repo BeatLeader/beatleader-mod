@@ -1,23 +1,20 @@
-using BeatLeader.Replays;
 using BeatLeader.DataManager;
-using BeatLeader.Utils;
 using BeatLeader.ViewControllers;
+using BeatLeader.Replays;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]
-    public class OnMenuInstaller : Installer<OnMenuInstaller> 
-    {
-        public override void InstallBindings() 
-        {
+    public class OnMenuInstaller : Installer<OnMenuInstaller> {
+        public override void InstallBindings() {
+            Plugin.Log.Debug("OnMenuInstaller");
+
             BindLeaderboard();
-            var launcher = new GameObject("ReplayzLauncher").AddComponent<ReplayMenuLauncher>();
-            Container.Bind<ReplayMenuLauncher>().FromInstance(launcher).AsSingle();
-            launcher.InjectAllFields(Container);
-            ReplayMenuUI.laucher = launcher;
-            //Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayMenuLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            ReplayMenuUI.launcher = Container.Resolve<ReplayMenuLauncher>();
+            // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }
 
         private void BindLeaderboard() {
@@ -25,11 +22,6 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<LeaderboardPanel>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardHeaderManager>().AsSingle();
-
-            Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<ProfileManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            Container.BindInterfacesAndSelfTo<HttpUtils>().AsSingle();
         }
     }
 }

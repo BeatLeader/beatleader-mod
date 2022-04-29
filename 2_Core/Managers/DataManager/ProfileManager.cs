@@ -1,49 +1,48 @@
 ﻿using System;
-using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using Steamworks;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class ProfileManager : MonoBehaviour {
-        private HttpUtils _httpUtils;
         private Coroutine _profileTask;
 
-        [Inject]
-        public void Construct(HttpUtils httpUtils) {
-            _httpUtils = httpUtils;
-        }
-
         private void Start() {
-            LeaderboardEvents.UploadSuccessAction += UpdateProfile;
+            LeaderboardState.UploadRequest.FinishedEvent += UpdateFromScore;
             UpdateProfile();
         }
 
         private void OnDestroy() {
-            LeaderboardEvents.UploadSuccessAction -= UpdateProfile;
+            LeaderboardState.UploadRequest.FinishedEvent -= UpdateFromScore;
         }
 
         private void UpdateProfile() {
             if (_profileTask != null) {
                 StopCoroutine(_profileTask);
+                LeaderboardState.ProfileRequest.TryNotifyCancelled();
             }
 
-            LeaderboardEvents.ProfileRequestStarted();
+            LeaderboardState.ProfileRequest.NotifyStarted();
 
             string userID = SteamUser.GetSteamID().m_SteamID.ToString();
             _profileTask = StartCoroutine(
-                _httpUtils.GetData<Player>(String.Format(BLConstants.PROFILE_BY_ID, userID),
+                HttpUtils.GetData<Player>(String.Format(BLConstants.PROFILE_BY_ID, userID),
                 profile => {
-                    LeaderboardEvents.PublishProfile(profile);
+                    LeaderboardState.ProfileRequest.NotifyFinished(profile);
                     BLContext.profile = profile;
                 },
-                () => {
+                reason => {
                     Plugin.Log.Debug($"No profile for id {userID} was found. Abort");
-                    LeaderboardEvents.NotifyProfileRequestFailed();
-                    return;
+                    LeaderboardState.ProfileRequest.NotifyFailed(reason);
                 }));
+        }
+
+        private void UpdateFromScore(Score score) {
+            if (score?.player != null) {
+                LeaderboardState.ProfileRequest.NotifyFinished(score.player);
+                BLContext.profile = score.player;
+            }
         }
     }
 }

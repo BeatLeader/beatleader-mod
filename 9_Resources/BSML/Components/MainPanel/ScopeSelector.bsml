@@ -1,0 +1,17 @@
+<horizontal preferred-height="18">
+    <macro.define name="icon-height" value="4"/>
+
+    <vertical pref-width="8" spacing="1" pad="2" bg="round-rect-panel" bg-color="#000000AA">
+        <!--  GLOBAL BUTTON  -->
+        <clickable-image src="#GlobalIcon" id="global-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="global-on-click" hover-hint="Global"/>
+        
+        <!--  FRIENDS BUTTON  -->
+        <clickable-image src="#FriendsIcon" id="friends-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="friends-on-click" hover-hint="Friends"/>
+
+        <!--  COUNTRY BUTTON  -->
+        <clickable-image src="#LocationIcon" id="country-component" pref-height="~icon-height" preserve-aspect="true"
+                         on-click="country-on-click" hover-hint="Country"/>
+    </vertical>
+</horizontal>

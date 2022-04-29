@@ -5,45 +5,35 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
-
         private ScoresScope _selectedScoreScope;
         private ScoresContext _selectedScoreContext;
         private int _lastSelectedPage = 1;
         private IDifficultyBeatmap _lastSelectedBeatmap;
 
         private Coroutine _scoresTask;
-        private HttpUtils _httpUtils;
-
-        [Inject]
-        public void Construct(HttpUtils httpUtils) {
-            _httpUtils = httpUtils;
-
-            _selectedScoreScope = ScoresScope.Global;
-            _selectedScoreContext = BLContext.DefaultScoresContext;
-        }
 
         #region Initialize/Dispose section
 
         public void Start() {
-            LeaderboardEvents.UploadSuccessAction += LoadScores;
-
-            LeaderboardEvents.ScopeWasSelectedAction += ChangeScoreProvider;
-            LeaderboardEvents.ContextWasSelectedAction += ChangeScoreContext;
+            LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
+            PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
+            LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
 
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
+
+            _selectedScoreContext = PluginConfig.ScoresContext;
+            _selectedScoreScope = LeaderboardState.ScoresScope;
         }
 
         private void OnDestroy() {
-            LeaderboardEvents.UploadSuccessAction -= LoadScores;
-
-            LeaderboardEvents.ScopeWasSelectedAction -= ChangeScoreProvider;
-            LeaderboardEvents.ContextWasSelectedAction -= ChangeScoreContext;
+            LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
+            PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
+            LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
 
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;
@@ -60,14 +50,18 @@ namespace BeatLeader.DataManager {
             LoadScores();
         }
 
-        #region score fetching
+        #region Score fetching
 
         private void LoadScores() {
             if (_scoresTask != null) {
                 StopCoroutine(_scoresTask);
+                LeaderboardState.ScoresRequest.TryNotifyCancelled();
             }
 
-            LeaderboardEvents.ScoreRequestStarted();
+            LeaderboardState.ScoresRequest.NotifyStarted();
+
+            if (BLContext.NoPlayerData) { return; }
+            string userId = BLContext.profile.id;
 
             string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             string diff = _lastSelectedBeatmap.difficulty.ToString();
@@ -75,9 +69,7 @@ namespace BeatLeader.DataManager {
             string scope = _selectedScoreScope.ToString().ToLowerInvariant();
             string context = _selectedScoreContext.ToString().ToLower();
 
-            string userId = BLContext.profile.id;
-
-            _scoresTask = StartCoroutine(_httpUtils.GetPagedData<Score>(
+            _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                 String.Format(BLConstants.SCORES_BY_HASH_PAGED, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
                     { BLConstants.Param.PLAYER, userId },
                     { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
@@ -85,18 +77,22 @@ namespace BeatLeader.DataManager {
                 })),
                 paged => {
                     _lastSelectedPage = paged.metadata.page;
-                    LeaderboardEvents.PublishScores(paged);
-                }, () => {
-                    LeaderboardEvents.NotifyScoresFetchFailed();
+                    LeaderboardState.ScoresRequest.NotifyFinished(paged);
+                }, reason => {
+                    LeaderboardState.ScoresRequest.NotifyFailed(reason);
                 }));
         }
 
         private void SeekScores() {
             if (_scoresTask != null) {
                 StopCoroutine(_scoresTask);
+                LeaderboardState.ScoresRequest.TryNotifyCancelled();
             }
 
-            LeaderboardEvents.ScoreRequestStarted();
+            LeaderboardState.ScoresRequest.NotifyStarted();
+
+            if (BLContext.NoPlayerData) { return; }
+            string userId = BLContext.profile.id;
 
             string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
             string diff = _lastSelectedBeatmap.difficulty.ToString();
@@ -104,22 +100,24 @@ namespace BeatLeader.DataManager {
             string scope = _selectedScoreScope.ToString().ToLowerInvariant();
             string context = _selectedScoreContext.ToString().ToLower();
 
-            string userId = BLContext.profile.id;
-
-            _scoresTask = StartCoroutine(_httpUtils.GetPagedData<Score>(
+            _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                 String.Format(BLConstants.SCORES_BY_HASH_SEEK, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
                     { BLConstants.Param.PLAYER, userId },
                     { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
                 })),
                 paged => {
                     _lastSelectedPage = paged.metadata.page;
-                    LeaderboardEvents.PublishScores(paged);
-                }, () => {
-                    LeaderboardEvents.NotifyScoresFetchFailed();
+                    LeaderboardState.ScoresRequest.NotifyFinished(paged);
+                }, reason => {
+                    LeaderboardState.ScoresRequest.NotifyFailed(reason);
                 }));
         }
 
         #endregion
+
+        private void OnUploadSuccess(Score score) {
+            LoadScores();
+        }
 
         #region Select score scope
 

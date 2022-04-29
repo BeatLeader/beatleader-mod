@@ -21,19 +21,10 @@ namespace BeatLeader.Replays.MapEmitating
         protected List<SimpleNoteCutComparator> _spawnedComparators;
         protected bool _initialized;
 
-        protected bool _spawnInRealTime;
-        protected bool _spawnAsync;
-
         public void Start()
         {
-            _spawnInRealTime = _initData.generateInRealTime;
             _spawnedComparators = new List<SimpleNoteCutComparator>();
-            if (!_spawnInRealTime)
-            {
-                _spawnAsync = false;
-                PreloadComparators();
-            }
-            else _beatmapObjectManager.noteWasSpawnedEvent += AddNoteComparator;
+            _beatmapObjectManager.noteWasSpawnedEvent += AddNoteComparator;
             _initialized = true;
         }
         public void Update()
@@ -57,10 +48,7 @@ namespace BeatLeader.Replays.MapEmitating
         }
         public void OnDestroy()
         {
-            if (_spawnInRealTime)
-            {
-                _beatmapObjectManager.noteWasSpawnedEvent -= AddNoteComparator;
-            }
+            _beatmapObjectManager.noteWasSpawnedEvent -= AddNoteComparator;
         }
         public bool TryGetLoadedComparator(NoteController noteController, out SimpleNoteCutComparator comparator)
         {
@@ -87,24 +75,6 @@ namespace BeatLeader.Replays.MapEmitating
             }
             comparator = null;
             return false;
-        }
-        private void PreloadComparators()
-        {
-            if (!_initialized)
-            {
-                var controllers = Resources.FindObjectsOfTypeAll<NoteController>();
-                foreach (var item in controllers)
-                {
-                    var noteEvents = item.GetAllNoteEventsForNoteController(_replay);
-                    foreach (var item2 in noteEvents)
-                    {
-                        if (item2 != null && item2.eventType != NoteEventType.miss && item2.noteCutInfo != null)
-                        {
-                            AddNoteComparator(item, item2);
-                        }
-                    }
-                }
-            }
         }
         private void AddNoteComparator(NoteController controller, NoteEvent noteCutEvent)
         {

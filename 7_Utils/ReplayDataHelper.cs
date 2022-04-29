@@ -138,6 +138,63 @@ namespace BeatLeader.Utils
         #endregion
 
         #region Replaying
+        public static GameplayModifiers GetModifiersFromReplay(this Replay replay)
+        {
+            ReplayModifiers replayModifiers = new ReplayModifiers();
+            string[] modifiers = replay.info.modifiers.Split(',');
+            foreach (string modifier in modifiers)
+            {
+                switch (modifier)
+                {
+                    case "DA":
+                        replayModifiers.disappearingArrows = true;
+                        break;
+                    case "FS":
+                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.Faster;
+                        break;
+                    case "SS":
+                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.Slower;
+                        break;
+                    case "SF":
+                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.SuperFast;
+                        break;
+                    case "GN":
+                        replayModifiers.ghostNotes = true;
+                        break;
+                    case "NA":
+                        replayModifiers.noArrows = true;
+                        break;
+                    case "NB":
+                        replayModifiers.noBombs = true;
+                        break;
+                    case "NF":
+                        replayModifiers.noFailOn0Energy = true;
+                        break;
+                    case "NO":
+                        replayModifiers.enabledObstacleType = GameplayModifiers.EnabledObstacleType.NoObstacles;
+                        break;
+                    case "SA":
+                        replayModifiers.strictAngles = true;
+                        break;
+                    case "PM":
+                        replayModifiers.proMode = true;
+                        break;
+                    case "SC":
+                        replayModifiers.smallCubes = true;
+                        break;
+                    case "CS":
+                        replayModifiers.failOnSaberClash = true;
+                        break;
+                    case "IF":
+                        replayModifiers.instaFail = true;
+                        break;
+                    case "BE":
+                        replayModifiers.energyType = GameplayModifiers.EnergyType.Battery;
+                        break;
+                }
+            }
+            return replayModifiers;
+        }
         public static PracticeSettings GetPracticeSettings(this Replay replay)
         {
             if (replay.info.startTime == 0) return null;
@@ -273,63 +330,6 @@ namespace BeatLeader.Utils
                 }
             }
             return null;
-        }
-        public static GameplayModifiers GetModifiersFromReplay(this Replay replay)
-        {
-            ReplayModifiers replayModifiers = new ReplayModifiers();
-            string[] modifiers = replay.info.modifiers.Split(',');
-            foreach (string modifier in modifiers)
-            {
-                switch (modifier)
-                {
-                    case "DA":
-                        replayModifiers.disappearingArrows = true;
-                        break;
-                    case "FS":
-                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.Faster;
-                        break;
-                    case "SS":
-                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.Slower;
-                        break;
-                    case "SF":
-                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.SuperFast;
-                        break;
-                    case "GN":
-                        replayModifiers.ghostNotes = true;
-                        break;
-                    case "NA":
-                        replayModifiers.noArrows = true;
-                        break;
-                    case "NB":
-                        replayModifiers.noBombs = true;
-                        break;
-                    case "NF":
-                        replayModifiers.noFailOn0Energy = true;
-                        break;
-                    case "NO":
-                        replayModifiers.enabledObstacleType = GameplayModifiers.EnabledObstacleType.NoObstacles;
-                        break;
-                    case "SA":
-                        replayModifiers.strictAngles = true;
-                        break;
-                    case "PM":
-                        replayModifiers.proMode = true;
-                        break;
-                    case "SC":
-                        replayModifiers.smallCubes = true;
-                        break;
-                    case "CS":
-                        replayModifiers.failOnSaberClash = true;
-                        break;
-                    case "IF":
-                        replayModifiers.instaFail = true;
-                        break;
-                    case "BE":
-                        replayModifiers.energyType = GameplayModifiers.EnergyType.Battery;
-                        break;
-                }
-            }
-            return replayModifiers;
         }
         public static Replay GetReplayWithScore(this List<Replay> replays, Score score)
         {

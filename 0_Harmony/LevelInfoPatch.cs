@@ -37,7 +37,7 @@ namespace BeatLeader
         }
     }
 
-    [HarmonyPatch(typeof(GameScenesManager), "SceneNamesFromSceneInfoArray")]
+    //[HarmonyPatch(typeof(GameScenesManager), "SceneNamesFromSceneInfoArray")]
     public class ScenePatch
     {
         private static void Prefix(SceneInfo[] sceneInfos)

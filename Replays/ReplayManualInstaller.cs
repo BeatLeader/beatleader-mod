@@ -21,7 +21,6 @@ namespace BeatLeader.Replays
         public class InitData
         {
             public readonly bool compatibilityMode;
-            public readonly bool generateInRealTime;
             public readonly bool noteSyncMode;
             public readonly bool movementLerp;
             public readonly bool overrideCamera; //works only in fpfc
@@ -29,22 +28,20 @@ namespace BeatLeader.Replays
             public readonly int fieldOfView; 
             public readonly int smoothness; //0-10, 0 - disabled
 
-            public InitData(bool noteSyncMode, bool movementLerp, bool generateInRealTime, bool compatibilityMode)
+            public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode)
             {
                 this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
-                this.generateInRealTime = generateInRealTime;
                 this.compatibilityMode = compatibilityMode;
                 this.overrideCamera = false;
                 this.fieldOfView = 0;
                 this.smoothness = 0;
                 this.forceRefreshCamera = false;
             }
-            public InitData(bool noteSyncMode, bool movementLerp, bool generateInRealTime, bool compatibilityMode, bool overrideCamera, int fieldOfView, int smoothness, bool forceRefreshCamera)
+            public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode, bool overrideCamera, int fieldOfView, int smoothness, bool forceRefreshCamera)
             {
                 this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
-                this.generateInRealTime = generateInRealTime;
                 this.compatibilityMode = compatibilityMode;
                 this.overrideCamera = overrideCamera;
                 this.fieldOfView = fieldOfView;
@@ -84,7 +81,9 @@ namespace BeatLeader.Replays
                     .FromInstance(new PlayerViewController.InitData(data.smoothness, data.fieldOfView, data.forceRefreshCamera)).AsSingle();
                 Container.Bind<PlayerViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);
+                Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(false); //fpfc burn marks does not disappearing base game bug, bg, please, fix it
             }
+            else Container.Bind<ReplayPlaybackUI>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             //Container.Bind<NonVRUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy(); //fpfc form
 
             #region ScoreController patch
@@ -109,8 +108,6 @@ namespace BeatLeader.Replays
             Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayPlaybackUI>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Debug.LogWarning("Manual bindings installed");
         }
         public static void Install(Replay replay, InitData data, DiContainer Container)
         {

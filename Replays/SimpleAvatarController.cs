@@ -7,7 +7,7 @@ using BeatLeader.Replays.Movement;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.MapEmitating
+namespace BeatLeader.Replays
 {
     public class SimpleAvatarController : MonoBehaviour
     {

@@ -67,7 +67,7 @@ namespace BeatLeader.Replays
             typeof(VRsenalScoreLogger),
         };
 
-        public void ManualInstall(Replay replay, InitData data, DiContainer Container)
+        public void InstallBindings(Replay replay, InitData data, DiContainer Container)
         {
             Container.Bind<Replay>().FromInstance(replay).AsSingle();
             Container.Bind<InitData>().FromInstance(data).AsSingle();
@@ -76,7 +76,8 @@ namespace BeatLeader.Replays
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(50)
                 .FromComponentInNewPrefab(new GameObject("ComparatorPrefab")
                 .AddComponent<SimpleNoteCutComparator>());
-            Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            if (data.noteSyncMode) 
+                Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             if (Container.Resolve<IVRPlatformHelper>().GetType() == typeof(DevicelessVRHelper))
             {
                 Container.Bind<PlayerViewController.InitData>()
@@ -101,12 +102,19 @@ namespace BeatLeader.Replays
             gameplayData.SetActive(true);
             #endregion
 
-            Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
-            if (!data.compatibilityMode) Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<PauseMenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
+            if (!data.compatibilityMode) 
+                Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MovementManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayPlaybackUI>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Debug.LogWarning("Manual bindings installed");
+        }
+        public static void Install(Replay replay, InitData data, DiContainer Container)
+        {
+            new ReplayManualInstaller().InstallBindings(replay, data, Container);
         }
     }
 }

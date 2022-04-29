@@ -39,14 +39,14 @@ namespace BeatLeader.Replays.Movement
             {
                 int index = _replay.GetFrameByTime(_songSyncController.songTime, out _currentFrame);
                 _currentFrameIndex = index != 0 ? index : _currentFrameIndex;
-                PlayFrame(_currentFrame, nextFrame);
+                PlayFrame(_currentFrame);
             }
         }
         public void SetEnabled(bool state)
         {
             _isPlaying = state;
         }
-        private void PlayFrame(Frame frame, Frame nextFrame)
+        private void PlayFrame(Frame frame)
         {
             if (frame != null && frame != previousFrame)
             {

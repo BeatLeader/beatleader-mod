@@ -1,13 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-using IPA.Utilities;
-using BeatLeader.Replays.Interfaces;
-using Zenject;
+﻿using Zenject;
 
 namespace BeatLeader.Replays.Scoring
 {
@@ -46,9 +37,8 @@ namespace BeatLeader.Replays.Scoring
         }
         private CutScoreBuffer ConvertBuffer(IReadonlyCutScoreBuffer buffer)
         {
-            CutScoreBuffer cutScoreBuffer = new CutScoreBufferWithConstructor(buffer.noteCutInfo, buffer.noteScoreDefinition,
+            return new CutScoreBufferWithConstructor(buffer.noteCutInfo, buffer.noteScoreDefinition,
                 buffer.afterCutScore, buffer.beforeCutScore, buffer.centerDistanceCutScore);
-            return cutScoreBuffer;
         }
     }
 }

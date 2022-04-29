@@ -8,12 +8,12 @@ using HarmonyLib;
 
 namespace BeatLeader //удалите это после того, как будет подргузка реплеев с облака
 {
-    [HarmonyPatch(typeof(StandardLevelDetailView), "RefreshContent")]
+    [HarmonyPatch(typeof(StandardLevelDetailViewController), "ShowContent")]
     public static class LevelDetailUpdatedPatch
     {
-        private static void Postfix(StandardLevelDetailView __instance)
+        private static void Postfix(StandardLevelDetailViewController __instance)
         {
-            ReplayMenuUI.Refresh(__instance.selectedDifficultyBeatmap);
+            ReplayMenuUI.Refresh(__instance.selectedDifficultyBeatmap, __instance.beatmapLevel);
         }
     }
 }

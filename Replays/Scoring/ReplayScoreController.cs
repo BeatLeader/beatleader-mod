@@ -167,20 +167,24 @@ namespace BeatLeader.Replays.Scoring
                 if (noteCutInfo.allIsOK)
                 {
                     SimpleScoringData scoringData = new SimpleScoringData();
-                    if (_simpleNoteComparatorsSpawner.TryGetLoadedComparator(noteController, out SimpleNoteCutComparator comparator))
+                    SimpleNoteCutComparator comparator = null;
+                    if (_simpleNoteComparatorsSpawner != null && _simpleNoteComparatorsSpawner.TryGetLoadedComparator(noteController, out comparator))
                     {
                         scoringData = new SimpleScoringData(comparator.noteController.noteData, comparator.noteCutEvent,
                             comparator.noteController.worldRotation, comparator.noteController.inverseWorldRotation,
-                            comparator.noteController.noteTransform.localRotation, comparator.noteController.noteTransform.position, false);
+                            comparator.noteController.noteTransform.localRotation, comparator.noteController.noteTransform.position);
                     }
                     else
                     {
-                        scoringData = new SimpleScoringData(noteController, noteController.GetNoteEvent(_replay), false);
+                        scoringData = new SimpleScoringData(noteController, noteController.GetNoteEvent(_replay));
                     }
 
                     if (scoringData.noteEvent.noteCutInfo == null | scoringData.noteEvent.eventType == NoteEventType.miss)
                     {
-                        Debug.LogWarning("Null?");
+                        if (!_initData.noteSyncMode)
+                        {
+                            Plugin.Log.Critical("I said you, don't do it. Note not handled exception");
+                        }
                         return;
                     }
 

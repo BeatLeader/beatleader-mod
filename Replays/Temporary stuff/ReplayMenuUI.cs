@@ -28,10 +28,13 @@ namespace BeatLeader
 
         protected static Replay _replay;
         protected static IDifficultyBeatmap _beatmapDifficulty;
+        protected static IPreviewBeatmapLevel _previewBeatmapLevel;
 
         protected static bool _asReplay;
         protected static bool _isPatched;
         protected static bool _inSearch;
+
+        public static ReplayMenuLauncher laucher;
 
         public static GameObject LevelWrapContainer
         {
@@ -46,9 +49,13 @@ namespace BeatLeader
         public static bool asReplay => _asReplay;
         public static bool isPatched => _isPatched;
 
-        public static void Refresh(IDifficultyBeatmap difficulty)
+        public static void Refresh(IDifficultyBeatmap difficulty, IPreviewBeatmapLevel preview)
         {
-            CheckIsReplayExists(difficulty);
+            if (difficulty != null && preview != null)
+            {
+                CheckIsReplayExists(difficulty);
+                _previewBeatmapLevel = preview;
+            }
         }
         public static void PatchUI()
         {
@@ -67,7 +74,7 @@ namespace BeatLeader
         public static void StartInReplayMode()
         {
             _asReplay = true;
-            ActionButtonEvent.Invoke();
+            laucher.StartLevelWithReplay(_beatmapDifficulty, _previewBeatmapLevel, _replay);
         }
         private static void SetButtonState(bool state) => _replayButton.interactable = state;
         public static async void CheckIsReplayExists(IDifficultyBeatmap beatmap)

@@ -19,26 +19,12 @@ namespace BeatLeader.Installers
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller>
     {
         private static readonly MethodBase ScoreSaber_playbackEnabled = AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
-        private readonly List<Type> scoreControllerBindings = new List<Type>()
-        {
-            typeof(RelativeScoreAndImmediateRankCounter),
-            typeof(ScoreUIController),
-            typeof(ScoreMissionObjectiveChecker),
-            typeof(MultiplierValuesRecorder),
-            typeof(PrepareLevelCompletionResults),
-            typeof(MultiplayerLocalActiveClient),
-            typeof(ScoreMultiplierUIController),
-            typeof(NoteCutScoreSpawner),
-            typeof(BeatmapObjectExecutionRatingsRecorder),
-            typeof(VRsenalScoreLogger),
-        };
 
         public override void InstallBindings()
         {
             if (ReplayMenuUI.asReplay)
             {
-                new ReplayManualInstaller().ManualInstall(ReplayMenuUI.replay, 
-                    new ReplayManualInstaller.InitData(true, true, true, true, true, 130, 2, true), Container);
+                ReplayManualInstaller.Install(ReplayMenuUI.replay, new ReplayManualInstaller.InitData(true, true, true, true, true, 130, 2, true), Container);
             }
             else InitRecorder();
         }

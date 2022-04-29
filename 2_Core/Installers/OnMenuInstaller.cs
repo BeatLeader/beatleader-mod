@@ -1,17 +1,23 @@
+using BeatLeader.Replays;
 using BeatLeader.DataManager;
 using BeatLeader.Utils;
 using BeatLeader.ViewControllers;
 using JetBrains.Annotations;
+using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]
-    public class OnMenuInstaller : Installer<OnMenuInstaller> {
-        public override void InstallBindings() {
-            Plugin.Log.Debug("OnMenuInstaller");
-
+    public class OnMenuInstaller : Installer<OnMenuInstaller> 
+    {
+        public override void InstallBindings() 
+        {
             BindLeaderboard();
-            // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
+            var launcher = new GameObject("ReplayzLauncher").AddComponent<ReplayMenuLauncher>();
+            Container.Bind<ReplayMenuLauncher>().FromInstance(launcher).AsSingle();
+            launcher.InjectAllFields(Container);
+            ReplayMenuUI.laucher = launcher;
+            //Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }
 
         private void BindLeaderboard() {

@@ -127,15 +127,40 @@ namespace BeatLeader.Utils
             }
             return "!UNDEFINED!";
         }
-        public static void ModifyEnrivonmentDataByReplay(this EnvironmentInfoSO info, Replay replay)
+        public static EnvironmentInfoSO GetEnvironmentBySerializedName(string name)
         {
-            info.SetField("_environmentName", replay.info.environment);
-            info.SetField("_serializedName", GetEnvironmentSerializedNameByEnvironmentName(replay.info.environment));
-            info.sceneInfo.SetField("_sceneName", replay.info.environment);
+            return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().First(x => x.serializedName == name);
+        }
+        public static EnvironmentInfoSO GetEnvironmentByName(string name)
+        {
+            return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().First(x => x.serializedName == GetEnvironmentSerializedNameByEnvironmentName(name));
         }
         #endregion
 
         #region Replaying
+        public static PracticeSettings GetPracticeSettings(this Replay replay)
+        {
+            if (replay.info.startTime == 0) return null;
+            else return new PracticeSettings(replay.info.startTime, replay.info.speed);
+        }
+        public static PlayerSpecificSettings OverridePlayerSettings(this PlayerSpecificSettings settings, Replay replay)
+        {
+            return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
+        }
+        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty, IPreviewBeatmapLevel previewBeatmapLevel)
+        {
+            StandardLevelScenesTransitionSetupDataSO data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+
+            OverrideEnvironmentSettings environmentSettings = playerModel.playerData.overrideEnvironmentSettings;
+            environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>().First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), ReplayDataHelper.GetEnvironmentByName(replay.info.environment));
+
+            data.Init("Simple", difficulty, previewBeatmapLevel, environmentSettings,
+                playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
+                replay.GetModifiersFromReplay(), playerModel.playerData.playerSpecificSettings.OverridePlayerSettings(replay),
+                replay.GetPracticeSettings(), "Menu");
+
+            return data;
+        }
         public static async Task<NoteEvent> GetNoteEventAsync(this NoteController noteController, Replay replay)
         {
             var noteEvent = await Task.Run(() => GetNoteEventByID(noteController.noteData.ComputeNoteID(), noteController.noteData.time, replay));
@@ -370,7 +395,6 @@ namespace BeatLeader.Utils
             }
             else return true;
         }
-
         #endregion
 
         #region Computing

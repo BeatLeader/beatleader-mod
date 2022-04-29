@@ -12,10 +12,9 @@ namespace BeatLeader.Replays.Scoring
         public readonly Quaternion inverseWorldRotation;
         public readonly Quaternion noteRotation;
         public readonly Vector3 notePosition;
-        public readonly bool scoreAsync;
 
         public SimpleScoringData() { }
-        public SimpleScoringData(NoteController noteController, NoteEvent noteEvent, bool scoreAsync)
+        public SimpleScoringData(NoteController noteController, NoteEvent noteEvent)
         {
             this.noteData = noteController.noteData;
             this.noteEvent = noteEvent;
@@ -23,9 +22,8 @@ namespace BeatLeader.Replays.Scoring
             this.inverseWorldRotation = noteController.inverseWorldRotation;
             this.noteRotation = noteController.noteTransform.localRotation;
             this.notePosition = noteController.noteTransform.localPosition;
-            this.scoreAsync = scoreAsync;
         }
-        public SimpleScoringData(NoteData noteData, NoteEvent noteEvent, Quaternion worldRotation, Quaternion inverseWorldRotation, Quaternion noteRotation, Vector3 notePosition, bool scoreAsync)
+        public SimpleScoringData(NoteData noteData, NoteEvent noteEvent, Quaternion worldRotation, Quaternion inverseWorldRotation, Quaternion noteRotation, Vector3 notePosition)
         {
             this.noteData = noteData;
             this.noteEvent = noteEvent;
@@ -33,7 +31,6 @@ namespace BeatLeader.Replays.Scoring
             this.inverseWorldRotation = inverseWorldRotation;
             this.noteRotation = noteRotation;
             this.notePosition = notePosition;
-            this.scoreAsync = scoreAsync;
         }
     }
 }

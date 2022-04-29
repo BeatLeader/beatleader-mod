@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BeatLeader.Replays.Interfaces;
 using BeatLeader.Replays.Movement;
-using BeatLeader.Replays.MapEmitating;
+using BeatLeader.Replays.Managers;
 using UnityEngine;
 using Zenject;
 
@@ -13,7 +13,7 @@ namespace BeatLeader.Replays
 {
     public class PlaybackController : MonoBehaviour
     {
-        [Inject] protected readonly MenuSabersManager _menuSabersManager;
+        [Inject] protected readonly PauseMenuSabersManager _menuSabersManager;
         [Inject] protected readonly Replayer _replayer;
 
         protected List<IStateChangeable> _elementsToPause;
@@ -23,13 +23,19 @@ namespace BeatLeader.Replays
             _menuSabersManager.ShowMenuControllers();
             _elementsToPause = new List<IStateChangeable>();
             _elementsToPause.Add(_replayer);
-            //Pause();
         }
         public void Pause()
         {
             foreach (var item in _elementsToPause)
             {
                 item.SetEnabled(false); 
+            }
+        }
+        public void Resume()
+        {
+            foreach (var item in _elementsToPause)
+            {
+                item.SetEnabled(true);
             }
         }
     }

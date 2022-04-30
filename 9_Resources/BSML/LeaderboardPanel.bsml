@@ -2,13 +2,13 @@
     <vertical pref-width="90" min-width="90" spacing="1">
         <horizontal pref-height="5">
             <macro.as-host host="status-bar">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
         </horizontal>
 
         <horizontal pref-height="14" spacing="1">
             <macro.as-host host="logo">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
             <macro.as-host host="player-info">

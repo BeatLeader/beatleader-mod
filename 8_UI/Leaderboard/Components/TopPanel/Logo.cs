@@ -6,8 +6,7 @@ using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.Logo.bsml")]
-    internal class Logo : ReeUIComponent {
+    internal class Logo : ReeUIComponentV2 {
         #region Animation
 
         private static readonly int GlowPropertyId = Shader.PropertyToID("_Glow");
@@ -24,7 +23,6 @@ namespace BeatLeader.Components {
         private const float IdleCornerRadius = 0.2f;
         private const float IdleThickness = 0.08f;
         private const float IdleFill = 1.0f;
-        private const float IdleRotationSpeed = 0.0f;
 
         private const float ThinkingGlow = 0.9f;
         private const float ThinkingDotScale = 0.1f;
@@ -40,7 +38,6 @@ namespace BeatLeader.Components {
         private float _cornerRadius = IdleCornerRadius;
         private float _thickness = IdleThickness;
         private float _fill = IdleFill;
-        private float _rotationSpeed = IdleRotationSpeed;
         private float _targetSpinnerRotation;
         private float _spinnerRotation;
 
@@ -97,12 +94,13 @@ namespace BeatLeader.Components {
 
         #region Initialize/Dispose
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             SetMaterial();
             
             LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
             LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
             LeaderboardState.UploadRequest.StateChangedEvent += OnUploadRequestStateChanged;
+            
             OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
             OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
             OnUploadRequestStateChanged(LeaderboardState.UploadRequest.State);

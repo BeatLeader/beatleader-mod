@@ -6,11 +6,10 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.StatusBar.bsml")]
-    internal class StatusBar : ReeUIComponent {
+    internal class StatusBar : ReeUIComponentV2 {
         #region Initialize/Dispose
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             LeaderboardEvents.StatusMessageEvent += OnStatusMessage;
             LeaderboardState.ProfileRequest.FailedEvent += OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
@@ -24,7 +23,7 @@ namespace BeatLeader.Components {
             LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
         }
 
-        protected override void OnDeactivate() {
+        private void OnDisable() {
             StopAllCoroutines();
             MessageText = "";
         }

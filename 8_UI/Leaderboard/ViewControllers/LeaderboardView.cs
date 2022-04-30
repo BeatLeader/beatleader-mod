@@ -1,62 +1,37 @@
-using System;
 using BeatLeader.Components;
-using BeatLeader.Manager;
-using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using HMUI;
 using JetBrains.Annotations;
-using Zenject;
-using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.ViewControllers {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.LeaderboardView.bsml")]
-    internal class LeaderboardView : BSMLAutomaticViewController, IInitializable, IDisposable {
+    internal class LeaderboardView : BSMLAutomaticViewController {
         #region Components
 
-        [UIValue("score-details"), UsedImplicitly]
-        private ScoreInfoPanel _scoreInfoPanel = ReeUIComponent.Instantiate<ScoreInfoPanel>();
+        [UIValue("score-info-panel"), UsedImplicitly]
+        private ScoreInfoPanel _scoreInfoPanel;
 
         [UIValue("scores-table"), UsedImplicitly]
         private ScoresTable _scoresTable = ReeUIComponent.Instantiate<ScoresTable>(false);
 
         [UIValue("pagination"), UsedImplicitly]
-        private Pagination _pagination = ReeUIComponent.Instantiate<Pagination>();
+        private Pagination _pagination;
 
         [UIValue("scope-selector"), UsedImplicitly]
-        private ScopeSelector _scopeSelector = ReeUIComponent.Instantiate<ScopeSelector>();
+        private ScopeSelector _scopeSelector;
 
         [UIValue("context-selector"), UsedImplicitly]
-        private ContextSelector _contextSelector = ReeUIComponent.Instantiate<ContextSelector>();
+        private ContextSelector _contextSelector;
 
         [UIValue("empty-board-message"), UsedImplicitly]
-        private EmptyBoardMessage _emptyBoardMessage = ReeUIComponent.Instantiate<EmptyBoardMessage>();
+        private EmptyBoardMessage _emptyBoardMessage;
 
-        #endregion
-
-        #region Initialize/Dispose
-
-        public void Initialize() {
-            LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.SceneTransitionStartedEvent += OnSceneTransitionStarted;
-        }
-
-        public void Dispose() {
-            LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.SceneTransitionStartedEvent -= OnSceneTransitionStarted;
-        }
-
-        #endregion
-
-        #region Events
-
-        private void OnScoreInfoButtonWasPressed(Score score) {
-            _scoreInfoPanel.SetScore(score);
-            ShowScoreModal();
-        }
-
-        private void OnSceneTransitionStarted() {
-            HideScoreModal(false);
+        private void Awake() {
+            _scoreInfoPanel = ReeUIComponentV2.Instantiate<ScoreInfoPanel>(transform);
+            _pagination = ReeUIComponentV2.Instantiate<Pagination>(transform);
+            _scopeSelector = ReeUIComponentV2.Instantiate<ScopeSelector>(transform);
+            _contextSelector = ReeUIComponentV2.Instantiate<ContextSelector>(transform);
+            _emptyBoardMessage = ReeUIComponentV2.Instantiate<EmptyBoardMessage>(transform);
         }
 
         #endregion
@@ -69,27 +44,6 @@ namespace BeatLeader.ViewControllers {
 
         protected void OnDisable() {
             LeaderboardState.IsVisible = false;
-            HideScoreModal(true);
-        }
-
-        #endregion
-
-        #region ScoresModal
-
-        private static readonly Vector3 ModalOffset = new(0.0f, -0.6f, 0.0f);
-
-        [UIComponent("scores-modal"), UsedImplicitly]
-        private ModalView _scoresModal;
-
-        private void ShowScoreModal() {
-            if (_scoresModal == null) return;
-            _scoresModal.Show(true, true);
-            _scoresModal.transform.position += ModalOffset;
-        }
-
-        private void HideScoreModal(bool animated) {
-            if (_scoresModal == null) return;
-            _scoresModal.Hide(animated);
         }
 
         #endregion

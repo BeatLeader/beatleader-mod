@@ -1,7 +1,7 @@
 <horizontal pref-height="28">
     <vertical pref-width="28" pad-bottom="4">
         <macro.as-host host="player-avatar">
-            <macro.reparent transform="root"/>
+            <macro.reparent transform="ui-component"/>
         </macro.as-host>
     </vertical>
 
@@ -12,7 +12,7 @@
             </horizontal>
             <horizontal pref-height="6" pad="1" spacing="1" bg="round-rect-panel" bg-color="#000000EE">
                 <macro.as-host host="country-flag">
-                    <macro.reparent transform="root"/>
+                    <macro.reparent transform="ui-component"/>
                 </macro.as-host>
                 <text text="~player-name" align="Center"/>
             </horizontal>

@@ -4,8 +4,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyGrid.bsml")]
-    internal class AccuracyGrid : ReeUIComponent {
+    internal class AccuracyGrid : ReeUIComponentV2 {
         #region IndexingUtils
 
         private const int LayersCount = 3;
@@ -20,12 +19,12 @@ namespace BeatLeader.Components {
 
         #region Components
 
-        private readonly AccuracyGridCell[] _accuracyGridCells;
+        private AccuracyGridCell[] _accuracyGridCells;
 
-        public AccuracyGrid() {
+        private void Awake() {
             _accuracyGridCells = new AccuracyGridCell[TotalCellsCount];
             for (var i = 0; i < TotalCellsCount; i++) {
-                _accuracyGridCells[i] = Instantiate<AccuracyGridCell>();
+                _accuracyGridCells[i] = Instantiate<AccuracyGridCell>(transform);
             }
         }
 

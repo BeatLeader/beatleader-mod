@@ -2,52 +2,82 @@ using System;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using JetBrains.Annotations;
+using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreInfoPanel.bsml")]
-    internal class ScoreInfoPanel : ReeUIComponent {
+    internal class ScoreInfoPanel : ReeUIComponentV2 {
         #region Components
 
         [UIValue("mini-profile"), UsedImplicitly]
-        private MiniProfile _miniProfile = Instantiate<MiniProfile>();
+        private MiniProfile _miniProfile;
 
         [UIValue("score-stats-loading-screen"), UsedImplicitly]
-        private ScoreStatsLoadingScreen _scoreStatsLoadingScreen = Instantiate<ScoreStatsLoadingScreen>();
+        private ScoreStatsLoadingScreen _scoreStatsLoadingScreen;
 
         [UIValue("score-overview"), UsedImplicitly]
-        private ScoreOverview _scoreOverview = Instantiate<ScoreOverview>();
+        private ScoreOverview _scoreOverview;
 
         [UIValue("accuracy-details"), UsedImplicitly]
-        private AccuracyDetails _accuracyDetails = Instantiate<AccuracyDetails>();
+        private AccuracyDetails _accuracyDetails;
 
         [UIValue("accuracy-grid"), UsedImplicitly]
-        private AccuracyGrid _accuracyGrid = Instantiate<AccuracyGrid>();
+        private AccuracyGrid _accuracyGrid;
 
         [UIValue("accuracy-graph"), UsedImplicitly]
-        private AccuracyGraphPanel _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>();
+        private AccuracyGraphPanel _accuracyGraphPanel;
 
         [UIValue("controls"), UsedImplicitly]
-        private ScoreInfoPanelControls _controls = Instantiate<ScoreInfoPanelControls>();
+        private ScoreInfoPanelControls _controls;
+
+        private void Awake() {
+            _miniProfile = Instantiate<MiniProfile>(transform);
+            _scoreStatsLoadingScreen = Instantiate<ScoreStatsLoadingScreen>(transform);
+            _scoreOverview = Instantiate<ScoreOverview>(transform);
+            _accuracyDetails = Instantiate<AccuracyDetails>(transform);
+            _accuracyGrid = Instantiate<AccuracyGrid>(transform);
+            _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>(transform);
+            _controls = Instantiate<ScoreInfoPanelControls>(transform);
+        }
 
         #endregion
 
         #region Init / Dispose
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
+            LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
+            LeaderboardEvents.SceneTransitionStartedEvent += OnSceneTransitionStarted;
+            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
             LeaderboardState.ScoreStatsRequest.FinishedEvent += SetScoreStats;
             OnTabWasSelected(LeaderboardState.ScoreInfoPanelTab);
         }
 
         protected override void OnDispose() {
+            LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
+            LeaderboardEvents.SceneTransitionStartedEvent -= OnSceneTransitionStarted;
+            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
             LeaderboardState.ScoreStatsRequest.FinishedEvent -= SetScoreStats;
         }
 
         #endregion
 
-        #region OnTabWasSelected
+        #region Events
+
+        private void OnLeaderboardVisibilityChanged(bool isVisible) {
+            if (!isVisible) HideModal(true);
+        }
+
+        private void OnScoreInfoButtonWasPressed(Score score) {
+            SetScore(score);
+            ShowModal();
+        }
+
+        private void OnSceneTransitionStarted() {
+            HideModal(false);
+        }
 
         private void OnTabWasSelected(ScoreInfoPanelTab tab) {
             switch (tab) {
@@ -58,9 +88,11 @@ namespace BeatLeader.Components {
                     if (_score != null && _scoreStatsUpdateRequired) {
                         LeaderboardEvents.RequestScoreStats(_score.id);
                     }
+
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(tab), tab, null);
             }
+
             UpdateVisibility();
         }
 
@@ -73,7 +105,7 @@ namespace BeatLeader.Components {
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
             _accuracyGraphPanel.SetActive(false);
-            
+
             switch (LeaderboardState.ScoreInfoPanelTab) {
                 case ScoreInfoPanelTab.Overview:
                     _scoreOverview.SetActive(true);
@@ -117,6 +149,26 @@ namespace BeatLeader.Components {
             _scoreOverview.SetScore(score);
             _controls.SetScore(score);
             UpdateVisibility();
+        }
+
+        #endregion
+
+        #region Modal
+
+        private static readonly Vector3 ModalOffset = new(0.0f, -0.6f, 0.0f);
+
+        [UIComponent("modal"), UsedImplicitly]
+        private ModalView _modal;
+
+        private void ShowModal() {
+            if (_modal == null) return;
+            _modal.Show(true, true);
+            _modal.transform.position += ModalOffset;
+        }
+
+        private void HideModal(bool animated) {
+            if (_modal == null) return;
+            _modal.Hide(animated);
         }
 
         #endregion

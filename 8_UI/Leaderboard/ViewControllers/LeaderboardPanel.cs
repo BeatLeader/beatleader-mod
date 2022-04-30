@@ -15,11 +15,12 @@ namespace BeatLeader.ViewControllers {
         private Logo _logo;
 
         [UIValue("player-info"), UsedImplicitly]
-        private PlayerInfo _playerInfo = ReeUIComponent.Instantiate<PlayerInfo>();
+        private PlayerInfo _playerInfo;
 
         private void Awake() {
             _statusBar = ReeUIComponentV2.Instantiate<StatusBar>(transform);
             _logo = ReeUIComponentV2.Instantiate<Logo>(transform);
+            _playerInfo = ReeUIComponentV2.Instantiate<PlayerInfo>(transform);
         }
 
         #endregion

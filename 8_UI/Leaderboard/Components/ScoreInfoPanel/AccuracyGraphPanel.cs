@@ -10,14 +10,13 @@ using Object = UnityEngine.Object;
 using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyGraphPanel.bsml")]
-    internal class AccuracyGraphPanel : ReeUIComponent {
+    internal class AccuracyGraphPanel : ReeUIComponentV2 {
         #region Initialize
 
         private AccuracyGraph _accuracyGraph;
 
-        protected override void OnInitialize() {
-            var go = Object.Instantiate(BundleLoader.AccuracyGraphPrefab, _graphContainer, true);
+        protected override void OnAfterParse() {
+            var go = Object.Instantiate(BundleLoader.AccuracyGraphPrefab, _graphContainer, false);
             _accuracyGraph = go.GetComponent<AccuracyGraph>();
             _accuracyGraph.Construct(_graphBackground);
         }
@@ -47,14 +46,14 @@ namespace BeatLeader.Components {
         private Vector3 _lastPosition3D;
         private bool _cursorInitialized;
 
-        protected override void OnActivate(bool firstTime) {
+        private void OnEnable() {
             _vrPointer = FindObjectOfType<VRPointer>();
             _cursorInitialized = _vrPointer != null;
             _lastPosition3D = default;
         }
 
         private void LateUpdate() {
-            if (!_cursorInitialized) return;
+            if (!_graphContainer.gameObject.activeInHierarchy || !_cursorInitialized) return;
 
             var cursorPosition3D = _vrPointer.cursorPosition;
             if (cursorPosition3D.Equals(_lastPosition3D)) return;
@@ -90,7 +89,7 @@ namespace BeatLeader.Components {
         }
 
         private void Update() {
-            if (float.IsNaN(_targetViewTime)) return;
+            if (!_graphContainer.gameObject.activeInHierarchy || float.IsNaN(_targetViewTime)) return;
             _currentViewTime = Mathf.Lerp(_currentViewTime, _targetViewTime, Time.deltaTime * 10.0f);
             var songTime = _currentViewTime * _songDuration;
             var accuracy = GetAccuracy(_currentViewTime);
@@ -106,10 +105,10 @@ namespace BeatLeader.Components {
 
         private float GetAccuracy(float viewTime) {
             if (_points.Length == 0) return 1.0f;
-            
+
             var xStep = 1.0f / _points.Length;
             var x = xStep;
-            
+
             for (var i = 1; i < _points.Length; i++, x += xStep) {
                 if (x < viewTime) continue;
                 var xRange = new Range(x - xStep, x);

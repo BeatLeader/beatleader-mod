@@ -4,11 +4,10 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyPieChart.bsml")]
-    internal class AccuracyPieChart : ReeUIComponent {
+    internal class AccuracyPieChart : ReeUIComponentV2 {
         #region Events
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             SetMaterials();
         }
 

@@ -6,14 +6,17 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScopeSelector.bsml")]
-    internal class ScopeSelector : ReeUIComponent {
-        #region Start
+    internal class ScopeSelector : ReeUIComponentV2 {
+        #region Init / Dispose
 
-        private void Start() {
+        protected override void OnAfterParse() {
             SetMaterials();
             LeaderboardState.ScoresScopeChangedEvent += OnScoresScopeChanged;
             OnScoresScopeChanged(LeaderboardState.ScoresScope);
+        }
+
+        protected override void OnDispose() {
+            LeaderboardState.ScoresScopeChangedEvent -= OnScoresScopeChanged;
         }
 
         #endregion
@@ -45,9 +48,9 @@ namespace BeatLeader.Components {
 
         #region Colors
 
-        private static readonly Color SelectedColor = new Color(0.0f, 0.4f, 1.0f, 1.0f);
-        private static readonly Color FadedColor = new Color(0.8f, 0.8f, 0.8f, 0.2f);
-        private static readonly Color FadedHoverColor = new Color(0.5f, 0.5f, 0.5f, 0.2f);
+        private static readonly Color SelectedColor = new(0.0f, 0.4f, 1.0f, 1.0f);
+        private static readonly Color FadedColor = new(0.8f, 0.8f, 0.8f, 0.2f);
+        private static readonly Color FadedHoverColor = new(0.5f, 0.5f, 0.5f, 0.2f);
 
         [UIComponent("global-component"), UsedImplicitly]
         private ClickableImage _globalComponent;

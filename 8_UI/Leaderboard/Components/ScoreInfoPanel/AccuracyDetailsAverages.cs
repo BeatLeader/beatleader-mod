@@ -2,8 +2,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyDetailsAverages.bsml")]
-    internal class AccuracyDetailsAverages : ReeUIComponent {
+    internal class AccuracyDetailsAverages : ReeUIComponentV2 {
         #region Clear
 
         public void Clear() {

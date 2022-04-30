@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,31 @@ using UnityEngine.SceneManagement;
 
 namespace BeatLeader {
     internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged {
-        #region Static
+        #region BSML Cache
+
+        private static readonly Dictionary<Type, string> BsmlCache = new();
+        
+        private static string GetBsmlForType(Type componentType) {
+            if (BsmlCache.ContainsKey(componentType)) return BsmlCache[componentType];
+            var result = ReadBsmlOrFallback(componentType);
+            BsmlCache[componentType] = result;
+            return result;
+        }
+
+        private static string ReadBsmlOrFallback(Type componentType) {
+            var targetPostfix = $"{componentType.Name}.bsml";
+
+            foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
+                if (!resourceName.EndsWith(targetPostfix)) continue;
+                return Utilities.GetResourceContent(componentType.Assembly, resourceName);
+            }
+
+            return $"<text text=\"Resource not found: {targetPostfix}\" align=\"Center\"/>";
+        }
+
+        #endregion
+        
+        #region Instantiate
 
         public static T InstantiateOnSceneRoot<T>() where T : ReeUIComponentV2 {
             var lastLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
@@ -22,17 +47,6 @@ namespace BeatLeader {
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
             component.Setup(parent);
             return component;
-        }
-
-        private static string GetBsmlForType(Type componentType) {
-            var targetPostfix = $"{componentType.Name}.bsml";
-
-            foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
-                if (!resourceName.EndsWith(targetPostfix)) continue;
-                return Utilities.GetResourceContent(componentType.Assembly, resourceName);
-            }
-
-            return $"<text text=\"Resource not found: {targetPostfix}\" align=\"Center\"/>";
         }
 
         #endregion

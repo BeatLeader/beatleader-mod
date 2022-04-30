@@ -7,11 +7,10 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.EmptyBoardMessage.bsml")]
-    internal class EmptyBoardMessage : ReeUIComponent {
+    internal class EmptyBoardMessage : ReeUIComponentV2 {
         #region OnInitialize
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
             OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
             ApplyAlpha();

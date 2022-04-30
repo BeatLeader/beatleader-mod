@@ -9,11 +9,10 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.Pagination.bsml")]
-    internal class Pagination : ReeUIComponent {
+    internal class Pagination : ReeUIComponentV2 {
         #region Initialize/Dispose
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             FlipUpButton();
             LeaderboardState.ScoresRequest.StateChangedEvent += OnScoreRequestStateChangedEvent;
             OnScoreRequestStateChangedEvent(LeaderboardState.ScoresRequest.State);

@@ -12,7 +12,7 @@
             </macro.as-host>
 
             <macro.as-host host="player-info">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
         </horizontal>
     </vertical>

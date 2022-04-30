@@ -12,7 +12,7 @@
                 </horizontal>
                 <horizontal pref-height="4" spacing="1">
                     <macro.as-host host="country-flag">
-                        <macro.reparent transform="root"/>
+                        <macro.reparent transform="ui-component"/>
                     </macro.as-host>
                     <text text="~country-rank-text" align="Midline"/>
                 </horizontal>
@@ -24,7 +24,7 @@
 
         <vertical pref-width="14">
             <macro.as-host host="avatar">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
         </vertical>
     </horizontal>

@@ -6,18 +6,25 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.PlayerInfo.bsml")]
-    internal class PlayerInfo : ReeUIComponent {
+    internal class PlayerInfo : ReeUIComponentV2 {
         #region Components
 
         [UIValue("avatar"), UsedImplicitly]
-        private PlayerAvatar _avatar = Instantiate<PlayerAvatar>(false);
+        private PlayerAvatar _avatar;
+
+        [UIValue("country-flag"), UsedImplicitly]
+        private CountryFlag _countryFlag;
+        
+        private void Awake() {
+            _avatar = Instantiate<PlayerAvatar>(transform);
+            _countryFlag = Instantiate<CountryFlag>(transform);
+        }
 
         #endregion
 
         #region Initialize/Dispose
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
             OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
         }
@@ -67,13 +74,6 @@ namespace BeatLeader.Components {
             PpText = FormatUtils.FormatPP(player.pp);
             StatsActive = true;
         }
-
-        #endregion
-
-        #region CountryRankImage
-
-        [UIValue("country-flag"), UsedImplicitly]
-        private CountryFlag _countryFlag = Instantiate<CountryFlag>();
 
         #endregion
 

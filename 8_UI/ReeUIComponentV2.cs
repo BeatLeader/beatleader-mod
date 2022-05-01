@@ -14,7 +14,7 @@ namespace BeatLeader {
         #region BSML Cache
 
         private static readonly Dictionary<Type, string> BsmlCache = new();
-        
+
         private static string GetBsmlForType(Type componentType) {
             if (BsmlCache.ContainsKey(componentType)) return BsmlCache[componentType];
             var result = ReadBsmlOrFallback(componentType);
@@ -34,7 +34,7 @@ namespace BeatLeader {
         }
 
         #endregion
-        
+
         #region Instantiate
 
         public static T InstantiateOnSceneRoot<T>() where T : ReeUIComponentV2 {
@@ -64,7 +64,7 @@ namespace BeatLeader {
         #region UnityEvents
 
         protected virtual void OnDestroy() {
-            if (!_isParsed) return;
+            if (!IsParsed) return;
             OnDispose();
         }
 
@@ -89,14 +89,14 @@ namespace BeatLeader {
         #region Parse
 
         private bool _disablePostParseEvent;
-        private bool _isParsed;
+        protected bool IsParsed { get; private set; }
 
         [UIAction("#post-parse"), UsedImplicitly]
         private protected virtual void PostParse() {
             if (_disablePostParseEvent) return;
             _disablePostParseEvent = true;
 
-            if (_isParsed) OnDispose();
+            if (IsParsed) OnDispose();
             OnBeforeParse();
             ParseSelf();
             OnAfterParse();
@@ -114,7 +114,7 @@ namespace BeatLeader {
 
             Transform.SetParent(_parent, false);
             gameObject.SetActive(true);
-            _isParsed = true;
+            IsParsed = true;
         }
 
         #endregion

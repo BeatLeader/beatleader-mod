@@ -1,4 +1,4 @@
-<horizontal active="~is-active" pref-height="5.2">
+<horizontal id="root-node" active="~is-active" pref-height="5.2">
     <!--  STYLE  -->
     <macro.define name="font-size" value="3.4"/>
     <macro.define name="modifiers-font-size" value="2.4"/>

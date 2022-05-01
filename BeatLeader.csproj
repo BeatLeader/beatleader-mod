@@ -279,7 +279,6 @@
     <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardView.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUtils.cs" />
-    <Compile Include="8_UI\ReeUIComponent.cs" />
     <Compile Include="8_UI\ReeUIComponentV2.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />

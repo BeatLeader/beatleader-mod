@@ -27,7 +27,7 @@
 
         <!--  SCORES TABLE  -->
         <macro.as-host host="scores-table">
-            <macro.reparent transform="root"/>
+            <macro.reparent transform="ui-component"/>
         </macro.as-host>
     </horizontal>
 </vertical>

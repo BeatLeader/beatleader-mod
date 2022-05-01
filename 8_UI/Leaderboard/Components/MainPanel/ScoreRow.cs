@@ -8,18 +8,18 @@ using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using Transform = UnityEngine.Transform;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScoreRow.bsml")]
-    internal class ScoreRow : ReeUIComponent {
+    internal class ScoreRow : ReeUIComponentV2 {
         #region Events
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             SetMaterials();
             FadeOut();
         }
 
-        protected override void OnActivate(bool firstTime) {
+        private void OnEnable() {
             _currentAlpha = _targetAlpha;
             _currentOffset = _targetOffset;
             _updateRequired = true;
@@ -58,7 +58,7 @@ namespace BeatLeader.Components {
         }
 
         public void SetHierarchyIndex(int value) {
-            Root.SetSiblingIndex(value);
+            _rootNode.SetSiblingIndex(value);
         }
 
         #endregion
@@ -152,6 +152,13 @@ namespace BeatLeader.Components {
             _backgroundComponent.color = _backgroundColor.ColorWithAlpha(_backgroundColor.a * _currentAlpha);
             _infoComponent.color = _infoComponent.color.ColorWithAlpha(_infoComponent.color.a * _currentAlpha);
         }
+
+        #endregion
+
+        #region RootNode
+
+        [UIComponent("root-node"), UsedImplicitly]
+        private Transform _rootNode;
 
         #endregion
 

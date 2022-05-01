@@ -9,33 +9,32 @@ using ModestTree;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScoresTable.bsml")]
-    internal class ScoresTable : ReeUIComponent {
+    internal class ScoresTable : ReeUIComponentV2 {
         #region Components
 
+        private const int MainRowsCount = 10;
+
         [UIValue("extra-score-row"), UsedImplicitly]
-        private readonly ScoreRow _extraRow = Instantiate<ScoreRow>();
+        private ScoreRow _extraRow;
 
         [UIValue("top-row-divider"), UsedImplicitly]
-        private readonly ScoreRowDivider _topRowDivider = Instantiate<ScoreRowDivider>();
+        private ScoreRowDivider _topRowDivider;
 
         [UIValue("bottom-row-divider"), UsedImplicitly]
-        private readonly ScoreRowDivider _bottomRowDivider = Instantiate<ScoreRowDivider>();
+        private ScoreRowDivider _bottomRowDivider;
 
         [UIValue("score-rows"), UsedImplicitly]
         private readonly List<object> _scoreRowsObj = new();
 
         private readonly List<ScoreRow> _mainRows = new();
 
-        #endregion
-
-        #region Constructor
-
-        private const int MainRowsCount = 10;
-
-        public ScoresTable() {
+        private void Awake() {
+            _extraRow = Instantiate<ScoreRow>(transform);
+            _topRowDivider = Instantiate<ScoreRowDivider>(transform);
+            _bottomRowDivider = Instantiate<ScoreRowDivider>(transform);
+            
             for (var i = 0; i < MainRowsCount; i++) {
-                var scoreRow = Instantiate<ScoreRow>();
+                var scoreRow = Instantiate<ScoreRow>(transform);
                 _scoreRowsObj.Add(scoreRow);
                 _mainRows.Add(scoreRow);
             }
@@ -45,7 +44,7 @@ namespace BeatLeader.Components {
 
         #region Initialize/Dispose
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
             OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
         }

@@ -1,15 +1,13 @@
-using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScoreRowDivider.bsml")]
-    internal class ScoreRowDivider : ReeUIComponent {
+    internal class ScoreRowDivider : ReeUIComponentV2 {
         #region OnInitialize
 
-        protected override void OnInitialize() {
+        protected override void OnAfterParse() {
             ApplyAlpha();
         }
 

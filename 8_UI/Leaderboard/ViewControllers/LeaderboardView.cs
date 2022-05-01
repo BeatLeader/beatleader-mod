@@ -12,7 +12,7 @@ namespace BeatLeader.ViewControllers {
         private ScoreInfoPanel _scoreInfoPanel;
 
         [UIValue("scores-table"), UsedImplicitly]
-        private ScoresTable _scoresTable = ReeUIComponent.Instantiate<ScoresTable>(false);
+        private ScoresTable _scoresTable;
 
         [UIValue("pagination"), UsedImplicitly]
         private Pagination _pagination;
@@ -28,6 +28,7 @@ namespace BeatLeader.ViewControllers {
 
         private void Awake() {
             _scoreInfoPanel = ReeUIComponentV2.Instantiate<ScoreInfoPanel>(transform);
+            _scoresTable = ReeUIComponentV2.Instantiate<ScoresTable>(transform);
             _pagination = ReeUIComponentV2.Instantiate<Pagination>(transform);
             _scopeSelector = ReeUIComponentV2.Instantiate<ScopeSelector>(transform);
             _contextSelector = ReeUIComponentV2.Instantiate<ContextSelector>(transform);

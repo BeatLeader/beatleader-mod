@@ -35,7 +35,7 @@ namespace BeatLeader.Components {
         }
 
         protected override float CalculatePreferredWidth() {
-            return IsEmpty ? 0.0f : textComponent.preferredWidth;
+            return textComponent.preferredWidth;
         }
 
         #endregion

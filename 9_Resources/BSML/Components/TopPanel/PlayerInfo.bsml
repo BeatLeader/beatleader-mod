@@ -23,9 +23,13 @@
         </vertical>
 
         <vertical pref-width="14">
+            <!--  AVATAR  -->
             <macro.as-host host="avatar">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
+
+            <!--  CLICKABLE AREA  -->
+            <clickable-image ignore-layout="true" src="#TransparentPixel" pref-width="14" pref-height="14" on-click="avatar-on-click"/>
         </vertical>
     </horizontal>
 </vertical>

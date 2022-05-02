@@ -40,7 +40,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region GetPreferredWidth
-        
+
         protected bool IsEmpty = true;
 
         public void MarkEmpty() {

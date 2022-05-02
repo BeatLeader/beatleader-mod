@@ -37,6 +37,11 @@ namespace BeatLeader.Components {
 
         #region Events
         
+        [UIAction("avatar-on-click"), UsedImplicitly]
+        private void AvatarOnClick() {
+            LeaderboardEvents.NotifyAvatarWasPressed();
+        }
+        
         private void OnProfileRequestStateChanged(RequestState requestState) {
             switch (requestState) {
                 case RequestState.Uninitialized:

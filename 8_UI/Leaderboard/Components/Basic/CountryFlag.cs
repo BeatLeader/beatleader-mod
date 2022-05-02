@@ -51,6 +51,10 @@ namespace BeatLeader.Components {
         [UIComponent("image-component"), UsedImplicitly]
         private Image _image;
 
+        public void SetAlpha(float value) {
+            _image.color = new Color(1, 1, 1, value);
+        }
+
         private void SetSprite(Sprite sprite) {
             _image.sprite = sprite;
         }

@@ -8,23 +8,12 @@ namespace BeatLeader {
         #region Constants
 
         private const float RowWidth = 80.0f;
-        private const float Spacing = 2.0f;
+        private const float Spacing = 1.3f;
         private const float PadLeft = 2.0f;
         private const float PadRight = 2.0f;
         private const float AvailableWidth = RowWidth - PadLeft - PadRight;
 
         private const ScoreRowCellType FlexibleCellType = ScoreRowCellType.Username;
-
-        //TODO Control via VisibilitySelector
-        private const ScoreRowCellType Mask = ScoreRowCellType.Rank |
-                                              ScoreRowCellType.Country |
-                                              ScoreRowCellType.Avatar |
-                                              ScoreRowCellType.Username |
-                                              ScoreRowCellType.Modifiers |
-                                              ScoreRowCellType.Accuracy |
-                                              ScoreRowCellType.PerformancePoints |
-                                              ScoreRowCellType.Score |
-                                              ScoreRowCellType.Mistakes;
 
         #endregion
 
@@ -57,16 +46,12 @@ namespace BeatLeader {
 
         #region RecalculateLayout
 
-        public void RecalculateLayout(bool hasPP) {
+        public void RecalculateLayout(ScoreRowCellType mask) {
             var flexibleWidth = AvailableWidth;
 
             var i = 0;
             foreach (var (cellType, list) in _cells) {
-                var active = Mask.HasFlag(cellType);
-
-                if (cellType == ScoreRowCellType.PerformancePoints) {
-                    active &= hasPP;
-                }
+                var active = mask.HasFlag(cellType);
 
                 foreach (var cell in list) {
                     cell.SetActive(active);

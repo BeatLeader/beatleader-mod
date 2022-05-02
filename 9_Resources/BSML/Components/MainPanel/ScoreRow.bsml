@@ -4,7 +4,7 @@
     <macro.define name="row-width" value="80"/>
     
     <vertical pref-width="~row-width" min-width="~row-width">
-        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="2" pad-left="2" pad-right="2" pref-height="~row-height">
+        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="1.3" pad-left="2" pad-right="2" pref-height="~row-height">
             <!--  BACKGROUND  -->
             <vertical ignore-layout="true" pref-width="~row-width">
                 <image src="#TransparentPixel" id="background-component" pref-height="~row-height" pref-width="~row-width"/>
@@ -12,6 +12,16 @@
 
             <!--  RANK  -->
             <macro.as-host host="rank-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  COUNTRY  -->
+            <macro.as-host host="country-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  AVATAR  -->
+            <macro.as-host host="avatar-cell">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
@@ -37,6 +47,11 @@
 
             <!--  SCORE  -->
             <macro.as-host host="score-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  MISTAKES  -->
+            <macro.as-host host="mistakes-cell">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 

@@ -77,6 +77,10 @@ namespace BeatLeader.Components {
         private Material _materialInstance;
         private bool _materialSet;
 
+        public void SetAlpha(float value) {
+            _image.color = new Color(1, 1, 1, value);
+        }
+
         private void ShowSpinner() {
             SetMaterialLazy();
             _materialInstance.SetFloat(FadeValuePropertyId, 0);

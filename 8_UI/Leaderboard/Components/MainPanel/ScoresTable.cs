@@ -46,18 +46,25 @@ namespace BeatLeader.Components {
 
         protected override void OnAfterParse() {
             SetupLayout();
-            
+
+            PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
             LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
             OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
         }
 
         protected override void OnDispose() {
+            PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
             LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
         }
 
         #endregion
 
         #region Events
+
+        private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {
+            UpdateLayout();
+        }
 
         private void OnScoresRequestStateChanged(RequestState requestState) {
             switch (requestState) {
@@ -97,12 +104,17 @@ namespace BeatLeader.Components {
         #region Layout
 
         private readonly ScoresTableLayoutHelper _layoutHelper = new();
+        private bool _hasPP;
 
         private void SetupLayout() {
             _extraRow.SetupLayout(_layoutHelper);
             foreach (var scoreRow in _mainRows) {
                 scoreRow.SetupLayout(_layoutHelper);
             }
+        }
+
+        private void UpdateLayout() {
+            _layoutHelper.RecalculateLayout(PluginConfig.GetLeaderboardTableMask(_hasPP));
         }
 
         #endregion
@@ -118,13 +130,13 @@ namespace BeatLeader.Components {
 
         private void SetScoresValues(Paged<Score> scoresData) {
             if (scoresData.selection != null) _extraRow.SetScore(scoresData.selection);
-            var hasPP = false;
+            _hasPP = false;
             for (var i = 0; i < MainRowsCount; i++) {
                 if (i >= scoresData.data.Count) continue;
-                if (scoresData.data[i].pp > 0) hasPP = true;
+                if (scoresData.data[i].pp > 0) _hasPP = true;
                 _mainRows[i].SetScore(scoresData.data[i]);
             }
-            _layoutHelper.RecalculateLayout(hasPP);
+            UpdateLayout();
         }
 
         #endregion

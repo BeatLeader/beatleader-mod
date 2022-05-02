@@ -1,4 +1,5 @@
 using System;
+using BeatLeader.Manager;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -115,6 +116,11 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
+        
+        [UIAction("on-click"), UsedImplicitly]
+        private void OnClick() {
+            LeaderboardEvents.NotifyLogoWasPressed();
+        }
 
         private void OnProfileRequestStateChanged(RequestState requestState) {
             _loadingProfile = requestState switch {

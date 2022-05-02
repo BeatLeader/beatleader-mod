@@ -31,6 +31,7 @@ namespace BeatLeader.Components {
             if (!IsParsed) return;
             rootNode.preferredWidth = _cellWidth;
             rootNode.gameObject.SetActive(_isActive);
+            gameObject.SetActive(_isActive);
         }
 
         protected override void OnAfterParse() {

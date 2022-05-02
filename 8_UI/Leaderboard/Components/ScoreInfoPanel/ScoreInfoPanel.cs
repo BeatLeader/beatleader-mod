@@ -47,6 +47,7 @@ namespace BeatLeader.Components {
 
         protected override void OnAfterParse() {
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
+            LeaderboardEvents.AvatarWasPressedEvent += OnAvatarWasPressed;
             LeaderboardEvents.SceneTransitionStartedEvent += OnSceneTransitionStarted;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
@@ -56,6 +57,7 @@ namespace BeatLeader.Components {
 
         protected override void OnDispose() {
             LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
+            LeaderboardEvents.AvatarWasPressedEvent -= OnAvatarWasPressed;
             LeaderboardEvents.SceneTransitionStartedEvent -= OnSceneTransitionStarted;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
@@ -73,6 +75,10 @@ namespace BeatLeader.Components {
         private void OnScoreInfoButtonWasPressed(Score score) {
             SetScore(score);
             ShowModal();
+        }
+
+        private void OnAvatarWasPressed() {
+            HideModal(false);
         }
 
         private void OnSceneTransitionStarted() {

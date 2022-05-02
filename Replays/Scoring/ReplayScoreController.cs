@@ -183,7 +183,7 @@ namespace BeatLeader.Replays.Scoring
                     {
                         if (!_initData.noteSyncMode)
                         {
-                            Plugin.Log.Critical("I said you, don't do it. Note not handled exception");
+                            Plugin.Log.Critical("I said you, don't do it... Note not handled exception!");
                         }
                         return;
                     }

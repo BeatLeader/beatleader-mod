@@ -18,7 +18,7 @@ namespace BeatLeader.Replays
 {
     public class PlaybackController : MonoBehaviour
     {
-        [Inject] protected readonly PauseMenuSabersManager _menuSabersManager;
+        [Inject] protected readonly MenuSabersManager _menuSabersManager;
         [Inject] protected readonly AudioTimeSyncController _songTimeSyncController;
         [Inject] protected readonly Replayer _replayer;
 

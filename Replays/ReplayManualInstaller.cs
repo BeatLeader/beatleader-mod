@@ -91,11 +91,11 @@ namespace BeatLeader.Replays
             gameplayData.SetActive(true);
             #endregion
 
-            Container.Bind<PauseMenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
             if (!data.compatibilityMode)
                 Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BodyManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            //Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

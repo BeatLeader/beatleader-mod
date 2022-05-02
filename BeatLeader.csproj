@@ -307,7 +307,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Replays\Interfaces\IStateChangeable.cs" />
     <Compile Include="Replays\Managers\InputManager.cs" />
-    <Compile Include="Replays\Managers\PauseMenuSabersManager.cs" />
+    <Compile Include="Replays\Managers\MenuSabersManager.cs" />
     <Compile Include="Replays\Movement\BodyManager.cs" />
     <Compile Include="Replays\PlaybackUIController.cs" />
     <Compile Include="Replays\PlayerCameraController.cs" />

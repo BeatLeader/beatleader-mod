@@ -14,6 +14,7 @@ namespace BeatLeader.Replays.Managers
     public class InputManager : MonoBehaviour
     {
         [Inject] protected readonly VRControllersInputManager _vrControllersInputManager;
+        [Inject] protected readonly MenuSabersManager _menuSabersManager;
         [Inject] protected readonly PlaybackUIController _playbackUIController;
         [Inject] protected readonly IVRPlatformHelper _platformHelper;
 
@@ -25,6 +26,7 @@ namespace BeatLeader.Replays.Managers
 
         protected InputSystemType _currentInputSystem;
         protected FakeVRController _pointer;
+        protected VRPointer _scenePointer;
 
         public InputSystemType currentInputSystem => _currentInputSystem;
 
@@ -38,7 +40,6 @@ namespace BeatLeader.Replays.Managers
                 _pointer.node = UnityEngine.XR.XRNode.GameController;
 
                 _pointer.GetType().GetField("_vrControllersInputManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_pointer, _vrControllersInputManager);
-                ReplacePointer(_pointer);
                 AppearCursor();
             }
             else
@@ -48,6 +49,10 @@ namespace BeatLeader.Replays.Managers
 
             }
         }
+        public void OnDestroy()
+        {
+            DisappearCursor();
+        }
         public void LateUpdate()
         {
             if (_pointer != null && _currentInputSystem == InputSystemType.FPFC)
@@ -56,7 +61,14 @@ namespace BeatLeader.Replays.Managers
                 {
                     AppearCursor();
                 }
-                ReplacePointer(_pointer);
+                if (_scenePointer != null)
+                {
+                    if (_scenePointer.vrController != _pointer) ReplacePointer(_pointer);
+                }
+                else if (_menuSabersManager.initialized)
+                {
+                    _scenePointer = Resources.FindObjectsOfTypeAll<VRPointer>().First(x => x.vrController == _menuSabersManager.rightController);
+                }
                 if (_playbackUIController.initialized)
                 {
                     _pointer.transform.position = _playbackUIController.uiCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -97,10 +109,7 @@ namespace BeatLeader.Replays.Managers
         }
         public void ReplacePointer(VRController pointerVRController)
         {
-            foreach (var item in Resources.FindObjectsOfTypeAll<VRPointer>())
-            {
-                item.GetType().GetField("_vrController", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(item, _pointer);
-            }
+            _scenePointer.GetType().GetField("_vrController", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_scenePointer, _pointer);
         }
     }
 }

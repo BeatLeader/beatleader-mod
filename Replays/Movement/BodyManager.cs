@@ -9,7 +9,7 @@ using Zenject;
 
 namespace BeatLeader.Replays.Movement
 {
-    public class MovementManager : MonoBehaviour
+    public class BodyManager : MonoBehaviour
     {
         [Inject] protected readonly ReplayManualInstaller.InitData _initData;
         [Inject] protected readonly PlayerTransforms _playerTransforms;

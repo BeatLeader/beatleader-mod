@@ -9,7 +9,7 @@ using Zenject;
 
 namespace BeatLeader.Utils
 {
-    public static class ZenjectExpansion
+    public static class ZenjectExtension
     {
         public static T InjectAllFields<T>(this T type, DiContainer container)
         {

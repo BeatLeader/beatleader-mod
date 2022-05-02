@@ -23,14 +23,11 @@ namespace BeatLeader
     {
         protected static NoTransitionsButton _replayButton;
         protected static GameObject _levelWrapContainer;
-        protected static UnityEvent _actionButtonEvent;
-        protected static Replayer _player;
 
         protected static Replay _replay;
         protected static IDifficultyBeatmap _beatmapDifficulty;
         protected static IPreviewBeatmapLevel _previewBeatmapLevel;
 
-        protected static bool _asReplay;
         protected static bool _isPatched;
         protected static bool _inSearch;
 
@@ -40,13 +37,6 @@ namespace BeatLeader
         {
             get => _levelWrapContainer = _levelWrapContainer == null ? Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().FirstOrDefault().gameObject : _levelWrapContainer;
         }
-        private static UnityEvent ActionButtonEvent
-        {
-            get => _actionButtonEvent = _actionButtonEvent == null ? Resources.FindObjectsOfTypeAll<NoTransitionsButton>().First(x => x.name == "ActionButton").onClick : _actionButtonEvent;
-        }
-        public static Replayer player => _player;
-        public static Replay replay => _replay;
-        public static bool asReplay => _asReplay;
         public static bool isPatched => _isPatched;
 
         public static void Refresh(IDifficultyBeatmap difficulty, IPreviewBeatmapLevel preview)
@@ -73,7 +63,6 @@ namespace BeatLeader
         }
         public static void StartInReplayMode()
         {
-            _asReplay = true;
             launcher.StartLevelWithReplay(_beatmapDifficulty, _previewBeatmapLevel, _replay);
         }
         private static void SetButtonState(bool state) => _replayButton.interactable = state;
@@ -82,7 +71,6 @@ namespace BeatLeader
             if (!_inSearch)
             {
                 _inSearch = true;
-                _asReplay = false;
                 SetButtonState(false);
                 Debug.LogWarning("Finding...");
                 List<Replay> replays = await Task.Run(() => ReplayDataHelper.TryGetReplaysBySongInfoAsync(beatmap));
@@ -102,6 +90,5 @@ namespace BeatLeader
                 _inSearch = false;
             }
         }
-        public static void NotifyReplayEnded() => _asReplay = false;
     }
 }

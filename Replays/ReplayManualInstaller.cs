@@ -73,18 +73,8 @@ namespace BeatLeader.Replays
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(50)
                 .FromComponentInNewPrefab(new GameObject("ComparatorPrefab")
                 .AddComponent<SimpleNoteCutComparator>());
-            if (data.noteSyncMode) 
+            if (data.noteSyncMode)
                 Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            if (Container.Resolve<IVRPlatformHelper>().GetType() == typeof(DevicelessVRHelper))
-            {
-                Container.Bind<PlayerViewController.InitData>()
-                    .FromInstance(new PlayerViewController.InitData(data.smoothness, data.fieldOfView, data.forceRefreshCamera)).AsSingle();
-                Container.Bind<PlayerViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);
-                Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(false); //fpfc burn marks does not disappearing base game bug, bg, please, fix it
-            }
-            else Container.Bind<ReplayPlaybackUI>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            //Container.Bind<NonVRUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy(); //fpfc form
 
             #region ScoreController patch
             var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
@@ -95,19 +85,30 @@ namespace BeatLeader.Replays
             var modifiedScoreController = gameplayData.AddComponent<ReplayScoreController>().InjectAllFields(Container);
 
             Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
-            ZenjectExpansion.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
+            ZenjectExtension.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
 
             modifiedScoreController.SetEnabled(true);
             gameplayData.SetActive(true);
             #endregion
 
             Container.Bind<PauseMenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
-            if (!data.compatibilityMode) 
+            if (!data.compatibilityMode)
                 Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<MovementManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BodyManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
+            if (Container.Resolve<IVRPlatformHelper>().GetType() == typeof(DevicelessVRHelper))
+            {
+                Container.Bind<PlayerCameraController.InitData>()
+                    .FromInstance(new PlayerCameraController.InitData(data.smoothness, data.fieldOfView, data.forceRefreshCamera)).AsSingle();
+                Container.Bind<PlayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);
+                Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(false); //fpfc burn marks are not disappearing bug, BG, please, fix it
+            }
+            Container.Bind<PlaybackUIController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
         public static void Install(Replay replay, InitData data, DiContainer Container)
         {

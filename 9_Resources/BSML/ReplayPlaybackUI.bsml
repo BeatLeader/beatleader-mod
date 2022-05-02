@@ -1,12 +1,8 @@
-﻿<bg bg='round-rect-panel' pref-height='20' pref-width='50'>
+﻿<bg bg='round-rect-panel' pref-height='20' pref-width='70'>
 	<horizontal>
 		<vertical>
-			<horizontal>
+			<horizontal spacing='1'>
 				<button text='Menu'/>
-			</horizontal>
-			<horizontal>
-				<bg bg='round-rect-panel' pref-width='10' pref-height='10'/>
-				<slider-setting min='0' max='999' increment='1' integer-only='true'/>
 			</horizontal>
 			<horizontal>
 				<button text='Pause'/>

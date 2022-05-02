@@ -10,7 +10,7 @@ using Zenject;
 
 namespace BeatLeader.Replays
 {
-    public class PlayerViewController : MonoBehaviour
+    public class PlayerCameraController : MonoBehaviour
     {
         public class InitData
         {
@@ -26,7 +26,7 @@ namespace BeatLeader.Replays
             }
         }
 
-        [Inject] protected readonly MovementManager _movementManager;
+        [Inject] protected readonly BodyManager _bodyManager;
         [Inject] protected readonly MainCamera _mainCamera;
         [Inject] protected readonly InitData _data;
 
@@ -35,6 +35,8 @@ namespace BeatLeader.Replays
         protected float _fieldOfView;
         protected bool _forceRefresh;
         protected bool _initialized;
+
+        public Camera camera => _camera;
 
         public void Start()
         {
@@ -48,12 +50,12 @@ namespace BeatLeader.Replays
         public void LateUpdate()
         {
             if (_forceRefresh && !_camera.enabled) RefreshPlayerCamera();
-            if (!_initialized && _movementManager.initialized)
+            if (!_initialized && _bodyManager.initialized)
             {
-                _mainCamera.transform.SetParent(_movementManager.head.transform, false);
+                _mainCamera.transform.SetParent(_bodyManager.head.transform, false);
                 _initialized = true;
             }
-            else if (_movementManager.initialized)
+            else if (_bodyManager.initialized)
             {
                 Vector3 position = Vector3.Lerp(_camera.transform.position, _mainCamera.transform.position, Time.deltaTime * _smoothness);
                 Quaternion rotation = Quaternion.Slerp(_camera.transform.rotation, _mainCamera.transform.rotation, Time.deltaTime * _smoothness);

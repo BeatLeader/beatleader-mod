@@ -16,15 +16,23 @@ namespace BeatLeader.Replays
         [Inject] protected readonly GameScenesManager _gameScenesManager;
         [Inject] protected readonly PlayerDataModel _playerDataModel;
 
-        protected StandardLevelScenesTransitionSetupDataSO _lastTransitionedReplay;
+        protected static StandardLevelScenesTransitionSetupDataSO _lastTransitionData;
+        protected static Replay _replay;
+        protected static bool _startedAsReplay;
 
         public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> replayFinishedEvent;
+        public static StandardLevelScenesTransitionSetupDataSO transitionData => _lastTransitionData;
+        public static Replay replay => _replay;
+        public static bool isStartedAsReplay => _startedAsReplay;
 
         public void StartLevelWithReplay(IDifficultyBeatmap difficulty, IPreviewBeatmapLevel previewBeatmapLevel, Replay replay)
         {
             StandardLevelScenesTransitionSetupDataSO data = replay.CreateTransitionData(_playerDataModel, difficulty, previewBeatmapLevel);
             data.didFinishEvent += HandleMainGameSceneDidFinish;
             _gameScenesManager.PushScenes(data, 0.7f);
+            _replay = replay;
+            _lastTransitionData = data;
+            _startedAsReplay = true;
         }
         public void HandleMainGameSceneDidFinish(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupData, LevelCompletionResults levelCompletionResults)
         {
@@ -33,6 +41,12 @@ namespace BeatLeader.Replays
             {
                 replayFinishedEvent?.Invoke(standardLevelScenesTransitionSetupData, levelCompletionResults);
             });
+        }
+        public static void NotifyReplayHasEnded()
+        {
+            _startedAsReplay = false;
+            _lastTransitionData = null;
+            _replay = null;
         }
     }
 }

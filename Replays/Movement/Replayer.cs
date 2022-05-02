@@ -13,7 +13,7 @@ namespace BeatLeader.Replays.Movement
         [Inject] protected readonly IScoreController _controller;
         [Inject] protected readonly AudioTimeSyncController _songSyncController;
         [Inject] protected readonly ReplayManualInstaller.InitData _initData;
-        [Inject] protected readonly MovementManager _movementManager;
+        [Inject] protected readonly BodyManager _bodyManager;
         [Inject] protected readonly Replay _replay;
 
         protected Frame _currentFrame;
@@ -21,9 +21,9 @@ namespace BeatLeader.Replays.Movement
         protected bool _lerpEnabled;
         protected bool _isPlaying;
 
-        private FakeVRController leftHand => _movementManager.leftHand;
-        private FakeVRController rightHand => _movementManager.rightHand;
-        private FakeVRController head => _movementManager.head;
+        private FakeVRController leftHand => _bodyManager.leftHand;
+        private FakeVRController rightHand => _bodyManager.rightHand;
+        private FakeVRController head => _bodyManager.head;
         private Frame nextFrame => _replay.frames[_replay.frames.Count - 1 > _currentFrameIndex ? _currentFrameIndex + 1 : _currentFrameIndex];
         private Frame previousFrame => _replay.frames[_currentFrameIndex > 0 ? _currentFrameIndex - 1 : _currentFrameIndex];
         public bool isPlaying => _isPlaying;

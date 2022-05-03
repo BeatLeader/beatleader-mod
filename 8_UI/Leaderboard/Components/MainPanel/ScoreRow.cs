@@ -70,8 +70,8 @@ namespace BeatLeader.Components {
         }
 
         public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
-            foreach (var (cellType, cell) in _cells) {
-                layoutHelper.RegisterCell(cellType, cell);
+            foreach (var keyValuePair in _cells) {
+                layoutHelper.RegisterCell(keyValuePair.Key, keyValuePair.Value);
             }
         }
 

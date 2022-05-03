@@ -8,7 +8,6 @@ using IPA.Utilities;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
-using BeatLeader.Replays.Interfaces;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Managers;
 using UnityEngine;
@@ -19,38 +18,35 @@ namespace BeatLeader.Replays
     public class PlaybackController : MonoBehaviour
     {
         [Inject] protected readonly MenuSabersManager _menuSabersManager;
+        [Inject] protected readonly PauseMenuManager _pauseMenuManager;
+        [Inject] protected readonly IGamePause _gamePause;
+        [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
+        [Inject] protected readonly PauseController _pauseController;
         [Inject] protected readonly AudioTimeSyncController _songTimeSyncController;
-        [Inject] protected readonly Replayer _replayer;
+        [Inject] protected readonly Replayer _replayer; 
+        [Inject] protected readonly SaberManager _saberManager;
 
-        protected List<IStateChangeable> _elementsToPause;
+        public float currentSongTime => _songTimeSyncController.songTime;
+        public float totalSongTime => _songTimeSyncController.songEndTime;
 
         public void Start()
         {
             _menuSabersManager.ShowMenuControllers();
-            _elementsToPause = new List<IStateChangeable>();
-            _elementsToPause.Add(_replayer);
         }
         public void Pause()
         {
-            foreach (var item in _elementsToPause)
-            {
-                item.SetEnabled(false); 
-            }
-            _songTimeSyncController.Pause();
+            _gamePause.Pause(); 
+            _beatmapObjectManager.PauseAllBeatmapObjects(true);
+            _saberManager.disableSabers = false;
         }
         public void Resume()
         {
-            foreach (var item in _elementsToPause)
-            {
-                item.SetEnabled(true);
-            }
-            _songTimeSyncController.Resume();
+            _gamePause.Resume();
+            _beatmapObjectManager.PauseAllBeatmapObjects(false);
         }
-        public void ToTime()
+        public void EscapeToMenu()
         {
-            float time = 10;
-            _songTimeSyncController.SetField("_songTime", time);
-            //_songTimeSyncController.SetSongTimeIntoAudioTime();
+            _pauseMenuManager.MenuButtonPressed();
         }
     }
 }

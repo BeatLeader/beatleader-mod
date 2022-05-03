@@ -1,0 +1,47 @@
+﻿<bg pref-height='200' pref-width='200'>
+	<horizontal>
+		<vertical>
+			<vertical pref-height='15'>
+				<tab tab-name='info' tags='main-tools'>
+					<vertical>
+						<horizontal>
+							<horizontal>
+								<vertical id='song-image'/>
+								<vertical>
+									<text text='~song-name'/>
+									<text text='~song-author'/>
+								</vertical>
+							</horizontal>
+						</horizontal>
+					</vertical>
+				</tab>
+				<tab tab-name='controls' tags='main-tools'>
+					<vertical>
+						<horizontal pref-width='50'>
+							<vertical>
+								<horizontal>
+									<button text='menu' on-click='menu-button-clicked'/>
+									<button text='~pause-button-text' on-click='pause-button-clicked'/>
+									<slider-setting id='timeline' text='~combined-song-time' value='current-song-time' min='0' max='~total-song-time' show-buttons='false' integer-only='true' bind-value='true'/>
+								</horizontal>
+							</vertical>
+						</horizontal>
+					</vertical>
+				</tab>
+				<tab tab-name='camera' tags='main-tools'>
+					<vertical>
+						<horizontal pref-width='50'>
+							<vertical>
+								<bool-setting text='Override camera' value='override-camera' apply-on-change='true'/>
+								<slider-setting text='FOV' value='camera-fov' min='30' max='160' increment='10' apply-on-change='true' show-buttons='true' integer-only='true'/>
+							</vertical>
+						</horizontal>
+					</vertical>
+				</tab>
+			</vertical>
+			<vertical pref-height='5'>
+				<tab-selector tab-tag='main-tools'/>
+			</vertical>
+		</vertical>
+	</horizontal>
+</bg>

@@ -404,7 +404,7 @@ namespace BeatLeader.Utils
         }
         public static int ComputeNoteID(this NoteData noteData)
         {
-            return noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
+            return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
         }
         public static int ComputeNoteScore(this NoteEvent note)
         {

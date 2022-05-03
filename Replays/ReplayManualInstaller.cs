@@ -91,6 +91,7 @@ namespace BeatLeader.Replays
             gameplayData.SetActive(true);
             #endregion
 
+            Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
             if (!data.compatibilityMode)
                 Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -99,16 +100,20 @@ namespace BeatLeader.Replays
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            if (Container.Resolve<IVRPlatformHelper>().GetType() == typeof(DevicelessVRHelper))
+            Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<PlayerCameraController.InitData>().FromInstance(
+                new PlayerCameraController.InitData(data.smoothness, data.fieldOfView, 
+                data.forceRefreshCamera, data.overrideCamera)).AsSingle();
+            Container.Bind<PlayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<MultiplatformUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            if (Container.Resolve<InputManager>().currentInputSystem == InputManager.InputSystemType.FPFC)
             {
-                Container.Bind<PlayerCameraController.InitData>()
-                    .FromInstance(new PlayerCameraController.InitData(data.smoothness, data.fieldOfView, data.forceRefreshCamera)).AsSingle();
-                Container.Bind<PlayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);
-                Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(false); //fpfc burn marks are not disappearing bug, BG, please, fix it
+                Container.Bind<PlaybackNonVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             }
-            Container.Bind<PlaybackUIController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            else
+            {
+                Container.Bind<PlaybackVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            }
         }
         public static void Install(Replay replay, InitData data, DiContainer Container)
         {

@@ -9,34 +9,34 @@ namespace BeatLeader.ViewControllers {
         #region Components
 
         [UIValue("leaderboard-settings"), UsedImplicitly]
-        private LeaderboardSettings _leaderboardSettings;
+        private LeaderboardSettings _leaderboardSettings = ReeUIComponentV2.InstantiateOnSceneRoot<LeaderboardSettings>(false);
 
         [UIValue("score-info-panel"), UsedImplicitly]
-        private ScoreInfoPanel _scoreInfoPanel;
+        private ScoreInfoPanel _scoreInfoPanel = ReeUIComponentV2.InstantiateOnSceneRoot<ScoreInfoPanel>(false);
 
         [UIValue("scores-table"), UsedImplicitly]
-        private ScoresTable _scoresTable;
+        private ScoresTable _scoresTable = ReeUIComponentV2.InstantiateOnSceneRoot<ScoresTable>();
 
         [UIValue("pagination"), UsedImplicitly]
-        private Pagination _pagination;
+        private Pagination _pagination = ReeUIComponentV2.InstantiateOnSceneRoot<Pagination>(false);
 
         [UIValue("scope-selector"), UsedImplicitly]
-        private ScopeSelector _scopeSelector;
+        private ScopeSelector _scopeSelector = ReeUIComponentV2.InstantiateOnSceneRoot<ScopeSelector>(false);
 
         [UIValue("context-selector"), UsedImplicitly]
-        private ContextSelector _contextSelector;
+        private ContextSelector _contextSelector = ReeUIComponentV2.InstantiateOnSceneRoot<ContextSelector>(false);
 
         [UIValue("empty-board-message"), UsedImplicitly]
-        private EmptyBoardMessage _emptyBoardMessage;
+        private EmptyBoardMessage _emptyBoardMessage = ReeUIComponentV2.InstantiateOnSceneRoot<EmptyBoardMessage>();
 
         private void Awake() {
-            _leaderboardSettings = ReeUIComponentV2.Instantiate<LeaderboardSettings>(transform);
-            _scoreInfoPanel = ReeUIComponentV2.Instantiate<ScoreInfoPanel>(transform);
-            _scoresTable = ReeUIComponentV2.Instantiate<ScoresTable>(transform);
-            _pagination = ReeUIComponentV2.Instantiate<Pagination>(transform);
-            _scopeSelector = ReeUIComponentV2.Instantiate<ScopeSelector>(transform);
-            _contextSelector = ReeUIComponentV2.Instantiate<ContextSelector>(transform);
-            _emptyBoardMessage = ReeUIComponentV2.Instantiate<EmptyBoardMessage>(transform);
+            _leaderboardSettings.SetParent(transform);
+            _scoreInfoPanel.SetParent(transform);
+            _scoresTable.SetParent(transform);
+            _pagination.SetParent(transform);
+            _scopeSelector.SetParent(transform);
+            _contextSelector.SetParent(transform);
+            _emptyBoardMessage.SetParent(transform);
         }
 
         #endregion

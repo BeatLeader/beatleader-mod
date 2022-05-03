@@ -37,15 +37,15 @@ namespace BeatLeader {
 
         #region Instantiate
 
-        public static T InstantiateOnSceneRoot<T>() where T : ReeUIComponentV2 {
+        public static T InstantiateOnSceneRoot<T>(bool parseImmediately = true) where T : ReeUIComponentV2 {
             var lastLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
             var sceneRoot = lastLoadedScene.GetRootGameObjects()[0].transform;
-            return Instantiate<T>(sceneRoot);
+            return Instantiate<T>(sceneRoot, parseImmediately);
         }
 
-        public static T Instantiate<T>(Transform parent) where T : ReeUIComponentV2 {
+        public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2 {
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
-            component.Setup(parent);
+            component.Setup(parent, parseImmediately);
             return component;
         }
 
@@ -77,35 +77,63 @@ namespace BeatLeader {
 
         private Transform _parent;
 
-        private void Setup(Transform parent) {
+        private void Setup(Transform parent, bool parseImmediately) {
             _parent = parent;
             Transform = transform;
             Transform.SetParent(parent, false);
+            if (parseImmediately) ParseSelfIfNeeded();
             gameObject.SetActive(false);
+        }
+
+        public void SetParent(Transform parent) {
+            _parent = parent;
+            Transform.SetParent(parent, false);
+        }
+
+        #endregion
+
+        #region State
+
+        private State _state = State.Uninitialized;
+
+        protected bool IsParsed => _state == State.HierarchySet;
+
+        private enum State {
+            Uninitialized,
+            Parsing,
+            Parsed,
+            HierarchySet
         }
 
         #endregion
 
         #region Parse
 
-        private bool _disablePostParseEvent;
-        protected bool IsParsed { get; private set; }
-
         [UIAction("#post-parse"), UsedImplicitly]
         private protected virtual void PostParse() {
-            if (_disablePostParseEvent) return;
-            _disablePostParseEvent = true;
-
-            if (IsParsed) OnDispose();
-            OnBeforeParse();
-            ParseSelf();
+            if (_state == State.Parsing) return;
+            DisposeIfNeeded();
+            ParseSelfIfNeeded();
+            ApplyHierarchy();
             OnAfterParse();
-
-            _disablePostParseEvent = false;
         }
 
-        private void ParseSelf() {
+        private void DisposeIfNeeded() {
+            if (_state != State.HierarchySet) return;
+            OnDispose();
+            _state = State.Uninitialized;
+        }
+
+        private void ParseSelfIfNeeded() {
+            if (_state != State.Uninitialized) return;
+            OnBeforeParse();
+            _state = State.Parsing;
             PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
+            _state = State.Parsed;
+        }
+
+        private void ApplyHierarchy() {
+            if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
 
             for (var i = 0; i < Transform.childCount; i++) {
                 var child = Transform.GetChild(i);
@@ -114,7 +142,7 @@ namespace BeatLeader {
 
             Transform.SetParent(_parent, false);
             gameObject.SetActive(true);
-            IsParsed = true;
+            _state = State.HierarchySet;
         }
 
         #endregion

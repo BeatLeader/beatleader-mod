@@ -7,8 +7,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreInfoPanelControls.bsml")]
-    internal class ScoreInfoPanelControls : ReeUIComponent {
+    internal class ScoreInfoPanelControls : ReeUIComponentV2 {
         #region Events
 
         protected override void OnInitialize() {
@@ -22,7 +21,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region Reset
 
         private Score _score;
@@ -35,7 +34,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region OnScoreInfoPanelTabChanged
-        
+
         private void OnScoreInfoPanelTabChanged(ScoreInfoPanelTab tab) {
             switch (tab) {
                 case ScoreInfoPanelTab.Overview:
@@ -67,12 +66,12 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region Colors
 
-        private static readonly Color SelectedColor = new Color(0.0f, 0.4f, 1.0f, 1.0f);
-        private static readonly Color FadedColor = new Color(0.8f, 0.8f, 0.8f, 0.2f);
-        private static readonly Color FadedHoverColor = new Color(0.5f, 0.5f, 0.5f, 0.2f);
+        private static readonly Color SelectedColor = new(0.0f, 0.4f, 1.0f, 1.0f);
+        private static readonly Color FadedColor = new(0.8f, 0.8f, 0.8f, 0.2f);
+        private static readonly Color FadedHoverColor = new(0.5f, 0.5f, 0.5f, 0.2f);
 
         [UIComponent("overview-component"), UsedImplicitly]
         private ClickableImage _overviewComponent;

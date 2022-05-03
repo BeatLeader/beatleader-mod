@@ -51,10 +51,10 @@ namespace BeatLeader {
                 yield break;
             }
 
-            handler.texture.wrapMode = TextureWrapMode.Clamp;
+            var texture = ResampleTexture(handler.texture);
             var sprite = Sprite.Create(
-                handler.texture,
-                Rect.MinMaxRect(0, 0, handler.texture.width, handler.texture.height),
+                texture,
+                Rect.MinMaxRect(0, 0, texture.width, texture.height),
                 Vector2.one / 2
             );
             Cache[country] = sprite;
@@ -63,6 +63,34 @@ namespace BeatLeader {
 
         private static string GetCountryFlagLink(string country) {
             return $"https://cdn.beatleader.xyz/flags/{country.ToLower()}.png";
+        }
+
+        #endregion
+
+        #region ResampleTexture
+        
+        private const int Width = 32;
+
+        private static Texture2D ResampleTexture(Texture2D source) {
+            var aspectRatio = (float) source.height / source.width;
+            var height = (int) (Width * aspectRatio);
+            
+            var bufferTexture = new RenderTexture(Width, height, 0, RenderTextureFormat.Default);
+            bufferTexture.Create();
+            
+            Graphics.Blit(source, bufferTexture);
+            
+            GL.Flush();
+            var texture2D = new Texture2D(Width, height, TextureFormat.RGB24, false) {
+                wrapMode = TextureWrapMode.Clamp
+            };
+            RenderTexture.active = bufferTexture;
+            texture2D.ReadPixels(new Rect(0.0f, 0.0f, Width, height), 0, 0);
+            texture2D.Apply();
+            RenderTexture.active = null;
+            GL.Flush();
+            
+            return texture2D;
         }
 
         #endregion

@@ -5,21 +5,21 @@
         <!--  TOP LINE LAYER  -->
         <horizontal spacing="~spacing" horizontal-fit="PreferredSize">
             <macro.for-each items="top-layer-cells">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.for-each>
         </horizontal>
 
         <!--  UPPER LINE LAYER  -->
         <horizontal spacing="~spacing" horizontal-fit="PreferredSize">
             <macro.for-each items="upper-layer-cells">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.for-each>
         </horizontal>
 
         <!--  BASE LINE LAYER  -->
         <horizontal spacing="~spacing" horizontal-fit="PreferredSize">
             <macro.for-each items="base-layer-cells">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.for-each>
         </horizontal>
     </vertical>

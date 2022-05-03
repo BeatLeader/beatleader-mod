@@ -1,19 +1,21 @@
-using System.Text;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using ModestTree;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.MiniProfile.bsml")]
-    internal class MiniProfile : ReeUIComponent {
+    internal class MiniProfile : ReeUIComponentV2 {
         #region Components
 
         [UIValue("player-avatar"), UsedImplicitly]
-        private PlayerAvatar _playerAvatar = Instantiate<PlayerAvatar>();
+        private PlayerAvatar _playerAvatar;
 
         [UIValue("country-flag"), UsedImplicitly]
-        private CountryFlag _countryFlag = Instantiate<CountryFlag>();
+        private CountryFlag _countryFlag;
+
+        private void Awake() {
+            _playerAvatar = Instantiate<PlayerAvatar>(transform);
+            _countryFlag = Instantiate<CountryFlag>(transform);
+        }
 
         #endregion
 

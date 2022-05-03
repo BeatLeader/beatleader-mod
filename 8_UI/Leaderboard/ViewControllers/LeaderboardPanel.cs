@@ -9,13 +9,19 @@ namespace BeatLeader.ViewControllers {
         #region Components
 
         [UIValue("status-bar"), UsedImplicitly]
-        private StatusBar _statusBar = ReeUIComponent.Instantiate<StatusBar>();
+        private StatusBar _statusBar;
 
         [UIValue("logo"), UsedImplicitly]
-        private Logo _logo = ReeUIComponent.Instantiate<Logo>();
+        private Logo _logo;
 
         [UIValue("player-info"), UsedImplicitly]
-        private PlayerInfo _playerInfo = ReeUIComponent.Instantiate<PlayerInfo>();
+        private PlayerInfo _playerInfo;
+
+        private void Awake() {
+            _statusBar = ReeUIComponentV2.Instantiate<StatusBar>(transform);
+            _logo = ReeUIComponentV2.Instantiate<Logo>(transform);
+            _playerInfo = ReeUIComponentV2.Instantiate<PlayerInfo>(transform);
+        }
 
         #endregion
     }

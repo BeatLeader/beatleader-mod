@@ -1,12 +1,10 @@
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyGridCell.bsml")]
-    internal class AccuracyGridCell : ReeUIComponent {
+    internal class AccuracyGridCell : ReeUIComponentV2 {
         #region Events
 
         protected override void OnInitialize() {
@@ -36,15 +34,15 @@ namespace BeatLeader.Components {
 
         #region Formatting & Color
 
-        private static readonly Color GoodColor = new Color(0f, 0.2f, 1.0f, 1.0f);
-        private static readonly Color BadColor = new Color(0.0f, 0.1f, 0.3f, 0.1f);
-        private static readonly Color EmptyColor = new Color(0.1f, 0.1f, 0.1f, 0.0f);
+        private static readonly Color GoodColor = new(0f, 0.2f, 1.0f, 1.0f);
+        private static readonly Color BadColor = new(0.0f, 0.1f, 0.3f, 0.1f);
+        private static readonly Color EmptyColor = new(0.1f, 0.1f, 0.1f, 0.0f);
 
         private static Color GetColor(float quality) {
             var t = quality * quality;
             return Color.Lerp(BadColor, GoodColor, t);
         }
-        
+
         private static string FormatText(float value) {
             return $"{value:F1}";
         }

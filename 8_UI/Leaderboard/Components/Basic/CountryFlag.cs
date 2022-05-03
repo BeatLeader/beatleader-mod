@@ -4,15 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Basic.CountryFlag.bsml")]
-    internal class CountryFlag : ReeUIComponent {
+    internal class CountryFlag : ReeUIComponentV2 {
         #region Events
 
-        protected override void OnActivate(bool firstTime) {
+        private void OnEnable() {
             if (_country != null) UpdateImage();
         }
 
-        protected override void OnDeactivate() {
+        private void OnDisable() {
             StopAllCoroutines();
         }
 
@@ -51,6 +50,10 @@ namespace BeatLeader.Components {
 
         [UIComponent("image-component"), UsedImplicitly]
         private Image _image;
+
+        public void SetAlpha(float value) {
+            _image.color = new Color(1, 1, 1, value);
+        }
 
         private void SetSprite(Sprite sprite) {
             _image.sprite = sprite;

@@ -11,8 +11,11 @@ namespace BeatLeader {
         public static ConfigFileData Instance { get; set; }
 
         #region ConfigVersion
+        
+        public const string CurrentConfigVersion = "1.0";
 
-        public string ConfigVersion = ConfigDefaults.ConfigVersion;
+        [UsedImplicitly]
+        public virtual string ConfigVersion { get; set; } = CurrentConfigVersion;
 
         #endregion
 
@@ -25,6 +28,21 @@ namespace BeatLeader {
         #region ScoresContext
 
         public ScoresContext ScoresContext = ConfigDefaults.ScoresContext;
+
+        #endregion
+
+        #region LeaderboardTableMask
+
+        public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
+
+        #endregion
+        
+        #region OnReload
+
+        [UsedImplicitly]
+        public virtual void OnReload() {
+            if (ConfigVersion != CurrentConfigVersion) ConfigVersion = CurrentConfigVersion;
+        }
 
         #endregion
     }

@@ -5,8 +5,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.Basic.PlayerAvatar.bsml")]
-    internal class PlayerAvatar : ReeUIComponent {
+    internal class PlayerAvatar : ReeUIComponentV2 {
         #region BufferTexture
 
         private const int Width = 200;
@@ -15,7 +14,7 @@ namespace BeatLeader.Components {
         private RenderTexture _bufferTexture;
 
         protected override void OnInitialize() {
-            _bufferTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.Default, 5);
+            _bufferTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.Default, 10);
             _bufferTexture.Create();
         }
 
@@ -27,11 +26,11 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        protected override void OnActivate(bool firstTime) {
+        private void OnEnable() {
             UpdateAvatar();
         }
 
-        protected override void OnDeactivate() {
+        private void OnDisable() {
             StopAllCoroutines();
         }
 
@@ -43,6 +42,7 @@ namespace BeatLeader.Components {
         private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
 
         private string _url;
+        private Coroutine _playbackCoroutine;
 
         public void SetAvatar(string url) {
             if (url.Equals(_url)) return;
@@ -59,7 +59,8 @@ namespace BeatLeader.Components {
 
         private void OnAvatarLoadSuccess(AvatarImage avatarImage) {
             ShowTexture(_bufferTexture);
-            StartCoroutine(avatarImage.PlaybackCoroutine(_bufferTexture));
+            if (_playbackCoroutine != null) StopCoroutine(_playbackCoroutine);
+            _playbackCoroutine = StartCoroutine(avatarImage.PlaybackCoroutine(_bufferTexture));
         }
 
         private void OnAvatarLoadFailed(string reason) {
@@ -75,6 +76,10 @@ namespace BeatLeader.Components {
 
         private Material _materialInstance;
         private bool _materialSet;
+
+        public void SetAlpha(float value) {
+            _image.color = new Color(1, 1, 1, value);
+        }
 
         private void ShowSpinner() {
             SetMaterialLazy();

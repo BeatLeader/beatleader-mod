@@ -12,7 +12,7 @@
                 </horizontal>
                 <horizontal pref-height="4" spacing="1">
                     <macro.as-host host="country-flag">
-                        <macro.reparent transform="root"/>
+                        <macro.reparent transform="ui-component"/>
                     </macro.as-host>
                     <text text="~country-rank-text" align="Midline"/>
                 </horizontal>
@@ -23,9 +23,13 @@
         </vertical>
 
         <vertical pref-width="14">
+            <!--  AVATAR  -->
             <macro.as-host host="avatar">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
+
+            <!--  CLICKABLE AREA  -->
+            <clickable-image ignore-layout="true" src="#TransparentPixel" pref-width="14" pref-height="14" on-click="avatar-on-click"/>
         </vertical>
     </horizontal>
 </vertical>

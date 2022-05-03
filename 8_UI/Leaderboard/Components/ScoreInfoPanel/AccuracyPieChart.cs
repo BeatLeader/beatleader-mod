@@ -7,7 +7,7 @@ namespace BeatLeader.Components {
     internal class AccuracyPieChart : ReeUIComponentV2 {
         #region Events
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             SetMaterials();
         }
 

@@ -13,7 +13,7 @@ namespace BeatLeader.Components {
 
         private RenderTexture _bufferTexture;
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             _bufferTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.Default, 10);
             _bufferTexture.Create();
         }

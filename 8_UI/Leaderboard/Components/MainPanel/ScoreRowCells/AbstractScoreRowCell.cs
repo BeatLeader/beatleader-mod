@@ -34,7 +34,7 @@ namespace BeatLeader.Components {
             gameObject.SetActive(_isActive);
         }
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             UpdateRootNode();
         }
 

@@ -7,7 +7,7 @@ namespace BeatLeader.Components {
     internal class ScoreRowDivider : ReeUIComponentV2 {
         #region OnInitialize
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             ApplyAlpha();
         }
 

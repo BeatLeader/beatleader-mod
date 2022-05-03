@@ -79,7 +79,7 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             SetupFormatting();
             SetMaterials();
             FadeOut();

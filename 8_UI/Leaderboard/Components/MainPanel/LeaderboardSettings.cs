@@ -9,7 +9,7 @@ namespace BeatLeader.Components {
     internal class LeaderboardSettings : ReeUIComponentV2 {
         #region Init / Dispose
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             LeaderboardEvents.AvatarWasPressedEvent += OnAvatarWasPressed;
             LeaderboardEvents.SceneTransitionStartedEvent += OnSceneTransitionStarted;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;

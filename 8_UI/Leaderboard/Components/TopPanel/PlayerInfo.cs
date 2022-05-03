@@ -24,7 +24,7 @@ namespace BeatLeader.Components {
 
         #region Initialize/Dispose
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
             OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
         }

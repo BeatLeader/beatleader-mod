@@ -12,7 +12,7 @@ namespace BeatLeader.Components {
     internal class Pagination : ReeUIComponentV2 {
         #region Initialize/Dispose
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             FlipUpButton();
             LeaderboardState.ScoresRequest.StateChangedEvent += OnScoreRequestStateChangedEvent;
             OnScoreRequestStateChangedEvent(LeaderboardState.ScoresRequest.State);

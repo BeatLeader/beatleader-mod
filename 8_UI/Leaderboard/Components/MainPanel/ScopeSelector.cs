@@ -9,7 +9,7 @@ namespace BeatLeader.Components {
     internal class ScopeSelector : ReeUIComponentV2 {
         #region Init / Dispose
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             SetMaterials();
             LeaderboardState.ScoresScopeChangedEvent += OnScoresScopeChanged;
             OnScoresScopeChanged(LeaderboardState.ScoresScope);

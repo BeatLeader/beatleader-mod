@@ -10,7 +10,7 @@ namespace BeatLeader.Components {
     internal class ScoreInfoPanelControls : ReeUIComponentV2 {
         #region Events
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             SetMaterials();
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnScoreInfoPanelTabChanged;
             OnScoreInfoPanelTabChanged(LeaderboardState.ScoreInfoPanelTab);

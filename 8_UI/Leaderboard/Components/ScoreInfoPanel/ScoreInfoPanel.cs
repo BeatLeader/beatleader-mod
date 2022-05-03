@@ -45,7 +45,7 @@ namespace BeatLeader.Components {
 
         #region Init / Dispose
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
             LeaderboardEvents.AvatarWasPressedEvent += OnAvatarWasPressed;
             LeaderboardEvents.SceneTransitionStartedEvent += OnSceneTransitionStarted;

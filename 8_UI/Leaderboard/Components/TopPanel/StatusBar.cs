@@ -9,7 +9,7 @@ namespace BeatLeader.Components {
     internal class StatusBar : ReeUIComponentV2 {
         #region Initialize/Dispose
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             LeaderboardEvents.StatusMessageEvent += OnStatusMessage;
             LeaderboardState.ProfileRequest.FailedEvent += OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;

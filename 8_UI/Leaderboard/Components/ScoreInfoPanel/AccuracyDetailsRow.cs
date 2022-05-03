@@ -8,7 +8,7 @@ namespace BeatLeader.Components {
     internal class AccuracyDetailsRow : ReeUIComponentV2 {
         #region Events
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             SetMaterials();
         }
 

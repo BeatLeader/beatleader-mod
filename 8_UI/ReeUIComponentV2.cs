@@ -53,9 +53,7 @@ namespace BeatLeader {
 
         #region Events
 
-        protected virtual void OnBeforeParse() { }
-
-        protected virtual void OnAfterParse() { }
+        protected virtual void OnInitialize() { }
 
         protected virtual void OnDispose() { }
 
@@ -115,7 +113,7 @@ namespace BeatLeader {
             DisposeIfNeeded();
             ParseSelfIfNeeded();
             ApplyHierarchy();
-            OnAfterParse();
+            OnInitialize();
         }
 
         private void DisposeIfNeeded() {
@@ -126,7 +124,6 @@ namespace BeatLeader {
 
         private void ParseSelfIfNeeded() {
             if (_state != State.Uninitialized) return;
-            OnBeforeParse();
             _state = State.Parsing;
             PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
             _state = State.Parsed;

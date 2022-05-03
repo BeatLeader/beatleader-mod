@@ -15,7 +15,7 @@ namespace BeatLeader.Components {
 
         private AccuracyGraph _accuracyGraph;
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             var go = Object.Instantiate(BundleLoader.AccuracyGraphPrefab, _graphContainer, false);
             _accuracyGraph = go.GetComponent<AccuracyGraph>();
             _accuracyGraph.Construct(_graphBackground);

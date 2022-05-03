@@ -6,7 +6,7 @@ namespace BeatLeader.Components {
     internal class ScoreStatsLoadingScreen : ReeUIComponentV2 {
         #region Initialize
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             LeaderboardState.ScoreStatsRequest.StateChangedEvent += OnScoreStatsRequestStateChanged;
             OnScoreStatsRequestStateChanged(LeaderboardState.ScoreStatsRequest.State);
         }

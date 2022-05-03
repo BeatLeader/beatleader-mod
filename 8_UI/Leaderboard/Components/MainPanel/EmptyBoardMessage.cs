@@ -10,7 +10,7 @@ namespace BeatLeader.Components {
     internal class EmptyBoardMessage : ReeUIComponentV2 {
         #region OnInitialize
 
-        protected override void OnAfterParse() {
+        protected override void OnInitialize() {
             LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
             OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
             ApplyAlpha();

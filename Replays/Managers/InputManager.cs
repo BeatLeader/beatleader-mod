@@ -17,6 +17,7 @@ namespace BeatLeader.Replays.Managers
         [Inject] protected readonly VRControllersInputManager _vrControllersInputManager;
         [Inject] protected readonly MainCamera _mainCamera;
         [Inject] protected readonly MenuSabersManager _menuSabersManager;
+        [Inject] protected readonly IFPFCSettings _fpfcSettings;
         [Inject] protected readonly IVRPlatformHelper _platformHelper;
 
         public enum InputSystemType
@@ -25,7 +26,7 @@ namespace BeatLeader.Replays.Managers
             FPFC
         }
 
-        protected MainCameraBlocker _mainCameraBlocker; //auros, fuck you again, cry about it
+        protected MainCameraBlocker _mainCameraBlocker;
         protected FakeVRController _pointer;
         protected VRPointer _scenePointer;
         protected Camera _inputBordersCamera;

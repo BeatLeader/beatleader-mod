@@ -7,11 +7,11 @@ using UnityEngine;
 
 namespace BeatLeader.Replays
 {
-    public class MainCameraBlocker : MonoBehaviour //FUCK YOU, AUROS! WHY NOT TO ALLOW PEOPLE TO DISABLE FUCKING CURSOR FOLLOWING?
+    public class MainCameraBlocker : MonoBehaviour
     {
         protected Quaternion rotation;
         protected Vector3 position;
-        protected bool onLock; //I am not like auros
+        protected bool onLock;
 
         public void LateUpdate()
         {
@@ -27,7 +27,7 @@ namespace BeatLeader.Replays
             position = transform.position;
             onLock = true;
         }
-        public void Unlock() //AUROS, WHY NOT???????
+        public void Unlock()
         {
             rotation = Quaternion.identity;
             position = Vector3.zero;

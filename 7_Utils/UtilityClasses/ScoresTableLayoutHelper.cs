@@ -50,7 +50,9 @@ namespace BeatLeader {
             var flexibleWidth = AvailableWidth;
 
             var i = 0;
-            foreach (var (cellType, list) in _cells) {
+            foreach (var keyValuePair in _cells) {
+                var cellType = keyValuePair.Key;
+                var list = keyValuePair.Value;
                 var active = mask.HasFlag(cellType);
 
                 foreach (var cell in list) {

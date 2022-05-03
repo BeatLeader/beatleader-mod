@@ -222,6 +222,7 @@
     <Compile Include="2_Core\Models\Player.cs" />
     <Compile Include="2_Core\Models\QuestReplay.cs" />
     <Compile Include="2_Core\Models\Replay.cs" />
+    <Compile Include="2_Core\Models\ScoreRowCellType.cs" />
     <Compile Include="2_Core\Models\ScoreStats.cs" />
     <Compile Include="2_Core\Models\Score.cs" />
     <Compile Include="2_Core\Models\ScoresContext.cs" />
@@ -245,11 +246,11 @@
     <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
-    <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
     <Compile Include="7_Utils\UtilityClasses\CyclicBuffer.cs" />
     <Compile Include="7_Utils\UtilityClasses\GifLoader.cs" />
     <Compile Include="7_Utils\UtilityClasses\Range.cs" />
     <Compile Include="7_Utils\UtilityClasses\RequestStateHandler.cs" />
+    <Compile Include="7_Utils\UtilityClasses\ScoresTableLayoutHelper.cs" />
     <Compile Include="7_Utils\UtilityClasses\ScreenViewTransform.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
@@ -257,6 +258,12 @@
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\EmptyBoardMessage.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\Pagination.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScopeSelector.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\LeaderboardSettings.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowCells\AbstractScoreRowCell.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowCells\AvatarScoreRowCell.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowCells\CountryScoreRowCell.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowCells\MistakesScoreRowCell.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowCells\TextScoreRowCell.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRow.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowDivider.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoresTable.cs" />
@@ -279,7 +286,7 @@
     <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardView.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUtils.cs" />
-    <Compile Include="8_UI\ReeUIComponent.cs" />
+    <Compile Include="8_UI\ReeUIComponentV2.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <Compile Include="Plugin.cs" />
@@ -293,6 +300,10 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Pagination.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScopeSelector.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRow.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\AvatarScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\CountryScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\MistakesScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\TextScoreRowCell.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowDivider.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoresTable.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetails.bsml" />
@@ -307,6 +318,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreOverview.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreStatsLoadingScreen.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\LeaderboardSettings.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\Logo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\PlayerInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\StatusBar.bsml" />

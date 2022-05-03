@@ -1,0 +1,7 @@
+<vertical id="root-node">
+    <horizontal ignore-layout="true" pref-height="4">
+        <macro.as-host host="player-avatar">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+    </horizontal>
+</vertical>

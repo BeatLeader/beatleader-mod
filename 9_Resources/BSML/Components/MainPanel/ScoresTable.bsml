@@ -1,17 +1,17 @@
 <vertical preferred-width="80" vertical-fit="PreferredSize">
     <macro.as-host host="top-row-divider">
-        <macro.reparent transform="root"/>
+        <macro.reparent transform="ui-component"/>
     </macro.as-host>
 
     <macro.for-each items='score-rows'>
-        <macro.reparent transform="root"/>
+        <macro.reparent transform="ui-component"/>
     </macro.for-each>
 
     <macro.as-host host="bottom-row-divider">
-        <macro.reparent transform="root"/>
+        <macro.reparent transform="ui-component"/>
     </macro.as-host>
     
     <macro.as-host host="extra-score-row">
-        <macro.reparent transform="root"/>
+        <macro.reparent transform="ui-component"/>
     </macro.as-host>
 </vertical>

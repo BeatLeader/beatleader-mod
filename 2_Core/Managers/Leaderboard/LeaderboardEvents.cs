@@ -90,5 +90,25 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
+
+        #region AvatarWasPressed
+
+        public static event Action AvatarWasPressedEvent;
+
+        public static void NotifyAvatarWasPressed() {
+            AvatarWasPressedEvent?.Invoke();
+        }
+
+        #endregion
+
+        #region LogoWasPressed
+
+        public static event Action LogoWasPressedEvent;
+
+        public static void NotifyLogoWasPressed() {
+            LogoWasPressedEvent?.Invoke();
+        }
+
+        #endregion
     }
 }

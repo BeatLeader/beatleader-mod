@@ -1,35 +1,38 @@
 <vertical min-width="95" preferred-width="95" anchor-pos-x="3" anchor-pos-y="5" pad-right="5">
     <horizontal min-height="60" preferred-height="60" spacing="5">
+        <!--  SETTINGS MODAl  -->
+        <macro.as-host host="leaderboard-settings">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        
         <!--  SCORE MODAl  -->
-        <modal id="scores-modal" click-off-closes="true" size-delta-x='24' size-delta-y='6'>
-            <macro.as-host host="score-details">
-                <macro.reparent transform="root"/>
-            </macro.as-host>
-        </modal>
+        <macro.as-host host="score-info-panel">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
 
         <!--  EMPTY BOARD MESSAGE  -->
         <macro.as-host host="empty-board-message">
-            <macro.reparent transform="root"/>
+            <macro.reparent transform="ui-component"/>
         </macro.as-host>
 
         <!--  NAVIGATION  -->
         <vertical spacing="3" pad-top="10" vertical-fit="PreferredSize">
             <macro.as-host host="pagination">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
             <macro.as-host host="scope-selector">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
             <macro.as-host host="context-selector">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
         </vertical>
 
         <!--  SCORES TABLE  -->
         <macro.as-host host="scores-table">
-            <macro.reparent transform="root"/>
+            <macro.reparent transform="ui-component"/>
         </macro.as-host>
     </horizontal>
 </vertical>

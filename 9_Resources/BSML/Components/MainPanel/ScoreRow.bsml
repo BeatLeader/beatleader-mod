@@ -1,51 +1,63 @@
-<horizontal active="~is-active" pref-height="5.2">
+<horizontal id="root-node" active="~is-active" pref-height="5.2">
     <!--  STYLE  -->
-    <macro.define name="font-size" value="3.4"/>
-    <macro.define name="modifiers-font-size" value="2.4"/>
     <macro.define name="row-height" value="5.2"/>
+    <macro.define name="row-width" value="80"/>
     
-    <vertical pref-width="80" min-width="80">
-        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="1" pad="1" pref-height="~row-height">
+    <vertical pref-width="~row-width" min-width="~row-width">
+        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="1.3" pad-left="2" pad-right="2" pref-height="~row-height">
             <!--  BACKGROUND  -->
-            <vertical ignore-layout="true" pref-width="80">
-                <image src="#TransparentPixel" id="background-component" pref-height="~row-height" pref-width="80"/>
+            <vertical ignore-layout="true" pref-width="~row-width">
+                <image src="#TransparentPixel" id="background-component" pref-height="~row-height" pref-width="~row-width"/>
             </vertical>
 
             <!--  RANK  -->
-            <vertical pref-width="~rank-column-width">
-                <text id="rank-tmp" text="~rank-text" word-wrapping="false" font-size="~font-size" italics="true" align="Center"/>
-            </vertical>
+            <macro.as-host host="rank-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  COUNTRY  -->
+            <macro.as-host host="country-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  AVATAR  -->
+            <macro.as-host host="avatar-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
 
             <!--  NAME  -->
-            <vertical pref-width="~name-column-width">
-                <horizontal>
-                    <text id="name-tmp" text="~name-text" overflow-mode="Ellipsis" word-wrapping="false" font-size="~font-size" italics="true" align="Left"/>
-                </horizontal>
-            </vertical>
+            <macro.as-host host="username-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
 
             <!--  MODIFIERS  -->
-            <vertical pref-width="~modifiers-column-width">
-                <text id="modifiers-tmp" text="~modifiers-text" word-wrapping="false" font-size="~modifiers-font-size" italics="true" align="Right"/>
-            </vertical>
+            <macro.as-host host="modifiers-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
 
             <!--  ACC  -->
-            <vertical pref-width="~acc-column-width">
-                <text id="acc-tmp" text="~acc-text" word-wrapping="false" font-size="~font-size" italics="true" align="Center"/>
-            </vertical>
+            <macro.as-host host="accuracy-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
 
             <!--  PP  -->
-            <vertical pref-width="~pp-column-width" active="~pp-is-active">
-                <text id="pp-tmp" text="~pp-text" word-wrapping="false" font-size="~font-size" italics="true" align="Center"/>
-            </vertical>
+            <macro.as-host host="pp-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
 
             <!--  SCORE  -->
-            <vertical pref-width="~score-column-width">
-                <text id="score-tmp" text="~score-text" word-wrapping="false" font-size="~font-size" italics="true" align="Right"/>
-            </vertical>
+            <macro.as-host host="score-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  MISTAKES  -->
+            <macro.as-host host="mistakes-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
 
             <!--  CLICKABLE AREA  -->
-            <vertical ignore-layout="true" pref-width="80">
-                <clickable-image src="#TransparentPixel" id="info-component" pref-height="~row-height" pref-width="80"
+            <vertical ignore-layout="true" pref-width="~row-width">
+                <clickable-image src="#TransparentPixel" id="info-component" pref-height="~row-height" pref-width="~row-width"
                                  active="~clickable" on-click="info-on-click"/>
             </vertical>
         </horizontal>

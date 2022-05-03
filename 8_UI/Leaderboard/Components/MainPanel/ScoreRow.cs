@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -8,18 +9,83 @@ using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using Transform = UnityEngine.Transform;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.MainPanel.ScoreRow.bsml")]
-    internal class ScoreRow : ReeUIComponent {
+    internal class ScoreRow : ReeUIComponentV2 {
+        #region Components
+
+        [UIValue("rank-cell"), UsedImplicitly]
+        private TextScoreRowCell _rankCell;
+
+        [UIValue("country-cell"), UsedImplicitly]
+        private CountryScoreRowCell _countryCell;
+
+        [UIValue("avatar-cell"), UsedImplicitly]
+        private AvatarScoreRowCell _avatarCell;
+
+        [UIValue("username-cell"), UsedImplicitly]
+        private TextScoreRowCell _usernameCell;
+
+        [UIValue("modifiers-cell"), UsedImplicitly]
+        private TextScoreRowCell _modifiersCell;
+
+        [UIValue("accuracy-cell"), UsedImplicitly]
+        private TextScoreRowCell _accuracyCell;
+
+        [UIValue("pp-cell"), UsedImplicitly]
+        private TextScoreRowCell _ppCell;
+
+        [UIValue("score-cell"), UsedImplicitly]
+        private TextScoreRowCell _scoreCell;
+
+        [UIValue("mistakes-cell"), UsedImplicitly]
+        private MistakesScoreRowCell _mistakesCell;
+
+        private readonly Dictionary<ScoreRowCellType, AbstractScoreRowCell> _cells = new();
+
+        private void Awake() {
+            _cells[ScoreRowCellType.Rank] = _rankCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Country] = _countryCell = Instantiate<CountryScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Avatar] = _avatarCell = Instantiate<AvatarScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Username] = _usernameCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Modifiers] = _modifiersCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Accuracy] = _accuracyCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.PerformancePoints] = _ppCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Score] = _scoreCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Mistakes] = _mistakesCell = Instantiate<MistakesScoreRowCell>(transform);
+        }
+        
+        #endregion
+
+        #region Setup
+        
+        private void SetupFormatting() {
+            _rankCell.Setup(o => FormatUtils.FormatRank((int) o, false));
+            _usernameCell.Setup(o => FormatUtils.FormatUserName((string) o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis);
+            _modifiersCell.Setup(o => FormatUtils.FormatModifiers((string) o), TextAlignmentOptions.Right, TextOverflowModes.Overflow, 2.4f);
+            _accuracyCell.Setup(o => FormatUtils.FormatAcc((float) o));
+            _ppCell.Setup(o => FormatUtils.FormatPP((float) o));
+            _scoreCell.Setup(o => FormatUtils.FormatScore((int) o), TextAlignmentOptions.Right);
+        }
+
+        public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
+            foreach (var (cellType, cell) in _cells) {
+                layoutHelper.RegisterCell(cellType, cell);
+            }
+        }
+
+        #endregion
+
         #region Events
 
         protected override void OnInitialize() {
+            SetupFormatting();
             SetMaterials();
             FadeOut();
         }
 
-        protected override void OnActivate(bool firstTime) {
+        private void OnEnable() {
             _currentAlpha = _targetAlpha;
             _currentOffset = _targetOffset;
             _updateRequired = true;
@@ -33,24 +99,26 @@ namespace BeatLeader.Components {
 
         public void SetScore(Score score) {
             _score = score;
-            
+
             SetHighlight(score.player.IsCurrentPlayer());
-            RankText = FormatUtils.FormatRank(score.rank, false);
-            NameText = FormatUtils.FormatUserName(score.player.name);
-            ModifiersText = FormatUtils.FormatModifiers(score.modifiers);
-            AccText = FormatUtils.FormatAcc(score.accuracy);
-            PpText = FormatUtils.FormatPP(score.pp);
-            ScoreText = FormatUtils.FormatScore(score.modifiedScore);
+            _rankCell.SetValue(score.rank);
+            _countryCell.SetValue(score.player.country);
+            _avatarCell.SetValue(score.player.avatar);
+            _usernameCell.SetValue(score.player.name);
+            _modifiersCell.SetValue(score.modifiers);
+            _accuracyCell.SetValue(score.accuracy);
+            _ppCell.SetValue(score.pp);
+            _scoreCell.SetValue(score.modifiedScore);
+            _mistakesCell.SetValues(score.missedNotes, score.badCuts, score.bombCuts, score.wallsHit);
             Clickable = true;
-            UpdateFlexibleColumns(_score.modifiers);
-            
-            FadeIn();
         }
 
         public void ClearScore() {
             _score = null;
+            foreach (var cell in _cells.Values) {
+                cell.MarkEmpty();
+            }
             Clickable = false;
-            FadeOut();
         }
 
         public void SetActive(bool value) {
@@ -58,39 +126,7 @@ namespace BeatLeader.Components {
         }
 
         public void SetHierarchyIndex(int value) {
-            Root.SetSiblingIndex(value);
-        }
-
-        #endregion
-
-        #region UpdateLayout
-
-        private float _flexibleWidth;
-
-        private void UpdateFlexibleColumns(string modifiersString) {
-            TableLayoutUtils.CalculateFlexibleWidths(_flexibleWidth, modifiersString,
-                out var nameColumnWidth,
-                out var modifiersColumnWidth
-            );
-
-            NameColumnWidth = nameColumnWidth;
-            ModifiersColumnWidth = modifiersColumnWidth;
-        }
-
-        public void UpdateLayout(
-            float rankColumnWidth,
-            float accColumnWidth,
-            float ppColumnWidth,
-            float scoreColumnWidth,
-            float flexibleWidth,
-            bool ppColumnActive
-        ) {
-            RankColumnWidth = rankColumnWidth;
-            AccColumnWidth = accColumnWidth;
-            PpColumnWidth = ppColumnWidth;
-            ScoreColumnWidth = scoreColumnWidth;
-            _flexibleWidth = flexibleWidth;
-            PpIsActive = ppColumnActive;
+            _rootNode.SetSiblingIndex(value);
         }
 
         #endregion
@@ -106,13 +142,13 @@ namespace BeatLeader.Components {
         private float _targetOffset;
         private bool _updateRequired;
 
-        private void FadeIn() {
+        public void FadeIn() {
             _targetAlpha = 1.0f;
             _currentOffset = FadeFromOffset;
             _targetOffset = 0.0f;
         }
 
-        private void FadeOut() {
+        public void FadeOut() {
             _targetAlpha = 0.0f;
             _targetOffset = FadeToOffset;
         }
@@ -122,7 +158,7 @@ namespace BeatLeader.Components {
             if (LerpOffset(t)) _updateRequired = true;
             if (LerpAlpha(t)) _updateRequired = true;
             if (!_updateRequired) return;
-            
+
             ApplyVisualChanges();
             _updateRequired = false;
         }
@@ -141,17 +177,21 @@ namespace BeatLeader.Components {
 
         private void ApplyVisualChanges() {
             HorizontalOffset = _currentOffset;
-            
-            _rankTmp.alpha = _currentAlpha;
-            _nameTmp.alpha = _currentAlpha;
-            _modifiersTmp.alpha = _currentAlpha;
-            _accTmp.alpha = _currentAlpha;
-            _ppTmp.alpha = _currentAlpha;
-            _scoreTmp.alpha = _currentAlpha;
+
+            foreach (var cell in _cells.Values) {
+                cell.SetAlpha(_currentAlpha);
+            }
 
             _backgroundComponent.color = _backgroundColor.ColorWithAlpha(_backgroundColor.a * _currentAlpha);
             _infoComponent.color = _infoComponent.color.ColorWithAlpha(_infoComponent.color.a * _currentAlpha);
         }
+
+        #endregion
+
+        #region RootNode
+
+        [UIComponent("root-node"), UsedImplicitly]
+        private Transform _rootNode;
 
         #endregion
 
@@ -187,211 +227,13 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Rank
-
-        [UIComponent("rank-tmp"), UsedImplicitly]
-        private TextMeshProUGUI _rankTmp;
-
-        private string _rankText = "";
-
-        [UIValue("rank-text"), UsedImplicitly]
-        public string RankText {
-            get => _rankText;
-            set {
-                if (_rankText.Equals(value)) return;
-                _rankText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private float _rankColumnWidth;
-
-        [UIValue("rank-column-width"), UsedImplicitly]
-        private float RankColumnWidth {
-            get => _rankColumnWidth;
-            set {
-                if (_rankColumnWidth.Equals(value)) return;
-                _rankColumnWidth = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region Name
-
-        [UIComponent("name-tmp"), UsedImplicitly]
-        private TextMeshProUGUI _nameTmp;
-
-        private string _nameText = "";
-
-        [UIValue("name-text"), UsedImplicitly]
-        private string NameText {
-            get => _nameText;
-            set {
-                if (_nameText.Equals(value)) return;
-                _nameText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private float _nameColumnWidth;
-
-        [UIValue("name-column-width"), UsedImplicitly]
-        private float NameColumnWidth {
-            get => _nameColumnWidth;
-            set {
-                if (_nameColumnWidth.Equals(value)) return;
-                _nameColumnWidth = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region Modifiers
-
-        [UIComponent("modifiers-tmp"), UsedImplicitly]
-        private TextMeshProUGUI _modifiersTmp;
-
-        private string _modifiersText = "";
-
-        [UIValue("modifiers-text"), UsedImplicitly]
-        private string ModifiersText {
-            get => _modifiersText;
-            set {
-                if (_modifiersText.Equals(value)) return;
-                _modifiersText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private float _modifiersColumnWidth;
-
-        [UIValue("modifiers-column-width"), UsedImplicitly]
-        private float ModifiersColumnWidth {
-            get => _modifiersColumnWidth;
-            set {
-                if (_modifiersColumnWidth.Equals(value)) return;
-                _modifiersColumnWidth = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region Acc
-
-        [UIComponent("acc-tmp"), UsedImplicitly]
-        private TextMeshProUGUI _accTmp;
-
-        private string _accText = "";
-
-        [UIValue("acc-text"), UsedImplicitly]
-        private string AccText {
-            get => _accText;
-            set {
-                if (_accText.Equals(value)) return;
-                _accText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private float _accColumnWidth;
-
-        [UIValue("acc-column-width"), UsedImplicitly]
-        private float AccColumnWidth {
-            get => _accColumnWidth;
-            set {
-                if (_accColumnWidth.Equals(value)) return;
-                _accColumnWidth = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region Pp
-
-        [UIComponent("pp-tmp"), UsedImplicitly]
-        private TextMeshProUGUI _ppTmp;
-
-        private bool _ppIsActive;
-
-        [UIValue("pp-is-active"), UsedImplicitly]
-        private bool PpIsActive {
-            get => _ppIsActive;
-            set {
-                if (_ppIsActive.Equals(value)) return;
-                _ppIsActive = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private string _ppText = "";
-
-        [UIValue("pp-text"), UsedImplicitly]
-        private string PpText {
-            get => _ppText;
-            set {
-                if (_ppText.Equals(value)) return;
-                _ppText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private float _ppColumnWidth;
-
-        [UIValue("pp-column-width"), UsedImplicitly]
-        private float PpColumnWidth {
-            get => _ppColumnWidth;
-            set {
-                if (_ppColumnWidth.Equals(value)) return;
-                _ppColumnWidth = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region Score
-
-        [UIComponent("score-tmp"), UsedImplicitly]
-        private TextMeshProUGUI _scoreTmp;
-
-        private string _scoreText = "";
-
-        [UIValue("score-text"), UsedImplicitly]
-        private string ScoreText {
-            get => _scoreText;
-            set {
-                if (_scoreText.Equals(value)) return;
-                _scoreText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private float _scoreColumnWidth;
-
-        [UIValue("score-column-width"), UsedImplicitly]
-        private float ScoreColumnWidth {
-            get => _scoreColumnWidth;
-            set {
-                if (_scoreColumnWidth.Equals(value)) return;
-                _scoreColumnWidth = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
         #region ClickableArea
 
-        private readonly Color _ownScoreColor = new Color(0.7f, 0f, 0.7f, 0.3f);
-        private readonly Color _someoneElseScoreColor = new Color(0.07f, 0f, 0.14f, 0.05f);
+        private readonly Color _ownScoreColor = new(0.7f, 0f, 0.7f, 0.3f);
+        private readonly Color _someoneElseScoreColor = new(0.07f, 0f, 0.14f, 0.05f);
 
-        private readonly Color _underlineIdleColor = new Color(0.1f, 0.3f, 0.4f, 0.0f);
-        private readonly Color _underlineHoverColor = new Color(0.0f, 0.4f, 1.0f, 1.0f);
+        private readonly Color _underlineIdleColor = new(0.1f, 0.3f, 0.4f, 0.0f);
+        private readonly Color _underlineHoverColor = new(0.0f, 0.4f, 1.0f, 1.0f);
 
         private Color _backgroundColor;
 

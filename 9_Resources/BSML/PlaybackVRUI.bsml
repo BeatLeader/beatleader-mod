@@ -1,2 +1,7 @@
-﻿<bg bg="round-rect-panel" pref-height="30" pref-width="70">
+﻿<bg bg="round-rect-panel" pref-height="50" pref-width="30">
+	<horizontal>
+		<vertical pref-height="7">
+			<button text="pin" on-click="pin-button-clicked"/>
+		</vertical>
+	</horizontal>
 </bg>

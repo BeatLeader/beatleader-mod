@@ -302,9 +302,10 @@
     <Compile Include="8_UI\ReeUIComponent.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
-    <None Include="9_Resources\BSML\PlaybackVRUI.bsml" />
-    <Compile Include="Replays\MainCameraBlocker.cs" />
+    <EmbeddedResource Include="9_Resources\BSML\PlaybackVRUI.bsml" />
+    <Compile Include="Replays\FPFC\CameraMovementController.cs" />
     <Compile Include="Replays\Managers\SceneTweaksManager.cs" />
+    <Compile Include="Replays\Scoring\ReplayVersionInterlayer.cs" />
     <Compile Include="Replays\UI\PlaybackVRViewController.cs" />
     <EmbeddedResource Include="9_Resources\BSML\PlaybackNonVRUI.bsml" />
     <Compile Include="Plugin.cs" />

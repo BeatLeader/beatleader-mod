@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using IPA.Utilities;
 using System.Threading.Tasks;
 using BeatLeader.Installers;
+using HMUI;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using UnityEngine;
@@ -32,6 +35,7 @@ namespace BeatLeader.Replays
             _gameScenesManager.PushScenes(data, 0.7f);
             _replay = replay;
             _lastTransitionData = data;
+            Debug.LogWarning(replay.info.version);
             _startedAsReplay = true;
         }
         public void HandleMainGameSceneDidFinish(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupData, LevelCompletionResults levelCompletionResults)

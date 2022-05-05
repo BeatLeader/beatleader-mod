@@ -13,6 +13,7 @@ using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Managers;
+using BeatLeader.Models;
 using VRUIControls;
 using UnityEngine;
 using Zenject;
@@ -25,6 +26,7 @@ namespace BeatLeader.Replays
         [Inject] protected readonly PlayerCameraController _playerCameraController;
         [Inject] protected readonly MultiplatformUIManager _multiplatformUIManager;
         [Inject] protected readonly PauseMenuManager.InitData _pauseMenuInitData;
+        [Inject] protected readonly Replay _replay;
 
         [UIObject("timeline")] protected GameObject _timelineContainer;
         [UIObject("song-image")] protected GameObject _songImageContainer;
@@ -32,6 +34,8 @@ namespace BeatLeader.Replays
         [UIValue("total-song-time")] protected int _totalSongTime;
         [UIValue("song-name")] protected string _songName;
         [UIValue("song-author")] protected string _songAuthor;
+        [UIValue("player-name")] protected string _playerName;
+        [UIValue("timestamp")] protected string _timestamp;
 
         [UIValue("pause-button-text")] protected string pauseButtonText
         {
@@ -49,6 +53,15 @@ namespace BeatLeader.Replays
             {
                 _combinedSongTime = value;
                 NotifyPropertyChanged(nameof(combinedSongTime));
+            }
+        }
+        [UIValue("time-scale")] protected int timeScaleValue
+        {
+            get => _timeScaleValue;
+            set
+            {
+                _timeScaleValue = value;
+                _playbackController.SetTimeScale(value);
             }
         }
         [UIValue("current-song-time")] protected int currentSongTime
@@ -83,6 +96,7 @@ namespace BeatLeader.Replays
 
         protected string _pauseButtonText;
         protected string _combinedSongTime;
+        protected int _timeScaleValue;
         protected int _currentSongTime;
         protected int _fieldOfView;
         protected bool _overrideCamera;
@@ -100,6 +114,8 @@ namespace BeatLeader.Replays
             _fieldOfView = _playerCameraController.fieldOfView;
             _songName = _previewBeatmapLevel.songName;
             _songAuthor = _previewBeatmapLevel.songAuthorName;
+            _playerName = _replay.info.playerName;
+            _timestamp = _replay.info.timestamp;
 
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _multiplatformUIManager.floatingScreen.gameObject, this);
 
@@ -107,10 +123,6 @@ namespace BeatLeader.Replays
             _songImageContainer.AddComponent<SpriteRenderer>();
             Task.Run(LoadImage);
             _initialized = true;
-        }
-        public async void LoadImage()
-        {
-            _songImageContainer.GetComponent<SpriteRenderer>().sprite = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
         }
         public void Update()
         {
@@ -120,10 +132,16 @@ namespace BeatLeader.Replays
                 combinedSongTime = $"{currentSongTime}:{_totalSongTime}";
             }
         }
+        protected async void LoadImage()
+        {
+            _songImageContainer.GetComponent<SpriteRenderer>().sprite = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
+        }
 
         [UIAction("menu-button-clicked")] protected void HandleMenuButtonClicked()
         {
-            _playbackController.EscapeToMenu();
+             _playbackController.EscapeToMenu();
+            //Debug.LogWarning("Seeking to 10sec");
+            //_playbackController.ToTime(10f);
         }
         [UIAction("pause-button-clicked")] protected void HandlePauseButtonClicked()
         {

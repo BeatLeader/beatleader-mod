@@ -26,8 +26,6 @@ namespace BeatLeader.Replays
 
         [UIObject("timeline")] protected GameObject _timelineContainer;
 
-        [UIValue("screen-height")] protected int _screenHeight = 80;
-        [UIValue("screen-width")] protected int _screenWidth = 200;
         [UIValue("total-song-time")] protected int _totalSongTime;
 
         [UIValue("pause-button-text")] protected string pauseButtonText
@@ -69,12 +67,13 @@ namespace BeatLeader.Replays
 
         public void Start()
         {
+            Debug.LogWarning("Installing VR replayer interface");
             _totalSongTime = (int)_playbackController.totalSongTime;
             _pauseButtonText = "Pause";
 
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _multiplatformUIManager.floatingScreen.gameObject, this);
 
-            (_timelineContainer.transform.Find("BSMLSlider") as RectTransform).anchorMin = new Vector2(0.35f, 0);
+            //(_timelineContainer.transform.Find("BSMLSlider") as RectTransform).anchorMin = new Vector2(0.35f, 0);
 
             _initialized = true;
         }
@@ -104,6 +103,13 @@ namespace BeatLeader.Replays
                 pauseButtonText = "Pause";
                 _playbackController.Resume();
             }
+        }
+        [UIAction("pin-button-clicked")] protected void HandlePinButtonClicked()
+        {
+            if (_multiplatformUIManager.pinPose == MultiplatformUIManager.PinPose.Left)
+                _multiplatformUIManager.PinToPose(MultiplatformUIManager.PinPose.Right);
+            else if (_multiplatformUIManager.pinPose == MultiplatformUIManager.PinPose.Right)
+                _multiplatformUIManager.PinToPose(MultiplatformUIManager.PinPose.Left);
         }
     }
 }

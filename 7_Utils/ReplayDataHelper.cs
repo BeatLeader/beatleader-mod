@@ -272,7 +272,7 @@ namespace BeatLeader.Utils
         {
             foreach (var item in replay.notes)
             {
-                if (item.noteID == ID && item.spawnTime == time)
+                if ((item.noteID == ID || item.noteID == ID - 30000) && item.spawnTime == time)
                 {
                     return item;
                 }

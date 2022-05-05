@@ -48,5 +48,13 @@ namespace BeatLeader.Replays
         {
             _pauseMenuManager.MenuButtonPressed();
         }
+        public void SetTimeScale(int scale = 100)
+        {
+            
+        }
+        public void ToTime(float time)
+        {
+            _songTimeSyncController.SeekTo(time);
+        }
     }
 }

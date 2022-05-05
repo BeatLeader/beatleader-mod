@@ -15,6 +15,7 @@ namespace BeatLeader.Replays.Managers
     public class InputManager : MonoBehaviour
     {
         [Inject] protected readonly VRControllersInputManager _vrControllersInputManager;
+        [Inject] protected readonly VRInputModule _inputModule;
         [Inject] protected readonly MainCamera _mainCamera;
         [Inject] protected readonly MenuSabersManager _menuSabersManager;
         [Inject] protected readonly IFPFCSettings _fpfcSettings;
@@ -26,7 +27,6 @@ namespace BeatLeader.Replays.Managers
             FPFC
         }
 
-        protected MainCameraBlocker _mainCameraBlocker;
         protected FakeVRController _pointer;
         protected VRPointer _scenePointer;
         protected Camera _inputBordersCamera;
@@ -41,13 +41,13 @@ namespace BeatLeader.Replays.Managers
             if (_platformHelper.GetType() == typeof(DevicelessVRHelper))
             {
                 _currentInputSystem = InputSystemType.FPFC;
-                _mainCameraBlocker = _mainCamera.gameObject.AddComponent<MainCameraBlocker>();
 
                 _pointer = new GameObject("Replayer2DPointer").AddComponent<FakeVRController>();
                 _pointer.node = UnityEngine.XR.XRNode.GameController;
 
                 _pointer.GetType().GetField("_vrControllersInputManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_pointer, _vrControllersInputManager);
                 AppearCursor();
+                //_fpfcSettings.Enabled = false;
                 _cursorWantsToAppear = true;
             }
             else
@@ -77,23 +77,25 @@ namespace BeatLeader.Replays.Managers
                 {
                     _pointer.transform.position = _inputBordersCamera.ScreenToWorldPoint(Input.mousePosition);
                 }
-                if (Input.GetKeyDown(KeyCode.V))
-                {
-                    if (_cursorWantsToAppear)
-                    {
-                        _cursorWantsToAppear = false;
-                        _mainCameraBlocker.Lock();
-                        DisableInputSystem();
-                        DisappearCursor();
-                    }
-                    else
-                    {
-                        _cursorWantsToAppear = true;
-                        _mainCameraBlocker.Unlock();
-                        EnableInputSystem();
-                        AppearCursor();
-                    }
-                }
+                //Debug.LogWarning(_pointer.enabled);
+                //if (Input.GetKeyDown(KeyCode.V))
+                //{
+                //    Debug.LogWarning("V pressed");
+                //    if (_cursorWantsToAppear)
+                //    {
+                //        _cursorWantsToAppear = false;
+                //        DisableInputSystem();
+                //        DisappearCursor();
+                //    }
+                //    else
+                //    {
+                //        _cursorWantsToAppear = true;
+                //        EnableInputSystem();
+                //        AppearCursor();
+                //    }
+                //}
+                //Debug.LogWarning(_mainCamera.transform.rotation);
+                //Debug.LogWarning(_mainCamera.transform.localEulerAngles);
             }
             else if (_currentInputSystem == InputSystemType.VR)
             {
@@ -114,7 +116,7 @@ namespace BeatLeader.Replays.Managers
         {
             if (_currentInputSystem == InputSystemType.VR)
             {
-
+                _inputModule.enabled = true;
             }
             else if (_currentInputSystem == InputSystemType.FPFC)
             {
@@ -125,7 +127,7 @@ namespace BeatLeader.Replays.Managers
         {
             if (_currentInputSystem == InputSystemType.VR)
             {
-
+                _inputModule.enabled = false;
             }
             else if (_currentInputSystem == InputSystemType.FPFC)
             {

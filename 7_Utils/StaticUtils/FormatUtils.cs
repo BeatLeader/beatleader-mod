@@ -1,10 +1,36 @@
 using System;
 using System.Globalization;
+using System.Linq;
+using BeatLeader.Models;
 using ModestTree;
 using UnityEngine;
 
 namespace BeatLeader {
     internal static class FormatUtils {
+        #region GetPlayerRole
+
+        public static PlayerRole ParseMostSignificantRole(string roles) {
+            return GetMostSignificantRole(ParsePlayerRoles(roles));
+        }
+        
+        public static PlayerRole GetMostSignificantRole(PlayerRole[] roles) {
+            return roles.IsEmpty() ? PlayerRole.Default : roles[0];
+        }
+
+        public static PlayerRole[] ParsePlayerRoles(string roles) {
+            return roles.Split(',').Select(ParseSingleRole).ToArray();
+        }
+
+        public static PlayerRole ParseSingleRole(string role) {
+            return role switch {
+                "admin" => PlayerRole.Admin,
+                "supporter" => PlayerRole.Supporter,
+                _ => PlayerRole.Default
+            };
+        }
+
+        #endregion
+
         #region GetHeadsetName
 
         public static string GetHeadsetNameById(int id) {

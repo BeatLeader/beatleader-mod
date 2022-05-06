@@ -21,12 +21,6 @@ namespace BeatLeader.Components {
             new Color(0.0f, 0.0f, 0.0f)
         );
 
-        private static readonly ColorScheme AdminColorScheme = new(
-            new Color(0.0f, 0.0f, 0.0f, 0.8f),
-            new Color(1.0f, 0.9f, 0.75f),
-            new Color(1.0f, 0.0f, 0.0f)
-        );
-
         private static readonly ColorScheme SupporterColorScheme = new(
             new Color(0.0f, 0.0f, 0.0f, 0.8f),
             new Color(1.0f, 1.0f, 0.7f),
@@ -35,8 +29,6 @@ namespace BeatLeader.Components {
 
         private void ApplyColorScheme(PlayerRole playerRole) {
             var scheme = playerRole switch {
-                PlayerRole.Default => DefaultColorScheme,
-                PlayerRole.Admin => AdminColorScheme,
                 PlayerRole.Supporter => SupporterColorScheme,
                 _ => DefaultColorScheme
             };

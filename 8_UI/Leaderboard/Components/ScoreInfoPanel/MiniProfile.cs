@@ -22,7 +22,7 @@ namespace BeatLeader.Components {
         #region SetPlayer
 
         public void SetPlayer(Player player) {
-            _playerAvatar.SetAvatar(player.avatar, FormatUtils.ParseMostSignificantRole(player.role));
+            _playerAvatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             _countryFlag.SetCountry(player.country);
 
             PlayerName = FormatUtils.FormatUserName(player.name);

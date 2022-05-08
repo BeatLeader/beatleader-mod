@@ -1,7 +1,6 @@
 using System;
 using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
@@ -14,7 +13,7 @@ namespace BeatLeader.Components {
 
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _countryFlag;
-        
+
         private void Awake() {
             _avatar = Instantiate<PlayerAvatar>(transform);
             _countryFlag = Instantiate<CountryFlag>(transform);
@@ -36,12 +35,12 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
-        
+
         [UIAction("avatar-on-click"), UsedImplicitly]
         private void AvatarOnClick() {
             LeaderboardEvents.NotifyAvatarWasPressed();
         }
-        
+
         private void OnProfileRequestStateChanged(RequestState requestState) {
             switch (requestState) {
                 case RequestState.Uninitialized:
@@ -72,7 +71,7 @@ namespace BeatLeader.Components {
 
         private void OnProfileFetched(Player player) {
             _countryFlag.SetCountry(player.country);
-            _avatar.SetAvatar(player.avatar, FormatUtils.ParseMostSignificantRole(player.role));
+            _avatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             NameText = FormatUtils.FormatUserName(player.name);
             GlobalRankText = FormatUtils.FormatRank(player.rank, true);
             CountryRankText = FormatUtils.FormatRank(player.countryRank, true);

@@ -1,3 +1,4 @@
+using System.Linq;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -27,12 +28,8 @@ namespace BeatLeader.Components {
             new Color(1.0f, 0.6f, 0.0f)
         );
 
-        private void ApplyColorScheme(PlayerRole playerRole) {
-            var scheme = playerRole switch {
-                PlayerRole.Supporter => SupporterColorScheme,
-                _ => DefaultColorScheme
-            };
-
+        private void ApplyColorScheme(PlayerRole[] playerRoles) {
+            var scheme = playerRoles.Contains(PlayerRole.Supporter) ? SupporterColorScheme : DefaultColorScheme;
             _materialInstance.SetColor(BackgroundColorPropertyId, scheme.BackgroundColor);
             _materialInstance.SetColor(RimColorPropertyId, scheme.RimColor);
             _materialInstance.SetColor(HaloColorPropertyId, scheme.HaloColor);
@@ -87,12 +84,12 @@ namespace BeatLeader.Components {
         #region SetAvatar
 
         private string _url;
-        private PlayerRole _playerRole;
+        private PlayerRole[] _playerRoles;
 
-        public void SetAvatar(string url, PlayerRole playerRole) {
+        public void SetAvatar(string url, PlayerRole[] playerRoles) {
             if (url.Equals(_url)) return;
             _url = url;
-            _playerRole = playerRole;
+            _playerRoles = playerRoles;
             UpdateAvatar();
         }
 
@@ -106,7 +103,7 @@ namespace BeatLeader.Components {
 
         private void OnAvatarLoadSuccess(AvatarImage avatarImage) {
             ShowTexture(_bufferTexture);
-            ApplyColorScheme(_playerRole);
+            ApplyColorScheme(_playerRoles);
             StartCoroutine(avatarImage.PlaybackCoroutine(_bufferTexture));
         }
 

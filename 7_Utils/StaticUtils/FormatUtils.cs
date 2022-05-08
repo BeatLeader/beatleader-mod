@@ -9,14 +9,6 @@ namespace BeatLeader {
     internal static class FormatUtils {
         #region GetPlayerRole
 
-        public static PlayerRole ParseMostSignificantRole(string roles) {
-            return GetMostSignificantRole(ParsePlayerRoles(roles));
-        }
-        
-        public static PlayerRole GetMostSignificantRole(PlayerRole[] roles) {
-            return roles.IsEmpty() ? PlayerRole.Default : roles[0];
-        }
-
         public static PlayerRole[] ParsePlayerRoles(string roles) {
             return roles.Split(',').Select(ParseSingleRole).ToArray();
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -33,13 +34,9 @@ namespace BeatLeader.Components {
             new Color(1.0f, 0.7f, 0.0f),
             1.0f
         );
-        
-        private void ApplyColorScheme(PlayerRole playerRole) {
-            var scheme = playerRole switch {
-                PlayerRole.Supporter => SupporterColorScheme,
-                _ => DefaultColorScheme
-            };
-            
+
+        private void ApplyColorScheme(PlayerRole[] playerRoles) {
+            var scheme = playerRoles.Contains(PlayerRole.Supporter) ? SupporterColorScheme : DefaultColorScheme;
             _underlineMaterial.SetColor(IdleColorPropertyId, scheme.IdleColor);
             _underlineMaterial.SetColor(HighlightColorPropertyId, scheme.HighlightColor);
             _underlineMaterial.SetFloat(WavesPropertyId, scheme.Waves);
@@ -50,7 +47,7 @@ namespace BeatLeader.Components {
             public readonly Color IdleColor;
             public readonly Color HighlightColor;
             public readonly float Waves;
-            
+
             public ColorScheme(Color idleColor, Color highlightColor, float waves) {
                 IdleColor = idleColor;
                 HighlightColor = highlightColor;
@@ -148,13 +145,13 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             _score = score;
 
-            var playerRole = FormatUtils.ParseMostSignificantRole(score.player.role);
-            ApplyColorScheme(playerRole);
+            var playerRoles = FormatUtils.ParsePlayerRoles(score.player.role);
+            ApplyColorScheme(playerRoles);
 
             SetHighlight(score.player.IsCurrentPlayer());
             _rankCell.SetValue(score.rank);
             _countryCell.SetValue(score.player.country);
-            _avatarCell.SetValues(score.player.avatar, playerRole);
+            _avatarCell.SetValues(score.player.avatar, playerRoles);
             _usernameCell.SetValue(score.player.name);
             _modifiersCell.SetValue(score.modifiers);
             _accuracyCell.SetValue(score.accuracy);

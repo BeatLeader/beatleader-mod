@@ -19,8 +19,8 @@ namespace BeatLeader.Components {
 
         #region Implementation
 
-        public void SetValues(string url, PlayerRole playerRole) {
-            _playerAvatar.SetAvatar(url, playerRole);
+        public void SetValues(string url, PlayerRole[] playerRoles) {
+            _playerAvatar.SetAvatar(url, playerRoles);
             IsEmpty = false;
         }
 

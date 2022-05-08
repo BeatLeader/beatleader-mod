@@ -1,57 +1,46 @@
 ﻿<bg pref-height='200' pref-width='200'>
 	<horizontal>
-		<vertical>
-			<vertical pref-height='30' pref-width='50' child-control-height='true' child-align='LowerCenter'>
+		<vertical spacing='10'>
+			<vertical pref-height='60' pref-width='50' child-align='LowerCenter' child-expand-height='false'>
 				<tab tab-name='info' tags='main-tools'>
-					<vertical pref-height='20' pref-width='50'>
+					<vertical>
 						<horizontal>
-							<vertical id='song-image'/>
+							<horizontal spacing='2'>
+								<image id='song-preview-image' pref-width='15' pref-height='15'/>
+								<vertical>
+									<text text='~song-name'/>
+									<text text='~song-author'/>
+								</vertical>
+							</horizontal>
 							<vertical>
-								<text text='~song-name'/>
-								<text text='~song-author'/>
+								<text text='~player-name'/>
+								<text text='~timestamp'/>
 							</vertical>
 						</horizontal>
-						<vertical>
-							<text text='~player-name' font-align='Left'/>
-							<text text='~timestamp' font-align='Left'/>
-						</vertical>
 					</vertical>
 				</tab>
 				<tab tab-name='controls' tags='main-tools'>
-					<vertical  pref-height='15'>
+					<vertical>
 						<horizontal>
 							<vertical>
 								<horizontal>
 									<button text='menu' on-click='menu-button-clicked'/>
 									<button text='~pause-button-text' on-click='pause-button-clicked'/>
-									<slider-setting text='Time scale' value='time-scale' min='10' max='200' show-buttons='true' integer-only='true' bind-value='true' increment='5'/>
+									<slider-setting text='Time scale' value='time-scale' min='10' max='200' increment='5' show-buttons='true' integer-only='true' bind-value='true'/>
 								</horizontal>
 								<horizontal>
-									<slider-setting id='timeline' text='~combined-song-time' value='current-song-time' min='0' max='~total-song-time' show-buttons='false' integer-only='true' bind-value='true'/>
+									<slider-setting id='timeline' text='~combined-song-time' value='current-song-time' min='0' max='~total-song-time' show-buttons='true' increment='5' integer-only='true' apply-on-change='true' bind-value='true'/>
 								</horizontal>
 							</vertical>
 						</horizontal>
 					</vertical>
 				</tab>
 				<tab tab-name='camera' tags='main-tools'>
-					<vertical  pref-height='15'>
-						<horizontal pref-width='50'>
+					<vertical>
+						<horizontal>
 							<vertical>
 								<bool-setting text='Override camera' value='override-camera' apply-on-change='true'/>
 								<slider-setting text='FOV' value='camera-fov' min='30' max='160' increment='10' apply-on-change='true' show-buttons='true' integer-only='true'/>
-							</vertical>
-						</horizontal>
-					</vertical>
-				</tab>
-				<tab tab-name='avatar' tags='main-tools'>
-					<vertical>
-						<horizontal pref-width='50'>
-							<vertical>
-								<bool-setting text='Enable avatar'/>
-								<vertical spacing='1'/>
-								<bool-setting text='Head'/>
-								<bool-setting text='Body'/>
-								<bool-setting text='Hands'/>
 							</vertical>
 						</horizontal>
 					</vertical>

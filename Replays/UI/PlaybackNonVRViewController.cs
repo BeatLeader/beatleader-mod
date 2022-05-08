@@ -29,7 +29,7 @@ namespace BeatLeader.Replays
         [Inject] protected readonly Replay _replay;
 
         [UIObject("timeline")] protected GameObject _timelineContainer;
-        [UIObject("song-image")] protected GameObject _songImageContainer;
+        [UIObject("song-preview-image")] protected GameObject _songPreviewImage;
 
         [UIValue("total-song-time")] protected int _totalSongTime;
         [UIValue("song-name")] protected string _songName;
@@ -61,6 +61,7 @@ namespace BeatLeader.Replays
             set
             {
                 _timeScaleValue = value;
+                Debug.LogWarning($"scaling to {value}");
                 _playbackController.SetTimeScale(value);
             }
         }
@@ -70,6 +71,8 @@ namespace BeatLeader.Replays
             set
             {
                 _currentSongTime = value;
+                _playbackController.ToTime(value);
+                Debug.LogWarning($"moving to {value}");
                 NotifyPropertyChanged(nameof(currentSongTime));
             }
         }
@@ -110,6 +113,7 @@ namespace BeatLeader.Replays
         {
             _totalSongTime = (int)_playbackController.totalSongTime;
             _pauseButtonText = "Pause";
+            _timeScaleValue = 100;
             _overrideCamera = _playerCameraController.overrideCamera;
             _fieldOfView = _playerCameraController.fieldOfView;
             _songName = _previewBeatmapLevel.songName;
@@ -120,7 +124,6 @@ namespace BeatLeader.Replays
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _multiplatformUIManager.floatingScreen.gameObject, this);
 
             //(_timelineContainer.transform.Find("BSMLSlider") as RectTransform).anchorMin = new Vector2(0.35f, 0);
-            _songImageContainer.AddComponent<SpriteRenderer>();
             Task.Run(LoadImage);
             _initialized = true;
         }
@@ -128,13 +131,13 @@ namespace BeatLeader.Replays
         {
             if (_initialized)
             {
-                currentSongTime = (int)_playbackController.currentSongTime;
+                //currentSongTime = (int)_playbackController.currentSongTime;
                 combinedSongTime = $"{currentSongTime}:{_totalSongTime}";
             }
         }
         protected async void LoadImage()
         {
-            _songImageContainer.GetComponent<SpriteRenderer>().sprite = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
+            _songPreviewImage.GetComponentInChildren<ImageView>().sprite = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
         }
 
         [UIAction("menu-button-clicked")] protected void HandleMenuButtonClicked()

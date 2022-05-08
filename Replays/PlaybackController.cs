@@ -8,6 +8,7 @@ using IPA.Utilities;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
+using BeatLeader.Replays.MapEmitating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Managers;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace BeatLeader.Replays
         [Inject] protected readonly AudioTimeSyncController _songTimeSyncController;
         [Inject] protected readonly Replayer _replayer; 
         [Inject] protected readonly SaberManager _saberManager;
+        [Inject] protected readonly SimpleTimeController _simpleTimeController;
 
         public float currentSongTime => _songTimeSyncController.songTime;
         public float totalSongTime => _songTimeSyncController.songEndTime;
@@ -50,11 +52,11 @@ namespace BeatLeader.Replays
         }
         public void SetTimeScale(int scale = 100)
         {
-            
+
         }
         public void ToTime(float time)
         {
-            _songTimeSyncController.SeekTo(time);
+            _simpleTimeController.ToTime(time);
         }
     }
 }

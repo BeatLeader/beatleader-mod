@@ -27,7 +27,7 @@ namespace BeatLeader.Replays.MapEmitating
         public void Start()
         {
             _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
-            _beatmapObjectSpawnController.SetField("_disableSpawning", true);
+            //_beatmapObjectSpawnController.SetField("_disableSpawning", true);
         }
         public void ToTime(float time, float duration = 0f)
         {

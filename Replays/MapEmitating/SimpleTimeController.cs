@@ -19,9 +19,16 @@ namespace BeatLeader.Replays.MapEmitating
         [Inject] protected readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData;
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController;
 
+        protected BombCutSoundEffectManager _bombCutSoundEffectManager;
+
         protected float _lastRequestedTime;
         protected bool _spawningDisabled;
 
+        public void Start()
+        {
+            _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
+            _beatmapObjectSpawnController.SetField("_disableSpawning", true);
+        }
         public void ToTime(float time, float duration = 0f)
         {
             _lastRequestedTime = time;
@@ -41,6 +48,17 @@ namespace BeatLeader.Replays.MapEmitating
                 }
             }
             //_beatmapObjectSpawnController.SetField("_disableSpawning", false);
+        }
+        public void SetTimeScale(float multiplier)
+        {
+            if (multiplier != _audioTimeSyncController.timeScale)
+            {
+                KillAllSounds();
+                _audioTimeSyncController.SetField("_timeScale", multiplier);
+                var audioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
+                audioSource.pitch = multiplier;
+                Resources.FindObjectsOfTypeAll<AudioManagerSO>().First().musicPitch = 1f / multiplier;
+            }
         }
         protected void DespawnAllBeatmapObjects()
         {
@@ -77,18 +95,21 @@ namespace BeatLeader.Replays.MapEmitating
         }
         protected void KillAllSounds()
         {
-            List<NoteCutSoundEffect> sounds = new List<NoteCutSoundEffect>();
-            sounds.AddRange(((MemoryPoolContainer<NoteCutSoundEffect>)_noteCutSoundEffectManager.GetType()
+            List<NoteCutSoundEffect> notesSounds = new List<NoteCutSoundEffect>();
+            notesSounds.AddRange(((MemoryPoolContainer<NoteCutSoundEffect>)_noteCutSoundEffectManager.GetType()
                 .GetField("_noteCutSoundEffectPoolContainer", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .GetValue(_noteCutSoundEffectManager)).activeItems);
+            ((BombCutSoundEffect.Pool)_bombCutSoundEffectManager.GetType()
+                .GetField("_bombCutSoundEffectPool", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .GetValue(_bombCutSoundEffectManager)).Clear();
 
-            foreach (var item in sounds)
+            foreach (var item in notesSounds)
             {
                 item.StopPlayingAndFinish();
             }
 
-            _noteCutSoundEffectManager.SetField("_prevNoteATime", 1f);
-            _noteCutSoundEffectManager.SetField("_prevNoteBTime", 1f);
+            _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
+            _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);
         }
     }
 }

@@ -50,9 +50,9 @@ namespace BeatLeader.Replays
         {
             _pauseMenuManager.MenuButtonPressed();
         }
-        public void SetTimeScale(int scale = 100)
+        public void SetTimeScale(float multiplier)
         {
-
+            _simpleTimeController.SetTimeScale(multiplier);
         }
         public void ToTime(float time)
         {

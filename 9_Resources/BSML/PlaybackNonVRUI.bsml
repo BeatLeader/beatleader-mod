@@ -26,7 +26,7 @@
 								<horizontal>
 									<button text='menu' on-click='menu-button-clicked'/>
 									<button text='~pause-button-text' on-click='pause-button-clicked'/>
-									<slider-setting text='Time scale' value='time-scale' min='10' max='200' increment='5' show-buttons='true' integer-only='true' bind-value='true'/>
+									<slider-setting text='Time scale' value='time-scale' min='10' max='200' increment='5' show-buttons='true' integer-only='true' apply-on-change='true' bind-value='true'/>
 								</horizontal>
 								<horizontal>
 									<slider-setting id='timeline' text='~combined-song-time' value='current-song-time' min='0' max='~total-song-time' show-buttons='true' increment='5' integer-only='true' apply-on-change='true' bind-value='true'/>

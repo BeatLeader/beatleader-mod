@@ -61,8 +61,8 @@ namespace BeatLeader.Replays
             set
             {
                 _timeScaleValue = value;
-                Debug.LogWarning($"scaling to {value}");
-                _playbackController.SetTimeScale(value);
+                Debug.LogWarning($"scaling to {value * 0.01f}");
+                _playbackController.SetTimeScale(value * 0.01f);
             }
         }
         [UIValue("current-song-time")] protected int currentSongTime

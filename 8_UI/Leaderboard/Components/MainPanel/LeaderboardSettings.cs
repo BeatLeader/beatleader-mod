@@ -82,6 +82,18 @@ namespace BeatLeader.Components {
             }
         }
 
+        [UIValue("clans-mask-value"), UsedImplicitly]
+        private bool ClansMaskValue {
+            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Clans);
+            set {
+                if (value) {
+                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Clans;
+                } else {
+                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Clans;
+                }
+            }
+        }
+
         [UIValue("score-mask-value"), UsedImplicitly]
         private bool ScoreMaskValue {
             get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Score);

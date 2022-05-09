@@ -25,6 +25,11 @@
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
+            <!--  CLANS  -->
+            <macro.as-host host="clans-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
             <!--  NAME  -->
             <macro.as-host host="username-cell">
                 <macro.reparent transform="ui-component"/>

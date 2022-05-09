@@ -12,7 +12,7 @@ namespace BeatLeader.Components {
         public void SetValues(int missedNotes, int badCuts, int bombCuts, int wallsHit) {
             var totalMistakes = missedNotes + badCuts + bombCuts + wallsHit;
             textComponent.text = totalMistakes == 0 ? $"<color={GoodColor}>FC" : $"<color={BadColor}>{totalMistakes}<size=70%>x";
-            IsEmpty = false;
+            isEmpty = false;
         }
 
         public override void SetAlpha(float value) {

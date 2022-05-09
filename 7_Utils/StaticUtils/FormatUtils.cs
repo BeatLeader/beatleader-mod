@@ -93,6 +93,14 @@ namespace BeatLeader {
 
         #endregion
 
+        #region FormatClanTag
+        
+        public static string FormatClanTag(string tag) {
+            return $"<alpha=#00>.<alpha=#FF><b><noparse>{tag}</noparse></b><alpha=#00>.<alpha=#FF>";
+        }
+
+        #endregion
+
         #region FormatScore
 
         public static readonly NumberFormatInfo ScoreFormatInfo = new CultureInfo("en-US", false).NumberFormat;

@@ -68,6 +68,9 @@ namespace BeatLeader.Components {
         [UIValue("avatar-cell"), UsedImplicitly]
         private AvatarScoreRowCell _avatarCell;
 
+        [UIValue("clans-cell"), UsedImplicitly]
+        private ClansScoreRowCell _clansCell;
+
         [UIValue("username-cell"), UsedImplicitly]
         private TextScoreRowCell _usernameCell;
 
@@ -92,6 +95,7 @@ namespace BeatLeader.Components {
             _cells[ScoreRowCellType.Rank] = _rankCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Country] = _countryCell = Instantiate<CountryScoreRowCell>(transform);
             _cells[ScoreRowCellType.Avatar] = _avatarCell = Instantiate<AvatarScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Clans] = _clansCell = Instantiate<ClansScoreRowCell>(transform);
             _cells[ScoreRowCellType.Username] = _usernameCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Modifiers] = _modifiersCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Accuracy] = _accuracyCell = Instantiate<TextScoreRowCell>(transform);
@@ -139,7 +143,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Interaction
-
+        
         private Score _score;
 
         public void SetScore(Score score) {
@@ -152,6 +156,7 @@ namespace BeatLeader.Components {
             _rankCell.SetValue(score.rank);
             _countryCell.SetValue(score.player.country);
             _avatarCell.SetValues(score.player.avatar, playerRoles);
+            _clansCell.SetValues(score.player.clans);
             _usernameCell.SetValue(score.player.name);
             _modifiersCell.SetValue(score.modifiers);
             _accuracyCell.SetValue(score.accuracy);

@@ -1,0 +1,5 @@
+<horizontal id="container" spacing="0.2" horizontal-fit="PreferredSize">
+    <macro.for-each items="tags">
+        <macro.reparent transform="ui-component"/>
+    </macro.for-each>
+</horizontal>

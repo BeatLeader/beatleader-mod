@@ -21,7 +21,7 @@ namespace BeatLeader.Components {
 
         public void SetValues(string url, PlayerRole[] playerRoles) {
             _playerAvatar.SetAvatar(url, playerRoles);
-            IsEmpty = false;
+            isEmpty = false;
         }
 
         public override void SetAlpha(float value) {

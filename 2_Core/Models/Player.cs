@@ -9,5 +9,11 @@
         public int countryRank;
         public float pp;
         public string role;
+        public Clan[] clans;
+    }
+
+    internal class Clan {
+        public string tag;
+        public string color;
     }
 }

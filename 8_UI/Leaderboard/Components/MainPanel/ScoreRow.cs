@@ -181,7 +181,7 @@ namespace BeatLeader.Components {
             _avatarCell.SetValues(score.player.avatar, playerRoles);
             _countryCell.SetValue(score.player.country);
             _usernameCell.SetValue(score.player.name);
-            _clansCell.SetValues(score.player.clans);
+            _clansCell.SetValues(score.player.clans ?? Array.Empty<Clan>());
             _modifiersCell.SetValue(score.modifiers);
             _accuracyCell.SetValue(score.accuracy);
             _ppCell.SetValue(score.pp);

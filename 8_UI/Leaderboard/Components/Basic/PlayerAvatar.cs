@@ -1,4 +1,4 @@
-using System.Linq;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -10,40 +10,67 @@ namespace BeatLeader.Components {
     internal class PlayerAvatar : ReeUIComponentV2 {
         #region ColorScheme
 
-        private static readonly int AvatarTexturePropertyId = Shader.PropertyToID("_AvatarTexture");
-        private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
-        private static readonly int BackgroundColorPropertyId = Shader.PropertyToID("_BackgroundColor");
-        private static readonly int RimColorPropertyId = Shader.PropertyToID("_RimColor");
-        private static readonly int HaloColorPropertyId = Shader.PropertyToID("_HaloColor");
-
-        private static readonly ColorScheme DefaultColorScheme = new(
-            new Color(0.0f, 0.0f, 0.1f, 0.3f),
-            new Color(0.0f, 0.0f, 0.0f),
-            new Color(0.0f, 0.0f, 0.0f)
-        );
-
-        private static readonly ColorScheme SupporterColorScheme = new(
-            new Color(0.0f, 0.0f, 0.0f, 0.8f),
-            new Color(1.0f, 1.0f, 0.7f),
-            new Color(1.0f, 0.6f, 0.0f)
-        );
+        private static readonly Dictionary<PlayerRole, ColorScheme> ColorSchemes = new() {
+            {
+                PlayerRole.Default, new ColorScheme(
+                    new Color(0.0f, 0.0f, 0.1f, 0.3f),
+                    new Color(0.0f, 0.0f, 0.0f),
+                    new Color(0.0f, 0.0f, 0.0f),
+                    0.0f
+                )
+            }, {
+                PlayerRole.Tipper, new ColorScheme(
+                    new Color(0.0f, 0.0f, 0.0f, 0.4f),
+                    new Color(1.0f, 1.0f, 0.7f),
+                    new Color(1.0f, 0.6f, 0.0f),
+                    0.3f
+                )
+            }, {
+                PlayerRole.Supporter, new ColorScheme(
+                    new Color(0.0f, 0.0f, 0.0f, 0.4f),
+                    new Color(1.0f, 1.0f, 0.7f),
+                    new Color(1.0f, 0.6f, 0.0f),
+                    0.8f
+                )
+            }, {
+                PlayerRole.Sponsor, new ColorScheme(
+                    new Color(0.0f, 0.0f, 0.1f, 0.4f),
+                    new Color(1.0f, 1.0f, 0.6f),
+                    new Color(1.0f, 0.3f, 0.0f),
+                    1.0f
+                )
+            }
+        };
 
         private void ApplyColorScheme(PlayerRole[] playerRoles) {
-            var scheme = playerRoles.Contains(PlayerRole.Supporter) ? SupporterColorScheme : DefaultColorScheme;
-            _materialInstance.SetColor(BackgroundColorPropertyId, scheme.BackgroundColor);
-            _materialInstance.SetColor(RimColorPropertyId, scheme.RimColor);
-            _materialInstance.SetColor(HaloColorPropertyId, scheme.HaloColor);
+            var supporterRole = FormatUtils.GetSupporterRole(playerRoles);
+            var scheme = ColorSchemes.ContainsKey(supporterRole) ? ColorSchemes[supporterRole] : ColorSchemes[PlayerRole.Default];
+            scheme.Apply(_materialInstance);
         }
 
-        private struct ColorScheme {
-            public readonly Color BackgroundColor;
-            public readonly Color RimColor;
-            public readonly Color HaloColor;
+        private readonly struct ColorScheme {
+            private static readonly int BackgroundColorPropertyId = Shader.PropertyToID("_BackgroundColor");
+            private static readonly int RimColorPropertyId = Shader.PropertyToID("_RimColor");
+            private static readonly int HaloColorPropertyId = Shader.PropertyToID("_HaloColor");
+            private static readonly int WavesAmplitudePropertyId = Shader.PropertyToID("_WavesAmplitude");
 
-            public ColorScheme(Color backgroundColor, Color rimColor, Color haloColor) {
-                BackgroundColor = backgroundColor;
-                RimColor = rimColor;
-                HaloColor = haloColor;
+            private readonly Color _backgroundColor;
+            private readonly Color _rimColor;
+            private readonly Color _haloColor;
+            private readonly float _wavesAmplitude;
+
+            public ColorScheme(Color backgroundColor, Color rimColor, Color haloColor, float wavesAmplitude) {
+                _backgroundColor = backgroundColor;
+                _rimColor = rimColor;
+                _haloColor = haloColor;
+                _wavesAmplitude = wavesAmplitude;
+            }
+
+            public void Apply(Material material) {
+                material.SetColor(BackgroundColorPropertyId, _backgroundColor);
+                material.SetColor(RimColorPropertyId, _rimColor);
+                material.SetColor(HaloColorPropertyId, _haloColor);
+                material.SetFloat(WavesAmplitudePropertyId, _wavesAmplitude);
             }
         }
 
@@ -114,6 +141,9 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Image
+
+        private static readonly int AvatarTexturePropertyId = Shader.PropertyToID("_AvatarTexture");
+        private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
 
         [UIComponent("image-component"), UsedImplicitly]
         private ImageView _image;

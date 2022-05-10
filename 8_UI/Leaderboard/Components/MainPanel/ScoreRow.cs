@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -17,41 +16,61 @@ namespace BeatLeader.Components {
     internal class ScoreRow : ReeUIComponentV2 {
         #region ColorScheme
 
-        private static readonly int IdleColorPropertyId = Shader.PropertyToID("_IdleColor");
-        private static readonly int HighlightColorPropertyId = Shader.PropertyToID("_HighlightColor");
-        private static readonly int WavesPropertyId = Shader.PropertyToID("_Waves");
-        private static readonly int SeedPropertyId = Shader.PropertyToID("_Seed");
-
-
-        private static readonly ColorScheme DefaultColorScheme = new(
-            new Color(0.1f, 0.3f, 0.4f),
-            new Color(0.0f, 0.4f, 1.0f),
-            0.0f
-        );
-
-        private static readonly ColorScheme SupporterColorScheme = new(
-            new Color(0.6f, 0.5f, 0.3f),
-            new Color(1.0f, 0.7f, 0.0f),
-            1.0f
-        );
+        private static readonly Dictionary<PlayerRole, ColorScheme> ColorSchemes = new() {
+            {
+                PlayerRole.Default, new ColorScheme(
+                    new Color(0.4f, 0.6f, 1.0f),
+                    new Color(0.5f, 0.7f, 1.0f),
+                    0.0f
+                )
+            }, {
+                PlayerRole.Tipper, new ColorScheme(
+                    new Color(1.0f, 1.0f, 0.7f),
+                    new Color(1.0f, 0.6f, 0.0f),
+                    0.0f
+                )
+            }, {
+                PlayerRole.Supporter, new ColorScheme(
+                    new Color(1.0f, 1.0f, 0.7f),
+                    new Color(1.0f, 0.6f, 0.0f),
+                    1.0f
+                )
+            }, {
+                PlayerRole.Sponsor, new ColorScheme(
+                    new Color(1.0f, 1.0f, 0.6f),
+                    new Color(1.0f, 0.3f, 0.0f),
+                    1.0f
+                )
+            }
+        };
 
         private void ApplyColorScheme(PlayerRole[] playerRoles) {
-            var scheme = playerRoles.Contains(PlayerRole.Supporter) ? SupporterColorScheme : DefaultColorScheme;
-            _underlineMaterial.SetColor(IdleColorPropertyId, scheme.IdleColor);
-            _underlineMaterial.SetColor(HighlightColorPropertyId, scheme.HighlightColor);
-            _underlineMaterial.SetFloat(WavesPropertyId, scheme.Waves);
-            _underlineMaterial.SetFloat(SeedPropertyId, Random.value);
+            var supporterRole = FormatUtils.GetSupporterRole(playerRoles);
+            var scheme = ColorSchemes.ContainsKey(supporterRole) ? ColorSchemes[supporterRole] : ColorSchemes[PlayerRole.Default];
+            scheme.Apply(_underlineMaterial);
         }
 
-        private struct ColorScheme {
-            public readonly Color IdleColor;
-            public readonly Color HighlightColor;
-            public readonly float Waves;
+        private readonly struct ColorScheme {
+            private static readonly int RimColorPropertyId = Shader.PropertyToID("_RimColor");
+            private static readonly int HaloColorPropertyId = Shader.PropertyToID("_HaloColor");
+            private static readonly int WavesAmplitudePropertyId = Shader.PropertyToID("_WavesAmplitude");
+            private static readonly int SeedPropertyId = Shader.PropertyToID("_Seed");
 
-            public ColorScheme(Color idleColor, Color highlightColor, float waves) {
-                IdleColor = idleColor;
-                HighlightColor = highlightColor;
-                Waves = waves;
+            private readonly Color _rimColor;
+            private readonly Color _haloColor;
+            private readonly float _wavesAmplitude;
+
+            public ColorScheme(Color rimColor, Color haloColor, float wavesAmplitude) {
+                _rimColor = rimColor;
+                _haloColor = haloColor;
+                _wavesAmplitude = wavesAmplitude;
+            }
+
+            public void Apply(Material material) {
+                material.SetColor(RimColorPropertyId, _rimColor);
+                material.SetColor(HaloColorPropertyId, _haloColor);
+                material.SetFloat(WavesAmplitudePropertyId, _wavesAmplitude);
+                material.SetFloat(SeedPropertyId, Random.value);
             }
         }
 
@@ -118,8 +137,8 @@ namespace BeatLeader.Components {
         }
 
         public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
-            foreach (var (cellType, cell) in _cells) {
-                layoutHelper.RegisterCell(cellType, cell);
+            foreach (var keyValuePair in _cells) {
+                layoutHelper.RegisterCell(keyValuePair.Key, keyValuePair.Value);
             }
         }
 
@@ -143,7 +162,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Interaction
-        
+
         private Score _score;
 
         public void SetScore(Score score) {

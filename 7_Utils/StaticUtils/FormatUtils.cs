@@ -9,6 +9,22 @@ namespace BeatLeader {
     internal static class FormatUtils {
         #region GetPlayerRole
 
+        public static PlayerRole GetSupporterRole(PlayerRole[] playerRoles) {
+            foreach (var playerRole in playerRoles) {
+                switch (playerRole) {
+                    case PlayerRole.Tipper:
+                    case PlayerRole.Supporter:
+                    case PlayerRole.Sponsor: return playerRole;
+
+                    case PlayerRole.Default:
+                    case PlayerRole.Admin:
+                    default: continue;
+                }
+            }
+
+            return PlayerRole.Default;
+        }
+
         public static PlayerRole[] ParsePlayerRoles(string roles) {
             return roles.Split(',').Select(ParseSingleRole).ToArray();
         }
@@ -16,7 +32,9 @@ namespace BeatLeader {
         public static PlayerRole ParseSingleRole(string role) {
             return role switch {
                 "admin" => PlayerRole.Admin,
+                "tipper" => PlayerRole.Tipper,
                 "supporter" => PlayerRole.Supporter,
+                "sponsor" => PlayerRole.Sponsor,
                 _ => PlayerRole.Default
             };
         }
@@ -94,7 +112,7 @@ namespace BeatLeader {
         #endregion
 
         #region FormatClanTag
-        
+
         public static string FormatClanTag(string tag) {
             return $"<alpha=#00>.<alpha=#FF><b><noparse>{tag}</noparse></b><alpha=#00>.<alpha=#FF>";
         }

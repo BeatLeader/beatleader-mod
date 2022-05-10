@@ -2,6 +2,8 @@
     public enum PlayerRole {
         Default,
         Admin,
-        Supporter
+        Tipper,
+        Supporter,
+        Sponsor
     }
 }

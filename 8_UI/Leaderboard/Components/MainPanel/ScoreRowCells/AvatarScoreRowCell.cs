@@ -1,4 +1,5 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatLeader.Models;
+using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
@@ -18,9 +19,9 @@ namespace BeatLeader.Components {
 
         #region Implementation
 
-        public void SetValue(string value) {
-            _playerAvatar.SetAvatar(value);
-            IsEmpty = false;
+        public void SetValues(string url, PlayerRole[] playerRoles) {
+            _playerAvatar.SetAvatar(url, playerRoles);
+            isEmpty = false;
         }
 
         public override void SetAlpha(float value) {

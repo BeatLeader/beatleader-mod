@@ -51,6 +51,7 @@ namespace BeatLeader {
         public static Material AccGridBackgroundMaterial;
         public static Material HandAccIndicatorMaterial;
         public static Material AccDetailsRowMaterial;
+        public static Material ClanTagBackgroundMaterial;
 
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
@@ -61,6 +62,7 @@ namespace BeatLeader {
             AccGridBackgroundMaterial = assetBundle.LoadAsset<Material>("AccGridBackgroundMaterial");
             HandAccIndicatorMaterial = assetBundle.LoadAsset<Material>("HandAccIndicatorMaterial");
             AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
+            ClanTagBackgroundMaterial = assetBundle.LoadAsset<Material>("ClanTagBackgroundMaterial");
         }
 
         #endregion
@@ -97,6 +99,15 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite GraphIcon;
 
+        [UsedImplicitly]
+        public static Sprite WebsiteLinkIcon;
+
+        [UsedImplicitly]
+        public static Sprite DiscordLinkIcon;
+
+        [UsedImplicitly]
+        public static Sprite PatreonLinkIcon;
+
         private static void LoadSprites(AssetBundle assetBundle) {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
@@ -108,6 +119,9 @@ namespace BeatLeader {
             DetailsIcon = assetBundle.LoadAsset<Sprite>("BL_DetailsIcon");
             GridIcon = assetBundle.LoadAsset<Sprite>("BL_GridIcon");
             GraphIcon = assetBundle.LoadAsset<Sprite>("BL_GraphIcon");
+            WebsiteLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Website");
+            DiscordLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Discord");
+            PatreonLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Patreon");
         }
 
         #endregion

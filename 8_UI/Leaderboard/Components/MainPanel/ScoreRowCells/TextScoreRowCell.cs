@@ -27,7 +27,7 @@ namespace BeatLeader.Components {
 
         public void SetValue(object value) {
             textComponent.text = value == null ? "" : _formatter.Invoke(value);
-            IsEmpty = false;
+            isEmpty = false;
         }
 
         public override void SetAlpha(float value) {

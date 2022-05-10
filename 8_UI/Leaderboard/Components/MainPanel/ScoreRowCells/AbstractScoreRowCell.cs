@@ -42,14 +42,14 @@ namespace BeatLeader.Components {
 
         #region GetPreferredWidth
 
-        protected bool IsEmpty = true;
+        public bool isEmpty = true;
 
         public void MarkEmpty() {
-            IsEmpty = true;
+            isEmpty = true;
         }
 
         public float GetPreferredWidth() {
-            return IsEmpty ? 0.0f : CalculatePreferredWidth();
+            return isEmpty ? 0.0f : CalculatePreferredWidth();
         }
 
         #endregion

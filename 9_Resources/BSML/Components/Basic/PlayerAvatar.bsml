@@ -1,2 +1,2 @@
-<image anchor-min-x="0" anchor-min-y="0" anchor-max-="1" anchor-max-y="1" 
+<image anchor-min-x="0" anchor-min-y="0" anchor-max-x="1" anchor-max-y="1" 
        id="image-component" src="#TransparentPixel" preserve-aspect="true"/>

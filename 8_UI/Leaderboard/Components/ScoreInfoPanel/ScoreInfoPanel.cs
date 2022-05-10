@@ -47,8 +47,9 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.AvatarWasPressedEvent += OnAvatarWasPressed;
-            LeaderboardEvents.SceneTransitionStartedEvent += OnSceneTransitionStarted;
+            LeaderboardEvents.LogoWasPressedEvent += HideInstantly;
+            LeaderboardEvents.AvatarWasPressedEvent += HideInstantly;
+            LeaderboardEvents.SceneTransitionStartedEvent += HideInstantly;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
             LeaderboardState.ScoreStatsRequest.FinishedEvent += SetScoreStats;
@@ -57,8 +58,9 @@ namespace BeatLeader.Components {
 
         protected override void OnDispose() {
             LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.AvatarWasPressedEvent -= OnAvatarWasPressed;
-            LeaderboardEvents.SceneTransitionStartedEvent -= OnSceneTransitionStarted;
+            LeaderboardEvents.LogoWasPressedEvent -= HideInstantly;
+            LeaderboardEvents.AvatarWasPressedEvent -= HideInstantly;
+            LeaderboardEvents.SceneTransitionStartedEvent -= HideInstantly;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
             LeaderboardState.ScoreStatsRequest.FinishedEvent -= SetScoreStats;
@@ -69,20 +71,12 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnLeaderboardVisibilityChanged(bool isVisible) {
-            if (!isVisible) HideModal(true);
+            if (!isVisible) HideAnimated();
         }
 
         private void OnScoreInfoButtonWasPressed(Score score) {
             SetScore(score);
             ShowModal();
-        }
-
-        private void OnAvatarWasPressed() {
-            HideModal(false);
-        }
-
-        private void OnSceneTransitionStarted() {
-            HideModal(false);
         }
 
         private void OnTabWasSelected(ScoreInfoPanelTab tab) {
@@ -172,9 +166,14 @@ namespace BeatLeader.Components {
             _modal.transform.position += ModalOffset;
         }
 
-        private void HideModal(bool animated) {
+        private void HideInstantly() {
             if (_modal == null) return;
-            _modal.Hide(animated);
+            _modal.Hide(false);
+        }
+
+        private void HideAnimated() {
+            if (_modal == null) return;
+            _modal.Hide(true);
         }
 
         #endregion

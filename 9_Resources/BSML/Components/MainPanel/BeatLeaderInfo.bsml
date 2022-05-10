@@ -1,0 +1,12 @@
+<modal id="modal" click-off-closes="true" size-delta-x="30" size-delta-y="32">
+    <macro.define name="image-height" value="7"/>
+    
+    <vertical pref-width="30" pad="2" spacing="1" vertical-fit="PreferredSize">
+        <horizontal pref-height="4">
+            <text text="&lt;u&gt;Beatleader community" font-size="3.4" font-color="#999999" align="Center"/>
+        </horizontal>
+        <clickable-image src="#BL_Website" pref-height="~image-height" preserve-aspect="true" on-click="website-on-click"/>
+        <clickable-image src="#BL_Discord" pref-height="~image-height" preserve-aspect="true" on-click="discord-on-click"/>
+        <clickable-image src="#BL_Patreon" pref-height="~image-height" preserve-aspect="true" on-click="patreon-on-click"/>
+    </vertical>
+</modal>

@@ -60,6 +60,26 @@ namespace BeatLeader {
 
         #endregion
 
+        #region FormatTimeset
+
+        private static readonly Color OldScoreColor = new(0.5f, 0.5f, 0.5f);
+        private static readonly Color FreshScoreColor = new(1f, 1f, 1f);
+        private static readonly Range ScoreLifetimeDaysRange = new(0, 30 * 8);
+
+        public static string FormatTimeset(string timeSet) {
+            var timeSpan = GetRelativeTime(timeSet);
+            var timeString = GetRelativeTimeString(timeSpan);
+            return $"<color=#{GetTimesetColorString(timeSpan)}>{timeString}</color>";
+        }
+
+        private static string GetTimesetColorString(TimeSpan timeSpan) {
+            var lerpValue = Mathf.Pow(1 - ScoreLifetimeDaysRange.GetRatioClamped(timeSpan.Days), 3.0f);
+            var color = Color.Lerp(OldScoreColor, FreshScoreColor, lerpValue);
+            return ColorUtility.ToHtmlStringRGBA(color);
+        }
+
+        #endregion
+
         #region GetRelativeTimeString
 
         private const int Second = 1;
@@ -68,26 +88,31 @@ namespace BeatLeader {
         private const int Day = 24 * Hour;
         private const int Month = 30 * Day;
 
-        public static string GetRelativeTimeString(string timeSet) {
+        public static TimeSpan GetRelativeTime(string timeSet) {
             var dateTime = long.Parse(timeSet).AsUnixTime();
+            return DateTime.UtcNow - dateTime;
+        }
 
-            var ts = new TimeSpan(DateTime.UtcNow.Ticks - dateTime.Ticks);
-            var delta = Math.Abs(ts.TotalSeconds);
+        public static string GetRelativeTimeString(string timeSet) {
+            return GetRelativeTimeString(GetRelativeTime(timeSet));
+        }
 
-            switch (delta) {
-                case < 1 * Minute: return ts.Seconds == 1 ? "one second ago" : ts.Seconds + " seconds ago";
+        public static string GetRelativeTimeString(TimeSpan timeSpan) {
+            switch (timeSpan.TotalSeconds) {
+                case < 0: return "-";
+                case < 1 * Minute: return timeSpan.Seconds == 1 ? "one second ago" : timeSpan.Seconds + " seconds ago";
                 case < 2 * Minute: return "a minute ago";
-                case < 45 * Minute: return ts.Minutes + " minutes ago";
-                case < 90 * Minute: return "an hour ago";
-                case < 24 * Hour: return ts.Hours + " hours ago";
-                case < 48 * Hour: return "yesterday";
-                case < 30 * Day: return ts.Days + " days ago";
+                case < 1 * Hour: return timeSpan.Minutes + " minutes ago";
+                case < 2 * Hour: return "an hour ago";
+                case < 24 * Hour: return timeSpan.Hours + " hours ago";
+                case < 2 * Day: return "yesterday";
+                case < 30 * Day: return timeSpan.Days + " days ago";
                 case < 12 * Month: {
-                    var months = Convert.ToInt32(Math.Floor((double) ts.Days / 30));
+                    var months = Convert.ToInt32(Math.Floor((double) timeSpan.Days / 30));
                     return months <= 1 ? "one month ago" : months + " months ago";
                 }
                 default: {
-                    var years = Convert.ToInt32(Math.Floor((double) ts.Days / 365));
+                    var years = Convert.ToInt32(Math.Floor((double) timeSpan.Days / 365));
                     return years <= 1 ? "one year ago" : years + " years ago";
                 }
             }

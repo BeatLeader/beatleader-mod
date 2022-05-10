@@ -48,7 +48,7 @@ namespace BeatLeader.Components {
 
         #region CalculatePreferredWidth
 
-        private const float Spacing = 0.2f;
+        private const float Spacing = 0.3f;
 
         public float CalculatePreferredWidth() {
             var result = 0.0f;

@@ -15,23 +15,23 @@
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
-            <!--  COUNTRY  -->
-            <macro.as-host host="country-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
             <!--  AVATAR  -->
             <macro.as-host host="avatar-cell">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
-            <!--  CLANS  -->
-            <macro.as-host host="clans-cell">
+            <!--  COUNTRY  -->
+            <macro.as-host host="country-cell">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
             <!--  NAME  -->
             <macro.as-host host="username-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  CLANS  -->
+            <macro.as-host host="clans-cell">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
@@ -52,6 +52,11 @@
 
             <!--  SCORE  -->
             <macro.as-host host="score-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
+            <!--  TIME  -->
+            <macro.as-host host="time-cell">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 

@@ -81,17 +81,17 @@ namespace BeatLeader.Components {
         [UIValue("rank-cell"), UsedImplicitly]
         private TextScoreRowCell _rankCell;
 
-        [UIValue("country-cell"), UsedImplicitly]
-        private CountryScoreRowCell _countryCell;
-
         [UIValue("avatar-cell"), UsedImplicitly]
         private AvatarScoreRowCell _avatarCell;
 
-        [UIValue("clans-cell"), UsedImplicitly]
-        private ClansScoreRowCell _clansCell;
+        [UIValue("country-cell"), UsedImplicitly]
+        private CountryScoreRowCell _countryCell;
 
         [UIValue("username-cell"), UsedImplicitly]
         private TextScoreRowCell _usernameCell;
+
+        [UIValue("clans-cell"), UsedImplicitly]
+        private ClansScoreRowCell _clansCell;
 
         [UIValue("modifiers-cell"), UsedImplicitly]
         private TextScoreRowCell _modifiersCell;
@@ -105,6 +105,9 @@ namespace BeatLeader.Components {
         [UIValue("score-cell"), UsedImplicitly]
         private TextScoreRowCell _scoreCell;
 
+        [UIValue("time-cell"), UsedImplicitly]
+        private TextScoreRowCell _timeCell;
+
         [UIValue("mistakes-cell"), UsedImplicitly]
         private MistakesScoreRowCell _mistakesCell;
 
@@ -112,14 +115,15 @@ namespace BeatLeader.Components {
 
         private void Awake() {
             _cells[ScoreRowCellType.Rank] = _rankCell = Instantiate<TextScoreRowCell>(transform);
-            _cells[ScoreRowCellType.Country] = _countryCell = Instantiate<CountryScoreRowCell>(transform);
             _cells[ScoreRowCellType.Avatar] = _avatarCell = Instantiate<AvatarScoreRowCell>(transform);
-            _cells[ScoreRowCellType.Clans] = _clansCell = Instantiate<ClansScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Country] = _countryCell = Instantiate<CountryScoreRowCell>(transform);
             _cells[ScoreRowCellType.Username] = _usernameCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Clans] = _clansCell = Instantiate<ClansScoreRowCell>(transform);
             _cells[ScoreRowCellType.Modifiers] = _modifiersCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Accuracy] = _accuracyCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.PerformancePoints] = _ppCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Score] = _scoreCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Time] = _timeCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Mistakes] = _mistakesCell = Instantiate<MistakesScoreRowCell>(transform);
         }
 
@@ -134,6 +138,7 @@ namespace BeatLeader.Components {
             _accuracyCell.Setup(o => FormatUtils.FormatAcc((float) o));
             _ppCell.Setup(o => FormatUtils.FormatPP((float) o));
             _scoreCell.Setup(o => FormatUtils.FormatScore((int) o), TextAlignmentOptions.Right);
+            _timeCell.Setup(o => FormatUtils.FormatTimeset((string) o), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.0f);
         }
 
         public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
@@ -173,14 +178,15 @@ namespace BeatLeader.Components {
 
             SetHighlight(score.player.IsCurrentPlayer());
             _rankCell.SetValue(score.rank);
-            _countryCell.SetValue(score.player.country);
             _avatarCell.SetValues(score.player.avatar, playerRoles);
-            _clansCell.SetValues(score.player.clans);
+            _countryCell.SetValue(score.player.country);
             _usernameCell.SetValue(score.player.name);
+            _clansCell.SetValues(score.player.clans);
             _modifiersCell.SetValue(score.modifiers);
             _accuracyCell.SetValue(score.accuracy);
             _ppCell.SetValue(score.pp);
             _scoreCell.SetValue(score.modifiedScore);
+            _timeCell.SetValue(score.timeSet);
             _mistakesCell.SetValues(score.missedNotes, score.badCuts, score.bombCuts, score.wallsHit);
             Clickable = true;
         }

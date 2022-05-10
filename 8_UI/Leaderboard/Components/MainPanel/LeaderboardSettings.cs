@@ -58,18 +58,6 @@ namespace BeatLeader.Components {
 
         #region Toggles
 
-        [UIValue("country-mask-value"), UsedImplicitly]
-        private bool CountryMaskValue {
-            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Country);
-            set {
-                if (value) {
-                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Country;
-                } else {
-                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Country;
-                }
-            }
-        }
-
         [UIValue("avatar-mask-value"), UsedImplicitly]
         private bool AvatarMaskValue {
             get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Avatar);
@@ -78,6 +66,18 @@ namespace BeatLeader.Components {
                     PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Avatar;
                 } else {
                     PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Avatar;
+                }
+            }
+        }
+
+        [UIValue("country-mask-value"), UsedImplicitly]
+        private bool CountryMaskValue {
+            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Country);
+            set {
+                if (value) {
+                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Country;
+                } else {
+                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Country;
                 }
             }
         }
@@ -102,6 +102,18 @@ namespace BeatLeader.Components {
                     PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Score;
                 } else {
                     PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Score;
+                }
+            }
+        }
+
+        [UIValue("time-mask-value"), UsedImplicitly]
+        private bool TimeMaskValue {
+            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Time);
+            set {
+                if (value) {
+                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Time;
+                } else {
+                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Time;
                 }
             }
         }

@@ -2,6 +2,7 @@
 using System.Linq;
 using BeatLeader.Components;
 using BeatLeader.Models;
+using UnityEngine;
 
 namespace BeatLeader {
     internal class ScoresTableLayoutHelper {
@@ -59,10 +60,10 @@ namespace BeatLeader {
                 var active = mask.HasFlag(cellType);
 
                 foreach (var cell in list) {
-                    cell.SetActive(!cell.isEmpty && active);
+                    cell.SetActive(active);
                 }
 
-                if (!active || cellType is ScoreRowCellType.Clans or ScoreRowCellType.Username) continue;
+                if (!active || cellType is ScoreRowCellType.Clans or ScoreRowCellType.Username or ScoreRowCellType.Modifiers) continue;
 
                 var maximalWidth = list.Max(cell => cell.GetPreferredWidth());
 
@@ -76,6 +77,7 @@ namespace BeatLeader {
         }
 
         private void UpdateFlexibleCells(ScoreRowCellType mask, float flexibleWidth) {
+            var modifiersCells = GetEntry(ScoreRowCellType.Modifiers);
             var nameCells = GetEntry(ScoreRowCellType.Username);
             var clansCells = GetEntry(ScoreRowCellType.Clans);
 
@@ -85,13 +87,25 @@ namespace BeatLeader {
                 if (mask.HasFlag(ScoreRowCellType.Clans)) {
                     var clansCell = clansCells[i];
                     if (!clansCell.isEmpty) {
-                        var clansCellWidth = clansCell.GetPreferredWidth();
-                        clansCell.SetCellWidth(clansCellWidth);
-                        remainingWidth -= clansCellWidth + Spacing;
+                        var clansWidth = clansCell.GetPreferredWidth();
+                        clansCell.SetCellWidth(clansWidth);
+                        remainingWidth -= clansWidth + Spacing;
+                    } else {
+                        clansCell.SetActive(false);
                     }
                 }
+                
+                var modifiersCell = modifiersCells[i];
+                var modifiersWidth = modifiersCell.GetPreferredWidth();
+                remainingWidth -= modifiersWidth + Spacing;
+                
+                var nameCell = nameCells[i];
+                var nameWidth = Mathf.Min(nameCell.GetPreferredWidth(), remainingWidth);
+                nameCell.SetCellWidth(nameWidth);
+                remainingWidth -= nameWidth;
 
-                nameCells[i].SetCellWidth(remainingWidth);
+                if (remainingWidth > 0) modifiersWidth += remainingWidth;
+                modifiersCell.SetCellWidth(modifiersWidth);
             }
         }
 

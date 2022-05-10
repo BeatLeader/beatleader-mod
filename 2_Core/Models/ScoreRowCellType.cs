@@ -13,5 +13,6 @@ namespace BeatLeader.Models {
         Score = 64,
         Mistakes = 128,
         Clans = 256,
+        Time = 512,
     }
 }

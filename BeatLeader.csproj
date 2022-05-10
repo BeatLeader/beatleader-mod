@@ -257,6 +257,7 @@
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\BeatLeaderInfo.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ContextSelector.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\EmptyBoardMessage.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\Pagination.cs" />
@@ -301,6 +302,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ClanTags.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\CountryFlag.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\PlayerAvatar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\BeatLeaderInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ContextSelector.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\EmptyBoardMessage.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\LeaderboardSettings.bsml" />

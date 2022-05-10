@@ -99,6 +99,15 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite GraphIcon;
 
+        [UsedImplicitly]
+        public static Sprite WebsiteLinkIcon;
+
+        [UsedImplicitly]
+        public static Sprite DiscordLinkIcon;
+
+        [UsedImplicitly]
+        public static Sprite PatreonLinkIcon;
+
         private static void LoadSprites(AssetBundle assetBundle) {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
@@ -110,6 +119,9 @@ namespace BeatLeader {
             DetailsIcon = assetBundle.LoadAsset<Sprite>("BL_DetailsIcon");
             GridIcon = assetBundle.LoadAsset<Sprite>("BL_GridIcon");
             GraphIcon = assetBundle.LoadAsset<Sprite>("BL_GraphIcon");
+            WebsiteLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Website");
+            DiscordLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Discord");
+            PatreonLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Patreon");
         }
 
         #endregion

@@ -1,6 +1,6 @@
-<modal id="modal" click-off-closes="true" size-delta-x="42" size-delta-y="50">
-    <vertical pref-width="42" pad="2" spacing="0.4" vertical-fit="PreferredSize">
-        <text text="&lt;u&gt;leaderboard customization" font-size="3.4" font-color="#999999" align="Center"/>
+<modal id="modal" click-off-closes="true" size-delta-x="35" size-delta-y="42">
+    <vertical id="container" pref-width="42" pad="2" spacing="0.4" vertical-fit="PreferredSize">
+        <text text="&lt;u&gt;leaderboard customization" font-size="4.0" font-color="#999999" align="Center"/>
         <toggle-setting text="Avatar" value="avatar-mask-value" apply-on-change="true"/>
         <toggle-setting text="Country" value="country-mask-value" apply-on-change="true"/>
         <toggle-setting text="Clans" value="clans-mask-value" apply-on-change="true"/>

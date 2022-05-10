@@ -11,6 +11,8 @@ namespace BeatLeader.Models {
         Accuracy = 16,
         PerformancePoints = 32,
         Score = 64,
-        Mistakes = 128
+        Mistakes = 128,
+        Clans = 256,
+        Time = 512,
     }
 }

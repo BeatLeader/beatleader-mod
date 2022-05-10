@@ -1,5 +1,10 @@
 <vertical min-width="95" preferred-width="95" anchor-pos-x="3" anchor-pos-y="5" pad-right="5">
     <horizontal min-height="60" preferred-height="60" spacing="5">
+        <!--  BEATLEADER INFO MODAl  -->
+        <macro.as-host host="beat-leader-info">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        
         <!--  SETTINGS MODAl  -->
         <macro.as-host host="leaderboard-settings">
             <macro.reparent transform="ui-component"/>

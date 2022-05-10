@@ -20,7 +20,7 @@ namespace BeatLeader.Components {
 
         public void SetValue(string value) {
             _countryFlag.SetCountry(value);
-            IsEmpty = false;
+            isEmpty = false;
         }
 
         public override void SetAlpha(float value) {

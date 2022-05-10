@@ -8,6 +8,9 @@ namespace BeatLeader.ViewControllers {
     internal class LeaderboardView : BSMLAutomaticViewController {
         #region Components
 
+        [UIValue("beat-leader-info"), UsedImplicitly]
+        private BeatLeaderInfo _beatLeaderInfo = ReeUIComponentV2.InstantiateOnSceneRoot<BeatLeaderInfo>(false);
+
         [UIValue("leaderboard-settings"), UsedImplicitly]
         private LeaderboardSettings _leaderboardSettings = ReeUIComponentV2.InstantiateOnSceneRoot<LeaderboardSettings>(false);
 
@@ -30,6 +33,7 @@ namespace BeatLeader.ViewControllers {
         private EmptyBoardMessage _emptyBoardMessage = ReeUIComponentV2.InstantiateOnSceneRoot<EmptyBoardMessage>();
 
         private void Awake() {
+            _beatLeaderInfo.SetParent(transform);
             _leaderboardSettings.SetParent(transform);
             _scoreInfoPanel.SetParent(transform);
             _scoresTable.SetParent(transform);

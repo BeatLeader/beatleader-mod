@@ -9,23 +9,89 @@ using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 using Transform = UnityEngine.Transform;
 
 namespace BeatLeader.Components {
     internal class ScoreRow : ReeUIComponentV2 {
+        #region ColorScheme
+
+        private static readonly Dictionary<PlayerRole, ColorScheme> ColorSchemes = new() {
+            {
+                PlayerRole.Default, new ColorScheme(
+                    new Color(0.4f, 0.6f, 1.0f),
+                    new Color(0.5f, 0.7f, 1.0f),
+                    0.0f
+                )
+            }, {
+                PlayerRole.Tipper, new ColorScheme(
+                    new Color(1.0f, 1.0f, 0.7f),
+                    new Color(1.0f, 0.6f, 0.0f),
+                    0.0f
+                )
+            }, {
+                PlayerRole.Supporter, new ColorScheme(
+                    new Color(1.0f, 1.0f, 0.7f),
+                    new Color(1.0f, 0.6f, 0.0f),
+                    1.0f
+                )
+            }, {
+                PlayerRole.Sponsor, new ColorScheme(
+                    new Color(1.0f, 1.0f, 0.6f),
+                    new Color(1.0f, 0.3f, 0.0f),
+                    1.0f
+                )
+            }
+        };
+
+        private void ApplyColorScheme(PlayerRole[] playerRoles) {
+            var supporterRole = FormatUtils.GetSupporterRole(playerRoles);
+            var scheme = ColorSchemes.ContainsKey(supporterRole) ? ColorSchemes[supporterRole] : ColorSchemes[PlayerRole.Default];
+            scheme.Apply(_underlineMaterial);
+        }
+
+        private readonly struct ColorScheme {
+            private static readonly int RimColorPropertyId = Shader.PropertyToID("_RimColor");
+            private static readonly int HaloColorPropertyId = Shader.PropertyToID("_HaloColor");
+            private static readonly int WavesAmplitudePropertyId = Shader.PropertyToID("_WavesAmplitude");
+            private static readonly int SeedPropertyId = Shader.PropertyToID("_Seed");
+
+            private readonly Color _rimColor;
+            private readonly Color _haloColor;
+            private readonly float _wavesAmplitude;
+
+            public ColorScheme(Color rimColor, Color haloColor, float wavesAmplitude) {
+                _rimColor = rimColor;
+                _haloColor = haloColor;
+                _wavesAmplitude = wavesAmplitude;
+            }
+
+            public void Apply(Material material) {
+                material.SetColor(RimColorPropertyId, _rimColor);
+                material.SetColor(HaloColorPropertyId, _haloColor);
+                material.SetFloat(WavesAmplitudePropertyId, _wavesAmplitude);
+                material.SetFloat(SeedPropertyId, Random.value);
+            }
+        }
+
+        #endregion
+
         #region Components
 
         [UIValue("rank-cell"), UsedImplicitly]
         private TextScoreRowCell _rankCell;
 
-        [UIValue("country-cell"), UsedImplicitly]
-        private CountryScoreRowCell _countryCell;
-
         [UIValue("avatar-cell"), UsedImplicitly]
         private AvatarScoreRowCell _avatarCell;
 
+        [UIValue("country-cell"), UsedImplicitly]
+        private CountryScoreRowCell _countryCell;
+
         [UIValue("username-cell"), UsedImplicitly]
         private TextScoreRowCell _usernameCell;
+
+        [UIValue("clans-cell"), UsedImplicitly]
+        private ClansScoreRowCell _clansCell;
 
         [UIValue("modifiers-cell"), UsedImplicitly]
         private TextScoreRowCell _modifiersCell;
@@ -39,6 +105,9 @@ namespace BeatLeader.Components {
         [UIValue("score-cell"), UsedImplicitly]
         private TextScoreRowCell _scoreCell;
 
+        [UIValue("time-cell"), UsedImplicitly]
+        private TextScoreRowCell _timeCell;
+
         [UIValue("mistakes-cell"), UsedImplicitly]
         private MistakesScoreRowCell _mistakesCell;
 
@@ -46,20 +115,22 @@ namespace BeatLeader.Components {
 
         private void Awake() {
             _cells[ScoreRowCellType.Rank] = _rankCell = Instantiate<TextScoreRowCell>(transform);
-            _cells[ScoreRowCellType.Country] = _countryCell = Instantiate<CountryScoreRowCell>(transform);
             _cells[ScoreRowCellType.Avatar] = _avatarCell = Instantiate<AvatarScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Country] = _countryCell = Instantiate<CountryScoreRowCell>(transform);
             _cells[ScoreRowCellType.Username] = _usernameCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Clans] = _clansCell = Instantiate<ClansScoreRowCell>(transform);
             _cells[ScoreRowCellType.Modifiers] = _modifiersCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Accuracy] = _accuracyCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.PerformancePoints] = _ppCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Score] = _scoreCell = Instantiate<TextScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Time] = _timeCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Mistakes] = _mistakesCell = Instantiate<MistakesScoreRowCell>(transform);
         }
-        
+
         #endregion
 
         #region Setup
-        
+
         private void SetupFormatting() {
             _rankCell.Setup(o => FormatUtils.FormatRank((int) o, false));
             _usernameCell.Setup(o => FormatUtils.FormatUserName((string) o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis);
@@ -67,6 +138,7 @@ namespace BeatLeader.Components {
             _accuracyCell.Setup(o => FormatUtils.FormatAcc((float) o));
             _ppCell.Setup(o => FormatUtils.FormatPP((float) o));
             _scoreCell.Setup(o => FormatUtils.FormatScore((int) o), TextAlignmentOptions.Right);
+            _timeCell.Setup(o => FormatUtils.FormatTimeset((string) o), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.0f);
         }
 
         public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
@@ -81,7 +153,8 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             SetupFormatting();
-            SetMaterials();
+            SetupBackground();
+            SetupUnderline();
             FadeOut();
         }
 
@@ -100,15 +173,20 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             _score = score;
 
+            var playerRoles = FormatUtils.ParsePlayerRoles(score.player.role);
+            ApplyColorScheme(playerRoles);
+
             SetHighlight(score.player.IsCurrentPlayer());
             _rankCell.SetValue(score.rank);
+            _avatarCell.SetValues(score.player.avatar, playerRoles);
             _countryCell.SetValue(score.player.country);
-            _avatarCell.SetValue(score.player.avatar);
             _usernameCell.SetValue(score.player.name);
+            _clansCell.SetValues(score.player.clans);
             _modifiersCell.SetValue(score.modifiers);
             _accuracyCell.SetValue(score.accuracy);
             _ppCell.SetValue(score.pp);
             _scoreCell.SetValue(score.modifiedScore);
+            _timeCell.SetValue(score.timeSet);
             _mistakesCell.SetValues(score.missedNotes, score.badCuts, score.bombCuts, score.wallsHit);
             Clickable = true;
         }
@@ -118,6 +196,7 @@ namespace BeatLeader.Components {
             foreach (var cell in _cells.Values) {
                 cell.MarkEmpty();
             }
+
             Clickable = false;
         }
 
@@ -182,8 +261,8 @@ namespace BeatLeader.Components {
                 cell.SetAlpha(_currentAlpha);
             }
 
-            _backgroundComponent.color = _backgroundColor.ColorWithAlpha(_backgroundColor.a * _currentAlpha);
-            _infoComponent.color = _infoComponent.color.ColorWithAlpha(_infoComponent.color.a * _currentAlpha);
+            SetBackgroundAlpha(_currentAlpha);
+            SetUnderlineAlpha(_currentAlpha);
         }
 
         #endregion
@@ -227,32 +306,57 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region ClickableArea
+        #region Background
 
-        private readonly Color _ownScoreColor = new(0.7f, 0f, 0.7f, 0.3f);
-        private readonly Color _someoneElseScoreColor = new(0.07f, 0f, 0.14f, 0.05f);
-
-        private readonly Color _underlineIdleColor = new(0.1f, 0.3f, 0.4f, 0.0f);
-        private readonly Color _underlineHoverColor = new(0.0f, 0.4f, 1.0f, 1.0f);
-
-        private Color _backgroundColor;
-
-        private void SetHighlight(bool highlight) {
-            _backgroundColor = highlight ? _ownScoreColor : _someoneElseScoreColor;
-        }
-
-        private void SetMaterials() {
-            _backgroundComponent.material = BundleLoader.ScoreBackgroundMaterial;
-            _infoComponent.material = BundleLoader.ScoreUnderlineMaterial;
-            _infoComponent.DefaultColor = _underlineIdleColor;
-            _infoComponent.HighlightColor = _underlineHoverColor;
-        }
+        private static Color OwnScoreColor => new(0.7f, 0f, 0.7f, 0.3f);
+        private static Color SomeoneElseScoreColor => new(0.07f, 0f, 0.14f, 0.05f);
 
         [UIComponent("background-component"), UsedImplicitly]
         private ImageView _backgroundComponent;
 
+        private bool _highlighted;
+
+        private void SetupBackground() {
+            _backgroundComponent.material = BundleLoader.ScoreBackgroundMaterial;
+        }
+
+        private void SetHighlight(bool highlight) {
+            _highlighted = highlight;
+        }
+
+        private void SetBackgroundAlpha(float value) {
+            var color = _highlighted ? OwnScoreColor : SomeoneElseScoreColor;
+            color.a *= value;
+            _backgroundComponent.color = color;
+        }
+
+        #endregion
+
+        #region Underline
+
+        private static readonly Color UnderlineIdleColor = new(0.0f, 0.0f, 0.0f);
+        private static readonly Color UnderlineHoverColor = new(1.0f, 0.0f, 0.0f);
+
         [UIComponent("info-component"), UsedImplicitly]
         private ClickableImage _infoComponent;
+
+        private Material _underlineMaterial;
+
+        private void SetupUnderline() {
+            _underlineMaterial = Instantiate(BundleLoader.ScoreUnderlineMaterial);
+            _infoComponent.material = _underlineMaterial;
+            _infoComponent.DefaultColor = UnderlineIdleColor;
+            _infoComponent.HighlightColor = UnderlineHoverColor;
+        }
+
+        private void SetUnderlineAlpha(float value) {
+            _infoComponent.DefaultColor = UnderlineIdleColor.ColorWithAlpha(value);
+            _infoComponent.HighlightColor = UnderlineHoverColor.ColorWithAlpha(value);
+        }
+
+        #endregion
+
+        #region ClickableArea
 
         [UIAction("info-on-click"), UsedImplicitly]
         private void InfoOnClick() {

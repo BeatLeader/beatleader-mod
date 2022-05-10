@@ -1,9 +1,0 @@
-<modal id="modal" click-off-closes="true" size-delta-x="42" size-delta-y="37">
-    <vertical pref-width="42" pad="2" spacing="0.4" vertical-fit="PreferredSize">
-        <text text="&lt;u&gt;leaderboard customization" font-size="3.4" font-color="#999999" align="Center"/>
-        <toggle-setting text="Country" value="country-mask-value" apply-on-change="true"/>
-        <toggle-setting text="Avatar" value="avatar-mask-value" apply-on-change="true"/>
-        <toggle-setting text="Score" value="score-mask-value" apply-on-change="true"/>
-        <toggle-setting text="Mistakes" value="mistakes-mask-value" apply-on-change="true"/>
-    </vertical>
-</modal>

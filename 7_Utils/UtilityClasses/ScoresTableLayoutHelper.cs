@@ -2,6 +2,7 @@
 using System.Linq;
 using BeatLeader.Components;
 using BeatLeader.Models;
+using UnityEngine;
 
 namespace BeatLeader {
     internal class ScoresTableLayoutHelper {
@@ -12,8 +13,6 @@ namespace BeatLeader {
         private const float PadLeft = 2.0f;
         private const float PadRight = 2.0f;
         private const float AvailableWidth = RowWidth - PadLeft - PadRight;
-
-        private const ScoreRowCellType FlexibleCellType = ScoreRowCellType.Username;
 
         #endregion
 
@@ -47,7 +46,12 @@ namespace BeatLeader {
         #region RecalculateLayout
 
         public void RecalculateLayout(ScoreRowCellType mask) {
-            var flexibleWidth = AvailableWidth;
+            UpdateNonFlexibleCells(mask, out var flexibleWidth);
+            UpdateFlexibleCells(mask, flexibleWidth);
+        }
+
+        private void UpdateNonFlexibleCells(ScoreRowCellType mask, out float flexibleWidth) {
+            flexibleWidth = AvailableWidth;
 
             var i = 0;
             foreach (var keyValuePair in _cells) {
@@ -59,7 +63,7 @@ namespace BeatLeader {
                     cell.SetActive(active);
                 }
 
-                if (!active || cellType == FlexibleCellType) continue;
+                if (!active || cellType is ScoreRowCellType.Clans or ScoreRowCellType.Username or ScoreRowCellType.Modifiers) continue;
 
                 var maximalWidth = list.Max(cell => cell.GetPreferredWidth());
 
@@ -70,9 +74,38 @@ namespace BeatLeader {
                 if (i++ > 0) flexibleWidth -= Spacing;
                 flexibleWidth -= maximalWidth;
             }
+        }
 
-            foreach (var cell in GetEntry(FlexibleCellType)) {
-                cell.SetCellWidth(flexibleWidth);
+        private void UpdateFlexibleCells(ScoreRowCellType mask, float flexibleWidth) {
+            var modifiersCells = GetEntry(ScoreRowCellType.Modifiers);
+            var nameCells = GetEntry(ScoreRowCellType.Username);
+            var clansCells = GetEntry(ScoreRowCellType.Clans);
+
+            for (var i = 0; i < nameCells.Count; i++) {
+                var remainingWidth = flexibleWidth;
+
+                if (mask.HasFlag(ScoreRowCellType.Clans)) {
+                    var clansCell = clansCells[i];
+                    if (!clansCell.isEmpty) {
+                        var clansWidth = clansCell.GetPreferredWidth();
+                        clansCell.SetCellWidth(clansWidth);
+                        remainingWidth -= clansWidth + Spacing;
+                    } else {
+                        clansCell.SetActive(false);
+                    }
+                }
+                
+                var modifiersCell = modifiersCells[i];
+                var modifiersWidth = modifiersCell.GetPreferredWidth();
+                remainingWidth -= modifiersWidth + Spacing;
+                
+                var nameCell = nameCells[i];
+                var nameWidth = Mathf.Min(nameCell.GetPreferredWidth(), remainingWidth);
+                nameCell.SetCellWidth(nameWidth);
+                remainingWidth -= nameWidth;
+
+                if (remainingWidth > 0) modifiersWidth += remainingWidth;
+                modifiersCell.SetCellWidth(modifiersWidth);
             }
         }
 

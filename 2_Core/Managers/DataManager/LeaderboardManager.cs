@@ -18,6 +18,8 @@ namespace BeatLeader.DataManager {
         #region Initialize/Dispose section
 
         public void Start() {
+            SetFakeBloomProperty();
+
             LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
@@ -42,8 +44,27 @@ namespace BeatLeader.DataManager {
 
         #endregion
 
+        #region SetGlobalBloomShaderParameter
+
+        private static readonly int FakeBloomAmountPropertyID = Shader.PropertyToID("_FakeBloomAmount");
+
+        private static void SetFakeBloomProperty() {
+            bool enableFakeBloom;
+
+            try {
+                var mainSettingsModel = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>()[0];
+                enableFakeBloom = mainSettingsModel.mainEffectGraphicsSettings.value == 0;
+            } catch (Exception) {
+                enableFakeBloom = false;
+            }
+
+            Shader.SetGlobalFloat(FakeBloomAmountPropertyID, enableFakeBloom ? 1.0f : 0.0f);
+        }
+
+        #endregion
+
         public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) {
-            Plugin.Log.Debug($"Seleceted beatmap: {difficultyBeatmap.level.songName}, diff: {difficultyBeatmap.difficulty}");
+            Plugin.Log.Debug($"Selected beatmap: {difficultyBeatmap.level.songName}, diff: {difficultyBeatmap.difficulty}");
             _lastSelectedBeatmap = difficultyBeatmap;
             _lastSelectedPage = 1;
 
@@ -60,27 +81,36 @@ namespace BeatLeader.DataManager {
 
             LeaderboardState.ScoresRequest.NotifyStarted();
 
-            if (BLContext.NoPlayerData) { return; }
-            string userId = BLContext.profile.id;
+            if (BLContext.NoPlayerData) {
+                return;
+            }
 
-            string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
-            string diff = _lastSelectedBeatmap.difficulty.ToString();
-            string mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
-            string scope = _selectedScoreScope.ToString().ToLowerInvariant();
-            string context = _selectedScoreContext.ToString().ToLower();
+            var userId = BLContext.profile.id;
+
+            var hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
+            var diff = _lastSelectedBeatmap.difficulty.ToString();
+            var mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            var scope = _selectedScoreScope.ToString().ToLowerInvariant();
+            var context = _selectedScoreContext.ToString().ToLower();
 
             _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
-                String.Format(BLConstants.SCORES_BY_HASH_PAGED, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
-                    { BLConstants.Param.PLAYER, userId },
-                    { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
-                    { BLConstants.Param.PAGE, _lastSelectedPage }
-                })),
-                paged => {
+                string.Format(BLConstants.SCORES_BY_HASH_PAGED,
+                    hash,
+                    diff,
+                    mode,
+                    context,
+                    scope,
+                    HttpUtils.ToHttpParams(new Dictionary<string, object> {
+                        {BLConstants.Param.PLAYER, userId},
+                        {BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE},
+                        {BLConstants.Param.PAGE, _lastSelectedPage}
+                    })),
+                paged =>
+                {
                     _lastSelectedPage = paged.metadata.page;
                     LeaderboardState.ScoresRequest.NotifyFinished(paged);
-                }, reason => {
-                    LeaderboardState.ScoresRequest.NotifyFailed(reason);
-                }));
+                },
+                reason => { LeaderboardState.ScoresRequest.NotifyFailed(reason); }));
         }
 
         private void SeekScores() {
@@ -91,26 +121,35 @@ namespace BeatLeader.DataManager {
 
             LeaderboardState.ScoresRequest.NotifyStarted();
 
-            if (BLContext.NoPlayerData) { return; }
-            string userId = BLContext.profile.id;
+            if (BLContext.NoPlayerData) {
+                return;
+            }
 
-            string hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
-            string diff = _lastSelectedBeatmap.difficulty.ToString();
-            string mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
-            string scope = _selectedScoreScope.ToString().ToLowerInvariant();
-            string context = _selectedScoreContext.ToString().ToLower();
+            var userId = BLContext.profile.id;
+
+            var hash = _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
+            var diff = _lastSelectedBeatmap.difficulty.ToString();
+            var mode = _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            var scope = _selectedScoreScope.ToString().ToLowerInvariant();
+            var context = _selectedScoreContext.ToString().ToLower();
 
             _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
-                String.Format(BLConstants.SCORES_BY_HASH_SEEK, hash, diff, mode, context, scope, HttpUtils.ToHttpParams(new Dictionary<string, object> {
-                    { BLConstants.Param.PLAYER, userId },
-                    { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
-                })),
-                paged => {
+                string.Format(BLConstants.SCORES_BY_HASH_SEEK,
+                    hash,
+                    diff,
+                    mode,
+                    context,
+                    scope,
+                    HttpUtils.ToHttpParams(new Dictionary<string, object> {
+                        {BLConstants.Param.PLAYER, userId},
+                        {BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE}
+                    })),
+                paged =>
+                {
                     _lastSelectedPage = paged.metadata.page;
                     LeaderboardState.ScoresRequest.NotifyFinished(paged);
-                }, reason => {
-                    LeaderboardState.ScoresRequest.NotifyFailed(reason);
-                }));
+                },
+                reason => { LeaderboardState.ScoresRequest.NotifyFailed(reason); }));
         }
 
         #endregion
@@ -156,6 +195,7 @@ namespace BeatLeader.DataManager {
                 _lastSelectedPage = 1;
                 return;
             }
+
             _lastSelectedPage--;
             LoadScores();
         }

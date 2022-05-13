@@ -13,12 +13,14 @@ namespace BeatLeader.Components {
             Func<object, string> formatter,
             TextAlignmentOptions alignmentOption = TextAlignmentOptions.Center,
             TextOverflowModes overflowMode = TextOverflowModes.Overflow,
-            float fontSize = 3.4f
+            float fontSize = 3.4f,
+            bool richText = true
         ) {
             _formatter = formatter;
             textComponent.alignment = alignmentOption;
             textComponent.overflowMode = overflowMode;
             textComponent.fontSize = fontSize;
+            textComponent.richText = richText;
         }
 
         #endregion

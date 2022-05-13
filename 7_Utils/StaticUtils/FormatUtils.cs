@@ -131,7 +131,7 @@ namespace BeatLeader {
         #region FormatUsername
 
         public static string FormatUserName(string userName) {
-            return $"<noparse>{userName}</noparse>";
+            return userName;
         }
 
         #endregion

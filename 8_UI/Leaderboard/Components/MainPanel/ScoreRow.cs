@@ -146,7 +146,7 @@ namespace BeatLeader.Components {
 
         private void SetupFormatting() {
             _rankCell.Setup(o => FormatUtils.FormatRank((int) o, false));
-            _usernameCell.Setup(o => FormatUtils.FormatUserName((string) o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis);
+            _usernameCell.Setup(o => FormatUtils.FormatUserName((string) o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis, 3.4f, false);
             _modifiersCell.Setup(o => FormatUtils.FormatModifiers((string) o), TextAlignmentOptions.Right, TextOverflowModes.Overflow, 2.4f);
             _accuracyCell.Setup(o => FormatUtils.FormatAcc((float) o));
             _ppCell.Setup(o => FormatUtils.FormatPP((float) o));

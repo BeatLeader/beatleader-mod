@@ -15,7 +15,7 @@
             <macro.as-host host="country-flag">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
-            <text text="~player-name" align="Center"/>
+            <text text="~player-name" rich-text="false" align="Center"/>
         </horizontal>
         <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
             <text text="~player-pp" align="Center"/>

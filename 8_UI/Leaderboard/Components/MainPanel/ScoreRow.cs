@@ -21,24 +21,32 @@ namespace BeatLeader.Components {
                 PlayerRole.Default, new ColorScheme(
                     new Color(0.4f, 0.6f, 1.0f),
                     new Color(0.5f, 0.7f, 1.0f),
-                    0.0f
+                    0.0f, 
+                    0.0f, 
+                    1.0f
                 )
             }, {
                 PlayerRole.Tipper, new ColorScheme(
                     new Color(1.0f, 1.0f, 0.7f),
                     new Color(1.0f, 0.6f, 0.0f),
-                    0.0f
+                    0.0f,
+                    0.0f, 
+                    1.0f
                 )
             }, {
                 PlayerRole.Supporter, new ColorScheme(
                     new Color(1.0f, 1.0f, 0.7f),
                     new Color(1.0f, 0.6f, 0.0f),
+                    1.0f,
+                    0.0f, 
                     1.0f
                 )
             }, {
                 PlayerRole.Sponsor, new ColorScheme(
                     new Color(1.0f, 1.0f, 0.6f),
                     new Color(1.0f, 0.3f, 0.0f),
+                    1.0f,
+                    0.8f, 
                     1.0f
                 )
             }
@@ -47,6 +55,7 @@ namespace BeatLeader.Components {
         private void ApplyColorScheme(PlayerRole[] playerRoles) {
             var supporterRole = FormatUtils.GetSupporterRole(playerRoles);
             var scheme = ColorSchemes.ContainsKey(supporterRole) ? ColorSchemes[supporterRole] : ColorSchemes[PlayerRole.Default];
+            SetUnderlineHighlight(scheme.IdleHighlight, scheme.HoverHighlight);
             scheme.Apply(_underlineMaterial);
         }
 
@@ -59,11 +68,15 @@ namespace BeatLeader.Components {
             private readonly Color _rimColor;
             private readonly Color _haloColor;
             private readonly float _wavesAmplitude;
+            public readonly float IdleHighlight;
+            public readonly float HoverHighlight;
 
-            public ColorScheme(Color rimColor, Color haloColor, float wavesAmplitude) {
+            public ColorScheme(Color rimColor, Color haloColor, float wavesAmplitude, float idleHighlight, float hoverHighlight) {
                 _rimColor = rimColor;
                 _haloColor = haloColor;
                 _wavesAmplitude = wavesAmplitude;
+                IdleHighlight = idleHighlight;
+                HoverHighlight = hoverHighlight;
             }
 
             public void Apply(Material material) {
@@ -334,24 +347,34 @@ namespace BeatLeader.Components {
 
         #region Underline
 
-        private static readonly Color UnderlineIdleColor = new(0.0f, 0.0f, 0.0f);
-        private static readonly Color UnderlineHoverColor = new(1.0f, 0.0f, 0.0f);
-
         [UIComponent("info-component"), UsedImplicitly]
         private ClickableImage _infoComponent;
 
         private Material _underlineMaterial;
+        private float _underlineAlpha = 1.0f;
+        private float _idleHighlight;
+        private float _hoverHighlight = 1.0f;
 
         private void SetupUnderline() {
             _underlineMaterial = Instantiate(BundleLoader.ScoreUnderlineMaterial);
             _infoComponent.material = _underlineMaterial;
-            _infoComponent.DefaultColor = UnderlineIdleColor;
-            _infoComponent.HighlightColor = UnderlineHoverColor;
+            UpdateUnderlineColors();
         }
 
         private void SetUnderlineAlpha(float value) {
-            _infoComponent.DefaultColor = UnderlineIdleColor.ColorWithAlpha(value);
-            _infoComponent.HighlightColor = UnderlineHoverColor.ColorWithAlpha(value);
+            _underlineAlpha = value;
+            UpdateUnderlineColors();
+        }
+
+        private void SetUnderlineHighlight(float idle, float hover) {
+            _idleHighlight = idle;
+            _hoverHighlight = hover;
+            UpdateUnderlineColors();
+        }
+
+        private void UpdateUnderlineColors() {
+            _infoComponent.DefaultColor = new Color(_idleHighlight, 0, 0, _underlineAlpha);
+            _infoComponent.HighlightColor = new Color(_hoverHighlight, 0, 0, _underlineAlpha);
         }
 
         #endregion

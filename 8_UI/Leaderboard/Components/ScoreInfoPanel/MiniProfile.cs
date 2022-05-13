@@ -1,6 +1,7 @@
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using ModestTree;
 
 namespace BeatLeader.Components {
     internal class MiniProfile : ReeUIComponentV2 {
@@ -24,11 +25,25 @@ namespace BeatLeader.Components {
         public void SetPlayer(Player player) {
             _playerAvatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             _countryFlag.SetCountry(player.country);
+            SetPromoLine(player.promoLine ?? "");
 
             PlayerName = FormatUtils.FormatUserName(player.name);
             PlayerGlobalRank = FormatUtils.FormatRank(player.rank, true);
             PlayerCountryRank = FormatUtils.FormatRank(player.countryRank, true);
             PlayerPp = FormatUtils.FormatPP(player.pp);
+        }
+
+        #endregion
+
+        #region SetPromoLine
+
+        private const float NoPromoOffset = 33.5f;
+        private const float PromoOffset = NoPromoOffset + 7;
+
+        private void SetPromoLine(string promoLine) {
+            PromoText = promoLine;
+            ShowPromo = !promoLine.IsEmpty();
+            YOffset = ShowPromo ? PromoOffset : NoPromoOffset;
         }
 
         #endregion
@@ -91,6 +106,50 @@ namespace BeatLeader.Components {
             set {
                 if (_playerPp.Equals(value)) return;
                 _playerPp = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region YOffset
+
+        private float _yOffset;
+
+        [UIValue("y-offset"), UsedImplicitly]
+        public float YOffset {
+            get => _yOffset;
+            set {
+                if (_yOffset.Equals(value)) return;
+                _yOffset = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region Promo
+
+        private string _promoText = "";
+
+        [UIValue("promo-text"), UsedImplicitly]
+        public string PromoText {
+            get => _promoText;
+            set {
+                if (_promoText.Equals(value)) return;
+                _promoText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private bool _showPromo;
+
+        [UIValue("show-promo"), UsedImplicitly]
+        public bool ShowPromo {
+            get => _showPromo;
+            set {
+                if (_showPromo.Equals(value)) return;
+                _showPromo = value;
                 NotifyPropertyChanged();
             }
         }

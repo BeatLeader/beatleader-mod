@@ -1,5 +1,5 @@
 <modal id="modal" click-off-closes="true" size-delta-x='24' size-delta-y='6'>
-    <vertical spacing="1" vertical-fit="PreferredSize" ignore-layout="true" anchor-pos-y="30">
+    <vertical spacing="1" vertical-fit="PreferredSize" ignore-layout="true" anchor-pos-y="15.5">
         <!--  MINI PROFILE  -->
         <macro.as-host host="mini-profile">
             <macro.reparent transform="ui-component"/>

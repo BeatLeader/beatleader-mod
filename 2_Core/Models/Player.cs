@@ -10,6 +10,7 @@
         public float pp;
         public string role;
         public Clan[] clans;
+        public string promoLine;
     }
 
     internal class Clan {

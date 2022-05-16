@@ -26,6 +26,7 @@ namespace BeatLeader.Components {
 
         private const string GoodNewsColor = "#88FF88";
         private const string BadNewsColor = "#FF8888";
+        private const string DefaultErrorMessage = "An unexpected error occured";
 
         private void OnScoresRequestStateChanged(RequestState requestState) {
             switch (requestState) {
@@ -49,7 +50,7 @@ namespace BeatLeader.Components {
 
         private void OnScoresFetched(Paged<Score> scoreData) {
             if (scoreData.data == null) {
-                OnError();
+                OnError(DefaultErrorMessage);
                 return;
             }
 
@@ -62,7 +63,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnScoresRequestFailed(string reason) {
-            OnError();
+            OnError(reason);
         }
 
         private void OnFull() {
@@ -78,11 +79,11 @@ namespace BeatLeader.Components {
             FadeIn();
         }
 
-        private void OnError() {
+        private void OnError(string reason) {
             SetText(
                 BadNewsColor,
                 "Oops!",
-                "An unexpected error occured"
+                reason.IsEmpty() ? DefaultErrorMessage : reason.Truncate(50, true)
             );
             FadeIn();
         }

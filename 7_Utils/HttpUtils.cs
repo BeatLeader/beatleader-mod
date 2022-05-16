@@ -19,6 +19,7 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
+                void StopRetries() => i = retry;
 
                 var handler = new DownloadHandlerBuffer();
 
@@ -31,8 +32,23 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
                 if (request.isHttpError || request.isNetworkError) {
-                    Plugin.Log.Debug("Connection error or non success http code.");
-                    failReason = "Connection error or non success http code.";
+                    Plugin.Log.Debug($"Request failed: {request.error}");
+                    switch(request.responseCode) {
+                        case BLConstants.MaintenanceStatus: {
+                            failReason = "Maintenance";
+                            StopRetries();
+                            break;
+                        }
+                        case BLConstants.OutdatedModStatus: {
+                            failReason = "Mod update required";
+                            StopRetries();
+                            break;
+                        }
+                        default: {
+                            failReason = $"Connection error ({request.responseCode})";
+                            break;
+                        }
+                    };
                     continue;
                 }
 

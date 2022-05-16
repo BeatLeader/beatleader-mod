@@ -205,6 +205,7 @@ namespace BeatLeader {
                 var noteCutInfo = cutEvent.noteCutInfo;
                 PopulateNoteCutInfo(noteCutInfo, cutScoreBuffer.noteCutInfo);
                 SwingRatingEnhancer.Enhance(noteCutInfo, saberSwingRatingCounter);
+                SwingRatingEnhancer.Reset(saberSwingRatingCounter);
             }
         }
 

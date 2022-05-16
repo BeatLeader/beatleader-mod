@@ -20,6 +20,12 @@ namespace BeatLeader.Core.Managers.NoteEnhancer
         public static Dictionary<ISaberMovementData, PreSwingRatingContainer> preSwingMap = new();
         public static Dictionary<SaberSwingRatingCounter, PostSwingRatingContainer> postSwingMap = new();
 
+        public static void Reset(SaberSwingRatingCounter counter) {
+            var saberMovementData = counter.GetField<ISaberMovementData, SaberSwingRatingCounter>("_saberMovementData");
+            preSwingMap.Remove(saberMovementData);
+            postSwingMap.Remove(counter);
+        }
+
         public static void Enhance(Models.NoteCutInfo cutInfo, SaberSwingRatingCounter counter) {
             ISaberMovementData _saberMovementData = counter.GetField<ISaberMovementData, SaberSwingRatingCounter>("_saberMovementData");
 

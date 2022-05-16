@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BeatLeader.Utils {
+﻿namespace BeatLeader.Utils {
     internal static class BLConstants {
+        #region HTTP Status codes
+
+        public const int MaintenanceStatus = 503;
+        public const int OutdatedModStatus = 418;
+
+        #endregion
 
         #region Basic links
 

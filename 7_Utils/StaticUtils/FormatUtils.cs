@@ -100,20 +100,20 @@ namespace BeatLeader {
         public static string GetRelativeTimeString(TimeSpan timeSpan) {
             switch (timeSpan.TotalSeconds) {
                 case < 0: return "-";
-                case < 1 * Minute: return timeSpan.Seconds == 1 ? "one second ago" : timeSpan.Seconds + " seconds ago";
-                case < 2 * Minute: return "a minute ago";
+                case < 1 * Minute: return timeSpan.Seconds == 1 ? "1 second ago" : timeSpan.Seconds + " seconds ago";
+                case < 2 * Minute: return "1 minute ago";
                 case < 1 * Hour: return timeSpan.Minutes + " minutes ago";
-                case < 2 * Hour: return "an hour ago";
+                case < 2 * Hour: return "1 hour ago";
                 case < 24 * Hour: return timeSpan.Hours + " hours ago";
                 case < 2 * Day: return "yesterday";
                 case < 30 * Day: return timeSpan.Days + " days ago";
                 case < 12 * Month: {
                     var months = Convert.ToInt32(Math.Floor((double) timeSpan.Days / 30));
-                    return months <= 1 ? "one month ago" : months + " months ago";
+                    return months <= 1 ? "1 month ago" : months + " months ago";
                 }
                 default: {
                     var years = Convert.ToInt32(Math.Floor((double) timeSpan.Days / 365));
-                    return years <= 1 ? "one year ago" : years + " years ago";
+                    return years <= 1 ? "1 year ago" : years + " years ago";
                 }
             }
         }
@@ -131,7 +131,7 @@ namespace BeatLeader {
         #region FormatUsername
 
         public static string FormatUserName(string userName) {
-            return $"<noparse>{userName}</noparse>";
+            return userName;
         }
 
         #endregion

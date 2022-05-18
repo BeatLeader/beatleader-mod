@@ -195,12 +195,12 @@ namespace BeatLeader.Utils
             }
             return replayModifiers;
         }
-        public static PracticeSettings GetPracticeSettings(this Replay replay)
+        public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay)
         {
             if (replay.info.startTime == 0) return null;
             else return new PracticeSettings(replay.info.startTime, replay.info.speed);
         }
-        public static PlayerSpecificSettings OverridePlayerSettings(this PlayerSpecificSettings settings, Replay replay)
+        public static PlayerSpecificSettings ModifyPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay)
         {
             return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
         }
@@ -213,8 +213,8 @@ namespace BeatLeader.Utils
 
             data.Init("Simple", difficulty, previewBeatmapLevel, environmentSettings,
                 playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
-                replay.GetModifiersFromReplay(), playerModel.playerData.playerSpecificSettings.OverridePlayerSettings(replay),
-                replay.GetPracticeSettings(), "Menu");
+                replay.GetModifiersFromReplay(), playerModel.playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
+                replay.GetPracticeSettingsFromReplay(), "Menu");
 
             return data;
         }
@@ -272,7 +272,7 @@ namespace BeatLeader.Utils
         {
             foreach (var item in replay.notes)
             {
-                if ((item.noteID == ID || item.noteID == ID - 30000) && item.spawnTime == time)
+                if ((item.noteID == ID || item.noteID == ID - 30000) && (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
                 {
                     return item;
                 }

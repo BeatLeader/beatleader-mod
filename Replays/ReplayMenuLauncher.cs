@@ -35,7 +35,6 @@ namespace BeatLeader.Replays
             _gameScenesManager.PushScenes(data, 0.7f);
             _replay = replay;
             _lastTransitionData = data;
-            Debug.LogWarning(replay.info.version);
             _startedAsReplay = true;
         }
         public void HandleMainGameSceneDidFinish(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupData, LevelCompletionResults levelCompletionResults)

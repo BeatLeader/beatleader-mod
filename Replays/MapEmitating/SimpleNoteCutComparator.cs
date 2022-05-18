@@ -26,7 +26,7 @@ namespace BeatLeader.Replays.MapEmitating
             }
         }
 
-        [Inject] public AudioTimeSyncController timeSyncController;
+        [Inject] protected readonly AudioTimeSyncController _timeSyncController;
 
         protected NoteEvent _noteCutEvent;
         protected SimpleNoteCutter _noteCutter;
@@ -44,7 +44,7 @@ namespace BeatLeader.Replays.MapEmitating
 
         public void Update()
         {
-            if (_initialized && availableForCut && timeSyncController != null && timeSyncController.songTime >= cutTime)
+            if (_initialized && availableForCut && _timeSyncController != null && _timeSyncController.songTime >= cutTime)
             {
                 if (_noteCutEvent != null && _noteCutEvent.noteCutInfo != null)
                 {
@@ -68,12 +68,13 @@ namespace BeatLeader.Replays.MapEmitating
         }
         public void HandleNoteControllerNoteWasCut()
         {
-            _noteController.noteWasCutEvent.Remove(this);
+            SetUnavailableForCut();
             Destroy(_noteCutter);
             _isFinished = true;
         }
         public void HandleNoteControllerNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
+            _noteController.noteWasCutEvent.Remove(this);
             HandleNoteControllerNoteWasCut();
         }
     }

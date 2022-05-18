@@ -18,49 +18,53 @@ namespace BeatLeader.Replays.MapEmitating
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] protected readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData;
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController;
+        [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
+        [Inject] protected readonly IReadonlyBeatmapData _beatmapData;
 
         protected BombCutSoundEffectManager _bombCutSoundEffectManager;
-
-        protected float _lastRequestedTime;
-        protected bool _spawningDisabled;
 
         public void Start()
         {
             _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
-            //_beatmapObjectSpawnController.SetField("_disableSpawning", true);
         }
-        public void ToTime(float time, float duration = 0f)
+
+        public void Rewind(float time)
         {
-            _lastRequestedTime = time;
-            //_beatmapObjectSpawnController.SetField("_disableSpawning", true);
+            if (time == _audioTimeSyncController.songTime) return;
+            _audioTimeSyncController.Pause();
             KillAllSounds();
             DespawnAllBeatmapObjects();
-            _audioTimeSyncController.Pause();
-            _audioTimeSyncController.SeekTo(time);
-            _audioTimeSyncController.Resume();
+            _beatmapCallbacksUpdater.Pause();
             _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
             _beatmapCallbacksController.SetField("_startFilterTime", time);
-            foreach (var item in _beatmapCallbacksController.GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes"))
+            _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
+            var beatmapEvents = _beatmapCallbacksController.GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
+            foreach (var item in beatmapEvents)
             {
-                if (item.Value.lastProcessedNode != null && item.Value.lastProcessedNode.Value.time > time)
+                if (item.Value.lastProcessedNode != null && item.Value.lastProcessedNode.Value.time < time)
                 {
+                    Debug.LogWarning(item.Key);
                     item.Value.lastProcessedNode = null;
                 }
             }
-            //_beatmapObjectSpawnController.SetField("_disableSpawning", false);
+            _audioTimeSyncController.SeekTo(time);
+            _audioTimeSyncController.Resume();
+            _beatmapCallbacksUpdater.Resume();
         }
         public void SetTimeScale(float multiplier)
         {
             if (multiplier != _audioTimeSyncController.timeScale)
             {
+                _beatmapCallbacksUpdater.Pause();
                 KillAllSounds();
                 _audioTimeSyncController.SetField("_timeScale", multiplier);
                 var audioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
                 audioSource.pitch = multiplier;
                 Resources.FindObjectsOfTypeAll<AudioManagerSO>().First().musicPitch = 1f / multiplier;
+                _beatmapCallbacksUpdater.Resume();
             }
         }
-        protected void DespawnAllBeatmapObjects()
+        protected virtual void DespawnAllBeatmapObjects()
         {
             List<NoteController> notes = new List<NoteController>();
             List<ObstacleController> obstacles = new List<ObstacleController>();
@@ -93,7 +97,7 @@ namespace BeatLeader.Replays.MapEmitating
                 item.Dissolve(0f);
             }
         }
-        protected void KillAllSounds()
+        protected virtual void KillAllSounds()
         {
             List<NoteCutSoundEffect> notesSounds = new List<NoteCutSoundEffect>();
             notesSounds.AddRange(((MemoryPoolContainer<NoteCutSoundEffect>)_noteCutSoundEffectManager.GetType()

@@ -11,6 +11,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
+using BeatLeader.Replays.MapEmitating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Managers;
 using BeatLeader.Models;
@@ -24,6 +25,7 @@ namespace BeatLeader.Replays
     {
         [Inject] protected readonly PlaybackController _playbackController;
         [Inject] protected readonly PlayerCameraController _playerCameraController;
+        [Inject] protected readonly SimpleTimeController _simpleTimeController;
         [Inject] protected readonly MultiplatformUIManager _multiplatformUIManager;
         [Inject] protected readonly PauseMenuManager.InitData _pauseMenuInitData;
         [Inject] protected readonly Replay _replay;
@@ -31,13 +33,26 @@ namespace BeatLeader.Replays
         [UIObject("timeline")] protected GameObject _timelineContainer;
         [UIObject("song-preview-image")] protected GameObject _songPreviewImage;
 
+        [UIValue("camera-view-values")] protected List<object> _cameraViewValues = ((object[])Enum.GetNames(typeof(PlayerCameraController.CameraView))).ToList();
         [UIValue("total-song-time")] protected int _totalSongTime;
         [UIValue("song-name")] protected string _songName;
         [UIValue("song-author")] protected string _songAuthor;
         [UIValue("player-name")] protected string _playerName;
         [UIValue("timestamp")] protected string _timestamp;
 
-        [UIValue("pause-button-text")] protected string pauseButtonText
+        [UIValue("camera-view")]
+        protected string cameraView
+        {
+            get => _cameraView;
+            set
+            {
+                _cameraView = value;
+                Debug.LogWarning(value);
+                _playerCameraController.SetCameraView((PlayerCameraController.CameraView)Enum.Parse(typeof(PlayerCameraController.CameraView), value));
+            }
+        }
+        [UIValue("pause-button-text")]
+        protected string pauseButtonText
         {
             get => _pauseButtonText;
             set
@@ -46,7 +61,8 @@ namespace BeatLeader.Replays
                 NotifyPropertyChanged(nameof(pauseButtonText));
             }
         }
-        [UIValue("combined-song-time")] protected string combinedSongTime
+        [UIValue("combined-song-time")]
+        protected string combinedSongTime
         {
             get => _combinedSongTime;
             set
@@ -55,7 +71,8 @@ namespace BeatLeader.Replays
                 NotifyPropertyChanged(nameof(combinedSongTime));
             }
         }
-        [UIValue("time-scale")] protected int timeScaleValue
+        [UIValue("time-scale")]
+        protected int timeScaleValue
         {
             get => _timeScaleValue;
             set
@@ -65,38 +82,42 @@ namespace BeatLeader.Replays
                 _playbackController.SetTimeScale(value * 0.01f);
             }
         }
-        [UIValue("current-song-time")] protected int currentSongTime
+        [UIValue("current-song-time")]
+        protected int currentSongTime
         {
             get => _currentSongTime;
             set
             {
                 _currentSongTime = value;
-                _playbackController.ToTime(value);
+                _playbackController.Rewind(value);
                 Debug.LogWarning($"moving to {value}");
                 NotifyPropertyChanged(nameof(currentSongTime));
             }
         }
-        [UIValue("override-camera")] protected bool overrideCamera
+        [UIValue("override-camera")]
+        protected bool overrideCamera
         {
             get => _overrideCamera;
             set
             {
                 _overrideCamera = value;
-                _playerCameraController.SetEnabled(_overrideCamera);
+                _playerCameraController.SetEnabled(value);
             }
         }
-        [UIValue("camera-fov")] protected int fieldOfView
+        [UIValue("camera-fov")]
+        protected int fieldOfView
         {
             get => _fieldOfView;
             set
             {
                 _fieldOfView = value;
-                _playerCameraController.SetPlayerViewFOV(_fieldOfView);
+                _playerCameraController.SetCameraFOV(value);
             }
         }
 
         protected const string _viewPath = Plugin.ResourcesPath + ".BSML.PlaybackNonVRUI.bsml";
 
+        protected string _cameraView;
         protected string _pauseButtonText;
         protected string _combinedSongTime;
         protected int _timeScaleValue;
@@ -118,8 +139,8 @@ namespace BeatLeader.Replays
             _fieldOfView = _playerCameraController.fieldOfView;
             _songName = _previewBeatmapLevel.songName;
             _songAuthor = _previewBeatmapLevel.songAuthorName;
-            _playerName = _replay.info.playerName;
-            _timestamp = _replay.info.timestamp;
+            _playerName = "Replay by: " + _replay.info.playerName;
+            _timestamp = "Timestamp: " + _replay.info.timestamp;
 
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _multiplatformUIManager.floatingScreen.gameObject, this);
 
@@ -140,13 +161,15 @@ namespace BeatLeader.Replays
             _songPreviewImage.GetComponentInChildren<ImageView>().sprite = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
         }
 
-        [UIAction("menu-button-clicked")] protected void HandleMenuButtonClicked()
+        [UIAction("menu-button-clicked")]
+        protected void HandleMenuButtonClicked()
         {
-             _playbackController.EscapeToMenu();
+            _playbackController.EscapeToMenu();
             //Debug.LogWarning("Seeking to 10sec");
             //_playbackController.ToTime(10f);
         }
-        [UIAction("pause-button-clicked")] protected void HandlePauseButtonClicked()
+        [UIAction("pause-button-clicked")]
+        protected void HandlePauseButtonClicked()
         {
             _onPause = !_onPause;
             if (_onPause)

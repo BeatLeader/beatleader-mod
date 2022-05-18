@@ -70,7 +70,7 @@ namespace BeatLeader.Replays
             Container.Bind<InitData>().FromInstance(data).AsSingle();
             Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
             Container.BindMemoryPool<SimpleScoringInterlayer, SimpleScoringInterlayer.Pool>().WithInitialSize(30);
-            Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(50)
+            Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
                 .FromComponentInNewPrefab(new GameObject("ComparatorPrefab")
                 .AddComponent<SimpleNoteCutComparator>());
             if (data.noteSyncMode)
@@ -103,8 +103,7 @@ namespace BeatLeader.Replays
 
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlayerCameraController.InitData>().FromInstance(
-                new PlayerCameraController.InitData(data.smoothness, data.fieldOfView, 
-                data.forceRefreshCamera, data.overrideCamera)).AsSingle();
+                new PlayerCameraController.InitData(data.smoothness, data.fieldOfView, data.forceRefreshCamera)).AsSingle();
             Container.Bind<PlayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MultiplatformUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             if (Container.Resolve<InputManager>().currentInputSystem == InputManager.InputSystemType.FPFC)

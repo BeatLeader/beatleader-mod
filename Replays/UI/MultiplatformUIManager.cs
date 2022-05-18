@@ -52,7 +52,7 @@ namespace BeatLeader.Replays.Managers
                 _fpfc = true;
                 _fpfcUICamera = new GameObject("ReplayerGUICamera").AddComponent<Camera>();
                 _fpfcUICamera.depth = 15;
-                _fpfcUICamera.cullingMask = 67108864;
+                _fpfcUICamera.cullingMask = 67108864; //26 layer
                 _fpfcUICamera.orthographicSize = 2;
                 _fpfcUICamera.orthographic = true;
                 _fpfcUICamera.clearFlags = CameraClearFlags.Depth;

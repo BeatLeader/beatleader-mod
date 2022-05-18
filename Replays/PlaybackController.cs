@@ -27,6 +27,7 @@ namespace BeatLeader.Replays
         [Inject] protected readonly Replayer _replayer; 
         [Inject] protected readonly SaberManager _saberManager;
         [Inject] protected readonly SimpleTimeController _simpleTimeController;
+        [Inject] protected readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
 
         public float currentSongTime => _songTimeSyncController.songTime;
         public float totalSongTime => _songTimeSyncController.songEndTime;
@@ -46,17 +47,17 @@ namespace BeatLeader.Replays
             _gamePause.Resume();
             _beatmapObjectManager.PauseAllBeatmapObjects(false);
         }
-        public void EscapeToMenu()
+        public void Rewind(float time)
         {
-            _pauseMenuManager.MenuButtonPressed();
+            _simpleTimeController.Rewind(time);
         }
         public void SetTimeScale(float multiplier)
         {
             _simpleTimeController.SetTimeScale(multiplier);
         }
-        public void ToTime(float time)
+        public void EscapeToMenu()
         {
-            _simpleTimeController.ToTime(time);
+            _pauseMenuManager.MenuButtonPressed();
         }
     }
 }

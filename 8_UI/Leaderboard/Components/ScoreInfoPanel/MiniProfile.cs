@@ -1,3 +1,4 @@
+using System;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -25,7 +26,7 @@ namespace BeatLeader.Components {
         public void SetPlayer(Player player) {
             _playerAvatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             _countryFlag.SetCountry(player.country);
-            SetPromoLine(player.promoLine ?? "");
+            SetMessage(player.patreonFeatures?.message ?? "");
 
             PlayerName = FormatUtils.FormatUserName(player.name);
             PlayerGlobalRank = FormatUtils.FormatRank(player.rank, true);
@@ -35,15 +36,20 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region SetPromoLine
+        #region PatreonFeatures
 
-        private const float NoPromoOffset = 33.5f;
-        private const float PromoOffset = NoPromoOffset + 7;
+        private const float NoMessageOffset = 33.5f;
+        private const float MessageOffset = NoMessageOffset + 7;
 
-        private void SetPromoLine(string promoLine) {
-            PromoText = promoLine;
-            ShowPromo = !promoLine.IsEmpty();
-            YOffset = ShowPromo ? PromoOffset : NoPromoOffset;
+        private void SetMessage(string message) {
+            try {
+                MessageText = message;
+            } catch (Exception) {
+                MessageText = "";
+            }
+
+            ShowMessage = !message.IsEmpty();
+            YOffset = ShowMessage ? MessageOffset : NoMessageOffset;
         }
 
         #endregion
@@ -128,28 +134,28 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Promo
+        #region Message
 
-        private string _promoText = "";
+        private string _messageText = "";
 
-        [UIValue("promo-text"), UsedImplicitly]
-        public string PromoText {
-            get => _promoText;
+        [UIValue("message-text"), UsedImplicitly]
+        public string MessageText {
+            get => _messageText;
             set {
-                if (_promoText.Equals(value)) return;
-                _promoText = value;
+                if (_messageText.Equals(value)) return;
+                _messageText = value;
                 NotifyPropertyChanged();
             }
         }
 
-        private bool _showPromo;
+        private bool _showMessage;
 
-        [UIValue("show-promo"), UsedImplicitly]
-        public bool ShowPromo {
-            get => _showPromo;
+        [UIValue("show-message"), UsedImplicitly]
+        public bool ShowMessage {
+            get => _showMessage;
             set {
-                if (_showPromo.Equals(value)) return;
-                _showPromo = value;
+                if (_showMessage.Equals(value)) return;
+                _showMessage = value;
                 NotifyPropertyChanged();
             }
         }

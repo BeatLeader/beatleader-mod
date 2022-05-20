@@ -22,10 +22,10 @@
         </horizontal>
     </horizontal>
 
-    <vertical ignore-layout="true" anchor-pos-y="-18" active="~show-promo" pref-width="90">
+    <vertical ignore-layout="true" anchor-pos-y="-18" active="~show-message" pref-width="90">
         <horizontal pad="1" bg="round-rect-panel" bg-color="#000000EE" pref-height="6" horizontal-fit="PreferredSize">
             <horizontal>
-                <text text="~promo-text" overflow-mode="Ellipsis" word-wrapping="false" align="Center"/>
+                <text text="~message-text" overflow-mode="Ellipsis" word-wrapping="false" align="Center"/>
             </horizontal>
         </horizontal>
     </vertical>

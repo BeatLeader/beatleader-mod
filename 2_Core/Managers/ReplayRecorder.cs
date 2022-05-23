@@ -203,7 +203,6 @@ namespace BeatLeader {
             if (noteController.noteData.colorType != ColorType.None)
             {
                 var noteEvent = _noteEventCache[noteId];
-                noteEvent.eventTime = _timeSyncController.songTime;
                 noteEvent.eventType = NoteEventType.miss;
             }
         }
@@ -220,22 +219,15 @@ namespace BeatLeader {
         }
 
         private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo) {
-            
             var noteId = _noteIdCache[noteCutInfo.noteData];
-
             var noteEvent = _noteEventCache[noteId];
-            noteEvent.eventTime = _timeSyncController.songTime;
 
-            if (noteController.noteData.colorType == ColorType.None)
-            {
-                noteEvent.eventType = NoteEventType.bomb;
-            }
-
-            if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
+            if (noteCutInfo.allIsOK) {
                 noteEvent.eventType = NoteEventType.good;
                 noteEvent.noteCutInfo = new();
             } else {
-                noteEvent.eventType = NoteEventType.bad;
+                var isBomb = noteController.noteData.colorType == ColorType.None;
+                noteEvent.eventType = isBomb ? NoteEventType.bomb : NoteEventType.bad;
                 noteEvent.noteCutInfo = new();
                 PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
             }
@@ -246,14 +238,16 @@ namespace BeatLeader {
             List<float> sortedNoteTimesWithoutScoringElements,
             List<ScoringElement> sortedScoringElementsWithoutMultiplier
         ) {
+            var songTime = audioTimeSyncController.songTime;
             var nearestNotCutNoteTime = sortedNoteTimesWithoutScoringElements.Count > 0 ? sortedNoteTimesWithoutScoringElements[0] : float.MaxValue;
-            var skipAfter = audioTimeSyncController.songTime + 0.15f;
+            var skipAfter = songTime + 0.15f;
 
             foreach (var scoringElement in sortedScoringElementsWithoutMultiplier) {
                 if (scoringElement.time >= skipAfter && scoringElement.time <= nearestNotCutNoteTime) break;
                 
                 var noteId = _noteIdCache[scoringElement.noteData];
                 var noteEvent = _noteEventCache[noteId];
+                noteEvent.eventTime = songTime;
                 _replay.notes.Add(noteEvent);
             }
         }

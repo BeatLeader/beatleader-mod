@@ -245,6 +245,7 @@
     <Compile Include="7_Utils\RecorderUtils.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
     <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\HarmonyUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
     <Compile Include="7_Utils\UtilityClasses\CyclicBuffer.cs" />

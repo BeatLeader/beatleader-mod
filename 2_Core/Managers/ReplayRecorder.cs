@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using BeatLeader.Core.Managers.NoteEnhancer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using HarmonyLib;
 using IPA.Loader;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -15,6 +17,50 @@ using Transform = BeatLeader.Models.Transform;
 namespace BeatLeader {
     [UsedImplicitly]
     public class ReplayRecorder : IInitializable, IDisposable, ILateTickable {
+        #region Harmony
+
+        #region Patching
+
+        private static ReplayRecorder _instance;
+        private Harmony _harmony;
+
+        private void InitializePatches() {
+            _instance = this;
+            _harmony ??= new Harmony("BeatLeader.ReplayRecorder");
+            _harmony.Patch(LateUpdatePatchDescriptor);
+        }
+
+        private void DisposePatches() {
+            _harmony.UnpatchSelf();
+            _instance = null;
+        }
+
+        #endregion
+
+        #region ScoreController.LateUpdate Patch
+
+        private static HarmonyPatchDescriptor LateUpdatePatchDescriptor => new(
+            typeof(ScoreController).GetMethod(nameof(ScoreController.LateUpdate), BindingFlags.Instance | BindingFlags.Public),
+            typeof(ReplayRecorder).GetMethod(nameof(ScoreControllerLateUpdatePrefix), BindingFlags.Static | BindingFlags.NonPublic)
+        );
+
+        // ReSharper disable InconsistentNaming
+        private static void ScoreControllerLateUpdatePrefix(
+            AudioTimeSyncController ____audioTimeSyncController,
+            List<float> ____sortedNoteTimesWithoutScoringElements,
+            List<ScoringElement> ____sortedScoringElementsWithoutMultiplier
+        ) {
+            _instance.OnBeforeScoreControllerLateUpdate(
+                ____audioTimeSyncController,
+                ____sortedNoteTimesWithoutScoringElements,
+                ____sortedScoringElementsWithoutMultiplier
+            );
+        }
+
+        #endregion
+
+        #endregion
+        
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
@@ -56,6 +102,8 @@ namespace BeatLeader {
         private int _wallId;
 
         public void Initialize() {
+            InitializePatches();
+            
             _beatmapObjectManager.noteWasAddedEvent += OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent += OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent += OnNoteWasMissed;
@@ -76,6 +124,8 @@ namespace BeatLeader {
         }
 
         public void Dispose() {
+            DisposePatches();
+            
             _beatmapObjectManager.noteWasAddedEvent -= OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent -= OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent -= OnNoteWasMissed;
@@ -155,7 +205,6 @@ namespace BeatLeader {
                 var noteEvent = _noteEventCache[noteId];
                 noteEvent.eventTime = _timeSyncController.songTime;
                 noteEvent.eventType = NoteEventType.miss;
-                _replay.notes.Add(noteEvent);
             }
         }
 
@@ -182,8 +231,6 @@ namespace BeatLeader {
                 noteEvent.eventType = NoteEventType.bomb;
             }
 
-            _replay.notes.Add(noteEvent);
-            
             if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
                 noteEvent.eventType = NoteEventType.good;
                 noteEvent.noteCutInfo = new();
@@ -191,6 +238,23 @@ namespace BeatLeader {
                 noteEvent.eventType = NoteEventType.bad;
                 noteEvent.noteCutInfo = new();
                 PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
+            }
+        }
+
+        private void OnBeforeScoreControllerLateUpdate(
+            AudioTimeSyncController audioTimeSyncController,
+            List<float> sortedNoteTimesWithoutScoringElements,
+            List<ScoringElement> sortedScoringElementsWithoutMultiplier
+        ) {
+            var nearestNotCutNoteTime = sortedNoteTimesWithoutScoringElements.Count > 0 ? sortedNoteTimesWithoutScoringElements[0] : float.MaxValue;
+            var skipAfter = audioTimeSyncController.songTime + 0.15f;
+
+            foreach (var scoringElement in sortedScoringElementsWithoutMultiplier) {
+                if (scoringElement.time >= skipAfter && scoringElement.time <= nearestNotCutNoteTime) break;
+                
+                var noteId = _noteIdCache[scoringElement.noteData];
+                var noteEvent = _noteEventCache[noteId];
+                _replay.notes.Add(noteEvent);
             }
         }
 

@@ -106,7 +106,6 @@ namespace BeatLeader {
             
             _beatmapObjectManager.noteWasAddedEvent += OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent += OnObstacleWasSpawned;
-            _beatmapObjectManager.noteWasMissedEvent += OnNoteWasMissed;
             _beatmapObjectManager.noteWasCutEvent += OnNoteWasCut;
             _transitionSetup.didFinishEvent += OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent += OnBeatSpawnControllerDidInit;
@@ -128,7 +127,6 @@ namespace BeatLeader {
             
             _beatmapObjectManager.noteWasAddedEvent -= OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent -= OnObstacleWasSpawned;
-            _beatmapObjectManager.noteWasMissedEvent -= OnNoteWasMissed;
             _beatmapObjectManager.noteWasCutEvent -= OnNoteWasCut;
             _transitionSetup.didFinishEvent -= OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent -= OnBeatSpawnControllerDidInit;
@@ -175,7 +173,6 @@ namespace BeatLeader {
         }
 
         private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
-            
             var noteId = _noteId++;
             _noteIdCache[noteData] = noteId;
             NoteEvent noteEvent = new();
@@ -197,16 +194,6 @@ namespace BeatLeader {
             _wallEventCache[wallId] = wallEvent;
         }
 
-        private void OnNoteWasMissed(NoteController noteController) {
-            var noteId = _noteIdCache[noteController.noteData];
-
-            if (noteController.noteData.colorType != ColorType.None)
-            {
-                var noteEvent = _noteEventCache[noteId];
-                noteEvent.eventType = NoteEventType.miss;
-            }
-        }
-
         private void OnObstacle(ObstacleController obstacle)
         {
             if (_currentWallEvent == null)
@@ -221,16 +208,7 @@ namespace BeatLeader {
         private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo) {
             var noteId = _noteIdCache[noteCutInfo.noteData];
             var noteEvent = _noteEventCache[noteId];
-
-            if (noteCutInfo.allIsOK) {
-                noteEvent.eventType = NoteEventType.good;
-                noteEvent.noteCutInfo = new();
-            } else {
-                var isBomb = noteController.noteData.colorType == ColorType.None;
-                noteEvent.eventType = isBomb ? NoteEventType.bomb : NoteEventType.bad;
-                noteEvent.noteCutInfo = new();
-                PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
-            }
+            noteEvent.noteCutInfo = CreateNoteCutInfo(noteCutInfo);
         }
 
         private void OnBeforeScoreControllerLateUpdate(
@@ -245,7 +223,10 @@ namespace BeatLeader {
             foreach (var scoringElement in sortedScoringElementsWithoutMultiplier) {
                 if (scoringElement.time >= skipAfter && scoringElement.time <= nearestNotCutNoteTime) break;
                 
-                var noteId = _noteIdCache[scoringElement.noteData];
+                var noteData = scoringElement.noteData;
+                if (scoringElement is MissScoringElement && noteData.scoringType == NoteData.ScoringType.NoScore) continue;
+
+                var noteId = _noteIdCache[noteData];
                 var noteEvent = _noteEventCache[noteId];
                 noteEvent.eventTime = songTime;
                 _replay.notes.Add(noteEvent);
@@ -253,18 +234,34 @@ namespace BeatLeader {
         }
 
         private void OnScoringDidFinish(ScoringElement scoringElement) {
-            if (scoringElement is GoodCutScoringElement goodCut) {
-                CutScoreBuffer cutScoreBuffer = goodCut.GetField<CutScoreBuffer, GoodCutScoringElement>("_cutScoreBuffer");
-                SaberSwingRatingCounter saberSwingRatingCounter = cutScoreBuffer.GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
-                
-                var noteId = _noteIdCache[cutScoreBuffer.noteCutInfo.noteData];
-                
-                var cutEvent = _noteEventCache[noteId];
-                var noteCutInfo = cutEvent.noteCutInfo;
-                PopulateNoteCutInfo(noteCutInfo, cutScoreBuffer.noteCutInfo);
-                SwingRatingEnhancer.Enhance(noteCutInfo, saberSwingRatingCounter);
-                SwingRatingEnhancer.Reset(saberSwingRatingCounter);
+            var noteData = scoringElement.noteData;
+            var noteId = _noteIdCache[noteData];
+            var noteEvent = _noteEventCache[noteId];
+            var isBomb = noteData.colorType == ColorType.None;
+
+            switch (scoringElement) {
+                case MissScoringElement: {
+                    if (isBomb) return;
+                    noteEvent.eventType = NoteEventType.miss;
+                    break;
+                }
+                case BadCutScoringElement: {
+                    noteEvent.eventType = isBomb ? NoteEventType.bomb : NoteEventType.bad;
+                    break;
+                }
+                case GoodCutScoringElement goodCut: {
+                    var cutScoreBuffer = goodCut.GetField<CutScoreBuffer, GoodCutScoringElement>("_cutScoreBuffer");
+                    var saberSwingRatingCounter = cutScoreBuffer.GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
+                    SwingRatingEnhancer.Enhance(noteEvent.noteCutInfo, saberSwingRatingCounter);
+                    SwingRatingEnhancer.Reset(saberSwingRatingCounter);
+                    noteEvent.eventType = NoteEventType.good;
+                    break;
+                }
             }
+            
+            var gameScore = _scoreController.multipliedScore;
+            var calculatedScore = ScoreCalculator.CalculateScoreFromReplay(_replay);
+            Plugin.Log.Notice($"game: {gameScore} calc: {calculatedScore}   eq: {gameScore == calculatedScore}");
         }
 
         private void OnBeatSpawnControllerDidInit()
@@ -334,20 +331,22 @@ namespace BeatLeader {
             _currentPause = null;
         }
 
-        private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo) {
-            noteCutInfo.speedOK = cutInfo.speedOK;
-            noteCutInfo.directionOK = cutInfo.directionOK;
-            noteCutInfo.saberTypeOK = cutInfo.saberTypeOK;
-            noteCutInfo.wasCutTooSoon = cutInfo.wasCutTooSoon;
-            noteCutInfo.saberSpeed = cutInfo.saberSpeed;
-            noteCutInfo.saberDir = cutInfo.saberDir;
-            noteCutInfo.saberType = (int)cutInfo.saberType;
-            noteCutInfo.timeDeviation = cutInfo.timeDeviation;
-            noteCutInfo.cutDirDeviation = cutInfo.cutDirDeviation;
-            noteCutInfo.cutPoint = cutInfo.cutPoint;
-            noteCutInfo.cutNormal = cutInfo.cutNormal;
-            noteCutInfo.cutDistanceToCenter = cutInfo.cutDistanceToCenter;
-            noteCutInfo.cutAngle = cutInfo.cutAngle;
+        private static Models.NoteCutInfo CreateNoteCutInfo(NoteCutInfo cutInfo) {
+            return new Models.NoteCutInfo {
+                speedOK = cutInfo.speedOK,
+                directionOK = cutInfo.directionOK,
+                saberTypeOK = cutInfo.saberTypeOK,
+                wasCutTooSoon = cutInfo.wasCutTooSoon,
+                saberSpeed = cutInfo.saberSpeed,
+                saberDir = cutInfo.saberDir,
+                saberType = (int) cutInfo.saberType,
+                timeDeviation = cutInfo.timeDeviation,
+                cutDirDeviation = cutInfo.cutDirDeviation,
+                cutPoint = cutInfo.cutPoint,
+                cutNormal = cutInfo.cutNormal,
+                cutDistanceToCenter = cutInfo.cutDistanceToCenter,
+                cutAngle = cutInfo.cutAngle
+            };
         }
     }
 }

@@ -173,6 +173,8 @@ namespace BeatLeader {
         }
 
         private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
+            if (_stopRecording) { return; }
+
             var noteId = _noteId++;
             _noteIdCache[noteData] = noteId;
             NoteEvent noteEvent = new();
@@ -181,8 +183,9 @@ namespace BeatLeader {
             _noteEventCache[noteId] = noteEvent;
         }
 
-        private void OnObstacleWasSpawned(ObstacleController obstacleController)
-        {
+        private void OnObstacleWasSpawned(ObstacleController obstacleController) {
+            if (_stopRecording) { return; }
+
             var wallId = _wallId++;
             _wallCache[obstacleController] = wallId;
 
@@ -194,8 +197,9 @@ namespace BeatLeader {
             _wallEventCache[wallId] = wallEvent;
         }
 
-        private void OnObstacle(ObstacleController obstacle)
-        {
+        private void OnObstacle(ObstacleController obstacle) {
+            if (_stopRecording) { return; }
+
             if (_currentWallEvent == null)
             {
                 WallEvent wallEvent = _wallEventCache[_wallCache[obstacle]];
@@ -206,6 +210,8 @@ namespace BeatLeader {
         }
 
         private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo) {
+            if (_stopRecording) { return; }
+
             var noteId = _noteIdCache[noteCutInfo.noteData];
             var noteEvent = _noteEventCache[noteId];
             noteEvent.noteCutInfo = CreateNoteCutInfo(noteCutInfo);
@@ -216,6 +222,8 @@ namespace BeatLeader {
             List<float> sortedNoteTimesWithoutScoringElements,
             List<ScoringElement> sortedScoringElementsWithoutMultiplier
         ) {
+            if (_stopRecording) { return; }
+
             var songTime = audioTimeSyncController.songTime;
             var nearestNotCutNoteTime = sortedNoteTimesWithoutScoringElements.Count > 0 ? sortedNoteTimesWithoutScoringElements[0] : float.MaxValue;
             var skipAfter = songTime + 0.15f;
@@ -234,6 +242,8 @@ namespace BeatLeader {
         }
 
         private void OnScoringDidFinish(ScoringElement scoringElement) {
+            if (_stopRecording) { return; }
+
             var noteData = scoringElement.noteData;
             var noteId = _noteIdCache[noteData];
             var noteEvent = _noteEventCache[noteId];
@@ -258,10 +268,6 @@ namespace BeatLeader {
                     break;
                 }
             }
-            
-            var gameScore = _scoreController.multipliedScore;
-            var calculatedScore = ScoreCalculator.CalculateScoreFromReplay(_replay);
-            Plugin.Log.Notice($"game: {gameScore} calc: {calculatedScore}   eq: {gameScore == calculatedScore}");
         }
 
         private void OnBeatSpawnControllerDidInit()
@@ -272,6 +278,7 @@ namespace BeatLeader {
         private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
             _stopRecording = true;
+
             _replay.info.score = results.multipliedScore;
             MapEnhancer.energy = results.energy; 
             MapEnhancer.Enhance(_replay);
@@ -307,25 +314,27 @@ namespace BeatLeader {
             }
         }
 
-        private void OnPlayerHeightChange(float height)
-        {
+        private void OnPlayerHeightChange(float height) {
+            if (_stopRecording) { return; }
+
             AutomaticHeight automaticHeight = new();
             automaticHeight.height = height;
             automaticHeight.time = _timeSyncController.songTime;
 
             _replay.heights.Add(automaticHeight);
-
         }
 
-        private void OnPause()
-        {
+        private void OnPause() {
+            if (_stopRecording) { return; }
+
             _currentPause = new();
             _currentPause.time = _timeSyncController.songTime;
             _pauseStartTime = DateTime.Now;
         }
 
-        private void OnResume()
-        {
+        private void OnResume() {
+            if (_stopRecording) { return; }
+
             _currentPause.duration = DateTime.Now.ToUnixTime() - _pauseStartTime.ToUnixTime();
             _replay.pauses.Add(_currentPause);
             _currentPause = null;

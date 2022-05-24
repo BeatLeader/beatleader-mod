@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using UnityEngine;
 
@@ -40,7 +41,7 @@ namespace BeatLeader {
                 var notePriority = hasNextNote ? nextNote.eventTime : float.MaxValue;
                 var wallPriority = hasNextWall ? nextWall.time : float.MaxValue;
 
-                if (notePriority <= wallPriority) {
+                if (notePriority < wallPriority) {
                     ProcessNoteEvent(nextNote);
                     nextNoteIndex += 1;
                 } else {
@@ -70,16 +71,21 @@ namespace BeatLeader {
 
         private void ProcessBadCut(NoteEvent noteEvent) {
             _multiplierCounter.Decrease();
-            // Plugin.Log.Notice($"reeBad - m: {_multiplierCounter.Multiplier}");
         }
 
         private void ProcessGoodCut(NoteEvent noteEvent) {
             _multiplierCounter.Increase();
-            var before = GetBeforeCutScore(noteEvent.noteCutInfo.beforeCutRating);
-            var after = GetAfterCutScore(noteEvent.noteCutInfo.afterCutRating);
-            var acc = GetCutDistanceScore(noteEvent.noteCutInfo.cutDistanceToCenter);
-            var total = acc + before + after;
-            // Plugin.Log.Notice($"reeGood - b: {before} a: {after} a: {acc} t: {total} m: {_multiplierCounter.Multiplier}");
+            var before = GetBeforeCutScore(noteEvent);
+            var after = GetAfterCutScore(noteEvent);
+            var acc = GetCutDistanceScore(noteEvent);
+            var @fixed = 0;
+
+            var scoringType = (NoteData.ScoringType)(noteEvent.noteID / 10000 - 2);
+            if (scoringType == NoteData.ScoringType.BurstSliderElement) {
+                @fixed = 20;
+            }
+
+            var total = acc + before + after + @fixed;
             TotalScore += total * _multiplierCounter.Multiplier;
         }
 
@@ -129,26 +135,62 @@ namespace BeatLeader {
 
         #region GetRawScores
 
-        private const float MinBeforeCutScore = 0.0f;
-        private const float MinAfterCutScore = 0.0f;
-        private const float MaxBeforeCutScore = 70.0f;
-        private const float MaxAfterCutScore = 30.0f;
-        private const float MaxCenterDistanceCutScore = 15.0f;
-
-        private static int GetCutDistanceScore(float cutDistanceToCenter) {
-            return Mathf.RoundToInt(MaxCenterDistanceCutScore * (1f - Mathf.Clamp01(cutDistanceToCenter / 0.3f)));
+        private static NoteData.ScoringType ToScoringType(NoteEvent noteEvent) {
+            return (NoteData.ScoringType)(noteEvent.noteID / 10000 - 2);
         }
 
-        private static int GetBeforeCutScore(float beforeCutRating) {
+        private static int GetCutDistanceScore(NoteEvent noteEvent) {
+            float cutDistanceToCenter = noteEvent.noteCutInfo.cutDistanceToCenter;
+
+            var scoringType = ToScoringType(noteEvent);
+            var scoring = _scoreDefinitions[scoringType];
+
+            return Mathf.RoundToInt(scoring.maxCenterDistanceCutScore * (1f - Mathf.Clamp01(cutDistanceToCenter / 0.3f)));
+        }
+
+        private static int GetBeforeCutScore(NoteEvent noteEvent) {
+            float beforeCutRating = noteEvent.noteCutInfo.beforeCutRating;
             var rating = Mathf.Clamp01(beforeCutRating);
-            return Mathf.RoundToInt(Mathf.LerpUnclamped(MinBeforeCutScore, MaxBeforeCutScore, rating));
+
+            var scoringType = ToScoringType(noteEvent);
+            var scoring = _scoreDefinitions[scoringType];
+
+            return Mathf.RoundToInt(Mathf.LerpUnclamped(scoring.minBeforeCutScore, scoring.maxBeforeCutScore, rating));
         }
 
-        private static int GetAfterCutScore(float afterCutRating) {
+        private static int GetAfterCutScore(NoteEvent noteEvent) {
+            float afterCutRating = noteEvent.noteCutInfo.afterCutRating;
             var rating = Mathf.Clamp01(afterCutRating);
-            return Mathf.RoundToInt(Mathf.LerpUnclamped(MinAfterCutScore, MaxAfterCutScore, rating));
+
+            var scoringType = ToScoringType(noteEvent);
+            var scoring = _scoreDefinitions[scoringType];
+
+            return Mathf.RoundToInt(Mathf.LerpUnclamped(scoring.minAfterCutScore, scoring.maxAfterCutScore, rating));
         }
 
         #endregion
+
+        private static readonly Dictionary<NoteData.ScoringType, ScoreModel.NoteScoreDefinition> _scoreDefinitions = new Dictionary<NoteData.ScoringType, ScoreModel.NoteScoreDefinition>{
+            {
+                NoteData.ScoringType.Normal,
+                new ScoreModel.NoteScoreDefinition(15, 0, 70, 0, 30, 0)
+            },
+            {
+                NoteData.ScoringType.SliderHead,
+                new ScoreModel.NoteScoreDefinition(15, 0, 70, 30, 30, 0)
+            },
+            {
+                NoteData.ScoringType.SliderTail,
+                new ScoreModel.NoteScoreDefinition(15, 70, 70, 0, 30, 0)
+            },
+            {
+                NoteData.ScoringType.BurstSliderHead,
+                new ScoreModel.NoteScoreDefinition(15, 0, 70, 0, 0, 0)
+            },
+            {
+                NoteData.ScoringType.BurstSliderElement,
+                new ScoreModel.NoteScoreDefinition(0, 0, 0, 0, 0, 20)
+            }
+        };
     }
 }

@@ -20,10 +20,14 @@ namespace BeatLeader.Utils
 
         public static void WriteReplay(Replay replay)
         {
-            string filename = ToFileName(replay);
-            using BinaryWriter file = new(File.Open(filename, FileMode.OpenOrCreate), Encoding.UTF8);
-            ReplayEncoder.Encode(replay, file);
-            file.Close();
+            try {
+                string filename = ToFileName(replay);
+                using BinaryWriter file = new(File.Open(filename, FileMode.OpenOrCreate), Encoding.UTF8);
+                ReplayEncoder.Encode(replay, file);
+                file.Close();
+            } catch (Exception ex) {
+                Plugin.Log.Debug($"Unable to save replay. Reason: {ex.Message}");
+            }
         }
 
         public static string ToFileName(Replay replay)

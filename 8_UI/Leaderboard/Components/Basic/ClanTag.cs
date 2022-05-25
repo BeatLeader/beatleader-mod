@@ -12,6 +12,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterial();
             Clear();
+            InitializeText();
         }
 
         #endregion
@@ -24,13 +25,14 @@ namespace BeatLeader.Components {
 
         public void SetValue(Clan value) {
             SetColor(value.color);
-            textComponent.text = FormatUtils.FormatClanTag(value.tag);
+            _textComponent.text = FormatUtils.FormatClanTag(value.tag);
             _container.gameObject.SetActive(true);
+            SetPrefWidth();
         }
 
         public void SetAlpha(float alpha) {
             _alpha = alpha;
-            textComponent.alpha = alpha;
+            _textComponent.alpha = alpha;
             UpdateColor();
         }
 
@@ -38,10 +40,19 @@ namespace BeatLeader.Components {
 
         #region CalculatePreferredWidth
 
-        private const float MinWidth = 3.4f;
+        private const float MinWidth = 3.0f;
+        private const float MaxWidth = 5.5f;
+        private const float WidthPerCharacter = 1.0f;
+        private float _prefWidth = MinWidth;
 
         public float CalculatePreferredWidth() {
-            return Mathf.Max(MinWidth, textComponent.preferredWidth);
+            return _prefWidth;
+        }
+
+        private void SetPrefWidth() {
+            var unclamped = Mathf.Min(_textComponent.preferredWidth, WidthPerCharacter * _textComponent.text.Length);
+            _prefWidth = Mathf.Clamp(unclamped, MinWidth, MaxWidth);
+            _containerLayoutElement.preferredWidth = _prefWidth;
         }
 
         #endregion
@@ -49,14 +60,23 @@ namespace BeatLeader.Components {
         #region TextComponent
 
         [UIComponent("text-component"), UsedImplicitly]
-        public TextMeshProUGUI textComponent;
+        private TextMeshProUGUI _textComponent;
+
+        private void InitializeText() {
+            _textComponent.enableAutoSizing = true;
+            _textComponent.fontSizeMin = 0.1f;
+            _textComponent.fontSizeMax = 2.0f;
+        }
 
         #endregion
 
         #region Container
-        
+
         [UIComponent("container"), UsedImplicitly]
         private RectTransform _container;
+
+        [UIComponent("container"), UsedImplicitly]
+        private LayoutElement _containerLayoutElement;
 
         #endregion
 

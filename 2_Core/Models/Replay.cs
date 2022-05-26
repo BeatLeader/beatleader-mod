@@ -63,6 +63,7 @@ namespace BeatLeader.Models
 
     enum NoteEventType
     {
+        unknown = -1,
         good = 0,
         bad = 1,
         miss = 2,
@@ -74,7 +75,7 @@ namespace BeatLeader.Models
         public int noteID;
         public float eventTime;
         public float spawnTime;
-        public NoteEventType eventType;
+        public NoteEventType eventType = NoteEventType.unknown;
         public NoteCutInfo noteCutInfo;
     };
 

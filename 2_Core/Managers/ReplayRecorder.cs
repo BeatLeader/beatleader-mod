@@ -52,9 +52,7 @@ namespace BeatLeader {
 
         #region NoteIdHandling
 
-        private readonly Dictionary<int, NoteCutInfo> _cutInfoCache = new();
         private readonly Dictionary<int, NoteEvent> _noteEventCache = new();
-
         private readonly Dictionary<int, SwingRatingCounterDidFinishReceiver> _finishReceiversCache = new();
 
         private readonly Dictionary<NoteController, int> _noteIdCache = new();
@@ -73,7 +71,6 @@ namespace BeatLeader {
             _beatmapObjectManager.obstacleWasSpawnedEvent += OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent += OnNoteWasMissed;
             _beatmapObjectManager.noteWasCutEvent += OnNoteWasCut;
-            _beatmapObjectManager.noteWasDespawnedEvent += OnNoteWasDespawned;
             _transitionSetup.didFinishEvent += OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent += OnBeatSpawnControllerDidInit;
             _scoreController.comboBreakingEventHappenedEvent += OnBreakCombo;
@@ -92,7 +89,6 @@ namespace BeatLeader {
             _beatmapObjectManager.obstacleWasSpawnedEvent -= OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasMissedEvent -= OnNoteWasMissed;
             _beatmapObjectManager.noteWasCutEvent -= OnNoteWasCut;
-            _beatmapObjectManager.noteWasDespawnedEvent -= OnNoteWasDespawned;
             _transitionSetup.didFinishEvent -= OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent -= OnBeatSpawnControllerDidInit;
             _scoreController.comboBreakingEventHappenedEvent -= OnBreakCombo;
@@ -147,6 +143,8 @@ namespace BeatLeader {
         #region OnNoteWasSpawned
 
         private void OnNoteWasSpawned(NoteController noteController) {
+            if (_stopRecording) return;
+            
             var noteId = _noteId++;
             _noteIdCache[noteController] = noteId;
 
@@ -164,6 +162,8 @@ namespace BeatLeader {
 
         private void OnObstacleWasSpawned(ObstacleController obstacleController)
         {
+            if (_stopRecording) return;
+            
             var wallId = _wallId++;
             _wallCache[obstacleController] = wallId;
 
@@ -180,6 +180,8 @@ namespace BeatLeader {
         #region OnNoteWasMissed
 
         private void OnNoteWasMissed(NoteController noteController) {
+            if (_stopRecording) return;
+            
             var noteId = _noteIdCache[noteController];
 
             if (noteController.noteData.colorType != ColorType.None)
@@ -197,6 +199,8 @@ namespace BeatLeader {
 
         private void OnBreakCombo()
         {
+            if (_stopRecording) return;
+            
             PlayerHeadAndObstacleInteraction phaoi = _scoreController.GetField<PlayerHeadAndObstacleInteraction, ScoreController>("_playerHeadAndObstacleInteraction");
 
             if (phaoi != null && phaoi.intersectingObstacles.Count > 0)
@@ -213,30 +217,24 @@ namespace BeatLeader {
         #region OnNoteWasCut
 
         private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo) {
+            if (_stopRecording) return;
+            
             var noteId = _noteIdCache[noteController];
 
             var noteEvent = _noteEventCache[noteId];
             noteEvent.eventTime = _timeSyncController.songTime;
-
-            if (noteController.noteData.colorType == ColorType.None)
-            {
-                noteEvent.eventType = NoteEventType.bomb;
-            }
-
+            noteEvent.noteCutInfo = CreateNoteCutInfo(noteCutInfo);
+            
             _replay.notes.Add(noteEvent);
 
-            _cutInfoCache[noteId] = noteCutInfo;
-            
-            if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
+            if (noteCutInfo.allIsOK) {
                 noteEvent.eventType = NoteEventType.good;
-                noteEvent.noteCutInfo = new();
             } else {
-                noteEvent.eventType = NoteEventType.bad;
-                noteEvent.noteCutInfo = new();
-                PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
+                var isBomb = noteController.noteData.colorType == ColorType.None;
+                noteEvent.eventType = isBomb ? NoteEventType.bomb : NoteEventType.bad;
             }
+            
             if (noteCutInfo.swingRatingCounter == null) return;
-
             var counterDidFinishReceiver = new SwingRatingCounterDidFinishReceiver(noteId, OnSwingRatingCounterDidFinish);
             noteCutInfo.swingRatingCounter.RegisterDidFinishReceiver(counterDidFinishReceiver);
             _finishReceiversCache[noteId] = counterDidFinishReceiver;
@@ -247,29 +245,14 @@ namespace BeatLeader {
         #region OnSwingRatingCounterDidFinish
 
         private void OnSwingRatingCounterDidFinish(ISaberSwingRatingCounter swingRatingCounter, int noteId) {
+            if (_stopRecording) return;
+            
             swingRatingCounter.UnregisterDidFinishReceiver(_finishReceiversCache[noteId]);
-
-            NoteCutInfo cutInfo = _cutInfoCache[noteId];
-
-            ScoreModel.RawScoreWithoutMultiplier(swingRatingCounter, cutInfo.cutDistanceToCenter,
-                out var beforeCutRawScore,
-                out var afterCutRawScore,
-                out var cutDistanceRawScore
-            );
-
             var cutEvent = _noteEventCache[noteId];
             var noteCutInfo = cutEvent.noteCutInfo;
-            PopulateNoteCutInfo(noteCutInfo, cutInfo);
-            SwingRatingEnhancer.Enhance(noteCutInfo, (SaberSwingRatingCounter)swingRatingCounter);
-        }
-
-        #endregion
-
-        #region OnNoteWasDespawned
-
-        private void OnNoteWasDespawned(NoteController noteController) {
-            var noteId = _noteId++;
-            _noteIdCache[noteController] = noteId;
+            var counter = (SaberSwingRatingCounter) swingRatingCounter;
+            SwingRatingEnhancer.Enhance(noteCutInfo, counter);
+            SwingRatingEnhancer.Reset(counter);
         }
 
         #endregion
@@ -303,6 +286,8 @@ namespace BeatLeader {
         private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
             _stopRecording = true;
+            _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
+            
             _replay.info.score = _scoreController.prevFrameRawScore;
             MapEnhancer.energy = results.energy; 
             MapEnhancer.Enhance(_replay);
@@ -368,23 +353,25 @@ namespace BeatLeader {
         #endregion
 
         #region Utils
-        private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo) {
-            noteCutInfo.speedOK = cutInfo.speedOK;
-            noteCutInfo.directionOK = cutInfo.directionOK;
-            noteCutInfo.saberTypeOK = cutInfo.saberTypeOK;
-            noteCutInfo.wasCutTooSoon = cutInfo.wasCutTooSoon;
-            noteCutInfo.saberSpeed = cutInfo.saberSpeed;
-            noteCutInfo.saberDir = cutInfo.saberDir;
-            noteCutInfo.saberType = (int)cutInfo.saberType;
-            noteCutInfo.timeDeviation = cutInfo.timeDeviation;
-            noteCutInfo.cutDirDeviation = cutInfo.cutDirDeviation;
-            noteCutInfo.cutPoint = cutInfo.cutPoint;
-            noteCutInfo.cutNormal = cutInfo.cutNormal;
-            noteCutInfo.cutDistanceToCenter = cutInfo.cutDistanceToCenter;
-            noteCutInfo.cutAngle = cutInfo.cutAngle;
+        
+        private static Models.NoteCutInfo CreateNoteCutInfo(NoteCutInfo cutInfo) {
+            return new Models.NoteCutInfo {
+                speedOK = cutInfo.speedOK,
+                directionOK = cutInfo.directionOK,
+                saberTypeOK = cutInfo.saberTypeOK,
+                wasCutTooSoon = cutInfo.wasCutTooSoon,
+                saberSpeed = cutInfo.saberSpeed,
+                saberDir = cutInfo.saberDir,
+                saberType = (int) cutInfo.saberType,
+                timeDeviation = cutInfo.timeDeviation,
+                cutDirDeviation = cutInfo.cutDirDeviation,
+                cutPoint = cutInfo.cutPoint,
+                cutNormal = cutInfo.cutNormal,
+                cutDistanceToCenter = cutInfo.cutDistanceToCenter,
+                cutAngle = cutInfo.cutAngle
+            };
         }
-
-        private static MethodBase ScoreSaber_playbackEnabled = AccessTools.Method("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted:Prefix");
+        
         #endregion
     }
 }

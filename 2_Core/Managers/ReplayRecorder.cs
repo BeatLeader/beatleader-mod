@@ -278,6 +278,8 @@ namespace BeatLeader {
         private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
             _stopRecording = true;
+            _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
+
 
             _replay.info.score = results.multipliedScore;
             MapEnhancer.energy = results.energy; 

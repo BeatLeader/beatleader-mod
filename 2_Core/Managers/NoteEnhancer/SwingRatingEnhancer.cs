@@ -1,5 +1,6 @@
 ﻿using IPA.Utilities;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace BeatLeader.Core.Managers.NoteEnhancer
 {
@@ -20,22 +21,34 @@ namespace BeatLeader.Core.Managers.NoteEnhancer
         public static Dictionary<SaberMovementData, PreSwingRatingContainer> preSwingMap = new();
         public static Dictionary<SaberSwingRatingCounter, PostSwingRatingContainer> postSwingMap = new();
 
-        public static void Enhance(Models.NoteCutInfo cutInfo, SaberSwingRatingCounter counter) {
-            SaberMovementData _saberMovementData = counter.GetField<SaberMovementData, SaberSwingRatingCounter>("_saberMovementData");
+        public static void Reset(SaberSwingRatingCounter counter) {
+            var saberMovementData = counter.GetField<SaberMovementData, SaberSwingRatingCounter>("_saberMovementData");
+            preSwingMap.Remove(saberMovementData);
+            postSwingMap.Remove(counter);
+        }
 
-            if (preSwingMap.ContainsKey(_saberMovementData)) {
-                cutInfo.beforeCutRating = preSwingMap[_saberMovementData].Value;
-            } else {
-                cutInfo.beforeCutRating = counter.beforeCutRating;
-            }
-            if (postSwingMap.ContainsKey(counter))
-            {
-                cutInfo.afterCutRating = postSwingMap[counter].Value;
-            }
-            else
-            {
-                cutInfo.afterCutRating = counter.afterCutRating;
-            }
+        public static void Enhance(Models.NoteCutInfo cutInfo, SaberSwingRatingCounter counter) {
+            cutInfo.beforeCutRating = GetBeforeCutSwingRating(counter);
+            cutInfo.afterCutRating = GetAfterCutSwingRating(counter);
+        }
+
+        private static float GetBeforeCutSwingRating(SaberSwingRatingCounter counter) {
+            var saberMovementData = counter.GetField<SaberMovementData, SaberSwingRatingCounter>("_saberMovementData");
+            var realBeforeCutRating = counter.beforeCutRating;
+            if (!preSwingMap.ContainsKey(saberMovementData)) return realBeforeCutRating;
+            var unclampedBeforeCutRating = preSwingMap[saberMovementData].Value;
+            return ChooseSwingRating(realBeforeCutRating, unclampedBeforeCutRating);
+        }
+
+        private static float GetAfterCutSwingRating(SaberSwingRatingCounter counter) {
+            var realAfterCutRating = counter.afterCutRating;
+            if (!postSwingMap.ContainsKey(counter)) return realAfterCutRating;
+            var unclampedAfterCutRating = postSwingMap[counter].Value;
+            return ChooseSwingRating(realAfterCutRating, unclampedAfterCutRating);
+        }
+
+        private static float ChooseSwingRating(float real, float unclamped) {
+            return real < 1 ? real : Mathf.Max(real, unclamped);
         }
     }
 }

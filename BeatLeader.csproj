@@ -216,6 +216,7 @@
     <Compile Include="2_Core\Managers\ReplayEnhancer\TrackingDeviceEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
+    <Compile Include="2_Core\Managers\ScoreCalculator.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
     <Compile Include="2_Core\Models\ScoreInfoPanelTab.cs" />

@@ -48,6 +48,10 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BeatmapEditor3D, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatmapEditor3D.dll</HintPath>
+    </Reference>
     <Reference Include="Colors">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
     </Reference>
@@ -216,6 +220,7 @@
     <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
     <Compile Include="0_Harmony\Temporary\BeatmapCallbacksControllerDebugger.cs" />
+    <Compile Include="0_Harmony\Temporary\TransitionHelperPatch.cs" />
     <Compile Include="0_Harmony\UIPatches\HideScoreModalOnPlay.cs" />
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />
@@ -307,39 +312,46 @@
     <Compile Include="8_UI\ReeUIComponent.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
+    <Compile Include="Replays\Camera\Poses\PlayerViewCameraPose.cs" />
+    <Compile Include="Replays\Camera\Poses\StaticCameraPose.cs" />
+    <Compile Include="Replays\Models\ICameraPoseProvider.cs" />
+    <Compile Include="Replays\Models\LockData.cs" />
+    <Compile Include="Replays\UI\UI2DManager.cs" />
     <EmbeddedResource Include="9_Resources\BSML\PlaybackVRUI.bsml" />
+    <Compile Include="Replays\Camera\Poses\FlyingCameraPose.cs" />
     <Compile Include="Replays\Managers\SceneTweaksManager.cs" />
     <Compile Include="Replays\MapEmitating\SimpleTimeController.cs" />
+    <Compile Include="Replays\SoftLocksController.cs" />
+    <Compile Include="Replays\Models\IPlaybackViewController.cs" />
     <Compile Include="Replays\UI\PlaybackVRViewController.cs" />
     <EmbeddedResource Include="9_Resources\BSML\PlaybackNonVRUI.bsml" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Replays\Managers\InputManager.cs" />
-    <Compile Include="Replays\Managers\MenuSabersManager.cs" />
     <Compile Include="Replays\UI\MultiplatformUIManager.cs" />
-    <Compile Include="Replays\Movement\BodyManager.cs" />
+    <Compile Include="Replays\Movement\VRControllersManager.cs" />
     <Compile Include="Replays\UI\PlaybackNonVRViewController.cs" />
-    <Compile Include="Replays\PlayerCameraController.cs" />
-    <Compile Include="Replays\ReplayManualInstaller.cs" />
-    <Compile Include="Replays\ReplayMenuLauncher.cs" />
-    <Compile Include="Replays\Scoring\Constructors\CutScoreBufferWithConstructor.cs" />
-    <Compile Include="Replays\Scoring\Constructors\GoodCutScoringElementWithConstructor.cs" />
-    <Compile Include="Replays\Scoring\SimpleScoringData.cs" />
+    <Compile Include="Replays\Camera\ReplayerCameraController.cs" />
+    <Compile Include="Replays\ReplayerManualInstaller.cs" />
+    <Compile Include="Replays\ReplayerMenuLauncher.cs" />
+    <Compile Include="Replays\MapEmitating\Scoring\Constructors\CutScoreBufferWithConstructor.cs" />
+    <Compile Include="Replays\MapEmitating\Scoring\Constructors\GoodCutScoringElementWithConstructor.cs" />
+    <Compile Include="Replays\MapEmitating\Scoring\SimpleScoringData.cs" />
     <Compile Include="Replays\SimpleAvatarController.cs" />
     <Compile Include="Replays\MapEmitating\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="Replays\MapEmitating\SimpleCutScoreEffectSpawner.cs" />
     <Compile Include="Replays\PlaybackController.cs" />
-    <Compile Include="Replays\Scoring\SimpleCutScoreBuffer.cs" />
-    <Compile Include="Replays\Scoring\SimpleCutScoringElement.cs" />
-    <Compile Include="Replays\Scoring\ReplayScoreController.cs" />
-    <Compile Include="Replays\Movement\FakeVRController.cs" />
+    <Compile Include="Replays\MapEmitating\Scoring\SimpleCutScoreBuffer.cs" />
+    <Compile Include="Replays\MapEmitating\Scoring\SimpleCutScoringElement.cs" />
+    <Compile Include="Replays\MapEmitating\Scoring\ReplayerScoreController.cs" />
+    <Compile Include="Replays\Movement\VRControllerWrapper.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="Replays\Temporary stuff\EventsHandler.cs" />
     <Compile Include="Replays\Temporary stuff\ReplayMenuUI.cs" />
     <Compile Include="Replays\Movement\Replayer.cs" />
     <Compile Include="Replays\MapEmitating\SimpleNoteCutComparator.cs" />
     <Compile Include="Replays\MapEmitating\SimpleNoteCutter.cs" />
-    <Compile Include="Replays\Scoring\SimpleScoringInterlayer.cs" />
+    <Compile Include="Replays\MapEmitating\Scoring\SimpleScoringInterlayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
@@ -393,6 +405,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <EmbeddedResource Include="9_Resources\Icons\playback_icon.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

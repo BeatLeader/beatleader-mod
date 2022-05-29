@@ -11,7 +11,7 @@ namespace BeatLeader.Replays
 {
     public class SimpleAvatarController : MonoBehaviour
     {
-        [Inject] protected readonly BodyManager _bodyManager;
+        [Inject] protected readonly VRControllersManager _bodyManager;
 
         protected AvatarTweenController _avatarTweenController;
 

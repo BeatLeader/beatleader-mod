@@ -10,11 +10,11 @@ using BeatLeader.Utils;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class ReplayScoreController : MonoBehaviour, IScoreController
+    public class ReplayerScoreController : MonoBehaviour, IScoreController
     {
         [Inject] protected readonly Replay _replay;
         [Inject] protected readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
-        [Inject] protected readonly ReplayManualInstaller.InitData _initData;
+        [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
         [Inject] protected readonly SimpleScoringInterlayer.Pool _interlayerPool;
         [Inject] protected readonly SimpleCutScoringElement.Pool _simpleCutScoringElementPool;
 

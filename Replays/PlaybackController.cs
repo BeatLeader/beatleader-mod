@@ -18,7 +18,7 @@ namespace BeatLeader.Replays
 {
     public class PlaybackController : MonoBehaviour
     {
-        [Inject] protected readonly MenuSabersManager _menuSabersManager;
+        [Inject] protected readonly VRControllersManager _vrControllersManager;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
         [Inject] protected readonly IGamePause _gamePause;
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
@@ -34,7 +34,7 @@ namespace BeatLeader.Replays
 
         public void Start()
         {
-            _menuSabersManager.ShowMenuControllers();
+            _vrControllersManager.ShowMenuControllers();
         }
         public void Pause()
         {

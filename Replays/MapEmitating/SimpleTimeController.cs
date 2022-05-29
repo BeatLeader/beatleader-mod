@@ -43,7 +43,6 @@ namespace BeatLeader.Replays.MapEmitating
             {
                 if (item.Value.lastProcessedNode != null && item.Value.lastProcessedNode.Value.time < time)
                 {
-                    Debug.LogWarning(item.Key);
                     item.Value.lastProcessedNode = null;
                 }
             }

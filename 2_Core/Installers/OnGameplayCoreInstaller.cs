@@ -14,12 +14,11 @@ namespace BeatLeader.Installers
         public override void InstallBindings()
         {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
-            if (ReplayMenuLauncher.isStartedAsReplay)
+            if (ReplayerMenuLauncher.isStartedAsReplay)
             {
-                ReplayManualInstaller.Install(ReplayMenuLauncher.replay, new ReplayManualInstaller.InitData(true, true, true, true, 130, 2, true), Container);
+                ReplayerManualInstaller.Install(ReplayerMenuLauncher.replay, new ReplayerManualInstaller.InitData(true, true, true, 130, 2), Container);
             }
             else InitRecorder();
-            ReplayMenuLauncher.NotifyReplayHasEnded();
         }
 
         private void InitRecorder()
@@ -31,21 +30,21 @@ namespace BeatLeader.Installers
                 RecorderUtils.shouldRecord = false;
 
                 #region Gates
-                if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
-                {
-                    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
-                    return;
-                }
-                if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
-                {
-                    Plugin.Log.Debug("OST level detected. No recording.");
-                    return;
-                }
-                if (GetSetupDataSO()?.gameMode != "Solo")
-                {
-                    Plugin.Log.Debug("Not a \"Solo\" game mode");
-                    return;
-                }
+                //if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
+                //{
+                //    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
+                //    return;
+                //}
+                //if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
+                //{
+                //    Plugin.Log.Debug("OST level detected. No recording.");
+                //    return;
+                //}
+                //if (GetSetupDataSO()?.gameMode != "Solo")
+                //{
+                //    Plugin.Log.Debug("Not a \"Solo\" game mode");
+                //    return;
+                //}
                 #endregion
 
                 Plugin.Log.Debug("Starting a BL Replay Recorder.");

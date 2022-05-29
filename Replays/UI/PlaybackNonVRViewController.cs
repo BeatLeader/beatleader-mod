@@ -16,43 +16,43 @@ using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Managers;
 using BeatLeader.Models;
 using VRUIControls;
+using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replays.UI
 {
-    public class PlaybackNonVRViewController : NotifiableSingleton<PlaybackNonVRViewController>
+    public class PlaybackNonVRViewController : NotifiableSingleton<PlaybackNonVRViewController>, IPlaybackViewController
     {
         [Inject] protected readonly PlaybackController _playbackController;
-        [Inject] protected readonly PlayerCameraController _playerCameraController;
+        [Inject] protected readonly ReplayerCameraController _cameraController;
         [Inject] protected readonly SimpleTimeController _simpleTimeController;
-        [Inject] protected readonly MultiplatformUIManager _multiplatformUIManager;
         [Inject] protected readonly PauseMenuManager.InitData _pauseMenuInitData;
+        [Inject] protected readonly UI2DManager _ui2DManager;
+        [Inject] protected readonly InputManager _inputManager;
         [Inject] protected readonly Replay _replay;
 
         [UIObject("timeline")] protected GameObject _timelineContainer;
         [UIObject("song-preview-image")] protected GameObject _songPreviewImage;
 
-        [UIValue("camera-view-values")] protected List<object> _cameraViewValues = ((object[])Enum.GetNames(typeof(PlayerCameraController.CameraView))).ToList();
+        [UIValue("camera-view-values")] protected List<object> _cameraViewValues;
         [UIValue("total-song-time")] protected int _totalSongTime;
         [UIValue("song-name")] protected string _songName;
         [UIValue("song-author")] protected string _songAuthor;
         [UIValue("player-name")] protected string _playerName;
         [UIValue("timestamp")] protected string _timestamp;
 
-        [UIValue("camera-view")]
-        protected string cameraView
+        [UIValue("camera-view")] protected string cameraView
         {
             get => _cameraView;
             set
             {
                 _cameraView = value;
                 Debug.LogWarning(value);
-                _playerCameraController.SetCameraView((PlayerCameraController.CameraView)Enum.Parse(typeof(PlayerCameraController.CameraView), value));
+                _cameraController.SetCameraPose(value);
             }
         }
-        [UIValue("pause-button-text")]
-        protected string pauseButtonText
+        [UIValue("pause-button-text")] protected string pauseButtonText
         {
             get => _pauseButtonText;
             set
@@ -61,8 +61,7 @@ namespace BeatLeader.Replays
                 NotifyPropertyChanged(nameof(pauseButtonText));
             }
         }
-        [UIValue("combined-song-time")]
-        protected string combinedSongTime
+        [UIValue("combined-song-time")] protected string combinedSongTime
         {
             get => _combinedSongTime;
             set
@@ -71,8 +70,7 @@ namespace BeatLeader.Replays
                 NotifyPropertyChanged(nameof(combinedSongTime));
             }
         }
-        [UIValue("time-scale")]
-        protected int timeScaleValue
+        [UIValue("time-scale")] protected int timeScaleValue
         {
             get => _timeScaleValue;
             set
@@ -82,8 +80,7 @@ namespace BeatLeader.Replays
                 _playbackController.SetTimeScale(value * 0.01f);
             }
         }
-        [UIValue("current-song-time")]
-        protected int currentSongTime
+        [UIValue("current-song-time")] protected int currentSongTime
         {
             get => _currentSongTime;
             set
@@ -94,57 +91,48 @@ namespace BeatLeader.Replays
                 NotifyPropertyChanged(nameof(currentSongTime));
             }
         }
-        [UIValue("override-camera")]
-        protected bool overrideCamera
-        {
-            get => _overrideCamera;
-            set
-            {
-                _overrideCamera = value;
-                _playerCameraController.SetEnabled(value);
-            }
-        }
-        [UIValue("camera-fov")]
-        protected int fieldOfView
+        [UIValue("camera-fov")] protected int fieldOfView
         {
             get => _fieldOfView;
             set
             {
                 _fieldOfView = value;
-                _playerCameraController.SetCameraFOV(value);
+                _cameraController.SetCameraFOV(value);
             }
         }
 
         protected const string _viewPath = Plugin.ResourcesPath + ".BSML.PlaybackNonVRUI.bsml";
 
+        protected FloatingScreen _floatingScreen;
         protected string _cameraView;
         protected string _pauseButtonText;
         protected string _combinedSongTime;
         protected int _timeScaleValue;
         protected int _currentSongTime;
         protected int _fieldOfView;
-        protected bool _overrideCamera;
 
         protected bool _initialized;
         protected bool _onPause;
 
         protected IPreviewBeatmapLevel _previewBeatmapLevel => _pauseMenuInitData.previewBeatmapLevel;
 
-        public void Start()
+        public void Init()
         {
             _totalSongTime = (int)_playbackController.totalSongTime;
             _pauseButtonText = "Pause";
             _timeScaleValue = 100;
-            _overrideCamera = _playerCameraController.overrideCamera;
-            _fieldOfView = _playerCameraController.fieldOfView;
+            _fieldOfView = _cameraController.fieldOfView;
             _songName = _previewBeatmapLevel.songName;
             _songAuthor = _previewBeatmapLevel.songAuthorName;
             _playerName = "Replay by: " + _replay.info.playerName;
             _timestamp = "Timestamp: " + _replay.info.timestamp;
+            _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.name));
+            cameraView = "PlayerView";
 
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _multiplatformUIManager.floatingScreen.gameObject, this);
+            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(200, 200), false, new UnityEngine.Vector3(-1.93f, -0.67f), UnityEngine.Quaternion.identity);
+            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _floatingScreen.gameObject, this);
+            _ui2DManager.AddObject(_floatingScreen.gameObject);
 
-            //(_timelineContainer.transform.Find("BSMLSlider") as RectTransform).anchorMin = new Vector2(0.35f, 0);
             Task.Run(LoadImage);
             _initialized = true;
         }
@@ -152,6 +140,11 @@ namespace BeatLeader.Replays
         {
             if (_initialized)
             {
+                if (Input.GetKeyDown(KeyCode.C))
+                {
+                    //_inputManager.SwitchInputSystem();
+                    InputManager.SwitchCursor();
+                }
                 //currentSongTime = (int)_playbackController.currentSongTime;
                 combinedSongTime = $"{currentSongTime}:{_totalSongTime}";
             }
@@ -161,15 +154,11 @@ namespace BeatLeader.Replays
             _songPreviewImage.GetComponentInChildren<ImageView>().sprite = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
         }
 
-        [UIAction("menu-button-clicked")]
-        protected void HandleMenuButtonClicked()
+        [UIAction("menu-button-clicked")] protected void HandleMenuButtonClicked()
         {
             _playbackController.EscapeToMenu();
-            //Debug.LogWarning("Seeking to 10sec");
-            //_playbackController.ToTime(10f);
         }
-        [UIAction("pause-button-clicked")]
-        protected void HandlePauseButtonClicked()
+        [UIAction("pause-button-clicked")] protected void HandlePauseButtonClicked()
         {
             _onPause = !_onPause;
             if (_onPause)

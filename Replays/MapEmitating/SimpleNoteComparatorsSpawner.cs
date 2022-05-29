@@ -14,7 +14,7 @@ namespace BeatLeader.Replays.MapEmitating
     {
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly AudioTimeSyncController _songSyncController;
-        [Inject] protected readonly ReplayManualInstaller.InitData _initData;
+        [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
         [Inject] protected readonly SimpleNoteCutComparator.Pool _simpleNoteCutComparatorPool;
         [Inject] protected readonly Replay _replay;
 

@@ -1,4 +1,6 @@
-﻿using BeatLeader.Utils;
+﻿using System;
+using System.Collections.Generic;
+using BeatLeader.Utils;
 using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
@@ -9,66 +11,59 @@ namespace BeatLeader.Replays.Movement
 {
     public class Replayer : MonoBehaviour
     {
-        [Inject] protected readonly IScoreController _controller;
-        [Inject] protected readonly AudioTimeSyncController _songSyncController;
-        [Inject] protected readonly ReplayManualInstaller.InitData _initData;
-        [Inject] protected readonly BodyManager _bodyManager;
+        [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
+        [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
+        [Inject] protected readonly VRControllersManager _bodyManager;
         [Inject] protected readonly Replay _replay;
 
-        protected Frame _currentFrame;
-        protected int _currentFrameIndex;
+        protected LinkedList<Frame> _frames;
+        protected LinkedListNode<Frame> _lastProcessedNode;
         protected bool _lerpEnabled;
         protected bool _isPlaying;
 
-        private FakeVRController leftHand => _bodyManager.leftHand;
-        private FakeVRController rightHand => _bodyManager.rightHand;
-        private FakeVRController head => _bodyManager.head;
-        private Frame nextFrame => _replay.frames[_replay.frames.Count - 1 > _currentFrameIndex ? _currentFrameIndex + 1 : _currentFrameIndex];
-        private Frame previousFrame => _replay.frames[_currentFrameIndex > 0 ? _currentFrameIndex - 1 : _currentFrameIndex];
+        private VRController leftSaber => _bodyManager.leftSaber;
+        private VRController rightSaber => _bodyManager.rightSaber;
+        private VRController head => _bodyManager.head;
         public bool isPlaying => _isPlaying;
 
         public void Start()
         {
+            _frames = new LinkedList<Frame>(_replay.frames);
+            _lastProcessedNode = _frames.First;
             _lerpEnabled = _initData.movementLerp;
             _isPlaying = true;
         }
         public void Update()
         {
-            if (isPlaying)
+            if (isPlaying && _frames.TryGetFrameByTime(_audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
             {
-                int index = _replay.GetFrameByTime(_songSyncController.songTime, out _currentFrame);
-                _currentFrameIndex = index != 0 ? index : _currentFrameIndex;
-                PlayFrame(_currentFrame);
+                PlayFrame(frame);
             }
         }
-        private void PlayFrame(Frame frame)
+        public void PlayFrame(LinkedListNode<Frame> frame)
         {
-            if (frame != null && frame != previousFrame)
+            if (frame == null && frame == frame.Previous) return;
+
+            if (_lerpEnabled && frame.Next != null && frame != null)
             {
-                if (_lerpEnabled && nextFrame != null && frame != null)
-                {
-                    float slerp = ComputeLerp(frame.time, nextFrame.time);
-                    leftHand.SetTransform(
-                        Vector3.Lerp(frame.leftHand.position, nextFrame.leftHand.position, slerp),
-                        Quaternion.Lerp(frame.leftHand.rotation, nextFrame.leftHand.rotation, slerp));
-                    rightHand.SetTransform(
-                        Vector3.Lerp(frame.rightHand.position, nextFrame.rightHand.position, slerp),
-                        Quaternion.Lerp(frame.rightHand.rotation, nextFrame.rightHand.rotation, slerp));
-                    head.SetTransform(
-                        Vector3.Lerp(frame.head.position, nextFrame.head.position, slerp),
-                        Quaternion.Lerp(frame.head.rotation, nextFrame.head.rotation, slerp));
-                }
-                else
-                {
-                    leftHand.SetTransform(frame.leftHand);
-                    rightHand.SetTransform(frame.rightHand);
-                    head.SetTransform(frame.head);
-                }
+                float slerp = (float)((_audioTimeSyncController.songTime - frame.Value.time) / (frame.Next.Value.time - frame.Value.time));
+                leftSaber.transform.SetPositionAndRotation(
+                    Vector3.Lerp(frame.Value.leftHand.position, frame.Next.Value.leftHand.position, slerp),
+                    Quaternion.Lerp(frame.Value.leftHand.rotation, frame.Next.Value.leftHand.rotation, slerp));
+                rightSaber.transform.SetPositionAndRotation(
+                    Vector3.Lerp(frame.Value.rightHand.position, frame.Next.Value.rightHand.position, slerp),
+                    Quaternion.Lerp(frame.Value.rightHand.rotation, frame.Next.Value.rightHand.rotation, slerp));
+                head.transform.SetPositionAndRotation(
+                    Vector3.Lerp(frame.Value.head.position, frame.Next.Value.head.position, slerp),
+                    Quaternion.Lerp(frame.Value.head.rotation, frame.Next.Value.head.rotation, slerp));
             }
-        }
-        private float ComputeLerp(float currentTime, float nextTime)
-        {
-            return (float)((_songSyncController.songTime - currentTime) / Mathf.Max((float)1E-06, nextTime - currentTime));
+            else
+            {
+                leftSaber.transform.SetPositionAndRotation(frame.Value.leftHand.position, frame.Value.leftHand.rotation);
+                rightSaber.transform.SetPositionAndRotation(frame.Value.rightHand.position, frame.Value.rightHand.rotation);
+                head.transform.SetPositionAndRotation(frame.Value.head.position, frame.Value.head.rotation);
+            }
+            _lastProcessedNode = frame;
         }
     }
 }

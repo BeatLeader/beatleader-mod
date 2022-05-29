@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
@@ -138,6 +139,35 @@ namespace BeatLeader.Utils
         #endregion
 
         #region Replaying
+        public static SceneInfo CreateSceneInfo(string sceneName, bool disableRootObjects)
+        {
+            SceneInfo sceneInfo = new SceneInfo();
+            sceneInfo.SetField("_sceneName", sceneName);
+            sceneInfo.SetField("_disabledRootObjects", disableRootObjects);
+            return sceneInfo;
+        }
+        public static void ExpandScenesData(this ScenesTransitionSetupDataSO transitionData, SceneSetupData[] scenesToExpand)
+        {
+            SceneSetupData[] originalScenes = transitionData.GetField<SceneSetupData[], ScenesTransitionSetupDataSO>("_sceneSetupDataArray");
+            if (scenesToExpand == null || originalScenes == null) return;
+
+            List<SceneSetupData> combinedScenes = new List<SceneSetupData>();
+            combinedScenes.AddRange(originalScenes);
+            combinedScenes.AddRange(scenesToExpand);
+
+            transitionData.SetField("_sceneSetupDataArray", combinedScenes.ToArray());
+        }
+        public static void ExpandScenesData(this ScenesTransitionSetupDataSO transitionData, SceneInfo[] scenesToExpand)
+        {
+            SceneInfo[] originalScenes = transitionData.GetProperty<SceneInfo[], ScenesTransitionSetupDataSO>("scenes");
+            if (scenesToExpand == null || originalScenes == null) return;
+
+            List<SceneInfo> combinedScenes = new List<SceneInfo>();
+            combinedScenes.AddRange(originalScenes);
+            combinedScenes.AddRange(scenesToExpand);
+
+            transitionData.SetProperty("scenes", combinedScenes.ToArray());
+        }
         public static GameplayModifiers GetModifiersFromReplay(this Replay replay)
         {
             ReplayModifiers replayModifiers = new ReplayModifiers();
@@ -215,6 +245,10 @@ namespace BeatLeader.Utils
                 playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(), playerModel.playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
                 replay.GetPracticeSettingsFromReplay(), "Menu");
+
+            //data.ExpandScenesData(new SceneInfo[] {
+            //CreateSceneInfo("BeatmapEditorGameplay", false)
+            //});
 
             return data;
         }
@@ -306,24 +340,33 @@ namespace BeatLeader.Utils
             }
             return default;
         }
-        public static int GetFrameByTime(this Replay replay, float time, out Frame frame)
+        public static LinkedListNode<Frame> GetFrameByTime(this LinkedList<Frame> frames, float time)
         {
-            for (int i = 0; i < replay.frames.Count; i++)
+            for (LinkedListNode<Frame> frame = frames.First; frame != null; frame = frame.Next)
             {
-                frame = replay.frames[i];
-                if (frame.time >= time && frame != null)
+                if (frame.Value.time >= time && frame != null)
                 {
-                    return i;
+                    return frame;
+                }
+            }
+            return null;
+        }
+        public static bool TryGetFrameByTime(this LinkedList<Frame> frames, float time, out LinkedListNode<Frame> frame)
+        {
+            for (frame = frames.First; frame != null; frame = frame.Next)
+            {
+                if (frame.Value.time >= time && frame != null)
+                {
+                    return true;
                 }
             }
             frame = null;
-            return 0;
+            return false;
         }
         public static Frame GetFrameByTime(this Replay replay, float time)
         {
-            for (int i = 0; i < replay.frames.Count; i++)
+            foreach (var frame in replay.frames)
             {
-                Frame frame = replay.frames[i];
                 if (frame.time >= time && frame != null)
                 {
                     return frame;

@@ -1,146 +1,86 @@
 ﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SiraUtil.Tools.FPFC;
+using System.Reflection;
+using IPA.Utilities;
+using System.Collections.Generic;
 using BeatLeader.Replays.Movement;
+using UnityEngine.EventSystems;
+using HMUI;
 using VRUIControls;
+using UnityEngine.UI;
 using UnityEngine;
+
 using Zenject;
 
 namespace BeatLeader.Replays.Managers
 {
-    public class InputManager : MonoBehaviour
+    public class InputManager : MonoBehaviour //require full rewrite
     {
-        [Inject] protected readonly VRControllersInputManager _vrControllersInputManager;
-        [Inject] protected readonly VRInputModule _inputModule;
-        [Inject] protected readonly MainCamera _mainCamera;
-        [Inject] protected readonly MenuSabersManager _menuSabersManager;
-        [Inject] protected readonly IFPFCSettings _fpfcSettings;
-        [Inject] protected readonly IVRPlatformHelper _platformHelper;
-
         public enum InputSystemType
         {
             VR,
             FPFC
         }
 
-        protected FakeVRController _pointer;
-        protected VRPointer _scenePointer;
-        protected Camera _inputBordersCamera;
+        [Inject] protected readonly SoftLocksController _softLocksController;
+        [Inject] protected readonly IVRPlatformHelper _platformHelper;
+        [Inject] protected readonly VRInputModule _inputModule;
+        [Inject] protected readonly DiContainer _container;
 
         protected InputSystemType _currentInputSystem;
-        protected bool _cursorWantsToAppear;
+        protected GameObject _inputSystemContainer;
 
         public InputSystemType currentInputSystem => _currentInputSystem;
+        public bool isInFPFC => _currentInputSystem == InputSystemType.FPFC;
 
         public void Awake()
         {
+            DisableBaseInput();
             if (_platformHelper.GetType() == typeof(DevicelessVRHelper))
             {
                 _currentInputSystem = InputSystemType.FPFC;
-
-                _pointer = new GameObject("Replayer2DPointer").AddComponent<FakeVRController>();
-                _pointer.node = UnityEngine.XR.XRNode.GameController;
-
-                _pointer.GetType().GetField("_vrControllersInputManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_pointer, _vrControllersInputManager);
-                AppearCursor();
-                //_fpfcSettings.Enabled = false;
-                _cursorWantsToAppear = true;
+                EnableCursor();
             }
             else
-            {
                 _currentInputSystem = InputSystemType.VR;
-                EnableInputSystem();
-            }
+            CreateInputSystem(_currentInputSystem);
         }
-        public void OnDestroy()
+        protected virtual void CreateInputSystem(InputSystemType type)
         {
-            DisappearCursor();
+            if (type == InputSystemType.FPFC)
+            {
+                _inputSystemContainer = new GameObject("EventSystem");
+                _inputSystemContainer.AddComponent<EventSystem>();
+                _inputSystemContainer.AddComponent<StandaloneInputModule>();
+            }
+            else if (type == InputSystemType.VR)
+            {
+                _inputSystemContainer = Instantiate(_inputModule.gameObject);
+                _inputSystemContainer.gameObject.SetActive(true);
+                _container.Inject(_inputSystemContainer.GetComponent<VRInputModule>());
+            }
         }
-        public void LateUpdate()
+        protected virtual void DisableBaseInput()
         {
-            if (_pointer != null && _currentInputSystem == InputSystemType.FPFC)
-            {
-                if (_cursorWantsToAppear) AppearCursor();         
-                if (_scenePointer != null)
-                {
-                    if (_scenePointer.vrController != _pointer) ReplacePointer(_pointer);
-                }
-                else if (_menuSabersManager.initialized)
-                {
-                    _scenePointer = Resources.FindObjectsOfTypeAll<VRPointer>().First(x => x.vrController == _menuSabersManager.rightController);
-                }
-                if (_inputBordersCamera != null)
-                {
-                    _pointer.transform.position = _inputBordersCamera.ScreenToWorldPoint(Input.mousePosition);
-                }
-                //Debug.LogWarning(_pointer.enabled);
-                //if (Input.GetKeyDown(KeyCode.V))
-                //{
-                //    Debug.LogWarning("V pressed");
-                //    if (_cursorWantsToAppear)
-                //    {
-                //        _cursorWantsToAppear = false;
-                //        DisableInputSystem();
-                //        DisappearCursor();
-                //    }
-                //    else
-                //    {
-                //        _cursorWantsToAppear = true;
-                //        EnableInputSystem();
-                //        AppearCursor();
-                //    }
-                //}
-                //Debug.LogWarning(_mainCamera.transform.rotation);
-                //Debug.LogWarning(_mainCamera.transform.localEulerAngles);
-            }
-            else if (_currentInputSystem == InputSystemType.VR)
-            {
-                EnableInputSystem();
-            }
+            _softLocksController.InstallLock(_inputModule.GetComponent<EventSystem>(), SoftLocksController.LockMode.WhenRequired);
         }
-        public void AppearCursor()
+
+        public static void SwitchCursor()
+        {
+            if (Cursor.visible)
+                DisableCursor();
+            else
+                EnableCursor();
+        }
+        public static void EnableCursor()
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
-        public void DisappearCursor()
+        public static void DisableCursor()
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
-        }
-        public void EnableInputSystem()
-        {
-            if (_currentInputSystem == InputSystemType.VR)
-            {
-                _inputModule.enabled = true;
-            }
-            else if (_currentInputSystem == InputSystemType.FPFC)
-            {
-                _pointer.gameObject.SetActive(true);
-            }
-        }
-        public void DisableInputSystem()
-        {
-            if (_currentInputSystem == InputSystemType.VR)
-            {
-                _inputModule.enabled = false;
-            }
-            else if (_currentInputSystem == InputSystemType.FPFC)
-            {
-                _pointer.gameObject.SetActive(false);
-            }
-        }
-        public void ReplacePointer(VRController pointerVRController)
-        {
-            _scenePointer.GetType().GetField("_vrController", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_scenePointer, _pointer);
-        }
-        public void SetBordersCamera(Camera camera)
-        {
-            _inputBordersCamera = camera;
         }
     }
 }

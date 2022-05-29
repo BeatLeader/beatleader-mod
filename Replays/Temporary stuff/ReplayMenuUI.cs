@@ -31,7 +31,7 @@ namespace BeatLeader
         protected static bool _isPatched;
         protected static bool _inSearch;
 
-        public static ReplayMenuLauncher launcher;
+        public static ReplayerMenuLauncher launcher;
 
         public static GameObject LevelWrapContainer
         {

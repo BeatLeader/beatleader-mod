@@ -3,50 +3,45 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using BeatLeader.Utils;
-using BeatLeader.Models;
 using BeatLeader.Replays;
 using BeatLeader.Replays.Managers;
 using BeatLeader.Replays.MapEmitating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Scoring;
+using BeatLeader.Replays.UI;
+using SiraUtil.Tools.FPFC;
 using VRUIControls;
 using IPA.Utilities;
-using Zenject;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.Replays
 {
-    public class ReplayManualInstaller
+    public class ReplayerManualInstaller
     {
         public class InitData
         {
             public readonly bool compatibilityMode;
             public readonly bool noteSyncMode;
             public readonly bool movementLerp;
-            public readonly bool overrideCamera; //works only in fpfc
-            public readonly bool forceRefreshCamera; //allows to fix problems with camera re-enabling caused by RUE or another thing
-            public readonly int fieldOfView; 
-            public readonly int smoothness; //0-10, 0 - disabled
+            public readonly int fieldOfView;
+            public readonly int smoothness;
 
             public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode)
             {
                 this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
                 this.compatibilityMode = compatibilityMode;
-                this.overrideCamera = false;
                 this.fieldOfView = 0;
                 this.smoothness = 0;
-                this.forceRefreshCamera = false;
             }
-            public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode, bool overrideCamera, int fieldOfView, int smoothness, bool forceRefreshCamera)
+            public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode, int fieldOfView, int smoothness)
             {
                 this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
                 this.compatibilityMode = compatibilityMode;
-                this.overrideCamera = overrideCamera;
                 this.fieldOfView = fieldOfView;
                 this.smoothness = smoothness;
-                this.forceRefreshCamera = forceRefreshCamera;
             }
         }
 
@@ -64,25 +59,26 @@ namespace BeatLeader.Replays
             typeof(VRsenalScoreLogger),
         };
 
-        public void InstallBindings(Replay replay, InitData data, DiContainer Container)
+        public void InstallBindings(Models.Replay replay, InitData data, DiContainer Container)
         {
-            Container.Bind<Replay>().FromInstance(replay).AsSingle();
+            Container.Bind<Models.Replay>().FromInstance(replay).AsSingle();
             Container.Bind<InitData>().FromInstance(data).AsSingle();
+            Container.Bind<SoftLocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
             Container.BindMemoryPool<SimpleScoringInterlayer, SimpleScoringInterlayer.Pool>().WithInitialSize(30);
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
-                .FromComponentInNewPrefab(new GameObject("ComparatorPrefab")
-                .AddComponent<SimpleNoteCutComparator>());
+                .FromComponentInNewPrefab(new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>());
             if (data.noteSyncMode)
                 Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             #region ScoreController patch
-            var scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
-            var gameplayData = scoreController.gameObject;
+            ScoreController scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
+            GameObject gameplayData = scoreController.gameObject;
             gameplayData.SetActive(false);
 
             GameObject.Destroy(scoreController);
-            var modifiedScoreController = gameplayData.AddComponent<ReplayScoreController>().InjectAllFields(Container);
+            ReplayerScoreController modifiedScoreController = gameplayData.AddComponent<ReplayerScoreController>();
+            Container.Inject(modifiedScoreController);
 
             Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
             ZenjectExtension.InjectAllFieldsOfTypeOnFindedGameObjects<IScoreController>(scoreControllerBindings, Container);
@@ -92,32 +88,48 @@ namespace BeatLeader.Replays
             #endregion
 
             Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<MenuSabersManager>().FromNewComponentOnNewGameObject().AsSingle();
             if (!data.compatibilityMode)
                 Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<SimpleTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<BodyManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<VRControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             //Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<PlayerCameraController.InitData>().FromInstance(
-                new PlayerCameraController.InitData(data.smoothness, data.fieldOfView, data.forceRefreshCamera)).AsSingle();
-            Container.Bind<PlayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView,
+
+                new StaticCameraPose("LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0))),
+                new StaticCameraPose("RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0))),
+                new StaticCameraPose("BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.Euler(new Vector3(0, 0, 0))),
+                new StaticCameraPose("CenterView", new Vector3(0f, 1.7f, 0f), Quaternion.Euler(new Vector3(0, 0, 0)), InputManager.InputSystemType.FPFC),
+                new StaticCameraPose("CenterView", new Vector3(0f, 0f, 0f), Quaternion.Euler(new Vector3(0, 0, 0)), InputManager.InputSystemType.VR),
+
+                new FlyingCameraPose(new Vector2(0.5f, 0.5f), 4, true, "FreeView"),
+                new PlayerViewCameraPose(3)
+
+                )).AsSingle();
+            Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MultiplatformUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             if (Container.Resolve<InputManager>().currentInputSystem == InputManager.InputSystemType.FPFC)
             {
-                Container.Bind<PlaybackNonVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            }
-            else
-            {
-                Container.Bind<PlaybackVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                Container.Resolve<IFPFCSettings>().Enabled = false;
+                Assembly assembly = typeof(IFPFCSettings).Assembly;
+
+                Type smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
+                Type FPFCToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
+                Type simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
+
+                Container.Unbind<IFPFCSettings>();
+                Container.UnbindInterfacesTo(smoothCameraListenerType);
+                Container.UnbindInterfacesTo(FPFCToggleType);
+                //GameObject.Destroy((UnityEngine.Object)Container.TryResolve(simpleCameraControllerType));
             }
         }
-        public static void Install(Replay replay, InitData data, DiContainer Container)
+        public static void Install(Models.Replay replay, InitData data, DiContainer Container)
         {
-            new ReplayManualInstaller().InstallBindings(replay, data, Container);
+            new ReplayerManualInstaller().InstallBindings(replay, data, Container);
         }
     }
 }

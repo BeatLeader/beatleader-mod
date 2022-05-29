@@ -16,18 +16,27 @@ using VRUIControls;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replays.UI
 {
-    public class PlaybackVRViewController : NotifiableSingleton<PlaybackVRViewController>
+    public class PlaybackVRViewController : NotifiableSingleton<PlaybackVRViewController>, IPlaybackViewController
     {
         [Inject] protected readonly PlaybackController _playbackController;
-        [Inject] protected readonly PlayerCameraController _playerCameraController;
-        [Inject] protected readonly MultiplatformUIManager _multiplatformUIManager;
-
-        [UIObject("timeline")] protected GameObject _timelineContainer;
+        [Inject] protected readonly ReplayerCameraController _cameraController;
+        [Inject] protected readonly VRControllersManager _vrControllersManager;
 
         [UIValue("total-song-time")] protected int _totalSongTime;
+        [UIValue("camera-view-values")] protected List<object> _cameraViewValues;
 
+        [UIValue("camera-view")] protected string cameraView
+        {
+            get => _cameraView;
+            set
+            {
+                _cameraView = value;
+                Debug.LogWarning(value);
+                _cameraController.SetCameraPose(value);
+            }
+        }
         [UIValue("pause-button-text")] protected string pauseButtonText
         {
             get => _pauseButtonText;
@@ -57,7 +66,11 @@ namespace BeatLeader.Replays
         }
 
         protected const string _viewPath = Plugin.ResourcesPath + ".BSML.PlaybackVRUI.bsml";
+        protected readonly Vector3 _defaultLeftPinPosePos = new Vector3(0.35f, 0, 0);
+        protected readonly Vector3 _defaultRightPinPosePos = new Vector3(-0.75f, 0, 0);
 
+        protected FloatingScreen _floatingScreen;
+        protected string _cameraView;
         protected string _pauseButtonText;
         protected string _combinedSongTime;
         protected int _currentSongTime;
@@ -65,15 +78,18 @@ namespace BeatLeader.Replays
         protected bool _initialized;
         protected bool _onPause;
 
-        public void Start()
+        public void Init()
         {
-            Debug.LogWarning("Installing VR replayer interface");
             _totalSongTime = (int)_playbackController.totalSongTime;
             _pauseButtonText = "Pause";
+            _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.name));
 
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _multiplatformUIManager.floatingScreen.gameObject, this);
-
-            //(_timelineContainer.transform.Find("BSMLSlider") as RectTransform).anchorMin = new Vector2(0.35f, 0);
+            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(60, 60), false, new Vector3(), Quaternion.identity);
+            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _floatingScreen.gameObject, this);
+            _floatingScreen.transform.localPosition = _defaultLeftPinPosePos;
+            _floatingScreen.transform.localEulerAngles = new Vector3(90, 0, 0);
+            _floatingScreen.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            _floatingScreen.transform.SetParent(_vrControllersManager.leftHand.transform);
 
             _initialized = true;
         }
@@ -106,10 +122,7 @@ namespace BeatLeader.Replays
         }
         [UIAction("pin-button-clicked")] protected void HandlePinButtonClicked()
         {
-            if (_multiplatformUIManager.pinPose == MultiplatformUIManager.PinPose.Left)
-                _multiplatformUIManager.PinToPose(MultiplatformUIManager.PinPose.Right);
-            else if (_multiplatformUIManager.pinPose == MultiplatformUIManager.PinPose.Right)
-                _multiplatformUIManager.PinToPose(MultiplatformUIManager.PinPose.Left);
+
         }
     }
 }

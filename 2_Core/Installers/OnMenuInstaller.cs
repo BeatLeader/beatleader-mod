@@ -22,8 +22,8 @@ namespace BeatLeader.Installers
 
             BindLeaderboard();
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayMenuLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            ReplayMenuUI.launcher = Container.Resolve<ReplayMenuLauncher>();
+            Container.Bind<ReplayerMenuLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            ReplayMenuUI.launcher = Container.Resolve<ReplayerMenuLauncher>();
             // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }
 

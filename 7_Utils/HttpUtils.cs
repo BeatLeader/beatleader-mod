@@ -121,7 +121,7 @@ namespace BeatLeader.Utils {
             for (int i = 1; i <= retry; i++) {
                 string GetFailMessage(string reason) => $"Attempt {i}/{retry} failed! {reason}";
 
-                Task<string> ticketTask = Authentication.SteamTicket();
+                Task<string> ticketTask = Authentication.PlatformTicket(replay.info.platform);
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
 
                 string authToken = ticketTask.Result;

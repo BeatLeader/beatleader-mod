@@ -9,12 +9,11 @@ using HMUI;
 using VRUIControls;
 using UnityEngine.UI;
 using UnityEngine;
-
 using Zenject;
 
 namespace BeatLeader.Replays.Managers
 {
-    public class InputManager : MonoBehaviour //require full rewrite
+    public class InputManager : MonoBehaviour
     {
         public enum InputSystemType
         {

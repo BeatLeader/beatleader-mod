@@ -1,14 +1,9 @@
-﻿using BeatLeader.Models;
-using System.Collections.Generic;
-using System.Text;
-using Steamworks;
-using System;
-using UnityEngine;
-using LogLevel = IPA.Logging.Logger.Level;
+﻿using System;
 using System.Linq;
-using IPA.Utilities;
 using System.Threading.Tasks;
-using UnityEngine.XR;
+using BeatLeader.Models;
+using IPA.Utilities;
+using UnityEngine;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer
 {

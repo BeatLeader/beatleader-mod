@@ -1,11 +1,14 @@
 ﻿using System;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using Steamworks;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class ProfileManager : MonoBehaviour {
+
+        [Inject] IPlatformUserModel _platformUserModel;
+
         private Coroutine _profileTask;
 
         private void Start() {
@@ -17,7 +20,7 @@ namespace BeatLeader.DataManager {
             LeaderboardState.UploadRequest.FinishedEvent -= UpdateFromScore;
         }
 
-        private void UpdateProfile() {
+        private async void UpdateProfile() {
             if (_profileTask != null) {
                 StopCoroutine(_profileTask);
                 LeaderboardState.ProfileRequest.TryNotifyCancelled();
@@ -25,7 +28,7 @@ namespace BeatLeader.DataManager {
 
             LeaderboardState.ProfileRequest.NotifyStarted();
 
-            string userID = SteamUser.GetSteamID().m_SteamID.ToString();
+            string userID = (await _platformUserModel.GetUserInfo()).platformUserId;
             _profileTask = StartCoroutine(
                 HttpUtils.GetData<Player>(String.Format(BLConstants.PROFILE_BY_ID, userID),
                 profile => {

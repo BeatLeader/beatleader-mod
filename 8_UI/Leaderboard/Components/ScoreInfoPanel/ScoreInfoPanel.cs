@@ -47,9 +47,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.LogoWasPressedEvent += HideInstantly;
-            LeaderboardEvents.AvatarWasPressedEvent += HideInstantly;
-            LeaderboardEvents.SceneTransitionStartedEvent += HideInstantly;
+            LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
             LeaderboardState.ScoreStatsRequest.FinishedEvent += SetScoreStats;
@@ -58,9 +56,7 @@ namespace BeatLeader.Components {
 
         protected override void OnDispose() {
             LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.LogoWasPressedEvent -= HideInstantly;
-            LeaderboardEvents.AvatarWasPressedEvent -= HideInstantly;
-            LeaderboardEvents.SceneTransitionStartedEvent -= HideInstantly;
+            LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
             LeaderboardState.ScoreStatsRequest.FinishedEvent -= SetScoreStats;
@@ -69,6 +65,11 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
+
+        private void OnHideModalsEvent(ModalView except) {
+            if (_modal == null || _modal.Equals(except)) return;
+            _modal.Hide(false);
+        }
 
         private void OnLeaderboardVisibilityChanged(bool isVisible) {
             if (!isVisible) HideAnimated();
@@ -162,13 +163,9 @@ namespace BeatLeader.Components {
 
         private void ShowModal() {
             if (_modal == null) return;
+            LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
             _modal.Show(true, true);
             _modal.transform.position += ModalOffset;
-        }
-
-        private void HideInstantly() {
-            if (_modal == null) return;
-            _modal.Hide(false);
         }
 
         private void HideAnimated() {

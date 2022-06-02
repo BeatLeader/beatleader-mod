@@ -14,6 +14,8 @@ namespace BeatLeader.Components {
             LeaderboardState.ProfileRequest.FailedEvent += OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent += OnScoreUploadFailed;
+            LeaderboardState.VoteRequest.FinishedEvent += OnVoteFinished;
+            LeaderboardState.VoteRequest.FailedEvent += OnVoteFailed;
         }
 
         protected override void OnDispose() {
@@ -21,6 +23,8 @@ namespace BeatLeader.Components {
             LeaderboardState.ProfileRequest.FailedEvent -= OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent -= OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
+            LeaderboardState.VoteRequest.FinishedEvent -= OnVoteFinished;
+            LeaderboardState.VoteRequest.FailedEvent -= OnVoteFailed;
         }
 
         private void OnDisable() {
@@ -31,6 +35,14 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
+        
+        private void OnVoteFinished(VoteStatus result) {
+            ShowGoodNews("Your vote has been accepted!");
+        }
+
+        private void OnVoteFailed(string reason) {
+            ShowBadNews($"Vote failed! {reason}");
+        }
 
         private void OnProfileRequestFailed(string reason) {
             ShowBadNews($"Profile update failed! {reason}");

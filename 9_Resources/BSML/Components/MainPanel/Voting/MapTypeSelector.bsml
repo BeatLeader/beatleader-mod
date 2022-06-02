@@ -1,0 +1,8 @@
+<horizontal pref-height="5" spacing="1" horizontal-fit="PreferredSize">
+    <macro.define name="button-font-size" value="3"/>
+
+    <button text="Acc" font-size="~button-font-size" face-color="~acc-color" on-click="acc-on-click"/>
+    <button text="Tech" font-size="~button-font-size" face-color="~tech-color" on-click="tech-on-click"/>
+    <button text="Midspeed" font-size="~button-font-size" face-color="~midspeed-color" on-click="midspeed-on-click"/>
+    <button text="Stamina" font-size="~button-font-size" face-color="~stamina-color" on-click="stamina-on-click"/>
+</horizontal>

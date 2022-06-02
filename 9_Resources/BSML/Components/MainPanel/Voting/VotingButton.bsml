@@ -1,0 +1,6 @@
+<horizontal pref-height="8">
+    <vertical pref-width="8" spacing="1" pad="2" bg="round-rect-panel" bg-color="#000000AA">
+        <macro.define name="icon-height" value="4"/>
+        <clickable-image id="image-component" src="#TransparentPixel" preserve-aspect="true" on-click="voting-menu-on-click"/>
+    </vertical>
+</horizontal>

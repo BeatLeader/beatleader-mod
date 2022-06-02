@@ -1,5 +1,10 @@
 <vertical min-width="95" preferred-width="95" anchor-pos-x="3" anchor-pos-y="5" pad-right="5">
     <horizontal min-height="60" preferred-height="60" spacing="5">
+        <!--  VOTING MODAl  -->
+        <macro.as-host host="voting-panel">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        
         <!--  BEATLEADER INFO MODAl  -->
         <macro.as-host host="beat-leader-info">
             <macro.reparent transform="ui-component"/>
@@ -21,7 +26,11 @@
         </macro.as-host>
 
         <!--  NAVIGATION  -->
-        <vertical spacing="3" pad-top="10" vertical-fit="PreferredSize">
+        <vertical spacing="3" pad-top="4" vertical-fit="PreferredSize">
+            <macro.as-host host="voting-button">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+            
             <macro.as-host host="pagination">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>

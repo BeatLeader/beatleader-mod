@@ -237,8 +237,8 @@ namespace BeatLeader.Utils {
                 ["rankability"] = vote.Rankability,
                 ["ticket"] = authToken
             };
-            if (vote.StarRating > 0) query["stars"] = vote.StarRating;
-            if (vote.MapType != MapType.Unknown) query["type"] = (int) vote.MapType;
+            if (vote.HasStarRating) query["stars"] = vote.StarRating;
+            if (vote.HasMapType) query["type"] = (int) vote.MapType;
             var url = string.Format(BLConstants.VOTE, mapHash, mapDiff, mapMode, ToHttpParams(query));
             return new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST) {
                 downloadHandler = new DownloadHandlerBuffer()

@@ -60,6 +60,8 @@ namespace BeatLeader.Components {
 
         private void OnRankabilitySelectorStateChanged(RankabilitySelector.State state) {
             CanSubmit = state != RankabilitySelector.State.Undecided;
+            _showOptional = state == RankabilitySelector.State.ForRank;
+            UpdatePaginationButtons();
         }
 
         private void OnHideModalsEvent(ModalView except) {
@@ -96,6 +98,7 @@ namespace BeatLeader.Components {
         private const int FirstPage = 0;
         private const int LastPage = 1;
         private int _page = FirstPage;
+        private bool _showOptional;
 
         private int Page {
             get => _page;
@@ -104,11 +107,15 @@ namespace BeatLeader.Components {
                 if (value > LastPage) value = LastPage;
                 if (_page.Equals(value)) return;
                 _page = value;
-                HasPrevPage = value > FirstPage;
-                HasNextPage = value < LastPage;
                 Page0Active = _page == 0;
                 Page1Active = _page == 1;
+                UpdatePaginationButtons();
             }
+        }
+
+        private void UpdatePaginationButtons() {
+            HasPrevPage = _page > FirstPage;
+            HasNextPage = _showOptional && _page < LastPage;
         }
 
         [UIAction("prev-on-click"), UsedImplicitly]
@@ -187,8 +194,16 @@ namespace BeatLeader.Components {
 
         [UIAction("submit-on-click"), UsedImplicitly]
         private void SubmitOnClick() {
-            var vote = new Vote(_rankabilitySelector.FloatValue, _starsSelector.Value, _mapTypeSelector.CurrentState);
-            LeaderboardEvents.SubmitVote(vote);
+            switch (_rankabilitySelector.CurrentState) {
+                case RankabilitySelector.State.ForRank:
+                    LeaderboardEvents.SubmitVote(new Vote(_rankabilitySelector.FloatValue, _starsSelector.Value, _mapTypeSelector.CurrentState));
+                    break;
+                case RankabilitySelector.State.NotForRank:
+                    LeaderboardEvents.SubmitVote(new Vote(_rankabilitySelector.FloatValue));
+                    break;
+                case RankabilitySelector.State.Undecided:
+                default: return;
+            }
         }
 
         #endregion

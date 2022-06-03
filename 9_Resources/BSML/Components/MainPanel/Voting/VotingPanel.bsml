@@ -2,6 +2,7 @@
     <macro.define name="page-height" value="20"/>
     <macro.define name="l-arrow" value="&lt;pos=-0.4em&gt;◄"/>
     <macro.define name="r-arrow" value="►"/>
+    <macro.define name="arrow-width" value="8"/>
 
     <vertical pad="2" spacing="3" vertical-fit="PreferredSize">
         <!--    PAGE 1    -->
@@ -32,9 +33,13 @@
 
         <!--    BUTTONS    -->
         <horizontal spacing="5" horizontal-fit="PreferredSize">
-            <button pref-width="8" interactable="~has-prev-page" text="~l-arrow" on-click="prev-on-click"/>
+            <vertical pref-width="~arrow-width">
+                <button pref-width="~arrow-width" active="~has-prev-page" text="~l-arrow" on-click="prev-on-click"/>
+            </vertical>
             <button pref-width="16" interactable="~can-submit" text="Submit" on-click="submit-on-click"/>
-            <button pref-width="8" interactable="~has-next-page" text="~r-arrow" on-click="next-on-click"/>
+            <vertical pref-width="~arrow-width">
+                <button pref-width="~arrow-width" active="~has-next-page" text="~r-arrow" on-click="next-on-click"/>
+            </vertical>
         </horizontal>
     </vertical>
 </modal>

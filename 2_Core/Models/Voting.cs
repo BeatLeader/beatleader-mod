@@ -1,23 +1,26 @@
 ﻿namespace BeatLeader.Models {
-    public enum VoteStatus {
+    internal enum VoteStatus {
         CantVote = 1,
         CanVote = 2,
         Voted = 3,
     }
 
-    public readonly struct Vote {
+    internal readonly struct Vote {
         public readonly float Rankability;
         public readonly float StarRating;
         public readonly MapType MapType;
 
-        public Vote(float rankability, float starRating, MapType mapType) {
+        public bool HasStarRating => StarRating > 0;
+        public bool HasMapType => MapType != MapType.Unknown;
+        
+        public Vote(float rankability, float starRating = 0, MapType mapType = MapType.Unknown) {
             Rankability = rankability;
             StarRating = starRating;
             MapType = mapType;
         }
     }
 
-    public enum MapType {
+    internal enum MapType {
         Unknown = 0,
         Acc = 1,
         Tech = 2,

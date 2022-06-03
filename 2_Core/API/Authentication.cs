@@ -11,7 +11,7 @@ namespace BeatLeader.API {
         public static Task<string> PlatformTicket(string platform) {
             return platform switch {
                 "steam" => SteamTicket(),
-                "oculus" => OculusTicket(),
+                "oculuspc" => OculusTicket(),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -41,8 +41,8 @@ namespace BeatLeader.API {
 
         public static async Task<string> OculusTicket() {
             TaskCompletionSource<string> tcs = new();
-            Users.GetUserProof().OnComplete(delegate (Message<UserProof> message) {
-                tcs.TrySetResult(message.IsError ? null : message.Data.Value);
+            Users.GetAccessToken().OnComplete(delegate (Message<string> message) {
+                tcs.TrySetResult(message.IsError ? null : message.Data);
             });
             return await tcs.Task;
         }

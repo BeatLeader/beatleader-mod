@@ -76,7 +76,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                 if (userInfo.platform == UserInfo.Platform.Steam)
                     userPlatform = "steam";
                 else if (userInfo.platform == UserInfo.Platform.Oculus)
-                    userPlatform = "oculus";
+                    userPlatform = "oculuspc";
             }
             else
                 throw new InvalidOperationException("UserInfo is null.");

@@ -26,8 +26,7 @@ namespace BeatLeader {
 
         public RequestState State {
             get => _state;
-            set {
-                if (_state.Equals(value)) return;
+            private set {
                 _state = value;
                 StateChangedEvent?.Invoke(value);
             }

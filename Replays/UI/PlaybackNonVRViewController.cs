@@ -11,7 +11,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
-using BeatLeader.Replays.MapEmitating;
+using BeatLeader.Replays.Emulating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Managers;
 using BeatLeader.Models;
@@ -116,6 +116,9 @@ namespace BeatLeader.Replays.UI
 
         protected IPreviewBeatmapLevel _previewBeatmapLevel => _pauseMenuInitData.previewBeatmapLevel;
 
+        public FloatingScreen floatingScreen => _floatingScreen;
+        public GameObject root => gameObject;
+
         public void Init()
         {
             _totalSongTime = (int)_playbackController.totalSongTime;
@@ -127,11 +130,10 @@ namespace BeatLeader.Replays.UI
             _playerName = "Replay by: " + _replay.info.playerName;
             _timestamp = "Timestamp: " + _replay.info.timestamp;
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.name));
-            cameraView = "PlayerView";
 
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(200, 200), false, new UnityEngine.Vector3(-1.93f, -0.67f), UnityEngine.Quaternion.identity);
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _floatingScreen.gameObject, this);
-            _ui2DManager.AddObject(_floatingScreen.gameObject);
+            _floatingScreen.transform.localScale = new Vector2(0.7f, 0.7f);
 
             Task.Run(LoadImage);
             _initialized = true;
@@ -148,6 +150,14 @@ namespace BeatLeader.Replays.UI
                 //currentSongTime = (int)_playbackController.currentSongTime;
                 combinedSongTime = $"{currentSongTime}:{_totalSongTime}";
             }
+        }
+        public void Enable()
+        {
+            _floatingScreen.gameObject.SetActive(true);
+        }
+        public void Disable()
+        {
+            _floatingScreen.gameObject.SetActive(false);
         }
         protected async void LoadImage()
         {

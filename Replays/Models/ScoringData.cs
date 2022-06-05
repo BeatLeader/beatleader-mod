@@ -4,7 +4,7 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class SimpleScoringData
+    public class ScoringData
     {
         public readonly NoteData noteData;
         public readonly NoteEvent noteEvent;
@@ -13,8 +13,8 @@ namespace BeatLeader.Replays.Scoring
         public readonly Quaternion noteRotation;
         public readonly Vector3 notePosition;
 
-        public SimpleScoringData() { }
-        public SimpleScoringData(NoteController noteController, NoteEvent noteEvent)
+        public ScoringData() { }
+        public ScoringData(NoteController noteController, NoteEvent noteEvent)
         {
             this.noteData = noteController.noteData;
             this.noteEvent = noteEvent;
@@ -23,7 +23,7 @@ namespace BeatLeader.Replays.Scoring
             this.noteRotation = noteController.noteTransform.localRotation;
             this.notePosition = noteController.noteTransform.localPosition;
         }
-        public SimpleScoringData(NoteData noteData, NoteEvent noteEvent, Quaternion worldRotation, Quaternion inverseWorldRotation, Quaternion noteRotation, Vector3 notePosition)
+        public ScoringData(NoteData noteData, NoteEvent noteEvent, Quaternion worldRotation, Quaternion inverseWorldRotation, Quaternion noteRotation, Vector3 notePosition)
         {
             this.noteData = noteData;
             this.noteEvent = noteEvent;

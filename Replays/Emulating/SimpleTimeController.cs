@@ -8,7 +8,7 @@ using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.MapEmitating
+namespace BeatLeader.Replays.Emulating
 {
     public class SimpleTimeController : MonoBehaviour
     {
@@ -18,7 +18,8 @@ namespace BeatLeader.Replays.MapEmitating
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] protected readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData;
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController;
-        [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
+        [Inject] protected readonly GameSongController _songController;
+        [Inject] protected readonly RescoreInvoker _rescoreInvoker;
         [Inject] protected readonly IReadonlyBeatmapData _beatmapData;
 
         protected BombCutSoundEffectManager _bombCutSoundEffectManager;
@@ -27,14 +28,13 @@ namespace BeatLeader.Replays.MapEmitating
         {
             _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
         }
-
         public void Rewind(float time)
         {
             if (time == _audioTimeSyncController.songTime) return;
-            _audioTimeSyncController.Pause();
+            _rescoreInvoker.Rescore(0, time);
+            _songController.PauseSong();
             KillAllSounds();
             DespawnAllBeatmapObjects();
-            _beatmapCallbacksUpdater.Pause();
             _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
             _beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
@@ -46,24 +46,23 @@ namespace BeatLeader.Replays.MapEmitating
                     item.Value.lastProcessedNode = null;
                 }
             }
-            _audioTimeSyncController.SeekTo(time);
-            _audioTimeSyncController.Resume();
-            _beatmapCallbacksUpdater.Resume();
+            _songController.SeekTo(time);
+            _songController.ResumeSong();
         }
         public void SetTimeScale(float multiplier)
         {
             if (multiplier != _audioTimeSyncController.timeScale)
             {
-                _beatmapCallbacksUpdater.Pause();
+                _songController.PauseSong();
                 KillAllSounds();
                 _audioTimeSyncController.SetField("_timeScale", multiplier);
                 var audioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
                 audioSource.pitch = multiplier;
                 Resources.FindObjectsOfTypeAll<AudioManagerSO>().First().musicPitch = 1f / multiplier;
-                _beatmapCallbacksUpdater.Resume();
+                _songController.ResumeSong();
             }
         }
-        protected virtual void DespawnAllBeatmapObjects()
+        protected void DespawnAllBeatmapObjects()
         {
             List<NoteController> notes = new List<NoteController>();
             List<ObstacleController> obstacles = new List<ObstacleController>();
@@ -96,7 +95,7 @@ namespace BeatLeader.Replays.MapEmitating
                 item.Dissolve(0f);
             }
         }
-        protected virtual void KillAllSounds()
+        protected void KillAllSounds()
         {
             List<NoteCutSoundEffect> notesSounds = new List<NoteCutSoundEffect>();
             notesSounds.AddRange(((MemoryPoolContainer<NoteCutSoundEffect>)_noteCutSoundEffectManager.GetType()

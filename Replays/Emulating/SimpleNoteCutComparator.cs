@@ -9,7 +9,7 @@ using UnityEngine;
 using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
 using Zenject;
 
-namespace BeatLeader.Replays.MapEmitating
+namespace BeatLeader.Replays.Emulating
 {
     public class SimpleNoteCutComparator : MonoBehaviour, INoteControllerNoteWasCutEvent
     {

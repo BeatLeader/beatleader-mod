@@ -16,17 +16,20 @@ namespace BeatLeader.Replays
     {
         public class InitData
         {
-            public ICameraPoseProvider[] poseProviders;
+            public readonly ICameraPoseProvider[] poseProviders;
+            public readonly string cameraStartPose;
             public readonly int fieldOfView;
 
-            public InitData(int fieldOfView)
+            public InitData(int fieldOfView, string cameraStartPose)
             {
                 this.fieldOfView = fieldOfView;
-                this.poseProviders = new ICameraPoseProvider[0];
+                this.cameraStartPose = cameraStartPose;
+                poseProviders = new ICameraPoseProvider[0];
             }
-            public InitData(int fieldOfView, params ICameraPoseProvider[] poseProviders)
+            public InitData(int fieldOfView, string cameraStartPose, params ICameraPoseProvider[] poseProviders)
             {
                 this.fieldOfView = fieldOfView;
+                this.cameraStartPose = cameraStartPose;
                 this.poseProviders = poseProviders;
             }
         }
@@ -76,6 +79,7 @@ namespace BeatLeader.Replays
             _fieldOfView = _inputManager.isInFPFC ? _data.fieldOfView : _fieldOfView;
             _poseProviders = _data.poseProviders.Where(x => x.availableSystems.Contains(_inputManager.currentInputSystem)).ToArray();
             InjectPoses();
+            SetCameraPose(_data.cameraStartPose);
 
             SetEnabled(true);
             _initialized = true;

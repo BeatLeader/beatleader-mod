@@ -14,6 +14,7 @@ namespace BeatLeader.Replays.Managers
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
         [Inject] protected readonly SoftLocksController _softLocksController;
         [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
+        [Inject] protected readonly StandardLevelGameplayManager _gameplayManager;
 
         public void Start()
         {
@@ -21,7 +22,8 @@ namespace BeatLeader.Replays.Managers
         }
         public void ApplyTweaks()
         {
-            //_softLocksController.InstallLock(_pauseMenuManager, SoftLocksController.LockMode.WhenRequired);
+            _softLocksController.InstallLock(_gameplayManager, SoftLocksController.LockMode.WhenRequired);
+            _softLocksController.InstallLock(_pauseMenuManager, SoftLocksController.LockMode.WhenRequired);
             if (_initData.noteSyncMode)
             {
                 Resources.FindObjectsOfTypeAll<CuttingManager>().FirstOrDefault().enabled = false;

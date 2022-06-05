@@ -8,7 +8,7 @@ using IPA.Utilities;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
-using BeatLeader.Replays.MapEmitating;
+using BeatLeader.Replays.Emulating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Managers;
 using UnityEngine;
@@ -20,14 +20,19 @@ namespace BeatLeader.Replays
     {
         [Inject] protected readonly VRControllersManager _vrControllersManager;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
-        [Inject] protected readonly IGamePause _gamePause;
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly PauseController _pauseController;
         [Inject] protected readonly AudioTimeSyncController _songTimeSyncController;
-        [Inject] protected readonly Replayer _replayer; 
-        [Inject] protected readonly SaberManager _saberManager;
+        [Inject] protected readonly Replayer _replayer;
         [Inject] protected readonly SimpleTimeController _simpleTimeController;
-        [Inject] protected readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
+
+        [Inject] protected readonly GameEnergyCounter _gameEnergyCounter;
+        [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
+        [Inject] protected readonly BeatmapObjectExecutionRatingsRecorder _beatmapObjectExecutionRatingsRecorder;
+        [Inject] protected readonly SongController _songController;
+        [Inject] protected readonly AudioListenerController _audioListenerController;
+        [Inject] protected readonly IScoreController _scoreController;
+        [Inject] protected readonly IGamePause _gamePause;
 
         public float currentSongTime => _songTimeSyncController.songTime;
         public float totalSongTime => _songTimeSyncController.songEndTime;
@@ -38,13 +43,22 @@ namespace BeatLeader.Replays
         }
         public void Pause()
         {
-            _gamePause.Pause(); 
+            _gameEnergyCounter.enabled = false;
+            _playerHeadAndObstacleInteraction.enabled = false;
+            _scoreController.SetEnabled(false);
+            _beatmapObjectExecutionRatingsRecorder.enabled = false;
+            _audioListenerController.Pause();
+            _songController.PauseSong();
             _beatmapObjectManager.PauseAllBeatmapObjects(true);
-            _saberManager.disableSabers = false;
         }
         public void Resume()
         {
-            _gamePause.Resume();
+            _gameEnergyCounter.enabled = true;
+            _playerHeadAndObstacleInteraction.enabled = true;
+            _scoreController.SetEnabled(true);
+            _beatmapObjectExecutionRatingsRecorder.enabled = true;
+            _audioListenerController.Resume();
+            _songController.ResumeSong();
             _beatmapObjectManager.PauseAllBeatmapObjects(false);
         }
         public void Rewind(float time)

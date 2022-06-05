@@ -141,7 +141,7 @@ namespace BeatLeader.Utils
         #region Replaying
         public static SceneInfo CreateSceneInfo(string sceneName, bool disableRootObjects)
         {
-            SceneInfo sceneInfo = new SceneInfo();
+            SceneInfo sceneInfo = (SceneInfo)ScriptableObject.CreateInstance("SceneInfo");
             sceneInfo.SetField("_sceneName", sceneName);
             sceneInfo.SetField("_disabledRootObjects", disableRootObjects);
             return sceneInfo;
@@ -264,7 +264,9 @@ namespace BeatLeader.Utils
         }
         public static async Task<List<Replay>> TryGetReplaysBySongInfoAsync(this IDifficultyBeatmap data)
         {
-            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
+            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName && 
+            replay.info.difficulty == data.difficulty.ToString() && 
+            replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
             if (replays != null)
             {
                 return replays;
@@ -284,7 +286,6 @@ namespace BeatLeader.Utils
                 Replay extractedReplay = await Task.Run(() => FileManager.ReadReplay(path));
                 if (filter(extractedReplay))
                 {
-
                     replays.Add(extractedReplay);
                 }
             }
@@ -302,6 +303,10 @@ namespace BeatLeader.Utils
         {
             return GetNoteEventByID(noteController.noteData.ComputeNoteID(), noteController.noteData.time, replay);
         }
+        public static WallEvent GetWallEvent(this ObstacleData obstacleData, Replay replay)
+        {
+            return GetWallEventByID(obstacleData.ComputeObstacleID(), obstacleData.time, replay);
+        }
         public static NoteEvent GetNoteEventByID(int ID, float time, Replay replay)
         {
             foreach (var item in replay.notes)
@@ -311,7 +316,18 @@ namespace BeatLeader.Utils
                     return item;
                 }
             }
-            return default;
+            return null;
+        }
+        public static WallEvent GetWallEventByID(int ID, float time, Replay replay)
+        {
+            foreach (var item in replay.walls)
+            {
+                if (item.wallID == ID && (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
+                {
+                    return item;
+                }
+            }
+            return null;
         }
         public static List<NoteEvent> GetAllNoteEventsForNoteController(this NoteController controller, Replay replay)
         {
@@ -473,6 +489,28 @@ namespace BeatLeader.Utils
                 }
             }
             return -1;
+        }
+        public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData.ScoringType scoringType)
+        {
+            switch (scoringType)
+            {
+                default:
+                    return ScoreMultiplierCounter.MultiplierEventType.Positive;
+                case NoteData.ScoringType.Ignore:
+                case NoteData.ScoringType.NoScore:
+                    return ScoreMultiplierCounter.MultiplierEventType.Neutral;
+            }
+        }
+        public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData noteData)
+        {
+            switch (noteData.scoringType)
+            {
+                default:
+                    return ScoreMultiplierCounter.MultiplierEventType.Positive;
+                case NoteData.ScoringType.Ignore:
+                case NoteData.ScoringType.NoScore:
+                    return ScoreMultiplierCounter.MultiplierEventType.Neutral;
+            }
         }
         #endregion
     }

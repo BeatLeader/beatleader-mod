@@ -17,6 +17,8 @@ namespace BeatLeader.Replays.Movement
         [Inject] protected readonly PlayerTransforms _playerTransforms;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
 
+        protected List<(Transform, XRNode)> _attachedObjects = new List<(Transform, XRNode)>();
+
         protected VRController _leftSaber;
         protected VRController _rightSaber;
         protected VRController _leftHand;
@@ -27,9 +29,9 @@ namespace BeatLeader.Replays.Movement
 
         public VRController leftSaber => _leftSaber;
         public VRController rightSaber => _rightSaber;
+        public VRController head => _head;
         public VRController leftHand => _leftHand;
         public VRController rightHand => _rightHand;
-        public VRController head => _head;
         public GameObject handsContainer => _handsContainer;
         public bool initialized => _initialized;
 
@@ -79,6 +81,38 @@ namespace BeatLeader.Replays.Movement
         {
             _leftHand.gameObject.SetActive(false);
             _rightHand.gameObject.SetActive(false);
+        }
+        public void AttachToTheHand(XRNode hand, Transform transform)
+        {
+            if (_attachedObjects.Contains((transform, hand))) return;
+            switch (hand)
+            {
+                case XRNode.LeftHand:
+                    transform.SetParent(_leftHand.transform);
+                    break;
+                case XRNode.RightHand:
+                    transform.SetParent(_rightHand.transform);
+                    break;
+                default:
+                    Debug.LogWarning("You can attach object only to one of the hands!");
+                    return;
+            }
+            _attachedObjects.Add((transform, hand));
+        }
+        public void DetachFromTheHand(Transform transform)
+        {
+            (Transform, XRNode) node = default;
+            foreach (var item in _attachedObjects)
+            {
+                if (item.Item1 == transform)
+                {
+                    node = item;
+                }
+            }
+            if (node.Item1 != null)
+                _attachedObjects.Remove(node);
+            else
+                Debug.LogWarning("This object is not attached to the hand!");
         }
     }
 }

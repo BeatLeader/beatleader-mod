@@ -20,7 +20,7 @@ namespace BeatLeader.Replays.UI
             _rootContainer = gameObject;
             _rootCanvas = _rootContainer.AddComponent<Canvas>();
             _rootCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _rootCanvas.scaleFactor = 300;
+            _rootCanvas.scaleFactor = 10;
             _rootCanvas.referencePixelsPerUnit = 10;
         }
         public void AddObject(GameObject go)

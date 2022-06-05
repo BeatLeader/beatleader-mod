@@ -28,13 +28,16 @@ namespace BeatLeader.Replays.Managers
 
         protected InputSystemType _currentInputSystem;
         protected GameObject _inputSystemContainer;
+        protected EventSystem _baseEventSystem;
+        protected EventSystem _customEventSystem;
 
         public InputSystemType currentInputSystem => _currentInputSystem;
         public bool isInFPFC => _currentInputSystem == InputSystemType.FPFC;
 
         public void Awake()
         {
-            DisableBaseInput();
+            _baseEventSystem = _inputModule.GetComponent<EventSystem>();
+            _softLocksController.InstallLock(_baseEventSystem, SoftLocksController.LockMode.WhenRequired);
             if (_platformHelper.GetType() == typeof(DevicelessVRHelper))
             {
                 _currentInputSystem = InputSystemType.FPFC;
@@ -44,7 +47,23 @@ namespace BeatLeader.Replays.Managers
                 _currentInputSystem = InputSystemType.VR;
             CreateInputSystem(_currentInputSystem);
         }
-        protected virtual void CreateInputSystem(InputSystemType type)
+        public void EnableCustomInput()
+        {
+            _customEventSystem.enabled = true;
+        }
+        public void DisableCustomInput()
+        {
+            _customEventSystem.enabled = false;
+        }
+        public void EnableBaseInput()
+        {
+            _softLocksController.Lock(false, _baseEventSystem);
+        }
+        public void DisableBaseInput()
+        {
+            _softLocksController.Lock(true, _baseEventSystem);
+        }
+        protected void CreateInputSystem(InputSystemType type)
         {
             if (type == InputSystemType.FPFC)
             {
@@ -58,10 +77,7 @@ namespace BeatLeader.Replays.Managers
                 _inputSystemContainer.gameObject.SetActive(true);
                 _container.Inject(_inputSystemContainer.GetComponent<VRInputModule>());
             }
-        }
-        protected virtual void DisableBaseInput()
-        {
-            _softLocksController.InstallLock(_inputModule.GetComponent<EventSystem>(), SoftLocksController.LockMode.WhenRequired);
+            _customEventSystem = _inputSystemContainer.GetComponent<EventSystem>();
         }
 
         public static void SwitchCursor()

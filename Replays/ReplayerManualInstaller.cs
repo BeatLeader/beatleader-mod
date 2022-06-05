@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using BeatLeader.Utils;
 using BeatLeader.Replays;
 using BeatLeader.Replays.Managers;
-using BeatLeader.Replays.MapEmitating;
+using BeatLeader.Replays.Emulating;
 using BeatLeader.Replays.Movement;
 using BeatLeader.Replays.Scoring;
+using BeatLeader.Replays.Models;
 using BeatLeader.Replays.UI;
 using SiraUtil.Tools.FPFC;
 using VRUIControls;
@@ -25,7 +26,6 @@ namespace BeatLeader.Replays
             public readonly bool noteSyncMode;
             public readonly bool movementLerp;
             public readonly int fieldOfView;
-            public readonly int smoothness;
 
             public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode)
             {
@@ -33,15 +33,13 @@ namespace BeatLeader.Replays
                 this.movementLerp = movementLerp;
                 this.compatibilityMode = compatibilityMode;
                 this.fieldOfView = 0;
-                this.smoothness = 0;
             }
-            public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode, int fieldOfView, int smoothness)
+            public InitData(bool noteSyncMode, bool movementLerp, bool compatibilityMode, int fieldOfView)
             {
                 this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
                 this.compatibilityMode = compatibilityMode;
                 this.fieldOfView = fieldOfView;
-                this.smoothness = smoothness;
             }
         }
 
@@ -59,17 +57,18 @@ namespace BeatLeader.Replays
             typeof(VRsenalScoreLogger),
         };
 
-        public void InstallBindings(Models.Replay replay, InitData data, DiContainer Container)
+        public void InstallBindings(BeatLeader.Models.Replay replay, InitData data, DiContainer Container)
         {
-            Container.Bind<Models.Replay>().FromInstance(replay).AsSingle();
+            Container.Bind<BeatLeader.Models.Replay>().FromInstance(replay).AsSingle();
             Container.Bind<InitData>().FromInstance(data).AsSingle();
             Container.Bind<SoftLocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<IScoringInterlayer>().To<SimpleScoringInterlayer>().AsSingle().NonLazy();
             Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
-            Container.BindMemoryPool<SimpleScoringInterlayer, SimpleScoringInterlayer.Pool>().WithInitialSize(30);
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
                 .FromComponentInNewPrefab(new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>());
             if (data.noteSyncMode)
                 Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<RescoreInvoker>().AsSingle();
 
             #region ScoreController patch
             ScoreController scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
@@ -97,7 +96,7 @@ namespace BeatLeader.Replays
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView,
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView, "CenterView",
 
                 new StaticCameraPose("LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0))),
                 new StaticCameraPose("RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0))),
@@ -127,7 +126,7 @@ namespace BeatLeader.Replays
                 //GameObject.Destroy((UnityEngine.Object)Container.TryResolve(simpleCameraControllerType));
             }
         }
-        public static void Install(Models.Replay replay, InitData data, DiContainer Container)
+        public static void Install(BeatLeader.Models.Replay replay, InitData data, DiContainer Container)
         {
             new ReplayerManualInstaller().InstallBindings(replay, data, Container);
         }

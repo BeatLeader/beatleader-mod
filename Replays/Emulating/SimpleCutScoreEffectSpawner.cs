@@ -7,7 +7,7 @@ using BeatLeader.Replays.Scoring;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.MapEmitating
+namespace BeatLeader.Replays.Emulating
 {
     public class SimpleCutScoreEffectSpawner : MonoBehaviour, IFlyingObjectEffectDidFinishEvent
     {

@@ -38,7 +38,7 @@ namespace BeatLeader.Replays.Scoring
                 _centerDistanceCutScore = (int)Math.Round(15 * (1 - Mathf.Clamp(_noteEvent.noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f)));
             }
         }
-        public virtual void Init(SimpleScoringData data)
+        public virtual void Init(ScoringData data)
         {
             _initialized = true;
             _noteEvent = data.noteEvent;

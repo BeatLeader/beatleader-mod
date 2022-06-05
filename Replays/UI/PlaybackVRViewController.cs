@@ -78,6 +78,9 @@ namespace BeatLeader.Replays.UI
         protected bool _initialized;
         protected bool _onPause;
 
+        public FloatingScreen floatingScreen => _floatingScreen;
+        public GameObject root => gameObject;
+
         public void Init()
         {
             _totalSongTime = (int)_playbackController.totalSongTime;
@@ -89,7 +92,6 @@ namespace BeatLeader.Replays.UI
             _floatingScreen.transform.localPosition = _defaultLeftPinPosePos;
             _floatingScreen.transform.localEulerAngles = new Vector3(90, 0, 0);
             _floatingScreen.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
-            _floatingScreen.transform.SetParent(_vrControllersManager.leftHand.transform);
 
             _initialized = true;
         }
@@ -100,6 +102,14 @@ namespace BeatLeader.Replays.UI
                 currentSongTime = (int)_playbackController.currentSongTime;
                 combinedSongTime = $"{currentSongTime}:{_totalSongTime}";
             }
+        }
+        public void Enable()
+        {
+            _floatingScreen.gameObject.SetActive(true);
+        }
+        public void Disable()
+        {
+            _floatingScreen.gameObject.SetActive(false);
         }
 
         [UIAction("menu-button-clicked")] protected void HandleMenuButtonClicked()

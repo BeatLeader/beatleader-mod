@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IPA.Utilities;
-using BeatLeader.Replays.MapEmitating;
+using BeatLeader.Replays.Emulating;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -27,7 +27,7 @@ namespace BeatLeader.Replays.Scoring
         public IReadonlyCutScoreBuffer cutScoreBuffer => _cutScoreBuffer;
         public override int cutScore => _cutScoreBuffer.cutScore;
 
-        public virtual void Init(SimpleScoringData data)
+        public void Init(ScoringData data)
         {
             noteData = data.noteData;
             switch (noteData.scoringType)

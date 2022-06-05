@@ -24,9 +24,9 @@ namespace BeatLeader.Components {
         }
 
         public void SetValue(Clan value) {
-            SetColor(value.color);
             _textComponent.text = FormatUtils.FormatClanTag(value.tag);
             _container.gameObject.SetActive(true);
+            SetColor(value.color);
             SetPrefWidth();
         }
 
@@ -92,8 +92,11 @@ namespace BeatLeader.Components {
             _backgroundImage.material = BundleLoader.ClanTagBackgroundMaterial;
         }
 
-        private void SetColor(string colorString) {
-            if (!ColorUtility.TryParseHtmlString(colorString, out _color)) _color = Color.white;
+        private void SetColor(string strColor) {
+            ColorUtility.TryParseHtmlString(strColor, out var color);
+            var useDarkFont = (color.r * 0.299f + color.g * 0.687f + color.b * 0.114f) > 0.73f;
+            _textComponent.color = useDarkFont ? Color.black : Color.white;
+            _color = color;
             UpdateColor();
         }
 

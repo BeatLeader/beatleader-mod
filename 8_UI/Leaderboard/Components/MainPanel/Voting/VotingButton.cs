@@ -56,23 +56,23 @@ namespace BeatLeader.Components {
         }
 
         private readonly struct ColorScheme {
-            public readonly float SpinnerValue;
-            public readonly float GradientValue;
-            public readonly float State;
-            public readonly Color Tint;
+            private readonly float _spinnerValue;
+            private readonly float _gradientValue;
+            private readonly float _state;
+            private readonly Color _tint;
 
             public ColorScheme(float spinnerValue, float gradientValue, float state, Color tint) {
-                SpinnerValue = spinnerValue;
-                GradientValue = gradientValue;
-                State = state;
-                Tint = tint;
+                _spinnerValue = spinnerValue;
+                _gradientValue = gradientValue;
+                _state = state;
+                _tint = tint;
             }
 
             public void Apply(Material material) {
-                material.SetFloat(SpinnerValuePropertyId, SpinnerValue);
-                material.SetFloat(GradientValuePropertyId, GradientValue);
-                material.SetFloat(StatePropertyId, State);
-                material.SetColor(TintPropertyId, Tint);
+                material.SetFloat(SpinnerValuePropertyId, _spinnerValue);
+                material.SetFloat(GradientValuePropertyId, _gradientValue);
+                material.SetFloat(StatePropertyId, _state);
+                material.SetColor(TintPropertyId, _tint);
             }
         }
 
@@ -99,16 +99,16 @@ namespace BeatLeader.Components {
             }
 
             switch (_voteStatus) {
-                case VoteStatus.CantVote:
-                    SetState(State.Locked);
-                    break;
                 case VoteStatus.CanVote:
                     SetState(State.Unlocked);
                     break;
                 case VoteStatus.Voted:
                     SetState(State.Done);
                     break;
-                default: throw new ArgumentOutOfRangeException();
+                case VoteStatus.CantVote:
+                default:
+                    SetState(State.Locked);
+                    break;
             }
         }
 

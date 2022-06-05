@@ -25,6 +25,6 @@
         Acc = 1,
         Tech = 2,
         Midspeed = 3,
-        Stamina = 4
+        Speed = 4
     }
 }

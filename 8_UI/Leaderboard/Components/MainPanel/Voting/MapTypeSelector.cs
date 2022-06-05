@@ -19,22 +19,22 @@ namespace BeatLeader.Components {
 
                 switch (value) {
                     case MapType.Unknown:
-                        AccColor = TechColor = MidspeedColor = StaminaColor = UndecidedColor;
+                        AccColor = TechColor = MidspeedColor = SpeedColor = UndecidedColor;
                         break;
                     case MapType.Acc:
                         AccColor = ActiveColor;
-                        TechColor = MidspeedColor = StaminaColor = InactiveColor;
+                        TechColor = MidspeedColor = SpeedColor = InactiveColor;
                         break;
                     case MapType.Tech:
                         TechColor = ActiveColor;
-                        AccColor = MidspeedColor = StaminaColor = InactiveColor;
+                        AccColor = MidspeedColor = SpeedColor = InactiveColor;
                         break;
                     case MapType.Midspeed:
                         MidspeedColor = ActiveColor;
-                        AccColor = TechColor = StaminaColor = InactiveColor;
+                        AccColor = TechColor = SpeedColor = InactiveColor;
                         break;
-                    case MapType.Stamina:
-                        StaminaColor = ActiveColor;
+                    case MapType.Speed:
+                        SpeedColor = ActiveColor;
                         AccColor = TechColor = MidspeedColor = InactiveColor;
                         break;
                     default: throw new ArgumentOutOfRangeException(nameof(value), value, null);
@@ -121,23 +121,23 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region STAMINA button
+        #region SPEED button
 
-        private string _staminaColor = UndecidedColor;
+        private string _speedColor = UndecidedColor;
 
-        [UIValue("stamina-color"), UsedImplicitly]
-        private string StaminaColor {
-            get => _staminaColor;
+        [UIValue("speed-color"), UsedImplicitly]
+        private string SpeedColor {
+            get => _speedColor;
             set {
-                if (_staminaColor.Equals(value)) return;
-                _staminaColor = value;
+                if (_speedColor.Equals(value)) return;
+                _speedColor = value;
                 NotifyPropertyChanged();
             }
         }
 
-        [UIAction("stamina-on-click"), UsedImplicitly]
-        private void StaminaOnClick() {
-            CurrentState = MapType.Stamina;
+        [UIAction("speed-on-click"), UsedImplicitly]
+        private void SpeedOnClick() {
+            CurrentState = MapType.Speed;
         }
 
         #endregion

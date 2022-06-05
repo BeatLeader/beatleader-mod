@@ -192,7 +192,7 @@
     <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
-    <Compile Include="0_Harmony\UIPatches\HideScoreModalOnPlay.cs" />
+    <Compile Include="0_Harmony\UIPatches\HideModalsOnPlay.cs" />
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />
     <Compile Include="1_Config\PluginConfig.cs" />
@@ -228,6 +228,7 @@
     <Compile Include="2_Core\Models\Score.cs" />
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
+    <Compile Include="2_Core\Models\Voting.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphUtils.cs" />
@@ -273,6 +274,11 @@
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRow.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoreRowDivider.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\ScoresTable.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\MapTypeSelector.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\RankabilitySelector.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\StarsSelector.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\VotingButton.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\VotingPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyDetailsAverages.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyDetailsRow.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyPieChart.cs" />
@@ -317,6 +323,11 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\TextScoreRowCell.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowDivider.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoresTable.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\MapTypeSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\RankabilitySelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\StarsSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\VotingButton.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\VotingPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetails.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsAverages.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsRow.bsml" />

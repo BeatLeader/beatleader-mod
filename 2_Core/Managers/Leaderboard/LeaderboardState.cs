@@ -9,6 +9,8 @@ namespace BeatLeader {
         public static readonly RequestStateHandler<Score> UploadRequest = new();
         public static readonly RequestStateHandler<Paged<Score>> ScoresRequest = new();
         public static readonly RequestStateHandler<ScoreStats> ScoreStatsRequest = new();
+        public static readonly RequestStateHandler<VoteStatus> VoteStatusRequest = new();
+        public static readonly RequestStateHandler<VoteStatus> VoteRequest = new();
 
         #endregion
 

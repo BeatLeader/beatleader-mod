@@ -15,6 +15,16 @@
 
         #endregion
 
+        #region Voting
+
+        public static readonly string VOTE = // /vote/steam/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}&ticket={ticket}
+            BEATLEADER_API_URL + "/vote/steam/{0}/{1}/{2}?{3}";
+
+        public static readonly string VOTE_STATUS = // /votestatus/{hash}/{diff}/{mode}?player={playerId}
+            BEATLEADER_API_URL + "/votestatus/{0}/{1}/{2}?player={3}";
+
+        #endregion
+
         #region Leaderboard requests
 
         public static readonly string SCORES_BY_HASH_PAGED = // /v2/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}

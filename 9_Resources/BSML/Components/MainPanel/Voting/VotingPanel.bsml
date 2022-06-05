@@ -1,0 +1,45 @@
+<modal id="modal" click-off-closes="true" size-delta-x="58" size-delta-y="34">
+    <macro.define name="page-height" value="20"/>
+    <macro.define name="l-arrow" value="&lt;pos=-0.4em&gt;◄"/>
+    <macro.define name="r-arrow" value="►"/>
+    <macro.define name="arrow-width" value="8"/>
+
+    <vertical pad="2" spacing="3" vertical-fit="PreferredSize">
+        <!--    PAGE 1    -->
+        <horizontal active="~page-0-active" pref-height="~page-height">
+            <vertical spacing="1">
+                <text text="&lt;u&gt;Is this map suitable for rank?" font-size="4" font-color="#AAAAAA" align="Center"/>
+
+                <macro.as-host host="rankability-selector">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </vertical>
+        </horizontal>
+
+        <!--    PAGE 2    -->
+        <horizontal active="~page-1-active" pref-height="~page-height">
+            <vertical spacing="1">
+                <text text="&lt;u&gt;Difficulty and category (optional)" font-size="4" font-color="#999999" align="Center"/>
+
+                <macro.as-host host="stars-selector">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+                
+                <macro.as-host host="map-type-selector">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </vertical>
+        </horizontal>
+
+        <!--    BUTTONS    -->
+        <horizontal spacing="5" horizontal-fit="PreferredSize">
+            <vertical pref-width="~arrow-width">
+                <button pref-width="~arrow-width" active="~has-prev-page" text="~l-arrow" on-click="prev-on-click"/>
+            </vertical>
+            <button pref-width="16" interactable="~can-submit" text="Submit" on-click="submit-on-click"/>
+            <vertical pref-width="~arrow-width">
+                <button pref-width="~arrow-width" active="~has-next-page" text="~r-arrow" on-click="next-on-click"/>
+            </vertical>
+        </horizontal>
+    </vertical>
+</modal>

@@ -9,25 +9,24 @@ namespace BeatLeader.Components {
         #region Init / Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.LogoWasPressedEvent += OnLogoWasPressed;
-            LeaderboardEvents.AvatarWasPressedEvent += HideInstantly;
-            LeaderboardEvents.SceneTransitionStartedEvent += HideInstantly;
+            LeaderboardEvents.LogoWasPressedEvent += ShowModal;
+            LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.LogoWasPressedEvent -= OnLogoWasPressed;
-            LeaderboardEvents.AvatarWasPressedEvent -= HideInstantly;
-            LeaderboardEvents.SceneTransitionStartedEvent -= HideInstantly;
+            LeaderboardEvents.LogoWasPressedEvent -= ShowModal;
+            LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
         }
 
         #endregion
 
         #region Events
-
-        private void OnLogoWasPressed() {
-            ShowModal();
+        
+        private void OnHideModalsEvent(ModalView except) {
+            if (_modal == null || _modal.Equals(except)) return;
+            _modal.Hide(false);
         }
 
         private void OnLeaderboardVisibilityChanged(bool isVisible) {
@@ -43,12 +42,8 @@ namespace BeatLeader.Components {
 
         private void ShowModal() {
             if (_modal == null) return;
+            LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
             _modal.Show(true, true);
-        }
-
-        private void HideInstantly() {
-            if (_modal == null) return;
-            _modal.Hide(false);
         }
 
         private void HideAnimated() {

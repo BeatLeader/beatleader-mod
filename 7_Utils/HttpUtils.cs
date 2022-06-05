@@ -113,13 +113,13 @@ namespace BeatLeader.Utils {
         #region ReplayUpload
 
         public static IEnumerator UploadReplay(Replay replay, int retry = 3) {
-            LeaderboardState.UploadRequest.NotifyStarted();
-
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
             for (int i = 1; i <= retry; i++) {
                 string GetFailMessage(string reason) => $"Attempt {i}/{retry} failed! {reason}";
+                
+                LeaderboardState.UploadRequest.NotifyStarted();
 
                 Task<string> ticketTask = Authentication.SteamTicket();
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
@@ -127,6 +127,7 @@ namespace BeatLeader.Utils {
                 string authToken = ticketTask.Result;
                 if (authToken == null) {
                     Plugin.Log.Debug("No auth token, skip replay upload");
+                    LeaderboardState.UploadRequest.NotifyFailed("Auth failed");
                     break; // auth failed, no upload
                 }
 
@@ -136,7 +137,6 @@ namespace BeatLeader.Utils {
                     downloadHandler = new DownloadHandlerBuffer(),
                     uploadHandler = new UploadHandlerRaw(stream.ToArray())
                 };
-
                 yield return request.SendWebRequest();
 
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
@@ -172,6 +172,77 @@ namespace BeatLeader.Utils {
                 }
             }
             Plugin.Log.Debug("Cannot upload replay");
+        }
+
+        #endregion
+
+        #region Vote
+
+        public static IEnumerator VoteCoroutine(
+            string mapHash,
+            string mapDiff,
+            string mapMode,
+            Vote vote,
+            int retry = 1
+        ) {
+            var failReason = "";
+
+            for (var i = 1; i <= retry; i++) {
+                Plugin.Log.Debug($"Vote request: {i + 1}/{retry}");
+                LeaderboardState.VoteRequest.NotifyStarted();
+
+                var ticketTask = Authentication.SteamTicket();
+                yield return new WaitUntil(() => ticketTask.IsCompleted);
+                
+                var authToken = ticketTask.Result;
+                if (authToken == null) {
+                    failReason = "Authentication failed";
+                    break; // auth failed, no retries
+                }
+
+                var request = BuildVoteRequest(mapHash, mapDiff, mapMode, vote, authToken);
+                yield return request.SendWebRequest();
+
+                if (request.isNetworkError || request.isHttpError) {
+                    failReason = $"Network error: {request.responseCode}";
+                    continue;
+                }
+
+                VoteStatus status;
+
+                try {
+                    var body = Encoding.UTF8.GetString(request.downloadHandler.data);
+                    var options = new JsonSerializerSettings() {
+                        MissingMemberHandling = MissingMemberHandling.Ignore,
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+                    status = JsonConvert.DeserializeObject<VoteStatus>(body, options);
+                } catch (Exception e) {
+                    Plugin.Log.Debug($"Exception: {e}");
+                    failReason = $"Internal error: {e.Message}";
+                    continue;
+                }
+
+                Plugin.Log.Debug("Vote success");
+                LeaderboardState.VoteRequest.NotifyFinished(status);
+                yield break; // if OK - stop retry cycle
+            }
+
+            Plugin.Log.Debug($"Vote failed: {failReason}");
+            LeaderboardState.VoteRequest.NotifyFailed(failReason);
+        }
+
+        private static UnityWebRequest BuildVoteRequest(string mapHash, string mapDiff, string mapMode, Vote vote, string authToken) {
+            var query = new Dictionary<string, object> {
+                ["rankability"] = vote.Rankability,
+                ["ticket"] = authToken
+            };
+            if (vote.HasStarRating) query["stars"] = vote.StarRating;
+            if (vote.HasMapType) query["type"] = (int) vote.MapType;
+            var url = string.Format(BLConstants.VOTE, mapHash, mapDiff, mapMode, ToHttpParams(query));
+            return new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST) {
+                downloadHandler = new DownloadHandlerBuffer()
+            };
         }
 
         #endregion

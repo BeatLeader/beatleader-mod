@@ -1,4 +1,6 @@
-﻿namespace BeatLeader.Models {
+﻿using System;
+
+namespace BeatLeader.Models {
     internal enum VoteStatus {
         CantVote = 1,
         CanVote = 2,
@@ -20,11 +22,12 @@
         }
     }
 
+    [Flags]
     internal enum MapType {
         Unknown = 0,
         Acc = 1,
         Tech = 2,
-        Midspeed = 3,
-        Speed = 4
+        Midspeed = 4,
+        Speed = 8
     }
 }

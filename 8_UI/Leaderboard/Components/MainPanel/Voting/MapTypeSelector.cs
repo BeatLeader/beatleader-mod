@@ -17,31 +17,18 @@ namespace BeatLeader.Components {
                 if (_state.Equals(value)) return;
                 _state = value;
 
-                switch (value) {
-                    case MapType.Unknown:
-                        AccColor = TechColor = MidspeedColor = SpeedColor = UndecidedColor;
-                        break;
-                    case MapType.Acc:
-                        AccColor = ActiveColor;
-                        TechColor = MidspeedColor = SpeedColor = InactiveColor;
-                        break;
-                    case MapType.Tech:
-                        TechColor = ActiveColor;
-                        AccColor = MidspeedColor = SpeedColor = InactiveColor;
-                        break;
-                    case MapType.Midspeed:
-                        MidspeedColor = ActiveColor;
-                        AccColor = TechColor = SpeedColor = InactiveColor;
-                        break;
-                    case MapType.Speed:
-                        SpeedColor = ActiveColor;
-                        AccColor = TechColor = MidspeedColor = InactiveColor;
-                        break;
-                    default: throw new ArgumentOutOfRangeException(nameof(value), value, null);
-                }
+                AccColor = ChooseColor(value, MapType.Acc);
+                TechColor = ChooseColor(value, MapType.Tech);
+                MidspeedColor = ChooseColor(value, MapType.Midspeed);
+                SpeedColor = ChooseColor(value, MapType.Speed);
 
                 OnStateChangedEvent?.Invoke(value);
             }
+        }
+
+        private static string ChooseColor(MapType mask, MapType targetType) {
+            if (mask == MapType.Unknown) return UndecidedColor;
+            return mask.HasFlag(targetType) ? ActiveColor : InactiveColor;
         }
 
         public void Reset() {
@@ -74,7 +61,11 @@ namespace BeatLeader.Components {
 
         [UIAction("acc-on-click"), UsedImplicitly]
         private void AccOnClick() {
-            CurrentState = MapType.Acc;
+            if (CurrentState.HasFlag(MapType.Acc)) {
+                CurrentState &= ~MapType.Acc;
+            } else {
+                CurrentState |= MapType.Acc;
+            }
         }
 
         #endregion
@@ -95,7 +86,11 @@ namespace BeatLeader.Components {
 
         [UIAction("tech-on-click"), UsedImplicitly]
         private void TechOnClick() {
-            CurrentState = MapType.Tech;
+            if (CurrentState.HasFlag(MapType.Tech)) {
+                CurrentState &= ~MapType.Tech;
+            } else {
+                CurrentState |= MapType.Tech;
+            }
         }
 
         #endregion
@@ -116,7 +111,11 @@ namespace BeatLeader.Components {
 
         [UIAction("midspeed-on-click"), UsedImplicitly]
         private void MidspeedOnClick() {
-            CurrentState = MapType.Midspeed;
+            if (CurrentState.HasFlag(MapType.Midspeed)) {
+                CurrentState &= ~MapType.Midspeed;
+            } else {
+                CurrentState |= MapType.Midspeed;
+            }
         }
 
         #endregion
@@ -137,7 +136,11 @@ namespace BeatLeader.Components {
 
         [UIAction("speed-on-click"), UsedImplicitly]
         private void SpeedOnClick() {
-            CurrentState = MapType.Speed;
+            if (CurrentState.HasFlag(MapType.Speed)) {
+                CurrentState &= ~MapType.Speed;
+            } else {
+                CurrentState |= MapType.Speed;
+            }
         }
 
         #endregion

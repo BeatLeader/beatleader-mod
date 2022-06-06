@@ -18,6 +18,7 @@ namespace BeatLeader {
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
             SiraUtilSubmissionPatch.ApplyPatch(_harmony);
             BS_UtilsSubmissionPatch.ApplyPatch(_harmony);
+            RecorderCustomCampaignUtilPatch.ApplyPatch(_harmony);
         }
 
         public static void RemovePatches() {

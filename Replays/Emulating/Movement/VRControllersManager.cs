@@ -35,7 +35,7 @@ namespace BeatLeader.Replays.Movement
         public GameObject handsContainer => _handsContainer;
         public bool initialized => _initialized;
 
-        public void Start()
+        public void Awake()
         {
             _handsContainer = _pauseMenuManager.transform.Find("MenuControllers").gameObject;
             _leftHand = _handsContainer.transform.Find("ControllerLeft").GetComponent<VRController>();

@@ -111,6 +111,7 @@ namespace BeatLeader.Replays
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MultiplatformUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            
             if (Container.Resolve<InputManager>().currentInputSystem == InputManager.InputSystemType.FPFC)
             {
                 Container.Resolve<IFPFCSettings>().Enabled = false;

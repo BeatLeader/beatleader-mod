@@ -21,8 +21,10 @@ namespace BeatLeader.Replays
         {
             foreach (var item in _lockedComponents)
             {
-                if (item.locked && item.component != null && ((item.mode == LockMode.WhenRequired && !item.component.isActiveAndEnabled) || item.mode == LockMode.Force))
+                if (item.locked && item.component != null && ((item.mode == LockMode.WhenRequired && item.component.isActiveAndEnabled) || item.mode == LockMode.Force))
+                {
                     item.component.enabled = false;
+                }
             }
         }
         public void Lock(bool @lock, Behaviour component)

@@ -15,10 +15,16 @@ namespace BeatLeader.Replays.Managers
         [Inject] protected readonly SoftLocksController _softLocksController;
         [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
         [Inject] protected readonly StandardLevelGameplayManager _gameplayManager;
+        [Inject] protected readonly PauseController _pauseController;
+
+        [Inject] protected readonly IMenuButtonTrigger _pauseButtonTrigger;
+        [Inject] protected readonly IVRPlatformHelper _vrPlatformHelper;
+        [Inject] protected readonly ILevelStartController _levelStartController;
 
         public void Start()
         {
             ApplyTweaks();
+            UnsubscribeEvents();
         }
         public void ApplyTweaks()
         {
@@ -26,18 +32,30 @@ namespace BeatLeader.Replays.Managers
             _softLocksController.InstallLock(_pauseMenuManager, SoftLocksController.LockMode.WhenRequired);
             if (_initData.noteSyncMode)
             {
-                Resources.FindObjectsOfTypeAll<CuttingManager>().FirstOrDefault().enabled = false;
+                _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First(), SoftLocksController.LockMode.WhenRequired);
             }
-            if (_inputManager.currentInputSystem == InputManager.InputSystemType.FPFC)
+            if (_inputManager.isInFPFC)
             {
                 Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);
                 Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(false);
             }
-            else if(_inputManager.currentInputSystem == InputManager.InputSystemType.VR)
+            else
             {
                 Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(true);
                 Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(true);
             }
+        }
+        public void UnsubscribeEvents()
+        {
+            _pauseButtonTrigger.menuButtonTriggeredEvent -= _pauseController.HandleMenuButtonTriggered;
+            _vrPlatformHelper.inputFocusWasCapturedEvent -= _pauseController.HandleInputFocusWasCaptured;
+            _vrPlatformHelper.hmdUnmountedEvent -= _pauseController.HandleHMDUnmounted;
+            _pauseMenuManager.didFinishResumeAnimationEvent -= _pauseController.HandlePauseMenuManagerDidFinishResumeAnimation;
+            _pauseMenuManager.didPressContinueButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressContinueButton;
+            _pauseMenuManager.didPressRestartButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressRestartButton;
+            _pauseMenuManager.didPressMenuButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressMenuButton;
+            _levelStartController.levelDidStartEvent -= _pauseController.HandleLevelDidStart;
+            _levelStartController.levelWillStartIntroEvent -= _pauseController.HandleLevelWillStartIntro;
         }
     }
 }

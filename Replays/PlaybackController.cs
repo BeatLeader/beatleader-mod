@@ -26,40 +26,32 @@ namespace BeatLeader.Replays
         [Inject] protected readonly Replayer _replayer;
         [Inject] protected readonly SimpleTimeController _simpleTimeController;
 
-        [Inject] protected readonly GameEnergyCounter _gameEnergyCounter;
-        [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
-        [Inject] protected readonly BeatmapObjectExecutionRatingsRecorder _beatmapObjectExecutionRatingsRecorder;
-        [Inject] protected readonly SongController _songController;
-        [Inject] protected readonly AudioListenerController _audioListenerController;
+        [Inject] protected readonly SaberManager _saberManager;
         [Inject] protected readonly IScoreController _scoreController;
         [Inject] protected readonly IGamePause _gamePause;
 
         public float currentSongTime => _songTimeSyncController.songTime;
         public float totalSongTime => _songTimeSyncController.songEndTime;
 
-        public void Start()
+        public void Awake()
         {
             _vrControllersManager.ShowMenuControllers();
+            Debug.LogWarning("Showing");
         }
         public void Pause()
         {
-            _gameEnergyCounter.enabled = false;
-            _playerHeadAndObstacleInteraction.enabled = false;
-            _scoreController.SetEnabled(false);
-            _beatmapObjectExecutionRatingsRecorder.enabled = false;
-            _audioListenerController.Pause();
-            _songController.PauseSong();
+            _gamePause.Pause();
+            _saberManager.disableSabers = false;
             _beatmapObjectManager.PauseAllBeatmapObjects(true);
+            ((Delegate)_pauseController.GetType().GetField("didPauseEvent", 
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController)).DynamicInvoke();
         }
         public void Resume()
         {
-            _gameEnergyCounter.enabled = true;
-            _playerHeadAndObstacleInteraction.enabled = true;
-            _scoreController.SetEnabled(true);
-            _beatmapObjectExecutionRatingsRecorder.enabled = true;
-            _audioListenerController.Resume();
-            _songController.ResumeSong();
+            _gamePause.Resume();
             _beatmapObjectManager.PauseAllBeatmapObjects(false);
+            ((Delegate)_pauseController.GetType().GetField("didResumeEvent",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController)).DynamicInvoke();
         }
         public void Rewind(float time)
         {

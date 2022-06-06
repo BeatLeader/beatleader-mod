@@ -53,7 +53,7 @@ namespace BeatLeader.Replays.Managers
             _pauseMenuManager.didFinishResumeAnimationEvent -= _pauseController.HandlePauseMenuManagerDidFinishResumeAnimation;
             _pauseMenuManager.didPressContinueButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressContinueButton;
             _pauseMenuManager.didPressRestartButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressRestartButton;
-            _pauseMenuManager.didPressMenuButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressMenuButton;
+            //_pauseMenuManager.didPressMenuButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressMenuButton;
             _levelStartController.levelDidStartEvent -= _pauseController.HandleLevelDidStart;
             _levelStartController.levelWillStartIntroEvent -= _pauseController.HandleLevelWillStartIntro;
         }

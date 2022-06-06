@@ -41,11 +41,10 @@ namespace BeatLeader.Replays.Emulating
             var beatmapEvents = _beatmapCallbacksController.GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
             foreach (var item in beatmapEvents)
             {
-                if (item.Value.lastProcessedNode != null && item.Value.lastProcessedNode.Value.time < time)
-                {
-                    item.Value.lastProcessedNode = null;
-                }
+                item.Value.lastProcessedNode = null;
             }
+            _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
+            //_audioTimeSyncController.SetField("_songTime", time);
             _songController.SeekTo(time);
             _songController.ResumeSong();
         }

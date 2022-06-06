@@ -36,7 +36,6 @@ namespace BeatLeader.Replays
         public void Awake()
         {
             _vrControllersManager.ShowMenuControllers();
-            Debug.LogWarning("Showing");
         }
         public void Pause()
         {
@@ -44,14 +43,14 @@ namespace BeatLeader.Replays
             _saberManager.disableSabers = false;
             _beatmapObjectManager.PauseAllBeatmapObjects(true);
             ((Delegate)_pauseController.GetType().GetField("didPauseEvent", 
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController)).DynamicInvoke();
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
         }
         public void Resume()
         {
             _gamePause.Resume();
             _beatmapObjectManager.PauseAllBeatmapObjects(false);
             ((Delegate)_pauseController.GetType().GetField("didResumeEvent",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController)).DynamicInvoke();
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
         }
         public void Rewind(float time)
         {

@@ -50,7 +50,10 @@ namespace BeatLeader.Utils {
         }
 
         private IEnumerator ProcessReplayCoroutine(Replay replay) {
-            if (replay.info.score <= 0) yield break; // no lightshow here
+            if (replay.info.score <= 0) { // no lightshow here
+                Plugin.Log.Debug("Zero score, skip replay processing");
+                yield break;
+            }
 
             bool practice = replay.info.speed != 0;
             bool fail = replay.info.failTime > 0;
@@ -62,23 +65,12 @@ namespace BeatLeader.Utils {
                 yield break;
             }
 
-            var localReplay = FileManager.ReadReplay(FileManager.ToFileName(replay));
-            int localHighScore = localReplay == null ? int.MinValue : ScoreWithModifiers(localReplay);
-            Plugin.Log.Debug($"Local PB from replay: {localHighScore}");
-
-            // int serverHighScore = TODO
-            // still todo
-
-            if (localHighScore < ScoreWithModifiers(replay)) {
-                Plugin.Log.Debug("New PB, upload incoming");
-                if (ShouldSubmit()) {
-                    FileManager.WriteReplay(replay);
-                    yield return HttpUtils.UploadReplay(replay);
-                } else {
-                    Plugin.Log.Debug("Score submission was disabled");
-                }
+            if (ShouldSubmit()) {
+                Plugin.Log.Debug("Uploading replay");
+                FileManager.WriteReplay(replay);
+                yield return HttpUtils.UploadReplay(replay);
             } else {
-                Plugin.Log.Debug("No new PB, score would not be uploaded/rewritten");
+                Plugin.Log.Debug("Score submission was disabled");
             }
         }
 

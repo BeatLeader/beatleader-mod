@@ -142,16 +142,21 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
                 var body = Encoding.UTF8.GetString(request.downloadHandler.data);
-                if (body != null && body.Length > 0) {
-                    if (!(body.StartsWith("{") || body.StartsWith("[") || body.StartsWith("<"))) {
-                        Plugin.Log.Debug($"Response content: {body}");
-                    }
+                if (body.Length > 0 && !(body.StartsWith("{") || body.StartsWith("[") || body.StartsWith("<"))) {
+                    Plugin.Log.Debug($"Response content: {body}");
                 }
 
                 try {
                     if (request.isNetworkError || request.isHttpError) {
-                        Plugin.Log.Debug($"Error: {request.error}");
-                        LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage($"Network error: {request.responseCode}"));
+                        Plugin.Log.Debug($"Upload failed: {request.error}");
+                        switch (request.responseCode) {
+                            case 400:
+                                LeaderboardState.UploadRequest.NotifyFailed(body);
+                                yield break; //no PB, stop retry cycle
+                            default:
+                                LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage($"Network error: {request.responseCode}"));
+                                break;
+                        }
                     } else {
                         Plugin.Log.Debug(body);
                         var options = new JsonSerializerSettings() {

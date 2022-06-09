@@ -114,7 +114,7 @@ namespace BeatLeader.Utils {
 
         #region ReplayUpload
 
-        public static IEnumerator UploadReplay(Replay replay, int retry = 1) {
+        public static IEnumerator UploadReplay(Replay replay, int retry = 3) {
             MemoryStream stream = new();
             using (var compressedStream = new GZipStream(stream, CompressionLevel.Optimal)) {
                 ReplayEncoder.Encode(replay, new BinaryWriter(compressedStream, Encoding.UTF8));

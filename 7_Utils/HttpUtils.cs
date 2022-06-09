@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 using BeatLeader.API;
@@ -9,6 +10,7 @@ using BeatLeader.Models;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace BeatLeader.Utils {
     internal static class HttpUtils {
@@ -112,9 +114,12 @@ namespace BeatLeader.Utils {
 
         #region ReplayUpload
 
-        public static IEnumerator UploadReplay(Replay replay, int retry = 3) {
+        public static IEnumerator UploadReplay(Replay replay, int retry = 1) {
             MemoryStream stream = new();
-            ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
+            using (var compressedStream = new GZipStream(stream, CompressionLevel.Optimal)) {
+                ReplayEncoder.Encode(replay, new BinaryWriter(compressedStream, Encoding.UTF8));
+            }
+            var compressedData = stream.ToArray();
 
             for (int i = 1; i <= retry; i++) {
                 string GetFailMessage(string reason) => $"Attempt {i}/{retry} failed! {reason}";
@@ -135,8 +140,9 @@ namespace BeatLeader.Utils {
 
                 var request = new UnityWebRequest(BLConstants.REPLAY_UPLOAD_URL + "?ticket=" + authToken, UnityWebRequest.kHttpVerbPOST) {
                     downloadHandler = new DownloadHandlerBuffer(),
-                    uploadHandler = new UploadHandlerRaw(stream.ToArray())
+                    uploadHandler = new UploadHandlerRaw(compressedData),
                 };
+                request.SetRequestHeader("Content-Encoding", "gzip");
                 yield return request.SendWebRequest();
 
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");

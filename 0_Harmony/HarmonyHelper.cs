@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using HarmonyLib;
 
@@ -16,8 +17,27 @@ namespace BeatLeader {
         public static void ApplyPatches() {
             LazyInit();
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
-            SiraUtilSubmissionPatch.ApplyPatch(_harmony);
-            BS_UtilsSubmissionPatch.ApplyPatch(_harmony);
+            PatchScoreSubmission();
+            PatchCustomCampaigns();
+        }
+
+        private static void PatchScoreSubmission() {
+            try {
+                SiraUtilSubmissionPatch.ApplyPatch(_harmony);
+                BS_UtilsSubmissionPatch.ApplyPatch(_harmony);
+            } catch (Exception e) {
+                Plugin.Log.Warn("Can't patch score disable methods");
+                Plugin.Log.Warn(e);
+            }
+        }
+
+        private static void PatchCustomCampaigns() {
+            try {
+                RecorderCustomCampaignUtilPatch.ApplyPatch(_harmony);
+            } catch (Exception e) {
+                Plugin.Log.Warn("Can't patch Custom Campaigns methods");
+                Plugin.Log.Warn(e);
+            }
         }
 
         public static void RemovePatches() {

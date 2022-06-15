@@ -69,7 +69,7 @@ namespace BeatLeader.Replays
             if (data.noteSyncMode)
                 Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<BeatmapEffectsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             #region ScoreController patch
             ScoreController scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
@@ -95,7 +95,7 @@ namespace BeatLeader.Replays
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView, "FreeView",
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView, "PlayerView",
 
                 new StaticCameraPose("LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0))),
                 new StaticCameraPose("RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0))),

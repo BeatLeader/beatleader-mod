@@ -28,7 +28,7 @@ namespace BeatLeader.Replays
 
         [Inject] protected readonly SaberManager _saberManager;
         [Inject] protected readonly IGamePause _gamePause;
-        [Inject] protected readonly BeatmapEffectsController _beatmapEffectsController;
+        [Inject] protected readonly BeatmapVisualsController _beatmapEffectsController;
 
         public float currentSongTime => _songTimeSyncController.songTime;
         public float totalSongTime => _songTimeSyncController.songEndTime;

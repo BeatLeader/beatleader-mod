@@ -242,7 +242,7 @@
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\VotingButton.cs" />
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\VotingPanel.cs" />
     <Compile Include="8_UI\ReeUIComponentV2.cs" />
-    <Compile Include="Replays\Emulating\BeatmapEffectsController.cs" />
+    <Compile Include="Replays\Emulating\BeatmapVisualsController.cs" />
     <Compile Include="Replays\UI\BSML Addons\BSMLUtility.cs" />
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />

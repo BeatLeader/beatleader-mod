@@ -30,9 +30,13 @@ namespace BeatLeader.Replays
         {
             LeaderboardEvents.ReplayButtonWasPressedAction += StartLevelWithReplay;
         }
+        public void OnDestroy()
+        {
+            LeaderboardEvents.ReplayButtonWasPressedAction -= StartLevelWithReplay;
+        }
         public void StartLevelWithReplay(Score score)
         {
-            var replayTask = StartCoroutine(HttpUtils.DownloadReplay(score.replay, 1, (Replay result) => 
+            StartCoroutine(HttpUtils.DownloadReplay(score.replay, 1, (Replay result) => 
             {
                 Plugin.Log.Notice($"Downloaded replay of [{result.info.playerID}] for [{result.info.songName}-{result.info.difficulty}]");
                 StartLevelWithReplay(result);

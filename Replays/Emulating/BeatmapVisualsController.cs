@@ -9,11 +9,12 @@ using Zenject;
 
 namespace BeatLeader.Replays.Emulating
 {
-    public class BeatmapEffectsController : MonoBehaviour
+    public class BeatmapVisualsController : MonoBehaviour
     {
-        [Inject] protected readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager;
         [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] protected readonly ComboController _comboController;
 
+        protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
         protected NoteDebrisSpawner _noteDebrisSpawner;
         protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
 
@@ -23,6 +24,7 @@ namespace BeatLeader.Replays.Emulating
 
         public void Start()
         {
+            _sparkleEffectManager = Resources.FindObjectsOfTypeAll<ObstacleSaberSparkleEffectManager>().First();
             _saberBurnMarkSparkles = Resources.FindObjectsOfTypeAll<SaberBurnMarkSparkles>().First();
             _noteDebrisSpawner = Resources.FindObjectsOfTypeAll<NoteDebrisSpawner>().First();
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
@@ -45,6 +47,10 @@ namespace BeatLeader.Replays.Emulating
             _noteDebrisSpawner.SetField("_cutDirMultiplier", _debrisCutDirMultiplier * multiplier);
             _noteDebrisSpawner.SetField("_moveSpeedMultiplier", _debrisMoveSpeedMultiplier * multiplier);
             _noteDebrisSpawner.SetField("_fromCenterSpeed", _debrisFromCenterSpeed * multiplier);
+        }
+        protected void ForceSetCombo(int combo, bool broke)
+        {
+
         }
     }
 }

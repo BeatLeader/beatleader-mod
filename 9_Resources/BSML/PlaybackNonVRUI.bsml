@@ -25,7 +25,7 @@
 							<vertical>
 								<horizontal>
 									<button text='menu' on-click='menu-button-clicked'/>
-									<button text='~pause-button-text' on-click='pause-button-clicked'/>
+									<button text='pause' on-click='pause-button-clicked'/>
 									<slider-setting text='Time scale' value='time-scale' min='10' max='200' increment='5' show-buttons='true' integer-only='true' apply-on-change='true' bind-value='true'/>
 								</horizontal>
 								<horizontal>

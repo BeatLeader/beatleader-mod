@@ -10,31 +10,44 @@ using Zenject;
 
 namespace BeatLeader.Replays.Emulating
 {
-    public class SimpleTimeController : MonoBehaviour
+    public class BeatmapTimeController : MonoBehaviour
     {
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly BeatmapObjectSpawnController _beatmapObjectSpawnController;
         [Inject] protected readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
+        [Inject] protected readonly SimpleNoteComparatorsSpawner _simpleComparatorsSpawner;
         [Inject] protected readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData;
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController;
-        [Inject] protected readonly GameSongController _songController;
-        [Inject] protected readonly RescoreInvoker _rescoreInvoker;
+        [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
         [Inject] protected readonly IReadonlyBeatmapData _beatmapData;
 
+        public event Action<float> onSongTimeScale;
+        public event Action<float> onSongRewind;
+
         protected BombCutSoundEffectManager _bombCutSoundEffectManager;
+        protected AudioManagerSO _audioManagerSO;
+        protected AudioSource _beatmapAudioSource;
 
         public void Start()
         {
             _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
+            _audioManagerSO = Resources.FindObjectsOfTypeAll<AudioManagerSO>().First();
+            _beatmapAudioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
         }
         public void Rewind(float time)
         {
             if (time == _audioTimeSyncController.songTime) return;
-            _rescoreInvoker.Rescore(0, time);
-            _songController.PauseSong();
+            bool flag = _audioTimeSyncController.state == AudioTimeSyncController.State.Paused;
+
+            if (!flag)
+            {
+                _audioTimeSyncController.Pause();
+                _beatmapCallbacksUpdater.Pause();
+            }
             KillAllSounds();
             DespawnAllBeatmapObjects();
+
             _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
             _beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
@@ -44,22 +57,28 @@ namespace BeatLeader.Replays.Emulating
                 item.Value.lastProcessedNode = null;
             }
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
-            //_audioTimeSyncController.SetField("_songTime", time);
-            _songController.SeekTo(time);
-            _songController.ResumeSong();
+            _audioTimeSyncController.SeekTo(time / _audioTimeSyncController.timeScale);
+
+            onSongRewind?.Invoke(time);
+            if (!flag)
+            {
+                _audioTimeSyncController.Resume();
+                _beatmapCallbacksUpdater.Resume();
+            }
         }
         public void SetTimeScale(float multiplier)
         {
-            if (multiplier != _audioTimeSyncController.timeScale)
-            {
-                _songController.PauseSong();
-                KillAllSounds();
-                _audioTimeSyncController.SetField("_timeScale", multiplier);
-                var audioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
-                audioSource.pitch = multiplier;
-                Resources.FindObjectsOfTypeAll<AudioManagerSO>().First().musicPitch = 1f / multiplier;
-                _songController.ResumeSong();
-            }
+            if (multiplier == _audioTimeSyncController.timeScale) return;
+            bool flag = _audioTimeSyncController.state == AudioTimeSyncController.State.Paused;
+            if (!flag) _audioTimeSyncController.Pause();
+
+            KillAllSounds();
+            _audioTimeSyncController.SetField("_timeScale", multiplier);
+            _beatmapAudioSource.pitch = multiplier;
+            _audioManagerSO.musicPitch = 1f / multiplier;
+
+            onSongTimeScale?.Invoke(multiplier);
+            if (!flag) _audioTimeSyncController.Resume();
         }
         protected void DespawnAllBeatmapObjects()
         {

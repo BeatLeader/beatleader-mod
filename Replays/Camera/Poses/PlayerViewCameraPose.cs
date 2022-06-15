@@ -18,20 +18,20 @@ namespace BeatLeader.Replays
             _name = name;
         }
 
-        [Inject] protected readonly VRControllersManager _bodyManager;
+        [Inject] protected readonly VRControllersManager _vrControllersManager;
 
         protected float _smoothness;
         protected string _name;
 
         public InputSystemType[] availableSystems => new InputSystemType[] { InputSystemType.FPFC };
-        public bool injectAutomatically => true;
+        public bool selfInject => true;
         public bool updateEveryFrame => true;
         public string name => _name;
 
         public Pose GetPose(Pose cameraPose)
         {
-            Vector3 position = Vector3.Lerp(cameraPose.position, _bodyManager.head.transform.position, Time.deltaTime * _smoothness);
-            Quaternion rotation = Quaternion.Lerp(cameraPose.rotation, _bodyManager.head.transform.rotation, Time.deltaTime * _smoothness);
+            Vector3 position = Vector3.Lerp(cameraPose.position, _vrControllersManager.head.transform.position, Time.deltaTime * _smoothness);
+            Quaternion rotation = Quaternion.Lerp(cameraPose.rotation, _vrControllersManager.head.transform.rotation, Time.deltaTime * _smoothness);
             return new Pose(position, rotation);
         }
     }

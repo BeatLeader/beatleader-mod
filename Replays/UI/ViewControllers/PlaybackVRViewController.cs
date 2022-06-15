@@ -119,16 +119,7 @@ namespace BeatLeader.Replays.UI
         [UIAction("pause-button-clicked")] protected void HandlePauseButtonClicked()
         {
             _onPause = !_onPause;
-            if (_onPause)
-            {
-                pauseButtonText = "Resume";
-                _playbackController.Pause();
-            }
-            else
-            {
-                pauseButtonText = "Pause";
-                _playbackController.Resume();
-            }
+            _playbackController.Pause(_onPause);
         }
         [UIAction("pin-button-clicked")] protected void HandlePinButtonClicked()
         {

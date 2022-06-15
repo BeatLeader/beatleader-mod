@@ -10,10 +10,10 @@ namespace BeatLeader.Replays
 {
     public interface ICameraPoseProvider
     {
-        string name { get; }
-        bool updateEveryFrame { get; }
-        bool injectAutomatically { get; }
         InputSystemType[] availableSystems { get; }
+        bool selfInject { get; }
+        bool updateEveryFrame { get; }
+        string name { get; }
 
         Pose GetPose(Pose cameraPose);
     }

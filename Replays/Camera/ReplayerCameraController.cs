@@ -39,28 +39,31 @@ namespace BeatLeader.Replays
         [Inject] protected readonly DiContainer _diContainer;
         [Inject] protected readonly InitData _data;
 
-        protected ICameraPoseProvider[] _poseProviders;
+        protected List<ICameraPoseProvider> _poseProviders;
         protected ICameraPoseProvider _currentPose;
+        protected string _requestedPose;
+
         protected Camera _camera;
         protected int _fieldOfView;
+
+        protected bool _wasRequestedLastTime;
         protected bool _initialized;
 
-        protected Pose _pose
+        public List<ICameraPoseProvider> poseProviders => _poseProviders;
+        public int fieldOfView => _fieldOfView;
+        public Pose pose
         {
             get
             {
                 return new Pose(transform.position, transform.rotation);
             }
-            set
+            protected set
             {
                 transform.position = value.position;
                 transform.rotation = value.rotation;
                 if (!_inputManager.isInFPFC) SetHandsPose(value);
             }
         }
-
-        public ICameraPoseProvider[] poseProviders => _poseProviders;
-        public int fieldOfView => _fieldOfView;
 
         public void Start()
         {
@@ -77,19 +80,23 @@ namespace BeatLeader.Replays
             _camera.gameObject.SetActive(true);
 
             _fieldOfView = _inputManager.isInFPFC ? _data.fieldOfView : _fieldOfView;
-            _poseProviders = _data.poseProviders.Where(x => x.availableSystems.Contains(_inputManager.currentInputSystem)).ToArray();
+            _poseProviders = _data.poseProviders.Where(x => x.availableSystems.Contains(_inputManager.currentInputSystem)).ToList();
             InjectPoses();
-            SetCameraPose(_data.cameraStartPose);
+            RequestCameraPose(_data.cameraStartPose);
 
             SetEnabled(true);
             _initialized = true;
         }
         public void LateUpdate()
         {
-            if (_currentPose == null) return;
-            if (_currentPose.updateEveryFrame)
+            if (_wasRequestedLastTime && _initialized)
             {
-                _pose = _currentPose.GetPose(_pose);
+                SetCameraPose(_requestedPose);
+                _wasRequestedLastTime = false;
+            }
+            if (_currentPose != null && _currentPose.updateEveryFrame)
+            {
+                pose = _currentPose.GetPose(pose);
             }
         }
         public void SetCameraFOV(int FOV)
@@ -111,7 +118,25 @@ namespace BeatLeader.Replays
             }
             if (cameraPose == null) return;
             _currentPose = cameraPose;
-            _pose = _currentPose.GetPose(_pose);
+            pose = _currentPose.GetPose(pose);
+            RefreshCamera();
+        }
+        public void SetCameraPose(ICameraPoseProvider provider)
+        {
+            if (_camera == null) return;
+            ICameraPoseProvider cameraPose = null;
+            foreach (var item in _poseProviders)
+            {
+                if (item == provider)
+                {
+                    cameraPose = provider;
+                    break;
+                }
+            }
+
+            if (cameraPose == null) _poseProviders.Add(provider);
+            _currentPose = provider;
+            pose = _currentPose.GetPose(pose);
             RefreshCamera();
         }
         public void SetEnabled(bool enabled)
@@ -135,6 +160,11 @@ namespace BeatLeader.Replays
             }
             SetEnabled(true);
         }
+        protected void RequestCameraPose(string name)
+        {
+            _requestedPose = name;
+            _wasRequestedLastTime = true;
+        }
         protected void SetHandsPose(Pose pose)
         {
             _vrControllersManager.handsContainer.transform.position = pose.position;
@@ -144,7 +174,7 @@ namespace BeatLeader.Replays
         {
             foreach (var item in poseProviders)
             {
-                if (item.injectAutomatically)
+                if (item.selfInject)
                     _diContainer.Inject(item);
             }
         }

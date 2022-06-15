@@ -27,34 +27,32 @@ namespace BeatLeader.Replays.Managers
         [Inject] protected readonly UI2DManager _ui2DManager;
         [Inject] protected readonly DiContainer _container;
 
-        protected IPlaybackViewController _playbackViewController;
-
-        public IPlaybackViewController playbackViewController => _playbackViewController;
+        public IPlaybackViewController playbackViewController { get; protected set; }
 
         public void Start()
         {
             if (_inputManager.isInFPFC)
-                _playbackViewController = new GameObject("PlaybackNonVRViewController").AddComponent<PlaybackNonVRViewController>();
+                playbackViewController = new GameObject("PlaybackNonVRViewController").AddComponent<PlaybackNonVRViewController>();
             else
-                _playbackViewController = new GameObject("PlaybackVRViewController").AddComponent<PlaybackVRViewController>();
+                playbackViewController = new GameObject("PlaybackVRViewController").AddComponent<PlaybackVRViewController>();
 
-            _container.Inject(_playbackViewController);
-            _container.Bind<IPlaybackViewController>().FromInstance(_playbackViewController).AsSingle();
-            _playbackViewController.Init();
+            _container.Inject(playbackViewController);
+            _container.Bind<IPlaybackViewController>().FromInstance(playbackViewController).AsSingle();
+            playbackViewController.Init();
 
-            Install(_playbackViewController);
+            Install(playbackViewController);
         }
         public void OnDestroy()
         {
-            Destroy(_playbackViewController.root);
+            Destroy(playbackViewController.root);
         }
         public void EnableInterface()
         {
-            _playbackViewController.Enable();
+            playbackViewController.Enable();
         }
         public void DisableInterface()
         {
-            _playbackViewController.Disable();
+            playbackViewController.Disable();
         }
         protected void Install(IPlaybackViewController viewController)
         {

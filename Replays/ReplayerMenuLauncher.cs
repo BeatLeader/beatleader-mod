@@ -40,7 +40,7 @@ namespace BeatLeader.Replays
             {
                 replayFinishedEvent?.Invoke(standardLevelScenesTransitionSetupData, levelCompletionResults);
             });
-            InputManager.DisableCursor();
+            InputManager.EnableCursor(false);
             _startedAsReplay = false;
             _lastTransitionData = null;
             _replay = null;

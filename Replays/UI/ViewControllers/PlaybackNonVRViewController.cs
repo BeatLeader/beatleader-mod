@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace BeatLeader.Replays.UI
     {
         [Inject] protected readonly PlaybackController _playbackController;
         [Inject] protected readonly ReplayerCameraController _cameraController;
-        [Inject] protected readonly SimpleTimeController _simpleTimeController;
+        [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
         [Inject] protected readonly PauseMenuManager.InitData _pauseMenuInitData;
         [Inject] protected readonly UI2DManager _ui2DManager;
         [Inject] protected readonly InputManager _inputManager;
@@ -34,6 +35,7 @@ namespace BeatLeader.Replays.UI
 
         [UIObject("timeline")] protected GameObject _timelineContainer;
         [UIObject("song-preview-image")] protected GameObject _songPreviewImage;
+        [UIObject("pause-button")] protected GameObject _pauseButton;
 
         [UIValue("camera-view-values")] protected List<object> _cameraViewValues;
         [UIValue("total-song-time")] protected int _totalSongTime;
@@ -50,15 +52,6 @@ namespace BeatLeader.Replays.UI
                 _cameraView = value;
                 Debug.LogWarning(value);
                 _cameraController.SetCameraPose(value);
-            }
-        }
-        [UIValue("pause-button-text")] protected string pauseButtonText
-        {
-            get => _pauseButtonText;
-            set
-            {
-                _pauseButtonText = value;
-                NotifyPropertyChanged(nameof(pauseButtonText));
             }
         }
         [UIValue("combined-song-time")] protected string combinedSongTime
@@ -104,6 +97,8 @@ namespace BeatLeader.Replays.UI
         protected const string _viewPath = Plugin.ResourcesPath + ".BSML.PlaybackNonVRUI.bsml";
 
         protected FloatingScreen _floatingScreen;
+        protected Sprite _songCoverImage;
+
         protected string _cameraView;
         protected string _pauseButtonText;
         protected string _combinedSongTime;
@@ -131,11 +126,11 @@ namespace BeatLeader.Replays.UI
             _timestamp = "Timestamp: " + _replay.info.timestamp;
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.name));
 
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(200, 200), false, new UnityEngine.Vector3(-1.93f, -0.67f), UnityEngine.Quaternion.identity);
+            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100, 200), false, new UnityEngine.Vector3(-1.93f, -0.67f), UnityEngine.Quaternion.identity);
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), _viewPath), _floatingScreen.gameObject, this);
             _floatingScreen.transform.localScale = new Vector2(0.7f, 0.7f);
 
-            Task.Run(LoadImage);
+            Task.Run(() => LoadImages(() => UpdateSongCoverImage()));
             _initialized = true;
         }
         public void Update()
@@ -159,9 +154,17 @@ namespace BeatLeader.Replays.UI
         {
             _floatingScreen.gameObject.SetActive(false);
         }
-        protected async void LoadImage()
+        protected void UpdateSongCoverImage()
         {
-            _songPreviewImage.GetComponentInChildren<ImageView>().sprite = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
+            _songPreviewImage.GetComponentInChildren<ImageView>().sprite = _songCoverImage;
+        }
+        protected async void LoadImages(Action callback = null)
+        {
+            _songCoverImage = await _previewBeatmapLevel.GetCoverImageAsync(new CancellationTokenSource().Token);
+            //_timelineMarker = Utilities.FindSpriteInAssembly("BeatLeader._9_Resources.Icons.TimelineMarker.png");
+            //_timelineBackground = Sprite.Create(Utilities.FindTextureInAssembly("BeatLeader._9_Resources.Icons.TimelineBackground.png"),
+            //    new Rect(0, 0, 356, 356), new Vector2(), 10, 0, SpriteMeshType.Tight, new Vector4(128, 128, 128, 128));
+            callback?.Invoke();
         }
 
         [UIAction("menu-button-clicked")] protected void HandleMenuButtonClicked()
@@ -171,16 +174,7 @@ namespace BeatLeader.Replays.UI
         [UIAction("pause-button-clicked")] protected void HandlePauseButtonClicked()
         {
             _onPause = !_onPause;
-            if (_onPause)
-            {
-                pauseButtonText = "Resume";
-                _playbackController.Pause();
-            }
-            else
-            {
-                pauseButtonText = "Pause";
-                _playbackController.Resume();
-            }
+            _playbackController.Pause(_onPause);
         }
     }
 }

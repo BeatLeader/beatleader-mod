@@ -13,7 +13,7 @@ namespace BeatLeader.Replays.Movement
     {
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
-        [Inject] protected readonly VRControllersManager _bodyManager;
+        [Inject] protected readonly VRControllersManager _vrControllersManager;
         [Inject] protected readonly Replay _replay;
 
         protected LinkedList<Frame> _frames;
@@ -21,9 +21,9 @@ namespace BeatLeader.Replays.Movement
         protected bool _lerpEnabled;
         protected bool _isPlaying;
 
-        private VRController leftSaber => _bodyManager.leftSaber;
-        private VRController rightSaber => _bodyManager.rightSaber;
-        private VRController head => _bodyManager.head;
+        private VRController leftSaber => _vrControllersManager.leftSaber;
+        private VRController rightSaber => _vrControllersManager.rightSaber;
+        private VRController head => _vrControllersManager.head;
         public bool isPlaying => _isPlaying;
 
         public void Start()
@@ -37,16 +37,17 @@ namespace BeatLeader.Replays.Movement
         {
             if (isPlaying && _frames.TryGetFrameByTime(_audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
             {
-                PlayFrame(frame);
+                PlayFrame(frame.Previous);
             }
         }
         public void PlayFrame(LinkedListNode<Frame> frame)
         {
-            if (frame == null && frame == frame.Previous) return;
-
-            if (_lerpEnabled && frame.Next != null && frame != null)
+            if (frame == null) return;
+            if (_lerpEnabled && frame.Next != null)
             {
-                float slerp = (float)((_audioTimeSyncController.songTime - frame.Value.time) / (frame.Next.Value.time - frame.Value.time));
+                float slerp = (float)(_audioTimeSyncController.songTime - frame.Value.time) / 
+                    (frame.Next.Value.time - frame.Value.time);
+                //Debug.LogWarning($"ft {frame.Value.time} | nft {frame.Next.Value.time} | ct {_audioTimeSyncController.songTime} | slerp {slerp}");
                 leftSaber.transform.SetPositionAndRotation(
                     Vector3.Lerp(frame.Value.leftHand.position, frame.Next.Value.leftHand.position, slerp),
                     Quaternion.Lerp(frame.Value.leftHand.rotation, frame.Next.Value.leftHand.rotation, slerp));

@@ -38,7 +38,7 @@ namespace BeatLeader.Replays
         private string _name;
 
         public InputSystemType[] availableSystems => _availableSystems;
-        public bool injectAutomatically => false;
+        public bool selfInject => false;
         public bool updateEveryFrame => false;
         public string name => _name;
 

@@ -17,7 +17,7 @@ namespace BeatLeader.Replays.Scoring
         [Inject] protected readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
         [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
         [Inject] protected readonly SimpleCutScoringElement.Pool _simpleCutScoringElementPool;
-        [Inject] protected readonly RescoreInvoker _rescoreInvoker;
+        [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
         [Inject] protected readonly IScoringInterlayer _scoringInterlayer;
         [Inject] protected readonly IReadonlyBeatmapData _beatmapData;
 
@@ -67,7 +67,7 @@ namespace BeatLeader.Replays.Scoring
             _beatmapObjectManager.noteWasCutEvent += HandleNoteWasCut;
             _beatmapObjectManager.noteWasMissedEvent += HandleNoteWasMissed;
             _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
-            _rescoreInvoker.onRescoreRequested += RescoreInTimeSpan;
+            _beatmapTimeController.onSongRewind += RescoreInTimeSpan;
             _compatibilityMode = _initData.compatibilityMode;
         }
         public virtual void OnDestroy()
@@ -84,9 +84,9 @@ namespace BeatLeader.Replays.Scoring
                 _beatmapObjectManager.noteWasSpawnedEvent -= HandleNoteWasSpawned;
             }
 
-            if (_rescoreInvoker != null)
+            if (_beatmapTimeController != null)
             {
-                _rescoreInvoker.onRescoreRequested -= RescoreInTimeSpan;
+                _beatmapTimeController.onSongRewind -= RescoreInTimeSpan;
             }
         }
         public virtual void LateUpdate()
@@ -159,11 +159,11 @@ namespace BeatLeader.Replays.Scoring
             }
             //Debug.Log($"{_multipliedScore}/{_modifiedScore}");
         }
-        public virtual void RescoreInTimeSpan(float startTime, float endTime)
+        public virtual void RescoreInTimeSpan(float endTime)
         {
             List<BeatmapDataItem> filteredBeatmapItems = _beatmapData
-                .GetFilteredCopy(x => x.time >= startTime && x.time <= endTime
-                && x.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject ? x : null).allBeatmapDataItems.ToList();
+               .GetFilteredCopy(x => x.time >= _audioTimeSyncController.songTimeOffset && x.time <= endTime
+               && x.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject ? x : null).allBeatmapDataItems.ToList();
 
             _modifiedScore = 0;
             _multipliedScore = 0;
@@ -172,57 +172,56 @@ namespace BeatLeader.Replays.Scoring
             _scoreMultiplierCounter.Reset();
             _maxScoreMultiplierCounter.Reset();
 
-            int modifiedScore = 0;
-            int multipliedScore = 0;
-            int immediateMaxPossibleModifiedScore = 0;
-            int immediateMaxPossibleMultipliedScore = 0;
-            float prevMultiplierFromModifiers = 0;
-
-            foreach (var item in filteredBeatmapItems)
+            foreach (BeatmapDataItem item in filteredBeatmapItems)
             {
                 NoteData noteData;
                 if ((noteData = item as NoteData) != null)
                 {
-                    var noteEvent = noteData.GetNoteEvent(_replay);
-                    if (noteEvent == null) continue;
-                    int cutScore = noteEvent.ComputeNoteScore();
-                    int maxScore = ScoreModel.GetNoteScoreDefinition(noteData.scoringType).maxCutScore;
-
-                    MultiplierEventType multiplierType = noteData.ComputeNoteMultiplier();
-                    _scoreMultiplierCounter.ProcessMultiplierEvent(multiplierType);
-                    _maxScoreMultiplierCounter.ProcessMultiplierEvent(multiplierType == MultiplierEventType.Positive ? 
-                        MultiplierEventType.Positive : MultiplierEventType.Neutral);
-
-                    int multiplier = _scoreMultiplierCounter.multiplier;
-                    int maxMultiplier = _maxScoreMultiplierCounter.multiplier;
-
-                    if (maxScore > 0)
+                    NoteEvent noteEvent = noteData.GetNoteEvent(_replay);
+                    if (noteEvent != null)
                     {
-                        multipliedScore += cutScore * multiplier;
-                        immediateMaxPossibleMultipliedScore += maxScore * maxMultiplier;
-                    }
+                        switch (noteEvent.eventType)
+                        {
+                            case NoteEventType.good:
+                                {
+                                    _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
+                                    if (noteData.ComputeNoteMultiplier() == MultiplierEventType.Positive)
+                                        _maxScoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
 
-                    float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
-                    if (prevMultiplierFromModifiers != totalMultiplier)
-                    {
-                        modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(multipliedScore, totalMultiplier);
-                        immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(immediateMaxPossibleMultipliedScore, totalMultiplier);
+                                    int totalScore = noteEvent.ComputeNoteScore();
+                                    int maxPossibleScore = ScoreModel.GetNoteScoreDefinition(noteData.scoringType).maxCutScore;
+
+                                    _multipliedScore += totalScore * _scoreMultiplierCounter.multiplier;
+                                    _immediateMaxPossibleMultipliedScore += maxPossibleScore * _maxScoreMultiplierCounter.multiplier;
+
+                                    float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
+                                    _prevMultiplierFromModifiers = _prevMultiplierFromModifiers != totalMultiplier ? totalMultiplier : _prevMultiplierFromModifiers;
+
+                                    _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
+                                    _immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_immediateMaxPossibleMultipliedScore, totalMultiplier);
+                                }
+                                break;
+                            case NoteEventType.bad:
+                            case NoteEventType.miss:
+                            case NoteEventType.bomb:
+                                _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                                break;
+                            default: throw new Exception("Unknown note type exception!");
+                        }
+                        continue;
                     }
-                    continue;
                 }
                 ObstacleData obstacleData;
                 if ((obstacleData = item as ObstacleData) != null)
                 {
-                    //_scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
-                    continue;
+                    WallEvent wallEvent = obstacleData.GetWallEvent(_replay);
+                    if (wallEvent != null)
+                    {
+                        _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                        continue;
+                    }
                 }
             }
-
-            _modifiedScore = modifiedScore;
-            _multipliedScore = multipliedScore;
-            _immediateMaxPossibleModifiedScore = immediateMaxPossibleModifiedScore;
-            _immediateMaxPossibleMultipliedScore = immediateMaxPossibleMultipliedScore;
-            _prevMultiplierFromModifiers = prevMultiplierFromModifiers;
 
             scoreDidChangeEvent?.Invoke(_multipliedScore, _modifiedScore);
             multiplierDidChangeEvent?.Invoke(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);
@@ -269,7 +268,7 @@ namespace BeatLeader.Replays.Scoring
 
                     if (_compatibilityMode)
                     {
-                        outElement = _scoringInterlayer.Convert(inElement, typeof(GoodCutScoringElement));
+                        outElement = _scoringInterlayer.Convert<GoodCutScoringElement>(inElement);
                     }
 
                     DespawnScoringElement(inElement);

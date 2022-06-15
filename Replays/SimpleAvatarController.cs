@@ -11,7 +11,7 @@ namespace BeatLeader.Replays
 {
     public class SimpleAvatarController : MonoBehaviour
     {
-        [Inject] protected readonly VRControllersManager _bodyManager;
+        [Inject] protected readonly VRControllersManager _vrControllersManager;
 
         protected AvatarTweenController _avatarTweenController;
 
@@ -19,7 +19,7 @@ namespace BeatLeader.Replays
         {
             _avatarTweenController = Resources.FindObjectsOfTypeAll<AvatarTweenController>().First();
             StartCoroutine(_avatarTweenController.AppearAnimation());
-            _avatarTweenController.transform.Find("PlayerAvatar/Head").SetParent(_bodyManager.head.transform, false);
+            _avatarTweenController.transform.Find("PlayerAvatar/Head").SetParent(_vrControllersManager.head.transform, false);
         }
     }
 }

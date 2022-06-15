@@ -371,7 +371,7 @@ namespace BeatLeader.Utils
         {
             for (frame = frames.First; frame != null; frame = frame.Next)
             {
-                if (frame.Value.time >= time && frame != null)
+                if (frame.Value.time >= time)
                 {
                     return true;
                 }
@@ -503,14 +503,7 @@ namespace BeatLeader.Utils
         }
         public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData noteData)
         {
-            switch (noteData.scoringType)
-            {
-                default:
-                    return ScoreMultiplierCounter.MultiplierEventType.Positive;
-                case NoteData.ScoringType.Ignore:
-                case NoteData.ScoringType.NoScore:
-                    return ScoreMultiplierCounter.MultiplierEventType.Neutral;
-            }
+            return ComputeNoteMultiplier(noteData.scoringType);
         }
         #endregion
     }

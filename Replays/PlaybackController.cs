@@ -24,41 +24,44 @@ namespace BeatLeader.Replays
         [Inject] protected readonly PauseController _pauseController;
         [Inject] protected readonly AudioTimeSyncController _songTimeSyncController;
         [Inject] protected readonly Replayer _replayer;
-        [Inject] protected readonly SimpleTimeController _simpleTimeController;
+        [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
 
         [Inject] protected readonly SaberManager _saberManager;
-        [Inject] protected readonly IScoreController _scoreController;
         [Inject] protected readonly IGamePause _gamePause;
+        [Inject] protected readonly BeatmapEffectsController _beatmapEffectsController;
 
         public float currentSongTime => _songTimeSyncController.songTime;
         public float totalSongTime => _songTimeSyncController.songEndTime;
 
-        public void Awake()
+        public void Start()
         {
             _vrControllersManager.ShowMenuControllers();
         }
-        public void Pause()
+        public void Pause(bool pause)
         {
-            _gamePause.Pause();
-            _saberManager.disableSabers = false;
-            _beatmapObjectManager.PauseAllBeatmapObjects(true);
-            ((Delegate)_pauseController.GetType().GetField("didPauseEvent", 
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
-        }
-        public void Resume()
-        {
-            _gamePause.Resume();
-            _beatmapObjectManager.PauseAllBeatmapObjects(false);
-            ((Delegate)_pauseController.GetType().GetField("didResumeEvent",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
+            if (pause)
+            {
+                _gamePause.Pause();
+                _saberManager.disableSabers = false;
+                ((Delegate)_pauseController.GetType().GetField("didPauseEvent",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
+            }
+            else
+            {
+                _gamePause.Resume();
+                ((Delegate)_pauseController.GetType().GetField("didResumeEvent",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
+            }
+            _beatmapObjectManager.PauseAllBeatmapObjects(pause);
+            _beatmapEffectsController.PauseEffects(pause);
         }
         public void Rewind(float time)
         {
-            _simpleTimeController.Rewind(time);
+            _beatmapTimeController.Rewind(time);
         }
         public void SetTimeScale(float multiplier)
         {
-            _simpleTimeController.SetTimeScale(multiplier);
+            _beatmapTimeController.SetTimeScale(multiplier);
         }
         public void EscapeToMenu()
         {

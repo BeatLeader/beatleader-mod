@@ -54,7 +54,7 @@ namespace BeatLeader.Replays
             typeof(ScoreMultiplierUIController),
             typeof(NoteCutScoreSpawner),
             typeof(BeatmapObjectExecutionRatingsRecorder),
-            typeof(VRsenalScoreLogger),
+            typeof(VRsenalScoreLogger)
         };
 
         public void InstallBindings(BeatLeader.Models.Replay replay, InitData data, DiContainer Container)
@@ -62,13 +62,14 @@ namespace BeatLeader.Replays
             Container.Bind<BeatLeader.Models.Replay>().FromInstance(replay).AsSingle();
             Container.Bind<InitData>().FromInstance(data).AsSingle();
             Container.Bind<SoftLocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<IScoringInterlayer>().To<SimpleScoringInterlayer>().AsSingle().NonLazy();
+            Container.Bind<IScoringInterlayer>().To<ReplayToBaseScoringInterlayer>().AsSingle().NonLazy();
             Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
                 .FromComponentInNewPrefab(new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>());
             if (data.noteSyncMode)
                 Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<RescoreInvoker>().AsSingle();
+            Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatmapEffectsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             #region ScoreController patch
             ScoreController scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
@@ -89,14 +90,13 @@ namespace BeatLeader.Replays
             Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             if (!data.compatibilityMode)
                 Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<SimpleTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             //Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView, "CenterView",
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView, "FreeView",
 
                 new StaticCameraPose("LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0))),
                 new StaticCameraPose("RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0))),
@@ -111,21 +111,29 @@ namespace BeatLeader.Replays
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<MultiplatformUIManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
+
             if (Container.Resolve<InputManager>().currentInputSystem == InputManager.InputSystemType.FPFC)
             {
-                Container.Resolve<IFPFCSettings>().Enabled = false;
-                Assembly assembly = typeof(IFPFCSettings).Assembly;
+                try
+                {
+                    Container.Resolve<IFPFCSettings>().Enabled = false;
+                    Assembly assembly = typeof(IFPFCSettings).Assembly;
 
-                Type smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
-                Type FPFCToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
-                Type simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
+                    Type smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
+                    Type FPFCToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
+                    Type simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
 
-                Container.Unbind<IFPFCSettings>();
-                Container.UnbindInterfacesTo(smoothCameraListenerType);
-                Container.UnbindInterfacesTo(FPFCToggleType);
-                //GameObject.Destroy((UnityEngine.Object)Container.TryResolve(simpleCameraControllerType));
+                    Container.Unbind<IFPFCSettings>();
+                    Container.UnbindInterfacesTo(smoothCameraListenerType);
+                    Container.UnbindInterfacesTo(FPFCToggleType);
+                    //GameObject.Destroy((UnityEngine.Object)Container.TryResolve(simpleCameraControllerType));
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.Critical($"An unhandled exception occurred during attemping to remove Sira's FPFC system! {ex}");
+                }
             }
+            Plugin.Log.Notice("Replay system successfully installed!");
         }
         public static void Install(BeatLeader.Models.Replay replay, InitData data, DiContainer Container)
         {

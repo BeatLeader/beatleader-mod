@@ -28,7 +28,7 @@ namespace BeatLeader.Replays
         protected string _name;
 
         public InputSystemType[] availableSystems => new InputSystemType[] { InputSystemType.FPFC };
-        public bool injectAutomatically => false;
+        public bool selfInject => false;
         public bool updateEveryFrame => true;
         public string name => _name;
 

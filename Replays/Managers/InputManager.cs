@@ -41,27 +41,19 @@ namespace BeatLeader.Replays.Managers
             if (_platformHelper.GetType() == typeof(DevicelessVRHelper))
             {
                 _currentInputSystem = InputSystemType.FPFC;
-                EnableCursor();
+                EnableCursor(true);
             }
             else
                 _currentInputSystem = InputSystemType.VR;
             CreateInputSystem(_currentInputSystem);
         }
-        public void EnableCustomInput()
+        public void EnableCustomInput(bool enable)
         {
-            _customEventSystem.enabled = true;
+            _customEventSystem.enabled = enable;
         }
-        public void DisableCustomInput()
+        public void EnableBaseInput(bool enable)
         {
-            _customEventSystem.enabled = false;
-        }
-        public void EnableBaseInput()
-        {
-            _softLocksController.Lock(false, _baseEventSystem);
-        }
-        public void DisableBaseInput()
-        {
-            _softLocksController.Lock(true, _baseEventSystem);
+            _softLocksController.Lock(enable, _baseEventSystem);
         }
         protected void CreateInputSystem(InputSystemType type)
         {
@@ -82,20 +74,12 @@ namespace BeatLeader.Replays.Managers
 
         public static void SwitchCursor()
         {
-            if (Cursor.visible)
-                DisableCursor();
-            else
-                EnableCursor();
+            EnableCursor(!Cursor.visible);
         }
-        public static void EnableCursor()
+        public static void EnableCursor(bool enable)
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-        public static void DisableCursor()
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = enable;
+            Cursor.lockState = enable ? CursorLockMode.None : CursorLockMode.Locked;
         }
     }
 }

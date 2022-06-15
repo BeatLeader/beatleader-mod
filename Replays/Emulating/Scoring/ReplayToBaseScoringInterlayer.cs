@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class SimpleScoringInterlayer : IScoringInterlayer
+    public class ReplayToBaseScoringInterlayer : IScoringInterlayer
     {
-        public ScoringElement Convert(ScoringElement element, Type type)
+        public T Convert<T>(ScoringElement element) where T : ScoringElement
         {
-            if (type != typeof(GoodCutScoringElement)) return null;
+            if (typeof(T) != typeof(GoodCutScoringElement)) return default;
 
             SimpleCutScoringElement scoringElementWithInterlayer;
             if ((scoringElementWithInterlayer = (element as SimpleCutScoringElement)) != null)
@@ -16,10 +16,10 @@ namespace BeatLeader.Replays.Scoring
                 GoodCutScoringElement goodCutScoringElement = new GoodCutScoringElementWithConstructor(
                     ConvertBuffer(scoringElementWithInterlayer.cutScoreBuffer), 
                     element.multiplierEventType, element.wouldBeCorrectCutBestPossibleMultiplierEventType);
-                return goodCutScoringElement;
+                return (T)(ScoringElement)goodCutScoringElement;
             }
 
-            return null;
+            return default;
         }
         private CutScoreBuffer ConvertBuffer(IReadonlyCutScoreBuffer buffer)
         {

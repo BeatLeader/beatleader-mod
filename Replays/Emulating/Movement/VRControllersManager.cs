@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace BeatLeader.Replays.Movement
         [Inject] protected readonly PlayerVRControllersManager _vrControllersManager;
         [Inject] protected readonly PlayerTransforms _playerTransforms;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
+        [Inject] protected readonly DiContainer _diContainer;
 
         protected List<(Transform, XRNode)> _attachedObjects = new List<(Transform, XRNode)>();
 
@@ -70,6 +72,7 @@ namespace BeatLeader.Replays.Movement
 
             _vrControllersManager.SetField("_leftHandVRController", _leftSaber);
             _vrControllersManager.SetField("_rightHandVRController", _rightSaber);
+            InjectControllers();
             _initialized = true;
         }
         public void ShowMenuControllers()
@@ -113,6 +116,16 @@ namespace BeatLeader.Replays.Movement
                 _attachedObjects.Remove(node);
             else
                 Debug.LogWarning("This object is not attached to the hand!");
+        }
+        protected void InjectControllers()
+        {
+            foreach (var item in GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (item.FieldType == typeof(VRController))
+                {
+                    _diContainer.Inject(item.GetValue(this));
+                }
+            }
         }
     }
 }

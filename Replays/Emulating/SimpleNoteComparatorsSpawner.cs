@@ -50,6 +50,19 @@ namespace BeatLeader.Replays.Emulating
         {
             _beatmapObjectManager.noteWasSpawnedEvent -= AddNoteComparator;
         }
+        public void DespawnAllComparators()
+        {
+            List<SimpleNoteCutComparator> comparatorsToRemove = new List<SimpleNoteCutComparator>();
+            foreach (var item in _spawnedComparators)
+            {
+                comparatorsToRemove.Add(item);
+            }
+            foreach (var item in comparatorsToRemove)
+            {
+                _spawnedComparators.Remove(item);
+                _simpleNoteCutComparatorPool.Despawn(item);
+            }
+        }
         public bool TryGetLoadedComparator(NoteController noteController, out SimpleNoteCutComparator comparator)
         {
             foreach (var item in _spawnedComparators)
@@ -76,7 +89,7 @@ namespace BeatLeader.Replays.Emulating
             comparator = null;
             return false;
         }
-        private void AddNoteComparator(NoteController controller, NoteEvent noteCutEvent)
+        protected void AddNoteComparator(NoteController controller, NoteEvent noteCutEvent)
         {
             if (noteCutEvent != null && noteCutEvent.eventType != NoteEventType.miss && noteCutEvent.noteCutInfo != null)
             {
@@ -86,7 +99,7 @@ namespace BeatLeader.Replays.Emulating
                 _spawnedComparators.Add(comparator);
             }
         }
-        private void AddNoteComparator(NoteController controller)
+        protected void AddNoteComparator(NoteController controller)
         {
             var noteCutEvent = controller.GetNoteEvent(_replay);
             if (noteCutEvent != null && noteCutEvent.eventType != NoteEventType.miss && noteCutEvent.noteCutInfo != null)

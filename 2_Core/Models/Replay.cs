@@ -425,7 +425,7 @@ namespace BeatLeader.Models
                         case StructType.pauses:
                             replay.pauses = DecodePauses(buffer, ref pointer);
                             break;
-                        }
+                    }
                 }
 
                 return replay;
@@ -438,39 +438,39 @@ namespace BeatLeader.Models
 
         private static ReplayInfo DecodeInfo(byte[] buffer, ref int pointer)
         {
-                ReplayInfo result = new ReplayInfo();
+            ReplayInfo result = new ReplayInfo();
 
-                result.version = DecodeString(buffer, ref pointer);
-                result.gameVersion = DecodeString(buffer, ref pointer);
-                result.timestamp = DecodeString(buffer, ref pointer);
+            result.version = DecodeString(buffer, ref pointer);
+            result.gameVersion = DecodeString(buffer, ref pointer);
+            result.timestamp = DecodeString(buffer, ref pointer);
 
-                result.playerID = DecodeString(buffer, ref pointer);
-                result.playerName = DecodeString(buffer, ref pointer);
-                result.platform = DecodeString(buffer, ref pointer);
+            result.playerID = DecodeString(buffer, ref pointer);
+            result.playerName = DecodeName(buffer, ref pointer);
+            result.platform = DecodeString(buffer, ref pointer);
 
-                result.trackingSytem = DecodeString(buffer, ref pointer);
-                result.hmd = DecodeString(buffer, ref pointer);
-                result.controller = DecodeString(buffer, ref pointer);
+            result.trackingSytem = DecodeString(buffer, ref pointer);
+            result.hmd = DecodeString(buffer, ref pointer);
+            result.controller = DecodeString(buffer, ref pointer);
 
-                result.hash = DecodeString(buffer, ref pointer);
-                result.songName = DecodeString(buffer, ref pointer);
-                result.mapper = DecodeString(buffer, ref pointer);
-                result.difficulty = DecodeString(buffer, ref pointer);
-                
-                result.score = DecodeInt(buffer, ref pointer);
-                result.mode = DecodeString(buffer, ref pointer);
-                result.environment = DecodeString(buffer, ref pointer);
-                result.modifiers = DecodeString(buffer, ref pointer);
-                result.jumpDistance = DecodeFloat(buffer, ref pointer);
-                result.leftHanded = DecodeBool(buffer, ref pointer);
-                result.height = DecodeFloat(buffer, ref pointer);
+            result.hash = DecodeString(buffer, ref pointer);
+            result.songName = DecodeString(buffer, ref pointer);
+            result.mapper = DecodeString(buffer, ref pointer);
+            result.difficulty = DecodeString(buffer, ref pointer);
 
-                result.startTime = DecodeFloat(buffer, ref pointer);
-                result.failTime = DecodeFloat(buffer, ref pointer);
-                result.speed = DecodeFloat(buffer, ref pointer);
+            result.score = DecodeInt(buffer, ref pointer);
+            result.mode = DecodeString(buffer, ref pointer);
+            result.environment = DecodeString(buffer, ref pointer);
+            result.modifiers = DecodeString(buffer, ref pointer);
+            result.jumpDistance = DecodeFloat(buffer, ref pointer);
+            result.leftHanded = DecodeBool(buffer, ref pointer);
+            result.height = DecodeFloat(buffer, ref pointer);
 
-                return result;
-         }
+            result.startTime = DecodeFloat(buffer, ref pointer);
+            result.failTime = DecodeFloat(buffer, ref pointer);
+            result.speed = DecodeFloat(buffer, ref pointer);
+
+            return result;
+        }
 
         private static List<Frame> DecodeFrames(byte[] buffer, ref int pointer)
         {
@@ -557,8 +557,15 @@ namespace BeatLeader.Models
             result.eventTime = DecodeFloat(buffer, ref pointer);
             result.spawnTime = DecodeFloat(buffer, ref pointer);
             result.eventType = (NoteEventType)DecodeInt(buffer, ref pointer);
-            if (result.eventType == NoteEventType.good || result.eventType == NoteEventType.bad) {
+            if (result.eventType == NoteEventType.good || result.eventType == NoteEventType.bad)
+            {
                 result.noteCutInfo = DecodeCutInfo(buffer, ref pointer);
+            }
+
+            if (result.noteID == -1 || ("" + result.noteID).Last() == '9')
+            {
+                result.noteID += 4;
+                result.eventType = NoteEventType.bomb;
             }
 
             return result;
@@ -629,9 +636,32 @@ namespace BeatLeader.Models
             return result;
         }
 
+        private static string DecodeName(byte[] buffer, ref int pointer)
+        {
+            int length = BitConverter.ToInt32(buffer, pointer);
+            int lengthOffset = 0;
+            if (length > 0)
+            {
+                while (BitConverter.ToInt32(buffer, length + pointer + 4 + lengthOffset) != 6
+                    && BitConverter.ToInt32(buffer, length + pointer + 4 + lengthOffset) != 5
+                    && BitConverter.ToInt32(buffer, length + pointer + 4 + lengthOffset) != 8)
+                {
+                    lengthOffset++;
+                }
+            }
+            string @string = Encoding.UTF8.GetString(buffer, pointer + 4, length + lengthOffset);
+            pointer += length + 4 + lengthOffset;
+            return @string;
+        }
+
         private static string DecodeString(byte[] buffer, ref int pointer)
         {
             int length = BitConverter.ToInt32(buffer, pointer);
+            if (length > 1000 || length < 0)
+            {
+                pointer += 1;
+                return DecodeString(buffer, ref pointer);
+            }
             string @string = Encoding.UTF8.GetString(buffer, pointer + 4, length);
             pointer += length + 4;
             return @string;

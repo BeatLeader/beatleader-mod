@@ -157,7 +157,7 @@ namespace BeatLeader.Utils
 
             transitionData.SetField("_sceneSetupDataArray", combinedScenes.ToArray());
         }
-        public static void ExpandScenesData(this ScenesTransitionSetupDataSO transitionData, SceneInfo[] scenesToExpand)
+        public static void ExpandScenesInfo(this ScenesTransitionSetupDataSO transitionData, SceneInfo[] scenesToExpand)
         {
             SceneInfo[] originalScenes = transitionData.GetProperty<SceneInfo[], ScenesTransitionSetupDataSO>("scenes");
             if (scenesToExpand == null || originalScenes == null) return;

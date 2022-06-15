@@ -32,11 +32,18 @@ namespace BeatLeader.Replays
         }
         public void StartLevelWithReplay(Score score)
         {
-            StartLevelWithReplay(_levelDetailViewController.selectedDifficultyBeatmap, _levelDetailViewController.beatmapLevel, 
-                HttpUtils.DownloadReplay(score.replay, 1));
+            var replayTask = StartCoroutine(HttpUtils.DownloadReplay(score.replay, 1, (Replay result) => 
+            {
+                Plugin.Log.Notice($"Downloaded replay of [{result.info.playerID}] for [{result.info.songName}-{result.info.difficulty}]");
+                StartLevelWithReplay(result);
+            }));
         }
-        public void StartLevelWithReplay(IDifficultyBeatmap difficulty, IPreviewBeatmapLevel previewBeatmapLevel, Replay replay)
+        public void StartLevelWithReplay(Replay replay, IDifficultyBeatmap difficulty = null, IPreviewBeatmapLevel previewBeatmapLevel = null)
         {
+            if (replay == null) return;
+            if (difficulty == null) difficulty = _levelDetailViewController.selectedDifficultyBeatmap;
+            if (previewBeatmapLevel == null) previewBeatmapLevel = _levelDetailViewController.beatmapLevel;
+
             StandardLevelScenesTransitionSetupDataSO data = replay.CreateTransitionData(_playerDataModel, difficulty, previewBeatmapLevel);
             data.didFinishEvent += HandleReplayDidFinish;
             _gameScenesManager.PushScenes(data, 0.7f);

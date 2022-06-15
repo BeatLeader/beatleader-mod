@@ -10,20 +10,25 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BeatLeader.Utils {
-    internal static class HttpUtils {
+namespace BeatLeader.Utils
+{
+    internal static class HttpUtils
+    {
         #region Get single entity
 
-        internal static IEnumerator GetData<T>(string url, Action<T> onSuccess, Action<string> onFail, int retry = 1) {
+        internal static IEnumerator GetData<T>(string url, Action<T> onSuccess, Action<string> onFail, int retry = 1)
+        {
             Plugin.Log.Debug($"Request url = {url}");
 
             var failReason = "";
-            for (int i = 1; i <= retry; i++) {
+            for (int i = 1; i <= retry; i++)
+            {
                 void StopRetries() => i = retry;
 
                 var handler = new DownloadHandlerBuffer();
 
-                var request = new UnityWebRequest(url) {
+                var request = new UnityWebRequest(url)
+                {
                     downloadHandler = handler,
                     timeout = 30
                 };
@@ -31,36 +36,45 @@ namespace BeatLeader.Utils {
                 yield return request.SendWebRequest();
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
-                if (request.isHttpError || request.isNetworkError) {
+                if (request.isHttpError || request.isNetworkError)
+                {
                     Plugin.Log.Debug($"Request failed: {request.error}");
-                    switch(request.responseCode) {
-                        case BLConstants.MaintenanceStatus: {
-                            failReason = "Maintenance";
-                            StopRetries();
-                            break;
-                        }
-                        case BLConstants.OutdatedModStatus: {
-                            failReason = "Mod update required";
-                            StopRetries();
-                            break;
-                        }
-                        default: {
-                            failReason = $"Connection error ({request.responseCode})";
-                            break;
-                        }
+                    switch (request.responseCode)
+                    {
+                        case BLConstants.MaintenanceStatus:
+                            {
+                                failReason = "Maintenance";
+                                StopRetries();
+                                break;
+                            }
+                        case BLConstants.OutdatedModStatus:
+                            {
+                                failReason = "Mod update required";
+                                StopRetries();
+                                break;
+                            }
+                        default:
+                            {
+                                failReason = $"Connection error ({request.responseCode})";
+                                break;
+                            }
                     };
                     continue;
                 }
 
-                try {
-                    var options = new JsonSerializerSettings() {
+                try
+                {
+                    var options = new JsonSerializerSettings()
+                    {
                         MissingMemberHandling = MissingMemberHandling.Ignore,
                         NullValueHandling = NullValueHandling.Ignore
                     };
                     var result = JsonConvert.DeserializeObject<T>(handler.text, options);
                     onSuccess.Invoke(result);
                     yield break;
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Plugin.Log.Debug(e);
                     failReason = e.Message;
                 }
@@ -72,15 +86,18 @@ namespace BeatLeader.Utils {
 
         #region get list of entities
 
-        internal static IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action<string> onFail, int retry = 1) {
+        internal static IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action<string> onFail, int retry = 1)
+        {
             var uri = new Uri(url);
             Plugin.Log.Debug($"Request url = {uri}");
 
             var failReason = "";
-            for (int i = 1; i <= retry; i++) {
+            for (int i = 1; i <= retry; i++)
+            {
 
                 var handler = new DownloadHandlerBuffer();
-                var request = new UnityWebRequest(url) {
+                var request = new UnityWebRequest(url)
+                {
                     downloadHandler = handler,
                     timeout = 30
                 };
@@ -88,19 +105,24 @@ namespace BeatLeader.Utils {
                 yield return request.SendWebRequest();
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
-                if (request.isHttpError || request.isNetworkError) {
+                if (request.isHttpError || request.isNetworkError)
+                {
                     continue;
                 }
 
-                try {
-                    var options = new JsonSerializerSettings() {
+                try
+                {
+                    var options = new JsonSerializerSettings()
+                    {
                         MissingMemberHandling = MissingMemberHandling.Ignore,
                         NullValueHandling = NullValueHandling.Ignore
                     };
                     var result = JsonConvert.DeserializeObject<Paged<T>>(handler.text, options);
                     onSuccess.Invoke(result);
                     yield break;
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Plugin.Log.Debug(e);
                     failReason = e.Message;
                 }
@@ -112,20 +134,23 @@ namespace BeatLeader.Utils {
 
         #region ReplayUpload
 
-        public static IEnumerator UploadReplay(Replay replay, int retry = 3) {
+        public static IEnumerator UploadReplay(Replay replay, int retry = 3)
+        {
             MemoryStream stream = new();
             ReplayEncoder.Encode(replay, new BinaryWriter(stream, Encoding.UTF8));
 
-            for (int i = 1; i <= retry; i++) {
+            for (int i = 1; i <= retry; i++)
+            {
                 string GetFailMessage(string reason) => $"Attempt {i}/{retry} failed! {reason}";
-                
+
                 LeaderboardState.UploadRequest.NotifyStarted();
 
                 Task<string> ticketTask = Authentication.SteamTicket();
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
 
                 string authToken = ticketTask.Result;
-                if (authToken == null) {
+                if (authToken == null)
+                {
                     Plugin.Log.Debug("No auth token, skip replay upload");
                     LeaderboardState.UploadRequest.NotifyFailed("Auth failed");
                     break; // auth failed, no upload
@@ -133,7 +158,8 @@ namespace BeatLeader.Utils {
 
                 Plugin.Log.Debug($"Attempt to upload replay {i}/{retry}");
 
-                var request = new UnityWebRequest(BLConstants.REPLAY_UPLOAD_URL + "?ticket=" + authToken, UnityWebRequest.kHttpVerbPOST) {
+                var request = new UnityWebRequest(BLConstants.REPLAY_UPLOAD_URL + "?ticket=" + authToken, UnityWebRequest.kHttpVerbPOST)
+                {
                     downloadHandler = new DownloadHandlerBuffer(),
                     uploadHandler = new UploadHandlerRaw(stream.ToArray())
                 };
@@ -142,19 +168,26 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
                 var body = Encoding.UTF8.GetString(request.downloadHandler.data);
-                if (body != null && body.Length > 0) {
-                    if (!(body.StartsWith("{") || body.StartsWith("[") || body.StartsWith("<"))) {
+                if (body != null && body.Length > 0)
+                {
+                    if (!(body.StartsWith("{") || body.StartsWith("[") || body.StartsWith("<")))
+                    {
                         Plugin.Log.Debug($"Response content: {body}");
                     }
                 }
 
-                try {
-                    if (request.isNetworkError || request.isHttpError) {
+                try
+                {
+                    if (request.isNetworkError || request.isHttpError)
+                    {
                         Plugin.Log.Debug($"Error: {request.error}");
                         LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage($"Network error: {request.responseCode}"));
-                    } else {
+                    }
+                    else
+                    {
                         Plugin.Log.Debug(body);
-                        var options = new JsonSerializerSettings() {
+                        var options = new JsonSerializerSettings()
+                        {
                             MissingMemberHandling = MissingMemberHandling.Ignore,
                             NullValueHandling = NullValueHandling.Ignore
                         };
@@ -165,7 +198,9 @@ namespace BeatLeader.Utils {
 
                         yield break; // if OK - stop retry cycle
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Plugin.Log.Debug("Exception");
                     Plugin.Log.Debug(e);
                     LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage($"Internal error: {e.Message}"));
@@ -177,9 +212,9 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region ReplayDownload
-        public static IEnumerator DownloadReplay(string link, int retry = 1, Action<Replay> callback = null)
+        public static IEnumerator DownloadReplay(string link, int attempts = 1, Action<Replay> callback = null)
         {
-            for (int i = 1; i <= retry; i++)
+            for (int i = 1; i <= attempts; i++)
             {
                 var request = new UnityWebRequest(link, UnityWebRequest.kHttpVerbGET)
                 {
@@ -203,11 +238,22 @@ namespace BeatLeader.Utils {
                     Plugin.Log.Critical($"An unhandled exception occurred during attemping to decode replay! {ex}");
                 }
 
-                callback(replay);
+                callback?.Invoke(replay);
                 yield return replay;
             }
         }
-
+        public static Replay DownloadReplay(string link, int attempts = 1)
+        {
+            var numerator = DownloadReplay(link, attempts, null);
+            while (numerator.MoveNext())
+            {
+                if (numerator.Current != null && numerator.Current.GetType() == typeof(Replay))
+                {
+                    return (Replay)numerator.Current;
+                }
+            }
+            return null;
+        }
         #endregion
 
         #region Vote
@@ -218,18 +264,21 @@ namespace BeatLeader.Utils {
             string mapMode,
             Vote vote,
             int retry = 1
-        ) {
+        )
+        {
             var failReason = "";
 
-            for (var i = 1; i <= retry; i++) {
+            for (var i = 1; i <= retry; i++)
+            {
                 Plugin.Log.Debug($"Vote request: {i + 1}/{retry}");
                 LeaderboardState.VoteRequest.NotifyStarted();
 
                 var ticketTask = Authentication.SteamTicket();
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
-                
+
                 var authToken = ticketTask.Result;
-                if (authToken == null) {
+                if (authToken == null)
+                {
                     failReason = "Authentication failed";
                     break; // auth failed, no retries
                 }
@@ -237,21 +286,26 @@ namespace BeatLeader.Utils {
                 var request = BuildVoteRequest(mapHash, mapDiff, mapMode, vote, authToken);
                 yield return request.SendWebRequest();
 
-                if (request.isNetworkError || request.isHttpError) {
+                if (request.isNetworkError || request.isHttpError)
+                {
                     failReason = $"Network error: {request.responseCode}";
                     continue;
                 }
 
                 VoteStatus status;
 
-                try {
+                try
+                {
                     var body = Encoding.UTF8.GetString(request.downloadHandler.data);
-                    var options = new JsonSerializerSettings() {
+                    var options = new JsonSerializerSettings()
+                    {
                         MissingMemberHandling = MissingMemberHandling.Ignore,
                         NullValueHandling = NullValueHandling.Ignore
                     };
                     status = JsonConvert.DeserializeObject<VoteStatus>(body, options);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Plugin.Log.Debug($"Exception: {e}");
                     failReason = $"Internal error: {e.Message}";
                     continue;
@@ -266,15 +320,18 @@ namespace BeatLeader.Utils {
             LeaderboardState.VoteRequest.NotifyFailed(failReason);
         }
 
-        private static UnityWebRequest BuildVoteRequest(string mapHash, string mapDiff, string mapMode, Vote vote, string authToken) {
-            var query = new Dictionary<string, object> {
+        private static UnityWebRequest BuildVoteRequest(string mapHash, string mapDiff, string mapMode, Vote vote, string authToken)
+        {
+            var query = new Dictionary<string, object>
+            {
                 ["rankability"] = vote.Rankability,
                 ["ticket"] = authToken
             };
             if (vote.HasStarRating) query["stars"] = vote.StarRating;
-            if (vote.HasMapType) query["type"] = (int) vote.MapType;
+            if (vote.HasMapType) query["type"] = (int)vote.MapType;
             var url = string.Format(BLConstants.VOTE, mapHash, mapDiff, mapMode, ToHttpParams(query));
-            return new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST) {
+            return new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST)
+            {
                 downloadHandler = new DownloadHandlerBuffer()
             };
         }
@@ -283,13 +340,16 @@ namespace BeatLeader.Utils {
 
         #region Utils
 
-        internal static string ToHttpParams(Dictionary<string, System.Object> param) {
+        internal static string ToHttpParams(Dictionary<string, System.Object> param)
+        {
             if (param.Count == 0) { return ""; }
 
             StringBuilder sb = new();
 
-            foreach (var item in param) {
-                if (sb.Length > 0) {
+            foreach (var item in param)
+            {
+                if (sb.Length > 0)
+                {
                     sb.Append("&");
                 }
                 sb.Append($"{item.Key}={item.Value}");

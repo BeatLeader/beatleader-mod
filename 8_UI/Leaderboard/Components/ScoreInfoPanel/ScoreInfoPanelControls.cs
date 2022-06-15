@@ -13,7 +13,6 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterials();
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnScoreInfoPanelTabChanged;
-            //LeaderboardEvents.ReplayButtonWasPressedAction += 
             OnScoreInfoPanelTabChanged(LeaderboardState.ScoreInfoPanelTab);
         }
 

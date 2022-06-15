@@ -215,7 +215,6 @@
     <Compile Include="0_Harmony\InstallersPatches\MenuInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PreSwingRatingEnhancerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />
-    <Compile Include="0_Harmony\LevelDetailViewPatch.cs" />
     <Compile Include="0_Harmony\LevelInfoPatch.cs" />
     <Compile Include="0_Harmony\ModifiersPatches\GameplayModifiersPanelPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderUtilPatch.cs" />
@@ -365,7 +364,6 @@
     <Compile Include="Replays\Emulating\Scoring\Constructors\CutScoreBufferWithConstructor.cs" />
     <Compile Include="Replays\Emulating\Scoring\Constructors\GoodCutScoringElementWithConstructor.cs" />
     <Compile Include="Replays\Models\ScoringData.cs" />
-    <Compile Include="Replays\SimpleAvatarController.cs" />
     <Compile Include="Replays\Emulating\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="Replays\Emulating\SimpleCutScoreEffectSpawner.cs" />
     <Compile Include="Replays\PlaybackController.cs" />
@@ -374,8 +372,6 @@
     <Compile Include="Replays\Emulating\Scoring\ReplayerScoreController.cs" />
     <Compile Include="Replays\Emulating\Movement\VRControllerWrapper.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
-    <Compile Include="Replays\Temporary stuff\EventsHandler.cs" />
-    <Compile Include="Replays\Temporary stuff\ReplayMenuUI.cs" />
     <Compile Include="Replays\Emulating\Movement\Replayer.cs" />
     <Compile Include="Replays\Emulating\SimpleNoteCutComparator.cs" />
     <Compile Include="Replays\Emulating\SimpleNoteCutter.cs" />

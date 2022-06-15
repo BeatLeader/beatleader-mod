@@ -91,7 +91,6 @@ namespace BeatLeader.Replays
             if (!data.compatibilityMode)
                 Container.Bind<SimpleCutScoreEffectSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            //Container.Bind<SimpleAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<Replayer>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

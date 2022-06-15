@@ -1,7 +1,8 @@
 ﻿using System;
-using BeatLeader.Replays.Managers;
+using BeatLeader.Manager;
 using BeatLeader.Utils;
 using BeatLeader.Models;
+using BeatLeader.Replays.Managers;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
@@ -10,6 +11,7 @@ namespace BeatLeader.Replays
 {
     public class ReplayerMenuLauncher : MonoBehaviour
     {
+        [Inject] protected readonly StandardLevelDetailViewController _levelDetailViewController;
         [Inject] protected readonly GameScenesManager _gameScenesManager;
         [Inject] protected readonly DiContainer _diContainer;
         [Inject] protected readonly PlayerDataModel _playerDataModel;
@@ -24,6 +26,15 @@ namespace BeatLeader.Replays
         public static Replay replay => _replay;
         public static bool isStartedAsReplay => _startedAsReplay;
 
+        public void Awake()
+        {
+            LeaderboardEvents.ReplayButtonWasPressedAction += StartLevelWithReplay;
+        }
+        public void StartLevelWithReplay(Score score)
+        {
+            StartLevelWithReplay(_levelDetailViewController.selectedDifficultyBeatmap, _levelDetailViewController.beatmapLevel, 
+                HttpUtils.DownloadReplay(score.replay, 1));
+        }
         public void StartLevelWithReplay(IDifficultyBeatmap difficulty, IPreviewBeatmapLevel previewBeatmapLevel, Replay replay)
         {
             StandardLevelScenesTransitionSetupDataSO data = replay.CreateTransitionData(_playerDataModel, difficulty, previewBeatmapLevel);

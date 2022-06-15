@@ -1,71 +1,53 @@
 using System.Reflection;
-using BeatLeader.Replays;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Zenject;
 
-namespace BeatLeader.Installers
-{
+namespace BeatLeader.Installers {
     [UsedImplicitly]
-    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller>
-    {
-        public override void InstallBindings()
-        {
+    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
+        public override void InstallBindings() {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
-            if (ReplayerMenuLauncher.isStartedAsReplay)
-            {
-                ReplayerManualInstaller.Install(ReplayerMenuLauncher.replay, new ReplayerManualInstaller.InitData(true, true, true, 130), Container);
-            }
-            else InitRecorder();
+
+            InitRecorder();
         }
 
-        private void InitRecorder()
-        {
+        private void InitRecorder() {
             RecorderUtils.buffer = RecorderUtils.shouldRecord;
 
-            if (RecorderUtils.shouldRecord)
-            {
+            if (RecorderUtils.shouldRecord) {
                 RecorderUtils.shouldRecord = false;
 
                 #region Gates
-                //if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
-                //{
-                //    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
-                //    return;
-                //}
-                //if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
-                //{
-                //    Plugin.Log.Debug("OST level detected. No recording.");
-                //    return;
-                //}
-                //if (GetSetupDataSO()?.gameMode != "Solo")
-                //{
-                //    Plugin.Log.Debug("Not a \"Solo\" game mode");
-                //    return;
-                //}
+                if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
+                    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
+                    return;
+                }
+                if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId))) {
+                    Plugin.Log.Debug("OST level detected. No recording.");
+                    return;
+                }
+                if (GetSetupDataSO()?.gameMode != "Solo") {
+                    Plugin.Log.Debug("Not a \"Solo\" game mode");
+                    return;
+                }
                 #endregion
 
                 Plugin.Log.Debug("Starting a BL Replay Recorder.");
 
                 Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
-            }
-            else
-            {
+            } else {
                 //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
             }
         }
 
-        private StandardLevelScenesTransitionSetupDataSO GetSetupDataSO()
-        {
-            try
-            {
+        private StandardLevelScenesTransitionSetupDataSO GetSetupDataSO() {
+            try {
                 return Container.TryResolve<StandardLevelScenesTransitionSetupDataSO>();
-            }
-            catch
-            {
+            } catch {
                 return null;
             }
         }

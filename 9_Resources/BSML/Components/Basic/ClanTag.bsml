@@ -1,0 +1,5 @@
+<vertical id="container" pref-width="3.0">
+    <horizontal id="background" pref-height="2.8" bg="round-rect-panel">
+        <text id="text-component" word-wrapping="false" align="Midline"/>
+    </horizontal>
+</vertical>

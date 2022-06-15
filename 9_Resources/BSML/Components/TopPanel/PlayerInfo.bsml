@@ -2,7 +2,7 @@
     <horizontal pref-height="14" spacing="2">
         <vertical pref-width="54">
             <horizontal>
-                <text text="~name-text" overflow-mode="Ellipsis" word-wrapping="false" font-size="6" align="Center"/>
+                <text text="~name-text" rich-text="false" overflow-mode="Ellipsis" word-wrapping="false" font-size="6" align="Center"/>
             </horizontal>
 
             <horizontal active="~stats-active" spacing="4" pref-height="4" horizontal-fit="PreferredSize">
@@ -12,7 +12,7 @@
                 </horizontal>
                 <horizontal pref-height="4" spacing="1">
                     <macro.as-host host="country-flag">
-                        <macro.reparent transform="root"/>
+                        <macro.reparent transform="ui-component"/>
                     </macro.as-host>
                     <text text="~country-rank-text" align="Midline"/>
                 </horizontal>
@@ -23,9 +23,13 @@
         </vertical>
 
         <vertical pref-width="14">
+            <!--  AVATAR  -->
             <macro.as-host host="avatar">
-                <macro.reparent transform="root"/>
+                <macro.reparent transform="ui-component"/>
             </macro.as-host>
+
+            <!--  CLICKABLE AREA  -->
+            <clickable-image ignore-layout="true" src="#TransparentPixel" pref-width="14" pref-height="14" on-click="avatar-on-click"/>
         </vertical>
     </horizontal>
 </vertical>

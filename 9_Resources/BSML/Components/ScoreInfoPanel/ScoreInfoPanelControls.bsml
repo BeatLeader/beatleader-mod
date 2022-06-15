@@ -18,5 +18,5 @@
                      on-click="graph-on-click"/>
 
     <!--  REPLAY BUTTON (INACTIVE) -->
-    <button active="false" text="Replay" font-size="4" on-click="replay-on-click"/>
+    <button active="true" text="Replay" font-size="4" on-click="replay-on-click"/>
 </horizontal>

@@ -17,7 +17,7 @@ namespace BeatLeader {
         }
 
         #endregion
-        
+
         #region ScoresContext
 
         public static event Action<ScoresContext> ScoresContextChangedEvent;
@@ -29,6 +29,25 @@ namespace BeatLeader {
                 ConfigFileData.Instance.ScoresContext = value;
                 ScoresContextChangedEvent?.Invoke(value);
             }
+        }
+
+        #endregion
+
+        #region LeaderboardTableMask
+
+        public static event Action<ScoreRowCellType> LeaderboardTableMaskChangedEvent;
+
+        public static ScoreRowCellType LeaderboardTableMask {
+            get => ConfigFileData.Instance.LeaderboardTableMask;
+            set {
+                if (ConfigFileData.Instance.LeaderboardTableMask.Equals(value)) return;
+                ConfigFileData.Instance.LeaderboardTableMask = value;
+                LeaderboardTableMaskChangedEvent?.Invoke(value);
+            }
+        }
+
+        public static ScoreRowCellType GetLeaderboardTableMask(bool includePP) {
+            return includePP ? LeaderboardTableMask : LeaderboardTableMask & ~ScoreRowCellType.PerformancePoints;
         }
 
         #endregion

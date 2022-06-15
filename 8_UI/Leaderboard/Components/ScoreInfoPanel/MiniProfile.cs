@@ -1,32 +1,55 @@
-using System.Text;
+using System;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.MiniProfile.bsml")]
-    internal class MiniProfile : ReeUIComponent {
+    internal class MiniProfile : ReeUIComponentV2 {
         #region Components
 
         [UIValue("player-avatar"), UsedImplicitly]
-        private PlayerAvatar _playerAvatar = Instantiate<PlayerAvatar>();
+        private PlayerAvatar _playerAvatar;
 
         [UIValue("country-flag"), UsedImplicitly]
-        private CountryFlag _countryFlag = Instantiate<CountryFlag>();
+        private CountryFlag _countryFlag;
+
+        private void Awake() {
+            _playerAvatar = Instantiate<PlayerAvatar>(transform);
+            _countryFlag = Instantiate<CountryFlag>(transform);
+        }
 
         #endregion
 
         #region SetPlayer
 
         public void SetPlayer(Player player) {
-            _playerAvatar.SetAvatar(player.avatar);
+            _playerAvatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             _countryFlag.SetCountry(player.country);
+            SetMessage(player.patreonFeatures?.message ?? "");
 
             PlayerName = FormatUtils.FormatUserName(player.name);
             PlayerGlobalRank = FormatUtils.FormatRank(player.rank, true);
             PlayerCountryRank = FormatUtils.FormatRank(player.countryRank, true);
             PlayerPp = FormatUtils.FormatPP(player.pp);
+        }
+
+        #endregion
+
+        #region PatreonFeatures
+
+        private const float NoMessageOffset = 33.5f;
+        private const float MessageOffset = NoMessageOffset + 7;
+
+        private void SetMessage(string message) {
+            try {
+                MessageText = message;
+            } catch (Exception) {
+                MessageText = "";
+            }
+
+            ShowMessage = !message.IsEmpty();
+            YOffset = ShowMessage ? MessageOffset : NoMessageOffset;
         }
 
         #endregion
@@ -89,6 +112,50 @@ namespace BeatLeader.Components {
             set {
                 if (_playerPp.Equals(value)) return;
                 _playerPp = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region YOffset
+
+        private float _yOffset;
+
+        [UIValue("y-offset"), UsedImplicitly]
+        public float YOffset {
+            get => _yOffset;
+            set {
+                if (_yOffset.Equals(value)) return;
+                _yOffset = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
+        #region Message
+
+        private string _messageText = "";
+
+        [UIValue("message-text"), UsedImplicitly]
+        public string MessageText {
+            get => _messageText;
+            set {
+                if (_messageText.Equals(value)) return;
+                _messageText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private bool _showMessage;
+
+        [UIValue("show-message"), UsedImplicitly]
+        public bool ShowMessage {
+            get => _showMessage;
+            set {
+                if (_showMessage.Equals(value)) return;
+                _showMessage = value;
                 NotifyPropertyChanged();
             }
         }

@@ -1,0 +1,7 @@
+<horizontal pref-height="8" spacing="2" horizontal-fit="PreferredSize">
+    <macro.define name="button-width" value="20"/>
+    <macro.define name="button-font-size" value="6"/>
+
+    <button text="&lt;b&gt;NO" pref-width="~button-width" font-size="~button-font-size" face-color="~no-color" on-click="no-on-click"/>
+    <button text="&lt;b&gt;YES" pref-width="~button-width" font-size="~button-font-size" face-color="~yes-color" on-click="yes-on-click"/>
+</horizontal>

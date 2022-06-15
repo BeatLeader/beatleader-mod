@@ -1,0 +1,5 @@
+<vertical id="root-node">
+    <horizontal ignore-layout="true" anchor-pos-y="-0.2">
+        <text id="text-component" word-wrapping="false" font-size="3.4" italics="true" align="Right"/>
+    </horizontal>
+</vertical>

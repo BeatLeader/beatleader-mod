@@ -6,8 +6,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.StatusBar.bsml")]
-    internal class StatusBar : ReeUIComponent {
+    internal class StatusBar : ReeUIComponentV2 {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
@@ -15,6 +14,8 @@ namespace BeatLeader.Components {
             LeaderboardState.ProfileRequest.FailedEvent += OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent += OnScoreUploadFailed;
+            LeaderboardState.VoteRequest.FinishedEvent += OnVoteFinished;
+            LeaderboardState.VoteRequest.FailedEvent += OnVoteFailed;
         }
 
         protected override void OnDispose() {
@@ -22,9 +23,11 @@ namespace BeatLeader.Components {
             LeaderboardState.ProfileRequest.FailedEvent -= OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent -= OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
+            LeaderboardState.VoteRequest.FinishedEvent -= OnVoteFinished;
+            LeaderboardState.VoteRequest.FailedEvent -= OnVoteFailed;
         }
 
-        protected override void OnDeactivate() {
+        private void OnDisable() {
             StopAllCoroutines();
             MessageText = "";
         }
@@ -32,6 +35,14 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
+        
+        private void OnVoteFinished(VoteStatus result) {
+            ShowGoodNews("Your vote has been accepted!");
+        }
+
+        private void OnVoteFailed(string reason) {
+            ShowBadNews($"Vote failed! {reason}");
+        }
 
         private void OnProfileRequestFailed(string reason) {
             ShowBadNews($"Profile update failed! {reason}");

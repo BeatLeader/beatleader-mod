@@ -19,7 +19,9 @@ namespace BeatLeader {
                 throw new Exception("AssetBundle load error!");
             }
 
-            LoadAssets(localAssetBundle);
+            LoadSprites(localAssetBundle);
+            LoadMaterials(localAssetBundle);
+            LoadPrefabs(localAssetBundle);
 
             localAssetBundle.Unload(false);
             _ready = true;
@@ -27,10 +29,20 @@ namespace BeatLeader {
 
         #endregion
 
-        #region Assets
+        #region Prefabs
 
         public static GameObject MonkeyPrefab;
         public static GameObject AccuracyGraphPrefab;
+
+        private static void LoadPrefabs(AssetBundle assetBundle) {
+            MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
+            AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
+        }
+
+        #endregion
+
+        #region Materials
+
         public static Material LogoMaterial;
         public static Material PlayerAvatarMaterial;
         public static Material UIAdditiveGlowMaterial;
@@ -39,6 +51,25 @@ namespace BeatLeader {
         public static Material AccGridBackgroundMaterial;
         public static Material HandAccIndicatorMaterial;
         public static Material AccDetailsRowMaterial;
+        public static Material ClanTagBackgroundMaterial;
+        public static Material VotingButtonMaterial;
+
+        private static void LoadMaterials(AssetBundle assetBundle) {
+            LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
+            PlayerAvatarMaterial = assetBundle.LoadAsset<Material>("PlayerAvatarMaterial");
+            UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
+            ScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("ScoreBackgroundMaterial");
+            ScoreUnderlineMaterial = assetBundle.LoadAsset<Material>("ScoreUnderlineMaterial");
+            AccGridBackgroundMaterial = assetBundle.LoadAsset<Material>("AccGridBackgroundMaterial");
+            HandAccIndicatorMaterial = assetBundle.LoadAsset<Material>("HandAccIndicatorMaterial");
+            AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
+            ClanTagBackgroundMaterial = assetBundle.LoadAsset<Material>("ClanTagBackgroundMaterial");
+            VotingButtonMaterial = assetBundle.LoadAsset<Material>("VotingButtonMaterial");
+        }
+
+        #endregion
+
+        #region Sprites
 
         [UsedImplicitly]
         public static Sprite LocationIcon;
@@ -70,23 +101,16 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite GraphIcon;
 
-        #endregion
+        [UsedImplicitly]
+        public static Sprite WebsiteLinkIcon;
 
-        #region LoadAssets
+        [UsedImplicitly]
+        public static Sprite DiscordLinkIcon;
 
-        private static void LoadAssets(AssetBundle assetBundle) {
-            MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
-            AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
+        [UsedImplicitly]
+        public static Sprite PatreonLinkIcon;
 
-            LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
-            PlayerAvatarMaterial = assetBundle.LoadAsset<Material>("PlayerAvatarMaterial");
-            UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
-            ScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("ScoreBackgroundMaterial");
-            ScoreUnderlineMaterial = assetBundle.LoadAsset<Material>("ScoreUnderlineMaterial");
-            AccGridBackgroundMaterial = assetBundle.LoadAsset<Material>("AccGridBackgroundMaterial");
-            HandAccIndicatorMaterial = assetBundle.LoadAsset<Material>("HandAccIndicatorMaterial");
-            AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
-
+        private static void LoadSprites(AssetBundle assetBundle) {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
             BeatLeaderLogoGradient = assetBundle.LoadAsset<Sprite>("BeatLeaderLogoGradient");
@@ -97,6 +121,9 @@ namespace BeatLeader {
             DetailsIcon = assetBundle.LoadAsset<Sprite>("BL_DetailsIcon");
             GridIcon = assetBundle.LoadAsset<Sprite>("BL_GridIcon");
             GraphIcon = assetBundle.LoadAsset<Sprite>("BL_GraphIcon");
+            WebsiteLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Website");
+            DiscordLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Discord");
+            PatreonLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Patreon");
         }
 
         #endregion

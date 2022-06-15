@@ -1,17 +1,23 @@
 using System;
 using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.TopPanel.PlayerInfo.bsml")]
-    internal class PlayerInfo : ReeUIComponent {
+    internal class PlayerInfo : ReeUIComponentV2 {
         #region Components
 
         [UIValue("avatar"), UsedImplicitly]
-        private PlayerAvatar _avatar = Instantiate<PlayerAvatar>(false);
+        private PlayerAvatar _avatar;
+
+        [UIValue("country-flag"), UsedImplicitly]
+        private CountryFlag _countryFlag;
+
+        private void Awake() {
+            _avatar = Instantiate<PlayerAvatar>(transform);
+            _countryFlag = Instantiate<CountryFlag>(transform);
+        }
 
         #endregion
 
@@ -29,7 +35,12 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
-        
+
+        [UIAction("avatar-on-click"), UsedImplicitly]
+        private void AvatarOnClick() {
+            LeaderboardEvents.NotifyAvatarWasPressed();
+        }
+
         private void OnProfileRequestStateChanged(RequestState requestState) {
             switch (requestState) {
                 case RequestState.Uninitialized:
@@ -60,20 +71,13 @@ namespace BeatLeader.Components {
 
         private void OnProfileFetched(Player player) {
             _countryFlag.SetCountry(player.country);
-            _avatar.SetAvatar(player.avatar);
+            _avatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             NameText = FormatUtils.FormatUserName(player.name);
             GlobalRankText = FormatUtils.FormatRank(player.rank, true);
             CountryRankText = FormatUtils.FormatRank(player.countryRank, true);
             PpText = FormatUtils.FormatPP(player.pp);
             StatsActive = true;
         }
-
-        #endregion
-
-        #region CountryRankImage
-
-        [UIValue("country-flag"), UsedImplicitly]
-        private CountryFlag _countryFlag = Instantiate<CountryFlag>();
 
         #endregion
 

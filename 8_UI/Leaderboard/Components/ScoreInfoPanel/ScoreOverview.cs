@@ -1,13 +1,11 @@
 using System.Text;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
-using IPA.Config.Data;
 using JetBrains.Annotations;
 using ModestTree;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreOverview.bsml")]
-    internal class ScoreOverview : ReeUIComponent {
+    internal class ScoreOverview : ReeUIComponentV2 {
         #region SetScore
 
         public void SetScore(Score score) {
@@ -19,7 +17,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region SetActive
 
         public void SetActive(bool value) {
@@ -85,7 +83,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region TimeSetText
 
         private string _timeSetText = "";

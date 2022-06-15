@@ -1,17 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BeatLeader.Utils {
+﻿namespace BeatLeader.Utils {
     internal static class BLConstants {
+        #region HTTP Status codes
+
+        public const int MaintenanceStatus = 503;
+        public const int OutdatedModStatus = 418;
+
+        #endregion
 
         #region Basic links
 
         public static readonly string REPLAY_UPLOAD_URL = "https://api.beatleader.xyz/replay";
 
         public static readonly string BEATLEADER_API_URL = "https://api.beatleader.xyz";
+
+        #endregion
+
+        #region Voting
+
+        public static readonly string VOTE = // /vote/steam/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}&ticket={ticket}
+            BEATLEADER_API_URL + "/vote/steam/{0}/{1}/{2}?{3}";
+
+        public static readonly string VOTE_STATUS = // /votestatus/{hash}/{diff}/{mode}?player={playerId}
+            BEATLEADER_API_URL + "/votestatus/{0}/{1}/{2}?player={3}";
 
         #endregion
 

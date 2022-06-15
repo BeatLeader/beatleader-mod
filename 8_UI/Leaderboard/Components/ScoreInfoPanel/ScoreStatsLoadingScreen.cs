@@ -1,14 +1,9 @@
 using System;
-using System.Text;
-using System.Windows.Forms;
-using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using ModestTree;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.ScoreStatsLoadingScreen.bsml")]
-    internal class ScoreStatsLoadingScreen : ReeUIComponent {
+    internal class ScoreStatsLoadingScreen : ReeUIComponentV2 {
         #region Initialize
 
         protected override void OnInitialize() {
@@ -43,7 +38,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region SetActive
 
         public void SetActive(bool value) {
@@ -51,7 +46,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region Active
 
         private bool _active = true;
@@ -67,7 +62,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region text
 
         private string _text = "";

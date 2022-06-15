@@ -1,0 +1,4 @@
+<vertical pref-width="52" bg="round-rect-panel" vertical-fit="PreferredSize">
+    <slider-setting text="" value="slider-value" formatter="slider-formatter" bind-value="true" apply-on-change="true"
+                    show-buttons="true" increment="0.1" min="0" max="15"/>
+</vertical>

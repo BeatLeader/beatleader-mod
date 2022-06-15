@@ -5,8 +5,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Components.ScoreInfoPanel.AccuracyDetailsRow.bsml")]
-    internal class AccuracyDetailsRow : ReeUIComponent {
+    internal class AccuracyDetailsRow : ReeUIComponentV2 {
         #region Events
 
         protected override void OnInitialize() {

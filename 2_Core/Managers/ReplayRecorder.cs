@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using BeatLeader.Core.Managers.NoteEnhancer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using HarmonyLib;
 using IPA.Loader;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -15,6 +17,50 @@ using Transform = BeatLeader.Models.Transform;
 namespace BeatLeader {
     [UsedImplicitly]
     public class ReplayRecorder : IInitializable, IDisposable, ILateTickable {
+        #region Harmony
+
+        #region Patching
+
+        private static ReplayRecorder _instance;
+        private Harmony _harmony;
+
+        private void InitializePatches() {
+            _instance = this;
+            _harmony ??= new Harmony("BeatLeader.ReplayRecorder");
+            _harmony.Patch(LateUpdatePatchDescriptor);
+        }
+
+        private void DisposePatches() {
+            _harmony.UnpatchSelf();
+            _instance = null;
+        }
+
+        #endregion
+
+        #region ScoreController.LateUpdate Patch
+
+        private static HarmonyPatchDescriptor LateUpdatePatchDescriptor => new(
+            typeof(ScoreController).GetMethod(nameof(ScoreController.LateUpdate), BindingFlags.Instance | BindingFlags.Public),
+            typeof(ReplayRecorder).GetMethod(nameof(ScoreControllerLateUpdatePrefix), BindingFlags.Static | BindingFlags.NonPublic)
+        );
+
+        // ReSharper disable InconsistentNaming
+        private static void ScoreControllerLateUpdatePrefix(
+            AudioTimeSyncController ____audioTimeSyncController,
+            List<float> ____sortedNoteTimesWithoutScoringElements,
+            List<ScoringElement> ____sortedScoringElementsWithoutMultiplier
+        ) {
+            _instance.OnBeforeScoreControllerLateUpdate(
+                ____audioTimeSyncController,
+                ____sortedNoteTimesWithoutScoringElements,
+                ____sortedScoringElementsWithoutMultiplier
+            );
+        }
+
+        #endregion
+
+        #endregion
+        
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
@@ -56,9 +102,10 @@ namespace BeatLeader {
         private int _wallId;
 
         public void Initialize() {
+            InitializePatches();
+            
             _beatmapObjectManager.noteWasAddedEvent += OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent += OnObstacleWasSpawned;
-            _beatmapObjectManager.noteWasMissedEvent += OnNoteWasMissed;
             _beatmapObjectManager.noteWasCutEvent += OnNoteWasCut;
             _transitionSetup.didFinishEvent += OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent += OnBeatSpawnControllerDidInit;
@@ -76,9 +123,10 @@ namespace BeatLeader {
         }
 
         public void Dispose() {
+            DisposePatches();
+            
             _beatmapObjectManager.noteWasAddedEvent -= OnNoteWasAdded;
             _beatmapObjectManager.obstacleWasSpawnedEvent -= OnObstacleWasSpawned;
-            _beatmapObjectManager.noteWasMissedEvent -= OnNoteWasMissed;
             _beatmapObjectManager.noteWasCutEvent -= OnNoteWasCut;
             _transitionSetup.didFinishEvent -= OnTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent -= OnBeatSpawnControllerDidInit;
@@ -125,7 +173,8 @@ namespace BeatLeader {
         }
 
         private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
-            
+            if (_stopRecording) { return; }
+
             var noteId = _noteId++;
             _noteIdCache[noteData] = noteId;
             NoteEvent noteEvent = new();
@@ -134,8 +183,9 @@ namespace BeatLeader {
             _noteEventCache[noteId] = noteEvent;
         }
 
-        private void OnObstacleWasSpawned(ObstacleController obstacleController)
-        {
+        private void OnObstacleWasSpawned(ObstacleController obstacleController) {
+            if (_stopRecording) { return; }
+
             var wallId = _wallId++;
             _wallCache[obstacleController] = wallId;
 
@@ -147,20 +197,9 @@ namespace BeatLeader {
             _wallEventCache[wallId] = wallEvent;
         }
 
-        private void OnNoteWasMissed(NoteController noteController) {
-            var noteId = _noteIdCache[noteController.noteData];
+        private void OnObstacle(ObstacleController obstacle) {
+            if (_stopRecording) { return; }
 
-            if (noteController.noteData.colorType != ColorType.None)
-            {
-                var noteEvent = _noteEventCache[noteId];
-                noteEvent.eventTime = _timeSyncController.songTime;
-                noteEvent.eventType = NoteEventType.miss;
-                _replay.notes.Add(noteEvent);
-            }
-        }
-
-        private void OnObstacle(ObstacleController obstacle)
-        {
             if (_currentWallEvent == null)
             {
                 WallEvent wallEvent = _wallEventCache[_wallCache[obstacle]];
@@ -171,40 +210,63 @@ namespace BeatLeader {
         }
 
         private void OnNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo) {
-            
+            if (_stopRecording) { return; }
+
             var noteId = _noteIdCache[noteCutInfo.noteData];
-
             var noteEvent = _noteEventCache[noteId];
-            noteEvent.eventTime = _timeSyncController.songTime;
+            noteEvent.noteCutInfo = CreateNoteCutInfo(noteCutInfo);
+        }
 
-            if (noteController.noteData.colorType == ColorType.None)
-            {
-                noteEvent.eventType = NoteEventType.bomb;
-            }
+        private void OnBeforeScoreControllerLateUpdate(
+            AudioTimeSyncController audioTimeSyncController,
+            List<float> sortedNoteTimesWithoutScoringElements,
+            List<ScoringElement> sortedScoringElementsWithoutMultiplier
+        ) {
+            if (_stopRecording) { return; }
 
-            _replay.notes.Add(noteEvent);
-            
-            if (noteCutInfo.speedOK && noteCutInfo.directionOK && noteCutInfo.saberTypeOK && !noteCutInfo.wasCutTooSoon) {
-                noteEvent.eventType = NoteEventType.good;
-                noteEvent.noteCutInfo = new();
-            } else {
-                noteEvent.eventType = NoteEventType.bad;
-                noteEvent.noteCutInfo = new();
-                PopulateNoteCutInfo(noteEvent.noteCutInfo, noteCutInfo);
+            var songTime = audioTimeSyncController.songTime;
+            var nearestNotCutNoteTime = sortedNoteTimesWithoutScoringElements.Count > 0 ? sortedNoteTimesWithoutScoringElements[0] : float.MaxValue;
+            var skipAfter = songTime + 0.15f;
+
+            foreach (var scoringElement in sortedScoringElementsWithoutMultiplier) {
+                if (scoringElement.time >= skipAfter && scoringElement.time <= nearestNotCutNoteTime) break;
+                
+                var noteData = scoringElement.noteData;
+                if (scoringElement is MissScoringElement && noteData.scoringType == NoteData.ScoringType.NoScore) continue;
+
+                var noteId = _noteIdCache[noteData];
+                var noteEvent = _noteEventCache[noteId];
+                noteEvent.eventTime = songTime;
+                _replay.notes.Add(noteEvent);
             }
         }
 
         private void OnScoringDidFinish(ScoringElement scoringElement) {
-            if (scoringElement is GoodCutScoringElement goodCut) {
-                CutScoreBuffer cutScoreBuffer = goodCut.GetField<CutScoreBuffer, GoodCutScoringElement>("_cutScoreBuffer");
-                SaberSwingRatingCounter saberSwingRatingCounter = cutScoreBuffer.GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
-                
-                var noteId = _noteIdCache[cutScoreBuffer.noteCutInfo.noteData];
-                
-                var cutEvent = _noteEventCache[noteId];
-                var noteCutInfo = cutEvent.noteCutInfo;
-                PopulateNoteCutInfo(noteCutInfo, cutScoreBuffer.noteCutInfo);
-                SwingRatingEnhancer.Enhance(noteCutInfo, saberSwingRatingCounter);
+            if (_stopRecording) { return; }
+
+            var noteData = scoringElement.noteData;
+            var noteId = _noteIdCache[noteData];
+            var noteEvent = _noteEventCache[noteId];
+            var isBomb = noteData.colorType == ColorType.None;
+
+            switch (scoringElement) {
+                case MissScoringElement: {
+                    if (isBomb) return;
+                    noteEvent.eventType = NoteEventType.miss;
+                    break;
+                }
+                case BadCutScoringElement: {
+                    noteEvent.eventType = isBomb ? NoteEventType.bomb : NoteEventType.bad;
+                    break;
+                }
+                case GoodCutScoringElement goodCut: {
+                    var cutScoreBuffer = goodCut.GetField<CutScoreBuffer, GoodCutScoringElement>("_cutScoreBuffer");
+                    var saberSwingRatingCounter = cutScoreBuffer.GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
+                    SwingRatingEnhancer.Enhance(noteEvent.noteCutInfo, saberSwingRatingCounter);
+                    SwingRatingEnhancer.Reset(saberSwingRatingCounter);
+                    noteEvent.eventType = NoteEventType.good;
+                    break;
+                }
             }
         }
 
@@ -216,6 +278,9 @@ namespace BeatLeader {
         private void OnTransitionSetupOnDidFinishEvent(StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
             _stopRecording = true;
+            _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
+
+
             _replay.info.score = results.multipliedScore;
             MapEnhancer.energy = results.energy; 
             MapEnhancer.Enhance(_replay);
@@ -251,44 +316,48 @@ namespace BeatLeader {
             }
         }
 
-        private void OnPlayerHeightChange(float height)
-        {
+        private void OnPlayerHeightChange(float height) {
+            if (_stopRecording) { return; }
+
             AutomaticHeight automaticHeight = new();
             automaticHeight.height = height;
             automaticHeight.time = _timeSyncController.songTime;
 
             _replay.heights.Add(automaticHeight);
-
         }
 
-        private void OnPause()
-        {
+        private void OnPause() {
+            if (_stopRecording) { return; }
+
             _currentPause = new();
             _currentPause.time = _timeSyncController.songTime;
             _pauseStartTime = DateTime.Now;
         }
 
-        private void OnResume()
-        {
+        private void OnResume() {
+            if (_stopRecording) { return; }
+
             _currentPause.duration = DateTime.Now.ToUnixTime() - _pauseStartTime.ToUnixTime();
             _replay.pauses.Add(_currentPause);
             _currentPause = null;
         }
 
-        private void PopulateNoteCutInfo(Models.NoteCutInfo noteCutInfo, NoteCutInfo cutInfo) {
-            noteCutInfo.speedOK = cutInfo.speedOK;
-            noteCutInfo.directionOK = cutInfo.directionOK;
-            noteCutInfo.saberTypeOK = cutInfo.saberTypeOK;
-            noteCutInfo.wasCutTooSoon = cutInfo.wasCutTooSoon;
-            noteCutInfo.saberSpeed = cutInfo.saberSpeed;
-            noteCutInfo.saberDir = cutInfo.saberDir;
-            noteCutInfo.saberType = (int)cutInfo.saberType;
-            noteCutInfo.timeDeviation = cutInfo.timeDeviation;
-            noteCutInfo.cutDirDeviation = cutInfo.cutDirDeviation;
-            noteCutInfo.cutPoint = cutInfo.cutPoint;
-            noteCutInfo.cutNormal = cutInfo.cutNormal;
-            noteCutInfo.cutDistanceToCenter = cutInfo.cutDistanceToCenter;
-            noteCutInfo.cutAngle = cutInfo.cutAngle;
+        private static Models.NoteCutInfo CreateNoteCutInfo(NoteCutInfo cutInfo) {
+            return new Models.NoteCutInfo {
+                speedOK = cutInfo.speedOK,
+                directionOK = cutInfo.directionOK,
+                saberTypeOK = cutInfo.saberTypeOK,
+                wasCutTooSoon = cutInfo.wasCutTooSoon,
+                saberSpeed = cutInfo.saberSpeed,
+                saberDir = cutInfo.saberDir,
+                saberType = (int) cutInfo.saberType,
+                timeDeviation = cutInfo.timeDeviation,
+                cutDirDeviation = cutInfo.cutDirDeviation,
+                cutPoint = cutInfo.cutPoint,
+                cutNormal = cutInfo.cutNormal,
+                cutDistanceToCenter = cutInfo.cutDistanceToCenter,
+                cutAngle = cutInfo.cutAngle
+            };
         }
     }
 }

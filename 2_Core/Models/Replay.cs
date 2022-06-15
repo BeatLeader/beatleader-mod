@@ -62,6 +62,7 @@ namespace BeatLeader.Models
     }
     public enum NoteEventType
     {
+        unknown = -1,
         good = 0,
         bad = 1,
         miss = 2,

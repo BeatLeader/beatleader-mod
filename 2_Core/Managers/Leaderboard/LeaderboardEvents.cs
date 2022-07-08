@@ -79,6 +79,16 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
+        
+        #region RankedPlaylistUpdateButtonWasPressedAction
+
+        public static event Action RankedPlaylistUpdateButtonWasPressedAction;
+
+        public static void NotifyRankedPlaylistUpdateButtonWasPressed() {
+            RankedPlaylistUpdateButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
 
         //-- INTERNAL -----------------
 

@@ -1,6 +1,8 @@
-﻿using IPA;
+﻿using Hive.Versioning;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
+using IPA.Loader;
 using JetBrains.Annotations;
 using IPALogger = IPA.Logging.Logger;
 
@@ -11,8 +13,11 @@ namespace BeatLeader {
         #region Constants
 
         internal const string ResourcesPath = "BeatLeader._9_Resources";
+        internal const string PluginId = "BeatLeader";
         internal const string HarmonyId = "BeatLeader";
         internal const string FancyName = "BeatLeader";
+
+        internal static Version Version => PluginManager.GetPlugin(PluginId).HVersion;
 
         #endregion
 

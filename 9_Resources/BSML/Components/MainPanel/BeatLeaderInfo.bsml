@@ -1,12 +1,22 @@
-<modal id="modal" click-off-closes="true" size-delta-x="30" size-delta-y="32">
-    <macro.define name="image-height" value="7"/>
+<modal id="modal" click-off-closes="true" size-delta-x="60" size-delta-y="30">
+    <macro.define name="image-width" value="18"/>
     
-    <vertical pref-width="30" pad="2" spacing="1" vertical-fit="PreferredSize">
-        <horizontal pref-height="4">
-            <text text="&lt;u&gt;Beatleader community" font-size="3.4" font-color="#999999" align="Center"/>
+    <vertical spacing="2" vertical-fit="PreferredSize">
+        <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
+            <text text="~version-info-text" font-size="4" align="Center"/>
+            <button text="Update" active="~version-update-button-active" on-click="version-update-button-on-click"/>
         </horizontal>
-        <clickable-image src="#BL_Website" pref-height="~image-height" preserve-aspect="true" on-click="website-on-click"/>
-        <clickable-image src="#BL_Discord" pref-height="~image-height" preserve-aspect="true" on-click="discord-on-click"/>
-        <clickable-image src="#BL_Patreon" pref-height="~image-height" preserve-aspect="true" on-click="patreon-on-click"/>
+        <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
+            <text text="~playlist-info-text" font-size="4" align="Center"/>
+            <button text="Update" active="~playlist-update-button-active" interactable="~playlist-update-button-interactable" on-click="playlist-update-button-on-click"/>
+        </horizontal>
+        <horizontal pad-top="2" pref-height="5">
+            <text text="&lt;u&gt;BeatLeader community" font-size="3.4" font-color="#999999" align="Center"/>
+        </horizontal>
+        <horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
+            <clickable-image src="#BL_Website" pref-width="~image-width" preserve-aspect="true" on-click="website-on-click"/>
+            <clickable-image src="#BL_Discord" pref-width="~image-width" preserve-aspect="true" on-click="discord-on-click"/>
+            <clickable-image src="#BL_Patreon" pref-width="~image-width" preserve-aspect="true" on-click="patreon-on-click"/>
+        </horizontal>
     </vertical>
 </modal>

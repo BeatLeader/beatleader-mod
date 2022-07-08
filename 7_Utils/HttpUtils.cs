@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.Models;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -14,6 +15,41 @@ using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace BeatLeader.Utils {
     internal static class HttpUtils {
+        #region GetBytes
+        
+        internal static IEnumerator GetBytes(string url, Action<byte[]> onSuccess, Action<string> onFail, int retry = 1) {
+            Plugin.Log.Debug($"Request url = {url}");
+
+            var failReason = "";
+            for (var i = 1; i <= retry; i++) {
+                var request = new UnityWebRequest(url) {
+                    downloadHandler = new DownloadHandlerBuffer(),
+                    timeout = 30
+                };
+
+                yield return request.SendWebRequest();
+                Plugin.Log.Debug($"StatusCode: {request.responseCode}");
+
+                if (request.isHttpError || request.isNetworkError) {
+                    Plugin.Log.Debug($"Request failed: {request.error}");
+                    GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
+                    if (!shouldRetry) break;
+                    continue;
+                }
+
+                try {
+                    onSuccess.Invoke(request.downloadHandler.data);
+                    yield break;
+                } catch (Exception e) {
+                    Plugin.Log.Debug(e);
+                    failReason = e.Message;
+                }
+            }
+            onFail.Invoke(failReason);
+        }
+
+        #endregion
+        
         #region Get single entity
 
         internal static IEnumerator GetData<T>(string url, Action<T> onSuccess, Action<string> onFail, int retry = 1) {
@@ -21,8 +57,6 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
-                void StopRetries() => i = retry;
-
                 var handler = new DownloadHandlerBuffer();
 
                 var request = new UnityWebRequest(url) {
@@ -35,22 +69,8 @@ namespace BeatLeader.Utils {
 
                 if (request.isHttpError || request.isNetworkError) {
                     Plugin.Log.Debug($"Request failed: {request.error}");
-                    switch(request.responseCode) {
-                        case BLConstants.MaintenanceStatus: {
-                            failReason = "Maintenance";
-                            StopRetries();
-                            break;
-                        }
-                        case BLConstants.OutdatedModStatus: {
-                            failReason = "Mod update required";
-                            StopRetries();
-                            break;
-                        }
-                        default: {
-                            failReason = $"Connection error ({request.responseCode})";
-                            break;
-                        }
-                    };
+                    GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
+                    if (!shouldRetry) break;
                     continue;
                 }
 
@@ -80,7 +100,6 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
-
                 var handler = new DownloadHandlerBuffer();
                 var request = new UnityWebRequest(url) {
                     downloadHandler = handler,
@@ -91,6 +110,8 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
                 if (request.isHttpError || request.isNetworkError) {
+                    GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
+                    if (!shouldRetry) break;
                     continue;
                 }
 
@@ -152,30 +173,26 @@ namespace BeatLeader.Utils {
                     Plugin.Log.Debug($"Response content: {body}");
                 }
 
+                if (request.isNetworkError || request.isHttpError) {
+                    Plugin.Log.Debug($"Upload failed: {request.error}");
+                    GetRequestFailReason(request.responseCode, body, out var failReason, out var shouldRetry);
+                    LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage(failReason));
+                    if (!shouldRetry) yield break;
+                    continue;
+                }
+
                 try {
-                    if (request.isNetworkError || request.isHttpError) {
-                        Plugin.Log.Debug($"Upload failed: {request.error}");
-                        switch (request.responseCode) {
-                            case 400:
-                                LeaderboardState.UploadRequest.NotifyFailed(body);
-                                yield break; //no PB, stop retry cycle
-                            default:
-                                LeaderboardState.UploadRequest.NotifyFailed(GetFailMessage($"Network error: {request.responseCode}"));
-                                break;
-                        }
-                    } else {
-                        Plugin.Log.Debug(body);
-                        var options = new JsonSerializerSettings() {
-                            MissingMemberHandling = MissingMemberHandling.Ignore,
-                            NullValueHandling = NullValueHandling.Ignore
-                        };
-                        Score score = JsonConvert.DeserializeObject<Score>(body, options);
-                        Plugin.Log.Debug("Upload success");
+                    Plugin.Log.Debug(body);
+                    var options = new JsonSerializerSettings() {
+                        MissingMemberHandling = MissingMemberHandling.Ignore,
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+                    Score score = JsonConvert.DeserializeObject<Score>(body, options);
+                    Plugin.Log.Debug("Upload success");
 
-                        LeaderboardState.UploadRequest.NotifyFinished(score);
+                    LeaderboardState.UploadRequest.NotifyFinished(score);
 
-                        yield break; // if OK - stop retry cycle
-                    }
+                    yield break; // if OK - stop retry cycle
                 } catch (Exception e) {
                     Plugin.Log.Debug("Exception");
                     Plugin.Log.Debug(e);
@@ -215,7 +232,8 @@ namespace BeatLeader.Utils {
                 yield return request.SendWebRequest();
 
                 if (request.isNetworkError || request.isHttpError) {
-                    failReason = $"Network error: {request.responseCode}";
+                    GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
+                    if (!shouldRetry) break;
                     continue;
                 }
 
@@ -259,6 +277,29 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region Utils
+
+        internal static void GetRequestFailReason(long responseCode, [CanBeNull] string defaultReason, out string failReason, out bool shouldRetry) {
+            switch (responseCode) {
+                case BLConstants.MaintenanceStatus:
+                {
+                    failReason = "Maintenance";
+                    shouldRetry = false;
+                    break;
+                }
+                case BLConstants.OutdatedModStatus:
+                {
+                    failReason = "Mod update required";
+                    shouldRetry = false;
+                    break;
+                }
+                default:
+                {
+                    failReason = defaultReason ?? $"Network error ({responseCode})";
+                    shouldRetry = responseCode is < 400 or >= 500;
+                    break;
+                }
+            }
+        }
 
         internal static string ToHttpParams(Dictionary<string, System.Object> param) {
             if (param.Count == 0) { return ""; }

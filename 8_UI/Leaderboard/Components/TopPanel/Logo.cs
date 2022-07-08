@@ -8,6 +8,17 @@ using Object = UnityEngine.Object;
 
 namespace BeatLeader.Components {
     internal class Logo : ReeUIComponentV2 {
+        #region Components
+
+        [UIValue("notification-icon"), UsedImplicitly]
+        private NotificationIcon _notificationIcon;
+
+        private void Awake() {
+            _notificationIcon = Instantiate<NotificationIcon>(transform);
+        }
+
+        #endregion
+        
         #region Animation
 
         private static readonly int GlowPropertyId = Shader.PropertyToID("_Glow");

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using IPA.Utilities;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
 using UnityEngine;
 
@@ -252,20 +251,10 @@ namespace BeatLeader.Utils
 
             return data;
         }
-        public static async Task<NoteEvent> GetNoteEventAsync(this NoteController noteController, Replay replay)
-        {
-            var noteEvent = await Task.Run(() => GetNoteEventByID(noteController.noteData.ComputeNoteID(), noteController.noteData.time, replay));
-            return noteEvent;
-        }
-        public static async Task<NoteEvent> GetNoteEventAsync(this NoteData noteData, Replay replay)
-        {
-            var noteEvent = await Task.Run(() => GetNoteEventByID(noteData.ComputeNoteID(), noteData.time, replay));
-            return noteEvent;
-        }
         public static async Task<List<Replay>> TryGetReplaysBySongInfoAsync(this IDifficultyBeatmap data)
         {
-            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName && 
-            replay.info.difficulty == data.difficulty.ToString() && 
+            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName &&
+            replay.info.difficulty == data.difficulty.ToString() &&
             replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
             if (replays != null)
             {
@@ -297,17 +286,17 @@ namespace BeatLeader.Utils
         }
         public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
         {
-            return GetNoteEventByID(noteData.ComputeNoteID(), noteData.time, replay);
+            return GetNoteEventById(replay, noteData.ComputeNoteID(), noteData.time);
         }
         public static NoteEvent GetNoteEvent(this NoteController noteController, Replay replay)
         {
-            return GetNoteEventByID(noteController.noteData.ComputeNoteID(), noteController.noteData.time, replay);
+            return GetNoteEventById(replay, noteController.noteData.ComputeNoteID(), noteController.noteData.time);
         }
         public static WallEvent GetWallEvent(this ObstacleData obstacleData, Replay replay)
         {
-            return GetWallEventByID(obstacleData.ComputeObstacleID(), obstacleData.time, replay);
+            return GetWallEventById(replay, obstacleData.ComputeObstacleID(), obstacleData.time);
         }
-        public static NoteEvent GetNoteEventByID(int ID, float time, Replay replay)
+        public static NoteEvent GetNoteEventById(this Replay replay, int ID, float time)
         {
             foreach (var item in replay.notes)
             {
@@ -318,7 +307,7 @@ namespace BeatLeader.Utils
             }
             return null;
         }
-        public static WallEvent GetWallEventByID(int ID, float time, Replay replay)
+        public static WallEvent GetWallEventById(this Replay replay, int ID, float time)
         {
             foreach (var item in replay.walls)
             {
@@ -328,20 +317,6 @@ namespace BeatLeader.Utils
                 }
             }
             return null;
-        }
-        public static List<NoteEvent> GetAllNoteEventsForNoteController(this NoteController controller, Replay replay)
-        {
-            List<NoteEvent> notes = new List<NoteEvent>();
-            int ID = controller.noteData.ComputeNoteID();
-
-            foreach (var item in replay.notes)
-            {
-                if (ID == item.noteID)
-                {
-                    notes.Add(item);
-                }
-            }
-            return notes;
         }
         public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, NoteEvent noteEvent)
         {
@@ -423,17 +398,11 @@ namespace BeatLeader.Utils
         }
         public static bool TryGetReplaysBySongInfo(this IDifficultyBeatmap data, out List<Replay> replays)
         {
-            bool condition = TryGetReplays(out List<Replay> replays2, (Replay replay) => replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
-            if (condition)
-            {
-                replays = replays2;
-                return true;
-            }
-            else
-            {
-                replays = null;
-                return false;
-            }
+            bool condition = TryGetReplays(out List<Replay> replays2, (Replay replay) => 
+            replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() 
+            && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
+            replays = replays2;
+            return condition;
         }
         public static bool TryGetReplays(out List<Replay> replays, Func<Replay, bool> filter)
         {

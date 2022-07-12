@@ -16,7 +16,7 @@ namespace BeatLeader.Installers
             Plugin.Log.Debug("OnGameplayCoreInstaller");
             if (ReplayerMenuLauncher.isStartedAsReplay)
             {
-                ReplayerManualInstaller.Install(ReplayerMenuLauncher.replay, new ReplayerManualInstaller.InitData(true, true, true, 130), Container);
+                ReplayerManualInstaller.Install(ReplayerMenuLauncher.replay, ReplayerMenuLauncher.score, new ReplayerManualInstaller.InitData(true, true, 110), Container);
             }
             else InitRecorder();
         }

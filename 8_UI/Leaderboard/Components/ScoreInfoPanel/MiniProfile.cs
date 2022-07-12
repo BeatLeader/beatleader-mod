@@ -54,7 +54,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region playerName
+        #region PlayerName
 
         private string _playerName = "";
 
@@ -102,7 +102,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region playerPp
+        #region PlayerPP
 
         private string _playerPp = "";
 

@@ -1,0 +1,80 @@
+ManifestFileVersion: 0
+CRC: 1715055131
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 6ba7693ac0aac43d9ad3a82a5f9e05c9
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 01a78913af3aa762ba783580edd204d0
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d0400e399a6742bc858c605ee902bbdb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8b50e01eba5e485596534317df4ee0b1, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/BL_GraphIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/BL_Discord.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/BL_Website.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/HandAccIndicatorMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/LogoMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/FileError.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/ExitIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Backgrounds/YellowBGWithOutline.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/WarningIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/ScoreUnderlineMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Backgrounds/BeatLeaderLogoGradient.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/ClanTagBackgroundMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/ModifiersIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Backgrounds/WhiteBG.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/AccGridBackgroundMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/LeftArrowIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Backgrounds/PurpleBGWithOutline.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/VotingButtonMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/PlayIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/BL_GridIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/TransparentPixel.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/RightArrowIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/AccDetailsRowMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Backgrounds/BlackTransparentBGWithOutline.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/BL_DetailsIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Backgrounds/BlackTransparentBG.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/ScoreBackgroundMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/EditLayoutIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Backgrounds/CyanBGWithOutline.png
+- Assets/Unity Bundle/Assets/BeatLeader/3_Shaders/UIBlurShader.shader
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/PauseIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/SettingsIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/UIAdditiveGlow.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/RowSeparatorIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/BadCutIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/UIBlurMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/CameraIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/1_Prefabs/AccuracyGraph.prefab
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/LockIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/LocationIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/Icons/BL_OverviewIcon.png
+- Assets/Unity Bundle/Assets/BeatLeader/5_Textures/BL_Patreon.png
+- Assets/Unity Bundle/Assets/BeatLeader/4_Materials/PlayerAvatarMaterial.mat
+- Assets/Unity Bundle/Assets/BeatLeader/3_Shaders/TMP_SpriteCurved.shader
+Dependencies: []

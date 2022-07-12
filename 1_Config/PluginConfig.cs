@@ -1,15 +1,19 @@
 using System;
 using BeatLeader.Models;
 
-namespace BeatLeader {
-    internal static class PluginConfig {
+namespace BeatLeader
+{
+    internal static class PluginConfig
+    {
         #region Enabled
 
         public static event Action<bool> OnEnabledChangedEvent;
 
-        public static bool Enabled {
+        public static bool Enabled
+        {
             get => ConfigFileData.Instance.Enabled;
-            set {
+            set
+            {
                 if (ConfigFileData.Instance.Enabled == value) return;
                 ConfigFileData.Instance.Enabled = value;
                 OnEnabledChangedEvent?.Invoke(value);
@@ -22,9 +26,11 @@ namespace BeatLeader {
 
         public static event Action<ScoresContext> ScoresContextChangedEvent;
 
-        public static ScoresContext ScoresContext {
+        public static ScoresContext ScoresContext
+        {
             get => ConfigFileData.Instance.ScoresContext;
-            set {
+            set
+            {
                 if (ConfigFileData.Instance.ScoresContext.Equals(value)) return;
                 ConfigFileData.Instance.ScoresContext = value;
                 ScoresContextChangedEvent?.Invoke(value);
@@ -37,16 +43,19 @@ namespace BeatLeader {
 
         public static event Action<ScoreRowCellType> LeaderboardTableMaskChangedEvent;
 
-        public static ScoreRowCellType LeaderboardTableMask {
+        public static ScoreRowCellType LeaderboardTableMask
+        {
             get => ConfigFileData.Instance.LeaderboardTableMask;
-            set {
+            set
+            {
                 if (ConfigFileData.Instance.LeaderboardTableMask.Equals(value)) return;
                 ConfigFileData.Instance.LeaderboardTableMask = value;
                 LeaderboardTableMaskChangedEvent?.Invoke(value);
             }
         }
 
-        public static ScoreRowCellType GetLeaderboardTableMask(bool includePP) {
+        public static ScoreRowCellType GetLeaderboardTableMask(bool includePP)
+        {
             return includePP ? LeaderboardTableMask : LeaderboardTableMask & ~ScoreRowCellType.PerformancePoints;
         }
 

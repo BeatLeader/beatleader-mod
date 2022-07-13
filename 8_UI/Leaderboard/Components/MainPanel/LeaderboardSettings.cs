@@ -143,6 +143,18 @@ namespace BeatLeader.Components {
             }
         }
 
+        [UIValue("pauses-mask-value"), UsedImplicitly]
+        private bool PausesMaskValue {
+            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Pauses);
+            set {
+                if (value) {
+                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Pauses;
+                } else {
+                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Pauses;
+                }
+            }
+        }
+
         #endregion
     }
 }

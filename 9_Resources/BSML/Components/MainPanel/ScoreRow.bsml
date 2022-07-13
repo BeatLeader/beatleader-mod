@@ -65,6 +65,11 @@
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
 
+            <!--  PAUSES  -->
+            <macro.as-host host="pauses-cell">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+
             <!--  CLICKABLE AREA  -->
             <vertical ignore-layout="true" pref-width="~row-width">
                 <clickable-image src="#TransparentPixel" id="info-component" pref-height="~row-height" pref-width="~row-width"

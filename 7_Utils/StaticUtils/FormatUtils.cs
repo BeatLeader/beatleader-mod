@@ -194,5 +194,13 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        #region FormatPauses
+
+        public static string FormatPauses(int value) {
+            return $"{value}<size=50%> <b><color=#999999>ll";
+        }
+
+        #endregion
     }
 }

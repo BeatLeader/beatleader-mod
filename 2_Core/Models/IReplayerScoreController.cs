@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BeatLeader.Models
 {
-    public interface IComboInfoProvider
+    public interface IReplayerScoreController : IScoreController
     {
         int maxComboAfterRescoring { get; }
         int comboAfterRescoring { get; }

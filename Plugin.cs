@@ -3,6 +3,7 @@ using IPA.Config;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
 using IPALogger = IPA.Logging.Logger;
+using BeatLeader.UI.BSML_Addons;
 
 namespace BeatLeader
 {
@@ -51,6 +52,7 @@ namespace BeatLeader
         {
             ObserveEnabled();
             SettingsPanelUI.AddTab();
+            BSMLAddonsLoader.LoadAddons();
         }
 
         private static void ObserveEnabled()

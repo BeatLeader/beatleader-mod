@@ -10,7 +10,7 @@ using Zenject;
 
 namespace BeatLeader.Replays.Scoring
 {
-    public class ReplayerScoreController : MonoBehaviour, IScoreController, IComboInfoProvider
+    public class ReplayerScoreController : MonoBehaviour, IReplayerScoreController
     {
         [Inject] protected readonly Replay _replay;
         [Inject] protected readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
@@ -234,7 +234,6 @@ namespace BeatLeader.Replays.Scoring
                         _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
                         _comboAfterRescoring = 0;
                         broke = true;
-                        continue;
                     }
                 }
             }

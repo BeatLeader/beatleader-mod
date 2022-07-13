@@ -10,7 +10,7 @@ namespace BeatLeader.Replays.Emulating
     {
         [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
         [Inject] protected readonly ComboController _comboController;
-        [InjectOptional] protected readonly IComboInfoProvider _comboInfoProvider;
+        [Inject] protected readonly IReplayerScoreController _scoreController;
 
         protected ComboUIController _comboUIController;
         protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
@@ -31,15 +31,15 @@ namespace BeatLeader.Replays.Emulating
             _debrisFromCenterSpeed = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_fromCenterSpeed");
             _debrisMoveSpeedMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_moveSpeedMultiplier");
             _beatmapTimeController.onSongTimeScale += AdjustDebrisPhysics;
-            if (_comboInfoProvider != null)
-                _comboInfoProvider.onComboChangedAfterRescoring += ForceSetCombo;
+            if (_scoreController != null)
+                _scoreController.onComboChangedAfterRescoring += ForceSetCombo;
         }
         public void OnDestroy()
         {
             if (_beatmapTimeController != null)
                 _beatmapTimeController.onSongTimeScale -= AdjustDebrisPhysics;
-            if (_comboInfoProvider != null)
-                _comboInfoProvider.onComboChangedAfterRescoring -= ForceSetCombo;
+            if (_scoreController != null)
+                _scoreController.onComboChangedAfterRescoring -= ForceSetCombo;
         }
         public void PauseEffects(bool pause)
         {

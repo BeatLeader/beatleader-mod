@@ -234,6 +234,7 @@
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
     <Compile Include="0_Harmony\UIPatches\HideModalsOnPlay.cs" />
     <Compile Include="1_Config\ReplayerConfig.cs" />
+    <Compile Include="2_Core\Models\IReplayerScoreController.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
     <Compile Include="2_Core\Models\ScoreRowCellType.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
@@ -275,7 +276,6 @@
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerPCViewController.cs" />
     <Compile Include="2_Core\Replays\Emulating\BeatmapVisualsController.cs" />
     <Compile Include="2_Core\Replays\Emulating\GameSettingsLoader.cs" />
-    <Compile Include="2_Core\Models\IComboInfoProvider.cs" />
     <Compile Include="8_UI\BSML Addons\BSMLUtility.cs" />
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />

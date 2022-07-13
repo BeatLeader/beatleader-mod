@@ -64,7 +64,7 @@ namespace BeatLeader.Replays
             Container.Inject(modifiedScoreController);
 
             Container.Rebind<IScoreController>().FromInstance(modifiedScoreController);
-            Container.Bind<IComboInfoProvider>().To<ReplayerScoreController>().FromInstance(modifiedScoreController).AsSingle().NonLazy();
+            Container.Bind<IReplayerScoreController>().To<ReplayerScoreController>().FromInstance(modifiedScoreController).AsSingle().NonLazy();
             Container.Reinject<IScoreController>();
 
             modifiedScoreController.SetEnabled(true);

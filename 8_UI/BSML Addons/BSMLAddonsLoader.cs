@@ -34,14 +34,14 @@ namespace BeatLeader.UI.BSML_Addons
         };
         private static bool _wasLoaded;
 
-        private static void LoadAddons()
+        public static void LoadAddons()
         {
             if (_wasLoaded) return;
             foreach (var item in GetListOfType<BSMLTag>(Assembly.GetExecutingAssembly()))
                 BSMLParser.instance.RegisterTag(item);
 
             List<TypeHandler> typeHandlers = GetListOfType<TypeHandler>(Assembly.GetExecutingAssembly());
-            foreach (TypeHandler typeHandler in typeHandlers.ToArray())
+            foreach (TypeHandler typeHandler in typeHandlers)
             {
                 Type type = (typeHandler.GetType().GetCustomAttributes(typeof(ComponentHandler), true).FirstOrDefault() as ComponentHandler)?.type;
                 if (type == null)
@@ -51,10 +51,7 @@ namespace BeatLeader.UI.BSML_Addons
                 }
             }
             typeHandlers.ForEach(x => BSMLParser.instance.RegisterTypeHandler(x));
-            foreach (var item in _spritesToCache)
-            {
-                BSMLUtility.AddSpriteToBSMLCache(item.Key, item.Value);
-            }
+            _spritesToCache.ToList().ForEach(x => BSMLUtility.AddSpriteToBSMLCache(x.Key, x.Value));
             _wasLoaded = true;
         }
         private static List<T> GetListOfType<T>(Assembly assembly = null, params object[] constructorArgs)
@@ -65,16 +62,6 @@ namespace BeatLeader.UI.BSML_Addons
                 objects.Add((T)Activator.CreateInstance(type, constructorArgs));
 
             return objects;
-        }
-
-        [HarmonyPatch(typeof(BSMLParser), "Awake")]
-        public static class BSMLAddonsPatch
-        {
-            private static void Postfix()
-            {
-                Plugin.Log.Info("Loading BeatLeader BSML addons");
-                LoadAddons();
-            }
         }
     }
 }

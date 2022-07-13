@@ -7,14 +7,7 @@ using Pose = UnityEngine.Pose;
 namespace BeatLeader.Replays.Poses
 {
     public struct StaticCameraPose : ICameraPoseProvider
-    {
-        public StaticCameraPose()
-        {
-            _rotation = Quaternion.identity;
-            _position = Vector3.zero;
-            _name = "NaN";
-            _availableInputs = new[] { InputType.FPFC, InputType.VR };
-        }
+    { 
         public StaticCameraPose(string name, Vector3 position, Quaternion rotation)
         {
             _rotation = rotation;

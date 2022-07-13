@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Newtonsoft.Json;
 
 namespace BeatLeader
@@ -20,13 +21,17 @@ namespace BeatLeader
 
         public static void Save()
         {
+            GC.KeepAlive(instance); //love that fix xD
             if (!File.Exists(_path)) File.Create(_path);
             File.WriteAllText(_path, JsonConvert.SerializeObject(instance));
         }
         public static void Load()
         {
             if (File.Exists(_path))
-                instance = JsonConvert.DeserializeObject<ReplayerConfig>(File.ReadAllText(_path));
+            {
+                var config = JsonConvert.DeserializeObject<ReplayerConfig>(File.ReadAllText(_path));
+                instance = config != null ? config : new();
+            }
             else File.Create(_path);
         }
     }

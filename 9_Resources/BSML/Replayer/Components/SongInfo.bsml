@@ -8,8 +8,8 @@
 						<better-image id="background" src='#black-transparent-bg' type='Sliced' ppu='5' horizontal-fit='PreferredSize'>
 							<horizontal child-expand-width='false' child-align='MiddleLeft'>
 								<vertical pad-left='5' pad-right='1'>
-									<text text='~song-name' font-size="5"/>
-									<text text='~song-author'/>
+									<text text='~song-name' font-align='Left' font-size="5"/>
+									<text text='~song-author' font-align='Left'/>
 								</vertical>
 							</horizontal>
 						</better-image>

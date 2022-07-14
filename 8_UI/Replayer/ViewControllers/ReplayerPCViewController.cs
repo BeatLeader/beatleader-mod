@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,12 @@ namespace BeatLeader.ViewControllers
             _layoutEditor.AddObject("SongInfo", _songInfo.Root);
             _layoutEditor.AddObject("Toolbar", _toolbar.Root, true, true);
             _2DManager.AddObject(gameObject);
+            StartCoroutine(ForceLayoutRecalculation());
+        }
+
+        private IEnumerator ForceLayoutRecalculation() {
+            yield return new WaitForEndOfFrame();
+            LayoutRebuilder.MarkLayoutForRebuild(GetComponentsInChildren<RectTransform>()[1]);
         }
     }
 }

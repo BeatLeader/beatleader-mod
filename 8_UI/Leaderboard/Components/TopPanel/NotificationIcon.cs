@@ -14,6 +14,7 @@ namespace BeatLeader.Components {
 
             ModVersionChecker.IsUpToDateChangedEvent += OnModIsUpToDateChanged;
             RankedPlaylistManager.IsUpToDateChangedEvent += OnPlaylistIsUpToDateChanged;
+            OculusMigrationManager.IsMigrationRequiredChangedEvent += OnOculusMigrationRequiredChanged;
 
             UpdateState();
         }
@@ -21,11 +22,16 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             ModVersionChecker.IsUpToDateChangedEvent -= OnModIsUpToDateChanged;
             RankedPlaylistManager.IsUpToDateChangedEvent -= OnPlaylistIsUpToDateChanged;
+            OculusMigrationManager.IsMigrationRequiredChangedEvent -= OnOculusMigrationRequiredChanged;
         }
 
         #endregion
 
         #region State
+
+        private void OnOculusMigrationRequiredChanged(bool value) {
+            UpdateState();
+        }
 
         private void OnModIsUpToDateChanged(bool value) {
             UpdateState();
@@ -41,7 +47,7 @@ namespace BeatLeader.Components {
                 return;
             }
 
-            if (!RankedPlaylistManager.IsUpToDate) {
+            if (!RankedPlaylistManager.IsUpToDate || OculusMigrationManager.IsMigrationRequired) {
                 SetState(State.Warning);
                 return;
             }

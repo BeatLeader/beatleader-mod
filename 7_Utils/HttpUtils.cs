@@ -57,10 +57,8 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
-                var handler = new DownloadHandlerBuffer();
-
                 var request = new UnityWebRequest(url) {
-                    downloadHandler = handler,
+                    downloadHandler = new DownloadHandlerBuffer(),
                     timeout = 30
                 };
 
@@ -75,12 +73,7 @@ namespace BeatLeader.Utils {
                 }
 
                 try {
-                    var options = new JsonSerializerSettings() {
-                        MissingMemberHandling = MissingMemberHandling.Ignore,
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-                    var result = JsonConvert.DeserializeObject<T>(handler.text, options);
-                    onSuccess.Invoke(result);
+                    onSuccess.Invoke(DeserializeResponse<T>(request));
                     yield break;
                 } catch (Exception e) {
                     Plugin.Log.Debug(e);
@@ -100,9 +93,8 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
-                var handler = new DownloadHandlerBuffer();
                 var request = new UnityWebRequest(url) {
-                    downloadHandler = handler,
+                    downloadHandler = new DownloadHandlerBuffer(),
                     timeout = 30
                 };
 
@@ -116,12 +108,7 @@ namespace BeatLeader.Utils {
                 }
 
                 try {
-                    var options = new JsonSerializerSettings() {
-                        MissingMemberHandling = MissingMemberHandling.Ignore,
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-                    var result = JsonConvert.DeserializeObject<Paged<T>>(handler.text, options);
-                    onSuccess.Invoke(result);
+                    onSuccess.Invoke(DeserializeResponse<Paged<T>>(request));
                     yield break;
                 } catch (Exception e) {
                     Plugin.Log.Debug(e);
@@ -237,24 +224,14 @@ namespace BeatLeader.Utils {
                     continue;
                 }
 
-                VoteStatus status;
-
                 try {
-                    var body = Encoding.UTF8.GetString(request.downloadHandler.data);
-                    var options = new JsonSerializerSettings() {
-                        MissingMemberHandling = MissingMemberHandling.Ignore,
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-                    status = JsonConvert.DeserializeObject<VoteStatus>(body, options);
+                    Plugin.Log.Debug("Vote success");
+                    LeaderboardState.VoteRequest.NotifyFinished(DeserializeResponse<VoteStatus>(request));
+                    yield break; // if OK - stop retry cycle
                 } catch (Exception e) {
                     Plugin.Log.Debug($"Exception: {e}");
                     failReason = $"Internal error: {e.Message}";
-                    continue;
                 }
-
-                Plugin.Log.Debug("Vote success");
-                LeaderboardState.VoteRequest.NotifyFinished(status);
-                yield break; // if OK - stop retry cycle
             }
 
             Plugin.Log.Debug($"Vote failed: {failReason}");
@@ -276,7 +253,60 @@ namespace BeatLeader.Utils {
 
         #endregion
 
+        #region GetOculusUser
+
+        public static IEnumerator GetOculusUser(Action<OculusUserInfo> onSuccess, Action<string> onFail, int retry = 1) {
+            Plugin.Log.Debug("GetOculusUser");
+            
+            var failReason = "";
+            for (int i = 1; i <= retry; i++) {
+                var ticketTask = Authentication.SteamTicket();
+                yield return new WaitUntil(() => ticketTask.IsCompleted);
+                
+                var authToken = ticketTask.Result;
+                if (authToken == null) {
+                    failReason = "Authentication failed";
+                    break; // auth failed, no retries
+                }
+
+                var request = new UnityWebRequest(string.Format(BLConstants.OCULUS_USER_INFO, authToken)) {
+                    downloadHandler = new DownloadHandlerBuffer(),
+                    timeout = 30
+                };
+
+                yield return request.SendWebRequest();
+                Plugin.Log.Debug($"StatusCode: {request.responseCode}");
+
+                if (request.isHttpError || request.isNetworkError) {
+                    Plugin.Log.Debug($"Request failed: {request.error}");
+                    GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
+                    if (!shouldRetry) break;
+                    continue;
+                }
+
+                try {
+                    onSuccess.Invoke(DeserializeResponse<OculusUserInfo>(request));
+                    yield break;
+                } catch (Exception e) {
+                    Plugin.Log.Debug(e);
+                    failReason = e.Message;
+                }
+            }
+            onFail.Invoke(failReason);
+        }
+
+        #endregion
+
         #region Utils
+
+        private static T DeserializeResponse<T>(UnityWebRequest request) {
+            var body = Encoding.UTF8.GetString(request.downloadHandler.data);
+            var options = new JsonSerializerSettings() {
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            return JsonConvert.DeserializeObject<T>(body, options);
+        }
 
         internal static void GetRequestFailReason(long responseCode, [CanBeNull] string defaultReason, out string failReason, out bool shouldRetry) {
             switch (responseCode) {

@@ -205,6 +205,7 @@
     <Compile Include="2_Core\Managers\DataManager\LeaderboardManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ModifiersManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ModVersionChecker.cs" />
+    <Compile Include="2_Core\Managers\DataManager\OculusMigrationManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\RankedPlaylistManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ScoreStatsManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ProfileManager.cs" />
@@ -220,6 +221,7 @@
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
+    <Compile Include="2_Core\Models\OculusUserInfo.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
     <Compile Include="2_Core\Models\ScoreInfoPanelTab.cs" />
     <Compile Include="2_Core\Models\Paged.cs" />
@@ -249,6 +251,7 @@
     <Compile Include="7_Utils\HttpUtils.cs" />
     <Compile Include="7_Utils\RecorderUtils.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
+    <Compile Include="7_Utils\StaticUtils\EnvironmentUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\HarmonyUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />

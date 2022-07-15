@@ -11,17 +11,15 @@ namespace BeatLeader.Components {
         #region Init / Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.LogoWasPressedEvent += HideInstantly;
-            LeaderboardEvents.AvatarWasPressedEvent += OnAvatarWasPressed;
-            LeaderboardEvents.SceneTransitionStartedEvent += HideInstantly;
+            LeaderboardEvents.AvatarWasPressedEvent += ShowModal;
+            LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             ApplyScale();
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.LogoWasPressedEvent -= HideInstantly;
-            LeaderboardEvents.AvatarWasPressedEvent -= OnAvatarWasPressed;
-            LeaderboardEvents.SceneTransitionStartedEvent -= HideInstantly;
+            LeaderboardEvents.AvatarWasPressedEvent -= ShowModal;
+            LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
         }
 
@@ -29,8 +27,9 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnAvatarWasPressed() {
-            ShowModal();
+        private void OnHideModalsEvent(ModalView except) {
+            if (_modal == null || _modal.Equals(except)) return;
+            _modal.Hide(false);
         }
 
         private void OnLeaderboardVisibilityChanged(bool isVisible) {
@@ -46,14 +45,10 @@ namespace BeatLeader.Components {
 
         private void ShowModal() {
             if (_modal == null) return;
+            LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
             _modal.Show(true, true);
         }
-
-        private void HideInstantly() {
-            if (_modal == null) return;
-            _modal.Hide(false);
-        }
-
+        
         private void HideAnimated() {
             if (_modal == null) return;
             _modal.Hide(true);
@@ -144,6 +139,18 @@ namespace BeatLeader.Components {
                     PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Mistakes;
                 } else {
                     PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Mistakes;
+                }
+            }
+        }
+
+        [UIValue("pauses-mask-value"), UsedImplicitly]
+        private bool PausesMaskValue {
+            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Pauses);
+            set {
+                if (value) {
+                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Pauses;
+                } else {
+                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Pauses;
                 }
             }
         }

@@ -9,40 +9,71 @@
 
         #region Basic links
 
-        public static readonly string REPLAY_UPLOAD_URL = "https://api.beatleader.xyz/replay";
+        public const string REPLAY_UPLOAD_URL = "https://api.beatleader.xyz/replay";
 
-        public static readonly string BEATLEADER_API_URL = "https://api.beatleader.xyz";
+        public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
+        
+        public const string BEATLEADER_WEBSITE_URL = "https://www.beatleader.xyz";
+
+        #endregion
+
+        #region Voting
+
+        public const string VOTE = // /vote/steam/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}&ticket={ticket}
+            BEATLEADER_API_URL + "/vote/steam/{0}/{1}/{2}?{3}";
+
+        public const string VOTE_STATUS = // /votestatus/{hash}/{diff}/{mode}?player={playerId}
+            BEATLEADER_API_URL + "/votestatus/{0}/{1}/{2}?player={3}";
+
+        #endregion
+
+        #region Notifications
+
+        public const string LATEST_RELEASES = BEATLEADER_API_URL + "/mod/lastVersions";
+        
+        public const string RANKED_PLAYLIST = BEATLEADER_API_URL + "/playlist/ranked";
 
         #endregion
 
         #region Leaderboard requests
 
-        public static readonly string SCORES_BY_HASH_PAGED = // /v2/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}
+        public const string SCORES_BY_HASH_PAGED = // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}
             BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
 
-        public static readonly string SCORES_BY_HASH_SEEK = // /v2/scores/{hash}/{diff}/{mode}/{context}/{scope}/around?player={playerId}&count={count}
+        public const string SCORES_BY_HASH_SEEK = // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/around?player={playerId}&count={count}
             BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
 
-        public static readonly int SCORE_PAGE_SIZE = 10;
+        public const int SCORE_PAGE_SIZE = 10;
 
         #endregion
 
         #region Profile
-        public static readonly string PROFILE_BY_ID = // /player/{user_id}
+        
+        public const string PROFILE_BY_ID = // /player/{user_id}
             BEATLEADER_API_URL + "/player/{0}";
+
+        #endregion
+
+        #region OculusPC
+
+        public const string OCULUS_USER_INFO = // /oculususer?token={user_id}
+            BEATLEADER_API_URL + "/oculususer?token={0}";
+
+        public const string OCULUS_PC_SIGNIN = // /signin?action=oculuspc&token={user_id}
+            BEATLEADER_WEBSITE_URL + "/signin/oculuspc?token={0}";
 
         #endregion
 
         #region Score stats
 
-        public static readonly string SCORE_STATS_BY_ID = // score/statistic/{scoreId}
+        public const string SCORE_STATS_BY_ID = // score/statistic/{scoreId}
             BEATLEADER_API_URL + "/score/statistic/{0}";
 
         #endregion
 
         #region Modifiers
 
-        public static readonly string MODIFIERS_URL = BEATLEADER_API_URL + "/modifiers";
+        public const string MODIFIERS_URL = BEATLEADER_API_URL + "/modifiers";
 
         #endregion
 

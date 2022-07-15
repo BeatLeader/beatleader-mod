@@ -8,6 +8,9 @@ namespace BeatLeader.ViewControllers {
     internal class LeaderboardView : BSMLAutomaticViewController {
         #region Components
 
+        [UIValue("voting-panel"), UsedImplicitly]
+        private VotingPanel _votingPanel = ReeUIComponentV2.InstantiateOnSceneRoot<VotingPanel>(false);
+
         [UIValue("beat-leader-info"), UsedImplicitly]
         private BeatLeaderInfo _beatLeaderInfo = ReeUIComponentV2.InstantiateOnSceneRoot<BeatLeaderInfo>(false);
 
@@ -19,6 +22,9 @@ namespace BeatLeader.ViewControllers {
 
         [UIValue("scores-table"), UsedImplicitly]
         private ScoresTable _scoresTable = ReeUIComponentV2.InstantiateOnSceneRoot<ScoresTable>();
+
+        [UIValue("voting-button"), UsedImplicitly]
+        private VotingButton _votingButton = ReeUIComponentV2.InstantiateOnSceneRoot<VotingButton>(false);
 
         [UIValue("pagination"), UsedImplicitly]
         private Pagination _pagination = ReeUIComponentV2.InstantiateOnSceneRoot<Pagination>(false);
@@ -33,10 +39,12 @@ namespace BeatLeader.ViewControllers {
         private EmptyBoardMessage _emptyBoardMessage = ReeUIComponentV2.InstantiateOnSceneRoot<EmptyBoardMessage>();
 
         private void Awake() {
+            _votingPanel.SetParent(transform);
             _beatLeaderInfo.SetParent(transform);
             _leaderboardSettings.SetParent(transform);
             _scoreInfoPanel.SetParent(transform);
             _scoresTable.SetParent(transform);
+            _votingButton.SetParent(transform);
             _pagination.SetParent(transform);
             _scopeSelector.SetParent(transform);
             _contextSelector.SetParent(transform);

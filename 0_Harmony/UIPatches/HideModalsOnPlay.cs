@@ -4,10 +4,10 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.UIPatches {
     [HarmonyPatch(typeof(GameScenesManager), "ScenesTransitionCoroutine")]
-    internal static class HideScoreModalOnPlay {
+    internal static class HideModalsOnPlay {
         [UsedImplicitly]
         private static void Prefix() {
-            LeaderboardEvents.NotifySceneTransitionStarted();
+            LeaderboardEvents.FireHideAllOtherModalsEvent(null);
         }
     }
 }

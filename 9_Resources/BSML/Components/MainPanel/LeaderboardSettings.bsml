@@ -1,4 +1,4 @@
-<modal id="modal" click-off-closes="true" size-delta-x="35" size-delta-y="42">
+<modal id="modal" click-off-closes="true" size-delta-x="35" size-delta-y="48">
     <vertical id="container" pref-width="42" pad="2" spacing="0.4" vertical-fit="PreferredSize">
         <text text="&lt;u&gt;leaderboard settings" font-size="4.0" font-color="#999999" align="Center"/>
         <toggle-setting text="Avatar" value="avatar-mask-value" apply-on-change="true"/>
@@ -7,5 +7,6 @@
         <toggle-setting text="Score" value="score-mask-value" apply-on-change="true"/>
         <toggle-setting text="Time" value="time-mask-value" apply-on-change="true"/>
         <toggle-setting text="Mistakes" value="mistakes-mask-value" apply-on-change="true"/>
+        <toggle-setting text="Pauses" value="pauses-mask-value" apply-on-change="true"/>
     </vertical>
 </modal>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -14,6 +15,8 @@ namespace BeatLeader.Components {
             LeaderboardState.ProfileRequest.FailedEvent += OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent += OnScoreUploadFailed;
+            LeaderboardState.VoteRequest.FinishedEvent += OnVoteFinished;
+            LeaderboardState.VoteRequest.FailedEvent += OnVoteFailed;
         }
 
         protected override void OnDispose() {
@@ -21,6 +24,8 @@ namespace BeatLeader.Components {
             LeaderboardState.ProfileRequest.FailedEvent -= OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent -= OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
+            LeaderboardState.VoteRequest.FinishedEvent -= OnVoteFinished;
+            LeaderboardState.VoteRequest.FailedEvent -= OnVoteFailed;
         }
 
         private void OnDisable() {
@@ -31,6 +36,14 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
+        
+        private void OnVoteFinished(VoteStatus result) {
+            ShowGoodNews("Your vote has been accepted!");
+        }
+
+        private void OnVoteFailed(string reason) {
+            ShowBadNews($"Vote failed! {reason}");
+        }
 
         private void OnProfileRequestFailed(string reason) {
             ShowBadNews($"Profile update failed! {reason}");
@@ -44,8 +57,19 @@ namespace BeatLeader.Components {
             ShowGoodNews("Score uploaded!");
         }
 
-        private void OnStatusMessage(string message, float duration) {
-            ShowMessage(message, duration);
+        private void OnStatusMessage(string message, LeaderboardEvents.StatusMessageType type, float duration) {
+            switch (type) {
+                case LeaderboardEvents.StatusMessageType.Neutral: 
+                    ShowMessage(message, duration);
+                    break;
+                case LeaderboardEvents.StatusMessageType.Bad:
+                    ShowBadNews(message, duration);
+                    break;
+                case LeaderboardEvents.StatusMessageType.Good:
+                    ShowGoodNews(message, duration);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
 
         #endregion
@@ -56,12 +80,12 @@ namespace BeatLeader.Components {
         private const string GoodNewsColor = "#88FF88";
         private const string BadNewsColor = "#FF8888";
 
-        private void ShowGoodNews(string message) {
-            ShowMessage($"<color={GoodNewsColor}>{message}");
+        private void ShowGoodNews(string message, float duration = DefaultDuration) {
+            ShowMessage($"<color={GoodNewsColor}>{message}", duration);
         }
 
-        private void ShowBadNews(string message) {
-            ShowMessage($"<color={BadNewsColor}>{message}");
+        private void ShowBadNews(string message, float duration = DefaultDuration) {
+            ShowMessage($"<color={BadNewsColor}>{message}", duration);
         }
 
         private void ShowMessage(string message, float duration = DefaultDuration) {

@@ -85,7 +85,7 @@ namespace BeatLeader.Components
             _bombPrefab.sprite = BSMLUtility.LoadSprite("#bad-cut-icon");
             _bombPrefab.color = Color.yellow;
 
-            GenerateMarkers(_replay.notes.Where(x => x.eventType == Models.NoteEventType.miss)
+            GenerateMarkers(_replay.notes.Where(x => x.eventType == Models.NoteEventType.miss || x.eventType == Models.NoteEventType.bad)
                 .Select(x => x.eventTime), _missPrefab.gameObject);
             GenerateMarkers(_replay.notes.Where(x => x.eventType == Models.NoteEventType.bomb)
                 .Select(x => x.eventTime), _bombPrefab.gameObject);

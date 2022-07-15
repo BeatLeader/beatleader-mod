@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BeatLeader.Utils;
+﻿using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
 using BeatLeader.Models;
 using UnityEngine;
-using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
 using Zenject;
 
 namespace BeatLeader.Replays.Emulating
@@ -17,7 +11,6 @@ namespace BeatLeader.Replays.Emulating
         {
             protected override void Reinitialize(SimpleNoteCutComparator item)
             {
-                Destroy(item._noteCutter);
                 item._noteCutEvent = null;
                 item._noteController = null;
                 item._availableForCut = false;
@@ -29,7 +22,6 @@ namespace BeatLeader.Replays.Emulating
         [Inject] protected readonly AudioTimeSyncController _timeSyncController;
 
         protected NoteEvent _noteCutEvent;
-        protected SimpleNoteCutter _noteCutter;
         protected NoteController _noteController;
         protected bool _availableForCut;
         protected bool _initialized;
@@ -39,35 +31,39 @@ namespace BeatLeader.Replays.Emulating
         public NoteController noteController => _noteController;
         public bool availableForCut => _availableForCut;
         public bool isFinished => _isFinished;
-        public float cutTime => _noteCutEvent.eventTime;
-        public int noteID => _noteCutEvent.noteID;
 
         public void Update()
         {
-            if (_initialized && availableForCut && _timeSyncController.songTime >= cutTime)
+            if (_initialized && _availableForCut && _timeSyncController.songTime >= noteCutEvent.eventTime)
             {
-                _noteCutter.Cut(ReplayNoteCutInfo.Parse(_noteCutEvent.noteCutInfo, _noteController));
+                Cut(ReplayNoteCutInfo.Parse(_noteCutEvent.noteCutInfo, _noteController));
             }
+        }
+        public void Dispose()
+        {
+            _availableForCut = false;
+            _isFinished = true;
         }
         public void Init(NoteController noteController, NoteEvent noteCutEvent)
         {
             _noteController = noteController;
             _noteCutEvent = noteCutEvent;
-            _noteCutter = _noteController.gameObject.AddComponent<SimpleNoteCutter>();
             _noteController.noteWasCutEvent.Add(this);
             _availableForCut = true;
             _initialized = true;
         }
-        public void HandleNoteControllerNoteWasCut()
-        {
-            _availableForCut = false;
-            Destroy(_noteCutter);
-            _isFinished = true;
-        }
         public void HandleNoteControllerNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
             _noteController.noteWasCutEvent.Remove(this);
-            HandleNoteControllerNoteWasCut();
+            _availableForCut = false;
+        }
+        private void Cut(NoteCutInfo noteCutInfo)
+        {
+            if (noteController == null) return;
+            foreach (var item in ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)noteController.noteWasCutEvent).items)
+            {
+                item.HandleNoteControllerNoteWasCut(noteController, noteCutInfo);
+            }
         }
     }
 }

@@ -17,13 +17,13 @@ namespace BeatLeader.Replays
         [Inject] protected readonly PlayerDataModel _playerDataModel;
         [Inject] protected readonly IFPFCSettings _fPFCSettings;
 
-        protected static StandardLevelScenesTransitionSetupDataSO _lastTransitionData;
+        protected static StandardLevelScenesTransitionSetupDataSO _transitionData;
         protected static Replay _replay;
         protected static Score _score;
         protected static bool _startedAsReplay;
 
         public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> replayFinishedEvent;
-        public static StandardLevelScenesTransitionSetupDataSO transitionData => _lastTransitionData;
+        public static StandardLevelScenesTransitionSetupDataSO transitionData => _transitionData;
         public static Replay replay => _replay;
         public static Score score => _score;
         public static bool isStartedAsReplay => _startedAsReplay;
@@ -55,7 +55,7 @@ namespace BeatLeader.Replays
             _gameScenesManager.PushScenes(data, 0.7f);
             _replay = replay;
             _score = score;
-            _lastTransitionData = data;
+            _transitionData = data;
             _startedAsReplay = true;
         }
         public void HandleReplayDidFinish(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupData, LevelCompletionResults levelCompletionResults)
@@ -67,7 +67,7 @@ namespace BeatLeader.Replays
             });
             InputManager.EnableCursor(false);
             _startedAsReplay = false;
-            _lastTransitionData = null;
+            _transitionData = null;
             _replay = null;
             _fPFCSettings.Enabled = true;
         }

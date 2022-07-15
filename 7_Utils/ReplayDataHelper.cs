@@ -237,8 +237,12 @@ namespace BeatLeader.Utils
         {
             StandardLevelScenesTransitionSetupDataSO data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
-            OverrideEnvironmentSettings environmentSettings = playerModel.playerData.overrideEnvironmentSettings;
-            environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>().First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), ReplayDataHelper.GetEnvironmentByName(replay.info.environment));
+            OverrideEnvironmentSettings environmentSettings = new OverrideEnvironmentSettings();
+            environmentSettings.SetField("_data", playerModel.playerData.overrideEnvironmentSettings
+                .GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
+            environmentSettings.overrideEnvironments = true;
+            environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
+                .First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), GetEnvironmentByName(replay.info.environment));
 
             data.Init("Simple", difficulty, previewBeatmapLevel, environmentSettings,
                 playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),

@@ -15,7 +15,6 @@ namespace BeatLeader.Replays.Scoring
         [Inject] protected readonly Replay _replay;
         [Inject] protected readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
         [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
-        [Inject] protected readonly SimpleCutScoringElement.Pool _simpleCutScoringElementPool;
         [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
         [Inject] protected readonly IScoringInterlayer _scoringInterlayer;
         [Inject] protected readonly IReadonlyBeatmapData _beatmapData;
@@ -38,6 +37,7 @@ namespace BeatLeader.Replays.Scoring
         [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] protected readonly BadCutScoringElement.Pool _badCutScoringElementPool;
         [Inject] protected readonly MissScoringElement.Pool _missScoringElementPool;
+        [Inject] protected readonly GoodCutScoringElement.Pool _goodCutScoringElementPool;
         [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
 
         protected readonly ScoreMultiplierCounter _maxScoreMultiplierCounter = new ScoreMultiplierCounter();
@@ -162,7 +162,6 @@ namespace BeatLeader.Replays.Scoring
                 _immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_immediateMaxPossibleMultipliedScore, totalMultiplier);
                 scoreDidChangeEvent?.Invoke(_multipliedScore, _modifiedScore);
             }
-            //Debug.Log($"{_multipliedScore}/{_modifiedScore}");
         }
         public virtual void RescoreInTimeSpan(float endTime)
         {
@@ -250,37 +249,20 @@ namespace BeatLeader.Replays.Scoring
                 if (noteCutInfo.allIsOK)
                 {
                     ScoringData scoringData = new ScoringData();
-                    SimpleNoteCutComparator comparator = null;
-                    if (_simpleNoteComparatorsSpawner != null && _simpleNoteComparatorsSpawner.TryGetLoadedComparator(noteController, out comparator))
+                    if (_simpleNoteComparatorsSpawner != null && _simpleNoteComparatorsSpawner
+                        .TryGetLoadedComparator(noteController, out SimpleNoteCutComparator comparator))
                     {
                         scoringData = new ScoringData(comparator.noteController.noteData, comparator.noteCutEvent,
                             comparator.noteController.worldRotation, comparator.noteController.inverseWorldRotation,
                             comparator.noteController.noteTransform.localRotation, comparator.noteController.noteTransform.position);
+                        comparator.Dispose();
                     }
                     else
-                    {
                         scoringData = new ScoringData(noteController, noteController.GetNoteEvent(_replay));
-                    }
 
-                    if (scoringData.noteEvent.noteCutInfo == null || scoringData.noteEvent.eventType == NoteEventType.miss)
-                    {
-                        if (!_initData.noteSyncMode)
-                        {
-                            Plugin.Log.Critical("I said you, don't do it... Note not handled exception!");
-                        }
-                        return;
-                    }
-
-                    SimpleCutScoringElement inElement = _simpleCutScoringElementPool.Spawn();
-                    ScoringElement outElement = inElement;
-                    inElement.Init(scoringData);
-                    comparator?.HandleNoteControllerNoteWasCut();
-
-                    outElement = _scoringInterlayer.Convert<GoodCutScoringElement>(inElement);
-
-                    DespawnScoringElement(inElement);
-                    ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, outElement);
-                    scoringForNoteStartedEvent?.Invoke(outElement);
+                    ScoringElement scoringElement = _scoringInterlayer.Convert<GoodCutScoringElement>(scoringData);
+                    ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, scoringElement);
+                    scoringForNoteStartedEvent?.Invoke(scoringElement);
                     _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
                 }
                 else
@@ -316,18 +298,16 @@ namespace BeatLeader.Replays.Scoring
         {
             if (scoringElement != null)
             {
-                if (scoringElement as GoodCutScoringElement != null) return;
-
-                SimpleCutScoringElement simpleCutScoringElement;
-                if ((simpleCutScoringElement = (scoringElement as SimpleCutScoringElement)) != null)
+                GoodCutScoringElement goodCutScoringElement;
+                if ((goodCutScoringElement = scoringElement as GoodCutScoringElement) != null)
                 {
-                    SimpleCutScoringElement item2 = simpleCutScoringElement;
-                    _simpleCutScoringElementPool.Despawn(item2);
+                    GoodCutScoringElement item = goodCutScoringElement;
+                    _goodCutScoringElementPool.Despawn(item);
                     return;
                 }
 
                 BadCutScoringElement badCutScoringElement;
-                if ((badCutScoringElement = (scoringElement as BadCutScoringElement)) != null)
+                if ((badCutScoringElement = scoringElement as BadCutScoringElement) != null)
                 {
                     BadCutScoringElement item2 = badCutScoringElement;
                     _badCutScoringElementPool.Despawn(item2);
@@ -335,7 +315,7 @@ namespace BeatLeader.Replays.Scoring
                 }
 
                 MissScoringElement missScoringElement;
-                if ((missScoringElement = (scoringElement as MissScoringElement)) != null)
+                if ((missScoringElement = scoringElement as MissScoringElement) != null)
                 {
                     MissScoringElement item3 = missScoringElement;
                     _missScoringElementPool.Despawn(item3);

@@ -80,7 +80,7 @@ namespace BeatLeader.Replays.Emulating
         {
             foreach (var item in _spawnedComparators)
             {
-                if (item.noteID == ID)
+                if (item.noteCutEvent.noteID == ID)
                 {
                     comparator = item;
                     return true;

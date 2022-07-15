@@ -30,10 +30,7 @@ namespace BeatLeader.Replays.Managers
         {
             _softLocksController.InstallLock(_gameplayManager, SoftLocksController.LockMode.WhenRequired);
             _softLocksController.InstallLock(_pauseMenuManager, SoftLocksController.LockMode.WhenRequired);
-            if (_initData.noteSyncMode)
-            {
-                _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First(), SoftLocksController.LockMode.WhenRequired);
-            }
+            _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First(), SoftLocksController.LockMode.WhenRequired);
             if (_inputManager.isInFPFC)
             {
                 Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);

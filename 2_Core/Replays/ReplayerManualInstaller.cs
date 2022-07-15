@@ -23,19 +23,16 @@ namespace BeatLeader.Replays
     {
         public class InitData
         {
-            public readonly bool noteSyncMode;
             public readonly bool movementLerp;
             public readonly int fieldOfView;
 
-            public InitData(bool noteSyncMode, bool movementLerp)
+            public InitData(bool movementLerp)
             {
-                this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
                 this.fieldOfView = 0;
             }
-            public InitData(bool noteSyncMode, bool movementLerp, int fieldOfView)
+            public InitData(bool movementLerp, int fieldOfView)
             {
-                this.noteSyncMode = noteSyncMode;
                 this.movementLerp = movementLerp;
                 this.fieldOfView = fieldOfView;
             }
@@ -48,10 +45,9 @@ namespace BeatLeader.Replays
             Container.Bind<InitData>().FromInstance(data).AsSingle();
             Container.Bind<SoftLocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<IScoringInterlayer>().To<ReplayToBaseScoringInterlayer>().AsSingle().NonLazy();
-            Container.BindMemoryPool<SimpleCutScoringElement, SimpleCutScoringElement.Pool>().WithInitialSize(30);
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
                 .FromComponentInNewPrefab(new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>());
-            if (data.noteSyncMode) Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             #region ScoreController patch

@@ -395,19 +395,14 @@
     <Compile Include="2_Core\Replays\Camera\ReplayerCameraController.cs" />
     <Compile Include="2_Core\Replays\ReplayerManualInstaller.cs" />
     <Compile Include="2_Core\Replays\ReplayerMenuLauncher.cs" />
-    <Compile Include="2_Core\Replays\Emulating\Scoring\Constructors\CutScoreBufferWithConstructor.cs" />
-    <Compile Include="2_Core\Replays\Emulating\Scoring\Constructors\GoodCutScoringElementWithConstructor.cs" />
     <Compile Include="2_Core\Models\ScoringData.cs" />
     <Compile Include="2_Core\Replays\Emulating\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="2_Core\Replays\PlaybackController.cs" />
-    <Compile Include="2_Core\Replays\Emulating\Scoring\SimpleCutScoreBuffer.cs" />
-    <Compile Include="2_Core\Replays\Emulating\Scoring\SimpleCutScoringElement.cs" />
     <Compile Include="2_Core\Replays\Emulating\Scoring\ReplayerScoreController.cs" />
     <Compile Include="2_Core\Replays\Emulating\Movement\VRControllerWrapper.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="2_Core\Replays\Emulating\Movement\VRControllersMovementEmulator.cs" />
     <Compile Include="2_Core\Replays\Emulating\SimpleNoteCutComparator.cs" />
-    <Compile Include="2_Core\Replays\Emulating\SimpleNoteCutter.cs" />
     <Compile Include="2_Core\Replays\Emulating\Scoring\ReplayToBaseScoringInterlayer.cs" />
   </ItemGroup>
   <ItemGroup>

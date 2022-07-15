@@ -8,6 +8,6 @@ namespace BeatLeader.Models
 {
     public interface IScoringInterlayer
     {
-        T Convert<T>(ScoringElement element) where T : ScoringElement;
+        T Convert<T>(ScoringData data) where T : ScoringElement;
     }
 }

@@ -198,6 +198,7 @@ namespace BeatLeader.Utils {
             string mapDiff,
             string mapMode,
             Vote vote,
+            string platform,
             int retry = 1
         ) {
             var failReason = "";
@@ -206,7 +207,7 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Debug($"Vote request: {i + 1}/{retry}");
                 LeaderboardState.VoteRequest.NotifyStarted();
 
-                var ticketTask = Authentication.SteamTicket();
+                var ticketTask = Authentication.PlatformTicket(platform);
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
                 
                 var authToken = ticketTask.Result;
@@ -260,7 +261,7 @@ namespace BeatLeader.Utils {
             
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
-                var ticketTask = Authentication.SteamTicket();
+                var ticketTask = Authentication.OculusTicket();
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
                 
                 var authToken = ticketTask.Result;

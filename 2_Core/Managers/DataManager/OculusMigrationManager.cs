@@ -69,7 +69,7 @@ namespace BeatLeader.DataManager {
         }
 
         private static IEnumerator OpenSigninPageCoroutine() {
-            var ticketTask = Authentication.SteamTicket();
+            var ticketTask = Authentication.OculusTicket();
             yield return new WaitUntil(() => ticketTask.IsCompleted);
 
             var authToken = ticketTask.Result;

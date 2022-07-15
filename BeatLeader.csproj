@@ -266,6 +266,7 @@
     <Compile Include="8_UI\Leaderboard\Components\MainPanel\Voting\VotingPanel.cs" />
     <Compile Include="8_UI\ReeUIComponentV2.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
+    <Compile Include="8_UI\ReeUIComponentV2WithContainer.cs" />
     <Compile Include="8_UI\Replayer\Components\PlayersInfoList.cs" />
     <Compile Include="8_UI\Replayer\Components\SongInfo.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor.cs" />

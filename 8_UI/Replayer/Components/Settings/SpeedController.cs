@@ -13,7 +13,7 @@ using TMPro;
 
 namespace BeatLeader.Components
 {
-    internal class SpeedController : ReeUIComponentV2
+    internal class SpeedController : ReeUIComponentV2WithContainer
     {
         #region Components
 

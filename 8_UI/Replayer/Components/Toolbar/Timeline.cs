@@ -17,7 +17,7 @@ using HMUI;
 
 namespace BeatLeader.Components
 {
-    internal class Timeline : ReeUIComponentV2
+    internal class Timeline : ReeUIComponentV2WithContainer
     {
         #region Components 
 
@@ -97,7 +97,6 @@ namespace BeatLeader.Components
 
         [Inject] private readonly PlaybackController _playbackController;
         [Inject] private readonly UI2DManager _uiManager;
-        [Inject] private readonly InputManager _inputManager;
         [Inject] private readonly Models.Replay _replay;
 
         private bool _focusWasLost;
@@ -135,7 +134,6 @@ namespace BeatLeader.Components
                     }
                 }
             }
-            if (UI2DManager.IsCoveredByAnotherObject(_clickableArea.gameObject, results)) return;
             if (!flag && _lastRaycastWasValid)
             {
                 _focusWasLost = true;

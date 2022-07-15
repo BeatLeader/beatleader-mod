@@ -1,4 +1,5 @@
-﻿using static BeatLeader.Replays.Managers.InputManager;
+﻿using System.Linq;
+using static BeatLeader.Replays.Managers.InputManager;
 using BeatLeader.Replays.Movement;
 using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using UnityEngine;
@@ -14,10 +15,10 @@ namespace BeatLeader.Replays.Poses
             _name = name;
         }
 
-        [Inject] protected readonly VRControllersManager _vrControllersManager;
+        [Inject] private readonly VRControllersManager _vrControllersManager;
 
-        protected float _smoothness;
-        protected string _name;
+        private float _smoothness;
+        private string _name;
 
         public InputType[] availableInputs => new[] { InputType.FPFC };
         public bool selfInject => true;

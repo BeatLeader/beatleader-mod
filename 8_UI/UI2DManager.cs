@@ -93,17 +93,5 @@ namespace BeatLeader
             }
             else Plugin.Log.Warn($"{go} is not added to the 2D UI");
         }
-
-        public static bool IsCoveredByAnotherObject(GameObject go, List<RaycastResult> result)
-        {
-            float idx = 0;
-            float maxIdx = 0;
-            result.ForEach(delegate (RaycastResult x)
-            {
-                if (x.gameObject == go) idx = x.displayIndex; //why index is float ??!
-                maxIdx = x.displayIndex > maxIdx ? x.displayIndex : maxIdx;
-            });
-            return maxIdx > idx;
-        }
     }
 }

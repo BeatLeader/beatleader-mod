@@ -12,7 +12,7 @@ using Zenject;
 
 namespace BeatLeader.Components
 {
-    internal class SongInfo : ReeUIComponentV2
+    internal class SongInfo : ReeUIComponentV2WithContainer
     {
         [UIValue("song-name")]
         private string songName

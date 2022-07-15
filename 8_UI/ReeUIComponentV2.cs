@@ -64,14 +64,6 @@ namespace BeatLeader
             component.Setup(parent, parseImmediately);
             return component;
         }
-        public static T InstantiateInContainer<T>(DiContainer container, Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2
-        {
-            var component = container.InstantiateComponentOnNewGameObjectSelf<T>();
-            component.Container = container;
-            component.OnInstantiate();
-            component.Setup(parent, parseImmediately);
-            return component;
-        }
 
         #endregion
 
@@ -99,7 +91,6 @@ namespace BeatLeader
 
         [UIValue("ui-component"), UsedImplicitly]
         private protected virtual Transform Transform { get; private set; }
-        protected DiContainer Container { get; private set; }
 
         private Transform _parent;
 
@@ -137,8 +128,6 @@ namespace BeatLeader
         #endregion
 
         #region Parse
-
-        protected virtual bool enableAfterParse { get; set; } = true;
         protected Transform content { get; private set; }
 
         [UIAction("#post-parse"), UsedImplicitly]
@@ -148,7 +137,6 @@ namespace BeatLeader
             DisposeIfNeeded();
             ParseSelfIfNeeded();
             ApplyHierarchy();
-            content.gameObject.SetActive(enableAfterParse ? content.gameObject.activeSelf : enableAfterParse);
             OnInitialize();
         }
 

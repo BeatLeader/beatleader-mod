@@ -34,9 +34,9 @@ namespace BeatLeader.ViewControllers
 
         private void Start()
         {
-            _layoutEditor = ReeUIComponentV2.InstantiateInContainer<LayoutEditor>(_container, transform);
-            _songInfo = ReeUIComponentV2.InstantiateInContainer<SongInfo>(_container, transform);
-            _toolbar = ReeUIComponentV2.InstantiateInContainer<Toolbar>(_container, transform);
+            _layoutEditor = ReeUIComponentV2WithContainer.InstantiateInContainer<LayoutEditor>(_container, transform);
+            _songInfo = ReeUIComponentV2WithContainer.InstantiateInContainer<SongInfo>(_container, transform);
+            _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
 
             gameObject.GetOrAddComponent<RectTransform>().sizeDelta = _2DManager.canvasSize / _scaleFactor;
             BSMLParser.instance.Parse(Utilities.GetResourceContent(GetType().Assembly, 

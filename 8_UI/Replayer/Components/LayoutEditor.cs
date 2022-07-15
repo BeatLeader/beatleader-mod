@@ -15,7 +15,7 @@ using HMUI;
 
 namespace BeatLeader.Components
 {
-    internal class LayoutEditor : ReeUIComponentV2
+    internal class LayoutEditor : ReeUIComponentV2WithContainer
     {
         [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.LayoutEditor.EditableElement.bsml")]
         private class EditableElement : IDisposable
@@ -121,7 +121,6 @@ namespace BeatLeader.Components
         }
 
         private Dictionary<string, EditableElement> _editableObjects = new();
-        protected override bool enableAfterParse { get; set; } = false;
         public bool editMode { get; private set; }
 
         public void SetEditModeEnabled(bool enabled, bool applySettings = true)
@@ -149,7 +148,6 @@ namespace BeatLeader.Components
             }
             else throw new Exception($"Can not find object named \"{name}\"");
         }
-
         private void SaveSettings()
         {
             try
@@ -170,6 +168,7 @@ namespace BeatLeader.Components
 
         protected override void OnInitialize()
         {
+            content.gameObject.SetActive(false);
             _window.gameObject.AddComponent<UIWindow>().handle = _handle;
             _handle.gameObject.AddComponent<UIHighlightable>().Init(Color.cyan, Color.yellow);
         }

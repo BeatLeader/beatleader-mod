@@ -13,7 +13,7 @@ using HMUI;
 
 namespace BeatLeader.Components
 {
-    internal class SettingsNavigator : ReeUIComponentV2
+    internal class SettingsNavigator : ReeUIComponentV2WithContainer
     {
         #region Components
 

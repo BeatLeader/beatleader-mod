@@ -183,59 +183,53 @@ namespace BeatLeader.Replays.Scoring
             foreach (BeatmapDataItem item in filteredBeatmapItems)
             {
                 NoteData noteData;
-                if ((noteData = item as NoteData) != null)
+                NoteEvent noteEvent;
+                if ((noteData = item as NoteData) != null && (noteEvent = noteData.GetNoteEvent(_replay)) != null)
                 {
-                    NoteEvent noteEvent = noteData.GetNoteEvent(_replay);
-                    if (noteEvent != null)
+                    switch (noteEvent.eventType)
                     {
-                        switch (noteEvent.eventType)
-                        {
-                            case NoteEventType.good:
-                                {
-                                    _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
-                                    if (noteData.ComputeNoteMultiplier() == MultiplierEventType.Positive)
-                                        _maxScoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
+                        case NoteEventType.good:
+                            {
+                                _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
+                                if (noteData.ComputeNoteMultiplier() == MultiplierEventType.Positive)
+                                    _maxScoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
 
-                                    int totalScore = noteEvent.ComputeNoteScore();
-                                    int maxPossibleScore = ScoreModel.GetNoteScoreDefinition(noteData.scoringType).maxCutScore;
+                                int totalScore = noteEvent.ComputeNoteScore();
+                                int maxPossibleScore = ScoreModel.GetNoteScoreDefinition(noteData.scoringType).maxCutScore;
 
-                                    _multipliedScore += totalScore * _scoreMultiplierCounter.multiplier;
-                                    _immediateMaxPossibleMultipliedScore += maxPossibleScore * _maxScoreMultiplierCounter.multiplier;
-                                    _comboAfterRescoring++;
-                                    _maxComboAfterRescoring = _comboAfterRescoring > _maxComboAfterRescoring ? _comboAfterRescoring : _maxComboAfterRescoring;
+                                _multipliedScore += totalScore * _scoreMultiplierCounter.multiplier;
+                                _immediateMaxPossibleMultipliedScore += maxPossibleScore * _maxScoreMultiplierCounter.multiplier;
+                                _comboAfterRescoring++;
+                                _maxComboAfterRescoring = _comboAfterRescoring > _maxComboAfterRescoring ? _comboAfterRescoring : _maxComboAfterRescoring;
 
-                                    float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
-                                    _prevMultiplierFromModifiers = _prevMultiplierFromModifiers != totalMultiplier ? totalMultiplier : _prevMultiplierFromModifiers;
+                                float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
+                                _prevMultiplierFromModifiers = _prevMultiplierFromModifiers != totalMultiplier ? totalMultiplier : _prevMultiplierFromModifiers;
 
-                                    _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
-                                    _immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_immediateMaxPossibleMultipliedScore, totalMultiplier);
-                                }
-                                break;
-                            case NoteEventType.bad:
-                            case NoteEventType.miss:
-                                _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
-                                _comboAfterRescoring = 0;
-                                broke = true;
-                                break;
-                            case NoteEventType.bomb:
-                                _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
-                                break;
-                            default: throw new Exception("Unknown note type exception!");
-                        }
-                        continue;
+                                _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
+                                _immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_immediateMaxPossibleMultipliedScore, totalMultiplier);
+                            }
+                            break;
+                        case NoteEventType.bad:
+                        case NoteEventType.miss:
+                            _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                            _comboAfterRescoring = 0;
+                            broke = true;
+                            break;
+                        case NoteEventType.bomb:
+                            _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                            break;
+                        default: throw new Exception("Unknown note type exception!");
                     }
+                    continue;
                 }
+
                 ObstacleData obstacleData;
-                if ((obstacleData = item as ObstacleData) != null)
-                {
-                    WallEvent wallEvent = obstacleData.GetWallEvent(_replay);
-                    if (wallEvent != null)
-                    {
-                        _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
-                        _comboAfterRescoring = 0;
-                        broke = true;
-                    }
-                }
+                WallEvent wallEvent;
+                if ((obstacleData = item as ObstacleData) == null || (wallEvent = obstacleData.GetWallEvent(_replay)) == null) continue;
+
+                _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                _comboAfterRescoring = 0;
+                broke = true;
             }
 
             onComboChangedAfterRescoring?.Invoke(_comboAfterRescoring, _maxComboAfterRescoring, broke);

@@ -13,7 +13,7 @@ using HMUI;
 
 namespace BeatLeader.Components
 {
-    internal class Toolbar : ReeUIComponentV2
+    internal class Toolbar : ReeUIComponentV2WithContainer
     {
         [Inject] private readonly PlaybackController _playbackController;
 

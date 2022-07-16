@@ -4,6 +4,7 @@ using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
+using Zenject;
 using UnityEngine;
 
 namespace BeatLeader.DataManager {
@@ -20,6 +21,9 @@ namespace BeatLeader.DataManager {
         private string Mode => _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
         private string Scope => _selectedScoreScope.ToString().ToLowerInvariant();
         private string Context => _selectedScoreContext.ToString().ToLower();
+
+        [Inject]
+        private IPlatformUserModel _platformUserModel;
 
         #endregion
 
@@ -118,7 +122,10 @@ namespace BeatLeader.DataManager {
                 LeaderboardState.VoteRequest.TryNotifyCancelled();
             }
 
-            _voteCoroutine = StartCoroutine(HttpUtils.VoteCoroutine(Hash, Diff, Mode, vote));
+
+            string platform = (_platformUserModel is OculusPlatformUserModel) ? "oculuspc" : "steam";
+
+            _voteCoroutine = StartCoroutine(HttpUtils.VoteCoroutine(Hash, Diff, Mode, vote, platform));
         }
 
         #endregion

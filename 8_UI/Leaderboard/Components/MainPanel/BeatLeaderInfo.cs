@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatSaberMarkupLanguage.Attributes;
@@ -17,9 +16,11 @@ namespace BeatLeader.Components {
             RankedPlaylistManager.IsUpToDateChangedEvent += OnPlaylistIsUpToDateChanged;
             RankedPlaylistManager.PlaylistUpdateStartedEvent += OnPlaylistUpdateStarted;
             RankedPlaylistManager.PlaylistUpdateFinishedEvent += OnPlaylistUpdateFinished;
+            OculusMigrationManager.IsMigrationRequiredChangedEvent += OnOculusMigrationRequiredChanged;
 
             OnModIsUpToDateChanged(ModVersionChecker.IsUpToDate);
             OnPlaylistIsUpToDateChanged(RankedPlaylistManager.IsUpToDate);
+            OnOculusMigrationRequiredChanged(OculusMigrationManager.IsMigrationRequired);
         }
 
         protected override void OnDispose() {
@@ -30,6 +31,7 @@ namespace BeatLeader.Components {
             RankedPlaylistManager.IsUpToDateChangedEvent -= OnPlaylistIsUpToDateChanged;
             RankedPlaylistManager.PlaylistUpdateStartedEvent -= OnPlaylistUpdateStarted;
             RankedPlaylistManager.PlaylistUpdateFinishedEvent -= OnPlaylistUpdateFinished;
+            OculusMigrationManager.IsMigrationRequiredChangedEvent -= OnOculusMigrationRequiredChanged;
         }
 
         #endregion
@@ -52,6 +54,10 @@ namespace BeatLeader.Components {
         private void OnPlaylistIsUpToDateChanged(bool value) {
             PlaylistUpdateButtonActive = !value;
             PlaylistInfoText = value ? UpdatedPlaylistText : OutdatedPlaylistText;
+        }
+
+        private void OnOculusMigrationRequiredChanged(bool value) {
+            OculusMigrationButtonActive = value;
         }
 
         private void OnHideModalsEvent(ModalView except) {
@@ -115,16 +121,16 @@ namespace BeatLeader.Components {
         [UIAction("version-update-button-on-click"), UsedImplicitly]
         private void VersionUpdateButtonOnClick() {
             if (ModVersionChecker.LatestReleaseInfo.link == null) return;
-            Process.Start("explorer.exe", ModVersionChecker.LatestReleaseInfo.link);
+            EnvironmentUtils.OpenBrowserPage(ModVersionChecker.LatestReleaseInfo.link);
         }
 
         #endregion
 
         #region RankedPlaylist
-        
+
         private const string OutdatedPlaylistText = "<color=#FFFF88>Playlist update available!";
         private const string UpdatedPlaylistText = "<color=#88FF88>Playlist is up to date!";
-        
+
         private string _playlistInfoText = "";
 
         [UIValue("playlist-info-text"), UsedImplicitly]
@@ -168,21 +174,42 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region OculusMigrationButton
+
+        private bool _oculusMigrationButtonActive;
+
+        [UIValue("oculus-migration-button-active"), UsedImplicitly]
+        private bool OculusMigrationButtonActive {
+            get => _oculusMigrationButtonActive;
+            set {
+                if (_oculusMigrationButtonActive.Equals(value)) return;
+                _oculusMigrationButtonActive = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIAction("oculus-migration-button-on-click"), UsedImplicitly]
+        private void OculusMigrationButtonOnClick() {
+            LeaderboardEvents.NotifyOculusMigrationButtonWasPressed();
+        }
+
+        #endregion
+
         #region Community Buttons
 
         [UIAction("website-on-click"), UsedImplicitly]
         private void WebsiteOnClick() {
-            Process.Start("explorer.exe", "https://www.beatleader.xyz/dashboard");
+            EnvironmentUtils.OpenBrowserPage("https://www.beatleader.xyz/dashboard");
         }
 
         [UIAction("discord-on-click"), UsedImplicitly]
         private void DiscordOnClick() {
-            Process.Start("explorer.exe", "https://discord.gg/2RG5YVqtG6");
+            EnvironmentUtils.OpenBrowserPage("https://discord.gg/2RG5YVqtG6");
         }
 
         [UIAction("patreon-on-click"), UsedImplicitly]
         private void PatreonOnClick() {
-            Process.Start("explorer.exe", "https://www.patreon.com/beatleader");
+            EnvironmentUtils.OpenBrowserPage("https://www.patreon.com/beatleader");
         }
 
         #endregion

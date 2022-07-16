@@ -12,6 +12,8 @@
         public const string REPLAY_UPLOAD_URL = "https://api.beatleader.xyz/replay";
 
         public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
+        
+        public const string BEATLEADER_WEBSITE_URL = "https://www.beatleader.xyz";
 
         #endregion
 
@@ -49,6 +51,16 @@
         
         public const string PROFILE_BY_ID = // /player/{user_id}
             BEATLEADER_API_URL + "/player/{0}";
+
+        #endregion
+
+        #region OculusPC
+
+        public const string OCULUS_USER_INFO = // /oculususer?token={user_id}
+            BEATLEADER_API_URL + "/oculususer?token={0}";
+
+        public const string OCULUS_PC_SIGNIN = // /signin?action=oculuspc&token={user_id}
+            BEATLEADER_WEBSITE_URL + "/signin/oculuspc?token={0}";
 
         #endregion
 

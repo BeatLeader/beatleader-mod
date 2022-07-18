@@ -79,7 +79,10 @@ namespace BeatLeader {
             bool menuToGame = scenesToDismiss.Contains("MainMenu") && scenesToPresent.Contains("StandardGameplay");
             bool gameToMenu = scenesToDismiss.Contains("StandardGameplay") && scenesToPresent.Contains("MainMenu");
 
-            RecorderUtils.OnSceneTransitionStarted(menuToGame, gameToMenu);
+            bool menuToMulti = scenesToDismiss.Contains("MainMenu") && scenesToPresent.Contains("MultiplayerGameplay");
+            bool multiToMenu = scenesToDismiss.Contains("MultiplayerGameplay") && scenesToPresent.Contains("MainMenu");
+
+            RecorderUtils.OnSceneTransitionStarted(menuToGame, gameToMenu, menuToMulti, multiToMenu);
         }
     }
 }

@@ -48,6 +48,11 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="Colors">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
     </Reference>
@@ -188,11 +193,13 @@
   <ItemGroup>
     <Compile Include="0_Harmony\ModifiersPatches\GameplayModifiersPanelPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderCustomCampaignUtilPatch.cs" />
+    <Compile Include="0_Harmony\RecorderPatches\RecorderMultiplayerUtilPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderUtilPatch.cs" />
     <Compile Include="0_Harmony\HarmonyHelper.cs" />
     <Compile Include="0_Harmony\InstallersPatches\AppInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\GameInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\LevelDataEnhancerPatch.cs" />
+    <Compile Include="0_Harmony\InstallersPatches\MultiplayerLevelDataEnhancerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\MenuInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PreSwingRatingEnhancerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />

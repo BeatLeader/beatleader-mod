@@ -1,4 +1,6 @@
-﻿namespace BeatLeader.Utils {
+﻿using System.Linq;
+
+namespace BeatLeader.Utils {
     internal static class RecorderUtils {
 
         internal static bool shouldRecord = false;
@@ -13,8 +15,12 @@
             shouldRecord = true;
         }
 
-        internal static void OnSceneTransitionStarted(bool menuToGame, bool gameToMenu) {
-            if (menuToGame || gameToMenu) return; // only transition related to Standard gameplay
+        internal static void OnCancelButtonWasPressed() {
+            shouldRecord = false;
+        }
+
+        internal static void OnSceneTransitionStarted(params bool[] transitions) {
+            if (transitions.Any(x => x)) return; // only transition related to Standard or Multiplayer gameplay
             shouldRecord = false;
         }
     }

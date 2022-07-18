@@ -259,6 +259,7 @@
     <Compile Include="7_Utils\BLConstants.cs" />
     <Compile Include="7_Utils\BLContext.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
+    <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
     <Compile Include="7_Utils\ModifiersUtils.cs" />
     <Compile Include="7_Utils\HttpUtils.cs" />

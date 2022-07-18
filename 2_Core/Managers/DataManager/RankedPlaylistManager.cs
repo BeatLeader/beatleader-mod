@@ -93,6 +93,7 @@ namespace BeatLeader.DataManager {
                     bytes =>
                     {
                         if (FileManager.TrySaveRankedPlaylist(bytes)) {
+                            PlaylistsLibInterop.TryRefreshPlaylists(true);
                             SongCoreInterop.TryRefreshSongs(false);
                             IsUpToDate = true;
                         }

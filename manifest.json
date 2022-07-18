@@ -3,12 +3,12 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "",
-  "gameVersion": "1.21.0",
+  "gameVersion": "1.24.0",
   "dependsOn": {
-    "LeaderboardCore": "^1.1.0",
-    "BeatSaberMarkupLanguage": "^1.5.1",
+    "LeaderboardCore": "^1.2.2",
+    "BeatSaberMarkupLanguage": "^1.6.6",
     "BSIPA": "^4.0.5"
   },
   "features": []

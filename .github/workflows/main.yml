@@ -2,8 +2,8 @@ name: Build
 
 on:
     workflow_dispatch:
-    #push:
-    #    branches: [ master, testCI ]
+    push:
+        branches: [ master, testCI ]
 
 jobs:
     Build:

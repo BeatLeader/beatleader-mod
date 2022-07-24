@@ -90,7 +90,7 @@ namespace BeatLeader
 
         private Transform _parent;
 
-        private void Setup(Transform parent, bool parseImmediately) {
+        protected void Setup(Transform parent, bool parseImmediately) {
             _parent = parent;
             Transform = transform;
             Transform.SetParent(parent, false);

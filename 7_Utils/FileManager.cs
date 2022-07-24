@@ -28,7 +28,7 @@ namespace BeatLeader.Utils
         }
         public static string[] GetAllReplaysPaths()
         {
-            return Directory.GetFiles(replayFolderPath);
+            return Directory.GetFiles(ReplaysFolderPath);
         }
         public static void WriteReplay(Replay replay)
         {

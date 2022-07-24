@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,6 +53,7 @@
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="BeatmapEditor3D, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapEditor3D.dll</HintPath>
@@ -228,6 +229,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="0_Harmony\LevelInfoPatch.cs" />
     <Compile Include="0_Harmony\ModifiersPatches\GameplayModifiersPanelPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderCustomCampaignUtilPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderMultiplayerUtilPatch.cs" />
@@ -246,6 +248,7 @@
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />
     <Compile Include="1_Config\PluginConfig.cs" />
+    <Compile Include="1_Config\ReplayerConfig.cs" />
     <Compile Include="2_Core\API\Authentication.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
     <Compile Include="2_Core\CountryFlagsStorage.cs" />
@@ -270,7 +273,11 @@
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
+    <Compile Include="2_Core\Models\ICameraPoseProvider.cs" />
+    <Compile Include="2_Core\Models\IReplayerScoreController.cs" />
+    <Compile Include="2_Core\Models\IScoringInterlayer.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
+    <Compile Include="2_Core\Models\LockData.cs" />
     <Compile Include="2_Core\Models\OculusUserInfo.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
     <Compile Include="2_Core\Models\ScoreInfoPanelTab.cs" />
@@ -283,7 +290,28 @@
     <Compile Include="2_Core\Models\Score.cs" />
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
+    <Compile Include="2_Core\Models\ScoringData.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
+    <Compile Include="2_Core\Replays\Camera\Poses\FlyingCameraPose.cs" />
+    <Compile Include="2_Core\Replays\Camera\Poses\PlayerViewCameraPose.cs" />
+    <Compile Include="2_Core\Replays\Camera\Poses\StaticCameraPose.cs" />
+    <Compile Include="2_Core\Replays\Camera\ReplayerCameraController.cs" />
+    <Compile Include="2_Core\Replays\Emulating\BeatmapTimeController.cs" />
+    <Compile Include="2_Core\Replays\Emulating\BeatmapVisualsController.cs" />
+    <Compile Include="2_Core\Replays\Emulating\GameSettingsLoader.cs" />
+    <Compile Include="2_Core\Replays\Emulating\Movement\VRControllersManager.cs" />
+    <Compile Include="2_Core\Replays\Emulating\Movement\VRControllersMovementEmulator.cs" />
+    <Compile Include="2_Core\Replays\Emulating\Movement\VRControllerWrapper.cs" />
+    <Compile Include="2_Core\Replays\Emulating\Scoring\ReplayerScoreController.cs" />
+    <Compile Include="2_Core\Replays\Emulating\Scoring\ReplayToBaseScoringInterlayer.cs" />
+    <Compile Include="2_Core\Replays\Emulating\SimpleNoteComparatorsSpawner.cs" />
+    <Compile Include="2_Core\Replays\Emulating\SimpleNoteCutComparator.cs" />
+    <Compile Include="2_Core\Replays\Managers\InputManager.cs" />
+    <Compile Include="2_Core\Replays\Managers\SceneTweaksManager.cs" />
+    <Compile Include="2_Core\Replays\PlaybackController.cs" />
+    <Compile Include="2_Core\Replays\ReplayerManualInstaller.cs" />
+    <Compile Include="2_Core\Replays\ReplayerMenuLauncher.cs" />
+    <Compile Include="2_Core\Replays\SoftLocksController.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphUtils.cs" />
@@ -298,21 +326,44 @@
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
+    <Compile Include="7_Utils\MathUtils.cs" />
     <Compile Include="7_Utils\ModifiersUtils.cs" />
     <Compile Include="7_Utils\HttpUtils.cs" />
     <Compile Include="7_Utils\RecorderUtils.cs" />
+    <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
     <Compile Include="7_Utils\StaticUtils\EnvironmentUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\GameObjectExtension.cs" />
     <Compile Include="7_Utils\StaticUtils\HarmonyUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\HMUIUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\ReflectionUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\TransformExtension.cs" />
+    <Compile Include="7_Utils\StaticUtils\ZenjectExtension.cs" />
     <Compile Include="7_Utils\UtilityClasses\CyclicBuffer.cs" />
     <Compile Include="7_Utils\UtilityClasses\GifLoader.cs" />
     <Compile Include="7_Utils\UtilityClasses\Range.cs" />
     <Compile Include="7_Utils\UtilityClasses\RequestStateHandler.cs" />
     <Compile Include="7_Utils\UtilityClasses\ScoresTableLayoutHelper.cs" />
     <Compile Include="7_Utils\UtilityClasses\ScreenViewTransform.cs" />
+    <Compile Include="8_UI\BSML Addons\BSMLAddonsLoader.cs" />
+    <Compile Include="8_UI\BSML Addons\BSMLUtility.cs" />
+    <Compile Include="8_UI\BSML Addons\Components\BetterButton.cs" />
+    <Compile Include="8_UI\BSML Addons\Components\BetterImage.cs" />
+    <Compile Include="8_UI\BSML Addons\Tags\BetterButtonTag.cs" />
+    <Compile Include="8_UI\BSML Addons\Tags\BetterImageTag.cs" />
+    <Compile Include="8_UI\BSML Addons\TypeHandlers\BetterButtonHandler.cs" />
+    <Compile Include="8_UI\BSML Addons\TypeHandlers\BetterImageHandler.cs" />
+    <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\GenericSettingExtensionHandler.cs" />
+    <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\GraphicExtensionHandler.cs" />
+    <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ImageViewExtensionHandler.cs" />
+    <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
+    <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ModalViewExtensionHandler.cs" />
+    <Compile Include="8_UI\Components\UIHighlightable.cs" />
+    <Compile Include="8_UI\Components\UIWindow.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
@@ -357,9 +408,20 @@
     <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardView.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUtils.cs" />
+    <Compile Include="8_UI\ReeUIComponent.cs" />
     <Compile Include="8_UI\ReeUIComponentV2.cs" />
+    <Compile Include="8_UI\ReeUIComponentV2WithContainer.cs" />
+    <Compile Include="8_UI\Replayer\Components\LayoutEditor.cs" />
+    <Compile Include="8_UI\Replayer\Components\PlayersInfoList.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\SettingsNavigator.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\SpeedController.cs" />
+    <Compile Include="8_UI\Replayer\Components\SongInfo.cs" />
+    <Compile Include="8_UI\Replayer\Components\Toolbar\Timeline.cs" />
+    <Compile Include="8_UI\Replayer\Components\Toolbar\Toolbar.cs" />
+    <Compile Include="8_UI\Replayer\ViewControllers\ReplayerPCViewController.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
+    <Compile Include="8_UI\UI2DManager.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -413,44 +475,6 @@
   <ItemGroup>
     <None Include="9_Resources\AssetBundles\AssetBundles" />
     <None Include="9_Resources\AssetBundles\AssetBundles.manifest" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\CountryFlag.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\PlayerAvatar.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ContextSelector.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\EmptyBoardMessage.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Pagination.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScopeSelector.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRow.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowDivider.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoresTable.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetails.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsAverages.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsRow.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGraphPanel.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGrid.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGridCell.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyPieChart.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\MiniProfile.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanel.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreOverview.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreStatsLoadingScreen.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\Logo.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\PlayerInfo.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\StatusBar.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ClanTag.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ClanTags.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\BeatLeaderInfo.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\LeaderboardSettings.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\AvatarScoreRowCell.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\ClansScoreRowCell.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\CountryScoreRowCell.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\MistakesScoreRowCell.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\TextScoreRowCell.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\MapTypeSelector.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\RankabilitySelector.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\StarsSelector.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\VotingButton.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\VotingPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\SongInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\PlayersInfoList.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerPCView.bsml" />

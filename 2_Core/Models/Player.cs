@@ -1,6 +1,6 @@
 ﻿namespace BeatLeader.Models
 {
-    internal class Player {
+     public class Player {
         public string id;
         public int rank;
         public string name;
@@ -13,12 +13,12 @@
         public PatreonFeatures patreonFeatures;
     }
 
-    internal class Clan {
+    public class Clan {
         public string tag;
         public string color;
     }
 
-    internal class PatreonFeatures {
+    public class PatreonFeatures {
         public string message;
     }
 }

@@ -65,17 +65,22 @@ namespace BeatLeader.Utils {
                 yield return request.SendWebRequest();
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
-                if (request.isHttpError || request.isNetworkError) {
+
+                if (request.isHttpError || request.isNetworkError)
+                {
                     Plugin.Log.Debug($"Request failed: {request.error}");
                     GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
                     if (!shouldRetry) break;
                     continue;
                 }
 
-                try {
+                try
+                {
                     onSuccess.Invoke(DeserializeResponse<T>(request));
                     yield break;
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Plugin.Log.Debug(e);
                     failReason = e.Message;
                 }
@@ -87,13 +92,16 @@ namespace BeatLeader.Utils {
 
         #region get list of entities
 
-        internal static IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action<string> onFail, int retry = 1) {
+        internal static IEnumerator GetPagedData<T>(string url, Action<Paged<T>> onSuccess, Action<string> onFail, int retry = 1)
+        {
             var uri = new Uri(url);
             Plugin.Log.Debug($"Request url = {uri}");
 
             var failReason = "";
-            for (int i = 1; i <= retry; i++) {
-                var request = new UnityWebRequest(url) {
+            for (int i = 1; i <= retry; i++)
+            {
+                var request = new UnityWebRequest(url)
+                {
                     downloadHandler = new DownloadHandlerBuffer(),
                     timeout = 30
                 };
@@ -101,16 +109,20 @@ namespace BeatLeader.Utils {
                 yield return request.SendWebRequest();
                 Plugin.Log.Debug($"StatusCode: {request.responseCode}");
 
-                if (request.isHttpError || request.isNetworkError) {
+                if (request.isHttpError || request.isNetworkError)
+                {
                     GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
                     if (!shouldRetry) break;
                     continue;
                 }
 
-                try {
+                try
+                {
                     onSuccess.Invoke(DeserializeResponse<Paged<T>>(request));
                     yield break;
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     Plugin.Log.Debug(e);
                     failReason = e.Message;
                 }
@@ -189,6 +201,51 @@ namespace BeatLeader.Utils {
             Plugin.Log.Debug("Cannot upload replay");
         }
 
+        #endregion
+
+        #region ReplayDownload
+        public static IEnumerator DownloadReplay(string link, int attempts = 1, Action<Replay> callback = null)
+        {
+            for (int i = 1; i <= attempts; i++)
+            {
+                var request = new UnityWebRequest(link, UnityWebRequest.kHttpVerbGET)
+                {
+                    downloadHandler = new DownloadHandlerBuffer()
+                };
+                yield return request.SendWebRequest();
+
+                var readStream = new MemoryStream(request.downloadHandler.data);
+
+                int arrayLength = (int)readStream.Length;
+                byte[] buffer = new byte[arrayLength];
+                readStream.Read(buffer, 0, arrayLength);
+
+                Replay replay = null;
+                try
+                {
+                    replay = ReplayDecoder.Decode(buffer);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.Critical($"An unhandled exception occurred during attemping to decode replay! {ex}");
+                }
+
+                callback?.Invoke(replay);
+                yield return replay;
+            }
+        }
+        public static Replay DownloadReplay(string link, int attempts = 1)
+        {
+            var numerator = DownloadReplay(link, attempts, null);
+            while (numerator.MoveNext())
+            {
+                if (numerator.Current != null && numerator.Current.GetType() == typeof(Replay))
+                {
+                    return (Replay)numerator.Current;
+                }
+            }
+            return null;
+        }
         #endregion
 
         #region Vote

@@ -5,6 +5,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {

@@ -9,12 +9,11 @@ using JetBrains.Annotations;
 namespace BeatLeader
 {
     [UsedImplicitly]
-    internal class ConfigFileData
-    {
+    internal class ConfigFileData {
         public static ConfigFileData Instance { get; set; }
 
         #region ConfigVersion
-
+        
         public const string CurrentConfigVersion = "1.0";
 
         [UsedImplicitly]
@@ -39,12 +38,11 @@ namespace BeatLeader
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
 
         #endregion
-
+        
         #region OnReload
 
         [UsedImplicitly]
-        public virtual void OnReload()
-        {
+        public virtual void OnReload() {
             if (ConfigVersion != CurrentConfigVersion) ConfigVersion = CurrentConfigVersion;
         }
 

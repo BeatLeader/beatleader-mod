@@ -1,3 +1,6 @@
 <vertical pref-width="14">
     <clickable-image id="logo-image" src="#BeatLeaderLogoGradient" pref-height="14" preserve-aspect="true" on-click="on-click"/>
+    <macro.as-host host="notification-icon">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
 </vertical>

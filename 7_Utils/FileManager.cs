@@ -8,27 +8,38 @@ using System.Text.RegularExpressions;
 
 namespace BeatLeader.Utils
 {
-    class FileManager
+    internal static class FileManager
     {
-        private static readonly string replayFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
+        #region Directories
+
+        private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
+        private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 
         static FileManager()
         {
-            if (!Directory.Exists(Path.GetDirectoryName(replayFolderPath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(replayFolderPath));
-            }
+            EnsureDirectoryExists(ReplaysFolderPath);
+            EnsureDirectoryExists(PlaylistsFolderPath);
+        }
+
+        private static void EnsureDirectoryExists(string directory) {
+            var path = Path.GetDirectoryName(directory);
+            if (Directory.Exists(path) || path == null) return;
+            Directory.CreateDirectory(path);
         }
         public static string[] GetAllReplaysPaths()
         {
-            return Directory.GetFiles(replayFolderPath);
+            return Directory.GetFiles(ReplaysFolderPath);
         }
         public static void WriteReplay(Replay replay)
         {
-            string filename = ToFileName(replay);
-            using BinaryWriter file = new(File.Open(filename, FileMode.OpenOrCreate), Encoding.UTF8);
-            ReplayEncoder.Encode(replay, file);
-            file.Close();
+            try {
+                string filename = ToFileName(replay);
+                using BinaryWriter file = new(File.Open(filename, FileMode.OpenOrCreate), Encoding.UTF8);
+                ReplayEncoder.Encode(replay, file);
+                file.Close();
+            } catch (Exception ex) {
+                Plugin.Log.Debug($"Unable to save replay. Reason: {ex.Message}");
+            }
         }
 
         public static string ToFileName(Replay replay)
@@ -38,7 +49,7 @@ namespace BeatLeader.Utils
             string filename = $"{replay.info.playerID}{practice}{fail}-{replay.info.songName}-{replay.info.difficulty}-{replay.info.mode}-{replay.info.hash}.bsor";
             string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             Regex r = new (string.Format("[{0}]", Regex.Escape(regexSearch)));
-            return replayFolderPath + r.Replace(filename, "_");
+            return ReplaysFolderPath + r.Replace(filename, "_");
         }
 
         public static Replay ReadReplay(string filename)
@@ -62,5 +73,35 @@ namespace BeatLeader.Utils
             }
             return null;
         }
+
+        #endregion
+
+        #region RankedPlaylist
+
+        private static string RankedPlaylistFileName => PlaylistsFolderPath + "BeatLeaderRanked.json";
+
+        public static bool TryReadRankedPlaylist(out byte[] bytes) {
+            try {
+                bytes = File.ReadAllBytes(RankedPlaylistFileName);
+                return true;
+            } catch (Exception ex) {
+                Plugin.Log.Debug($"Unable read playlist. Reason: {ex.Message}");
+                bytes = Array.Empty<byte>();
+                return false;
+            }
+        }
+
+        public static bool TrySaveRankedPlaylist(byte[] bytes) {
+            try {
+                using var writer = new BinaryWriter(File.Open(RankedPlaylistFileName, FileMode.OpenOrCreate, FileAccess.Write));
+                writer.Write(bytes);
+                return true;
+            } catch (Exception ex) {
+                Plugin.Log.Debug($"Unable to write playlist. Reason: {ex.Message}");
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

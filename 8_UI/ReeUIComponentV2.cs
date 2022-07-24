@@ -19,20 +19,17 @@ namespace BeatLeader
 
         private static readonly Dictionary<Type, string> BsmlCache = new();
 
-        private static string GetBsmlForType(Type componentType)
-        {
+        private static string GetBsmlForType(Type componentType) {
             if (BsmlCache.ContainsKey(componentType)) return BsmlCache[componentType];
             var result = ReadBsmlOrFallback(componentType);
             BsmlCache[componentType] = result;
             return result;
         }
 
-        private static string ReadBsmlOrFallback(Type componentType)
-        {
+        private static string ReadBsmlOrFallback(Type componentType) {
             var targetPostfix = $"{componentType.Name}.bsml";
 
-            foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames())
-            {
+            foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
                 if (!resourceName.EndsWith(targetPostfix)) continue;
                 return Utilities.GetResourceContent(componentType.Assembly, resourceName);
             }
@@ -50,8 +47,7 @@ namespace BeatLeader
 
         #region Instantiate
 
-        public static T InstantiateOnSceneRoot<T>(bool parseImmediately = true) where T : ReeUIComponentV2
-        {
+        public static T InstantiateOnSceneRoot<T>(bool parseImmediately = true) where T : ReeUIComponentV2 {
             var lastLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
             var sceneRoot = lastLoadedScene.GetRootGameObjects()[0].transform;
             return Instantiate<T>(sceneRoot, parseImmediately);
@@ -90,12 +86,11 @@ namespace BeatLeader
         #region Setup
 
         [UIValue("ui-component"), UsedImplicitly]
-        private protected virtual Transform Transform { get; private set; }
+        private protected virtual Transform Transform { get; set; }
 
         private Transform _parent;
 
-        protected void Setup(Transform parent, bool parseImmediately)
-        {
+        protected void Setup(Transform parent, bool parseImmediately) {
             _parent = parent;
             Transform = transform;
             Transform.SetParent(parent, false);
@@ -103,8 +98,7 @@ namespace BeatLeader
             gameObject.SetActive(false);
         }
 
-        public void SetParent(Transform parent)
-        {
+        public void SetParent(Transform parent) {
             _parent = parent;
             Transform.SetParent(parent, false);
         }
@@ -117,8 +111,7 @@ namespace BeatLeader
 
         protected bool IsParsed => _state == State.HierarchySet;
 
-        private enum State
-        {
+        private enum State {
             Uninitialized,
             Parsing,
             Parsed,
@@ -140,27 +133,24 @@ namespace BeatLeader
             OnInitialize();
         }
 
-        private void DisposeIfNeeded()
-        {
+        private void DisposeIfNeeded() {
             if (_state != State.HierarchySet) return;
             OnDispose();
             _state = State.Uninitialized;
         }
 
-        private void ParseSelfIfNeeded()
-        {
+        private void ParseSelfIfNeeded() {
             if (_state != State.Uninitialized) return;
             _state = State.Parsing;
             PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
             _state = State.Parsed;
         }
 
-        private void ApplyHierarchy()
-        {
+        private void ApplyHierarchy() {
             if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
 
-            content = Transform.GetChild(0);
-            content.SetParent(Transform.parent, true);
+            var child = Transform.GetChild(0);
+            child.SetParent(Transform.parent, true);
 
             Transform.SetParent(_parent, false);
             gameObject.SetActive(true);
@@ -174,8 +164,7 @@ namespace BeatLeader
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
-        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
-        {
+        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

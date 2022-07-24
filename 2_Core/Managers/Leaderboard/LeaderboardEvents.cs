@@ -10,10 +10,16 @@ namespace BeatLeader.Manager {
 
         #region ShowStatusMessage
 
-        public static event Action<string, float> StatusMessageEvent;
+        public static event Action<string, StatusMessageType, float> StatusMessageEvent;
 
-        public static void ShowStatusMessage(string message, float duration = 1f) {
-            StatusMessageEvent?.Invoke(message, duration);
+        public static void ShowStatusMessage(string message, StatusMessageType type = StatusMessageType.Neutral, float duration = 1f) {
+            StatusMessageEvent?.Invoke(message, type, duration);
+        }
+
+        public enum StatusMessageType {
+            Neutral,
+            Bad,
+            Good
         }
 
         # endregion
@@ -76,6 +82,26 @@ namespace BeatLeader.Manager {
 
         public static void SubmitVote(Vote vote) {
             SubmitVoteEvent?.Invoke(vote);
+        }
+
+        #endregion
+        
+        #region RankedPlaylistUpdateButtonWasPressedAction
+
+        public static event Action RankedPlaylistUpdateButtonWasPressedAction;
+
+        public static void NotifyRankedPlaylistUpdateButtonWasPressed() {
+            RankedPlaylistUpdateButtonWasPressedAction?.Invoke();
+        }
+
+        #endregion
+        
+        #region OculusMigrationButtonWasPressedAction
+
+        public static event Action OculusMigrationButtonWasPressedAction;
+
+        public static void NotifyOculusMigrationButtonWasPressed() {
+            OculusMigrationButtonWasPressedAction?.Invoke();
         }
 
         #endregion

@@ -65,12 +65,14 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
         [Inject] [UsedImplicitly] private StandardLevelScenesTransitionSetupDataSO _transitionSetup;
-        [Inject] [UsedImplicitly] private PauseController _pauseController;
+        [Inject] [UsedImplicitly] private MultiplayerLevelScenesTransitionSetupDataSO _mpTransitionSetup;
         [Inject] [UsedImplicitly] private AudioTimeSyncController _timeSyncController;
         [Inject] [UsedImplicitly] private ScoreController _scoreController;
         [Inject] [UsedImplicitly] private PlayerHeadAndObstacleInteraction _phaoi;
         [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
         [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
+        // Optional for MP support, there is no pause mechanic in multiplayer gameplay.
+        [InjectOptional][UsedImplicitly] private PauseController _pauseController;
 
         private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
@@ -108,11 +110,14 @@ namespace BeatLeader {
             _beatmapObjectManager.obstacleWasSpawnedEvent += OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasCutEvent += OnNoteWasCut;
             _transitionSetup.didFinishEvent += OnTransitionSetupOnDidFinishEvent;
+            _mpTransitionSetup.didFinishEvent += OnMultiplayerTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent += OnBeatSpawnControllerDidInit;
             _phaoi.headDidEnterObstacleEvent += OnObstacle;
-            _pauseController.didPauseEvent += OnPause;
-            _pauseController.didResumeEvent += OnResume;
             _scoreController.scoringForNoteFinishedEvent += OnScoringDidFinish;
+            if (_pauseController != null) {
+                _pauseController.didPauseEvent += OnPause;
+                _pauseController.didResumeEvent += OnResume;
+            }
 
             if (_replay.info.height == 0)
             {
@@ -129,11 +134,14 @@ namespace BeatLeader {
             _beatmapObjectManager.obstacleWasSpawnedEvent -= OnObstacleWasSpawned;
             _beatmapObjectManager.noteWasCutEvent -= OnNoteWasCut;
             _transitionSetup.didFinishEvent -= OnTransitionSetupOnDidFinishEvent;
+            _mpTransitionSetup.didFinishEvent -= OnMultiplayerTransitionSetupOnDidFinishEvent;
             _beatSpawnController.didInitEvent -= OnBeatSpawnControllerDidInit;
             _phaoi.headDidEnterObstacleEvent -= OnObstacle;
-            _pauseController.didPauseEvent -= OnPause;
-            _pauseController.didResumeEvent -= OnResume;
             _scoreController.scoringForNoteFinishedEvent -= OnScoringDidFinish;
+            if (_pauseController != null) {
+                _pauseController.didPauseEvent -= OnPause;
+                _pauseController.didResumeEvent -= OnResume;
+            }
 
             if (_replay.info.height == 0)
             {
@@ -313,6 +321,37 @@ namespace BeatLeader {
                 case LevelCompletionResults.LevelEndAction.Restart:
                     
                     break;
+            }
+        }
+
+        private void OnMultiplayerTransitionSetupOnDidFinishEvent(MultiplayerLevelScenesTransitionSetupDataSO data, MultiplayerResultsData results)
+        {
+            _stopRecording = true;
+            _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
+
+            var mpResults = results.localPlayerResultData.multiplayerLevelCompletionResults;
+            var levelCompResults = mpResults.levelCompletionResults;
+            _replay.info.score = levelCompResults.multipliedScore;
+            MapEnhancer.energy = levelCompResults.energy;
+            MapEnhancer.Enhance(_replay);
+            _trackingDeviceEnhancer.Enhance(_replay);
+
+            if (mpResults.playerLevelEndState == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndState.SongFinished) {
+                switch (levelCompResults.levelEndStateType) {
+                    case LevelCompletionResults.LevelEndStateType.Cleared:
+                        Plugin.Log.Info("Level Cleared. Save replay");
+                        ScoreUtil.instance.ProcessReplayAsync(_replay);
+                        break;
+                    case LevelCompletionResults.LevelEndStateType.Failed:
+                        if (levelCompResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart) {
+                            Plugin.Log.Info("Restart");
+                        } else {
+                            _replay.info.failTime = _timeSyncController.songTime;
+                            Plugin.Log.Info("Level Failed. Save replay");
+                            ScoreUtil.instance.ProcessReplayAsync(_replay);
+                        }
+                        break;
+                }
             }
         }
 

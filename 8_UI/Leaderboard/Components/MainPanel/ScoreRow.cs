@@ -21,8 +21,8 @@ namespace BeatLeader.Components {
                 PlayerRole.Default, new ColorScheme(
                     new Color(0.4f, 0.6f, 1.0f),
                     new Color(0.5f, 0.7f, 1.0f),
-                    0.0f, 
-                    0.0f, 
+                    0.0f,
+                    0.0f,
                     1.0f
                 )
             }, {
@@ -30,7 +30,7 @@ namespace BeatLeader.Components {
                     new Color(1.0f, 1.0f, 0.7f),
                     new Color(1.0f, 0.6f, 0.0f),
                     0.0f,
-                    0.0f, 
+                    0.0f,
                     1.0f
                 )
             }, {
@@ -38,7 +38,7 @@ namespace BeatLeader.Components {
                     new Color(1.0f, 1.0f, 0.7f),
                     new Color(1.0f, 0.6f, 0.0f),
                     1.0f,
-                    0.0f, 
+                    0.0f,
                     1.0f
                 )
             }, {
@@ -46,7 +46,7 @@ namespace BeatLeader.Components {
                     new Color(1.0f, 1.0f, 0.6f),
                     new Color(1.0f, 0.3f, 0.0f),
                     1.0f,
-                    0.8f, 
+                    0.8f,
                     1.0f
                 )
             }
@@ -124,6 +124,9 @@ namespace BeatLeader.Components {
         [UIValue("mistakes-cell"), UsedImplicitly]
         private MistakesScoreRowCell _mistakesCell;
 
+        [UIValue("pauses-cell"), UsedImplicitly]
+        private TextScoreRowCell _pausesCell;
+
         private readonly Dictionary<ScoreRowCellType, AbstractScoreRowCell> _cells = new();
 
         private void Awake() {
@@ -138,6 +141,7 @@ namespace BeatLeader.Components {
             _cells[ScoreRowCellType.Score] = _scoreCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Time] = _timeCell = Instantiate<TextScoreRowCell>(transform);
             _cells[ScoreRowCellType.Mistakes] = _mistakesCell = Instantiate<MistakesScoreRowCell>(transform);
+            _cells[ScoreRowCellType.Pauses] = _pausesCell = Instantiate<TextScoreRowCell>(transform);
         }
 
         #endregion
@@ -152,6 +156,7 @@ namespace BeatLeader.Components {
             _ppCell.Setup(o => FormatUtils.FormatPP((float) o));
             _scoreCell.Setup(o => FormatUtils.FormatScore((int) o), TextAlignmentOptions.Right);
             _timeCell.Setup(o => FormatUtils.FormatTimeset((string) o), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.4f);
+            _pausesCell.Setup(o => FormatUtils.FormatPauses((int) o));
         }
 
         public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
@@ -201,6 +206,7 @@ namespace BeatLeader.Components {
             _scoreCell.SetValue(score.modifiedScore);
             _timeCell.SetValue(score.timeSet);
             _mistakesCell.SetValues(score.missedNotes, score.badCuts, score.bombCuts, score.wallsHit);
+            _pausesCell.SetValue(score.pauses);
             Clickable = true;
         }
 

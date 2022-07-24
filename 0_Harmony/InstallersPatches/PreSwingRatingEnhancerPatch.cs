@@ -4,7 +4,7 @@ using IPA.Utilities;
 using System;
 using UnityEngine;
 
-namespace BeatLeader
+namespace BeatLeader._0_Harmony.InstallersPatches
 {
     [HarmonyPatch(typeof(SaberMovementData), nameof(SaberMovementData.ComputeSwingRating), new Type[] { typeof(bool), typeof(float) })]
     public static class PreSwingRatingEnhancerPatch

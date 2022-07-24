@@ -1,6 +1,6 @@
 ﻿namespace BeatLeader.Models
 {
-    public class Player {
+     public class Player {
         public string id;
         public int rank;
         public string name;

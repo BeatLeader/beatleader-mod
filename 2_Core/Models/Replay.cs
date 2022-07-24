@@ -73,7 +73,7 @@ namespace BeatLeader.Models
         public int noteID;
         public float eventTime;
         public float spawnTime;
-        public NoteEventType eventType;
+        public NoteEventType eventType = NoteEventType.unknown;
         public NoteCutInfo noteCutInfo;
     }
     public class WallEvent

@@ -133,8 +133,11 @@ namespace BeatLeader.Components
         }
         public void AddObject(string name, RectTransform rect, bool enabled = true, bool locked = false)
         {
-            if (!_editableObjects.TryAdd(name, new EditableElement(name, rect, enabled, locked)))
+            try
             {
+                _editableObjects.Add(name, new EditableElement(name, rect, enabled, locked));
+            }
+            catch (Exception _) {
                 throw new Exception("Object with the same name is already added!");
             }
         }

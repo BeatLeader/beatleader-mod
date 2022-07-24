@@ -1,6 +1,8 @@
-﻿using IPA;
+﻿using Hive.Versioning;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
+using IPA.Loader;
 using JetBrains.Annotations;
 using IPALogger = IPA.Logging.Logger;
 using BeatLeader.UI.BSML_Addons;
@@ -14,8 +16,11 @@ namespace BeatLeader
         #region Constants
 
         internal const string ResourcesPath = "BeatLeader._9_Resources";
+        internal const string PluginId = "BeatLeader";
         internal const string HarmonyId = "BeatLeader";
         internal const string FancyName = "BeatLeader";
+
+        internal static Version Version => PluginManager.GetPlugin(PluginId).HVersion;
 
         #endregion
 
@@ -67,9 +72,7 @@ namespace BeatLeader
             {
                 HarmonyHelper.ApplyPatches();
                 // ModPanelUI.AddTab(); -- Template with "HelloWorld!" button
-            }
-            else
-            {
+            } else {
                 HarmonyHelper.RemovePatches();
                 // ModPanelUI.RemoveTab();
             }

@@ -4,7 +4,6 @@ using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
-using Zenject;
 using UnityEngine;
 
 namespace BeatLeader.DataManager {

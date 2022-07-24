@@ -6,11 +6,15 @@ using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using BeatLeader.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 
-namespace BeatLeader {
-    internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged {
+namespace BeatLeader
+{
+    internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged
+    {
         #region BSML Cache
 
         private static readonly Dictionary<Type, string> BsmlCache = new();
@@ -30,6 +34,12 @@ namespace BeatLeader {
                 return Utilities.GetResourceContent(componentType.Assembly, resourceName);
             }
 
+            ViewDefinitionAttribute viewDefinitionAttribute;
+            if ((viewDefinitionAttribute = componentType.GetCustomAttribute(typeof(ViewDefinitionAttribute)) as ViewDefinitionAttribute) != null)
+            {
+                return Utilities.GetResourceContent(componentType.Assembly, viewDefinitionAttribute.Definition);
+            }
+
             return $"<text text=\"Resource not found: {targetPostfix}\" align=\"Center\"/>";
         }
 
@@ -43,8 +53,10 @@ namespace BeatLeader {
             return Instantiate<T>(sceneRoot, parseImmediately);
         }
 
-        public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2 {
+        public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2
+        {
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
+            component.OnInstantiate();
             component.Setup(parent, parseImmediately);
             return component;
         }
@@ -52,6 +64,8 @@ namespace BeatLeader {
         #endregion
 
         #region Events
+
+        protected virtual void OnInstantiate() { }
 
         protected virtual void OnInitialize() { }
 
@@ -61,7 +75,8 @@ namespace BeatLeader {
 
         #region UnityEvents
 
-        protected virtual void OnDestroy() {
+        protected virtual void OnDestroy()
+        {
             if (!IsParsed) return;
             OnDispose();
         }
@@ -106,9 +121,11 @@ namespace BeatLeader {
         #endregion
 
         #region Parse
+        protected Transform content { get; private set; }
 
         [UIAction("#post-parse"), UsedImplicitly]
-        private protected virtual void PostParse() {
+        private protected virtual void PostParse()
+        {
             if (_state == State.Parsing) return;
             DisposeIfNeeded();
             ParseSelfIfNeeded();

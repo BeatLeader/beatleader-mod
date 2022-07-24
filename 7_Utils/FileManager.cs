@@ -1,5 +1,7 @@
 ﻿using BeatLeader.Models;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,11 +26,10 @@ namespace BeatLeader.Utils
             if (Directory.Exists(path) || path == null) return;
             Directory.CreateDirectory(path);
         }
-
-        #endregion
-
-        #region Replay
-
+        public static string[] GetAllReplaysPaths()
+        {
+            return Directory.GetFiles(replayFolderPath);
+        }
         public static void WriteReplay(Replay replay)
         {
             try {

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -33,6 +33,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <Optimize>true</Optimize>
@@ -52,9 +53,16 @@
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
+    <Reference Include="BeatmapEditor3D, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapEditor3D.dll</HintPath>
     </Reference>
     <Reference Include="Colors">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
+    </Reference>
+    <Reference Include="Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Core.dll</HintPath>
     </Reference>
     <Reference Include="Hive.Versioning">
       <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
@@ -73,10 +81,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Oculus.VR.dll</HintPath>
     </Reference>
-    <Reference Include="Polyglot">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Polyglot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
+    </Reference>
+    <Reference Include="Rendering, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
     </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Steamworks.NET.dll</HintPath>
@@ -85,6 +96,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -118,14 +130,38 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
@@ -154,7 +190,8 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="VRUI">
+    <Reference Include="VRUI, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\VRUI.dll</HintPath>
     </Reference>
     <Reference Include="Zenject">
@@ -374,6 +411,54 @@
     <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="9_Resources\AssetBundles\AssetBundles" />
+    <None Include="9_Resources\AssetBundles\AssetBundles.manifest" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\CountryFlag.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\PlayerAvatar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ContextSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\EmptyBoardMessage.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Pagination.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScopeSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRow.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowDivider.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoresTable.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetails.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsAverages.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyDetailsRow.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGraphPanel.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGrid.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGridCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyPieChart.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\MiniProfile.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanel.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreOverview.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreStatsLoadingScreen.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\Logo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\PlayerInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\StatusBar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ClanTag.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ClanTags.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\BeatLeaderInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\LeaderboardSettings.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\AvatarScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\ClansScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\CountryScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\MistakesScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\ScoreRowCells\TextScoreRowCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\MapTypeSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\RankabilitySelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\StarsSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\VotingButton.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\Voting\VotingPanel.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\SongInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\PlayersInfoList.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerPCView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Timeline.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Toolbar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SpeedController.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsNavigator.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\LayoutEditor.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />
@@ -391,6 +476,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Content Include="Media\cover.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

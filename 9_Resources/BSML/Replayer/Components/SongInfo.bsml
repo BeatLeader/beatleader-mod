@@ -1,0 +1,29 @@
+﻿<horizontal child-control-height="false" child-control-width="false" child-expand-width="false" child-align="MiddleLeft">
+
+		<vertical id="container" size-delta-y="20">
+			<horizontal>
+				<!--Song Info-->
+				<vertical pad-left="16" min-width="29">
+					<horizontal pref-height="16">
+						<better-image id="background" src='#black-transparent-bg' type='Sliced' ppu='5' horizontal-fit='PreferredSize'>
+							<horizontal child-expand-width='false' child-align='MiddleLeft'>
+								<vertical pad-left='5' pad-right='1'>
+									<text text='~song-name' font-align='Left' font-size="5"/>
+									<text text='~song-author' font-align='Left'/>
+								</vertical>
+							</horizontal>
+						</better-image>
+					</horizontal>
+				</vertical>
+
+				<!--Song Preview-->
+				<horizontal ignore-layout="true" child-control-width="false" child-expand-width="false" child-align="MiddleLeft">
+					<better-image src="#black-transparent-bg" type="Sliced" ppu="5" use-as-mask="true" pref-height="20" pref-width="20">
+						<image id='song-preview-image' preserve-aspect='true' pref-height="20" pref-width="20"/>
+					</better-image>
+				</horizontal>
+
+			</horizontal>
+		</vertical>
+
+</horizontal>

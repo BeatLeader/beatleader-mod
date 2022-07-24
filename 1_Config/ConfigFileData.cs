@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using BeatLeader.Models;
 using IPA.Config.Stores;
@@ -5,7 +6,8 @@ using JetBrains.Annotations;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
-namespace BeatLeader {
+namespace BeatLeader
+{
     [UsedImplicitly]
     internal class ConfigFileData {
         public static ConfigFileData Instance { get; set; }

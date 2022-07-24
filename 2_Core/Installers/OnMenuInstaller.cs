@@ -1,5 +1,6 @@
 using BeatLeader.DataManager;
 using BeatLeader.ViewControllers;
+using BeatLeader.Replays;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -10,6 +11,7 @@ namespace BeatLeader.Installers {
             Plugin.Log.Debug("OnMenuInstaller");
 
             BindLeaderboard();
+            Container.Bind<ReplayerMenuLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }

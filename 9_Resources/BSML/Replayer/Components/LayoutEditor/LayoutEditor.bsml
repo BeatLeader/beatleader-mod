@@ -1,0 +1,23 @@
+﻿<vertical ignore-layout="true" id="window" pref-width="35">
+	<horizontal pref-height="11">
+		<better-image src="#black-transparent-bg" type="Sliced" ppu="8" use-as-mask="true" pref-height="11" pref-width="35">
+			<horizontal pref-height="11">
+				<vertical pref-width="35">
+					<horizontal pref-height="3">
+						<better-image id="handle" src="#white-bg" type="Sliced" ppu="100" color="cyan" pref-height="3" pref-width="33">
+							<vertical pref-width="32">
+								<horizontal child-expand-width="false" child-align="MiddleLeft">
+									<text text="Layout Editor" color="black" font-size="3"/>
+								</horizontal>
+							</vertical>
+						</better-image>
+					</horizontal>
+					<horizontal pref-height="8" child-align="MiddleCenter">
+						<primary-button text="Done" on-click="done-button-clicked" skew="0"/>
+						<button text="Cancel" on-click="cancel-button-clicked" skew="0"/>
+					</horizontal>
+				</vertical>
+			</horizontal>
+		</better-image>
+	</horizontal>
+</vertical>

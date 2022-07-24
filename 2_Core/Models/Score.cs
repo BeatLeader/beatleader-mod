@@ -18,5 +18,6 @@
         public int hmd;
         public string timeSet;
         public Player player;
+        public string replay;
     }
 }

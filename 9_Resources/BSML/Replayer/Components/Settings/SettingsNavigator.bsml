@@ -1,0 +1,123 @@
+﻿<vertical id="container" pref-width="48">
+	<!--Macro-->
+	<macro.define name="normal-color" value="#ffffff"/>
+	<macro.define name="highlighted-color" value="#00ffee"/>
+
+	<!--Main View-->
+	<vertical id="main-view">
+		<horizontal pref-height="32">
+			<vertical ignore-layout="true" spacing="1" child-control-height="false" child-expand-height="false" child-align="UpperLeft">
+				<!--Body-->
+				<horizontal>
+					<better-button normal-image="#white-bg" pref-height="5" pref-width="48" type="Sliced" on-click="present-body-settings-view"
+								   ppu="8" transition="ColorTint" normal-color="black" highlighted-color="~highlighted-color">
+						<horizontal pad-left="2" pad-right="2" child-align="MiddleLeft">
+							<text text="Body"/>
+							<horizontal child-expand-width="false" child-align="MiddleRight">
+								<image src="#right-arrow-icon" pref-height="4" pref-width="3"/>
+							</horizontal>
+						</horizontal>
+					</better-button>
+				</horizontal>
+				<!--Playback-->
+				<horizontal>
+					<better-button normal-image="#white-bg" pref-height="5" pref-width="48" type="Sliced" on-click="present-playback-settings-view"
+								   ppu="8" transition="ColorTint" normal-color="black" highlighted-color="~highlighted-color">
+						<horizontal pad-left="2" pad-right="2" child-align="MiddleLeft">
+							<text text="Playback"/>
+							<horizontal child-expand-width="false" child-align="MiddleRight">
+								<better-image src="#right-arrow-icon" pref-height="4" pref-width="3" vertical-fit="PreferredSize" horizontal-fit="PreferredSize"/>
+							</horizontal>
+						</horizontal>
+					</better-button>
+				</horizontal>
+				<!--Camera-->
+				<horizontal>
+					<better-button normal-image="#white-bg" pref-height="5" pref-width="48" type="Sliced" on-click="present-camera-settings-view"
+								   ppu="8" transition="ColorTint" normal-color="black" highlighted-color="~highlighted-color">
+						<horizontal pad-left="2" pad-right="2" child-align="MiddleLeft">
+							<text text="Camera"/>
+							<horizontal child-expand-width="false" child-align="MiddleRight">
+								<better-image src="#right-arrow-icon" pref-height="4" pref-width="3" vertical-fit="PreferredSize" horizontal-fit="PreferredSize"/>
+							</horizontal>
+						</horizontal>
+					</better-button>
+				</horizontal>
+			</vertical>
+		</horizontal>
+		<!--Layout-->
+		<horizontal pref-height="7" pref-width="48">
+			<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="7" pref-width="48">
+				<horizontal pad-left="2">
+					<text text="Edit Layout"/>
+					<horizontal child-control-width="false" child-expand-width="false" child-align="MiddleRight">
+						<better-button src="#edit-layout-icon" highlighted-color="~highlighted-color" on-click="editor-button-clicked"
+									   preserve-aspect="true" pref-height="6" pref-width="6"/>
+					</horizontal>
+				</horizontal>
+			</better-image>
+		</horizontal>
+	</vertical>
+
+	<vertical ignore-layout="true">
+		<horizontal pref-height="39">
+			<vertical pref-width="48">
+				<!--Navigation Panel-->
+				<horizontal id="navigation-panel">
+					<better-button normal-image="#white-bg" pref-height="5" pref-width="48" type="Sliced" on-click="dismiss-current-view"
+								   ppu="8" transition="ColorTint" normal-color="black" highlighted-color="red">
+						<horizontal pad-left="2" pad-right="2" child-expand-width="false" child-align="MiddleLeft">
+							<image src="#left-arrow-icon" pref-height="4" pref-width="3"/>
+						</horizontal>
+					</better-button>
+				</horizontal>
+
+				<!--Sub Views-->
+				<horizontal pref-height="33">
+					<!--Body-->
+					<vertical id="body-settings-view" ignore-layout="true" pref-width="48" pad-left="1" pad-right="1"
+							  child-expand-height="false" child-align="UpperLeft">
+						<bool-setting text="Show head" value="show-head" bind-value="true" apply-on-change="true" skew="0"/>
+						<bool-setting text="Show left saber" value="show-left-saber" bind-value="true" apply-on-change="true" skew="0"/>
+						<bool-setting text="Show right saber" value="show-right-saber" bind-value="true" apply-on-change="true" skew="0"/>
+					</vertical>
+					<!--Playback-->
+					<vertical id="playback-settings-view" ignore-layout="true" pref-width="48">
+						<horizontal pref-height="20">
+							<vertical child-expand-height="false" child-align="UpperLeft" pref-width="48" pad-left="1" pad-right="1">
+								<bool-setting text="Movement lerp" value="movement-lerp" bind-value="true" apply-on-change="true" skew="0"/>
+							</vertical>
+						</horizontal>
+						<macro.as-host host="speed-controller">
+							<macro.reparent transform="ui-component"/>
+						</macro.as-host>
+					</vertical>
+					<!--Camera-->
+					<vertical id="camera-settings-view" ignore-layout="true" pref-width="48">
+						<vertical child-expand-height="false" child-align="UpperLeft" pref-width="48">
+							<horizontal pref-height="12">
+								<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
+									<vertical pref-width="46">
+										<text text="Camera FOV" font-align="Center"/>
+										<slider-setting value="camera-fov" min="30" max="150" increment="10" apply-on-change="true"
+													show-buttons="true" integer-only="true" hide-text="true" skew="0"/>
+									</vertical>
+								</better-image>
+							</horizontal>
+							<horizontal pref-height="12">
+								<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
+									<vertical pref-width="46">
+										<text text="Camera View" font-align="Center"/>
+										<list-setting value="camera-view" choices="camera-view-values" bind-value="true"
+													  apply-on-change="true" hide-text="true" skew="0"/>
+									</vertical>
+								</better-image>
+							</horizontal>
+						</vertical>
+					</vertical>
+					
+				</horizontal>
+			</vertical>
+		</horizontal>
+	</vertical>
+</vertical>

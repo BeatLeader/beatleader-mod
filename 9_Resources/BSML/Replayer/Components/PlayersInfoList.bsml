@@ -1,0 +1,36 @@
+﻿<custom-list id="players-infos-list" list-height="80" list-width="50" cell-size="20" visible-cells="4" clickable-cells="false" align-to-center="false">
+	<vertical pref-width="50">
+		<horizontal pref-height="20">
+			<!--Player info-->
+			<horizontal ignore-layout="true" pref-height="16" pad-left="10">
+				<better-image src="#black-transparent-bg" type="Sliced" ppu="5">
+					<vertical pad-left="6" pref-width="33" child-expand-width="false"
+							  child-control-width="false" child-align="MiddleLeft">
+						<!--Player name-->
+						<vertical horizontal-fit="PreferredSize">
+							<horizontal pref-height="6" pad="1">
+								<text text="~player-name" font-size="4.5" pad-left="1"/>
+							</horizontal>
+						</vertical>
+						<!--Flag-->
+						<horizontal horizontal-fit="PreferredSize" pref-height="6" pad="1">
+							<vertical>
+								<macro.as-host host="player-country-flag">
+									<macro.reparent transform="ui-component"/>
+								</macro.as-host>
+							</vertical>
+						</horizontal>
+					</vertical>
+				</better-image>
+			</horizontal>
+			<!--Avatar-->
+			<horizontal pref-height="18" pad-right="30">
+				<vertical pref-width="18">
+					<macro.as-host host="player-avatar">
+						<macro.reparent transform="ui-component"/>
+					</macro.as-host>
+				</vertical>
+			</horizontal>
+		</horizontal>
+	</vertical>
+</custom-list>

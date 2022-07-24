@@ -2,28 +2,34 @@ using System;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace BeatLeader {
-    public static class BundleLoader {
+namespace BeatLeader
+{
+    public static class BundleLoader
+    {
         #region Initialize
 
         private const string BundleName = Plugin.ResourcesPath + ".AssetBundles.asset_bundle";
+        private static AssetBundle _assetBundle;
         private static bool _ready;
 
-        public static void Initialize() {
+        public static void Initialize()
+        {
             if (_ready) return;
 
             using var stream = ResourcesUtils.GetEmbeddedResourceStream(BundleName);
             var localAssetBundle = AssetBundle.LoadFromStream(stream);
 
-            if (localAssetBundle == null) {
+            if (localAssetBundle == null)
+            {
                 throw new Exception("AssetBundle load error!");
             }
 
+            _assetBundle = localAssetBundle;
             LoadSprites(localAssetBundle);
             LoadMaterials(localAssetBundle);
             LoadPrefabs(localAssetBundle);
 
-            localAssetBundle.Unload(false);
+            //localAssetBundle.Unload(false);
             _ready = true;
         }
 
@@ -53,8 +59,10 @@ namespace BeatLeader {
         public static Material AccDetailsRowMaterial;
         public static Material ClanTagBackgroundMaterial;
         public static Material VotingButtonMaterial;
+        public static Material UIBlurMaterial;
 
-        private static void LoadMaterials(AssetBundle assetBundle) {
+        private static void LoadMaterials(AssetBundle assetBundle)
+        {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
             PlayerAvatarMaterial = assetBundle.LoadAsset<Material>("PlayerAvatarMaterial");
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
@@ -65,6 +73,7 @@ namespace BeatLeader {
             AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
             ClanTagBackgroundMaterial = assetBundle.LoadAsset<Material>("ClanTagBackgroundMaterial");
             VotingButtonMaterial = assetBundle.LoadAsset<Material>("VotingButtonMaterial");
+            UIBlurMaterial = assetBundle.LoadAsset<Material>("UIBlurMaterial");
         }
 
         #endregion
@@ -113,7 +122,18 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite PatreonLinkIcon;
 
-        private static void LoadSprites(AssetBundle assetBundle) {
+        public static Sprite GetSpriteFromBundle(string name)
+        {
+            if (_assetBundle == null || !_ready) return null;
+            return _assetBundle.LoadAsset<Sprite>(name);
+        }
+        public static bool TryGetSpriteFromBundle(string name, out Sprite sprite)
+        {
+            sprite = GetSpriteFromBundle(name);
+            return sprite != null;
+        }
+        private static void LoadSprites(AssetBundle assetBundle)
+        {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
             BeatLeaderLogoGradient = assetBundle.LoadAsset<Sprite>("BeatLeaderLogoGradient");

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using BeatLeader.Replays;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Utils;
 using HarmonyLib;
@@ -14,8 +15,11 @@ namespace BeatLeader.Installers {
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
-
-            InitRecorder();
+            if (ReplayerMenuLauncher.isStartedAsReplay)
+            {
+                ReplayerManualInstaller.Install(ReplayerMenuLauncher.replay, ReplayerMenuLauncher.score, new ReplayerManualInstaller.InitData(true, 110), Container);
+            }
+            else InitRecorder();
         }
 
         private void InitRecorder() {

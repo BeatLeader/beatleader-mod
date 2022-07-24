@@ -1,0 +1,22 @@
+﻿<horizontal pref-height="~height">
+	<vertical pref-width="~width" child-expand-height="false">
+		<horizontal child-control-height="false" child-expand-height="false" child-align="MiddleLeft" pad="1" pref-height="22">
+			<macro.as-host host="song-info">
+				<macro.reparent transform="ui-component"/>
+			</macro.as-host>
+		</horizontal>
+		<horizontal flexible-height="1" vertical-fit="Unconstrained"
+					child-control-height="false" child-expand-height="false" child-align="LowerCenter">
+			<horizontal pref-height="45">
+				<macro.as-host host="toolbar">
+					<macro.reparent transform="ui-component"/>
+				</macro.as-host>
+			</horizontal>
+		</horizontal>
+	</vertical>
+	<vertical ignore-layout="true" pref-width="~width" child-expand-height="false">
+		<macro.as-host host="layout-editor">
+			<macro.reparent transform="ui-component"/>
+		</macro.as-host>
+	</vertical>
+</horizontal>

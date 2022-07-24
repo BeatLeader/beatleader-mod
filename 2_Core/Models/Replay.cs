@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+using GameNoteCutInfo = NoteCutInfo;
+using UnityVector3 = UnityEngine.Vector3;
+using UnityQuaternion = UnityEngine.Quaternion;
 
 namespace BeatLeader.Models
 {
-    class Replay
+    public class Replay
     {
         public ReplayInfo info = new ReplayInfo();
 
@@ -20,7 +21,7 @@ namespace BeatLeader.Models
         public List<Pause> pauses = new List<Pause>();
     }
 
-    class ReplayInfo
+    public class ReplayInfo
     {
         public string version;
         public string gameVersion;
@@ -51,17 +52,15 @@ namespace BeatLeader.Models
         public float failTime;
         public float speed;
     }
-
-    class Frame
+    public class Frame
     {
         public float time;
         public int fps;
         public Transform head;
         public Transform leftHand;
         public Transform rightHand;
-    };
-
-    enum NoteEventType
+    }
+    public enum NoteEventType
     {
         unknown = -1,
         good = 0,
@@ -69,38 +68,63 @@ namespace BeatLeader.Models
         miss = 2,
         bomb = 3
     }
-
-    class NoteEvent
+    public class NoteEvent
     {
         public int noteID;
         public float eventTime;
         public float spawnTime;
         public NoteEventType eventType = NoteEventType.unknown;
         public NoteCutInfo noteCutInfo;
-    };
-
-    class WallEvent
+    }
+    public class WallEvent
     {
         public int wallID;
         public float energy;
         public float time;
         public float spawnTime;
-    };
-
-    class AutomaticHeight
+    }
+    public class AutomaticHeight
     {
         public float height;
         public float time;
-    };
-
-    class Pause
+    }
+    public class Pause
     {
         public long duration;
         public float time;
-    };
-
-    class NoteCutInfo
+    }
+    public class NoteCutInfo
     {
+        public static GameNoteCutInfo Parse(NoteCutInfo info, NoteData data, UnityQuaternion worldRotation, UnityQuaternion inverseWorldRotation, UnityQuaternion noteRotation, UnityVector3 notePosition)
+        => new GameNoteCutInfo(data, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
+        info.saberSpeed, (UnityVector3)info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
+        (UnityVector3)info.cutPoint, (UnityVector3)info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
+        worldRotation, inverseWorldRotation, noteRotation, notePosition, new SaberMovementData());
+        public static GameNoteCutInfo Parse(NoteCutInfo info, NoteController controller)
+        => new GameNoteCutInfo(controller.noteData, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
+        info.saberSpeed, (UnityVector3)info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
+        (UnityVector3)info.cutPoint, (UnityVector3)info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
+        controller.worldRotation, controller.inverseWorldRotation, controller.noteTransform.localRotation,
+        controller.noteTransform.position, new SaberMovementData());
+
+        public static implicit operator NoteCutInfo(GameNoteCutInfo info)
+        => new NoteCutInfo()
+        {
+            speedOK = info.speedOK,
+            directionOK = info.directionOK,
+            saberTypeOK = info.saberTypeOK,
+            wasCutTooSoon = info.wasCutTooSoon,
+            saberSpeed = info.saberSpeed,
+            saberDir = info.saberDir,
+            saberType = (int)info.saberType,
+            timeDeviation = info.timeDeviation,
+            cutDirDeviation = info.cutDirDeviation,
+            cutPoint = info.cutPoint,
+            cutNormal = info.cutNormal,
+            cutDistanceToCenter = info.cutDistanceToCenter,
+            cutAngle = info.cutAngle
+        };
+
         public bool speedOK;
         public bool directionOK;
         public bool saberTypeOK;
@@ -116,9 +140,8 @@ namespace BeatLeader.Models
         public float cutAngle;
         public float beforeCutRating;
         public float afterCutRating;
-    };
-
-    enum StructType
+    }
+    public enum StructType
     {
         info = 0,
         frames = 1,
@@ -127,39 +150,66 @@ namespace BeatLeader.Models
         heights = 4,
         pauses = 5
     }
-
-    struct Vector3
+    public struct Vector3
     {
-        public static implicit operator Vector3(UnityEngine.Vector3 unityVector) => new Vector3(unityVector);
-        Vector3 (UnityEngine.Vector3 unityVector)
+        public Vector3(UnityVector3 unityVector)
         {
             x = unityVector.x;
             y = unityVector.y;
             z = unityVector.z;
         }
+
+        public static implicit operator UnityVector3(Vector3 vector)
+        => new UnityEngine.Vector3(vector.x, vector.y, vector.z);
+        public static implicit operator Vector3(UnityVector3 vector)
+        => new Vector3(vector);
+
         public float x;
         public float y;
         public float z;
     }
-
-    struct Quaternion
+    public struct Quaternion
     {
-        public static implicit operator Quaternion(UnityEngine.Quaternion unityQuaternion) => new Quaternion(unityQuaternion);
-        Quaternion (UnityEngine.Quaternion unityQuaternion)
+        public Quaternion(UnityQuaternion unityQuaternion)
         {
             x = unityQuaternion.x;
             y = unityQuaternion.y;
             z = unityQuaternion.z;
             w = unityQuaternion.w;
         }
+
+        public static implicit operator UnityQuaternion(Quaternion quaternion)
+        => new UnityEngine.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        public static implicit operator Quaternion(UnityQuaternion quaternion)
+        => new Quaternion(quaternion);
+
         public float x;
         public float y;
         public float z;
         public float w;
     }
-
-    class Transform
+    public class Transform
     {
+        public Transform() { }
+        public Transform(UnityEngine.Transform transform)
+        {
+            this.position = transform.localPosition;
+            this.rotation = transform.localRotation;
+        }
+        public Transform(Vector3 position, Quaternion rotation)
+        {
+            this.position = position;
+            this.rotation = rotation;
+        }
+        public Transform(UnityVector3 position, UnityQuaternion rotation)
+        {
+            this.position = position;
+            this.rotation = rotation;
+        }
+
+        public static implicit operator Transform(UnityEngine.Transform transform)
+        => new Transform(transform);
+
         public Vector3 position;
         public Quaternion rotation;
     }
@@ -336,7 +386,6 @@ namespace BeatLeader.Models
             stream.Write(quaternion.w);
         }
     }
-
     static class ReplayDecoder
     {
         public static Replay Decode(byte[] buffer)
@@ -376,7 +425,7 @@ namespace BeatLeader.Models
                         case StructType.pauses:
                             replay.pauses = DecodePauses(buffer, ref pointer);
                             break;
-                        }
+                    }
                 }
 
                 return replay;
@@ -389,39 +438,39 @@ namespace BeatLeader.Models
 
         private static ReplayInfo DecodeInfo(byte[] buffer, ref int pointer)
         {
-                ReplayInfo result = new ReplayInfo();
+            ReplayInfo result = new ReplayInfo();
 
-                result.version = DecodeString(buffer, ref pointer);
-                result.gameVersion = DecodeString(buffer, ref pointer);
-                result.timestamp = DecodeString(buffer, ref pointer);
+            result.version = DecodeString(buffer, ref pointer);
+            result.gameVersion = DecodeString(buffer, ref pointer);
+            result.timestamp = DecodeString(buffer, ref pointer);
 
-                result.playerID = DecodeString(buffer, ref pointer);
-                result.playerName = DecodeString(buffer, ref pointer);
-                result.platform = DecodeString(buffer, ref pointer);
+            result.playerID = DecodeString(buffer, ref pointer);
+            result.playerName = DecodeName(buffer, ref pointer);
+            result.platform = DecodeString(buffer, ref pointer);
 
-                result.trackingSytem = DecodeString(buffer, ref pointer);
-                result.hmd = DecodeString(buffer, ref pointer);
-                result.controller = DecodeString(buffer, ref pointer);
+            result.trackingSytem = DecodeString(buffer, ref pointer);
+            result.hmd = DecodeString(buffer, ref pointer);
+            result.controller = DecodeString(buffer, ref pointer);
 
-                result.hash = DecodeString(buffer, ref pointer);
-                result.songName = DecodeString(buffer, ref pointer);
-                result.mapper = DecodeString(buffer, ref pointer);
-                result.difficulty = DecodeString(buffer, ref pointer);
-                
-                result.score = DecodeInt(buffer, ref pointer);
-                result.mode = DecodeString(buffer, ref pointer);
-                result.environment = DecodeString(buffer, ref pointer);
-                result.modifiers = DecodeString(buffer, ref pointer);
-                result.jumpDistance = DecodeFloat(buffer, ref pointer);
-                result.leftHanded = DecodeBool(buffer, ref pointer);
-                result.height = DecodeFloat(buffer, ref pointer);
+            result.hash = DecodeString(buffer, ref pointer);
+            result.songName = DecodeString(buffer, ref pointer);
+            result.mapper = DecodeString(buffer, ref pointer);
+            result.difficulty = DecodeString(buffer, ref pointer);
 
-                result.startTime = DecodeFloat(buffer, ref pointer);
-                result.failTime = DecodeFloat(buffer, ref pointer);
-                result.speed = DecodeFloat(buffer, ref pointer);
+            result.score = DecodeInt(buffer, ref pointer);
+            result.mode = DecodeString(buffer, ref pointer);
+            result.environment = DecodeString(buffer, ref pointer);
+            result.modifiers = DecodeString(buffer, ref pointer);
+            result.jumpDistance = DecodeFloat(buffer, ref pointer);
+            result.leftHanded = DecodeBool(buffer, ref pointer);
+            result.height = DecodeFloat(buffer, ref pointer);
 
-                return result;
-         }
+            result.startTime = DecodeFloat(buffer, ref pointer);
+            result.failTime = DecodeFloat(buffer, ref pointer);
+            result.speed = DecodeFloat(buffer, ref pointer);
+
+            return result;
+        }
 
         private static List<Frame> DecodeFrames(byte[] buffer, ref int pointer)
         {
@@ -508,8 +557,15 @@ namespace BeatLeader.Models
             result.eventTime = DecodeFloat(buffer, ref pointer);
             result.spawnTime = DecodeFloat(buffer, ref pointer);
             result.eventType = (NoteEventType)DecodeInt(buffer, ref pointer);
-            if (result.eventType == NoteEventType.good || result.eventType == NoteEventType.bad) {
+            if (result.eventType == NoteEventType.good || result.eventType == NoteEventType.bad)
+            {
                 result.noteCutInfo = DecodeCutInfo(buffer, ref pointer);
+            }
+
+            if (result.noteID == -1 || ("" + result.noteID).Last() == '9')
+            {
+                result.noteID += 4;
+                result.eventType = NoteEventType.bomb;
             }
 
             return result;
@@ -580,9 +636,32 @@ namespace BeatLeader.Models
             return result;
         }
 
+        private static string DecodeName(byte[] buffer, ref int pointer)
+        {
+            int length = BitConverter.ToInt32(buffer, pointer);
+            int lengthOffset = 0;
+            if (length > 0)
+            {
+                while (BitConverter.ToInt32(buffer, length + pointer + 4 + lengthOffset) != 6
+                    && BitConverter.ToInt32(buffer, length + pointer + 4 + lengthOffset) != 5
+                    && BitConverter.ToInt32(buffer, length + pointer + 4 + lengthOffset) != 8)
+                {
+                    lengthOffset++;
+                }
+            }
+            string @string = Encoding.UTF8.GetString(buffer, pointer + 4, length + lengthOffset);
+            pointer += length + 4 + lengthOffset;
+            return @string;
+        }
+
         private static string DecodeString(byte[] buffer, ref int pointer)
         {
             int length = BitConverter.ToInt32(buffer, pointer);
+            if (length > 1000 || length < 0)
+            {
+                pointer += 1;
+                return DecodeString(buffer, ref pointer);
+            }
             string @string = Encoding.UTF8.GetString(buffer, pointer + 4, length);
             pointer += length + 4;
             return @string;

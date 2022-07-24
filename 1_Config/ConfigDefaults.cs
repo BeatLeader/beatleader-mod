@@ -14,6 +14,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region ReplayerConfig
+
+        public static ReplayerConfig ReplayerConfig = new();
+
+        #endregion
+
         #region LeaderboardTableMask
 
         public const ScoreRowCellType LeaderboardTableMask = ScoreRowCellType.Rank |

@@ -149,8 +149,8 @@ namespace BeatLeader
         private void ApplyHierarchy() {
             if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
 
-            var child = Transform.GetChild(0);
-            child.SetParent(Transform.parent, true);
+            content = Transform.GetChild(0);
+            content.SetParent(Transform.parent, true);
 
             Transform.SetParent(_parent, false);
             gameObject.SetActive(true);

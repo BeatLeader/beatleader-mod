@@ -26,14 +26,14 @@ namespace BeatLeader.Components
         {
             players.ForEach(x => AddPlayer(x));
         }
-        protected void RegisterCell(PlayerInfoCell cell)
+        private void RegisterCell(PlayerInfoCell cell)
         {
             _playersInfosList.data.Add(cell);
             _playersInfosList.tableView.ReloadData();
             cell.OnCellRegistered();
         }
 
-        protected class PlayerInfoCell
+        private class PlayerInfoCell
         {
             [UIValue("player-avatar")] 
             public readonly PlayerAvatar playerAvatar;

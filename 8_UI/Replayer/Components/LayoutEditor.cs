@@ -121,14 +121,14 @@ namespace BeatLeader.Components
         }
 
         private Dictionary<string, EditableElement> _editableObjects = new();
-        public bool editMode { get; private set; }
+        public bool EditMode { get; private set; }
 
         public void SetEditModeEnabled(bool enabled, bool applySettings = true)
         {
-            if (enabled == editMode) return;
+            if (enabled == EditMode) return;
             _editableObjects.ToList().ForEach(x => x.Value.SetEnabled(enabled, applySettings));
             content.gameObject.SetActive(enabled);
-            editMode = enabled;
+            EditMode = enabled;
             SaveSettings();
         }
         public void AddObject(string name, RectTransform rect, bool enabled = true, bool locked = false)
@@ -143,7 +143,7 @@ namespace BeatLeader.Components
         }
         public void RemoveObject(string name)
         {
-            if (editMode) return;
+            if (EditMode) return;
             if (_editableObjects.TryGetValue(name, out EditableElement value))
             {
                 _editableObjects.Remove(name);

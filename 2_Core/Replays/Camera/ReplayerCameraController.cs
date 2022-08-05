@@ -47,18 +47,18 @@ namespace BeatLeader.Replays
         private bool _wasRequestedLastTime;
         private string _requestedPose;
 
-        public event Action<string> onCameraPoseChanged;
-        public event Action<int> onCameraFOVChanged;
+        public event Action<string> OnCameraPoseChanged;
+        public event Action<int> OnCameraFOVChanged;
 
         public List<ICameraPoseProvider> poseProviders { get; protected set; }
-        public string currentPose => _currentPose != null ? _currentPose.name : "NaN";
-        public bool initialized { get; private set; }
-        public int cullingMask
+        public string CurrentPose => _currentPose != null ? _currentPose.Name : "NaN";
+        public bool IsInitialized { get; private set; }
+        public int CullingMask
         {
             get => _camera.cullingMask;
             set => _camera.cullingMask = value;
         }
-        public int fieldOfView
+        public int FieldOfView
         {
             get => _fieldOfView;
             set
@@ -66,10 +66,10 @@ namespace BeatLeader.Replays
                 if (_fieldOfView == value) return;
                 _fieldOfView = value;
                 RefreshCamera();
-                onCameraFOVChanged?.Invoke(value);
+                OnCameraFOVChanged?.Invoke(value);
             }
         }
-        public Pose pose
+        public Pose Pose
         {
             get
             {
@@ -79,44 +79,43 @@ namespace BeatLeader.Replays
             {
                 transform.position = value.position;
                 transform.rotation = value.rotation;
-                if (!_inputManager.isInFPFC) SetHandsPose(value);
+                if (!_inputManager.IsInFPFC) SetHandsPose(value);
             }
         }
 
-        public void Awake()
+        private void Awake()
         {
-            if (_data == null || initialized) return;
+            if (_data == null || IsInitialized) return;
             SmoothCamera smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
                 .First(x => x.transform.parent.name == "LocalPlayerGameCore");
             smoothCamera.gameObject.SetActive(false);
-            _camera = Instantiate(smoothCamera.GetComponent<Camera>());
+            _camera = Instantiate(smoothCamera.GetComponent<Camera>(), gameObject.transform, true);
 
             _camera.gameObject.SetActive(false);
             _camera.name = "ReplayerViewCamera";
             DestroyImmediate(_camera.GetComponent<SmoothCameraController>());
             DestroyImmediate(_camera.GetComponent<SmoothCamera>());
-            _camera.transform.SetParent(gameObject.transform);
             _camera.gameObject.SetActive(true);
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
 
-            fieldOfView = _inputManager.isInFPFC ? _data.fieldOfView : fieldOfView;
-            poseProviders = _data.poseProviders.Where(x => x.availableInputs.Contains(_inputManager.currentInputType)).ToList();
+            FieldOfView = _inputManager.IsInFPFC ? _data.fieldOfView : FieldOfView;
+            poseProviders = _data.poseProviders.Where(x => x.AvailableInputs.Contains(_inputManager.CurrentInputType)).ToList();
             InjectPoses();
             RequestCameraPose(_data.cameraStartPose);
 
             SetEnabled(true);
-            initialized = true;
+            IsInitialized = true;
         }
         private void LateUpdate()
         {
-            if (initialized && _wasRequestedLastTime)
+            if (IsInitialized && _wasRequestedLastTime)
             {
                 SetCameraPose(_requestedPose);
                 _wasRequestedLastTime = false;
             }
-            if (_currentPose != null && _currentPose.updateEveryFrame)
+            if (_currentPose != null && _currentPose.UpdateEveryFrame)
             {
-                pose = _currentPose.GetPose(pose);
+                Pose = _currentPose.GetPose(Pose);
             }
         }
         public void SetCameraPose(string name)
@@ -124,24 +123,22 @@ namespace BeatLeader.Replays
             if (_camera == null) return;
             ICameraPoseProvider cameraPose = null;
             foreach (var item in poseProviders)
-            {
-                if (item.name == name)
+                if (item.Name == name)
                 {
                     cameraPose = item;
                     break;
                 }
-            }
             if (cameraPose == null) return;
             _currentPose = cameraPose;
-            pose = _currentPose.GetPose(pose);
+            Pose = _currentPose.GetPose(Pose);
             RefreshCamera();
-            onCameraPoseChanged?.Invoke(cameraPose.name);
+            OnCameraPoseChanged?.Invoke(cameraPose.Name);
         }
         public void SetCameraPose(ICameraPoseProvider provider)
         {
             if (!poseProviders.Contains(provider))
                 poseProviders.Add(provider);
-            SetCameraPose(provider.name);
+            SetCameraPose(provider.Name);
         }
         public void SetEnabled(bool enabled)
         {
@@ -155,33 +152,25 @@ namespace BeatLeader.Replays
 
         protected void RefreshCamera()
         {
-            if (!_inputManager.isInFPFC)
-                _camera.stereoTargetEye = StereoTargetEyeMask.Both;
-            else
-            {
-                _camera.stereoTargetEye = StereoTargetEyeMask.None;
-                _camera.fieldOfView = fieldOfView;
-            }
+            _camera.stereoTargetEye = _inputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
+            _camera.fieldOfView = _inputManager.IsInFPFC ? FieldOfView : _camera.fieldOfView;
             SetEnabled(true);
         }
         protected void RequestCameraPose(string name)
         {
-            if (name == String.Empty) return;
+            if (name == string.Empty) return;
             _requestedPose = name;
             _wasRequestedLastTime = true;
         }
         protected void InjectPoses()
         {
-            foreach (var item in poseProviders)
-            {
-                if (item.selfInject)
-                    _diContainer.Inject(item);
-            }
+            foreach (var item in poseProviders.Where(x => x.SelfInject))
+                _diContainer.Inject(item);
         }
         private void SetHandsPose(Pose pose)
         {
-            _vrControllersManager.handsContainer.transform.position = pose.position;
-            _vrControllersManager.handsContainer.transform.rotation = pose.rotation;
+            _vrControllersManager.HandsContainer.transform.position = pose.position;
+            _vrControllersManager.HandsContainer.transform.rotation = pose.rotation;
         }
     }
 }

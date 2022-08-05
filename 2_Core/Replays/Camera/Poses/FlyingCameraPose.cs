@@ -32,10 +32,10 @@ namespace BeatLeader.Replays.Poses
         protected bool _returnToTheLastPos;
         protected string _name;
 
-        public InputType[] availableInputs => new[] { InputType.FPFC };
-        public bool selfInject => false;
-        public bool updateEveryFrame => true;
-        public string name => _name;
+        public InputType[] AvailableInputs => new[] { InputType.FPFC };
+        public bool SelfInject => false;
+        public bool UpdateEveryFrame => true;
+        public string Name => _name;
 
         public Pose GetPose(Pose cameraVector)
         {

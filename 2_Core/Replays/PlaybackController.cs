@@ -18,25 +18,24 @@ namespace BeatLeader.Replays
 {
     public class PlaybackController : MonoBehaviour
     {
-        [Inject] protected readonly VRControllersManager _vrControllersManager;
-        [Inject] protected readonly PauseMenuManager _pauseMenuManager;
-        [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
-        [Inject] protected readonly PauseController _pauseController;
-        [Inject] protected readonly AudioTimeSyncController _songTimeSyncController;
-        [Inject] protected readonly VRControllersMovementEmulator _replayer;
-        [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
-        [Inject] protected readonly GameplayModifiers _modifiers;
+        [Inject] private readonly VRControllersManager _vrControllersManager;
+        [Inject] private readonly PauseMenuManager _pauseMenuManager;
+        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
+        [Inject] private readonly PauseController _pauseController;
+        [Inject] private readonly AudioTimeSyncController _songTimeSyncController;
+        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly GameplayModifiers _modifiers;
 
-        [Inject] protected readonly SaberManager _saberManager;
-        [Inject] protected readonly IGamePause _gamePause;
-        [Inject] protected readonly BeatmapVisualsController _beatmapEffectsController;
+        [Inject] private readonly SaberManager _saberManager;
+        [Inject] private readonly IGamePause _gamePause;
+        [Inject] private readonly BeatmapVisualsController _beatmapEffectsController;
 
-        public float currentSongTime => _songTimeSyncController.songTime;
-        public float totalSongTime => _songTimeSyncController.songEndTime;
-        public float currentSongSpeedMultiplier => _songTimeSyncController.timeScale;
-        public float songSpeedMultiplier => _modifiers.songSpeedMul;
+        public float CurrentSongTime => _songTimeSyncController.songTime;
+        public float TotalSongTime => _songTimeSyncController.songEndTime;
+        public float CurrentSongSpeedMultiplier => _songTimeSyncController.timeScale;
+        public float SongSpeedMultiplier => _modifiers.songSpeedMul;
 
-        public void Start()
+        private void Start()
         {
             _vrControllersManager.ShowMenuControllers();
         }
@@ -47,28 +46,22 @@ namespace BeatLeader.Replays
                 _gamePause.Pause();
                 _saberManager.disableSabers = false;
                 ((Delegate)_pauseController.GetType().GetField("didPauseEvent",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .GetValue(_pauseController))?.DynamicInvoke();
             }
             else
             {
                 _gamePause.Resume();
                 ((Delegate)_pauseController.GetType().GetField("didResumeEvent",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(_pauseController))?.DynamicInvoke();
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .GetValue(_pauseController))?.DynamicInvoke();
             }
+
             _beatmapObjectManager.PauseAllBeatmapObjects(pause);
             _beatmapEffectsController.PauseEffects(pause);
         }
-        public void Rewind(float time)
-        {
-            _beatmapTimeController.Rewind(time);
-        }
-        public void SetSpeedMul(float multiplier)
-        {
-            _beatmapTimeController.SetTimeScale(multiplier);
-        }
-        public void EscapeToMenu()
-        {
-            _pauseMenuManager.MenuButtonPressed();
-        }
+        public void Rewind(float time) => _beatmapTimeController.Rewind(time);
+        public void SetSpeedMul(float multiplier) => _beatmapTimeController.SetSpeedMultiplier(multiplier);
+        public void EscapeToMenu() => _pauseMenuManager.MenuButtonPressed();
     }
 }

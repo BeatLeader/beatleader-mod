@@ -72,7 +72,7 @@ namespace BeatLeader.Components
             _slider.handleRect = _handle.rectTransform;
             _slider.fillRect = _fill.rectTransform;
             _slider.minValue = 0;
-            _slider.maxValue = _playbackController.totalSongTime;
+            _slider.maxValue = _playbackController.TotalSongTime;
             _slider.onValueChanged.AddListener(x => _playbackController.Rewind(x));
 
             _uiManager.onRaycast += OnRaycast;
@@ -104,7 +104,7 @@ namespace BeatLeader.Components
 
         private void Update()
         {
-            _slider.value = _playbackController.currentSongTime;
+            _slider.value = _playbackController.CurrentSongTime;
 
             if (_focusWasLost && !Input.GetMouseButton(0))
             {
@@ -175,7 +175,7 @@ namespace BeatLeader.Components
         }
         private float MapTimelineMarker(float time)
         {
-            float val = MathUtils.Map(time, 0 /* song start offset */, _playbackController.totalSongTime,
+            float val = MathUtils.Map(time, 0 /* song start offset */, _playbackController.TotalSongTime,
                 -(_marksArea.sizeDelta.x / 2), _marksArea.sizeDelta.x / 2);
             if ((_marksArea.sizeDelta.x / 2) - val.ToPositive() < (CalculateMarkerSize().x / 2))
             {
@@ -202,7 +202,7 @@ namespace BeatLeader.Components
                 highlighted ? _expandTransitionDuration : _shrinkTransitionDuration,
                 highlighted, callback));
         }
-        private IEnumerator AnimationCoroutine(float duration, bool expand, Action<bool> callback = null)
+        private IEnumerator AnimationCoroutine(float duration, bool expand, Action<bool> callback = null) //pain
         {
             if ((_expanded && expand) || (!_expanded && !expand))
             {
@@ -214,7 +214,6 @@ namespace BeatLeader.Components
             float frameDuration = duration / totalFramesCount;
             float sizeStepBG = _backgroundExpandSize / totalFramesCount;
             float sizeStepHandle = _handleExpandSize / totalFramesCount;
-
             for (int frame = 0; frame < totalFramesCount; frame++)
             {
                 Vector2 nextSizeBG = new Vector2(_background.rectTransform.sizeDelta.x,

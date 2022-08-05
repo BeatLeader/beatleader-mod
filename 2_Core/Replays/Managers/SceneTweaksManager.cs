@@ -28,19 +28,11 @@ namespace BeatLeader.Replays.Managers
         }
         private void ApplyTweaks()
         {
-            _softLocksController.InstallLock(_gameplayManager, SoftLocksController.LockMode.WhenRequired);
-            _softLocksController.InstallLock(_pauseMenuManager, SoftLocksController.LockMode.WhenRequired);
-            _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First(), SoftLocksController.LockMode.WhenRequired);
-            if (_inputManager.isInFPFC)
-            {
-                Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(false);
-                Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(false);
-            }
-            else
-            {
-                Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(true);
-                Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(true);
-            }
+            _softLocksController.InstallLock(_gameplayManager);
+            _softLocksController.InstallLock(_pauseMenuManager);
+            _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First());
+            Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(!_inputManager.IsInFPFC);
+            Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(!_inputManager.IsInFPFC);
         }
         private void UnsubscribeEvents()
         {

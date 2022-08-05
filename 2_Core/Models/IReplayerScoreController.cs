@@ -8,9 +8,9 @@ namespace BeatLeader.Models
 {
     public interface IReplayerScoreController : IScoreController
     {
-        int maxComboAfterRescoring { get; }
-        int comboAfterRescoring { get; }
+        int MaxComboAfterRescoring { get; }
+        int ComboAfterRescoring { get; }
 
-        event Action<int, int, bool> onComboChangedAfterRescoring;
+        event Action<int, int, bool> OnComboChangedAfterRescoring;
     }
 }

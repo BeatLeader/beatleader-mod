@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using static ScoreMultiplierCounter;
 using BeatLeader.Replays.Emulating;
 using BeatLeader.Models;
@@ -12,46 +12,46 @@ namespace BeatLeader.Replays.Scoring
 {
     public class ReplayerScoreController : MonoBehaviour, IReplayerScoreController
     {
-        [Inject] protected readonly Replay _replay;
-        [Inject] protected readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
-        [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
-        [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
-        [Inject] protected readonly IScoringInterlayer _scoringInterlayer;
-        [Inject] protected readonly IReadonlyBeatmapData _beatmapData;
+        [Inject] private readonly Replay _replay;
+        [Inject] private readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
+        [Inject] private readonly ReplayerManualInstaller.InitData _initData;
+        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly IScoringInterlayer _scoringInterlayer;
+        [Inject] private readonly IReadonlyBeatmapData _beatmapData;
 
-        protected GameplayModifiersModelSO _gameplayModifiersModel;
-        protected List<GameplayModifierParamsSO> _gameplayModifierParams;
+        private GameplayModifiersModelSO _gameplayModifiersModel;
+        private List<GameplayModifierParamsSO> _gameplayModifierParams;
 
-        protected int _maxComboAfterRescoring;
-        protected int _comboAfterRescoring;
+        private int _maxComboAfterRescoring;
+        private int _comboAfterRescoring;
 
-        public int maxComboAfterRescoring => _maxComboAfterRescoring;
-        public int comboAfterRescoring => _comboAfterRescoring;
+        public int MaxComboAfterRescoring => _maxComboAfterRescoring;
+        public int ComboAfterRescoring => _comboAfterRescoring;
 
-        public event Action<int, int, bool> onComboChangedAfterRescoring;
+        public event Action<int, int, bool> OnComboChangedAfterRescoring;
 
         #region BaseGame stuff
-        [Inject] protected readonly GameplayModifiers _gameplayModifiers;
-        [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
-        [Inject] protected readonly IGameEnergyCounter _gameEnergyCounter;
-        [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] protected readonly BadCutScoringElement.Pool _badCutScoringElementPool;
-        [Inject] protected readonly MissScoringElement.Pool _missScoringElementPool;
-        [Inject] protected readonly GoodCutScoringElement.Pool _goodCutScoringElementPool;
-        [Inject] protected readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
+        [Inject] private readonly GameplayModifiers _gameplayModifiers;
+        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
+        [Inject] private readonly IGameEnergyCounter _gameEnergyCounter;
+        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
+        [Inject] private readonly BadCutScoringElement.Pool _badCutScoringElementPool;
+        [Inject] private readonly MissScoringElement.Pool _missScoringElementPool;
+        [Inject] private readonly GoodCutScoringElement.Pool _goodCutScoringElementPool;
+        [Inject] private readonly PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
 
-        protected readonly ScoreMultiplierCounter _maxScoreMultiplierCounter = new ScoreMultiplierCounter();
-        protected readonly ScoreMultiplierCounter _scoreMultiplierCounter = new ScoreMultiplierCounter();
-        protected readonly List<float> _sortedNoteTimesWithoutScoringElements = new List<float>(50);
-        protected readonly List<ScoringElement> _sortedScoringElementsWithoutMultiplier = new List<ScoringElement>(50);
-        protected readonly List<ScoringElement> _scoringElementsWithMultiplier = new List<ScoringElement>(50);
-        protected readonly List<ScoringElement> _scoringElementsToRemove = new List<ScoringElement>(50);
+        private readonly ScoreMultiplierCounter _maxScoreMultiplierCounter = new ScoreMultiplierCounter();
+        private readonly ScoreMultiplierCounter _scoreMultiplierCounter = new ScoreMultiplierCounter();
+        private readonly List<float> _sortedNoteTimesWithoutScoringElements = new List<float>(50);
+        private readonly List<ScoringElement> _sortedScoringElementsWithoutMultiplier = new List<ScoringElement>(50);
+        private readonly List<ScoringElement> _scoringElementsWithMultiplier = new List<ScoringElement>(50);
+        private readonly List<ScoringElement> _scoringElementsToRemove = new List<ScoringElement>(50);
 
-        protected int _modifiedScore;
-        protected int _multipliedScore;
-        protected int _immediateMaxPossibleMultipliedScore;
-        protected int _immediateMaxPossibleModifiedScore;
-        protected float _prevMultiplierFromModifiers;
+        private int _modifiedScore;
+        private int _multipliedScore;
+        private int _immediateMaxPossibleMultipliedScore;
+        private int _immediateMaxPossibleModifiedScore;
+        private float _prevMultiplierFromModifiers;
 
         public int multipliedScore => _multipliedScore;
         public int modifiedScore => _modifiedScore;
@@ -73,7 +73,7 @@ namespace BeatLeader.Replays.Scoring
             _beatmapObjectManager.noteWasCutEvent += HandleNoteWasCut;
             _beatmapObjectManager.noteWasMissedEvent += HandleNoteWasMissed;
             _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
-            _beatmapTimeController.onSongRewind += RescoreInTimeSpan;
+            _beatmapTimeController.OnSongRewind += RescoreInTimeSpan;
         }
         public virtual void OnDestroy()
         {
@@ -91,7 +91,7 @@ namespace BeatLeader.Replays.Scoring
 
             if (_beatmapTimeController != null)
             {
-                _beatmapTimeController.onSongRewind -= RescoreInTimeSpan;
+                _beatmapTimeController.OnSongRewind -= RescoreInTimeSpan;
             }
         }
         public virtual void LateUpdate()
@@ -231,48 +231,44 @@ namespace BeatLeader.Replays.Scoring
                 broke = true;
             }
 
-            onComboChangedAfterRescoring?.Invoke(_comboAfterRescoring, _maxComboAfterRescoring, broke);
+            OnComboChangedAfterRescoring?.Invoke(_comboAfterRescoring, _maxComboAfterRescoring, broke);
             scoreDidChangeEvent?.Invoke(_multipliedScore, _modifiedScore);
             multiplierDidChangeEvent?.Invoke(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);
         }
         public virtual void HandleNoteWasSpawned(NoteController noteController)
         {
-            if (noteController.noteData.scoringType != NoteData.ScoringType.Ignore)
-            {
-                ListExtensions.InsertIntoSortedListFromEnd(_sortedNoteTimesWithoutScoringElements, noteController.noteData.time);
-            }
+            if (noteController.noteData.scoringType == NoteData.ScoringType.Ignore) return;
+            ListExtensions.InsertIntoSortedListFromEnd(_sortedNoteTimesWithoutScoringElements, noteController.noteData.time);
         }
         public virtual void HandleNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
-            if (noteCutInfo.noteData.scoringType != NoteData.ScoringType.Ignore)
+            if (noteCutInfo.noteData.scoringType == NoteData.ScoringType.Ignore) return;
+            if (noteCutInfo.allIsOK)
             {
-                if (noteCutInfo.allIsOK)
+                ScoringData scoringData = new ScoringData();
+                if (_simpleNoteComparatorsSpawner != null && _simpleNoteComparatorsSpawner
+                    .TryGetLoadedComparator(noteController, out SimpleNoteCutComparator comparator))
                 {
-                    ScoringData scoringData = new ScoringData();
-                    if (_simpleNoteComparatorsSpawner != null && _simpleNoteComparatorsSpawner
-                        .TryGetLoadedComparator(noteController, out SimpleNoteCutComparator comparator))
-                    {
-                        scoringData = new ScoringData(comparator.noteController.noteData, comparator.noteCutEvent,
-                            comparator.noteController.worldRotation, comparator.noteController.inverseWorldRotation,
-                            comparator.noteController.noteTransform.localRotation, comparator.noteController.noteTransform.position);
-                        comparator.Dispose();
-                    }
-                    else
-                        scoringData = new ScoringData(noteController, noteController.GetNoteEvent(_replay));
-
-                    ScoringElement scoringElement = _scoringInterlayer.Convert<GoodCutScoringElement>(scoringData);
-                    ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, scoringElement);
-                    scoringForNoteStartedEvent?.Invoke(scoringElement);
-                    _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
+                    scoringData = new ScoringData(comparator.NoteController.noteData, comparator.NoteCutEvent,
+                        comparator.NoteController.worldRotation, comparator.NoteController.inverseWorldRotation,
+                        comparator.NoteController.noteTransform.localRotation, comparator.NoteController.noteTransform.position);
+                    comparator.Dispose();
                 }
                 else
-                {
-                    BadCutScoringElement badCutScoringElement = _badCutScoringElementPool.Spawn();
-                    badCutScoringElement.Init(noteCutInfo.noteData);
-                    ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, badCutScoringElement);
-                    scoringForNoteStartedEvent?.Invoke(badCutScoringElement);
-                    _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
-                }
+                    scoringData = new ScoringData(noteController, noteController.GetNoteEvent(_replay));
+
+                ScoringElement scoringElement = _scoringInterlayer.Convert<GoodCutScoringElement>(scoringData);
+                ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, scoringElement);
+                scoringForNoteStartedEvent?.Invoke(scoringElement);
+                _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
+            }
+            else
+            {
+                BadCutScoringElement badCutScoringElement = _badCutScoringElementPool.Spawn();
+                badCutScoringElement.Init(noteCutInfo.noteData);
+                ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, badCutScoringElement);
+                scoringForNoteStartedEvent?.Invoke(badCutScoringElement);
+                _sortedNoteTimesWithoutScoringElements.Remove(noteCutInfo.noteData.time);
             }
         }
         public virtual void HandleNoteWasMissed(NoteController noteController)
@@ -283,15 +279,15 @@ namespace BeatLeader.Replays.Scoring
                 MissScoringElement missScoringElement = _missScoringElementPool.Spawn();
                 missScoringElement.Init(noteData);
                 ListExtensions.InsertIntoSortedListFromEnd(_sortedScoringElementsWithoutMultiplier, missScoringElement);
-                this.scoringForNoteStartedEvent?.Invoke(missScoringElement);
+                scoringForNoteStartedEvent?.Invoke(missScoringElement);
                 _sortedNoteTimesWithoutScoringElements.Remove(noteData.time);
             }
         }
         public virtual void HandlePlayerHeadDidEnterObstacles()
         {
-            if (_scoreMultiplierCounter.ProcessMultiplierEvent(ScoreMultiplierCounter.MultiplierEventType.Negative))
+            if (_scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative))
             {
-                this.multiplierDidChangeEvent?.Invoke(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);
+                multiplierDidChangeEvent?.Invoke(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);
             }
         }
         public virtual void DespawnScoringElement(ScoringElement scoringElement)

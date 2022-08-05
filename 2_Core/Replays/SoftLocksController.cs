@@ -18,27 +18,22 @@ namespace BeatLeader
 
         private void LateUpdate()
         {
-            foreach (var item in _lockedComponents)
-            {
-                if (item.locked && item.component != null && ((item.mode == LockMode.WhenRequired && item.component.isActiveAndEnabled) || item.mode == LockMode.Force))
-                {
-                    item.component.enabled = false;
-                }
-            }
+            foreach (var item in _lockedComponents.Where(x => x.locked && x.component != null 
+              && ((x.mode == LockMode.WhenRequired && x.component.isActiveAndEnabled) || x.mode == LockMode.Force)))
+                item.component.enabled = false;
         }
         public void Lock(Behaviour component, bool @lock = true, bool enable = false)
         {
-            LockData data = GetLockData(component);
-            if (data != null)
+            if (TryGetLockData(component, out LockData data))
             {
                 data.locked = @lock;
                 data.component.enabled = !@lock ? enable : data.component.enabled;
             }    
             else Debug.LogWarning("This component is not locked!");
         }
-        public void InstallLock(Behaviour component, LockMode mode)
+        public void InstallLock(Behaviour component, LockMode mode = LockMode.WhenRequired)
         {
-            if (GetLockData(component) != null)
+            if (TryGetLockData(component))
             {
                 Debug.LogWarning("Can not install lock because it is already installed!");
                 return;
@@ -47,15 +42,18 @@ namespace BeatLeader
         }
         public void UninstallLock(Behaviour component)
         {
-            LockData data = GetLockData(component);
-            if (data != null)
+            if (TryGetLockData(component, out LockData data))
                 _lockedComponents.Remove(data);
             else Debug.LogWarning("This component is not locked!");
         }
-        protected LockData GetLockData(Behaviour component)
+
+        private bool TryGetLockData(Behaviour component)
         {
-            return _lockedComponents.Select(x => x.component).Contains(component) ? 
-                _lockedComponents.First(x => x.component == component) : null;
+            return TryGetLockData(component, out LockData data);
+        }
+        private bool TryGetLockData(Behaviour component, out LockData data)
+        {
+            return (data = _lockedComponents.FirstOrDefault(x => x.component == component)) != null;
         }
     }
 }

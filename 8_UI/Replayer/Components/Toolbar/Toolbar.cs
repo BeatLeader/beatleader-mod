@@ -49,8 +49,8 @@ namespace BeatLeader.Components
         }
         private void Update()
         {
-            float time = _playbackController.currentSongTime;
-            float totalTime = _playbackController.totalSongTime;
+            float time = _playbackController.CurrentSongTime;
+            float totalTime = _playbackController.TotalSongTime;
 
             float minutes = Mathf.FloorToInt(time / 60);
             float seconds = Mathf.FloorToInt(time - (minutes * 60));

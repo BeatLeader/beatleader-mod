@@ -28,10 +28,10 @@ namespace BeatLeader.Replays.Poses
         private Vector3 _position;
         private string _name;
 
-        public InputType[] availableInputs => _availableInputs;
-        public bool selfInject => false;
-        public bool updateEveryFrame => false;
-        public string name => _name;
+        public InputType[] AvailableInputs => _availableInputs;
+        public bool SelfInject => false;
+        public bool UpdateEveryFrame => false;
+        public string Name => _name;
 
         public Pose GetPose(Pose cameraPose) => new Pose(_position, _rotation);
     }

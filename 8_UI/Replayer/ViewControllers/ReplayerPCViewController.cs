@@ -23,14 +23,14 @@ namespace BeatLeader.ViewControllers
         [Inject] private readonly UI2DManager _2DManager;
         [Inject] private readonly Score _score;
 
-        [UIValue("height")] private int _height => Mathf.CeilToInt(_2DManager.canvasSize.y / _scaleFactor);
-        [UIValue("width")] private int _width => Mathf.CeilToInt(_2DManager.canvasSize.x / _scaleFactor);
+        [UIValue("height")] private int Height => Mathf.CeilToInt(_2DManager.CanvasSize.y / ScaleFactor);
+        [UIValue("width")] private int Width => Mathf.CeilToInt(_2DManager.CanvasSize.x / ScaleFactor);
 
         [UIValue("song-info")] private SongInfo _songInfo;
         [UIValue("toolbar")] private Toolbar _toolbar;
         [UIValue("layout-editor")] private LayoutEditor _layoutEditor;
 
-        private int _scaleFactor = 5;
+        private const int ScaleFactor = 5;
 
         private void Start()
         {
@@ -38,7 +38,7 @@ namespace BeatLeader.ViewControllers
             _songInfo = ReeUIComponentV2WithContainer.InstantiateInContainer<SongInfo>(_container, transform);
             _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
 
-            gameObject.GetOrAddComponent<RectTransform>().sizeDelta = _2DManager.canvasSize / _scaleFactor;
+            gameObject.GetOrAddComponent<RectTransform>().sizeDelta = _2DManager.CanvasSize / ScaleFactor;
             BSMLParser.instance.Parse(Utilities.GetResourceContent(GetType().Assembly, 
                 GetType().GetCustomAttribute<ViewDefinitionAttribute>().Definition), gameObject, this);
         }
@@ -50,7 +50,7 @@ namespace BeatLeader.ViewControllers
             StartCoroutine(ForceLayoutRecalculation());
         }
 
-        private IEnumerator ForceLayoutRecalculation() {
+        private IEnumerator ForceLayoutRecalculation() { //ебаный костыль, но работает
             yield return new WaitForEndOfFrame();
             LayoutRebuilder.MarkLayoutForRebuild(GetComponentsInChildren<RectTransform>()[1]);
         }

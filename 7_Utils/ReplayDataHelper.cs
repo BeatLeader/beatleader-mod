@@ -92,19 +92,6 @@ namespace BeatLeader.Utils
             }
         }
 
-        public enum Score
-        {
-            Best,
-            Lowest,
-            NA
-        }
-        public enum Result
-        {
-            Completed,
-            Failed,
-            NA
-        }
-
         #region Environments
         public static string GetEnvironmentSerializedNameByEnvironmentName(string name)
         {
@@ -255,39 +242,6 @@ namespace BeatLeader.Utils
 
             return data;
         }
-        public static async Task<List<Replay>> TryGetReplaysBySongInfoAsync(this IDifficultyBeatmap data)
-        {
-            List<Replay> replays = await TryGetReplaysAsync((Replay replay) => replay.info.songName == data.level.songName &&
-            replay.info.difficulty == data.difficulty.ToString() &&
-            replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
-            if (replays != null)
-            {
-                return replays;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        public static async Task<List<Replay>> TryGetReplaysAsync(Func<Replay, bool> filter)
-        {
-            string[] replaysPaths = await Task.Run(() => FileManager.GetAllReplaysPaths());
-            List<Replay> replays = new List<Replay>();
-
-            foreach (var path in replaysPaths)
-            {
-                Replay extractedReplay = await Task.Run(() => FileManager.ReadReplay(path));
-                if (filter(extractedReplay))
-                {
-                    replays.Add(extractedReplay);
-                }
-            }
-            if (replays.Count > 0)
-            {
-                return replays;
-            }
-            else return null;
-        }
         public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
         {
             return GetNoteEventById(replay, noteData.ComputeNoteID(), noteData.time);
@@ -303,23 +257,15 @@ namespace BeatLeader.Utils
         public static NoteEvent GetNoteEventById(this Replay replay, int ID, float time)
         {
             foreach (var item in replay.notes)
-            {
                 if ((item.noteID == ID || item.noteID == ID - 30000) && (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
-                {
                     return item;
-                }
-            }
             return null;
         }
         public static WallEvent GetWallEventById(this Replay replay, int ID, float time)
         {
             foreach (var item in replay.walls)
-            {
                 if (item.wallID == ID && (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
-                {
                     return item;
-                }
-            }
             return null;
         }
         public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, NoteEvent noteEvent)
@@ -329,86 +275,31 @@ namespace BeatLeader.Utils
         public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, Replay replay)
         {
             var noteEvent = GetNoteEvent(noteController, replay);
-            if (noteEvent != null)
-            {
-                return ReplayNoteCutInfo.Parse(noteEvent.noteCutInfo, noteController);
-            }
-            return default;
+            return noteEvent != null ? ReplayNoteCutInfo.Parse(noteEvent.noteCutInfo, noteController) : default;
         }
         public static LinkedListNode<Frame> GetFrameByTime(this LinkedList<Frame> frames, float time)
         {
             for (LinkedListNode<Frame> frame = frames.First; frame != null; frame = frame.Next)
-            {
                 if (frame.Value.time >= time && frame != null)
-                {
                     return frame;
-                }
-            }
             return null;
         }
         public static bool TryGetFrameByTime(this LinkedList<Frame> frames, float time, out LinkedListNode<Frame> frame)
         {
-            for (frame = frames.First; frame != null; frame = frame.Next)
-            {
-                if (frame.Value.time >= time)
-                {
-                    return true;
-                }
-            }
             frame = null;
+            for (frame = frames.First; frame != null; frame = frame.Next)
+                if (frame.Value.time >= time)
+                    return true;
             return false;
         }
         public static Frame GetFrameByTime(this Replay replay, float time)
         {
             foreach (var frame in replay.frames)
-            {
                 if (frame.time >= time && frame != null)
-                {
                     return frame;
-                }
-            }
             return null;
         }
-        public static Replay GetReplayWithScore(this List<Replay> replays, Score score)
-        {
-            int scoreIndex = -1;
-            switch (score)
-            {
-                case Score.Best:
-                    float bestScore = 0;
-                    for (int i = 0; i < replays.Count; i++)
-                    {
-                        if (replays[i].info.score > bestScore)
-                        {
-                            bestScore = replays[i].info.score;
-                            scoreIndex = i;
-                        }
-                    }
-                    break;
-                case Score.Lowest:
-                    float lowestScore = float.MaxValue;
-                    for (int i = 0; i < replays.Count; i++)
-                    {
-                        if (replays[i].info.score < lowestScore)
-                        {
-                            lowestScore = replays[i].info.score;
-                            scoreIndex = i;
-                        }
-                    }
-                    break;
-            }
-            if (replays.Count == 0) return null;
-            return scoreIndex != -1 ? replays[scoreIndex] : replays[0];
-        }
-        public static bool TryGetReplaysBySongInfo(this IDifficultyBeatmap data, out List<Replay> replays)
-        {
-            bool condition = TryGetReplays(out List<Replay> replays2, (Replay replay) => 
-            replay.info.songName == data.level.songName && replay.info.difficulty == data.difficulty.ToString() 
-            && replay.info.mode == data.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName);
-            replays = replays2;
-            return condition;
-        }
-        public static bool TryGetReplays(out List<Replay> replays, Func<Replay, bool> filter)
+        public static bool TryGetReplays(Func<Replay, bool> filter, out List<Replay> replays)
         {
             string[] replaysPaths = FileManager.GetAllReplaysPaths();
             replays = new List<Replay>();
@@ -416,16 +307,9 @@ namespace BeatLeader.Utils
             foreach (var path in replaysPaths)
             {
                 Replay extractedReplay = FileManager.ReadReplay(path);
-                if (filter(extractedReplay))
-                {
-                    replays.Add(extractedReplay);
-                }
+                if (filter(extractedReplay)) replays.Add(extractedReplay);
             }
-            if (replays.Count <= 0)
-            {
-                return false;
-            }
-            else return true;
+            return replays.Count >= 0;
         }
         #endregion
 
@@ -440,28 +324,20 @@ namespace BeatLeader.Utils
         }
         public static int ComputeNoteScore(this NoteEvent note)
         {
-            if (note.eventType == NoteEventType.good)
+            if (note.eventType != NoteEventType.good) return note.eventType switch
             {
-                var cut = note.noteCutInfo;
-                double beforeCutRawScore = Mathf.Clamp((float)Math.Round(70 * cut.beforeCutRating), 0, 70);
-                double afterCutRawScore = Mathf.Clamp((float)Math.Round(30 * cut.afterCutRating), 0, 30);
-                double num = 1 - Mathf.Clamp(cut.cutDistanceToCenter / 0.3f, 0.0f, 1.0f);
-                double cutDistanceRawScore = Math.Round(15 * num);
-                return (int)beforeCutRawScore + (int)afterCutRawScore + (int)cutDistanceRawScore;
-            }
-            else
-            {
-                switch (note.eventType)
-                {
-                    case NoteEventType.bad:
-                        return -2;
-                    case NoteEventType.miss:
-                        return -3;
-                    case NoteEventType.bomb:
-                        return -4;
-                }
-            }
-            return -1;
+                NoteEventType.bad => -2,
+                NoteEventType.miss => -3,
+                NoteEventType.bomb => -4,
+                _ => -1
+            };
+
+            var cut = note.noteCutInfo;
+            double beforeCutRawScore = Mathf.Clamp((float)Math.Round(70 * cut.beforeCutRating), 0, 70);
+            double afterCutRawScore = Mathf.Clamp((float)Math.Round(30 * cut.afterCutRating), 0, 30);
+            double num = 1 - Mathf.Clamp(cut.cutDistanceToCenter / 0.3f, 0.0f, 1.0f);
+            double cutDistanceRawScore = Math.Round(15 * num);
+            return (int)beforeCutRawScore + (int)afterCutRawScore + (int)cutDistanceRawScore;
         }
         public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData.ScoringType scoringType)
         {

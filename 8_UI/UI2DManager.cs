@@ -28,13 +28,13 @@ namespace BeatLeader
         public KeyCode hideUIHotkey = KeyCode.H;
         public KeyCode hideCursorHotkey = KeyCode.C;
 
-        public event Action<bool> onUIVisibilityChanged;
-        public event Action<bool> onCursorVisibilityChanged;
+        public event Action<bool> OnUIVisibilityChanged;
+        public event Action<bool> OnCursorVisibilityChanged;
         public event Action<List<RaycastResult>> onRaycast;
 
-        public List<RaycastResult> lastRaycasts { get; private set; } = new();
-        public Vector2 canvasSize => _canvasRect.sizeDelta;
-        public float scaleFactor => _canvasScaler.scaleFactor;
+        public List<RaycastResult> LastRaycasts { get; private set; } = new();
+        public Vector2 CanvasSize => _canvasRect.sizeDelta;
+        public float ScaleFactor => _canvasScaler.scaleFactor;
 
         private void Start()
         {
@@ -45,29 +45,29 @@ namespace BeatLeader
             _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _canvas.SetupAsViewController();
             _canvasScaler.scaleFactor = 5f;
-            _canvasScaler.referenceResolution = canvasSize / scaleFactor;
+            _canvasScaler.referenceResolution = CanvasSize / ScaleFactor;
             _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
 
-            _pointerEventData = new PointerEventData(_inputManager.currentEventSystem);
-            _inputManager.onEventSystemChanged += ChangePointerEventSystem;
+            _pointerEventData = new PointerEventData(_inputManager.CurrentEventSystem);
+            _inputManager.OnEventSystemChanged += ChangePointerEventSystem;
         }
         public void Tick()
         {
             UpdatePointerData();
-            lastRaycasts.Clear();
-            _raycaster.Raycast(_pointerEventData, lastRaycasts);
-            onRaycast?.Invoke(lastRaycasts);
+            LastRaycasts.Clear();
+            _raycaster.Raycast(_pointerEventData, LastRaycasts);
+            onRaycast?.Invoke(LastRaycasts);
 
             if (Input.GetKeyDown(hideUIHotkey))
             {
                 gameObject.active = !gameObject.active;
-                onUIVisibilityChanged?.Invoke(gameObject.active);
+                OnUIVisibilityChanged?.Invoke(gameObject.active);
             }
             if (Input.GetKeyDown(hideCursorHotkey))
             {
                 InputManager.SwitchCursor();
-                onCursorVisibilityChanged?.Invoke(Cursor.visible);
+                OnCursorVisibilityChanged?.Invoke(Cursor.visible);
             }
         }
         private void UpdatePointerData()

@@ -90,7 +90,7 @@ namespace BeatLeader.Replays
             Container.BindInterfacesAndSelfTo<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<GameSettingsLoader>().AsSingle().Lazy();
 
-            if (Container.Resolve<InputManager>().isInFPFC)
+            if (Container.Resolve<InputManager>().IsInFPFC)
             {
                 Container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 try

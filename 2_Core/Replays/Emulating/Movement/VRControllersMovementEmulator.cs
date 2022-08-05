@@ -11,19 +11,19 @@ namespace BeatLeader.Replays.Movement
 {
     public class VRControllersMovementEmulator : MonoBehaviour
     {
-        [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
-        [Inject] protected readonly VRControllersManager _vrControllersManager;
-        [Inject] protected readonly Replay _replay;
+        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
+        [Inject] private readonly ReplayerManualInstaller.InitData _initData;
+        [Inject] private readonly VRControllersManager _vrControllersManager;
+        [Inject] private readonly Replay _replay;
 
-        protected LinkedList<Frame> _frames;
+        private LinkedList<Frame> _frames;
         protected LinkedListNode<Frame> _lastProcessedNode;
         protected bool _isPlaying;
         public bool lerpEnabled;
 
-        private VRController leftSaber => _vrControllersManager.leftSaber;
-        private VRController rightSaber => _vrControllersManager.rightSaber;
-        private VRController head => _vrControllersManager.head;
+        protected VRController leftSaber => _vrControllersManager.LeftSaber;
+        protected VRController rightSaber => _vrControllersManager.RightSaber;
+        protected VRController head => _vrControllersManager.Head;
         public bool isPlaying => _isPlaying;
 
         public void Start()

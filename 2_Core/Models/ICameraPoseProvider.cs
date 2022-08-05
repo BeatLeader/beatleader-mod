@@ -5,10 +5,10 @@ namespace BeatLeader.Models
 {
     public interface ICameraPoseProvider
     {
-        InputType[] availableInputs { get; }
-        bool selfInject { get; }
-        bool updateEveryFrame { get; }
-        string name { get; }
+        InputType[] AvailableInputs { get; }
+        bool SelfInject { get; }
+        bool UpdateEveryFrame { get; }
+        string Name { get; }
 
         Pose GetPose(Pose cameraPose);
     }

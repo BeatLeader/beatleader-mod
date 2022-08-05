@@ -11,22 +11,22 @@ namespace BeatLeader.Replays
 {
     public class ReplayerMenuLauncher : MonoBehaviour
     {
-        [Inject] protected readonly StandardLevelDetailViewController _levelDetailViewController;
-        [Inject] protected readonly GameScenesManager _gameScenesManager;
-        [Inject] protected readonly DiContainer _diContainer;
-        [Inject] protected readonly PlayerDataModel _playerDataModel;
-        [Inject] protected readonly IFPFCSettings _fPFCSettings;
+        [Inject] private readonly StandardLevelDetailViewController _levelDetailViewController;
+        [Inject] private readonly GameScenesManager _gameScenesManager;
+        [Inject] private readonly DiContainer _diContainer;
+        [Inject] private readonly PlayerDataModel _playerDataModel;
+        [Inject] private readonly IFPFCSettings _fPFCSettings;
 
-        protected static StandardLevelScenesTransitionSetupDataSO _transitionData;
-        protected static Replay _replay;
-        protected static Score _score;
-        protected static bool _startedAsReplay;
+        private static StandardLevelScenesTransitionSetupDataSO _transitionData;
+        private static Replay _replay;
+        private static Score _score;
+        private static bool _startedAsReplay;
 
-        public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> replayFinishedEvent;
-        public static StandardLevelScenesTransitionSetupDataSO transitionData => _transitionData;
-        public static Replay replay => _replay;
-        public static Score score => _score;
-        public static bool isStartedAsReplay => _startedAsReplay;
+        public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> OnReplayFinish;
+        public static StandardLevelScenesTransitionSetupDataSO TransitionData => _transitionData;
+        public static Replay Replay => _replay;
+        public static Score Score => _score;
+        public static bool IsStartedAsReplay => _startedAsReplay;
 
         public void Awake()
         {
@@ -63,7 +63,7 @@ namespace BeatLeader.Replays
             standardLevelScenesTransitionSetupData.didFinishEvent -= HandleReplayDidFinish;
             _gameScenesManager.PopScenes((levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Failed || levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared) ? 1.3f : 0.35f, null, delegate (DiContainer container)
             {
-                replayFinishedEvent?.Invoke(standardLevelScenesTransitionSetupData, levelCompletionResults);
+                OnReplayFinish?.Invoke(standardLevelScenesTransitionSetupData, levelCompletionResults);
             });
             InputManager.EnableCursor(false);
             _startedAsReplay = false;

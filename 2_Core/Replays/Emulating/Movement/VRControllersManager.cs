@@ -21,19 +21,19 @@ namespace BeatLeader.Replays.Movement
 
         protected Dictionary<Transform, (XRNode, Transform)> _attachedObjects = new();
 
-        public VRController leftSaber { get; protected set; }
-        public VRController rightSaber { get; protected set; }
-        public VRController head { get; protected set; }
-        public VRController leftHand { get; protected set; }
-        public VRController rightHand { get; protected set; }
-        public GameObject handsContainer { get; protected set; }
-        public bool initialized { get; protected set; }
+        public VRController LeftSaber { get; protected set; }
+        public VRController RightSaber { get; protected set; }
+        public VRController Head { get; protected set; }
+        public VRController LeftHand { get; protected set; }
+        public VRController RightHand { get; protected set; }
+        public GameObject HandsContainer { get; protected set; }
+        public bool IsInitialized { get; protected set; }
 
         private void Awake()
         {
-            handsContainer = _pauseMenuManager.transform.Find("MenuControllers").gameObject;
-            leftHand = handsContainer.transform.Find("ControllerLeft").GetComponent<VRController>();
-            rightHand = handsContainer.transform.Find("ControllerRight").GetComponent<VRController>();
+            HandsContainer = _pauseMenuManager.transform.Find("MenuControllers").gameObject;
+            LeftHand = HandsContainer.transform.Find("ControllerLeft").GetComponent<VRController>();
+            RightHand = HandsContainer.transform.Find("ControllerRight").GetComponent<VRController>();
 
             //creating fake head
             GameObject fakeHead = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -41,10 +41,10 @@ namespace BeatLeader.Replays.Movement
             fakeHead.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
 
             fakeHead.AddComponent<BoxCollider>().size = new Vector3(1, 3, 1);
-            head = fakeHead.AddComponent<VRControllerWrapper>();
-            head.node = XRNode.Head;
+            Head = fakeHead.AddComponent<VRControllerWrapper>();
+            Head.node = XRNode.Head;
 
-            _playerTransforms.SetField("_headTransform", head.transform);
+            _playerTransforms.SetField("_headTransform", Head.transform);
 
             //sabers patch
             GameObject leftGO = _vrControllersManager.leftHandVRController.gameObject;
@@ -55,31 +55,31 @@ namespace BeatLeader.Replays.Movement
             Destroy(_vrControllersManager.leftHandVRController);
             Destroy(_vrControllersManager.rightHandVRController);
 
-            leftSaber = leftGO.AddComponent<VRControllerWrapper>();
-            rightSaber = rightGO.AddComponent<VRControllerWrapper>();
-            leftSaber.node = XRNode.LeftHand;
-            rightSaber.node = XRNode.RightHand;
+            LeftSaber = leftGO.AddComponent<VRControllerWrapper>();
+            RightSaber = rightGO.AddComponent<VRControllerWrapper>();
+            LeftSaber.node = XRNode.LeftHand;
+            RightSaber.node = XRNode.RightHand;
 
             leftGO.gameObject.SetActive(true);
             rightGO.gameObject.SetActive(true);
 
-            _vrControllersManager.SetField("_leftHandVRController", leftSaber);
-            _vrControllersManager.SetField("_rightHandVRController", rightSaber);
+            _vrControllersManager.SetField("_leftHandVRController", LeftSaber);
+            _vrControllersManager.SetField("_rightHandVRController", RightSaber);
             InjectControllers();
-            initialized = true;
+            IsInitialized = true;
         }
         public void ShowMenuControllers(bool show = true)
         {
-            leftHand.gameObject.SetActive(show);
-            rightHand.gameObject.SetActive(show);
+            LeftHand.gameObject.SetActive(show);
+            RightHand.gameObject.SetActive(show);
         }
         public void ShowNode(XRNode node, bool show = true)
         {
             GameObject go = node switch
             {
-                XRNode.Head => head.gameObject,
-                XRNode.LeftHand => leftSaber.gameObject,
-                XRNode.RightHand => rightSaber.gameObject
+                XRNode.Head => Head.gameObject,
+                XRNode.LeftHand => LeftSaber.gameObject,
+                XRNode.RightHand => RightSaber.gameObject
             };
             go?.SetActive(show);
         }
@@ -87,20 +87,13 @@ namespace BeatLeader.Replays.Movement
         {
             if (_attachedObjects.ContainsKey(transform)) return;
             Transform originalParent = transform.parent;
-            switch (node)
+            transform.SetParent(node switch
             {
-                case XRNode.Head:
-                    transform.SetParent(head.transform, false);
-                    break;
-                case XRNode.LeftHand:
-                    transform.SetParent(leftHand.transform, false);
-                    break;
-                case XRNode.RightHand:
-                    transform.SetParent(rightHand.transform, false);
-                    break;
-                default:
-                    return;
-            }
+                XRNode.Head => Head.transform,
+                XRNode.LeftHand => LeftHand.transform,
+                XRNode.RightHand => RightHand.transform,
+                _ => originalParent
+            }, false);
             _attachedObjects.Add(transform, (node, originalParent));
         }
         public void DetachFromTheNode(Transform transform, bool reparentToOriginalParent)
@@ -116,12 +109,8 @@ namespace BeatLeader.Replays.Movement
         protected void InjectControllers()
         {
             foreach (var item in GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-            {
                 if (item.CanWrite && item.PropertyType == typeof(VRController))
-                {
                     _diContainer.Inject(item.GetValue(this));
-                }
-            }
         }
     }
 }

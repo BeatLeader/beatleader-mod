@@ -20,15 +20,15 @@ namespace BeatLeader.Replays.Poses
         private float _smoothness;
         private string _name;
 
-        public InputType[] availableInputs => new[] { InputType.FPFC };
-        public bool selfInject => true;
-        public bool updateEveryFrame => true;
-        public string name => _name;
+        public InputType[] AvailableInputs => new[] { InputType.FPFC };
+        public bool SelfInject => true;
+        public bool UpdateEveryFrame => true;
+        public string Name => _name;
 
         public Pose GetPose(Pose cameraPose)
         {
-            Vector3 position = Vector3.Lerp(cameraPose.position, _vrControllersManager.head.transform.position, Time.deltaTime * _smoothness);
-            Quaternion rotation = Quaternion.Lerp(cameraPose.rotation, _vrControllersManager.head.transform.rotation, Time.deltaTime * _smoothness);
+            Vector3 position = Vector3.Lerp(cameraPose.position, _vrControllersManager.Head.transform.position, Time.deltaTime * _smoothness);
+            Quaternion rotation = Quaternion.Lerp(cameraPose.rotation, _vrControllersManager.Head.transform.rotation, Time.deltaTime * _smoothness);
             return new Pose(position, rotation);
         }
     }

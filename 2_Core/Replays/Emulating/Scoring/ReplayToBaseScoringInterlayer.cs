@@ -15,7 +15,7 @@ namespace BeatLeader.Replays.Scoring
             if (typeof(T) != typeof(GoodCutScoringElement)) return default;
 
             var multiplierEventType = ScoreMultiplierCounter.MultiplierEventType.Positive;
-            if (data.noteData.scoringType == NoteData.ScoringType.Ignore || data.noteData.scoringType == NoteData.ScoringType.NoScore)
+            if (data.noteData.scoringType is NoteData.ScoringType.Ignore or NoteData.ScoringType.NoScore)
                 multiplierEventType = ScoreMultiplierCounter.MultiplierEventType.Neutral;
 
             GoodCutScoringElement scoringElement = _elementsPool.Spawn();
@@ -39,8 +39,8 @@ namespace BeatLeader.Replays.Scoring
 
             if (noteScoreDefinition.fixedCutScore == 0)
             {
-                buffer.SetField("_beforeCutScore", (int)Mathf.Clamp((float)Mathf.Round(70 * data.noteEvent.noteCutInfo.beforeCutRating), 0, 70));
-                buffer.SetField("_afterCutScore", (int)Mathf.Clamp((float)Mathf.Round(30 * data.noteEvent.noteCutInfo.afterCutRating), 0, 30));
+                buffer.SetField("_beforeCutScore", (int)Mathf.Clamp(Mathf.Round(70 * data.noteEvent.noteCutInfo.beforeCutRating), 0, 70));
+                buffer.SetField("_afterCutScore", (int)Mathf.Clamp(Mathf.Round(30 * data.noteEvent.noteCutInfo.afterCutRating), 0, 30));
                 buffer.SetField("_centerDistanceCutScore", (int)Mathf.Round(15 * (1 - Mathf.Clamp(data.noteEvent.noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f))));
             }
 

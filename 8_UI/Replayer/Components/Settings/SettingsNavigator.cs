@@ -13,7 +13,7 @@ using HMUI;
 
 namespace BeatLeader.Components
 {
-    internal class SettingsNavigator : ReeUIComponentV2WithContainer
+    internal class SettingsNavigator : ReeUIComponentV2WithContainer //i know that i did it wrong
     {
         #region Components
 
@@ -34,7 +34,7 @@ namespace BeatLeader.Components
         protected override void OnInstantiate()
         {
             _speedController = InstantiateInContainer<SpeedController>(Container, transform);
-            _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.name));
+            _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.Name));
 
             _movementLerp = ReplayerConfig.instance.MovementLerp;
             _fieldOfView = ReplayerConfig.instance.CameraFOV;
@@ -105,7 +105,7 @@ namespace BeatLeader.Components
         [UIValue("camera-view-values")] private List<object> _cameraViewValues;
         [UIValue("camera-view")] private string _cameraView
         {
-            get => _cameraController.currentPose;
+            get => _cameraController.CurrentPose;
             set
             {
                 ReplayerConfig.instance.CameraView = value;
@@ -114,10 +114,10 @@ namespace BeatLeader.Components
         }
         [UIValue("camera-fov")] private int _fieldOfView
         {
-            get => _cameraController.fieldOfView;
+            get => _cameraController.FieldOfView;
             set
             {
-                _cameraController.fieldOfView = value;
+                _cameraController.FieldOfView = value;
                 ReplayerConfig.instance.CameraFOV = value;
             }
         }
@@ -133,7 +133,7 @@ namespace BeatLeader.Components
         }
         [UIValue("show-head")] private bool _showHead
         {
-            get => _controllersManager.head.gameObject.activeInHierarchy;
+            get => _controllersManager.Head.gameObject.activeInHierarchy;
             set
             {
                 _controllersManager.ShowNode(XRNode.Head, value);
@@ -142,7 +142,7 @@ namespace BeatLeader.Components
         }
         [UIValue("show-left-saber")] private bool _showLeftSaber
         {
-            get => _controllersManager.leftSaber.gameObject.activeInHierarchy;
+            get => _controllersManager.LeftSaber.gameObject.activeInHierarchy;
             set
             {
                 _controllersManager.ShowNode(XRNode.LeftHand, value);
@@ -151,7 +151,7 @@ namespace BeatLeader.Components
         }
         [UIValue("show-right-saber")] private bool _showRightSaber
         {
-            get => _controllersManager.rightSaber.gameObject.activeInHierarchy;
+            get => _controllersManager.RightSaber.gameObject.activeInHierarchy;
             set
             {
                 _controllersManager.ShowNode(XRNode.RightHand, value);

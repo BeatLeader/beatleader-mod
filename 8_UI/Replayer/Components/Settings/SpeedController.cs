@@ -67,14 +67,15 @@ namespace BeatLeader.Components
         {
             float speedMultiplier = value * 0.1f;
             _playbackController.SetSpeedMul(speedMultiplier);
-            string currentMulColor = speedMultiplier == _playbackController.songSpeedMultiplier ? "yellow" :
+            string currentMulColor = speedMultiplier == _playbackController.SongSpeedMultiplier ? "yellow" :
                 speedMultiplier == _minAvailableSpeedMultiplier || speedMultiplier == _maxAvailableSpeedMultiplier ? "red" : "#00ffffff" /*cyan*/;
-            _combinedSpeedMultiplierText.text = $"<color={currentMulColor}>{speedMultiplier * 100}%</color> | <color=yellow>{_playbackController.songSpeedMultiplier * 100}%</color>";
+            _combinedSpeedMultiplierText.text = $"<color={currentMulColor}>{speedMultiplier * 100}%</color> | <color=yellow>{_playbackController.SongSpeedMultiplier * 100}%</color>";
         }
+
         [UIAction("speed-indicator-clicked")]
         private void ResetSpeed()
         {
-            float value = _playbackController.songSpeedMultiplier * 10;
+            float value = _playbackController.SongSpeedMultiplier * 10;
             OnSliderDrag(value);
             _slider.value = value;
         }

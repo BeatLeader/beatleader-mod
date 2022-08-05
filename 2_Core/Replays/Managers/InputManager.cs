@@ -21,28 +21,28 @@ namespace BeatLeader.Replays.Managers
             FPFC
         }
 
-        [Inject] protected readonly SoftLocksController _softLocksController;
-        [Inject] protected readonly IVRPlatformHelper _platformHelper;
-        [Inject] protected readonly VRInputModule _inputModule;
-        [Inject] protected readonly DiContainer _container;
+        [Inject] private readonly SoftLocksController _softLocksController;
+        [Inject] private readonly IVRPlatformHelper _platformHelper;
+        [Inject] private readonly VRInputModule _inputModule;
+        [Inject] private readonly DiContainer _container;
 
-        public event Action<EventSystem> onEventSystemChanged;
+        public event Action<EventSystem> OnEventSystemChanged;
 
-        public InputType currentInputType { get; protected set; }
-        public EventSystem currentEventSystem { get; protected set; }
-        public EventSystem customEventSystem { get; protected set; }
-        public EventSystem baseEventSystem { get; protected set; }
-        public bool isInFPFC => currentInputType == InputType.FPFC;
+        public InputType CurrentInputType { get; private set; }
+        public EventSystem CurrentEventSystem { get; private set; }
+        public EventSystem CustomEventSystem { get; private set; }
+        public EventSystem BaseEventSystem { get; private set; }
+        public bool IsInFPFC => CurrentInputType == InputType.FPFC;
 
         private void Awake()
         {
-            baseEventSystem = _inputModule.GetComponent<EventSystem>();
-            _softLocksController.InstallLock(baseEventSystem, SoftLocksController.LockMode.WhenRequired);
+            BaseEventSystem = _inputModule.GetComponent<EventSystem>();
+            _softLocksController.InstallLock(BaseEventSystem, SoftLocksController.LockMode.WhenRequired);
             GameObject inputSystemContainer;
             EventSystem eventSystem;
             if (_platformHelper.GetType() == typeof(DevicelessVRHelper))
             {
-                currentInputType = InputType.FPFC;
+                CurrentInputType = InputType.FPFC;
                 inputSystemContainer = new GameObject("EventSystem");
                 eventSystem = inputSystemContainer.AddComponent<EventSystem>();
                 inputSystemContainer.AddComponent<StandaloneInputModule>();
@@ -50,24 +50,24 @@ namespace BeatLeader.Replays.Managers
             }
             else
             {
-                currentInputType = InputType.VR;
+                CurrentInputType = InputType.VR;
                 inputSystemContainer = Instantiate(_inputModule.gameObject);
                 eventSystem = inputSystemContainer.GetComponent<EventSystem>();
                 inputSystemContainer.gameObject.SetActive(true);
                 _container.Inject(inputSystemContainer.GetComponent<VRInputModule>());
             }
-            customEventSystem = eventSystem;
+            CustomEventSystem = eventSystem;
         }
         public void EnableInput(bool enable)
         {
-            _softLocksController.Lock(baseEventSystem, currentEventSystem == baseEventSystem ? !enable : true);
-            currentEventSystem.enabled = enable;
+            _softLocksController.Lock(BaseEventSystem, CurrentEventSystem == BaseEventSystem ? !enable : true);
+            CurrentEventSystem.enabled = enable;
         }
         public void SwitchInputTo(bool original = true)
         {
-            _softLocksController.Lock(baseEventSystem, !original, true);
-            customEventSystem.enabled = !original;
-            onEventSystemChanged?.Invoke(currentEventSystem = original ? baseEventSystem : customEventSystem);
+            _softLocksController.Lock(BaseEventSystem, !original, true);
+            CustomEventSystem.enabled = !original;
+            OnEventSystemChanged?.Invoke(CurrentEventSystem = original ? BaseEventSystem : CustomEventSystem);
         }
 
         public static void SwitchCursor()

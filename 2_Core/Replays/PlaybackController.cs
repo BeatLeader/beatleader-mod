@@ -18,7 +18,6 @@ namespace BeatLeader.Replays
 {
     public class PlaybackController : MonoBehaviour
     {
-        [Inject] private readonly VRControllersManager _vrControllersManager;
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly PauseController _pauseController;
@@ -34,34 +33,37 @@ namespace BeatLeader.Replays
         public float TotalSongTime => _songTimeSyncController.songEndTime;
         public float CurrentSongSpeedMultiplier => _songTimeSyncController.timeScale;
         public float SongSpeedMultiplier => _modifiers.songSpeedMul;
+        public bool IsPaused => _gamePause.isPaused;
 
-        private void Start()
+        public void Pause(bool pause, bool notify = true, bool force = false)
         {
-            _vrControllersManager.ShowMenuControllers();
-        }
-        public void Pause(bool pause)
-        {
+            if (force)
+            {
+                _gamePause.GetType().GetField("_pause", BindingFlags.NonPublic
+                        | BindingFlags.Instance).SetValue(_gamePause, !pause);
+            }
+
             if (pause)
             {
                 _gamePause.Pause();
                 _saberManager.disableSabers = false;
-                ((Delegate)_pauseController.GetType().GetField("didPauseEvent",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .GetValue(_pauseController))?.DynamicInvoke();
             }
             else
             {
+                _gamePause.WillResume();
                 _gamePause.Resume();
-                ((Delegate)_pauseController.GetType().GetField("didResumeEvent",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .GetValue(_pauseController))?.DynamicInvoke();
+            }
+
+            if (notify)
+            {
+                ((Delegate)_pauseController.GetType().GetField(pause ? "didPauseEvent" : "didResumeEvent",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .GetValue(_pauseController))?.DynamicInvoke();
             }
 
             _beatmapObjectManager.PauseAllBeatmapObjects(pause);
             _beatmapEffectsController.PauseEffects(pause);
         }
-        public void Rewind(float time) => _beatmapTimeController.Rewind(time);
-        public void SetSpeedMul(float multiplier) => _beatmapTimeController.SetSpeedMultiplier(multiplier);
         public void EscapeToMenu() => _pauseMenuManager.MenuButtonPressed();
     }
 }

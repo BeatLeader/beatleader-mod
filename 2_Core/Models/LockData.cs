@@ -5,14 +5,14 @@ namespace BeatLeader.Models
 {
     public class LockData
     {
-        public readonly Behaviour component;
+        public readonly Behaviour behaviour;
         public readonly LockMode mode;
         public bool locked;
 
-        public LockData(Behaviour component, LockMode mode)
+        public LockData(Behaviour behaviour, LockMode mode)
         {
             this.mode = mode;
-            this.component = component;
+            this.behaviour = behaviour;
             locked = true;
         }
     }

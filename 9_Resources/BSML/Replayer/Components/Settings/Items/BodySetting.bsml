@@ -1,0 +1,5 @@
+﻿<vertical id="body-settings-view" pref-width="48" pad-left="1" pad-right="1" child-expand-height="false" child-align="UpperLeft">
+	<bool-setting text="Show head" value="show-head" bind-value="true" apply-on-change="true" skew="0"/>
+	<bool-setting text="Show left saber" value="show-left-saber" bind-value="true" apply-on-change="true" skew="0"/>
+	<bool-setting text="Show right saber" value="show-right-saber" bind-value="true" apply-on-change="true" skew="0"/>
+</vertical>

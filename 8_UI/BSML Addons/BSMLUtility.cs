@@ -17,7 +17,7 @@ namespace BeatLeader.UI.BSML_Addons
         private static Dictionary<string, Dictionary<string, GameObject>> _objectsWithIds = new Dictionary<string, Dictionary<string, GameObject>>();
         private static Dictionary<string, Dictionary<string, List<Component>>> _componentsWithIds = new Dictionary<string, Dictionary<string, List<Component>>>();
 
-        public static event Action<XmlDocument> onXmlParsed;
+        public static event Action<XmlDocument> OnXmlParsed;
 
         public static bool TryGetObjectWithId(string docName, string id, out GameObject go)
         {
@@ -120,48 +120,47 @@ namespace BeatLeader.UI.BSML_Addons
         {
             private static void Postfix(XmlNode node, IEnumerable<BSMLParser.ComponentTypeWithData> componentInfo)
             {
-                if (node.Attributes["id"] != null)
-                {
-                    Component component = componentInfo.First().component;
-                    if (component == null) return;
+                if (node.Attributes["id"] == null) return;
 
-                    string key = node.Attributes["id"].Value;
-                    List<Component> components = component.GetComponents(typeof(Component)).ToList();
-                    if (components != null)
+                Component component = componentInfo.First().component;
+                if (component == null) return;
+
+                string key = node.Attributes["id"].Value;
+                List<Component> components = component.GetComponents(typeof(Component)).ToList();
+                if (components != null)
+                {
+                    if (_componentsWithIds.TryGetValue(node.OwnerDocument.Name, out Dictionary<string, List<Component>> pairs))
                     {
-                        if (_componentsWithIds.TryGetValue(node.OwnerDocument.Name, out Dictionary<string, List<Component>> pairs))
+                        if (!pairs.TryGetValue(key, out List<Component> components2))
+                            pairs.Add(key, components);
+                        else if (components2.AtLeastOneCellIsNull())
                         {
-                            if (!pairs.TryGetValue(key, out List<Component> components2))
-                                pairs.Add(key, components);
-                            else if (components2.AtLeastOneCellIsNull())
-                            {
-                                components2.Clear();
-                                components2.AddRange(components);
-                            }
-                        }
-                        else
-                        {
-                            _componentsWithIds.Add(node.OwnerDocument.Name, new Dictionary<string, List<Component>>() { { key, components } });
+                            components2.Clear();
+                            components2.AddRange(components);
                         }
                     }
-
-                    GameObject go = component.gameObject;
-                    if (go != null)
+                    else
                     {
-                        if (_objectsWithIds.TryGetValue(node.OwnerDocument.Name, out Dictionary<string, GameObject> pairs))
+                        _componentsWithIds.Add(node.OwnerDocument.Name, new Dictionary<string, List<Component>>() { { key, components } });
+                    }
+                }
+
+                GameObject go = component.gameObject;
+                if (go != null)
+                {
+                    if (_objectsWithIds.TryGetValue(node.OwnerDocument.Name, out Dictionary<string, GameObject> pairs))
+                    {
+                        if (!pairs.TryGetValue(key, out GameObject go2))
+                            pairs.Add(key, go);
+                        else if (go2 == null)
                         {
-                            if (!pairs.TryGetValue(key, out GameObject go2))
-                                pairs.Add(key, go);
-                            else if (go2 == null)
-                            {
-                                pairs.Remove(key);
-                                pairs.Add(key, go);
-                            }
+                            pairs.Remove(key);
+                            pairs.Add(key, go);
                         }
-                        else
-                        {
-                            _objectsWithIds.Add(node.OwnerDocument.Name, new Dictionary<string, GameObject>() { { key, go } });
-                        }
+                    }
+                    else
+                    {
+                        _objectsWithIds.Add(node.OwnerDocument.Name, new Dictionary<string, GameObject>() { { key, go } });
                     }
                 }
             }
@@ -171,7 +170,7 @@ namespace BeatLeader.UI.BSML_Addons
         {
             private static void Postfix(XmlNode parentNode)
             {
-                onXmlParsed?.Invoke(parentNode.OwnerDocument);
+                OnXmlParsed?.Invoke(parentNode.OwnerDocument);
             }
         }
     }

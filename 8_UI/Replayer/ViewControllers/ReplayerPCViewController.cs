@@ -44,13 +44,13 @@ namespace BeatLeader.ViewControllers
         }
         [UIAction("#post-parse")] private void OnInitialize()
         {
-            _layoutEditor.AddObject("SongInfo", _songInfo.Root);
-            _layoutEditor.AddObject("Toolbar", _toolbar.Root, true, true);
+            _layoutEditor.TryAddObject("SongInfo", _songInfo.Root);
+            _layoutEditor.TryAddObject("Toolbar", _toolbar.Root, true, true, true);
             _2DManager.AddObject(gameObject);
             StartCoroutine(ForceLayoutRecalculation());
         }
 
-        private IEnumerator ForceLayoutRecalculation() { //ебаный костыль, но работает
+        private IEnumerator ForceLayoutRecalculation() { //ёбаный костыль, но работает
             yield return new WaitForEndOfFrame();
             LayoutRebuilder.MarkLayoutForRebuild(GetComponentsInChildren<RectTransform>()[1]);
         }

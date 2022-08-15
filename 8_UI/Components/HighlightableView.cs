@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BeatLeader.Components
 {
     [RequireComponent(typeof(Graphic))]
-    internal class UIHighlightable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    internal class HighlightableView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public Color normalColor;
         public Color highlightedColor;

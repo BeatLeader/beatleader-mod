@@ -9,11 +9,11 @@ using Zenject;
 
 namespace BeatLeader.Replays
 {
+    //TODO: full rewrite
     public class ReplayerMenuLauncher : MonoBehaviour
     {
         [Inject] private readonly StandardLevelDetailViewController _levelDetailViewController;
         [Inject] private readonly GameScenesManager _gameScenesManager;
-        [Inject] private readonly DiContainer _diContainer;
         [Inject] private readonly PlayerDataModel _playerDataModel;
         [Inject] private readonly IFPFCSettings _fPFCSettings;
 
@@ -47,8 +47,8 @@ namespace BeatLeader.Replays
         public void StartLevelWithReplay(Replay replay, Score score, IDifficultyBeatmap difficulty = null, IPreviewBeatmapLevel previewBeatmapLevel = null)
         {
             if (replay == null) return;
-            if (difficulty == null) difficulty = _levelDetailViewController.selectedDifficultyBeatmap;
-            if (previewBeatmapLevel == null) previewBeatmapLevel = _levelDetailViewController.beatmapLevel;
+            difficulty ??= _levelDetailViewController.selectedDifficultyBeatmap;
+            previewBeatmapLevel ??= _levelDetailViewController.beatmapLevel;
 
             StandardLevelScenesTransitionSetupDataSO data = replay.CreateTransitionData(_playerDataModel, difficulty, previewBeatmapLevel);
             data.didFinishEvent += HandleReplayDidFinish;

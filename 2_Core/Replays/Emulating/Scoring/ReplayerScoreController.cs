@@ -14,7 +14,6 @@ namespace BeatLeader.Replays.Scoring
     {
         [Inject] private readonly Replay _replay;
         [Inject] private readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
-        [Inject] private readonly ReplayerManualInstaller.InitData _initData;
         [Inject] private readonly BeatmapTimeController _beatmapTimeController;
         [Inject] private readonly IScoringInterlayer _scoringInterlayer;
         [Inject] private readonly IReadonlyBeatmapData _beatmapData;
@@ -31,6 +30,7 @@ namespace BeatLeader.Replays.Scoring
         public event Action<int, int, bool> OnComboChangedAfterRescoring;
 
         #region BaseGame stuff
+
         [Inject] private readonly GameplayModifiers _gameplayModifiers;
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly IGameEnergyCounter _gameEnergyCounter;
@@ -62,8 +62,9 @@ namespace BeatLeader.Replays.Scoring
         public event Action<int, float> multiplierDidChangeEvent;
         public event Action<ScoringElement> scoringForNoteStartedEvent;
         public event Action<ScoringElement> scoringForNoteFinishedEvent;
-        #endregion
 
+        #endregion
+        
         public virtual void Start()
         {
             _gameplayModifiersModel = Resources.FindObjectsOfTypeAll<GameplayModifiersModelSO>().First();

@@ -29,7 +29,7 @@ namespace BeatLeader.Replays.Movement
         public GameObject HandsContainer { get; protected set; }
         public bool IsInitialized { get; protected set; }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             HandsContainer = _pauseMenuManager.transform.Find("MenuControllers").gameObject;
             LeftHand = HandsContainer.transform.Find("ControllerLeft").GetComponent<VRController>();
@@ -72,6 +72,7 @@ namespace BeatLeader.Replays.Movement
         {
             LeftHand.gameObject.SetActive(show);
             RightHand.gameObject.SetActive(show);
+            HandsContainer.gameObject.SetActive(show);
         }
         public void ShowNode(XRNode node, bool show = true)
         {

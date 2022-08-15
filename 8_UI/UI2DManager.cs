@@ -15,11 +15,8 @@ namespace BeatLeader
 {
     public class UI2DManager : MonoBehaviour, ITickable
     {
-        [Inject] private readonly InputManager _inputManager;
-
         private CanvasScaler _canvasScaler;
         private Canvas _canvas;
-        private PointerEventData _pointerEventData;
         private GraphicRaycaster _raycaster;
         private RectTransform _canvasRect;
 
@@ -30,9 +27,7 @@ namespace BeatLeader
 
         public event Action<bool> OnUIVisibilityChanged;
         public event Action<bool> OnCursorVisibilityChanged;
-        public event Action<List<RaycastResult>> onRaycast;
 
-        public List<RaycastResult> LastRaycasts { get; private set; } = new();
         public Vector2 CanvasSize => _canvasRect.sizeDelta;
         public float ScaleFactor => _canvasScaler.scaleFactor;
 
@@ -48,17 +43,9 @@ namespace BeatLeader
             _canvasScaler.referenceResolution = CanvasSize / ScaleFactor;
             _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-
-            _pointerEventData = new PointerEventData(_inputManager.CurrentEventSystem);
-            _inputManager.OnEventSystemChanged += ChangePointerEventSystem;
         }
         public void Tick()
         {
-            UpdatePointerData();
-            LastRaycasts.Clear();
-            _raycaster.Raycast(_pointerEventData, LastRaycasts);
-            onRaycast?.Invoke(LastRaycasts);
-
             if (Input.GetKeyDown(hideUIHotkey))
             {
                 gameObject.active = !gameObject.active;
@@ -69,14 +56,6 @@ namespace BeatLeader
                 InputManager.SwitchCursor();
                 OnCursorVisibilityChanged?.Invoke(Cursor.visible);
             }
-        }
-        private void UpdatePointerData()
-        {
-            _pointerEventData.position = Input.mousePosition;
-        }
-        private void ChangePointerEventSystem(EventSystem eventSystem)
-        {
-            _pointerEventData = new PointerEventData(eventSystem);
         }
         public void AddObject(GameObject go)
         {

@@ -1,0 +1,9 @@
+﻿<horizontal pref-height="45">
+	<vertical pref-width="100">
+		<horizontal pref-height="45">
+			<macro.as-host host="toolbar">
+				<macro.reparent transform="ui-component"/>
+			</macro.as-host>
+		</horizontal>
+	</vertical>
+</horizontal>

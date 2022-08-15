@@ -13,14 +13,15 @@ namespace BeatLeader.Utils
     {
         public static void Reinject<T>(this DiContainer container)
         {
-            container.Reinject<T>(container.Resolve<T>());
+            container.Reinject(container.Resolve<T>());
         }
         public static void Reinject<T>(this DiContainer container, T value)
         {
             if (container == null || value == null) return;
             foreach (var item in container.AllContracts)
-                if (item.Type.ContainsFieldOfTypeMarkedWithAttribute(typeof(T), typeof(InjectAttribute), out FieldInfo fieldInfo))
-                    fieldInfo.SetValue(container.Resolve(item), value);
+                foreach (var item2 in item.Type.GetFields(x => x.FieldType == typeof(T)
+                && x.GetCustomAttribute(typeof(InjectAttribute)) != null)) //MOOOORE COOODE IN OOOOONE LIIIINE
+                    item2.SetValue(container.Resolve(item), value); 
         }
         public static T InstantiateComponentOnNewGameObjectSelf<T>(this DiContainer container) where T : Component
         {

@@ -15,6 +15,7 @@ using HMUI;
 
 namespace BeatLeader.Components
 {
+    [SerializeAutomatically]
     internal class LayoutEditor : ReeUIComponentV2WithContainer
     {
         [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.LayoutEditor.EditableElement.bsml")]
@@ -24,49 +25,55 @@ namespace BeatLeader.Components
             {
                 this.name = name;
                 this.locked = locked;
-                parentRect = rect;
-                parentEnabled = enabled;
+                ParentRect = rect;
+                ParentEnabled = enabled;
                 _parentCanvasGroup = rect.gameObject.GetOrAddComponent<CanvasGroup>();
-                TryLoadSettings();
+                _parentCanvasGroup.alpha = ParentEnabled ? 1 : 0;
             }
 
-            private ToggleWithCallbacks _toggle;
-            private CanvasGroup _canvasGroup;
-            private CanvasGroup _parentCanvasGroup;
-            private bool _tempParentEnabled;
+            public GameObject Container { get; private set; }
+            public RectTransform ParentRect { get; private set; }
+            public bool ParentEnabled { get; private set; }
+            public bool Enabled { get; private set; }
 
-            #region BSML Info
+            public event Action<string, bool> OnStateChanged;
+
+            #region BSML Stuff
 
             [UIComponent("toggle")] private readonly RectTransform toggleContainer;
 
             [UIValue("name")] public readonly string name;
             [UIValue("locked")] public readonly bool locked;
 
-            [UIValue("height")] private float _height => parentRect.sizeDelta.y;
-            [UIValue("width")] private float _width => parentRect.sizeDelta.x;
+            [UIValue("height")] private float Height => ParentRect.sizeDelta.y;
+            [UIValue("width")] private float Width => ParentRect.sizeDelta.x;
 
             #endregion
 
-            public GameObject container { get; private set; }
-            public RectTransform parentRect { get; private set; }
-            public bool parentEnabled { get; private set; }
-            public bool enabled { get; private set; }
+            private ToggleWithCallbacks _toggle;
+            private CanvasGroup _canvasGroup;
+            private CanvasGroup _parentCanvasGroup;
+            private bool _tempParentEnabled;
 
             public void Dispose()
             {
-                if (enabled) return;
+                if (Enabled) return;
                 RemoveEditable();
                 Destroy(_canvasGroup);
             }
-            public void SetEnabled(bool enabled, bool applySettings = true)
+            public void SetEnabled(bool enabled, bool applySettings = true, bool notify = true)
             {
-                if (enabled) CreateEditable(parentRect);
+                if (enabled) CreateEditable(ParentRect);
                 else RemoveEditable(applySettings);
-                _parentCanvasGroup.alpha = parentEnabled ? 1 : 0;
+
+                if (enabled) OnToggleValueChanged(ParentEnabled);
+                else _parentCanvasGroup.alpha = ParentEnabled ? 1 : 0;
+
+                if (notify) OnStateChanged?.Invoke(name, ParentEnabled);
             }
             private void CreateEditable(RectTransform rect)
             {
-                if (container != null) return;
+                if (Container != null) return;
                 GameObject go = new GameObject($"Editable{name}");
 
                 go.GetOrAddComponent<RectTransform>().sizeDelta = Vector2.zero;
@@ -78,28 +85,12 @@ namespace BeatLeader.Components
 
                 go.transform.SetParent(rect.parent, false);
                 go.transform.localPosition = rect.localPosition;
-                container = go;
+                Container = go;
             }
             private void RemoveEditable(bool applySettings = true)
             {
-                if (container == null) return;
-                Destroy(container);
-                if (applySettings) parentEnabled = _tempParentEnabled;
-            }
-            private void TryLoadSettings()
-            {
-                try
-                {
-                    if (ReplayerConfig.instance.UIComponents.TryGetValue(name, out bool value))
-                    {
-                        _parentCanvasGroup.alpha = value ? 1f : 0f;
-                        parentEnabled = value;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning($"Can not load layout configuration for {name} because of unhandled exception! {ex}");
-                }
+                if (Container != null) Destroy(Container);
+                if (applySettings) ParentEnabled = _tempParentEnabled;
             }
 
             private void OnToggleValueChanged(bool state)
@@ -110,15 +101,15 @@ namespace BeatLeader.Components
             }
             [UIAction("#post-parse")] private void OnAfterParse()
             {
-                OnToggleValueChanged(parentEnabled);
-                if (!locked)
-                {
-                    _toggle = toggleContainer.GetComponentInChildren<ToggleWithCallbacks>();
-                    _toggle.isOn = parentEnabled;
-                    _toggle.onValueChanged.AddListener(OnToggleValueChanged);
-                }
+                OnToggleValueChanged(ParentEnabled);
+                if (locked) return;
+                _toggle = toggleContainer.GetComponentInChildren<ToggleWithCallbacks>();
+                _toggle.isOn = ParentEnabled;
+                _toggle.onValueChanged.AddListener(OnToggleValueChanged);
             }
         }
+
+        [SerializeAutomatically] private static Dictionary<string, bool> _objectsConfig = new();
 
         private Dictionary<string, EditableElement> _editableObjects = new();
         public bool EditMode { get; private set; }
@@ -129,39 +120,29 @@ namespace BeatLeader.Components
             _editableObjects.ToList().ForEach(x => x.Value.SetEnabled(enabled, applySettings));
             content.gameObject.SetActive(enabled);
             EditMode = enabled;
-            SaveSettings();
         }
-        public void AddObject(string name, RectTransform rect, bool enabled = true, bool locked = false)
+        public bool TryAddObject(string name, RectTransform rect, bool loadConfig = true, bool enabled = true, bool locked = false)
         {
-            try
-            {
-                _editableObjects.Add(name, new EditableElement(name, rect, enabled, locked));
-            }
-            catch (Exception _) {
-                throw new Exception("Object with the same name is already added!");
-            }
+            bool state = _objectsConfig.ContainsKey(name) && loadConfig ? _objectsConfig[name] : enabled;
+            var editable = new EditableElement(name, rect, state, locked);
+            editable.OnStateChanged += SaveSettings;
+            return _editableObjects.TryAdd(name, editable);
         }
-        public void RemoveObject(string name)
+        public bool TryRemoveObject(string name)
         {
-            if (EditMode) return;
+            if (EditMode) return false;
             if (_editableObjects.TryGetValue(name, out EditableElement value))
             {
                 _editableObjects.Remove(name);
                 value.Dispose();
+                return true;
             }
-            else throw new Exception($"Can not find object named \"{name}\"");
+            else return false;
         }
-        private void SaveSettings()
+
+        private void SaveSettings(string name, bool value)
         {
-            try
-            {
-                ReplayerConfig.instance.UIComponents.Clear();
-                _editableObjects.ToList().ForEach(x => ReplayerConfig.instance.UIComponents.Add(x.Key, x.Value.parentEnabled));
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Can not save layout configuration because of unhandled exception! {ex}");
-            }
+            if (!_objectsConfig.TryAdd(name, value)) _objectsConfig[name] = value;
         }
 
         #region BSML Stuff
@@ -172,8 +153,8 @@ namespace BeatLeader.Components
         protected override void OnInitialize()
         {
             content.gameObject.SetActive(false);
-            _window.gameObject.AddComponent<UIWindow>().handle = _handle;
-            _handle.gameObject.AddComponent<UIHighlightable>().Init(Color.cyan, Color.yellow);
+            _window.gameObject.AddComponent<WindowView>().handle = _handle;
+            _handle.gameObject.AddComponent<HighlightableView>().Init(Color.cyan, Color.yellow);
         }
 
         [UIAction("done-button-clicked")] private void OnDoneButtonClicked() => SetEditModeEnabled(false);

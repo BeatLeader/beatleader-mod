@@ -77,8 +77,7 @@ namespace BeatLeader.Replays
             }
             protected set
             {
-                transform.position = value.position;
-                transform.rotation = value.rotation;
+                transform.SetPositionAndRotation(value.position, value.rotation);
                 if (!_inputManager.IsInFPFC) SetHandsPose(value);
             }
         }
@@ -169,8 +168,7 @@ namespace BeatLeader.Replays
         }
         private void SetHandsPose(Pose pose)
         {
-            _vrControllersManager.HandsContainer.transform.position = pose.position;
-            _vrControllersManager.HandsContainer.transform.rotation = pose.rotation;
+            _vrControllersManager.HandsContainer.transform.SetPositionAndRotation(pose.position, pose.rotation);
         }
     }
 }

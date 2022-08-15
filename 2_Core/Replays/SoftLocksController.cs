@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BeatLeader
 {
-    public class SoftLocksController : MonoBehaviour //this class allows modders to disable force locking without troubles
+    public class SoftLocksController : MonoBehaviour
     {
         public enum LockMode
         {
@@ -18,42 +18,42 @@ namespace BeatLeader
 
         private void LateUpdate()
         {
-            foreach (var item in _lockedComponents.Where(x => x.locked && x.component != null 
-              && ((x.mode == LockMode.WhenRequired && x.component.isActiveAndEnabled) || x.mode == LockMode.Force)))
-                item.component.enabled = false;
+            _lockedComponents.Where(x => x.locked && x.behaviour != null
+              && ((x.mode == LockMode.WhenRequired && x.behaviour.isActiveAndEnabled) || x.mode == LockMode.Force))
+                .ToList().ForEach(x => x.behaviour.enabled = false);
         }
-        public void Lock(Behaviour component, bool @lock = true, bool enable = false)
+        public void Lock(Behaviour behaviour, bool @lock = true, bool enable = false)
         {
-            if (TryGetLockData(component, out LockData data))
+            if (TryGetLockData(behaviour, out LockData data))
             {
                 data.locked = @lock;
-                data.component.enabled = !@lock ? enable : data.component.enabled;
-            }    
+                data.behaviour.enabled = !@lock ? enable : data.behaviour.enabled;
+            }
             else Debug.LogWarning("This component is not locked!");
         }
-        public void InstallLock(Behaviour component, LockMode mode = LockMode.WhenRequired)
+        public void InstallLock(Behaviour behaviour, LockMode mode = LockMode.WhenRequired)
         {
-            if (TryGetLockData(component))
+            if (TryGetLockData(behaviour))
             {
                 Debug.LogWarning("Can not install lock because it is already installed!");
                 return;
             }
-            _lockedComponents.Add(new LockData(component, mode));
+            _lockedComponents.Add(new LockData(behaviour, mode));
         }
-        public void UninstallLock(Behaviour component)
+        public void UninstallLock(Behaviour behaviour)
         {
-            if (TryGetLockData(component, out LockData data))
+            if (TryGetLockData(behaviour, out LockData data))
                 _lockedComponents.Remove(data);
             else Debug.LogWarning("This component is not locked!");
         }
 
-        private bool TryGetLockData(Behaviour component)
+        private bool TryGetLockData(Behaviour behaviour)
         {
-            return TryGetLockData(component, out LockData data);
+            return TryGetLockData(behaviour, out LockData data);
         }
-        private bool TryGetLockData(Behaviour component, out LockData data)
+        private bool TryGetLockData(Behaviour behaviour, out LockData data)
         {
-            return (data = _lockedComponents.FirstOrDefault(x => x.component == component)) != null;
+            return (data = _lockedComponents.FirstOrDefault(x => x.behaviour == behaviour)) != null;
         }
     }
 }

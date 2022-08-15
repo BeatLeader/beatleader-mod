@@ -9,41 +9,33 @@ namespace BeatLeader.Utils
 {
     public static class ReflectionUtils
     {
-        public static bool ContainsFieldMarkedWithAttribute(this Type type, Type attributeType)
+        public static T Cast<T>(this object value, T type)
         {
-            foreach (var member in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-                foreach (var attribute in member.CustomAttributes)
-                    if (attribute.AttributeType == attributeType)
-                        return true;
-            return false;
+            return (T)value;
         }
-        public static bool ContainsFieldOfTypeMarkedWithAttribute(this Type type, Type fieldType, Type attributeType)
+        public static FieldInfo GetField(this Type targetType, Func<FieldInfo, bool> filter = null,
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            return type.ContainsFieldOfTypeMarkedWithAttribute(fieldType, attributeType, out FieldInfo info);
+            return targetType.GetFields(filter, flags).FirstOrDefault();
         }
-        public static bool ContainsFieldOfTypeMarkedWithAttribute(this Type type, Type fieldType, Type attributeType, out FieldInfo field)
+        public static List<FieldInfo> GetFields(this Type targetType, Func<FieldInfo, bool> filter = null, 
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            field = null;
-            foreach (var member in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-            {
-                if (member.FieldType != fieldType) continue;
-                foreach (var attribute in member.CustomAttributes)
-                    if (attribute.AttributeType == attributeType)
-                    {
-                        field = member; 
-                        return true;
-                    }     
-            }
-            return false;
+            return targetType.GetFields(flags).Where(x => filter is null ? true : filter(x)).ToList();
         }
-        public static List<Type> GetAllTypesMarkedWithAttributeInAssembly(this Assembly assembly, Type attributeType)
+        public static List<PropertyInfo> GetProperties(this Type targetType, Func<PropertyInfo, bool> filter = null,
+           BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
         {
-            List<Type> types = new List<Type>();
-            foreach (var item in assembly.GetTypes())
-                foreach (var attribute in item.GetCustomAttributes(false))
-                    if (attribute.GetType() == attributeType && !types.Contains(item))
-                        types.Add(item);
-            return types;
+            return targetType.GetProperties(flags).Where(x => filter is null ? true : filter(x)).ToList();
+        }
+        public static List<Type> GetTypes(this Assembly assembly, Func<Type, bool> filter)
+        {
+            return assembly.GetTypes().Where(filter).ToList();
+        }
+        public static List<T> ScanAndActivateTypes<T>(this Assembly assembly, Func<T, bool> filter = null)
+        {
+            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T)).Where(x => !x.IsAbstract).Select(x => (T)Activator.CreateInstance(x))
+                .Where(filter != null ? filter : x => true).ToList();
         }
     }
 }

@@ -231,7 +231,7 @@ namespace BeatLeader.Utils
             environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
                 .First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), GetEnvironmentByName(replay.info.environment));
 
-            data.Init("Simple", difficulty, previewBeatmapLevel, environmentSettings,
+            data.Init("Solo", difficulty, previewBeatmapLevel, environmentSettings,
                 playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(), playerModel.playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
                 replay.GetPracticeSettingsFromReplay(), "Menu");

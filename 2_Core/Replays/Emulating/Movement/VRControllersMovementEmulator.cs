@@ -45,7 +45,7 @@ namespace BeatLeader.Replays.Movement
             if (frame == null || frame.Next == null) return;
             if (lerpEnabled)
             {
-                float slerp = (float)(_audioTimeSyncController.songTime - frame.Value.time) / 
+                float slerp = (_audioTimeSyncController.songTime - frame.Value.time) / 
                     (frame.Next.Value.time - frame.Value.time);
                 leftSaber.transform.SetPositionAndRotation(
                     Vector3.Lerp(frame.Value.leftHand.position, frame.Next.Value.leftHand.position, slerp),

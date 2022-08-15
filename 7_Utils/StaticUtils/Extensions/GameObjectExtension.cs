@@ -21,5 +21,11 @@ namespace BeatLeader.Utils
             var component = parent.GetComponent<T>();
             return component != null ? component : parent?.GetComponentInParentHierarchy<T>() ;
         }
+        public static bool TryDestroy<T>(this T go) where T : Component
+        {
+            if (go == null) return false;
+            GameObject.Destroy(go);
+            return true;
+        }
     }
 }

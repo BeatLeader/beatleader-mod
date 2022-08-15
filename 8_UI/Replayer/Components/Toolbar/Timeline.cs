@@ -73,9 +73,19 @@ namespace BeatLeader.Components
             _slider.fillRect = _fill.rectTransform;
             _slider.minValue = 0;
             _slider.maxValue = _playbackController.TotalSongTime;
-            _slider.onValueChanged.AddListener(x => _playbackController.Rewind(x));
+            _slider.onValueChanged.AddListener(x =>
+            {
+                _timeController.Rewind(x, false);
+                _unpauseNeeded = true;
+            });
 
-            _uiManager.onRaycast += OnRaycast;
+            var provider = _slider.gameObject.AddComponent<InteractionEventsProvider>();
+            provider.OnPointerEnterEvent += OnPointerEnter;
+            provider.OnPointerLeaveEvent += OnPointerLeave;
+            provider.OnBeginDragEvent += OnDragStart;
+            provider.OnEndDragEvent += OnDragEnd;
+            provider.OnPointerUpEvent += OnPointerUp;
+            provider.OnPointerDownEvent += x => _wasPaused = _playbackController.IsPaused;
 
             _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
             _missPrefab.sprite = BSMLUtility.LoadSprite("#bad-cut-icon");
@@ -95,50 +105,48 @@ namespace BeatLeader.Components
 
         #region Logic
 
+        [Inject] private readonly BeatmapTimeController _timeController;
         [Inject] private readonly PlaybackController _playbackController;
-        [Inject] private readonly UI2DManager _uiManager;
         [Inject] private readonly Models.Replay _replay;
 
         private bool _focusWasLost;
-        private bool _lastRaycastWasValid;
+        private bool _dragging;
+
+        private bool _unpauseNeeded;
+        private bool _wasPaused;
 
         private void Update()
         {
-            _slider.value = _playbackController.CurrentSongTime;
+            _slider.SetValueWithoutNotify(_playbackController.CurrentSongTime);
 
-            if (_focusWasLost && !Input.GetMouseButton(0))
+            if ((_focusWasLost && !_dragging) || (_focusWasLost && _currentState && !_dragging))
             {
-                _normalTrigger = true;
-                _focusWasLost = false;
+                _focusWasLost = SetState(false) ? false : _focusWasLost;
             }
-
-            if (_inProcess) return;
-            if (_highlightedTrigger)
-                SetState(true, x => _highlightedTrigger = false);
-            else if (_normalTrigger)
-                SetState(false, x => _normalTrigger = false);
         }
-        private void OnRaycast(List<RaycastResult> results)
+        private void OnPointerUp(PointerEventData data)
         {
-            bool flag = false;
-            foreach (var raycast in results)
-            {
-                if (raycast.gameObject == _clickableArea.gameObject)
-                {
-                    flag = true;
-                    if (!_lastRaycastWasValid)
-                    {
-                        _highlightedTrigger = true;
-                        _focusWasLost = false;
-                        _lastRaycastWasValid = true;
-                    }
-                }
-            }
-            if (!flag && _lastRaycastWasValid)
-            {
-                _focusWasLost = true;
-                _lastRaycastWasValid = false;
-            }
+            if (!_unpauseNeeded) return;
+
+            if (!_wasPaused) _playbackController.Pause(false, false, true);
+            _unpauseNeeded = false;
+        }
+        private void OnPointerEnter(PointerEventData data)
+        {
+            SetState(true);
+            _focusWasLost = false;
+        }
+        private void OnPointerLeave(PointerEventData data)
+        {
+            _focusWasLost = true;
+        }
+        private void OnDragEnd(PointerEventData data)
+        {
+            _dragging = false;
+        }
+        private void OnDragStart(PointerEventData data)
+        {
+            _dragging = true;
         }
 
         #endregion
@@ -189,42 +197,43 @@ namespace BeatLeader.Components
 
         #region Animation
 
-        private bool _normalTrigger;
-        private bool _highlightedTrigger;
-        private bool _expanded;
+        private bool _currentState;
         private bool _inProcess;
 
-        private void SetState(bool highlighted = true, Action<bool> callback = null)
+        private bool SetState(bool highlighted = true, Action<bool> callback = null)
         {
-            if (_inProcess) return;
+            if (_inProcess) return false;
             _inProcess = true;
             StartCoroutine(AnimationCoroutine(
                 highlighted ? _expandTransitionDuration : _shrinkTransitionDuration,
                 highlighted, callback));
+            return true;
         }
-        private IEnumerator AnimationCoroutine(float duration, bool expand, Action<bool> callback = null) //pain
+        private IEnumerator AnimationCoroutine(float duration, bool highlight, Action<bool> callback = null) //pain
         {
-            if ((_expanded && expand) || (!_expanded && !expand))
+            if ((_currentState && highlight) || (!_currentState && !highlight))
             {
                 _inProcess = false;
                 callback?.Invoke(false);
                 yield break;
             }
+
             float totalFramesCount = Mathf.FloorToInt(duration * _animationFrameRate);
             float frameDuration = duration / totalFramesCount;
             float sizeStepBG = _backgroundExpandSize / totalFramesCount;
             float sizeStepHandle = _handleExpandSize / totalFramesCount;
+
             for (int frame = 0; frame < totalFramesCount; frame++)
             {
                 Vector2 nextSizeBG = new Vector2(_background.rectTransform.sizeDelta.x,
-                    expand ? _background.rectTransform.sizeDelta.y + sizeStepBG : _background.rectTransform.sizeDelta.y - sizeStepBG);
+                    highlight ? _background.rectTransform.sizeDelta.y + sizeStepBG : _background.rectTransform.sizeDelta.y - sizeStepBG);
                 Vector2 nextSizeFillArea = new Vector2(_fillArea.sizeDelta.x,
-                    expand ? _fillArea.sizeDelta.y + sizeStepBG : _fillArea.sizeDelta.y - sizeStepBG);
+                    highlight ? _fillArea.sizeDelta.y + sizeStepBG : _fillArea.sizeDelta.y - sizeStepBG);
                 Vector2 nextSizeHandle = new Vector2(
-                    expand ? _handle.rectTransform.localScale.x + sizeStepHandle : _handle.rectTransform.localScale.x - sizeStepHandle,
-                    expand ? _handle.rectTransform.localScale.y + sizeStepHandle : _handle.rectTransform.localScale.y - sizeStepHandle);
+                    highlight ? _handle.rectTransform.localScale.x + sizeStepHandle : _handle.rectTransform.localScale.x - sizeStepHandle,
+                    highlight ? _handle.rectTransform.localScale.y + sizeStepHandle : _handle.rectTransform.localScale.y - sizeStepHandle);
                 Vector2 nextPosMarksArea = new Vector2(_marksAreaContainer.localPosition.x,
-                expand ? _marksAreaContainer.localPosition.y - (sizeStepBG / 2) : _marksAreaContainer.localPosition.y + (sizeStepBG / 2));
+                highlight ? _marksAreaContainer.localPosition.y - (sizeStepBG / 2) : _marksAreaContainer.localPosition.y + (sizeStepBG / 2));
 
                 _marksAreaContainer.localPosition = nextPosMarksArea;
                 _background.rectTransform.sizeDelta = nextSizeBG;
@@ -234,7 +243,7 @@ namespace BeatLeader.Components
                 yield return new WaitForSeconds(frameDuration);
             }
 
-            _expanded = expand;
+            _currentState = highlight;
             _inProcess = false;
             callback?.Invoke(true);
         }

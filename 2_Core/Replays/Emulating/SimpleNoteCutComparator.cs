@@ -27,24 +27,24 @@ namespace BeatLeader.Replays.Emulating
         protected bool _initialized;
         protected bool _isFinished;
 
-        public NoteEvent NoteCutEvent => _noteCutEvent;
-        public NoteController NoteController => _noteController;
-        public bool IsAvailableForCut => _availableForCut;
-        public bool IsFinished => _isFinished;
+        public virtual NoteEvent NoteCutEvent => _noteCutEvent;
+        public virtual NoteController NoteController => _noteController;
+        public virtual bool IsAvailableForCut => _availableForCut;
+        public virtual bool IsFinished => _isFinished;
 
-        public void Update()
+        public virtual void Update()
         {
             if (_initialized && _availableForCut && _timeSyncController.songTime >= NoteCutEvent.eventTime)
             {
                 Cut(ReplayNoteCutInfo.Parse(_noteCutEvent.noteCutInfo, _noteController));
             }
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
             _availableForCut = false;
             _isFinished = true;
         }
-        public void Init(NoteController noteController, NoteEvent noteCutEvent)
+        public virtual void Init(NoteController noteController, NoteEvent noteCutEvent)
         {
             _noteController = noteController;
             _noteCutEvent = noteCutEvent;
@@ -52,7 +52,7 @@ namespace BeatLeader.Replays.Emulating
             _availableForCut = true;
             _initialized = true;
         }
-        public void HandleNoteControllerNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
+        public virtual void HandleNoteControllerNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
             _noteController.noteWasCutEvent.Remove(this);
             _availableForCut = false;

@@ -17,8 +17,8 @@ namespace BeatLeader.Replays.Managers
     {
         public enum InputType
         {
-            VR,
-            FPFC
+            VR = 0,
+            FPFC = 1
         }
 
         [Inject] private readonly SoftLocksController _softLocksController;
@@ -68,6 +68,10 @@ namespace BeatLeader.Replays.Managers
             _softLocksController.Lock(BaseEventSystem, !original, true);
             CustomEventSystem.enabled = !original;
             OnEventSystemChanged?.Invoke(CurrentEventSystem = original ? BaseEventSystem : CustomEventSystem);
+        }
+        public bool MatchesCurrentInput(InputType type)
+        {
+            return type.HasFlag(CurrentInputType);
         }
 
         public static void SwitchCursor()

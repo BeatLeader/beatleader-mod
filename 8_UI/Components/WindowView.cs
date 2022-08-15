@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BeatLeader.Components
 {
     [RequireComponent(typeof(RectTransform))]
-    internal class UIWindow : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+    internal class WindowView : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
         public RectTransform handle;
 

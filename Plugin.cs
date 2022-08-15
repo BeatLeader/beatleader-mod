@@ -44,7 +44,7 @@ namespace BeatLeader
         private static void InitializeConfig(Config config)
         {
             ConfigFileData.Instance = config.Generated<ConfigFileData>();
-            ReplayerConfig.Load();
+            AutomaticConfigTool.Load();
         }
 
         #endregion
@@ -86,7 +86,7 @@ namespace BeatLeader
         [UsedImplicitly]
         public void OnApplicationQuit()
         {
-            ReplayerConfig.Save();
+            AutomaticConfigTool.Save();
         }
 
         #endregion

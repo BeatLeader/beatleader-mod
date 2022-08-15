@@ -10,6 +10,7 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 using HMUI;
+using BeatLeader.Components.Settings;
 
 namespace BeatLeader.Components
 {
@@ -29,9 +30,8 @@ namespace BeatLeader.Components
                 NotifyPropertyChanged(nameof(combinedSongTime));
             }
         }
-
         [UIValue("timeline")] private Timeline _timeline;
-        [UIValue("settings-navigator")] private SettingsNavigator _settingsNavigator;
+        [UIValue("settings-navigator")] private SettingsController _settingsNavigator;
 
         public RectTransform Root => _container; 
 
@@ -45,7 +45,7 @@ namespace BeatLeader.Components
             _playSprite = BSMLUtility.LoadSprite("#play-icon");
             _pauseSprite = BSMLUtility.LoadSprite("#pause-icon");
             _timeline = InstantiateInContainer<Timeline>(Container, transform);
-            _settingsNavigator = InstantiateInContainer<SettingsNavigator>(Container, transform);
+            _settingsNavigator = InstantiateInContainer<SettingsController>(Container, transform);
         }
         private void Update()
         {
@@ -57,8 +57,8 @@ namespace BeatLeader.Components
             float totalMinutes = Mathf.FloorToInt(totalTime / 60);
             float totalSeconds = Mathf.FloorToInt(totalTime - (totalMinutes * 60));
 
-            string combinedTotalTime = $"{totalMinutes}." + (totalSeconds < 10 ? $"0{totalSeconds}" : totalSeconds);
-            combinedSongTime = $"{minutes}." + (seconds < 10 ? $"0{seconds}" : seconds) + $"/{combinedTotalTime}";
+            string combinedTotalTime = $"{totalMinutes}.{(totalSeconds < 10 ? $"0{totalSeconds}" : totalSeconds)}";
+            combinedSongTime = $"{minutes}.{(seconds < 10 ? $"0{seconds}" : seconds)}/{combinedTotalTime}";
         }
         [UIAction("exit-button-clicked")] private void ExitButtonClicked()
         {

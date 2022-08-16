@@ -86,6 +86,8 @@ namespace BeatLeader.DataManager {
 
             LoadScores();
             LoadVoteStatus();
+
+            LeaderboardState.SelectedBeatmap = difficultyBeatmap;
         }
 
         private void OnUploadSuccess(Score score) {

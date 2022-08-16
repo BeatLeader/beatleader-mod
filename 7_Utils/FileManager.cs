@@ -19,7 +19,7 @@ namespace BeatLeader.Utils
             EnsureDirectoryExists(PlaylistsFolderPath);
         }
 
-        private static void EnsureDirectoryExists(string directory) {
+        public static void EnsureDirectoryExists(string directory) {
             var path = Path.GetDirectoryName(directory);
             if (Directory.Exists(path) || path == null) return;
             Directory.CreateDirectory(path);

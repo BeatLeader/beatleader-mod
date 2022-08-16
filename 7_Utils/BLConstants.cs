@@ -17,6 +17,29 @@
 
         #endregion
 
+        #region ExMachina
+        
+        public const string EX_MACHINA_API_URL = "https://bs-replays-ai.azurewebsites.net";
+
+        public const string EX_MACHINA_BASIC = //  json/{hash}/{diffId}/basic
+            EX_MACHINA_API_URL + "/json/{0}/{1}/basic";
+
+        #endregion
+
+        #region Leaderboard
+
+        public const string MASS_LEADERBOARDS = // /leaderboards?page={pageIndex}&count={itemsPerPage}&type={nominated/qualified/ranked}
+            BEATLEADER_API_URL + "/leaderboards?page={0}&count={1}&type={2}";
+
+        public const string LEADERBOARDS_HASH = // /leaderboards/hash/{hash}
+            BEATLEADER_API_URL + "/leaderboards/hash/{0}";
+
+        public static string LeaderboardPage(string leaderboardId) {
+            return $"{BEATLEADER_WEBSITE_URL}/leaderboard/global/{leaderboardId}";
+        }
+        
+        #endregion
+
         #region Voting
 
         public const string VOTE = // /vote/steam/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}&ticket={ticket}

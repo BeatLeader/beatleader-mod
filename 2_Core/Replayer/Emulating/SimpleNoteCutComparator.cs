@@ -3,7 +3,7 @@ using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Emulating
+namespace BeatLeader.Replayer.Emulating
 {
     public class SimpleNoteCutComparator : MonoBehaviour, INoteControllerNoteWasCutEvent
     {

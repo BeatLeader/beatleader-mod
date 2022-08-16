@@ -5,7 +5,7 @@ using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.UI.BSML_Addons.Components;
 using BeatLeader.UI.BSML_Addons;
-using BeatLeader.Replays;
+using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;

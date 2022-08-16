@@ -1,6 +1,6 @@
 using BeatLeader.DataManager;
 using BeatLeader.ViewControllers;
-using BeatLeader.Replays;
+using BeatLeader.Replayer;
 using JetBrains.Annotations;
 using Zenject;
 

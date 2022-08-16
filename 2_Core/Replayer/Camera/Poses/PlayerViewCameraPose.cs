@@ -1,11 +1,11 @@
 ﻿using System.Linq;
-using static BeatLeader.Replays.Managers.InputManager;
-using BeatLeader.Replays.Movement;
+using static BeatLeader.Replayer.Managers.InputManager;
+using BeatLeader.Replayer.Movement;
 using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Poses
+namespace BeatLeader.Replayer.Poses
 {
     public class PlayerViewCameraPose : ICameraPoseProvider
     {

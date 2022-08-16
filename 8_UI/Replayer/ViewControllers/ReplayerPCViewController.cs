@@ -6,7 +6,7 @@ using System.Linq;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Components;
-using BeatLeader.Replays;
+using BeatLeader.Replayer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine.UI;
@@ -39,8 +39,7 @@ namespace BeatLeader.ViewControllers
             _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
 
             gameObject.GetOrAddComponent<RectTransform>().sizeDelta = _2DManager.CanvasSize / ScaleFactor;
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(GetType().Assembly, 
-                GetType().GetCustomAttribute<ViewDefinitionAttribute>().Definition), gameObject, this);
+            this.ParseInObjectHierarchy();
         }
         [UIAction("#post-parse")] private void OnInitialize()
         {

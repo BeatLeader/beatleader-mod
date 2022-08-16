@@ -6,7 +6,7 @@ using VRUIControls;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Managers
+namespace BeatLeader.Replayer.Managers
 {
     public class SceneTweaksManager : MonoBehaviour
     {

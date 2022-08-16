@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
-using BeatLeader.Replays;
+using BeatLeader.Replayer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Utils;
 using HarmonyLib;

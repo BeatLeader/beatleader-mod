@@ -8,13 +8,13 @@ using IPA.Utilities;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
-using BeatLeader.Replays.Emulating;
-using BeatLeader.Replays.Movement;
-using BeatLeader.Replays.Managers;
+using BeatLeader.Replayer.Emulating;
+using BeatLeader.Replayer.Movement;
+using BeatLeader.Replayer.Managers;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replayer
 {
     public class PlaybackController : MonoBehaviour
     {

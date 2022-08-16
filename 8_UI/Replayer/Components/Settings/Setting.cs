@@ -1,4 +1,4 @@
-﻿using BeatLeader.Replays.Managers;
+﻿using BeatLeader.Replayer.Managers;
 using System;
 using System.Reflection;
 using System.Collections.Generic;

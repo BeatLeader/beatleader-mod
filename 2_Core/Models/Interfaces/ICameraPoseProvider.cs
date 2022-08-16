@@ -1,4 +1,4 @@
-﻿using static BeatLeader.Replays.Managers.InputManager;
+﻿using static BeatLeader.Replayer.Managers.InputManager;
 using UnityEngine;
 
 namespace BeatLeader.Models

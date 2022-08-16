@@ -4,7 +4,7 @@ using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Scoring
+namespace BeatLeader.Replayer.Scoring
 {
     public class ReplayToBaseScoringInterlayer : IScoringInterlayer
     {

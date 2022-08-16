@@ -12,25 +12,43 @@ namespace BeatLeader.Components
         private Transform _headTransform;
         private Transform _viewTransform;
         public float maximumAngleDifference;
-        public float lerpSmoothness;
+        public float smoothnessFactor;
 
-        private float _nextAngle;
+        private Quaternion _nextRot;
+        private bool _allowHandling;
 
-        public void Init(Transform head, Transform view, float difference = 60, float smoothness = 5)
+        public void Init(Transform head, Transform view, float difference = 60, float smoothness = 10)
         {
             _headTransform = head;
             _viewTransform = view;
             maximumAngleDifference = difference;
-            lerpSmoothness = smoothness;
+            smoothnessFactor = smoothness;
         }
         private void Update()
         {
-            var angle = (_headTransform.eulerAngles - _viewTransform.eulerAngles).y;
-            _nextAngle = Mathf.Abs(angle) > maximumAngleDifference ? Mathf.RoundToInt(_headTransform.eulerAngles.y) : _nextAngle;
+            var headRot = _headTransform.eulerAngles;
+            var viewRot = _viewTransform.eulerAngles;
 
-            var rot = _viewTransform.eulerAngles;
-            rot.y = Mathf.Lerp(rot.y, _nextAngle, Time.deltaTime * lerpSmoothness);
-            _viewTransform.eulerAngles = rot;
+            headRot.x = 0;
+            headRot.z = 0;
+            viewRot.x = 0;
+            viewRot.z = 0;
+
+            var headQuat = Quaternion.Euler(headRot);
+            var viewQuat = Quaternion.Euler(viewRot);
+
+            if (Quaternion.Angle(headQuat, viewQuat) > maximumAngleDifference)
+            {
+                _nextRot = Quaternion.Euler(0, _headTransform.eulerAngles.y, 0);
+                _allowHandling = true;
+            }
+            Animate();
+        }
+        private void Animate()
+        {
+            if (!_allowHandling) return;
+            _viewTransform.rotation = Quaternion.Lerp(_viewTransform.rotation, _nextRot, Mathf.Clamp(Time.deltaTime * smoothnessFactor, 0, 1));
+            _allowHandling = _viewTransform.eulerAngles.y == _nextRot.eulerAngles.y ? false : _allowHandling;
         }
     }
 }

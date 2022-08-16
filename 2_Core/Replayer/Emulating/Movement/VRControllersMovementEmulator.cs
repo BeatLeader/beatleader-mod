@@ -7,7 +7,7 @@ using Zenject;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 
-namespace BeatLeader.Replays.Movement
+namespace BeatLeader.Replayer.Movement
 {
     public class VRControllersMovementEmulator : MonoBehaviour
     {

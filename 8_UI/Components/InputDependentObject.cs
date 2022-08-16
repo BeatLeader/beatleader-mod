@@ -1,5 +1,5 @@
-﻿using static BeatLeader.Replays.Managers.InputManager;
-using BeatLeader.Replays.Managers;
+﻿using static BeatLeader.Replayer.Managers.InputManager;
+using BeatLeader.Replayer.Managers;
 using UnityEngine;
 
 namespace BeatLeader.Components
@@ -15,6 +15,7 @@ namespace BeatLeader.Components
                 Refresh();
             }
         }
+        public bool ShouldBeVisible => _inputManager.MatchesCurrentInput(_inputType);
 
         private InputManager _inputManager;
         private InputType _inputType;
@@ -23,11 +24,8 @@ namespace BeatLeader.Components
         {
             _inputManager = manager;
             InputType = type;
+            Debug.LogWarning(gameObject.name + " " + ShouldBeVisible);
         }
-        public void Refresh() => gameObject.SetActive(ShouldBeVisible());
-        public bool ShouldBeVisible()
-        {
-            return _inputManager.MatchesCurrentInput(_inputType);
-        }
+        public void Refresh() => gameObject.SetActive(ShouldBeVisible);
     }
 }

@@ -4,7 +4,7 @@ using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replayer
 {
     public class BeatmapVisualsController : MonoBehaviour
     {

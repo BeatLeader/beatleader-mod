@@ -1,10 +1,10 @@
-﻿using static BeatLeader.Replays.Managers.InputManager;
+﻿using static BeatLeader.Replayer.Managers.InputManager;
 using BeatLeader.Models;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 using Pose = UnityEngine.Pose;
 
-namespace BeatLeader.Replays.Poses
+namespace BeatLeader.Replayer.Poses
 {
     public struct StaticCameraPose : ICameraPoseProvider
     { 

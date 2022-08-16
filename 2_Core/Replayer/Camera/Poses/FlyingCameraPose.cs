@@ -1,9 +1,9 @@
-﻿using static BeatLeader.Replays.Managers.InputManager;
+﻿using static BeatLeader.Replayer.Managers.InputManager;
 using BeatLeader.UI;
 using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using UnityEngine;
 
-namespace BeatLeader.Replays.Poses
+namespace BeatLeader.Replayer.Poses
 {
     public class FlyingCameraPose : ICameraPoseProvider
     {

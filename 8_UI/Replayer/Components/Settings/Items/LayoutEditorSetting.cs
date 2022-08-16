@@ -1,4 +1,5 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatLeader.Replayer.Managers;
+using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,10 @@ namespace BeatLeader.Components.Settings
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.LayoutEditorSetting.bsml")]
     internal class LayoutEditorSetting : Setting
     {
-        [Inject] private readonly LayoutEditor _layoutEditor;
+        [InjectOptional] private readonly LayoutEditor _layoutEditor;
 
         public override int SettingIndex => 2;
+        public override InputManager.InputType AvailableInputs => InputManager.InputType.FPFC;
 
         [UIAction("button-clicked")]
         private void OpenEditor()

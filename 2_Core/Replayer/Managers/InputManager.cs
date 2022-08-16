@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using IPA.Utilities;
 using System.Collections.Generic;
-using BeatLeader.Replays.Movement;
+using BeatLeader.Replayer.Movement;
 using UnityEngine.EventSystems;
 using HMUI;
 using VRUIControls;
@@ -11,14 +11,15 @@ using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Managers
+namespace BeatLeader.Replayer.Managers
 {
     public class InputManager : MonoBehaviour
     {
+        [Flags]
         public enum InputType
         {
-            VR = 0,
-            FPFC = 1
+            VR = 1,
+            FPFC = 2
         }
 
         [Inject] private readonly SoftLocksController _softLocksController;

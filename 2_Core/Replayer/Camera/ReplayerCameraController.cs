@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using BeatLeader.Replays.Managers;
-using BeatLeader.Replays.Movement;
+using BeatLeader.Replayer.Managers;
+using BeatLeader.Replayer.Movement;
 using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replayer
 {
     public class ReplayerCameraController : MonoBehaviour
     {

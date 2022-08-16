@@ -1,6 +1,6 @@
 ﻿using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replayer
 {
     public class GameSettingsLoader : IInitializable
     {

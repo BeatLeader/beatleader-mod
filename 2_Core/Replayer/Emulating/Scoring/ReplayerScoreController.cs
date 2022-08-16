@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Collections.Generic;
 using static ScoreMultiplierCounter;
-using BeatLeader.Replays.Emulating;
+using BeatLeader.Replayer.Emulating;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays.Scoring
+namespace BeatLeader.Replayer.Scoring
 {
     public class ReplayerScoreController : MonoBehaviour, IReplayerScoreController
     {

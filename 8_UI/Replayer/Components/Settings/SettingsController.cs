@@ -3,14 +3,14 @@ using System.Linq;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
-using BeatLeader.Replays.Movement;
-using BeatLeader.Replays;
+using BeatLeader.Replayer.Movement;
+using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
 using HMUI;
-using BeatLeader.Replays.Managers;
+using BeatLeader.Replayer.Managers;
 using UnityEngine.UI;
 using System.Reflection;
 

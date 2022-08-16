@@ -2,12 +2,12 @@
 using BeatLeader.Manager;
 using BeatLeader.Utils;
 using BeatLeader.Models;
-using BeatLeader.Replays.Managers;
+using BeatLeader.Replayer.Managers;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replayer
 {
     //TODO: full rewrite
     public class ReplayerMenuLauncher : MonoBehaviour

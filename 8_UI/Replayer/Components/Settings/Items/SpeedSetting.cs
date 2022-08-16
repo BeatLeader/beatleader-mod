@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BeatLeader.UI.BSML_Addons.Components;
-using BeatLeader.Replays;
+using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine.UI;
 using UnityEngine;

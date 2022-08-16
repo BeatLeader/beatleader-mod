@@ -1,5 +1,5 @@
-﻿using BeatLeader.Replays;
-using BeatLeader.Replays.Managers;
+﻿using BeatLeader.Replayer;
+using BeatLeader.Replayer.Managers;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections.Generic;
@@ -55,7 +55,7 @@ namespace BeatLeader.Components.Settings
         {
             var obj = _cameraFovContainer.AddComponent<InputDependentObject>();
             obj.Init(_inputManager, InputManager.InputType.FPFC);
-            if (obj.ShouldBeVisible())
+            if (obj.ShouldBeVisible)
                 _cameraFov = cameraFov;
             _cameraView = cameraView;
         }

@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using BeatLeader.Utils;
-using BeatLeader.Replays.Poses;
-using BeatLeader.Replays.Managers;
-using BeatLeader.Replays.Emulating;
-using BeatLeader.Replays.Movement;
-using BeatLeader.Replays.Scoring;
+using BeatLeader.Replayer.Poses;
+using BeatLeader.Replayer.Managers;
+using BeatLeader.Replayer.Emulating;
+using BeatLeader.Replayer.Movement;
+using BeatLeader.Replayer.Scoring;
 using BeatLeader.ViewControllers;
 using BeatLeader.Models;
 using SiraUtil.Tools.FPFC;
@@ -17,7 +17,7 @@ using Vector3 = UnityEngine.Vector3;
 using Vector2 = UnityEngine.Vector2;
 using Pose = UnityEngine.Pose;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replayer
 {
     public class ReplayerManualInstaller
     {

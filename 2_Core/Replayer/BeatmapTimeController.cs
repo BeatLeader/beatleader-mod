@@ -2,12 +2,12 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Replays.Emulating;
+using BeatLeader.Replayer.Emulating;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replays
+namespace BeatLeader.Replayer
 {
     public class BeatmapTimeController : MonoBehaviour
     {

@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using Zenject;
 
-namespace BeatLeader.Replays.Movement
+namespace BeatLeader.Replayer.Movement
 {
     public class VRControllersManager : MonoBehaviour
     {
@@ -80,7 +80,8 @@ namespace BeatLeader.Replays.Movement
             {
                 XRNode.Head => Head.gameObject,
                 XRNode.LeftHand => LeftSaber.gameObject,
-                XRNode.RightHand => RightSaber.gameObject
+                XRNode.RightHand => RightSaber.gameObject,
+                XRNode.GameController => HandsContainer.gameObject
             };
             go?.SetActive(show);
         }
@@ -93,6 +94,7 @@ namespace BeatLeader.Replays.Movement
                 XRNode.Head => Head.transform,
                 XRNode.LeftHand => LeftHand.transform,
                 XRNode.RightHand => RightHand.transform,
+                XRNode.GameController => HandsContainer.transform,
                 _ => originalParent
             }, false);
             _attachedObjects.Add(transform, (node, originalParent));

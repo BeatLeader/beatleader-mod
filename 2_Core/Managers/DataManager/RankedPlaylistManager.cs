@@ -5,7 +5,7 @@ using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.DataManager {
-    public class RankedPlaylistManager : MonoBehaviour {
+    internal class RankedPlaylistManager : MonoBehaviour {
         #region IsUpToDate
 
         public static event Action<bool> IsUpToDateChangedEvent;

@@ -15,9 +15,6 @@ namespace BeatLeader {
                     case PlayerRole.Tipper:
                     case PlayerRole.Supporter:
                     case PlayerRole.Sponsor: return playerRole;
-
-                    case PlayerRole.Default:
-                    case PlayerRole.Admin:
                     default: continue;
                 }
             }
@@ -32,6 +29,9 @@ namespace BeatLeader {
         public static PlayerRole ParseSingleRole(string role) {
             return role switch {
                 "admin" => PlayerRole.Admin,
+                "rankedteam" => PlayerRole.RankedTeam,
+                "mapper" => PlayerRole.Mapper,
+                "creator" => PlayerRole.Creator,
                 "tipper" => PlayerRole.Tipper,
                 "supporter" => PlayerRole.Supporter,
                 "sponsor" => PlayerRole.Sponsor,
@@ -56,6 +56,31 @@ namespace BeatLeader {
                 256 => "Quest 2",
                 _ => "Unknown HMD"
             };
+        }
+
+        #endregion
+
+        #region DiffForName
+        public static int DiffIdForDiffName(string diffName) {
+            switch (diffName) {
+                case "Easy":
+                case "easy":
+                    return 1;
+                case "Normal":
+                case "normal":
+                    return 3;
+                case "Hard":
+                case "hard":
+                    return 5;
+                case "Expert":
+                case "expert":
+                    return 7;
+                case "ExpertPlus":
+                case "expertPlus":
+                    return 9;
+            }
+
+            return 0;
         }
 
         #endregion

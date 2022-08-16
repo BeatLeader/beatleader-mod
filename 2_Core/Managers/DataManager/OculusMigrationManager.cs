@@ -6,7 +6,7 @@ using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.DataManager {
-    public class OculusMigrationManager : MonoBehaviour {
+    internal class OculusMigrationManager : MonoBehaviour {
         #region IsMigrationRequired
 
         public static event Action<bool> IsMigrationRequiredChangedEvent;

@@ -53,8 +53,10 @@
         #region Notifications
 
         public const string LATEST_RELEASES = BEATLEADER_API_URL + "/mod/lastVersions";
-        
-        public const string RANKED_PLAYLIST = BEATLEADER_API_URL + "/playlist/ranked";
+
+        public static string PlaylistLink(string name) {
+            return $"{BEATLEADER_API_URL}/playlist/{name}";
+        }
 
         #endregion
 

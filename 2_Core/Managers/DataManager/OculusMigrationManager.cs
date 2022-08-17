@@ -32,7 +32,7 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnDestroy() {
-            LeaderboardEvents.RankedPlaylistUpdateButtonWasPressedAction -= OnOculusMigrationButtonWasPressed;
+            LeaderboardEvents.OculusMigrationButtonWasPressedAction -= OnOculusMigrationButtonWasPressed;
         }
 
         #endregion

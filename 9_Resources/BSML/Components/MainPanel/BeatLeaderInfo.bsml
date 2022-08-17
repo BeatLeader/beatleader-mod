@@ -1,20 +1,24 @@
-<modal id="modal" click-off-closes="true" size-delta-x="60" size-delta-y="30">
+<modal id="modal" click-off-closes="true" size-delta-x="60" size-delta-y="35">
     <macro.define name="image-width" value="18"/>
     
     <vertical spacing="1" vertical-fit="PreferredSize">
-        <horizontal pref-height="15">
-            <vertical>
-                <horizontal active="~oculus-migration-button-active" spacing="2" horizontal-fit="PreferredSize">
+        <horizontal pref-height="20">
+            <vertical spacing="0.5" vertical-fit="PreferredSize">
+                <horizontal pref-height="5" active="~oculus-migration-button-active" spacing="2" horizontal-fit="PreferredSize">
                     <text text="Sign up to use website" font-color="#FFFF88" align="Center"/>
                     <button text="Sign up" on-click="oculus-migration-button-on-click"/>
                 </horizontal>
-                <horizontal spacing="2" horizontal-fit="PreferredSize">
+                <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
                     <text text="~version-info-text" align="Center"/>
                     <button text="Update" active="~version-update-button-active" on-click="version-update-button-on-click"/>
                 </horizontal>
-                <horizontal spacing="2" horizontal-fit="PreferredSize">
-                    <text text="~playlist-info-text" align="Center"/>
-                    <button text="Update" active="~playlist-update-button-active" interactable="~playlist-update-button-interactable" on-click="playlist-update-button-on-click"/>
+                <horizontal pref-height="4">
+                    <text text="&lt;u&gt;Playlists" font-size="3" font-color="#999999" align="Center"/>
+                </horizontal>
+                <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
+                    <button pref-width="16" id="nominated-playlist-button" text="A"/>
+                    <button pref-width="16" id="qualified-playlist-button" text="B"/>
+                    <button pref-width="16" id="ranked-playlist-button" text="C"/>
                 </horizontal>
             </vertical>
         </horizontal>

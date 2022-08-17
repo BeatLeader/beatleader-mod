@@ -221,7 +221,7 @@
     <Compile Include="2_Core\Managers\DataManager\ModifiersManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ModVersionChecker.cs" />
     <Compile Include="2_Core\Managers\DataManager\OculusMigrationManager.cs" />
-    <Compile Include="2_Core\Managers\DataManager\RankedPlaylistManager.cs" />
+    <Compile Include="2_Core\Managers\DataManager\PlaylistsManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ScoreStatsManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ProfileManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\LeaderboardInfoManager.cs" />

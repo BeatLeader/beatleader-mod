@@ -13,7 +13,6 @@ namespace BeatLeader.Components {
             SetupImage();
 
             ModVersionChecker.IsUpToDateChangedEvent += OnModIsUpToDateChanged;
-            RankedPlaylistManager.IsUpToDateChangedEvent += OnPlaylistIsUpToDateChanged;
             OculusMigrationManager.IsMigrationRequiredChangedEvent += OnOculusMigrationRequiredChanged;
 
             UpdateState();
@@ -21,7 +20,6 @@ namespace BeatLeader.Components {
 
         protected override void OnDispose() {
             ModVersionChecker.IsUpToDateChangedEvent -= OnModIsUpToDateChanged;
-            RankedPlaylistManager.IsUpToDateChangedEvent -= OnPlaylistIsUpToDateChanged;
             OculusMigrationManager.IsMigrationRequiredChangedEvent -= OnOculusMigrationRequiredChanged;
         }
 
@@ -37,18 +35,9 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        private void OnPlaylistIsUpToDateChanged(bool value) {
-            UpdateState();
-        }
-
         private void UpdateState() {
             if (!ModVersionChecker.IsUpToDate) {
                 SetState(State.Critical);
-                return;
-            }
-
-            if (!RankedPlaylistManager.IsUpToDate || OculusMigrationManager.IsMigrationRequired) {
-                SetState(State.Warning);
                 return;
             }
 
@@ -78,8 +67,7 @@ namespace BeatLeader.Components {
         private static Color WarningColor => new Color(1.0f, 1.0f, 0.3f, 1.0f);
         private static Color CriticalColor => new Color(1.0f, 0.3f, 0.3f, 1.0f);
 
-        [UIComponent("image"), UsedImplicitly]
-        private ImageView _image;
+        [UIComponent("image"), UsedImplicitly] private ImageView _image;
 
         private void SetupImage() {
             _image.transform.localPosition = new Vector3(4f, 4f);

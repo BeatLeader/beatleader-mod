@@ -5,6 +5,7 @@ using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
+using SiraUtil.Submissions;
 using Zenject;
 
 namespace BeatLeader.Installers {
@@ -17,6 +18,7 @@ namespace BeatLeader.Installers {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
             if (ReplayerMenuLauncher.IsStartedAsReplay)
             {
+                DisableScoreSubmission();
                 ReplayerManualInstaller.Install(ReplayerMenuLauncher.Replay, ReplayerMenuLauncher.Score, new ReplayerManualInstaller.InitData(true, 110), Container);
             }
             else InitRecorder();
@@ -51,6 +53,11 @@ namespace BeatLeader.Installers {
             } else {
                 //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
             }
+        }
+        private void DisableScoreSubmission()
+        {
+            var submission = Container.Resolve<Submission>();
+            submission.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
         }
 
         #region Game mode stuff

@@ -41,6 +41,7 @@ namespace BeatLeader.Components
 
         protected override RectTransform ContainerRect => _container;
         protected override RectTransform WrapperRect => _wrapper;
+        protected override HideMode Mode => HideMode.Hierarchy;
 
         private string _songName;
         private string _songAuthor;

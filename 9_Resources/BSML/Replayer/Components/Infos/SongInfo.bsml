@@ -1,29 +1,28 @@
-﻿<horizontal id="container" child-control-height="false" child-expand-height="false" child-align="MiddleLeft" pad="1" pref-height="20">
-	<horizontal child-control-height="false" child-control-width="false" child-expand-width="false" child-align="MiddleLeft">
-		<horizontal id="wrapper" pref-height="20" horizontal-fit="PreferredSize" spacing="1">
+﻿<horizontal id="container" child-control-height="false" child-control-width="false" child-expand-width="false"
+			child-align="MiddleLeft" pref-height="20">
+	<horizontal id="wrapper" pref-height="20" horizontal-fit="PreferredSize" spacing="1">
 
-			<better-image src="#black-transparent-bg" alpha="0" type="Sliced" ppu="5" use-as-mask="true" pref-height="20" pref-width="20">
-				<image id="song-preview-image" preserve-aspect="true" pref-height="20" pref-width="20"/>
-			</better-image>
+		<better-image src="#black-transparent-bg" alpha="0" type="Sliced" ppu="5" use-as-mask="true" pref-height="20" pref-width="20">
+			<image id="song-preview-image" preserve-aspect="true" pref-height="20" pref-width="20"/>
+		</better-image>
 
-			<vertical>
-				<horizontal pref-height="13">
-					<vertical child-expand-width="false" child-control-width="false" child-align="MiddleLeft">
+		<vertical>
+			<horizontal pref-height="13">
+				<vertical child-expand-width="false" child-control-width="false" child-align="MiddleLeft">
 
-						<horizontal pref-height="6" pad="1" spacing="1" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize">
-							<text text="~song-name" font-size="5" align="Left"/>
+					<horizontal pref-height="6" pad="1" spacing="1" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize">
+						<text text="~song-name" font-size="5" align="Left"/>
+					</horizontal>
+
+					<horizontal horizontal-fit="PreferredSize">
+						<horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
+							<text text="~song-author" align="Left"/>
 						</horizontal>
+					</horizontal>
 
-						<horizontal horizontal-fit="PreferredSize">
-							<horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
-								<text text="~song-author" align="Left"/>
-							</horizontal>
-						</horizontal>
+				</vertical>
+			</horizontal>
+		</vertical>
 
-					</vertical>
-				</horizontal>
-			</vertical>
-
-		</horizontal>
 	</horizontal>
 </horizontal>

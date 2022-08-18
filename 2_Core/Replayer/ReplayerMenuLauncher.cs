@@ -28,11 +28,11 @@ namespace BeatLeader.Replayer
         public static Score Score => _score;
         public static bool IsStartedAsReplay => _startedAsReplay;
 
-        public void Awake()
+        private void Awake()
         {
             LeaderboardEvents.ReplayButtonWasPressedAction += StartLevelWithReplay;
         }
-        public void OnDestroy()
+        private void OnDestroy()
         {
             LeaderboardEvents.ReplayButtonWasPressedAction -= StartLevelWithReplay;
         }
@@ -58,7 +58,7 @@ namespace BeatLeader.Replayer
             _transitionData = data;
             _startedAsReplay = true;
         }
-        public void HandleReplayDidFinish(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupData, LevelCompletionResults levelCompletionResults)
+        private void HandleReplayDidFinish(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupData, LevelCompletionResults levelCompletionResults)
         {
             standardLevelScenesTransitionSetupData.didFinishEvent -= HandleReplayDidFinish;
             _gameScenesManager.PopScenes((levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Failed || levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared) ? 1.3f : 0.35f, null, delegate (DiContainer container)

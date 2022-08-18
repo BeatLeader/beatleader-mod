@@ -1,6 +1,7 @@
 ﻿<vertical horizontal-fit="Unconstrained">
 
-	<vertical horizontal-fit="Unconstrained" child-expand-height="false" child-align="UpperCenter">
+	<vertical horizontal-fit="Unconstrained" child-control-height="false" child-expand-height="false"
+			  child-align="UpperCenter" pad="1" spacing="1">
 
 		<macro.as-host host="song-info">
 			<macro.reparent transform="ui-component"/>

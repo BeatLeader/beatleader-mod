@@ -25,7 +25,9 @@ namespace BeatLeader.Components
 
         protected override RectTransform ContainerRect => _container;
         protected override RectTransform WrapperRect => _wrapper;
+        protected override HideMode Mode => HideMode.Hierarchy;
         public override string Name => "PlayerInfo";
+
         private Player _player => _score.player;
 
         protected override void OnInstantiate()

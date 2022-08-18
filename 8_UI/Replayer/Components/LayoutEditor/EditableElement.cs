@@ -56,25 +56,17 @@ namespace BeatLeader.Components
         }
         private void SetContainerEnabled(bool enabled = true)
         {
-            if (Mode == HideMode.Opacity)
-            {
-                _containerCanvasGroup.alpha = enabled ? 1 : 0;
-                _wrapperCanvasGroup.alpha = enabled ? 1 : 0;
-            }
-            else if (Mode == HideMode.Hierarchy)
-            {
-                ContainerRect.gameObject.SetActive(enabled);
-            }
+            float alpha = Mode == HideMode.Hierarchy ? 1 : enabled ? 1 : 0;
+            if (_containerCanvasGroup != null) _containerCanvasGroup.alpha = alpha;
+            _wrapperCanvasGroup.alpha = alpha;
+            if (Mode == HideMode.Hierarchy) ContainerRect.gameObject.SetActive(enabled);
         }
 
         private bool SetupSelfIfNeeded()
         {
             if (_initialized || ContainerRect == null) return false;
-            if (Mode == HideMode.Opacity)
-            {
-                _containerCanvasGroup = ContainerRect.gameObject.GetOrAddComponent<CanvasGroup>();
-                _wrapperCanvasGroup = WrapperRect.gameObject.GetOrAddComponent<CanvasGroup>();
-            }
+            _containerCanvasGroup = Mode == HideMode.Opacity ? ContainerRect.gameObject.GetOrAddComponent<CanvasGroup>() : null;
+            _wrapperCanvasGroup = WrapperRect.gameObject.GetOrAddComponent<CanvasGroup>();
             _editableWrapper = new EditableWrapper(WrapperRect, Name, false, Locked, Enabled);
             _editableWrapper.OnToggleStateChanged += OnToggleValueChanged;
             _initialized = true;

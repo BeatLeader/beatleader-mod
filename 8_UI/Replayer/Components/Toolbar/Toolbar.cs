@@ -3,23 +3,26 @@ using System.Linq;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatLeader.Components.Settings;
 using BeatLeader.UI.BSML_Addons.Components;
 using BeatLeader.UI.BSML_Addons;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
+using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
 using HMUI;
-using BeatLeader.Components.Settings;
 
 namespace BeatLeader.Components
 {
-    internal class Toolbar : ReeUIComponentV2WithContainer
+    internal class Toolbar : EditableElement
     {
         [Inject] private readonly PlaybackController _playbackController;
 
-        [UIComponent("play-button")] private BetterButton _playButton;
         [UIComponent("container")] private RectTransform _container;
+        [UIComponent("play-button")] private BetterButton _playButton;
+        [UIComponent("exit-button-background")] private RectTransform _exitButtonBackground;
+        [UIComponent("exit-button-icon")] private BetterImage _exitButtonIcon;
 
         [UIValue("combined-song-time")] private string combinedSongTime
         {
@@ -33,10 +36,13 @@ namespace BeatLeader.Components
         [UIValue("timeline")] private Timeline _timeline;
         [UIValue("settings-navigator")] private SettingsController _settingsNavigator;
 
-        public RectTransform Root => _container; 
+        protected override RectTransform ContainerRect => _container;
+        public override bool Locked => true;
 
         private Sprite _playSprite;
         private Sprite _pauseSprite;
+        private Sprite _openedDoorSprite;
+        private Sprite _closedDoorSprite;
         private string _combinedSongTime;
         private bool _onPause;
 
@@ -44,8 +50,17 @@ namespace BeatLeader.Components
         {
             _playSprite = BSMLUtility.LoadSprite("#play-icon");
             _pauseSprite = BSMLUtility.LoadSprite("#pause-icon");
+            _openedDoorSprite = BSMLUtility.LoadSprite("#opened-door-icon");
+            _closedDoorSprite = BSMLUtility.LoadSprite("#closed-door-icon");
             _timeline = InstantiateInContainer<Timeline>(Container, transform);
             _settingsNavigator = InstantiateInContainer<SettingsController>(Container, transform);
+        }
+        protected override void OnInitialize()
+        {
+            var button = _exitButtonBackground.gameObject.AddComponent<NoTransitionsButton>();
+            button.selectionStateDidChangeEvent += ExitButtonSelectionStateChanged;
+            button.onClick.AddListener(_playbackController.EscapeToMenu);
+            button.navigation = new Navigation() { mode = Navigation.Mode.None };
         }
         private void Update()
         {
@@ -60,9 +75,17 @@ namespace BeatLeader.Components
             string combinedTotalTime = $"{totalMinutes}.{(totalSeconds < 10 ? $"0{totalSeconds}" : totalSeconds)}";
             combinedSongTime = $"{minutes}.{(seconds < 10 ? $"0{seconds}" : seconds)}/{combinedTotalTime}";
         }
-        [UIAction("exit-button-clicked")] private void ExitButtonClicked()
+
+        private void ExitButtonSelectionStateChanged(NoTransitionsButton.SelectionState state)
         {
-            _playbackController.EscapeToMenu();
+            if (state == NoTransitionsButton.SelectionState.Highlighted)
+            {
+                _exitButtonIcon.Image.sprite = _openedDoorSprite;
+            }
+            if (state == NoTransitionsButton.SelectionState.Normal)
+            {
+                _exitButtonIcon.Image.sprite = _closedDoorSprite;
+            }
         }
         [UIAction("pause-button-clicked")] private void PauseButtonClicked()
         {

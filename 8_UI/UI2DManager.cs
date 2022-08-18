@@ -48,8 +48,8 @@ namespace BeatLeader
         {
             if (Input.GetKeyDown(hideUIHotkey))
             {
-                gameObject.active = !gameObject.active;
-                OnUIVisibilityChanged?.Invoke(gameObject.active);
+                gameObject.SetActive(!gameObject.activeSelf);
+                OnUIVisibilityChanged?.Invoke(gameObject.activeSelf);
             }
             if (Input.GetKeyDown(hideCursorHotkey))
             {

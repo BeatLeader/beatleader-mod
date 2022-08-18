@@ -220,16 +220,20 @@ namespace BeatLeader.Utils
         {
             return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
         }
-        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty, IPreviewBeatmapLevel previewBeatmapLevel)
+        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty, 
+            IPreviewBeatmapLevel previewBeatmapLevel, bool overrideEnvironment = false)
         {
             StandardLevelScenesTransitionSetupDataSO data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
             OverrideEnvironmentSettings environmentSettings = new OverrideEnvironmentSettings();
-            environmentSettings.SetField("_data", playerModel.playerData.overrideEnvironmentSettings
-                .GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
-            environmentSettings.overrideEnvironments = true;
-            environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
-                .First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), GetEnvironmentByName(replay.info.environment));
+            if (overrideEnvironment)
+            {
+                environmentSettings.SetField("_data", playerModel.playerData.overrideEnvironmentSettings
+                    .GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
+                environmentSettings.overrideEnvironments = true;
+                environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
+                    .First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), GetEnvironmentByName(replay.info.environment));
+            }
 
             data.Init("Solo", difficulty, previewBeatmapLevel, environmentSettings,
                 playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),

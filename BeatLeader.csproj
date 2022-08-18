@@ -416,8 +416,11 @@
     <Compile Include="8_UI\ReeUIComponent.cs" />
     <Compile Include="8_UI\ReeUIComponentV2.cs" />
     <Compile Include="8_UI\ReeUIComponentV2WithContainer.cs" />
-    <Compile Include="8_UI\Replayer\Components\LayoutEditor.cs" />
-    <Compile Include="8_UI\Replayer\Components\PlayersInfoList.cs" />
+    <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditableElement.cs" />
+    <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditableWrapper.cs" />
+    <Compile Include="8_UI\Replayer\Components\LayoutEditor\LayoutEditor.cs" />
+    <Compile Include="8_UI\Replayer\Components\Infos\HorizontalPlayerInfo.cs" />
+    <Compile Include="8_UI\Replayer\Components\Infos\PlayersInfoList.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\BodySetting.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\CameraSetting.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\LayoutEditorSetting.cs" />
@@ -426,7 +429,7 @@
     <Compile Include="8_UI\Replayer\Components\Settings\Items\SpeedSetting.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\SubMenu\SubMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\SubMenu\SubMenuButton.cs" />
-    <Compile Include="8_UI\Replayer\Components\SongInfo.cs" />
+    <Compile Include="8_UI\Replayer\Components\Infos\SongInfo.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Timeline.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Toolbar.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerPCViewController.cs" />
@@ -487,8 +490,8 @@
   <ItemGroup>
     <None Include="9_Resources\AssetBundles\AssetBundles" />
     <EmbeddedResource Include="9_Resources\AssetBundles\AssetBundles.manifest" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\SongInfo.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\PlayersInfoList.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\SongInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\PlayersInfoList.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerPCView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Timeline.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Toolbar.bsml" />
@@ -496,12 +499,13 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsController.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\LayoutEditor.bsml" />
     <None Include="9_Resources\AssetBundles\asset_bundle.manifest" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableElement.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableWrapper.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerVRView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraSetting.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SubMenuButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\LayoutEditorSetting.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\BodySetting.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalPlayerInfo.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

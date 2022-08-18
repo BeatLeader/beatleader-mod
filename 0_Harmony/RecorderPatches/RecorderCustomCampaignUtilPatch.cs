@@ -22,7 +22,7 @@ namespace BeatLeader {
 
         private static readonly string _pluginId = "CustomCampaigns";
 
-        public static void ApplyPatch(Harmony harmony) {
+        public static void ApplyPatch(HarmonyLib.Harmony harmony) {
             var type = PluginManager.GetPluginFromId(_pluginId)?.Assembly?.GetType("CustomCampaigns.Managers.CustomCampaignManager");
             if (type != null) {
                 var mPlayMap = AccessTools.Method(type, "PlayMap");

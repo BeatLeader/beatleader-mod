@@ -29,15 +29,13 @@ namespace BeatLeader
         private static string ReadBsmlOrFallback(Type componentType) {
             var targetPostfix = $"{componentType.Name}.bsml";
 
+            string resource = componentType.ReadViewDefinition();
+            if (resource != string.Empty)
+                return resource;
+
             foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
                 if (!resourceName.EndsWith(targetPostfix)) continue;
                 return Utilities.GetResourceContent(componentType.Assembly, resourceName);
-            }
-
-            ViewDefinitionAttribute viewDefinitionAttribute;
-            if ((viewDefinitionAttribute = componentType.GetCustomAttribute(typeof(ViewDefinitionAttribute)) as ViewDefinitionAttribute) != null)
-            {
-                return Utilities.GetResourceContent(componentType.Assembly, viewDefinitionAttribute.Definition);
             }
 
             return $"<text text=\"Resource not found: {targetPostfix}\" align=\"Center\"/>";
@@ -121,7 +119,7 @@ namespace BeatLeader
         #endregion
 
         #region Parse
-        protected Transform content { get; private set; }
+        protected Transform Content { get; private set; }
 
         [UIAction("#post-parse"), UsedImplicitly]
         private protected virtual void PostParse()
@@ -149,8 +147,8 @@ namespace BeatLeader
         private void ApplyHierarchy() {
             if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
 
-            content = Transform.GetChild(0);
-            content.SetParent(Transform.parent, true);
+            Content = Transform.GetChild(0);
+            Content.SetParent(Transform.parent, true);
 
             Transform.SetParent(_parent, false);
             gameObject.SetActive(true);

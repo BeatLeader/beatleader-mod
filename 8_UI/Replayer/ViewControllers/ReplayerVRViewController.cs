@@ -38,7 +38,7 @@ namespace BeatLeader.ViewControllers
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100, 45), false, UnityEngine.Vector3.zero,
                 UnityEngine.Quaternion.Euler(new UnityEngine.Vector3(50, 0, 0)));
             _floatingScreen.transform.SetParent(go.transform, false);
-            _floatingScreen.transform.localPosition = new UnityEngine.Vector3(0, 1, 1f);
+            _floatingScreen.transform.localPosition = new UnityEngine.Vector3(0, 1, 1.7f);
             _floatingScreen.ParseInObjectHierarchy(BSMLUtil.ReadViewDefinition<ReplayerVRViewController>(), this);
 
             _floatingScreen.gameObject.AddComponent<FollowingVRView>().Init(_camera.transform, go.transform);

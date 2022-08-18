@@ -12,11 +12,11 @@ namespace BeatLeader.Replayer.Movement
     public class VRControllersMovementEmulator : MonoBehaviour
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] private readonly ReplayerManualInstaller.InitData _initData;
+        [InjectOptional] private readonly ReplayerManualInstaller.InitData _initData;
         [Inject] private readonly VRControllersManager _vrControllersManager;
         [Inject] private readonly Replay _replay;
 
-        private LinkedList<Frame> _frames;
+        protected LinkedList<Frame> _frames;
         protected LinkedListNode<Frame> _lastProcessedNode;
         protected bool _isPlaying;
         public bool lerpEnabled;
@@ -26,21 +26,21 @@ namespace BeatLeader.Replayer.Movement
         protected VRController head => _vrControllersManager.Head;
         public bool isPlaying => _isPlaying;
 
-        public void Start()
+        protected void Start()
         {
             _frames = new LinkedList<Frame>(_replay.frames);
             _lastProcessedNode = _frames.First;
-            lerpEnabled = _initData.movementLerp;
+            lerpEnabled = _initData != null ? _initData.movementLerp : true;
             _isPlaying = true;
         }
-        public void Update()
+        protected virtual void Update()
         {
             if (isPlaying && _frames.TryGetFrameByTime(_audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
             {
                 PlayFrame(frame.Previous);
             }
         }
-        public virtual void PlayFrame(LinkedListNode<Frame> frame)
+        protected virtual void PlayFrame(LinkedListNode<Frame> frame)
         {
             if (frame == null || frame.Next == null) return;
             if (lerpEnabled)

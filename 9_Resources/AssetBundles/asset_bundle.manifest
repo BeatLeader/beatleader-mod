@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3077037603
+CRC: 3994056693
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 216a71ef9ce7763e26c13e0a9d01fd0a
+    Hash: c02987efb1cfa5d03345526f9d7438d6
   TypeTreeHash:
     serializedVersion: 2
     Hash: 01a78913af3aa762ba783580edd204d0
@@ -35,11 +35,12 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/BeatLeader/5_Textures/Icons/BL_GraphIcon.png
 - Assets/BeatLeader/5_Textures/BL_Discord.png
+- Assets/BeatLeader/5_Textures/Icons/ClosedDoorIcon.png
 - Assets/BeatLeader/5_Textures/BL_Website.png
 - Assets/BeatLeader/4_Materials/HandAccIndicatorMaterial.mat
 - Assets/BeatLeader/4_Materials/LogoMaterial.mat
 - Assets/BeatLeader/5_Textures/Icons/FileError.png
-- Assets/BeatLeader/5_Textures/Icons/ExitIcon.png
+- Assets/BeatLeader/5_Textures/Icons/OpenedDoorIcon.png
 - Assets/BeatLeader/5_Textures/Backgrounds/YellowBGWithOutline.png
 - Assets/BeatLeader/5_Textures/Icons/WarningIcon.png
 - Assets/BeatLeader/4_Materials/ScoreUnderlineMaterial.mat

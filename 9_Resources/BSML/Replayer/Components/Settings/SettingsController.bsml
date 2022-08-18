@@ -22,8 +22,12 @@
 	</vertical>
 
 	<horizontal id="settings-container" pref-height="38">
-		<vertical id="settings-view" vertical-fit="Unconstrained" child-expand-height="false" 
-				  child-control-height="false" child-align="UpperLeft" spacing="1"/>
+		<vertical>
+			<vertical id="settings-upper-view" vertical-fit="Unconstrained" child-expand-height="false"
+					  child-control-height="false" child-align="UpperLeft" spacing="1"/>
+			<vertical id="settings-lower-view" vertical-fit="Unconstrained" child-expand-height="false"
+					  child-control-height="false" child-align="LowerLeft" spacing="1"/>
+		</vertical>
 	</horizontal>
-	
+
 </vertical>

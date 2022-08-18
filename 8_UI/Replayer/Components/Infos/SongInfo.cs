@@ -12,10 +12,15 @@ using Zenject;
 
 namespace BeatLeader.Components
 {
-    internal class SongInfo : ReeUIComponentV2WithContainer
+    internal class SongInfo : EditableElement
     {
-        [UIValue("song-name")]
-        private string songName
+        [Inject] private readonly PauseMenuManager.InitData _pauseMenuInitData;
+
+        [UIComponent("song-preview-image")] private Image _songPreviewImage;
+        [UIComponent("container")] private RectTransform _container;
+        [UIComponent("wrapper")] private RectTransform _wrapper;
+
+        [UIValue("song-name")] private string songName
         {
             get => _songName;
             set
@@ -24,9 +29,7 @@ namespace BeatLeader.Components
                 NotifyPropertyChanged(nameof(songName));
             }
         }
-
-        [UIValue("song-author")]
-        private string songAuthor
+        [UIValue("song-author")] private string songAuthor
         {
             get => _songAuthor;
             set
@@ -36,29 +39,14 @@ namespace BeatLeader.Components
             }
         }
 
-        [UIComponent("container")]
-        private RectTransform _container;
-
-        [UIComponent("song-preview-image")] 
-        private Image _songPreviewImage;
-
-        [UIComponent("background")]
-        private Image _background;
-
-        [Inject] 
-        private readonly PauseMenuManager.InitData _pauseMenuInitData;
+        protected override RectTransform ContainerRect => _container;
+        protected override RectTransform WrapperRect => _wrapper;
 
         private string _songName;
         private string _songAuthor;
 
-        public RectTransform Root => _container;
-
         protected override void OnInitialize()
         {
-            HorizontalLayoutGroup horizontalGroup = _background.gameObject.AddComponent<HorizontalLayoutGroup>();
-            horizontalGroup.childForceExpandWidth = false;
-            horizontalGroup.childAlignment = TextAnchor.MiddleLeft;
-
             IPreviewBeatmapLevel previewBeatmapLevel = _pauseMenuInitData.previewBeatmapLevel;
             songName = previewBeatmapLevel.songName;
             songAuthor = previewBeatmapLevel.levelAuthorName;

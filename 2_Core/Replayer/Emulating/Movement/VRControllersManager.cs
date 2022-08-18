@@ -17,6 +17,7 @@ namespace BeatLeader.Replayer.Movement
         [Inject] protected readonly PlayerVRControllersManager _vrControllersManager;
         [Inject] protected readonly PlayerTransforms _playerTransforms;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
+        [Inject] protected readonly SoftLocksController _softLocksController;
         [Inject] protected readonly DiContainer _diContainer;
 
         protected Dictionary<Transform, (XRNode, Transform)> _attachedObjects = new();
@@ -46,22 +47,11 @@ namespace BeatLeader.Replayer.Movement
 
             _playerTransforms.SetField("_headTransform", Head.transform);
 
-            //sabers patch
-            GameObject leftGO = _vrControllersManager.leftHandVRController.gameObject;
-            GameObject rightGO = _vrControllersManager.rightHandVRController.gameObject;
+            _softLocksController.InstallLock(_vrControllersManager.leftHandVRController);
+            _softLocksController.InstallLock(_vrControllersManager.rightHandVRController);
 
-            leftGO.SetActive(false);
-            rightGO.SetActive(false);
-            Destroy(_vrControllersManager.leftHandVRController);
-            Destroy(_vrControllersManager.rightHandVRController);
-
-            LeftSaber = leftGO.AddComponent<VRControllerWrapper>();
-            RightSaber = rightGO.AddComponent<VRControllerWrapper>();
-            LeftSaber.node = XRNode.LeftHand;
-            RightSaber.node = XRNode.RightHand;
-
-            leftGO.gameObject.SetActive(true);
-            rightGO.gameObject.SetActive(true);
+            LeftSaber = _vrControllersManager.leftHandVRController;
+            RightSaber = _vrControllersManager.rightHandVRController;
 
             _vrControllersManager.SetField("_leftHandVRController", LeftSaber);
             _vrControllersManager.SetField("_rightHandVRController", RightSaber);

@@ -7,7 +7,7 @@ namespace BeatLeader {
 
         private static readonly string _pluginId = "BS Utils";
 
-        public static void ApplyPatch(Harmony harmony) {
+        public static void ApplyPatch(HarmonyLib.Harmony harmony) {
             var type = PluginManager.GetPluginFromId(_pluginId)?.Assembly?.GetType("BS_Utils.Gameplay.ScoreSubmission");
             if (type != null) {
                 var mOriginal = AccessTools.Method(type, "DisableScoreSaberScoreSubmission");

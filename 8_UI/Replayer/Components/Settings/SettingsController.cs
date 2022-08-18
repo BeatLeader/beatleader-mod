@@ -21,7 +21,8 @@ namespace BeatLeader.Components.Settings
         [Inject] private readonly InputManager _inputManager;
 
         [UIObject("container")] private GameObject _container;
-        [UIObject("settings-view")] private GameObject _settingsView;
+        [UIObject("settings-upper-view")] private GameObject _settingsUpperView;
+        [UIObject("settings-lower-view")] private GameObject _settingsLowerView;
         [UIObject("settings-container")] private GameObject _settingsContainer;
         [UIObject("sub-menu-container")] private GameObject _subMenuContainer;
         [UIObject("sub-menu-view")] private GameObject _subMenuView;
@@ -80,7 +81,8 @@ namespace BeatLeader.Components.Settings
             }
 
             content.gameObject.AddComponent<InputDependentObject>().Init(_inputManager, setting.AvailableInputs);
-            content.SetParent(_settingsView.transform, false);
+            content.SetParent(setting.SettingLocation == Setting.Location.Up ?
+                _settingsUpperView.transform : _settingsLowerView.transform, false);
             if (setting.SettingIndex != -1) content.SetSiblingIndex(setting.SettingIndex);
         }
         private SubMenu CreateSubMenu(Setting setting)

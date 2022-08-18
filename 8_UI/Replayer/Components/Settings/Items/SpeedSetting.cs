@@ -35,6 +35,7 @@ namespace BeatLeader.Components.Settings
             }
         }
 
+        public override Location SettingLocation => Location.Down;
         public override int SettingIndex => 3;
 
         private string _speedMultiplierText;

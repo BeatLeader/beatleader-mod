@@ -1,0 +1,38 @@
+﻿<horizontal id="container" child-control-height="false" child-expand-height="false" child-align="MiddleLeft" pad="1" pref-height="20">
+	<horizontal child-control-height="false" child-control-width="false" child-expand-width="false" child-align="MiddleLeft">
+		<horizontal id="wrapper" pref-height="20" horizontal-fit="PreferredSize" spacing="1">
+
+			<vertical pref-width="20">
+				<horizontal pref-height="20">
+					<macro.as-host host="player-avatar">
+						<macro.reparent transform="ui-component"/>
+					</macro.as-host>
+				</horizontal>
+			</vertical>
+
+			<vertical>
+				<horizontal pref-height="13">
+					<vertical child-expand-width="false" child-control-width="false" child-align="MiddleLeft">
+
+						<horizontal pref-height="6" pad="1" spacing="1" bg="round-rect-panel" bg-color="#000000EE" horizontal-fit="PreferredSize">
+							<macro.as-host host="country-flag">
+								<macro.reparent transform="ui-component"/>
+							</macro.as-host>
+							<text text="~player-name" rich-text="false" align="Left"/>
+						</horizontal>
+
+						<horizontal horizontal-fit="PreferredSize">
+							<horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
+								<text text="~player-global-rank" align="Left"/>
+							</horizontal>
+							<horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
+								<text text="~player-pp" align="Left"/>
+							</horizontal>
+						</horizontal>
+
+					</vertical>
+				</horizontal>
+			</vertical>
+		</horizontal>
+	</horizontal>
+</horizontal>

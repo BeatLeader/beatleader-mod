@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BeatLeader
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property)]
-    internal class SerializeAutomaticallyAttribute : Attribute
+    public class SerializeAutomaticallyAttribute : Attribute
     {
     }
 }

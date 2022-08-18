@@ -1,22 +1,29 @@
-﻿<horizontal pref-height="~height">
-	<vertical pref-width="~width" child-expand-height="false">
-		<horizontal child-control-height="false" child-expand-height="false" child-align="MiddleLeft" pad="1" pref-height="22">
-			<macro.as-host host="song-info">
+﻿<vertical horizontal-fit="Unconstrained">
+
+	<vertical horizontal-fit="Unconstrained" child-expand-height="false" child-align="UpperCenter">
+
+		<macro.as-host host="song-info">
+			<macro.reparent transform="ui-component"/>
+		</macro.as-host>
+
+		<macro.as-host host="player-info">
+			<macro.reparent transform="ui-component"/>
+		</macro.as-host>
+		
+	</vertical>
+
+	<vertical child-control-height="false" child-expand-height="false" child-align="LowerCenter">
+		<horizontal pref-height="45">
+			<macro.as-host host="toolbar">
 				<macro.reparent transform="ui-component"/>
 			</macro.as-host>
 		</horizontal>
-		<horizontal flexible-height="1" vertical-fit="Unconstrained"
-					child-control-height="false" child-expand-height="false" child-align="LowerCenter">
-			<horizontal pref-height="45">
-				<macro.as-host host="toolbar">
-					<macro.reparent transform="ui-component"/>
-				</macro.as-host>
-			</horizontal>
-		</horizontal>
 	</vertical>
-	<vertical ignore-layout="true" pref-width="~width" child-expand-height="false">
+
+	<vertical ignore-layout="true" child-expand-height="false">
 		<macro.as-host host="layout-editor">
 			<macro.reparent transform="ui-component"/>
 		</macro.as-host>
 	</vertical>
-</horizontal>
+
+</vertical>

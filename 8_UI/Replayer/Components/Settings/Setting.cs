@@ -16,9 +16,15 @@ namespace BeatLeader.Components.Settings
     internal abstract class Setting : INotifyPropertyChanged
     {
         public Setting() { }
+        public enum Location
+        {
+            Up,
+            Down
+        }
 
         public virtual bool IsSubMenu => false;
         public virtual string SubMenuName => GetType().Name.Replace("Setting", "");
+        public virtual Location SettingLocation => Location.Up;
         public virtual int SettingIndex => -1;
         public virtual InputManager.InputType AvailableInputs => InputManager.InputType.FPFC | InputManager.InputType.VR;
         public Transform ContentTransform { get; protected set; }

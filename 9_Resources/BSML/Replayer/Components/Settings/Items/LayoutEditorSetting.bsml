@@ -1,13 +1,11 @@
-﻿<horizontal pref-height="13" child-control-height="false" child-expand-height="false" child-align="LowerCenter">
-	<horizontal pref-height="7">
-		<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="7" pref-width="48">
-			<horizontal pad-left="2">
-				<text text="Edit Layout"/>
-				<horizontal child-control-width="false" child-expand-width="false" child-align="MiddleRight">
-					<better-button src="#edit-layout-icon" highlighted-color="Cyan" on-click="button-clicked"
-								   preserve-aspect="true" pref-height="6" pref-width="6"/>
-				</horizontal>
+﻿<horizontal pref-height="7">
+	<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="7" pref-width="48">
+		<horizontal pad-left="2">
+			<text text="Edit Layout"/>
+			<horizontal child-control-width="false" child-expand-width="false" child-align="MiddleRight">
+				<better-button src="#edit-layout-icon" highlighted-color="Cyan" on-click="button-clicked"
+							   preserve-aspect="true" pref-height="6" pref-width="6"/>
 			</horizontal>
-		</better-image>
-	</horizontal>
+		</horizontal>
+	</better-image>
 </horizontal>

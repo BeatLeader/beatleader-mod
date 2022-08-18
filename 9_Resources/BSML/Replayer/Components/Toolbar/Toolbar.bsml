@@ -1,58 +1,51 @@
-﻿<horizontal pref-height="45">
-	<!--Macro-->
-	<macro.define name="normal-color" value="#ffffff"/>
-	<macro.define name="highlighted-color" value="#00ffee"/>
-
-	<vertical child-expand-height="false" child-control-height="false" child-align="LowerCenter" pref-width="93">
-		<!--Modals-->
-		<horizontal>
-			<!--Settings-->
-			<modal show-event="show-settings-modal" close-event="close-settings-modal"
-				   clickerino-offerino-closerino="true" move-to-center="false"
-				   hide-bg="true" size-delta-x="50" size-delta-y="40" anchor-min-x="1" anchor-min-y="0"
-				   anchor-max-x="1" anchor-max-y="0" anchor-pos-x="-25.5" anchor-pos-y="22">
-				<better-image src="#black-transparent-bg" image-type="Sliced" ppu="5" size-delta-x="50" size-delta-y="40">
-					<vertical pref-width="48" pad="1">
-						<macro.as-host host="settings-navigator">
-							<macro.reparent transform="ui-component"/>
-						</macro.as-host>
-					</vertical>
-				</better-image>
-			</modal>
-		</horizontal>
-		<!--Toolbar-->
-		<horizontal id="container">
-			<vertical pref-width="10">
-				<bg>
-					<better-button transition="ColorTint" normal-image="#black-transparent-bg"
-								  normal-color="~normal-color" on-click="exit-button-clicked"
-								  highlighted-color="~highlighted-color" pref-height="10" pref-width="10"
-								  type="Sliced" ppu="5"/>
-					<better-image src="#exit-icon" preserve-aspect="true" raycast-image="false" size-delta-x="6" size-delta-y="6" anchor-pos-x="-0.3"/>
-				</bg>
-			</vertical>
-			<vertical pref-width="81">
-				<horizontal pref-height="10">
-					<better-image src="#black-transparent-bg" image-type="Sliced" ppu="5">
+﻿<vertical child-expand-height="false" child-control-height="false" child-align="LowerCenter" pref-width="93">
+	<!--Modals-->
+	<horizontal>
+		<!--Settings-->
+		<modal show-event="show-settings-modal" close-event="close-settings-modal"
+			   clickerino-offerino-closerino="true" move-to-center="false"
+			   hide-bg="true" size-delta-x="50" size-delta-y="40" anchor-min-x="1" anchor-min-y="0"
+			   anchor-max-x="1" anchor-max-y="0" anchor-pos-x="-25.5" anchor-pos-y="22">
+			<better-image src="#black-transparent-bg" image-type="Sliced" ppu="5" size-delta-x="50" size-delta-y="40">
+				<vertical pref-width="48" pad="1">
+					<macro.as-host host="settings-navigator">
+						<macro.reparent transform="ui-component"/>
+					</macro.as-host>
+				</vertical>
+			</better-image>
+		</modal>
+	</horizontal>
+	<!--Toolbar-->
+	<horizontal id="container">
+		<vertical pref-width="10">
+			<bg>
+				<better-image id="exit-button-background" image="#black-transparent-bg" pref-height="10" pref-width="10"
+							   vertical-fit="PreferredSize" horizontal-fit="PreferredSize" type="Sliced" ppu="5"/>
+				<better-image id="exit-button-icon" src="#closed-door-icon" preserve-aspect="true" raycast-image="false"
+							  size-delta-x="6" size-delta-y="6" anchor-pos-x="-0.3"/>
+			</bg>
+		</vertical>
+		<vertical pref-width="81">
+			<horizontal pref-height="10">
+				<better-image src="#black-transparent-bg" image-type="Sliced" ppu="5">
+					<horizontal pref-height="8">
+						<better-button id="play-button" transition="ColorTint" normal-image="#pause-icon" normal-color="#ffffff"
+									  highlighted-color="#00ffee" preserve-aspect="true" pref-height="5" pref-width="5"
+									  on-click="pause-button-clicked"/>
 						<horizontal pref-height="8">
-							<better-button id="play-button" transition="ColorTint" normal-image="#pause-icon" normal-color="~normal-color"
-										  highlighted-color="~highlighted-color" preserve-aspect="true" pref-height="5" pref-width="5"
-										  on-click="pause-button-clicked"/>
-							<horizontal pref-height="8">
-								<vertical pref-width="50">
-									<macro.as-host host="timeline">
-										<macro.reparent transform="ui-component"/>
-									</macro.as-host>
-								</vertical>
-							</horizontal>
-							<text text="~combined-song-time" font-align="Center" font-size="3"/>
-							<better-button transition="ColorTint" normal-image="#settings-icon" normal-color="~normal-color"
-										  highlighted-color="~highlighted-color" preserve-aspect="true" pref-height="6" pref-width="6"
-										  click-event="show-settings-modal"/>
+							<vertical pref-width="50">
+								<macro.as-host host="timeline">
+									<macro.reparent transform="ui-component"/>
+								</macro.as-host>
+							</vertical>
 						</horizontal>
-					</better-image>
-				</horizontal>
-			</vertical>
-		</horizontal>
-	</vertical>
-</horizontal>
+						<text text="~combined-song-time" font-align="Center" font-size="3"/>
+						<better-button transition="ColorTint" normal-image="#settings-icon" normal-color="#ffffff"
+									  highlighted-color="#00ffee" preserve-aspect="true" pref-height="6" pref-width="6"
+									  click-event="show-settings-modal"/>
+					</horizontal>
+				</better-image>
+			</horizontal>
+		</vertical>
+	</horizontal>
+</vertical>

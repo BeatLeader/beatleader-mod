@@ -24,7 +24,6 @@ namespace BeatLeader.Components
         {
             _inputManager = manager;
             InputType = type;
-            Debug.LogWarning(gameObject.name + " " + ShouldBeVisible);
         }
         public void Refresh() => gameObject.SetActive(ShouldBeVisible);
     }

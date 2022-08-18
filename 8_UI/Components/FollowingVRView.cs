@@ -9,11 +9,11 @@ namespace BeatLeader.Components
 {
     internal class FollowingVRView : MonoBehaviour
     {
-        private Transform _headTransform;
-        private Transform _viewTransform;
         public float maximumAngleDifference;
         public float smoothnessFactor;
 
+        private Transform _headTransform;
+        private Transform _viewTransform;
         private Quaternion _nextRot;
         private bool _allowHandling;
 

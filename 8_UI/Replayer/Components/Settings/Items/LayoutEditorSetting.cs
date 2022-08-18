@@ -15,6 +15,7 @@ namespace BeatLeader.Components.Settings
         [InjectOptional] private readonly LayoutEditor _layoutEditor;
 
         public override int SettingIndex => 2;
+        public override Location SettingLocation => Location.Down;
         public override InputManager.InputType AvailableInputs => InputManager.InputType.FPFC;
 
         [UIAction("button-clicked")]

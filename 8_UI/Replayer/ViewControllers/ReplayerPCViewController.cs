@@ -16,42 +16,43 @@ using HMUI;
 
 namespace BeatLeader.ViewControllers
 {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerPCView.bsml")]
     internal class ReplayerPCViewController : MonoBehaviour
     {
-        [Inject] private readonly DiContainer _container;
+        [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerPCView.bsml")]
+        private class View : ReeUIComponentV2WithContainer
+        {
+            [UIValue("song-info")] private SongInfo _songInfo;
+            [UIValue("player-info")] private HorizontalPlayerInfo _playerInfo;
+            [UIValue("toolbar")] private Toolbar _toolbar;
+            [UIValue("layout-editor")] private LayoutEditor _layoutEditor;
+
+            protected override void OnInstantiate()
+            {
+                _layoutEditor = InstantiateInContainer<LayoutEditor>(Container, transform);
+                _songInfo = InstantiateInContainer<SongInfo>(Container, transform);
+                _playerInfo = InstantiateInContainer<HorizontalPlayerInfo>(Container, transform);
+                _toolbar = InstantiateInContainer<Toolbar>(Container, transform);
+            }
+            protected override void OnInitialize()
+            {
+                _layoutEditor.TryAddObject(_songInfo);
+                _layoutEditor.TryAddObject(_playerInfo);
+                _layoutEditor.TryAddObject(_toolbar);
+            }
+        }
+
+        private const string Content = "<horizontal vertical-fit=\"Unconstrained\"><vertical horizontal-fit=\"Unconstrained\"><macro.as-host host=\"content-view\"><macro.reparent transform=\"ui-component\"/></macro.as-host></vertical></horizontal>";
+
         [Inject] private readonly UI2DManager _2DManager;
-        [Inject] private readonly Score _score;
+        [Inject] private readonly DiContainer _container;
 
-        [UIValue("height")] private int Height => Mathf.CeilToInt(_2DManager.CanvasSize.y / ScaleFactor);
-        [UIValue("width")] private int Width => Mathf.CeilToInt(_2DManager.CanvasSize.x / ScaleFactor);
-
-        [UIValue("song-info")] private SongInfo _songInfo;
-        [UIValue("toolbar")] private Toolbar _toolbar;
-        [UIValue("layout-editor")] private LayoutEditor _layoutEditor;
-
-        private const int ScaleFactor = 5;
+        [UIValue("content-view")] private View _view;
 
         private void Start()
         {
-            _layoutEditor = ReeUIComponentV2WithContainer.InstantiateInContainer<LayoutEditor>(_container, transform);
-            _songInfo = ReeUIComponentV2WithContainer.InstantiateInContainer<SongInfo>(_container, transform);
-            _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
-
-            gameObject.GetOrAddComponent<RectTransform>().sizeDelta = _2DManager.CanvasSize / ScaleFactor;
-            this.ParseInObjectHierarchy();
-        }
-        [UIAction("#post-parse")] private void OnInitialize()
-        {
-            _layoutEditor.TryAddObject("SongInfo", _songInfo.Root);
-            _layoutEditor.TryAddObject("Toolbar", _toolbar.Root, true, true, true);
-            _2DManager.AddObject(gameObject);
-            StartCoroutine(ForceLayoutRecalculation());
-        }
-
-        private IEnumerator ForceLayoutRecalculation() { //ёбаный костыль, но работает
-            yield return new WaitForEndOfFrame();
-            LayoutRebuilder.MarkLayoutForRebuild(GetComponentsInChildren<RectTransform>()[1]);
+            _view = ReeUIComponentV2WithContainer.InstantiateInContainer<View>(_container, transform);
+            this.ParseInObjectHierarchy(Content);
+            _2DManager.AddObject(transform.GetChild(0).gameObject);
         }
     }
 }

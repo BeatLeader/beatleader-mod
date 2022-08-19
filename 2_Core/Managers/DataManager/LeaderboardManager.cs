@@ -4,8 +4,8 @@ using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
-using Zenject;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
@@ -22,8 +22,7 @@ namespace BeatLeader.DataManager {
         private string Scope => _selectedScoreScope.ToString().ToLowerInvariant();
         private string Context => _selectedScoreContext.ToString().ToLower();
 
-        [Inject]
-        private IPlatformUserModel _platformUserModel;
+        [Inject] private IPlatformUserModel _platformUserModel;
 
         #endregion
 
@@ -32,6 +31,7 @@ namespace BeatLeader.DataManager {
         public void Start() {
             SetFakeBloomProperty();
 
+            LeaderboardState.UploadRequest.StartedEvent += OnUploadStarted;
             LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
@@ -47,6 +47,7 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnDestroy() {
+            LeaderboardState.UploadRequest.StartedEvent -= OnUploadStarted;
             LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
@@ -86,12 +87,25 @@ namespace BeatLeader.DataManager {
 
             LoadScores();
             LoadVoteStatus();
+
+            LeaderboardState.SelectedBeatmap = difficultyBeatmap;
+        }
+
+        #region
+
+        private LeaderboardKey _uploadLeaderboardKey;
+
+        private void OnUploadStarted() {
+            _uploadLeaderboardKey = LeaderboardKey.FromBeatmap(_lastSelectedBeatmap);
         }
 
         private void OnUploadSuccess(Score score) {
+            if (!_uploadLeaderboardKey.Equals(LeaderboardKey.FromBeatmap(_lastSelectedBeatmap))) return;
             LoadScores();
             LoadVoteStatus();
         }
+
+        #endregion
 
         #region Voting
 
@@ -142,19 +156,18 @@ namespace BeatLeader.DataManager {
 
             if (BLContext.NoPlayerData) return;
             var userId = BLContext.profile.id;
-            
+
             LeaderboardState.ScoresRequest.NotifyStarted();
             _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                     string.Format(BLConstants.SCORES_BY_HASH_PAGED, Hash, Diff, Mode, Context, Scope,
                         HttpUtils.ToHttpParams(new Dictionary<string, object> {
-                                {BLConstants.Param.PLAYER, userId},
-                                {BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE},
-                                {BLConstants.Param.PAGE, _lastSelectedPage}
+                                { BLConstants.Param.PLAYER, userId },
+                                { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
+                                { BLConstants.Param.PAGE, _lastSelectedPage }
                             }
                         )
                     ),
-                    paged =>
-                    {
+                    paged => {
                         _lastSelectedPage = paged.metadata.page;
                         LeaderboardState.ScoresRequest.NotifyFinished(paged);
                     },
@@ -168,21 +181,20 @@ namespace BeatLeader.DataManager {
                 StopCoroutine(_scoresTask);
                 LeaderboardState.ScoresRequest.TryNotifyCancelled();
             }
-            
+
             if (BLContext.NoPlayerData) return;
             var userId = BLContext.profile.id;
-            
+
             LeaderboardState.ScoresRequest.NotifyStarted();
             _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
                     string.Format(BLConstants.SCORES_BY_HASH_SEEK, Hash, Diff, Mode, Context, Scope,
                         HttpUtils.ToHttpParams(new Dictionary<string, object> {
-                                {BLConstants.Param.PLAYER, userId},
-                                {BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE}
+                                { BLConstants.Param.PLAYER, userId },
+                                { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
                             }
                         )
                     ),
-                    paged =>
-                    {
+                    paged => {
                         _lastSelectedPage = paged.metadata.page;
                         LeaderboardState.ScoresRequest.NotifyFinished(paged);
                     },

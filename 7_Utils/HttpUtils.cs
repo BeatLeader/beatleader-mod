@@ -141,7 +141,7 @@ namespace BeatLeader.Utils {
                 if (authToken == null) {
                     Plugin.Log.Debug("No auth token, skip replay upload");
                     LeaderboardState.UploadRequest.NotifyFailed("Auth failed");
-                    break; // auth failed, no upload
+                    continue; // auth failed, no retry
                 }
 
                 Plugin.Log.Debug($"Attempt to upload replay {i}/{retry}");

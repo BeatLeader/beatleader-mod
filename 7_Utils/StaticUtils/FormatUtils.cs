@@ -7,7 +7,27 @@ using UnityEngine;
 
 namespace BeatLeader {
     internal static class FormatUtils {
+        #region RankedStatus
+
+        public static RankedStatus GetRankedStatus(DiffInfo diffInfo) {
+            return diffInfo.status switch {
+                0 => RankedStatus.Unranked,
+                1 => RankedStatus.Nominated,
+                2 => RankedStatus.Qualified,
+                3 => RankedStatus.Ranked,
+                4 => RankedStatus.Unrankable,
+                5 => RankedStatus.Outdated,
+                _ => RankedStatus.Unknown
+            };
+        }
+
+        #endregion
+
         #region GetPlayerRole
+
+        public static bool IsAnyAdmin(this PlayerRole playerRole) => playerRole is PlayerRole.Admin;
+        public static bool IsAnyRT(this PlayerRole playerRole) => playerRole is PlayerRole.RankedTeam or PlayerRole.JuniorRankedTeam;
+        public static bool IsAnySupporter(this PlayerRole playerRole) => playerRole is PlayerRole.Tipper or PlayerRole.Supporter or PlayerRole.Sponsor;
 
         public static PlayerRole GetSupporterRole(PlayerRole[] playerRoles) {
             foreach (var playerRole in playerRoles) {
@@ -15,9 +35,6 @@ namespace BeatLeader {
                     case PlayerRole.Tipper:
                     case PlayerRole.Supporter:
                     case PlayerRole.Sponsor: return playerRole;
-
-                    case PlayerRole.Default:
-                    case PlayerRole.Admin:
                     default: continue;
                 }
             }
@@ -32,6 +49,10 @@ namespace BeatLeader {
         public static PlayerRole ParseSingleRole(string role) {
             return role switch {
                 "admin" => PlayerRole.Admin,
+                "rankedteam" => PlayerRole.RankedTeam,
+                "juniorrankedteam" => PlayerRole.JuniorRankedTeam,
+                "mapper" => PlayerRole.Mapper,
+                "creator" => PlayerRole.Creator,
                 "tipper" => PlayerRole.Tipper,
                 "supporter" => PlayerRole.Supporter,
                 "sponsor" => PlayerRole.Sponsor,
@@ -56,6 +77,32 @@ namespace BeatLeader {
                 256 => "Quest 2",
                 _ => "Unknown HMD"
             };
+        }
+
+        #endregion
+
+        #region DiffForName
+
+        public static int DiffIdForDiffName(string diffName) {
+            switch (diffName) {
+                case "Easy":
+                case "easy":
+                    return 1;
+                case "Normal":
+                case "normal":
+                    return 3;
+                case "Hard":
+                case "hard":
+                    return 5;
+                case "Expert":
+                case "expert":
+                    return 7;
+                case "ExpertPlus":
+                case "expertPlus":
+                    return 9;
+            }
+
+            return 0;
         }
 
         #endregion

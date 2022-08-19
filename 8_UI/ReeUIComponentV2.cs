@@ -105,6 +105,17 @@ namespace BeatLeader {
 
         #endregion
 
+        #region ManualInit
+
+        public void ManualInit(Transform rootNode) {
+            DisposeIfNeeded();
+            transform.SetParent(rootNode, true);
+            ApplyHierarchy();
+            OnInitialize();
+        }
+
+        #endregion
+
         #region Parse
 
         [UIAction("#post-parse"), UsedImplicitly]

@@ -1,7 +1,8 @@
 using System;
-using BeatLeader.Manager;
+using BeatLeader.Components;
 using HMUI;
 using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 using Zenject;
 
@@ -28,7 +29,9 @@ namespace BeatLeader {
         private Color _boringColor1;
 
         private ImageView _headerImage;
+        private TextMeshProUGUI _headerText;
         private bool _initialized, _failed;
+        private LeaderboardInfoPanel _infoPanel;
 
         private void LazyInit() {
             if (_initialized || _failed) return;
@@ -37,7 +40,10 @@ namespace BeatLeader {
                 var screenTransform = GameObject.Find("RightScreen").transform;
                 var headerObject = screenTransform.FindChildRecursive("HeaderPanel").gameObject;
 
+                _headerText = headerObject.GetComponentInChildren<TextMeshProUGUI>();
                 _headerImage = headerObject.GetComponentInChildren<ImageView>();
+                _infoPanel = ReeUIComponentV2.Instantiate<LeaderboardInfoPanel>(_headerImage.transform);
+                _infoPanel.ManualInit(_headerImage.transform);
                 _boringColor0 = _headerImage.color0;
                 _boringColor1 = _headerImage.color1;
                 _initialized = true;
@@ -65,6 +71,8 @@ namespace BeatLeader {
             _isFunny = true;
             _idle = false;
             _toleranceCheck = 0;
+            _headerText.enabled = false;
+            _infoPanel.IsActive = true;
         }
 
         private void OnDisable() {
@@ -72,6 +80,8 @@ namespace BeatLeader {
             _isFunny = false;
             _idle = false;
             _toleranceCheck = 0;
+            _headerText.enabled = true;
+            _infoPanel.IsActive = false;
         }
 
         #endregion

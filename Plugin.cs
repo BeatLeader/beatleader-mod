@@ -1,4 +1,6 @@
-﻿using Hive.Versioning;
+﻿using BeatLeader.DataManager;
+using BeatLeader.Interop.BetterSongList;
+using Hive.Versioning;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
@@ -49,6 +51,7 @@ namespace BeatLeader {
         public void OnApplicationStart() {
             ObserveEnabled();
             SettingsPanelUI.AddTab();
+            BetterSongListInterop.TryRegister();
         }
 
         private static void ObserveEnabled() {
@@ -72,7 +75,9 @@ namespace BeatLeader {
 
         [OnExit]
         [UsedImplicitly]
-        public void OnApplicationQuit() { }
+        public void OnApplicationQuit() {
+            LeaderboardsCache.Save();
+        }
 
         #endregion
     }

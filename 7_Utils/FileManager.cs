@@ -19,7 +19,7 @@ namespace BeatLeader.Utils
             EnsureDirectoryExists(PlaylistsFolderPath);
         }
 
-        private static void EnsureDirectoryExists(string directory) {
+        public static void EnsureDirectoryExists(string directory) {
             var path = Path.GetDirectoryName(directory);
             if (Directory.Exists(path) || path == null) return;
             Directory.CreateDirectory(path);
@@ -75,13 +75,24 @@ namespace BeatLeader.Utils
 
         #endregion
 
-        #region RankedPlaylist
+        #region Playlists
 
-        private static string RankedPlaylistFileName => PlaylistsFolderPath + "BeatLeaderRanked.json";
+        private static string GetPlaylistFileName(string name, bool json = false) => $"{PlaylistsFolderPath}{name}.{(json ? "json" : "bplist")}";
 
-        public static bool TryReadRankedPlaylist(out byte[] bytes) {
+        public static void DeletePlaylist(string fileName) {
             try {
-                bytes = File.ReadAllBytes(RankedPlaylistFileName);
+                var bplist = GetPlaylistFileName(fileName);
+                var json = GetPlaylistFileName(fileName, true);
+                if (File.Exists(bplist)) File.Delete(bplist);
+                if (File.Exists(json)) File.Delete(json);
+            } catch (Exception) {
+                //Suppress
+            }
+        }
+
+        public static bool TryReadPlaylist(string fileName, out byte[] bytes) {
+            try {
+                bytes = File.ReadAllBytes(GetPlaylistFileName(fileName));
                 return true;
             } catch (Exception ex) {
                 Plugin.Log.Debug($"Unable read playlist. Reason: {ex.Message}");
@@ -90,9 +101,9 @@ namespace BeatLeader.Utils
             }
         }
 
-        public static bool TrySaveRankedPlaylist(byte[] bytes) {
+        public static bool TrySaveRankedPlaylist(string fileName, byte[] bytes) {
             try {
-                using var writer = new BinaryWriter(File.Open(RankedPlaylistFileName, FileMode.OpenOrCreate, FileAccess.Write));
+                using var writer = new BinaryWriter(File.Open(GetPlaylistFileName(fileName), FileMode.OpenOrCreate, FileAccess.Write));
                 writer.Write(bytes);
                 return true;
             } catch (Exception ex) {

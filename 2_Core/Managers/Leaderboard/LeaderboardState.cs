@@ -1,5 +1,6 @@
 ﻿using System;
 using BeatLeader.Models;
+using JetBrains.Annotations;
 
 namespace BeatLeader {
     internal static class LeaderboardState {
@@ -11,6 +12,27 @@ namespace BeatLeader {
         public static readonly RequestStateHandler<ScoreStats> ScoreStatsRequest = new();
         public static readonly RequestStateHandler<VoteStatus> VoteStatusRequest = new();
         public static readonly RequestStateHandler<VoteStatus> VoteRequest = new();
+        public static readonly RequestStateHandler<ExMachinaBasicResponse> ExMachinaRequest = new();
+
+        #endregion
+
+        #region SelectedBeatmap
+
+        public delegate void SelectedBeatmapWasChangedDelegate([CanBeNull] IDifficultyBeatmap beatmap);
+
+        public static event SelectedBeatmapWasChangedDelegate SelectedBeatmapWasChangedEvent;
+
+        [CanBeNull] private static IDifficultyBeatmap _selectedBeatmap;
+
+        [CanBeNull]
+        public static IDifficultyBeatmap SelectedBeatmap {
+            get => _selectedBeatmap;
+            set {
+                if (_selectedBeatmap == value) return;
+                _selectedBeatmap = value;
+                SelectedBeatmapWasChangedEvent?.Invoke(value);
+            }
+        }
 
         #endregion
 

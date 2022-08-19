@@ -17,7 +17,7 @@ namespace BeatLeader.Interop.BetterSongList {
             try {
                 Register(bslAssembly);
             } catch (Exception e) {
-                Plugin.Log.Notice($"BetterSongList interop failed! {e}");
+                Plugin.Log.Debug($"BetterSongList interop failed! {e}");
             }
         }
 

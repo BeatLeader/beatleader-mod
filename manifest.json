@@ -12,5 +12,8 @@
     "BSIPA": "^4.2.2",
     "SiraUtil": "^3.1.0"
   },
+  "loadBefore": [
+    "BetterSongList"
+  ],
   "features": []
 }

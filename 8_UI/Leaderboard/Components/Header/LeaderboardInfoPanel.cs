@@ -5,6 +5,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using ModestTree;
 
 namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReeUIComponentV2 {
@@ -104,7 +105,7 @@ namespace BeatLeader.Components {
                 return;
             }
 
-            _rankedStatus = GetRankedStatus(data.DifficultyInfo);
+            _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
             _starRating = data.DifficultyInfo.stars;
             _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
 
@@ -117,18 +118,26 @@ namespace BeatLeader.Components {
         #region UpdateCheckboxes
 
         private void UpdateCheckboxes(QualificationInfo qualificationInfo) {
+            string criteriaPostfix;
+            
+            if (qualificationInfo.criteriaCommentary == null || qualificationInfo.criteriaCommentary.IsEmpty()) {
+                criteriaPostfix = "";
+            } else {
+                criteriaPostfix = $"<size=80%>\n\n{qualificationInfo.criteriaCommentary}";
+            }
+            
             switch (qualificationInfo.criteriaMet) {
                 case 1:
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Checked);
-                    _criteriaCheckbox.HoverHint = "Criteria passed";
+                    _criteriaCheckbox.HoverHint = $"Criteria passed{criteriaPostfix}";
                     break;
                 case 2:
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Failed);
-                    _criteriaCheckbox.HoverHint = $"Criteria failed<size=80%>\n\n{qualificationInfo.criteriaCommentary}";
+                    _criteriaCheckbox.HoverHint = $"Criteria failed{criteriaPostfix}";
                     break;
                 default:
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Neutral);
-                    _criteriaCheckbox.HoverHint = "Awaiting criteria check";
+                    _criteriaCheckbox.HoverHint = $"Awaiting criteria check{criteriaPostfix}";
                     break;
             }
 
@@ -172,39 +181,11 @@ namespace BeatLeader.Components {
         #region Utils
 
         private static bool ExMachinaVisibleToRole(PlayerRole playerRole) {
-            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-            switch (playerRole) {
-                case PlayerRole.Admin:
-                case PlayerRole.Creator:
-                case PlayerRole.RankedTeam:
-                case PlayerRole.Tipper:
-                case PlayerRole.Supporter:
-                case PlayerRole.Sponsor: return true;
-                default: return false;
-            }
+            return playerRole.IsAnyAdmin() || playerRole.IsAnyRT() || playerRole.IsAnySupporter();
         }
 
         private static bool RtToolsVisibleToRole(PlayerRole playerRole) {
-            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-            switch (playerRole) {
-                case PlayerRole.Admin:
-                case PlayerRole.RankedTeam: return true;
-                default: return false;
-            }
-        }
-
-        private static RankedStatus GetRankedStatus(DiffInfo diffInfo) {
-            if (diffInfo.ranked) return RankedStatus.Ranked;
-            if (diffInfo.qualified) return RankedStatus.Qualified;
-            return diffInfo.nominated ? RankedStatus.Nominated : RankedStatus.Unranked;
-        }
-
-        private enum RankedStatus {
-            Unknown,
-            Unranked,
-            Nominated,
-            Qualified,
-            Ranked
+            return playerRole.IsAnyAdmin() || playerRole.IsAnyRT();
         }
 
         #endregion

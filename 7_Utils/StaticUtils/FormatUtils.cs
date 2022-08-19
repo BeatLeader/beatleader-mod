@@ -7,7 +7,27 @@ using UnityEngine;
 
 namespace BeatLeader {
     internal static class FormatUtils {
+        #region RankedStatus
+
+        public static RankedStatus GetRankedStatus(DiffInfo diffInfo) {
+            return diffInfo.status switch {
+                0 => RankedStatus.Unranked,
+                1 => RankedStatus.Nominated,
+                2 => RankedStatus.Qualified,
+                3 => RankedStatus.Ranked,
+                4 => RankedStatus.Unrankable,
+                5 => RankedStatus.Outdated,
+                _ => RankedStatus.Unknown
+            };
+        }
+
+        #endregion
+
         #region GetPlayerRole
+
+        public static bool IsAnyAdmin(this PlayerRole playerRole) => playerRole is PlayerRole.Admin;
+        public static bool IsAnyRT(this PlayerRole playerRole) => playerRole is PlayerRole.RankedTeam or PlayerRole.JuniorRankedTeam;
+        public static bool IsAnySupporter(this PlayerRole playerRole) => playerRole is PlayerRole.Tipper or PlayerRole.Supporter or PlayerRole.Sponsor;
 
         public static PlayerRole GetSupporterRole(PlayerRole[] playerRoles) {
             foreach (var playerRole in playerRoles) {
@@ -30,6 +50,7 @@ namespace BeatLeader {
             return role switch {
                 "admin" => PlayerRole.Admin,
                 "rankedteam" => PlayerRole.RankedTeam,
+                "juniorrankedteam" => PlayerRole.JuniorRankedTeam,
                 "mapper" => PlayerRole.Mapper,
                 "creator" => PlayerRole.Creator,
                 "tipper" => PlayerRole.Tipper,
@@ -61,6 +82,7 @@ namespace BeatLeader {
         #endregion
 
         #region DiffForName
+
         public static int DiffIdForDiffName(string diffName) {
             switch (diffName) {
                 case "Easy":

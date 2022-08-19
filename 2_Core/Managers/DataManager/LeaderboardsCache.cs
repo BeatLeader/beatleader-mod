@@ -54,9 +54,10 @@ namespace BeatLeader.DataManager {
             foreach (var pair in LeaderboardInfoCache) {
                 var hash = pair.Key.Hash;
                 var stars = pair.Value.DifficultyInfo.stars;
-                var isNominated = pair.Value.DifficultyInfo.nominated;
-                var isQualified = pair.Value.DifficultyInfo.qualified;
-                var isRanked = pair.Value.DifficultyInfo.ranked;
+                var status = FormatUtils.GetRankedStatus(pair.Value.DifficultyInfo);
+                var isNominated = status is RankedStatus.Nominated;
+                var isQualified = status is RankedStatus.Qualified;
+                var isRanked = status is RankedStatus.Ranked;
 
                 if (SortingCache.ContainsKey(hash)) {
                     var entry = SortingCache[hash];

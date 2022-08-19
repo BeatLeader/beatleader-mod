@@ -242,6 +242,7 @@
     <Compile Include="2_Core\Models\LeaderboardKey.cs" />
     <Compile Include="2_Core\Models\OculusUserInfo.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
+    <Compile Include="2_Core\Models\RankedStatus.cs" />
     <Compile Include="2_Core\Models\ScoreInfoPanelTab.cs" />
     <Compile Include="2_Core\Models\Paged.cs" />
     <Compile Include="2_Core\Models\Player.cs" />

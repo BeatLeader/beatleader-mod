@@ -29,7 +29,7 @@ namespace BeatLeader.DataManager {
         private void OnProfileRequestStateChanged(RequestState state) {
             if (state != RequestState.Finished) return;
             var roles = FormatUtils.ParsePlayerRoles(LeaderboardState.ProfileRequest.Result.role);
-            _exMachinaEnabled = roles.Any(role => role is PlayerRole.Admin or PlayerRole.RankedTeam or PlayerRole.Tipper or PlayerRole.Supporter or PlayerRole.Sponsor);
+            _exMachinaEnabled = roles.Any(role => role.IsAnyAdmin() || role.IsAnyRT() || role.IsAnySupporter());
         }
 
         #endregion

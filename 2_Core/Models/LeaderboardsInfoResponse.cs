@@ -26,13 +26,11 @@
         public int id;
         public int value;
         public int mode;
+        public int status;
         public string modeName;
         public string difficultyName;
-        public bool nominated;
         public int nominatedTime;
-        public bool qualified;
         public int qualifiedTime;
-        public bool ranked;
         public int rankedTime;
         public float stars;
         public int type;

@@ -3,6 +3,7 @@
         Default,
         Admin,
         RankedTeam,
+        JuniorRankedTeam,
         Mapper,
         Creator,
         Tipper,

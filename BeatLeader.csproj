@@ -254,7 +254,7 @@
     <Compile Include="2_Core\Managers\DataManager\ModifiersManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ModVersionChecker.cs" />
     <Compile Include="2_Core\Managers\DataManager\OculusMigrationManager.cs" />
-    <Compile Include="2_Core\Managers\DataManager\RankedPlaylistManager.cs" />
+    <Compile Include="2_Core\Managers\DataManager\PlaylistsManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ScoreStatsManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ProfileManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\LeaderboardInfoManager.cs" />
@@ -435,7 +435,7 @@
     <Compile Include="8_UI\Replayer\Components\Settings\SettingsController.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\SpeedSetting.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\SubMenuButton.cs" />
-    <Compile Include="8_UI\Replayer\Components\Infos\SongInfo.cs" />
+    <Compile Include="8_UI\Replayer\Components\Infos\HorizontalSongInfo.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Timeline.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Toolbar.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerPCViewController.cs" />
@@ -498,7 +498,7 @@
   <ItemGroup>
     <None Include="9_Resources\AssetBundles\AssetBundles" />
     <EmbeddedResource Include="9_Resources\AssetBundles\AssetBundles.manifest" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\SongInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalSongInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerPCView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Timeline.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Toolbar.bsml" />

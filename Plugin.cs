@@ -1,4 +1,7 @@
-﻿using Hive.Versioning;
+﻿using BeatLeader.DataManager;
+using BeatLeader.Interop.BetterSongList;
+using BeatLeader.UI.BSML_Addons;
+using Hive.Versioning;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;

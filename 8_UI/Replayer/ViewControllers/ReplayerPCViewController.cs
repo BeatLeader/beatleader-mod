@@ -21,7 +21,7 @@ namespace BeatLeader.ViewControllers
         [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerPCView.bsml")]
         private class View : ReeUIComponentV2WithContainer
         {
-            [UIValue("song-info")] private SongInfo _songInfo;
+            [UIValue("song-info")] private HorizontalSongInfo _songInfo;
             [UIValue("player-info")] private HorizontalPlayerInfo _playerInfo;
             [UIValue("toolbar")] private Toolbar _toolbar;
             [UIValue("layout-editor")] private LayoutEditor _layoutEditor;
@@ -29,7 +29,7 @@ namespace BeatLeader.ViewControllers
             protected override void OnInstantiate()
             {
                 _layoutEditor = InstantiateInContainer<LayoutEditor>(Container, transform);
-                _songInfo = InstantiateInContainer<SongInfo>(Container, transform);
+                _songInfo = InstantiateInContainer<HorizontalSongInfo>(Container, transform);
                 _playerInfo = InstantiateInContainer<HorizontalPlayerInfo>(Container, transform);
                 _toolbar = InstantiateInContainer<Toolbar>(Container, transform);
             }

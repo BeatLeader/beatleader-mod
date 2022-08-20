@@ -18,7 +18,7 @@ namespace BeatLeader.Replayer.Movement
         protected LinkedList<Frame> _frames;
         protected LinkedListNode<Frame> _lastProcessedNode;
         protected bool _isPlaying;
-        public bool lerpEnabled;
+        public bool lerpEnabled = true;
 
         protected VRController leftSaber => _vrControllersManager.LeftSaber;
         protected VRController rightSaber => _vrControllersManager.RightSaber;

@@ -51,7 +51,7 @@ namespace BeatLeader.Components.Settings
         private void OnSliderDrag(float value)
         {
             float speedMultiplier = value * 0.1f;
-            if (speedMultiplier > maxAvailableSpeedMultiplier || speedMultiplier < minAvailableSpeedMultiplier)
+            if (speedMultiplier > maxAvailableSpeedMultiplier || speedMultiplier < minAvailableSpeedMultiplier) return;
             _timeController.SetSpeedMultiplier(speedMultiplier);
             string currentMulColor = speedMultiplier == _playbackController.SongSpeedMultiplier ? "yellow" :
                 speedMultiplier == minAvailableSpeedMultiplier || speedMultiplier == maxAvailableSpeedMultiplier ? "red" : "#00ffffff" /*cyan*/;

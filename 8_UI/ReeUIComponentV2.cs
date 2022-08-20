@@ -141,13 +141,13 @@ namespace BeatLeader
             if (_state != State.Uninitialized) return;
             _state = State.Parsing;
             PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
+            Content = Transform.GetChild(0);
             _state = State.Parsed;
         }
 
         private void ApplyHierarchy() {
             if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
             
-            Content = Transform.GetChild(0);
             Content.SetParent(Transform.parent, true);
 
             Transform.SetParent(_parent, false);

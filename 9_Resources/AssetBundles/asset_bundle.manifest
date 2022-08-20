@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1715571441
+CRC: 1364273019
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 2d25d1b4f6a9105010d37b6c3af36052
+    Hash: d33f93d733156f5c576cee7e2fac5a98
   TypeTreeHash:
     serializedVersion: 2
     Hash: ad1ad20ff0b43aca37efd8f64ad41d70
@@ -46,11 +46,14 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/BeatLeader/5_Textures/Icons/BL_GraphIcon.png
+- Assets/BeatLeader/5_Textures/Icons/SyncIcon.png
 - Assets/BeatLeader/5_Textures/BL_Discord.png
 - Assets/BeatLeader/5_Textures/Icons/ClosedDoorIcon.png
+- Assets/BeatLeader/5_Textures/Icons/RotateRightIcon.png
 - Assets/BeatLeader/5_Textures/BL_Website.png
 - Assets/BeatLeader/4_Materials/HandAccIndicatorMaterial.mat
 - Assets/BeatLeader/4_Materials/LogoMaterial.mat
+- Assets/BeatLeader/5_Textures/Icons/RotateCenterIcon.png
 - Assets/BeatLeader/5_Textures/Icons/FileError.png
 - Assets/BeatLeader/5_Textures/Icons/OpenedDoorIcon.png
 - Assets/BeatLeader/5_Textures/Backgrounds/YellowBGWithOutline.png
@@ -84,6 +87,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Icons/BadCutIcon.png
 - Assets/BeatLeader/5_Textures/Icons/CameraIcon.png
 - Assets/BeatLeader/1_Prefabs/AccuracyGraph.prefab
+- Assets/BeatLeader/5_Textures/Icons/RotateLeftIcon.png
 - Assets/BeatLeader/5_Textures/Icons/LockIcon.png
 - Assets/BeatLeader/5_Textures/Icons/LocationIcon.png
 - Assets/BeatLeader/5_Textures/Icons/BL_OverviewIcon.png

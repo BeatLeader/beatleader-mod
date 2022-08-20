@@ -24,6 +24,7 @@ namespace BeatLeader.Components.Settings
             }
         }
         public Menu Menu { get; private set; }
+        public GameObject ButtonGameObject => Content.gameObject;
 
         public event Action<Menu> OnClick;
 

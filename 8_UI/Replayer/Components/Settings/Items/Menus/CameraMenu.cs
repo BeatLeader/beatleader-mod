@@ -51,7 +51,7 @@ namespace BeatLeader.Components.Settings
         protected override void OnBeforeParse()
         {
             _offsetsMenuButton = CreateButtonForMenu(this, InstantiateInContainer<OffsetsMenu>(Container), "Offsets");
-            _offsetsMenuButton.gameObject.AddComponent<InputDependentObject>().Init(_inputManager, InputManager.InputType.FPFC);
+            _offsetsMenuButton.ButtonGameObject.AddComponent<InputDependentObject>().Init(_inputManager, InputManager.InputType.FPFC);
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.Name));
         }
         protected override void OnAfterParse()

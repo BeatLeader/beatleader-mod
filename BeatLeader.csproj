@@ -365,7 +365,7 @@
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ImageViewExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ModalViewExtensionHandler.cs" />
-    <Compile Include="8_UI\Components\FollowingVRView.cs" />
+    <Compile Include="8_UI\Components\RotatingVRView.cs" />
     <Compile Include="8_UI\Components\HighlightableView.cs" />
     <Compile Include="8_UI\Components\InputDependentObject.cs" />
     <Compile Include="8_UI\Components\InteractionEventsProvider.cs" />
@@ -421,6 +421,7 @@
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditableWrapper.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\LayoutEditor.cs" />
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalPlayerInfo.cs" />
+    <Compile Include="8_UI\Replayer\Components\RotationMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\BodyMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\LayoutEditorSetting.cs" />
@@ -509,6 +510,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalPlayerInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SettingsRootMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\OffsetsMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\RotationMenu.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

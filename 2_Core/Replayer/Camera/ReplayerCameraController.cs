@@ -80,14 +80,12 @@ namespace BeatLeader.Replayer
         {
             get
             {
-                var pose = new Pose(transform.position, transform.rotation);
-                if (_currentPose.SupportsOffset)
-                    pose.position -= Offset;
-                return pose;
+                return CalculatePoseWithoutOffsetIfNeeded(new Pose(transform.position, transform.rotation));
             }
             protected set
             {
-                transform.SetPositionAndRotation(value.position, value.rotation);
+                var pose = CalculatePoseWithOffsetIfNeeded(value);
+                transform.SetPositionAndRotation(pose.position, pose.rotation);
                 if (!_inputManager.IsInFPFC) SetHandsPose(value);
             }
         }
@@ -124,7 +122,7 @@ namespace BeatLeader.Replayer
             }
             if (_currentPose != null && (_currentPose.UpdateEveryFrame || _poseUpdateRequired))
             {
-                Pose = CalculatePoseWithOffset(_currentPose);
+                Pose = _currentPose.GetPose(Pose);
                 _poseUpdateRequired = _poseUpdateRequired ? false : _poseUpdateRequired;
             }
         }
@@ -140,7 +138,7 @@ namespace BeatLeader.Replayer
                 }
             if (cameraPose == null) return;
             _currentPose = cameraPose;
-            Pose = CalculatePoseWithOffset(_currentPose);
+            Pose = _currentPose.GetPose(Pose);
             RefreshCamera();
             OnCameraPoseChanged?.Invoke(cameraPose.Name);
         }
@@ -160,17 +158,15 @@ namespace BeatLeader.Replayer
             gameObject.SetActive(enabled);
         }
 
-        protected Pose CalculatePoseWithOffset(ICameraPoseProvider provider)
+        protected Pose CalculatePoseWithOffsetIfNeeded(Pose pose)
         {
-            var pose = provider.GetPose(Pose);
-            if (provider.SupportsOffset)
+            if (_currentPose.SupportsOffset)
                 pose.position += _offset;
             return pose;
         }
-        protected Pose CalculatePoseWithoutOffset(ICameraPoseProvider provider)
+        protected Pose CalculatePoseWithoutOffsetIfNeeded(Pose pose)
         {
-            var pose = provider.GetPose(Pose);
-            if (provider.SupportsOffset)
+            if (_currentPose.SupportsOffset)
                 pose.position -= _offset;
             return pose;
         }

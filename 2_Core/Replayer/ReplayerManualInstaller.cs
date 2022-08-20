@@ -47,24 +47,24 @@ namespace BeatLeader.Replayer
             Container.Bind<VRControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
+
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(
-            
+
                 new StaticCameraPose("LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0))),
                 new StaticCameraPose("RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0))),
                 new StaticCameraPose("BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.Euler(Vector3.zero)),
                 new StaticCameraPose("CenterView", new Vector3(0f, 1.7f, 0f), Quaternion.Euler(Vector3.zero), InputManager.InputType.FPFC),
                 new StaticCameraPose("CenterView", Vector3.zero, Quaternion.Euler(Vector3.zero), InputManager.InputType.VR),
-            
+
                 new FlyingCameraPose(new Vector2(0.5f, 0.5f), new Vector2(0, 1.7f), 4, true, "FreeView"),
                 new PlayerViewCameraPose(3)
-            
+
                 )).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<GameSettingsLoader>().AsSingle().Lazy();
-            
+
             InstallUI(Container, !Container.Resolve<InputManager>().IsInFPFC);
             Plugin.Log.Notice("Replay system successfully installed!");
         }

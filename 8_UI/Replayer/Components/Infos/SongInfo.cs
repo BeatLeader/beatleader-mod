@@ -59,9 +59,12 @@ namespace BeatLeader.Components
         {
             _songPreviewImage.sprite = await previewBeatmapLevel.GetCoverImageAsync(new System.Threading.CancellationToken());
         }
-        private bool TextOutOfBounds(RectTransform text)
+        private void TextOutOfBounds()
         {
-            return text.sizeDelta.x > _container.sizeDelta.x - _songPreviewImage.rectTransform.sizeDelta.x;
+            Debug.Log("text: " + _songNameText.sizeDelta.x);
+            Debug.Log("container: " + _container.sizeDelta.x);
+            Debug.Log("picture: " + _songPreviewImage.rectTransform.sizeDelta.x);
+            Debug.Log("difference: " + (_container.sizeDelta.x - _songPreviewImage.rectTransform.sizeDelta.x));
         }
     }
 }

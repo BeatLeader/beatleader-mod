@@ -15,8 +15,8 @@ namespace BeatLeader.Components.Settings
 {
     internal class SpeedSetting : ReeUIComponentV2WithContainer
     {
-        private const float _minAvailableSpeedMultiplier = 0.2f;
-        private const float _maxAvailableSpeedMultiplier = 2f;
+        private const float minAvailableSpeedMultiplier = 0.2f;
+        private const float maxAvailableSpeedMultiplier = 2f;
 
         [Inject] private readonly PlaybackController _playbackController;
         [Inject] private readonly BeatmapTimeController _timeController;
@@ -42,8 +42,8 @@ namespace BeatLeader.Components.Settings
             _slider = _sliderContainer.gameObject.AddComponent<Slider>();
             _slider.targetGraphic = _handle;
             _slider.handleRect = _handle.rectTransform;
-            _slider.minValue = _minAvailableSpeedMultiplier * 10;
-            _slider.maxValue = _maxAvailableSpeedMultiplier * 10;
+            _slider.minValue = minAvailableSpeedMultiplier * 10;
+            _slider.maxValue = maxAvailableSpeedMultiplier * 10;
             _slider.wholeNumbers = true;
             _slider.onValueChanged.AddListener(OnSliderDrag);
             ResetSpeed();
@@ -51,9 +51,10 @@ namespace BeatLeader.Components.Settings
         private void OnSliderDrag(float value)
         {
             float speedMultiplier = value * 0.1f;
+            if (speedMultiplier > maxAvailableSpeedMultiplier || speedMultiplier < minAvailableSpeedMultiplier)
             _timeController.SetSpeedMultiplier(speedMultiplier);
             string currentMulColor = speedMultiplier == _playbackController.SongSpeedMultiplier ? "yellow" :
-                speedMultiplier == _minAvailableSpeedMultiplier || speedMultiplier == _maxAvailableSpeedMultiplier ? "red" : "#00ffffff" /*cyan*/;
+                speedMultiplier == minAvailableSpeedMultiplier || speedMultiplier == maxAvailableSpeedMultiplier ? "red" : "#00ffffff" /*cyan*/;
             speedMultiplierText = $"<color={currentMulColor}>{speedMultiplier * 100}%</color> | <color=yellow>{_playbackController.SongSpeedMultiplier * 100}%</color>";
         }
         private void ResetSpeed()

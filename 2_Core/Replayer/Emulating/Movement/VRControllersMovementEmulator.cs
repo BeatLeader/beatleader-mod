@@ -12,7 +12,6 @@ namespace BeatLeader.Replayer.Movement
     public class VRControllersMovementEmulator : MonoBehaviour
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [InjectOptional] private readonly ReplayerManualInstaller.InitData _initData;
         [Inject] private readonly VRControllersManager _vrControllersManager;
         [Inject] private readonly Replay _replay;
 
@@ -30,7 +29,6 @@ namespace BeatLeader.Replayer.Movement
         {
             _frames = new LinkedList<Frame>(_replay.frames);
             _lastProcessedNode = _frames.First;
-            lerpEnabled = _initData != null ? _initData.movementLerp : true;
             _isPlaying = true;
         }
         protected virtual void Update()

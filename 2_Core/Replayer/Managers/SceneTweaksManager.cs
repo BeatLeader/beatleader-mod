@@ -13,7 +13,6 @@ namespace BeatLeader.Replayer.Managers
         [Inject] private readonly InputManager _inputManager;
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly SoftLocksController _softLocksController;
-        [Inject] private readonly ReplayerManualInstaller.InitData _initData;
         [Inject] private readonly StandardLevelGameplayManager _gameplayManager;
         [Inject] private readonly PauseController _pauseController;
 

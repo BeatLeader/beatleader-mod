@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -14,7 +12,6 @@ namespace BeatLeader.Replayer.Emulating
     {
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly AudioTimeSyncController _songSyncController;
-        [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
         [Inject] protected readonly SimpleNoteCutComparator.Pool _simpleNoteCutComparatorPool;
         [Inject] protected readonly Replay _replay;
 

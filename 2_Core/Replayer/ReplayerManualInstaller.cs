@@ -21,33 +21,15 @@ namespace BeatLeader.Replayer
 {
     public class ReplayerManualInstaller
     {
-        public class InitData
+        public static void Install(Replay replay, Score score, DiContainer Container)
         {
-            public readonly bool movementLerp;
-            public readonly int fieldOfView;
-
-            public InitData(bool movementLerp)
-            {
-                this.movementLerp = movementLerp;
-                this.fieldOfView = 0;
-            }
-            public InitData(bool movementLerp, int fieldOfView)
-            {
-                this.movementLerp = movementLerp;
-                this.fieldOfView = fieldOfView;
-            }
+            new ReplayerManualInstaller().InstallBindings(replay, score, Container);
         }
 
-        public static void Install(Replay replay, Score score, InitData data, DiContainer Container)
-        {
-            new ReplayerManualInstaller().InstallBindings(replay, score, data, Container);
-        }
-
-        public void InstallBindings(Replay replay, Score score, InitData data, DiContainer Container)
+        public void InstallBindings(Replay replay, Score score, DiContainer Container)
         {
             Container.Bind<Replay>().FromInstance(replay).AsSingle();
             Container.Bind<Score>().FromInstance(score).AsSingle();
-            Container.Bind<InitData>().FromInstance(data).AsSingle();
             Container.Bind<SoftLocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<IScoringInterlayer>().To<ReplayToBaseScoringInterlayer>().AsSingle().NonLazy();
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
@@ -67,7 +49,7 @@ namespace BeatLeader.Replayer
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(data.fieldOfView,
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(
             
                 new StaticCameraPose("LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0))),
                 new StaticCameraPose("RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0))),

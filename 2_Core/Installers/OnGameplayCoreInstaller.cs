@@ -19,7 +19,7 @@ namespace BeatLeader.Installers {
             if (ReplayerMenuLauncher.IsStartedAsReplay)
             {
                 DisableScoreSubmission();
-                ReplayerManualInstaller.Install(ReplayerMenuLauncher.Replay, ReplayerMenuLauncher.Score, new ReplayerManualInstaller.InitData(true, 110), Container);
+                ReplayerManualInstaller.Install(ReplayerMenuLauncher.Replay, ReplayerMenuLauncher.Score, Container);
             }
             else InitRecorder();
         }

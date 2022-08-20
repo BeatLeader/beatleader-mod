@@ -21,7 +21,6 @@ namespace BeatLeader.Components.Settings
             set
             {
                 showHead = _initialized ? value : showHead;
-                Debug.LogWarning($"Setting {value}");
                 _controllersManager.Head.gameObject.SetActive(value);
                 NotifyPropertyChanged(nameof(_showHead));
                 AutomaticConfigTool.NotifyTypeChanged(GetType());

@@ -13,7 +13,6 @@ namespace BeatLeader.Replayer.Movement
 {
     public class VRControllersManager : MonoBehaviour
     {
-        [Inject] protected readonly ReplayerManualInstaller.InitData _initData;
         [Inject] protected readonly PlayerVRControllersManager _vrControllersManager;
         [Inject] protected readonly PlayerTransforms _playerTransforms;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
@@ -37,12 +36,14 @@ namespace BeatLeader.Replayer.Movement
             RightHand = HandsContainer.transform.Find("ControllerRight").GetComponent<VRController>();
 
             //creating fake head
-            GameObject fakeHead = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            fakeHead.name = "ReplayerFakeHead";
-            fakeHead.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+            //GameObject fakeHead = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //fakeHead.name = "ReplayerFakeHead";
+            //fakeHead.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+            //fakeHead.AddComponent<BoxCollider>().size = new Vector3(1, 3, 1);
+            //Head = fakeHead.AddComponent<VRControllerWrapper>();
 
-            fakeHead.AddComponent<BoxCollider>().size = new Vector3(1, 3, 1);
-            Head = fakeHead.AddComponent<VRControllerWrapper>();
+            Head = Instantiate(BundleLoader.MonkeyPrefab, null, false).AddComponent<VRControllerWrapper>();
+            Head.transform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
             Head.node = XRNode.Head;
 
             _playerTransforms.SetField("_headTransform", Head.transform);

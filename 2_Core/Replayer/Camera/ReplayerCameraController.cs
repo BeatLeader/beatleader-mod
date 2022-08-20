@@ -15,23 +15,19 @@ namespace BeatLeader.Replayer
         {
             public readonly ICameraPoseProvider[] poseProviders;
             public readonly string cameraStartPose;
-            public readonly int fieldOfView;
 
-            public InitData(int fieldOfView, string cameraStartPose = null)
+            public InitData(string cameraStartPose = null)
             {
-                this.fieldOfView = fieldOfView;
                 this.cameraStartPose = cameraStartPose;
                 poseProviders = new ICameraPoseProvider[0];
             }
-            public InitData(int fieldOfView, string cameraStartPose = null, params ICameraPoseProvider[] poseProviders)
+            public InitData(string cameraStartPose = null, params ICameraPoseProvider[] poseProviders)
             {
-                this.fieldOfView = fieldOfView;
                 this.cameraStartPose = cameraStartPose;
                 this.poseProviders = poseProviders;
             }
-            public InitData(int fieldOfView, params ICameraPoseProvider[] poseProviders)
+            public InitData(params ICameraPoseProvider[] poseProviders)
             {
-                this.fieldOfView = fieldOfView;
                 this.poseProviders = poseProviders;
             }
         }
@@ -85,7 +81,8 @@ namespace BeatLeader.Replayer
             get
             {
                 var pose = new Pose(transform.position, transform.rotation);
-                pose.position -= Offset;
+                if (_currentPose.SupportsOffset)
+                    pose.position -= Offset;
                 return pose;
             }
             protected set
@@ -111,7 +108,6 @@ namespace BeatLeader.Replayer
             _camera.nearClipPlane = 0.01f;
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
 
-            FieldOfView = _inputManager.IsInFPFC ? _data.fieldOfView : FieldOfView;
             poseProviders = _data.poseProviders.Where(x => x.AvailableInputs.Contains(_inputManager.CurrentInputType)).ToList();
             InjectPoses();
             RequestCameraPose(_data.cameraStartPose);

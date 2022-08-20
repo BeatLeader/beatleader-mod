@@ -1,24 +1,36 @@
 ManifestFileVersion: 0
-CRC: 520385412
+CRC: 1715571441
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: b9a1c44e5d12f4d2dd015d0ea48e4530
+    Hash: 2d25d1b4f6a9105010d37b6c3af36052
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 01a78913af3aa762ba783580edd204d0
+    Hash: ad1ad20ff0b43aca37efd8f64ad41d70
 HashAppended: 0
 ClassTypes:
 - Class: 1
   Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
 - Class: 21
+  Script: {instanceID: 0}
+- Class: 23
   Script: {instanceID: 0}
 - Class: 28
   Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
 - Class: 48
+  Script: {instanceID: 0}
+- Class: 89
   Script: {instanceID: 0}
 - Class: 114
   Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9ef30168bf544b6ebee295cbca434633, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d0400e399a6742bc858c605ee902bbdb, type: 3}
 - Class: 114
@@ -60,6 +72,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Backgrounds/BlackTransparentBGWithOutline.png
 - Assets/BeatLeader/5_Textures/Icons/BL_DetailsIcon.png
 - Assets/BeatLeader/5_Textures/Backgrounds/BlackTransparentBG.png
+- Assets/BeatLeader/1_Prefabs/TemplatePrefab.prefab
 - Assets/BeatLeader/5_Textures/BL_NotificationIcon.png
 - Assets/BeatLeader/4_Materials/ScoreBackgroundMaterial.mat
 - Assets/BeatLeader/5_Textures/Icons/EditLayoutIcon.png

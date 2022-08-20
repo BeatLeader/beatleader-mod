@@ -33,6 +33,7 @@ namespace BeatLeader.Components.Settings
                 cameraView = value;
                 _cameraController.SetCameraPose(value);
                 NotifyPropertyChanged(nameof(_cameraView));
+                AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
         [UIValue("camera-fov")] private int _cameraFov
@@ -43,12 +44,14 @@ namespace BeatLeader.Components.Settings
                 cameraFov = value;
                 _cameraController.FieldOfView = value;
                 NotifyPropertyChanged(nameof(_cameraFov));
+                AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
 
         protected override void OnBeforeParse()
         {
             _offsetsMenuButton = CreateButtonForMenu(this, InstantiateInContainer<OffsetsMenu>(Container), "Offsets");
+            _offsetsMenuButton.gameObject.AddComponent<InputDependentObject>().Init(_inputManager, InputManager.InputType.FPFC);
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.Name));
         }
         protected override void OnAfterParse()

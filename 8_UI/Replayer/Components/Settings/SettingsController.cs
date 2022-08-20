@@ -19,94 +19,116 @@ namespace BeatLeader.Components.Settings
     internal class SettingsController : ReeUIComponentV2WithContainer
     {
         [Inject] private readonly InputManager _inputManager;
+        [Inject] private readonly DiContainer _container;
 
-        [UIObject("container")] private GameObject _container;
-        [UIObject("settings-upper-view")] private GameObject _settingsUpperView;
-        [UIObject("settings-lower-view")] private GameObject _settingsLowerView;
-        [UIObject("settings-container")] private GameObject _settingsContainer;
-        [UIObject("sub-menu-container")] private GameObject _subMenuContainer;
-        [UIObject("sub-menu-view")] private GameObject _subMenuView;
+        [UIObject("dismiss-menu-button")] private GameObject _dismissMenuButton;
+        [UIObject("menu-view-container")] private GameObject _menuViewContainer;
 
-        private List<Setting> _settings;
-        private SubMenu _currentMenu;
-        private ModalView _modal;
-        private bool _chillinInSubMenu;
+        public Menu RootMenu
+        {
+            get => _rootMenu;
+            set
+            {
+                HandleIfNeeded(value);
+                if (_rootMenu != null) UnbindEvents(_rootMenu);
+                _rootMenu = value;
+                SetMenuEnabled(RootMenu);
+                BindEvents(value);
+            }
+        }
+
+        public event Action<bool> OnSettingsCloseRequested;
+
+        private Stack<Menu> _menusHierarchyStack = new();
+        private Menu _rootMenu;
 
         protected override void OnInitialize()
         {
-            _modal = _container.GetComponentInParentHierarchy<ModalView>();
-            _modal.blockerClickedEvent += NotifySettingsModalClosed;
-            _subMenuContainer.SetActive(false);
-            _settings = Assembly.GetExecutingAssembly().ScanAndActivateTypes<Setting>();
-            _settings.ForEach(x => HandleSetting(x));
+            _dismissMenuButton.SetActive(false);
         }
 
-        private void PresentMenu(SubMenu menu)
+        public void NotifySettingsClosed()
         {
-            menu.gameObject.SetActive(true);
-            _subMenuContainer.SetActive(true);
-            _settingsContainer.SetActive(false);
-
-            _currentMenu = menu;
-            _chillinInSubMenu = true;
+            _menusHierarchyStack.ToList().ForEach(x => x.OnSettingsClosed());
         }
-        private void DismissMenu()
+        private void PresentMenu(Menu menu)
         {
-            if (!_chillinInSubMenu || _currentMenu is null) return;
-
-            _currentMenu.gameObject.SetActive(false);
-            _subMenuContainer.SetActive(false);
-            _settingsContainer.SetActive(true);
-
-            _currentMenu = null;
-            _chillinInSubMenu = false;
+            PresentMenu(menu, true);
         }
-
-        private void HandleSetting(Setting setting)
+        private void PresentMenu(Menu menu, bool keepHierarchy)
         {
-            Container.Inject(setting);
-            if (!setting.Handle()) return;
+            if (!keepHierarchy) _menusHierarchyStack.Clear();
 
-            setting.OnSettingsClosingRequested += NotifySettingsModalClosingRequested;
-            var content = setting.ContentTransform;
+            BindEvents(menu);
+            HandleIfNeeded(menu);
 
-            if (setting.IsSubMenu)
+            if (RootMenu.ContentTransform.gameObject.activeSelf)
             {
-                var menu = CreateSubMenu(setting);
-                var button = CreateSubMenuButton(menu);
-                button.OnClick += PresentMenu;
-                menu.transform.SetParent(_subMenuView.transform, false);
-                menu.gameObject.SetActive(false);
-                content = button.transform;
+                SetMenuEnabled(RootMenu, false);
+                _dismissMenuButton.SetActive(true);
             }
 
-            content.gameObject.AddComponent<InputDependentObject>().Init(_inputManager, setting.AvailableInputs);
-            content.SetParent(setting.SettingLocation == Setting.Location.Up ?
-                _settingsUpperView.transform : _settingsLowerView.transform, false);
-            if (setting.SettingIndex != -1) content.SetSiblingIndex(setting.SettingIndex);
+            if (_menusHierarchyStack.TryPeek(out var currentMenu))
+                SetMenuEnabled(currentMenu, false);
+
+            SetMenuEnabled(menu);
+            _menusHierarchyStack.Push(menu);
         }
-        private SubMenu CreateSubMenu(Setting setting)
+        private bool DismissMenu()
         {
-            var menu = new GameObject(setting.GetType().Name).AddComponent<SubMenu>();
-            menu.Init(setting);
-            return menu;
+            bool flag = false;
+            if (_menusHierarchyStack.TryPop(out var menu))
+            {
+                SetMenuEnabled(menu, false);
+                UnbindEvents(menu);
+                if (_menusHierarchyStack.TryPeek(out var menu2))
+                    SetMenuEnabled(menu2);
+                flag = true;
+            }
+            if (_menusHierarchyStack.Count == 0 && !RootMenu.ContentTransform.gameObject.activeSelf)
+            {
+                _dismissMenuButton.SetActive(false);
+                SetMenuEnabled(RootMenu);
+                flag = true;
+            }
+            return flag;
         }
-        private SubMenuButton CreateSubMenuButton(SubMenu menu)
+        private void DismissToRootMenu()
         {
-            var button = new GameObject($"{menu.Name}SubMenuButton").AddComponent<SubMenuButton>();
-            button.Init(menu);
-            return button;
+            while (_menusHierarchyStack.Count > 0) DismissMenu();
+        }
+
+        private void HandleIfNeeded(Menu menu)
+        {
+            if (menu.IsParsed) return;
+            _container.Inject(menu);
+            menu.Handle();
+        }
+        private void BindEvents(Menu menu)
+        {
+            menu.OnMenuPresentRequested += PresentMenu;
+            menu.OnMenuDismissRequested += DismissMenu;
+            menu.OnMenuDismissToRootRequested += DismissToRootMenu;
+            menu.OnSettingsCloseRequested += NotifySettingsCloseRequested;
+        }
+        private void UnbindEvents(Menu menu)
+        {
+            menu.OnMenuPresentRequested -= PresentMenu;
+            menu.OnMenuDismissRequested -= DismissMenu;
+            menu.OnMenuDismissToRootRequested -= DismissToRootMenu;
+            menu.OnSettingsCloseRequested -= NotifySettingsCloseRequested;
+        }
+        private void SetMenuEnabled(Menu menu, bool enabled = true)
+        {
+            if (menu == null) return;
+            menu.ContentTransform.gameObject.SetActive(enabled);
+            menu.ContentTransform.SetParent(enabled ? _menuViewContainer.transform : menu.OriginalParent, false);
         }
 
         [UIAction("dismiss-button-clicked")] private void DismissButtonClicked() => DismissMenu();
-        private void NotifySettingsModalClosingRequested()
+        private void NotifySettingsCloseRequested(bool animated)
         {
-            _modal.Hide(true);
-        }
-        private void NotifySettingsModalClosed()
-        {
-            _settings.ForEach(x => x.OnSettingsClosed());
-            DismissMenu();
+            OnSettingsCloseRequested?.Invoke(animated);
         }
     }
 }

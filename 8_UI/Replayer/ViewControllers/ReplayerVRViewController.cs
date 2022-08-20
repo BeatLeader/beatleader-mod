@@ -27,12 +27,14 @@ namespace BeatLeader.ViewControllers
         [Inject] private readonly DiContainer _container;
 
         [UIValue("toolbar")] private Toolbar _toolbar;
+        [UIValue("song-info")] private SongInfo _songInfo;
 
         private FloatingScreen _floatingScreen;
 
         private void Start()
         {
             _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
+            _songInfo = ReeUIComponentV2WithContainer.InstantiateInContainer<SongInfo>(_container, transform);
 
             var go = new GameObject("Container");
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100, 45), false, UnityEngine.Vector3.zero,

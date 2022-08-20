@@ -43,9 +43,11 @@ namespace BeatLeader.Replayer
 
         protected ICameraPoseProvider _currentPose;
         protected Camera _camera;
+        protected Vector3 _offset;
         private int _fieldOfView;
         private bool _wasRequestedLastTime;
         private string _requestedPose;
+        protected bool _poseUpdateRequired;
 
         public event Action<string> OnCameraPoseChanged;
         public event Action<int> OnCameraFOVChanged;
@@ -69,11 +71,22 @@ namespace BeatLeader.Replayer
                 OnCameraFOVChanged?.Invoke(value);
             }
         }
+        public Vector3 Offset
+        {
+            get => _offset;
+            set
+            {
+                _offset = value;
+                _poseUpdateRequired = true;
+            }
+        }
         public Pose Pose
         {
             get
             {
-                return new Pose(transform.position, transform.rotation);
+                var pose = new Pose(transform.position, transform.rotation);
+                pose.position -= Offset;
+                return pose;
             }
             protected set
             {
@@ -95,6 +108,7 @@ namespace BeatLeader.Replayer
             DestroyImmediate(_camera.GetComponent<SmoothCameraController>());
             DestroyImmediate(_camera.GetComponent<SmoothCamera>());
             _camera.gameObject.SetActive(true);
+            _camera.nearClipPlane = 0.01f;
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
 
             FieldOfView = _inputManager.IsInFPFC ? _data.fieldOfView : FieldOfView;
@@ -112,9 +126,10 @@ namespace BeatLeader.Replayer
                 SetCameraPose(_requestedPose);
                 _wasRequestedLastTime = false;
             }
-            if (_currentPose != null && _currentPose.UpdateEveryFrame)
+            if (_currentPose != null && (_currentPose.UpdateEveryFrame || _poseUpdateRequired))
             {
-                Pose = _currentPose.GetPose(Pose);
+                Pose = CalculatePoseWithOffset(_currentPose);
+                _poseUpdateRequired = _poseUpdateRequired ? false : _poseUpdateRequired;
             }
         }
         public void SetCameraPose(string name)
@@ -129,7 +144,7 @@ namespace BeatLeader.Replayer
                 }
             if (cameraPose == null) return;
             _currentPose = cameraPose;
-            Pose = _currentPose.GetPose(Pose);
+            Pose = CalculatePoseWithOffset(_currentPose);
             RefreshCamera();
             OnCameraPoseChanged?.Invoke(cameraPose.Name);
         }
@@ -149,6 +164,20 @@ namespace BeatLeader.Replayer
             gameObject.SetActive(enabled);
         }
 
+        protected Pose CalculatePoseWithOffset(ICameraPoseProvider provider)
+        {
+            var pose = provider.GetPose(Pose);
+            if (provider.SupportsOffset)
+                pose.position += _offset;
+            return pose;
+        }
+        protected Pose CalculatePoseWithoutOffset(ICameraPoseProvider provider)
+        {
+            var pose = provider.GetPose(Pose);
+            if (provider.SupportsOffset)
+                pose.position -= _offset;
+            return pose;
+        }
         protected void RefreshCamera()
         {
             _camera.stereoTargetEye = _inputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
@@ -163,7 +192,7 @@ namespace BeatLeader.Replayer
         }
         protected void InjectPoses()
         {
-            foreach (var item in poseProviders.Where(x => x.SelfInject))
+            foreach (var item in poseProviders)
                 _diContainer.Inject(item);
         }
         private void SetHandsPose(Pose pose)

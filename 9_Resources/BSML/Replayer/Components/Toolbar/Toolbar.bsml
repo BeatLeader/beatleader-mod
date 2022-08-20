@@ -2,7 +2,7 @@
 	<!--Modals-->
 	<horizontal>
 		<!--Settings-->
-		<modal show-event="show-settings-modal" close-event="close-settings-modal"
+		<modal id="settings-modal" show-event="show-settings-modal" close-event="close-settings-modal"
 			   clickerino-offerino-closerino="true" move-to-center="false"
 			   hide-bg="true" size-delta-x="50" size-delta-y="40" anchor-min-x="1" anchor-min-y="0"
 			   anchor-max-x="1" anchor-max-y="0" anchor-pos-x="-25.5" anchor-pos-y="22">

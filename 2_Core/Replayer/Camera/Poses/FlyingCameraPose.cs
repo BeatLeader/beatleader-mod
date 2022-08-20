@@ -33,7 +33,7 @@ namespace BeatLeader.Replayer.Poses
         protected string _name;
 
         public InputType[] AvailableInputs => new[] { InputType.FPFC };
-        public bool SelfInject => false;
+        public bool SupportsOffset => false;
         public bool UpdateEveryFrame => true;
         public string Name => _name;
 

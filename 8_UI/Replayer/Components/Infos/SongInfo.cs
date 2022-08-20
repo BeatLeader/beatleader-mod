@@ -19,6 +19,8 @@ namespace BeatLeader.Components
         [UIComponent("song-preview-image")] private Image _songPreviewImage;
         [UIComponent("container")] private RectTransform _container;
         [UIComponent("wrapper")] private RectTransform _wrapper;
+        [UIComponent("song-name-text")] private RectTransform _songNameText;
+        [UIComponent("song-author-text")] private RectTransform _songAuthorText;
 
         [UIValue("song-name")] private string songName
         {
@@ -51,11 +53,15 @@ namespace BeatLeader.Components
             IPreviewBeatmapLevel previewBeatmapLevel = _pauseMenuInitData.previewBeatmapLevel;
             songName = previewBeatmapLevel.songName;
             songAuthor = previewBeatmapLevel.levelAuthorName;
-            Task.Run(() => LoadAndAssignImage(previewBeatmapLevel));
+            LoadAndAssignImage(previewBeatmapLevel);
         }
         private async void LoadAndAssignImage(IPreviewBeatmapLevel previewBeatmapLevel)
         {
             _songPreviewImage.sprite = await previewBeatmapLevel.GetCoverImageAsync(new System.Threading.CancellationToken());
+        }
+        private bool TextOutOfBounds(RectTransform text)
+        {
+            return text.sizeDelta.x > _container.sizeDelta.x - _songPreviewImage.rectTransform.sizeDelta.x;
         }
     }
 }

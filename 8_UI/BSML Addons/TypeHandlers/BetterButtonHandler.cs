@@ -92,15 +92,6 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                             button.Button.colors = colors;
                         }
                     }
-                    if (componentType.data.TryGetValue("transparency", out string transparency))
-                    {
-                        ColorBlock colors = button.Button.colors;
-                        if (float.TryParse(colorMultiplier, out float result))
-                        {
-                            button.TargetGraphic.color = new Color(button.TargetGraphic.color.r,
-                                button.TargetGraphic.color.g, button.TargetGraphic.color.b, result);
-                        }
-                    }
                     #endregion
 
                     #region Button images

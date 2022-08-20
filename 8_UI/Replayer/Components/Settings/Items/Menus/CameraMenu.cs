@@ -12,16 +12,18 @@ using Zenject;
 namespace BeatLeader.Components.Settings
 {
     [SerializeAutomatically]
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraSetting.bsml")]
-    internal class CameraSetting : Setting
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.bsml")]
+    internal class CameraMenu : MenuWithContainer
     {
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly InputManager _inputManager;
 
         [SerializeAutomatically] private static string cameraView = "PlayerView";
-        [SerializeAutomatically] private static int cameraFov = 110;
+        [SerializeAutomatically] private static int cameraFov = 90;
 
         [UIObject("camera-fov-container")] private GameObject _cameraFovContainer;
+        [UIValue("offsets-menu-button")] private SubMenuButton _offsetsMenuButton;
+
         [UIValue("camera-view-values")] private List<object> _cameraViewValues;
         [UIValue("camera-view")] private string _cameraView
         {
@@ -44,19 +46,16 @@ namespace BeatLeader.Components.Settings
             }
         }
 
-        public override bool IsSubMenu => true;
-        public override int SettingIndex => 1;
-
-        protected override void OnBeforeHandling()
+        protected override void OnBeforeParse()
         {
+            _offsetsMenuButton = CreateButtonForMenu(this, InstantiateInContainer<OffsetsMenu>(Container), "Offsets");
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.Name));
         }
-        protected override void OnAfterHandling()
+        protected override void OnAfterParse()
         {
             var obj = _cameraFovContainer.AddComponent<InputDependentObject>();
             obj.Init(_inputManager, InputManager.InputType.FPFC);
-            if (obj.ShouldBeVisible)
-                _cameraFov = cameraFov;
+            if (obj.ShouldBeVisible) _cameraFov = cameraFov;
             _cameraView = cameraView;
         }
     }

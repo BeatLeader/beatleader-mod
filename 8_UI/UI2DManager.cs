@@ -31,7 +31,7 @@ namespace BeatLeader
         public Vector2 CanvasSize => _canvasRect.sizeDelta;
         public float ScaleFactor => _canvasScaler.scaleFactor;
 
-        private void Start()
+        private void Awake()
         {
             _canvas = gameObject.AddComponent<Canvas>();
             _canvasScaler = gameObject.AddComponent<CanvasScaler>();

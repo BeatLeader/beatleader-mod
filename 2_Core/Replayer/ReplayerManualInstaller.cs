@@ -56,7 +56,7 @@ namespace BeatLeader.Replayer
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //scorecontroller patch
-            Container.Bind<IReplayerScoreController>().To<ReplayerScoreController>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<IReplayerScoreController>().To<ReplayerScoreController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Rebind<IScoreController>().To<IReplayerScoreController>().FromResolve().AsSingle().NonLazy();
             Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault().TryDestroy();
 
@@ -92,6 +92,7 @@ namespace BeatLeader.Replayer
                 container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             else
             {
+                container.Bind<Camera2Patcher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 PatchSiraFreeView(container);
             }

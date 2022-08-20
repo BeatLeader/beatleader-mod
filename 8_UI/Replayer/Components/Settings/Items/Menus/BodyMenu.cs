@@ -1,17 +1,13 @@
 ﻿using BeatLeader.Replayer.Movement;
 using BeatSaberMarkupLanguage.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Components.Settings
 {
     [SerializeAutomatically]
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.BodySetting.bsml")]
-    internal class BodySetting : Setting
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.BodyMenu.bsml")]
+    internal class BodyMenu : MenuWithContainer
     {
         [Inject] private readonly VRControllersManager _controllersManager;
 
@@ -24,8 +20,11 @@ namespace BeatLeader.Components.Settings
             get => _controllersManager.Head.gameObject.activeSelf;
             set
             {
-                showHead = value;
+                showHead = _initialized ? value : showHead;
+                Debug.LogWarning($"Setting {value}");
                 _controllersManager.Head.gameObject.SetActive(value);
+                NotifyPropertyChanged(nameof(_showHead));
+                AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
         [UIValue("show-left-saber")] private bool _showLeftSaber
@@ -33,8 +32,10 @@ namespace BeatLeader.Components.Settings
             get => _controllersManager.LeftSaber.gameObject.activeSelf;
             set
             {
-                showLeftSaber = value;
+                showLeftSaber = _initialized ? value : showLeftSaber;
                 _controllersManager.LeftSaber.gameObject.SetActive(value);
+                NotifyPropertyChanged(nameof(_showLeftSaber));
+                AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
         [UIValue("show-right-saber")] private bool _showRightSaber
@@ -42,19 +43,21 @@ namespace BeatLeader.Components.Settings
             get => _controllersManager.RightSaber.gameObject.activeSelf;
             set
             {
-                showRightSaber = value;
+                showRightSaber = _initialized ? value : showRightSaber;
                 _controllersManager.RightSaber.gameObject.SetActive(value);
+                NotifyPropertyChanged(nameof(_showRightSaber));
+                AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
 
-        public override bool IsSubMenu => true;
-        public override int SettingIndex => 0;
+        private bool _initialized;
 
-        protected override void OnAfterHandling()
+        protected override void OnAfterParse()
         {
             _showHead = showHead;
             _showLeftSaber = showLeftSaber;
             _showRightSaber = showRightSaber;
+            _initialized = true;
         }
     }
 }

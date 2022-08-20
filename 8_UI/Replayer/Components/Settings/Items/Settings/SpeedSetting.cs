@@ -13,8 +13,7 @@ using TMPro;
 
 namespace BeatLeader.Components.Settings
 {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.SpeedSetting.bsml")]
-    internal class SpeedSetting : Setting
+    internal class SpeedSetting : ReeUIComponentV2WithContainer
     {
         private const float _minAvailableSpeedMultiplier = 0.2f;
         private const float _maxAvailableSpeedMultiplier = 2f;
@@ -35,13 +34,10 @@ namespace BeatLeader.Components.Settings
             }
         }
 
-        public override Location SettingLocation => Location.Down;
-        public override int SettingIndex => 3;
-
         private string _speedMultiplierText;
         private Slider _slider;
 
-        protected override void OnAfterHandling()
+        protected override void OnInitialize()
         {
             _slider = _sliderContainer.gameObject.AddComponent<Slider>();
             _slider.targetGraphic = _handle;
@@ -62,9 +58,7 @@ namespace BeatLeader.Components.Settings
         }
         private void ResetSpeed()
         {
-            float value = _playbackController.SongSpeedMultiplier * 10;
-            OnSliderDrag(value);
-            _slider.value = value;
+            OnSliderDrag(_slider.value = _playbackController.SongSpeedMultiplier * 10);
         }
     }
 }

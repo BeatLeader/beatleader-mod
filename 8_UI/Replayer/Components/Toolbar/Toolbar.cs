@@ -23,6 +23,7 @@ namespace BeatLeader.Components
         [UIComponent("play-button")] private BetterButton _playButton;
         [UIComponent("exit-button-background")] private RectTransform _exitButtonBackground;
         [UIComponent("exit-button-icon")] private BetterImage _exitButtonIcon;
+        [UIComponent("settings-modal")] private ModalView _settingsModal;
 
         [UIValue("combined-song-time")] private string combinedSongTime
         {
@@ -54,6 +55,7 @@ namespace BeatLeader.Components
             _closedDoorSprite = BSMLUtility.LoadSprite("#closed-door-icon");
             _timeline = InstantiateInContainer<Timeline>(Container, transform);
             _settingsNavigator = InstantiateInContainer<SettingsController>(Container, transform);
+            _settingsNavigator.RootMenu = MenuWithContainer.InstantiateInContainer<SettingsRootMenu>(Container);
         }
         protected override void OnInitialize()
         {
@@ -61,6 +63,8 @@ namespace BeatLeader.Components
             button.selectionStateDidChangeEvent += ExitButtonSelectionStateChanged;
             button.onClick.AddListener(_playbackController.EscapeToMenu);
             button.navigation = new Navigation() { mode = Navigation.Mode.None };
+            _settingsModal.blockerClickedEvent += _settingsNavigator.NotifySettingsClosed;
+            _settingsNavigator.OnSettingsCloseRequested += x => _settingsModal.Hide(x, () => _settingsNavigator.NotifySettingsClosed());
         }
         private void Update()
         {

@@ -21,7 +21,7 @@ namespace BeatLeader.Replayer.Poses
         private string _name;
 
         public InputType[] AvailableInputs => new[] { InputType.FPFC };
-        public bool SelfInject => true;
+        public bool SupportsOffset => true;
         public bool UpdateEveryFrame => true;
         public string Name => _name;
 

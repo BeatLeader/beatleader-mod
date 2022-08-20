@@ -295,6 +295,7 @@
     <Compile Include="2_Core\Models\Voting.cs" />
     <Compile Include="2_Core\Replayer\BeatmapTimeController.cs" />
     <Compile Include="2_Core\Replayer\BeatmapVisualsController.cs" />
+    <Compile Include="2_Core\Replayer\Camera2Patcher.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\FlyingCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\PlayerViewCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\StaticCameraPose.cs" />
@@ -420,15 +421,16 @@
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditableWrapper.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\LayoutEditor.cs" />
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalPlayerInfo.cs" />
-    <Compile Include="8_UI\Replayer\Components\Infos\PlayersInfoList.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\BodySetting.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\CameraSetting.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\LayoutEditorSetting.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Setting.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\BodyMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\LayoutEditorSetting.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\OffsetsMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\SettingsRootMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Menu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\MenuWithContainer.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\SettingsController.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\SpeedSetting.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\SubMenu\SubMenu.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\SubMenu\SubMenuButton.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\SpeedSetting.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\SubMenuButton.cs" />
     <Compile Include="8_UI\Replayer\Components\Infos\SongInfo.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Timeline.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Toolbar.cs" />
@@ -491,7 +493,6 @@
     <None Include="9_Resources\AssetBundles\AssetBundles" />
     <EmbeddedResource Include="9_Resources\AssetBundles\AssetBundles.manifest" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\SongInfo.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\PlayersInfoList.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerPCView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Timeline.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Toolbar.bsml" />
@@ -501,11 +502,13 @@
     <None Include="9_Resources\AssetBundles\asset_bundle.manifest" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableWrapper.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerVRView.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraSetting.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SubMenuButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\LayoutEditorSetting.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\BodySetting.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\BodyMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalPlayerInfo.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SettingsRootMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\OffsetsMenu.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

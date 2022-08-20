@@ -20,6 +20,7 @@ namespace BeatLeader
 
         public static void Load() => Scan().ForEach(x => TryLoadSettingsForPersistance(x));
         public static void Save() => Scan().ForEach(x => TrySaveSettingsForPersistance(x));
+        public static void NotifyTypeChanged(Type type) => TrySaveSettingsForPersistance(type);
 
         private static List<Type> Scan()
         {

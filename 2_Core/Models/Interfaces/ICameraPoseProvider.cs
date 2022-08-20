@@ -6,7 +6,7 @@ namespace BeatLeader.Models
     public interface ICameraPoseProvider
     {
         InputType[] AvailableInputs { get; }
-        bool SelfInject { get; }
+        bool SupportsOffset { get; }
         bool UpdateEveryFrame { get; }
         string Name { get; }
 

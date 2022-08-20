@@ -29,7 +29,7 @@ namespace BeatLeader.Replayer.Poses
         private string _name;
 
         public InputType[] AvailableInputs => _availableInputs;
-        public bool SelfInject => false;
+        public bool SupportsOffset => false;
         public bool UpdateEveryFrame => false;
         public string Name => _name;
 

@@ -1,5 +1,12 @@
 ﻿<horizontal pref-height="52">
-	<vertical pref-width="100">
+	<vertical bg="round-rect-panel" pref-width="100">
+		<modal clickerino-offerino-closerino="true" move-to-center="true" size-delta-y="20" size-delta-x="60" show-event="open-song-info-modal">
+			<horizontal pref-height="20">
+				<macro.as-host host="song-info">
+					<macro.reparent transform="ui-component"/>
+				</macro.as-host>
+			</horizontal>
+		</modal>
 		<horizontal pref-height="45">
 			<macro.as-host host="toolbar">
 				<macro.reparent transform="ui-component"/>
@@ -7,7 +14,7 @@
 		</horizontal>
 		<vertical pref-width="20">
 			<horizontal pref-height="7" bg="round-rect-panel">
-				<button text="1"/>
+				<button text="1" click-event="open-song-info-modal"/>
 				<button text="1"/>
 			</horizontal>
 		</vertical>

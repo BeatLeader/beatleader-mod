@@ -15,7 +15,7 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ProfileManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ScoreStatsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ModVersionChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<RankedPlaylistManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             if (_platformUserModel is OculusPlatformUserModel) {
                 Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

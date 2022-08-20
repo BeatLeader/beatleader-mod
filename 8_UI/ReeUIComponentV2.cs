@@ -118,6 +118,17 @@ namespace BeatLeader
 
         #endregion
 
+        #region ManualInit
+
+        public void ManualInit(Transform rootNode) {
+            DisposeIfNeeded();
+            transform.SetParent(rootNode, true);
+            ApplyHierarchy();
+            OnInitialize();
+        }
+
+        #endregion
+
         #region Parse
         protected Transform Content { get; private set; }
 

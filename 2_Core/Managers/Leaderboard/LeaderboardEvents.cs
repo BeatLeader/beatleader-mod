@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatLeader.DataManager;
 using BeatLeader.Models;
 using HMUI;
 using JetBrains.Annotations;
@@ -86,12 +87,12 @@ namespace BeatLeader.Manager {
 
         #endregion
         
-        #region RankedPlaylistUpdateButtonWasPressedAction
+        #region PlaylistUpdateButtonWasPressedAction
 
-        public static event Action RankedPlaylistUpdateButtonWasPressedAction;
+        public static event Action<PlaylistsManager.PlaylistType> PlaylistUpdateButtonWasPressedAction;
 
-        public static void NotifyRankedPlaylistUpdateButtonWasPressed() {
-            RankedPlaylistUpdateButtonWasPressedAction?.Invoke();
+        public static void NotifyPlaylistUpdateButtonWasPressed(PlaylistsManager.PlaylistType playlistType) {
+            PlaylistUpdateButtonWasPressedAction?.Invoke(playlistType);
         }
 
         #endregion

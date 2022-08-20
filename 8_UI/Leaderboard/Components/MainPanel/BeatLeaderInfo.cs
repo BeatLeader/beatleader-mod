@@ -1,26 +1,43 @@
+using System;
 using BeatLeader.DataManager;
 using System.Diagnostics;
 using BeatLeader.Manager;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using TMPro;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class BeatLeaderInfo : ReeUIComponentV2 {
         #region Init / Dispose
 
         protected override void OnInitialize() {
+            InitializePlaylistButtons();
+
             LeaderboardEvents.LogoWasPressedEvent += ShowModal;
             LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             ModVersionChecker.IsUpToDateChangedEvent += OnModIsUpToDateChanged;
-            RankedPlaylistManager.IsUpToDateChangedEvent += OnPlaylistIsUpToDateChanged;
-            RankedPlaylistManager.PlaylistUpdateStartedEvent += OnPlaylistUpdateStarted;
-            RankedPlaylistManager.PlaylistUpdateFinishedEvent += OnPlaylistUpdateFinished;
+            PlaylistsManager.PlaylistStateChangedEvent += OnPlaylistStateChanged;
+            PlaylistsManager.PlaylistUpdateStartedEvent += OnPlaylistUpdateStarted;
+            PlaylistsManager.PlaylistUpdateFinishedEvent += OnPlaylistUpdateFinished;
             OculusMigrationManager.IsMigrationRequiredChangedEvent += OnOculusMigrationRequiredChanged;
 
+            OnPlaylistStateChanged(
+                PlaylistsManager.PlaylistType.Nominated,
+                PlaylistsManager.GetPlaylistState(PlaylistsManager.PlaylistType.Nominated)
+            );
+            OnPlaylistStateChanged(
+                PlaylistsManager.PlaylistType.Qualified,
+                PlaylistsManager.GetPlaylistState(PlaylistsManager.PlaylistType.Qualified)
+            );
+            OnPlaylistStateChanged(
+                PlaylistsManager.PlaylistType.Ranked,
+                PlaylistsManager.GetPlaylistState(PlaylistsManager.PlaylistType.Ranked)
+            );
+
             OnModIsUpToDateChanged(ModVersionChecker.IsUpToDate);
-            OnPlaylistIsUpToDateChanged(RankedPlaylistManager.IsUpToDate);
             OnOculusMigrationRequiredChanged(OculusMigrationManager.IsMigrationRequired);
         }
 
@@ -29,9 +46,9 @@ namespace BeatLeader.Components {
             LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             ModVersionChecker.IsUpToDateChangedEvent -= OnModIsUpToDateChanged;
-            RankedPlaylistManager.IsUpToDateChangedEvent -= OnPlaylistIsUpToDateChanged;
-            RankedPlaylistManager.PlaylistUpdateStartedEvent -= OnPlaylistUpdateStarted;
-            RankedPlaylistManager.PlaylistUpdateFinishedEvent -= OnPlaylistUpdateFinished;
+            PlaylistsManager.PlaylistStateChangedEvent -= OnPlaylistStateChanged;
+            PlaylistsManager.PlaylistUpdateStartedEvent -= OnPlaylistUpdateStarted;
+            PlaylistsManager.PlaylistUpdateFinishedEvent -= OnPlaylistUpdateFinished;
             OculusMigrationManager.IsMigrationRequiredChangedEvent -= OnOculusMigrationRequiredChanged;
         }
 
@@ -39,22 +56,24 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnPlaylistUpdateStarted() {
-            PlaylistUpdateButtonInteractable = false;
+        private void OnPlaylistUpdateStarted(PlaylistsManager.PlaylistType playlistType) {
+            if (!TryGetPlaylistButtonForType(playlistType, out var button)) return;
+            button.interactable = false;
         }
 
-        private void OnPlaylistUpdateFinished() {
-            PlaylistUpdateButtonInteractable = true;
+        private void OnPlaylistUpdateFinished(PlaylistsManager.PlaylistType playlistType) {
+            if (!TryGetPlaylistButtonForType(playlistType, out var button)) return;
+            button.interactable = true;
+        }
+
+        private void OnPlaylistStateChanged(PlaylistsManager.PlaylistType playlistType, PlaylistsManager.PlaylistState playlistState) {
+            if (!TryGetPlaylistButtonForType(playlistType, out var button)) return;
+            UpdatePlaylistButton(button, playlistType, playlistState);
         }
 
         private void OnModIsUpToDateChanged(bool value) {
             VersionUpdateButtonActive = !value;
             VersionInfoText = value ? UpdatedModVersionText : OutdatedModVersionText;
-        }
-
-        private void OnPlaylistIsUpToDateChanged(bool value) {
-            PlaylistUpdateButtonActive = !value;
-            PlaylistInfoText = value ? UpdatedPlaylistText : OutdatedPlaylistText;
         }
 
         private void OnOculusMigrationRequiredChanged(bool value) {
@@ -74,8 +93,7 @@ namespace BeatLeader.Components {
 
         #region Modal
 
-        [UIComponent("modal"), UsedImplicitly]
-        private ModalView _modal;
+        [UIComponent("modal"), UsedImplicitly] private ModalView _modal;
 
         private void ShowModal() {
             if (_modal == null) return;
@@ -127,50 +145,44 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region RankedPlaylist
+        #region PlaylistButtons
 
-        private const string OutdatedPlaylistText = "<color=#FFFF88>Playlist update available!";
-        private const string UpdatedPlaylistText = "<color=#88FF88>Playlist is up to date!";
+        [UIComponent("nominated-playlist-button"), UsedImplicitly] private Button _nominatedPlaylistButton;
+        [UIComponent("qualified-playlist-button"), UsedImplicitly] private Button _qualifiedPlaylistButton;
+        [UIComponent("ranked-playlist-button"), UsedImplicitly] private Button _rankedPlaylistButton;
 
-        private string _playlistInfoText = "";
-
-        [UIValue("playlist-info-text"), UsedImplicitly]
-        private string PlaylistInfoText {
-            get => _playlistInfoText;
-            set {
-                if (_playlistInfoText.Equals(value)) return;
-                _playlistInfoText = value;
-                NotifyPropertyChanged();
+        private bool TryGetPlaylistButtonForType(PlaylistsManager.PlaylistType playlistType, out Button button) {
+            switch (playlistType) {
+                case PlaylistsManager.PlaylistType.Nominated:
+                    button = _nominatedPlaylistButton;
+                    return true;
+                case PlaylistsManager.PlaylistType.Qualified:
+                    button = _qualifiedPlaylistButton;
+                    return true;
+                case PlaylistsManager.PlaylistType.Ranked:
+                    button = _rankedPlaylistButton;
+                    return true;
+                default:
+                    button = null;
+                    return false;
             }
         }
 
-        private bool _playlistUpdateButtonActive;
-
-        [UIValue("playlist-update-button-active"), UsedImplicitly]
-        private bool PlaylistUpdateButtonActive {
-            get => _playlistUpdateButtonActive;
-            set {
-                if (_playlistUpdateButtonActive.Equals(value)) return;
-                _playlistUpdateButtonActive = value;
-                NotifyPropertyChanged();
-            }
+        private void InitializePlaylistButtons() {
+            _nominatedPlaylistButton.onClick.AddListener(() => LeaderboardEvents.NotifyPlaylistUpdateButtonWasPressed(PlaylistsManager.PlaylistType.Nominated));
+            _qualifiedPlaylistButton.onClick.AddListener(() => LeaderboardEvents.NotifyPlaylistUpdateButtonWasPressed(PlaylistsManager.PlaylistType.Qualified));
+            _rankedPlaylistButton.onClick.AddListener(() => LeaderboardEvents.NotifyPlaylistUpdateButtonWasPressed(PlaylistsManager.PlaylistType.Ranked));
         }
 
-        private bool _playlistUpdateButtonInteractable = true;
+        private static void UpdatePlaylistButton(Button button, PlaylistsManager.PlaylistType playlistType, PlaylistsManager.PlaylistState playlistState) {
+            var prefix = playlistState switch {
+                PlaylistsManager.PlaylistState.NotFound => "<color=#FF8888>",
+                PlaylistsManager.PlaylistState.Outdated => "<color=#FFFF88>",
+                PlaylistsManager.PlaylistState.UpToDate => "<color=#88FF88>",
+                _ => throw new ArgumentOutOfRangeException(nameof(playlistState), playlistState, null)
+            };
 
-        [UIValue("playlist-update-button-interactable"), UsedImplicitly]
-        private bool PlaylistUpdateButtonInteractable {
-            get => _playlistUpdateButtonInteractable;
-            set {
-                if (_playlistUpdateButtonInteractable.Equals(value)) return;
-                _playlistUpdateButtonInteractable = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        [UIAction("playlist-update-button-on-click"), UsedImplicitly]
-        private void PlaylistUpdateButtonOnClick() {
-            LeaderboardEvents.NotifyRankedPlaylistUpdateButtonWasPressed();
+            button.GetComponentInChildren<TextMeshProUGUI>().text = $"{prefix}{playlistType}";
         }
 
         #endregion

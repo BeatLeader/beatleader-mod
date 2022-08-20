@@ -71,10 +71,10 @@ namespace BeatLeader {
         [Inject] [UsedImplicitly] private PlayerHeadAndObstacleInteraction _phaoi;
         [Inject] [UsedImplicitly] private GameEnergyCounter _gameEnergyCounter;
         [Inject] [UsedImplicitly] private TrackingDeviceEnhancer _trackingDeviceEnhancer;
+        [InjectOptional] [UsedImplicitly] private PlayerHeightDetector _playerHeightDetector;
         // Optional for MP support, there is no pause mechanic in multiplayer gameplay.
         [InjectOptional][UsedImplicitly] private PauseController _pauseController;
 
-        private readonly PlayerHeightDetector _playerHeightDetector;
         private readonly Replay _replay = new();
         private Pause _currentPause;
         private WallEvent _currentWallEvent;
@@ -82,8 +82,6 @@ namespace BeatLeader {
         private bool _stopRecording;
 
         public ReplayRecorder() {
-            _playerHeightDetector = Resources.FindObjectsOfTypeAll<PlayerHeightDetector>().Last();
-
             UserEnhancer.Enhance(_replay); 
 
             PluginMetadata metaData = PluginManager.GetPluginFromId("BeatLeader");
@@ -119,8 +117,7 @@ namespace BeatLeader {
                 _pauseController.didResumeEvent += OnResume;
             }
 
-            if (_replay.info.height == 0)
-            {
+            if (_playerHeightDetector != null) {
                 _playerHeightDetector.playerHeightDidChangeEvent += OnPlayerHeightChange;
             }
 
@@ -143,10 +140,11 @@ namespace BeatLeader {
                 _pauseController.didResumeEvent -= OnResume;
             }
 
-            if (_replay.info.height == 0)
+            if (_playerHeightDetector != null)
             {
                 _playerHeightDetector.playerHeightDidChangeEvent -= OnPlayerHeightChange;
             }
+
         }
 
         public void LateTick() {
@@ -327,30 +325,33 @@ namespace BeatLeader {
         private void OnMultiplayerTransitionSetupOnDidFinishEvent(MultiplayerLevelScenesTransitionSetupDataSO data, MultiplayerResultsData results)
         {
             _stopRecording = true;
-            _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
 
-            var mpResults = results.localPlayerResultData.multiplayerLevelCompletionResults;
-            var levelCompResults = mpResults.levelCompletionResults;
-            _replay.info.score = levelCompResults.multipliedScore;
-            MapEnhancer.energy = levelCompResults.energy;
-            MapEnhancer.Enhance(_replay);
-            _trackingDeviceEnhancer.Enhance(_replay);
+            if (_replay != null && results != null && results.localPlayerResultData != null && results.localPlayerResultData.multiplayerLevelCompletionResults != null) {
+                _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
 
-            if (mpResults.playerLevelEndState == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndState.SongFinished) {
-                switch (levelCompResults.levelEndStateType) {
-                    case LevelCompletionResults.LevelEndStateType.Cleared:
-                        Plugin.Log.Info("Level Cleared. Save replay");
-                        ScoreUtil.instance.ProcessReplayAsync(_replay);
-                        break;
-                    case LevelCompletionResults.LevelEndStateType.Failed:
-                        if (levelCompResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart) {
-                            Plugin.Log.Info("Restart");
-                        } else {
-                            _replay.info.failTime = _timeSyncController.songTime;
-                            Plugin.Log.Info("Level Failed. Save replay");
+                var mpResults = results.localPlayerResultData.multiplayerLevelCompletionResults;
+                var levelCompResults = mpResults.levelCompletionResults;
+                _replay.info.score = levelCompResults.multipliedScore;
+                MapEnhancer.energy = levelCompResults.energy;
+                MapEnhancer.Enhance(_replay);
+                _trackingDeviceEnhancer.Enhance(_replay);
+
+                if (mpResults.playerLevelEndState == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndState.SongFinished) {
+                    switch (levelCompResults.levelEndStateType) {
+                        case LevelCompletionResults.LevelEndStateType.Cleared:
+                            Plugin.Log.Info("Level Cleared. Save replay");
                             ScoreUtil.instance.ProcessReplayAsync(_replay);
-                        }
-                        break;
+                            break;
+                        case LevelCompletionResults.LevelEndStateType.Failed:
+                            if (levelCompResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart) {
+                                Plugin.Log.Info("Restart");
+                            } else {
+                                _replay.info.failTime = _timeSyncController.songTime;
+                                Plugin.Log.Info("Level Failed. Save replay");
+                                ScoreUtil.instance.ProcessReplayAsync(_replay);
+                            }
+                            break;
+                    }
                 }
             }
         }

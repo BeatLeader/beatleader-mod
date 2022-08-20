@@ -3,7 +3,7 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "",
   "gameVersion": "1.21.0",
   "dependsOn": {
@@ -12,5 +12,8 @@
     "BSIPA": "^4.2.2",
     "SiraUtil": "^3.1.0"
   },
+  "loadBefore": [
+    "BetterSongList"
+  ],
   "features": []
 }

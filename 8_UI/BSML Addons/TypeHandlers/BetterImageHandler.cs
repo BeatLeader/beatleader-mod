@@ -26,7 +26,7 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
             { "fillMethod", new[] { "fill-method" } },
             { "fillOrigin", new[] { "fill-origin" } },
             { "fillAmount", new[] { "fill-amount" } },
-            { "fillClockwise", new[] { "fill-clockwise", "clockwise" } },
+            { "fillClockwise", new[] { "fill-clockwise" } },
             { "pixelsPerUnit", new[] { "pixels-per-unit-multiplier", "pixels-per-unit", "ppu" } }
         };
 

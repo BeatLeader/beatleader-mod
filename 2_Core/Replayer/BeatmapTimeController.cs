@@ -54,7 +54,7 @@ namespace BeatLeader.Replayer
             if (!flag && resume) _audioTimeSyncController.Resume();
             _beatmapCallbacksUpdater.Resume();
         }
-        public void SetSpeedMultiplier(float multiplier)
+        public void SetSpeedMultiplier(float multiplier, bool resume = true)
         {
             if (multiplier == _audioTimeSyncController.timeScale) return;
             bool flag = _audioTimeSyncController.state == AudioTimeSyncController.State.Paused;
@@ -66,7 +66,7 @@ namespace BeatLeader.Replayer
             _audioManagerSO.musicPitch = 1f / multiplier;
 
             OnSongSpeedChanged?.Invoke(multiplier);
-            if (!flag) _audioTimeSyncController.Resume();
+            if (!flag && resume) _audioTimeSyncController.Resume();
         }
 
         private void DespawnAllBeatmapObjects()

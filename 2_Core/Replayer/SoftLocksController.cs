@@ -38,7 +38,7 @@ namespace BeatLeader
                 Debug.LogWarning("Can not install lock because it is already installed!");
                 return;
             }
-            _lockedComponents.Add(new LockData(behaviour, mode));
+            _lockedComponents.Add(new LockData(behaviour, mode, behaviour.enabled));
         }
         public void UninstallLock(Behaviour behaviour)
         {

@@ -14,8 +14,9 @@ namespace BeatLeader.Components
     {
         public RotatingVRView View { get; private set; }
 
-        [UIComponent("sync-button")]
-        private BetterImage _syncButton;
+        [UIComponent("sync-button")] private BetterImage _syncButton;
+        [UIObject("manual-rotation-panel")] private GameObject _manualRotationPanel;
+
         private Color _normalColor = Color.white;
         private Color _pressedColor = Color.cyan;
         private bool _syncEnabled;
@@ -31,6 +32,7 @@ namespace BeatLeader.Components
             if (View == null) return;
             View.followHead = enable;
             _syncButton.Image.color = enable ? _pressedColor : _normalColor;
+            _manualRotationPanel.SetActive(!enable);
             OnViewSyncChanged?.Invoke(enable);
         }
 

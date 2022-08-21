@@ -11,24 +11,28 @@ namespace BeatLeader.Replayer.Poses
     {
         public PlayerViewCameraPose(float smoothness, string name = "PlayerView")
         {
-            _smoothness = smoothness;
+            this.smoothness = smoothness;
             _name = name;
         }
 
         [Inject] private readonly VRControllersManager _vrControllersManager;
 
-        private float _smoothness;
-        private string _name;
-
-        public InputType[] AvailableInputs => new[] { InputType.FPFC };
-        public bool SupportsOffset => true;
+        public InputType AvailableInputs => InputType.FPFC;
+        public int Id => 4;
         public bool UpdateEveryFrame => true;
         public string Name => _name;
 
+        public Vector3 offset;
+        public float smoothness;
+
+        private string _name;
+
         public Pose GetPose(Pose cameraPose)
         {
-            Vector3 position = Vector3.Lerp(cameraPose.position, _vrControllersManager.Head.transform.position, Time.deltaTime * _smoothness);
-            Quaternion rotation = Quaternion.Lerp(cameraPose.rotation, _vrControllersManager.Head.transform.rotation, Time.deltaTime * _smoothness);
+            cameraPose.position -= offset;
+            Vector3 position = Vector3.Lerp(cameraPose.position, _vrControllersManager.Head.transform.position, Time.deltaTime * smoothness);
+            Quaternion rotation = Quaternion.Lerp(cameraPose.rotation, _vrControllersManager.Head.transform.rotation, Time.deltaTime * smoothness);
+            position += offset;
             return new Pose(position, rotation);
         }
     }

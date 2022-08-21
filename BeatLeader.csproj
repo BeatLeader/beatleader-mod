@@ -313,6 +313,7 @@
     <Compile Include="2_Core\Replayer\ReplayerManualInstaller.cs" />
     <Compile Include="2_Core\Replayer\ReplayerMenuLauncher.cs" />
     <Compile Include="2_Core\Replayer\SoftLocksController.cs" />
+    <Compile Include="2_Core\Replayer\TempLock.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphUtils.cs" />
@@ -426,9 +427,11 @@
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalPlayerInfo.cs" />
     <Compile Include="8_UI\Replayer\Components\RotationMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\BodyMenu.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraPoseParamsMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\PlayerViewParamsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\LayoutEditorSetting.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\OffsetsMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\Vector3MatrixMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\SettingsRootMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Menu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\MenuWithContainer.cs" />
@@ -443,6 +446,7 @@
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <Compile Include="8_UI\UI2DManager.cs" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\PlayerViewParamsMenu.bsml" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -508,13 +512,13 @@
     <None Include="9_Resources\AssetBundles\asset_bundle.manifest" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableWrapper.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerVRView.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\CameraMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SubMenuButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\LayoutEditorSetting.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\BodyMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalPlayerInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SettingsRootMenu.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\OffsetsMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\Vector3MatrixMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\RotationMenu.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />

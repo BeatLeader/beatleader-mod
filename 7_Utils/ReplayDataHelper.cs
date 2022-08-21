@@ -93,6 +93,7 @@ namespace BeatLeader.Utils
         }
 
         #region Environments
+
         public static string GetEnvironmentSerializedNameByEnvironmentName(string name)
         {
             name = name.Replace(" ", "");
@@ -122,9 +123,11 @@ namespace BeatLeader.Utils
         {
             return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().First(x => x.serializedName == GetEnvironmentSerializedNameByEnvironmentName(name));
         }
+
         #endregion
 
         #region Replaying
+
         public static SceneInfo CreateSceneInfo(string sceneName, bool disableRootObjects)
         {
             SceneInfo sceneInfo = (SceneInfo)ScriptableObject.CreateInstance("SceneInfo");
@@ -213,8 +216,7 @@ namespace BeatLeader.Utils
         }
         public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay)
         {
-            if (replay.info.startTime == 0) return null;
-            else return new PracticeSettings(replay.info.startTime, replay.info.speed);
+            return replay.info.startTime != 0 ? new PracticeSettings(replay.info.startTime, replay.info.speed) : null;
         }
         public static PlayerSpecificSettings ModifyPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay)
         {
@@ -283,10 +285,8 @@ namespace BeatLeader.Utils
         }
         public static LinkedListNode<Frame> GetFrameByTime(this LinkedList<Frame> frames, float time)
         {
-            for (LinkedListNode<Frame> frame = frames.First; frame != null; frame = frame.Next)
-                if (frame.Value.time >= time && frame != null)
-                    return frame;
-            return null;
+            TryGetFrameByTime(frames, time, out var frame);
+            return frame;
         }
         public static bool TryGetFrameByTime(this LinkedList<Frame> frames, float time, out LinkedListNode<Frame> frame)
         {
@@ -298,10 +298,7 @@ namespace BeatLeader.Utils
         }
         public static Frame GetFrameByTime(this Replay replay, float time)
         {
-            foreach (var frame in replay.frames)
-                if (frame.time >= time && frame != null)
-                    return frame;
-            return null;
+            return GetFrameByTime(new LinkedList<Frame>(replay.frames), time).Value;
         }
         public static bool TryGetReplays(Func<Replay, bool> filter, out List<Replay> replays)
         {
@@ -315,9 +312,11 @@ namespace BeatLeader.Utils
             }
             return replays.Count >= 0;
         }
+
         #endregion
 
         #region Computing
+
         public static int ComputeObstacleID(this ObstacleData obstacleData)
         {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
@@ -358,6 +357,7 @@ namespace BeatLeader.Utils
         {
             return ComputeNoteMultiplier(noteData.scoringType);
         }
+
         #endregion
     }
 }

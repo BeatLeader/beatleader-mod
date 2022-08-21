@@ -32,7 +32,8 @@ namespace BeatLeader.Replayer.Poses
         protected bool _returnToTheLastPos;
         protected string _name;
 
-        public InputType[] AvailableInputs => new[] { InputType.FPFC };
+        public InputType AvailableInputs => InputType.FPFC;
+        public int Id => 5;
         public bool SupportsOffset => false;
         public bool UpdateEveryFrame => true;
         public string Name => _name;

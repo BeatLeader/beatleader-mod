@@ -15,7 +15,7 @@ namespace BeatLeader
 {
     public class AutomaticConfigTool
     {
-        private const string ConfigsSavePath = @"UserData\BeatLeader\Configs\";
+        private const string ConfigsSavePath = @"UserData\BeatLeader\Configs";
         private const string ConfigFileFormat = ".json";
 
         public static void Load() => Scan().ForEach(x => TryLoadSettingsForPersistance(x));
@@ -69,9 +69,14 @@ namespace BeatLeader
                  && x.CanRead && x.CanWrite, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                 .ForEach(x => convertedFields.Add(x.Name, x.GetValue(null)));
 
+            CreateConfigsFolderIfNeeded();
             File.WriteAllText(GeneratePath(type), JsonConvert.SerializeObject(convertedFields));
             return true;
         }
-        private static string GeneratePath(Type type) => $"{ConfigsSavePath}{type.Name}Config{ConfigFileFormat}";
+        private static void CreateConfigsFolderIfNeeded()
+        {
+            if (!Directory.Exists(ConfigsSavePath)) Directory.CreateDirectory(ConfigsSavePath);
+        }
+        private static string GeneratePath(Type type) => $"{ConfigsSavePath}\\{type.Name}Config{ConfigFileFormat}";
     }
 }

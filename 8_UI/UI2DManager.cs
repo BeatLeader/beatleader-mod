@@ -13,8 +13,21 @@ using HMUI;
 
 namespace BeatLeader
 {
+    [SerializeAutomatically]
     public class UI2DManager : MonoBehaviour, ITickable
     {
+        [SerializeAutomatically] private static bool _showUI = true;
+
+        private bool showUI
+        {
+            get => _showUI;
+            set
+            {
+                _showUI = value;
+                AutomaticConfigTool.NotifyTypeChanged(GetType());
+            }
+        }
+
         private CanvasScaler _canvasScaler;
         private Canvas _canvas;
         private GraphicRaycaster _raycaster;
@@ -43,13 +56,15 @@ namespace BeatLeader
             _canvasScaler.referenceResolution = CanvasSize / ScaleFactor;
             _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            gameObject.SetActive(showUI);
         }
         public void Tick()
         {
             if (Input.GetKeyDown(hideUIHotkey))
             {
-                gameObject.SetActive(!gameObject.activeSelf);
-                OnUIVisibilityChanged?.Invoke(gameObject.activeSelf);
+                showUI = !gameObject.activeSelf;
+                gameObject.SetActive(showUI);
+                OnUIVisibilityChanged?.Invoke(showUI);
             }
             if (Input.GetKeyDown(hideCursorHotkey))
             {

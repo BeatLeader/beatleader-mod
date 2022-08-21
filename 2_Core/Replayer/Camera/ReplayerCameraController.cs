@@ -45,11 +45,12 @@ namespace BeatLeader.Replayer
         private string _requestedPose;
         protected bool _poseUpdateRequired;
 
-        public event Action<string> OnCameraPoseChanged;
+        public event Action<ICameraPoseProvider> OnCameraPoseChanged;
         public event Action<int> OnCameraFOVChanged;
 
         public List<ICameraPoseProvider> poseProviders { get; protected set; }
-        public string CurrentPose => _currentPose != null ? _currentPose.Name : "NaN";
+        public ICameraPoseProvider CurrentPose => _currentPose;
+        public string CurrentPoseName => _currentPose != null ? _currentPose.Name : "NaN";
         public bool IsInitialized { get; private set; }
         public int CullingMask
         {
@@ -67,25 +68,15 @@ namespace BeatLeader.Replayer
                 OnCameraFOVChanged?.Invoke(value);
             }
         }
-        public Vector3 Offset
-        {
-            get => _offset;
-            set
-            {
-                _offset = value;
-                _poseUpdateRequired = true;
-            }
-        }
         public Pose Pose
         {
             get
             {
-                return CalculatePoseWithoutOffsetIfNeeded(new Pose(transform.position, transform.rotation));
+                return new Pose(transform.position, transform.rotation);
             }
             protected set
             {
-                var pose = CalculatePoseWithOffsetIfNeeded(value);
-                transform.SetPositionAndRotation(pose.position, pose.rotation);
+                transform.SetPositionAndRotation(value.position, value.rotation);
                 if (!_inputManager.IsInFPFC) SetHandsPose(value);
             }
         }
@@ -106,7 +97,7 @@ namespace BeatLeader.Replayer
             _camera.nearClipPlane = 0.01f;
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
 
-            poseProviders = _data.poseProviders.Where(x => x.AvailableInputs.Contains(_inputManager.CurrentInputType)).ToList();
+            poseProviders = _data.poseProviders.Where(x => _inputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             InjectPoses();
             RequestCameraPose(_data.cameraStartPose);
 
@@ -140,7 +131,7 @@ namespace BeatLeader.Replayer
             _currentPose = cameraPose;
             Pose = _currentPose.GetPose(Pose);
             RefreshCamera();
-            OnCameraPoseChanged?.Invoke(cameraPose.Name);
+            OnCameraPoseChanged?.Invoke(cameraPose);
         }
         public void SetCameraPose(ICameraPoseProvider provider)
         {
@@ -158,18 +149,6 @@ namespace BeatLeader.Replayer
             gameObject.SetActive(enabled);
         }
 
-        protected Pose CalculatePoseWithOffsetIfNeeded(Pose pose)
-        {
-            if (_currentPose.SupportsOffset)
-                pose.position += _offset;
-            return pose;
-        }
-        protected Pose CalculatePoseWithoutOffsetIfNeeded(Pose pose)
-        {
-            if (_currentPose.SupportsOffset)
-                pose.position -= _offset;
-            return pose;
-        }
         protected void RefreshCamera()
         {
             _camera.stereoTargetEye = _inputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;

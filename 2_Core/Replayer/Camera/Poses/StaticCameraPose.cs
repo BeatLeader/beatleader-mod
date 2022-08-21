@@ -8,27 +8,31 @@ namespace BeatLeader.Replayer.Poses
 {
     public struct StaticCameraPose : ICameraPoseProvider
     { 
-        public StaticCameraPose(string name, Vector3 position, Quaternion rotation)
+        public StaticCameraPose(int id, string name, Vector3 position, Quaternion rotation)
         {
+            _id = id;
             _rotation = rotation;
             _position = position;
             _name = name;
-            _availableInputs = new[] { InputType.FPFC, InputType.VR };
+            _availableInputs = InputType.FPFC | InputType.VR;
         }
-        public StaticCameraPose(string name, Vector3 position, Quaternion rotation, params InputType[] availableInputs)
+        public StaticCameraPose(int id, string name, Vector3 position, Quaternion rotation, InputType availableInputs)
         {
+            _id = id;
             _rotation = rotation;
             _position = position;
             _name = name;
             _availableInputs = availableInputs;
         }
 
-        private InputType[] _availableInputs;
+        private InputType _availableInputs;
         private Quaternion _rotation;
         private Vector3 _position;
+        private int _id;
         private string _name;
 
-        public InputType[] AvailableInputs => _availableInputs;
+        public InputType AvailableInputs => _availableInputs;
+        public int Id => _id;
         public bool SupportsOffset => false;
         public bool UpdateEveryFrame => false;
         public string Name => _name;

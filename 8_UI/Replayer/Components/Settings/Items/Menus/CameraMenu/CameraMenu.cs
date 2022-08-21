@@ -1,4 +1,5 @@
-﻿using BeatLeader.Replayer;
+﻿using BeatLeader.Models;
+using BeatLeader.Replayer;
 using BeatLeader.Replayer.Managers;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
@@ -7,12 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 namespace BeatLeader.Components.Settings
 {
     [SerializeAutomatically]
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.CameraMenu.bsml")]
     internal class CameraMenu : MenuWithContainer
     {
         [Inject] private readonly ReplayerCameraController _cameraController;
@@ -21,13 +23,12 @@ namespace BeatLeader.Components.Settings
         [SerializeAutomatically] private static string cameraView = "PlayerView";
         [SerializeAutomatically] private static int cameraFov = 90;
 
-        [UIObject("camera-fov-container")] private GameObject _cameraFovContainer;
-        [UIValue("offsets-menu-button")] private SubMenuButton _offsetsMenuButton;
+        private List<CameraPoseParamsMenu> _posesParams;
 
         [UIValue("camera-view-values")] private List<object> _cameraViewValues;
         [UIValue("camera-view")] private string _cameraView
         {
-            get => _cameraController.CurrentPose;
+            get => _cameraController.CurrentPoseName;
             set
             {
                 cameraView = value;
@@ -48,11 +49,16 @@ namespace BeatLeader.Components.Settings
             }
         }
 
+        [UIObject("camera-fov-container")] private GameObject _cameraFovContainer;
+        [UIValue("pose-menu-button")] private SubMenuButton _poseMenuButton;
+        private CanvasGroup _poseMenuButtonCanvasGroup;
+
         protected override void OnBeforeParse()
         {
-            _offsetsMenuButton = CreateButtonForMenu(this, InstantiateInContainer<OffsetsMenu>(Container), "Offsets");
-            _offsetsMenuButton.ButtonGameObject.AddComponent<InputDependentObject>().Init(_inputManager, InputManager.InputType.FPFC);
+            _posesParams = new() { Instantiate<PlayerViewParamsMenu>() };
+            _poseMenuButton = CreateButtonForMenu(this, null, "View params");
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.Name));
+            _cameraController.OnCameraPoseChanged += NotifyCameraPoseChanged;
         }
         protected override void OnAfterParse()
         {
@@ -60,6 +66,21 @@ namespace BeatLeader.Components.Settings
             obj.Init(_inputManager, InputManager.InputType.FPFC);
             if (obj.ShouldBeVisible) _cameraFov = cameraFov;
             _cameraView = cameraView;
+            _poseMenuButtonCanvasGroup = _poseMenuButton.ButtonGameObject.AddComponent<CanvasGroup>();
+        }
+
+        private void NotifyCameraPoseChanged(ICameraPoseProvider provider)
+        {
+            var menu = _posesParams.FirstOrDefault(x => x.Id == provider.Id && x.Type == provider.GetType());
+            if (menu != null)
+            {
+                _poseMenuButton.Init(menu, null);
+                menu.Init(provider);
+            }
+
+            if (_poseMenuButtonCanvasGroup != null)
+                _poseMenuButtonCanvasGroup.alpha = menu != null ? 1 : 0.7f;
+            _poseMenuButton.Interactable = menu != null;
         }
     }
 }

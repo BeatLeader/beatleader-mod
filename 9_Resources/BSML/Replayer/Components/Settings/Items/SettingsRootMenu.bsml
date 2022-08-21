@@ -1,5 +1,5 @@
 ﻿<vertical>
-	<vertical vertical-fit="Unconstrained" child-expand-height="false" child-control-height="false" child-align="UpperLeft" spacing="1">
+	<vertical pref-width="48" vertical-fit="Unconstrained" child-expand-height="false" child-control-height="false" child-align="UpperLeft" spacing="1">
 		<macro.as-host host="body-menu-button">
 			<macro.reparent transform="ui-component"/>
 		</macro.as-host>

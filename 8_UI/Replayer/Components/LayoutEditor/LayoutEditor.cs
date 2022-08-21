@@ -59,6 +59,7 @@ namespace BeatLeader.Components
         private void SaveSettings(string name, bool value)
         {
             if (!_objectsConfig.TryAdd(name, value)) _objectsConfig[name] = value;
+            AutomaticConfigTool.NotifyTypeChanged(GetType());
         }
 
         #region BSML Stuff

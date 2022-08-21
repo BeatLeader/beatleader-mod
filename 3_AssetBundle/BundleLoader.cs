@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -29,7 +31,7 @@ namespace BeatLeader
             LoadMaterials(localAssetBundle);
             LoadPrefabs(localAssetBundle);
 
-            //localAssetBundle.Unload(false);
+            localAssetBundle.Unload(false);
             _ready = true;
         }
 
@@ -40,7 +42,8 @@ namespace BeatLeader
         public static GameObject MonkeyPrefab;
         public static GameObject AccuracyGraphPrefab;
 
-        private static void LoadPrefabs(AssetBundle assetBundle) {
+        private static void LoadPrefabs(AssetBundle assetBundle)
+        {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
             AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
         }
@@ -122,15 +125,15 @@ namespace BeatLeader
         [UsedImplicitly]
         public static Sprite PatreonLinkIcon;
 
+        private static List<Sprite> _loadedSprites;
+
         public static Sprite GetSpriteFromBundle(string name)
         {
-            if (_assetBundle == null || !_ready) return null;
-            return _assetBundle.LoadAsset<Sprite>(name);
+            return _ready ? _loadedSprites.Where(x => x.name == name).FirstOrDefault() : null;
         }
         public static bool TryGetSpriteFromBundle(string name, out Sprite sprite)
         {
-            sprite = GetSpriteFromBundle(name);
-            return sprite != null;
+            return (sprite = GetSpriteFromBundle(name)) != null;
         }
         private static void LoadSprites(AssetBundle assetBundle)
         {
@@ -148,6 +151,7 @@ namespace BeatLeader
             WebsiteLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Website");
             DiscordLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Discord");
             PatreonLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Patreon");
+            _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 
         #endregion

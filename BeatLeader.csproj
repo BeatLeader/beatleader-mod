@@ -269,8 +269,9 @@
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
+    <Compile Include="2_Core\Models\CombinedCameraMovementData.cs" />
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
-    <Compile Include="2_Core\Models\Interfaces\ICameraPoseProvider.cs" />
+    <Compile Include="2_Core\Models\CameraPoseProvider.cs" />
     <Compile Include="2_Core\Models\Interfaces\IReplayerScoreController.cs" />
     <Compile Include="2_Core\Models\Interfaces\IScoringInterlayer.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
@@ -428,10 +429,11 @@
     <Compile Include="8_UI\Replayer\Components\RotationMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\BodyMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraMenu.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraPoseParamsMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraParamsMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\FlyingViewParamsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\PlayerViewParamsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\LayoutEditorSetting.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\Vector3MatrixMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\VectorMatrixMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\SettingsRootMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Menu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\MenuWithContainer.cs" />
@@ -520,6 +522,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SettingsRootMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\Vector3MatrixMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\RotationMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\FlyingViewParamsMenu.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

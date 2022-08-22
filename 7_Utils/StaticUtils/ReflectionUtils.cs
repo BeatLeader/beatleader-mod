@@ -32,9 +32,9 @@ namespace BeatLeader.Utils
         {
             return assembly.GetTypes().Where(filter).ToList();
         }
-        public static List<T> ScanAndActivateTypes<T>(this Assembly assembly, Func<T, bool> filter = null)
+        public static List<T> ScanAndActivateTypes<T>(this Assembly assembly, Func<T, bool> filter = null, Func<Type, T> activator = null)
         {
-            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T)).Where(x => !x.IsAbstract).Select(x => (T)Activator.CreateInstance(x))
+            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T)).Where(x => !x.IsAbstract).Select(x => activator != null ? activator(x) : (T)Activator.CreateInstance(x))
                 .Where(filter != null ? filter : x => true).ToList();
         }
     }

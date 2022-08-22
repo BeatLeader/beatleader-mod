@@ -11,15 +11,15 @@
 	</horizontal>
 
 	<horizontal>
-		<better-image pref-height="18" src="#black-transparent-bg" type="Sliced" ppu="5">
-			<vertical child-expand-height="false" vertical-fit="PreferredSize" pref-width="46">
+		<better-image pref-height="19" src="#black-transparent-bg" type="Sliced" ppu="5">
+			<vertical child-expand-height="false" pref-width="46">
 
 				<text text="Camera View" font-align="Center"/>
 				<list-setting value="camera-view" choices="camera-view-values" bind-value="true"
 							  apply-on-change="true" hide-text="true" skew="0"/>
 
-				<horizontal pref-height="5">
-					<vertical pref-width="46">
+				<horizontal pref-height="6">
+					<vertical pref-width="45">
 						<macro.as-host host="pose-menu-button">
 							<macro.reparent transform="ui-component"/>
 						</macro.as-host>

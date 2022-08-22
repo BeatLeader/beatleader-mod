@@ -6,15 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatLeader.Components.Settings
 {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.PlayerViewParamsMenu.bsml")]
-    internal class PlayerViewParamsMenu : CameraPoseParamsMenu
+    internal class PlayerViewParamsMenu : CameraParamsMenu
     {
-        [SerializeAutomatically] private static float offsetX;
-        [SerializeAutomatically] private static float offsetY;
-        [SerializeAutomatically] private static float offsetZ = -1;
+        [SerializeAutomatically] private static Vector3Serializable offset = new Vector3(0, 0, -1);
         [SerializeAutomatically] private static int movementSmoothness = 8;
 
         [UIValue("movement-smoothness")] private int smoothness
@@ -32,21 +31,26 @@ namespace BeatLeader.Components.Settings
         public override int Id => 4;
         public override Type Type => typeof(PlayerViewCameraPose);
 
-        [UIValue("offsets-menu-button")] 
+        [UIValue("offsets-menu-button")]
         private SubMenuButton _offsetsMenuButton;
         private PlayerViewCameraPose _cameraPose;
-        
+
         protected override void OnBeforeParse()
         {
             _cameraPose = (PlayerViewCameraPose)PoseProvider;
-            var matrix = Instantiate<Vector3MatrixMenu>();
+            var matrix = Instantiate<VectorMatrixMenu>();
             matrix.multiplier = -0.01f;
             matrix.min = 0;
             matrix.max = 150;
             matrix.increment = 5;
-            matrix.OnVectorChanged += x => _cameraPose.offset = x;
-            matrix.vector = new UnityEngine.Vector3(offsetX, offsetY, offsetZ);
+            matrix.OnVectorChanged += NotifyVectorChanged;
+            matrix.vector = offset;
             _offsetsMenuButton = CreateButtonForMenu(this, matrix, "Offsets");
+        }
+        private void NotifyVectorChanged(Vector3 vector)
+        {
+            _cameraPose.offset = vector;
+            offset = vector;
         }
     }
 }

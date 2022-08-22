@@ -14,9 +14,8 @@ using Zenject;
 
 namespace BeatLeader.Components.Settings
 {
-    [SerializeAutomatically]
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.Vector3MatrixMenu.bsml")]
-    internal class Vector3MatrixMenu : Menu
+    internal class VectorMatrixMenu : Menu
     {
         [UIValue("max")] public int max
         {
@@ -56,6 +55,17 @@ namespace BeatLeader.Components.Settings
         {
             get => _textContainer.activeSelf;
             set => _textContainer.SetActive(value);
+        }
+        public int bitDepth
+        {
+            get => _bitDepth;
+            set
+            {
+                _bitDepth = value;
+                _xSlider.gameObject.SetActive(value >= 1);
+                _ySlider.gameObject.SetActive(value >= 2);
+                _zSlider.gameObject.SetActive(value >= 3);
+            }
         }
         public Vector3 vector
         {
@@ -111,6 +121,7 @@ namespace BeatLeader.Components.Settings
         [UIComponent("y-slider")] private SliderSetting _ySlider;
         [UIComponent("z-slider")] private SliderSetting _zSlider;
 
+        private int _bitDepth = 3;
         private int _increment;
         private int _max;
         private int _min;
@@ -123,7 +134,10 @@ namespace BeatLeader.Components.Settings
         private void UpdateVectorText()
         {
             double round(float t) => Math.Round(t, 2);
-            _vectorText.text = $"<color=\"green\">X:{round(_vector.x)} <color=\"red\">Y:{round(_vector.y)} <color=\"blue\">Z:{round(_vector.z)}";
+            string line = $"<color=\"green\">X:{round(_vector.x)} ";
+            if (_bitDepth >= 2) line += $"<color=\"red\">Y:{round(_vector.y)} ";
+            if (_bitDepth >= 3) line += $"<color=\"blue\">Z:{round(_vector.z)}";
+            _vectorText.text = line;
         }
         private void NotifyVectorChanged()
         {

@@ -33,11 +33,15 @@ namespace BeatLeader.Components.Settings
             button.OnClick += parent.PresentMenu;
             return button;
         }
+        public static Menu Instantiate(Type type)
+        {
+            var menu = (Menu)Activator.CreateInstance(type);
+            menu.OnInstantiate();
+            return menu;
+        }
         public static T Instantiate<T>() where T : Menu
         {
-            var menu = (Menu)Activator.CreateInstance(typeof(T));
-            menu.OnInstantiate();
-            return (T)menu;
+            return (T)Instantiate(typeof(T));
         }
 
         #region Parsing

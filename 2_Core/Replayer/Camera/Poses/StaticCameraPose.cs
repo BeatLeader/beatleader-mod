@@ -3,11 +3,12 @@ using BeatLeader.Models;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 using Pose = UnityEngine.Pose;
+using System;
 
 namespace BeatLeader.Replayer.Poses
 {
-    public struct StaticCameraPose : ICameraPoseProvider
-    { 
+    public class StaticCameraPose : CameraPoseProvider
+    {
         public StaticCameraPose(int id, string name, Vector3 position, Quaternion rotation)
         {
             _id = id;
@@ -31,12 +32,16 @@ namespace BeatLeader.Replayer.Poses
         private int _id;
         private string _name;
 
-        public InputType AvailableInputs => _availableInputs;
-        public int Id => _id;
-        public bool SupportsOffset => false;
-        public bool UpdateEveryFrame => false;
-        public string Name => _name;
+        public override InputType AvailableInputs => _availableInputs;
+        public override int Id => _id;
+        public override bool UpdateEveryFrame => true;
+        public override string Name => _name;
 
-        public Pose GetPose(Pose cameraPose) => new Pose(_position, _rotation);
+        public override CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
+        {
+            data.cameraPose.position = _position;
+            data.cameraPose.rotation = _rotation;
+            return data;
+        }
     }
 }

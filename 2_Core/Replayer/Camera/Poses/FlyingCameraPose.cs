@@ -1,49 +1,65 @@
 ﻿using static BeatLeader.Replayer.Managers.InputManager;
-using BeatLeader.UI;
-using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
+using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
+using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 
 namespace BeatLeader.Replayer.Poses
 {
-    public class FlyingCameraPose : ICameraPoseProvider
+    public class FlyingCameraPose : CameraPoseProvider
     {
         public FlyingCameraPose(Vector2 mouseSensitivity, float flySpeed, bool disableInputOnUnlockedCursor, string name = "FlyingCameraView")
         {
-            _mouseSensitivity = mouseSensitivity;
-            _flySpeed = flySpeed;
-            _disableInputOnUnlockedCursor = disableInputOnUnlockedCursor;
+            this.mouseSensitivity = mouseSensitivity;
+            this.flySpeed = flySpeed;
+            this.disableInputOnUnlockedCursor = disableInputOnUnlockedCursor;
             _name = name;
         }
         public FlyingCameraPose(Vector2 mouseSensitivity, Vector2 lastHeadPos, float flySpeed, bool disableInputOnUnlockedCursor, string name = "FlyingCameraView")
         {
-            _mouseSensitivity = mouseSensitivity;
+            this.mouseSensitivity = mouseSensitivity;
             _lastHeadPos = lastHeadPos;
-            _flySpeed = flySpeed;
-            _disableInputOnUnlockedCursor = disableInputOnUnlockedCursor;
+            this.flySpeed = flySpeed;
+            this.disableInputOnUnlockedCursor = disableInputOnUnlockedCursor;
             _name = name;
         }
 
-        protected bool _disableInputOnUnlockedCursor;
-        protected Vector2 _mouseSensitivity;
-        protected float _flySpeed;
+        public bool followOrigin = true;
+        public bool disableInputOnUnlockedCursor;
+        public Vector2 mouseSensitivity;
+        public float flySpeed;
 
         protected Quaternion _lastHeadRot;
         protected Vector3 _lastHeadPos;
+        protected Quaternion _lastOriginRot;
+        protected Vector3 _lastOriginPos;
         protected bool _returnToTheLastPos;
         protected string _name;
 
-        public InputType AvailableInputs => InputType.FPFC;
-        public int Id => 5;
-        public bool SupportsOffset => false;
-        public bool UpdateEveryFrame => true;
-        public string Name => _name;
+        public override InputType AvailableInputs => InputType.FPFC;
+        public override int Id => 5;
+        public override bool UpdateEveryFrame => true;
+        public override string Name => _name;
 
-        public Pose GetPose(Pose cameraVector)
+        public override CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
         {
-            if (_disableInputOnUnlockedCursor && Cursor.lockState != CursorLockMode.Locked) return new Pose(_lastHeadPos, _lastHeadRot);
+            ref var currentPos = ref data.cameraPose.position;
+            ref var currentRot = ref data.cameraPose.rotation;
 
-            Vector3 currentPos = cameraVector.position;
-            Quaternion currentRot = cameraVector.rotation;
+            bool flag = false;
+            if (disableInputOnUnlockedCursor && Cursor.lockState != CursorLockMode.Locked)
+            {
+                currentPos = _lastHeadPos;
+                currentRot = _lastHeadRot;
+                flag = true;
+            }
+
+            if (!followOrigin)
+            {
+                currentPos -= data.originPose.position - _lastOriginPos;
+                currentRot.eulerAngles -= data.originPose.rotation.eulerAngles - _lastOriginRot.eulerAngles;
+            }
+
+            if (flag) return data;
 
             if (_returnToTheLastPos)
             {
@@ -52,12 +68,13 @@ namespace BeatLeader.Replayer.Poses
                 _returnToTheLastPos = false;
             }
 
-            Vector3 position = GetPosition(currentPos, currentRot);
-            Quaternion rotation = GetRotation(currentRot);
-            _lastHeadPos = position;
-            _lastHeadRot = rotation;
+            _lastHeadPos = currentPos = GetPosition(currentPos, currentRot);
+            _lastHeadRot = currentRot = GetRotation(currentRot);
 
-            return new Pose(position, rotation);
+            _lastOriginPos = data.originPose.position;
+            _lastOriginRot = data.originPose.rotation;
+
+            return data;
         }
         protected virtual Vector3 GetPosition(Vector3 currentPosition, Quaternion currentRotation)
         {
@@ -89,14 +106,14 @@ namespace BeatLeader.Replayer.Poses
             {
                 c = -(currentRotation * Vector3.up);
             }
-            vector += (a + b + c) * _flySpeed * Time.deltaTime;
+            vector += (a + b + c) * flySpeed * Time.deltaTime;
             return vector;
         }
         protected virtual Quaternion GetRotation(Quaternion currentRotation)
         {
             Vector3 rotation = currentRotation.eulerAngles;
-            rotation.x += -Input.GetAxis("MouseY") * _mouseSensitivity.x;
-            rotation.y += Input.GetAxis("MouseX") * _mouseSensitivity.y;
+            rotation.x += -Input.GetAxis("MouseY") * mouseSensitivity.x;
+            rotation.y += Input.GetAxis("MouseX") * mouseSensitivity.y;
             return Quaternion.Euler(rotation);
         }
     }

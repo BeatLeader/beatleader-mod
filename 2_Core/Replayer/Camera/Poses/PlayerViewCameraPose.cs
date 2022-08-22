@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using static BeatLeader.Replayer.Managers.InputManager;
 using BeatLeader.Replayer.Movement;
-using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
+using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
+using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.Replayer.Poses
 {
-    public class PlayerViewCameraPose : ICameraPoseProvider
+    public class PlayerViewCameraPose : CameraPoseProvider
     {
         public PlayerViewCameraPose(float smoothness, string name = "PlayerView")
         {
@@ -15,25 +15,27 @@ namespace BeatLeader.Replayer.Poses
             _name = name;
         }
 
-        [Inject] private readonly VRControllersManager _vrControllersManager;
-
-        public InputType AvailableInputs => InputType.FPFC;
-        public int Id => 4;
-        public bool UpdateEveryFrame => true;
-        public string Name => _name;
+        public override InputType AvailableInputs => InputType.FPFC;
+        public override int Id => 4;
+        public override bool UpdateEveryFrame => true;
+        public override string Name => _name;
 
         public Vector3 offset;
         public float smoothness;
 
         private string _name;
 
-        public Pose GetPose(Pose cameraPose)
+        public override CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
         {
-            cameraPose.position -= offset;
-            Vector3 position = Vector3.Lerp(cameraPose.position, _vrControllersManager.Head.transform.position, Time.deltaTime * smoothness);
-            Quaternion rotation = Quaternion.Lerp(cameraPose.rotation, _vrControllersManager.Head.transform.rotation, Time.deltaTime * smoothness);
-            position += offset;
-            return new Pose(position, rotation);
+            var camPose = data.cameraPose;
+            camPose.position -= offset;
+
+            camPose.position = Vector3.Lerp(camPose.position, data.headPose.position, Time.deltaTime * smoothness);
+            camPose.rotation = Quaternion.Lerp(camPose.rotation, data.headPose.rotation, Time.deltaTime * smoothness);
+
+            camPose.position += offset;
+            data.cameraPose = camPose;
+            return data;
         }
     }
 }

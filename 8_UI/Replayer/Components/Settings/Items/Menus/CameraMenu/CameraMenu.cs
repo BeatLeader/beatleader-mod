@@ -1,10 +1,12 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.Replayer.Managers;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -23,7 +25,7 @@ namespace BeatLeader.Components.Settings
         [SerializeAutomatically] private static string cameraView = "PlayerView";
         [SerializeAutomatically] private static int cameraFov = 90;
 
-        private List<CameraPoseParamsMenu> _posesParams;
+        private List<CameraParamsMenu> _posesParams;
 
         [UIValue("camera-view-values")] private List<object> _cameraViewValues;
         [UIValue("camera-view")] private string _cameraView
@@ -55,7 +57,7 @@ namespace BeatLeader.Components.Settings
 
         protected override void OnBeforeParse()
         {
-            _posesParams = new() { Instantiate<PlayerViewParamsMenu>() };
+            _posesParams = Assembly.GetExecutingAssembly().ScanAndActivateTypes(null, x => (CameraParamsMenu)Instantiate(x));
             _poseMenuButton = CreateButtonForMenu(this, null, "View params");
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.Name));
             _cameraController.OnCameraPoseChanged += NotifyCameraPoseChanged;
@@ -69,7 +71,7 @@ namespace BeatLeader.Components.Settings
             _poseMenuButtonCanvasGroup = _poseMenuButton.ButtonGameObject.AddComponent<CanvasGroup>();
         }
 
-        private void NotifyCameraPoseChanged(ICameraPoseProvider provider)
+        private void NotifyCameraPoseChanged(CameraPoseProvider provider)
         {
             var menu = _posesParams.FirstOrDefault(x => x.Id == provider.Id && x.Type == provider.GetType());
             if (menu != null)

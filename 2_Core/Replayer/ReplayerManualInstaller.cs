@@ -53,7 +53,8 @@ namespace BeatLeader.Replayer
 
                 new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0))),
                 new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0))),
-                new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.Euler(Vector3.zero)),
+                new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.Euler(Vector3.zero), InputManager.InputType.FPFC),
+                new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Quaternion.Euler(Vector3.zero), InputManager.InputType.VR),
                 new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Quaternion.Euler(Vector3.zero), InputManager.InputType.FPFC),
                 new StaticCameraPose(3, "CenterView", Vector3.zero, Quaternion.Euler(Vector3.zero), InputManager.InputType.VR),
 

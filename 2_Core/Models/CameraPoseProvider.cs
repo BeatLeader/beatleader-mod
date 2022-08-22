@@ -11,9 +11,9 @@ namespace BeatLeader.Models
         public abstract int Id { get; }
         public abstract string Name { get; }
 
-        public event Action<Pose> OnPoseUpdateRequested;
+        public event Action<CombinedCameraMovementData> OnPoseUpdateRequested;
 
         public abstract CombinedCameraMovementData GetPose(CombinedCameraMovementData data);
-        protected void RequestUpdate(Pose pose) => OnPoseUpdateRequested?.Invoke(pose);
+        protected void RequestUpdate(CombinedCameraMovementData pose) => OnPoseUpdateRequested?.Invoke(pose);
     }
 }

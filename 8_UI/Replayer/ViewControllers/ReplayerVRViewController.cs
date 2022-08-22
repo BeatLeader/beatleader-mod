@@ -49,14 +49,16 @@ namespace BeatLeader.ViewControllers
             _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
 
             var go = new GameObject("Container");
+            var viewGo = new GameObject("RotatingView");
+            viewGo.transform.SetParent(go.transform, false);
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100, 55), false, UnityEngine.Vector3.zero,
                 UnityEngine.Quaternion.Euler(new UnityEngine.Vector3(50, 0, 0)));
-            _floatingScreen.transform.SetParent(go.transform, false);
+            _floatingScreen.transform.SetParent(viewGo.transform, false);
             _floatingScreen.transform.localPosition = new UnityEngine.Vector3(0, 1, 1.7f);
             _floatingScreen.ParseInObjectHierarchy(BSMLUtil.ReadViewDefinition<ReplayerVRViewController>(), this);
 
-            var view = _floatingScreen.gameObject.AddComponent<RotatingVRView>();
-            view.Init(_camera.transform, go.transform);
+            var view = go.gameObject.AddComponent<RotatingVRView>();
+            view.Init(_camera.transform, viewGo.transform);
             _rotationMenu.Init(view);
             _rotationMenu.EnableSync(syncView);
             _rotationMenu.OnViewSyncChanged += NotifyViewSyncChanged;

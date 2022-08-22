@@ -81,19 +81,8 @@ namespace BeatLeader.Replayer
 
                 _origin.position = value.originPose.position;
                 _origin.rotation = value.originPose.rotation;
-            }
-        }
-        protected Pose CameraPose
-        {
-            get
-            {
-                return new Pose(transform.localPosition, transform.localRotation);
-            }
-            set
-            {
-                transform.localPosition = value.position;
-                transform.localRotation = value.rotation;
-                if (!_inputManager.IsInFPFC) SetHandsPose(value);
+
+                if (!_inputManager.IsInFPFC) SetHandsPose(value.cameraPose);
             }
         }
 
@@ -180,9 +169,9 @@ namespace BeatLeader.Replayer
             _requestedPose = name;
             _wasRequestedLastTime = true;
         }
-        protected void RequestUpdate(Pose pose)
+        protected void RequestUpdate(CombinedCameraMovementData data)
         {
-            CameraPose = pose;
+            CombinedMovementData = data;
         }
         private void SetHandsPose(Pose pose)
         {

@@ -36,8 +36,8 @@ namespace BeatLeader.Components
         {
             if (followHead)
             {
-                var headRot = _headTransform.eulerAngles;
-                var viewRot = _viewTransform.eulerAngles;
+                var headRot = _headTransform.localEulerAngles;
+                var viewRot = _viewTransform.localEulerAngles;
 
                 headRot.x = 0;
                 headRot.z = 0;
@@ -60,10 +60,10 @@ namespace BeatLeader.Components
             if (!_animating) return;
 
             var slerp = Mathf.Clamp(Time.deltaTime * smoothnessFactor, 0, 1);
-            var rot = Quaternion.Lerp(_viewTransform.rotation, _nextRot, slerp);
+            var rot = Quaternion.Lerp(_viewTransform.localRotation, _nextRot, slerp);
 
-            _viewTransform.rotation = rot;
-            _animating = Math.Abs(_viewTransform.eulerAngles.y - _nextRot.eulerAngles.y) > 0.01f;
+            _viewTransform.localRotation = rot;
+            _animating = Math.Abs(_viewTransform.localEulerAngles.y - _nextRot.eulerAngles.y) > 0.01f;
         }
         private int GetClosestCoordinate(float rot)
         {
@@ -89,7 +89,7 @@ namespace BeatLeader.Components
         {
             if (followHead || _animating) return;
 
-            var viewRot = _viewTransform.eulerAngles;
+            var viewRot = _viewTransform.localEulerAngles;
             var val = direction switch
             {
                 Direction.Left => maximumAngleDifference * -1,
@@ -105,7 +105,7 @@ namespace BeatLeader.Components
         {
             if (followHead || _animating) return;
 
-            var viewRot = _viewTransform.eulerAngles;
+            var viewRot = _viewTransform.localEulerAngles;
             viewRot.y = GetClosestCoordinate(centerAngle);
             _nextRot = Quaternion.Euler(viewRot);
             _animating = true;

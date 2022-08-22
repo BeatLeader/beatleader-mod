@@ -1,3 +1,4 @@
+using BeatLeader.API;
 using BeatLeader.DataManager;
 using JetBrains.Annotations;
 using Zenject;
@@ -10,16 +11,25 @@ namespace BeatLeader.Installers {
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
+
+            switch (_platformUserModel) {
+                case OculusPlatformUserModel: 
+                    Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
+                    Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                    break;
+                case SteamPlatformUserModel:
+                    Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
+                    break;
+            }
             
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<ProfileManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<ScoreStatsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ModVersionChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            if (_platformUserModel is OculusPlatformUserModel) {
-                Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            }
+            
+            Container.BindInterfacesAndSelfTo<ProfileManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ScoreStatsManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ExMachinaManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<VotingManager>().AsSingle();
         }
     }
 }

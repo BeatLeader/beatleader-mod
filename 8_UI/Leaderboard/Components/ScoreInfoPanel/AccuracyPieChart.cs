@@ -1,3 +1,4 @@
+using System;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
@@ -8,7 +9,12 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnInitialize() {
-            SetMaterials();
+            InitializeBackground();
+        }
+
+        private void OnHoverStateChanged(bool isHovered) {
+            _isHovered = isHovered;
+            UpdateVisuals();
         }
 
         #endregion
@@ -24,10 +30,20 @@ namespace BeatLeader.Components {
 
         #region SetValues
 
+        private Type _type;
+        private float _score;
+        private bool _isHovered;
+
         public void SetValues(Type type, float score) {
-            _backgroundImage.color = type == Type.Left ? LeftColor : RightColor;
-            Text = FormatScore(score);
+            _type = type;
+            _score = score;
+            UpdateVisuals();
             SetFillValue(CalculateFillValue(score));
+        }
+
+        private void UpdateVisuals() {
+            Text = FormatScore(_score, _isHovered);
+            _backgroundImage.color = GetColor(_type, _isHovered);
         }
 
         #endregion
@@ -36,14 +52,28 @@ namespace BeatLeader.Components {
 
         private static readonly Color LeftColor = new(0.8f, 0.2f, 0.2f, 0.1f);
         private static readonly Color RightColor = new(0.2f, 0.2f, 0.8f, 0.1f);
+        private const float HoveredGlow = 0.5f;
+
+        private static Color GetColor(Type type, bool isHovered) {
+            var col = type switch {
+                Type.Left => LeftColor,
+                Type.Right => RightColor,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+            if (isHovered) col.a = HoveredGlow;
+            return col;
+        }
 
         private static float CalculateFillValue(float score) {
             var ratio = Mathf.Clamp01((score - 65) / 50.0f);
             return Mathf.Pow(ratio, 0.6f);
         }
-
-        private static string FormatScore(float value) {
-            return $"{value:F2}";
+        
+        private static string FormatScore(float value, bool isHovered) {
+            if (!isHovered) return $"{value:F2}";
+            
+            var acc = value / 1.15f;
+            return $"{acc:F2}<size=60%>%";
         }
 
         #endregion
@@ -76,9 +106,12 @@ namespace BeatLeader.Components {
             _materialInstance.SetFloat(FillPropertyId, value);
         }
 
-        private void SetMaterials() {
+        private void InitializeBackground() {
             _materialInstance = Material.Instantiate(BundleLoader.HandAccIndicatorMaterial);
             _backgroundImage.material = _materialInstance;
+            _backgroundImage.raycastTarget = true;
+            var hoverController = _backgroundImage.gameObject.AddComponent<HoverController>();
+            hoverController.HoverStateChangedEvent += OnHoverStateChanged;
         }
 
         #endregion

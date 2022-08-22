@@ -22,6 +22,10 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (var i = 1; i <= retry; i++) {
+                var authHelper = new AuthHelper();
+                yield return authHelper.EnsureLoggedIn();
+                if (!authHelper.CheckStatus(out failReason)) continue;
+
                 var request = new UnityWebRequest(url) {
                     downloadHandler = new DownloadHandlerBuffer(),
                     timeout = 30
@@ -57,6 +61,10 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
+                var authHelper = new AuthHelper();
+                yield return authHelper.EnsureLoggedIn();
+                if (!authHelper.CheckStatus(out failReason)) continue;
+
                 var request = new UnityWebRequest(url) {
                     downloadHandler = new DownloadHandlerBuffer(),
                     timeout = 30
@@ -93,6 +101,10 @@ namespace BeatLeader.Utils {
 
             var failReason = "";
             for (int i = 1; i <= retry; i++) {
+                var authHelper = new AuthHelper();
+                yield return authHelper.EnsureLoggedIn();
+                if (!authHelper.CheckStatus(out failReason)) continue;
+
                 var request = new UnityWebRequest(url) {
                     downloadHandler = new DownloadHandlerBuffer(),
                     timeout = 30
@@ -134,14 +146,14 @@ namespace BeatLeader.Utils {
                 
                 LeaderboardState.UploadRequest.NotifyStarted();
 
-                Task<string> ticketTask = Authentication.PlatformTicket(replay.info.platform);
+                Task<string> ticketTask = Authentication.PlatformTicket();
                 yield return new WaitUntil(() => ticketTask.IsCompleted);
 
                 string authToken = ticketTask.Result;
                 if (authToken == null) {
-                    Plugin.Log.Debug("No auth token, skip replay upload");
+                    Plugin.Log.Debug("No auth token");
                     LeaderboardState.UploadRequest.NotifyFailed("Auth failed");
-                    continue; // auth failed, no retry
+                    continue; // auth failed, retry
                 }
 
                 Plugin.Log.Debug($"Attempt to upload replay {i}/{retry}");
@@ -191,69 +203,6 @@ namespace BeatLeader.Utils {
 
         #endregion
 
-        #region Vote
-
-        public static IEnumerator VoteCoroutine(
-            string mapHash,
-            string mapDiff,
-            string mapMode,
-            Vote vote,
-            string platform,
-            int retry = 1
-        ) {
-            var failReason = "";
-
-            for (var i = 1; i <= retry; i++) {
-                Plugin.Log.Debug($"Vote request: {i + 1}/{retry}");
-                LeaderboardState.VoteRequest.NotifyStarted();
-
-                var ticketTask = Authentication.PlatformTicket(platform);
-                yield return new WaitUntil(() => ticketTask.IsCompleted);
-                
-                var authToken = ticketTask.Result;
-                if (authToken == null) {
-                    failReason = "Authentication failed";
-                    break; // auth failed, no retries
-                }
-
-                var request = BuildVoteRequest(mapHash, mapDiff, mapMode, vote, authToken);
-                yield return request.SendWebRequest();
-
-                if (request.isNetworkError || request.isHttpError) {
-                    GetRequestFailReason(request.responseCode, null, out failReason, out var shouldRetry);
-                    if (!shouldRetry) break;
-                    continue;
-                }
-
-                try {
-                    Plugin.Log.Debug("Vote success");
-                    LeaderboardState.VoteRequest.NotifyFinished(DeserializeResponse<VoteStatus>(request));
-                    yield break; // if OK - stop retry cycle
-                } catch (Exception e) {
-                    Plugin.Log.Debug($"Exception: {e}");
-                    failReason = $"Internal error: {e.Message}";
-                }
-            }
-
-            Plugin.Log.Debug($"Vote failed: {failReason}");
-            LeaderboardState.VoteRequest.NotifyFailed(failReason);
-        }
-
-        private static UnityWebRequest BuildVoteRequest(string mapHash, string mapDiff, string mapMode, Vote vote, string authToken) {
-            var query = new Dictionary<string, object> {
-                ["rankability"] = vote.Rankability,
-                ["ticket"] = authToken
-            };
-            if (vote.HasStarRating) query["stars"] = vote.StarRating;
-            if (vote.HasMapType) query["type"] = (int) vote.MapType;
-            var url = string.Format(BLConstants.VOTE, mapHash, mapDiff, mapMode, ToHttpParams(query));
-            return new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST) {
-                downloadHandler = new DownloadHandlerBuffer()
-            };
-        }
-
-        #endregion
-
         #region GetOculusUser
 
         public static IEnumerator GetOculusUser(Action<OculusUserInfo> onSuccess, Action<string> onFail, int retry = 1) {
@@ -267,7 +216,7 @@ namespace BeatLeader.Utils {
                 var authToken = ticketTask.Result;
                 if (authToken == null) {
                     failReason = "Authentication failed";
-                    break; // auth failed, no retries
+                    continue; // auth failed, retry
                 }
 
                 var request = new UnityWebRequest(string.Format(BLConstants.OCULUS_USER_INFO, authToken)) {
@@ -299,6 +248,24 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region Utils
+
+        public class AuthHelper {
+            public bool IsLoggedIn;
+            public string FailReason = "";
+
+            public IEnumerator EnsureLoggedIn() {
+                yield return Authentication.EnsureLoggedIn(OnSuccess, OnFail);
+            }
+
+            private void OnFail(string reason) => FailReason = reason;
+
+            private void OnSuccess() => IsLoggedIn = true;
+
+            public bool CheckStatus(out string failReason) {
+                failReason = FailReason;
+                return IsLoggedIn;
+            }
+        }
 
         private static T DeserializeResponse<T>(UnityWebRequest request) {
             var body = Encoding.UTF8.GetString(request.downloadHandler.data);

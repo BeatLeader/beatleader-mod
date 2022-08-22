@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -12,20 +13,20 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             LeaderboardEvents.StatusMessageEvent += OnStatusMessage;
-            LeaderboardState.ProfileRequest.FailedEvent += OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent += OnScoreUploadFailed;
-            LeaderboardState.VoteRequest.FinishedEvent += OnVoteFinished;
-            LeaderboardState.VoteRequest.FailedEvent += OnVoteFailed;
+
+            UserRequest.instance.AddStateListener(OnProfileRequestStateChanged);
+            VoteRequest.instance.AddStateListener(OnVoteRequestStateChanged);
         }
 
         protected override void OnDispose() {
             LeaderboardEvents.StatusMessageEvent -= OnStatusMessage;
-            LeaderboardState.ProfileRequest.FailedEvent -= OnProfileRequestFailed;
             LeaderboardState.UploadRequest.FinishedEvent -= OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
-            LeaderboardState.VoteRequest.FinishedEvent -= OnVoteFinished;
-            LeaderboardState.VoteRequest.FailedEvent -= OnVoteFailed;
+
+            UserRequest.instance.RemoveStateListener(OnProfileRequestStateChanged);
+            VoteRequest.instance.RemoveStateListener(OnVoteRequestStateChanged);
         }
 
         private void OnDisable() {
@@ -36,17 +37,24 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
-        
-        private void OnVoteFinished(VoteStatus result) {
-            ShowGoodNews("Your vote has been accepted!");
+
+        private void OnVoteRequestStateChanged(API.RequestState state, VoteStatus result, string failReason) {
+            switch (state) {
+                case API.RequestState.Finished:
+                    ShowGoodNews("Your vote has been accepted!");
+                    break;
+                case API.RequestState.Failed:
+                    ShowBadNews($"Vote failed! {failReason}");
+                    break;
+            }
         }
 
-        private void OnVoteFailed(string reason) {
-            ShowBadNews($"Vote failed! {reason}");
-        }
-
-        private void OnProfileRequestFailed(string reason) {
-            ShowBadNews($"Profile update failed! {reason}");
+        private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
+            switch (state) {
+                case API.RequestState.Failed: 
+                    ShowBadNews($"Profile update failed! {failReason}");
+                    break;
+            }
         }
 
         private void OnScoreUploadFailed(string reason) {
@@ -59,7 +67,7 @@ namespace BeatLeader.Components {
 
         private void OnStatusMessage(string message, LeaderboardEvents.StatusMessageType type, float duration) {
             switch (type) {
-                case LeaderboardEvents.StatusMessageType.Neutral: 
+                case LeaderboardEvents.StatusMessageType.Neutral:
                     ShowMessage(message, duration);
                     break;
                 case LeaderboardEvents.StatusMessageType.Bad:

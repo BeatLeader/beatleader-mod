@@ -8,26 +8,37 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnInitialize() {
-            SetMaterials();
+            InitializeBackground();
+        }
+
+        private void OnHoverStateChanged(bool isHovered) {
+            _isHovered = isHovered;
+            UpdateVisuals();
         }
 
         #endregion
 
         #region SetScore
 
+        private float _score;
+        private float _quality;
+        private bool _isHovered;
+
         public void SetScore(float score, float quality) {
-            if (score <= 0) {
-                Clear();
+            _score = score;
+            _quality = quality;
+            UpdateVisuals();
+        }
+
+        private void UpdateVisuals() {
+            if (_score <= 0) {
+                _backgroundImage.color = EmptyColor;
+                Text = "";
                 return;
             }
 
-            _backgroundImage.color = GetColor(quality);
-            Text = FormatText(score);
-        }
-
-        private void Clear() {
-            _backgroundImage.color = EmptyColor;
-            Text = "";
+            _backgroundImage.color = GetColor(_quality, _isHovered);
+            Text = FormatScore(_score, _isHovered);
         }
 
         #endregion
@@ -36,15 +47,22 @@ namespace BeatLeader.Components {
 
         private static readonly Color GoodColor = new(0f, 0.2f, 1.0f, 1.0f);
         private static readonly Color BadColor = new(0.0f, 0.1f, 0.3f, 0.1f);
+        
+        private static readonly Color HoverColor = new(1.0f, 0.2f, 0.5f, 0.8f);
         private static readonly Color EmptyColor = new(0.1f, 0.1f, 0.1f, 0.0f);
 
-        private static Color GetColor(float quality) {
+        private static Color GetColor(float quality, bool isHovered) {
+            if (isHovered) return HoverColor;
+            
             var t = quality * quality;
             return Color.Lerp(BadColor, GoodColor, t);
         }
 
-        private static string FormatText(float value) {
-            return $"{value:F1}";
+        private static string FormatScore(float value, bool isHovered) {
+            if (!isHovered) return $"{value:F1}";
+            
+            var acc = value / 1.15f;
+            return $"<size=90%>{acc:F1}<size=60%>%";
         }
 
         #endregion
@@ -67,11 +85,14 @@ namespace BeatLeader.Components {
 
         #region Background
 
-        [UIComponent("background"), UsedImplicitly]
-        private ImageView _backgroundImage;
+        [UIComponent("background"), UsedImplicitly] private ImageView _backgroundImage;
 
-        private void SetMaterials() {
+        private void InitializeBackground() {
             _backgroundImage.material = BundleLoader.AccGridBackgroundMaterial;
+            _backgroundImage.raycastTarget = true;
+
+            var hoverController = _backgroundImage.gameObject.AddComponent<HoverController>();
+            hoverController.HoverStateChangedEvent += OnHoverStateChanged;
         }
 
         #endregion

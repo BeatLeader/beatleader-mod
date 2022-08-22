@@ -6,13 +6,7 @@ namespace BeatLeader {
     internal static class LeaderboardState {
         #region Requests
 
-        public static readonly RequestStateHandler<Player> ProfileRequest = new();
         public static readonly RequestStateHandler<Score> UploadRequest = new();
-        public static readonly RequestStateHandler<Paged<Score>> ScoresRequest = new();
-        public static readonly RequestStateHandler<ScoreStats> ScoreStatsRequest = new();
-        public static readonly RequestStateHandler<VoteStatus> VoteStatusRequest = new();
-        public static readonly RequestStateHandler<VoteStatus> VoteRequest = new();
-        public static readonly RequestStateHandler<ExMachinaBasicResponse> ExMachinaRequest = new();
 
         #endregion
 
@@ -22,7 +16,8 @@ namespace BeatLeader {
 
         public static event SelectedBeatmapWasChangedDelegate SelectedBeatmapWasChangedEvent;
 
-        [CanBeNull] private static IDifficultyBeatmap _selectedBeatmap;
+        [CanBeNull]
+        private static IDifficultyBeatmap _selectedBeatmap;
 
         [CanBeNull]
         public static IDifficultyBeatmap SelectedBeatmap {

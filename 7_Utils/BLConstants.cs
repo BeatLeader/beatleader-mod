@@ -17,6 +17,13 @@
 
         #endregion
 
+        #region Authentication
+        
+        public const string SIGNIN_WITH_TICKET = //  /signin
+            BEATLEADER_API_URL + "/signin?ticket={0}";
+
+        #endregion
+
         #region ExMachina
         
         public const string EX_MACHINA_API_URL = "https://bs-replays-ai.azurewebsites.net";
@@ -42,8 +49,8 @@
 
         #region Voting
 
-        public const string VOTE = // /vote/steam/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}&ticket={ticket}
-            BEATLEADER_API_URL + "/vote/steam/{0}/{1}/{2}?{3}";
+        public const string VOTE = // /vote/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}
+            BEATLEADER_API_URL + "/vote/{0}/{1}/{2}?{3}";
 
         public const string VOTE_STATUS = // /votestatus/{hash}/{diff}/{mode}?player={playerId}
             BEATLEADER_API_URL + "/votestatus/{0}/{1}/{2}?player={3}";

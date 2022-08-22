@@ -209,7 +209,21 @@
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />
     <Compile Include="1_Config\PluginConfig.cs" />
+    <Compile Include="2_Core\API\Abstract\IWebRequestDescriptor.cs" />
+    <Compile Include="2_Core\API\Abstract\IWebRequestHandler.cs" />
+    <Compile Include="2_Core\API\Abstract\RequestState.cs" />
     <Compile Include="2_Core\API\Authentication.cs" />
+    <Compile Include="2_Core\API\Methods\ExMachinaRequest.cs" />
+    <Compile Include="2_Core\API\Methods\ScoresRequest.cs" />
+    <Compile Include="2_Core\API\Methods\ScoreStatsRequest.cs" />
+    <Compile Include="2_Core\API\Methods\UserRequest.cs" />
+    <Compile Include="2_Core\API\Methods\VoteRequest.cs" />
+    <Compile Include="2_Core\API\Methods\VoteStatusRequest.cs" />
+    <Compile Include="2_Core\API\NetworkingUtils.cs" />
+    <Compile Include="2_Core\API\RequestDescriptors\JsonGetRequestDescriptor.cs" />
+    <Compile Include="2_Core\API\RequestDescriptors\JsonPostRequestDescriptor.cs" />
+    <Compile Include="2_Core\API\RequestHandlers\PersistentSingletonRequestHandler.cs" />
+    <Compile Include="2_Core\API\RequestHandlers\SimpleRequestHandler.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
     <Compile Include="2_Core\CountryFlagsStorage.cs" />
     <Compile Include="2_Core\Installers\OnAppInitInstaller.cs" />
@@ -223,8 +237,9 @@
     <Compile Include="2_Core\Managers\DataManager\OculusMigrationManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\PlaylistsManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\ScoreStatsManager.cs" />
-    <Compile Include="2_Core\Managers\DataManager\ProfileManager.cs" />
     <Compile Include="2_Core\Managers\DataManager\LeaderboardInfoManager.cs" />
+    <Compile Include="2_Core\Managers\DataManager\ProfileManager.cs" />
+    <Compile Include="2_Core\Managers\DataManager\VotingManager.cs" />
     <Compile Include="2_Core\Managers\Leaderboard\BeatLeaderCustomLeaderboard.cs" />
     <Compile Include="2_Core\Managers\Leaderboard\LeaderboardEvents.cs" />
     <Compile Include="2_Core\Managers\Leaderboard\LeaderboardHeaderManager.cs" />
@@ -264,7 +279,6 @@
     <Compile Include="3_AssetBundle\BundleLoader.cs" />
     <Compile Include="3_AssetBundle\MonkeySpinner.cs" />
     <Compile Include="7_Utils\BLConstants.cs" />
-    <Compile Include="7_Utils\BLContext.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
@@ -288,6 +302,8 @@
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Basic\HoverController.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Basic\MiniProfileButton.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Header\LeaderboardInfoPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Header\QualificationCheckbox.cs" />
@@ -318,6 +334,7 @@
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGraphPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGrid.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGridCell.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\MiniProfileButtons.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\MiniProfile.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanelControls.cs" />
@@ -341,6 +358,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ClanTag.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ClanTags.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\CountryFlag.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\MiniProfileButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\PlayerAvatar.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Header\LeaderboardInfoPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Header\QualificationCheckbox.bsml" />
@@ -370,6 +388,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGrid.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyGridCell.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\AccuracyPieChart.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\MiniProfileButtons.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\MiniProfile.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml" />

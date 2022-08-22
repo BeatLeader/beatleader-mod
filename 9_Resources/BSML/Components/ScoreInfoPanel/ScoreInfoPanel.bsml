@@ -1,38 +1,44 @@
-<modal id="modal" click-off-closes="true" size-delta-x='24' size-delta-y='6'>
-    <vertical spacing="1" vertical-fit="PreferredSize" ignore-layout="true" anchor-pos-y="15.5">
+<modal id="modal" click-off-closes="true" size-delta-x='100' size-delta-y='90'>
+    <vertical spacing="1" vertical-fit="PreferredSize">
         <!--  MINI PROFILE  -->
         <macro.as-host host="mini-profile">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
 
-        <!--  SCORE STATS LOADING SCREEN  -->
-        <macro.as-host host="score-stats-loading-screen">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
+        <horizontal pref-height="30">
+            <vertical id="middle-panel" bg="round-rect-panel" vertical-fit="PreferredSize">
+                <!--  SCORE STATS LOADING SCREEN  -->
+                <macro.as-host host="score-stats-loading-screen">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
 
-        <!--  SCORE OVERVIEW  -->
-        <macro.as-host host="score-overview">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
+                <!--  SCORE OVERVIEW  -->
+                <macro.as-host host="score-overview">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
 
-        <!--  ACCURACY DETAILS  -->
-        <macro.as-host host="accuracy-details">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
+                <!--  ACCURACY DETAILS  -->
+                <macro.as-host host="accuracy-details">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
 
-        <!--  ACCURACY GRID  -->
-        <macro.as-host host="accuracy-grid">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
+                <!--  ACCURACY GRID  -->
+                <macro.as-host host="accuracy-grid">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
 
-        <!--  ACCURACY GRAPH  -->
-        <macro.as-host host="accuracy-graph">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
+                <!--  ACCURACY GRAPH  -->
+                <macro.as-host host="accuracy-graph">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </vertical>
+        </horizontal>
 
-        <!--  CONTROLS  -->
-        <macro.as-host host="controls">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
+        <horizontal id="bottom-panel" pad-left="1" pad-right="1" pref-height="6" horizontal-fit="PreferredSize" bg="round-rect-panel">
+            <!--  CONTROLS  -->
+            <macro.as-host host="controls">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+        </horizontal>
     </vertical>
 </modal>

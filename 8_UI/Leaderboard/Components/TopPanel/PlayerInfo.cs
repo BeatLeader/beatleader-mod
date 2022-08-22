@@ -1,4 +1,5 @@
-using System;
+using BeatLeader.API.Methods;
+using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -24,12 +25,15 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
-            OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
+            UserRequest.instance.AddStateListener(OnProfileRequestStateChanged);
+            
+            ProfileManager.ProfileUpdatedEvent += OnProfileUpdated;
+            if (ProfileManager.HasProfile) OnProfileUpdated(ProfileManager.Profile);
         }
 
         protected override void OnDispose() {
-            LeaderboardState.ProfileRequest.StateChangedEvent -= OnProfileRequestStateChanged;
+            UserRequest.instance.RemoveStateListener(OnProfileRequestStateChanged);
+            ProfileManager.ProfileUpdatedEvent -= OnProfileUpdated;
         }
 
         #endregion
@@ -41,21 +45,20 @@ namespace BeatLeader.Components {
             LeaderboardEvents.NotifyAvatarWasPressed();
         }
 
-        private void OnProfileRequestStateChanged(RequestState requestState) {
-            switch (requestState) {
-                case RequestState.Uninitialized:
+        private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
+            switch (state) {
+                case API.RequestState.Uninitialized:
                     OnProfileRequestFailed("Error");
                     break;
-                case RequestState.Failed:
-                    OnProfileRequestFailed(LeaderboardState.ProfileRequest.FailReason);
+                case API.RequestState.Failed:
+                    OnProfileRequestFailed(failReason);
                     break;
-                case RequestState.Started:
+                case API.RequestState.Started:
                     OnProfileRequestStarted();
                     break;
-                case RequestState.Finished:
-                    OnProfileFetched(LeaderboardState.ProfileRequest.Result);
-                    break;
-                default: throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null);
+                
+                case API.RequestState.Finished:
+                default: break;
             }
         }
 
@@ -69,7 +72,7 @@ namespace BeatLeader.Components {
             StatsActive = false;
         }
 
-        private void OnProfileFetched(Player player) {
+        private void OnProfileUpdated(Player player) {
             _countryFlag.SetCountry(player.country);
             _avatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             NameText = FormatUtils.FormatUserName(player.name);

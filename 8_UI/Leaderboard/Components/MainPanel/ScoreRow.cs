@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
@@ -194,7 +194,7 @@ namespace BeatLeader.Components {
             var playerRoles = FormatUtils.ParsePlayerRoles(score.player.role);
             ApplyColorScheme(playerRoles);
 
-            SetHighlight(score.player.IsCurrentPlayer());
+            SetHighlight(ProfileManager.IsCurrentPlayer(score.player));
             _rankCell.SetValue(score.rank);
             _avatarCell.SetValues(score.player.avatar, playerRoles);
             _countryCell.SetValue(score.player.country);

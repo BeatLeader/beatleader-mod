@@ -1,4 +1,5 @@
 using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -13,14 +14,13 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterial();
 
-            LeaderboardState.VoteStatusRequest.StateChangedEvent += OnVoteStatusRequestStateChanged;
-            LeaderboardState.VoteRequest.StateChangedEvent += OnVoteRequestStateChanged;
-            OnVoteStatusRequestStateChanged(LeaderboardState.VoteStatusRequest.State);
+            VoteRequest.instance.AddStateListener(OnVoteRequestStateChanged);
+            VoteStatusRequest.instance.AddStateListener(OnVoteStatusRequestStateChanged);
         }
 
         protected override void OnDispose() {
-            LeaderboardState.VoteStatusRequest.StateChangedEvent -= OnVoteStatusRequestStateChanged;
-            LeaderboardState.VoteRequest.StateChangedEvent -= OnVoteRequestStateChanged;
+            VoteRequest.instance.RemoveStateListener(OnVoteRequestStateChanged);
+            VoteStatusRequest.instance.RemoveStateListener(OnVoteStatusRequestStateChanged);
         }
 
         #endregion
@@ -80,6 +80,8 @@ namespace BeatLeader.Components {
 
         #region State
 
+        private bool _loadingStatus;
+        private bool _sendingVote;
         private VoteStatus _voteStatus;
         private State _state;
 
@@ -90,10 +92,7 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateState() {
-            var voteRequestState = LeaderboardState.VoteRequest.State;
-            var statusRequestState = LeaderboardState.VoteStatusRequest.State;
-
-            if (voteRequestState == RequestState.Started || statusRequestState == RequestState.Started) {
+            if (_sendingVote || _loadingStatus) {
                 SetState(State.Loading);
                 return;
             }
@@ -123,17 +122,15 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnVoteStatusRequestStateChanged(RequestState state) {
-            if (state == RequestState.Finished) {
-                _voteStatus = LeaderboardState.VoteStatusRequest.Result;
-            }
+        private void OnVoteStatusRequestStateChanged(API.RequestState state, VoteStatus result, string failReason) {
+            _loadingStatus = state is API.RequestState.Started;
+            if (state is API.RequestState.Finished) _voteStatus = result;
             UpdateState();
         }
 
-        private void OnVoteRequestStateChanged(RequestState state) {
-            if (state == RequestState.Finished) {
-                _voteStatus = LeaderboardState.VoteRequest.Result;
-            }
+        private void OnVoteRequestStateChanged(API.RequestState state, VoteStatus result, string failReason) {
+            _sendingVote = state is API.RequestState.Started;
+            if (state is API.RequestState.Finished) _voteStatus = result;
             UpdateState();
         }
 

@@ -11,11 +11,15 @@ namespace BeatLeader.Components {
         [UIValue("player-avatar"), UsedImplicitly]
         private PlayerAvatar _playerAvatar;
 
+        [UIValue("mini-profile-buttons"), UsedImplicitly]
+        private MiniProfileButtons _miniProfileButtons;
+
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _countryFlag;
 
         private void Awake() {
             _playerAvatar = Instantiate<PlayerAvatar>(transform);
+            _miniProfileButtons = Instantiate<MiniProfileButtons>(transform);
             _countryFlag = Instantiate<CountryFlag>(transform);
         }
 

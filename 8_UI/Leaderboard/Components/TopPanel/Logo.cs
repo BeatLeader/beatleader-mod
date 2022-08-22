@@ -1,5 +1,6 @@
-using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Manager;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -109,18 +110,16 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterial();
             
-            LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
-            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            UserRequest.instance.AddStateListener(OnProfileRequestStateChanged);
+            ScoresRequest.instance.AddStateListener(OnScoresRequestStateChanged);
             LeaderboardState.UploadRequest.StateChangedEvent += OnUploadRequestStateChanged;
             
-            OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
-            OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
             OnUploadRequestStateChanged(LeaderboardState.UploadRequest.State);
         }
 
         protected override void OnDispose() {
-            LeaderboardState.ProfileRequest.StateChangedEvent -= OnProfileRequestStateChanged;
-            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            UserRequest.instance.RemoveStateListener(OnProfileRequestStateChanged);
+            ScoresRequest.instance.RemoveStateListener(OnScoresRequestStateChanged);
             LeaderboardState.UploadRequest.StateChangedEvent -= OnUploadRequestStateChanged;
         }
 
@@ -133,36 +132,18 @@ namespace BeatLeader.Components {
             LeaderboardEvents.NotifyLogoWasPressed();
         }
 
-        private void OnProfileRequestStateChanged(RequestState requestState) {
-            _loadingProfile = requestState switch {
-                RequestState.Uninitialized => false,
-                RequestState.Started => true,
-                RequestState.Failed => false,
-                RequestState.Finished => false,
-                _ => throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null)
-            };
+        private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
+            _loadingProfile = state is API.RequestState.Started;
             UpdateState();
         }
 
-        private void OnScoresRequestStateChanged(RequestState requestState) {
-            _loadingScores = requestState switch {
-                RequestState.Uninitialized => false,
-                RequestState.Started => true,
-                RequestState.Failed => false,
-                RequestState.Finished => false,
-                _ => throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null)
-            };
+        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+            _loadingScores = state is API.RequestState.Started;
             UpdateState();
         }
 
         private void OnUploadRequestStateChanged(RequestState requestState) {
-            _uploadingScore = requestState switch {
-                RequestState.Uninitialized => false,
-                RequestState.Started => true,
-                RequestState.Failed => false,
-                RequestState.Finished => false,
-                _ => throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null)
-            };
+            _uploadingScore = requestState is RequestState.Started;
             UpdateState();
         }
 

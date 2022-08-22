@@ -1,4 +1,4 @@
-using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -11,13 +11,12 @@ namespace BeatLeader.Components {
         #region OnInitialize
 
         protected override void OnInitialize() {
-            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
-            OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
+            ScoresRequest.instance.AddStateListener(OnScoresRequestStateChanged);
             ApplyAlpha();
         }
 
         protected override void OnDispose() {
-            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ScoresRequest.instance.RemoveStateListener(OnScoresRequestStateChanged);
         }
 
         #endregion
@@ -28,49 +27,35 @@ namespace BeatLeader.Components {
         private const string BadNewsColor = "#FF8888";
         private const string DefaultErrorMessage = "An unexpected error occured";
 
-        private void OnScoresRequestStateChanged(RequestState requestState) {
-            switch (requestState) {
-                case RequestState.Uninitialized:
-                case RequestState.Started:
-                    OnScoresRequestStarted();
+        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+            switch (state) {
+                case API.RequestState.Started:
+                    FadeOut();
                     break;
-                case RequestState.Failed:
-                    OnScoresRequestFailed(LeaderboardState.ScoresRequest.FailReason);
+                case API.RequestState.Failed:
+                    ShowError(failReason);
                     break;
-                case RequestState.Finished:
-                    OnScoresFetched(LeaderboardState.ScoresRequest.Result);
+                case API.RequestState.Finished:
+                    OnScoresFetched(result);
                     break;
-                default: throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null);
             }
-        }
-
-        private void OnScoresRequestStarted() {
-            FadeOut();
         }
 
         private void OnScoresFetched(Paged<Score> scoreData) {
             if (scoreData.data == null) {
-                OnError(DefaultErrorMessage);
+                ShowError(DefaultErrorMessage);
                 return;
             }
 
             if (scoreData.data.IsEmpty()) {
-                OnEmpty();
+                ShowEmpty();
                 return;
             }
 
-            OnFull();
-        }
-
-        private void OnScoresRequestFailed(string reason) {
-            OnError(reason);
-        }
-
-        private void OnFull() {
             FadeOut();
         }
 
-        private void OnEmpty() {
+        private void ShowEmpty() {
             SetText(
                 GoodNewsColor,
                 "No scores yet",
@@ -79,7 +64,7 @@ namespace BeatLeader.Components {
             FadeIn();
         }
 
-        private void OnError(string reason) {
+        private void ShowError(string reason) {
             SetText(
                 BadNewsColor,
                 "Oops!",

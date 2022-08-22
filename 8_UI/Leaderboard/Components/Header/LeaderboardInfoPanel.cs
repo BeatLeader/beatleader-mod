@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -11,9 +12,14 @@ namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReeUIComponentV2 {
         #region Components
 
-        [UIValue("criteria-checkbox"), UsedImplicitly] private QualificationCheckbox _criteriaCheckbox;
-        [UIValue("mapper-checkbox"), UsedImplicitly] private QualificationCheckbox _mapperCheckbox;
-        [UIValue("approval-checkbox"), UsedImplicitly] private QualificationCheckbox _approvalCheckbox;
+        [UIValue("criteria-checkbox"), UsedImplicitly]
+        private QualificationCheckbox _criteriaCheckbox;
+
+        [UIValue("mapper-checkbox"), UsedImplicitly]
+        private QualificationCheckbox _mapperCheckbox;
+
+        [UIValue("approval-checkbox"), UsedImplicitly]
+        private QualificationCheckbox _approvalCheckbox;
 
         private void Awake() {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
@@ -26,19 +32,18 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
-            LeaderboardState.ExMachinaRequest.StateChangedEvent += OnExMachinaRequestStateChanged;
-            LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
+            ExMachinaRequest.instance.AddStateListener(OnExMachinaRequestStateChanged);
+            ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
             LeaderboardState.SelectedBeatmapWasChangedEvent += OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
 
-            OnExMachinaRequestStateChanged(LeaderboardState.ExMachinaRequest.State);
-            OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
+            OnPlayerRolesUpdated(ProfileManager.Roles);
             OnSelectedBeatmapWasChanged(LeaderboardState.SelectedBeatmap);
         }
 
         protected override void OnDispose() {
-            LeaderboardState.ExMachinaRequest.StateChangedEvent -= OnExMachinaRequestStateChanged;
-            LeaderboardState.ProfileRequest.StateChangedEvent -= OnProfileRequestStateChanged;
+            ExMachinaRequest.instance.RemoveStateListener(OnExMachinaRequestStateChanged);
+            ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
             LeaderboardState.SelectedBeatmapWasChangedEvent -= OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
         }
@@ -47,26 +52,20 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnProfileRequestStateChanged(RequestState state) {
-            if (state != RequestState.Finished) {
-                _roles = Array.Empty<PlayerRole>();
-                UpdateVisuals();
-                return;
-            }
-
-            _roles = FormatUtils.ParsePlayerRoles(LeaderboardState.ProfileRequest.Result.role);
+        private void OnPlayerRolesUpdated(PlayerRole[] playerRoles) {
+            _roles = playerRoles;
             UpdateVisuals();
         }
 
-        private void OnExMachinaRequestStateChanged(RequestState state) {
-            if (state != RequestState.Finished) {
+        private void OnExMachinaRequestStateChanged(API.RequestState state, ExMachinaBasicResponse result, string failReason) {
+            if (state is not API.RequestState.Finished) {
                 _hasExMachinaRating = false;
                 UpdateVisuals();
                 return;
             }
 
             _hasExMachinaRating = true;
-            _exMachinaRating = LeaderboardState.ExMachinaRequest.Result.balanced;
+            _exMachinaRating = result.balanced;
             UpdateVisuals();
         }
 

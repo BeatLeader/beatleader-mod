@@ -42,6 +42,8 @@ namespace BeatLeader.DataManager {
                 var toggles = (GameplayModifierToggle[])AccessTools
                     .Field(typeof(GameplayModifiersPanelController), "_gameplayModifierToggles").GetValue(_modifiersController);
 
+                if (toggles == null) { return; }
+
                 // return default
                 if (_state == State.Overriden) {
                     foreach (var toggle in toggles) {

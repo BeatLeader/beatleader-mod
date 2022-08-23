@@ -53,14 +53,14 @@ namespace BeatLeader.API.RequestHandlers {
         }
 
         public static void AddProgressListener(ProgressChangedDelegate handler) {
-            if (!_applicationIsQuitting) return;
+            if (_applicationIsQuitting) return;
             var tmp = instance as PersistentSingletonRequestHandler<T, R>;
             tmp!.ProgressChangedEvent += handler;
             handler?.Invoke(tmp.UploadProgress, tmp.DownloadProgress, tmp.OverallProgress);
         }
 
         public static void RemoveProgressListener(ProgressChangedDelegate handler) {
-            if (!_applicationIsQuitting) return;
+            if (_applicationIsQuitting) return;
             var tmp = instance as PersistentSingletonRequestHandler<T, R>;
             tmp!.ProgressChangedEvent -= handler;
         }

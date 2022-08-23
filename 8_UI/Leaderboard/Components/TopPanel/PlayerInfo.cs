@@ -1,5 +1,4 @@
 using BeatLeader.API.Methods;
-using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -26,14 +25,12 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             UserRequest.AddStateListener(OnProfileRequestStateChanged);
-            
-            ProfileManager.ProfileUpdatedEvent += OnProfileUpdated;
-            if (ProfileManager.HasProfile) OnProfileUpdated(ProfileManager.Profile);
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
         }
 
         protected override void OnDispose() {
             UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
-            ProfileManager.ProfileUpdatedEvent -= OnProfileUpdated;
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
         }
 
         #endregion
@@ -43,6 +40,11 @@ namespace BeatLeader.Components {
         [UIAction("avatar-on-click"), UsedImplicitly]
         private void AvatarOnClick() {
             LeaderboardEvents.NotifyAvatarWasPressed();
+        }
+
+        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            OnProfileUpdated(result.player);
         }
 
         private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
@@ -56,9 +58,10 @@ namespace BeatLeader.Components {
                 case API.RequestState.Started:
                     OnProfileRequestStarted();
                     break;
-                
                 case API.RequestState.Finished:
-                default: break;
+                    OnProfileUpdated(result.player);
+                    break;
+                default: return;
             }
         }
 

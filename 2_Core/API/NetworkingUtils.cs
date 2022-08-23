@@ -57,7 +57,7 @@ namespace BeatLeader.API {
                 Plugin.Log.Debug($"Response[{request.GetHashCode()}]: {request.error ?? request.responseCode.ToString()}");
 
                 if (request.isNetworkError) {
-                    requestHandler.OnRequestFailed($"Network error: {request.error}");
+                    requestHandler.OnRequestFailed($"Network error: {request.error} {request.downloadHandler?.text}");
                     continue; //retry
                 }
 
@@ -72,6 +72,7 @@ namespace BeatLeader.API {
                     requestHandler.OnRequestFinished(requestDescriptor.ParseResponse(request));
                     break; //no retry
                 } catch (Exception e) {
+                    Plugin.Log.Debug($"Response[{request.GetHashCode()}] Exception: {e}");
                     requestHandler.OnRequestFailed($"Internal error: {e.Message}");
                     break; //no retry
                 }

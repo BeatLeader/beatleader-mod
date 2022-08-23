@@ -8,17 +8,21 @@ using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 namespace BeatLeader.API.Methods {
-    internal class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Player> {
+    internal class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Score> {
         private const string WithCookieEndpoint = BLConstants.BEATLEADER_API_URL + "/replayoculus";
-            
+
+        private const int UploadRetryCount = 3;
+
+        protected override bool KeepState => false;
+
         public static void SendRequest(Replay replay) {
             var requestDescriptor = new UploadWithCookieRequestDescriptor(replay);
-            instance.Send(requestDescriptor);
+            instance.Send(requestDescriptor, UploadRetryCount);
         }
 
         #region RequestDescriptor
 
-        private class UploadWithCookieRequestDescriptor : IWebRequestDescriptor<Player> {
+        private class UploadWithCookieRequestDescriptor : IWebRequestDescriptor<Score> {
             private readonly byte[] _compressedData;
 
             public UploadWithCookieRequestDescriptor(Replay replay) {
@@ -26,11 +30,13 @@ namespace BeatLeader.API.Methods {
             }
 
             public UnityWebRequest CreateWebRequest() {
-                return UnityWebRequest.Put(WithCookieEndpoint, _compressedData);
+                var request = UnityWebRequest.Put(WithCookieEndpoint, _compressedData);
+                request.SetRequestHeader("Content-Encoding", "gzip");
+                return request;
             }
 
-            public Player ParseResponse(UnityWebRequest request) {
-                return JsonConvert.DeserializeObject<Player>(request.downloadHandler.text, NetworkingUtils.SerializerSettings);
+            public Score ParseResponse(UnityWebRequest request) {
+                return JsonConvert.DeserializeObject<Score>(request.downloadHandler.text, NetworkingUtils.SerializerSettings);
             }
 
             private static byte[] CompressReplay(Replay replay) {

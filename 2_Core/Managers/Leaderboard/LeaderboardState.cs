@@ -4,12 +4,6 @@ using JetBrains.Annotations;
 
 namespace BeatLeader {
     internal static class LeaderboardState {
-        #region Requests
-
-        public static readonly RequestStateHandler<Score> UploadRequest = new();
-
-        #endregion
-
         #region SelectedBeatmap
 
         public delegate void SelectedBeatmapWasChangedDelegate([CanBeNull] IDifficultyBeatmap beatmap);

@@ -9,6 +9,8 @@ namespace BeatLeader.API.Methods {
         // /vote/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}
         private const string Endpoint = BLConstants.BEATLEADER_API_URL + "/vote/{0}/{1}/{2}?{3}";
 
+        protected override bool KeepState => false;
+
         public static void SendRequest(
             string mapHash,
             string mapDiff,

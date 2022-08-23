@@ -26,11 +26,10 @@ namespace BeatLeader.DataManager {
 
         public void Start() {
             SetFakeBloomProperty();
-            
+
             ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.UploadRequest.StartedEvent += OnUploadStarted;
-            LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
-            
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
@@ -43,9 +42,8 @@ namespace BeatLeader.DataManager {
 
         private void OnDestroy() {
             ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.UploadRequest.StartedEvent -= OnUploadStarted;
-            LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
-            
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
@@ -84,17 +82,22 @@ namespace BeatLeader.DataManager {
             LeaderboardState.SelectedBeatmap = difficultyBeatmap;
         }
 
-        #region Upload
+        #region OnUploadRequestStateChanged
 
         private LeaderboardKey _uploadLeaderboardKey;
 
-        private void OnUploadStarted() {
-            _uploadLeaderboardKey = LeaderboardKey.FromBeatmap(_lastSelectedBeatmap);
-        }
-
-        private void OnUploadSuccess(Score score) {
-            if (!_uploadLeaderboardKey.Equals(LeaderboardKey.FromBeatmap(_lastSelectedBeatmap))) return;
-            LoadScores();
+        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+            if (_lastSelectedBeatmap == null) return;
+            
+            switch (state) {
+                case API.RequestState.Started:
+                    _uploadLeaderboardKey = LeaderboardKey.FromBeatmap(_lastSelectedBeatmap);
+                    break;
+                case API.RequestState.Finished:
+                    if (!_uploadLeaderboardKey.Equals(LeaderboardKey.FromBeatmap(_lastSelectedBeatmap))) return;
+                    LoadScores();
+                    break;
+            }
         }
 
         #endregion

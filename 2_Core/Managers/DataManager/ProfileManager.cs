@@ -92,14 +92,14 @@ namespace BeatLeader.DataManager {
 
         public void Initialize() {
             UserRequest.AddStateListener(OnUserRequestStateChanged);
-            LeaderboardState.UploadRequest.FinishedEvent += OnUploadFinished;
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
 
             UserRequest.SendRequest();
         }
 
         public void Dispose() {
             UserRequest.RemoveStateListener(OnUserRequestStateChanged);
-            LeaderboardState.UploadRequest.FinishedEvent -= OnUploadFinished;
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
         }
 
         #endregion
@@ -114,8 +114,9 @@ namespace BeatLeader.DataManager {
             SetFriends(result.friends);
         }
 
-        private static void OnUploadFinished(Score score) {
-            Profile = score.player;
+        private static void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            Profile = result.player;
         }
 
         #endregion

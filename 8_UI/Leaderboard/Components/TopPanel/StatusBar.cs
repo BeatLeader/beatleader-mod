@@ -13,20 +13,18 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             LeaderboardEvents.StatusMessageEvent += OnStatusMessage;
-            LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
-            LeaderboardState.UploadRequest.FailedEvent += OnScoreUploadFailed;
 
             UserRequest.AddStateListener(OnProfileRequestStateChanged);
             VoteRequest.AddStateListener(OnVoteRequestStateChanged);
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
         }
 
         protected override void OnDispose() {
             LeaderboardEvents.StatusMessageEvent -= OnStatusMessage;
-            LeaderboardState.UploadRequest.FinishedEvent -= OnScoreUploadSuccess;
-            LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
 
             UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
             VoteRequest.RemoveStateListener(OnVoteRequestStateChanged);
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
         }
 
         private void OnDisable() {
@@ -51,18 +49,21 @@ namespace BeatLeader.Components {
 
         private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
             switch (state) {
-                case API.RequestState.Failed: 
+                case API.RequestState.Failed:
                     ShowBadNews($"Profile update failed! {failReason}");
                     break;
             }
         }
 
-        private void OnScoreUploadFailed(string reason) {
-            ShowBadNews($"Score upload failed! {reason}");
-        }
-
-        private void OnScoreUploadSuccess(Score score) {
-            ShowGoodNews("Score uploaded!");
+        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+            switch (state) {
+                case API.RequestState.Finished:
+                    ShowGoodNews("Score uploaded!");
+                    break;
+                case API.RequestState.Failed:
+                    ShowBadNews($"Score upload failed! {failReason}");
+                    break;
+            }
         }
 
         private void OnStatusMessage(string message, LeaderboardEvents.StatusMessageType type, float duration) {

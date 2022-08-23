@@ -140,7 +140,7 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        private void OnUploadRequestStateChanged(API.RequestState state, Player result, string failReason) {
+        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
             _uploadingScore = state is API.RequestState.Started;
             UpdateState();
         }

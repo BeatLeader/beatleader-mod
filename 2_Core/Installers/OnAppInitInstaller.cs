@@ -23,13 +23,13 @@ namespace BeatLeader.Installers {
             }
             
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<ModVersionChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             
             Container.BindInterfacesAndSelfTo<ProfileManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<ScoreStatsManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<ExMachinaManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<VotingManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ModVersionChecker>().AsSingle();
         }
     }
 }

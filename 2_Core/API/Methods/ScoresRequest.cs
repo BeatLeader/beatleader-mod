@@ -25,7 +25,7 @@ namespace BeatLeader.API.Methods {
                 { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
                 { BLConstants.Param.PAGE, page }
             };
-            var url = string.Format(PageEndpoint, mapHash, mapDiff, mapMode, context, scope, HttpUtils.ToHttpParams(query));
+            var url = string.Format(PageEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
             
             var requestDescriptor = new JsonGetRequestDescriptor<Paged<Score>>(url);
             instance.Send(requestDescriptor);
@@ -50,7 +50,7 @@ namespace BeatLeader.API.Methods {
                 { BLConstants.Param.PLAYER, userId },
                 { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
             };
-            var url = string.Format(SeekEndpoint, mapHash, mapDiff, mapMode, context, scope, HttpUtils.ToHttpParams(query));
+            var url = string.Format(SeekEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
 
             var requestDescriptor = new JsonGetRequestDescriptor<Paged<Score>>(url);
             instance.Send(requestDescriptor);

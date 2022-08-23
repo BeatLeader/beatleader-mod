@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
@@ -17,7 +19,7 @@ namespace BeatLeader.API {
         };
 
         #endregion
-        
+
         #region SimpleRequestCoroutine
 
         public static IEnumerator SimpleRequestCoroutine<T>(
@@ -41,7 +43,7 @@ namespace BeatLeader.API {
             for (var i = 1; i <= retries; i++) {
                 requestHandler.OnRequestStarted();
 
-                var authHelper = new HttpUtils.AuthHelper();
+                var authHelper = new AuthHelper();
                 yield return authHelper.EnsureLoggedIn();
 
                 if (!authHelper.IsLoggedIn) {
@@ -51,7 +53,7 @@ namespace BeatLeader.API {
 
                 var request = requestDescriptor.CreateWebRequest();
                 request.timeout = 30;
-                
+
                 Plugin.Log.Debug($"Request[{request.GetHashCode()}]: {request.url}");
                 yield return AwaitRequestWithProgress(request, requestHandler);
                 Plugin.Log.Debug($"Response[{request.GetHashCode()}]: {request.error ?? request.responseCode.ToString()}");
@@ -112,6 +114,35 @@ namespace BeatLeader.API {
                     break;
                 }
             }
+        }
+
+        #endregion
+
+        #region Utils
+
+        private class AuthHelper {
+            public bool IsLoggedIn;
+            public string FailReason = "";
+
+            public IEnumerator EnsureLoggedIn() {
+                yield return Authentication.EnsureLoggedIn(
+                    () => IsLoggedIn = true,
+                    reason => FailReason = reason
+                );
+            }
+        }
+
+        public static string ToHttpParams(Dictionary<string, object> param) {
+            if (param.Count == 0) return "";
+
+            StringBuilder sb = new();
+
+            foreach (var item in param) {
+                if (sb.Length > 0) sb.Append("&");
+                sb.Append($"{item.Key}={item.Value}");
+            }
+
+            return sb.ToString();
         }
 
         #endregion

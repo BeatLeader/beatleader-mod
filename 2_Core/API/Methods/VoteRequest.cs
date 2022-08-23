@@ -23,7 +23,7 @@ namespace BeatLeader.API.Methods {
             if (vote.HasStarRating) query["stars"] = vote.StarRating;
             if (vote.HasMapType) query["type"] = (int)vote.MapType;
 
-            var url = string.Format(Endpoint, mapHash, mapDiff, mapMode, HttpUtils.ToHttpParams(query));
+            var url = string.Format(Endpoint, mapHash, mapDiff, mapMode, NetworkingUtils.ToHttpParams(query));
             var requestDescriptor = new JsonPostRequestDescriptor<VoteStatus>(url);
             instance.Send(requestDescriptor);
         }

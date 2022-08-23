@@ -214,6 +214,11 @@
     <Compile Include="2_Core\API\Abstract\RequestState.cs" />
     <Compile Include="2_Core\API\Authentication.cs" />
     <Compile Include="2_Core\API\Methods\ExMachinaRequest.cs" />
+    <Compile Include="2_Core\API\Methods\GetOculusUserRequest.cs" />
+    <Compile Include="2_Core\API\Methods\LatestReleasesRequest.cs" />
+    <Compile Include="2_Core\API\Methods\LeaderboardsRequest.cs" />
+    <Compile Include="2_Core\API\Methods\ModifiersRequest.cs" />
+    <Compile Include="2_Core\API\Methods\PlaylistRequest.cs" />
     <Compile Include="2_Core\API\Methods\ScoresRequest.cs" />
     <Compile Include="2_Core\API\Methods\ScoreStatsRequest.cs" />
     <Compile Include="2_Core\API\Methods\UploadReplayRequest.cs" />
@@ -223,6 +228,7 @@
     <Compile Include="2_Core\API\NetworkingUtils.cs" />
     <Compile Include="2_Core\API\RequestDescriptors\JsonGetRequestDescriptor.cs" />
     <Compile Include="2_Core\API\RequestDescriptors\JsonPostRequestDescriptor.cs" />
+    <Compile Include="2_Core\API\RequestDescriptors\RawGetRequestDescriptor.cs" />
     <Compile Include="2_Core\API\RequestHandlers\PersistentSingletonRequestHandler.cs" />
     <Compile Include="2_Core\API\RequestHandlers\SimpleRequestHandler.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
@@ -286,7 +292,6 @@
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
     <Compile Include="7_Utils\ModifiersUtils.cs" />
-    <Compile Include="7_Utils\HttpUtils.cs" />
     <Compile Include="7_Utils\RecorderUtils.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
     <Compile Include="7_Utils\StaticUtils\EnvironmentUtils.cs" />

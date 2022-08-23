@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using BeatLeader.API.Methods;
 using BeatLeader.Utils;
 using HarmonyLib;
 using Polyglot;
@@ -79,12 +80,16 @@ namespace BeatLeader.DataManager {
 
         private IEnumerator UpdateModifiersIfNeeded() {
             if (ModifiersUtils.instance.Modifiers != null) yield break;
-            yield return HttpUtils.GetData<Dictionary<string, float>>(BLConstants.MODIFIERS_URL,
-                modifiers => {
-                    ModifiersUtils.instance.Modifiers = modifiers;
-                },
-                reason => Plugin.Log.Error($"Can't fetch values for modifiers. Reason: {reason}"),
-                3);
+
+            void OnSuccess(Dictionary<string, float> modifiers) {
+                ModifiersUtils.instance.Modifiers = modifiers;
+            }
+            
+            void OnFail(string reason) {
+                Plugin.Log.Error($"Can't fetch values for modifiers. Reason: {reason}");
+            }
+
+            yield return ModifiersRequest.SendRequest(OnSuccess, OnFail);
         }
     }
 }

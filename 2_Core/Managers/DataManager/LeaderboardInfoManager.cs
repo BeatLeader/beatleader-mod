@@ -1,6 +1,6 @@
 ﻿using System.Collections;
+using BeatLeader.API.Methods;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -38,18 +38,19 @@ namespace BeatLeader.DataManager {
         private void UpdateLeaderboardsByHash(string hash) {
             if (_selectedLeaderboardUpdateCoroutine != null) StopCoroutine(_selectedLeaderboardUpdateCoroutine);
 
-            _selectedLeaderboardUpdateCoroutine = StartCoroutine(HttpUtils.GetData<HashLeaderboardsInfoResponse>(
-                    string.Format(BLConstants.LEADERBOARDS_HASH, hash),
-                    result => {
-                        foreach (var leaderboardInfo in result.leaderboards) {
-                            LeaderboardsCache.PutLeaderboardInfo(result.song, leaderboardInfo.id, leaderboardInfo.difficulty, leaderboardInfo.qualification);
-                        }
+            void OnSuccess(HashLeaderboardsInfoResponse result) {
+                foreach (var leaderboardInfo in result.leaderboards) {
+                    LeaderboardsCache.PutLeaderboardInfo(result.song, leaderboardInfo.id, leaderboardInfo.difficulty, leaderboardInfo.qualification);
+                }
 
-                        LeaderboardsCache.NotifyCacheWasChanged();
-                    },
-                    reason => Plugin.Log.Debug($"UpdateLeaderboardsByHash failed! {reason}")
-                )
-            );
+                LeaderboardsCache.NotifyCacheWasChanged();
+            }
+
+            void OnFail(string reason) {
+                Plugin.Log.Debug($"UpdateLeaderboardsByHash failed! {reason}");
+            }
+
+            _selectedLeaderboardUpdateCoroutine = StartCoroutine(LeaderboardsRequest.SendSingleRequest(hash, OnSuccess, OnFail));
         }
 
         #endregion
@@ -69,21 +70,22 @@ namespace BeatLeader.DataManager {
             var page = 1;
             var failed = false;
 
-            do {
-                yield return HttpUtils.GetPagedData<MassLeaderboardsInfoResponse>(
-                    string.Format(BLConstants.MASS_LEADERBOARDS, page, itemsPerPage, type),
-                    result => {
-                        foreach (var response in result.data) {
-                            LeaderboardsCache.PutLeaderboardInfo(response.song, response.id, response.difficulty, response.qualification);
-                        }
+            void OnSuccess(Paged<MassLeaderboardsInfoResponse> result) {
+                foreach (var response in result.data) {
+                    LeaderboardsCache.PutLeaderboardInfo(response.song, response.id, response.difficulty, response.qualification);
+                }
 
-                        totalPages = result.metadata.total / result.metadata.itemsPerPage;
-                        page = result.metadata.page + 1;
-                    },
-                    reason => {
-                        failed = true;
-                        Plugin.Log.Debug($"{type} {page}/{totalPages} cache update failed! {reason}");
-                    });
+                totalPages = Mathf.CeilToInt((float) result.metadata.total / result.metadata.itemsPerPage);
+                page = result.metadata.page + 1;
+            }
+
+            void OnFail(string reason) {
+                failed = true;
+                Plugin.Log.Debug($"{type} {page}/{totalPages} cache update failed! {reason}");
+            }
+
+            do {
+                yield return LeaderboardsRequest.SendBulkRequest(type, page, itemsPerPage, OnSuccess, OnFail);
             } while (!failed && page < totalPages);
         }
 

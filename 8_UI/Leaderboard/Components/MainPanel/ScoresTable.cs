@@ -47,13 +47,13 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetupLayout();
 
-            ScoresRequest.instance.AddStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
             OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
         }
 
         protected override void OnDispose() {
-            ScoresRequest.instance.RemoveStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
         }
 

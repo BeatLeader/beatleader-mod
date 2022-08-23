@@ -25,14 +25,14 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            UserRequest.instance.AddStateListener(OnProfileRequestStateChanged);
+            UserRequest.AddStateListener(OnProfileRequestStateChanged);
             
             ProfileManager.ProfileUpdatedEvent += OnProfileUpdated;
             if (ProfileManager.HasProfile) OnProfileUpdated(ProfileManager.Profile);
         }
 
         protected override void OnDispose() {
-            UserRequest.instance.RemoveStateListener(OnProfileRequestStateChanged);
+            UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
             ProfileManager.ProfileUpdatedEvent -= OnProfileUpdated;
         }
 

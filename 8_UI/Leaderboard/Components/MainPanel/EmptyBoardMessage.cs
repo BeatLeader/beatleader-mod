@@ -11,12 +11,12 @@ namespace BeatLeader.Components {
         #region OnInitialize
 
         protected override void OnInitialize() {
-            ScoresRequest.instance.AddStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
             ApplyAlpha();
         }
 
         protected override void OnDispose() {
-            ScoresRequest.instance.RemoveStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
         }
 
         #endregion

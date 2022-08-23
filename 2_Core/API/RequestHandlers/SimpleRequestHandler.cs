@@ -20,10 +20,6 @@ namespace BeatLeader.API.RequestHandlers {
 
         public void OnRequestStarted() { }
 
-        public void OnUploadProgress(float progress) { }
-
-        public void OnDownloadProgress(float progress) { }
-
-        public void OnProgress(float progress) { }
+        public void OnProgress(float uploadProgress, float downloadProgress, float overallProgress) { }
     }
 }

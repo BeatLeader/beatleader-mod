@@ -8,11 +8,11 @@ namespace BeatLeader.Components {
         #region Initialize
 
         protected override void OnInitialize() {
-            ScoreStatsRequest.instance.AddStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
         }
 
         protected override void OnDispose() {
-            ScoreStatsRequest.instance.RemoveStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
         }
 
         #endregion

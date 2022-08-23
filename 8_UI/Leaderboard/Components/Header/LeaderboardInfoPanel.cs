@@ -32,7 +32,7 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
-            ExMachinaRequest.instance.AddStateListener(OnExMachinaRequestStateChanged);
+            ExMachinaRequest.AddStateListener(OnExMachinaRequestStateChanged);
             ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
             LeaderboardState.SelectedBeatmapWasChangedEvent += OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
@@ -42,7 +42,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
-            ExMachinaRequest.instance.RemoveStateListener(OnExMachinaRequestStateChanged);
+            ExMachinaRequest.RemoveStateListener(OnExMachinaRequestStateChanged);
             ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
             LeaderboardState.SelectedBeatmapWasChangedEvent -= OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;

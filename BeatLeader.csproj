@@ -216,6 +216,7 @@
     <Compile Include="2_Core\API\Methods\ExMachinaRequest.cs" />
     <Compile Include="2_Core\API\Methods\ScoresRequest.cs" />
     <Compile Include="2_Core\API\Methods\ScoreStatsRequest.cs" />
+    <Compile Include="2_Core\API\Methods\UploadReplayRequest.cs" />
     <Compile Include="2_Core\API\Methods\UserRequest.cs" />
     <Compile Include="2_Core\API\Methods\VoteRequest.cs" />
     <Compile Include="2_Core\API\Methods\VoteStatusRequest.cs" />

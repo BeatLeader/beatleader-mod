@@ -1,13 +1,12 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BeatLeader.API.RequestHandlers {
-    internal abstract class PersistentSingletonRequestHandler<T, R> : PersistentSingleton<T>, IWebRequestHandler<R> where T : MonoBehaviour {
+    internal abstract class PersistentSingletonRequestHandler<T, R> : PersistentSingleton<PersistentSingletonRequestHandler<T, R>>, IWebRequestHandler<R> where T : MonoBehaviour {
         #region State
 
         public delegate void StateChangedDelegate(RequestState state, R result, string failReason);
 
-        public event StateChangedDelegate StateChangedEvent;
+        private event StateChangedDelegate StateChangedEvent;
 
         private RequestState _requestState = RequestState.Uninitialized;
         public R Result { get; private set; }
@@ -21,53 +20,45 @@ namespace BeatLeader.API.RequestHandlers {
             }
         }
 
-        public void AddStateListener(StateChangedDelegate handler) {
-            StateChangedEvent += handler;
-            handler?.Invoke(State, Result, FailReason);
+        public static void AddStateListener(StateChangedDelegate handler) {
+            if (!IsSingletonAvailable) return;
+            instance.StateChangedEvent += handler;
+            handler?.Invoke(instance.State, instance.Result, instance.FailReason);
         }
 
-        public void RemoveStateListener(StateChangedDelegate handler) {
-            StateChangedEvent -= handler;
+        public static void RemoveStateListener(StateChangedDelegate handler) {
+            if (!IsSingletonAvailable) return;
+            instance.StateChangedEvent -= handler;
         }
 
         #endregion
 
         #region Progress
 
-        public event Action<float> DownloadProgressChangedEvent;
-        public event Action<float> UploadProgressChangedEvent;
-        public event Action<float> ProgressChangedEvent;
+        public delegate void ProgressChangedDelegate(float uploadProgress, float downloadProgress, float overallProgress);
 
-        private float _downloadProgress;
+        private event ProgressChangedDelegate ProgressChangedEvent;
 
-        public float DownloadProgress {
-            get => _downloadProgress;
-            private set {
-                _downloadProgress = value;
-                DownloadProgressChangedEvent?.Invoke(value);
-            }
+        public float UploadProgress { get; private set; }
+        public float DownloadProgress { get; private set; }
+        public float OverallProgress { get; private set; }
+
+        private void SetProgress(float uploadProgress, float downloadProgress, float overallProgress) {
+            UploadProgress = uploadProgress;
+            DownloadProgress = downloadProgress;
+            OverallProgress = overallProgress;
+            ProgressChangedEvent?.Invoke(uploadProgress, downloadProgress, overallProgress);
         }
 
-
-        private float _uploadProgress;
-
-        public float UploadProgress {
-            get => _uploadProgress;
-            private set {
-                _uploadProgress = value;
-                UploadProgressChangedEvent?.Invoke(value);
-            }
+        public static void AddProgressListener(ProgressChangedDelegate handler) {
+            if (!IsSingletonAvailable) return;
+            instance.ProgressChangedEvent += handler;
+            handler?.Invoke(instance.UploadProgress, instance.DownloadProgress, instance.OverallProgress);
         }
 
-
-        private float _progress;
-
-        public float Progress {
-            get => _progress;
-            private set {
-                _progress = value;
-                ProgressChangedEvent?.Invoke(value);
-            }
+        public static void RemoveProgressListener(ProgressChangedDelegate handler) {
+            if (!IsSingletonAvailable) return;
+            instance.ProgressChangedEvent -= handler;
         }
 
         #endregion
@@ -78,7 +69,7 @@ namespace BeatLeader.API.RequestHandlers {
 
         private Coroutine _coroutine;
 
-        protected void Send(IWebRequestDescriptor<R> requestDescriptor, int retries = 1) {
+        public void Send(IWebRequestDescriptor<R> requestDescriptor, int retries = 1) {
             if (!AllowConcurrentRequests && State is RequestState.Started && _coroutine != null) {
                 StopCoroutine(_coroutine);
                 OnRequestFailed("Cancelled");
@@ -107,16 +98,8 @@ namespace BeatLeader.API.RequestHandlers {
             State = RequestState.Failed;
         }
 
-        public void OnUploadProgress(float progress) {
-            UploadProgress = progress;
-        }
-
-        public void OnDownloadProgress(float progress) {
-            DownloadProgress = progress;
-        }
-
-        public void OnProgress(float progress) {
-            Progress = progress;
+        public void OnProgress(float uploadProgress, float downloadProgress, float combinedProgress) {
+            SetProgress(uploadProgress, downloadProgress, combinedProgress);
         }
 
         #endregion

@@ -14,13 +14,13 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterial();
 
-            VoteRequest.instance.AddStateListener(OnVoteRequestStateChanged);
-            VoteStatusRequest.instance.AddStateListener(OnVoteStatusRequestStateChanged);
+            VoteRequest.AddStateListener(OnVoteRequestStateChanged);
+            VoteStatusRequest.AddStateListener(OnVoteStatusRequestStateChanged);
         }
 
         protected override void OnDispose() {
-            VoteRequest.instance.RemoveStateListener(OnVoteRequestStateChanged);
-            VoteStatusRequest.instance.RemoveStateListener(OnVoteStatusRequestStateChanged);
+            VoteRequest.RemoveStateListener(OnVoteRequestStateChanged);
+            VoteStatusRequest.RemoveStateListener(OnVoteStatusRequestStateChanged);
         }
 
         #endregion

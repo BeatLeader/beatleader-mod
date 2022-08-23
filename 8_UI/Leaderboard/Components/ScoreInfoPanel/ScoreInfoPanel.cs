@@ -48,7 +48,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             InitializeModal();
             
-            ScoreStatsRequest.instance.AddStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
             LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
@@ -57,7 +57,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
-            ScoreStatsRequest.instance.RemoveStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
             LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
             LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;

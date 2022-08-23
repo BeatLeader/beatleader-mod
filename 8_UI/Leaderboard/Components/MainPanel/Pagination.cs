@@ -14,11 +14,11 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             FlipUpButton();
-            ScoresRequest.instance.AddStateListener(OnScoreRequestStateChanged);
+            ScoresRequest.AddStateListener(OnScoreRequestStateChanged);
         }
 
         protected override void OnDispose() {
-            ScoresRequest.instance.RemoveStateListener(OnScoreRequestStateChanged);
+            ScoresRequest.RemoveStateListener(OnScoreRequestStateChanged);
         }
 
         #endregion

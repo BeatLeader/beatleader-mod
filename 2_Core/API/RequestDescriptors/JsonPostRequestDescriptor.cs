@@ -16,11 +16,7 @@ namespace BeatLeader.API.RequestDescriptors {
         }
 
         public T ParseResponse(UnityWebRequest request) {
-            var options = new JsonSerializerSettings() {
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore
-            };
-            return JsonConvert.DeserializeObject<T>(request.downloadHandler.text, options);
+            return JsonConvert.DeserializeObject<T>(request.downloadHandler.text, NetworkingUtils.SerializerSettings);
         }
     }
 }

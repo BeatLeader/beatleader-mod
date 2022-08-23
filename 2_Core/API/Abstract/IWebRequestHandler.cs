@@ -6,8 +6,6 @@ namespace BeatLeader.API {
         public void OnRequestFinished(T result);
         public void OnRequestFailed(string reason);
         
-        public void OnUploadProgress(float progress);
-        public void OnDownloadProgress(float progress);
-        public void OnProgress(float progress);
+        public void OnProgress(float uploadProgress, float downloadProgress, float overallProgress);
     }
 }

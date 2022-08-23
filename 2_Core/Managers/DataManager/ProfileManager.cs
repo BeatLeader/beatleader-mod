@@ -91,14 +91,14 @@ namespace BeatLeader.DataManager {
         #region Initialize / Dispose
 
         public void Initialize() {
-            UserRequest.instance.AddStateListener(OnUserRequestStateChanged);
+            UserRequest.AddStateListener(OnUserRequestStateChanged);
             LeaderboardState.UploadRequest.FinishedEvent += OnUploadFinished;
 
             UserRequest.SendRequest();
         }
 
         public void Dispose() {
-            UserRequest.instance.RemoveStateListener(OnUserRequestStateChanged);
+            UserRequest.RemoveStateListener(OnUserRequestStateChanged);
             LeaderboardState.UploadRequest.FinishedEvent -= OnUploadFinished;
         }
 

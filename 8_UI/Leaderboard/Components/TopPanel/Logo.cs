@@ -110,17 +110,15 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterial();
             
-            UserRequest.instance.AddStateListener(OnProfileRequestStateChanged);
-            ScoresRequest.instance.AddStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.UploadRequest.StateChangedEvent += OnUploadRequestStateChanged;
-            
-            OnUploadRequestStateChanged(LeaderboardState.UploadRequest.State);
+            UserRequest.AddStateListener(OnProfileRequestStateChanged);
+            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
         }
 
         protected override void OnDispose() {
-            UserRequest.instance.RemoveStateListener(OnProfileRequestStateChanged);
-            ScoresRequest.instance.RemoveStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.UploadRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+            UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
+            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
         }
 
         #endregion
@@ -142,8 +140,8 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        private void OnUploadRequestStateChanged(RequestState requestState) {
-            _uploadingScore = requestState is RequestState.Started;
+        private void OnUploadRequestStateChanged(API.RequestState state, Player result, string failReason) {
+            _uploadingScore = state is API.RequestState.Started;
             UpdateState();
         }
 

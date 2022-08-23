@@ -27,7 +27,7 @@ namespace BeatLeader.DataManager {
         public void Start() {
             SetFakeBloomProperty();
             
-            ScoresRequest.instance.AddStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
             LeaderboardState.UploadRequest.StartedEvent += OnUploadStarted;
             LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
             
@@ -42,7 +42,7 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnDestroy() {
-            ScoresRequest.instance.RemoveStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
             LeaderboardState.UploadRequest.StartedEvent -= OnUploadStarted;
             LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
             

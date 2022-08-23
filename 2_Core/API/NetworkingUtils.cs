@@ -3,11 +3,21 @@ using System.Collections;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BeatLeader.API {
     internal static class NetworkingUtils {
+        #region Constants
+
+        public static readonly JsonSerializerSettings SerializerSettings = new() {
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            NullValueHandling = NullValueHandling.Ignore
+        };
+
+        #endregion
+        
         #region SimpleRequestCoroutine
 
         public static IEnumerator SimpleRequestCoroutine<T>(
@@ -71,29 +81,15 @@ namespace BeatLeader.API {
         private static IEnumerator AwaitRequestWithProgress<T>(UnityWebRequest request, IWebRequestHandler<T> requestHandler) {
             var asyncOperation = request.SendWebRequest();
 
-            var uploadProgress = 0f;
-            var downloadProgress = 0f;
-            var progress = 0f;
+            var overallProgress = 0f;
 
-            bool WaitUntilPredicate() => request.isDone || !progress.Equals(asyncOperation.progress);
+            bool WaitUntilPredicate() => request.isDone || !overallProgress.Equals(asyncOperation.progress);
 
             do {
                 yield return new WaitUntil(WaitUntilPredicate);
-
-                if (!uploadProgress.Equals(request.uploadProgress)) {
-                    uploadProgress = request.uploadProgress;
-                    requestHandler.OnUploadProgress(uploadProgress);
-                }
-
-                if (!downloadProgress.Equals(request.downloadProgress)) {
-                    downloadProgress = request.downloadProgress;
-                    requestHandler.OnDownloadProgress(downloadProgress);
-                }
-
-                if (!progress.Equals(asyncOperation.progress)) {
-                    progress = asyncOperation.progress;
-                    requestHandler.OnProgress(progress);
-                }
+                if (overallProgress.Equals(asyncOperation.progress)) continue;
+                overallProgress = asyncOperation.progress;
+                requestHandler.OnProgress(request.uploadProgress, request.downloadProgress, overallProgress);
             } while (!request.isDone);
         }
 

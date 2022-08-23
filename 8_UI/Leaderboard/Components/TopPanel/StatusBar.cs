@@ -16,8 +16,8 @@ namespace BeatLeader.Components {
             LeaderboardState.UploadRequest.FinishedEvent += OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent += OnScoreUploadFailed;
 
-            UserRequest.instance.AddStateListener(OnProfileRequestStateChanged);
-            VoteRequest.instance.AddStateListener(OnVoteRequestStateChanged);
+            UserRequest.AddStateListener(OnProfileRequestStateChanged);
+            VoteRequest.AddStateListener(OnVoteRequestStateChanged);
         }
 
         protected override void OnDispose() {
@@ -25,8 +25,8 @@ namespace BeatLeader.Components {
             LeaderboardState.UploadRequest.FinishedEvent -= OnScoreUploadSuccess;
             LeaderboardState.UploadRequest.FailedEvent -= OnScoreUploadFailed;
 
-            UserRequest.instance.RemoveStateListener(OnProfileRequestStateChanged);
-            VoteRequest.instance.RemoveStateListener(OnVoteRequestStateChanged);
+            UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
+            VoteRequest.RemoveStateListener(OnVoteRequestStateChanged);
         }
 
         private void OnDisable() {

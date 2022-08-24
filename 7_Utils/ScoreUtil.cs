@@ -1,4 +1,5 @@
-﻿using BeatLeader.API.Methods;
+﻿using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Models;
 
 namespace BeatLeader.Utils {
@@ -23,6 +24,8 @@ namespace BeatLeader.Utils {
 
         #region ProcessReplay
 
+        public static Action<Replay> ReplayUploadStartedEvent;
+
         public static void ProcessReplay(Replay replay) {
             if (replay.info.score <= 0) { // no lightshow here
                 Plugin.Log.Debug("Zero score, skip replay processing");
@@ -42,10 +45,15 @@ namespace BeatLeader.Utils {
             if (ShouldSubmit()) {
                 Plugin.Log.Debug("Uploading replay");
                 FileManager.WriteReplay(replay);
-                UploadReplayRequest.SendRequest(replay);
+                UploadReplay(replay);
             } else {
                 Plugin.Log.Debug("Score submission was disabled");
             }
+        }
+
+        public static void UploadReplay(Replay replay) {
+            ReplayUploadStartedEvent?.Invoke(replay);
+            UploadReplayRequest.SendRequest(replay);
         }
 
         #endregion

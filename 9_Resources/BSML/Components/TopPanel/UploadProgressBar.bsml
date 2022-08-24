@@ -1,0 +1,5 @@
+<horizontal id="root" ignore-layout="true" anchor-pos-y="10" pref-height="5" bg="round-rect-panel">
+    <vertical min-width="5">
+        <text id="text-component" text="" font-size="3.4" word-wrapping="false" align="Center"/>
+    </vertical>
+</horizontal>

@@ -12,12 +12,13 @@ namespace BeatLeader.API.Methods {
         private const string WithCookieEndpoint = BLConstants.BEATLEADER_API_URL + "/replayoculus";
 
         private const int UploadRetryCount = 3;
+        private const int UploadTimeoutSeconds = 120;
 
         protected override bool KeepState => false;
 
         public static void SendRequest(Replay replay) {
             var requestDescriptor = new UploadWithCookieRequestDescriptor(replay);
-            instance.Send(requestDescriptor, UploadRetryCount);
+            instance.Send(requestDescriptor, UploadRetryCount, UploadTimeoutSeconds);
         }
 
         #region RequestDescriptor

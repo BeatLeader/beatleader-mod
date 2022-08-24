@@ -353,6 +353,7 @@
     <Compile Include="8_UI\Leaderboard\Components\TopPanel\NotificationIcon.cs" />
     <Compile Include="8_UI\Leaderboard\Components\TopPanel\PlayerInfo.cs" />
     <Compile Include="8_UI\Leaderboard\Components\TopPanel\StatusBar.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\TopPanel\UploadProgressBar.cs" />
     <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardPanel.cs" />
     <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardView.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
@@ -407,6 +408,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\NotificationIcon.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\PlayerInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\StatusBar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\UploadProgressBar.bsml" />
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="9_Resources\BSML\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\LeaderboardView.bsml" />

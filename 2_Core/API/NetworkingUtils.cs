@@ -25,10 +25,11 @@ namespace BeatLeader.API {
         public static IEnumerator SimpleRequestCoroutine<T>(
             IWebRequestDescriptor<T> requestDescriptor,
             Action<T> onSuccess, Action<string> onFail,
-            int retries = 1
+            int retries = 1,
+            int timeoutSeconds = 30
         ) {
             var handler = new SimpleRequestHandler<T>(onSuccess, onFail);
-            yield return ProcessRequestCoroutine(requestDescriptor, handler, retries);
+            yield return ProcessRequestCoroutine(requestDescriptor, handler, retries, timeoutSeconds);
         }
 
         #endregion
@@ -38,7 +39,8 @@ namespace BeatLeader.API {
         public static IEnumerator ProcessRequestCoroutine<T>(
             IWebRequestDescriptor<T> requestDescriptor,
             IWebRequestHandler<T> requestHandler,
-            int retries = 1
+            int retries = 1,
+            int timeoutSeconds = 30
         ) {
             for (var i = 1; i <= retries; i++) {
                 requestHandler.OnRequestStarted();
@@ -52,7 +54,7 @@ namespace BeatLeader.API {
                 }
 
                 var request = requestDescriptor.CreateWebRequest();
-                request.timeout = 30;
+                request.timeout = timeoutSeconds;
 
                 Plugin.Log.Debug($"Request[{request.GetHashCode()}]: {request.url}");
                 yield return AwaitRequestWithProgress(request, requestHandler);
@@ -85,6 +87,7 @@ namespace BeatLeader.API {
             var asyncOperation = request.SendWebRequest();
 
             var overallProgress = 0f;
+            requestHandler.OnProgress(0, 0, 0);
 
             bool WaitUntilPredicate() => request.isDone || !overallProgress.Equals(asyncOperation.progress);
 

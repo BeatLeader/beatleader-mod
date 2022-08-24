@@ -11,10 +11,14 @@ namespace BeatLeader.Components {
     internal class Logo : ReeUIComponentV2 {
         #region Components
 
+        [UIValue("upload-progress-bar"), UsedImplicitly]
+        private UploadProgressBar _uploadProgressBar;
+
         [UIValue("notification-icon"), UsedImplicitly]
         private NotificationIcon _notificationIcon;
 
         private void Awake() {
+            _uploadProgressBar = Instantiate<UploadProgressBar>(transform);
             _notificationIcon = Instantiate<NotificationIcon>(transform);
         }
 

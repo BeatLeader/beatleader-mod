@@ -78,13 +78,13 @@ namespace BeatLeader.API.RequestHandlers {
 
         private Coroutine _coroutine;
 
-        protected void Send(IWebRequestDescriptor<R> requestDescriptor, int retries = 1) {
+        protected void Send(IWebRequestDescriptor<R> requestDescriptor, int retries = 1, int timeoutSeconds = 30) {
             if (!AllowConcurrentRequests && State is RequestState.Started && _coroutine != null) {
                 StopCoroutine(_coroutine);
                 OnRequestFailed("Cancelled");
             }
 
-            _coroutine = StartCoroutine(NetworkingUtils.ProcessRequestCoroutine(requestDescriptor, this, retries));
+            _coroutine = StartCoroutine(NetworkingUtils.ProcessRequestCoroutine(requestDescriptor, this, retries, timeoutSeconds));
         }
 
         #endregion

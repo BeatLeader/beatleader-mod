@@ -22,6 +22,9 @@ namespace BeatLeader.Components {
         #region Animation
 
         private void OnHoverStateChanged(bool isHovered, float progress) {
+            var scale = _state is State.Inactive ? 0.8f : 0.9f + 0.4f * progress;
+            _imageComponent.transform.localScale = new Vector3(scale, scale, scale);
+            
             _labelRoot.localScale = new Vector3(1.0f, progress, 1.0f);
             _labelComponent.alpha = progress;
         }
@@ -43,19 +46,26 @@ namespace BeatLeader.Components {
 
         #region Colors
 
-        private static readonly Color InactiveColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
-        private static readonly Color DefaultColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-        private static readonly Color HighlightColor = new Color(0.0f, 1.0f, 0.0f, 1.0f);
+        private static readonly Color InactiveColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+        
+        private Color _defaultColor = new Color(1.0f, 1.0f, 1.0f, 0.8f);
+        private Color _highlightColor = Color.white;
 
-        public void UpdateColors() {
+        public void SetColors(Color defaultColor, Color highlightColor) {
+            _defaultColor = defaultColor.ColorWithAlpha(0.8f);
+            _highlightColor = highlightColor;
+            UpdateColors();
+        }
+
+        private void UpdateColors() {
             if (_state is not State.Active) {
                 _imageComponent.DefaultColor = InactiveColor;
                 _imageComponent.HighlightColor = InactiveColor;
                 return;
             }
             
-            _imageComponent.DefaultColor = DefaultColor;
-            _imageComponent.HighlightColor = HighlightColor;
+            _imageComponent.DefaultColor = _defaultColor;
+            _imageComponent.HighlightColor = _highlightColor;
         }
 
         #endregion

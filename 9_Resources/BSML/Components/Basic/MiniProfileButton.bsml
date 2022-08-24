@@ -2,7 +2,7 @@
     <vertical ignore-layout="true" id="label-root">
         <text id="label-component" text="" font-size="3.4" align="Center"/>
     </vertical>
-    <vertical pref-width="5" bg="round-rect-panel" bg-color="#00000066">
+    <vertical pref-width="5">
         <clickable-image id="image-component" src="#PlayerIcon" preserve-aspect="true"/>
     </vertical>
 </horizontal>

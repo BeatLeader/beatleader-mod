@@ -113,6 +113,27 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite PatreonLinkIcon;
 
+        [UsedImplicitly]
+        public static Sprite TwitterIcon;
+
+        [UsedImplicitly]
+        public static Sprite TwitchIcon;
+
+        [UsedImplicitly]
+        public static Sprite YoutubeIcon;
+
+        [UsedImplicitly]
+        public static Sprite BeatSaverIcon;
+
+        [UsedImplicitly]
+        public static Sprite ProfileIcon;
+
+        [UsedImplicitly]
+        public static Sprite FriendsIcon;
+
+        [UsedImplicitly]
+        public static Sprite IncognitoIcon;
+
         private static void LoadSprites(AssetBundle assetBundle) {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
@@ -128,6 +149,13 @@ namespace BeatLeader {
             WebsiteLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Website");
             DiscordLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Discord");
             PatreonLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Patreon");
+            TwitterIcon = assetBundle.LoadAsset<Sprite>("BL_TwitterIcon");
+            TwitchIcon = assetBundle.LoadAsset<Sprite>("BL_TwitchIcon");
+            YoutubeIcon = assetBundle.LoadAsset<Sprite>("BL_YoutubeIcon");
+            BeatSaverIcon = assetBundle.LoadAsset<Sprite>("BL_BeatSaverIcon");
+            ProfileIcon = assetBundle.LoadAsset<Sprite>("BL_ProfileIcon");
+            FriendsIcon = assetBundle.LoadAsset<Sprite>("BL_FriendsIcon");
+            IncognitoIcon = assetBundle.LoadAsset<Sprite>("BL_IncognitoIcon");
         }
 
         #endregion

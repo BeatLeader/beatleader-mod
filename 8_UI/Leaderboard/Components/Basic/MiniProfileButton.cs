@@ -14,36 +14,21 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             InitializeImage();
-            ApplyVisuals();
             UpdateColors();
-        }
-
-        private void OnHoverStateChanged(bool isHovered) {
-            _targetT = isHovered ? 1 : 0;
         }
 
         #endregion
 
         #region Animation
 
-        private float _currentT;
-        private float _targetT;
-
-        private void Update() {
-            if (Mathf.Abs(_currentT - _targetT) < 1e-10) return;
-            _currentT = Mathf.Lerp(_currentT, _targetT, Time.deltaTime * 10);
-            ApplyVisuals();
-        }
-
-        private void ApplyVisuals() {
-            _labelRoot.localScale = new Vector3(1.0f, _currentT, 1.0f);
-            _labelComponent.alpha = _currentT;
+        private void OnHoverStateChanged(bool isHovered, float progress) {
+            _labelRoot.localScale = new Vector3(1.0f, progress, 1.0f);
+            _labelComponent.alpha = progress;
         }
 
         #endregion
 
         #region Setup
-
 
         [UIComponent("label-root"), UsedImplicitly] private RectTransform _labelRoot;
         [UIComponent("label-component"), UsedImplicitly] private TextMeshProUGUI _labelComponent;
@@ -118,7 +103,7 @@ namespace BeatLeader.Components {
         [UIComponent("image-component"), UsedImplicitly] private ClickableImage _imageComponent;
 
         private void InitializeImage() {
-            var hoverController = _imageComponent.gameObject.AddComponent<HoverController>();
+            var hoverController = _imageComponent.gameObject.AddComponent<SmoothHoverController>();
             hoverController.HoverStateChangedEvent += OnHoverStateChanged;
             _imageComponent.OnClickEvent += OnClickEvent;
         }

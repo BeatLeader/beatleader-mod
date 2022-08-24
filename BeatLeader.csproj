@@ -311,7 +311,7 @@
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
-    <Compile Include="8_UI\Leaderboard\Components\Basic\HoverController.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Basic\SmoothHoverController.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\MiniProfileButton.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Header\LeaderboardInfoPanel.cs" />

@@ -2,6 +2,7 @@ using System;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -12,8 +13,7 @@ namespace BeatLeader.Components {
             InitializeBackground();
         }
 
-        private void OnHoverStateChanged(bool isHovered) {
-            _isHovered = isHovered;
+        private void OnHoverStateChanged(bool isHovered, float progress) {
             UpdateVisuals();
         }
 
@@ -32,7 +32,6 @@ namespace BeatLeader.Components {
 
         private Type _type;
         private float _score;
-        private bool _isHovered;
 
         public void SetValues(Type type, float score) {
             _type = type;
@@ -42,8 +41,8 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateVisuals() {
-            Text = FormatScore(_score, _isHovered);
-            _backgroundImage.color = GetColor(_type, _isHovered);
+            _backgroundImage.color = GetColor(_type, _hoverController.Progress);
+            _textComponent.text = FormatScore(_score, _hoverController.IsHovered);
         }
 
         #endregion
@@ -54,13 +53,13 @@ namespace BeatLeader.Components {
         private static readonly Color RightColor = new(0.2f, 0.2f, 0.8f, 0.1f);
         private const float HoveredGlow = 0.5f;
 
-        private static Color GetColor(Type type, bool isHovered) {
+        private static Color GetColor(Type type, float hover) {
             var col = type switch {
                 Type.Left => LeftColor,
                 Type.Right => RightColor,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
-            if (isHovered) col.a = HoveredGlow;
+            col.a = Mathf.Lerp(col.a, HoveredGlow, hover);
             return col;
         }
 
@@ -69,28 +68,18 @@ namespace BeatLeader.Components {
             return Mathf.Pow(ratio, 0.6f);
         }
         
-        private static string FormatScore(float value, bool isHovered) {
-            if (!isHovered) return $"{value:F2}";
-            
+        private static string FormatScore(float value, bool showAcc) {
+            if (!showAcc) return $"{value:F2}";
             var acc = value / 1.15f;
-            return $"{acc:F2}<size=60%>%";
+            return $"<line-height=53%>{value:F2}\n<size=80%>{acc:F2}<size=50%>%";
         }
 
         #endregion
 
         #region Text
 
-        private string _text = "";
-
-        [UIValue("text"), UsedImplicitly]
-        private string Text {
-            get => _text;
-            set {
-                if (_text.Equals(value)) return;
-                _text = value;
-                NotifyPropertyChanged();
-            }
-        }
+        [UIComponent("text-component"), UsedImplicitly]
+        private TextMeshProUGUI _textComponent;
 
         #endregion
 
@@ -98,6 +87,8 @@ namespace BeatLeader.Components {
 
         [UIComponent("background"), UsedImplicitly]
         private ImageView _backgroundImage;
+
+        private SmoothHoverController _hoverController;
 
         private static readonly int FillPropertyId = Shader.PropertyToID("_FillValue");
         private Material _materialInstance;
@@ -110,8 +101,8 @@ namespace BeatLeader.Components {
             _materialInstance = Material.Instantiate(BundleLoader.HandAccIndicatorMaterial);
             _backgroundImage.material = _materialInstance;
             _backgroundImage.raycastTarget = true;
-            var hoverController = _backgroundImage.gameObject.AddComponent<HoverController>();
-            hoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            _hoverController = _backgroundImage.gameObject.AddComponent<SmoothHoverController>();
+            _hoverController.HoverStateChangedEvent += OnHoverStateChanged;
         }
 
         #endregion

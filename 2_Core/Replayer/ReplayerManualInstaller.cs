@@ -38,9 +38,10 @@ namespace BeatLeader.Replayer
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //scorecontroller patch
+            var old = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
             Container.Bind<IReplayerScoreController>().To<ReplayerScoreController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Rebind<IScoreController>().To<IReplayerScoreController>().FromResolve().AsSingle().NonLazy();
-            Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault().TryDestroy();
+            old.TryDestroy();
 
             Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

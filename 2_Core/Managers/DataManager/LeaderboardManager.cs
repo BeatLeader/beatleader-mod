@@ -35,6 +35,7 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
+            ProfileManager.FriendsUpdatedEvent += OnFriendsUpdated;
 
             _selectedScoreContext = PluginConfig.ScoresContext;
             _selectedScoreScope = LeaderboardState.ScoresScope;
@@ -49,6 +50,7 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
+            ProfileManager.FriendsUpdatedEvent -= OnFriendsUpdated;
         }
 
         #endregion
@@ -80,6 +82,11 @@ namespace BeatLeader.DataManager {
             LoadScores();
 
             LeaderboardState.SelectedBeatmap = difficultyBeatmap;
+        }
+
+        private void OnFriendsUpdated() {
+            if (_selectedScoreScope is not ScoresScope.Friends) return;
+            LoadScores();
         }
 
         #region OnUploadRequestStateChanged

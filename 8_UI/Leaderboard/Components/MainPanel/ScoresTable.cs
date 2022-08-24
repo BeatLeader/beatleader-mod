@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.API.Methods;
+using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -49,12 +50,14 @@ namespace BeatLeader.Components {
 
             ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
             OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
         }
 
         protected override void OnDispose() {
             ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
         }
 
         #endregion

@@ -6,6 +6,8 @@ using BeatLeader.Utils;
 
 namespace BeatLeader.API.Methods {
     internal class ScoresRequest : PersistentSingletonRequestHandler<ScoresRequest, Paged<Score>> {
+        private const int ScoresPerPage = 10;
+        
         #region Page
         
         // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}
@@ -22,7 +24,7 @@ namespace BeatLeader.API.Methods {
         ) {
             var query = new Dictionary<string, object> {
                 { BLConstants.Param.PLAYER, userId },
-                { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
+                { BLConstants.Param.COUNT, ScoresPerPage },
                 { BLConstants.Param.PAGE, page }
             };
             var url = string.Format(PageEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
@@ -48,7 +50,7 @@ namespace BeatLeader.API.Methods {
         ) {
             var query = new Dictionary<string, object> {
                 { BLConstants.Param.PLAYER, userId },
-                { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
+                { BLConstants.Param.COUNT, ScoresPerPage }
             };
             var url = string.Format(SeekEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
 

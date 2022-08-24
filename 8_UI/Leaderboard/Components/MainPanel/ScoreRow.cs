@@ -170,10 +170,16 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnInitialize() {
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdatePlayer;
+            
             SetupFormatting();
             SetupBackground();
             SetupUnderline();
             FadeOut();
+        }
+
+        protected override void OnDispose() {
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdatePlayer;
         }
 
         private void OnEnable() {
@@ -191,15 +197,7 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             _score = score;
 
-            var playerRoles = FormatUtils.ParsePlayerRoles(score.player.role);
-            ApplyColorScheme(playerRoles);
-
-            SetHighlight(ProfileManager.IsCurrentPlayer(score.player));
             _rankCell.SetValue(score.rank);
-            _avatarCell.SetValues(score.player.avatar, playerRoles);
-            _countryCell.SetValue(score.player.country);
-            _usernameCell.SetValue(score.player.name);
-            _clansCell.SetValues(score.player.clans ?? Array.Empty<Clan>());
             _modifiersCell.SetValue(score.modifiers);
             _accuracyCell.SetValue(score.accuracy);
             _ppCell.SetValue(score.pp);
@@ -208,6 +206,23 @@ namespace BeatLeader.Components {
             _mistakesCell.SetValues(score.missedNotes, score.badCuts, score.bombCuts, score.wallsHit);
             _pausesCell.SetValue(score.pauses);
             Clickable = true;
+
+            UpdatePlayer();
+        }
+
+        private void UpdatePlayer() {
+            if (_score == null) return;
+            var player = HiddenPlayersCache.ModifyPlayer(_score.player);
+            
+            SetHighlight(ProfileManager.IsCurrentPlayer(player));
+            
+            var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
+            ApplyColorScheme(playerRoles);
+
+            _avatarCell.SetValues(player.avatar, playerRoles);
+            _countryCell.SetValue(player.country);
+            _usernameCell.SetValue(player.name);
+            _clansCell.SetValues(player.clans ?? Array.Empty<Clan>());
         }
 
         public void ClearScore() {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BeatLeader.API.Methods;
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using JetBrains.Annotations;
 using Zenject;
@@ -72,18 +73,18 @@ namespace BeatLeader.DataManager {
             FriendsUpdatedEvent?.Invoke();
         }
 
-        public static void AddFriend(Player player) {
+        private static void AddFriend(Player player) {
             Friends[player.id] = player;
             FriendsUpdatedEvent?.Invoke();
         }
 
-        public static void RemoveFriend(Player player) {
+        private static void RemoveFriend(Player player) {
             Friends.Remove(player.id);
             FriendsUpdatedEvent?.Invoke();
         }
 
         public static bool IsFriend(Player player) {
-            return Friends.ContainsKey(player.id);
+            return player != null && Friends.ContainsKey(player.id);
         }
 
         #endregion
@@ -93,6 +94,10 @@ namespace BeatLeader.DataManager {
         public void Initialize() {
             UserRequest.AddStateListener(OnUserRequestStateChanged);
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+            AddFriendRequest.AddStateListener(OnAddFriendRequestStateChanged);
+            RemoveFriendRequest.AddStateListener(OnRemoveFriendRequestStateChanged);
+            LeaderboardEvents.AddFriendWasPressedEvent += OnAddFriendWasPressed;
+            LeaderboardEvents.RemoveFriendWasPressedEvent += OnRemoveFriendWasPressed;
 
             UserRequest.SendRequest();
         }
@@ -100,11 +105,45 @@ namespace BeatLeader.DataManager {
         public void Dispose() {
             UserRequest.RemoveStateListener(OnUserRequestStateChanged);
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+            AddFriendRequest.RemoveStateListener(OnAddFriendRequestStateChanged);
+            RemoveFriendRequest.RemoveStateListener(OnRemoveFriendRequestStateChanged);
+            LeaderboardEvents.AddFriendWasPressedEvent -= OnAddFriendWasPressed;
+            LeaderboardEvents.RemoveFriendWasPressedEvent -= OnRemoveFriendWasPressed;
         }
 
         #endregion
 
         #region Events
+
+        private static void OnAddFriendWasPressed(Player player) {
+            AddFriendRequest.SendRequest(player);
+        }
+
+        private static void OnRemoveFriendWasPressed(Player player) {
+            RemoveFriendRequest.SendRequest(player);
+        }
+
+        private static void OnAddFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
+            switch (state) {
+                case API.RequestState.Failed:
+                    LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
+                    break;
+                case API.RequestState.Finished:
+                    AddFriend(result);
+                    break;
+            }
+        }
+
+        private static void OnRemoveFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
+            switch (state) {
+                case API.RequestState.Failed:
+                    LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
+                    break;
+                case API.RequestState.Finished:
+                    RemoveFriend(result);
+                    break;
+            }
+        }
 
         private static void OnUserRequestStateChanged(API.RequestState state, User result, string failReason) {
             if (state is not API.RequestState.Finished) return;

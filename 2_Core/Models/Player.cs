@@ -28,7 +28,7 @@
         public string message;
     }
 
-    internal struct ServiceIntegration {
+    internal class ServiceIntegration {
         public string service;
         public string link;
         public string user;

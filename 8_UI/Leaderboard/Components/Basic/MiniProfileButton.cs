@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
     internal class MiniProfileButton : ReeUIComponentV2 {
@@ -14,6 +15,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             InitializeImage();
             ApplyVisuals();
+            UpdateColors();
         }
 
         private void OnHoverStateChanged(bool isHovered) {
@@ -42,16 +44,71 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        private const float BaseOffset = 4.0f;
 
         [UIComponent("label-root"), UsedImplicitly] private RectTransform _labelRoot;
         [UIComponent("label-component"), UsedImplicitly] private TextMeshProUGUI _labelComponent;
 
-        public void Setup(Sprite sprite, string label, bool labelOnLeft) {
+        public void Setup(Sprite sprite, bool labelOnLeft) {
             _imageComponent.sprite = sprite;
+            _labelOnLeft = labelOnLeft;
+            UpdateLabelOffset();
+        }
+
+        #endregion
+
+        #region Colors
+
+        private static readonly Color InactiveColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+        private static readonly Color DefaultColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+        private static readonly Color HighlightColor = new Color(0.0f, 1.0f, 0.0f, 1.0f);
+
+        public void UpdateColors() {
+            if (_state is not State.Active) {
+                _imageComponent.DefaultColor = InactiveColor;
+                _imageComponent.HighlightColor = InactiveColor;
+                return;
+            }
+            
+            _imageComponent.DefaultColor = DefaultColor;
+            _imageComponent.HighlightColor = HighlightColor;
+        }
+
+        #endregion
+
+        #region State
+
+        [UIObject("root"), UsedImplicitly]
+        private GameObject _rootObject;
+
+        private State _state = State.Active;
+
+        public void SetState(State state) {
+            _state = state;
+            _rootObject.SetActive(state is not State.Hidden);
+            UpdateColors();
+        }
+
+        public enum State {
+            Inactive,
+            Active,
+            Hidden
+        }
+
+        #endregion
+
+        #region Label
+        
+        private const float BaseOffset = 4.0f;
+        private bool _labelOnLeft;
+
+        public void SetLabel(string label) {
             _labelComponent.text = label;
+            UpdateLabelOffset();
+        }
+
+        private void UpdateLabelOffset() {
             var offset = BaseOffset + _labelComponent.preferredWidth / 2;
-            _labelRoot.localPosition = new Vector3(labelOnLeft ? -offset : offset, 0, 0);
+            _labelRoot.localPosition = new Vector3(_labelOnLeft ? -offset : offset, 0, 0);
         }
 
         #endregion
@@ -63,7 +120,12 @@ namespace BeatLeader.Components {
         private void InitializeImage() {
             var hoverController = _imageComponent.gameObject.AddComponent<HoverController>();
             hoverController.HoverStateChangedEvent += OnHoverStateChanged;
-            _imageComponent.OnClickEvent += _ => OnClick?.Invoke();
+            _imageComponent.OnClickEvent += OnClickEvent;
+        }
+
+        private void OnClickEvent(PointerEventData _) {
+            if (_state is not State.Active) return;
+            OnClick?.Invoke();
         }
 
         #endregion

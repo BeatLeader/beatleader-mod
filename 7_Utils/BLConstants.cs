@@ -27,12 +27,16 @@
 
         #endregion
 
-        #region Leaderboard
+        #region Website links
 
-        public const int SCORE_PAGE_SIZE = 10;
+        public const string HiddenPlayerAvatar = "https://cdn.beatleader.xyz/assets/DefaultAvatar.png";
 
         public static string LeaderboardPage(string leaderboardId) {
             return $"{BEATLEADER_WEBSITE_URL}/leaderboard/global/{leaderboardId}";
+        }
+        
+        public static string PlayerProfilePage(string playerId) {
+            return $"{BEATLEADER_WEBSITE_URL}/u/{playerId}";
         }
         
         #endregion

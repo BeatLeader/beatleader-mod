@@ -16,7 +16,8 @@ namespace BeatLeader.Replayer.Movement
         [Inject] protected readonly PlayerVRControllersManager _vrControllersManager;
         [Inject] protected readonly PlayerTransforms _playerTransforms;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
-        [Inject] protected readonly SoftLocksController _softLocksController;
+        [Inject] protected readonly LocksController _softLocksController;
+        [Inject] protected readonly MainCamera _mainCamera;
         [Inject] protected readonly DiContainer _diContainer;
 
         protected Dictionary<Transform, (XRNode, Transform)> _attachedObjects = new();
@@ -41,6 +42,7 @@ namespace BeatLeader.Replayer.Movement
             //fakeHead.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             //fakeHead.AddComponent<BoxCollider>().size = new Vector3(1, 3, 1);
             //Head = fakeHead.AddComponent<VRControllerWrapper>();
+            _mainCamera.GetComponentInChildren<BoxCollider>().gameObject.SetActive(false);
 
             Head = Instantiate(BundleLoader.MonkeyPrefab, null, false).AddComponent<VRControllerWrapper>();
             Head.transform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
@@ -72,7 +74,8 @@ namespace BeatLeader.Replayer.Movement
                 XRNode.Head => Head.gameObject,
                 XRNode.LeftHand => LeftSaber.gameObject,
                 XRNode.RightHand => RightSaber.gameObject,
-                XRNode.GameController => HandsContainer.gameObject
+                XRNode.GameController => HandsContainer.gameObject,
+                _ => null
             };
             go?.SetActive(show);
         }

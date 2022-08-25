@@ -1,4 +1,4 @@
-﻿using static BeatLeader.Replayer.Managers.InputManager;
+﻿using static BeatLeader.Replayer.InputManager;
 using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;

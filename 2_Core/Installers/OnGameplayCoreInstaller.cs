@@ -16,10 +16,10 @@ namespace BeatLeader.Installers {
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
-            if (ReplayerMenuLauncher.IsStartedAsReplay)
+            if (ReplayerLauncher.IsStartedAsReplay)
             {
                 DisableScoreSubmission();
-                ReplayerManualInstaller.Install(ReplayerMenuLauncher.Replay, ReplayerMenuLauncher.Score, Container);
+                ReplayerManualInstaller.Install(ReplayerLauncher.LaunchData, Container);
             }
             else InitRecorder();
         }

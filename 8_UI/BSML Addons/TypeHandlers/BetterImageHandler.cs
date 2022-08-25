@@ -21,7 +21,6 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
             { "preserveAspect", new[] { "preserve-aspect" } },
             { "raycastImage", new[] { "raycast-image" } },
             { "imageColor", new[] { "image-color", "img-color", "color" } },
-            { "transparency", new[] { "alpha", "transparency" } },
             { "imageType", new[] { "image-type", "type" } },
             { "fillMethod", new[] { "fill-method" } },
             { "fillOrigin", new[] { "fill-origin" } },
@@ -53,14 +52,6 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                 if (data.TryGetValue("imageType", out string imageType))
                 {
                     image.type = (Image.Type)Enum.Parse(typeof(Image.Type), imageType);
-                }
-                if (data.TryGetValue("transparency", out string transparency))
-                {
-                    var col = image.color;
-                    if (float.TryParse(transparency, out float result))
-                    {
-                        image.color = new Color(col.r, col.g, col.b, result);
-                    }
                 }
                 if (data.TryGetValue("fillMethod", out string fillMethod))
                 {

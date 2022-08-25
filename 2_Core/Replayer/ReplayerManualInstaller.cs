@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using BeatLeader.Utils;
+using BeatLeader.Replayer;
 using BeatLeader.Replayer.Poses;
-using BeatLeader.Replayer.Managers;
 using BeatLeader.Replayer.Emulating;
 using BeatLeader.Replayer.Movement;
 using BeatLeader.Replayer.Scoring;
@@ -15,22 +15,20 @@ using Zenject;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 using Vector2 = UnityEngine.Vector2;
-using Pose = UnityEngine.Pose;
 
 namespace BeatLeader.Replayer
 {
     public class ReplayerManualInstaller
     {
-        public static void Install(Replay replay, Score score, DiContainer Container)
+        public static void Install(ReplayLaunchData data, DiContainer Container)
         {
-            new ReplayerManualInstaller().InstallBindings(replay, score, Container);
+            new ReplayerManualInstaller().InstallBindings(data, Container);
         }
 
-        public void InstallBindings(Replay replay, Score score, DiContainer Container)
+        public void InstallBindings(ReplayLaunchData data, DiContainer Container)
         {
-            Container.Bind<Replay>().FromInstance(replay).AsSingle();
-            Container.Bind<Score>().FromInstance(score).AsSingle();
-            Container.Bind<SoftLocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayLaunchData>().FromInstance(data).AsSingle();
+            Container.Bind<LocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<IScoringInterlayer>().To<ReplayToBaseScoringInterlayer>().AsSingle().NonLazy();
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
                .FromComponentInNewPrefab(new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>());
@@ -38,10 +36,9 @@ namespace BeatLeader.Replayer
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //scorecontroller patch
-            var old = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
             Container.Bind<IReplayerScoreController>().To<ReplayerScoreController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Rebind<IScoreController>().To<IReplayerScoreController>().FromResolve().AsSingle().NonLazy();
-            old.TryDestroy();
+            Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault(x => x.name == "GameplayData").TryDestroy();
 
             Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -76,7 +73,7 @@ namespace BeatLeader.Replayer
                 container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             else
             {
-                container.Bind<Camera2Patcher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                container.Bind<Camera2Tool>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 PatchSiraFreeView(container);
             }

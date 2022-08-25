@@ -7,7 +7,7 @@ using Zenject;
 
 namespace BeatLeader.Components.Settings
 {
-    internal class MenuWithContainer : Menu
+    internal abstract class MenuWithContainer : Menu
     {
         protected DiContainer Container { get; private set; }
 

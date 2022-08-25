@@ -1,4 +1,4 @@
-﻿<vertical>
+﻿<vertical vertical-fit="PreferredSize" spacing="1">
 	
 	<horizontal id="text-container" pref-height="8">
 		<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">

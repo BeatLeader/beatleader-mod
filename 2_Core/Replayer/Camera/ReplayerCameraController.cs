@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using BeatLeader.Replayer.Managers;
 using BeatLeader.Replayer.Movement;
 using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
@@ -37,6 +36,7 @@ namespace BeatLeader.Replayer
         [Inject] protected readonly InputManager _inputManager;
         [Inject] protected readonly VRControllersManager _vrControllersManager;
         [Inject] protected readonly InitData _data;
+        [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
         protected CameraPoseProvider _currentPose;
         protected Camera _camera;
@@ -107,7 +107,7 @@ namespace BeatLeader.Replayer
             poseProviders = _data.poseProviders.Where(x => _inputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
-            SetEnabled(true);
+            SetEnabled(_replayData.overrideSettings ? _replayData.settings.useReplayerCamera : true);
             IsInitialized = true;
         }
         private void LateUpdate()

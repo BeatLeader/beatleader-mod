@@ -13,7 +13,7 @@ namespace BeatLeader.Replayer.Movement
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] private readonly VRControllersManager _vrControllersManager;
-        [Inject] private readonly Replay _replay;
+        [Inject] private readonly ReplayLaunchData _replayData;
 
         protected LinkedList<Frame> _frames;
         protected LinkedListNode<Frame> _lastProcessedNode;
@@ -27,7 +27,7 @@ namespace BeatLeader.Replayer.Movement
 
         protected void Start()
         {
-            _frames = new LinkedList<Frame>(_replay.frames);
+            _frames = new LinkedList<Frame>(_replayData.replay.frames);
             _lastProcessedNode = _frames.First;
             _isPlaying = true;
         }

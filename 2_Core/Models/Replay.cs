@@ -388,6 +388,19 @@ namespace BeatLeader.Models
     }
     static class ReplayDecoder
     {
+        public static bool TryDecode(byte[] buffer, out Replay replay)
+        {
+            replay = null;
+            try
+            {
+                replay = Decode(buffer);
+                return replay != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public static Replay Decode(byte[] buffer)
         {
             int arrayLength = (int)buffer.Length;

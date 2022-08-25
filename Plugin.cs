@@ -1,6 +1,7 @@
 ﻿using BeatLeader.DataManager;
 using BeatLeader.Interop.BetterSongList;
 using BeatLeader.UI.BSML_Addons;
+using BeatLeader.Utils;
 using Hive.Versioning;
 using IPA;
 using IPA.Config;
@@ -55,6 +56,7 @@ namespace BeatLeader {
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
             BetterSongListInterop.TryRegister();
+            Cam2Util.Init();
         }
 
         private static void ObserveEnabled() {

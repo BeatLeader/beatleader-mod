@@ -1,21 +1,21 @@
-﻿using static BeatLeader.SoftLocksController;
+﻿using static BeatLeader.LocksController;
 using UnityEngine;
 
 namespace BeatLeader.Models
 {
     public class LockData
     {
-        public readonly Behaviour behaviour;
         public readonly LockMode mode;
-        public readonly bool originalState;
+        public readonly bool returnBackOnDestroy;
+        public readonly bool returnBackValue;
         public bool locked;
 
-        public LockData(Behaviour behaviour, LockMode mode, bool originalState)
+        public LockData(LockMode mode, bool locked = true, bool returnBackOnDestroy = false, bool returnBackValue = true)
         {
             this.mode = mode;
-            this.behaviour = behaviour;
-            locked = true;
-            this.originalState = originalState;
+            this.locked = locked;
+            this.returnBackOnDestroy = returnBackOnDestroy;
+            this.returnBackValue = returnBackValue;
         }
     }
 }

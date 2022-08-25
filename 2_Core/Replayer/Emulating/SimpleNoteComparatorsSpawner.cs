@@ -13,7 +13,7 @@ namespace BeatLeader.Replayer.Emulating
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly AudioTimeSyncController _songSyncController;
         [Inject] protected readonly SimpleNoteCutComparator.Pool _simpleNoteCutComparatorPool;
-        [Inject] protected readonly Replay _replay;
+        [Inject] protected readonly ReplayLaunchData _replayData;
 
         protected List<SimpleNoteCutComparator> _spawnedComparators = new();
 
@@ -56,15 +56,14 @@ namespace BeatLeader.Replayer.Emulating
         }
         protected void AddNoteComparator(NoteController controller)
         {
-            AddNoteComparator(controller, controller.GetNoteEvent(_replay));
+            AddNoteComparator(controller, controller.GetNoteEvent(_replayData.replay));
         }
         protected void AddNoteComparator(NoteController controller, NoteEvent noteCutEvent)
         {
             if (noteCutEvent == null || noteCutEvent.eventType == NoteEventType.miss
                 || noteCutEvent.noteCutInfo == null) return;
 
-            SimpleNoteCutComparator comparator = _simpleNoteCutComparatorPool.Spawn();
-            comparator.Init(controller, noteCutEvent);
+            SimpleNoteCutComparator comparator = _simpleNoteCutComparatorPool.Spawn(controller, noteCutEvent);
             comparator.transform.SetParent(controller.transform);
             _spawnedComparators.Add(comparator);
         }

@@ -1,4 +1,4 @@
-﻿using static BeatLeader.Replayer.Managers.InputManager;
+﻿using static BeatLeader.Replayer.InputManager;
 using BeatLeader.Models;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;

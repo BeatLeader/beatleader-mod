@@ -20,71 +20,85 @@ namespace BeatLeader.Utils
                 get => this._energyType;
                 set => this._energyType = value;
             }
+
             public new bool noFailOn0Energy
             {
                 get => this._noFailOn0Energy;
                 set => this._noFailOn0Energy = value;
             }
+
             public new bool instaFail
             {
                 get => this._instaFail;
                 set => this._instaFail = value;
             }
+
             public new bool failOnSaberClash
             {
                 get => this._failOnSaberClash;
                 set => this._failOnSaberClash = value;
             }
+
             public new EnabledObstacleType enabledObstacleType
             {
                 get => this._enabledObstacleType;
                 set => this._enabledObstacleType = value;
             }
+
             public new bool fastNotes
             {
                 get => this._fastNotes;
                 set => this._fastNotes = value;
             }
+
             public new bool strictAngles
             {
                 get => this._strictAngles;
                 set => this._strictAngles = value;
             }
+
             public new bool disappearingArrows
             {
                 get => this._disappearingArrows;
                 set => this._disappearingArrows = value;
             }
+
             public new bool ghostNotes
             {
                 get => this._ghostNotes;
                 set => this._ghostNotes = value;
             }
+
             public new bool noBombs
             {
                 get => this._noBombs;
                 set => this._noBombs = value;
             }
+
             public new SongSpeed songSpeed
             {
                 get => this._songSpeed;
                 set => this._songSpeed = value;
             }
+
             public new bool noArrows
             {
                 get => this._noArrows;
                 set => this._noArrows = value;
             }
+
             public new bool proMode
             {
                 get => this._proMode;
                 set => this._proMode = value;
             }
+
             public new bool zenMode
             {
                 get => this._zenMode;
                 set => this._zenMode = value;
             }
+
             public new bool smallCubes
             {
                 get => this._smallCubes;
@@ -113,6 +127,7 @@ namespace BeatLeader.Utils
                         return "PyroEnvironment";
                 }
             }
+
             return "!UNDEFINED!";
         }
         public static EnvironmentInfoSO GetEnvironmentBySerializedName(string name)
@@ -121,42 +136,51 @@ namespace BeatLeader.Utils
         }
         public static EnvironmentInfoSO GetEnvironmentByName(string name)
         {
-            return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().First(x => x.serializedName == GetEnvironmentSerializedNameByEnvironmentName(name));
+            return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().FirstOrDefault(x =>
+                x.serializedName == GetEnvironmentSerializedNameByEnvironmentName(name));
+        }
+        //i really hate it
+        private static CustomBeatmapLevel ChangeBeatmapLevelEnvironment(this IBeatmapLevel level, EnvironmentInfoSO environment)
+        {
+            if (level == null || level.GetType() != typeof(CustomBeatmapLevel)) return null;
+
+            var beatmapLevel = (CustomBeatmapLevel)level;
+            var previewLevel = new CustomPreviewBeatmapLevel(beatmapLevel.defaultCoverImage,
+                beatmapLevel.standardLevelInfoSaveData,
+                beatmapLevel.customLevelPath, beatmapLevel.spriteAsyncLoader, beatmapLevel.levelID,
+                beatmapLevel.songName, beatmapLevel.songSubName,
+                beatmapLevel.songAuthorName, beatmapLevel.levelAuthorName, beatmapLevel.beatsPerMinute,
+                beatmapLevel.songTimeOffset, beatmapLevel.shuffle,
+                beatmapLevel.shufflePeriod, beatmapLevel.previewStartTime, beatmapLevel.previewDuration, environment,
+                beatmapLevel.allDirectionsEnvironmentInfo,
+                beatmapLevel.previewDifficultyBeatmapSets);
+
+            var custom = new CustomBeatmapLevel(previewLevel);
+            custom.SetBeatmapLevelData((BeatmapLevelData)beatmapLevel.beatmapLevelData);
+
+            return custom;
+        }
+        public static CustomDifficultyBeatmap ChangeDifficultyBeatmapEnvironment(this IDifficultyBeatmap difficultyBeatmap, EnvironmentInfoSO environment)
+        {
+            if (difficultyBeatmap == null || difficultyBeatmap.GetType() != typeof(CustomDifficultyBeatmap))
+                return null;
+
+            var difficulty = (CustomDifficultyBeatmap)difficultyBeatmap;
+            var beatmap = new CustomDifficultyBeatmap(difficulty.level.ChangeBeatmapLevelEnvironment(environment),
+                difficulty.parentDifficultyBeatmapSet,
+                difficulty.difficulty, difficulty.difficultyRank,
+                difficulty.noteJumpMovementSpeed,
+                difficulty.noteJumpStartBeatOffset,
+                difficulty.beatsPerMinute, difficulty.beatmapSaveData, 
+                difficulty.beatmapDataBasicInfo);
+
+            return beatmap;
         }
 
         #endregion
 
         #region Replaying
 
-        public static SceneInfo CreateSceneInfo(string sceneName, bool disableRootObjects)
-        {
-            SceneInfo sceneInfo = (SceneInfo)ScriptableObject.CreateInstance("SceneInfo");
-            sceneInfo.SetField("_sceneName", sceneName);
-            sceneInfo.SetField("_disabledRootObjects", disableRootObjects);
-            return sceneInfo;
-        }
-        public static void ExpandScenesData(this ScenesTransitionSetupDataSO transitionData, SceneSetupData[] scenesToExpand)
-        {
-            SceneSetupData[] originalScenes = transitionData.GetField<SceneSetupData[], ScenesTransitionSetupDataSO>("_sceneSetupDataArray");
-            if (scenesToExpand == null || originalScenes == null) return;
-
-            List<SceneSetupData> combinedScenes = new List<SceneSetupData>();
-            combinedScenes.AddRange(originalScenes);
-            combinedScenes.AddRange(scenesToExpand);
-
-            transitionData.SetField("_sceneSetupDataArray", combinedScenes.ToArray());
-        }
-        public static void ExpandScenesInfo(this ScenesTransitionSetupDataSO transitionData, SceneInfo[] scenesToExpand)
-        {
-            SceneInfo[] originalScenes = transitionData.GetProperty<SceneInfo[], ScenesTransitionSetupDataSO>("scenes");
-            if (scenesToExpand == null || originalScenes == null) return;
-
-            List<SceneInfo> combinedScenes = new List<SceneInfo>();
-            combinedScenes.AddRange(originalScenes);
-            combinedScenes.AddRange(scenesToExpand);
-
-            transitionData.SetProperty("scenes", combinedScenes.ToArray());
-        }
         public static GameplayModifiers GetModifiersFromReplay(this Replay replay)
         {
             ReplayModifiers replayModifiers = new ReplayModifiers();
@@ -212,6 +236,7 @@ namespace BeatLeader.Utils
                         break;
                 }
             }
+
             return replayModifiers;
         }
         public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay)
@@ -222,29 +247,15 @@ namespace BeatLeader.Utils
         {
             return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
         }
-        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty, 
-            IPreviewBeatmapLevel previewBeatmapLevel, bool overrideEnvironment = false)
+        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty)
         {
-            StandardLevelScenesTransitionSetupDataSO data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+            var data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
-            OverrideEnvironmentSettings environmentSettings = new OverrideEnvironmentSettings();
-            if (overrideEnvironment)
-            {
-                environmentSettings.SetField("_data", playerModel.playerData.overrideEnvironmentSettings
-                    .GetField<Dictionary<EnvironmentTypeSO, EnvironmentInfoSO>, OverrideEnvironmentSettings>("_data"));
-                environmentSettings.overrideEnvironments = true;
-                environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
-                    .First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), GetEnvironmentByName(replay.info.environment));
-            }
-
-            data.Init("Solo", difficulty, previewBeatmapLevel, environmentSettings,
+            data?.Init("Solo", difficulty, difficulty.level, playerModel.playerData.overrideEnvironmentSettings,
                 playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
-                replay.GetModifiersFromReplay(), playerModel.playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
+                replay.GetModifiersFromReplay(),
+                playerModel.playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
                 replay.GetPracticeSettingsFromReplay(), "Menu");
-
-            //data.ExpandScenesData(new SceneInfo[] {
-            //CreateSceneInfo("BeatmapEditorGameplay", false)
-            //});
 
             return data;
         }
@@ -263,7 +274,8 @@ namespace BeatLeader.Utils
         public static NoteEvent GetNoteEventById(this Replay replay, int ID, float time)
         {
             foreach (var item in replay.notes)
-                if ((item.noteID == ID || item.noteID == ID - 30000) && (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
+                if ((item.noteID == ID || item.noteID == ID - 30000) &&
+                    (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
                     return item;
             return null;
         }
@@ -310,6 +322,7 @@ namespace BeatLeader.Utils
                 Replay extractedReplay = FileManager.ReadReplay(path);
                 if (filter(extractedReplay)) replays.Add(extractedReplay);
             }
+
             return replays.Count >= 0;
         }
 
@@ -323,17 +336,19 @@ namespace BeatLeader.Utils
         }
         public static int ComputeNoteID(this NoteData noteData)
         {
-            return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
+            return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex * 1000 +
+                   (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
         }
         public static int ComputeNoteScore(this NoteEvent note)
         {
-            if (note.eventType != NoteEventType.good) return note.eventType switch
-            {
-                NoteEventType.bad => -2,
-                NoteEventType.miss => -3,
-                NoteEventType.bomb => -4,
-                _ => -1
-            };
+            if (note.eventType != NoteEventType.good)
+                return note.eventType switch
+                {
+                    NoteEventType.bad => -2,
+                    NoteEventType.miss => -3,
+                    NoteEventType.bomb => -4,
+                    _ => -1
+                };
 
             var cut = note.noteCutInfo;
             double beforeCutRawScore = Mathf.Clamp((float)Math.Round(70 * cut.beforeCutRating), 0, 70);

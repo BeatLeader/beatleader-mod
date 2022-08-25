@@ -14,13 +14,11 @@ namespace BeatLeader.Components
 {
     internal class HorizontalSongInfo : EditableElement
     {
-        [Inject] private readonly PauseMenuManager.InitData _pauseMenuInitData;
+        [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         [UIComponent("song-preview-image")] private Image _songPreviewImage;
         [UIComponent("container")] private RectTransform _container;
         [UIComponent("wrapper")] private RectTransform _wrapper;
-        [UIComponent("song-name-text")] private RectTransform _songNameText;
-        [UIComponent("song-author-text")] private RectTransform _songAuthorText;
 
         [UIValue("song-name")] private string songName
         {
@@ -51,7 +49,7 @@ namespace BeatLeader.Components
 
         protected override void OnInitialize()
         {
-            IPreviewBeatmapLevel previewBeatmapLevel = _pauseMenuInitData.previewBeatmapLevel;
+            IPreviewBeatmapLevel previewBeatmapLevel = _replayData.difficultyBeatmap.level;
             songName = previewBeatmapLevel.songName;
             songAuthor = previewBeatmapLevel.levelAuthorName;
             LoadAndAssignImage(previewBeatmapLevel);
@@ -59,13 +57,6 @@ namespace BeatLeader.Components
         private async void LoadAndAssignImage(IPreviewBeatmapLevel previewBeatmapLevel)
         {
             _songPreviewImage.sprite = await previewBeatmapLevel.GetCoverImageAsync(new System.Threading.CancellationToken());
-        }
-        private void TextOutOfBounds()
-        {
-            Debug.Log("text: " + _songNameText.sizeDelta.x);
-            Debug.Log("container: " + _container.sizeDelta.x);
-            Debug.Log("picture: " + _songPreviewImage.rectTransform.sizeDelta.x);
-            Debug.Log("difference: " + (_container.sizeDelta.x - _songPreviewImage.rectTransform.sizeDelta.x));
         }
     }
 }

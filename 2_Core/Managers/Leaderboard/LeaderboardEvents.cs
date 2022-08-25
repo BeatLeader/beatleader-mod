@@ -59,10 +59,10 @@ namespace BeatLeader.Manager {
 
         #region ReplayButtonWasPressed
 
-        public static event Action<Score> ReplayButtonWasPressedAction;
+        public static event Action<Score, ReplayerSettings> ReplayButtonWasPressedAction;
 
         public static void NotifyReplayButtonWasPressed(Score score) {
-            ReplayButtonWasPressedAction?.Invoke(score);
+            ReplayButtonWasPressedAction?.Invoke(score, null);
         }
 
         #endregion

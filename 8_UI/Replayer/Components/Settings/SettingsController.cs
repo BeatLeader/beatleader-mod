@@ -10,7 +10,7 @@ using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
 using HMUI;
-using BeatLeader.Replayer.Managers;
+
 using UnityEngine.UI;
 using System.Reflection;
 
@@ -18,7 +18,6 @@ namespace BeatLeader.Components.Settings
 {
     internal class SettingsController : ReeUIComponentV2WithContainer
     {
-        [Inject] private readonly InputManager _inputManager;
         [Inject] private readonly DiContainer _container;
 
         [UIObject("dismiss-menu-button")] private GameObject _dismissMenuButton;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BeatLeader.Replayer.Managers;
+using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -16,8 +16,9 @@ namespace BeatLeader
     [SerializeAutomatically]
     public class UI2DManager : MonoBehaviour, ITickable
     {
-        [SerializeAutomatically] private static bool _showUI = true;
+        [Inject] private readonly Models.ReplayLaunchData _replayData;
 
+        [SerializeAutomatically] private static bool _showUI = true;
         private bool showUI
         {
             get => _showUI;
@@ -56,7 +57,8 @@ namespace BeatLeader
             _canvasScaler.referenceResolution = CanvasSize / ScaleFactor;
             _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            gameObject.SetActive(showUI);
+            _canvas.sortingOrder = 1;
+            gameObject.SetActive(_replayData.overrideSettings ? _replayData.settings.showUI : showUI);
         }
         public void Tick()
         {

@@ -10,7 +10,6 @@ using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatLeader.Replayer.Emulating;
 using BeatLeader.Replayer.Movement;
-using BeatLeader.Replayer.Managers;
 using UnityEngine;
 using Zenject;
 
@@ -22,7 +21,6 @@ namespace BeatLeader.Replayer
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly PauseController _pauseController;
         [Inject] private readonly AudioTimeSyncController _songTimeSyncController;
-        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
         [Inject] private readonly GameplayModifiers _modifiers;
 
         [Inject] private readonly SaberManager _saberManager;
@@ -37,11 +35,7 @@ namespace BeatLeader.Replayer
 
         public void Pause(bool pause, bool notify = true, bool force = false)
         {
-            if (force)
-            {
-                _gamePause.GetType().GetField("_pause", BindingFlags.NonPublic
-                        | BindingFlags.Instance).SetValue(_gamePause, !pause);
-            }
+            if (force) SetPauseState(!pause);
 
             if (pause)
             {
@@ -54,16 +48,36 @@ namespace BeatLeader.Replayer
                 _gamePause.Resume();
             }
 
-            if (notify)
-            {
-                ((Delegate)_pauseController.GetType().GetField(pause ? "didPauseEvent" : "didResumeEvent",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .GetValue(_pauseController))?.DynamicInvoke();
-            }
-
+            if (notify) InvokePauseEvent(pause);
             _beatmapObjectManager.PauseAllBeatmapObjects(pause);
             _beatmapEffectsController.PauseEffects(pause);
         }
         public void EscapeToMenu() => _pauseMenuManager.MenuButtonPressed();
+
+        #region Reflection
+
+        private FieldInfo _didPauseEventInfo;
+        private FieldInfo _didResumeEventInfo;
+        private FieldInfo _pauseInfo;
+
+        private void Awake()
+        {
+            _didPauseEventInfo = _pauseController.GetType().GetField("didPauseEvent",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            _didResumeEventInfo = _pauseController.GetType().GetField("didResumeEvent",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            _pauseInfo = _gamePause.GetType().GetField("_pause", BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+        private void SetPauseState(bool pause)
+        {
+            _pauseInfo.SetValue(_gamePause, pause);
+        }
+        private void InvokePauseEvent(bool pause)
+        {
+            var info = pause ? _didPauseEventInfo : _didResumeEventInfo;
+            ((Delegate)info.GetValue(_pauseController))?.DynamicInvoke();
+        }
+
+        #endregion
     }
 }

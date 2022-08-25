@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.UI.BSML_Addons;
-using BeatLeader.Replayer.Managers;
+
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatLeader.UI;
@@ -95,9 +95,9 @@ namespace BeatLeader.Components
             _bombPrefab.sprite = BSMLUtility.LoadSprite("#bad-cut-icon");
             _bombPrefab.color = Color.yellow;
 
-            GenerateMarkers(_replay.notes.Where(x => x.eventType == Models.NoteEventType.miss || x.eventType == Models.NoteEventType.bad)
+            GenerateMarkers(_replayData.replay.notes.Where(x => x.eventType == Models.NoteEventType.miss || x.eventType == Models.NoteEventType.bad)
                 .Select(x => x.eventTime), _missPrefab.gameObject);
-            GenerateMarkers(_replay.notes.Where(x => x.eventType == Models.NoteEventType.bomb)
+            GenerateMarkers(_replayData.replay.notes.Where(x => x.eventType == Models.NoteEventType.bomb)
                 .Select(x => x.eventTime), _bombPrefab.gameObject);
         }
 
@@ -107,7 +107,7 @@ namespace BeatLeader.Components
 
         [Inject] private readonly BeatmapTimeController _timeController;
         [Inject] private readonly PlaybackController _playbackController;
-        [Inject] private readonly Models.Replay _replay;
+        [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         private bool _focusWasLost;
         private bool _dragging;

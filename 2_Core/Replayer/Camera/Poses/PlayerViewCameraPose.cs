@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using static BeatLeader.Replayer.Managers.InputManager;
+using static BeatLeader.Replayer.InputManager;
 using BeatLeader.Replayer.Movement;
 using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;

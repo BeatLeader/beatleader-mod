@@ -10,7 +10,7 @@ namespace BeatLeader.Replayer
     {
         [Inject] private readonly BeatmapTimeController _beatmapTimeController;
         [Inject] private readonly ComboController _comboController;
-        [Inject] private readonly IReplayerScoreController _scoreController;
+        [InjectOptional] private readonly IReplayerScoreController _scoreController;
 
         private ComboUIController _comboUIController;
         private ObstacleSaberSparkleEffectManager _sparkleEffectManager;

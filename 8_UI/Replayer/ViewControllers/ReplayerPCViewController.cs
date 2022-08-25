@@ -36,7 +36,6 @@ namespace BeatLeader.ViewControllers
             protected override void OnInitialize()
             {
                 _layoutEditor.TryAddObject(_songInfo);
-                _layoutEditor.TryAddObject(_playerInfo);
                 _layoutEditor.TryAddObject(_toolbar);
             }
         }

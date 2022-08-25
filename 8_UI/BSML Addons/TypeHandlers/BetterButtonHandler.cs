@@ -26,7 +26,6 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
             { "highlightedColor", new[] { "highlighted-color" } },
             { "pressedColor", new[] { "pressed-color" } },
             { "colorMultiplier", new[] { "color-multiplier" } },
-            { "transparency", new[] { "alpha", "transparency" } },
 
             { "highlightedSprite", new[] { "highlighted-sprite", "highlighted-image" } },
             { "pressedSprite", new[] { "pressed-sprite" , "pressed-image" } },

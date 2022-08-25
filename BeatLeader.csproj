@@ -281,6 +281,8 @@
     <Compile Include="2_Core\Models\OculusUserInfo.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
     <Compile Include="2_Core\Models\RankedStatus.cs" />
+    <Compile Include="2_Core\Models\ReplayLaunchData.cs" />
+    <Compile Include="2_Core\Models\RequestResult.cs" />
     <Compile Include="2_Core\Models\ScoreInfoPanelTab.cs" />
     <Compile Include="2_Core\Models\Paged.cs" />
     <Compile Include="2_Core\Models\Player.cs" />
@@ -293,9 +295,10 @@
     <Compile Include="2_Core\Models\ScoresScope.cs" />
     <Compile Include="2_Core\Models\ScoringData.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
+    <Compile Include="2_Core\Models\ReplayerSettings.cs" />
     <Compile Include="2_Core\Replayer\BeatmapTimeController.cs" />
     <Compile Include="2_Core\Replayer\BeatmapVisualsController.cs" />
-    <Compile Include="2_Core\Replayer\Camera2Patcher.cs" />
+    <Compile Include="2_Core\Replayer\Camera\Camera2Tool.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\FlyingCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\PlayerViewCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\StaticCameraPose.cs" />
@@ -308,13 +311,14 @@
     <Compile Include="2_Core\Replayer\Emulating\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="2_Core\Replayer\Emulating\SimpleNoteCutComparator.cs" />
     <Compile Include="2_Core\Replayer\GameSettingsLoader.cs" />
-    <Compile Include="2_Core\Replayer\Managers\InputManager.cs" />
-    <Compile Include="2_Core\Replayer\Managers\SceneTweaksManager.cs" />
+    <Compile Include="2_Core\Replayer\Input\InputManager.cs" />
+    <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
+    <Compile Include="2_Core\Replayer\SceneTweaksManager.cs" />
     <Compile Include="2_Core\Replayer\PlaybackController.cs" />
     <Compile Include="2_Core\Replayer\ReplayerManualInstaller.cs" />
-    <Compile Include="2_Core\Replayer\ReplayerMenuLauncher.cs" />
-    <Compile Include="2_Core\Replayer\SoftLocksController.cs" />
-    <Compile Include="2_Core\Replayer\TempLock.cs" />
+    <Compile Include="2_Core\Replayer\ReplayerMenuStarter.cs" />
+    <Compile Include="2_Core\Replayer\Input\OrientedVRInputModule.cs" />
+    <Compile Include="2_Core\Replayer\LocksController.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphUtils.cs" />
@@ -326,6 +330,7 @@
     <Compile Include="3_AssetBundle\MonkeySpinner.cs" />
     <Compile Include="7_Utils\BLConstants.cs" />
     <Compile Include="7_Utils\BLContext.cs" />
+    <Compile Include="7_Utils\Cam2Util.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
@@ -428,6 +433,7 @@
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalPlayerInfo.cs" />
     <Compile Include="8_UI\Replayer\Components\RotationMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\BodyMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\Camera2Menu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraParamsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\FlyingViewParamsMenu.cs" />
@@ -523,6 +529,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\Vector3MatrixMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\RotationMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\FlyingViewParamsMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\Camera2Menu.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />
@@ -542,5 +549,6 @@
     <Content Include=".gitignore" />
     <Content Include="Media\cover.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

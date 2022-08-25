@@ -17,6 +17,8 @@ using Zenject;
 using HMUI;
 using BeatSaberMarkupLanguage.FloatingScreen;
 
+using VRUIControls;
+
 namespace BeatLeader.ViewControllers
 {
     [SerializeAutomatically]
@@ -26,6 +28,7 @@ namespace BeatLeader.ViewControllers
         [Inject] private readonly VRControllersManager _vrControllersManager;
         [Inject] private readonly MainCamera _camera;
         [Inject] private readonly DiContainer _container;
+        [Inject] private readonly InputManager _inputManager;
 
         private bool syncView
         {
@@ -48,23 +51,25 @@ namespace BeatLeader.ViewControllers
             _rotationMenu = ReeUIComponentV2.Instantiate<RotationMenu>(transform);
             _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
 
-            var go = new GameObject("Container");
-            var viewGo = new GameObject("RotatingView");
-            viewGo.transform.SetParent(go.transform, false);
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100, 55), false, UnityEngine.Vector3.zero,
-                UnityEngine.Quaternion.Euler(new UnityEngine.Vector3(50, 0, 0)));
-            _floatingScreen.transform.SetParent(viewGo.transform, false);
+            var container = new GameObject("Container");
+            var viewContainer = new GameObject("ViewContainer");
+            viewContainer.transform.SetParent(container.transform, false);
+            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100, 55), false, UnityEngine.Vector3.zero, UnityEngine.Quaternion.identity);
+            _floatingScreen.transform.SetParent(viewContainer.transform, false);
             _floatingScreen.transform.localPosition = new UnityEngine.Vector3(0, 1, 1.7f);
+            _floatingScreen.transform.localEulerAngles = new UnityEngine.Vector3(50, 0, 0);
             _floatingScreen.ParseInObjectHierarchy(BSMLUtil.ReadViewDefinition<ReplayerVRViewController>(), this);
 
-            var view = go.gameObject.AddComponent<RotatingVRView>();
-            view.Init(_camera.transform, viewGo.transform);
+            var view = container.gameObject.AddComponent<RotatingVRView>();
+            view.Init(_camera.transform, viewContainer.transform);
             _rotationMenu.Init(view);
             _rotationMenu.EnableSync(syncView);
             _rotationMenu.OnViewSyncChanged += NotifyViewSyncChanged;
 
-            _vrControllersManager.AttachToTheNode(XRNode.GameController, go.transform);
+            _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();
+
+            _inputManager.VRRaycaster = _floatingScreen.GetComponent<VRGraphicRaycaster>();
         }
         private void NotifyViewSyncChanged(bool state) => syncView = state;
     }

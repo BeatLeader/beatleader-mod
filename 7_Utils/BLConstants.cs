@@ -4,6 +4,7 @@
 
         public const int MaintenanceStatus = 503;
         public const int OutdatedModStatus = 418;
+        public const int Unauthorized = 401;
 
         #endregion
 

@@ -24,9 +24,10 @@ namespace BeatLeader.Components {
         private void OnHoverStateChanged(bool isHovered, float progress) {
             var scale = _state is State.NonInteractable ? 0.8f : 1.0f + 0.5f * progress;
             _imageComponent.transform.localScale = new Vector3(scale, scale, scale);
-            
+
+            var maxAlpha = _state is State.NonInteractable ? 0.5f : 1.0f;
+            _labelComponent.alpha = maxAlpha * progress;
             _labelRoot.localScale = new Vector3(1.0f, progress, 1.0f);
-            _labelComponent.alpha = progress;
         }
 
         #endregion

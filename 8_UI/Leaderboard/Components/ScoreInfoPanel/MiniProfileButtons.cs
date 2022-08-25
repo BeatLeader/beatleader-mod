@@ -111,13 +111,9 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateFriendButton() {
-            if (_addingFriend || _removingFriend) {
+            if (_isMe || _addingFriend || _removingFriend) {
+                _friendButton.SetLabel("");
                 _friendButton.SetState(MiniProfileButton.State.NonInteractable);
-                return;
-            }
-
-            if (_isMe) {
-                _friendButton.SetState(MiniProfileButton.State.Hidden);
                 return;
             }
 
@@ -153,7 +149,8 @@ namespace BeatLeader.Components {
 
         private void UpdateHideButton() {
             if (_isMe) {
-                _hideButton.SetState(MiniProfileButton.State.Hidden);
+                _hideButton.SetLabel("");
+                _hideButton.SetState(MiniProfileButton.State.NonInteractable);
                 return;
             }
 

@@ -111,6 +111,12 @@ namespace BeatLeader.API {
                     shouldRetry = false;
                     break;
                 }
+                case BLConstants.Unauthorized: {
+                    Authentication.ResetLogin();
+                    failReason = "Auth failed";
+                    shouldRetry = true;
+                    break;
+                }
                 default: {
                     failReason = defaultReason ?? $"Http error: {responseCode}";
                     shouldRetry = responseCode is < 400 or >= 500;

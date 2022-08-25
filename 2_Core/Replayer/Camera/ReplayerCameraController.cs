@@ -62,7 +62,7 @@ namespace BeatLeader.Replayer
             get => _fieldOfView;
             set
             {
-                if (_fieldOfView == value) return;
+                if (_fieldOfView == value || !_inputManager.IsInFPFC) return;
                 _fieldOfView = value;
                 RefreshCamera();
                 OnCameraFOVChanged?.Invoke(value);
@@ -103,6 +103,7 @@ namespace BeatLeader.Replayer
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
             _origin = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
             transform.SetParent(_origin, false);
+            _vrControllersManager.HandsContainer.transform.SetParent(_origin, false);
 
             poseProviders = _data.poseProviders.Where(x => _inputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
@@ -174,7 +175,8 @@ namespace BeatLeader.Replayer
         }
         private void SetHandsPose(Pose pose)
         {
-            _vrControllersManager.HandsContainer.transform.SetPositionAndRotation(pose.position, pose.rotation);
+            _vrControllersManager.HandsContainer.transform.localPosition = pose.position;
+            _vrControllersManager.HandsContainer.transform.localRotation = pose.rotation;
         }
     }
 }

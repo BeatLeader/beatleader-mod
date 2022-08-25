@@ -16,6 +16,7 @@ namespace BeatLeader.Components.Settings
     internal class SettingsRootMenu : MenuWithContainer
     {
         [Inject] private readonly ReplayerCameraController _cameraController;
+        [Inject] private readonly InputManager _inputManager;
         [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         [UIValue("camera-menu-button")] private SubMenuButton _cameraMenuButton;
@@ -33,13 +34,13 @@ namespace BeatLeader.Components.Settings
         }
         private void SetupCameraMenu()
         {
-            _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container), 
-                Cam2Util.Detected ? "Camera <color=\"red\">(Cam2 detected)" : "Camera");
+            bool setupAsCam2 = Cam2Util.Detected && _inputManager.IsInFPFC;
+            _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container),
+                 setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera");
 
-            if (Cam2Util.Detected)
+            if (setupAsCam2)
             {
                 _cameraMenuButton.Interactable = false;
-                //PatchCameras();
                 _cameraController.SetEnabled(false);
             }
 

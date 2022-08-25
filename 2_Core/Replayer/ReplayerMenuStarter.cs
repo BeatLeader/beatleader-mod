@@ -64,6 +64,7 @@ namespace BeatLeader.Replayer
         }
         private void NotifyReplayButtonPressed(Score score, ReplayerSettings settings)
         {
+            //TODO: remove these lines after creating leaderboard ui
             settings = new();
             settings.loadPlayerEnvironment = true;
             settings.showUI = true;

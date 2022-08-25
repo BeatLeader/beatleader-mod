@@ -1,0 +1,37 @@
+﻿<horizontal>
+	<vertical pref-width="48" spacing="1">
+
+		<vertical pref-width="46">
+			<horizontal pref-height="6">
+				<bool-setting text="Enable" skew="0"/>
+			</horizontal>
+		</vertical>
+
+		<horizontal pref-height="31.5" child-expand-width="false" spacing="1" child-align="UpperCenter">
+			<vertical pref-width="42">
+				<custom-list id="cameras-list" cell-size="10.5" stick-scrolling="true"
+							 visible-cells="3" select-cell="cell-selected" show-scrollbar="true">
+
+					<vertical>
+						<horizontal pref-height="10">
+							<vertical pref-width="42">
+								<better-image src="#white-bg" color="black" type="Sliced" ppu="5" alpha="0.2">
+									<horizontal child-expand-width="false">
+										<vertical pad="1">
+											<text text="~name-text" align="Left" font-size="3.5"/>
+											<text text="~fpv-text" align="Left" font-size="3" font-color='#BBB'/>
+										</vertical>
+									</horizontal>
+								</better-image>
+							</vertical>
+						</horizontal>
+						<horizontal pref-height='0.5'/>
+					</vertical>
+
+				</custom-list>
+			</vertical>
+			<vertical id="scrollbar-container" bg="round-rect-panel" pref-width="4"/>
+		</horizontal>
+
+	</vertical>
+</horizontal>

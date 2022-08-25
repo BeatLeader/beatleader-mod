@@ -73,7 +73,6 @@ namespace BeatLeader.Replayer
                 container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             else
             {
-                container.Bind<Camera2Tool>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 PatchSiraFreeView(container);
             }

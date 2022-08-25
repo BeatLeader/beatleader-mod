@@ -16,6 +16,7 @@ namespace BeatLeader.Components.Settings
     internal class SettingsRootMenu : MenuWithContainer
     {
         [Inject] private readonly ReplayerCameraController _cameraController;
+        [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         [UIValue("camera-menu-button")] private SubMenuButton _cameraMenuButton;
         [UIValue("body-menu-button")] private SubMenuButton _bodyMenuButton;
@@ -41,6 +42,9 @@ namespace BeatLeader.Components.Settings
                 //PatchCameras();
                 _cameraController.SetEnabled(false);
             }
+
+            if (_replayData != null && _replayData.overrideSettings)
+                _cameraMenuButton.ButtonGameObject.SetActive(_replayData.settings.useReplayerCamera);
         }
     }
 }

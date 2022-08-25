@@ -30,6 +30,7 @@ namespace BeatLeader.Replayer
         }
         public async Task<bool> DownloadAndStartReplayAsync(Score score, ReplayerSettings settings = null)
         {
+            Plugin.Log.Notice("Downloading started");
             var downloadResult = await HttpUtils.DownloadReplayAsync(score.replay);
             var replay = downloadResult.value;
 
@@ -39,11 +40,10 @@ namespace BeatLeader.Replayer
                 return false;
             }
 
-            var data = new ReplayLaunchData(replay, score.player);
-            data.settings = settings;
+            var data = new ReplayLaunchData(replay, score.player, settings);
             data.OnReplayFinish += NotifyLevelDidFinish;
 
-            Plugin.Log.Notice($"Done. player:[{replay.info.playerName}] song:[{replay.info.songName}-{replay.info.difficulty}]" +
+            Plugin.Log.Notice($"Downloading done. player:[{replay.info.playerName}] song:[{replay.info.songName}-{replay.info.difficulty}]" +
                 $" environment:[{replay.info.environment}]");
 
             if (await _launcher.StartReplayAsync(data))
@@ -64,6 +64,10 @@ namespace BeatLeader.Replayer
         }
         private void NotifyReplayButtonPressed(Score score, ReplayerSettings settings)
         {
+            settings = new();
+            settings.loadPlayerEnvironment = true;
+            settings.showUI = true;
+            settings.useReplayerCamera = true;
             DownloadAndStartReplayAsync(score, settings);
         }
     }

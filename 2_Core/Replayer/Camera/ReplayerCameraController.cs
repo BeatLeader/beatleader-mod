@@ -161,7 +161,6 @@ namespace BeatLeader.Replayer
         {
             _camera.stereoTargetEye = _inputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
             _camera.fieldOfView = _inputManager.IsInFPFC ? FieldOfView : _camera.fieldOfView;
-            SetEnabled(true);
         }
         protected void RequestCameraPose(string name)
         {

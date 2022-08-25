@@ -62,9 +62,9 @@ namespace BeatLeader.Components.Settings
             set
             {
                 _bitDepth = value;
-                _xSlider.gameObject.SetActive(value >= 1);
-                _ySlider.gameObject.SetActive(value >= 2);
-                _zSlider.gameObject.SetActive(value >= 3);
+                _xSliderContainer.SetActive(value >= 1);
+                _ySliderContainer.SetActive(value >= 2);
+                _zSliderContainer.SetActive(value >= 3);
             }
         }
         public Vector3 vector
@@ -116,6 +116,9 @@ namespace BeatLeader.Components.Settings
         }
 
         [UIObject("text-container")] private GameObject _textContainer;
+        [UIObject("x-slider-container")] private GameObject _xSliderContainer;
+        [UIObject("y-slider-container")] private GameObject _ySliderContainer;
+        [UIObject("z-slider-container")] private GameObject _zSliderContainer;
         [UIComponent("text")] private TextMeshProUGUI _vectorText;
         [UIComponent("x-slider")] private SliderSetting _xSlider;
         [UIComponent("y-slider")] private SliderSetting _ySlider;

@@ -22,7 +22,7 @@ namespace BeatLeader.Models
         public Player player;
         public ReplayerSettings settings;
         public IDifficultyBeatmap difficultyBeatmap;
-        public EnvironmentInfoSO environmentInfo = null;
+        public EnvironmentInfoSO environmentInfo;
         public bool overrideSettings => settings != null;
 
         public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults, ReplayLaunchData> OnReplayFinish;

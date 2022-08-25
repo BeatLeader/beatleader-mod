@@ -22,7 +22,7 @@ namespace BeatLeader.Components {
         #region Animation
 
         private void OnHoverStateChanged(bool isHovered, float progress) {
-            var scale = _state is State.Inactive ? 0.8f : 0.9f + 0.4f * progress;
+            var scale = _state is State.NonInteractable ? 0.8f : 1.0f + 0.5f * progress;
             _imageComponent.transform.localScale = new Vector3(scale, scale, scale);
             
             _labelRoot.localScale = new Vector3(1.0f, progress, 1.0f);
@@ -46,26 +46,32 @@ namespace BeatLeader.Components {
 
         #region Colors
 
-        private static readonly Color InactiveColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
-        
-        private Color _defaultColor = new Color(1.0f, 1.0f, 1.0f, 0.8f);
-        private Color _highlightColor = Color.white;
+        private static readonly Color InactiveColor = new(0.4f, 0.4f, 0.4f, 0.2f);
+        private static readonly Color SelectedColor = new(0.0f, 0.4f, 1.0f, 1.0f);
+        private static readonly Color FadedColor = new(0.8f, 0.8f, 0.8f, 0.2f);
 
-        public void SetColors(Color defaultColor, Color highlightColor) {
-            _defaultColor = defaultColor.ColorWithAlpha(0.8f);
-            _highlightColor = highlightColor;
+        private Color _glowColor = SelectedColor;
+
+        public void SetGlowColor(Color color) {
+            _glowColor = color;
             UpdateColors();
         }
 
         private void UpdateColors() {
-            if (_state is not State.Active) {
-                _imageComponent.DefaultColor = InactiveColor;
-                _imageComponent.HighlightColor = InactiveColor;
-                return;
+            switch (_state) {
+                case State.NonInteractable:
+                    _imageComponent.DefaultColor = InactiveColor;
+                    _imageComponent.HighlightColor = InactiveColor;
+                    break;
+                case State.InteractableFaded: 
+                    _imageComponent.DefaultColor = FadedColor;
+                    _imageComponent.HighlightColor = FadedColor;
+                    break;
+                case State.InteractableGlowing:
+                    _imageComponent.DefaultColor = _glowColor;
+                    _imageComponent.HighlightColor = _glowColor;
+                    break;
             }
-            
-            _imageComponent.DefaultColor = _defaultColor;
-            _imageComponent.HighlightColor = _highlightColor;
         }
 
         #endregion
@@ -75,7 +81,7 @@ namespace BeatLeader.Components {
         [UIObject("root"), UsedImplicitly]
         private GameObject _rootObject;
 
-        private State _state = State.Active;
+        private State _state = State.InteractableFaded;
 
         public void SetState(State state) {
             _state = state;
@@ -84,8 +90,9 @@ namespace BeatLeader.Components {
         }
 
         public enum State {
-            Inactive,
-            Active,
+            NonInteractable,
+            InteractableFaded,
+            InteractableGlowing,
             Hidden
         }
 
@@ -113,13 +120,14 @@ namespace BeatLeader.Components {
         [UIComponent("image-component"), UsedImplicitly] private ClickableImage _imageComponent;
 
         private void InitializeImage() {
+            _imageComponent.material = BundleLoader.UIAdditiveGlowMaterial;
             var hoverController = _imageComponent.gameObject.AddComponent<SmoothHoverController>();
             hoverController.HoverStateChangedEvent += OnHoverStateChanged;
             _imageComponent.OnClickEvent += OnClickEvent;
         }
 
         private void OnClickEvent(PointerEventData _) {
-            if (_state is not State.Active) return;
+            if (_state is State.NonInteractable or State.Hidden) return;
             OnClick?.Invoke();
         }
 

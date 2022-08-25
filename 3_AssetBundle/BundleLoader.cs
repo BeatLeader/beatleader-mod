@@ -53,6 +53,7 @@ namespace BeatLeader {
         public static Material AccDetailsRowMaterial;
         public static Material ClanTagBackgroundMaterial;
         public static Material VotingButtonMaterial;
+        public static Material MiniProfileBackgroundMaterial;
 
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
@@ -65,6 +66,7 @@ namespace BeatLeader {
             AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
             ClanTagBackgroundMaterial = assetBundle.LoadAsset<Material>("ClanTagBackgroundMaterial");
             VotingButtonMaterial = assetBundle.LoadAsset<Material>("VotingButtonMaterial");
+            MiniProfileBackgroundMaterial = assetBundle.LoadAsset<Material>("UIMiniProfileBackgroundMaterial");
         }
 
         #endregion
@@ -123,9 +125,6 @@ namespace BeatLeader {
         public static Sprite YoutubeIcon;
 
         [UsedImplicitly]
-        public static Sprite BeatSaverIcon;
-
-        [UsedImplicitly]
         public static Sprite ProfileIcon;
 
         [UsedImplicitly]
@@ -152,7 +151,6 @@ namespace BeatLeader {
             TwitterIcon = assetBundle.LoadAsset<Sprite>("BL_TwitterIcon");
             TwitchIcon = assetBundle.LoadAsset<Sprite>("BL_TwitchIcon");
             YoutubeIcon = assetBundle.LoadAsset<Sprite>("BL_YoutubeIcon");
-            BeatSaverIcon = assetBundle.LoadAsset<Sprite>("BL_BeatSaverIcon");
             ProfileIcon = assetBundle.LoadAsset<Sprite>("BL_ProfileIcon");
             FriendsIcon = assetBundle.LoadAsset<Sprite>("BL_FriendsIcon");
             IncognitoIcon = assetBundle.LoadAsset<Sprite>("BL_IncognitoIcon");

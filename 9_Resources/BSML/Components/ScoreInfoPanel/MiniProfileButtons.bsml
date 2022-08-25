@@ -1,7 +1,5 @@
-﻿<horizontal ignore-layout="true">
-    <macro.define name="image-size" value="4"/>
-    
-    <vertical ignore-layout="true" pref-width="~image-size" id="left-buttons-root">
+﻿<horizontal ignore-layout="true" pref-height="40">
+    <vertical id="left-buttons-root" ignore-layout="true" pref-width="40" bg="round-rect-panel">
         <macro.as-host host="friend-button">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
@@ -12,7 +10,7 @@
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
     </vertical>
-    <vertical ignore-layout="true" pref-width="~image-size" id="right-buttons-root">
+    <vertical id="right-buttons-root" ignore-layout="true" pref-width="40" bg="round-rect-panel">
         <macro.as-host host="twitter-button">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
@@ -20,9 +18,6 @@
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
         <macro.as-host host="youtube-button">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-        <macro.as-host host="beat-saver-button">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
     </vertical>

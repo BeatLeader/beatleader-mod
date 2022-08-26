@@ -40,7 +40,7 @@ namespace BeatLeader.Replayer
 
         protected CameraPoseProvider _currentPose;
         protected Camera _camera;
-        protected Transform _origin;
+
         private int _fieldOfView;
         private bool _wasRequestedLastTime;
         private string _requestedPose;
@@ -70,7 +70,7 @@ namespace BeatLeader.Replayer
         }
         public CombinedCameraMovementData CombinedMovementData
         {
-            get => new CombinedCameraMovementData(transform, _vrControllersManager.Head.transform, _origin);
+            get => new CombinedCameraMovementData(transform, _vrControllersManager.Head.transform, _vrControllersManager.OriginTransform);
             protected set
             {
                 transform.localPosition = value.cameraPose.position;
@@ -79,8 +79,8 @@ namespace BeatLeader.Replayer
                 _vrControllersManager.Head.transform.localPosition = value.headPose.position;
                 _vrControllersManager.Head.transform.localRotation = value.headPose.rotation;
 
-                _origin.position = value.originPose.position;
-                _origin.rotation = value.originPose.rotation;
+                _vrControllersManager.OriginTransform.position = value.originPose.position;
+                _vrControllersManager.OriginTransform.rotation = value.originPose.rotation;
 
                 if (!_inputManager.IsInFPFC) SetHandsPose(value.cameraPose);
             }
@@ -101,9 +101,7 @@ namespace BeatLeader.Replayer
             _camera.gameObject.SetActive(true);
             _camera.nearClipPlane = 0.01f;
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
-            _origin = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
-            transform.SetParent(_origin, false);
-            _vrControllersManager.HandsContainer.transform.SetParent(_origin, false);
+            transform.SetParent(_vrControllersManager.OriginTransform, false);
 
             poseProviders = _data.poseProviders.Where(x => _inputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
@@ -175,8 +173,8 @@ namespace BeatLeader.Replayer
         }
         private void SetHandsPose(Pose pose)
         {
-            _vrControllersManager.HandsContainer.transform.localPosition = pose.position;
-            _vrControllersManager.HandsContainer.transform.localRotation = pose.rotation;
+            _vrControllersManager.HandsContainerTranform.localPosition = pose.position;
+            _vrControllersManager.HandsContainerTranform.localRotation = pose.rotation;
         }
     }
 }

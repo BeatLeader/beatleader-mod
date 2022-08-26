@@ -27,14 +27,16 @@ namespace BeatLeader.Replayer.Movement
         public VRController Head { get; protected set; }
         public VRController LeftHand { get; protected set; }
         public VRController RightHand { get; protected set; }
-        public GameObject HandsContainer { get; protected set; }
+        public Transform HandsContainerTranform { get; protected set; }
+        public Transform OriginTransform { get; protected set; }
         public bool IsInitialized { get; protected set; }
 
         protected virtual void Awake()
         {
-            HandsContainer = _pauseMenuManager.transform.Find("MenuControllers").gameObject;
-            LeftHand = HandsContainer.transform.Find("ControllerLeft").GetComponent<VRController>();
-            RightHand = HandsContainer.transform.Find("ControllerRight").GetComponent<VRController>();
+            HandsContainerTranform = _pauseMenuManager.transform.Find("MenuControllers");
+            LeftHand = HandsContainerTranform.Find("ControllerLeft").GetComponent<VRController>();
+            RightHand = HandsContainerTranform.Find("ControllerRight").GetComponent<VRController>();
+            OriginTransform = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
 
             //creating fake head
             //GameObject fakeHead = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -58,6 +60,10 @@ namespace BeatLeader.Replayer.Movement
 
             _vrControllersManager.SetField("_leftHandVRController", LeftSaber);
             _vrControllersManager.SetField("_rightHandVRController", RightSaber);
+
+            HandsContainerTranform.SetParent(OriginTransform, false);
+            Head.transform.SetParent(OriginTransform, false);
+
             InjectControllers();
             IsInitialized = true;
         }
@@ -65,7 +71,7 @@ namespace BeatLeader.Replayer.Movement
         {
             LeftHand.gameObject.SetActive(show);
             RightHand.gameObject.SetActive(show);
-            HandsContainer.gameObject.SetActive(show);
+            HandsContainerTranform.gameObject.SetActive(show);
         }
         public void ShowNode(XRNode node, bool show = true)
         {
@@ -74,7 +80,7 @@ namespace BeatLeader.Replayer.Movement
                 XRNode.Head => Head.gameObject,
                 XRNode.LeftHand => LeftSaber.gameObject,
                 XRNode.RightHand => RightSaber.gameObject,
-                XRNode.GameController => HandsContainer.gameObject,
+                XRNode.GameController => HandsContainerTranform.gameObject,
                 _ => null
             };
             go?.SetActive(show);
@@ -88,7 +94,7 @@ namespace BeatLeader.Replayer.Movement
                 XRNode.Head => Head.transform,
                 XRNode.LeftHand => LeftHand.transform,
                 XRNode.RightHand => RightHand.transform,
-                XRNode.GameController => HandsContainer.transform,
+                XRNode.GameController => HandsContainerTranform,
                 _ => originalParent
             }, false);
             _attachedObjects.Add(transform, (node, originalParent));

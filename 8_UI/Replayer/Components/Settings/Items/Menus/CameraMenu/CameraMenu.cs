@@ -52,14 +52,12 @@ namespace BeatLeader.Components.Settings
 
         [UIObject("camera-fov-container")] private GameObject _cameraFovContainer;
         [UIValue("pose-menu-button")] private SubMenuButton _poseMenuButton;
-        //[UIValue("cam2-menu-button")] private SubMenuButton _cam2MenuButton;
         private CanvasGroup _poseMenuButtonCanvasGroup;
 
         protected override void OnBeforeParse()
         {
             _posesParams = Assembly.GetExecutingAssembly().ScanAndActivateTypes(null, x => (CameraParamsMenu)Instantiate(x));
             _poseMenuButton = CreateButtonForMenu(this, null, "View params");
-            //_cam2MenuButton = CreateButtonForMenu(this, Instantiate<Camera2Menu>(), "Camera2");
             _cameraViewValues = new List<object>(_cameraController.poseProviders.Select(x => x.Name));
             _cameraController.OnCameraPoseChanged += NotifyCameraPoseChanged;
         }

@@ -38,14 +38,14 @@ namespace BeatLeader.Components.Settings
             _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container),
                  setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera");
 
+            if (!setupAsCam2 && _replayData != null && _replayData.overrideSettings)
+                _cameraMenuButton.ButtonGameObject.SetActive(_replayData.settings.useReplayerCamera);
+
             if (setupAsCam2)
             {
                 _cameraMenuButton.Interactable = false;
                 _cameraController.SetEnabled(false);
             }
-
-            if (_replayData != null && _replayData.overrideSettings)
-                _cameraMenuButton.ButtonGameObject.SetActive(_replayData.settings.useReplayerCamera);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace BeatLeader.Replayer.Emulating
             }
         }
 
-        [Inject] protected readonly AudioTimeSyncController _timeSyncController;
+        [Inject] private readonly AudioTimeSyncController _timeSyncController;
 
         public NoteEvent NoteEvent { get; private set; }
         public NoteController NoteController { get; private set; }

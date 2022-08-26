@@ -30,7 +30,8 @@ namespace BeatLeader.Replayer
             bool loadResult = await AssignDataAsync(data, token);
             if (!loadResult) return false;
 
-            var transitionData = data.replay.CreateTransitionData(_playerDataModel, data.difficultyBeatmap);
+            var environmentInfo = GetEnvironmentByLaunchData(data);
+            var transitionData = data.replay.CreateTransitionData(_playerDataModel, data.difficultyBeatmap, environmentInfo.value);
             transitionData.didFinishEvent += ResetData;
 
             if (token.IsCancellationRequested)
@@ -56,7 +57,7 @@ namespace BeatLeader.Replayer
             if (loadingResult.isError || token.IsCancellationRequested) return false;
 
             data.difficultyBeatmap = loadingResult.value;
-            return OverrideEnvironmentIfNeeded(data);
+            return true;
         }
         private async Task<RequestResult<IDifficultyBeatmap>> GetBeatmapDifficultyByReplayInfoAsync(ReplayInfo info, CancellationToken token)
         {
@@ -89,29 +90,19 @@ namespace BeatLeader.Replayer
             return await _levelsModel.GetBeatmapLevelAsync("custom_level_" + hash, token);
         }
 
-        private bool OverrideEnvironmentIfNeeded(ReplayLaunchData data)
+        private RequestResult<EnvironmentInfoSO> GetEnvironmentByLaunchData(ReplayLaunchData data)
         {
             EnvironmentInfoSO environment = null;
+
             if (data.overrideSettings && data.settings.loadPlayerEnvironment)
             {
                 environment = ReplayDataHelper.GetEnvironmentByName(data.replay.info.environment);
-                if (environment == null)
-                {
-                    Plugin.Log.Critical("[Launcher] Failed to parse player environment!");
-                    return false;
-                }
+                if (environment == null) Plugin.Log.Critical("[Launcher] Failed to parse player environment!");
             }
             else if (data.environmentInfo != null)
                 environment = data.environmentInfo;
 
-            if (environment != null)
-            {
-                var overridedData = data.difficultyBeatmap.ChangeDifficultyBeatmapEnvironment(environment);
-                if (overridedData != null)
-                    data.difficultyBeatmap = overridedData;
-            }
-
-            return true;
+            return new RequestResult<EnvironmentInfoSO>(environment == null, environment);
         }
         private void ResetData(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults)
         {

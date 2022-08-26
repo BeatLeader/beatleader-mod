@@ -139,43 +139,6 @@ namespace BeatLeader.Utils
             return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().FirstOrDefault(x =>
                 x.serializedName == GetEnvironmentSerializedNameByEnvironmentName(name));
         }
-        //i really hate it
-        private static CustomBeatmapLevel ChangeBeatmapLevelEnvironment(this IBeatmapLevel level, EnvironmentInfoSO environment)
-        {
-            if (level == null || level.GetType() != typeof(CustomBeatmapLevel)) return null;
-
-            var beatmapLevel = (CustomBeatmapLevel)level;
-            var previewLevel = new CustomPreviewBeatmapLevel(beatmapLevel.defaultCoverImage,
-                beatmapLevel.standardLevelInfoSaveData,
-                beatmapLevel.customLevelPath, beatmapLevel.spriteAsyncLoader, beatmapLevel.levelID,
-                beatmapLevel.songName, beatmapLevel.songSubName,
-                beatmapLevel.songAuthorName, beatmapLevel.levelAuthorName, beatmapLevel.beatsPerMinute,
-                beatmapLevel.songTimeOffset, beatmapLevel.shuffle,
-                beatmapLevel.shufflePeriod, beatmapLevel.previewStartTime, beatmapLevel.previewDuration, environment,
-                beatmapLevel.allDirectionsEnvironmentInfo,
-                beatmapLevel.previewDifficultyBeatmapSets);
-
-            var custom = new CustomBeatmapLevel(previewLevel);
-            custom.SetBeatmapLevelData((BeatmapLevelData)beatmapLevel.beatmapLevelData);
-
-            return custom;
-        }
-        public static CustomDifficultyBeatmap ChangeDifficultyBeatmapEnvironment(this IDifficultyBeatmap difficultyBeatmap, EnvironmentInfoSO environment)
-        {
-            if (difficultyBeatmap == null || difficultyBeatmap.GetType() != typeof(CustomDifficultyBeatmap))
-                return null;
-
-            var difficulty = (CustomDifficultyBeatmap)difficultyBeatmap;
-            var beatmap = new CustomDifficultyBeatmap(difficulty.level.ChangeBeatmapLevelEnvironment(environment),
-                difficulty.parentDifficultyBeatmapSet,
-                difficulty.difficulty, difficulty.difficultyRank,
-                difficulty.noteJumpMovementSpeed,
-                difficulty.noteJumpStartBeatOffset,
-                difficulty.beatsPerMinute, difficulty.beatmapSaveData, 
-                difficulty.beatmapDataBasicInfo);
-
-            return beatmap;
-        }
 
         #endregion
 
@@ -247,11 +210,20 @@ namespace BeatLeader.Utils
         {
             return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
         }
-        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty)
+        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty, EnvironmentInfoSO environment = null)
         {
             var data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
-            data?.Init("Solo", difficulty, difficulty.level, playerModel.playerData.overrideEnvironmentSettings,
+            var environmentSettings = new OverrideEnvironmentSettings();
+            if (environment != null)
+            {
+                environmentSettings.overrideEnvironments = true;
+                environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
+                    .First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), GetEnvironmentByName(replay.info.environment));
+            }
+
+            data?.Init("Solo", difficulty, difficulty.level,
+                environment != null ? environmentSettings :  playerModel.playerData.overrideEnvironmentSettings,
                 playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(),
                 playerModel.playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),

@@ -59,7 +59,7 @@ namespace BeatLeader.Replayer
         }
         public int FieldOfView
         {
-            get => _fieldOfView;
+            get => (int)_camera.fieldOfView;
             set
             {
                 if (_fieldOfView == value || !_inputManager.IsInFPFC) return;

@@ -11,13 +11,13 @@ using System.Threading;
 
 namespace BeatLeader.Replayer
 {
-    public class ReplayerMenuStarter : MonoBehaviour
+    public class ReplayerMenuLoader : MonoBehaviour
     {
         [Inject] private readonly ReplayerLauncher _launcher;
         [Inject] private readonly GameScenesManager _scenesManager;
         [Inject] private readonly IFPFCSettings _fPFCSettings;
 
-        public Dictionary<int, ReplayLaunchData> SessionReplays { get; private set; } = new();
+        public readonly Dictionary<int, ReplayLaunchData> SessionReplays = new();
         private int _nextReplayIndex = 0;
 
         private void Awake()

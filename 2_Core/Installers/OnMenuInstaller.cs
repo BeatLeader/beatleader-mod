@@ -12,7 +12,7 @@ namespace BeatLeader.Installers {
 
             BindLeaderboard();
             Container.Bind<ReplayerLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerMenuStarter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerMenuLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }

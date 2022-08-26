@@ -62,7 +62,7 @@ namespace BeatLeader.Replayer
             get => (int)_camera.fieldOfView;
             set
             {
-                if (_fieldOfView == value || !_inputManager.IsInFPFC) return;
+                if (_fieldOfView == value) return;
                 _fieldOfView = value;
                 RefreshCamera();
                 OnCameraFOVChanged?.Invoke(value);
@@ -159,7 +159,7 @@ namespace BeatLeader.Replayer
         protected void RefreshCamera()
         {
             _camera.stereoTargetEye = _inputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
-            _camera.fieldOfView = _inputManager.IsInFPFC ? FieldOfView : _camera.fieldOfView;
+            if (_inputManager.IsInFPFC) _camera.fieldOfView = _fieldOfView;
         }
         protected void RequestCameraPose(string name)
         {

@@ -45,14 +45,8 @@ namespace BeatLeader.Replayer.Emulating
         }
         public bool TryGetLoadedComparator(Func<SimpleNoteCutComparator, bool> filter, out SimpleNoteCutComparator comparator)
         {
-            comparator = null;
-            foreach (var item in _spawnedComparators)
-                if (filter(item))
-                {
-                    comparator = item;
-                    return true;
-                }
-            return false;
+            comparator = _spawnedComparators.Where(filter).FirstOrDefault();
+            return comparator != null;
         }
         protected void AddNoteComparator(NoteController controller)
         {

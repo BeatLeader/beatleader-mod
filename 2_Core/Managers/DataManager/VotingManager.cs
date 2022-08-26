@@ -11,6 +11,7 @@ namespace BeatLeader.DataManager {
         #region Initialize / Dispose
 
         public void Initialize() {
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
             LeaderboardState.SelectedBeatmapWasChangedEvent += OnSelectedBeatmapWasChanged;
             LeaderboardEvents.SubmitVoteEvent += SubmitVote;
 
@@ -18,6 +19,7 @@ namespace BeatLeader.DataManager {
         }
 
         public void Dispose() {
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
             LeaderboardState.SelectedBeatmapWasChangedEvent -= OnSelectedBeatmapWasChanged;
             LeaderboardEvents.SubmitVoteEvent -= SubmitVote;
         }
@@ -25,6 +27,11 @@ namespace BeatLeader.DataManager {
         #endregion
 
         #region Events
+        
+        private static void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            UpdateVoteStatus();
+        }
 
         private static void OnSelectedBeatmapWasChanged(IDifficultyBeatmap beatmap) {
             UpdateVoteStatus();

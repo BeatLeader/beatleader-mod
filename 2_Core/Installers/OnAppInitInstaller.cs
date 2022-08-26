@@ -12,16 +12,13 @@ namespace BeatLeader.Installers {
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
 
-            switch (_platformUserModel) {
-                case OculusPlatformUserModel: 
-                    Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
-                    Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                    break;
-                case SteamPlatformUserModel:
-                    Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
-                    break;
+            if (_platformUserModel is OculusPlatformUserModel) {
+                Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
+                Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            } else {
+                Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             }
-            
+
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             

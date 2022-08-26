@@ -134,6 +134,10 @@ namespace BeatLeader.Components {
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Failed);
                     _criteriaCheckbox.HoverHint = $"Criteria failed{criteriaPostfix}";
                     break;
+                case 3:
+                    _criteriaCheckbox.SetState(QualificationCheckbox.State.OnHold);
+                    _criteriaCheckbox.HoverHint = $"Criteria on hold{criteriaPostfix}";
+                    break;
                 default:
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Neutral);
                     _criteriaCheckbox.HoverHint = $"Awaiting criteria check{criteriaPostfix}";

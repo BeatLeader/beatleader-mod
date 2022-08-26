@@ -312,8 +312,6 @@
     <Compile Include="2_Core\Replayer\Emulating\SimpleNoteCutComparator.cs" />
     <Compile Include="2_Core\Replayer\GameSettingsLoader.cs" />
     <Compile Include="2_Core\Replayer\Input\InputManager.cs" />
-    <Compile Include="2_Core\Replayer\PluginsTools\NoodleExtensionsPluginReflector.cs" />
-    <Compile Include="2_Core\Replayer\PluginsTools\PluginAssemblyReflector.cs" />
     <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
     <Compile Include="2_Core\Replayer\SceneTweaksManager.cs" />
     <Compile Include="2_Core\Replayer\PlaybackController.cs" />

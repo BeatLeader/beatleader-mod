@@ -52,7 +52,7 @@ namespace BeatLeader
         public void InstallLock(Behaviour behaviour)
         {
             if (!_lockedComponents.TryAdd(behaviour, defaultData))
-                Plugin.Log.Warn("[Locker] Lock are already installed");
+                Plugin.Log.Warn("[Locker] Lock are already installed!");
         }
         public void UninstallLock(Behaviour behaviour)
         {

@@ -1,11 +1,11 @@
 ﻿using static BeatLeader.Replayer.InputManager;
-using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
+using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 
 namespace BeatLeader.Replayer.Poses
 {
-    public class FlyingCameraPose : CameraPoseProvider
+    public class FlyingCameraPose : ICameraPoseProvider
     {
         public FlyingCameraPose(Vector2 mouseSensitivity, float flySpeed, bool disableInputOnUnlockedCursor, string name = "FlyingCameraView")
         {
@@ -35,12 +35,12 @@ namespace BeatLeader.Replayer.Poses
         protected bool _returnToTheLastPos;
         protected string _name;
 
-        public override InputType AvailableInputs => InputType.FPFC;
-        public override int Id => 5;
-        public override bool UpdateEveryFrame => true;
-        public override string Name => _name;
+        public InputType AvailableInputs => InputType.FPFC;
+        public int Id => 5;
+        public bool UpdateEveryFrame => true;
+        public string Name => _name;
 
-        public override CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
+        public CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
         {
             ref var currentPos = ref data.cameraPose.position;
             ref var currentRot = ref data.cameraPose.rotation;

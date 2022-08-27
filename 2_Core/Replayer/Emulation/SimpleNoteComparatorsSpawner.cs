@@ -6,7 +6,7 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer.Emulating
+namespace BeatLeader.Replayer.Emulation
 {
     public class SimpleNoteComparatorsSpawner : MonoBehaviour
     {

@@ -1,13 +1,13 @@
 ﻿using System.Linq;
 using static BeatLeader.Replayer.InputManager;
 using BeatLeader.Replayer.Movement;
-using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
+using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 
 namespace BeatLeader.Replayer.Poses
 {
-    public class PlayerViewCameraPose : CameraPoseProvider
+    public class PlayerViewCameraPose : ICameraPoseProvider
     {
         public PlayerViewCameraPose(float smoothness, string name = "PlayerView")
         {
@@ -15,17 +15,17 @@ namespace BeatLeader.Replayer.Poses
             _name = name;
         }
 
-        public override InputType AvailableInputs => InputType.FPFC;
-        public override int Id => 4;
-        public override bool UpdateEveryFrame => true;
-        public override string Name => _name;
+        public InputType AvailableInputs => InputType.FPFC;
+        public int Id => 4;
+        public bool UpdateEveryFrame => true;
+        public string Name => _name;
 
         public Vector3 offset;
         public float smoothness;
 
         private string _name;
 
-        public override CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
+        public CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
         {
             var camPose = data.cameraPose;
             camPose.position -= offset;

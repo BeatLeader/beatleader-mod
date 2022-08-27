@@ -13,6 +13,12 @@ namespace BeatLeader.Utils
 {
     public static class ReplayDataHelper
     {
+        static ReplayDataHelper()
+        {
+            normalEnvironmentType = Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
+                .FirstOrDefault(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE");
+        }
+
         private class ReplayModifiers : GameplayModifiers
         {
             public new EnergyType energyType
@@ -107,6 +113,8 @@ namespace BeatLeader.Utils
         }
 
         #region Environments
+
+        public static readonly EnvironmentTypeSO normalEnvironmentType; 
 
         public static string GetEnvironmentSerializedNameByEnvironmentName(string name)
         {
@@ -213,20 +221,20 @@ namespace BeatLeader.Utils
         public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty, EnvironmentInfoSO environment = null)
         {
             var data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
+            var playerData = playerModel.playerData;
+            bool overrideEnv = environment != null;
 
-            var environmentSettings = new OverrideEnvironmentSettings();
-            if (environment != null)
+            var environmentSettings = overrideEnv ? new OverrideEnvironmentSettings() : playerData.overrideEnvironmentSettings;
+            if (overrideEnv)
             {
                 environmentSettings.overrideEnvironments = true;
-                environmentSettings.SetEnvironmentInfoForType(Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
-                    .First(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE"), GetEnvironmentByName(replay.info.environment));
+                environmentSettings.SetEnvironmentInfoForType(normalEnvironmentType, environment);
             }
 
-            data?.Init("Solo", difficulty, difficulty.level,
-                environment != null ? environmentSettings :  playerModel.playerData.overrideEnvironmentSettings,
-                playerModel.playerData.colorSchemesSettings.GetOverrideColorScheme(),
+            data?.Init("Solo", difficulty, difficulty.level, environmentSettings,
+                playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(),
-                playerModel.playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
+                playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
                 replay.GetPracticeSettingsFromReplay(), "Menu");
 
             return data;

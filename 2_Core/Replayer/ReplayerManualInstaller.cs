@@ -4,7 +4,7 @@ using System.Reflection;
 using BeatLeader.Utils;
 using BeatLeader.Replayer;
 using BeatLeader.Replayer.Poses;
-using BeatLeader.Replayer.Emulating;
+using BeatLeader.Replayer.Emulation;
 using BeatLeader.Replayer.Movement;
 using BeatLeader.Replayer.Scoring;
 using BeatLeader.ViewControllers;

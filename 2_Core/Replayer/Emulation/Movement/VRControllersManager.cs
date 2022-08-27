@@ -38,19 +38,10 @@ namespace BeatLeader.Replayer.Movement
             RightHand = HandsContainerTranform.Find("ControllerRight").GetComponent<VRController>();
             OriginTransform = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
 
-            //creating fake head
-            //GameObject fakeHead = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            //fakeHead.name = "ReplayerFakeHead";
-            //fakeHead.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-            //fakeHead.AddComponent<BoxCollider>().size = new Vector3(1, 3, 1);
-            //Head = fakeHead.AddComponent<VRControllerWrapper>();
             _mainCamera.GetComponentInChildren<BoxCollider>().gameObject.SetActive(false);
-
             Head = Instantiate(BundleLoader.MonkeyPrefab, null, false).AddComponent<VRControllerWrapper>();
             Head.transform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
             Head.node = XRNode.Head;
-
-            _playerTransforms.SetField("_headTransform", Head.transform);
 
             _softLocksController.InstallLock(_vrControllersManager.leftHandVRController);
             _softLocksController.InstallLock(_vrControllersManager.rightHandVRController);
@@ -58,6 +49,7 @@ namespace BeatLeader.Replayer.Movement
             LeftSaber = _vrControllersManager.leftHandVRController;
             RightSaber = _vrControllersManager.rightHandVRController;
 
+            _playerTransforms.SetField("_headTransform", Head.transform);
             _vrControllersManager.SetField("_leftHandVRController", LeftSaber);
             _vrControllersManager.SetField("_rightHandVRController", RightSaber);
 
@@ -75,7 +67,7 @@ namespace BeatLeader.Replayer.Movement
         }
         public void ShowNode(XRNode node, bool show = true)
         {
-            GameObject go = node switch
+            var go = node switch
             {
                 XRNode.Head => Head.gameObject,
                 XRNode.LeftHand => LeftSaber.gameObject,
@@ -101,13 +93,14 @@ namespace BeatLeader.Replayer.Movement
         }
         public void DetachFromTheNode(Transform transform, bool reparentToOriginalParent)
         {
-            (XRNode, Transform) pair = _attachedObjects.First(x => x.Key == transform).Value;
-            if (pair != (null, null))
+            if (_attachedObjects.TryGetValue(transform, out var pair))
             {
-                transform.SetParent(reparentToOriginalParent ? pair.Item2 : null);
-                _attachedObjects.Remove(transform);
+                Plugin.Log.Warn("[Binder] This object is not attached to any node!");
+                return;
             }
-            else Debug.LogWarning("This object is not attached to the any from nodes!");
+
+            transform.SetParent(reparentToOriginalParent ? pair.Item2 : null);
+            _attachedObjects.Remove(transform);
         }
         protected void InjectControllers()
         {

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using BeatLeader.Replayer.Movement;
-using CameraPoseProvider = BeatLeader.Models.CameraPoseProvider;
+using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using Zenject;
@@ -14,20 +14,20 @@ namespace BeatLeader.Replayer
     {
         public class InitData
         {
-            public readonly CameraPoseProvider[] poseProviders;
+            public readonly ICameraPoseProvider[] poseProviders;
             public readonly string cameraStartPose;
 
             public InitData(string cameraStartPose = null)
             {
                 this.cameraStartPose = cameraStartPose;
-                poseProviders = new CameraPoseProvider[0];
+                poseProviders = new ICameraPoseProvider[0];
             }
-            public InitData(string cameraStartPose = null, params CameraPoseProvider[] poseProviders)
+            public InitData(string cameraStartPose = null, params ICameraPoseProvider[] poseProviders)
             {
                 this.cameraStartPose = cameraStartPose;
                 this.poseProviders = poseProviders;
             }
-            public InitData(params CameraPoseProvider[] poseProviders)
+            public InitData(params ICameraPoseProvider[] poseProviders)
             {
                 this.poseProviders = poseProviders;
             }
@@ -38,18 +38,18 @@ namespace BeatLeader.Replayer
         [Inject] protected readonly InitData _data;
         [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
-        protected CameraPoseProvider _currentPose;
+        protected ICameraPoseProvider _currentPose;
         protected Camera _camera;
 
         private int _fieldOfView;
         private bool _wasRequestedLastTime;
         private string _requestedPose;
 
-        public event Action<CameraPoseProvider> OnCameraPoseChanged;
+        public event Action<ICameraPoseProvider> OnCameraPoseChanged;
         public event Action<int> OnCameraFOVChanged;
 
-        public List<CameraPoseProvider> poseProviders { get; protected set; }
-        public CameraPoseProvider CurrentPose => _currentPose;
+        public List<ICameraPoseProvider> poseProviders { get; protected set; }
+        public ICameraPoseProvider CurrentPose => _currentPose;
         public string CurrentPoseName => _currentPose != null ? _currentPose.Name : "NaN";
         public bool IsInitialized { get; private set; }
         public int CullingMask
@@ -124,7 +124,7 @@ namespace BeatLeader.Replayer
         public void SetCameraPose(string name)
         {
             if (_camera == null) return;
-            CameraPoseProvider cameraPose = null;
+            ICameraPoseProvider cameraPose = null;
             foreach (var item in poseProviders)
                 if (item.Name == name)
                 {
@@ -132,15 +132,12 @@ namespace BeatLeader.Replayer
                     break;
                 }
             if (cameraPose == null) return;
-            if (_currentPose != null)
-                _currentPose.OnPoseUpdateRequested -= RequestUpdate;
             _currentPose = cameraPose;
-            _currentPose.OnPoseUpdateRequested += RequestUpdate;
             CombinedMovementData = _currentPose.GetPose(CombinedMovementData);
             RefreshCamera();
             OnCameraPoseChanged?.Invoke(cameraPose);
         }
-        public void SetCameraPose(CameraPoseProvider provider)
+        public void SetCameraPose(ICameraPoseProvider provider)
         {
             if (!poseProviders.Contains(provider))
                 poseProviders.Add(provider);
@@ -166,10 +163,6 @@ namespace BeatLeader.Replayer
             if (name == string.Empty) return;
             _requestedPose = name;
             _wasRequestedLastTime = true;
-        }
-        protected void RequestUpdate(CombinedCameraMovementData data)
-        {
-            CombinedMovementData = data;
         }
         private void SetHandsPose(Pose pose)
         {

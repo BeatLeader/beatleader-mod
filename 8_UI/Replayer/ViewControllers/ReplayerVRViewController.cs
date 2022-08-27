@@ -69,7 +69,7 @@ namespace BeatLeader.ViewControllers
             _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();
 
-            _inputManager.VRRaycaster = _floatingScreen.GetComponent<VRGraphicRaycaster>();
+            _inputManager.VRInputModule.comparator = new GameplayObjectsComparatorModule();
         }
         private void NotifyViewSyncChanged(bool state) => syncView = state;
     }

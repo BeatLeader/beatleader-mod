@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using static ScoreMultiplierCounter;
-using BeatLeader.Replayer.Emulating;
+using BeatLeader.Replayer.Emulation;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;

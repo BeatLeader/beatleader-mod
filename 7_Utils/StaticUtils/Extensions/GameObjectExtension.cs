@@ -15,12 +15,6 @@ namespace BeatLeader.Utils
                 component = go.AddComponent<T>();
             return component;
         }
-        public static T GetComponentInParentHierarchy<T>(this GameObject go) where T : Component
-        {
-            var parent = go.transform.parent.gameObject;
-            var component = parent.GetComponent<T>();
-            return component != null ? component : parent?.GetComponentInParentHierarchy<T>() ;
-        }
         public static bool TryDestroy<T>(this T go) where T : Component
         {
             if (go == null) return false;

@@ -7,7 +7,7 @@ using System;
 
 namespace BeatLeader.Replayer.Poses
 {
-    public class StaticCameraPose : CameraPoseProvider
+    public class StaticCameraPose : ICameraPoseProvider
     {
         public StaticCameraPose(int id, string name, Vector3 position, Quaternion rotation)
         {
@@ -32,12 +32,12 @@ namespace BeatLeader.Replayer.Poses
         private int _id;
         private string _name;
 
-        public override InputType AvailableInputs => _availableInputs;
-        public override int Id => _id;
-        public override bool UpdateEveryFrame => true;
-        public override string Name => _name;
+        public InputType AvailableInputs => _availableInputs;
+        public int Id => _id;
+        public bool UpdateEveryFrame => false;
+        public string Name => _name;
 
-        public override CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
+        public CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
         {
             data.cameraPose.position = _position;
             data.cameraPose.rotation = _rotation;

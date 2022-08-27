@@ -8,7 +8,7 @@ using IPA.Utilities;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
-using BeatLeader.Replayer.Emulating;
+using BeatLeader.Replayer.Emulation;
 using BeatLeader.Replayer.Movement;
 using UnityEngine;
 using Zenject;

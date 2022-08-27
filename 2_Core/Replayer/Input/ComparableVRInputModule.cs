@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using UnityEngine.EventSystems;
 using UnityEngine;
 using VRUIControls;
+using BeatLeader.Models;
 
 namespace BeatLeader.Replayer
 {
-    internal class OrientedVRInputModule : VRInputModule
+    public class ComparableVRInputModule : VRInputModule
     {
-        public BaseRaycaster raycaster;
+        public IComparatorModule<RaycastResult> comparator;
+
+        private List<RaycastResult> _cachedComparedData = new();
 
         protected override MouseState GetMousePointerEventData(int id)
         {
@@ -68,18 +71,15 @@ namespace BeatLeader.Replayer
             _mouseState.SetButtonState(PointerEventData.InputButton.Left, stateForMouseButton, data);
             return _mouseState;
         }
-        private void Raycast(PointerEventData data, List<RaycastResult> result)
+        protected void Raycast(PointerEventData data, List<RaycastResult> result)
         {
-            if (raycaster == null)
-            {
-                eventSystem.RaycastAll(data, result);
-                return;
-            }
+            eventSystem.RaycastAll(data, result);
 
-            foreach (var item in raycaster.GetComponentsInChildren<BaseRaycaster>())
-            {
-                item.Raycast(data, result);
-            }
+            _cachedComparedData.Clear();
+            _cachedComparedData.AddRange(result.Where(x => comparator.Compare(x)));
+
+            result.Clear();
+            result.AddRange(_cachedComparedData);
         }
     }
 }

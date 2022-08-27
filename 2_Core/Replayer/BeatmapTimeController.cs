@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Replayer.Emulating;
+using BeatLeader.Replayer.Emulation;
 using IPA.Loader;
 using IPA.Utilities;
 using HarmonyLib;

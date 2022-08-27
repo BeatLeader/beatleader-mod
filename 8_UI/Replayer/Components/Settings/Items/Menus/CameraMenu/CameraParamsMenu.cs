@@ -11,9 +11,9 @@ namespace BeatLeader.Components.Settings
     {
         public abstract int Id { get; }
         public abstract Type Type { get; }
-        public CameraPoseProvider PoseProvider { get; private set; }
+        public ICameraPoseProvider PoseProvider { get; private set; }
 
-        public void Init(CameraPoseProvider poseProvider)
+        public void Init(ICameraPoseProvider poseProvider)
         {
             PoseProvider = poseProvider;
             Handle();

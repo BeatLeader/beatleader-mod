@@ -23,29 +23,18 @@ namespace BeatLeader.Replayer
             FPFC = 2
         }
 
-        [Inject] private readonly LocksController _softLocksController;
         [Inject] private readonly IVRPlatformHelper _platformHelper;
         [Inject] private readonly VRInputModule _inputModule;
         [Inject] private readonly DiContainer _container;
 
-        public event Action<EventSystem> OnEventSystemChanged;
-
-        public BaseRaycaster VRRaycaster
-        {
-            get => _replayerInputModule?.raycaster;
-            set
-            {
-                if (_replayerInputModule != null)
-                    _replayerInputModule.raycaster = value;
-            }
-        }
         public InputType CurrentInputType { get; private set; }
         public EventSystem CurrentEventSystem { get; private set; }
         public EventSystem CustomEventSystem { get; private set; }
         public EventSystem BaseEventSystem { get; private set; }
+        public ComparableVRInputModule VRInputModule { get; private set; }
         public bool IsInFPFC => CurrentInputType == InputType.FPFC;
 
-        private OrientedVRInputModule _replayerInputModule;
+        public event Action<EventSystem> OnEventSystemChanged;
 
         private void Awake()
         {
@@ -72,15 +61,16 @@ namespace BeatLeader.Replayer
                 var rumblePreset = originalInputModule.GetField<HapticPresetSO, VRInputModule>("_rumblePreset");
                 GameObject.DestroyImmediate(originalInputModule);
                 
-                _replayerInputModule = inputSystemContainer.AddComponent<OrientedVRInputModule>();
-                _replayerInputModule.SetField<VRInputModule, VRPointer>("_vrPointer", pointer);
-                _replayerInputModule.SetField<VRInputModule, HapticPresetSO>("_rumblePreset", rumblePreset);
-                _container.Inject(_replayerInputModule);
+                VRInputModule = inputSystemContainer.AddComponent<ComparableVRInputModule>();
+                VRInputModule.SetField<VRInputModule, VRPointer>("_vrPointer", pointer);
+                VRInputModule.SetField<VRInputModule, HapticPresetSO>("_rumblePreset", rumblePreset);
+                _container.Inject(VRInputModule);
                 
-                eventSystem.SetField("m_CurrentInputModule", (BaseInputModule)_replayerInputModule);
+                eventSystem.SetField("m_CurrentInputModule", (BaseInputModule)VRInputModule);
                 inputSystemContainer.gameObject.SetActive(true);
             }
             CustomEventSystem = eventSystem;
+            SwitchInputTo(false);
         }
         public void EnableInput(bool enable)
         {
@@ -88,8 +78,9 @@ namespace BeatLeader.Replayer
         }
         public void SwitchInputTo(bool original = true)
         {
+            var current = CurrentEventSystem;
             EventSystem.current = original ? BaseEventSystem : CustomEventSystem;
-            OnEventSystemChanged?.Invoke(CurrentEventSystem = original ? BaseEventSystem : CustomEventSystem);
+            OnEventSystemChanged?.Invoke(current);
         }
         public bool MatchesCurrentInput(InputType type)
         {

@@ -1,4 +1,4 @@
-﻿using BeatLeader.Replayer.Poses;
+﻿using BeatLeader.Replayer.Camera;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections.Generic;

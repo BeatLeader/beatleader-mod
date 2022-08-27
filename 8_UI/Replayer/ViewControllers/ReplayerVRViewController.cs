@@ -18,6 +18,7 @@ using HMUI;
 using BeatSaberMarkupLanguage.FloatingScreen;
 
 using VRUIControls;
+using IPA.Utilities;
 
 namespace BeatLeader.ViewControllers
 {
@@ -40,11 +41,13 @@ namespace BeatLeader.ViewControllers
             }
         }
 
+        [SerializeAutomatically] private static bool _syncView = true;
+
         [UIValue("rotation-menu")] private RotationMenu _rotationMenu;
         [UIValue("toolbar")] private Toolbar _toolbar;
 
-        [SerializeAutomatically] private static bool _syncView = true;
         private FloatingScreen _floatingScreen;
+        private List<int> _blockedRaycastLayers = new List<int> { 8, 9, 10, 11 };
 
         private void Start()
         {
@@ -62,14 +65,21 @@ namespace BeatLeader.ViewControllers
 
             var view = container.gameObject.AddComponent<RotatingVRView>();
             view.Init(_camera.transform, viewContainer.transform);
-            _rotationMenu.Init(view);
+            _rotationMenu.view = view;
             _rotationMenu.EnableSync(syncView);
             _rotationMenu.OnViewSyncChanged += NotifyViewSyncChanged;
 
             _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();
 
-            _inputManager.VRInputModule.comparator = new GameplayObjectsComparatorModule();
+            var comparableInputModule = Resources.FindObjectsOfTypeAll<ComparableVRInputModule>().FirstOrDefault();
+            if (comparableInputModule == null) return;
+
+            var raycaster = _floatingScreen.GetComponent<VRGraphicRaycaster>();
+            raycaster.SetField("_blockingMask", (LayerMask)LayerMaskHelper.LayersToBit(_blockedRaycastLayers));
+
+            //comparableInputModule.raycaster = raycaster;
+            //comparableInputModule.comparator = new GameplayObjectsComparatorModule();
         }
         private void NotifyViewSyncChanged(bool state) => syncView = state;
     }

@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 
 namespace BeatLeader.Replayer
 {
-    internal class GameplayObjectsComparatorModule : IComparatorModule<RaycastResult>
+    public class GameplayObjectsComparatorModule : IComparatorModule<RaycastResult>
     {
         public bool Compare(RaycastResult result)
         {

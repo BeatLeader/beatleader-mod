@@ -1,13 +1,7 @@
 ﻿using BeatLeader.Replayer;
-using BeatLeader.Replayer.Movement;
+using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Components.Settings
@@ -16,7 +10,6 @@ namespace BeatLeader.Components.Settings
     internal class SettingsRootMenu : MenuWithContainer
     {
         [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly InputManager _inputManager;
         [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         [UIValue("camera-menu-button")] private SubMenuButton _cameraMenuButton;
@@ -34,7 +27,7 @@ namespace BeatLeader.Components.Settings
         }
         private void SetupCameraMenu()
         {
-            bool setupAsCam2 = Cam2Util.Detected && _inputManager.IsInFPFC && _replayData == null;
+            bool setupAsCam2 = Cam2Util.Detected && InputManager.IsInFPFC && _replayData == null;
             _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container),
                  setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera");
 

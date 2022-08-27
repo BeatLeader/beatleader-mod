@@ -10,7 +10,6 @@ namespace BeatLeader.Replayer
 {
     public class SceneTweaksManager : MonoBehaviour
     {
-        [Inject] private readonly InputManager _inputManager;
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly LocksController _softLocksController;
         [Inject] private readonly StandardLevelGameplayManager _gameplayManager;
@@ -30,8 +29,8 @@ namespace BeatLeader.Replayer
             _softLocksController.InstallLock(_gameplayManager);
             _softLocksController.InstallLock(_pauseMenuManager);
             _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First());
-            Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(!_inputManager.IsInFPFC);
-            Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(!_inputManager.IsInFPFC);
+            Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(!InputManager.IsInFPFC);
+            Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(!InputManager.IsInFPFC);
         }
         private void UnsubscribeEvents()
         {

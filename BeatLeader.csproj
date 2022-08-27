@@ -332,7 +332,7 @@
     <Compile Include="3_AssetBundle\MonkeySpinner.cs" />
     <Compile Include="7_Utils\BLConstants.cs" />
     <Compile Include="7_Utils\BLContext.cs" />
-    <Compile Include="7_Utils\Cam2Util.cs" />
+    <Compile Include="7_Utils\StaticUtils\Cam2Util.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
@@ -351,6 +351,7 @@
     <Compile Include="7_Utils\StaticUtils\HarmonyUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\HMUIUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\LayerMaskHelper.cs" />
     <Compile Include="7_Utils\StaticUtils\ReflectionUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />

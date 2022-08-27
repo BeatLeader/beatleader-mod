@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using BeatLeader.Utils;
 using BeatLeader.Replayer;
-using BeatLeader.Replayer.Poses;
+using BeatLeader.Replayer.Camera;
 using BeatLeader.Replayer.Emulation;
 using BeatLeader.Replayer.Movement;
 using BeatLeader.Replayer.Scoring;
@@ -61,10 +61,9 @@ namespace BeatLeader.Replayer
 
                 )).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<GameSettingsLoader>().AsSingle().Lazy();
 
-            InstallUI(Container, !Container.Resolve<InputManager>().IsInFPFC);
+            InstallUI(Container, !InputManager.IsInFPFC);
             Plugin.Log.Notice("Replay system successfully installed!");
         }
         private static void InstallUI(DiContainer container, bool vr)
@@ -73,6 +72,7 @@ namespace BeatLeader.Replayer
                 container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             else
             {
+                container.BindInterfacesAndSelfTo<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 PatchSiraFreeView(container);
             }

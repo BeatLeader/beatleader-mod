@@ -13,6 +13,7 @@ namespace BeatLeader.Replayer
     public class ComparableVRInputModule : VRInputModule
     {
         public IComparatorModule<RaycastResult> comparator;
+        public BaseRaycaster raycaster;
 
         private List<RaycastResult> _cachedComparedData = new();
 
@@ -73,7 +74,11 @@ namespace BeatLeader.Replayer
         }
         protected void Raycast(PointerEventData data, List<RaycastResult> result)
         {
-            eventSystem.RaycastAll(data, result);
+            raycaster?.Raycast(data, result);
+            if (raycaster == null)
+                eventSystem.RaycastAll(data, result);
+
+            if (comparator == null) return;
 
             _cachedComparedData.Clear();
             _cachedComparedData.AddRange(result.Where(x => comparator.Compare(x)));

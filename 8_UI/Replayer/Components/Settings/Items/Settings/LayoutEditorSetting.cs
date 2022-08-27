@@ -12,13 +12,12 @@ namespace BeatLeader.Components.Settings
     internal class LayoutEditorSetting : ReeUIComponentV2WithContainer
     {
         [InjectOptional] private readonly LayoutEditor _layoutEditor;
-        [Inject] private readonly InputManager _inputManager;
 
         public event Action OnEnteredEditMode;
 
         protected override void OnInitialize()
         {
-           Content.gameObject.AddComponent<InputDependentObject>().Init(_inputManager, InputManager.InputType.FPFC);
+           Content.gameObject.AddComponent<InputDependentObject>().Init(InputManager.InputType.FPFC);
         }
 
         [UIAction("button-clicked")] private void OpenEditor()

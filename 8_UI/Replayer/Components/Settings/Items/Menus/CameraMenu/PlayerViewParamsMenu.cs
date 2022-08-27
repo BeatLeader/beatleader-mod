@@ -1,11 +1,7 @@
-﻿using BeatLeader.Replayer.Poses;
+﻿using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BeatLeader.Components.Settings

@@ -5,7 +5,7 @@ using Vector3 = UnityEngine.Vector3;
 using Pose = UnityEngine.Pose;
 using System;
 
-namespace BeatLeader.Replayer.Poses
+namespace BeatLeader.Replayer.Camera
 {
     public class StaticCameraPose : ICameraPoseProvider
     {

@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
+using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
@@ -19,40 +20,48 @@ namespace BeatLeader.Components.Settings
     internal class CameraMenu : MenuWithContainer
     {
         [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly InputManager _inputManager;
-
-        [SerializeAutomatically] private static string fpfcCameraView = "PlayerView";
-        [SerializeAutomatically] private static string vrCameraView = "BehindView";
-        [SerializeAutomatically] private static int cameraFov = 90;
-
-        private List<CameraParamsMenu> _posesParams;
 
         [UIValue("camera-view-values")] private List<object> _cameraViewValues;
-        [UIValue("camera-view")] private string _cameraView
+        [UIValue("camera-view")] private string cameraView
         {
             get => _cameraController.CurrentPoseName;
             set
             {
-                fpfcCameraView = value;
+                _cameraView = value;
                 _cameraController.SetCameraPose(value);
-                NotifyPropertyChanged(nameof(_cameraView));
+                NotifyPropertyChanged(nameof(cameraView));
                 AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
-        [UIValue("camera-fov")] private int _cameraFov
+        [UIValue("camera-fov")] private int cameraFov
         {
             get => _cameraController.FieldOfView;
             set
             {
-                cameraFov = value;
+                fpfcCameraFov = value;
                 _cameraController.FieldOfView = value;
-                NotifyPropertyChanged(nameof(_cameraFov));
+                NotifyPropertyChanged(nameof(cameraFov));
                 AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
+        private string _cameraView
+        {
+            get => InputManager.IsInFPFC ? fpfcCameraView : vrCameraView;
+            set
+            {
+                ref var view = ref InputManager.IsInFPFC ? ref fpfcCameraView : ref vrCameraView;
+                view = value;
+            }
+        }
+
+        [SerializeAutomatically] private static string fpfcCameraView = "PlayerView";
+        [SerializeAutomatically] private static string vrCameraView = "BehindView";
+        [SerializeAutomatically] private static int fpfcCameraFov = 90;
 
         [UIObject("camera-fov-container")] private GameObject _cameraFovContainer;
         [UIValue("pose-menu-button")] private SubMenuButton _poseMenuButton;
+
+        private List<CameraParamsMenu> _posesParams;
         private CanvasGroup _poseMenuButtonCanvasGroup;
 
         protected override void OnBeforeParse()
@@ -65,9 +74,9 @@ namespace BeatLeader.Components.Settings
         protected override void OnAfterParse()
         {
             var obj = _cameraFovContainer.AddComponent<InputDependentObject>();
-            obj.Init(_inputManager, InputManager.InputType.FPFC);
-            if (obj.ShouldBeVisible) _cameraFov = cameraFov;
-            _cameraView = _inputManager.IsInFPFC ? fpfcCameraView : vrCameraView;
+            obj.Init(InputManager.InputType.FPFC);
+            if (obj.ShouldBeVisible) cameraFov = fpfcCameraFov;
+            cameraView = InputManager.IsInFPFC ? fpfcCameraView : vrCameraView;
             _poseMenuButtonCanvasGroup = _poseMenuButton.ButtonGameObject.AddComponent<CanvasGroup>();
         }
 

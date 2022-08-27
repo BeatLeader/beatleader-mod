@@ -12,7 +12,7 @@ namespace BeatLeader.Components
 {
     internal class RotationMenu : ReeUIComponentV2
     {
-        public RotatingVRView View { get; private set; }
+        public RotatingVRView view;
 
         [UIComponent("sync-button")] private BetterImage _syncButton;
         [UIObject("manual-rotation-panel")] private GameObject _manualRotationPanel;
@@ -23,14 +23,10 @@ namespace BeatLeader.Components
 
         public event Action<bool> OnViewSyncChanged;
 
-        public void Init(RotatingVRView view)
-        {
-            View = view;
-        }
         public void EnableSync(bool enable)
         {
-            if (View == null) return;
-            View.followHead = enable;
+            if (view == null) return;
+            view.followHead = enable;
             _syncButton.Image.color = enable ? _pressedColor : _normalColor;
             _manualRotationPanel.SetActive(!enable);
             OnViewSyncChanged?.Invoke(enable);
@@ -46,8 +42,8 @@ namespace BeatLeader.Components
         {
             EnableSync(_syncEnabled = !_syncEnabled);
         }
-        [UIAction("rotate-left-button-click")] private void OnRotateLeftButtonClicked() => View?.Rotate(RotatingVRView.Direction.Left);
-        [UIAction("rotate-center-button-click")] private void OnRotateCenterButtonClicked() => View?.RotateCenter();
-        [UIAction("rotate-right-button-click")] private void OnRotateRightButtonClicked() => View?.Rotate(RotatingVRView.Direction.Right);
+        [UIAction("rotate-left-button-click")] private void OnRotateLeftButtonClicked() => view?.Rotate(RotatingVRView.Direction.Left);
+        [UIAction("rotate-center-button-click")] private void OnRotateCenterButtonClicked() => view?.RotateCenter();
+        [UIAction("rotate-right-button-click")] private void OnRotateRightButtonClicked() => view?.Rotate(RotatingVRView.Direction.Right);
     }
 }

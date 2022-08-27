@@ -1,5 +1,5 @@
 ﻿using BeatLeader.Replayer;
-using BeatLeader.Replayer.Poses;
+using BeatLeader.Replayer.Camera;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;

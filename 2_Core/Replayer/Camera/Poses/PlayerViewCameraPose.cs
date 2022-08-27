@@ -5,7 +5,7 @@ using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 
-namespace BeatLeader.Replayer.Poses
+namespace BeatLeader.Replayer.Camera
 {
     public class PlayerViewCameraPose : ICameraPoseProvider
     {

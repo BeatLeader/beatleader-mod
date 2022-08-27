@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.Replayer.Camera;
 using Zenject;
 
 namespace BeatLeader.Replayer

@@ -6,9 +6,8 @@ using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using Zenject;
-using BeatLeader.Utils;
 
-namespace BeatLeader.Replayer
+namespace BeatLeader.Replayer.Camera
 {
     public class ReplayerCameraController : MonoBehaviour
     {
@@ -39,7 +38,7 @@ namespace BeatLeader.Replayer
         [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
         protected ICameraPoseProvider _currentPose;
-        protected Camera _camera;
+        protected UnityEngine.Camera _camera;
 
         private int _fieldOfView;
         private bool _wasRequestedLastTime;
@@ -82,7 +81,7 @@ namespace BeatLeader.Replayer
                 _vrControllersManager.OriginTransform.position = value.originPose.position;
                 _vrControllersManager.OriginTransform.rotation = value.originPose.rotation;
 
-                if (!_inputManager.IsInFPFC) SetHandsPose(value.cameraPose);
+                if (!InputManager.IsInFPFC) SetHandsPose(value.cameraPose);
             }
         }
 
@@ -92,7 +91,7 @@ namespace BeatLeader.Replayer
             SmoothCamera smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
                 .First(x => x.transform.parent.name == "LocalPlayerGameCore");
             smoothCamera.gameObject.SetActive(false);
-            _camera = Instantiate(smoothCamera.GetComponent<Camera>(), gameObject.transform, true);
+            _camera = Instantiate(smoothCamera.GetComponent<UnityEngine.Camera>(), gameObject.transform, true);
 
             _camera.gameObject.SetActive(false);
             _camera.name = "ReplayerViewCamera";
@@ -103,7 +102,7 @@ namespace BeatLeader.Replayer
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
             transform.SetParent(_vrControllersManager.OriginTransform, false);
 
-            poseProviders = _data.poseProviders.Where(x => _inputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
+            poseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
             SetEnabled(_replayData.overrideSettings ? _replayData.settings.useReplayerCamera : true);
@@ -123,15 +122,11 @@ namespace BeatLeader.Replayer
         }
         public void SetCameraPose(string name)
         {
-            if (_camera == null) return;
-            ICameraPoseProvider cameraPose = null;
-            foreach (var item in poseProviders)
-                if (item.Name == name)
-                {
-                    cameraPose = item;
-                    break;
-                }
+            if (_camera == null || string.IsNullOrEmpty(name)) return;
+
+            ICameraPoseProvider cameraPose = poseProviders.FirstOrDefault(x => x.Name == name);
             if (cameraPose == null) return;
+
             _currentPose = cameraPose;
             CombinedMovementData = _currentPose.GetPose(CombinedMovementData);
             RefreshCamera();
@@ -155,8 +150,8 @@ namespace BeatLeader.Replayer
 
         protected void RefreshCamera()
         {
-            _camera.stereoTargetEye = _inputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
-            if (_inputManager.IsInFPFC) _camera.fieldOfView = _fieldOfView;
+            _camera.stereoTargetEye = InputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
+            if (InputManager.IsInFPFC) _camera.fieldOfView = _fieldOfView;
         }
         protected void RequestCameraPose(string name)
         {
@@ -166,8 +161,8 @@ namespace BeatLeader.Replayer
         }
         private void SetHandsPose(Pose pose)
         {
-            _vrControllersManager.HandsContainerTranform.localPosition = pose.position;
-            _vrControllersManager.HandsContainerTranform.localRotation = pose.rotation;
+            _vrControllersManager.MenuHandsContainerTranform.localPosition = pose.position;
+            _vrControllersManager.MenuHandsContainerTranform.localRotation = pose.rotation;
         }
     }
 }

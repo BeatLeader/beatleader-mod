@@ -15,14 +15,12 @@ namespace BeatLeader.Components
                 Refresh();
             }
         }
-        public bool ShouldBeVisible => _inputManager.MatchesCurrentInput(_inputType);
+        public bool ShouldBeVisible => InputManager.MatchesCurrentInput(_inputType);
 
-        private InputManager _inputManager;
         private InputType _inputType;
 
-        public void Init(InputManager manager, InputType type = InputType.VR | InputType.FPFC)
+        public void Init(InputType type = InputType.VR | InputType.FPFC)
         {
-            _inputManager = manager;
             InputType = type;
         }
         public void Refresh() => gameObject.SetActive(ShouldBeVisible);

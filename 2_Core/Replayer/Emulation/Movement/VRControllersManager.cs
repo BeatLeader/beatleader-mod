@@ -27,15 +27,16 @@ namespace BeatLeader.Replayer.Movement
         public VRController Head { get; protected set; }
         public VRController LeftHand { get; protected set; }
         public VRController RightHand { get; protected set; }
-        public Transform HandsContainerTranform { get; protected set; }
+        public Transform MenuHandsContainerTranform { get; protected set; }
+        public Transform MenuHandsTranform { get; protected set; }
         public Transform OriginTransform { get; protected set; }
         public bool IsInitialized { get; protected set; }
 
         protected virtual void Awake()
         {
-            HandsContainerTranform = _pauseMenuManager.transform.Find("MenuControllers");
-            LeftHand = HandsContainerTranform.Find("ControllerLeft").GetComponent<VRController>();
-            RightHand = HandsContainerTranform.Find("ControllerRight").GetComponent<VRController>();
+            MenuHandsTranform = _pauseMenuManager.transform.Find("MenuControllers");
+            LeftHand = MenuHandsTranform.Find("ControllerLeft").GetComponent<VRController>();
+            RightHand = MenuHandsTranform.Find("ControllerRight").GetComponent<VRController>();
             OriginTransform = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
 
             _mainCamera.GetComponentInChildren<BoxCollider>().gameObject.SetActive(false);
@@ -43,8 +44,14 @@ namespace BeatLeader.Replayer.Movement
             Head.transform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
             Head.node = XRNode.Head;
 
-            _softLocksController.InstallLock(_vrControllersManager.leftHandVRController);
-            _softLocksController.InstallLock(_vrControllersManager.rightHandVRController);
+            //you ask me why? smth just moving menu hands to the zero pose
+            MenuHandsContainerTranform = new GameObject("PauseMenuHands").transform;
+            MenuHandsTranform.SetParent(MenuHandsContainerTranform, false);
+            MenuHandsContainerTranform.SetParent(OriginTransform, true);
+            Head.transform.SetParent(OriginTransform, false);
+
+            _vrControllersManager.leftHandVRController.enabled = false;
+            _vrControllersManager.rightHandVRController.enabled = false;
 
             LeftSaber = _vrControllersManager.leftHandVRController;
             RightSaber = _vrControllersManager.rightHandVRController;
@@ -53,9 +60,6 @@ namespace BeatLeader.Replayer.Movement
             _vrControllersManager.SetField("_leftHandVRController", LeftSaber);
             _vrControllersManager.SetField("_rightHandVRController", RightSaber);
 
-            HandsContainerTranform.SetParent(OriginTransform, false);
-            Head.transform.SetParent(OriginTransform, false);
-
             InjectControllers();
             IsInitialized = true;
         }
@@ -63,7 +67,7 @@ namespace BeatLeader.Replayer.Movement
         {
             LeftHand.gameObject.SetActive(show);
             RightHand.gameObject.SetActive(show);
-            HandsContainerTranform.gameObject.SetActive(show);
+            MenuHandsTranform.gameObject.SetActive(show);
         }
         public void ShowNode(XRNode node, bool show = true)
         {
@@ -72,7 +76,7 @@ namespace BeatLeader.Replayer.Movement
                 XRNode.Head => Head.gameObject,
                 XRNode.LeftHand => LeftSaber.gameObject,
                 XRNode.RightHand => RightSaber.gameObject,
-                XRNode.GameController => HandsContainerTranform.gameObject,
+                XRNode.GameController => MenuHandsContainerTranform.gameObject,
                 _ => null
             };
             go?.SetActive(show);
@@ -86,7 +90,7 @@ namespace BeatLeader.Replayer.Movement
                 XRNode.Head => Head.transform,
                 XRNode.LeftHand => LeftHand.transform,
                 XRNode.RightHand => RightHand.transform,
-                XRNode.GameController => HandsContainerTranform,
+                XRNode.GameController => MenuHandsContainerTranform,
                 _ => originalParent
             }, false);
             _attachedObjects.Add(transform, (node, originalParent));

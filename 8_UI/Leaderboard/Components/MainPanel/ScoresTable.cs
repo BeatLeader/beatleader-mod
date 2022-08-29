@@ -1,7 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.API.Methods;
+using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -47,15 +48,16 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetupLayout();
 
+            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
-            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
             OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
-            OnScoresRequestStateChanged(LeaderboardState.ScoresRequest.State);
         }
 
         protected override void OnDispose() {
+            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
-            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
         }
 
         #endregion
@@ -66,18 +68,13 @@ namespace BeatLeader.Components {
             UpdateLayout();
         }
 
-        private void OnScoresRequestStateChanged(RequestState requestState) {
-            switch (requestState) {
-                case RequestState.Uninitialized:
-                case RequestState.Started:
-                case RequestState.Failed:
-                    ClearScores();
-                    break;
-                case RequestState.Finished:
-                    ShowScores(LeaderboardState.ScoresRequest.Result);
-                    break;
-                default: throw new ArgumentOutOfRangeException(nameof(requestState), requestState, null);
+        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+            if (state is not API.RequestState.Finished) {
+                ClearScores();
+                return;
             }
+            
+            ShowScores(result);
         }
 
         private void ClearScores() {

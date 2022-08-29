@@ -1,4 +1,5 @@
 using System;
+using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -11,19 +12,45 @@ namespace BeatLeader.Components {
         [UIValue("player-avatar"), UsedImplicitly]
         private PlayerAvatar _playerAvatar;
 
+        [UIValue("mini-profile-buttons"), UsedImplicitly]
+        private MiniProfileButtons _miniProfileButtons;
+
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _countryFlag;
 
         private void Awake() {
             _playerAvatar = Instantiate<PlayerAvatar>(transform);
+            _miniProfileButtons = Instantiate<MiniProfileButtons>(transform);
             _countryFlag = Instantiate<CountryFlag>(transform);
+        }
+
+        #endregion
+
+        #region Initialize / Dispose
+
+        protected override void OnInitialize() {
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdatePlayer;
+        }
+
+        protected override void OnDispose() {
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdatePlayer;
         }
 
         #endregion
 
         #region SetPlayer
 
+        private Player _player;
+
         public void SetPlayer(Player player) {
+            _player = player;
+            UpdatePlayer();
+        }
+
+        private void UpdatePlayer() {
+            var player = HiddenPlayersCache.ModifyPlayer(_player);
+            
+            _miniProfileButtons.SetPlayer(player);
             _playerAvatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
             _countryFlag.SetCountry(player.country);
             SetMessage(player.patreonFeatures?.message ?? "");

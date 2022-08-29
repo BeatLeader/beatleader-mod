@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using LeaderboardCore.Interfaces;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
@@ -22,8 +20,6 @@ namespace BeatLeader.DataManager {
         private string Scope => _selectedScoreScope.ToString().ToLowerInvariant();
         private string Context => _selectedScoreContext.ToString().ToLower();
 
-        [Inject] private IPlatformUserModel _platformUserModel;
-
         #endregion
 
         #region Initialize/Dispose section
@@ -31,32 +27,30 @@ namespace BeatLeader.DataManager {
         public void Start() {
             SetFakeBloomProperty();
 
-            LeaderboardState.UploadRequest.StartedEvent += OnUploadStarted;
-            LeaderboardState.UploadRequest.FinishedEvent += OnUploadSuccess;
+            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
-
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
-
-            LeaderboardEvents.SubmitVoteEvent += SendVoteRequest;
+            ProfileManager.FriendsUpdatedEvent += OnFriendsUpdated;
 
             _selectedScoreContext = PluginConfig.ScoresContext;
             _selectedScoreScope = LeaderboardState.ScoresScope;
         }
 
         private void OnDestroy() {
-            LeaderboardState.UploadRequest.StartedEvent -= OnUploadStarted;
-            LeaderboardState.UploadRequest.FinishedEvent -= OnUploadSuccess;
+            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
-
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
-
-            LeaderboardEvents.SubmitVoteEvent -= SendVoteRequest;
+            ProfileManager.FriendsUpdatedEvent -= OnFriendsUpdated;
         }
 
         #endregion
@@ -86,121 +80,50 @@ namespace BeatLeader.DataManager {
             _lastSelectedPage = 1;
 
             LoadScores();
-            LoadVoteStatus();
 
             LeaderboardState.SelectedBeatmap = difficultyBeatmap;
         }
 
-        #region
+        private void OnFriendsUpdated() {
+            if (_selectedScoreScope is not ScoresScope.Friends) return;
+            LoadScores();
+        }
+
+        #region OnUploadRequestStateChanged
 
         private LeaderboardKey _uploadLeaderboardKey;
 
-        private void OnUploadStarted() {
-            _uploadLeaderboardKey = LeaderboardKey.FromBeatmap(_lastSelectedBeatmap);
-        }
-
-        private void OnUploadSuccess(Score score) {
-            if (!_uploadLeaderboardKey.Equals(LeaderboardKey.FromBeatmap(_lastSelectedBeatmap))) return;
-            LoadScores();
-            LoadVoteStatus();
-        }
-
-        #endregion
-
-        #region Voting
-
-        private Coroutine _voteStatusCoroutine;
-        private Coroutine _voteCoroutine;
-
-        private void LoadVoteStatus() {
-            if (_voteStatusCoroutine != null) {
-                StopCoroutine(_voteStatusCoroutine);
-                LeaderboardState.VoteStatusRequest.TryNotifyCancelled();
+        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+            if (_lastSelectedBeatmap == null) return;
+            
+            switch (state) {
+                case API.RequestState.Started:
+                    _uploadLeaderboardKey = LeaderboardKey.FromBeatmap(_lastSelectedBeatmap);
+                    break;
+                case API.RequestState.Finished:
+                    if (!_uploadLeaderboardKey.Equals(LeaderboardKey.FromBeatmap(_lastSelectedBeatmap))) return;
+                    LoadScores();
+                    break;
             }
-
-            if (BLContext.NoPlayerData) return;
-            var userId = BLContext.profile.id;
-
-            LeaderboardState.VoteStatusRequest.NotifyStarted();
-            _voteStatusCoroutine = StartCoroutine(HttpUtils.GetData<VoteStatus>(
-                    string.Format(BLConstants.VOTE_STATUS, Hash, Diff, Mode, userId),
-                    result => LeaderboardState.VoteStatusRequest.NotifyFinished(result),
-                    reason => LeaderboardState.VoteStatusRequest.NotifyFailed(reason)
-                )
-            );
-        }
-
-        private void SendVoteRequest(Vote vote) {
-            if (_voteCoroutine != null) {
-                StopCoroutine(_voteCoroutine);
-                LeaderboardState.VoteRequest.TryNotifyCancelled();
-            }
-
-
-            string platform = (_platformUserModel is OculusPlatformUserModel) ? "oculuspc" : "steam";
-
-            _voteCoroutine = StartCoroutine(HttpUtils.VoteCoroutine(Hash, Diff, Mode, vote, platform));
         }
 
         #endregion
 
         #region Score fetching
 
-        private Coroutine _scoresTask;
-
         private void LoadScores() {
-            if (_scoresTask != null) {
-                StopCoroutine(_scoresTask);
-                LeaderboardState.ScoresRequest.TryNotifyCancelled();
-            }
-
-            if (BLContext.NoPlayerData) return;
-            var userId = BLContext.profile.id;
-
-            LeaderboardState.ScoresRequest.NotifyStarted();
-            _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
-                    string.Format(BLConstants.SCORES_BY_HASH_PAGED, Hash, Diff, Mode, Context, Scope,
-                        HttpUtils.ToHttpParams(new Dictionary<string, object> {
-                                { BLConstants.Param.PLAYER, userId },
-                                { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE },
-                                { BLConstants.Param.PAGE, _lastSelectedPage }
-                            }
-                        )
-                    ),
-                    paged => {
-                        _lastSelectedPage = paged.metadata.page;
-                        LeaderboardState.ScoresRequest.NotifyFinished(paged);
-                    },
-                    reason => { LeaderboardState.ScoresRequest.NotifyFailed(reason); }
-                )
-            );
+            if (!ProfileManager.TryGetUserId(out var userId)) return;
+            ScoresRequest.SendPageRequest(userId, Hash, Diff, Mode, Context, Scope, _lastSelectedPage);
         }
 
         private void SeekScores() {
-            if (_scoresTask != null) {
-                StopCoroutine(_scoresTask);
-                LeaderboardState.ScoresRequest.TryNotifyCancelled();
-            }
+            if (!ProfileManager.TryGetUserId(out var userId)) return;
+            ScoresRequest.SendSeekRequest(userId, Hash, Diff, Mode, Context, Scope);
+        }
 
-            if (BLContext.NoPlayerData) return;
-            var userId = BLContext.profile.id;
-
-            LeaderboardState.ScoresRequest.NotifyStarted();
-            _scoresTask = StartCoroutine(HttpUtils.GetPagedData<Score>(
-                    string.Format(BLConstants.SCORES_BY_HASH_SEEK, Hash, Diff, Mode, Context, Scope,
-                        HttpUtils.ToHttpParams(new Dictionary<string, object> {
-                                { BLConstants.Param.PLAYER, userId },
-                                { BLConstants.Param.COUNT, BLConstants.SCORE_PAGE_SIZE }
-                            }
-                        )
-                    ),
-                    paged => {
-                        _lastSelectedPage = paged.metadata.page;
-                        LeaderboardState.ScoresRequest.NotifyFinished(paged);
-                    },
-                    reason => { LeaderboardState.ScoresRequest.NotifyFailed(reason); }
-                )
-            );
+        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            _lastSelectedPage = result.metadata.page;
         }
 
         #endregion

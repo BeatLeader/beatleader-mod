@@ -4,6 +4,12 @@
         public readonly string Diff;
         public readonly string Mode;
 
+        #region Properties
+
+        public int DiffId => FormatUtils.DiffIdForDiffName(Diff);
+
+        #endregion
+
         #region Constructors
 
         public LeaderboardKey(string hash, string diff, string mode) {

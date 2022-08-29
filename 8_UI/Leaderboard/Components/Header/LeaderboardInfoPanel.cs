@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -11,9 +12,14 @@ namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReeUIComponentV2 {
         #region Components
 
-        [UIValue("criteria-checkbox"), UsedImplicitly] private QualificationCheckbox _criteriaCheckbox;
-        [UIValue("mapper-checkbox"), UsedImplicitly] private QualificationCheckbox _mapperCheckbox;
-        [UIValue("approval-checkbox"), UsedImplicitly] private QualificationCheckbox _approvalCheckbox;
+        [UIValue("criteria-checkbox"), UsedImplicitly]
+        private QualificationCheckbox _criteriaCheckbox;
+
+        [UIValue("mapper-checkbox"), UsedImplicitly]
+        private QualificationCheckbox _mapperCheckbox;
+
+        [UIValue("approval-checkbox"), UsedImplicitly]
+        private QualificationCheckbox _approvalCheckbox;
 
         private void Awake() {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
@@ -26,51 +32,43 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
-            LeaderboardState.ExMachinaRequest.StateChangedEvent += OnExMachinaRequestStateChanged;
-            LeaderboardState.ProfileRequest.StateChangedEvent += OnProfileRequestStateChanged;
-            LeaderboardState.SelectedBeatmapWasChangedEvent += OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
-
-            OnExMachinaRequestStateChanged(LeaderboardState.ExMachinaRequest.State);
-            OnProfileRequestStateChanged(LeaderboardState.ProfileRequest.State);
-            OnSelectedBeatmapWasChanged(LeaderboardState.SelectedBeatmap);
+            ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
+            OnPlayerRolesUpdated(ProfileManager.Roles);
+            
+            ExMachinaRequest.AddStateListener(OnExMachinaRequestStateChanged);
+            LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         protected override void OnDispose() {
-            LeaderboardState.ExMachinaRequest.StateChangedEvent -= OnExMachinaRequestStateChanged;
-            LeaderboardState.ProfileRequest.StateChangedEvent -= OnProfileRequestStateChanged;
-            LeaderboardState.SelectedBeatmapWasChangedEvent -= OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
+            ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
+            ExMachinaRequest.RemoveStateListener(OnExMachinaRequestStateChanged);
+            LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         #endregion
 
         #region Events
 
-        private void OnProfileRequestStateChanged(RequestState state) {
-            if (state != RequestState.Finished) {
-                _roles = Array.Empty<PlayerRole>();
-                UpdateVisuals();
-                return;
-            }
-
-            _roles = FormatUtils.ParsePlayerRoles(LeaderboardState.ProfileRequest.Result.role);
+        private void OnPlayerRolesUpdated(PlayerRole[] playerRoles) {
+            _roles = playerRoles;
             UpdateVisuals();
         }
 
-        private void OnExMachinaRequestStateChanged(RequestState state) {
-            if (state != RequestState.Finished) {
+        private void OnExMachinaRequestStateChanged(API.RequestState state, ExMachinaBasicResponse result, string failReason) {
+            if (state is not API.RequestState.Finished) {
                 _hasExMachinaRating = false;
                 UpdateVisuals();
                 return;
             }
 
             _hasExMachinaRating = true;
-            _exMachinaRating = LeaderboardState.ExMachinaRequest.Result.balanced;
+            _exMachinaRating = result.balanced;
             UpdateVisuals();
         }
 
-        private void OnSelectedBeatmapWasChanged(IDifficultyBeatmap beatmap) {
+        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             SetBeatmap(beatmap);
         }
 
@@ -134,6 +132,10 @@ namespace BeatLeader.Components {
                 case 2:
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Failed);
                     _criteriaCheckbox.HoverHint = $"Criteria failed{criteriaPostfix}";
+                    break;
+                case 3:
+                    _criteriaCheckbox.SetState(QualificationCheckbox.State.OnHold);
+                    _criteriaCheckbox.HoverHint = $"Criteria on hold{criteriaPostfix}";
                     break;
                 default:
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Neutral);

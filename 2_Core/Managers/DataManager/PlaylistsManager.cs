@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BeatLeader.API.Methods;
 using BeatLeader.Interop;
 using BeatLeader.Manager;
 using BeatLeader.Utils;
@@ -10,9 +11,9 @@ namespace BeatLeader.DataManager {
         #region Playlists
 
         private static readonly Dictionary<PlaylistType, PlaylistInfo> Playlists = new() {
-            { PlaylistType.Nominated, new PlaylistInfo(BLConstants.PlaylistLink("nominated"),"BeatLeader nominated") },
-            { PlaylistType.Qualified, new PlaylistInfo(BLConstants.PlaylistLink("qualified"),"BeatLeader qualified") },
-            { PlaylistType.Ranked, new PlaylistInfo(BLConstants.PlaylistLink("ranked"),"BeatLeader ranked") },
+            { PlaylistType.Nominated, new PlaylistInfo("nominated", "BeatLeader nominated") },
+            { PlaylistType.Qualified, new PlaylistInfo("qualified", "BeatLeader qualified") },
+            { PlaylistType.Ranked, new PlaylistInfo("ranked", "BeatLeader ranked") },
         };
 
         private static bool TryGetPlaylistInfo(PlaylistType playlistType, out PlaylistInfo playlistInfo) {
@@ -26,12 +27,12 @@ namespace BeatLeader.DataManager {
         }
 
         private class PlaylistInfo {
-            public readonly string Link;
+            public readonly string PlaylistId;
             public readonly string FileName;
             public PlaylistState State = PlaylistState.NotFound;
 
-            public PlaylistInfo(string link, string fileName) {
-                Link = link;
+            public PlaylistInfo(string playlistId, string fileName) {
+                PlaylistId = playlistId;
                 FileName = fileName;
             }
         }
@@ -92,13 +93,15 @@ namespace BeatLeader.DataManager {
                 return;
             }
 
-            StartCoroutine(
-                HttpUtils.GetBytes(
-                    playlistInfo.Link,
-                    bytes => SetPlaylistState(playlistType, ComparePlaylists(bytes, stored) ? PlaylistState.UpToDate : PlaylistState.Outdated),
-                    (reason) => Plugin.Log.Debug($"{playlistType} playlist check failed: {reason}")
-                )
-            );
+            void OnSuccess(byte[] bytes) {
+                SetPlaylistState(playlistType, ComparePlaylists(bytes, stored) ? PlaylistState.UpToDate : PlaylistState.Outdated);
+            }
+
+            void OnFail(string reason) {
+                Plugin.Log.Debug($"{playlistType} playlist check failed: {reason}");
+            }
+
+            StartCoroutine(PlaylistRequest.SendRequest(playlistInfo.PlaylistId, OnSuccess, OnFail));
         }
 
         private static bool ComparePlaylists(byte[] a, byte[] b) {
@@ -122,26 +125,24 @@ namespace BeatLeader.DataManager {
             if (!TryGetPlaylistInfo(playlistType, out var playlistInfo)) return;
             PlaylistUpdateStartedEvent?.Invoke(playlistType);
 
-            StartCoroutine(
-                HttpUtils.GetBytes(
-                    playlistInfo.Link,
-                    bytes => {
-                        FileManager.DeletePlaylist(playlistInfo.FileName);
-                        
-                        if (FileManager.TrySaveRankedPlaylist(playlistInfo.FileName, bytes)) {
-                            PlaylistsLibInterop.TryRefreshPlaylists(true);
-                            SongCoreInterop.TryRefreshSongs(false);
-                            SetPlaylistState(playlistType, PlaylistState.UpToDate);
-                        }
+            void OnSuccess(byte[] bytes) {
+                FileManager.DeletePlaylist(playlistInfo.FileName);
 
-                        PlaylistUpdateFinishedEvent?.Invoke(playlistType);
-                    },
-                    (reason) => {
-                        Plugin.Log.Debug($"{playlistType} playlist update failed: {reason}");
-                        PlaylistUpdateFinishedEvent?.Invoke(playlistType);
-                    }
-                )
-            );
+                if (FileManager.TrySaveRankedPlaylist(playlistInfo.FileName, bytes)) {
+                    PlaylistsLibInterop.TryRefreshPlaylists(true);
+                    SongCoreInterop.TryRefreshSongs(false);
+                    SetPlaylistState(playlistType, PlaylistState.UpToDate);
+                }
+
+                PlaylistUpdateFinishedEvent?.Invoke(playlistType);
+            }
+
+            void OnFail(string reason) {
+                Plugin.Log.Debug($"{playlistType} playlist update failed: {reason}");
+                PlaylistUpdateFinishedEvent?.Invoke(playlistType);
+            }
+
+            StartCoroutine(PlaylistRequest.SendRequest(playlistInfo.PlaylistId, OnSuccess, OnFail));
         }
 
         #endregion

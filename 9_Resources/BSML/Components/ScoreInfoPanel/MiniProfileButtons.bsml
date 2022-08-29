@@ -1,0 +1,24 @@
+﻿<horizontal ignore-layout="true" pref-height="40">
+    <vertical id="left-buttons-root" ignore-layout="true" pref-width="40" bg="round-rect-panel">
+        <macro.as-host host="friend-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <macro.as-host host="hide-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <macro.as-host host="profile-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+    </vertical>
+    <vertical id="right-buttons-root" ignore-layout="true" pref-width="40" bg="round-rect-panel">
+        <macro.as-host host="twitter-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <macro.as-host host="twitch-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <macro.as-host host="youtube-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+    </vertical>
+</horizontal>

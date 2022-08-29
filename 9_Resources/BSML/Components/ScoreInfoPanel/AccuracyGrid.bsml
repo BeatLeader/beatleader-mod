@@ -1,7 +1,7 @@
 <horizontal active="~active" pref-height="30">
     <macro.define name="spacing" value="1"/>
     
-    <vertical pad="2" spacing="~spacing" bg="round-rect-panel">
+    <vertical pad="2" spacing="~spacing">
         <!--  TOP LINE LAYER  -->
         <horizontal spacing="~spacing" horizontal-fit="PreferredSize">
             <macro.for-each items="top-layer-cells">

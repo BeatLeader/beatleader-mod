@@ -23,7 +23,6 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardHeaderManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardInfoManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<ExMachinaManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
     }
 }

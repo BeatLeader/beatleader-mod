@@ -1,8 +1,8 @@
-using System;
 using System.Linq;
+using BeatLeader.API.Methods;
+using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
@@ -14,30 +14,24 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             FlipUpButton();
-            LeaderboardState.ScoresRequest.StateChangedEvent += OnScoreRequestStateChangedEvent;
-            OnScoreRequestStateChangedEvent(LeaderboardState.ScoresRequest.State);
+            ScoresRequest.AddStateListener(OnScoreRequestStateChanged);
         }
 
         protected override void OnDispose() {
-            LeaderboardState.ScoresRequest.StateChangedEvent -= OnScoreRequestStateChangedEvent;
+            ScoresRequest.RemoveStateListener(OnScoreRequestStateChanged);
         }
 
         #endregion
 
         #region Events
 
-        private void OnScoreRequestStateChangedEvent(RequestState state) {
-            switch (state) {
-                case RequestState.Started:
-                case RequestState.Uninitialized:
-                case RequestState.Failed:
-                    DisableAllInteraction();
-                    break;
-                case RequestState.Finished:
-                    OnScoresFetched(LeaderboardState.ScoresRequest.Result);
-                    break;
-                default: throw new ArgumentOutOfRangeException(nameof(state), state, null);
+        private void OnScoreRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+            if (state is not API.RequestState.Finished) {
+                DisableAllInteraction();
+                return;
             }
+            
+            OnScoresFetched(result);
         }
 
         private void OnScoresFetched(Paged<Score> scoresData) {
@@ -48,7 +42,7 @@ namespace BeatLeader.Components {
             }
 
             UpInteractable = scoresData.metadata.page > 1;
-            AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => it.player.IsCurrentPlayer());
+            AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => ProfileManager.IsCurrentPlayer(it.player));
             DownInteractable = scoresData.metadata.page * scoresData.metadata.itemsPerPage < scoresData.metadata.total;
         }
 

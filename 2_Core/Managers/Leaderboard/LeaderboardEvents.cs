@@ -13,7 +13,7 @@ namespace BeatLeader.Manager {
 
         public static event Action<string, StatusMessageType, float> StatusMessageEvent;
 
-        public static void ShowStatusMessage(string message, StatusMessageType type = StatusMessageType.Neutral, float duration = 1f) {
+        public static void ShowStatusMessage(string message, StatusMessageType type = StatusMessageType.Neutral, float duration = 3f) {
             StatusMessageEvent?.Invoke(message, type, duration);
         }
 
@@ -145,6 +145,26 @@ namespace BeatLeader.Manager {
 
         public static void NotifyVotingWasPressed() {
             VotingWasPressedEvent?.Invoke();
+        }
+
+        #endregion
+
+        #region AddFriendWasPressed
+
+        public static event Action<Player> AddFriendWasPressedEvent;
+
+        public static void NotifyAddFriendWasPressed(Player player) {
+            AddFriendWasPressedEvent?.Invoke(player);
+        }
+
+        #endregion
+
+        #region RemoveFriendWasPressed
+
+        public static event Action<Player> RemoveFriendWasPressedEvent;
+
+        public static void NotifyRemoveFriendWasPressed(Player player) {
+            RemoveFriendWasPressedEvent?.Invoke(player);
         }
 
         #endregion

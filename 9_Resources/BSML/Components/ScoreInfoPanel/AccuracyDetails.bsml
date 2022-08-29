@@ -2,7 +2,7 @@
     <macro.define name="font-size" value="4"/>
     <macro.define name="label-width" value="15"/>
     
-    <vertical pad="2" spacing="0.2" bg="round-rect-panel">
+    <vertical pad="2" spacing="0.2">
         <horizontal pref-height="12" pad-bottom="1" spacing="1" horizontal-fit="PreferredSize">
             <!--  RIGHT HAND  -->
             <macro.as-host host="left-averages">

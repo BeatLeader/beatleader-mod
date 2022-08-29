@@ -4,25 +4,21 @@ using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace BeatLeader
-{
-    public static class BundleLoader
-    {
+namespace BeatLeader {
+    public static class BundleLoader {
         #region Initialize
 
         private const string BundleName = Plugin.ResourcesPath + ".AssetBundles.asset_bundle";
         private static AssetBundle _assetBundle;
         private static bool _ready;
 
-        public static void Initialize()
-        {
+        public static void Initialize() {
             if (_ready) return;
 
             using var stream = ResourcesUtils.GetEmbeddedResourceStream(BundleName);
             var localAssetBundle = AssetBundle.LoadFromStream(stream);
 
-            if (localAssetBundle == null)
-            {
+            if (localAssetBundle == null) {
                 throw new Exception("AssetBundle load error!");
             }
 
@@ -42,8 +38,7 @@ namespace BeatLeader
         public static GameObject MonkeyPrefab;
         public static GameObject AccuracyGraphPrefab;
 
-        private static void LoadPrefabs(AssetBundle assetBundle)
-        {
+        private static void LoadPrefabs(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
             AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
         }
@@ -62,6 +57,7 @@ namespace BeatLeader
         public static Material AccDetailsRowMaterial;
         public static Material ClanTagBackgroundMaterial;
         public static Material VotingButtonMaterial;
+        public static Material MiniProfileBackgroundMaterial;
         public static Material UIBlurMaterial;
 
         private static void LoadMaterials(AssetBundle assetBundle)
@@ -76,6 +72,7 @@ namespace BeatLeader
             AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
             ClanTagBackgroundMaterial = assetBundle.LoadAsset<Material>("ClanTagBackgroundMaterial");
             VotingButtonMaterial = assetBundle.LoadAsset<Material>("VotingButtonMaterial");
+            MiniProfileBackgroundMaterial = assetBundle.LoadAsset<Material>("UIMiniProfileBackgroundMaterial");
             UIBlurMaterial = assetBundle.LoadAsset<Material>("UIBlurMaterial");
         }
 
@@ -125,8 +122,26 @@ namespace BeatLeader
         [UsedImplicitly]
         public static Sprite PatreonLinkIcon;
 
-        private static List<Sprite> _loadedSprites;
+        [UsedImplicitly]
+        public static Sprite TwitterIcon;
 
+        [UsedImplicitly]
+        public static Sprite TwitchIcon;
+
+        [UsedImplicitly]
+        public static Sprite YoutubeIcon;
+
+        [UsedImplicitly]
+        public static Sprite ProfileIcon;
+
+        [UsedImplicitly]
+        public static Sprite FriendsIcon;
+
+        [UsedImplicitly]
+        public static Sprite IncognitoIcon;
+
+        private static List<Sprite> _loadedSprites;
+        
         public static Sprite GetSpriteFromBundle(string name)
         {
             return _ready ? _loadedSprites.Where(x => x.name == name).FirstOrDefault() : null;
@@ -151,6 +166,12 @@ namespace BeatLeader
             WebsiteLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Website");
             DiscordLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Discord");
             PatreonLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Patreon");
+            TwitterIcon = assetBundle.LoadAsset<Sprite>("BL_TwitterIcon");
+            TwitchIcon = assetBundle.LoadAsset<Sprite>("BL_TwitchIcon");
+            YoutubeIcon = assetBundle.LoadAsset<Sprite>("BL_YoutubeIcon");
+            ProfileIcon = assetBundle.LoadAsset<Sprite>("BL_ProfileIcon");
+            FriendsIcon = assetBundle.LoadAsset<Sprite>("BL_FriendsIcon");
+            IncognitoIcon = assetBundle.LoadAsset<Sprite>("BL_IncognitoIcon");
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 

@@ -31,7 +31,6 @@ namespace BeatLeader.Components {
             LeaderboardEvents.VotingWasPressedEvent += OnVotingWasPressed;
             LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
-            LeaderboardState.VoteRequest.StartedEvent += HideAnimated;
 
             _rankabilitySelector.OnStateChangedEvent += OnRankabilitySelectorStateChanged;
             OnRankabilitySelectorStateChanged(_rankabilitySelector.CurrentState);
@@ -41,7 +40,6 @@ namespace BeatLeader.Components {
             LeaderboardEvents.VotingWasPressedEvent -= OnVotingWasPressed;
             LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
-            LeaderboardState.VoteRequest.StartedEvent -= HideAnimated;
 
             _rankabilitySelector.OnStateChangedEvent -= OnRankabilitySelectorStateChanged;
         }
@@ -194,6 +192,8 @@ namespace BeatLeader.Components {
 
         [UIAction("submit-on-click"), UsedImplicitly]
         private void SubmitOnClick() {
+            HideAnimated();
+            
             switch (_rankabilitySelector.CurrentState) {
                 case RankabilitySelector.State.ForRank:
                     LeaderboardEvents.SubmitVote(new Vote(_rankabilitySelector.FloatValue, _starsSelector.Value, _mapTypeSelector.CurrentState));

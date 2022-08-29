@@ -1,6 +1,11 @@
 ﻿namespace BeatLeader.Models
 {
-     public class Player {
+    internal class User {
+        public Player player;
+        public Player[] friends;
+    }
+    
+    internal class Player {
         public string id;
         public int rank;
         public string name;
@@ -10,15 +15,22 @@
         public float pp;
         public string role;
         public Clan[] clans;
+        public ServiceIntegration[] socials;
         public PatreonFeatures patreonFeatures;
     }
 
-    public class Clan {
+    internal class Clan {
         public string tag;
         public string color;
     }
 
-    public class PatreonFeatures {
+    internal class PatreonFeatures {
         public string message;
+    }
+
+    internal class ServiceIntegration {
+        public string service;
+        public string link;
+        public string user;
     }
 }

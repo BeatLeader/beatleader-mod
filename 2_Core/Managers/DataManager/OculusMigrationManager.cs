@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using BeatLeader.API;
+using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -47,7 +48,7 @@ namespace BeatLeader.DataManager {
             }
 
             _checkTask = StartCoroutine(
-                HttpUtils.GetOculusUser(
+                GetOculusUserRequest.SendRequest(
                     userInfo => IsMigrationRequired = !userInfo.migrated,
                     (reason) => Plugin.Log.Debug($"CheckMigrationState failed: {reason}")
                 )

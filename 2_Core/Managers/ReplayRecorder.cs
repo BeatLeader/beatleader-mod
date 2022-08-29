@@ -295,7 +295,7 @@ namespace BeatLeader {
             {
                 case LevelCompletionResults.LevelEndStateType.Cleared:
                     Plugin.Log.Info("Level Cleared. Save replay");
-                    ScoreUtil.instance.ProcessReplayAsync(_replay);
+                    ScoreUtil.ProcessReplay(_replay);
                     break;
                 case LevelCompletionResults.LevelEndStateType.Failed:
                     if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
@@ -306,7 +306,7 @@ namespace BeatLeader {
                     {
                         _replay.info.failTime = _timeSyncController.songTime;
                         Plugin.Log.Info("Level Failed. Save replay");
-                        ScoreUtil.instance.ProcessReplayAsync(_replay);
+                        ScoreUtil.ProcessReplay(_replay);
                     }
                     break;
             }
@@ -340,7 +340,7 @@ namespace BeatLeader {
                     switch (levelCompResults.levelEndStateType) {
                         case LevelCompletionResults.LevelEndStateType.Cleared:
                             Plugin.Log.Info("Level Cleared. Save replay");
-                            ScoreUtil.instance.ProcessReplayAsync(_replay);
+                            ScoreUtil.ProcessReplay(_replay);
                             break;
                         case LevelCompletionResults.LevelEndStateType.Failed:
                             if (levelCompResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart) {
@@ -348,7 +348,7 @@ namespace BeatLeader {
                             } else {
                                 _replay.info.failTime = _timeSyncController.songTime;
                                 Plugin.Log.Info("Level Failed. Save replay");
-                                ScoreUtil.instance.ProcessReplayAsync(_replay);
+                                ScoreUtil.ProcessReplay(_replay);
                             }
                             break;
                     }

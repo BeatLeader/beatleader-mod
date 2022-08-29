@@ -1,6 +1,6 @@
 ﻿using BeatLeader.Replayer;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Utils;
+using BeatLeader.Interop;
 using BeatSaberMarkupLanguage.Attributes;
 using Zenject;
 
@@ -27,7 +27,7 @@ namespace BeatLeader.Components.Settings
         }
         private void SetupCameraMenu()
         {
-            bool setupAsCam2 = Cam2Util.Detected && InputManager.IsInFPFC && _replayData == null;
+            bool setupAsCam2 = Cam2Interop.Detected && InputManager.IsInFPFC && _replayData == null;
             _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container),
                  setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera");
 

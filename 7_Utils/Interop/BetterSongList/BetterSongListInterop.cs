@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BeatLeader.DataManager;
+using BeatLeader.Utils;
 using IPA.Loader;
 using JetBrains.Annotations;
 
@@ -27,7 +28,7 @@ namespace BeatLeader.Interop.BetterSongList {
             var transformerPluginInterface = bslAssembly.GetType("BetterSongList.Interfaces.ITransformerPlugin");
             var filterInterface = bslAssembly.GetType("BetterSongList.FilterModels.IFilter");
 
-            var moduleBuilder = ReflectionHell.CreateModuleBuilder("BL_BSL_Interop");
+            var moduleBuilder = ReflectionUtils.CreateModuleBuilder("BL_BSL_Interop");
 
             var highestStarsSorter = Activator.CreateInstance(moduleBuilder.CreateSorterType(
                 "HighestStarsSorterType", sorterPrimitiveInterface, sorterWithLegendInterface, transformerPluginInterface,

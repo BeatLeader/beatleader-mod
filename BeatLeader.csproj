@@ -332,10 +332,11 @@
     <Compile Include="3_AssetBundle\MonkeySpinner.cs" />
     <Compile Include="7_Utils\BLConstants.cs" />
     <Compile Include="7_Utils\BLContext.cs" />
-    <Compile Include="7_Utils\StaticUtils\Cam2Util.cs" />
+    <Compile Include="7_Utils\Interop\Cam2Interop.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
+    <Compile Include="7_Utils\Interop\DetectorSource.cs" />
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
     <Compile Include="7_Utils\MathUtils.cs" />

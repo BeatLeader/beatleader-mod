@@ -21,6 +21,9 @@ namespace BeatLeader.Replayer
         public static ReplayLaunchData LaunchData { get; private set; }
         public static bool IsStartedAsReplay { get; private set; }
 
+        public static event Action<ReplayLaunchData> OnReplayStart;
+        public static event Action<ReplayLaunchData> OnReplayFinish;
+
         public async Task<bool> StartReplayAsync(ReplayLaunchData data, Action<bool> callback = null)
         {
             return await StartReplayAsync(data, new CancellationToken(), callback);
@@ -45,6 +48,7 @@ namespace BeatLeader.Replayer
 
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
             callback?.Invoke(true);
+            OnReplayStart?.Invoke(data);
 
             return loadResult;
         }
@@ -87,7 +91,7 @@ namespace BeatLeader.Replayer
         }
         private async Task<GetBeatmapLevelResult> GetBeatmapLevelByHashAsync(string hash, CancellationToken token)
         {
-            return await _levelsModel.GetBeatmapLevelAsync("custom_level_" + hash, token);
+            return await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token);
         }
 
         private RequestResult<EnvironmentInfoSO> GetEnvironmentByLaunchData(ReplayLaunchData data)
@@ -108,6 +112,7 @@ namespace BeatLeader.Replayer
         {
             transitionData.didFinishEvent -= ResetData;
             LaunchData.NotifyReplayDidFinish(transitionData, completionResults);
+            OnReplayFinish?.Invoke(LaunchData);
             LaunchData = null;
             IsStartedAsReplay = false;
         }

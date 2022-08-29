@@ -1,13 +1,12 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BeatLeader.Interop;
 using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.XR;
 using Zenject;
+
 
 namespace BeatLeader.Replayer.Movement
 {
@@ -61,6 +60,7 @@ namespace BeatLeader.Replayer.Movement
             _vrControllersManager.SetField("_rightHandVRController", RightSaber);
 
             InjectControllers();
+            Cam2Interop.ApplyHeadTransform(Head.transform);
             IsInitialized = true;
         }
         public void ShowMenuControllers(bool show = true)

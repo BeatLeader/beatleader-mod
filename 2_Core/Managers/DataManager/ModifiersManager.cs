@@ -50,7 +50,7 @@ namespace BeatLeader.DataManager {
             UpdateModifiersMap(selectedAny, leaderboardKey);
             UpdateToggles();
         }
-
+        
         private void OnLeaderboardVisibilityChanged(bool isVisible) {
             _targetState = isVisible ? State.Overriden : State.Default;
             UpdateToggles();

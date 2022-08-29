@@ -1,21 +1,9 @@
 ﻿using System.Collections.Generic;
+using BeatLeader.Models;
 
 namespace BeatLeader.Utils {
-    internal class ModifiersUtils : PersistentSingleton<ModifiersUtils> {
-
-        private Dictionary<string, float> _modifiers;
-
-        internal Dictionary<string, float> Modifiers {
-            get => _modifiers;
-            set => _modifiers = value;
-        }
-
-        internal bool HasModifiers {
-            get {
-                return Modifiers?.Count > 0;
-            }
-        }
-
+    internal static class ModifiersUtils {
+        
         private static readonly Dictionary<string, string> _modifierNameToCodeMapping = new() {
             { "MODIFIER_NO_FAIL_ON_0_ENERGY", "NF" },
             { "MODIFIER_ONE_LIFE"           , "IF" },
@@ -36,6 +24,23 @@ namespace BeatLeader.Utils {
 
         internal static string ToNameCode(string localizationKey) {
             return _modifierNameToCodeMapping[localizationKey];
+        }
+
+        public static float GetMultiplier(this ModifiersMap modifiersMap, string modifierCode) {
+            return modifierCode switch {
+                "DA" => modifiersMap.da,
+                "FS" => modifiersMap.fs,
+                "SS" => modifiersMap.ss,
+                "SF" => modifiersMap.sf,
+                "GN" => modifiersMap.gn,
+                "NA" => modifiersMap.na,
+                "NB" => modifiersMap.nb,
+                "NF" => modifiersMap.nf,
+                "NO" => modifiersMap.no,
+                "PM" => modifiersMap.pm,
+                "SC" => modifiersMap.sc,
+                _ => 0.0f
+            };
         }
 
         internal static string GetRankForMultiplier(float modifier) {

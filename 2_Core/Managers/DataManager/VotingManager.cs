@@ -12,15 +12,13 @@ namespace BeatLeader.DataManager {
 
         public void Initialize() {
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
-            LeaderboardState.SelectedBeatmapWasChangedEvent += OnSelectedBeatmapWasChanged;
+            LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
             LeaderboardEvents.SubmitVoteEvent += SubmitVote;
-
-            OnSelectedBeatmapWasChanged(LeaderboardState.SelectedBeatmap);
         }
 
         public void Dispose() {
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
-            LeaderboardState.SelectedBeatmapWasChangedEvent -= OnSelectedBeatmapWasChanged;
+            LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
             LeaderboardEvents.SubmitVoteEvent -= SubmitVote;
         }
 
@@ -33,7 +31,7 @@ namespace BeatLeader.DataManager {
             UpdateVoteStatus();
         }
 
-        private static void OnSelectedBeatmapWasChanged(IDifficultyBeatmap beatmap) {
+        private static void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             UpdateVoteStatus();
         }
 
@@ -53,12 +51,12 @@ namespace BeatLeader.DataManager {
         #region Utils
 
         private static bool TryGetKey(out LeaderboardKey key) {
-            if (LeaderboardState.SelectedBeatmap == null) {
+            if (!LeaderboardState.IsAnyBeatmapSelected) {
                 key = default;
                 return false;
             }
 
-            key = LeaderboardKey.FromBeatmap(LeaderboardState.SelectedBeatmap);
+            key = LeaderboardState.SelectedBeatmapKey;
             return true;
         }
 

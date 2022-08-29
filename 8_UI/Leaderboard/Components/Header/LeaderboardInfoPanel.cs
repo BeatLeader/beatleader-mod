@@ -32,20 +32,19 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
-            ExMachinaRequest.AddStateListener(OnExMachinaRequestStateChanged);
-            ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
-            LeaderboardState.SelectedBeatmapWasChangedEvent += OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
-
+            ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
             OnPlayerRolesUpdated(ProfileManager.Roles);
-            OnSelectedBeatmapWasChanged(LeaderboardState.SelectedBeatmap);
+            
+            ExMachinaRequest.AddStateListener(OnExMachinaRequestStateChanged);
+            LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         protected override void OnDispose() {
-            ExMachinaRequest.RemoveStateListener(OnExMachinaRequestStateChanged);
-            ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
-            LeaderboardState.SelectedBeatmapWasChangedEvent -= OnSelectedBeatmapWasChanged;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
+            ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
+            ExMachinaRequest.RemoveStateListener(OnExMachinaRequestStateChanged);
+            LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         #endregion
@@ -69,7 +68,7 @@ namespace BeatLeader.Components {
             UpdateVisuals();
         }
 
-        private void OnSelectedBeatmapWasChanged(IDifficultyBeatmap beatmap) {
+        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             SetBeatmap(beatmap);
         }
 

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.DataManager {
@@ -10,13 +9,11 @@ namespace BeatLeader.DataManager {
 
         private void Start() {
             StartCoroutine(FullCacheUpdateTask());
-
-            LeaderboardState.SelectedBeatmapWasChangedEvent += OnSelectedBeatmapWasChanged;
-            OnSelectedBeatmapWasChanged(LeaderboardState.SelectedBeatmap);
+            LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         private void OnDestroy() {
-            LeaderboardState.SelectedBeatmapWasChangedEvent -= OnSelectedBeatmapWasChanged;
+            LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         #endregion
@@ -25,10 +22,8 @@ namespace BeatLeader.DataManager {
 
         private string _lastSelectedHash;
 
-        private void OnSelectedBeatmapWasChanged([CanBeNull] IDifficultyBeatmap beatmap) {
-            if (beatmap == null) return;
-            var leaderboardKey = LeaderboardKey.FromBeatmap(beatmap);
-            if (leaderboardKey.Hash.Equals(_lastSelectedHash)) return;
+        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
+            if (!selectedAny || leaderboardKey.Hash.Equals(_lastSelectedHash)) return;
             _lastSelectedHash = leaderboardKey.Hash;
             UpdateLeaderboardsByHash(leaderboardKey.Hash);
         }

@@ -218,7 +218,6 @@
     <Compile Include="2_Core\API\Methods\GetOculusUserRequest.cs" />
     <Compile Include="2_Core\API\Methods\LatestReleasesRequest.cs" />
     <Compile Include="2_Core\API\Methods\LeaderboardsRequest.cs" />
-    <Compile Include="2_Core\API\Methods\ModifiersRequest.cs" />
     <Compile Include="2_Core\API\Methods\PlaylistRequest.cs" />
     <Compile Include="2_Core\API\Methods\RemoveFriendRequest.cs" />
     <Compile Include="2_Core\API\Methods\ScoresRequest.cs" />

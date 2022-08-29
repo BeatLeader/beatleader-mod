@@ -12,15 +12,14 @@ namespace BeatLeader.DataManager {
 
         public void Initialize() {
             ProfileManager.RolesUpdatedEvent += OnRolesUpdated;
-            LeaderboardState.SelectedBeatmapWasChangedEvent += UpdateRating;
-
             OnRolesUpdated(ProfileManager.Roles);
-            UpdateRating(LeaderboardState.SelectedBeatmap);
+            
+            LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
         public void Dispose() {
             ProfileManager.RolesUpdatedEvent -= OnRolesUpdated;
-            LeaderboardState.SelectedBeatmapWasChangedEvent -= UpdateRating;
+            LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
         #endregion
@@ -33,10 +32,9 @@ namespace BeatLeader.DataManager {
             _exMachinaEnabled = playerRoles.Any(role => role.IsAnyAdmin() || role.IsAnyRT() || role.IsAnySupporter());
         }
 
-        private void UpdateRating(IDifficultyBeatmap beatmap) {
-            if (!_exMachinaEnabled || beatmap == null) return;
-            var key = LeaderboardKey.FromBeatmap(beatmap);
-            ExMachinaRequest.SendRequest(key);
+        private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
+            if (!selectedAny || !_exMachinaEnabled) return;
+            ExMachinaRequest.SendRequest(leaderboardKey);
         }
 
         #endregion

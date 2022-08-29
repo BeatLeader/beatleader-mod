@@ -6,12 +6,15 @@ namespace BeatLeader {
     internal static class LeaderboardState {
         #region SelectedBeatmap
 
-        public delegate void SelectedBeatmapWasChangedDelegate([CanBeNull] IDifficultyBeatmap beatmap);
+        public delegate void SelectedBeatmapWasChangedDelegate(bool selectedAny, LeaderboardKey leaderboardKey, [CanBeNull] IDifficultyBeatmap beatmap);
 
-        public static event SelectedBeatmapWasChangedDelegate SelectedBeatmapWasChangedEvent;
+        private static event SelectedBeatmapWasChangedDelegate SelectedBeatmapWasChangedEvent;
 
         [CanBeNull]
         private static IDifficultyBeatmap _selectedBeatmap;
+
+        public static LeaderboardKey SelectedBeatmapKey { get; private set; }
+        public static bool IsAnyBeatmapSelected;
 
         [CanBeNull]
         public static IDifficultyBeatmap SelectedBeatmap {
@@ -19,8 +22,19 @@ namespace BeatLeader {
             set {
                 if (_selectedBeatmap == value) return;
                 _selectedBeatmap = value;
-                SelectedBeatmapWasChangedEvent?.Invoke(value);
+                IsAnyBeatmapSelected = value != null;
+                SelectedBeatmapKey = LeaderboardKey.FromBeatmap(value);
+                SelectedBeatmapWasChangedEvent?.Invoke(IsAnyBeatmapSelected, SelectedBeatmapKey, value);
             }
+        }
+
+        public static void AddSelectedBeatmapListener(SelectedBeatmapWasChangedDelegate handler) {
+            SelectedBeatmapWasChangedEvent += handler;
+            handler?.Invoke(IsAnyBeatmapSelected, SelectedBeatmapKey, SelectedBeatmap);
+        }
+
+        public static void RemoveSelectedBeatmapListener(SelectedBeatmapWasChangedDelegate handler) {
+            SelectedBeatmapWasChangedEvent -= handler;
         }
 
         #endregion

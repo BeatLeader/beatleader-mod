@@ -6,6 +6,7 @@ using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Interop;
 
 namespace BeatLeader.Replayer.Camera
 {
@@ -105,7 +106,9 @@ namespace BeatLeader.Replayer.Camera
             poseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
-            SetEnabled(_replayData.overrideSettings ? _replayData.settings.useReplayerCamera : true);
+            bool asCam2 = Cam2Interop.Detected && InputManager.IsInFPFC &&
+                (!_replayData.overrideSettings || !_replayData.settings.overrideCam2);
+            SetEnabled(!asCam2);
             IsInitialized = true;
         }
         private void LateUpdate()

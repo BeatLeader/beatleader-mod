@@ -22,13 +22,14 @@ namespace BeatLeader.Replayer
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
-        [Inject] private readonly NoteCutSoundEffect.Pool _noteCutSoundPool;
-        [Inject] private readonly BombCutSoundEffect.Pool _bombCutSoundPool;
-
         public event Action<float> OnSongSpeedChanged;
         public event Action<float> OnSongRewind;
 
+        private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
+        private BombCutSoundEffect.Pool _bombCutSoundPool;
+
         private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers = new();
+        private Dictionary<float, CallbacksInTime> _callbacksInTimes = new();
         private BombCutSoundEffectManager _bombCutSoundEffectManager;
         private AudioManagerSO _audioManagerSO;
         private AudioSource _beatmapAudioSource;
@@ -61,8 +62,7 @@ namespace BeatLeader.Replayer
             _neOverrideRequired = true;
             _beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
-            _beatmapCallbacksController.GetField<Dictionary<float, CallbacksInTime>,
-                BeatmapCallbacksController>("_callbacksInTimes").ToList().ForEach(x => x.Value.lastProcessedNode = null);
+            _callbacksInTimes.ToList().ForEach(x => x.Value.lastProcessedNode = null);
 
             if (!flag && resume) _audioTimeSyncController.Resume();
             _beatmapCallbacksUpdater.Resume();
@@ -88,8 +88,9 @@ namespace BeatLeader.Replayer
         private void DespawnAllBeatmapObjects() => _spawnedBeatmapObjectControllers.ForEach(x => x.Dissolve(0));
         private void DespawnAllNoteControllerSounds()
         {
-            _noteCutSoundPool.Clear();
-            _bombCutSoundPool.Clear();
+            //don't have any sense because we can't access spawned members
+            //_bombCutSoundPool.Clear();
+            _noteCutSoundPoolContainer.activeItems.ForEach(x => x.StopPlayingAndFinish());
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
             _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);
         }
@@ -97,6 +98,10 @@ namespace BeatLeader.Replayer
         {
             _spawnedBeatmapObjectControllers = _beatmapObjectManager
                 .GetField<List<IBeatmapObjectController>, BeatmapObjectManager>("_allBeatmapObjects");
+            _callbacksInTimes = _beatmapCallbacksController
+                .GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
+            _noteCutSoundPoolContainer = _noteCutSoundEffectManager
+                .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
 
         #region NoodlePatch

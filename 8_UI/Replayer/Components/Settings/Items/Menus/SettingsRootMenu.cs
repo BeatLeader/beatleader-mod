@@ -27,7 +27,8 @@ namespace BeatLeader.Components.Settings
         }
         private void SetupCameraMenu()
         {
-            bool setupAsCam2 = Cam2Interop.Detected && InputManager.IsInFPFC && _replayData == null;
+            bool setupAsCam2 = Cam2Interop.Detected && InputManager.IsInFPFC && 
+                (!_replayData.overrideSettings || !_replayData.settings.overrideCam2);
             _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container),
                  setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera");
 
@@ -36,8 +37,7 @@ namespace BeatLeader.Components.Settings
                 _cameraMenuButton.Interactable = false;
                 _cameraController.SetEnabled(false);
             }
-
-            if (!setupAsCam2 && _replayData != null && _replayData.overrideSettings)
+            else if (_replayData.overrideSettings && _replayData.settings.overrideCam2)
             {
                 bool enable = _replayData.settings.useReplayerCamera;
                 _cameraMenuButton.ButtonGameObject.SetActive(enable);

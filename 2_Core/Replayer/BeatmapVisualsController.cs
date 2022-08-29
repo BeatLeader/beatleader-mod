@@ -45,14 +45,15 @@ namespace BeatLeader.Replayer
         {
             _saberBurnMarkSparkles.enabled = !pause;
             _sparkleEffectManager.gameObject.SetActive(!pause);
-            _sparkleEffectManager.GetField<ObstacleSaberSparkleEffect[], ObstacleSaberSparkleEffectManager>("_effects").ToList().ForEach(x => x.gameObject.SetActive(!pause));
+            _sparkleEffectManager.GetField<ObstacleSaberSparkleEffect[], ObstacleSaberSparkleEffectManager>("_effects")
+                .ToList().ForEach(x => x.gameObject.SetActive(!pause));
         }
         private void ForceSetCombo(int combo, int maxCombo, bool broke)
         {
             _comboController.SetField("_combo", combo);
             _comboController.SetField("_maxCombo", maxCombo);
             _comboUIController.HandleComboDidChange(combo);
-            Animator animator = _comboUIController.GetField<Animator, ComboUIController>("_animator");
+            var animator = _comboUIController.GetField<Animator, ComboUIController>("_animator");
             _comboUIController.SetField("_fullComboLost", false);
             if (broke)
                 _comboUIController.HandleComboBreakingEventHappened();

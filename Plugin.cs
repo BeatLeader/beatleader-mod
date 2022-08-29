@@ -58,6 +58,7 @@ namespace BeatLeader {
             BSMLAddonsLoader.LoadAddons();
             BetterSongListInterop.TryRegister();
             Cam2Interop.Init();
+            RaycastBlocker.BlockerMask = 1 << 5;
         }
 
         private static void ObserveEnabled() {

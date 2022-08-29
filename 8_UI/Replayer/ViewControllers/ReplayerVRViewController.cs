@@ -16,7 +16,6 @@ using UnityEngine;
 using Zenject;
 using HMUI;
 using BeatSaberMarkupLanguage.FloatingScreen;
-
 using VRUIControls;
 using IPA.Utilities;
 
@@ -47,7 +46,7 @@ namespace BeatLeader.ViewControllers
         [UIValue("toolbar")] private Toolbar _toolbar;
 
         private FloatingScreen _floatingScreen;
-        private List<int> _blockedRaycastLayers = new List<int> { 8, 9, 10, 11 };
+        private List<int> _blockedRaycastLayers = new List<int> { 8, 9, 11, 12 };
 
         private void Start()
         {
@@ -71,15 +70,6 @@ namespace BeatLeader.ViewControllers
 
             _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();
-
-            var comparableInputModule = Resources.FindObjectsOfTypeAll<ComparableVRInputModule>().FirstOrDefault();
-            if (comparableInputModule == null) return;
-
-            var raycaster = _floatingScreen.GetComponent<VRGraphicRaycaster>();
-            raycaster.SetField("_blockingMask", (LayerMask)LayerMaskHelper.LayersToBit(_blockedRaycastLayers));
-
-            //comparableInputModule.raycaster = raycaster;
-            //comparableInputModule.comparator = new GameplayObjectsComparatorModule();
         }
         private void NotifyViewSyncChanged(bool state) => syncView = state;
     }

@@ -30,20 +30,20 @@ namespace BeatLeader.Replayer
         }
         public async Task<bool> DownloadAndStartReplayAsync(Score score, ReplayerSettings settings = null)
         {
-            Plugin.Log.Notice("Downloading started");
+            Plugin.Log.Notice("Download started");
             var downloadResult = await HttpUtils.DownloadReplayAsync(score.replay);
             var replay = downloadResult.value;
 
             if (downloadResult.isError || replay == null)
             {
-                Plugin.Log.Critical("Could not download replay!");
+                Plugin.Log.Error("Download error!");
                 return false;
             }
 
             var data = new ReplayLaunchData(replay, score.player, settings);
             data.OnReplayFinish += NotifyLevelDidFinish;
 
-            Plugin.Log.Notice($"Downloading done. player:[{replay.info.playerName}] song:[{replay.info.songName}-{replay.info.difficulty}]" +
+            Plugin.Log.Notice($"Download done. player:[{replay.info.playerName}] song:[{replay.info.songName}-{replay.info.difficulty}]" +
                 $" environment:[{replay.info.environment}]");
 
             if (await _launcher.StartReplayAsync(data))

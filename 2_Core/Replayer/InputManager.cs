@@ -49,20 +49,7 @@ namespace BeatLeader.Replayer
                 CurrentInputType = InputType.VR;
                 inputSystemContainer = Instantiate(_inputModule.gameObject);
                 eventSystem = inputSystemContainer.GetComponent<EventSystem>();
-                inputSystemContainer.gameObject.SetActive(false);
-
-                var originalInputModule = inputSystemContainer.GetComponent<VRInputModule>();
-                var pointer = originalInputModule.GetField<VRPointer, VRInputModule>("_vrPointer");
-                var rumblePreset = originalInputModule.GetField<HapticPresetSO, VRInputModule>("_rumblePreset");
-                GameObject.DestroyImmediate(originalInputModule);
-
-                var comparableInputModule = inputSystemContainer.AddComponent<ComparableVRInputModule>();
-                comparableInputModule.SetField<VRInputModule, VRPointer>("_vrPointer", pointer);
-                comparableInputModule.SetField<VRInputModule, HapticPresetSO>("_rumblePreset", rumblePreset);
-                _container.Inject(comparableInputModule);
-
-                eventSystem.SetField("m_CurrentInputModule", (BaseInputModule)comparableInputModule);
-                inputSystemContainer.gameObject.SetActive(true);
+                _container.Inject(inputSystemContainer.GetComponent<VRInputModule>());
             }
             CustomEventSystem = eventSystem;
             SwitchInputTo(false);

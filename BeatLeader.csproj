@@ -149,6 +149,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
@@ -235,6 +239,7 @@
     <Compile Include="0_Harmony\InstallersPatches\MenuInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PreSwingRatingEnhancerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />
+    <Compile Include="0_Harmony\Replayer\RaycastBlocker.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
     <Compile Include="0_Harmony\UIPatches\HideModalsOnPlay.cs" />
@@ -310,16 +315,14 @@
     <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayToBaseScoringInterlayer.cs" />
     <Compile Include="2_Core\Replayer\Emulation\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="2_Core\Replayer\Emulation\SimpleNoteCutComparator.cs" />
-    <Compile Include="2_Core\Replayer\GameSettingsLoader.cs" />
-    <Compile Include="2_Core\Replayer\Input\GameplayObjectsComparatorModule.cs" />
+    <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
     <Compile Include="2_Core\Models\Interfaces\IComparatorModule.cs" />
-    <Compile Include="2_Core\Replayer\Input\InputManager.cs" />
+    <Compile Include="2_Core\Replayer\InputManager.cs" />
     <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
     <Compile Include="2_Core\Replayer\SceneTweaksManager.cs" />
     <Compile Include="2_Core\Replayer\PlaybackController.cs" />
     <Compile Include="2_Core\Replayer\ReplayerManualInstaller.cs" />
     <Compile Include="2_Core\Replayer\ReplayerMenuLoader.cs" />
-    <Compile Include="2_Core\Replayer\Input\ComparableVRInputModule.cs" />
     <Compile Include="2_Core\Replayer\LocksController.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
@@ -336,7 +339,6 @@
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
-    <Compile Include="7_Utils\Interop\DetectorSource.cs" />
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
     <Compile Include="7_Utils\MathUtils.cs" />

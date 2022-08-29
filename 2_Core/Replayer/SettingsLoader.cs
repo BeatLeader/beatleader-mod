@@ -1,10 +1,11 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
+using System;
 using Zenject;
 
 namespace BeatLeader.Replayer
 {
-    public class GameSettingsLoader : IInitializable
+    public class SettingsLoader : IInitializable, IDisposable
     {
         [InjectOptional] private readonly PlayerDataModel _playerDataModel;
         [InjectOptional] private readonly ReplayerCameraController _cameraController;
@@ -21,6 +22,12 @@ namespace BeatLeader.Replayer
                 _cameraController.CullingMask |= 1 << LayerMasks.noteDebrisLayer;
             else
                 _cameraController.CullingMask &= ~(1 << LayerMasks.noteDebrisLayer);
+
+            RaycastBlocker.EnableBlocker = true;
+        }
+        public virtual void Dispose()
+        {
+            RaycastBlocker.EnableBlocker = false;
         }
     }
 }

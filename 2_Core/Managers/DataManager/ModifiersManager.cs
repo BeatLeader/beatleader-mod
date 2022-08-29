@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using HarmonyLib;
+using JetBrains.Annotations;
 using Polyglot;
 using TMPro;
 using UnityEngine;
@@ -9,84 +10,150 @@ using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class ModifiersManager : MonoBehaviour {
-
-        [Inject] private GameplaySetupViewController _gameplayController;
+        #region Start / OnDestroy
+        
+        [Inject, UsedImplicitly] private GameplaySetupViewController _gameplayController;
         private GameplayModifiersPanelController _modifiersController;
 
-        private readonly string _positiveColor = "#00FF77";
-        private readonly string _multiplierColor = "#00FFFF";
-
         private enum State { Default, Overriden }
-        private State _state = State.Default;
+        private State _currentState = State.Default;
+        private State _targetState = State.Default;
 
         private void Start() {
-            LeaderboardState.IsVisibleChangedEvent += LeaderboardVisibilityChanged;
-            StartCoroutine(UpdateModifiersIfNeeded());
-
-            GameplayModifiersPanelPatch.isPatchRequired = false;
-
             _modifiersController = (GameplayModifiersPanelController)AccessTools
                 .Field(typeof(GameplaySetupViewController), "_gameplayModifiersPanelController").GetValue(_gameplayController);
+            
+            GameplayModifiersPanelPatch.isPatchRequired = false;
+            
+            LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
+            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
+            LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
+            OnLeaderboardVisibilityChanged(LeaderboardState.IsVisible);
         }
 
         private void OnDestroy() {
-            LeaderboardState.IsVisibleChangedEvent -= LeaderboardVisibilityChanged;
+            LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
+            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
+            LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
         }
 
-        private void LeaderboardVisibilityChanged(bool visible) {
-            if (!ModifiersUtils.instance.HasModifiers) { return; }
-            State requiredState = visible ? State.Overriden : State.Default;
-            if (_state == requiredState) { return; }
+        #endregion
 
-            if (_gameplayController.gameObject.activeInHierarchy) {
-                var toggles = (GameplayModifierToggle[])AccessTools
-                    .Field(typeof(GameplayModifiersPanelController), "_gameplayModifierToggles").GetValue(_modifiersController);
+        #region Events
 
-                if (toggles == null) { return; }
+        private void OnCacheWasChanged() {
+            UpdateModifiersMap(LeaderboardState.IsAnyBeatmapSelected, LeaderboardState.SelectedBeatmapKey);
+            UpdateToggles();
+        }
+        
+        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
+            UpdateModifiersMap(selectedAny, leaderboardKey);
+            UpdateToggles();
+        }
+        
+        private void OnLeaderboardVisibilityChanged(bool isVisible) {
+            _targetState = isVisible ? State.Overriden : State.Default;
+            UpdateToggles();
+        }
 
-                // return default
-                if (_state == State.Overriden) {
-                    foreach (var toggle in toggles) {
-                        toggle.Start(); // return toggle view to default
-                    }
-                    _state = State.Default;
-                    GameplayModifiersPanelPatch.isPatchRequired = false;
-                } else {
-                    foreach (var toggle in toggles) {
-                        var modName = toggle.gameplayModifier.modifierNameLocalizationKey;
-                        if (ModifiersUtils.instance.Modifiers.ContainsKey(ModifiersUtils.ToNameCode(modName))) {
-                            TextMeshProUGUI multiplierText = (TextMeshProUGUI)AccessTools.Field(toggle.GetType(), "_multiplierText").GetValue(toggle);
-                            multiplierText.text = FormatToggleText(toggle);
-                        }
-                    }
-                    _state = State.Overriden;
-                    GameplayModifiersPanelPatch.isPatchRequired = true;
-                }
+        #endregion
 
-                if (_modifiersController.gameObject.activeInHierarchy) {
-                    _gameplayController.RefreshActivePanel();
-                }
+        #region UpdateToggles
+
+        private void UpdateToggles() {
+            if (!_gameplayController.gameObject.activeInHierarchy) return;
+            
+            var toggles = (GameplayModifierToggle[])AccessTools
+                .Field(typeof(GameplayModifiersPanelController), "_gameplayModifierToggles").GetValue(_modifiersController);
+
+            if (toggles == null) { return; }
+
+            switch (_targetState) {
+                case State.Default:
+                    ApplyDefaultState(toggles);
+                    break;
+                case State.Overriden:
+                    ApplyOverridenState(toggles);
+                    break;
+                default: throw new ArgumentOutOfRangeException();
             }
         }
 
-        private string FormatToggleText(GameplayModifierToggle toggle) {
-            float multiplier = ModifiersUtils.instance.Modifiers[ModifiersUtils.ToNameCode(toggle.gameplayModifier.modifierNameLocalizationKey)];
+        #endregion
+
+        #region DefaultState
+
+        private void ApplyDefaultState(GameplayModifierToggle[] toggles) {
+            if (_currentState == State.Default) return;
+            _currentState = State.Default;
+            
+            foreach (var toggle in toggles) {
+                toggle.Start(); // return toggle view to default
+            }
+            
+            GameplayModifiersPanelPatch.isPatchRequired = false;
+            RefreshPanel();
+        }
+
+        #endregion
+
+        #region OverridenState
+
+        private ModifiersMap _modifiersMap;
+        private bool _modifiersAvailable;
+
+        private void UpdateModifiersMap(bool isAnyBeatmapSelected, LeaderboardKey leaderboardKey) {
+            if (!isAnyBeatmapSelected || !LeaderboardsCache.TryGetLeaderboardInfo(leaderboardKey, out var data)) {
+                GameplayModifiersPanelPatch.ModifiersMap = _modifiersMap = default;
+                GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = false;
+                return;
+            }
+
+            GameplayModifiersPanelPatch.ModifiersMap = _modifiersMap = data.DifficultyInfo.modifierValues;
+            GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = true;
+        }
+
+        private void ApplyOverridenState(GameplayModifierToggle[] toggles) {
+            _currentState = State.Overriden;
+            
+            foreach (var toggle in toggles) {
+                var multiplierText = (TextMeshProUGUI)AccessTools.Field(toggle.GetType(), "_multiplierText").GetValue(toggle);
+                var modCode = ModifiersUtils.ToNameCode(toggle.gameplayModifier.modifierNameLocalizationKey);
+                var multiplierValue = _modifiersAvailable ? _modifiersMap.GetMultiplier(modCode) : 0.0f;
+
+                multiplierText.text = multiplierValue != 0.0f ? FormatToggleText(multiplierValue, toggle.gameplayModifier.multiplierConditionallyValid) : "";
+            }
+            
+            GameplayModifiersPanelPatch.isPatchRequired = true;
+            RefreshPanel();
+        }
+
+        #endregion
+
+        #region FormatToggleText
+
+        private const string PositiveColor = "#00FF77";
+        private const string MultiplierColor = "#00FFFF";
+
+        private static string FormatToggleText(float multiplier, bool multiplierConditionallyValid) {
             bool isPositive = multiplier > 0f;
             string text = isPositive ? string.Format(Localization.Instance.SelectedCultureInfo, "+{0:P0}", multiplier) : string.Format(Localization.Instance.SelectedCultureInfo, "{0:P0}", multiplier);
-            if (toggle.gameplayModifier.multiplierConditionallyValid) {
+            if (multiplierConditionallyValid) {
                 text = string.Format(Localization.Instance.SelectedCultureInfo, "+{0:P0} / {1}", 0, text);
             }
-            return $"<color={(isPositive ? _positiveColor : _multiplierColor)}>{text}</color>";
+            return $"<color={(isPositive ? PositiveColor : MultiplierColor)}>{text}</color>";
         }
 
-        private IEnumerator UpdateModifiersIfNeeded() {
-            if (ModifiersUtils.instance.Modifiers != null) yield break;
-            yield return HttpUtils.GetData<Dictionary<string, float>>(BLConstants.MODIFIERS_URL,
-                modifiers => {
-                    ModifiersUtils.instance.Modifiers = modifiers;
-                },
-                reason => Plugin.Log.Error($"Can't fetch values for modifiers. Reason: {reason}"),
-                3);
+        #endregion
+
+        #region Utils
+
+        private void RefreshPanel() {
+            if (_modifiersController.gameObject.activeInHierarchy) {
+                _gameplayController.RefreshActivePanel();
+            }
         }
+
+        #endregion
     }
 }

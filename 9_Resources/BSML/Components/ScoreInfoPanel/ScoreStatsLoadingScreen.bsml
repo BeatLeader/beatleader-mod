@@ -1,7 +1,3 @@
-<horizontal active="~active" pref-height="30">
-    <vertical pref-width="24" pad="2">
-        <horizontal pad="2" bg="round-rect-panel">
-            <text text="~text" align="Center"/>
-        </horizontal>
-    </vertical>
-</horizontal>
+<vertical active="~active" pref-width="24" pad="2" vertical-fit="PreferredSize">
+    <text text="~text" align="Center"/>
+</vertical>

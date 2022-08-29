@@ -1,4 +1,5 @@
-using System;
+using BeatLeader.API.Methods;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
@@ -7,12 +8,11 @@ namespace BeatLeader.Components {
         #region Initialize
 
         protected override void OnInitialize() {
-            LeaderboardState.ScoreStatsRequest.StateChangedEvent += OnScoreStatsRequestStateChanged;
-            OnScoreStatsRequestStateChanged(LeaderboardState.ScoreStatsRequest.State);
+            ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
         }
 
         protected override void OnDispose() {
-            LeaderboardState.ScoreStatsRequest.StateChangedEvent -= OnScoreStatsRequestStateChanged;
+            ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
         }
 
         #endregion
@@ -21,20 +21,12 @@ namespace BeatLeader.Components {
 
         private const string FailMessage = "<color=#FF8888>Oops!\n<size=60%>Something went wrong";
 
-        private void OnScoreStatsRequestStateChanged(RequestState state) {
-            switch (state) {
-                case RequestState.Started:
-                    Text = "Loading...";
-                    break;
-                case RequestState.Failed:
-                    Text = FailMessage;
-                    break;
-                case RequestState.Uninitialized:
-                case RequestState.Finished:
-                    Text = "";
-                    break;
-                default: throw new ArgumentOutOfRangeException(nameof(state), state, null);
-            }
+        private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
+            Text = state switch {
+                API.RequestState.Started => "Loading...",
+                API.RequestState.Failed => FailMessage,
+                _ => ""
+            };
         }
 
         #endregion

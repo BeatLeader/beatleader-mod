@@ -53,6 +53,7 @@ namespace BeatLeader {
         public static Material AccDetailsRowMaterial;
         public static Material ClanTagBackgroundMaterial;
         public static Material VotingButtonMaterial;
+        public static Material MiniProfileBackgroundMaterial;
 
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
@@ -65,6 +66,7 @@ namespace BeatLeader {
             AccDetailsRowMaterial = assetBundle.LoadAsset<Material>("AccDetailsRowMaterial");
             ClanTagBackgroundMaterial = assetBundle.LoadAsset<Material>("ClanTagBackgroundMaterial");
             VotingButtonMaterial = assetBundle.LoadAsset<Material>("VotingButtonMaterial");
+            MiniProfileBackgroundMaterial = assetBundle.LoadAsset<Material>("UIMiniProfileBackgroundMaterial");
         }
 
         #endregion
@@ -113,6 +115,24 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite PatreonLinkIcon;
 
+        [UsedImplicitly]
+        public static Sprite TwitterIcon;
+
+        [UsedImplicitly]
+        public static Sprite TwitchIcon;
+
+        [UsedImplicitly]
+        public static Sprite YoutubeIcon;
+
+        [UsedImplicitly]
+        public static Sprite ProfileIcon;
+
+        [UsedImplicitly]
+        public static Sprite FriendsIcon;
+
+        [UsedImplicitly]
+        public static Sprite IncognitoIcon;
+
         private static void LoadSprites(AssetBundle assetBundle) {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
@@ -128,6 +148,12 @@ namespace BeatLeader {
             WebsiteLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Website");
             DiscordLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Discord");
             PatreonLinkIcon = assetBundle.LoadAsset<Sprite>("BL_Patreon");
+            TwitterIcon = assetBundle.LoadAsset<Sprite>("BL_TwitterIcon");
+            TwitchIcon = assetBundle.LoadAsset<Sprite>("BL_TwitchIcon");
+            YoutubeIcon = assetBundle.LoadAsset<Sprite>("BL_YoutubeIcon");
+            ProfileIcon = assetBundle.LoadAsset<Sprite>("BL_ProfileIcon");
+            FriendsIcon = assetBundle.LoadAsset<Sprite>("BL_FriendsIcon");
+            IncognitoIcon = assetBundle.LoadAsset<Sprite>("BL_IncognitoIcon");
         }
 
         #endregion

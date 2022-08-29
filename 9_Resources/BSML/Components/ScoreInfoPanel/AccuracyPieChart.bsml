@@ -2,6 +2,6 @@
     <macro.define name="font-size" value="3.6"/>
     
     <vertical id="background" pref-width="12" bg="round-rect-panel">
-        <text text="~text" font-size="~font-size" align="Center"/>
+        <text id="text-component" text="" font-size="~font-size" align="Center"/>
     </vertical>
 </horizontal>

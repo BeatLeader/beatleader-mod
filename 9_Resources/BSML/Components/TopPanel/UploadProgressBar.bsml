@@ -1,0 +1,6 @@
+<horizontal ignore-layout="true" anchor-pos-y="10" pref-height="5">
+    <vertical id="text-root" min-width="7" pad-left="1" pag-right="1" bg="round-rect-panel">
+        <text id="text-component" text="" font-size="3.4" word-wrapping="false" align="Center"/>
+    </vertical>
+    <button id="retry-button" text="Retry" font-size="3.4"/>
+</horizontal>

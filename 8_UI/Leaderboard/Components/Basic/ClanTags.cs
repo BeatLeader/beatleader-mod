@@ -27,7 +27,7 @@ namespace BeatLeader.Components {
         public void SetClans(Clan[] clans) {
             _count = Mathf.Min(clans.Length, TotalCount);
 
-            for (var i = 0; i < _count; i++) {
+            for (var i = 0; i < TotalCount; i++) {
                 if (i < clans.Length) {
                     _tags[i].SetValue(clans[i]);
                 } else {

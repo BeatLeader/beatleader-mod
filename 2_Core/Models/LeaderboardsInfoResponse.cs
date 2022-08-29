@@ -34,6 +34,7 @@
         public int rankedTime;
         public float stars;
         public int type;
+        public ModifiersMap modifierValues;
     }
 
     internal struct QualificationInfo {
@@ -50,5 +51,20 @@
         public int approvalTimeset;
         public bool approved;
         public string approvers;
+    }
+
+    internal struct ModifiersMap {
+        public int modifierId;
+        public float da;
+        public float fs;
+        public float ss;
+        public float sf;
+        public float gn;
+        public float na;
+        public float nb;
+        public float nf;
+        public float no;
+        public float pm;
+        public float sc;
     }
 }

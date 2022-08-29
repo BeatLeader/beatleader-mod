@@ -1,10 +1,12 @@
 ﻿using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Models;
-using BeatLeader.Utils;
-using UnityEngine;
+using JetBrains.Annotations;
+using Zenject;
 
 namespace BeatLeader.DataManager {
-    internal class ModVersionChecker : MonoBehaviour {
+    [UsedImplicitly]
+    internal class ModVersionChecker : IInitializable, IDisposable {
         #region CurrentReleaseInfo
 
         public static ReleaseInfo CurrentReleaseInfo = new() {
@@ -51,28 +53,22 @@ namespace BeatLeader.DataManager {
 
         #region Start
 
-        private void Start() {
-            CheckLatestVersion();
+        public void Initialize() {
+            LatestReleasesRequest.AddStateListener(OnLatestReleasesRequestStateChanged);
+            LatestReleasesRequest.SendRequest();
+        }
+
+        public void Dispose() {
+            LatestReleasesRequest.RemoveStateListener(OnLatestReleasesRequestStateChanged);
         }
 
         #endregion
 
-        #region CheckLatestVersion
+        #region OnLatestReleasesRequestStateChanged
 
-        private Coroutine _checkVersionTask;
-
-        private void CheckLatestVersion() {
-            if (_checkVersionTask != null) {
-                StopCoroutine(_checkVersionTask);
-            }
-
-            _checkVersionTask = StartCoroutine(
-                HttpUtils.GetData<LatestReleases>(
-                    BLConstants.LATEST_RELEASES,
-                    (result) => LatestReleaseInfo = result.pc,
-                    (reason) => Plugin.Log.Debug($"ModVersion check failed: {reason}")
-                )
-            );
+        private static void OnLatestReleasesRequestStateChanged(API.RequestState state, LatestReleases result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            LatestReleaseInfo = result.pc;
         }
 
         #endregion

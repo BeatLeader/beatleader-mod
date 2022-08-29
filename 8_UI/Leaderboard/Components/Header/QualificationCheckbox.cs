@@ -19,13 +19,15 @@ namespace BeatLeader.Components {
 
         #region State
 
-        private static readonly Color NeutralColor = new(0.6f, 0.6f, 0.6f, 0.3f);
+        private static readonly Color NeutralColor = new(0.5f, 0.5f, 0.5f, 0.5f);
         private static readonly Color FailedColor = new(1.0f, 0.0f, 0.0f, 0.8f);
+        private static readonly Color OnHoldColor = new(1.0f, 1.0f, 0.0f, 0.8f);
         private static readonly Color CheckedColor = new(0.0f, 1.0f, 0.0f, 0.8f);
 
         public void SetState(State state) {
             _imageComponent.color = state switch {
                 State.Neutral => NeutralColor,
+                State.OnHold => OnHoldColor,
                 State.Failed => FailedColor,
                 State.Checked => CheckedColor,
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
@@ -34,6 +36,7 @@ namespace BeatLeader.Components {
 
         public enum State {
             Neutral,
+            OnHold,
             Failed,
             Checked
         }

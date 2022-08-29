@@ -1,13 +1,16 @@
-<vertical ignore-layout="true" anchor-pos-y="~y-offset" spacing="1">
-    <horizontal pref-height="28" pad-bottom="4">
-        <vertical pref-width="28">
-            <macro.as-host host="player-avatar">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-        </vertical>
-    </horizontal>
-    
-    <horizontal ignore-layout="true" anchor-pos-y="-11" spacing="1" horizontal-fit="PreferredSize">
+<vertical spacing="1" vertical-fit="PreferredSize">
+    <horizontal spacing="1" horizontal-fit="PreferredSize">
+        <horizontal ignore-layout="true" anchor-pos-y="13" pref-height="24">
+            <vertical pref-width="24">
+                <macro.as-host host="player-avatar">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+                <macro.as-host host="mini-profile-buttons">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </vertical>
+        </horizontal>
+        
         <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
             <text text="~player-global-rank" align="Center"/>
         </horizontal>
@@ -22,7 +25,7 @@
         </horizontal>
     </horizontal>
 
-    <vertical ignore-layout="true" anchor-pos-y="-18" active="~show-message" pref-width="90">
+    <vertical active="~show-message" pref-width="90">
         <horizontal pad="1" bg="round-rect-panel" bg-color="#000000EE" pref-height="6" horizontal-fit="PreferredSize">
             <horizontal>
                 <text text="~message-text" overflow-mode="Ellipsis" word-wrapping="false" align="Center"/>

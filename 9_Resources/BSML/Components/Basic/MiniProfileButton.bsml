@@ -1,0 +1,8 @@
+﻿<horizontal id="root" ignore-layout="true" pref-height="3.0" horizontal-fit="PreferredSize">
+    <vertical ignore-layout="true" id="label-root">
+        <text id="label-component" text="" font-size="3.4" align="Center"/>
+    </vertical>
+    <vertical pref-width="3.0">
+        <clickable-image id="image-component" src="#PlayerIcon" preserve-aspect="true"/>
+    </vertical>
+</horizontal>

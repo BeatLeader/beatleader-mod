@@ -1,10 +1,10 @@
 using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
-using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components {
     internal class ScoreInfoPanel : ReeUIComponentV2 {
@@ -46,20 +46,22 @@ namespace BeatLeader.Components {
         #region Init / Dispose
 
         protected override void OnInitialize() {
+            InitializeModal();
+            
+            ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
             LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
-            LeaderboardState.ScoreStatsRequest.FinishedEvent += SetScoreStats;
             OnTabWasSelected(LeaderboardState.ScoreInfoPanelTab);
         }
 
         protected override void OnDispose() {
+            ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
             LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
             LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
-            LeaderboardState.ScoreStatsRequest.FinishedEvent -= SetScoreStats;
         }
 
         #endregion
@@ -135,10 +137,11 @@ namespace BeatLeader.Components {
         private bool _scoreStatsUpdateRequired;
         private Score _score;
 
-        private void SetScoreStats(ScoreStats scoreStats) {
-            _accuracyDetails.SetScoreStats(scoreStats);
-            _accuracyGrid.SetScoreStats(scoreStats);
-            _accuracyGraphPanel.SetScoreStats(scoreStats);
+        private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            _accuracyDetails.SetScoreStats(result);
+            _accuracyGrid.SetScoreStats(result);
+            _accuracyGraphPanel.SetScoreStats(result);
             _scoreStatsUpdateRequired = false;
             UpdateVisibility();
         }
@@ -156,16 +159,29 @@ namespace BeatLeader.Components {
 
         #region Modal
 
-        private static readonly Vector3 ModalOffset = new(0.0f, -0.6f, 0.0f);
-
         [UIComponent("modal"), UsedImplicitly]
         private ModalView _modal;
+        
+        [UIComponent("middle-panel"), UsedImplicitly]
+        private ImageView _middlePanel;
+        
+        [UIComponent("bottom-panel"), UsedImplicitly]
+        private ImageView _bottomPanel;
+
+        private void InitializeModal() {
+            var background = _modal.GetComponentInChildren<ImageView>();
+            if (background != null) background.enabled = false;
+            var touchable = _modal.GetComponentInChildren<Touchable>();
+            if (touchable != null) touchable.enabled = false;
+            
+            _middlePanel.raycastTarget = true;
+            _bottomPanel.raycastTarget = true;
+        }
 
         private void ShowModal() {
             if (_modal == null) return;
             LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
             _modal.Show(true, true);
-            _modal.transform.position += ModalOffset;
         }
 
         private void HideAnimated() {

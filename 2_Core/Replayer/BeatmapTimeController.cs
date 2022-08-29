@@ -28,8 +28,8 @@ namespace BeatLeader.Replayer
         private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
         private BombCutSoundEffect.Pool _bombCutSoundPool;
 
-        private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers = new();
-        private Dictionary<float, CallbacksInTime> _callbacksInTimes = new();
+        private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers;
+        private Dictionary<float, CallbacksInTime> _callbacksInTimes;
         private BombCutSoundEffectManager _bombCutSoundEffectManager;
         private AudioManagerSO _audioManagerSO;
         private AudioSource _beatmapAudioSource;

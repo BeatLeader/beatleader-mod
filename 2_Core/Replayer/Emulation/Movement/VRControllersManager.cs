@@ -23,10 +23,11 @@ namespace BeatLeader.Replayer.Movement
 
         public VRController LeftSaber { get; protected set; }
         public VRController RightSaber { get; protected set; }
-        public VRController Head { get; protected set; }
         public VRController LeftHand { get; protected set; }
         public VRController RightHand { get; protected set; }
-        public Transform MenuHandsContainerTranform { get; protected set; }
+        public VRController HeadContainer { get; protected set; }
+        public Transform HeadTransform { get; protected set; }
+        public Transform MenuHandsContainerTransform { get; protected set; }
         public Transform MenuHandsTranform { get; protected set; }
         public Transform OriginTransform { get; protected set; }
         public bool IsInitialized { get; protected set; }
@@ -39,15 +40,18 @@ namespace BeatLeader.Replayer.Movement
             OriginTransform = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
 
             _mainCamera.GetComponentInChildren<BoxCollider>().gameObject.SetActive(false);
-            Head = Instantiate(BundleLoader.MonkeyPrefab, null, false).AddComponent<VRControllerWrapper>();
-            Head.transform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
-            Head.node = XRNode.Head;
+            HeadContainer = new GameObject("ReplayerFakeHead").AddComponent<VRControllerWrapper>();
+            HeadContainer.node = XRNode.Head;
+
+            HeadTransform = Instantiate(BundleLoader.MonkeyPrefab, null, false).transform;
+            HeadTransform.SetParent(HeadContainer.transform, false);
+            HeadTransform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
 
             //you ask me why? smth just moves menu hands to the zero pose
-            MenuHandsContainerTranform = new GameObject("PauseMenuHands").transform;
-            MenuHandsTranform.SetParent(MenuHandsContainerTranform, false);
-            MenuHandsContainerTranform.SetParent(OriginTransform, true);
-            Head.transform.SetParent(OriginTransform, false);
+            MenuHandsContainerTransform = new GameObject("PauseMenuHands").transform;
+            MenuHandsTranform.SetParent(MenuHandsContainerTransform, false);
+            MenuHandsContainerTransform.SetParent(OriginTransform, true);
+            HeadContainer.transform.SetParent(OriginTransform, false);
 
             _vrControllersManager.leftHandVRController.enabled = false;
             _vrControllersManager.rightHandVRController.enabled = false;
@@ -55,12 +59,12 @@ namespace BeatLeader.Replayer.Movement
             LeftSaber = _vrControllersManager.leftHandVRController;
             RightSaber = _vrControllersManager.rightHandVRController;
 
-            _playerTransforms.SetField("_headTransform", Head.transform);
+            _playerTransforms.SetField("_headTransform", HeadContainer.transform);
             _vrControllersManager.SetField("_leftHandVRController", LeftSaber);
             _vrControllersManager.SetField("_rightHandVRController", RightSaber);
 
             InjectControllers();
-            Cam2Interop.ApplyHeadTransform(Head.transform);
+            Cam2Interop.ApplyHeadTransform(HeadContainer.transform);
             IsInitialized = true;
         }
         public void ShowMenuControllers(bool show = true)
@@ -73,10 +77,10 @@ namespace BeatLeader.Replayer.Movement
         {
             var go = node switch
             {
-                XRNode.Head => Head.gameObject,
+                XRNode.Head => HeadContainer.gameObject,
                 XRNode.LeftHand => LeftSaber.gameObject,
                 XRNode.RightHand => RightSaber.gameObject,
-                XRNode.GameController => MenuHandsContainerTranform.gameObject,
+                XRNode.GameController => MenuHandsContainerTransform.gameObject,
                 _ => null
             };
             go?.SetActive(show);
@@ -87,10 +91,10 @@ namespace BeatLeader.Replayer.Movement
             Transform originalParent = transform.parent;
             transform.SetParent(node switch
             {
-                XRNode.Head => Head.transform,
+                XRNode.Head => HeadContainer.transform,
                 XRNode.LeftHand => LeftHand.transform,
                 XRNode.RightHand => RightHand.transform,
-                XRNode.GameController => MenuHandsContainerTranform,
+                XRNode.GameController => MenuHandsContainerTransform,
                 _ => originalParent
             }, false);
             _attachedObjects.Add(transform, (node, originalParent));

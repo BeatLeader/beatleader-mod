@@ -22,7 +22,7 @@ namespace BeatLeader.Replayer.Movement
 
         protected VRController leftSaber => _vrControllersManager.LeftSaber;
         protected VRController rightSaber => _vrControllersManager.RightSaber;
-        protected VRController head => _vrControllersManager.Head;
+        protected VRController head => _vrControllersManager.HeadContainer;
         public bool isPlaying => _isPlaying;
 
         protected void Start()

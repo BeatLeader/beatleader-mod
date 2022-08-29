@@ -70,14 +70,14 @@ namespace BeatLeader.Replayer.Camera
         }
         public CombinedCameraMovementData CombinedMovementData
         {
-            get => new CombinedCameraMovementData(transform, _vrControllersManager.Head.transform, _vrControllersManager.OriginTransform);
+            get => new CombinedCameraMovementData(transform, _vrControllersManager.HeadContainer.transform, _vrControllersManager.OriginTransform);
             protected set
             {
                 transform.localPosition = value.cameraPose.position;
                 transform.localRotation = value.cameraPose.rotation;
 
-                _vrControllersManager.Head.transform.localPosition = value.headPose.position;
-                _vrControllersManager.Head.transform.localRotation = value.headPose.rotation;
+                _vrControllersManager.HeadContainer.transform.localPosition = value.headPose.position;
+                _vrControllersManager.HeadContainer.transform.localRotation = value.headPose.rotation;
 
                 _vrControllersManager.OriginTransform.position = value.originPose.position;
                 _vrControllersManager.OriginTransform.rotation = value.originPose.rotation;
@@ -164,8 +164,8 @@ namespace BeatLeader.Replayer.Camera
         }
         private void SetHandsPose(Pose pose)
         {
-            _vrControllersManager.MenuHandsContainerTranform.localPosition = pose.position;
-            _vrControllersManager.MenuHandsContainerTranform.localRotation = pose.rotation;
+            _vrControllersManager.MenuHandsContainerTransform.localPosition = pose.position;
+            _vrControllersManager.MenuHandsContainerTransform.localRotation = pose.rotation;
         }
     }
 }

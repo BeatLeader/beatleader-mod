@@ -17,11 +17,11 @@ namespace BeatLeader.Components.Settings
 
         [UIValue("show-head")] private bool _showHead
         {
-            get => _controllersManager.Head.gameObject.activeSelf;
+            get => _controllersManager.HeadTransform.gameObject.activeSelf;
             set
             {
                 showHead = _initialized ? value : showHead;
-                _controllersManager.Head.gameObject.SetActive(value);
+                _controllersManager.HeadTransform.gameObject.SetActive(value);
                 NotifyPropertyChanged(nameof(_showHead));
                 AutomaticConfigTool.NotifyTypeChanged(GetType());
             }

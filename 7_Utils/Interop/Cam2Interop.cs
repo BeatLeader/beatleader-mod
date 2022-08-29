@@ -76,9 +76,13 @@ namespace BeatLeader.Interop
             
             var replayHeadTransformField = type.DefineField("_replayHeadTransform", typeof(Transform), FieldAttributes.Private);
             type.AddGetOnlyProperty("replayHeadTransform", replayHeadTransformField, sourceInterfaceType.GetMethod("get_replayHeadTransform"));
-            
-            var offsetField = type.DefineField("_offset", typeof(Transform), FieldAttributes.Private);
-            type.AddGetOnlyProperty("offset", offsetField, sourceInterfaceType.GetMethod("get_offset"));
+
+            var offsetGetter = sourceInterfaceType.GetMethod("get_offset");
+            if (offsetGetter != null)
+            {
+                var offsetField = type.DefineField("_offset", typeof(Transform), FieldAttributes.Private);
+                type.AddGetOnlyProperty("offset", offsetField, offsetGetter);
+            }
 
             _replaySourceType = type.CreateType();
         }

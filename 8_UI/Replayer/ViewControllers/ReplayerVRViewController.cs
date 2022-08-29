@@ -46,7 +46,6 @@ namespace BeatLeader.ViewControllers
         [UIValue("toolbar")] private Toolbar _toolbar;
 
         private FloatingScreen _floatingScreen;
-        private List<int> _blockedRaycastLayers = new List<int> { 8, 9, 11, 12 };
 
         private void Start()
         {

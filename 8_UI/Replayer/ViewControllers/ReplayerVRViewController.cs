@@ -10,14 +10,10 @@ using BeatLeader.Components;
 using BeatLeader.Replayer;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using UnityEngine.UI;
+using BeatSaberMarkupLanguage.FloatingScreen;
 using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
-using HMUI;
-using BeatSaberMarkupLanguage.FloatingScreen;
-using VRUIControls;
-using IPA.Utilities;
 
 namespace BeatLeader.ViewControllers
 {
@@ -28,7 +24,6 @@ namespace BeatLeader.ViewControllers
         [Inject] private readonly VRControllersManager _vrControllersManager;
         [Inject] private readonly MainCamera _camera;
         [Inject] private readonly DiContainer _container;
-        [Inject] private readonly InputManager _inputManager;
 
         private bool syncView
         {

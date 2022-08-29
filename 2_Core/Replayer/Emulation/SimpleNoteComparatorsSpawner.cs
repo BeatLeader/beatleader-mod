@@ -15,7 +15,8 @@ namespace BeatLeader.Replayer.Emulation
         [Inject] protected readonly SimpleNoteCutComparator.Pool _simpleNoteCutComparatorPool;
         [Inject] protected readonly ReplayLaunchData _replayData;
 
-        protected List<SimpleNoteCutComparator> _spawnedComparators = new();
+        protected HashSet<SimpleNoteCutComparator> _spawnedComparators = new();
+        protected HashSet<SimpleNoteCutComparator> _modifiedCache = new();
 
         protected virtual void Start()
         {
@@ -24,11 +25,16 @@ namespace BeatLeader.Replayer.Emulation
         protected virtual void Update()
         {
             if (_spawnedComparators.Count == 0) return;
-            _spawnedComparators.Where(x => x.IsFinished).ToList().ForEach(x =>
+            foreach (var item in _spawnedComparators.Where(x => x.IsFinished))
             {
-                _spawnedComparators.Remove(x);
-                _simpleNoteCutComparatorPool.Despawn(x);
-            });
+                _modifiedCache.Add(item);
+            }
+            foreach (var item in _modifiedCache)
+            {
+                _spawnedComparators.Remove(item);
+                _simpleNoteCutComparatorPool.Despawn(item);
+            }
+            _modifiedCache.Clear();
         }
         protected virtual void OnDestroy()
         {
@@ -36,7 +42,7 @@ namespace BeatLeader.Replayer.Emulation
         }
         public void DespawnAllComparators()
         {
-            _spawnedComparators.ForEach(x => _simpleNoteCutComparatorPool.Despawn(x));
+            _spawnedComparators.ToList().ForEach(x => _simpleNoteCutComparatorPool.Despawn(x));
             _spawnedComparators.Clear();
         }
         public bool TryGetLoadedComparator(NoteController noteController, out SimpleNoteCutComparator comparator)

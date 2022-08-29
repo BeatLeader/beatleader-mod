@@ -64,7 +64,7 @@ namespace BeatLeader.Replayer
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().Lazy();
 
             InstallUI(Container, !InputManager.IsInFPFC);
-            Plugin.Log.Notice("Replay system successfully installed!");
+            Plugin.Log.Notice("[Installer] Replay system successfully installed");
         }
         private static void InstallUI(DiContainer container, bool vr)
         {

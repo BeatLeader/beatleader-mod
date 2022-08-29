@@ -30,6 +30,7 @@ namespace BeatLeader.Replayer
         }
         public async Task<bool> StartReplayAsync(ReplayLaunchData data, CancellationToken token, Action<bool> callback)
         {
+            Plugin.Log.Notice("[Launcher] Loading replay data...");
             bool loadResult = await AssignDataAsync(data, token);
             if (!loadResult) return false;
 
@@ -49,6 +50,7 @@ namespace BeatLeader.Replayer
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
             callback?.Invoke(true);
             OnReplayStart?.Invoke(data);
+            Plugin.Log.Notice("[Launcher] Starting replay...");
 
             return loadResult;
         }
@@ -101,7 +103,7 @@ namespace BeatLeader.Replayer
             if (data.overrideSettings && data.settings.loadPlayerEnvironment)
             {
                 environment = ReplayDataHelper.GetEnvironmentByName(data.replay.info.environment);
-                if (environment == null) Plugin.Log.Critical("[Launcher] Failed to parse player environment!");
+                if (environment == null) Plugin.Log.Error("[Launcher] Failed to parse player environment!");
             }
             else if (data.environmentInfo != null)
                 environment = data.environmentInfo;

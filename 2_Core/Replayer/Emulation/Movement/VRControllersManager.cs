@@ -43,7 +43,7 @@ namespace BeatLeader.Replayer.Movement
             Head.transform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
             Head.node = XRNode.Head;
 
-            //you ask me why? smth just moving menu hands to the zero pose
+            //you ask me why? smth just moves menu hands to the zero pose
             MenuHandsContainerTranform = new GameObject("PauseMenuHands").transform;
             MenuHandsTranform.SetParent(MenuHandsContainerTranform, false);
             MenuHandsContainerTranform.SetParent(OriginTransform, true);

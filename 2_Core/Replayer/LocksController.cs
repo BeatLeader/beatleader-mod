@@ -16,7 +16,6 @@ namespace BeatLeader
         }
 
         private Dictionary<Behaviour, LockData> _lockedComponents = new();
-        public static readonly LockData defaultData = new(LockMode.WhenRequired, true);
 
         private void LateUpdate()
         {
@@ -51,7 +50,7 @@ namespace BeatLeader
         }
         public void InstallLock(Behaviour behaviour)
         {
-            if (!_lockedComponents.TryAdd(behaviour, defaultData))
+            if (!_lockedComponents.TryAdd(behaviour, LockData.defaultData))
                 Plugin.Log.Warn("[Locker] Lock are already installed!");
         }
         public void UninstallLock(Behaviour behaviour)

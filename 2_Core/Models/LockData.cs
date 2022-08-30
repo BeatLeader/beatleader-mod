@@ -5,6 +5,8 @@ namespace BeatLeader.Models
 {
     public class LockData
     {
+        public static readonly LockData defaultData = new(LockMode.WhenRequired, true);
+
         public readonly LockMode mode;
         public readonly bool returnBackOnDestroy;
         public readonly bool returnBackValue;

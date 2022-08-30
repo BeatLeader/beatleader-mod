@@ -20,9 +20,6 @@ namespace BeatLeader.Replayer
         [Inject] private readonly GameScenesManager _scenesManager;
         [Inject] private readonly IFPFCSettings _fPFCSettings;
 
-        public readonly Dictionary<int, ReplayLaunchData> SessionReplays = new();
-        private int _nextReplayIndex = 0;
-
         private void Awake()
         {
             LeaderboardEvents.ReplayButtonWasPressedAction += NotifyReplayButtonPressed;
@@ -72,13 +69,7 @@ namespace BeatLeader.Replayer
             line += $"Environment: {replay.info.environment}";
             Plugin.Log.Info(line);
 
-            if (await _launcher.StartReplayAsync(data))
-            {
-                SessionReplays.Add(_nextReplayIndex, data);
-                _nextReplayIndex++;
-            }
-
-            return true;
+            return await _launcher.StartReplayAsync(data);
         }
         private void NotifyLevelDidFinish(StandardLevelScenesTransitionSetupDataSO transitioтData,
             LevelCompletionResults completionResults, ReplayLaunchData launchData)

@@ -320,6 +320,7 @@
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
     <Compile Include="2_Core\Models\ScoringData.cs" />
+    <Compile Include="2_Core\Models\SliderValuesApplier.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
     <Compile Include="2_Core\Models\ReplayerSettings.cs" />
     <Compile Include="2_Core\Replayer\BeatmapTimeController.cs" />

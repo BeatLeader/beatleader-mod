@@ -9,7 +9,7 @@ namespace BeatLeader.Components.Settings
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.PlayerViewParamsMenu.bsml")]
     internal class PlayerViewParamsMenu : CameraParamsMenu
     {
-        [SerializeAutomatically] private static Vector3Serializable offset = new Vector3(0, 0, -1);
+        private static Vector3Serializable offset = new Vector3(0, 0, -1);
         [SerializeAutomatically] private static int movementSmoothness = 8;
 
         [UIValue("movement-smoothness")] private int smoothness
@@ -21,6 +21,7 @@ namespace BeatLeader.Components.Settings
                 _cameraPose.smoothness = val;
                 movementSmoothness = value;
                 NotifyPropertyChanged(nameof(smoothness));
+                AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
 
@@ -35,18 +36,29 @@ namespace BeatLeader.Components.Settings
         {
             _cameraPose = (PlayerViewCameraPose)PoseProvider;
             var matrix = Instantiate<VectorMatrixMenu>();
-            matrix.multiplier = -0.01f;
-            matrix.min = 0;
-            matrix.max = 150;
+
+            matrix.xSlider.min = -100;
+            matrix.xSlider.max = 100;
+
+            matrix.ySlider.min = -100;
+            matrix.ySlider.max = 100;
+
+            matrix.zSlider.min = 0;
+            matrix.zSlider.max = 150;
+
+            matrix.multiplier = 0.01f;
             matrix.increment = 5;
+            matrix.zSlider.multiplier = -0.01f;
+
             matrix.OnVectorChanged += NotifyVectorChanged;
-            matrix.vector = offset;
+            matrix.multipliedVector = offset;
             _offsetsMenuButton = CreateButtonForMenu(this, matrix, "Offsets");
         }
         private void NotifyVectorChanged(Vector3 vector)
         {
             _cameraPose.offset = vector;
             offset = vector;
+            AutomaticConfigTool.NotifyTypeChanged(GetType());
         }
     }
 }

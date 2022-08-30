@@ -1,4 +1,5 @@
-﻿using BeatLeader.Replayer;
+﻿using BeatLeader.Models;
+using BeatLeader.Replayer;
 using BeatLeader.Replayer.Camera;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -11,44 +12,51 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components.Settings
 {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.Vector3MatrixMenu.bsml")]
     internal class VectorMatrixMenu : Menu
     {
-        [UIValue("max")] public int max
+        public SliderValuesApplier xSlider { get; private set; }
+        public SliderValuesApplier ySlider { get; private set; }
+        public SliderValuesApplier zSlider { get; private set; }
+        public int max
         {
-            get => _max;
             set
             {
-                _xSlider.slider.maxValue = value;
-                _ySlider.slider.maxValue = value;
-                _zSlider.slider.maxValue = value;
-                _max = value;
+                xSlider.max = value;
+                ySlider.max = value;
+                zSlider.max = value;
             }
         }
-        [UIValue("min")] public int min
+        public int min
         {
-            get => _min;
             set
             {
-                _xSlider.slider.minValue = value;
-                _ySlider.slider.minValue = value;
-                _zSlider.slider.minValue = value;
-                _min = value;
+                xSlider.min = value;
+                ySlider.min = value;
+                zSlider.min = value;
             }
         }
-        [UIValue("increment")] public int increment
+        public int increment
         {
-            get => _increment;
+            get => 0;
             set
             {
-                var val = (int)Math.Round((double)(max - min) / value) + 1;
-                _xSlider.slider.numberOfSteps = val;
-                _ySlider.slider.numberOfSteps = val;
-                _zSlider.slider.numberOfSteps = val;
-                _increment = value;
+                xSlider.increment = value;
+                ySlider.increment = value;
+                zSlider.increment = value;
+            }
+        }
+        public float multiplier
+        {
+            set
+            {
+                xSlider.multiplier = value;
+                ySlider.multiplier = value;
+                zSlider.multiplier = value;
             }
         }
         public bool showText
@@ -56,64 +64,71 @@ namespace BeatLeader.Components.Settings
             get => _textContainer.activeSelf;
             set => _textContainer.SetActive(value);
         }
-        public int bitDepth
+        public int dimensions
         {
-            get => _bitDepth;
+            get => _dimensions;
             set
             {
-                _bitDepth = value;
+                _dimensions = value;
                 _xSliderContainer.SetActive(value >= 1);
                 _ySliderContainer.SetActive(value >= 2);
                 _zSliderContainer.SetActive(value >= 3);
             }
         }
+        public Vector3 multipliedVector
+        {
+            get => new Vector3(xSlider.multipliedValue, ySlider.multipliedValue, zSlider.multipliedValue);
+            set => vector = new Vector3(value.x / xSlider.multiplier, value.y / ySlider.multiplier, value.z / zSlider.multiplier);
+        }
         public Vector3 vector
         {
-            get => _vector;
+            get => new Vector3(xSlider.value, ySlider.value, zSlider.value);
             set
             {
-                _vector = value;
-                NotifyVectorChanged();
-                NotifyPropertyChanged(nameof(x));
-                NotifyPropertyChanged(nameof(y));
-                NotifyPropertyChanged(nameof(z));
+                x = (int)value.x;
+                y = (int)value.y;
+                z = (int)value.z;
             }
         }
 
         public event Action<Vector3> OnVectorChanged;
 
-        public float multiplier = 1;
+        #region BSMLShit
 
         [UIValue("x")] private int x
         {
-            get => Mathf.CeilToInt(vector.x / multiplier);
+            get => xSlider != null ? xSlider.value : 0;
             set
             {
-                _vector.x = value * multiplier;
+                xSlider.value = value;
                 NotifyVectorChanged();
                 NotifyPropertyChanged(nameof(x));
             }
         }
         [UIValue("y")] private int y
         {
-            get => Mathf.CeilToInt(vector.y / multiplier);
+            get => ySlider != null ? ySlider.value : 0;
             set
             {
-                _vector.y = value * multiplier;
+                ySlider.value = value;
                 NotifyVectorChanged();
                 NotifyPropertyChanged(nameof(y));
             }
         }
         [UIValue("z")] private int z
         {
-            get => Mathf.CeilToInt(vector.z / multiplier);
+            get => zSlider != null ? zSlider.value : 0;
             set
             {
-                _vector.z = value * multiplier;
+                zSlider.value = value;
                 NotifyVectorChanged();
                 NotifyPropertyChanged(nameof(z));
             }
         }
+
+        [UIValue("max")] private int _max;
+        [UIValue("min")] private int _min;
+        [UIValue("increment")] private int _increment;
 
         [UIObject("text-container")] private GameObject _textContainer;
         [UIObject("x-slider-container")] private GameObject _xSliderContainer;
@@ -124,28 +139,29 @@ namespace BeatLeader.Components.Settings
         [UIComponent("y-slider")] private SliderSetting _ySlider;
         [UIComponent("z-slider")] private SliderSetting _zSlider;
 
-        private int _bitDepth = 3;
-        private int _increment;
-        private int _max;
-        private int _min;
-        private Vector3 _vector;
+        #endregion
+
+        private int _dimensions = 3;
 
         protected override void OnAfterParse()
         {
+            xSlider = new(_xSlider.slider);
+            ySlider = new(_ySlider.slider);
+            zSlider = new(_zSlider.slider);
             UpdateVectorText();
         }
         private void UpdateVectorText()
         {
             double round(float t) => Math.Round(t, 2);
-            string line = $"<color=\"green\">X:{round(_vector.x)} ";
-            if (_bitDepth >= 2) line += $"<color=\"red\">Y:{round(_vector.y)} ";
-            if (_bitDepth >= 3) line += $"<color=\"blue\">Z:{round(_vector.z)}";
+            string line = $"<color=\"green\">X:{round(multipliedVector.x)} ";
+            if (_dimensions >= 2) line += $"<color=\"red\">Y:{round(multipliedVector.y)} ";
+            if (_dimensions >= 3) line += $"<color=\"blue\">Z:{round(multipliedVector.z)}";
             _vectorText.text = line;
         }
         private void NotifyVectorChanged()
         {
-            UpdateVectorText();   
-            OnVectorChanged?.Invoke(_vector);
+            UpdateVectorText();
+            OnVectorChanged?.Invoke(multipliedVector);
         }
     }
 }

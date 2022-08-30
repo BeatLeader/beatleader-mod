@@ -64,7 +64,7 @@ namespace BeatLeader.Components.Settings
             matrix.min = 1;
             matrix.max = 10;
             matrix.increment = 1;
-            matrix.bitDepth = 2;
+            matrix.dimensions = 2;
             matrix.multiplier = 0.1f;
             matrix.OnVectorChanged += NotifyVectorChanged;
             matrix.vector = new Vector3(_sensitivityX, _sensitivityY);

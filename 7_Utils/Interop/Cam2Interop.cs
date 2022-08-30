@@ -41,11 +41,11 @@ namespace BeatLeader.Interop
         }
         public static void ApplyHeadTransform(Transform transform)
         {
-            _replayHeadTransformField.SetValue(_detectorSourceInstance, transform);
+            _replayHeadTransformField?.SetValue(_detectorSourceInstance, transform);
         }
         public static void ApplyReplayState(bool state)
         {
-            _isPlayingField.SetValue(_detectorSourceInstance, state);
+            _isPlayingField?.SetValue(_detectorSourceInstance, state);
         }
 
         private static object CreateDetectorSourceInstance(string name)

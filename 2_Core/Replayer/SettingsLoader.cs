@@ -1,6 +1,9 @@
-﻿using BeatLeader.Models;
+﻿using BeatLeader.Interop;
+using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
+using SiraUtil.Tools.FPFC;
 using System;
+using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer
@@ -10,6 +13,7 @@ namespace BeatLeader.Replayer
         [InjectOptional] private readonly PlayerDataModel _playerDataModel;
         [InjectOptional] private readonly ReplayerCameraController _cameraController;
         [InjectOptional] private readonly ReplayLaunchData _replayData;
+        [Inject] private readonly DiContainer _container;
 
         public virtual void Initialize()
         {

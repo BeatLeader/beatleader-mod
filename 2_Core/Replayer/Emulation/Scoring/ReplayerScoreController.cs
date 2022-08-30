@@ -16,14 +16,17 @@ namespace BeatLeader.Replayer.Scoring
         [Inject] private readonly ReplayLaunchData _replayData;
         [Inject] private readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
         [InjectOptional] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
         [Inject] private readonly IScoringInterlayer _scoringInterlayer;
         [Inject] private readonly IReadonlyBeatmapData _beatmapData;
 
         private int _maxComboAfterRescoring;
         private int _comboAfterRescoring;
+        private float _energyAfterRescoring;
 
         public int MaxComboAfterRescoring => _maxComboAfterRescoring;
         public int ComboAfterRescoring => _comboAfterRescoring;
+        public float EnergyAfterRescoring => _energyAfterRescoring;
 
         public event Action<int, int, bool> OnComboChangedAfterRescoring;
 
@@ -73,60 +76,66 @@ namespace BeatLeader.Replayer.Scoring
             _maxComboAfterRescoring = 0;
             _scoreMultiplierCounter.Reset();
             _maxScoreMultiplierCounter.Reset();
+            float energyChange = 0;
 
             bool broke = false;
             foreach (BeatmapDataItem item in filteredBeatmapItems)
             {
-                NoteData noteData;
-                NoteEvent noteEvent;
-                if ((noteData = item as NoteData) != null && (noteEvent = noteData.GetNoteEvent(_replayData.replay)) != null)
+                ObstacleData obstacleData;
+                WallEvent wallEvent;
+                if ((obstacleData = item as ObstacleData) != null && (wallEvent = obstacleData.GetWallEvent(_replayData.replay)) != null)
                 {
-                    switch (noteEvent.eventType)
-                    {
-                        case NoteEventType.good:
-                            {
-                                _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
-                                if (noteData.ComputeNoteMultiplier() == MultiplierEventType.Positive)
-                                    _maxScoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
-
-                                int totalScore = noteEvent.ComputeNoteScore();
-                                int maxPossibleScore = ScoreModel.GetNoteScoreDefinition(noteData.scoringType).maxCutScore;
-
-                                _multipliedScore += totalScore * _scoreMultiplierCounter.multiplier;
-                                _immediateMaxPossibleMultipliedScore += maxPossibleScore * _maxScoreMultiplierCounter.multiplier;
-                                _comboAfterRescoring++;
-                                _maxComboAfterRescoring = _comboAfterRescoring > _maxComboAfterRescoring ? _comboAfterRescoring : _maxComboAfterRescoring;
-
-                                float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
-                                _prevMultiplierFromModifiers = _prevMultiplierFromModifiers != totalMultiplier ? totalMultiplier : _prevMultiplierFromModifiers;
-
-                                _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
-                                _immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_immediateMaxPossibleMultipliedScore, totalMultiplier);
-                            }
-                            break;
-                        case NoteEventType.bad:
-                        case NoteEventType.miss:
-                            _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
-                            _comboAfterRescoring = 0;
-                            broke = true;
-                            break;
-                        case NoteEventType.bomb:
-                            _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
-                            break;
-                        default: throw new Exception("Unknown note type exception!");
-                    }
+                    _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                    _comboAfterRescoring = 0;
+                    broke = true;
                     continue;
                 }
 
-                ObstacleData obstacleData;
-                WallEvent wallEvent;
-                if ((obstacleData = item as ObstacleData) == null || (wallEvent = obstacleData.GetWallEvent(_replayData.replay)) == null) continue;
+                NoteData noteData;
+                NoteEvent noteEvent;
+                if ((noteData = item as NoteData) == null || (noteEvent = noteData.GetNoteEvent(_replayData.replay)) == null) continue;
+                switch (noteEvent.eventType)
+                {
+                    case NoteEventType.good:
+                        {
+                            _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
+                            if (noteData.ComputeNoteMultiplier() == MultiplierEventType.Positive)
+                                _maxScoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Positive);
 
-                _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
-                _comboAfterRescoring = 0;
-                broke = true;
+                            int totalScore = noteEvent.ComputeNoteScore();
+                            int maxPossibleScore = ScoreModel.GetNoteScoreDefinition(noteData.scoringType).maxCutScore;
+
+                            _multipliedScore += totalScore * _scoreMultiplierCounter.multiplier;
+                            _immediateMaxPossibleMultipliedScore += maxPossibleScore * _maxScoreMultiplierCounter.multiplier;
+                            _comboAfterRescoring++;
+                            _maxComboAfterRescoring = _comboAfterRescoring > _maxComboAfterRescoring ? _comboAfterRescoring : _maxComboAfterRescoring;
+
+                            float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
+                            _prevMultiplierFromModifiers = _prevMultiplierFromModifiers != totalMultiplier ? totalMultiplier : _prevMultiplierFromModifiers;
+
+                            _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
+                            _immediateMaxPossibleModifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_immediateMaxPossibleMultipliedScore, totalMultiplier);
+                        }
+                        break;
+                    case NoteEventType.bad:
+                    case NoteEventType.miss:
+                        _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                        _comboAfterRescoring = 0;
+                        broke = true;
+                        break;
+                    case NoteEventType.bomb:
+                        _scoreMultiplierCounter.ProcessMultiplierEvent(MultiplierEventType.Negative);
+                        break;
+                    default: throw new Exception("Unknown note type exception!");
+                }
+                bool allIsOK = noteEvent.noteCutInfo != null && noteEvent.noteCutInfo.allIsOK;
+                float dif = noteData.gameplayType.ComputeEnergyChange(allIsOK, noteEvent.eventType == NoteEventType.miss);
+                energyChange += dif;
             }
 
+
+            _gameEnergyCounter.ProcessEnergyChange(energyChange);
+            _energyAfterRescoring = _gameEnergyCounter.energy;
             OnComboChangedAfterRescoring?.Invoke(_comboAfterRescoring, _maxComboAfterRescoring, broke);
             InvokeScoreDidChange(_multipliedScore, _modifiedScore);
             InvokeMultiplierDidChange(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);
@@ -181,7 +190,7 @@ namespace BeatLeader.Replayer.Scoring
         }
         private void InvokeScoreDidChange(int multiplied, int modified)
         {
-            ((Delegate)_scoreDidChangeEventInfo?.GetValue(this))?.DynamicInvoke(new object[] { multiplied, modified } );
+            ((Delegate)_scoreDidChangeEventInfo?.GetValue(this))?.DynamicInvoke(new object[] { multiplied, modified });
         }
         private void InvokeMultiplierDidChange(int multiplier, float progress)
         {

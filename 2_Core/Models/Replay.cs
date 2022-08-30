@@ -140,6 +140,8 @@ namespace BeatLeader.Models
         public float cutAngle;
         public float beforeCutRating;
         public float afterCutRating;
+
+        public bool allIsOK => speedOK && directionOK && saberTypeOK && !wasCutTooSoon;
     }
     public enum StructType
     {

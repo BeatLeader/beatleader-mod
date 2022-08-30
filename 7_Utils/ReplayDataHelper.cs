@@ -150,7 +150,7 @@ namespace BeatLeader.Utils
 
         #endregion
 
-        #region Replaying
+        #region DataManagement
 
         public static GameplayModifiers GetModifiersFromReplay(this Replay replay)
         {
@@ -336,6 +336,21 @@ namespace BeatLeader.Utils
             double num = 1 - Mathf.Clamp(cut.cutDistanceToCenter / 0.3f, 0.0f, 1.0f);
             double cutDistanceRawScore = Math.Round(15 * num);
             return (int)beforeCutRawScore + (int)afterCutRawScore + (int)cutDistanceRawScore;
+        }
+        public static float ComputeEnergyChange(this NoteData.GameplayType type, bool allIsOK, bool miss)
+        {
+            switch (type)
+            {
+                case NoteData.GameplayType.Normal:
+                case NoteData.GameplayType.BurstSliderHead:
+                    return miss ? (-0.15f) : allIsOK ? 0.01f : (-0.1f);
+                case NoteData.GameplayType.Bomb:
+                    return miss ? 0 : (-0.15f);
+                case NoteData.GameplayType.BurstSliderElement:
+                    return miss ? (-0.03f) : allIsOK ? 0.002f : (-0.025f);
+                default:
+                    return 0;
+            }
         }
         public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData.ScoringType scoringType)
         {

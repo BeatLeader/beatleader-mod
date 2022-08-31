@@ -9,7 +9,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer
 {
-    public class HotkeyManager : ITickable
+    public class HotkeysManager : ITickable
     {
         [InjectOptional] private readonly UI2DManager _2DManager;
         [Inject] private readonly PlaybackController _playbackController;
@@ -62,7 +62,6 @@ namespace BeatLeader.Replayer
                     _cameraController.FieldOfView -= 1;
             }
         }
-
         private void SwitchView(int offset)
         {
             var poses = _cameraController.PoseProviders;

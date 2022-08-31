@@ -64,7 +64,7 @@ namespace BeatLeader.Replayer.Movement
             _vrControllersManager.SetField("_rightHandVRController", RightSaber);
 
             InjectControllers();
-            Cam2Interop.ApplyHeadTransform(HeadContainer.transform);
+            Cam2Interop.SetHeadTransform(HeadContainer.transform);
             IsInitialized = true;
         }
         public void ShowMenuControllers(bool show = true)

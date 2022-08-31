@@ -86,7 +86,6 @@ namespace BeatLeader.Replayer
             settings = new();
             settings.loadPlayerEnvironment = true;
             settings.showUI = true;
-            settings.useReplayerCamera = true;
             DownloadAndStartReplayAsync(score, settings);
         }
     }

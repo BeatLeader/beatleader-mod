@@ -10,7 +10,7 @@ namespace BeatLeader.Models
     {
         public bool showUI;
         public bool showDebris;
-        public bool useReplayerCamera;
+        public bool forceUseReplayerCamera;
         public bool loadPlayerEnvironment;
     }
 }

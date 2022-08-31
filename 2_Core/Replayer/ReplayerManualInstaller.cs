@@ -62,7 +62,7 @@ namespace BeatLeader.Replayer
                 )).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<HotkeyManager>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<HotkeysManager>().AsSingle().NonLazy();
 
             InstallUI(Container, !InputManager.IsInFPFC);
             Plugin.Log.Notice("[Installer] Replay system successfully installed");

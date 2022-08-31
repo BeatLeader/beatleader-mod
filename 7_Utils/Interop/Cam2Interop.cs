@@ -17,13 +17,13 @@ namespace BeatLeader.Interop
         public static bool Detected { get; private set; } = false;
 
         private static Assembly _pluginAssembly;
-        private static Type _replaySourceType;
-        private static FieldInfo _nameField;
-        private static FieldInfo _isPlayingField;
-        private static FieldInfo _replayHeadTransformField;
-        private static FieldInfo _offsetField;
+        private static Type _genericSourceType;
         private static MethodInfo _registerMethod;
-        private static object _detectorSourceInstance;
+        private static MethodInfo _updateMethod;
+        private static object _genericSourceInstance;
+        private static Repeater _updater;
+        private static Transform _headTranform;
+        private static bool _isPlaying;
 
         public static void Init()
         {
@@ -31,73 +31,58 @@ namespace BeatLeader.Interop
             if (_pluginAssembly == null) return;
             Detected = true;
 
-            CreateDetectorSourceType();
-            ResolveFields();
-            _detectorSourceInstance = CreateDetectorSourceInstance("BeatLeaderReplayer");
-            RegisterDetectorSource(_detectorSourceInstance);
+            ResolveData();
+            _genericSourceInstance = CreateGenericSourceInstance("BeatLeaderReplayer");
+            RegisterSource(_genericSourceInstance);
 
-            ReplayerLauncher.OnReplayStart += OnReplayStarted;
-            ReplayerLauncher.OnReplayFinish += OnReplayFinished;
+            ReplayerLauncher.OnReplayStart += NotifyReplayStarted;
+            ReplayerLauncher.OnReplayFinish += NotifyReplayFinished;
+
+            _updater = Repeater.Create(NotifyRepeaterUpdated, false);
         }
-        public static void ApplyHeadTransform(Transform transform)
+        public static void SetHeadTransform(Transform transform)
         {
-            _replayHeadTransformField?.SetValue(_detectorSourceInstance, transform);
+            _headTranform = transform;
         }
-        public static void ApplyReplayState(bool state)
+        public static void SetReplayState(bool state)
         {
-            _isPlayingField?.SetValue(_detectorSourceInstance, state);
+            _isPlaying = state;
+            if (state) _updater.Run();
+            else _updater.Stop();
         }
 
-        private static object CreateDetectorSourceInstance(string name)
+        private static object CreateGenericSourceInstance(string name)
         {
-            var instance = Activator.CreateInstance(_replaySourceType);
-            _nameField.SetValue(instance, name);
-            return instance;
+            return Activator.CreateInstance(_genericSourceType, new object[] { name });
         }
-        private static void RegisterDetectorSource(object detector)
+        private static void UpdateGenericSource()
         {
-            _registerMethod.Invoke(null, new object[] { detector });
-        }
-        private static void CreateDetectorSourceType()
-        {
-            var moduleBuilder = ReflectionUtils.CreateModuleBuilder("BL_Cam2_Builder");
-            var replaySourcesType = _pluginAssembly.GetType("Camera2.SDK.ReplaySources");
-            var sourceInterfaceType = replaySourcesType.GetNestedType("ISource");
-            var type = moduleBuilder.DefineType("BeatLeaderDetectorSource", TypeAttributes.Public | TypeAttributes.Class,
-                null, new[] { sourceInterfaceType });
-
-            type.AddDefaultConstructor();
-
-            var nameField = type.DefineField("_name", typeof(string), FieldAttributes.Private);
-            type.AddGetOnlyProperty("name", nameField, sourceInterfaceType.GetMethod("get_name"));
-            
-            var isPlayingField = type.DefineField("_isPlaying", typeof(bool), FieldAttributes.Private);
-            type.AddGetOnlyProperty("isPlaying", isPlayingField, sourceInterfaceType.GetMethod("get_isPlaying"));
-            
-            var replayHeadTransformField = type.DefineField("_replayHeadTransform", typeof(Transform), FieldAttributes.Private);
-            type.AddGetOnlyProperty("replayHeadTransform", replayHeadTransformField, sourceInterfaceType.GetMethod("get_replayHeadTransform"));
-
-            var offsetGetter = sourceInterfaceType.GetMethod("get_offset");
-            if (offsetGetter != null)
+            _updateMethod.Invoke(_genericSourceInstance, new object[] 
             {
-                var offsetField = type.DefineField("_offset", typeof(Transform), FieldAttributes.Private);
-                type.AddGetOnlyProperty("offset", offsetField, offsetGetter);
-            }
-
-            _replaySourceType = type.CreateType();
+                _isPlaying,
+                _headTranform != null ? _headTranform.localPosition : default(Vector3),
+                _headTranform != null ? _headTranform.localRotation : default(Quaternion)
+            });
         }
-        private static void ResolveFields()
+        private static void RegisterSource(object source)
         {
-            var flags = BindingFlags.NonPublic | BindingFlags.Instance;
-            _nameField = _replaySourceType.GetField("_name", flags);
-            _isPlayingField = _replaySourceType.GetField("_isPlaying", flags);
-            _replayHeadTransformField = _replaySourceType.GetField("_replayHeadTransform", flags);
-            _offsetField = _replaySourceType.GetField("_offset", flags);
+            _registerMethod.Invoke(null, new object[] { source });
+        }
+        private static void ResolveData()
+        {
+            var replaySourcesType = _pluginAssembly.GetType("Camera2.SDK.ReplaySources");
+            _genericSourceType = replaySourcesType.GetNestedType("GenericSource");
+            _updateMethod = _genericSourceType.GetMethod("Update",
+                BindingFlags.Instance | BindingFlags.Public);
             _registerMethod = _pluginAssembly.GetType("Camera2.SDK.ReplaySources")
-                .GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
+               .GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
         }
 
-        private static void OnReplayStarted(Models.ReplayLaunchData data) => ApplyReplayState(true);
-        private static void OnReplayFinished(Models.ReplayLaunchData data) => ApplyReplayState(false);
+        private static void NotifyRepeaterUpdated()
+        {
+            UpdateGenericSource();
+        }
+        private static void NotifyReplayStarted(Models.ReplayLaunchData data) => SetReplayState(true);
+        private static void NotifyReplayFinished(Models.ReplayLaunchData data) => SetReplayState(false);
     }
 }

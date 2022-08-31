@@ -345,6 +345,7 @@
     <Compile Include="2_Core\Replayer\ReplayerManualInstaller.cs" />
     <Compile Include="2_Core\Replayer\ReplayerMenuLoader.cs" />
     <Compile Include="2_Core\Replayer\LocksController.cs" />
+    <Compile Include="2_Core\Replayer\HotkeyManager.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphUtils.cs" />

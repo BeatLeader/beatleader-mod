@@ -89,6 +89,8 @@ namespace BeatLeader.Components.Settings
         #region Events
 
         public virtual void OnSettingsClosed() => DismissToRootMenu();
+        public virtual void OnMenuPresent() { }
+        public virtual void OnMenuDismiss() { }
         protected virtual void OnInstantiate() => Handle();
         protected virtual void OnBeforeParse() { }
         protected virtual void OnAfterParse() { }

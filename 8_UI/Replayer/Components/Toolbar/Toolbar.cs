@@ -56,6 +56,7 @@ namespace BeatLeader.Components
             _timeline = InstantiateInContainer<Timeline>(Container, transform);
             _settingsNavigator = InstantiateInContainer<SettingsController>(Container, transform);
             _settingsNavigator.RootMenu = MenuWithContainer.InstantiateInContainer<SettingsRootMenu>(Container);
+            _playbackController.OnPauseStateChanged += ChangePauseButtonSprite;
         }
         protected override void OnInitialize()
         {
@@ -91,10 +92,13 @@ namespace BeatLeader.Components
                 _exitButtonIcon.Image.sprite = _closedDoorSprite;
             }
         }
+        private void ChangePauseButtonSprite(bool pause)
+        {
+            _playButton.TargetGraphic.sprite = pause ? _playSprite : _pauseSprite;
+        }
         [UIAction("pause-button-clicked")] private void PauseButtonClicked()
         {
-            _playbackController.Pause(_onPause = !_onPause);
-            _playButton.TargetGraphic.sprite = _onPause ? _playSprite : _pauseSprite;
+            _playbackController.Pause(!_playbackController.IsPaused);
         }
     }
 }

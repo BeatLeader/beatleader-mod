@@ -14,36 +14,32 @@ using HMUI;
 namespace BeatLeader
 {
     [SerializeAutomatically]
-    public class UI2DManager : MonoBehaviour, ITickable
+    public class UI2DManager : MonoBehaviour
     {
         [Inject] private readonly Models.ReplayLaunchData _replayData;
 
-        [SerializeAutomatically] private static bool _showUI = true;
-        private bool showUI
+        public Vector2 CanvasSize => _canvasRect.sizeDelta;
+        public float ScaleFactor => _canvasScaler.scaleFactor;
+        public bool showUI
         {
-            get => _showUI;
+            get => gameObject.activeSelf;
             set
             {
                 _showUI = value;
+                gameObject.SetActive(value);
+                OnUIVisibilityChanged?.Invoke(value);
                 AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
 
+        public event Action<bool> OnUIVisibilityChanged;
+
+        [SerializeAutomatically] private static bool _showUI = true;
+        private List<(GameObject, Transform)> _objects = new();
         private CanvasScaler _canvasScaler;
         private Canvas _canvas;
         private GraphicRaycaster _raycaster;
         private RectTransform _canvasRect;
-
-        private List<(GameObject, Transform)> _objects = new();
-
-        public KeyCode hideUIHotkey = KeyCode.H;
-        public KeyCode hideCursorHotkey = KeyCode.C;
-
-        public event Action<bool> OnUIVisibilityChanged;
-        public event Action<bool> OnCursorVisibilityChanged;
-
-        public Vector2 CanvasSize => _canvasRect.sizeDelta;
-        public float ScaleFactor => _canvasScaler.scaleFactor;
 
         private void Awake()
         {
@@ -59,20 +55,6 @@ namespace BeatLeader
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             _canvas.sortingOrder = 1;
             gameObject.SetActive(_replayData.overrideSettings ? _replayData.settings.showUI : showUI);
-        }
-        public void Tick()
-        {
-            if (Input.GetKeyDown(hideUIHotkey))
-            {
-                showUI = !gameObject.activeSelf;
-                gameObject.SetActive(showUI);
-                OnUIVisibilityChanged?.Invoke(showUI);
-            }
-            if (Input.GetKeyDown(hideCursorHotkey))
-            {
-                InputManager.SwitchCursor();
-                OnCursorVisibilityChanged?.Invoke(Cursor.visible);
-            }
         }
         public void AddObject(GameObject go)
         {

@@ -70,6 +70,7 @@ namespace BeatLeader.Components.Settings
             if (_menusHierarchyStack.TryPeek(out var currentMenu))
                 SetMenuEnabled(currentMenu, false);
 
+            menu.OnMenuPresent();
             SetMenuEnabled(menu);
             _menusHierarchyStack.Push(menu);
         }
@@ -80,6 +81,7 @@ namespace BeatLeader.Components.Settings
             {
                 SetMenuEnabled(menu, false);
                 UnbindEvents(menu);
+                menu.OnMenuDismiss();
                 if (_menusHierarchyStack.TryPeek(out var menu2))
                     SetMenuEnabled(menu2);
                 flag = true;

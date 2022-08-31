@@ -33,6 +33,8 @@ namespace BeatLeader.Replayer
         public float SongSpeedMultiplier => _modifiers.songSpeedMul;
         public bool IsPaused => _gamePause.isPaused;
 
+        public event Action<bool> OnPauseStateChanged;
+
         public void Pause(bool pause, bool notify = true, bool force = false)
         {
             if (force) SetPauseState(!pause);
@@ -51,6 +53,7 @@ namespace BeatLeader.Replayer
             if (notify) InvokePauseEvent(pause);
             _beatmapObjectManager.PauseAllBeatmapObjects(pause);
             _beatmapEffectsController.PauseEffects(pause);
+            OnPauseStateChanged?.Invoke(pause);
         }
         public void EscapeToMenu() => _pauseMenuManager.MenuButtonPressed();
 

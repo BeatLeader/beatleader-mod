@@ -61,23 +61,24 @@ namespace BeatLeader.Replayer
 
                 )).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesTo<SettingsLoader>().AsSingle().Lazy();
+            Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<HotkeyManager>().AsSingle().NonLazy();
 
             InstallUI(Container, !InputManager.IsInFPFC);
             Plugin.Log.Notice("[Installer] Replay system successfully installed");
         }
-        private static void InstallUI(DiContainer container, bool vr)
+        private void InstallUI(DiContainer container, bool vr)
         {
             if (vr)
                 container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             else
             {
-                container.BindInterfacesAndSelfTo<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                container.Bind<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 PatchSiraFreeView(container);
             }
         }
-        private static void PatchSiraFreeView(DiContainer container)
+        private void PatchSiraFreeView(DiContainer container)
         {
             try
             {

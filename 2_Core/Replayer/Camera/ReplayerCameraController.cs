@@ -38,17 +38,27 @@ namespace BeatLeader.Replayer.Camera
         [Inject] protected readonly InitData _data;
         [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
-        protected ICameraPoseProvider _currentPose;
-        protected UnityEngine.Camera _camera;
+        public List<ICameraPoseProvider> PoseProviders { get; protected set; }
+        public CombinedCameraMovementData CombinedMovementData
+        {
+            get => new CombinedCameraMovementData(transform, _vrControllersManager.HeadContainer.transform, _vrControllersManager.OriginTransform);
+            protected set
+            {
+                transform.localPosition = value.cameraPose.position;
+                transform.localRotation = value.cameraPose.rotation;
 
-        private int _fieldOfView;
-        private bool _wasRequestedLastTime;
-        private string _requestedPose;
+                _vrControllersManager.HeadContainer.transform.localPosition = value.headPose.position;
+                _vrControllersManager.HeadContainer.transform.localRotation = value.headPose.rotation;
 
-        public event Action<ICameraPoseProvider> OnCameraPoseChanged;
-        public event Action<int> OnCameraFOVChanged;
+                _vrControllersManager.OriginTransform.position = value.originPose.position;
+                _vrControllersManager.OriginTransform.rotation = value.originPose.rotation;
 
-        public List<ICameraPoseProvider> poseProviders { get; protected set; }
+                if (InputManager.IsInFPFC) return;
+
+                _vrControllersManager.MenuHandsContainerTransform.localPosition = value.cameraPose.position;
+                _vrControllersManager.MenuHandsContainerTransform.localRotation = value.cameraPose.rotation;
+            }
+        }
         public ICameraPoseProvider CurrentPose => _currentPose;
         public string CurrentPoseName => _currentPose != null ? _currentPose.Name : "NaN";
         public bool IsInitialized { get; private set; }
@@ -68,23 +78,16 @@ namespace BeatLeader.Replayer.Camera
                 OnCameraFOVChanged?.Invoke(value);
             }
         }
-        public CombinedCameraMovementData CombinedMovementData
-        {
-            get => new CombinedCameraMovementData(transform, _vrControllersManager.HeadContainer.transform, _vrControllersManager.OriginTransform);
-            protected set
-            {
-                transform.localPosition = value.cameraPose.position;
-                transform.localRotation = value.cameraPose.rotation;
 
-                _vrControllersManager.HeadContainer.transform.localPosition = value.headPose.position;
-                _vrControllersManager.HeadContainer.transform.localRotation = value.headPose.rotation;
+        public event Action<ICameraPoseProvider> OnCameraPoseChanged;
+        public event Action<int> OnCameraFOVChanged;
 
-                _vrControllersManager.OriginTransform.position = value.originPose.position;
-                _vrControllersManager.OriginTransform.rotation = value.originPose.rotation;
+        protected ICameraPoseProvider _currentPose;
+        protected UnityEngine.Camera _camera;
 
-                if (!InputManager.IsInFPFC) SetHandsPose(value.cameraPose);
-            }
-        }
+        private int _fieldOfView;
+        private bool _wasRequestedLastTime;
+        private string _requestedPose;
 
         private void Awake()
         {
@@ -103,7 +106,7 @@ namespace BeatLeader.Replayer.Camera
             //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
             transform.SetParent(_vrControllersManager.OriginTransform, false);
 
-            poseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
+            PoseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
             bool useReplayerCamera = !Cam2Interop.Detected || !InputManager.IsInFPFC ||
@@ -125,9 +128,9 @@ namespace BeatLeader.Replayer.Camera
         }
         public void SetCameraPose(string name)
         {
-            if (_camera == null || string.IsNullOrEmpty(name)) return;
+            if (_camera == null || string.IsNullOrEmpty(name) || name == CurrentPoseName) return;
 
-            ICameraPoseProvider cameraPose = poseProviders.FirstOrDefault(x => x.Name == name);
+            ICameraPoseProvider cameraPose = PoseProviders.FirstOrDefault(x => x.Name == name);
             if (cameraPose == null) return;
 
             _currentPose = cameraPose;
@@ -137,8 +140,8 @@ namespace BeatLeader.Replayer.Camera
         }
         public void SetCameraPose(ICameraPoseProvider provider)
         {
-            if (!poseProviders.Contains(provider))
-                poseProviders.Add(provider);
+            if (!PoseProviders.Contains(provider))
+                PoseProviders.Add(provider);
             SetCameraPose(provider.Name);
         }
         public void SetEnabled(bool enabled)
@@ -161,11 +164,6 @@ namespace BeatLeader.Replayer.Camera
             if (name == string.Empty) return;
             _requestedPose = name;
             _wasRequestedLastTime = true;
-        }
-        private void SetHandsPose(Pose pose)
-        {
-            _vrControllersManager.MenuHandsContainerTransform.localPosition = pose.position;
-            _vrControllersManager.MenuHandsContainerTransform.localRotation = pose.rotation;
         }
     }
 }

@@ -1,0 +1,6 @@
+﻿<vertical pref-width="40">
+    <toggle-setting text="Show UI" value="show-ui" apply-on-change="true"/>
+    <toggle-setting text="Show Debris" value="show-debris" apply-on-change="true"/>
+    <toggle-setting text="Override Camera" value="override-camera" apply-on-change="true"/>
+    <toggle-setting text="Replay Environment" value="use-replay-environment" apply-on-change="true"/>
+</vertical>

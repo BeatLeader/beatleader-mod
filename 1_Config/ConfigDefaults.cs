@@ -24,5 +24,16 @@ namespace BeatLeader {
                                               ScoreRowCellType.Score;
 
         #endregion
+
+        #region ReplayerSettings
+
+        public static ReplayerSettings ReplayerSettings => new() {
+            showUI = true,
+            showDebris = false,
+            forceUseReplayerCamera = false,
+            loadPlayerEnvironment = false
+        };
+
+        #endregion
     }
 }

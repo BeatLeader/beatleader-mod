@@ -24,10 +24,7 @@ namespace BeatLeader.Components {
 
         #region Reset
 
-        private Score _score;
-
-        public void SetScore(Score score) {
-            _score = score;
+        public void Reset() {
             LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Overview;
         }
 
@@ -36,33 +33,11 @@ namespace BeatLeader.Components {
         #region OnScoreInfoPanelTabChanged
 
         private void OnScoreInfoPanelTabChanged(ScoreInfoPanelTab tab) {
-            switch (tab) {
-                case ScoreInfoPanelTab.Overview:
-                    SetColor(_overviewComponent, true);
-                    SetColor(_accuracyComponent, false);
-                    SetColor(_gridComponent, false);
-                    SetColor(_graphComponent, false);
-                    break;
-                case ScoreInfoPanelTab.Accuracy:
-                    SetColor(_overviewComponent, false);
-                    SetColor(_accuracyComponent, true);
-                    SetColor(_gridComponent, false);
-                    SetColor(_graphComponent, false);
-                    break;
-                case ScoreInfoPanelTab.Grid:
-                    SetColor(_overviewComponent, false);
-                    SetColor(_accuracyComponent, false);
-                    SetColor(_gridComponent, true);
-                    SetColor(_graphComponent, false);
-                    break;
-                case ScoreInfoPanelTab.Graph:
-                    SetColor(_overviewComponent, false);
-                    SetColor(_accuracyComponent, false);
-                    SetColor(_gridComponent, false);
-                    SetColor(_graphComponent, true);
-                    break;
-                default: throw new ArgumentOutOfRangeException(nameof(tab), tab, null);
-            }
+            SetColor(_overviewComponent, tab is ScoreInfoPanelTab.Overview);
+            SetColor(_accuracyComponent, tab is ScoreInfoPanelTab.Accuracy);
+            SetColor(_gridComponent, tab is ScoreInfoPanelTab.Grid);
+            SetColor(_graphComponent, tab is ScoreInfoPanelTab.Graph);
+            SetColor(_replayComponent, tab is ScoreInfoPanelTab.Replay);
         }
 
         #endregion
@@ -85,11 +60,15 @@ namespace BeatLeader.Components {
         [UIComponent("graph-component"), UsedImplicitly]
         private ClickableImage _graphComponent;
 
+        [UIComponent("replay-component"), UsedImplicitly]
+        private ClickableImage _replayComponent;
+
         private void SetMaterials() {
             _overviewComponent.material = BundleLoader.UIAdditiveGlowMaterial;
             _accuracyComponent.material = BundleLoader.UIAdditiveGlowMaterial;
             _gridComponent.material = BundleLoader.UIAdditiveGlowMaterial;
             _graphComponent.material = BundleLoader.UIAdditiveGlowMaterial;
+            _replayComponent.material = BundleLoader.UIAdditiveGlowMaterial;
         }
 
         private static void SetColor(ClickableImage image, bool selected) {
@@ -99,7 +78,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region TempButtons
+        #region ClickEvents
 
         [UIAction("overview-on-click"), UsedImplicitly]
         private void OverviewOnClick() {
@@ -123,8 +102,7 @@ namespace BeatLeader.Components {
 
         [UIAction("replay-on-click"), UsedImplicitly]
         private void ReplayOnClick() {
-            if (_score == null) return;
-            LeaderboardEvents.NotifyReplayButtonWasPressed(_score);
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Replay;
         }
 
         #endregion

@@ -299,7 +299,7 @@ namespace BeatLeader.Utils
 
             foreach (var path in replaysPaths)
             {
-                Replay extractedReplay = FileManager.ReadReplay(path);
+                if (!FileManager.TryReadReplay(path, out var extractedReplay)) continue;
                 if (filter(extractedReplay)) replays.Add(extractedReplay);
             }
 

@@ -201,7 +201,7 @@ namespace BeatLeader.Components {
         private void InitializeSocialsButtons() {
             InitializeSocialsButton(_twitterButton, "Twitter", BundleLoader.TwitterIcon, TwitterColor);
             InitializeSocialsButton(_twitchButton, "Twitch", BundleLoader.TwitchIcon, TwitchColor);
-            InitializeSocialsButton(_youtubeButton, "Youtube", BundleLoader.YoutubeIcon, YoutubeColor);
+            InitializeSocialsButton(_youtubeButton, "YouTube", BundleLoader.YoutubeIcon, YoutubeColor);
         }
 
         private void InitializeSocialsButton(MiniProfileButton button, string serviceName, Sprite sprite, Color color) {

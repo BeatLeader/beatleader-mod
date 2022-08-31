@@ -28,6 +28,9 @@ namespace BeatLeader.Components {
         [UIValue("accuracy-graph"), UsedImplicitly]
         private AccuracyGraphPanel _accuracyGraphPanel;
 
+        [UIValue("replay-panel"), UsedImplicitly]
+        private ReplayPanel _replayPanel;
+
         [UIValue("controls"), UsedImplicitly]
         private ScoreInfoPanelControls _controls;
 
@@ -38,6 +41,7 @@ namespace BeatLeader.Components {
             _accuracyDetails = Instantiate<AccuracyDetails>(transform);
             _accuracyGrid = Instantiate<AccuracyGrid>(transform);
             _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>(transform);
+            _replayPanel = Instantiate<ReplayPanel>(transform);
             _controls = Instantiate<ScoreInfoPanelControls>(transform);
         }
 
@@ -84,14 +88,16 @@ namespace BeatLeader.Components {
 
         private void OnTabWasSelected(ScoreInfoPanelTab tab) {
             switch (tab) {
-                case ScoreInfoPanelTab.Overview: break;
+                case ScoreInfoPanelTab.Overview:
+                case ScoreInfoPanelTab.Replay:
+                    break;
+                
                 case ScoreInfoPanelTab.Accuracy:
                 case ScoreInfoPanelTab.Grid:
                 case ScoreInfoPanelTab.Graph:
                     if (_score != null && _scoreStatsUpdateRequired) {
                         LeaderboardEvents.RequestScoreStats(_score.id);
                     }
-
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(tab), tab, null);
             }
@@ -104,15 +110,16 @@ namespace BeatLeader.Components {
         #region UpdateVisibility
 
         private void UpdateVisibility() {
+            _scoreStatsLoadingScreen.SetActive(false);
             _scoreOverview.SetActive(false);
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
             _accuracyGraphPanel.SetActive(false);
+            _replayPanel.SetActive(false);
 
             switch (LeaderboardState.ScoreInfoPanelTab) {
                 case ScoreInfoPanelTab.Overview:
                     _scoreOverview.SetActive(true);
-                    _scoreStatsLoadingScreen.SetActive(false);
                     break;
                 case ScoreInfoPanelTab.Accuracy:
                     _accuracyDetails.SetActive(!_scoreStatsUpdateRequired);
@@ -125,6 +132,9 @@ namespace BeatLeader.Components {
                 case ScoreInfoPanelTab.Graph:
                     _accuracyGraphPanel.SetActive(!_scoreStatsUpdateRequired);
                     _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
+                    break;
+                case ScoreInfoPanelTab.Replay:
+                    _replayPanel.SetActive(true);
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
@@ -151,7 +161,8 @@ namespace BeatLeader.Components {
             _scoreStatsUpdateRequired = true;
             _miniProfile.SetPlayer(score.player);
             _scoreOverview.SetScore(score);
-            _controls.SetScore(score);
+            _replayPanel.SetScore(score);
+            _controls.Reset();
             UpdateVisibility();
         }
 

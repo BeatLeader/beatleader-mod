@@ -1,0 +1,8 @@
+﻿<horizontal active="~active" spacing="1" pad="2" pref-height="30" horizontal-fit="PreferredSize">
+    <macro.as-host host="settings-panel">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <vertical pref-width="20">
+        <button id="play-button"/>
+    </vertical>
+</horizontal>

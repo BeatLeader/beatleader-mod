@@ -38,6 +38,12 @@ namespace BeatLeader
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
 
         #endregion
+
+        #region ReplayerSettings
+
+        public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
+
+        #endregion
         
         #region OnReload
 

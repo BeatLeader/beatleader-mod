@@ -38,13 +38,13 @@ namespace BeatLeader.Utils {
             if (practice || fail) {
                 Plugin.Log.Debug("Practice/fail, only local replay would be saved");
 
-                FileManager.WriteReplay(replay); // save the last replay
+                FileManager.TryWriteReplay(replay); // save the last replay
                 return;
             }
 
             if (ShouldSubmit()) {
                 Plugin.Log.Debug("Uploading replay");
-                FileManager.WriteReplay(replay);
+                FileManager.TryWriteReplay(replay);
                 UploadReplay(replay);
             } else {
                 Plugin.Log.Debug("Score submission was disabled");

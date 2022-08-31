@@ -6,6 +6,7 @@
         Ranked,
         Unrankable,
         Outdated,
+        Event,
         Unknown,
     }
 }

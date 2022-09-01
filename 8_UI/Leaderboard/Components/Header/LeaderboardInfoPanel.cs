@@ -173,7 +173,7 @@ namespace BeatLeader.Components {
             var exMachinaStarsStr = _exMachinaRating > 0 ? $"{_exMachinaRating:F1}*" : "-";
             ExMachinaText = $"Ex Machina: {exMachinaStarsStr}";
 
-            QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified;
+            QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
             
             WebsiteButtonActive = _websiteLink != null && _roles.Any(RtToolsVisibleToRole);
         }

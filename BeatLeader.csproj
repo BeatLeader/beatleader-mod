@@ -410,6 +410,7 @@
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Basic\ReplayerSettingsToggle.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\SmoothHoverController.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\MiniProfileButton.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
@@ -498,6 +499,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\CountryFlag.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\MiniProfileButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\PlayerAvatar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ReplayerSettingsToggle.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Header\LeaderboardInfoPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Header\QualificationCheckbox.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\BeatLeaderInfo.bsml" />

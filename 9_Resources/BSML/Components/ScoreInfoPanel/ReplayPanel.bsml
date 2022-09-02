@@ -1,8 +1,10 @@
 ﻿<horizontal active="~active" spacing="1" pad="2" pref-height="30" horizontal-fit="PreferredSize">
-    <macro.as-host host="settings-panel">
-        <macro.reparent transform="ui-component"/>
-    </macro.as-host>
-    <vertical pref-width="20">
-        <button id="play-button"/>
+    <vertical spacing="1" vertical-fit="PreferredSize">
+        <macro.as-host host="settings-panel">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <horizontal pad-top="6">
+            <button id="play-button" font-size="5"/>
+        </horizontal>
     </vertical>
 </horizontal>

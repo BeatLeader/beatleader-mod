@@ -1,86 +1,67 @@
 ﻿using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class ReplayerSettingsPanel: ReeUIComponentV2 {
+    internal class ReplayerSettingsPanel : ReeUIComponentV2 {
+        #region Components
+
+        [UIComponent("labels"), UsedImplicitly]
+        private RectTransform _labelsRoot;
+
+        [UIValue("show-ui-toggle"), UsedImplicitly]
+        private ReplayerSettingsToggle _showUIToggle;
+
+        [UIValue("show-debris-toggle"), UsedImplicitly]
+        private ReplayerSettingsToggle _showDebrisToggle;
+
+        [UIValue("override-camera-toggle"), UsedImplicitly]
+        private ReplayerSettingsToggle _overrideCameraToggle;
+
+        [UIValue("override-environment-toggle"), UsedImplicitly]
+        private ReplayerSettingsToggle _overrideEnvironmentToggle;
+
+        private void Awake() {
+            _showUIToggle = Instantiate<ReplayerSettingsToggle>(transform);
+            _showDebrisToggle = Instantiate<ReplayerSettingsToggle>(transform);
+            _overrideCameraToggle = Instantiate<ReplayerSettingsToggle>(transform);
+            _overrideEnvironmentToggle = Instantiate<ReplayerSettingsToggle>(transform);
+        }
+
+        #endregion
+
+        #region OnInitialize
+
+        protected override void OnInitialize() {
+            _showUIToggle.Setup(BundleLoader.ReplayIcon, "Enable UI", _labelsRoot);
+            _showUIToggle.Value = PluginConfig.ReplayerSettings.showUI;
+            _showUIToggle.OnClick += _ => UpdateConfig();
+
+            _showDebrisToggle.Setup(BundleLoader.ReplayIcon, "Enable debris", _labelsRoot);
+            _showDebrisToggle.Value = PluginConfig.ReplayerSettings.showDebris;
+            _showDebrisToggle.OnClick += _ => UpdateConfig();
+
+            _overrideCameraToggle.Setup(BundleLoader.ReplayIcon, "Override camera", _labelsRoot);
+            _overrideCameraToggle.Value = PluginConfig.ReplayerSettings.forceUseReplayerCamera;
+            _overrideCameraToggle.OnClick += _ => UpdateConfig();
+
+            _overrideEnvironmentToggle.Setup(BundleLoader.ReplayIcon, "Override environment", _labelsRoot);
+            _overrideEnvironmentToggle.Value = PluginConfig.ReplayerSettings.loadPlayerEnvironment;
+            _overrideEnvironmentToggle.OnClick += _ => UpdateConfig();
+        }
+
+        #endregion
+
         #region UpdateConfig
 
         private void UpdateConfig() {
             PluginConfig.ReplayerSettings = new ReplayerSettings {
-                showUI = ShowUI,
-                showDebris = ShowDebris,
-                forceUseReplayerCamera = OverrideCamera,
-                loadPlayerEnvironment = UseReplayEnvironment
+                showUI = _showUIToggle.Value,
+                showDebris = _showDebrisToggle.Value,
+                forceUseReplayerCamera = _overrideCameraToggle.Value,
+                loadPlayerEnvironment = _overrideEnvironmentToggle.Value
             };
-        }
-
-        #endregion
-        
-        #region ShowUI
-
-        private bool _showUI = PluginConfig.ReplayerSettings.showUI;
-
-        [UIValue("show-ui"), UsedImplicitly]
-        private bool ShowUI {
-            get => _showUI;
-            set {
-                if (_showUI.Equals(value)) return;
-                _showUI = value;
-                UpdateConfig();
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region ShowDebris
-
-        private bool _showDebris = PluginConfig.ReplayerSettings.showDebris;
-
-        [UIValue("show-debris"), UsedImplicitly]
-        private bool ShowDebris {
-            get => _showDebris;
-            set {
-                if (_showDebris.Equals(value)) return;
-                _showDebris = value;
-                UpdateConfig();
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region OverrideCamera
-
-        private bool _overrideCamera = PluginConfig.ReplayerSettings.forceUseReplayerCamera;
-
-        [UIValue("override-camera"), UsedImplicitly]
-        private bool OverrideCamera {
-            get => _overrideCamera;
-            set {
-                if (_overrideCamera.Equals(value)) return;
-                _overrideCamera = value;
-                UpdateConfig();
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-        
-        #region UseReplayEnvironment
-
-        private bool _useReplayEnvironment = PluginConfig.ReplayerSettings.loadPlayerEnvironment;
-
-        [UIValue("use-replay-environment"), UsedImplicitly]
-        private bool UseReplayEnvironment {
-            get => _useReplayEnvironment;
-            set {
-                if (_useReplayEnvironment.Equals(value)) return;
-                _useReplayEnvironment = value;
-                UpdateConfig();
-                NotifyPropertyChanged();
-            }
         }
 
         #endregion

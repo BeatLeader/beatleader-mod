@@ -1,14 +1,9 @@
 ﻿using BeatLeader.Replayer;
-using BeatLeader.Utils;
 using IPA.Loader;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using System.Threading;
 
 namespace BeatLeader.Interop
 {
@@ -21,7 +16,9 @@ namespace BeatLeader.Interop
         private static MethodInfo _registerMethod;
         private static MethodInfo _updateMethod;
         private static object _genericSourceInstance;
-        private static Repeater _updater;
+        private static object[] _cachedArgs = new object[3];
+
+        private static Timer _updater;
         private static Transform _headTranform;
         private static bool _isPlaying;
 
@@ -37,8 +34,6 @@ namespace BeatLeader.Interop
 
             ReplayerLauncher.OnReplayStart += NotifyReplayStarted;
             ReplayerLauncher.OnReplayFinish += NotifyReplayFinished;
-
-            _updater = Repeater.Create(NotifyRepeaterUpdated, false);
         }
         public static void SetHeadTransform(Transform transform)
         {
@@ -47,8 +42,10 @@ namespace BeatLeader.Interop
         public static void SetReplayState(bool state)
         {
             _isPlaying = state;
-            if (state) _updater.Run();
-            else _updater.Stop();
+            if (state)
+                _updater = new Timer(NotifyRepeaterUpdated, null, 0, 1);
+            else
+                _updater.Dispose();
         }
 
         private static object CreateGenericSourceInstance(string name)
@@ -57,12 +54,17 @@ namespace BeatLeader.Interop
         }
         private static void UpdateGenericSource()
         {
-            _updateMethod.Invoke(_genericSourceInstance, new object[] 
-            {
-                _isPlaying,
-                _headTranform != null ? _headTranform.localPosition : default(Vector3),
-                _headTranform != null ? _headTranform.localRotation : default(Quaternion)
-            });
+            _cachedArgs[0] = _isPlaying;
+
+            var pos = _headTranform != null ? _headTranform.localPosition : Vector3.zero;
+            var rot = _headTranform != null ? _headTranform.localRotation : Quaternion.identity;
+            ref var posRef = ref pos;
+            ref var rotRef = ref rot;
+
+            _cachedArgs[1] = posRef;
+            _cachedArgs[2] = rotRef;
+
+            _updateMethod.Invoke(_genericSourceInstance, _cachedArgs);
         }
         private static void RegisterSource(object source)
         {
@@ -78,7 +80,7 @@ namespace BeatLeader.Interop
                .GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
         }
 
-        private static void NotifyRepeaterUpdated()
+        private static void NotifyRepeaterUpdated(object state)
         {
             UpdateGenericSource();
         }

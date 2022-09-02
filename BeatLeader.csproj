@@ -365,7 +365,6 @@
     <Compile Include="7_Utils\MathUtils.cs" />
     <Compile Include="7_Utils\ModifiersUtils.cs" />
     <Compile Include="7_Utils\RecorderUtils.cs" />
-    <Compile Include="7_Utils\Repeater.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
     <Compile Include="7_Utils\StaticUtils\BSMLUtil.cs" />

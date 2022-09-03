@@ -3,6 +3,7 @@
         Overview,
         Accuracy,
         Grid,
-        Graph
+        Graph,
+        Replay
     }
 }

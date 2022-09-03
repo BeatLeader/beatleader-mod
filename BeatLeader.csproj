@@ -249,6 +249,7 @@
     <Compile Include="2_Core\API\Abstract\RequestState.cs" />
     <Compile Include="2_Core\API\Authentication.cs" />
     <Compile Include="2_Core\API\Methods\AddFriendRequest.cs" />
+    <Compile Include="2_Core\API\Methods\DownloadReplayRequest.cs" />
     <Compile Include="2_Core\API\Methods\ExMachinaRequest.cs" />
     <Compile Include="2_Core\API\Methods\GetOculusUserRequest.cs" />
     <Compile Include="2_Core\API\Methods\LatestReleasesRequest.cs" />
@@ -336,6 +337,7 @@
     <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayToBaseScoringInterlayer.cs" />
     <Compile Include="2_Core\Replayer\Emulation\SimpleNoteComparatorsSpawner.cs" />
     <Compile Include="2_Core\Replayer\Emulation\SimpleNoteCutComparator.cs" />
+    <Compile Include="2_Core\Replayer\ReplayerCache.cs" />
     <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
     <Compile Include="2_Core\Models\Interfaces\IComparatorModule.cs" />
     <Compile Include="2_Core\Replayer\InputManager.cs" />
@@ -407,6 +409,8 @@
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Basic\HintField.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Basic\ReplayerSettingsToggle.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\SmoothHoverController.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\MiniProfileButton.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\PlayerAvatar.cs" />
@@ -440,6 +444,8 @@
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGrid.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGridCell.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\MiniProfileButtons.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ReplayerSettingsPanel.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ReplayPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\MiniProfile.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanelControls.cs" />
@@ -493,6 +499,8 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\CountryFlag.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\MiniProfileButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Basic\PlayerAvatar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\ReplayerSettingsToggle.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\Basic\HintField.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Header\LeaderboardInfoPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\Header\QualificationCheckbox.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\MainPanel\BeatLeaderInfo.bsml" />
@@ -527,6 +535,8 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreOverview.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreStatsLoadingScreen.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ReplayPanel.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ReplayerSettingsPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\Logo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\NotificationIcon.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\TopPanel\PlayerInfo.bsml" />

@@ -53,5 +53,23 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        #region ReplayerSettings
+
+        public static ReplayerSettings ReplayerSettings {
+            get => ConfigFileData.Instance.ReplayerSettings;
+            set => ConfigFileData.Instance.ReplayerSettings = value;
+        }
+
+        #endregion
+
+        #region EnableReplayCaching
+
+        public static bool EnableReplayCaching {
+            get => ConfigFileData.Instance.EnableReplayCaching;
+            set => ConfigFileData.Instance.EnableReplayCaching = value;
+        }
+
+        #endregion
     }
 }

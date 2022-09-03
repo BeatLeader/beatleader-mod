@@ -15,6 +15,7 @@ namespace BeatLeader.Components
     internal class HorizontalSongInfo : EditableElement
     {
         [Inject] private readonly Models.ReplayLaunchData _replayData;
+        [InjectOptional] private readonly LayoutEditor _layoutEditor;
 
         [UIComponent("song-preview-image")] private Image _songPreviewImage;
         [UIComponent("container")] private RectTransform _container;
@@ -53,6 +54,7 @@ namespace BeatLeader.Components
             songName = previewBeatmapLevel.songName;
             songAuthor = previewBeatmapLevel.levelAuthorName;
             LoadAndAssignImage(previewBeatmapLevel);
+            _layoutEditor?.TryAddObject(this);
         }
         private async void LoadAndAssignImage(IPreviewBeatmapLevel previewBeatmapLevel)
         {

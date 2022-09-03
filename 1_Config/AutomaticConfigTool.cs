@@ -31,20 +31,22 @@ namespace BeatLeader
         {
             string pathToFile = GeneratePath(type);
             if (!File.Exists(pathToFile)) return false;
+            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
             try
             {
                 var obj = JObject.Parse(File.ReadAllText(pathToFile));
                 foreach (var item in obj)
                 {
+                    
                     FieldInfo field = null;
-                    if ((field = type.GetField(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)) != null)
+                    if ((field = type.GetField(item.Key, flags)) != null)
                     {
                         field.SetValue(null, item.Value.ToObject(field.FieldType));
                         continue;
                     }
                     PropertyInfo property = null;
-                    if ((property = type.GetProperty(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)) != null)
+                    if ((property = type.GetProperty(item.Key, flags)) != null)
                     {
                         property.SetValue(null, item.Value.ToObject(property.PropertyType));
                         continue;
@@ -61,13 +63,16 @@ namespace BeatLeader
         }
         private static bool TrySaveSettingsForPersistance(Type type)
         {
+            if (type.GetCustomAttribute<SerializeAutomaticallyAttribute>() == null) return false;
+
             Dictionary<string, object> convertedFields = new();
-            type.GetFields(x => x.GetCustomAttribute(typeof(SerializeAutomaticallyAttribute)) != null,
-                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+            var flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+
+            type.GetFields(x => x.GetCustomAttribute<SerializeAutomaticallyAttribute>() != null, flags)
                 .ForEach(x => convertedFields.Add(x.Name, x.GetValue(null)));
-            type.GetProperties(x => x.GetCustomAttribute(typeof(SerializeAutomaticallyAttribute)) != null
-                 && x.CanRead && x.CanWrite, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                .ForEach(x => convertedFields.Add(x.Name, x.GetValue(null)));
+
+            type.GetProperties(x => x.GetCustomAttribute<SerializeAutomaticallyAttribute>() != null
+                 && x.CanRead && x.CanWrite, flags).ForEach(x => convertedFields.Add(x.Name, x.GetValue(null)));
 
             CreateConfigsFolderIfNeeded();
             File.WriteAllText(GeneratePath(type), JsonConvert.SerializeObject(convertedFields));
@@ -77,6 +82,11 @@ namespace BeatLeader
         {
             if (!Directory.Exists(ConfigsSavePath)) Directory.CreateDirectory(ConfigsSavePath);
         }
-        private static string GeneratePath(Type type) => $"{ConfigsSavePath}\\{type.Name}Config{ConfigFileFormat}";
+        private static string GeneratePath(Type type)
+        {
+            var attr = type.GetCustomAttribute<SerializeAutomaticallyAttribute>();
+            return GeneratePath(attr.configName != string.Empty ? attr.configName : type.Name + "Config");
+        }
+        private static string GeneratePath(string confName) => $"{ConfigsSavePath}\\{confName}{ConfigFileFormat}";
     }
 }

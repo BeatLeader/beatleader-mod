@@ -13,7 +13,6 @@ using HMUI;
 
 namespace BeatLeader
 {
-    [SerializeAutomatically]
     public class UI2DManager : MonoBehaviour
     {
         [Inject] private readonly Models.ReplayLaunchData _replayData;
@@ -25,16 +24,13 @@ namespace BeatLeader
             get => gameObject.activeSelf;
             set
             {
-                _showUI = value;
                 gameObject.SetActive(value);
                 OnUIVisibilityChanged?.Invoke(value);
-                AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
 
         public event Action<bool> OnUIVisibilityChanged;
 
-        [SerializeAutomatically] private static bool _showUI = true;
         private List<(GameObject, Transform)> _objects = new();
         private CanvasScaler _canvasScaler;
         private Canvas _canvas;
@@ -54,7 +50,6 @@ namespace BeatLeader
             _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             _canvas.sortingOrder = 1;
-            gameObject.SetActive(_replayData.overrideSettings ? _replayData.settings.showUI : showUI);
         }
         public void AddObject(GameObject go)
         {

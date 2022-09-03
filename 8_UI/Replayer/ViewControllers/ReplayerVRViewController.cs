@@ -17,25 +17,13 @@ using Zenject;
 
 namespace BeatLeader.ViewControllers
 {
-    [SerializeAutomatically]
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerVRView.bsml")]
     internal class ReplayerVRViewController : MonoBehaviour
     {
         [Inject] private readonly VRControllersManager _vrControllersManager;
         [Inject] private readonly MainCamera _camera;
         [Inject] private readonly DiContainer _container;
-
-        private bool syncView
-        {
-            get => _syncView;
-            set
-            {
-                _syncView = value;
-                AutomaticConfigTool.NotifyTypeChanged(GetType());
-            }
-        }
-
-        [SerializeAutomatically] private static bool _syncView = true;
+        [Inject] private readonly ReplayLaunchData _replayData;
 
         [UIValue("rotation-menu")] private RotationMenu _rotationMenu;
         [UIValue("toolbar")] private Toolbar _toolbar;
@@ -59,12 +47,12 @@ namespace BeatLeader.ViewControllers
             var view = container.gameObject.AddComponent<RotatingVRView>();
             view.Init(_camera.transform, viewContainer.transform);
             _rotationMenu.view = view;
-            _rotationMenu.EnableSync(syncView);
+            _rotationMenu.EnableSync(_replayData.actualSettings.SyncUIRotationWithHead);
             _rotationMenu.OnViewSyncChanged += NotifyViewSyncChanged;
 
             _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();
         }
-        private void NotifyViewSyncChanged(bool state) => syncView = state;
+        private void NotifyViewSyncChanged(bool state) => _replayData.actualToWriteSettings.SyncUIRotationWithHead = state;
     }
 }

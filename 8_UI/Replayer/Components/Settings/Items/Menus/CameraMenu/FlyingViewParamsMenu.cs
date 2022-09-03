@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace BeatLeader.Components.Settings
 {
-    [SerializeAutomatically]
+    [SerializeAutomatically("FlyingViewConfig")]
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.FlyingViewParamsMenu.bsml")]
     internal class FlyingViewParamsMenu : CameraParamsMenu
     {

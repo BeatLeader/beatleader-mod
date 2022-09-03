@@ -18,6 +18,7 @@ namespace BeatLeader.Components
     internal class Toolbar : EditableElement
     {
         [Inject] private readonly PlaybackController _playbackController;
+        [InjectOptional] private readonly LayoutEditor _layoutEditor;
 
         [UIComponent("container")] private RectTransform _container;
         [UIComponent("play-button")] private BetterButton _playButton;
@@ -45,7 +46,6 @@ namespace BeatLeader.Components
         private Sprite _openedDoorSprite;
         private Sprite _closedDoorSprite;
         private string _combinedSongTime;
-        private bool _onPause;
 
         protected override void OnInstantiate()
         {
@@ -66,6 +66,7 @@ namespace BeatLeader.Components
             button.navigation = new Navigation() { mode = Navigation.Mode.None };
             _settingsModal.blockerClickedEvent += _settingsNavigator.NotifySettingsClosed;
             _settingsNavigator.OnSettingsCloseRequested += x => _settingsModal.Hide(x, () => _settingsNavigator.NotifySettingsClosed());
+            _layoutEditor?.TryAddObject(this);
         }
         private void Update()
         {

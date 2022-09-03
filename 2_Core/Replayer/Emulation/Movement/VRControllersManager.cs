@@ -18,6 +18,7 @@ namespace BeatLeader.Replayer.Movement
         [Inject] protected readonly LocksController _softLocksController;
         [Inject] protected readonly MainCamera _mainCamera;
         [Inject] protected readonly DiContainer _diContainer;
+        [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         protected Dictionary<Transform, (XRNode, Transform)> _attachedObjects = new();
 
@@ -65,6 +66,7 @@ namespace BeatLeader.Replayer.Movement
 
             InjectControllers();
             Cam2Interop.SetHeadTransform(HeadContainer.transform);
+            LoadConfig(_replayData.actualSettings);
             IsInitialized = true;
         }
         public void ShowMenuControllers(bool show = true)
@@ -109,6 +111,13 @@ namespace BeatLeader.Replayer.Movement
 
             transform.SetParent(reparentToOriginalParent ? pair.Item2 : null);
             _attachedObjects.Remove(transform);
+        }
+
+        protected void LoadConfig(Models.ReplayerSettings settings)
+        {
+            HeadContainer.gameObject.SetActive(settings.ShowHead);
+            LeftSaber.gameObject.SetActive(settings.ShowLeftSaber);
+            RightSaber.gameObject.SetActive(settings.ShowRightSaber);
         }
         protected void InjectControllers()
         {

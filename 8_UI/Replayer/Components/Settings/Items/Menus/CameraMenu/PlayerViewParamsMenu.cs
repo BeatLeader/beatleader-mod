@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace BeatLeader.Components.Settings
 {
+    [SerializeAutomatically("PlayerViewConfig")]
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.PlayerViewParamsMenu.bsml")]
     internal class PlayerViewParamsMenu : CameraParamsMenu
     {

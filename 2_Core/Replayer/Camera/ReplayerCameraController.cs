@@ -109,9 +109,7 @@ namespace BeatLeader.Replayer.Camera
             PoseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
-            bool useReplayerCamera = !Cam2Interop.Detected || !InputManager.IsInFPFC ||
-                 (_replayData.overrideSettings && _replayData.settings.forceUseReplayerCamera);
-            SetEnabled(useReplayerCamera);
+            SetEnabled(true);
             IsInitialized = true;
         }
         private void LateUpdate()

@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Interop;
 using BeatLeader.Replayer.Camera;
+using IPA.Config.Data;
 using IPA.Utilities;
 using SiraUtil.Tools.FPFC;
 using System;
@@ -14,6 +15,7 @@ namespace BeatLeader.Replayer
         [InjectOptional] private readonly PlayerDataModel _playerDataModel;
         [InjectOptional] private readonly ReplayerCameraController _cameraController;
         [InjectOptional] private readonly Models.ReplayLaunchData _replayData;
+        [InjectOptional] private readonly UI2DManager _2DManager;
 
         private RoomAdjustSettingsViewController _roomAdjustViewController;
         private Vector3SO _roomPosition;
@@ -26,10 +28,7 @@ namespace BeatLeader.Replayer
         {
             if (_playerDataModel != null && _cameraController != null)
             {
-                bool showDebris = !_playerDataModel.playerData.playerSpecificSettings.reduceDebris;
-                showDebris = _replayData != null && _replayData.overrideSettings ? _replayData.settings.showDebris : showDebris;
-
-                if (showDebris)
+                if (!_playerDataModel.playerData.playerSpecificSettings.reduceDebris)
                     _cameraController.CullingMask |= 1 << LayerMasks.noteDebrisLayer;
                 else
                     _cameraController.CullingMask &= ~(1 << LayerMasks.noteDebrisLayer);
@@ -45,6 +44,12 @@ namespace BeatLeader.Replayer
                 _tempRotation = _roomRotation;
 
                 _roomAdjustViewController.ResetRoom();
+            }
+
+            if (_2DManager != null)
+            {
+                _2DManager.OnUIVisibilityChanged += x => _replayData.actualToWriteSettings.ShowUI = x;
+                _2DManager.showUI = _replayData.actualSettings.ShowUI;
             }
 
             RaycastBlocker.EnableBlocker = true;

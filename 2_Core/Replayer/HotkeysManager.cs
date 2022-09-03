@@ -12,6 +12,7 @@ namespace BeatLeader.Replayer
     public class HotkeysManager : ITickable
     {
         [InjectOptional] private readonly UI2DManager _2DManager;
+        [InjectOptional] private readonly Models.ReplayLaunchData _replayData;
         [Inject] private readonly PlaybackController _playbackController;
         [Inject] private readonly ReplayerCameraController _cameraController;
 
@@ -22,9 +23,6 @@ namespace BeatLeader.Replayer
         public KeyCode SwitchViewLeftHotkey = KeyCode.LeftArrow;
         public KeyCode IncFOVHotkey = KeyCode.UpArrow;
         public KeyCode DecFOVHotkey = KeyCode.DownArrow;
-
-        public int maxFov = 110;
-        public int minFov = 70;
 
         public event Action<bool> OnCursorVisibilityChanged;
 
@@ -53,12 +51,12 @@ namespace BeatLeader.Replayer
             }
             if (Input.GetKeyDown(IncFOVHotkey))
             {
-                if (_cameraController.FieldOfView < maxFov)
+                if (_cameraController.FieldOfView < _replayData.actualSettings.MaxFOV)
                     _cameraController.FieldOfView += 1;
             }
             if (Input.GetKeyDown(DecFOVHotkey))
             {
-                if (_cameraController.FieldOfView > minFov)
+                if (_cameraController.FieldOfView > _replayData.actualSettings.MinFOV)
                     _cameraController.FieldOfView -= 1;
             }
         }

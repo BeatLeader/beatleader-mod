@@ -28,10 +28,19 @@ namespace BeatLeader {
         #region ReplayerSettings
 
         public static ReplayerSettings ReplayerSettings => new() {
-            showUI = true,
-            showDebris = false,
-            forceUseReplayerCamera = false,
-            loadPlayerEnvironment = false
+            ShowUI = true,
+            ForceUseReplayerCamera = false,
+            LoadPlayerEnvironment = false,
+
+            ShowHead = false,
+            ShowLeftSaber = true,
+            ShowRightSaber = true,
+            
+            MaxFOV = 110,
+            MinFOV = 70,
+            CameraFOV = 90,
+            FPFCCameraPose = "PlayerView",
+            VRCameraPose = "BehindView",
         };
 
         #endregion

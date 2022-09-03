@@ -27,23 +27,16 @@ namespace BeatLeader.Components.Settings
         }
         private void SetupCameraMenu()
         {
-            bool setupAsCam2 = Cam2Interop.Detected && InputManager.IsInFPFC && 
-                (!_replayData.overrideSettings || !_replayData.settings.forceUseReplayerCamera);
-            _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container),
-                 setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera");
+            var settings = _replayData.actualSettings;
+            bool useReplayerCam = settings.ForceUseReplayerCamera != null ? (bool)settings.ForceUseReplayerCamera : false;
 
-            if (setupAsCam2)
-            {
-                _cameraMenuButton.Interactable = false;
+            bool setupAsCam2 = Cam2Interop.Detected && InputManager.IsInFPFC && !useReplayerCam;
+            string text = setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera";
+            _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container), text);
+
+            _cameraMenuButton.Interactable = !setupAsCam2;
+            if (setupAsCam2 && !useReplayerCam)
                 _cameraController.SetEnabled(false);
-            }
-            
-            if (_replayData.overrideSettings && _replayData.settings.forceUseReplayerCamera)
-            {
-                bool enable = _replayData.settings.forceUseReplayerCamera;
-                _cameraMenuButton.ButtonGameObject.SetActive(enable);
-                _cameraController.SetEnabled(enable);
-            }
         }
     }
 }

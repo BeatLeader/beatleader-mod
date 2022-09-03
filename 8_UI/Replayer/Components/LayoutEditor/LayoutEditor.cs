@@ -15,7 +15,7 @@ using HMUI;
 
 namespace BeatLeader.Components
 {
-    [SerializeAutomatically]
+    [SerializeAutomatically("EditableElementsConfig")]
     internal class LayoutEditor : ReeUIComponentV2WithContainer
     {
         [SerializeAutomatically] private static Dictionary<string, bool> _objectsConfig = new();

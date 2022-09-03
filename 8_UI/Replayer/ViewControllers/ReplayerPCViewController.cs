@@ -33,11 +33,6 @@ namespace BeatLeader.ViewControllers
                 _playerInfo = InstantiateInContainer<HorizontalPlayerInfo>(Container, transform);
                 _toolbar = InstantiateInContainer<Toolbar>(Container, transform);
             }
-            protected override void OnInitialize()
-            {
-                _layoutEditor.TryAddObject(_songInfo);
-                _layoutEditor.TryAddObject(_toolbar);
-            }
         }
 
         private const string Content = "<horizontal vertical-fit=\"Unconstrained\"><vertical horizontal-fit=\"Unconstrained\"><macro.as-host host=\"content-view\"><macro.reparent transform=\"ui-component\"/></macro.as-host></vertical></horizontal>";

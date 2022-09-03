@@ -18,12 +18,15 @@ namespace BeatLeader.Models
             this.environmentInfo = environmentInfo;
         }
 
-        public Replay replay;
-        public Player player;
-        public ReplayerSettings settings;
-        public IDifficultyBeatmap difficultyBeatmap;
-        public EnvironmentInfoSO environmentInfo;
-        public bool overrideSettings => settings != null;
+        public Replay replay { get; }
+        public Player player { get; set; }
+        public IDifficultyBeatmap difficultyBeatmap { get; set; }
+        public EnvironmentInfoSO environmentInfo { get; set; }
+        protected ReplayerSettings settings { get; }
+
+        public virtual bool overrideSettings => settings != null;
+        public virtual ReplayerSettings actualSettings => overrideSettings ? settings : ConfigFileData.Instance.ReplayerSettings;
+        public virtual ReplayerSettings actualToWriteSettings => ConfigFileData.Instance.ReplayerSettings;
 
         public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults, ReplayLaunchData> OnReplayFinish;
 

@@ -100,7 +100,7 @@ namespace BeatLeader.Replayer
         {
             EnvironmentInfoSO environment = null;
 
-            if (data.overrideSettings && data.settings.loadPlayerEnvironment)
+            if (data.actualSettings.LoadPlayerEnvironment)
             {
                 environment = ReplayDataHelper.GetEnvironmentByName(data.replay.info.environment);
                 if (environment == null) Plugin.Log.Error("[Launcher] Failed to parse player environment!");

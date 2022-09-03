@@ -1,14 +1,13 @@
 ﻿using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ReplayerSettingsPanel : ReeUIComponentV2 {
         #region Components
 
-        [UIComponent("labels"), UsedImplicitly]
-        private RectTransform _labelsRoot;
+        [UIValue("hint-field"), UsedImplicitly]
+        private HintField _hintField;
 
         [UIValue("show-ui-toggle"), UsedImplicitly]
         private ReplayerSettingsToggle _showUIToggle;
@@ -16,17 +15,18 @@ namespace BeatLeader.Components {
         [UIValue("show-debris-toggle"), UsedImplicitly]
         private ReplayerSettingsToggle _showDebrisToggle;
 
-        [UIValue("override-camera-toggle"), UsedImplicitly]
-        private ReplayerSettingsToggle _overrideCameraToggle;
-
         [UIValue("override-environment-toggle"), UsedImplicitly]
         private ReplayerSettingsToggle _overrideEnvironmentToggle;
 
+        [UIValue("save-toggle"), UsedImplicitly]
+        private ReplayerSettingsToggle _saveToggle;
+
         private void Awake() {
+            _hintField = Instantiate<HintField>(transform);
             _showUIToggle = Instantiate<ReplayerSettingsToggle>(transform);
             _showDebrisToggle = Instantiate<ReplayerSettingsToggle>(transform);
-            _overrideCameraToggle = Instantiate<ReplayerSettingsToggle>(transform);
             _overrideEnvironmentToggle = Instantiate<ReplayerSettingsToggle>(transform);
+            _saveToggle = Instantiate<ReplayerSettingsToggle>(transform);
         }
 
         #endregion
@@ -34,32 +34,38 @@ namespace BeatLeader.Components {
         #region OnInitialize
 
         protected override void OnInitialize() {
-            _showUIToggle.Setup(BundleLoader.ReplayIcon, "Enable UI", _labelsRoot);
+            _hintField.Setup("<alpha=#66>Player Settings");
+            
+            _showUIToggle.Setup(BundleLoader.UIIcon, "Enable UI", _hintField);
             _showUIToggle.Value = PluginConfig.ReplayerSettings.showUI;
-            _showUIToggle.OnClick += _ => UpdateConfig();
+            _showUIToggle.OnClick += _ => UpdateReplayerSettings();
 
-            _showDebrisToggle.Setup(BundleLoader.ReplayIcon, "Enable debris", _labelsRoot);
+            _showDebrisToggle.Setup(BundleLoader.DebrisIcon, "Enable debris", _hintField);
             _showDebrisToggle.Value = PluginConfig.ReplayerSettings.showDebris;
-            _showDebrisToggle.OnClick += _ => UpdateConfig();
+            _showDebrisToggle.OnClick += _ => UpdateReplayerSettings();
 
-            _overrideCameraToggle.Setup(BundleLoader.ReplayIcon, "Override camera", _labelsRoot);
-            _overrideCameraToggle.Value = PluginConfig.ReplayerSettings.forceUseReplayerCamera;
-            _overrideCameraToggle.OnClick += _ => UpdateConfig();
-
-            _overrideEnvironmentToggle.Setup(BundleLoader.ReplayIcon, "Override environment", _labelsRoot);
+            _overrideEnvironmentToggle.Setup(BundleLoader.SceneIcon, "Override environment", _hintField);
             _overrideEnvironmentToggle.Value = PluginConfig.ReplayerSettings.loadPlayerEnvironment;
-            _overrideEnvironmentToggle.OnClick += _ => UpdateConfig();
+            _overrideEnvironmentToggle.OnClick += _ => UpdateReplayerSettings();
+
+            _saveToggle.Setup(BundleLoader.SaveIcon, "Save after download", _hintField);
+            _saveToggle.Value = PluginConfig.EnableReplayCaching;
+            _saveToggle.OnClick += OnSaveToggleValueChanged;
         }
 
         #endregion
 
-        #region UpdateConfig
+        #region Callbacks
 
-        private void UpdateConfig() {
+        private static void OnSaveToggleValueChanged(bool value) {
+            PluginConfig.EnableReplayCaching = value;
+        }
+
+        private void UpdateReplayerSettings() {
             PluginConfig.ReplayerSettings = new ReplayerSettings {
                 showUI = _showUIToggle.Value,
                 showDebris = _showDebrisToggle.Value,
-                forceUseReplayerCamera = _overrideCameraToggle.Value,
+                forceUseReplayerCamera = PluginConfig.ReplayerSettings.forceUseReplayerCamera,
                 loadPlayerEnvironment = _overrideEnvironmentToggle.Value
             };
         }

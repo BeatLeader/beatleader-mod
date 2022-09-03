@@ -47,19 +47,17 @@ namespace BeatLeader.Components {
 
         private void OnLoaderStateChanged(ReplayerMenuLoader.LoaderState state, Score score, Replay replay1) {
             _playButton.interactable = state is not ReplayerMenuLoader.LoaderState.Downloading;
-            
+
             switch (state) {
                 case ReplayerMenuLoader.LoaderState.DownloadRequired:
-                    _playButton.SetButtonText("DL + Watch");
-                    break;
                 case ReplayerMenuLoader.LoaderState.ReadyToPlay:
-                    _playButton.SetButtonText("Watch");
+                    _playButton.SetButtonText("Watch Replay");
                     break;
             }
         }
 
         private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
-            _playButton.SetButtonText($"{downloadProgress:F2}<size=60%>%");
+            _playButton.SetButtonText($"{downloadProgress * 100:F0}<size=60%>%");
         }
 
         #endregion

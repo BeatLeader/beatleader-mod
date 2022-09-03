@@ -1,24 +1,21 @@
 ﻿using System;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using HMUI;
 using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
-    internal class ReplayerSettingsToggle: ReeUIComponentV2 {
+    internal class ReplayerSettingsToggle : ReeUIComponentV2 {
         #region Components
 
-        [UIComponent("label-root"), UsedImplicitly] private RectTransform _labelRoot;
-        [UIComponent("label-component"), UsedImplicitly] private TextMeshProUGUI _labelComponent;
-        [UIComponent("image-component"), UsedImplicitly] private ClickableImage _imageComponent;
-        
+        [UIComponent("image-component"), UsedImplicitly]
+        private ClickableImage _imageComponent;
+
         #endregion
-        
+
         #region Value
-        
+
         public event Action<bool> OnClick;
 
         private bool _value;
@@ -40,12 +37,12 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Initialize
-        
+
         protected override void OnInitialize() {
             InitializeImage();
             UpdateColors();
         }
-        
+
         private void InitializeImage() {
             _imageComponent.material = BundleLoader.UIAdditiveGlowMaterial;
             var hoverController = _imageComponent.gameObject.AddComponent<SmoothHoverController>();
@@ -57,10 +54,13 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        public void Setup(Sprite sprite, string label, Transform labelRoot) {
+        private string _hintText;
+        private HintField.HintHandler _hintHandler;
+
+        public void Setup(Sprite sprite, string hintText, HintField hintField) {
             _imageComponent.sprite = sprite;
-            _labelComponent.text = label;
-            _labelRoot.transform.SetParent(labelRoot, false);
+            _hintText = hintText;
+            _hintHandler = hintField.RegisterHandler();
         }
 
         #endregion
@@ -70,15 +70,18 @@ namespace BeatLeader.Components {
         private void OnHoverStateChanged(bool isHovered, float progress) {
             var scale = 1.0f + 0.2f * progress;
             _imageComponent.transform.localScale = new Vector3(scale, scale, scale);
-            
-            _labelComponent.alpha = progress;
-            _labelRoot.transform.localScale = new Vector3(1.0f, progress, 1.0f);
+
+            if (isHovered) {
+                _hintHandler?.ShowHint(_hintText);
+            } else {
+                _hintHandler?.HideHint();
+            }
         }
 
         #endregion
 
         #region Colors
-        
+
         private static Color SelectedColor => new(0.0f, 0.4f, 1.0f, 1.0f);
         private static readonly Color FadedColor = new(0.8f, 0.8f, 0.8f, 0.2f);
 

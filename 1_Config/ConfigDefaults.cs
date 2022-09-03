@@ -35,5 +35,11 @@ namespace BeatLeader {
         };
 
         #endregion
+
+        #region EnableReplayCaching
+
+        public static bool EnableReplayCaching = false;
+
+        #endregion
     }
 }

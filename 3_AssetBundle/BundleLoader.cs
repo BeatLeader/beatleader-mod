@@ -143,6 +143,18 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite ReplayIcon;
 
+        [UsedImplicitly]
+        public static Sprite UIIcon;
+
+        [UsedImplicitly]
+        public static Sprite DebrisIcon;
+
+        [UsedImplicitly]
+        public static Sprite SceneIcon;
+
+        [UsedImplicitly]
+        public static Sprite SaveIcon;
+
         private static List<Sprite> _loadedSprites;
         
         public static Sprite GetSpriteFromBundle(string name)
@@ -176,6 +188,10 @@ namespace BeatLeader {
             FriendsIcon = assetBundle.LoadAsset<Sprite>("BL_FriendsIcon");
             IncognitoIcon = assetBundle.LoadAsset<Sprite>("BL_IncognitoIcon");
             ReplayIcon = assetBundle.LoadAsset<Sprite>("BL_ReplayIcon");
+            UIIcon = assetBundle.LoadAsset<Sprite>("BL_UIIcon");
+            DebrisIcon = assetBundle.LoadAsset<Sprite>("BL_DebrisIcon");
+            SceneIcon = assetBundle.LoadAsset<Sprite>("BL_SceneIcon");
+            SaveIcon = assetBundle.LoadAsset<Sprite>("BL_SaveIcon");
             
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }

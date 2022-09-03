@@ -1,0 +1,3 @@
+<horizontal id="root-component" pref-height="4" bg="round-rect-panel">
+    <text id="text-component" font-size="3.5" align="Center"/>
+</horizontal>

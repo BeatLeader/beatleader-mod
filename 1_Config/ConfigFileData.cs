@@ -44,6 +44,12 @@ namespace BeatLeader
         public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
 
         #endregion
+
+        #region EnableReplayCaching
+
+        public bool EnableReplayCaching = ConfigDefaults.EnableReplayCaching;
+
+        #endregion
         
         #region OnReload
 

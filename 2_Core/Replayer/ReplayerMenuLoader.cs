@@ -86,8 +86,10 @@ namespace BeatLeader.Replayer {
 
         private void OnDownloadRequestStateChanged(API.RequestState requestState, Replay result, string failReason) {
             if (State is LoaderState.Uninitialized || requestState is not API.RequestState.Finished || _downloadReplayScoreId != Score.id) return;
-            
-            ReplayerCache.TryWriteReplay(Score.id, result);
+
+            if (PluginConfig.EnableReplayCaching) {
+                ReplayerCache.TryWriteReplay(Score.id, result);
+            }
             
             Replay = result;
             SetState(LoaderState.ReadyToPlay);

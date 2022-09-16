@@ -1,0 +1,59 @@
+﻿using HarmonyLib;
+using IPA.Loader;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BeatLeader.Interop
+{
+    internal static class NoodleExtensionsInterop
+    {
+        private static MethodInfo _neCallbacksControllerUpdateMethod;
+        private static MethodInfo _prefixMethod;
+        private static Type _neCallbacksControllerType;
+        private static Assembly _neAssembly;
+        private static Harmony _harmony;
+        private static FieldInfo _callbacksInTimeField;
+        private static FieldInfo _prevSongTimeField;
+        private static bool _neOverrideRequested;
+
+        public static void RequestReprocess()
+        {
+            _neOverrideRequested = true;
+        }
+        public static void Init()
+        {
+            _neAssembly = PluginManager.GetPluginFromId("NoodleExtensions")?.Assembly;
+            if (_neAssembly == null) return;
+
+            _neCallbacksControllerType = _neAssembly.GetType("NoodleExtensions.Managers.NoodleObjectsCallbacksManager");
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+            _neCallbacksControllerUpdateMethod = _neCallbacksControllerType.GetMethod("ManualUpdate", flags);
+            if (_neCallbacksControllerUpdateMethod == null) return;
+
+            _prevSongTimeField = _neCallbacksControllerType.GetField("_prevSongtime", flags);
+            _callbacksInTimeField = _neCallbacksControllerType.GetField("_callbacksInTime", flags);
+            if (_prevSongTimeField == null || _callbacksInTimeField == null) return;
+
+            _prefixMethod = typeof(NoodleExtensionsInterop).GetMethod(nameof(NoodleCallbacksControllerPrefix),
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            _harmony = new Harmony("BeatLeader.Replayer.NEInterop");
+            HarmonyUtils.Patch(_harmony, new HarmonyPatchDescriptor(_neCallbacksControllerUpdateMethod, _prefixMethod));
+        }
+
+        private static void NoodleCallbacksControllerPrefix(object __instance)
+        {
+            if (_neOverrideRequested)
+            {
+                _prevSongTimeField.SetValue(__instance, float.MinValue);
+                ((CallbacksInTime)_callbacksInTimeField.GetValue(__instance)).lastProcessedNode = null;
+                _neOverrideRequested = false;
+            }
+        }
+    }
+}

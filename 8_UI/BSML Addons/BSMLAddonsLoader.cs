@@ -35,7 +35,11 @@ namespace BeatLeader.UI.BSML_Addons
             { "rotate-left-icon", BundleLoader.GetSpriteFromBundle("RotateLeftIcon") },
             { "rotate-center-icon", BundleLoader.GetSpriteFromBundle("RotateCenterIcon") },
             { "rotate-right-icon", BundleLoader.GetSpriteFromBundle("RotateRightIcon") },
-            { "sync-icon", BundleLoader.GetSpriteFromBundle("SyncIcon") },
+            { "vertical-sync-icon", BundleLoader.GetSpriteFromBundle("VerticalSyncIcon") },
+            { "horizontal-sync-icon", BundleLoader.GetSpriteFromBundle("HorizontalSyncIcon") },
+            { "pin-icon", BundleLoader.GetSpriteFromBundle("PinIcon") },
+            { "align-icon", BundleLoader.GetSpriteFromBundle("AlignIcon") },
+            { "reset-progress-icon", BundleLoader.GetSpriteFromBundle("ResetProgressIcon") },
         };
         private static bool _wasLoaded;
 

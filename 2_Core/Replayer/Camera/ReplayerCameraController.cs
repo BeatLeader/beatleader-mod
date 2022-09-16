@@ -7,6 +7,7 @@ using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Interop;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Replayer.Camera
 {
@@ -39,24 +40,16 @@ namespace BeatLeader.Replayer.Camera
         [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
         public List<ICameraPoseProvider> PoseProviders { get; protected set; }
+        public Transform CameraTransform => _camera.transform;
         public CombinedCameraMovementData CombinedMovementData
         {
             get => new CombinedCameraMovementData(transform, _vrControllersManager.HeadContainer.transform, _vrControllersManager.OriginTransform);
             protected set
             {
-                transform.localPosition = value.cameraPose.position;
-                transform.localRotation = value.cameraPose.rotation;
-
-                _vrControllersManager.HeadContainer.transform.localPosition = value.headPose.position;
-                _vrControllersManager.HeadContainer.transform.localRotation = value.headPose.rotation;
-
-                _vrControllersManager.OriginTransform.position = value.originPose.position;
-                _vrControllersManager.OriginTransform.rotation = value.originPose.rotation;
-
+                transform.SetLocalPose(value.CameraPose);
+                _vrControllersManager.HeadContainer.transform.SetLocalPose(value.HeadPose);
                 if (InputManager.IsInFPFC) return;
-
-                _vrControllersManager.MenuHandsContainerTransform.localPosition = value.cameraPose.position;
-                _vrControllersManager.MenuHandsContainerTransform.localRotation = value.cameraPose.rotation;
+                _vrControllersManager.MenuHandsContainerTransform.SetLocalPose(value.CameraPose);
             }
         }
         public ICameraPoseProvider CurrentPose => _currentPose;
@@ -121,7 +114,7 @@ namespace BeatLeader.Replayer.Camera
             }
             if (_currentPose != null && _currentPose.UpdateEveryFrame)
             {
-                CombinedMovementData = _currentPose.GetPose(CombinedMovementData);
+                CombinedMovementData = ProcessPose(_currentPose);
             }
         }
         public void SetCameraPose(string name)
@@ -132,7 +125,7 @@ namespace BeatLeader.Replayer.Camera
             if (cameraPose == null) return;
 
             _currentPose = cameraPose;
-            CombinedMovementData = _currentPose.GetPose(CombinedMovementData);
+            CombinedMovementData = ProcessPose(_currentPose);
             RefreshCamera();
             OnCameraPoseChanged?.Invoke(cameraPose);
         }
@@ -152,6 +145,12 @@ namespace BeatLeader.Replayer.Camera
             gameObject.SetActive(enabled);
         }
 
+        protected CombinedCameraMovementData ProcessPose(ICameraPoseProvider provider)
+        {
+            var data = CombinedMovementData;
+            _currentPose.ProcessPose(ref data);
+            return data;
+        }
         protected void RefreshCamera()
         {
             _camera.stereoTargetEye = InputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;

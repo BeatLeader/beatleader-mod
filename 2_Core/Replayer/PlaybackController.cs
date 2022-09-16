@@ -1,15 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IPA.Utilities;
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.FloatingScreen;
-using BeatSaberMarkupLanguage.ViewControllers;
-using BeatLeader.Replayer.Emulation;
-using BeatLeader.Replayer.Movement;
 using UnityEngine;
 using Zenject;
 
@@ -24,8 +14,10 @@ namespace BeatLeader.Replayer
         [Inject] private readonly GameplayModifiers _modifiers;
 
         [Inject] private readonly SaberManager _saberManager;
-        [Inject] private readonly IGamePause _gamePause;
         [Inject] private readonly BeatmapVisualsController _beatmapEffectsController;
+        [Inject] private readonly IGamePause _gamePause;
+        [Inject] private readonly IVRPlatformHelper _vrPlatformHelper;
+        [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger;
 
         public float CurrentSongTime => _songTimeSyncController.songTime;
         public float TotalSongTime => _songTimeSyncController.songEndTime;
@@ -57,20 +49,45 @@ namespace BeatLeader.Replayer
         }
         public void EscapeToMenu() => _pauseMenuManager.MenuButtonPressed();
 
-        #region Reflection
-
-        private FieldInfo _didPauseEventInfo;
-        private FieldInfo _didResumeEventInfo;
-        private FieldInfo _pauseInfo;
-
-        private void Awake()
+        private void Start()
         {
             _didPauseEventInfo = _pauseController.GetType().GetField("didPauseEvent",
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             _didResumeEventInfo = _pauseController.GetType().GetField("didResumeEvent",
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             _pauseInfo = _gamePause.GetType().GetField("_pause", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            _vrPlatformHelper.hmdUnmountedEvent += NotifyPauseRequired;
+            _vrPlatformHelper.inputFocusWasCapturedEvent += NotifyPauseRequired;
+            _pauseButtonTrigger.menuButtonTriggeredEvent += NotifyPauseSwitchRequired;
         }
+        private void OnDestroy()
+        {
+            if (_vrPlatformHelper != null)
+            {
+                _vrPlatformHelper.hmdUnmountedEvent -= NotifyPauseRequired;
+                _vrPlatformHelper.inputFocusWasCapturedEvent -= NotifyPauseRequired;
+            }
+            if (_pauseButtonTrigger != null)
+            {
+                _pauseButtonTrigger.menuButtonTriggeredEvent -= NotifyPauseSwitchRequired;
+            }
+        }
+        private void NotifyPauseSwitchRequired()
+        {
+            Pause(!IsPaused);
+        }
+        private void NotifyPauseRequired()
+        {
+            Pause(true);
+        }
+
+        #region Reflection
+
+        private FieldInfo _didPauseEventInfo;
+        private FieldInfo _didResumeEventInfo;
+        private FieldInfo _pauseInfo;
+
         private void SetPauseState(bool pause)
         {
             _pauseInfo.SetValue(_gamePause, pause);

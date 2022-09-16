@@ -3,14 +3,10 @@ using BeatLeader.Replayer;
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 
 namespace BeatLeader.Components.Settings
@@ -19,7 +15,7 @@ namespace BeatLeader.Components.Settings
     internal class CameraMenu : MenuWithContainer
     {
         [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly Models.ReplayLaunchData _replayData;
+        [Inject] private readonly ReplayLaunchData _replayData;
 
         [UIValue("camera-view-values")] private List<object> _cameraViewValues;
         [UIValue("camera-view")] private string cameraView
@@ -27,9 +23,6 @@ namespace BeatLeader.Components.Settings
             get => _cameraController.CurrentPoseName;
             set
             {
-                bool fpfc = InputManager.IsInFPFC;
-                _replayData.actualToWriteSettings.FPFCCameraPose = fpfc ? value : _replayData.actualToWriteSettings.FPFCCameraPose;
-                _replayData.actualToWriteSettings.VRCameraPose = !fpfc ? value : _replayData.actualToWriteSettings.VRCameraPose;
                 _cameraController.SetCameraPose(value);
             }
         }
@@ -61,10 +54,6 @@ namespace BeatLeader.Components.Settings
         {
             _cameraFovContainer.AddComponent<InputDependentObject>().Init(InputManager.InputType.FPFC);
             _poseMenuButtonCanvasGroup = _poseMenuButton.ButtonGameObject.AddComponent<CanvasGroup>();
-
-            var settings = _replayData.actualSettings;
-            cameraFov = InputManager.IsInFPFC ? settings.CameraFOV : cameraFov;
-            cameraView = InputManager.IsInFPFC ? settings.FPFCCameraPose : settings.VRCameraPose;
         }
 
         private void NotifyCameraFOVChanged(int fov)

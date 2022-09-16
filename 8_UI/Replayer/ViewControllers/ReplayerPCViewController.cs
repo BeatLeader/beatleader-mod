@@ -29,9 +29,15 @@ namespace BeatLeader.ViewControllers
             protected override void OnInstantiate()
             {
                 _layoutEditor = InstantiateInContainer<LayoutEditor>(Container, transform);
-                _songInfo = InstantiateInContainer<HorizontalSongInfo>(Container, transform);
                 _playerInfo = InstantiateInContainer<HorizontalPlayerInfo>(Container, transform);
+                _songInfo = InstantiateInContainer<HorizontalSongInfo>(Container, transform);
                 _toolbar = InstantiateInContainer<Toolbar>(Container, transform);
+            }
+            protected override void OnInitialize()
+            {
+                _layoutEditor.TryAddObject(_playerInfo);
+                _layoutEditor.TryAddObject(_songInfo);
+                _layoutEditor.TryAddObject(_toolbar);
             }
         }
 

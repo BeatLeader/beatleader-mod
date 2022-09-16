@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 4068415737
+CRC: 1221461326
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: d52f816d959751cda04c89e4dd50b971
+    Hash: 52949986599857071cf23af3d2251bc4
   TypeTreeHash:
     serializedVersion: 2
     Hash: 82261b79dc89f43900b3e0f8892d629e
@@ -44,21 +44,23 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_GraphIcon.png
-- Assets/BeatLeader/5_Textures/Icons/Replayer/SyncIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Community/BL_Discord.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/ClosedDoorIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/RotateRightIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/AlignIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Community/BL_Website.png
 - Assets/BeatLeader/4_Materials/HandAccIndicatorMaterial.mat
 - Assets/BeatLeader/4_Materials/LogoMaterial.mat
 - Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_TwitchIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/RotateCenterIcon.png
 - Assets/BeatLeader/5_Textures/Icons/FileError.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/PinIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/ExitIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/OpenedDoorIcon.png
 - Assets/BeatLeader/5_Textures/Backgrounds/YellowBGWithOutline.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/WarningIcon.png
 - Assets/BeatLeader/4_Materials/ScoreUnderlineMaterial.mat
+- Assets/BeatLeader/5_Textures/Icons/Replayer/ResetProgressIcon.png
 - Assets/BeatLeader/5_Textures/Backgrounds/BeatLeaderLogoGradient.png
 - Assets/BeatLeader/4_Materials/ClanTagBackgroundMaterial.mat
 - Assets/BeatLeader/5_Textures/Icons/Leaderboard/ModifiersIcon.png
@@ -79,6 +81,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_DetailsIcon.png
 - Assets/BeatLeader/5_Textures/Backgrounds/BlackTransparentBG.png
 - Assets/BeatLeader/1_Prefabs/TemplatePrefab.prefab
+- Assets/BeatLeader/5_Textures/Icons/Replayer/HorizontalSyncIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Leaderboard/BL_NotificationIcon.png
 - Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_IncognitoIcon.png
 - Assets/BeatLeader/4_Materials/ScoreBackgroundMaterial.mat
@@ -101,6 +104,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Icons/BL_SceneIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Community/BL_Patreon.png
 - Assets/BeatLeader/5_Textures/Icons/BL_UIIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/VerticalSyncIcon.png
 - Assets/BeatLeader/4_Materials/PlayerAvatarMaterial.mat
 - Assets/BeatLeader/4_Materials/UIMiniProfileBackgroundMaterial.mat
 - Assets/BeatLeader/3_Shaders/TMP_SpriteCurved.shader

@@ -1,17 +1,17 @@
 ﻿<horizontal pref-height="55">
 	<vertical pref-width="100">
-		
+
 		<horizontal pref-height="45">
 			<macro.as-host host="toolbar">
 				<macro.reparent transform="ui-component"/>
 			</macro.as-host>
 		</horizontal>
 
-		<horizontal pref-height="7">
-			<macro.as-host host="rotation-menu">
+		<vertical>
+			<macro.as-host host="floating-controls">
 				<macro.reparent transform="ui-component"/>
 			</macro.as-host>
-		</horizontal>
-		
+		</vertical>
+
 	</vertical>
 </horizontal>

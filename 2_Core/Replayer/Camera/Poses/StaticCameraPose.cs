@@ -37,11 +37,10 @@ namespace BeatLeader.Replayer.Camera
         public bool UpdateEveryFrame => false;
         public string Name => _name;
 
-        public CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
+        public void ProcessPose(ref CombinedCameraMovementData data)
         {
-            data.cameraPose.position = _position;
-            data.cameraPose.rotation = _rotation;
-            return data;
+            data.CameraPose.position = _position;
+            data.CameraPose.rotation = _rotation;
         }
     }
 }

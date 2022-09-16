@@ -52,7 +52,7 @@ namespace BeatLeader.Replayer
             OnReplayStart?.Invoke(data);
             Plugin.Log.Notice("[Launcher] Starting replay...");
 
-            return loadResult;
+            return true;
         }
 
         private async Task<bool> AssignDataAsync(ReplayLaunchData data, CancellationToken token)

@@ -66,7 +66,6 @@ namespace BeatLeader.Components
             button.navigation = new Navigation() { mode = Navigation.Mode.None };
             _settingsModal.blockerClickedEvent += _settingsNavigator.NotifySettingsClosed;
             _settingsNavigator.OnSettingsCloseRequested += x => _settingsModal.Hide(x, () => _settingsNavigator.NotifySettingsClosed());
-            _layoutEditor?.TryAddObject(this);
         }
         private void Update()
         {

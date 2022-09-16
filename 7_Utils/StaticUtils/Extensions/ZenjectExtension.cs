@@ -11,7 +11,7 @@ namespace BeatLeader.Utils
 {
     public static class ZenjectExtension
     {
-        //ye, i know about rebind
+        //ye, i know about rebind, but it makes sense when binded object is destroyed
         public static void Reinject<T>(this DiContainer container)
         {
             container.Reinject(container.Resolve<T>());

@@ -14,6 +14,7 @@ namespace BeatLeader.Replayer
         [Inject] private readonly LocksController _softLocksController;
         [Inject] private readonly StandardLevelGameplayManager _gameplayManager;
         [Inject] private readonly PauseController _pauseController;
+        [Inject] private readonly MainCamera _mainCamera;
 
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger;
         [Inject] private readonly IVRPlatformHelper _vrPlatformHelper;
@@ -29,6 +30,7 @@ namespace BeatLeader.Replayer
             _softLocksController.InstallLock(_gameplayManager);
             _softLocksController.InstallLock(_pauseMenuManager);
             _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First());
+            _mainCamera.gameObject.SetActive(false);
             Resources.FindObjectsOfTypeAll<VRLaserPointer>().First().gameObject.SetActive(!InputManager.IsInFPFC);
             Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().First().gameObject.SetActive(!InputManager.IsInFPFC);
         }

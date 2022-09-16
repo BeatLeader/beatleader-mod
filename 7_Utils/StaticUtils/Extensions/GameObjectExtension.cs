@@ -15,6 +15,12 @@ namespace BeatLeader.Utils
                 component = go.AddComponent<T>();
             return component;
         }
+        public static bool TryDestroy(this GameObject go)
+        {
+            if (go == null) return false;
+            GameObject.Destroy(go);
+            return true;
+        }
         public static bool TryDestroy<T>(this T go) where T : Component
         {
             if (go == null) return false;

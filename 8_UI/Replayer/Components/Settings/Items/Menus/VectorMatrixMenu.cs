@@ -4,6 +4,7 @@ using BeatLeader.Replayer.Camera;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
+using HMUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -134,6 +135,7 @@ namespace BeatLeader.Components.Settings
         [UIObject("x-slider-container")] private GameObject _xSliderContainer;
         [UIObject("y-slider-container")] private GameObject _ySliderContainer;
         [UIObject("z-slider-container")] private GameObject _zSliderContainer;
+
         [UIComponent("text")] private TextMeshProUGUI _vectorText;
         [UIComponent("x-slider")] private SliderSetting _xSlider;
         [UIComponent("y-slider")] private SliderSetting _ySlider;

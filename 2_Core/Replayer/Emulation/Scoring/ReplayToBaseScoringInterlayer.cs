@@ -32,7 +32,7 @@ namespace BeatLeader.Replayer.Scoring
         {
             CutScoreBuffer buffer = new CutScoreBuffer();
 
-            buffer.SetField("_noteCutInfo", ReplayNoteCutInfo.Parse(data.noteEvent.noteCutInfo, data.noteData,
+            buffer.SetField("_noteCutInfo", ReplayNoteCutInfo.ToBaseGame(data.noteEvent.noteCutInfo, data.noteData,
                 data.worldRotation, data.inverseWorldRotation, data.noteRotation, data.notePosition));
             ScoreModel.NoteScoreDefinition noteScoreDefinition = ScoreModel.GetNoteScoreDefinition(data.noteData.scoringType);
             buffer.SetField("_noteScoreDefinition", noteScoreDefinition);

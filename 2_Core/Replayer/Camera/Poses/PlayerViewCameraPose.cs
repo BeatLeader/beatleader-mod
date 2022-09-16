@@ -25,17 +25,16 @@ namespace BeatLeader.Replayer.Camera
 
         private string _name;
 
-        public CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
+        public void ProcessPose(ref CombinedCameraMovementData data)
         {
-            var camPose = data.cameraPose;
+            var camPose = data.CameraPose;
             camPose.position -= offset;
 
-            camPose.position = Vector3.Lerp(camPose.position, data.headPose.position, Time.deltaTime * smoothness);
-            camPose.rotation = Quaternion.Lerp(camPose.rotation, data.headPose.rotation, Time.deltaTime * smoothness);
+            camPose.position = Vector3.Lerp(camPose.position, data.HeadPose.position, Time.deltaTime * smoothness);
+            camPose.rotation = Quaternion.Lerp(camPose.rotation, data.HeadPose.rotation, Time.deltaTime * smoothness);
 
             camPose.position += offset;
-            data.cameraPose = camPose;
-            return data;
+            data.CameraPose = camPose;
         }
     }
 }

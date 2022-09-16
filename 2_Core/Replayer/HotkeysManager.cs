@@ -1,9 +1,7 @@
-﻿using BeatLeader.Replayer.Camera;
+﻿using BeatLeader.Components;
+using BeatLeader.Replayer.Camera;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
@@ -30,7 +28,7 @@ namespace BeatLeader.Replayer
         {
             if (Input.GetKeyDown(HideUIHotkey) && _2DManager != null)
             {
-                _2DManager.showUI = !_2DManager.showUI;
+                _2DManager.ShowUI = !_2DManager.ShowUI;
             }
             if (Input.GetKeyDown(HideCursorHotkey))
             {

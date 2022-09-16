@@ -11,6 +11,7 @@ using System.Linq;
 namespace BeatLeader.Replayer
 {
     //TODO: rewrite
+    //TODO: do not forget to not to rewrite
     public class InputManager : MonoBehaviour
     {
         [Flags]

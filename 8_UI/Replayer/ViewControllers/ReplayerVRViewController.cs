@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Replayer.Movement;
 using BeatLeader.Components;
 using BeatLeader.Replayer;
-using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
+using System.Linq;
+using BeatLeader.Replayer.Camera;
+using System.Windows.Forms;
 
 namespace BeatLeader.ViewControllers
 {
@@ -21,38 +17,37 @@ namespace BeatLeader.ViewControllers
     internal class ReplayerVRViewController : MonoBehaviour
     {
         [Inject] private readonly VRControllersManager _vrControllersManager;
-        [Inject] private readonly MainCamera _camera;
+        [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly DiContainer _container;
-        [Inject] private readonly ReplayLaunchData _replayData;
 
-        [UIValue("rotation-menu")] private RotationMenu _rotationMenu;
         [UIValue("toolbar")] private Toolbar _toolbar;
+        [UIValue("floating-controls")] private FloatingControls _floatingControls;
 
-        private FloatingScreen _floatingScreen;
+        private FloatingScreen _floating;
 
         private void Start()
         {
-            _rotationMenu = ReeUIComponentV2.Instantiate<RotationMenu>(transform);
+            _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
             _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
 
             var container = new GameObject("Container");
             var viewContainer = new GameObject("ViewContainer");
             viewContainer.transform.SetParent(container.transform, false);
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(100, 55), false, UnityEngine.Vector3.zero, UnityEngine.Quaternion.identity);
-            _floatingScreen.transform.SetParent(viewContainer.transform, false);
-            _floatingScreen.transform.localPosition = new UnityEngine.Vector3(0, 1, 1.7f);
-            _floatingScreen.transform.localEulerAngles = new UnityEngine.Vector3(50, 0, 0);
-            _floatingScreen.ParseInObjectHierarchy(BSMLUtil.ReadViewDefinition<ReplayerVRViewController>(), this);
 
-            var view = container.gameObject.AddComponent<RotatingVRView>();
-            view.Init(_camera.transform, viewContainer.transform);
-            _rotationMenu.view = view;
-            _rotationMenu.EnableSync(_replayData.actualSettings.SyncUIRotationWithHead);
-            _rotationMenu.OnViewSyncChanged += NotifyViewSyncChanged;
+            _floating = FloatingScreen.CreateFloatingScreen(new Vector2(100, 55), true, Vector3.zero, Quaternion.identity);
+            _floating.ParseInObjectHierarchy(BSMLTool.ReadViewDefinition<ReplayerVRViewController>(), this);
+
+            _floating.transform.SetParent(viewContainer.transform, false);
+            _floating.HighlightHandle = true;
+            _floating.HandleSide = FloatingScreen.Side.Bottom;
+            _floating.handle.transform.localPosition = new Vector3(11, -23.5f, 0);
+            _floating.handle.transform.localScale = new Vector3(20, 3.67f, 3.67f);
+
+            _floatingControls.Floating = _floating;
+            _floatingControls.Head = _cameraController.CameraTransform;
 
             _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();
         }
-        private void NotifyViewSyncChanged(bool state) => _replayData.actualToWriteSettings.SyncUIRotationWithHead = state;
     }
 }

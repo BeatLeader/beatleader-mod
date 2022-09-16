@@ -43,28 +43,28 @@ namespace BeatLeader.Replayer.Movement
             if (frame == null || frame.Next == null) return;
             _lastProcessedNode = frame;
 
-            float slerp = (_audioTimeSyncController.songTime - frame.Value.time) /
+            var leftSaberPos = frame.Value.leftHand.position;
+            var leftSaberRot = frame.Value.leftHand.rotation;
+
+            var rightSaberPos = frame.Value.rightHand.position;
+            var rightSaberRot = frame.Value.rightHand.rotation;
+
+            var headPos = frame.Value.head.position;
+            var headRot = frame.Value.head.rotation;
+
+            if (lerpEnabled)
+            {
+                float slerp = (_audioTimeSyncController.songTime - frame.Value.time) /
                 (frame.Next.Value.time - frame.Value.time);
 
-            var leftSaberPos = Vector3.Lerp(frame.Value.leftHand.position, frame.Next.Value.leftHand.position, slerp);
-            var leftSaberRot = Quaternion.Lerp(frame.Value.leftHand.rotation, frame.Next.Value.leftHand.rotation, slerp);
+                leftSaberPos = Vector3.Lerp(frame.Value.leftHand.position, frame.Next.Value.leftHand.position, slerp);
+                leftSaberRot = Quaternion.Lerp(frame.Value.leftHand.rotation, frame.Next.Value.leftHand.rotation, slerp);
 
-            var rightSaberPos = Vector3.Lerp(frame.Value.rightHand.position, frame.Next.Value.rightHand.position, slerp);
-            var rightSaberRot = Quaternion.Lerp(frame.Value.rightHand.rotation, frame.Next.Value.rightHand.rotation, slerp);
+                rightSaberPos = Vector3.Lerp(frame.Value.rightHand.position, frame.Next.Value.rightHand.position, slerp);
+                rightSaberRot = Quaternion.Lerp(frame.Value.rightHand.rotation, frame.Next.Value.rightHand.rotation, slerp);
 
-            var headPos = Vector3.Lerp(frame.Value.head.position, frame.Next.Value.head.position, slerp);
-            var headRot = Quaternion.Lerp(frame.Value.head.rotation, frame.Next.Value.head.rotation, slerp);
-
-            if (!lerpEnabled)
-            {
-                leftSaberPos = frame.Value.leftHand.position;
-                leftSaberRot = frame.Value.leftHand.rotation;
-
-                rightSaberPos = frame.Value.rightHand.position;
-                rightSaberRot = frame.Value.rightHand.rotation;
-
-                headPos = frame.Value.head.position;
-                headRot = frame.Value.head.rotation;
+                headPos = Vector3.Lerp(frame.Value.head.position, frame.Next.Value.head.position, slerp);
+                headRot = Quaternion.Lerp(frame.Value.head.rotation, frame.Next.Value.head.rotation, slerp);
             }
 
             leftSaber.transform.localPosition = leftSaberPos;

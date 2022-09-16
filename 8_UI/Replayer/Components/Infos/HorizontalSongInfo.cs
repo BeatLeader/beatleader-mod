@@ -15,7 +15,6 @@ namespace BeatLeader.Components
     internal class HorizontalSongInfo : EditableElement
     {
         [Inject] private readonly Models.ReplayLaunchData _replayData;
-        [InjectOptional] private readonly LayoutEditor _layoutEditor;
 
         [UIComponent("song-preview-image")] private Image _songPreviewImage;
         [UIComponent("container")] private RectTransform _container;
@@ -42,7 +41,8 @@ namespace BeatLeader.Components
 
         protected override RectTransform ContainerRect => _container;
         protected override RectTransform WrapperRect => _wrapper;
-        protected override HideMode Mode => HideMode.Hierarchy;
+        protected override HideMode Mode => HideMode.Custom;
+        protected override Action<bool> CustomVisibilityController => ChangeVisibility;
         public override string Name => "SongInfo";
 
         private string _songName;
@@ -54,11 +54,17 @@ namespace BeatLeader.Components
             songName = previewBeatmapLevel.songName;
             songAuthor = previewBeatmapLevel.levelAuthorName;
             LoadAndAssignImage(previewBeatmapLevel);
-            _layoutEditor?.TryAddObject(this);
         }
         private async void LoadAndAssignImage(IPreviewBeatmapLevel previewBeatmapLevel)
         {
             _songPreviewImage.sprite = await previewBeatmapLevel.GetCoverImageAsync(new System.Threading.CancellationToken());
+        }
+
+        //i really, really hate it, but i was forced because of layout problems on disabled objects
+        private void ChangeVisibility(bool visible)
+        {
+            ContainerCanvasGroup.alpha = visible ? 1 : 0;
+            ContainerRect.SetSiblingIndex(visible ? 0 : 1);
         }
     }
 }

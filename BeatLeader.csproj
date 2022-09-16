@@ -298,9 +298,9 @@
     <Compile Include="2_Core\Models\AvatarImage.cs" />
     <Compile Include="2_Core\Models\CombinedCameraMovementData.cs" />
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
-    <Compile Include="2_Core\Models\Interfaces\ICameraPoseProvider.cs" />
-    <Compile Include="2_Core\Models\Interfaces\IReplayerScoreController.cs" />
-    <Compile Include="2_Core\Models\Interfaces\IScoringInterlayer.cs" />
+    <Compile Include="2_Core\Models\ICameraPoseProvider.cs" />
+    <Compile Include="2_Core\Models\IReplayerScoreController.cs" />
+    <Compile Include="2_Core\Models\IScoringInterlayer.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
     <Compile Include="2_Core\Models\LeaderboardsInfoResponse.cs" />
     <Compile Include="2_Core\Models\LeaderboardKey.cs" />
@@ -339,7 +339,6 @@
     <Compile Include="2_Core\Replayer\Emulation\SimpleNoteCutComparator.cs" />
     <Compile Include="2_Core\Replayer\ReplayerCache.cs" />
     <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
-    <Compile Include="2_Core\Models\Interfaces\IComparatorModule.cs" />
     <Compile Include="2_Core\Replayer\InputManager.cs" />
     <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
     <Compile Include="2_Core\Replayer\SceneTweaksManager.cs" />
@@ -362,19 +361,20 @@
     <Compile Include="7_Utils\FileManager.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
     <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
+    <Compile Include="7_Utils\Interop\NoodleExtensionsInterop.cs" />
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
-    <Compile Include="7_Utils\MathUtils.cs" />
+    <Compile Include="7_Utils\StaticUtils\Extensions\Vector3Extension.cs" />
+    <Compile Include="7_Utils\StaticUtils\MathUtils.cs" />
     <Compile Include="7_Utils\ModifiersUtils.cs" />
     <Compile Include="7_Utils\RecorderUtils.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
-    <Compile Include="7_Utils\StaticUtils\BSMLUtil.cs" />
+    <Compile Include="7_Utils\StaticUtils\BSMLTool.cs" />
     <Compile Include="7_Utils\StaticUtils\EnvironmentUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\Extensions\GameObjectExtension.cs" />
     <Compile Include="7_Utils\StaticUtils\HarmonyUtils.cs" />
-    <Compile Include="7_Utils\StaticUtils\HMUIUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\LayerMaskHelper.cs" />
     <Compile Include="7_Utils\StaticUtils\ReflectionUtils.cs" />
@@ -401,11 +401,14 @@
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ImageViewExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ModalViewExtensionHandler.cs" />
-    <Compile Include="8_UI\Components\RotatingVRView.cs" />
-    <Compile Include="8_UI\Components\HighlightableView.cs" />
+    <Compile Include="8_UI\Components\Deprecated\ControllableByJoystick.cs" />
+    <Compile Include="8_UI\Components\Deprecated\GrabbableHandle.cs" />
+    <Compile Include="8_UI\Components\Highlightable2DView.cs" />
     <Compile Include="8_UI\Components\InputDependentObject.cs" />
     <Compile Include="8_UI\Components\InteractionEventsProvider.cs" />
-    <Compile Include="8_UI\Components\WindowView.cs" />
+    <Compile Include="8_UI\Components\Draggable2DView.cs" />
+    <Compile Include="8_UI\Components\Deprecated\SimpleSmoothAnimator.cs" />
+    <Compile Include="8_UI\Components\TransformListener.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\CountryFlag.cs" />
@@ -463,11 +466,14 @@
     <Compile Include="8_UI\ReeUIComponent.cs" />
     <Compile Include="8_UI\ReeUIComponentV2.cs" />
     <Compile Include="8_UI\ReeUIComponentV2WithContainer.cs" />
+    <Compile Include="8_UI\Replayer\Components\Floating\FloatingConfig.cs" />
+    <Compile Include="8_UI\Replayer\Components\Floating\FloatingControls.cs" />
+    <Compile Include="8_UI\Replayer\Components\Floating\FloatingResetter.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditableElement.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditableWrapper.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\LayoutEditor.cs" />
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalPlayerInfo.cs" />
-    <Compile Include="8_UI\Replayer\Components\RotationMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\ReplayWatermark.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\BodyMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraParamsMenu.cs" />
@@ -482,14 +488,18 @@
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\SpeedSetting.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\SubMenuButton.cs" />
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalSongInfo.cs" />
+    <Compile Include="8_UI\Replayer\Components\SimpleButton.cs" />
+    <Compile Include="8_UI\Replayer\Components\ToggleButton.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Timeline.cs" />
     <Compile Include="8_UI\Replayer\Components\Toolbar\Toolbar.cs" />
+    <Compile Include="8_UI\Replayer\Components\Floating\ResetUIAnimator.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerPCViewController.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerVRViewController.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
-    <Compile Include="8_UI\UI2DManager.cs" />
+    <Compile Include="8_UI\Components\UI2DManager.cs" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\PlayerViewParamsMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\FloatingResetter.bsml" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -569,8 +579,9 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalPlayerInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SettingsRootMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\Vector3MatrixMenu.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\RotationMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\FlyingViewParamsMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\FloatingControls.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\ToggleButton.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

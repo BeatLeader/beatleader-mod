@@ -15,7 +15,7 @@ namespace BeatLeader.Components
                 Refresh();
             }
         }
-        public bool ShouldBeVisible => InputManager.MatchesCurrentInput(_inputType);
+        public bool ShouldBeVisible => MatchesCurrentInput(_inputType);
 
         private InputType _inputType;
 

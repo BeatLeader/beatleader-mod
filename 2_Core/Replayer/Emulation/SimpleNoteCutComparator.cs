@@ -41,7 +41,7 @@ namespace BeatLeader.Replayer.Emulation
         {
             if (IsAvailableForCut && _timeSyncController.songTime >= NoteEvent.eventTime)
             {
-                Cut(ReplayNoteCutInfo.Parse(NoteEvent.noteCutInfo, NoteController));
+                Cut(ReplayNoteCutInfo.ToBaseGame(NoteEvent.noteCutInfo, NoteController));
             }
         }
 

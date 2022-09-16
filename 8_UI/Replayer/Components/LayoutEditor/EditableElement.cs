@@ -16,6 +16,7 @@ namespace BeatLeader.Components
     {
         public enum HideMode
         {
+            Custom,
             Opacity,
             Hierarchy
         }
@@ -23,58 +24,64 @@ namespace BeatLeader.Components
         protected virtual RectTransform WrapperRect => ContainerRect;
         protected abstract RectTransform ContainerRect { get; }
         protected virtual HideMode Mode => HideMode.Opacity;
+        protected virtual Action<bool> CustomVisibilityController { get; set; }
         public virtual string Name => GetType().Name;
         public virtual bool Locked => false;
         public virtual bool Enabled { get; private set; } = true;
 
         public event Action<string, bool> OnStateChanged;
 
+        protected CanvasGroup ContainerCanvasGroup { get; private set; }
+        protected CanvasGroup WrapperCanvasGroup { get; private set; }
+
         private EditableWrapper _editableWrapper;
-        private CanvasGroup _containerCanvasGroup;
-        private CanvasGroup _wrapperCanvasGroup;
         private bool _tempContainerEnabled;
         private bool _initialized;
 
         public void Dispose()
         {
             _editableWrapper.Dispose();
-            GameObject.Destroy(_containerCanvasGroup);
+            Destroy(ContainerCanvasGroup);
         }
-        public void Rebuild()
+        public void SetElementEnabled(bool enabled)
         {
-            _editableWrapper.Rebuild();
-        }
-        public void SetEnabled(bool enabled, bool applySettings = true)
-        {
+            Enabled = enabled;
             SetupSelfIfNeeded();
+            SetContainerEnabled(enabled);
+        }
+        public void SetEditableEnabled(bool enabled, bool applySettings = true)
+        {
             Enabled = applySettings && !enabled ? _tempContainerEnabled : Enabled;
-            _editableWrapper.SetEnabled(enabled, Enabled);
             SetContainerEnabled(enabled ? true : Enabled);
-            if (enabled) OnToggleValueChanged(Enabled);
+            ContainerRect.ForceUpdateRectTransforms();
+            SetupSelfIfNeeded();
+            _editableWrapper.SetEditableEnabled(enabled, Enabled);
+            if (enabled) NotifyToggleValueChanged(Enabled);
 
             OnStateChanged?.Invoke(Name, Enabled);
         }
         private void SetContainerEnabled(bool enabled = true)
         {
-            float alpha = Mode == HideMode.Hierarchy ? 1 : enabled ? 1 : 0;
-            if (_containerCanvasGroup != null) _containerCanvasGroup.alpha = alpha;
-            _wrapperCanvasGroup.alpha = alpha;
+            float alpha = Mode == HideMode.Opacity ? (enabled ? 1 : 0) : 1;
+            if (ContainerCanvasGroup != null) ContainerCanvasGroup.alpha = alpha;
+            if (WrapperCanvasGroup != null) WrapperCanvasGroup.alpha = enabled ? 1 : 0;
             if (Mode == HideMode.Hierarchy) ContainerRect.gameObject.SetActive(enabled);
+            else if (Mode == HideMode.Custom) CustomVisibilityController?.Invoke(enabled);
         }
 
         private bool SetupSelfIfNeeded()
         {
             if (_initialized || ContainerRect == null) return false;
-            _containerCanvasGroup = Mode == HideMode.Opacity ? ContainerRect.gameObject.GetOrAddComponent<CanvasGroup>() : null;
-            _wrapperCanvasGroup = WrapperRect.gameObject.GetOrAddComponent<CanvasGroup>();
+            ContainerCanvasGroup = ContainerRect.gameObject.GetOrAddComponent<CanvasGroup>();
+            WrapperCanvasGroup = WrapperRect.gameObject.GetOrAddComponent<CanvasGroup>();
             _editableWrapper = new EditableWrapper(WrapperRect, Name, false, Locked, Enabled);
-            _editableWrapper.OnToggleStateChanged += OnToggleValueChanged;
+            _editableWrapper.OnToggleStateChanged += NotifyToggleValueChanged;
             _initialized = true;
             return true;
         }
-        private void OnToggleValueChanged(bool state)
+        private void NotifyToggleValueChanged(bool state)
         {
-            _wrapperCanvasGroup.alpha = state ? 0.7f : 0.4f;
+            WrapperCanvasGroup.alpha = state ? 0.7f : 0.4f;
             _tempContainerEnabled = state;
         }
     }

@@ -26,14 +26,15 @@ namespace BeatLeader.Components
         public void SetEditModeEnabled(bool enabled, bool applySettings = true)
         {
             if (enabled == EditMode) return;
-            _editableObjects.ToList().ForEach(x => x.SetEnabled(enabled, applySettings));
+            _editableObjects.ToList().ForEach(x => x.SetEditableEnabled(enabled, applySettings));
             Content.gameObject.SetActive(enabled);
             EditMode = enabled;
         }
         public bool TryAddObject(EditableElement editable, bool loadConfig = true)
         {
-            bool state = _objectsConfig.ContainsKey(editable.Name) && loadConfig ? _objectsConfig[editable.Name] : editable.Enabled;
-            editable.OnStateChanged += SaveSettings; 
+            bool state = loadConfig && _objectsConfig.ContainsKey(editable.Name) ? _objectsConfig[editable.Name] : editable.Enabled;
+            editable.SetElementEnabled(state);
+            editable.OnStateChanged += SaveSettings;
 
             bool result = false;
             if (!_editableObjects.Contains(editable))
@@ -70,8 +71,8 @@ namespace BeatLeader.Components
         protected override void OnInitialize()
         {
             Content.gameObject.SetActive(false);
-            _window.gameObject.AddComponent<WindowView>().handle = _handle;
-            _handle.gameObject.AddComponent<HighlightableView>().Init(Color.cyan, Color.yellow);
+            _window.gameObject.AddComponent<Draggable2DView>().handle = _handle;
+            _handle.gameObject.AddComponent<Highlightable2DView>().Init(Color.cyan, Color.yellow);
         }
 
         [UIAction("done-button-clicked")] private void OnDoneButtonClicked() => SetEditModeEnabled(false);

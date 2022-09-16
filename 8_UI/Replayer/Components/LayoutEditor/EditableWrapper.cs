@@ -2,14 +2,17 @@
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using JetBrains.Annotations;
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components
 {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.LayoutEditor.EditableWrapper.bsml")]
-    internal class EditableWrapper : IDisposable
+    internal class EditableWrapper : IDisposable, INotifyPropertyChanged
     {
         public EditableWrapper(RectTransform rect, string name, bool visible = false, bool locked = false, bool toggleEnabled = false)
         {
@@ -17,11 +20,11 @@ namespace BeatLeader.Components
             _name = name;
             _locked = locked;
             _enabled = toggleEnabled;
-            SetEnabled(visible);
+            SetEditableEnabled(visible);
         }
 
-        [UIValue("height")] private float height => _targetRect.sizeDelta.y;
-        [UIValue("width")] private float width => _targetRect.sizeDelta.x;
+        [UIValue("height")] private float _Height => _targetRect.sizeDelta.y;
+        [UIValue("width")] private float _Width => _targetRect.sizeDelta.x;
 
         public event Action<bool> OnToggleStateChanged;
 
@@ -39,22 +42,32 @@ namespace BeatLeader.Components
         {
             Destroy();
         }
-        public void Rebuild()
+        public void Refresh()
         {
-            Destroy();
+            NotifyPropertyChanged(nameof(_Height));
+            NotifyPropertyChanged(nameof(_Width));
+            _container.transform.localPosition = _targetRect.localPosition;
+        }
+        public void SetEnabled(bool enabled)
+        {
+            if (_locked) return;
+
             Create(_targetRect);
+            _toggle.isOn = enabled;
+            NotifyToggleValueChanged(enabled);
         }
-        public void SetEnabled(bool enabled = true)
+        public void SetEditableEnabled(bool enabled = true)
         {
-            SetEnabled(enabled, _enabled);
+            SetEditableEnabled(enabled, _enabled);
         }
-        public void SetEnabled(bool enabled, bool toggleEnabled)
+        public void SetEditableEnabled(bool enabled, bool toggleEnabled)
         {
-            if (_container == null) Create(_targetRect);
+            Create(_targetRect);
             _enabled = toggleEnabled;
             if (_toggle != null && !enabled) _toggle.isOn = toggleEnabled;
             _canvasGroup.alpha = toggleEnabled ? 0.95f : 0.75f;
-            _container.SetActive(enabled);
+            _container.SetActive(enabled);  
+            Refresh();
         }
 
         private void Create(RectTransform rect)
@@ -71,24 +84,33 @@ namespace BeatLeader.Components
             go.transform.SetParent(rect.parent, false);
             go.transform.localPosition = rect.localPosition;
             _container = go;
+
+            if (_locked) return;
+            _toggle = _toggleContainer.GetComponentInChildren<ToggleWithCallbacks>();
+            _toggle.isOn = _enabled;
+            _toggle.onValueChanged.AddListener(NotifyToggleValueChanged);
         }
         private void Destroy()
         {
             if (_container != null) GameObject.Destroy(_container);
         }
 
-        private void OnToggleValueChanged(bool state)
+        private void NotifyToggleValueChanged(bool state)
         {
             OnToggleStateChanged?.Invoke(state);
             _enabled = state;
             _canvasGroup.alpha = state ? 0.95f : 0.75f;
         }
-        [UIAction("#post-parse")] private void OnAfterParse()
+
+        #region PropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void NotifyPropertyChanged(string propertyName = null)
         {
-            if (_locked) return;
-            _toggle = _toggleContainer.GetComponentInChildren<ToggleWithCallbacks>();
-            _toggle.isOn = _enabled;
-            _toggle.onValueChanged.AddListener(OnToggleValueChanged);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #endregion
     }
 }

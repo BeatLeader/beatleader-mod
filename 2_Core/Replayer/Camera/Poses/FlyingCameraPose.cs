@@ -40,10 +40,10 @@ namespace BeatLeader.Replayer.Camera
         public bool UpdateEveryFrame => true;
         public string Name => _name;
 
-        public CombinedCameraMovementData GetPose(CombinedCameraMovementData data)
+        public void ProcessPose(ref CombinedCameraMovementData data)
         {
-            ref var currentPos = ref data.cameraPose.position;
-            ref var currentRot = ref data.cameraPose.rotation;
+            ref var currentPos = ref data.CameraPose.position;
+            ref var currentRot = ref data.CameraPose.rotation;
 
             bool flag = false;
             if (disableInputOnUnlockedCursor && Cursor.lockState != CursorLockMode.Locked)
@@ -55,11 +55,11 @@ namespace BeatLeader.Replayer.Camera
 
             if (!followOrigin)
             {
-                currentPos -= data.originPose.position - _lastOriginPos;
-                currentRot.eulerAngles -= data.originPose.rotation.eulerAngles - _lastOriginRot.eulerAngles;
+                currentPos -= data.OriginPose.position - _lastOriginPos;
+                currentRot.eulerAngles -= data.OriginPose.rotation.eulerAngles - _lastOriginRot.eulerAngles;
             }
 
-            if (flag) return data;
+            if (flag) return;
 
             if (_returnToTheLastPos)
             {
@@ -71,10 +71,8 @@ namespace BeatLeader.Replayer.Camera
             _lastHeadPos = currentPos = GetPosition(currentPos, currentRot);
             _lastHeadRot = currentRot = GetRotation(currentRot);
 
-            _lastOriginPos = data.originPose.position;
-            _lastOriginRot = data.originPose.rotation;
-
-            return data;
+            _lastOriginPos = data.OriginPose.position;
+            _lastOriginRot = data.OriginPose.rotation;
         }
         protected virtual Vector3 GetPosition(Vector3 currentPosition, Quaternion currentRotation)
         {

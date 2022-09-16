@@ -18,6 +18,16 @@ namespace BeatLeader.Utils
             }
             return children;
         }
+        public static void SetPose(this Transform transform, Pose pose)
+        {
+            transform.position = pose.position;
+            transform.rotation = pose.rotation;
+        }
+        public static void SetLocalPose(this Transform transform, Pose pose)
+        {
+            transform.localPosition = pose.position;
+            transform.localRotation = pose.rotation;
+        }
         public static Pose GetPose(this Transform transform)
         {
             return new Pose(transform.position, transform.rotation);

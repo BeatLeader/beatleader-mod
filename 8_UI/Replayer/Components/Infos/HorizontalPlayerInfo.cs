@@ -13,7 +13,6 @@ namespace BeatLeader.Components
     internal class HorizontalPlayerInfo : EditableElement
     {
         [Inject] private readonly ReplayLaunchData _replayData;
-        [InjectOptional] private readonly LayoutEditor _layoutEditor;
 
         [UIValue("player-avatar")] private PlayerAvatar _playerAvatar;
         [UIValue("country-flag")] private CountryFlag _playerCountryFlag;
@@ -26,7 +25,7 @@ namespace BeatLeader.Components
 
         protected override RectTransform ContainerRect => _container;
         protected override RectTransform WrapperRect => _wrapper;
-        protected override HideMode Mode => HideMode.Hierarchy;
+        protected override HideMode Mode => HideMode.Opacity;
         public override string Name => "PlayerInfo";
 
         private Player _player => _replayData.player;
@@ -40,7 +39,6 @@ namespace BeatLeader.Components
         {
             _playerAvatar.SetAvatar(_player.avatar, FormatUtils.ParsePlayerRoles(_player.role));
             _playerCountryFlag.SetCountry(_player.country);
-            _layoutEditor?.TryAddObject(this);
         }
     }
 }

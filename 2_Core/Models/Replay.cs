@@ -26,7 +26,7 @@ namespace BeatLeader.Models
         public string version;
         public string gameVersion;
         public string timestamp;
-        
+
         public string playerID;
         public string playerName;
         public string platform;
@@ -95,20 +95,26 @@ namespace BeatLeader.Models
     }
     public class NoteCutInfo
     {
-        public static GameNoteCutInfo Parse(NoteCutInfo info, NoteData data, UnityQuaternion worldRotation, UnityQuaternion inverseWorldRotation, UnityQuaternion noteRotation, UnityVector3 notePosition)
-        => new GameNoteCutInfo(data, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
-        info.saberSpeed, (UnityVector3)info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
-        (UnityVector3)info.cutPoint, (UnityVector3)info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
-        worldRotation, inverseWorldRotation, noteRotation, notePosition, new SaberMovementData());
-        public static GameNoteCutInfo Parse(NoteCutInfo info, NoteController controller)
-        => new GameNoteCutInfo(controller.noteData, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
-        info.saberSpeed, (UnityVector3)info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
-        (UnityVector3)info.cutPoint, (UnityVector3)info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
-        controller.worldRotation, controller.inverseWorldRotation, controller.noteTransform.localRotation,
-        controller.noteTransform.position, new SaberMovementData());
+        public static GameNoteCutInfo ToBaseGame(NoteCutInfo info, NoteData data, UnityQuaternion worldRotation,
+            UnityQuaternion inverseWorldRotation, UnityQuaternion noteRotation, UnityVector3 notePosition)
+        {
+            return new GameNoteCutInfo(data, info.speedOK, info.directionOK, info.saberTypeOK, info.wasCutTooSoon,
+                    info.saberSpeed, info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
+                    info.cutPoint, info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
+                    worldRotation, inverseWorldRotation, noteRotation, notePosition, new SaberMovementData());
+        }
 
-        public static implicit operator NoteCutInfo(GameNoteCutInfo info)
-        => new NoteCutInfo()
+        public static GameNoteCutInfo ToBaseGame(NoteCutInfo info, NoteController controller)
+        {
+            return new GameNoteCutInfo(controller.noteData, info.speedOK, info.directionOK, info.saberTypeOK,
+                info.wasCutTooSoon,
+                info.saberSpeed, info.saberDir, (SaberType)info.saberType, info.timeDeviation, info.cutDirDeviation,
+                info.cutPoint, info.cutNormal, info.cutDistanceToCenter, info.cutAngle,
+                controller.worldRotation, controller.inverseWorldRotation, controller.noteTransform.localRotation,
+                controller.noteTransform.position, new SaberMovementData());
+        }
+
+        public static implicit operator NoteCutInfo(GameNoteCutInfo info) => new NoteCutInfo()
         {
             speedOK = info.speedOK,
             directionOK = info.directionOK,
@@ -160,11 +166,15 @@ namespace BeatLeader.Models
             y = unityVector.y;
             z = unityVector.z;
         }
+        public Vector3(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
 
-        public static implicit operator UnityVector3(Vector3 vector)
-        => new UnityEngine.Vector3(vector.x, vector.y, vector.z);
-        public static implicit operator Vector3(UnityVector3 vector)
-        => new Vector3(vector);
+        public static implicit operator UnityVector3(Vector3 vector) => new UnityVector3(vector.x, vector.y, vector.z);
+        public static implicit operator Vector3(UnityVector3 vector) => new Vector3(vector);
 
         public float x;
         public float y;
@@ -180,10 +190,8 @@ namespace BeatLeader.Models
             w = unityQuaternion.w;
         }
 
-        public static implicit operator UnityQuaternion(Quaternion quaternion)
-        => new UnityEngine.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-        public static implicit operator Quaternion(UnityQuaternion quaternion)
-        => new Quaternion(quaternion);
+        public static implicit operator UnityQuaternion(Quaternion quaternion) => new UnityQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        public static implicit operator Quaternion(UnityQuaternion quaternion) => new Quaternion(quaternion);
 
         public float x;
         public float y;
@@ -209,8 +217,7 @@ namespace BeatLeader.Models
             this.rotation = rotation;
         }
 
-        public static implicit operator Transform(UnityEngine.Transform transform)
-        => new Transform(transform);
+        public static implicit operator Transform(UnityEngine.Transform transform) => new Transform(transform);
 
         public Vector3 position;
         public Quaternion rotation;
@@ -309,7 +316,8 @@ namespace BeatLeader.Models
                 stream.Write(note.eventTime);
                 stream.Write(note.spawnTime);
                 stream.Write((int)note.eventType);
-                if (note.eventType == NoteEventType.good || note.eventType == NoteEventType.bad) {
+                if (note.eventType == NoteEventType.good || note.eventType == NoteEventType.bad)
+                {
                     EncodeNoteInfo(note.noteCutInfo, stream);
                 }
             }

@@ -12,7 +12,7 @@ namespace BeatLeader.Utils
     {
         public const BindingFlags DefaultFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-        public static T Cast<T>(this object value, T type)
+        public static T Cast<T>(this object value)
         {
             return (T)value;
         }

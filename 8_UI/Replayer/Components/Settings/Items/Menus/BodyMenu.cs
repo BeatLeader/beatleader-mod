@@ -1,6 +1,6 @@
 ﻿using BeatLeader.Replayer.Movement;
 using BeatSaberMarkupLanguage.Attributes;
-using UnityEngine;
+using UnityEngine.XR;
 using Zenject;
 
 namespace BeatLeader.Components.Settings
@@ -11,34 +11,31 @@ namespace BeatLeader.Components.Settings
         [Inject] private readonly VRControllersManager _controllersManager;
         [Inject] private readonly Models.ReplayLaunchData _replayData;
 
-        [UIValue("show-head")] private bool _showHead
+        [UIValue("show-head")] private bool showHead
         {
             get => _replayData.actualSettings.ShowHead;
             set
             {
-                _controllersManager.HeadTransform.gameObject.SetActive(value);
-                NotifyPropertyChanged(nameof(_showHead));
                 _replayData.actualToWriteSettings.ShowHead = value;
+                _controllersManager.ShowNode(XRNode.Head, value);
             }
         }
-        [UIValue("show-left-saber")] private bool _showLeftSaber
+        [UIValue("show-left-saber")] private bool showLeftSaber
         {
             get => _replayData.actualSettings.ShowLeftSaber;
             set
             {
-                _controllersManager.LeftSaber.gameObject.SetActive(value);
-                NotifyPropertyChanged(nameof(_showLeftSaber));
                 _replayData.actualToWriteSettings.ShowLeftSaber = value;
+                _controllersManager.ShowNode(XRNode.LeftHand, value);
             }
         }
-        [UIValue("show-right-saber")] private bool _showRightSaber
+        [UIValue("show-right-saber")] private bool showRightSaber
         {
             get => _replayData.actualSettings.ShowRightSaber;
             set
             {
-                _controllersManager.RightSaber.gameObject.SetActive(value);
-                NotifyPropertyChanged(nameof(_showRightSaber));
                 _replayData.actualToWriteSettings.ShowRightSaber = value;
+                _controllersManager.ShowNode(XRNode.RightHand, value);
             }
         }
     }

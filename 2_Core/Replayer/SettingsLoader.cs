@@ -1,8 +1,7 @@
-﻿using BeatLeader.Interop;
+﻿using BeatLeader.Components;
+using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
-using IPA.Config.Data;
 using IPA.Utilities;
-using SiraUtil.Tools.FPFC;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -14,14 +13,14 @@ namespace BeatLeader.Replayer
     {
         [InjectOptional] private readonly PlayerDataModel _playerDataModel;
         [InjectOptional] private readonly ReplayerCameraController _cameraController;
-        [InjectOptional] private readonly Models.ReplayLaunchData _replayData;
+        [InjectOptional] private readonly ReplayLaunchData _replayData;
         [InjectOptional] private readonly UI2DManager _2DManager;
 
         private RoomAdjustSettingsViewController _roomAdjustViewController;
         private Vector3SO _roomPosition;
         private FloatSO _roomRotation;
 
-        private Vector3 _tempPosition;
+        private UnityEngine.Vector3 _tempPosition;
         private float _tempRotation;
 
         public virtual void Initialize()
@@ -48,8 +47,20 @@ namespace BeatLeader.Replayer
 
             if (_2DManager != null)
             {
-                _2DManager.OnUIVisibilityChanged += x => _replayData.actualToWriteSettings.ShowUI = x;
-                _2DManager.showUI = _replayData.actualSettings.ShowUI;
+                _2DManager.OnUIVisibilityChanged += NotifyUIVisibilityChanged;
+                _2DManager.ShowUI = _replayData.actualSettings.ShowUI;
+            }
+
+            if (_cameraController != null)
+            {
+                if (InputManager.IsInFPFC)
+                {
+                    _cameraController.FieldOfView = _replayData.actualSettings.CameraFOV;
+                    _cameraController.OnCameraFOVChanged += NotifyCameraFOVChanged;
+                }
+                _cameraController.SetCameraPose(InputManager.IsInFPFC ? 
+                    _replayData.actualSettings.FPFCCameraPose : _replayData.actualSettings.VRCameraPose);
+                _cameraController.OnCameraPoseChanged += NotifyCameraPoseChanged;
             }
 
             RaycastBlocker.EnableBlocker = true;
@@ -63,6 +74,21 @@ namespace BeatLeader.Replayer
             }
 
             RaycastBlocker.EnableBlocker = false;
+        }
+
+        private void NotifyUIVisibilityChanged(bool visible)
+        {
+            _replayData.actualToWriteSettings.ShowUI = visible;
+        }
+        private void NotifyCameraFOVChanged(int fov)
+        {
+            _replayData.actualSettings.CameraFOV = fov;
+        }
+        private void NotifyCameraPoseChanged(ICameraPoseProvider poseProvider)
+        {
+            var settings = _replayData.actualToWriteSettings;
+            settings.FPFCCameraPose = InputManager.IsInFPFC ? poseProvider.Name : settings.FPFCCameraPose;
+            settings.VRCameraPose = !InputManager.IsInFPFC ? poseProvider.Name : settings.VRCameraPose;
         }
     }
 }

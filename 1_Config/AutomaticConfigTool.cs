@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 
 namespace BeatLeader
 {
-    public class AutomaticConfigTool
+    public static class AutomaticConfigTool
     {
         private const string ConfigsSavePath = @"UserData\BeatLeader\Configs";
         private const string ConfigFileFormat = ".json";

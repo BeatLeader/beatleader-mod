@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.XR;
 using Zenject;
 
-
 namespace BeatLeader.Replayer.Movement
 {
     public class VRControllersManager : MonoBehaviour

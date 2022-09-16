@@ -164,8 +164,11 @@ namespace BeatLeader.Replayer
             launchData.OnReplayFinish -= NotifyLevelDidFinish;
             _scenesManager.PopScenes(completionResults.levelEndStateType == 0 ? 0.35f : 1.3f);
 
-            InputManager.EnableCursor(false);
-            _fpfcSettings.Enabled = true;
+            if (InputManager.IsInFPFC)
+            {
+                InputManager.EnableCursor(false);
+                _fpfcSettings.Enabled = true;
+            }
         }
 
         #endregion

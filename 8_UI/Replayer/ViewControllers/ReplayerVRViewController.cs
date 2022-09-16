@@ -1,15 +1,12 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Replayer.Movement;
 using BeatLeader.Components;
-using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
-using System.Linq;
 using BeatLeader.Replayer.Camera;
-using System.Windows.Forms;
 
 namespace BeatLeader.ViewControllers
 {

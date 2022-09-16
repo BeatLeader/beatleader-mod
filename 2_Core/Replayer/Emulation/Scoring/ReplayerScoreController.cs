@@ -16,7 +16,7 @@ namespace BeatLeader.Replayer.Scoring
         [Inject] private readonly ReplayLaunchData _replayData;
         [Inject] private readonly SimpleNoteComparatorsSpawner _simpleNoteComparatorsSpawner;
         [InjectOptional] private readonly BeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
+        [Inject] private readonly GameEnergyCounter _energyCounter;
         [Inject] private readonly IScoringInterlayer _scoringInterlayer;
         [Inject] private readonly IReadonlyBeatmapData _beatmapData;
 
@@ -34,7 +34,7 @@ namespace BeatLeader.Replayer.Scoring
         {
             _gameplayModifiersModel = Resources.FindObjectsOfTypeAll<GameplayModifiersModelSO>().First();
             _gameplayModifierParams = _gameplayModifiersModel.CreateModifierParamsList(_gameplayModifiers);
-            _prevMultiplierFromModifiers = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
+            _prevMultiplierFromModifiers = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _energyCounter.energy);
             _playerHeadAndObstacleInteraction.headDidEnterObstaclesEvent += HandlePlayerHeadDidEnterObstacles;
             _beatmapObjectManager.noteWasCutEvent += HandleNoteWasCut;
             _beatmapObjectManager.noteWasMissedEvent += HandleNoteWasMissed;
@@ -110,7 +110,7 @@ namespace BeatLeader.Replayer.Scoring
                             _comboAfterRescoring++;
                             _maxComboAfterRescoring = _comboAfterRescoring > _maxComboAfterRescoring ? _comboAfterRescoring : _maxComboAfterRescoring;
 
-                            float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _gameEnergyCounter.energy);
+                            float totalMultiplier = _gameplayModifiersModel.GetTotalMultiplier(_gameplayModifierParams, _energyCounter.energy);
                             _prevMultiplierFromModifiers = _prevMultiplierFromModifiers != totalMultiplier ? totalMultiplier : _prevMultiplierFromModifiers;
 
                             _modifiedScore = ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(_multipliedScore, totalMultiplier);
@@ -134,8 +134,8 @@ namespace BeatLeader.Replayer.Scoring
             }
 
 
-            _gameEnergyCounter.ProcessEnergyChange(energyChange);
-            _energyAfterRescoring = _gameEnergyCounter.energy;
+            _energyCounter.ProcessEnergyChange(energyChange);
+            _energyAfterRescoring = _energyCounter.energy;
             OnComboChangedAfterRescoring?.Invoke(_comboAfterRescoring, _maxComboAfterRescoring, broke);
             InvokeScoreDidChange(_multipliedScore, _modifiedScore);
             InvokeMultiplierDidChange(_scoreMultiplierCounter.multiplier, _scoreMultiplierCounter.normalizedProgress);

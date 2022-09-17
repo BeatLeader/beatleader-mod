@@ -21,6 +21,7 @@ namespace BeatLeader.Replayer.Emulation
         public NoteController NoteController { get; private set; }
         public bool IsAvailableForCut { get; private set; }
         public bool IsFinished { get; private set; }
+        private bool _IsPlaying => _timeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
 
         private void Construct(NoteController controller, NoteEvent noteEvent)
         {
@@ -39,7 +40,7 @@ namespace BeatLeader.Replayer.Emulation
         }
         private void Update()
         {
-            if (IsAvailableForCut && _timeSyncController.songTime >= NoteEvent.eventTime)
+            if (IsAvailableForCut && _IsPlaying && _timeSyncController.songTime >= NoteEvent.eventTime)
             {
                 Cut(ReplayNoteCutInfo.ToBaseGame(NoteEvent.noteCutInfo, NoteController));
             }

@@ -35,8 +35,8 @@ namespace BeatLeader.ViewControllers
             _floating.ParseInObjectHierarchy(BSMLTool.ReadViewDefinition<ReplayerVRViewController>(), this);
 
             _floating.transform.SetParent(viewContainer.transform, false);
-            _floating.HighlightHandle = true;
             _floating.HandleSide = FloatingScreen.Side.Bottom;
+            _floating.HighlightHandle = true;
             _floating.handle.transform.localPosition = new Vector3(11, -23.5f, 0);
             _floating.handle.transform.localScale = new Vector3(20, 3.67f, 3.67f);
 

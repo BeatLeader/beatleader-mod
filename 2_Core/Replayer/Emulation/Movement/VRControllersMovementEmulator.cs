@@ -17,19 +17,17 @@ namespace BeatLeader.Replayer.Movement
 
         protected LinkedList<Frame> _frames;
         protected LinkedListNode<Frame> _lastProcessedNode;
-        protected bool _isPlaying;
         public bool lerpEnabled = true;
 
         protected VRController leftSaber => _vrControllersManager.LeftSaber;
         protected VRController rightSaber => _vrControllersManager.RightSaber;
         protected VRController head => _vrControllersManager.HeadContainer;
-        public bool isPlaying => _isPlaying;
+        public bool isPlaying => _audioTimeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
 
         protected void Start()
         {
             _frames = new LinkedList<Frame>(_replayData.replay.frames);
             _lastProcessedNode = _frames.First;
-            _isPlaying = true;
         }
         protected virtual void Update()
         {

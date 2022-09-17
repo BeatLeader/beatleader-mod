@@ -24,7 +24,7 @@ namespace BeatLeader.Components
         protected virtual RectTransform WrapperRect => ContainerRect;
         protected abstract RectTransform ContainerRect { get; }
         protected virtual HideMode Mode => HideMode.Opacity;
-        protected virtual Action<bool> CustomVisibilityController { get; set; }
+        protected virtual Action<bool> VisibilityController { get; set; }
         public virtual string Name => GetType().Name;
         public virtual bool Locked => false;
         public virtual bool Enabled { get; private set; } = true;
@@ -66,7 +66,7 @@ namespace BeatLeader.Components
             if (ContainerCanvasGroup != null) ContainerCanvasGroup.alpha = alpha;
             if (WrapperCanvasGroup != null) WrapperCanvasGroup.alpha = enabled ? 1 : 0;
             if (Mode == HideMode.Hierarchy) ContainerRect.gameObject.SetActive(enabled);
-            else if (Mode == HideMode.Custom) CustomVisibilityController?.Invoke(enabled);
+            else if (Mode == HideMode.Custom) VisibilityController?.Invoke(enabled);
         }
 
         private bool SetupSelfIfNeeded()

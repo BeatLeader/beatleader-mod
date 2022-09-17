@@ -35,12 +35,20 @@ namespace BeatLeader.Replayer
         private AudioManagerSO _audioManagerSO;
         private AudioSource _beatmapAudioSource;
 
-        private void Start()
+        private void Awake()
         {
             _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
             _audioManagerSO = Resources.FindObjectsOfTypeAll<AudioManagerSO>().First();
             _beatmapAudioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
-            ResolveFields();
+        }
+        private void Start()
+        {
+            _spawnedBeatmapObjectControllers = _beatmapObjectManager
+                .GetField<List<IBeatmapObjectController>, BeatmapObjectManager>("_allBeatmapObjects");
+            _callbacksInTimes = _beatmapCallbacksController
+                .GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
+            _noteCutSoundPoolContainer = _noteCutSoundEffectManager
+                .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
         public void Rewind(float time, bool resume = true)
         {
@@ -75,7 +83,7 @@ namespace BeatLeader.Replayer
             _audioTimeSyncController.SetField("_timeScale", multiplier);
             _beatmapAudioSource.pitch = multiplier;
             _audioManagerSO.musicPitch = 1f / multiplier;
-
+            
             if (!flag && resume) _audioTimeSyncController.Resume();
 
             OnSongSpeedChanged?.Invoke(multiplier);
@@ -89,15 +97,6 @@ namespace BeatLeader.Replayer
             _noteCutSoundPoolContainer.activeItems.ForEach(x => x.StopPlayingAndFinish());
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
             _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);
-        }
-        private void ResolveFields()
-        {
-            _spawnedBeatmapObjectControllers = _beatmapObjectManager
-                .GetField<List<IBeatmapObjectController>, BeatmapObjectManager>("_allBeatmapObjects");
-            _callbacksInTimes = _beatmapCallbacksController
-                .GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
-            _noteCutSoundPoolContainer = _noteCutSoundEffectManager
-                .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
     }
 }

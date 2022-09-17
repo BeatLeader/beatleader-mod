@@ -53,16 +53,11 @@ namespace BeatLeader.Replayer
             _comboController.SetField("_combo", combo);
             _comboController.SetField("_maxCombo", maxCombo);
             _comboUIController.HandleComboDidChange(combo);
-            var animator = _comboUIController.GetField<Animator, ComboUIController>("_animator");
             _comboUIController.SetField("_fullComboLost", false);
             if (broke)
                 _comboUIController.HandleComboBreakingEventHappened();
             else
-            {
-                animator.enabled = false;
-                animator.Rebind();
-                animator.enabled = true;
-            }
+                _comboUIController.GetField<Animator, ComboUIController>("_animator").Rebind();
         }
         private void ModifyDebrisPhysics(float multiplier)
         {

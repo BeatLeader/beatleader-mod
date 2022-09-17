@@ -35,11 +35,13 @@ namespace BeatLeader.Replayer
             {
                 _gamePause.Pause();
                 _saberManager.disableSabers = false;
+                _songTimeSyncController.Pause();
             }
             else
             {
                 _gamePause.WillResume();
                 _gamePause.Resume();
+                _songTimeSyncController.Resume();
             }
 
             if (notify) InvokePauseEvent(pause);

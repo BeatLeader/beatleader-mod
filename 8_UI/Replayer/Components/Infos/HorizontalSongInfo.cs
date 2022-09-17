@@ -42,7 +42,7 @@ namespace BeatLeader.Components
         protected override RectTransform ContainerRect => _container;
         protected override RectTransform WrapperRect => _wrapper;
         protected override HideMode Mode => HideMode.Custom;
-        protected override Action<bool> CustomVisibilityController => ChangeVisibility;
+        protected override Action<bool> VisibilityController => ChangeVisibility;
         public override string Name => "SongInfo";
 
         private string _songName;

@@ -2,6 +2,7 @@
 using System.Linq;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Components
 {

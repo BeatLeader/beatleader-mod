@@ -363,6 +363,7 @@
     <Compile Include="7_Utils\Interop\NoodleExtensionsInterop.cs" />
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
+    <Compile Include="7_Utils\StaticUtils\Extensions\CollectionsExtension.cs" />
     <Compile Include="7_Utils\StaticUtils\Extensions\Vector3Extension.cs" />
     <Compile Include="7_Utils\StaticUtils\MathUtils.cs" />
     <Compile Include="7_Utils\ModifiersUtils.cs" />

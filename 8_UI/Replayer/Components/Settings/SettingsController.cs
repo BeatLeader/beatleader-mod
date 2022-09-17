@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Components.Settings
 {

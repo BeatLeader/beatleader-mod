@@ -2,10 +2,8 @@
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 

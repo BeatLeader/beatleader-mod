@@ -1,13 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using BeatSaberMarkupLanguage.Parser;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Components.Settings;
 using BeatLeader.UI.BSML_Addons.Components;
 using BeatLeader.UI.BSML_Addons;
 using BeatLeader.Replayer;
-using BeatLeader.Utils;
 using UnityEngine.UI;
 using UnityEngine;
 using Zenject;

@@ -19,10 +19,10 @@ namespace BeatLeader.Replayer.Movement
         protected LinkedListNode<Frame> _lastProcessedNode;
         public bool lerpEnabled = true;
 
-        protected VRController leftSaber => _vrControllersManager.LeftSaber;
-        protected VRController rightSaber => _vrControllersManager.RightSaber;
-        protected VRController head => _vrControllersManager.HeadContainer;
-        public bool isPlaying => _audioTimeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
+        protected VRController _LeftSaber => _vrControllersManager.LeftSaber;
+        protected VRController _RightSaber => _vrControllersManager.RightSaber;
+        protected VRController _Head => _vrControllersManager.HeadContainer;
+        public bool IsPlaying => _audioTimeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
 
         protected void Start()
         {
@@ -31,7 +31,7 @@ namespace BeatLeader.Replayer.Movement
         }
         protected virtual void Update()
         {
-            if (isPlaying && _frames.TryGetFrameByTime(_audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
+            if (IsPlaying && _frames.TryGetFrameByTime(_audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
             {
                 PlayFrame(frame.Previous);
             }
@@ -65,14 +65,14 @@ namespace BeatLeader.Replayer.Movement
                 headRot = Quaternion.Lerp(frame.Value.head.rotation, frame.Next.Value.head.rotation, slerp);
             }
 
-            leftSaber.transform.localPosition = leftSaberPos;
-            leftSaber.transform.localRotation = leftSaberRot;
+            _LeftSaber.transform.localPosition = leftSaberPos;
+            _LeftSaber.transform.localRotation = leftSaberRot;
 
-            rightSaber.transform.localPosition = rightSaberPos;
-            rightSaber.transform.localRotation = rightSaberRot;
+            _RightSaber.transform.localPosition = rightSaberPos;
+            _RightSaber.transform.localRotation = rightSaberRot;
 
-            head.transform.localPosition = headPos;
-            head.transform.localRotation = headRot;
+            _Head.transform.localPosition = headPos;
+            _Head.transform.localRotation = headRot;
         }
     }
 }

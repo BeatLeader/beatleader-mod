@@ -36,24 +36,24 @@ namespace BeatLeader.Components.Settings
         protected override void OnBeforeParse()
         {
             _cameraPose = (PlayerViewCameraPose)PoseProvider;
-            var matrix = Instantiate<VectorMatrixMenu>();
+            var vectorControls = Instantiate<VectorControlsMenu>();
 
-            matrix.xSlider.min = -100;
-            matrix.xSlider.max = 100;
+            vectorControls.xSlider.min = -100;
+            vectorControls.xSlider.max = 100;
 
-            matrix.ySlider.min = -100;
-            matrix.ySlider.max = 100;
+            vectorControls.ySlider.min = -100;
+            vectorControls.ySlider.max = 100;
 
-            matrix.zSlider.min = 0;
-            matrix.zSlider.max = 150;
+            vectorControls.zSlider.min = 0;
+            vectorControls.zSlider.max = 150;
 
-            matrix.multiplier = 0.01f;
-            matrix.increment = 5;
-            matrix.zSlider.multiplier = -0.01f;
+            vectorControls.multiplier = 0.01f;
+            vectorControls.increment = 5;
+            vectorControls.zSlider.multiplier = -0.01f;
 
-            matrix.OnVectorChanged += NotifyVectorChanged;
-            matrix.multipliedVector = offset;
-            _offsetsMenuButton = CreateButtonForMenu(this, matrix, "Offsets");
+            vectorControls.OnVectorChanged += NotifyVectorChanged;
+            vectorControls.multipliedVector = offset;
+            _offsetsMenuButton = CreateButtonForMenu(this, vectorControls, "Offsets");
         }
         private void NotifyVectorChanged(Vector3 vector)
         {

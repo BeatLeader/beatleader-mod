@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BeatLeader.Utils;
 using UnityEngine;
 using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
 using System.ComponentModel;
-using Zenject;
 
 namespace BeatLeader.Components.Settings
 {

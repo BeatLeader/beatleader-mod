@@ -11,13 +11,13 @@ namespace BeatLeader.Models
     {
         public CombinedCameraMovementData(UnityEngine.Transform camera, UnityEngine.Transform head, UnityEngine.Transform origin)
         {
-            CameraPose = new Pose(camera.localPosition, camera.localRotation);
-            HeadPose = new Pose(head.localPosition, head.localRotation);
-            OriginPose = new Pose(origin.position, origin.rotation);
+            cameraPose = new Pose(camera.localPosition, camera.localRotation);
+            headPose = new Pose(head.localPosition, head.localRotation);
+            originPose = new Pose(origin.position, origin.rotation);
         }
 
-        public Pose CameraPose;
-        public Pose HeadPose;
-        public Pose OriginPose { get; }
+        public Pose cameraPose;
+        public Pose headPose;
+        public readonly Pose originPose;
     }
 }

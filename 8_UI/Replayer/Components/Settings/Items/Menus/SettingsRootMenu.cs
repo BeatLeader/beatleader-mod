@@ -28,15 +28,14 @@ namespace BeatLeader.Components.Settings
         private void SetupCameraMenu()
         {
             var settings = _replayData.actualSettings;
-            bool useReplayerCam = settings.ForceUseReplayerCamera != null ? (bool)settings.ForceUseReplayerCamera : false;
+            bool useReplayerCam = settings.ForceUseReplayerCamera;
 
             bool setupAsCam2 = Cam2Interop.Detected && InputManager.IsInFPFC && !useReplayerCam;
             string text = setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera";
             _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container), text);
 
             _cameraMenuButton.Interactable = !setupAsCam2;
-            if (setupAsCam2 && !useReplayerCam)
-                _cameraController.SetEnabled(false);
+            if (setupAsCam2) _cameraController.SetEnabled(false);
         }
     }
 }

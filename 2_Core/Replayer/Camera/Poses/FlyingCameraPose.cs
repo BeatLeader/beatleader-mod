@@ -42,8 +42,8 @@ namespace BeatLeader.Replayer.Camera
 
         public void ProcessPose(ref CombinedCameraMovementData data)
         {
-            ref var currentPos = ref data.CameraPose.position;
-            ref var currentRot = ref data.CameraPose.rotation;
+            ref var currentPos = ref data.cameraPose.position;
+            ref var currentRot = ref data.cameraPose.rotation;
 
             bool flag = false;
             if (disableInputOnUnlockedCursor && Cursor.lockState != CursorLockMode.Locked)
@@ -55,8 +55,8 @@ namespace BeatLeader.Replayer.Camera
 
             if (!followOrigin)
             {
-                currentPos -= data.OriginPose.position - _lastOriginPos;
-                currentRot.eulerAngles -= data.OriginPose.rotation.eulerAngles - _lastOriginRot.eulerAngles;
+                currentPos -= data.originPose.position - _lastOriginPos;
+                currentRot.eulerAngles -= data.originPose.rotation.eulerAngles - _lastOriginRot.eulerAngles;
             }
 
             if (flag) return;
@@ -71,8 +71,8 @@ namespace BeatLeader.Replayer.Camera
             _lastHeadPos = currentPos = GetPosition(currentPos, currentRot);
             _lastHeadRot = currentRot = GetRotation(currentRot);
 
-            _lastOriginPos = data.OriginPose.position;
-            _lastOriginRot = data.OriginPose.rotation;
+            _lastOriginPos = data.originPose.position;
+            _lastOriginRot = data.originPose.rotation;
         }
         protected virtual Vector3 GetPosition(Vector3 currentPosition, Quaternion currentRotation)
         {

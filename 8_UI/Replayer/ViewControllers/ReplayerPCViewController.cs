@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Components;
-using BeatLeader.Replayer;
-using BeatLeader.Models;
 using BeatLeader.Utils;
-using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
-using HMUI;
 
 namespace BeatLeader.ViewControllers
 {

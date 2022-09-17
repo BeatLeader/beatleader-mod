@@ -1,10 +1,8 @@
 ﻿using BeatLeader.UI.BSML_Addons.Components;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.FloatingScreen;
 using System.Diagnostics;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.XR;
 
 namespace BeatLeader.Components

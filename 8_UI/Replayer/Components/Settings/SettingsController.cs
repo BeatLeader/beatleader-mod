@@ -2,17 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Parser;
-using BeatLeader.Replayer.Movement;
-using BeatLeader.Replayer;
-using BeatLeader.Utils;
-using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
-using HMUI;
-
-using UnityEngine.UI;
-using System.Reflection;
 
 namespace BeatLeader.Components.Settings
 {

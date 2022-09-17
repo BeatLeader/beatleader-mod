@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Xml;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
-using BeatSaberMarkupLanguage.Components;
-using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage;
 using UnityEngine;
 using HarmonyLib;
-using BeatSaberMarkupLanguage.Animations;
 
 namespace BeatLeader.UI.BSML_Addons
 {
@@ -116,7 +112,7 @@ namespace BeatLeader.UI.BSML_Addons
         }
 
         [HarmonyPatch(typeof(BSMLParser), "HandleTagNode")]
-        private static class BSMLIDLogger //hello, Karghoff, how is your day going?
+        private static class BSMLIDLogger
         {
             private static void Postfix(XmlNode node, IEnumerable<BSMLParser.ComponentTypeWithData> componentInfo)
             {

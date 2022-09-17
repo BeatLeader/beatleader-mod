@@ -1,17 +1,7 @@
-﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Tags;
-using BeatSaberMarkupLanguage;
-using BeatLeader.Utils;
-using UnityEngine.UI;
 using UnityEngine;
-using TMPro;
-using HMUI;
 
 namespace BeatLeader.Components
 {

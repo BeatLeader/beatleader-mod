@@ -479,7 +479,7 @@
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\FlyingViewParamsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\PlayerViewParamsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Settings\LayoutEditorSetting.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\VectorMatrixMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\VectorControlsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\SettingsRootMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Menu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\MenuWithContainer.cs" />

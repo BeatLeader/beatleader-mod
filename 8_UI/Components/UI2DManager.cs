@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BeatLeader.Replayer;
 using BeatLeader.Utils;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
-using HMUI;
 
 namespace BeatLeader.Components
 {
     public class UI2DManager : MonoBehaviour
     {
-        [Inject] private readonly Models.ReplayLaunchData _replayData;
-
         public Vector2 CanvasSize => _canvasRect.sizeDelta;
         public float ScaleFactor => _canvasScaler.scaleFactor;
         public bool ShowUI
@@ -58,7 +51,6 @@ namespace BeatLeader.Components
             _canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         }
-
         public void AddObject(GameObject go)
         {
             _objects.Add((go, go.transform.parent));

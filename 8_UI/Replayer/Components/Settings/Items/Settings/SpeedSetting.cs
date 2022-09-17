@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BeatLeader.UI.BSML_Addons.Components;
-using BeatLeader.Replayer;
+﻿using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
-using TMPro;
 
 namespace BeatLeader.Components.Settings
 {

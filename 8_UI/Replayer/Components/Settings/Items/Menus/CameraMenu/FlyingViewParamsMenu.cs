@@ -1,10 +1,6 @@
 ﻿using BeatLeader.Replayer.Camera;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BeatLeader.Components.Settings
@@ -60,15 +56,15 @@ namespace BeatLeader.Components.Settings
         protected override void OnBeforeParse()
         {
             _cameraPose = (FlyingCameraPose)PoseProvider;
-            var matrix = Instantiate<VectorMatrixMenu>();
-            matrix.min = 1;
-            matrix.max = 10;
-            matrix.increment = 1;
-            matrix.dimensions = 2;
-            matrix.multiplier = 0.1f;
-            matrix.OnVectorChanged += NotifyVectorChanged;
-            matrix.vector = new Vector3(_sensitivityX, _sensitivityY);
-            _sensitivityMenuButton = CreateButtonForMenu(this, matrix, "Sensitivity");
+            var vectorControls = Instantiate<VectorControlsMenu>();
+            vectorControls.min = 1;
+            vectorControls.max = 10;
+            vectorControls.increment = 1;
+            vectorControls.dimensions = 2;
+            vectorControls.multiplier = 0.1f;
+            vectorControls.OnVectorChanged += NotifyVectorChanged;
+            vectorControls.vector = new Vector3(_sensitivityX, _sensitivityY);
+            _sensitivityMenuButton = CreateButtonForMenu(this, vectorControls, "Sensitivity");
         }
         private void NotifyVectorChanged(Vector3 vector)
         {

@@ -46,10 +46,10 @@ namespace BeatLeader.Replayer.Camera
             get => new CombinedCameraMovementData(transform, _vrControllersManager.HeadContainer.transform, _vrControllersManager.OriginTransform);
             protected set
             {
-                transform.SetLocalPose(value.CameraPose);
-                _vrControllersManager.HeadContainer.transform.SetLocalPose(value.HeadPose);
+                transform.SetLocalPose(value.cameraPose);
+                _vrControllersManager.HeadContainer.transform.SetLocalPose(value.headPose);
                 if (InputManager.IsInFPFC) return;
-                _vrControllersManager.MenuHandsContainerTransform.SetLocalPose(value.CameraPose);
+                _vrControllersManager.MenuHandsContainerTransform.SetLocalPose(value.cameraPose);
             }
         }
         public ICameraPoseProvider CurrentPose => _currentPose;

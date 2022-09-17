@@ -54,6 +54,7 @@ namespace BeatLeader.Components.Settings
         {
             _cameraFovContainer.AddComponent<InputDependentObject>().Init(InputManager.InputType.FPFC);
             _poseMenuButtonCanvasGroup = _poseMenuButton.ButtonGameObject.AddComponent<CanvasGroup>();
+            NotifyCameraPoseChanged(_cameraController.CurrentPose);
         }
 
         private void NotifyCameraFOVChanged(int fov)

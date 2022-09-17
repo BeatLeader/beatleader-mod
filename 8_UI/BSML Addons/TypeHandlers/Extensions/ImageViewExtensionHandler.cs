@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using IPA.Utilities;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.TypeHandlers;
-using BeatSaberMarkupLanguage.Components.Settings;
-using BeatLeader.UI.BSML_Addons.Components;
-using BeatLeader.Utils;
-using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using HMUI;

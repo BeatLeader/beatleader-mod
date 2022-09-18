@@ -10,18 +10,17 @@ namespace BeatLeader.Components.Settings
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.PlayerViewParamsMenu.bsml")]
     internal class PlayerViewParamsMenu : CameraParamsMenu
     {
-        private static Vector3Serializable offset = new Vector3(0, 0, -1);
-        [SerializeAutomatically] private static int movementSmoothness = 8;
+        [SerializeAutomatically] private static Vector3Serializable _offset = new Vector3(0, 0, -1);
+        [SerializeAutomatically] private static int _movementSmoothness = 8;
 
-        [UIValue("movement-smoothness")] private int smoothness
+        [UIValue("movement-smoothness")] private int _Smoothness
         {
-            get => movementSmoothness;
+            get => _movementSmoothness;
             set
             {
                 var val = (int)MathUtils.Map(value, 1, 10, 10, 1);
                 _cameraPose.smoothness = val;
-                movementSmoothness = value;
-                NotifyPropertyChanged(nameof(smoothness));
+                _movementSmoothness = value;
                 AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }
@@ -52,13 +51,15 @@ namespace BeatLeader.Components.Settings
             vectorControls.zSlider.multiplier = -0.01f;
 
             vectorControls.OnVectorChanged += NotifyVectorChanged;
-            vectorControls.multipliedVector = offset;
+            vectorControls.multipliedVector = _offset;
             _offsetsMenuButton = CreateButtonForMenu(this, vectorControls, "Offsets");
+
+            _Smoothness = _movementSmoothness;
         }
         private void NotifyVectorChanged(Vector3 vector)
         {
             _cameraPose.offset = vector;
-            offset = vector;
+            _offset = vector;
             AutomaticConfigTool.NotifyTypeChanged(GetType());
         }
     }

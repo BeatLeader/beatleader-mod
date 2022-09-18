@@ -41,7 +41,8 @@ namespace BeatLeader.Replayer.Scoring
             {
                 buffer.SetField("_beforeCutScore", (int)Mathf.Clamp(Mathf.Round(70 * data.noteEvent.noteCutInfo.beforeCutRating), 0, 70));
                 buffer.SetField("_afterCutScore", (int)Mathf.Clamp(Mathf.Round(30 * data.noteEvent.noteCutInfo.afterCutRating), 0, 30));
-                buffer.SetField("_centerDistanceCutScore", (int)Mathf.Round(15 * (1 - Mathf.Clamp(data.noteEvent.noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f))));
+                buffer.SetField("_centerDistanceCutScore", 
+                    (int)Mathf.Round(15 * (1 - Mathf.Clamp(data.noteEvent.noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f))));
             }
 
             SaberSwingRatingCounter saberSwingRatingCounter = buffer.GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");

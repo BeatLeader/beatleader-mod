@@ -9,40 +9,40 @@ namespace BeatLeader.Components.Settings
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.FlyingViewParamsMenu.bsml")]
     internal class FlyingViewParamsMenu : CameraParamsMenu
     {
-        [SerializeAutomatically] private static int _flySpeed;
-        [SerializeAutomatically] private static bool _followOrigin;
-        [SerializeAutomatically] private static bool _disableOnUnCur;
+        [SerializeAutomatically] private static int _flySpeed = 4;
+        [SerializeAutomatically] private static bool _followOrigin = true;
+        [SerializeAutomatically] private static bool _disableOnUnCur = true;
         [SerializeAutomatically] private static float _sensitivityX = 0.5f;
         [SerializeAutomatically] private static float _sensitivityY = 0.5f;
 
-        [UIValue("fly-speed")] private int flySpeed
+        [UIValue("fly-speed")] private int _FlySpeed
         {
             get => _flySpeed;
             set
             {
                 _cameraPose.flySpeed = value;
                 _flySpeed = value;
-                NotifyPropertyChanged(nameof(flySpeed));
+                NotifyPropertyChanged(nameof(_FlySpeed));
             }
         }
-        [UIValue("follow-origin")] private bool followOrigin
+        [UIValue("follow-origin")] private bool _FollowOrigin
         {
             get => _followOrigin;
             set
             {
                 _cameraPose.followOrigin = value;
                 _followOrigin = value;
-                NotifyPropertyChanged(nameof(followOrigin));
+                NotifyPropertyChanged(nameof(_FollowOrigin));
             }
         }
-        [UIValue("disable-input-on-unlocked-cursor")] private bool disableInputOnUnlockedCursor
+        [UIValue("disable-input-on-unlocked-cursor")] private bool _DisableInputOnUnlockedCursor
         {
             get => _disableOnUnCur;
             set
             {
                 _cameraPose.disableInputOnUnlockedCursor = value;
                 _disableOnUnCur = value;
-                NotifyPropertyChanged(nameof(disableInputOnUnlockedCursor));
+                NotifyPropertyChanged(nameof(_DisableInputOnUnlockedCursor));
             }
         }
 
@@ -63,14 +63,19 @@ namespace BeatLeader.Components.Settings
             vectorControls.dimensions = 2;
             vectorControls.multiplier = 0.1f;
             vectorControls.OnVectorChanged += NotifyVectorChanged;
-            vectorControls.vector = new Vector3(_sensitivityX, _sensitivityY);
+            vectorControls.multipliedVector = new Vector3(_sensitivityX, _sensitivityY);
             _sensitivityMenuButton = CreateButtonForMenu(this, vectorControls, "Sensitivity");
+
+            _FlySpeed = _flySpeed;
+            _FollowOrigin = _followOrigin;
+            _DisableInputOnUnlockedCursor = _disableOnUnCur;
         }
         private void NotifyVectorChanged(Vector3 vector)
         {
             _cameraPose.mouseSensitivity = vector;
             _sensitivityX = vector.x;
             _sensitivityY = vector.y;
+            AutomaticConfigTool.NotifyTypeChanged(GetType());
         }
     }
 }

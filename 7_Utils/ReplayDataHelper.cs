@@ -245,7 +245,11 @@ namespace BeatLeader.Utils
         }
         public static NoteEvent GetNoteEvent(this NoteController noteController, Replay replay)
         {
-            return GetNoteEventById(replay, noteController.noteData.ComputeNoteID(), noteController.noteData.time);
+            return GetNoteEventInOrder(noteController, replay).Item2;
+        }
+        public static (int, NoteEvent) GetNoteEventInOrder(this NoteController noteController, Replay replay)
+        {
+            return GetNoteEventByIdInOrder(replay, noteController.noteData.ComputeNoteID(), noteController.noteData.time);
         }
         public static WallEvent GetWallEvent(this ObstacleData obstacleData, Replay replay)
         {
@@ -253,11 +257,18 @@ namespace BeatLeader.Utils
         }
         public static NoteEvent GetNoteEventById(this Replay replay, int ID, float time)
         {
-            foreach (var item in replay.notes)
-                if ((item.noteID == ID || item.noteID == ID - 30000) &&
-                    (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
-                    return item;
-            return null;
+            return GetNoteEventByIdInOrder(replay, ID, time).Item2;
+        }
+        public static (int, NoteEvent) GetNoteEventByIdInOrder(this Replay replay, int ID, float time)
+        {
+            for (int i = 0; i < replay.notes.Count; i++)
+            {
+                var item = replay.notes[i];
+                if ((item.noteID == ID || item.noteID == ID - 30000) && 
+                    item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f)
+                    return (i, item);
+            }
+            return default;
         }
         public static WallEvent GetWallEventById(this Replay replay, int ID, float time)
         {

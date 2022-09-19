@@ -320,7 +320,7 @@
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
     <Compile Include="2_Core\Models\ScoringData.cs" />
-    <Compile Include="2_Core\Models\SliderValuesApplier.cs" />
+    <Compile Include="7_Utils\UtilityClasses\SliderValuesApplier.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
     <Compile Include="2_Core\Models\ReplayerSettings.cs" />
     <Compile Include="2_Core\Replayer\BeatmapTimeController.cs" />
@@ -338,7 +338,7 @@
     <Compile Include="2_Core\Replayer\Emulation\SimpleNoteCutComparator.cs" />
     <Compile Include="2_Core\Replayer\ReplayerCache.cs" />
     <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
-    <Compile Include="2_Core\Replayer\InputManager.cs" />
+    <Compile Include="7_Utils\InputManager.cs" />
     <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
     <Compile Include="2_Core\Replayer\SceneTweaksManager.cs" />
     <Compile Include="2_Core\Replayer\PlaybackController.cs" />
@@ -364,13 +364,11 @@
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
     <Compile Include="7_Utils\StaticUtils\Extensions\CollectionsExtension.cs" />
-    <Compile Include="7_Utils\StaticUtils\Extensions\Vector3Extension.cs" />
     <Compile Include="7_Utils\StaticUtils\MathUtils.cs" />
     <Compile Include="7_Utils\ModifiersUtils.cs" />
     <Compile Include="7_Utils\RecorderUtils.cs" />
     <Compile Include="7_Utils\ReplayDataHelper.cs" />
     <Compile Include="7_Utils\ScoreUtil.cs" />
-    <Compile Include="7_Utils\StaticUtils\BSMLTool.cs" />
     <Compile Include="7_Utils\StaticUtils\EnvironmentUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\FormatUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\Extensions\GameObjectExtension.cs" />
@@ -379,7 +377,6 @@
     <Compile Include="7_Utils\StaticUtils\LayerMaskHelper.cs" />
     <Compile Include="7_Utils\StaticUtils\ReflectionUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
-    <Compile Include="7_Utils\StaticUtils\TableLayoutUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\Extensions\TransformExtension.cs" />
     <Compile Include="7_Utils\StaticUtils\Extensions\ZenjectExtension.cs" />
     <Compile Include="7_Utils\UtilityClasses\CyclicBuffer.cs" />
@@ -389,7 +386,7 @@
     <Compile Include="7_Utils\UtilityClasses\ScoresTableLayoutHelper.cs" />
     <Compile Include="7_Utils\UtilityClasses\ScreenViewTransform.cs" />
     <Compile Include="8_UI\BSML Addons\BSMLAddonsLoader.cs" />
-    <Compile Include="8_UI\BSML Addons\BSMLUtility.cs" />
+    <Compile Include="7_Utils\BSMLUtility.cs" />
     <Compile Include="8_UI\BSML Addons\Components\BetterButton.cs" />
     <Compile Include="8_UI\BSML Addons\Components\BetterImage.cs" />
     <Compile Include="8_UI\BSML Addons\Tags\BetterButtonTag.cs" />
@@ -401,13 +398,10 @@
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ImageViewExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ModalViewExtensionHandler.cs" />
-    <Compile Include="8_UI\Components\Deprecated\ControllableByJoystick.cs" />
-    <Compile Include="8_UI\Components\Deprecated\GrabbableHandle.cs" />
     <Compile Include="8_UI\Components\Highlightable2DView.cs" />
     <Compile Include="8_UI\Components\InputDependentObject.cs" />
     <Compile Include="8_UI\Components\InteractionEventsProvider.cs" />
     <Compile Include="8_UI\Components\Draggable2DView.cs" />
-    <Compile Include="8_UI\Components\Deprecated\SimpleSmoothAnimator.cs" />
     <Compile Include="8_UI\Components\TransformListener.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTag.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\ClanTags.cs" />
@@ -463,7 +457,6 @@
     <Compile Include="8_UI\Leaderboard\ViewControllers\LeaderboardView.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUI.cs" />
     <Compile Include="8_UI\ModPanel\ModPanelUtils.cs" />
-    <Compile Include="8_UI\ReeUIComponent.cs" />
     <Compile Include="8_UI\ReeUIComponentV2.cs" />
     <Compile Include="8_UI\ReeUIComponentV2WithContainer.cs" />
     <Compile Include="8_UI\Replayer\Components\Floating\FloatingConfig.cs" />
@@ -560,8 +553,6 @@
     <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="9_Resources\AssetBundles\AssetBundles" />
-    <EmbeddedResource Include="9_Resources\AssetBundles\AssetBundles.manifest" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalSongInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerPCView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Timeline.bsml" />
@@ -569,7 +560,6 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SpeedSetting.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsController.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\LayoutEditor.bsml" />
-    <None Include="9_Resources\AssetBundles\asset_bundle.manifest" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableWrapper.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerVRView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\CameraMenu.bsml" />

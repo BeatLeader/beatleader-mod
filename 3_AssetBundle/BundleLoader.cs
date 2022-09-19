@@ -9,7 +9,6 @@ namespace BeatLeader {
         #region Initialize
 
         private const string BundleName = Plugin.ResourcesPath + ".AssetBundles.asset_bundle";
-        private static AssetBundle _assetBundle;
         private static bool _ready;
 
         public static void Initialize() {
@@ -22,7 +21,6 @@ namespace BeatLeader {
                 throw new Exception("AssetBundle load error!");
             }
 
-            _assetBundle = localAssetBundle;
             LoadSprites(localAssetBundle);
             LoadMaterials(localAssetBundle);
             LoadPrefabs(localAssetBundle);

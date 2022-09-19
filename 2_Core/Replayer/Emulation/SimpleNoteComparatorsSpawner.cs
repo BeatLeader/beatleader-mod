@@ -56,14 +56,15 @@ namespace BeatLeader.Replayer.Emulation
         }
         protected void AddNoteComparator(NoteController controller)
         {
-            AddNoteComparator(controller, controller.GetNoteEvent(_replayData.replay));
+            var noteEvent = controller.GetNoteEventInOrder(_replayData.replay);
+            AddNoteComparator(controller, noteEvent.Item1, controller.GetNoteEvent(_replayData.replay));
         }
-        protected void AddNoteComparator(NoteController controller, NoteEvent noteCutEvent)
+        protected void AddNoteComparator(NoteController controller, int id, NoteEvent noteCutEvent)
         {
             if (noteCutEvent == null || noteCutEvent.eventType == NoteEventType.miss
                 || noteCutEvent.noteCutInfo == null) return;
 
-            SimpleNoteCutComparator comparator = _simpleNoteCutComparatorPool.Spawn(controller, noteCutEvent);
+            SimpleNoteCutComparator comparator = _simpleNoteCutComparatorPool.Spawn(id, controller, noteCutEvent);
             comparator.transform.SetParent(controller.transform);
             _spawnedComparators.Add(comparator);
         }

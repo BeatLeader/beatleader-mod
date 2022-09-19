@@ -1,9 +1,7 @@
-﻿using static BeatLeader.Replayer.InputManager;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
-using Pose = UnityEngine.Pose;
-using System;
+using static BeatLeader.Utils.InputManager;
 
 namespace BeatLeader.Replayer.Camera
 {

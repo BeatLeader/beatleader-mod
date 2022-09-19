@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using JetBrains.Annotations;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;

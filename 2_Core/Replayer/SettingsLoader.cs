@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
+using BeatLeader.Utils;
 using IPA.Utilities;
 using System;
 using System.Linq;
@@ -62,8 +63,6 @@ namespace BeatLeader.Replayer
                     _replayData.actualSettings.FPFCCameraPose : _replayData.actualSettings.VRCameraPose);
                 _cameraController.OnCameraPoseChanged += NotifyCameraPoseChanged;
             }
-
-            RaycastBlocker.EnableBlocker = true;
         }
         public virtual void Dispose()
         {
@@ -72,8 +71,6 @@ namespace BeatLeader.Replayer
                 _roomPosition.value = _tempPosition;
                 _roomRotation.value = _tempRotation;
             }
-
-            RaycastBlocker.EnableBlocker = false;
         }
 
         private void NotifyUIVisibilityChanged(bool visible)

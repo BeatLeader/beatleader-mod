@@ -40,7 +40,6 @@ namespace BeatLeader.Replayer
             Container.Rebind<IScoreController>().To<IReplayerScoreController>().FromResolve().AsSingle().NonLazy();
             Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault(x => x.name == "GameplayData").TryDestroy();
 
-            Container.Bind<InputManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

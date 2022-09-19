@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatLeader.UI.BSML_Addons;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using UnityEngine.EventSystems;

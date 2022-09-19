@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage.TypeHandlers;
 using BeatSaberMarkupLanguage.Tags;
 using BeatSaberMarkupLanguage;
 using UnityEngine;
+using BeatLeader.Utils;
 
 namespace BeatLeader.UI.BSML_Addons
 {

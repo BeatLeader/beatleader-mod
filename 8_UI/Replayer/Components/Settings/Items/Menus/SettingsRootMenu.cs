@@ -1,8 +1,8 @@
-﻿using BeatLeader.Replayer;
-using BeatLeader.Replayer.Camera;
+﻿using BeatLeader.Replayer.Camera;
 using BeatLeader.Interop;
 using BeatSaberMarkupLanguage.Attributes;
 using Zenject;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Components.Settings
 {

@@ -1,6 +1,5 @@
 using System;
 using BeatLeader.DataManager;
-using System.Diagnostics;
 using BeatLeader.Manager;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;

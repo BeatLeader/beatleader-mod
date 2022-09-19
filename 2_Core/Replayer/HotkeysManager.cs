@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Replayer.Camera;
+using BeatLeader.Utils;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -26,9 +27,9 @@ namespace BeatLeader.Replayer
 
         public void Tick()
         {
-            if (Input.GetKeyDown(HideUIHotkey) && _2DManager != null)
+            if (Input.GetKeyDown(HideUIHotkey))
             {
-                _2DManager.ShowUI = !_2DManager.ShowUI;
+                if (_2DManager != null) _2DManager.ShowUI = !_2DManager.ShowUI;
             }
             if (Input.GetKeyDown(HideCursorHotkey))
             {

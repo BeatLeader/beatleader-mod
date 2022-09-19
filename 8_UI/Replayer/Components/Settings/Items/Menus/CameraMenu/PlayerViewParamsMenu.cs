@@ -10,7 +10,7 @@ namespace BeatLeader.Components.Settings
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.CameraMenu.PlayerViewParamsMenu.bsml")]
     internal class PlayerViewParamsMenu : CameraParamsMenu
     {
-        [SerializeAutomatically] private static Vector3Serializable _offset = new Vector3(0, 0, -1);
+        [SerializeAutomatically] private static Models.Vector3 _offset = new Vector3(0, 0, -1);
         [SerializeAutomatically] private static int _movementSmoothness = 8;
 
         [UIValue("movement-smoothness")] private int _Smoothness
@@ -21,6 +21,7 @@ namespace BeatLeader.Components.Settings
                 var val = (int)MathUtils.Map(value, 1, 10, 10, 1);
                 _cameraPose.smoothness = val;
                 _movementSmoothness = value;
+                NotifyPropertyChanged(nameof(_Smoothness));
                 AutomaticConfigTool.NotifyTypeChanged(GetType());
             }
         }

@@ -1,6 +1,5 @@
-﻿using static BeatLeader.Replayer.InputManager;
-using BeatLeader.Replayer;
-using UnityEngine;
+﻿using UnityEngine;
+using static BeatLeader.Utils.InputManager;
 
 namespace BeatLeader.Components
 {

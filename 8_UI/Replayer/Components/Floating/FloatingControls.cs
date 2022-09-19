@@ -1,5 +1,4 @@
-﻿using BeatLeader.UI.BSML_Addons;
-using BeatLeader.Utils;
+﻿using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using UnityEngine;
@@ -89,10 +88,8 @@ namespace BeatLeader.Components
             var rot = new Vector3();
             for (int i = 0; i <= 2; i++)
             {
-                var dimPos = _viewFloating.transform.position.GetDimension(i);
-                var dimRot = _viewFloating.transform.eulerAngles.GetDimension(i);
-                pos.SetDimension(i, MathUtils.GetClosestCoordinate(dimPos, _Config.GridPosIncrement));
-                rot.SetDimension(i, MathUtils.GetClosestCoordinate(dimRot, _Config.GridRotIncrement));
+                pos[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.position[i], _Config.GridPosIncrement);
+                rot[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.eulerAngles[i], _Config.GridRotIncrement);
             }
             _viewFloating.transform.SetPositionAndRotation(pos, Quaternion.Euler(rot));
         }

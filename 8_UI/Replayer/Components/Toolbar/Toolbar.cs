@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
 using HMUI;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Components
 {

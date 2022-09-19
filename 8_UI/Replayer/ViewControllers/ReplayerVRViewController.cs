@@ -32,7 +32,7 @@ namespace BeatLeader.ViewControllers
             viewContainer.transform.SetParent(container.transform, false);
 
             _floating = FloatingScreen.CreateFloatingScreen(new Vector2(100, 55), true, Vector3.zero, Quaternion.identity);
-            _floating.ParseInObjectHierarchy(BSMLTool.ReadViewDefinition<ReplayerVRViewController>(), this);
+            _floating.ParseInObjectHierarchy(BSMLUtility.ReadViewDefinition<ReplayerVRViewController>(), this);
 
             _floating.transform.SetParent(viewContainer.transform, false);
             _floating.HandleSide = FloatingScreen.Side.Bottom;

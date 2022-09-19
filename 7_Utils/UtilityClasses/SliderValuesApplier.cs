@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace BeatLeader.Models
+namespace BeatLeader
 {
     internal class SliderValuesApplier
     {

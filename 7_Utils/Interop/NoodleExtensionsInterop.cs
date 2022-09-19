@@ -18,11 +18,11 @@ namespace BeatLeader.Interop
         private static Harmony _harmony;
         private static FieldInfo _callbacksInTimeField;
         private static FieldInfo _prevSongTimeField;
-        private static bool _neOverrideRequested;
+        private static bool _neReprocessRequested;
 
         public static void RequestReprocess()
         {
-            _neOverrideRequested = true;
+            _neReprocessRequested = true;
         }
         public static void Init()
         {
@@ -48,11 +48,11 @@ namespace BeatLeader.Interop
 
         private static void NoodleCallbacksControllerPrefix(object __instance)
         {
-            if (_neOverrideRequested)
+            if (_neReprocessRequested)
             {
                 _prevSongTimeField.SetValue(__instance, float.MinValue);
                 ((CallbacksInTime)_callbacksInTimeField.GetValue(__instance)).lastProcessedNode = null;
-                _neOverrideRequested = false;
+                _neReprocessRequested = false;
             }
         }
     }

@@ -7,41 +7,50 @@ namespace BeatLeader.Replayer.Emulation
 {
     public class SimpleNoteCutComparator : MonoBehaviour, INoteControllerNoteWasCutEvent
     {
-        public class Pool : MonoMemoryPool<NoteController, NoteEvent, SimpleNoteCutComparator>
+        public class Pool : MonoMemoryPool<int, NoteController, NoteEvent, SimpleNoteCutComparator>
         {
-            protected override void Reinitialize(NoteController controller, NoteEvent noteEvent, SimpleNoteCutComparator item)
+            protected override void Reinitialize(int id, NoteController controller, NoteEvent noteEvent, SimpleNoteCutComparator item)
             {
+                item.IdInOrder = id;
                 item.Construct(controller, noteEvent);
             }
         }
 
         [Inject] private readonly AudioTimeSyncController _timeSyncController;
+        //[Inject] private readonly SimpleNoteComparatorsSpawner _spawner;
 
         public NoteEvent NoteEvent { get; private set; }
         public NoteController NoteController { get; private set; }
-        public bool IsAvailableForCut { get; private set; }
+        public bool IsAvailableToCut { get; private set; }
         public bool IsFinished { get; private set; }
-        private bool _IsPlaying => _timeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
+        public int IdInOrder { get; private set; }
+
+        private SimpleNoteCutComparator _previousInOrderComparator;
 
         private void Construct(NoteController controller, NoteEvent noteEvent)
         {
             NoteController = controller;
             NoteEvent = noteEvent;
             NoteController.noteWasCutEvent.Add(this);
-            IsAvailableForCut = true;
+            //_spawner.TryGetLoadedComparator(x => x.IdInOrder == IdInOrder - 1, out _previousInOrderComparator);
+            //Debug.Log($"Initialized comparator {IdInOrder} with {_previousInOrderComparator != null}");
+            IsAvailableToCut = true;
             IsFinished = false;
         }
         public void Dispose()
         {
             //NoteEvent = null;
             //NoteController = null;
-            IsAvailableForCut = false;
+            //_previousInOrderComparator = null;
+            IsAvailableToCut = false;
             IsFinished = true;
         }
         private void Update()
         {
-            if (IsAvailableForCut && _IsPlaying && _timeSyncController.songTime >= NoteEvent.eventTime)
+            if (IsAvailableToCut && _timeSyncController.state.Equals(AudioTimeSyncController.State.Playing)
+                && _timeSyncController.songTime >= NoteEvent.eventTime)
             {
+                //Debug.Log("Processing comparator " + IdInOrder);
                 Cut(ReplayNoteCutInfo.ToBaseGame(NoteEvent.noteCutInfo, NoteController));
             }
         }
@@ -49,7 +58,7 @@ namespace BeatLeader.Replayer.Emulation
         public void HandleNoteControllerNoteWasCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
             NoteController.noteWasCutEvent.Remove(this);
-            IsAvailableForCut = false;
+            IsAvailableToCut = false;
         }
         private void Cut(NoteCutInfo noteCutInfo)
         {
@@ -57,6 +66,11 @@ namespace BeatLeader.Replayer.Emulation
             {
                 item.HandleNoteControllerNoteWasCut(NoteController, noteCutInfo);
             }
+        }
+        private bool OrderIsCorrectNow()
+        {
+            return (_previousInOrderComparator != null && _previousInOrderComparator.IsAvailableToCut)
+                || _previousInOrderComparator == null;
         }
     }
 }

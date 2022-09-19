@@ -14,7 +14,7 @@ namespace BeatLeader.Components
 
         private void Awake()
         {
-            if (!InstallationRequired()) return;
+            if (!IsInstallationRequired()) return;
 
             _text = gameObject.AddComponent<TextMeshPro>();
             _text.richText = true;
@@ -29,7 +29,7 @@ namespace BeatLeader.Components
         {
             return $"<i><b><color=\"red\">REPLAY</color></b>   {songName} - {songAuthor}   Player: {player}</i>";
         }
-        private bool InstallationRequired()
+        private bool IsInstallationRequired()
         {
             return !ProfileManager.IsCurrentPlayer(_launchData.player);
         }

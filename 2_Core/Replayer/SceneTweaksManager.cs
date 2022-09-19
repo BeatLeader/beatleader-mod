@@ -33,7 +33,7 @@ namespace BeatLeader.Replayer
             DisableUselessStuff();
             UnsubscribeEvents();
             PatchInputSystem();
-            PatchSmoothCamera();
+            if (!InputManager.IsInFPFC) PatchSmoothCamera();
 
             RaycastBlocker.EnableBlocker = true;
         }

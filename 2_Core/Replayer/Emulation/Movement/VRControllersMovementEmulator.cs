@@ -9,6 +9,7 @@ using Quaternion = UnityEngine.Quaternion;
 
 namespace BeatLeader.Replayer.Movement
 {
+    //TODO: optimize
     public class VRControllersMovementEmulator : MonoBehaviour
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;

@@ -16,7 +16,7 @@ namespace BeatLeader.Replayer.Emulation
         [Inject] protected readonly ReplayLaunchData _replayData;
 
         protected HashSet<SimpleNoteCutComparator> _spawnedComparators = new();
-        protected HashSet<SimpleNoteCutComparator> _modifiedCache = new();
+        protected HashSet<SimpleNoteCutComparator> _cachedComparators = new();
 
         protected virtual void Start()
         {
@@ -25,16 +25,39 @@ namespace BeatLeader.Replayer.Emulation
         protected virtual void Update()
         {
             if (_spawnedComparators.Count == 0) return;
-            foreach (var item in _spawnedComparators.Where(x => x.IsFinished))
+
+            while (true)
             {
-                _modifiedCache.Add(item);
+                int minIndex = int.MaxValue;
+                SimpleNoteCutComparator comparator = null;
+                bool comparatorIsNotNull = false;
+
+                foreach (var item in _spawnedComparators)
+                {
+                    if (item.IdInOrder < minIndex && item.IsProcessRequired)
+                    {
+                        minIndex = item.IdInOrder;
+                        comparator = item;
+                        comparatorIsNotNull = true;
+                    }
+                }
+
+                if (comparatorIsNotNull)
+                {
+                    if (comparator.NoteEvent.eventType != NoteEventType.miss)
+                        CutNoteController(comparator.NoteController,
+                            Models.NoteCutInfo.ToBaseGame(comparator.NoteEvent.noteCutInfo, comparator.NoteController));
+                    else MissNoteController(comparator.NoteController);
+                    _spawnedComparators.Remove(comparator);
+                }
+                else break;
             }
-            foreach (var item in _modifiedCache)
+
+            foreach (var item in _cachedComparators.Where(x => x.IsFinished))
             {
-                _spawnedComparators.Remove(item);
+                _cachedComparators.Remove(item);
                 _simpleNoteCutComparatorPool.Despawn(item);
             }
-            _modifiedCache.Clear();
         }
         protected virtual void OnDestroy()
         {
@@ -52,6 +75,7 @@ namespace BeatLeader.Replayer.Emulation
         public bool TryGetLoadedComparator(Func<SimpleNoteCutComparator, bool> filter, out SimpleNoteCutComparator comparator)
         {
             comparator = _spawnedComparators.Where(filter).FirstOrDefault();
+            comparator ??= _cachedComparators.Where(filter).FirstOrDefault();
             return comparator != null;
         }
         protected void AddNoteComparator(NoteController controller)
@@ -61,12 +85,23 @@ namespace BeatLeader.Replayer.Emulation
         }
         protected void AddNoteComparator(NoteController controller, int id, NoteEvent noteCutEvent)
         {
-            if (noteCutEvent == null || noteCutEvent.eventType == NoteEventType.miss
-                || noteCutEvent.noteCutInfo == null) return;
+            if (noteCutEvent == null || noteCutEvent.noteCutInfo == null) return;
 
             SimpleNoteCutComparator comparator = _simpleNoteCutComparatorPool.Spawn(id, controller, noteCutEvent);
             comparator.transform.SetParent(controller.transform);
             _spawnedComparators.Add(comparator);
+        }
+
+        protected void CutNoteController(NoteController controller, NoteCutInfo noteCutInfo)
+        {
+            foreach (var item in ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)controller.noteWasCutEvent).items)
+            {
+                item.HandleNoteControllerNoteWasCut(controller, noteCutInfo);
+            }
+        }
+        protected void MissNoteController(NoteController controller)
+        {
+            _beatmapObjectManager.HandleNoteControllerNoteWasMissed(controller);
         }
     }
 }

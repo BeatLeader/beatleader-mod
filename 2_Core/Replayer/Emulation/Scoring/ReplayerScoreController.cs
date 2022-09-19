@@ -150,7 +150,7 @@ namespace BeatLeader.Replayer.Scoring
                     .TryGetLoadedComparator(noteController, out SimpleNoteCutComparator comparator))
                 {
                     scoringData = new ScoringData(comparator.NoteController, comparator.NoteEvent);
-                    comparator.Dispose();
+                    comparator.Deconstruct();
                 }
                 else
                     scoringData = new ScoringData(noteController, noteController.GetNoteEvent(_replayData.replay));

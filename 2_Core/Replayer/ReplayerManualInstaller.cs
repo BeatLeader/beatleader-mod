@@ -30,8 +30,10 @@ namespace BeatLeader.Replayer
             Container.Bind<ReplayLaunchData>().FromInstance(data).AsSingle();
             Container.Bind<LocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<IScoringInterlayer>().To<ReplayToBaseScoringInterlayer>().AsSingle().NonLazy();
+            var prefab = new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>();
+            prefab.gameObject.SetActive(false);
             Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
-               .FromComponentInNewPrefab(new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>());
+               .FromComponentInNewPrefab(prefab);
             Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

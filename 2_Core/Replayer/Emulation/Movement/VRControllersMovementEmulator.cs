@@ -57,7 +57,7 @@ namespace BeatLeader.Replayer.Movement
 
             _LeftSaber.transform.SetLocalPose(leftSaberPose);
             _RightSaber.transform.SetLocalPose(rightSaberPose);
-            _Head.transform.SetLocalPose(rightSaberPose);
+            _Head.transform.SetLocalPose(headPose);
         }
     }
 }

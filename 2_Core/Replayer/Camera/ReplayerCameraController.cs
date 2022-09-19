@@ -6,7 +6,6 @@ using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using Zenject;
-using BeatLeader.Interop;
 using BeatLeader.Utils;
 
 namespace BeatLeader.Replayer.Camera
@@ -39,7 +38,7 @@ namespace BeatLeader.Replayer.Camera
         [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
         public List<ICameraPoseProvider> PoseProviders { get; protected set; }
-        public Transform CameraTransform => _camera.transform;
+        public UnityEngine.Camera Camera => _camera;
         public CombinedCameraMovementData CombinedMovementData
         {
             get => new CombinedCameraMovementData(transform, _vrControllersManager.HeadContainer.transform, _vrControllersManager.OriginTransform);
@@ -84,8 +83,15 @@ namespace BeatLeader.Replayer.Camera
         private void Awake()
         {
             if (_data == null || IsInitialized) return;
-            SmoothCamera smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
-                .First(x => x.transform.parent.name == "LocalPlayerGameCore");
+            var smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
+                .FirstOrDefault(x => x.transform.parent.name == "LocalPlayerGameCore");
+
+            if (smoothCamera == null)
+            {
+                Plugin.Log.Error("Failed to initialize ReplayerCamera!");
+                return;
+            }
+
             smoothCamera.gameObject.SetActive(false);
             _camera = Instantiate(smoothCamera.GetComponent<UnityEngine.Camera>(), gameObject.transform, true);
 
@@ -106,7 +112,9 @@ namespace BeatLeader.Replayer.Camera
         }
         private void LateUpdate()
         {
-            if (IsInitialized && _wasRequestedLastTime)
+            if (!IsInitialized) return;
+
+            if (_wasRequestedLastTime)
             {
                 SetCameraPose(_requestedPose);
                 _wasRequestedLastTime = false;

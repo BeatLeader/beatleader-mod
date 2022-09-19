@@ -41,38 +41,23 @@ namespace BeatLeader.Replayer.Movement
             if (frame == null || frame.Next == null) return;
             _lastProcessedNode = frame;
 
-            var leftSaberPos = frame.Value.leftHand.position;
-            var leftSaberRot = frame.Value.leftHand.rotation;
-
-            var rightSaberPos = frame.Value.rightHand.position;
-            var rightSaberRot = frame.Value.rightHand.rotation;
-
-            var headPos = frame.Value.head.position;
-            var headRot = frame.Value.head.rotation;
+            var leftSaberPose = frame.Value.leftHand.GetPose();
+            var rightSaberPose = frame.Value.rightHand.GetPose();
+            var headPose = frame.Value.head.GetPose();
 
             if (lerpEnabled)
             {
                 float slerp = (_audioTimeSyncController.songTime - frame.Value.time) /
                 (frame.Next.Value.time - frame.Value.time);
 
-                leftSaberPos = Vector3.Lerp(frame.Value.leftHand.position, frame.Next.Value.leftHand.position, slerp);
-                leftSaberRot = Quaternion.Lerp(frame.Value.leftHand.rotation, frame.Next.Value.leftHand.rotation, slerp);
-
-                rightSaberPos = Vector3.Lerp(frame.Value.rightHand.position, frame.Next.Value.rightHand.position, slerp);
-                rightSaberRot = Quaternion.Lerp(frame.Value.rightHand.rotation, frame.Next.Value.rightHand.rotation, slerp);
-
-                headPos = Vector3.Lerp(frame.Value.head.position, frame.Next.Value.head.position, slerp);
-                headRot = Quaternion.Lerp(frame.Value.head.rotation, frame.Next.Value.head.rotation, slerp);
+                leftSaberPose = leftSaberPose.Lerp(frame.Next.Value.leftHand.GetPose(), slerp);
+                rightSaberPose = rightSaberPose.Lerp(frame.Next.Value.rightHand.GetPose(), slerp);
+                headPose = headPose.Lerp(frame.Next.Value.head.GetPose(), slerp);
             }
 
-            _LeftSaber.transform.localPosition = leftSaberPos;
-            _LeftSaber.transform.localRotation = leftSaberRot;
-
-            _RightSaber.transform.localPosition = rightSaberPos;
-            _RightSaber.transform.localRotation = rightSaberRot;
-
-            _Head.transform.localPosition = headPos;
-            _Head.transform.localRotation = headRot;
+            _LeftSaber.transform.SetLocalPose(leftSaberPose);
+            _RightSaber.transform.SetLocalPose(rightSaberPose);
+            _Head.transform.SetLocalPose(rightSaberPose);
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace BeatLeader.Utils
@@ -23,6 +19,11 @@ namespace BeatLeader.Utils
             transform.position = pose.position;
             transform.rotation = pose.rotation;
         }
+        public static void SetPose(this Models.Transform transform, Pose pose)
+        {
+            transform.position = pose.position;
+            transform.rotation = pose.rotation;
+        }
         public static void SetLocalPose(this Transform transform, Pose pose)
         {
             transform.localPosition = pose.position;
@@ -32,9 +33,20 @@ namespace BeatLeader.Utils
         {
             return new Pose(transform.position, transform.rotation);
         }
+        public static Pose GetPose(this Models.Transform transform)
+        {
+            return new Pose(transform.position, transform.rotation);
+        }
         public static Pose GetLocalPose(this Transform transform)
         {
             return new Pose(transform.localPosition, transform.localRotation);
+        }
+        public static Pose Lerp(this Pose a, Pose b, float f)
+        {
+            var pose = new Pose();
+            pose.position = Vector3.Lerp(a.position, b.position, f);
+            pose.rotation = Quaternion.Lerp(a.rotation, b.rotation, f);
+            return pose;
         }
     }
 }

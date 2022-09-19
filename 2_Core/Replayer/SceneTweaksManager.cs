@@ -4,6 +4,9 @@ using UnityEngine;
 using Zenject;
 using UnityEngine.EventSystems;
 using BeatLeader.Utils;
+using IPA.Utilities;
+using BeatLeader.Replayer.Camera;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace BeatLeader.Replayer
 {
@@ -11,6 +14,7 @@ namespace BeatLeader.Replayer
     {
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly LocksController _softLocksController;
+        [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly StandardLevelGameplayManager _gameplayManager;
         [Inject] private readonly PauseController _pauseController;
         [Inject] private readonly MainCamera _mainCamera;
@@ -29,12 +33,14 @@ namespace BeatLeader.Replayer
             DisableUselessStuff();
             UnsubscribeEvents();
             PatchInputSystem();
+            PatchSmoothCamera();
 
             RaycastBlocker.EnableBlocker = true;
         }
         private void OnDestroy()
         {
             RaycastBlocker.EnableBlocker = false;
+            RaycastBlocker.ReleaseMemory();
         }
 
         private void DisableUselessStuff()
@@ -75,6 +81,18 @@ namespace BeatLeader.Replayer
             }
             CustomEventSystem = inputSystemContainer.GetOrAddComponent<EventSystem>();
             EventSystem.current = CustomEventSystem;
+        }
+        private void PatchSmoothCamera()
+        {
+            var smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
+                .FirstOrDefault(x => x.transform.parent.name == "LocalPlayerGameCore");
+            if (smoothCamera == null) return;
+
+            var fakeCam = new MainCamera();
+            fakeCam.SetField("_camera", _cameraController.Camera);
+            fakeCam.SetField("_transform", _cameraController.Camera.transform);
+            smoothCamera.SetField("_mainCamera", fakeCam);
+            smoothCamera.gameObject.SetActive(true);
         }
     }
 }

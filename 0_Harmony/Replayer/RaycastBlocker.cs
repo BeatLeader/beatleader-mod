@@ -33,6 +33,10 @@ namespace BeatLeader
         private static bool _lastBlockerState;
         private static bool _enableBlocker;
 
+        public static void ReleaseMemory()
+        {
+            _raycasters.Clear();
+        }
         private static void UpdateMasks()
         {
             var enable = EnableBlocker;

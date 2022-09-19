@@ -6,10 +6,21 @@ namespace BeatLeader.Components
 {
     public class TransformListener : MonoBehaviour
     {
+        public Transform TransformToListen
+        {
+            get => _transformToListen;
+            set
+            {
+                _transformToListen = value;
+                _canListen = _transformToListen != null;
+            }
+        }
+
         public event Action<Pose> OnPoseChanged;
 
-        public Transform transformToListen;
         public bool isListening;
+        private Transform _transformToListen;
+        private bool _canListen;
         private Pose _pose;
 
         public void StartListening()
@@ -22,9 +33,9 @@ namespace BeatLeader.Components
         }
         private void Update()
         {
-            if (!isListening || transformToListen == null) return;
+            if (!isListening || !_canListen) return;
 
-            var currentPose = transformToListen.GetPose();
+            var currentPose = TransformToListen.GetPose();
             if (_pose != currentPose) OnPoseChanged?.Invoke(currentPose);
             _pose = currentPose;
         }

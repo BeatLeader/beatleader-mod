@@ -15,7 +15,7 @@ namespace BeatLeader.Components
             set
             {
                 _viewFloating = value;
-                _poseListener.transformToListen = _viewFloating.transform;
+                _poseListener.TransformToListen = _viewFloating.transform;
                 _resetter.Transform = _viewFloating.transform;
 
                 LoadSettings();
@@ -88,10 +88,10 @@ namespace BeatLeader.Components
             var rot = new Vector3();
             for (int i = 0; i <= 2; i++)
             {
-                pos[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.position[i], _Config.GridPosIncrement);
-                rot[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.eulerAngles[i], _Config.GridRotIncrement);
+                pos[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.localPosition[i], _Config.GridPosIncrement);
+                rot[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.localEulerAngles[i], _Config.GridRotIncrement);
             }
-            _viewFloating.transform.SetPositionAndRotation(pos, Quaternion.Euler(rot));
+            _viewFloating.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(rot));
         }
         private void NotifyPoseChanged(Pose pose)
         {

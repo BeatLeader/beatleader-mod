@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using BeatLeader.Utils;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer.Emulation;
 using BeatLeader.Replayer.Movement;
-using BeatLeader.Replayer.Scoring;
 using BeatLeader.ViewControllers;
 using BeatLeader.Models;
 using SiraUtil.Tools.FPFC;
-using UnityEngine;
 using Zenject;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
@@ -29,18 +25,11 @@ namespace BeatLeader.Replayer
         {
             Container.Bind<ReplayLaunchData>().FromInstance(data).AsSingle();
             Container.Bind<LocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<IScoringInterlayer>().To<ReplayToBaseScoringInterlayer>().AsSingle().NonLazy();
-            var prefab = new GameObject("ComparatorPrefab").AddComponent<SimpleNoteCutComparator>();
-            prefab.gameObject.SetActive(false);
-            Container.BindMemoryPool<SimpleNoteCutComparator, SimpleNoteCutComparator.Pool>().WithInitialSize(30)
-               .FromComponentInNewPrefab(prefab);
-            Container.Bind<SimpleNoteComparatorsSpawner>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            //scorecontroller patch
-            Container.Bind<IReplayerScoreController>().To<ReplayerScoreController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Rebind<IScoreController>().To<IReplayerScoreController>().FromResolve().AsSingle().NonLazy();
-            Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault(x => x.name == "GameplayData").TryDestroy();
+            
+            Container.BindInterfacesAndSelfTo<ReplayEventsEmitter>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ReplayController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ReplayNotesCutter>().AsSingle();
 
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

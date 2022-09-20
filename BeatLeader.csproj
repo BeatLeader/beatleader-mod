@@ -320,6 +320,10 @@
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
     <Compile Include="2_Core\Models\ScoringData.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\ReplayEventsEmitter.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\ReplayNotesCutter.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\ReplayController.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\NoteControllerEmulator.cs" />
     <Compile Include="7_Utils\UtilityClasses\SliderValuesApplier.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
     <Compile Include="2_Core\Models\ReplayerSettings.cs" />
@@ -332,10 +336,6 @@
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersManager.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersMovementEmulator.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllerWrapper.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayerScoreController.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayToBaseScoringInterlayer.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\SimpleNoteComparatorsSpawner.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\SimpleNoteCutComparator.cs" />
     <Compile Include="2_Core\Replayer\ReplayerCache.cs" />
     <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
     <Compile Include="7_Utils\InputManager.cs" />
@@ -591,6 +591,5 @@
     <Content Include=".gitignore" />
     <Content Include="Media\cover.png" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

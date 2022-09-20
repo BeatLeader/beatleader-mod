@@ -320,6 +320,25 @@ namespace BeatLeader.Utils
         #endregion
 
         #region Computing
+        
+        public static void DecodeNoteId(
+            int noteId,
+            out NoteData.ScoringType scoringType,
+            out int lineIndex,
+            out NoteLineLayer noteLineLayer,
+            out ColorType colorType,
+            out NoteCutDirection cutDirection
+        ) {
+            cutDirection = (NoteCutDirection)(noteId % 10);
+            noteId /= 10;
+            colorType = (ColorType)(noteId % 10);
+            noteId /= 10;
+            noteLineLayer = (NoteLineLayer)(noteId % 10);
+            noteId /= 10;
+            lineIndex = noteId % 10;
+            noteId /= 10;
+            scoringType = (NoteData.ScoringType)(noteId - 2);
+        }
 
         public static int ComputeObstacleID(this ObstacleData obstacleData)
         {

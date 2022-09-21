@@ -108,7 +108,7 @@ namespace BeatLeader.Replayer
 
             return new RequestResult<EnvironmentInfoSO>(environment == null, environment);
         }
-        private void ResetData(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults)
+        private static void ResetData(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults)
         {
             transitionData.didFinishEvent -= ResetData;
             LaunchData.NotifyReplayDidFinish(transitionData, completionResults);

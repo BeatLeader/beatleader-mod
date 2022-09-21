@@ -279,12 +279,12 @@ namespace BeatLeader.Utils
         }
         public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, NoteEvent noteEvent)
         {
-            return ReplayNoteCutInfo.ToBaseGame(noteEvent.noteCutInfo, noteController);
+            return ReplayNoteCutInfo.Convert(noteEvent.noteCutInfo, noteController);
         }
         public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, Replay replay)
         {
             var noteEvent = GetNoteEvent(noteController, replay);
-            return noteEvent != null ? ReplayNoteCutInfo.ToBaseGame(noteEvent.noteCutInfo, noteController) : default;
+            return noteEvent != null ? ReplayNoteCutInfo.Convert(noteEvent.noteCutInfo, noteController) : default;
         }
         public static LinkedListNode<Frame> GetFrameByTime(this LinkedList<Frame> frames, float time)
         {

@@ -1,62 +1,16 @@
 ﻿using System;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using Quaternion = UnityEngine.Quaternion;
-using Vector3 = UnityEngine.Vector3;
 
-namespace BeatLeader.Replayer {
-    internal class NoteControllerEmulator : NoteController {
-        #region Setup
-
-        private NoteData _noteData;
-        public override NoteData noteData => _noteData;
-        public NoteCutInfo CutInfo { get; private set; }
-
-        public void Setup(NoteEvent noteEvent) {
-            _noteData = CreateNoteData(noteEvent);
-            CutInfo = CreateNoteCutInfo(noteEvent, _noteData);
-        }
-
-        #endregion
-
-        #region CreateNoteCutInfo
-
-        private static readonly SaberMovementData emptySaberMovementData = new();
-        private static readonly Models.NoteCutInfo emptyCutInfo = new();
-
-        private static NoteCutInfo CreateNoteCutInfo(NoteEvent noteEvent, NoteData noteData) {
-            var i = noteEvent?.noteCutInfo ?? emptyCutInfo;
-
-            return new NoteCutInfo(
-                noteData,
-                i.speedOK,
-                i.directionOK,
-                i.saberTypeOK,
-                i.wasCutTooSoon,
-                i.saberSpeed,
-                i.saberDir,
-                (SaberType)i.saberType,
-                i.timeDeviation,
-                i.cutDirDeviation,
-                i.cutPoint,
-                i.cutNormal,
-                i.cutDistanceToCenter,
-                i.cutAngle,
-                Quaternion.identity,
-                Quaternion.identity,
-                Quaternion.identity,
-                Vector3.zero,
-                emptySaberMovementData
-            );
-        }
-
-        #endregion
-
-        #region CreateNoteData
+namespace BeatLeader.Replayer
+{
+    public class NoteControllerEmulator : NoteController
+    {
+        #region Create NoteData
 
         private static readonly NoteData emptyNoteData = NoteData.CreateBasicNoteData(0, 0, NoteLineLayer.Base, ColorType.ColorA, NoteCutDirection.Any);
-
-        private static NoteData CreateNoteData(NoteEvent noteEvent) {
+        private static NoteData CreateNoteData(NoteEvent noteEvent)
+        {
             ReplayDataHelper.DecodeNoteId(
                 noteEvent.noteID,
                 out var scoringType,
@@ -66,7 +20,8 @@ namespace BeatLeader.Replayer {
                 out var cutDirection
             );
 
-            var gameplayType = scoringType switch {
+            var gameplayType = scoringType switch
+            {
                 NoteData.ScoringType.Ignore => NoteData.GameplayType.Normal,
                 NoteData.ScoringType.NoScore => NoteData.GameplayType.Bomb,
                 NoteData.ScoringType.Normal => NoteData.GameplayType.Normal,
@@ -90,11 +45,18 @@ namespace BeatLeader.Replayer {
 
         #endregion
 
-        #region Garbage
+        public override NoteData noteData => _noteData;
+        public NoteCutInfo CutInfo { get; private set; }
+
+        private NoteData _noteData;
+
+        public void Setup(NoteEvent noteEvent)
+        {
+            _noteData = CreateNoteData(noteEvent);
+            CutInfo = Models.NoteCutInfo.Convert(noteEvent.noteCutInfo, _noteData);
+        }
 
         protected override void HiddenStateDidChange(bool _) { }
         public override void Pause(bool _) { }
-
-        #endregion
     }
 }

@@ -40,7 +40,7 @@ namespace BeatLeader.Replayer.Movement
             OriginTransform = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
 
             _mainCamera.GetComponentInChildren<BoxCollider>().gameObject.SetActive(false);
-            HeadContainer = new GameObject("ReplayerFakeHead").AddComponent<VRControllerWrapper>();
+            HeadContainer = new GameObject("ReplayerFakeHead").AddComponent<VRControllerEmulator>();
             HeadContainer.node = XRNode.Head;
 
             HeadTransform = Instantiate(BundleLoader.MonkeyPrefab, null, false).transform;
@@ -68,6 +68,11 @@ namespace BeatLeader.Replayer.Movement
             LoadConfig(_replayData.actualSettings);
             IsInitialized = true;
         }
+        protected virtual void OnDestroy()
+        {
+            Cam2Interop.SetHeadTransform(null);
+        }
+
         public void ShowMenuControllers(bool show = true)
         {
             LeftHand.gameObject.SetActive(show);

@@ -16,20 +16,31 @@ namespace BeatLeader.Replayer
 {
     public class ReplayerManualInstaller
     {
-        public static void Install(ReplayLaunchData data, DiContainer Container)
-        {
-            new ReplayerManualInstaller().InstallBindings(data, Container);
-        }
+        private static readonly ReplayerCameraController.InitData CameraInitData = new ReplayerCameraController.InitData(
 
-        public void InstallBindings(ReplayLaunchData data, DiContainer Container)
+           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.FPFC),
+           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.VR),
+           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.FPFC),
+           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.VR),
+           new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.Euler(Vector3.zero), InputManager.InputType.FPFC),
+           new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Quaternion.Euler(Vector3.zero), InputManager.InputType.VR),
+           new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Quaternion.Euler(Vector3.zero), InputManager.InputType.FPFC),
+           new StaticCameraPose(3, "CenterView", Vector3.zero, Quaternion.Euler(Vector3.zero), InputManager.InputType.VR),
+           
+           new FlyingCameraPose(new Vector2(0.5f, 0.5f), new Vector2(0, 1.7f), 4, true, "FreeView"),
+           new PlayerViewCameraPose(3)
+        
+        );
+
+        public static void InstallBindings(ReplayLaunchData data, DiContainer Container)
         {
             Container.Bind<ReplayLaunchData>().FromInstance(data).AsSingle();
             Container.Bind<LocksController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
-            Container.BindInterfacesAndSelfTo<ReplayEventsEmitter>().AsSingle();
-            Container.BindInterfacesAndSelfTo<ReplayController>().AsSingle();
-            Container.BindInterfacesAndSelfTo<ReplayNotesCutter>().AsSingle();
+
+            Container.Bind<ReplayEventsProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -37,21 +48,7 @@ namespace BeatLeader.Replayer
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(new ReplayerCameraController.InitData(
-
-                new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.FPFC),
-                new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.VR),
-                new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.FPFC),
-                new StaticCameraPose(1, "RightView", new Vector3(3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.VR),
-                new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.Euler(Vector3.zero), InputManager.InputType.FPFC),
-                new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Quaternion.Euler(Vector3.zero), InputManager.InputType.VR),
-                new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Quaternion.Euler(Vector3.zero), InputManager.InputType.FPFC),
-                new StaticCameraPose(3, "CenterView", Vector3.zero, Quaternion.Euler(Vector3.zero), InputManager.InputType.VR),
-
-                new FlyingCameraPose(new Vector2(0.5f, 0.5f), new Vector2(0, 1.7f), 4, true, "FreeView"),
-                new PlayerViewCameraPose(3)
-
-                )).AsSingle();
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(CameraInitData).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<HotkeysManager>().AsSingle().NonLazy();
@@ -59,7 +56,7 @@ namespace BeatLeader.Replayer
             InstallUI(Container, !InputManager.IsInFPFC);
             Plugin.Log.Notice("[Installer] Replay system successfully installed");
         }
-        private void InstallUI(DiContainer container, bool vr)
+        private static void InstallUI(DiContainer container, bool vr)
         {
             container.Bind<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             if (vr)
@@ -71,7 +68,7 @@ namespace BeatLeader.Replayer
                 PatchSiraFreeView(container);
             }
         }
-        private void PatchSiraFreeView(DiContainer container)
+        private static void PatchSiraFreeView(DiContainer container)
         {
             try
             {

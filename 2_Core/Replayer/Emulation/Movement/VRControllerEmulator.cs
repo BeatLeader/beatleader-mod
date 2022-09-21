@@ -4,7 +4,7 @@ using Quaternion = UnityEngine.Quaternion;
 
 namespace BeatLeader.Replayer.Movement
 {
-    public class VRControllerWrapper : VRController
+    public class VRControllerEmulator : VRController
     {
         public override void Update() { }
     }

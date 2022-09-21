@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
-using Vector3 = UnityEngine.Vector3;
-using Quaternion = UnityEngine.Quaternion;
 
 namespace BeatLeader.Replayer.Movement
 {

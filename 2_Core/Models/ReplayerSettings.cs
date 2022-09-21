@@ -28,20 +28,20 @@ namespace BeatLeader.Models
             bool? useReplayerCamera = null, bool? showHead = null, bool? showLeftSaber = null, bool? showRightSaber = null,
             int? maxFov = null, int? minFov = null, int? cameraFov = null, string fpfcCameraPose = null, string vrCameraPose = null)
         {
-            ShowUI = (bool)(showUI != null ? showUI : ShowUI);
-            LoadPlayerEnvironment = (bool)(loadPlayerEnvironment != null ? loadPlayerEnvironment : LoadPlayerEnvironment);
-            SyncUIRotationWithHead = (bool)(syncUIRotation != null ? syncUIRotation : SyncUIRotationWithHead);
-            ForceUseReplayerCamera = (bool)(useReplayerCamera != null ? useReplayerCamera : ForceUseReplayerCamera);
+            ShowUI = showUI ?? ShowUI;
+            LoadPlayerEnvironment = loadPlayerEnvironment ?? LoadPlayerEnvironment;
+            SyncUIRotationWithHead = syncUIRotation ?? SyncUIRotationWithHead;
+            ForceUseReplayerCamera = useReplayerCamera ?? ForceUseReplayerCamera;
 
-            ShowHead = (bool)(showHead != null ? showHead : ShowHead);
-            ShowLeftSaber = (bool)(showLeftSaber != null ? showLeftSaber : ShowLeftSaber);
-            ShowRightSaber = (bool)(showRightSaber != null ? showRightSaber : ShowRightSaber);
+            ShowHead = showHead ?? ShowHead;
+            ShowLeftSaber = showLeftSaber ?? ShowLeftSaber;
+            ShowRightSaber = showRightSaber ?? ShowRightSaber;
 
-            MaxFOV = (int)(maxFov != null ? maxFov : MaxFOV);
-            MinFOV = (int)(minFov != null ? minFov : MinFOV);
-            CameraFOV = (int)(cameraFov != null ? cameraFov : CameraFOV);
-            FPFCCameraPose = string.IsNullOrEmpty(fpfcCameraPose) ? fpfcCameraPose : FPFCCameraPose;
-            VRCameraPose = string.IsNullOrEmpty(vrCameraPose) ? vrCameraPose : VRCameraPose;
+            MaxFOV = maxFov ?? MaxFOV;
+            MinFOV = minFov ?? MinFOV;
+            CameraFOV = cameraFov ?? CameraFOV;
+            FPFCCameraPose = fpfcCameraPose ?? FPFCCameraPose;
+            VRCameraPose = vrCameraPose ?? VRCameraPose;
         }
     }
 }

@@ -299,7 +299,6 @@
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
     <Compile Include="2_Core\Models\ICameraPoseProvider.cs" />
     <Compile Include="2_Core\Models\IReplayerScoreController.cs" />
-    <Compile Include="2_Core\Models\IScoringInterlayer.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
     <Compile Include="2_Core\Models\LeaderboardsInfoResponse.cs" />
     <Compile Include="2_Core\Models\LeaderboardKey.cs" />
@@ -319,10 +318,9 @@
     <Compile Include="2_Core\Models\Score.cs" />
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
-    <Compile Include="2_Core\Models\ScoringData.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\ReplayEventsEmitter.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\ReplayNotesCutter.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\ReplayController.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\ReplayEventsProcessor.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\ReplayerNotesCutter.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\ReplayerScoreProcessor.cs" />
     <Compile Include="2_Core\Replayer\Emulation\NoteControllerEmulator.cs" />
     <Compile Include="7_Utils\UtilityClasses\SliderValuesApplier.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
@@ -335,7 +333,7 @@
     <Compile Include="2_Core\Replayer\Camera\ReplayerCameraController.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersManager.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersMovementEmulator.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllerWrapper.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllerEmulator.cs" />
     <Compile Include="2_Core\Replayer\ReplayerCache.cs" />
     <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
     <Compile Include="7_Utils\InputManager.cs" />

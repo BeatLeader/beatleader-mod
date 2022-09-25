@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -8,70 +7,73 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components {
     internal class PlayerAvatar : ReeUIComponentV2 {
-        #region ColorScheme
+        #region Material
 
-        private static readonly Dictionary<PlayerRole, ColorScheme> ColorSchemes = new() {
-            {
-                PlayerRole.Default, new ColorScheme(
-                    new Color(0.0f, 0.0f, 0.1f, 0.3f),
-                    new Color(0.0f, 0.0f, 0.0f),
-                    new Color(0.0f, 0.0f, 0.0f),
-                    0.0f
-                )
-            }, {
-                PlayerRole.Tipper, new ColorScheme(
-                    new Color(0.0f, 0.0f, 0.0f, 0.4f),
-                    new Color(1.0f, 1.0f, 0.7f),
-                    new Color(1.0f, 0.6f, 0.0f),
-                    0.3f
-                )
-            }, {
-                PlayerRole.Supporter, new ColorScheme(
-                    new Color(0.0f, 0.0f, 0.0f, 0.4f),
-                    new Color(1.0f, 1.0f, 0.7f),
-                    new Color(1.0f, 0.6f, 0.0f),
-                    0.8f
-                )
-            }, {
-                PlayerRole.Sponsor, new ColorScheme(
-                    new Color(0.0f, 0.0f, 0.1f, 0.4f),
-                    new Color(1.0f, 1.0f, 0.6f),
-                    new Color(1.0f, 0.3f, 0.0f),
-                    1.0f
-                )
+        private static readonly int AvatarTexturePropertyId = Shader.PropertyToID("_AvatarTexture");
+        private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
+        private static readonly int HueShiftPropertyId = Shader.PropertyToID("_HueShift");
+        private static readonly int SaturationPropertyId = Shader.PropertyToID("_Saturation");
+
+        private Texture _texture;
+        private float _fadeValue;
+        private float _hueShift;
+        private float _saturation;
+
+        private Material _materialInstance;
+        private bool _materialSet;
+
+        private void SelectMaterial(Player player) {
+            GetPlayerSpecificSettings(player, out var baseMaterial, out _hueShift, out _saturation);
+            if (!_materialSet || _materialInstance.shader != baseMaterial.shader) {
+                if (_materialSet) Destroy(_materialInstance);
+                _materialInstance = Instantiate(baseMaterial);
+                _image.material = _materialInstance;
+                _materialSet = true;
             }
-        };
-
-        private void ApplyColorScheme(PlayerRole[] playerRoles) {
-            var supporterRole = FormatUtils.GetSupporterRole(playerRoles);
-            var scheme = ColorSchemes.ContainsKey(supporterRole) ? ColorSchemes[supporterRole] : ColorSchemes[PlayerRole.Default];
-            scheme.Apply(_materialInstance);
+            UpdateMaterialProperties();
         }
 
-        private readonly struct ColorScheme {
-            private static readonly int BackgroundColorPropertyId = Shader.PropertyToID("_BackgroundColor");
-            private static readonly int RimColorPropertyId = Shader.PropertyToID("_RimColor");
-            private static readonly int HaloColorPropertyId = Shader.PropertyToID("_HaloColor");
-            private static readonly int WavesAmplitudePropertyId = Shader.PropertyToID("_WavesAmplitude");
+        private void UpdateMaterialProperties() {
+            if (!_materialSet) return;
+            _materialInstance.SetTexture(AvatarTexturePropertyId, _texture);
+            _materialInstance.SetFloat(FadeValuePropertyId, _fadeValue);
+            _materialInstance.SetFloat(HueShiftPropertyId, _hueShift);
+            _materialInstance.SetFloat(SaturationPropertyId, _saturation);
+        }
 
-            private readonly Color _backgroundColor;
-            private readonly Color _rimColor;
-            private readonly Color _haloColor;
-            private readonly float _wavesAmplitude;
-
-            public ColorScheme(Color backgroundColor, Color rimColor, Color haloColor, float wavesAmplitude) {
-                _backgroundColor = backgroundColor;
-                _rimColor = rimColor;
-                _haloColor = haloColor;
-                _wavesAmplitude = wavesAmplitude;
+        private static void GetPlayerSpecificSettings(Player player, out Material baseMaterial, out float hueShift, out float saturation) {
+            if (player.profileSettings == null) {
+                hueShift = 0.0f;
+                saturation = 1.0f;
+                baseMaterial = BundleLoader.DefaultAvatarMaterial;
+                return;
             }
+            
+            hueShift = (player.profileSettings.hue / 360.0f) * (Mathf.PI * 2);
+            saturation = player.profileSettings.saturation;
+            baseMaterial = player.profileSettings.effectName switch {
+                "TheSun_Tier1" => BundleLoader.TheSunTier1Material,
+                "TheSun_Tier2" => BundleLoader.TheSunTier2Material,
+                "TheSun_Tier3" => BundleLoader.TheSunTier3Material,
 
-            public void Apply(Material material) {
-                material.SetColor(BackgroundColorPropertyId, _backgroundColor);
-                material.SetColor(RimColorPropertyId, _rimColor);
-                material.SetColor(HaloColorPropertyId, _haloColor);
-                material.SetFloat(WavesAmplitudePropertyId, _wavesAmplitude);
-            }
+                "TheMoon_Tier1" => BundleLoader.TheMoonTier1Material,
+                "TheMoon_Tier2" => BundleLoader.TheMoonTier2Material,
+                "TheMoon_Tier3" => BundleLoader.TheMoonTier3Material,
+
+                "TheStar_Tier1" => BundleLoader.TheStarTier1Material,
+                "TheStar_Tier2" => BundleLoader.TheStarTier2Material,
+                "TheStar_Tier3" => BundleLoader.TheStarTier3Material,
+
+                "Sparks_Tier1" => BundleLoader.SparksTier1Material,
+                "Sparks_Tier2" => BundleLoader.SparksTier2Material,
+                "Sparks_Tier3" => BundleLoader.SparksTier3Material,
+
+                "Special_Tier1" => BundleLoader.SpecialTier1Material,
+                "Special_Tier2" => BundleLoader.SpecialTier2Material,
+                "Special_Tier3" => BundleLoader.SpecialTier3Material,
+
+                _ => BundleLoader.DefaultAvatarMaterial
+            };
         }
 
         #endregion
@@ -111,12 +113,11 @@ namespace BeatLeader.Components {
         #region SetAvatar
 
         private string _url;
-        private PlayerRole[] _playerRoles;
 
-        public void SetAvatar(string url, PlayerRole[] playerRoles) {
-            if (url.Equals(_url)) return;
-            _url = url;
-            _playerRoles = playerRoles;
+        public void SetPlayer(Player player) {
+            if (player.avatar.Equals(_url)) return;
+            _url = player.avatar;
+            SelectMaterial(player);
             UpdateAvatar();
         }
 
@@ -130,7 +131,6 @@ namespace BeatLeader.Components {
 
         private void OnAvatarLoadSuccess(AvatarImage avatarImage) {
             ShowTexture(_bufferTexture);
-            ApplyColorScheme(_playerRoles);
             StartCoroutine(avatarImage.PlaybackCoroutine(_bufferTexture));
         }
 
@@ -142,35 +142,22 @@ namespace BeatLeader.Components {
 
         #region Image
 
-        private static readonly int AvatarTexturePropertyId = Shader.PropertyToID("_AvatarTexture");
-        private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
-
         [UIComponent("image-component"), UsedImplicitly]
         private ImageView _image;
-
-        private Material _materialInstance;
-        private bool _materialSet;
 
         public void SetAlpha(float value) {
             _image.color = new Color(1, 1, 1, value);
         }
 
         private void ShowSpinner() {
-            SetMaterialLazy();
-            _materialInstance.SetFloat(FadeValuePropertyId, 0);
+            _fadeValue = 0.0f;
+            UpdateMaterialProperties();
         }
 
         private void ShowTexture(Texture texture) {
-            SetMaterialLazy();
-            _materialInstance.SetFloat(FadeValuePropertyId, 1);
-            _materialInstance.SetTexture(AvatarTexturePropertyId, texture);
-        }
-
-        private void SetMaterialLazy() {
-            if (_materialSet) return;
-            _materialInstance = Object.Instantiate(BundleLoader.PlayerAvatarMaterial);
-            _image.material = _materialInstance;
-            _materialSet = true;
+            _fadeValue = 1.0f;
+            _texture = texture;
+            UpdateMaterialProperties();
         }
 
         #endregion

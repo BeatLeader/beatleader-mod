@@ -219,7 +219,7 @@ namespace BeatLeader.Components {
             var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
             ApplyColorScheme(playerRoles);
 
-            _avatarCell.SetValues(player.avatar, playerRoles);
+            _avatarCell.SetPlayer(player);
             _countryCell.SetValue(player.country);
             _usernameCell.SetValue(player.name);
             _clansCell.SetValues(player.clans ?? Array.Empty<Clan>());

@@ -23,6 +23,7 @@ namespace BeatLeader {
 
             LoadSprites(localAssetBundle);
             LoadMaterials(localAssetBundle);
+            LoadAvatarMaterials(localAssetBundle);
             LoadPrefabs(localAssetBundle);
 
             localAssetBundle.Unload(false);
@@ -46,7 +47,6 @@ namespace BeatLeader {
         #region Materials
 
         public static Material LogoMaterial;
-        public static Material PlayerAvatarMaterial;
         public static Material UIAdditiveGlowMaterial;
         public static Material ScoreBackgroundMaterial;
         public static Material ScoreUnderlineMaterial;
@@ -61,7 +61,6 @@ namespace BeatLeader {
         private static void LoadMaterials(AssetBundle assetBundle)
         {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
-            PlayerAvatarMaterial = assetBundle.LoadAsset<Material>("PlayerAvatarMaterial");
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
             ScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("ScoreBackgroundMaterial");
             ScoreUnderlineMaterial = assetBundle.LoadAsset<Material>("ScoreUnderlineMaterial");
@@ -72,6 +71,56 @@ namespace BeatLeader {
             VotingButtonMaterial = assetBundle.LoadAsset<Material>("VotingButtonMaterial");
             MiniProfileBackgroundMaterial = assetBundle.LoadAsset<Material>("UIMiniProfileBackgroundMaterial");
             UIBlurMaterial = assetBundle.LoadAsset<Material>("UIBlurMaterial");
+        }
+
+        #endregion
+
+        #region LoadAvatarMaterials
+        
+        public static Material DefaultAvatarMaterial;
+        
+        public static Material TheSunTier1Material;
+        public static Material TheSunTier2Material;
+        public static Material TheSunTier3Material;
+        
+        public static Material TheMoonTier1Material;
+        public static Material TheMoonTier2Material;
+        public static Material TheMoonTier3Material;
+        
+        public static Material TheStarTier1Material;
+        public static Material TheStarTier2Material;
+        public static Material TheStarTier3Material;
+        
+        public static Material SparksTier1Material;
+        public static Material SparksTier2Material;
+        public static Material SparksTier3Material;
+        
+        public static Material SpecialTier1Material;
+        public static Material SpecialTier2Material;
+        public static Material SpecialTier3Material;
+
+        private static void LoadAvatarMaterials(AssetBundle assetBundle) {
+            DefaultAvatarMaterial = assetBundle.LoadAsset<Material>("DefaultAvatar");
+            
+            TheSunTier1Material = assetBundle.LoadAsset<Material>("TheSun_Tier1");
+            TheSunTier2Material = assetBundle.LoadAsset<Material>("TheSun_Tier2");
+            TheSunTier3Material = assetBundle.LoadAsset<Material>("TheSun_Tier3");
+            
+            TheMoonTier1Material = assetBundle.LoadAsset<Material>("TheMoon_Tier1");
+            TheMoonTier2Material = assetBundle.LoadAsset<Material>("TheMoon_Tier2");
+            TheMoonTier3Material = assetBundle.LoadAsset<Material>("TheMoon_Tier3");
+            
+            TheStarTier1Material = assetBundle.LoadAsset<Material>("TheStar_Tier1");
+            TheStarTier2Material = assetBundle.LoadAsset<Material>("TheStar_Tier2");
+            TheStarTier3Material = assetBundle.LoadAsset<Material>("TheStar_Tier3");
+            
+            SparksTier1Material = assetBundle.LoadAsset<Material>("Sparks_Tier1");
+            SparksTier2Material = assetBundle.LoadAsset<Material>("Sparks_Tier2");
+            SparksTier3Material = assetBundle.LoadAsset<Material>("Sparks_Tier3");
+            
+            SpecialTier1Material = assetBundle.LoadAsset<Material>("Special_Tier1");
+            SpecialTier2Material = assetBundle.LoadAsset<Material>("Special_Tier2");
+            SpecialTier3Material = assetBundle.LoadAsset<Material>("Special_Tier3");
         }
 
         #endregion

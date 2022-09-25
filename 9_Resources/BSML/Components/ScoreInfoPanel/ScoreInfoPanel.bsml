@@ -31,6 +31,11 @@
                 <macro.as-host host="accuracy-graph">
                     <macro.reparent transform="ui-component"/>
                 </macro.as-host>
+
+                <!--  REPLAY PANEL  -->
+                <macro.as-host host="replay-panel">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
             </vertical>
         </horizontal>
 

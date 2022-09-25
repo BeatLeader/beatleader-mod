@@ -1,5 +1,7 @@
 ﻿using BeatLeader.Models;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,20 +26,24 @@ namespace BeatLeader.Utils
             if (Directory.Exists(path) || path == null) return;
             Directory.CreateDirectory(path);
         }
-
-        #endregion
-
-        #region Replay
-
-        public static void WriteReplay(Replay replay)
+        public static string[] GetAllReplaysPaths()
+        {
+            return Directory.GetFiles(ReplaysFolderPath);
+        }
+        public static bool TryWriteReplay(Replay replay) {
+            return TryWriteReplay(ToFileName(replay), replay);
+        }
+        public static bool TryWriteReplay(string fileName, Replay replay)
         {
             try {
-                string filename = ToFileName(replay);
-                using BinaryWriter file = new(File.Open(filename, FileMode.OpenOrCreate), Encoding.UTF8);
+                EnsureDirectoryExists(fileName);
+                using BinaryWriter file = new(File.Open(fileName, FileMode.OpenOrCreate), Encoding.UTF8);
                 ReplayEncoder.Encode(replay, file);
                 file.Close();
+                return true;
             } catch (Exception ex) {
                 Plugin.Log.Debug($"Unable to save replay. Reason: {ex.Message}");
+                return false;
             }
         }
 
@@ -51,7 +57,7 @@ namespace BeatLeader.Utils
             return ReplaysFolderPath + r.Replace(filename, "_");
         }
 
-        public static Replay ReadReplay(string filename)
+        public static bool TryReadReplay(string filename, out Replay replay)
         {
             try
             {
@@ -63,14 +69,16 @@ namespace BeatLeader.Utils
                     stream.Read(buffer, 0, arrayLength);
                     stream.Close();
 
-                    return ReplayDecoder.Decode(buffer);
+                    replay = ReplayDecoder.Decode(buffer);
+                    return true;
                 }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 Plugin.Log.Debug(e);
             }
-            return null;
+            
+            replay = default;
+            return false;
         }
 
         #endregion

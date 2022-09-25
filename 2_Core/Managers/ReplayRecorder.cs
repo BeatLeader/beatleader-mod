@@ -220,7 +220,7 @@ namespace BeatLeader {
 
             var noteId = _noteIdCache[noteCutInfo.noteData];
             var noteEvent = _noteEventCache[noteId];
-            noteEvent.noteCutInfo = CreateNoteCutInfo(noteCutInfo);
+            noteEvent.noteCutInfo = noteCutInfo;
         }
 
         private void OnBeforeScoreControllerLateUpdate(

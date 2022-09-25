@@ -1,6 +1,6 @@
 ﻿namespace BeatLeader.Models
 {
-    internal class Score
+    public class Score
     {
         public int id;
         public float accuracy;
@@ -18,5 +18,6 @@
         public int hmd;
         public string timeSet;
         public Player player;
+        public string replay;
     }
 }

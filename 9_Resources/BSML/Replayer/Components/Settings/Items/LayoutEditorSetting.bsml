@@ -1,0 +1,11 @@
+﻿<horizontal pref-height="7">
+	<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="7" pref-width="48">
+		<horizontal pad-left="2">
+			<text text="Edit Layout"/>
+			<horizontal child-control-width="false" child-expand-width="false" child-align="MiddleRight">
+				<better-button src="#edit-layout-icon" highlighted-color="Cyan" on-click="button-clicked"
+							   preserve-aspect="true" pref-height="6" pref-width="6"/>
+			</horizontal>
+		</horizontal>
+	</better-image>
+</horizontal>

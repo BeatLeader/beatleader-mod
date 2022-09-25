@@ -1,4 +1,11 @@
-﻿namespace BeatLeader.Models {
+﻿using BeatLeader.Utils;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
+using UnityEngine;
+
+namespace BeatLeader.Models {
     internal struct MassLeaderboardsInfoResponse {
         public string id;
         public SongInfo song;
@@ -53,7 +60,7 @@
         public string approvers;
     }
 
-    internal struct ModifiersMap {
+    public struct ModifiersMap {
         public int modifierId;
         public float da;
         public float fs;
@@ -66,5 +73,21 @@
         public float no;
         public float pm;
         public float sc;
+
+        public float GetModifierValueByModifierServerName(string name)
+        {
+            return (float)(typeof(ModifiersMap).GetField(name.ToLower(), ReflectionUtils.DefaultFlags)?.GetValue(this) ?? -1f);
+        }
+        public void LoadFromGameModifiersParams(IEnumerable<GameplayModifierParamsSO> modifiersParams)
+        {
+            foreach (var item in modifiersParams)
+            {
+                var modifierServerName = item.modifierNameLocalizationKey
+                    .ParseModifierLocalizationKeyToServerName();
+
+                typeof(ModifiersMap).GetField(modifierServerName.ToLower(),
+                    ReflectionUtils.DefaultFlags)?.SetValueDirect(__makeref(this), item.multiplier);
+            }
+        }
     }
 }

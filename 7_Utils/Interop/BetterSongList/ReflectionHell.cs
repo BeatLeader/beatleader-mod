@@ -7,15 +7,6 @@ using System.Threading.Tasks;
 
 namespace BeatLeader.Interop.BetterSongList {
     internal static class ReflectionHell {
-        #region CreateModuleBuilder
-
-        public static ModuleBuilder CreateModuleBuilder(string name) {
-            var assemblyName = new AssemblyName(name);
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            return assemblyBuilder.DefineDynamicModule(assemblyName.Name);
-        }
-
-        #endregion
 
         #region CreateFilterType
 

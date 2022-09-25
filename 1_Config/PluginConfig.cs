@@ -7,9 +7,11 @@ namespace BeatLeader {
 
         public static event Action<bool> OnEnabledChangedEvent;
 
-        public static bool Enabled {
+        public static bool Enabled
+        {
             get => ConfigFileData.Instance.Enabled;
-            set {
+            set
+            {
                 if (ConfigFileData.Instance.Enabled == value) return;
                 ConfigFileData.Instance.Enabled = value;
                 OnEnabledChangedEvent?.Invoke(value);
@@ -48,6 +50,24 @@ namespace BeatLeader {
 
         public static ScoreRowCellType GetLeaderboardTableMask(bool includePP) {
             return includePP ? LeaderboardTableMask : LeaderboardTableMask & ~ScoreRowCellType.PerformancePoints;
+        }
+
+        #endregion
+
+        #region ReplayerSettings
+
+        public static ReplayerSettings ReplayerSettings {
+            get => ConfigFileData.Instance.ReplayerSettings;
+            set => ConfigFileData.Instance.ReplayerSettings = value;
+        }
+
+        #endregion
+
+        #region EnableReplayCaching
+
+        public static bool EnableReplayCaching {
+            get => ConfigFileData.Instance.EnableReplayCaching;
+            set => ConfigFileData.Instance.EnableReplayCaching = value;
         }
 
         #endregion

@@ -59,7 +59,7 @@ namespace BeatLeader {
             try {
                 avatarImage = TryLoadGif(handler.data);
                 Cache[url] = avatarImage;
-            } catch (Exception e) {
+            } catch {
                 var isUsableTexture = (handler.texture != null) && (handler.texture.width != 8);
                 avatarImage = AvatarImage.Static(isUsableTexture ? handler.texture : BundleLoader.FileError.texture);
                 if (isUsableTexture) Cache[url] = avatarImage;

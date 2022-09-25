@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using BeatLeader.Models;
@@ -8,6 +9,13 @@ using UnityEngine;
 namespace BeatLeader {
     internal static class FormatUtils {
         #region RankedStatus
+
+        public static readonly IReadOnlyList<RankedStatus> NegativeModifiersAppliers = new RankedStatus[]
+        {
+            RankedStatus.Nominated,
+            RankedStatus.Qualified,
+            RankedStatus.Ranked
+        };
 
         public static RankedStatus GetRankedStatus(DiffInfo diffInfo) {
             return diffInfo.status switch {

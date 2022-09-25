@@ -1,11 +1,14 @@
 ﻿using BeatLeader.DataManager;
+using BeatLeader.Interop;
 using BeatLeader.Interop.BetterSongList;
+using BeatLeader.UI.BSML_Addons;
 using Hive.Versioning;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
 using JetBrains.Annotations;
+using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
 namespace BeatLeader {
@@ -40,6 +43,7 @@ namespace BeatLeader {
 
         private static void InitializeConfig(Config config) {
             ConfigFileData.Instance = config.Generated<ConfigFileData>();
+            AutomaticConfigTool.Load();
         }
 
         #endregion
@@ -51,7 +55,16 @@ namespace BeatLeader {
         public void OnApplicationStart() {
             ObserveEnabled();
             SettingsPanelUI.AddTab();
+            BSMLAddonsLoader.LoadAddons();
+            InitInterop();
+            RaycastBlocker.BlockerMask = 1 << 5;
+        }
+
+        private static void InitInterop() {
             BetterSongListInterop.TryRegister();
+            Cam2Interop.Init();
+            NoodleExtensionsInterop.Init();
+            ScoreSaberInterop.Init();
         }
 
         private static void ObserveEnabled() {
@@ -75,7 +88,9 @@ namespace BeatLeader {
 
         [OnExit]
         [UsedImplicitly]
-        public void OnApplicationQuit() {
+        public void OnApplicationQuit()
+        {
+            AutomaticConfigTool.Save();
             LeaderboardsCache.Save();
         }
 

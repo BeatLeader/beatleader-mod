@@ -6,11 +6,15 @@ using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using BeatLeader.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 
-namespace BeatLeader {
-    internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged {
+namespace BeatLeader
+{
+    internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged
+    {
         #region BSML Cache
 
         private static readonly Dictionary<Type, string> BsmlCache = new();
@@ -24,6 +28,10 @@ namespace BeatLeader {
 
         private static string ReadBsmlOrFallback(Type componentType) {
             var targetPostfix = $"{componentType.Name}.bsml";
+
+            string resource = componentType.ReadViewDefinition();
+            if (resource != string.Empty)
+                return resource;
 
             foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
                 if (!resourceName.EndsWith(targetPostfix)) continue;
@@ -43,8 +51,10 @@ namespace BeatLeader {
             return Instantiate<T>(sceneRoot, parseImmediately);
         }
 
-        public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2 {
+        public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2
+        {
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
+            component.OnInstantiate();
             component.Setup(parent, parseImmediately);
             return component;
         }
@@ -52,6 +62,8 @@ namespace BeatLeader {
         #endregion
 
         #region Events
+
+        protected virtual void OnInstantiate() { }
 
         protected virtual void OnInitialize() { }
 
@@ -61,7 +73,8 @@ namespace BeatLeader {
 
         #region UnityEvents
 
-        protected virtual void OnDestroy() {
+        protected virtual void OnDestroy()
+        {
             if (!IsParsed) return;
             OnDispose();
         }
@@ -75,7 +88,7 @@ namespace BeatLeader {
 
         private Transform _parent;
 
-        private void Setup(Transform parent, bool parseImmediately) {
+        protected void Setup(Transform parent, bool parseImmediately) {
             _parent = parent;
             Transform = transform;
             Transform.SetParent(parent, false);
@@ -117,9 +130,11 @@ namespace BeatLeader {
         #endregion
 
         #region Parse
+        protected Transform Content { get; private set; }
 
         [UIAction("#post-parse"), UsedImplicitly]
-        private protected virtual void PostParse() {
+        private protected virtual void PostParse()
+        {
             if (_state == State.Parsing) return;
             DisposeIfNeeded();
             ParseSelfIfNeeded();
@@ -137,14 +152,14 @@ namespace BeatLeader {
             if (_state != State.Uninitialized) return;
             _state = State.Parsing;
             PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
+            Content = Transform.GetChild(0);
             _state = State.Parsed;
         }
 
         private void ApplyHierarchy() {
             if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
-
-            var child = Transform.GetChild(0);
-            child.SetParent(Transform.parent, true);
+            
+            Content.SetParent(Transform.parent, true);
 
             Transform.SetParent(_parent, false);
             gameObject.SetActive(true);

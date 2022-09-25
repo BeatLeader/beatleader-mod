@@ -1,0 +1,20 @@
+﻿<vertical id="container" pref-width="48">
+
+	<horizontal id="dismiss-menu-button" pref-height="5">
+		<better-button normal-image="#white-bg" pref-height="5" pref-width="48" type="Sliced" on-click="dismiss-button-clicked"
+								   ppu="8" transition="ColorTint" normal-color="black" highlighted-color="Red">
+			<horizontal pad-left="2" pad-right="2" child-align="MiddleLeft">
+				<horizontal child-expand-width="false" child-align="MiddleLeft">
+					<better-image src="#left-arrow-icon" pref-height="4" pref-width="3"
+								  vertical-fit="PreferredSize" horizontal-fit="PreferredSize"/>
+				</horizontal>
+				<text text="Back"/>
+			</horizontal>
+		</better-button>
+	</horizontal>
+
+	<horizontal min-height="32" vertical-fit="Unconstrained">
+		<vertical id="menu-view-container" pref-width="48"/>
+	</horizontal>
+
+</vertical>

@@ -1,0 +1,65 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
+using UnityEngine.Scripting;
+
+namespace BeatLeader
+{
+    public class HarmonyMultisilencer : IDisposable
+    {
+        public HarmonyMultisilencer(IEnumerable<MethodInfo> methods = null, bool enable = true)
+        {
+            silencedMethods = new(methods);
+            silencedMethods.CollectionChanged += HandleObservableCollectionChanged;
+            Enabled = enable;
+            HandleObservableCollectionChanged(null, null);
+        }
+
+        public readonly ObservableCollection<MethodInfo> silencedMethods = new();
+
+        public bool Enabled
+        {
+            get => _atLeastOneSilencerIsEnabled;
+            set
+            {
+                _atLeastOneSilencerIsEnabled = value;
+                _silencers.ForEach(x => x.Enabled = value);
+            }
+        }
+
+        private readonly List<HarmonySilencer> _silencers = new();
+        private bool _atLeastOneSilencerIsEnabled;
+
+        public void Dispose()
+        {
+            _silencers.ForEach(x => x.Dispose());
+            silencedMethods.Clear();
+        }
+        private void HandleObservableCollectionChanged(object sender, EventArgs e)
+        {
+            _silencers.ToList().ForEach(x =>
+            {
+                if (!silencedMethods.Contains(x.Method))
+                {
+                    _silencers.Remove(x);
+                }
+            });
+
+            var silenceList = silencedMethods.ToList();
+            var selectedSilencers = _silencers.Select(x => x.Method);
+
+            foreach (var item in silencedMethods)
+            {
+                if (selectedSilencers.Contains(item))
+                {
+                    silenceList.Remove(item);
+                }
+            };
+
+            silenceList.ForEach(x => _silencers.Add(new(x, Enabled)));
+        }
+    }
+}

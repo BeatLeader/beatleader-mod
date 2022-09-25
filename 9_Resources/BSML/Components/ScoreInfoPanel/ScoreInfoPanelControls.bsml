@@ -17,6 +17,7 @@
     <clickable-image src="#BL_GraphIcon" id="graph-component" pref-width="~icon-width" preserve-aspect="true"
                      on-click="graph-on-click"/>
 
-    <!--  REPLAY BUTTON (INACTIVE) -->
-    <button active="false" text="Replay" font-size="4" on-click="replay-on-click"/>
+    <!--  REPLAY BUTTON  -->
+    <clickable-image src="#BL_ReplayIcon" id="replay-component" pref-width="~icon-width" preserve-aspect="true"
+                     on-click="replay-on-click"/>
 </horizontal>

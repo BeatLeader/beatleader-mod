@@ -1,0 +1,5 @@
+<vertical pref-width="8.0" horizontal-fit="PreferredSize">
+    <horizontal pref-height="8.0">
+        <clickable-image id="image-component" src="#PlayerIcon" preserve-aspect="true"/>
+    </horizontal>
+</vertical>

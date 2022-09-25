@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using BeatLeader.Models;
 using IPA.Config.Stores;
@@ -5,7 +6,8 @@ using JetBrains.Annotations;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
-namespace BeatLeader {
+namespace BeatLeader
+{
     [UsedImplicitly]
     internal class ConfigFileData {
         public static ConfigFileData Instance { get; set; }
@@ -34,6 +36,20 @@ namespace BeatLeader {
         #region LeaderboardTableMask
 
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
+
+        #endregion
+
+        #region ReplayerSettings
+
+        public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
+
+        public FloatingConfig FloatingConfig = ConfigDefaults.FloatingConfig;
+
+        #endregion
+
+        #region EnableReplayCaching
+
+        public bool EnableReplayCaching = ConfigDefaults.EnableReplayCaching;
 
         #endregion
         

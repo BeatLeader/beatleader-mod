@@ -44,7 +44,6 @@ namespace BeatLeader.Replayer.Emulation
                 NoteData.ScoringType.BurstSliderElement => NoteData.GameplayType.BurstSliderElement,
                 _ => NoteData.GameplayType.Normal
             };
-            Debug.Log(gameplayType);
 
             return emptyNoteData.CopyWith(
                 time: noteEvent.spawnTime,

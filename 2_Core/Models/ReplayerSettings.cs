@@ -24,24 +24,6 @@ namespace BeatLeader.Models
         public string FPFCCameraPose { get; set; }
         public string VRCameraPose { get; set; }
 
-        public void CopyWith(bool? showUI = null, bool? loadPlayerEnvironment = null, bool? syncUIRotation = null,
-            bool? useReplayerCamera = null, bool? showHead = null, bool? showLeftSaber = null, bool? showRightSaber = null,
-            int? maxFov = null, int? minFov = null, int? cameraFov = null, string fpfcCameraPose = null, string vrCameraPose = null)
-        {
-            ShowUI = showUI ?? ShowUI;
-            LoadPlayerEnvironment = loadPlayerEnvironment ?? LoadPlayerEnvironment;
-            SyncUIRotationWithHead = syncUIRotation ?? SyncUIRotationWithHead;
-            ForceUseReplayerCamera = useReplayerCamera ?? ForceUseReplayerCamera;
-
-            ShowHead = showHead ?? ShowHead;
-            ShowLeftSaber = showLeftSaber ?? ShowLeftSaber;
-            ShowRightSaber = showRightSaber ?? ShowRightSaber;
-
-            MaxFOV = maxFov ?? MaxFOV;
-            MinFOV = minFov ?? MinFOV;
-            CameraFOV = cameraFov ?? CameraFOV;
-            FPFCCameraPose = fpfcCameraPose ?? FPFCCameraPose;
-            VRCameraPose = vrCameraPose ?? VRCameraPose;
-        }
+        public ReplayerShortcuts Shortcuts { get; set; }
     }
 }

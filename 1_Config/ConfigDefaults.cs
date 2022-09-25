@@ -1,4 +1,5 @@
 using BeatLeader.Models;
+using UnityEngine;
 
 namespace BeatLeader
 {
@@ -29,7 +30,7 @@ namespace BeatLeader
 
         #region ReplayerSettings
 
-        public static ReplayerSettings ReplayerSettings = new()
+        public static readonly ReplayerSettings ReplayerSettings = new()
         {
             ShowUI = true,
             ForceUseReplayerCamera = false,
@@ -44,12 +45,23 @@ namespace BeatLeader
             CameraFOV = 90,
             FPFCCameraPose = "PlayerView",
             VRCameraPose = "BehindView",
-        };
 
-        public static FloatingConfig FloatingConfig = new()
+            Shortcuts = new()
+            {
+                HideUIHotkey = KeyCode.H,
+                HideCursorHotkey = KeyCode.C,
+                PauseHotkey = KeyCode.Space,
+                SwitchViewRightHotkey = KeyCode.RightArrow,
+                SwitchViewLeftHotkey = KeyCode.LeftArrow,
+                IncFOVHotkey = KeyCode.UpArrow,
+                DecFOVHotkey = KeyCode.DownArrow
+            }
+    };
+
+        public static readonly FloatingConfig FloatingConfig = new()
         {
-            Position = new Vector3(0, 1, 2),
-            Rotation = UnityEngine.Quaternion.Euler(new Vector3(40, 0, 0)),
+            Position = new UnityEngine.Vector3(0, 1, 2),
+            Rotation = UnityEngine.Quaternion.Euler(new UnityEngine.Vector3(40, 0, 0)),
             GridPosIncrement = 0.2f,
             GridRotIncrement = 5,
             IsPinned = true

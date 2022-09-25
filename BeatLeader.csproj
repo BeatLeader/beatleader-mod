@@ -307,6 +307,7 @@
     <Compile Include="2_Core\Models\OculusUserInfo.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
     <Compile Include="2_Core\Models\RankedStatus.cs" />
+    <Compile Include="2_Core\Models\ReplayerShortcuts.cs" />
     <Compile Include="2_Core\Models\ReplayLaunchData.cs" />
     <Compile Include="2_Core\Models\RequestResult.cs" />
     <Compile Include="2_Core\Models\ScoreInfoPanelTab.cs" />

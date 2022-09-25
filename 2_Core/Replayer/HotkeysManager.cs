@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Components;
+using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using System;
@@ -12,49 +13,43 @@ namespace BeatLeader.Replayer
     {
         [InjectOptional] private readonly UI2DManager _2DManager;
         [InjectOptional] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly Models.ReplayLaunchData _replayData;
+        [Inject] private readonly ReplayLaunchData _replayData;
         [Inject] private readonly PlaybackController _playbackController;
 
-        public KeyCode HideUIHotkey = KeyCode.H;
-        public KeyCode HideCursorHotkey = KeyCode.C;
-        public KeyCode PauseHotkey = KeyCode.P;
-        public KeyCode SwitchViewRightHotkey = KeyCode.RightArrow;
-        public KeyCode SwitchViewLeftHotkey = KeyCode.LeftArrow;
-        public KeyCode IncFOVHotkey = KeyCode.UpArrow;
-        public KeyCode DecFOVHotkey = KeyCode.DownArrow;
+        private ReplayerShortcuts _Shortcuts => _replayData.actualSettings.Shortcuts;
 
         public event Action<bool> CursorVisibilityChangedEvent;
 
         public void Tick()
         {
-            if (Input.GetKeyDown(HideUIHotkey))
+            if (Input.GetKeyDown(_Shortcuts.HideUIHotkey))
             {
                 if (_2DManager != null) _2DManager.ShowUI = !_2DManager.ShowUI;
             }
-            if (Input.GetKeyDown(HideCursorHotkey))
+            if (Input.GetKeyDown(_Shortcuts.HideCursorHotkey))
             {
                 InputManager.SwitchCursor();
                 CursorVisibilityChangedEvent?.Invoke(Cursor.visible);
             }
-            if (Input.GetKeyDown(PauseHotkey))
+            if (Input.GetKeyDown(_Shortcuts.PauseHotkey))
             {
                 _playbackController.Pause(!_playbackController.IsPaused);
             }
-            if (Input.GetKeyDown(SwitchViewRightHotkey))
+            if (Input.GetKeyDown(_Shortcuts.SwitchViewRightHotkey))
             {
                 SwitchCameraView(1);
             }
-            if (Input.GetKeyDown(SwitchViewLeftHotkey))
+            if (Input.GetKeyDown(_Shortcuts.SwitchViewLeftHotkey))
             {
                 SwitchCameraView(-1);
             }
             if (_cameraController != null)
             {
-                if (Input.GetKeyDown(IncFOVHotkey) && _cameraController.FieldOfView < _replayData.actualSettings.MaxFOV)
+                if (Input.GetKeyDown(_Shortcuts.IncFOVHotkey) && _cameraController.FieldOfView < _replayData.actualSettings.MaxFOV)
                 {
                     _cameraController.FieldOfView += 1;
                 }
-                if (Input.GetKeyDown(DecFOVHotkey) && _cameraController.FieldOfView > _replayData.actualSettings.MinFOV)
+                if (Input.GetKeyDown(_Shortcuts.DecFOVHotkey) && _cameraController.FieldOfView > _replayData.actualSettings.MinFOV)
                 {
                     _cameraController.FieldOfView -= 1;
                 }

@@ -107,7 +107,7 @@ namespace BeatLeader.Replayer
             var modifiersMap = diffInfo.modifierValues;
 
             var applyPositive = !FormatUtils.NegativeModifiersAppliers.Contains(FormatUtils.GetRankedStatus(diffInfo));
-            ModifiersMapManager.LoadCustomModifiersMap(modifiersMap, x => x > 0 && applyPositive ? x : 0);
+            ModifiersMapManager.LoadCustomModifiersMap(modifiersMap, x => x > 0 && !applyPositive ? 0 : x);
 
             return true;
         }

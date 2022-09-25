@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using HarmonyLib;
 using IPA.Utilities;
-using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer
+namespace BeatLeader.Replayer.Emulation
 {
     public class ReplayerScoreProcessor : MonoBehaviour
     {
@@ -22,43 +17,40 @@ namespace BeatLeader.Replayer
 
         private readonly NoteControllerEmulator _noteControllerEmulator = new();
         private SaberSwingRatingCounter _lastSaberSwingCounter;
-        private static bool _isReprocessingNow;
 
-        protected virtual void Awake()
+        private void Awake()
         {
-            ApplyPatches();
-            EnableSilencer();
+            _eventsProcessor.NoteCutRequestedEvent += HandleNoteCutRequested;
+            _eventsProcessor.WallInteractionRequestedEvent += HandleWallInteractionRequested;
+            _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
+            _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
 
-            _eventsProcessor.OnNoteCutRequested += NotifyNoteCutRequested;
-            _eventsProcessor.OnWallInteractionRequested += NotifyWallInteractionRequested;
-            _eventsProcessor.OnReprocessRequested += NotifyReprocessRequested;
-
-            _scoreController.scoringForNoteStartedEvent += NotifyScoringForNoteStarted;
-            _scoreController.scoringForNoteFinishedEvent += NotifyScoringForNoteFinished;
+            _scoreController.scoringForNoteStartedEvent += HandleScoringForNoteStarted;
         }
-        protected virtual void OnDestroy()
+        private void OnDestroy()
         {
-            RemovePatches();
+            _eventsProcessor.NoteCutRequestedEvent -= HandleNoteCutRequested;
+            _eventsProcessor.WallInteractionRequestedEvent -= HandleWallInteractionRequested;
+            _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
+            _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
 
-            _eventsProcessor.OnNoteCutRequested -= NotifyNoteCutRequested;
-            _eventsProcessor.OnWallInteractionRequested -= NotifyWallInteractionRequested;
-            _eventsProcessor.OnReprocessRequested -= NotifyReprocessRequested;
+            _scoreController.scoringForNoteStartedEvent -= HandleScoringForNoteStarted;
 
-            _scoreController.scoringForNoteStartedEvent -= NotifyScoringForNoteStarted;
-            _scoreController.scoringForNoteFinishedEvent -= NotifyScoringForNoteFinished;   
+            _scoringMultisilencer.Dispose();
+            _cutScoreSpawnerSilencer.Dispose();
         }
 
-        private void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut)
+        protected void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut)
         {
             _noteControllerEmulator.Setup(noteEvent);
 
-            DisableSilencer();
+            _scoringMultisilencer.Enabled = false;
             try
             {
                 _scoreController.HandleNoteWasSpawned(_noteControllerEmulator);
                 _scoreController.HandleNoteWasCut(_noteControllerEmulator, _noteControllerEmulator.CutInfo);
-                if (isGoodCut) FinishSaberSwingRatingCounter(_lastSaberSwingCounter, 
-                    noteEvent.noteCutInfo.beforeCutRating, noteEvent.noteCutInfo.afterCutRating);
+                if (isGoodCut) FinishSaberSwingRatingCounter(
+                        noteEvent.noteCutInfo.beforeCutRating, noteEvent.noteCutInfo.afterCutRating);
                 _scoreController.LateUpdate();
 
                 _gameEnergyCounter.HandleNoteWasCut(_noteControllerEmulator, _noteControllerEmulator.CutInfo);
@@ -66,14 +58,14 @@ namespace BeatLeader.Replayer
             }
             finally
             {
-                EnableSilencer();
+                _scoringMultisilencer.Enabled = true;
             }
         }
-        private void SimulateNoteWasMissed(NoteEvent noteEvent)
+        protected void SimulateNoteWasMissed(NoteEvent noteEvent)
         {
             _noteControllerEmulator.Setup(noteEvent);
 
-            DisableSilencer();
+            _scoringMultisilencer.Enabled = false;
             try
             {
                 _scoreController.HandleNoteWasSpawned(_noteControllerEmulator);
@@ -85,20 +77,20 @@ namespace BeatLeader.Replayer
             }
             finally
             {
-                EnableSilencer();
+                _scoringMultisilencer.Enabled = true;
             }
         }
-        private void FinishSaberSwingRatingCounter(SaberSwingRatingCounter counter, float beforeCutRating, float afterCutRating)
+        private void FinishSaberSwingRatingCounter(float beforeCutRating, float afterCutRating)
         {
-            if (counter == null) return;
-            counter.SetField("_beforeCutRating", Mathf.Clamp01(beforeCutRating));
-            counter.SetField("_afterCutRating", Mathf.Clamp01(afterCutRating));
-            counter.Finish();
+            if (_lastSaberSwingCounter == null) return;
+            _lastSaberSwingCounter.SetField("_beforeCutRating", Mathf.Clamp01(beforeCutRating));
+            _lastSaberSwingCounter.SetField("_afterCutRating", Mathf.Clamp01(afterCutRating));
+            _lastSaberSwingCounter.Finish();
         }
 
         #region Events
 
-        private void NotifyNoteCutRequested(NoteEvent noteEvent)
+        private void HandleNoteCutRequested(NoteEvent noteEvent)
         {
             switch (noteEvent.eventType)
             {
@@ -114,15 +106,18 @@ namespace BeatLeader.Replayer
                     break;
             }
         }
-        private void NotifyWallInteractionRequested(WallEvent wallEvent)
+        private void HandleWallInteractionRequested(WallEvent wallEvent)
         {
-            DisableSilencer();
+            _scoringMultisilencer.Enabled = false;
             _scoreController.HandlePlayerHeadDidEnterObstacles();
             _comboController.HandlePlayerHeadDidEnterObstacles();
-            EnableSilencer();
+            _scoringMultisilencer.Enabled = true;
         }
-        private void NotifyReprocessRequested()
+        private void HandleReprocessRequested()
         {
+            _cutScoreSpawnerSilencer.Enabled = true;
+            if (!_eventsProcessor.IsReprocessingEventsNow) return;
+
             _scoreController.SetField("_modifiedScore", 0);
             _scoreController.SetField("_multipliedScore", 0);
             _scoreController.SetField("_immediateMaxPossibleMultipliedScore", 0);
@@ -143,14 +138,12 @@ namespace BeatLeader.Replayer
 
             _comboController.SetField("_combo", 0);
             _comboController.SetField("_maxCombo", 0);
-
-            _isReprocessingNow = true;
         }
-        private void NotifyReprocessDone()
+        private void HandleReprocessDone()
         {
-            _isReprocessingNow = false;
+            _cutScoreSpawnerSilencer.Enabled = false;
         }
-        private void NotifyScoringForNoteStarted(ScoringElement element)
+        private void HandleScoringForNoteStarted(ScoringElement element)
         {
             var goodScoringElement = element as GoodCutScoringElement;
             if (goodScoringElement == null) return;
@@ -160,10 +153,6 @@ namespace BeatLeader.Replayer
 
             _lastSaberSwingCounter = cutScoreBuffer
                 .GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
-        }
-        private void NotifyScoringForNoteFinished(ScoringElement element)
-        {
-            _lastSaberSwingCounter = null;
         }
 
         #endregion
@@ -186,61 +175,9 @@ namespace BeatLeader.Replayer
             typeof(ComboController).GetMethod(nameof(ComboController.HandlePlayerHeadDidEnterObstacles), ReflectionUtils.DefaultFlags),
         };
 
-        private static readonly HarmonyPatchDescriptor NoteCutScoreSpawnerPatch = new(
-            typeof(NoteCutScoreSpawner).GetMethod(nameof(NoteCutScoreSpawner.HandleScoringForNoteStarted), BindingFlags.Instance | BindingFlags.Public),
-            typeof(ReplayerScoreProcessor).GetMethod(nameof(NoteCutScoreSpawnerPrefix), BindingFlags.Static | BindingFlags.NonPublic)
-        );
-
-        private static Harmony _harmony;
-
-        private static void ApplyPatches()
-        {
-            if (_harmony != null) return;
-            _harmony = new Harmony("BL-Replayer-Main");
-            _harmony.Patch(NoteCutScoreSpawnerPatch);
-            ApplySilencerPatches(_harmony);
-        }
-        private static void RemovePatches()
-        {
-            if (_harmony == null) return;
-            _harmony.UnpatchSelf();
-            _harmony = null;
-        }
-
-        private static bool NoteCutScoreSpawnerPrefix()
-        {
-            return !_isReprocessingNow;
-        }
-
-        #region Silencers
-
-        private static bool _isSilenced;
-
-        private static void ApplySilencerPatches(Harmony harmony)
-        {
-            var silencedMethodPrefix = typeof(ReplayerScoreProcessor).GetMethod(
-                nameof(SilencedMethodPrefix), BindingFlags.Static | BindingFlags.NonPublic);
-
-            foreach (var silencedMethod in silencedMethods)
-            {
-                harmony.Patch(silencedMethod, new HarmonyMethod(silencedMethodPrefix));
-            }
-        }
-        private static void EnableSilencer()
-        {
-            _isSilenced = true;
-        }
-        private static void DisableSilencer()
-        {
-            _isSilenced = false;
-        }
-
-        private static bool SilencedMethodPrefix()
-        {
-            return !_isSilenced;
-        }
-
-        #endregion
+        private HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
+        private HarmonySilencer _cutScoreSpawnerSilencer = new(typeof(NoteCutScoreSpawner)
+            .GetMethod(nameof(NoteCutScoreSpawner.HandleScoringForNoteStarted)), false);
 
         #endregion
     }

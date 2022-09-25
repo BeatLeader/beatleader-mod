@@ -62,7 +62,7 @@ namespace BeatLeader.Components.Settings
             vectorControls.increment = 1;
             vectorControls.dimensions = 2;
             vectorControls.multiplier = 0.1f;
-            vectorControls.OnVectorChanged += NotifyVectorChanged;
+            vectorControls.VectorChangedEvent += HandleVectorChanged;
             vectorControls.multipliedVector = new Vector3(_sensitivityX, _sensitivityY);
             _sensitivityMenuButton = CreateButtonForMenu(this, vectorControls, "Sensitivity");
 
@@ -70,7 +70,7 @@ namespace BeatLeader.Components.Settings
             _FollowOrigin = _followOrigin;
             _DisableInputOnUnlockedCursor = _disableOnUnCur;
         }
-        private void NotifyVectorChanged(Vector3 vector)
+        private void HandleVectorChanged(Vector3 vector)
         {
             _cameraPose.mouseSensitivity = vector;
             _sensitivityX = vector.x;

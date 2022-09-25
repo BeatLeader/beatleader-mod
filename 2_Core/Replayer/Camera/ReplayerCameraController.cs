@@ -33,7 +33,7 @@ namespace BeatLeader.Replayer.Camera
             }
         }
 
-        [Inject] protected readonly VRControllersManager _vrControllersManager;
+        [Inject] protected readonly VRControllersProvider _vrControllersManager;
         [Inject] protected readonly InitData _data;
         [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
@@ -66,12 +66,12 @@ namespace BeatLeader.Replayer.Camera
                 if (_fieldOfView == value) return;
                 _fieldOfView = value;
                 RefreshCamera();
-                OnCameraFOVChanged?.Invoke(value);
+                CameraFOVChangedEvent?.Invoke(value);
             }
         }
 
-        public event Action<ICameraPoseProvider> OnCameraPoseChanged;
-        public event Action<int> OnCameraFOVChanged;
+        public event Action<ICameraPoseProvider> CameraPoseChangedEvent;
+        public event Action<int> CameraFOVChangedEvent;
 
         protected ICameraPoseProvider _currentPose;
         protected UnityEngine.Camera _camera;
@@ -134,7 +134,7 @@ namespace BeatLeader.Replayer.Camera
             _currentPose = cameraPose;
             CombinedMovementData = ProcessPose(_currentPose);
             RefreshCamera();
-            OnCameraPoseChanged?.Invoke(cameraPose);
+            CameraPoseChangedEvent?.Invoke(cameraPose);
         }
         public void SetCameraPose(ICameraPoseProvider provider)
         {

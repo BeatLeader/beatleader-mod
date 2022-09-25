@@ -35,10 +35,10 @@ namespace BeatLeader.Interop
             RegisterSource(_genericSourceInstance);
 
             _updater = new Timer(1);
-            _updater.Elapsed += NotifyRepeaterUpdated;
+            _updater.Elapsed += OnRepeaterUpdated;
 
-            ReplayerLauncher.OnReplayStart += NotifyReplayStarted;
-            ReplayerLauncher.OnReplayFinish += NotifyReplayFinished;
+            ReplayerLauncher.ReplayDidStartedEvent += OnReplayStarted;
+            ReplayerLauncher.ReplayDidFinishedEvent += OnReplayFinished;
         }
         public static void SetHeadTransform(Transform transform)
         {
@@ -86,11 +86,11 @@ namespace BeatLeader.Interop
                .GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
         }
 
-        private static void NotifyRepeaterUpdated(object sender, ElapsedEventArgs e)
+        private static void OnRepeaterUpdated(object sender, ElapsedEventArgs e)
         {
             UpdateGenericSource();
         }
-        private static void NotifyReplayStarted(Models.ReplayLaunchData data) => SetReplayState(true);
-        private static void NotifyReplayFinished(Models.ReplayLaunchData data) => SetReplayState(false);
+        private static void OnReplayStarted(Models.ReplayLaunchData data) => SetReplayState(true);
+        private static void OnReplayFinished(Models.ReplayLaunchData data) => SetReplayState(false);
     }
 }

@@ -51,11 +51,11 @@ namespace BeatLeader.Components
         }
         protected override void OnInitialize()
         {
-            _pinButton.OnToggle += NotifyPinToggled;
+            _pinButton.OnToggle += HandlePinToggled;
             _pinButton.DisabledSprite = BSMLUtility.LoadSprite("#pin-icon");
             _pinButton.EnabledColor = Color.cyan;
 
-            _alignButton.OnClick += NotifyAlignPressed;
+            _alignButton.OnClick += HandleAlignPressed;
             _alignButton.Sprite = BSMLUtility.LoadSprite("#align-icon");
             _alignButton.HighlightedColor = Color.cyan;
 
@@ -66,7 +66,7 @@ namespace BeatLeader.Components
             _resetter.resetPose = new Pose(ConfigDefaults.FloatingConfig.Position, ConfigDefaults.FloatingConfig.Rotation);
 
             _poseListener = gameObject.AddComponent<TransformListener>();
-            _poseListener.OnPoseChanged += NotifyPoseChanged;
+            _poseListener.PoseChangedEvent += HandlePoseChanged;
             _poseListener.StartListening();
         }
         private void LoadSettings()
@@ -75,14 +75,14 @@ namespace BeatLeader.Components
             _pinButton.Toggle(_Config.IsPinned);
         }
 
-        private void NotifyPinToggled(bool pin)
+        private void HandlePinToggled(bool pin)
         {
             _Config.IsPinned = pin;
             Floating.handle.gameObject.SetActive(!pin);
             _spacerOne.SetActive(!pin);
             _spacerTwo.SetActive(!pin);
         }
-        private void NotifyAlignPressed()
+        private void HandleAlignPressed()
         {
             var pos = new Vector3();
             var rot = new Vector3();
@@ -93,7 +93,7 @@ namespace BeatLeader.Components
             }
             _viewFloating.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(rot));
         }
-        private void NotifyPoseChanged(Pose pose)
+        private void HandlePoseChanged(Pose pose)
         {
             _Config.Position = _viewFloating.transform.localPosition;
             _Config.Rotation = _viewFloating.transform.localRotation;

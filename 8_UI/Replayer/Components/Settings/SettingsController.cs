@@ -28,7 +28,7 @@ namespace BeatLeader.Components.Settings
             }
         }
 
-        public event Action<bool> OnSettingsCloseRequested;
+        public event Action<bool> SettingsCloseRequestedEvent;
 
         private Stack<Menu> _menusHierarchyStack = new();
         private Menu _rootMenu;
@@ -38,7 +38,7 @@ namespace BeatLeader.Components.Settings
             _dismissMenuButton.SetActive(false);
         }
 
-        public void NotifySettingsClosed()
+        public void HandleSettingsWasClosed()
         {
             _menusHierarchyStack.ToList().ForEach(x => x.OnSettingsClosed());
         }
@@ -99,17 +99,17 @@ namespace BeatLeader.Components.Settings
         }
         private void BindEvents(Menu menu)
         {
-            menu.OnMenuPresentRequested += PresentMenu;
-            menu.OnMenuDismissRequested += DismissMenu;
-            menu.OnMenuDismissToRootRequested += DismissToRootMenu;
-            menu.OnSettingsCloseRequested += NotifySettingsCloseRequested;
+            menu.MenuPresentRequestedEvent += PresentMenu;
+            menu.MenuDismissRequestedEvent += DismissMenu;
+            menu.MenuDismissToRootRequestedEvent += DismissToRootMenu;
+            menu.SettingsCloseRequestedEvent += HandleSettingsCloseRequested;
         }
         private void UnbindEvents(Menu menu)
         {
-            menu.OnMenuPresentRequested -= PresentMenu;
-            menu.OnMenuDismissRequested -= DismissMenu;
-            menu.OnMenuDismissToRootRequested -= DismissToRootMenu;
-            menu.OnSettingsCloseRequested -= NotifySettingsCloseRequested;
+            menu.MenuPresentRequestedEvent -= PresentMenu;
+            menu.MenuDismissRequestedEvent -= DismissMenu;
+            menu.MenuDismissToRootRequestedEvent -= DismissToRootMenu;
+            menu.SettingsCloseRequestedEvent -= HandleSettingsCloseRequested;
         }
         private void SetMenuEnabled(Menu menu, bool enabled = true)
         {
@@ -118,10 +118,11 @@ namespace BeatLeader.Components.Settings
             menu.ContentTransform.SetParent(enabled ? _menuViewContainer.transform : menu.OriginalParent, false);
         }
 
-        [UIAction("dismiss-button-clicked")] private void DismissButtonClicked() => DismissMenu();
-        private void NotifySettingsCloseRequested(bool animated)
+        [UIAction("dismiss-button-clicked")] 
+        private void OnDismissButtonClicked() => DismissMenu();
+        private void HandleSettingsCloseRequested(bool animated)
         {
-            OnSettingsCloseRequested?.Invoke(animated);
+            SettingsCloseRequestedEvent?.Invoke(animated);
         }
     }
 }

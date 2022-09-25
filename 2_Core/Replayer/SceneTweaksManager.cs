@@ -6,14 +6,13 @@ using UnityEngine.EventSystems;
 using BeatLeader.Utils;
 using IPA.Utilities;
 using BeatLeader.Replayer.Camera;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System;
 
 namespace BeatLeader.Replayer
 {
-    public class SceneTweaksManager : MonoBehaviour
+    public class SceneTweaksManager : IInitializable, IDisposable
     {
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
-        [Inject] private readonly LocksController _softLocksController;
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly StandardLevelGameplayManager _gameplayManager;
         [Inject] private readonly PauseController _pauseController;
@@ -28,7 +27,7 @@ namespace BeatLeader.Replayer
         public EventSystem CustomEventSystem { get; private set; }
         public EventSystem BaseEventSystem { get; private set; }
 
-        private void Start()
+        public void Initialize()
         {
             DisableUselessStuff();
             UnsubscribeEvents();
@@ -37,7 +36,7 @@ namespace BeatLeader.Replayer
 
             RaycastBlocker.EnableBlocker = true;
         }
-        private void OnDestroy()
+        public void Dispose()
         {
             RaycastBlocker.EnableBlocker = false;
             RaycastBlocker.ReleaseMemory();
@@ -45,12 +44,11 @@ namespace BeatLeader.Replayer
 
         private void DisableUselessStuff()
         {
-            _softLocksController.InstallLock(_gameplayManager);
-            _softLocksController.InstallLock(_pauseMenuManager);
-            _softLocksController.InstallLock(Resources.FindObjectsOfTypeAll<CuttingManager>().First());
-            _mainCamera.gameObject.SetActive(false);
+            Resources.FindObjectsOfTypeAll<CuttingManager>().First().enabled = false;
             Resources.FindObjectsOfTypeAll<VRLaserPointer>().FirstOrDefault()?.gameObject.SetActive(!InputManager.IsInFPFC);
             Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().FirstOrDefault()?.gameObject.SetActive(!InputManager.IsInFPFC);
+
+            _mainCamera.gameObject.SetActive(false);
         }
         private void UnsubscribeEvents()
         {
@@ -76,7 +74,7 @@ namespace BeatLeader.Replayer
             }
             else
             {
-                inputSystemContainer = Instantiate(_inputModule.gameObject);
+                inputSystemContainer = GameObject.Instantiate(_inputModule.gameObject);
                 _container.Inject(inputSystemContainer.GetComponent<VRInputModule>());
             }
             CustomEventSystem = inputSystemContainer.GetOrAddComponent<EventSystem>();

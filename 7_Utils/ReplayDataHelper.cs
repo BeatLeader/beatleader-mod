@@ -1,10 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using IPA.Utilities;
 using BeatLeader.Models;
 using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
 using UnityEngine;
@@ -15,11 +11,13 @@ namespace BeatLeader.Utils
     {
         static ReplayDataHelper()
         {
-            normalEnvironmentType = Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
+            NormalEnvironmentType = Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
                 .FirstOrDefault(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE");
+            StandardLevelScenesTransitionSetupDataSO = Resources
+                .FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
         }
 
-        private class ReplayModifiers : GameplayModifiers
+        private class EditableModifiers : GameplayModifiers
         {
             public new EnergyType energyType
             {
@@ -112,10 +110,33 @@ namespace BeatLeader.Utils
             }
         }
 
-        #region Environments
+        #region Scenes Management
 
-        public static readonly EnvironmentTypeSO normalEnvironmentType; 
+        public static readonly EnvironmentTypeSO NormalEnvironmentType;
+        public static readonly StandardLevelScenesTransitionSetupDataSO StandardLevelScenesTransitionSetupDataSO;
 
+        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, 
+            PlayerDataModel playerModel, IDifficultyBeatmap difficulty, EnvironmentInfoSO environment = null)
+        {
+            var data = StandardLevelScenesTransitionSetupDataSO;
+            var playerData = playerModel.playerData;
+            bool overrideEnv = environment != null;
+
+            var environmentSettings = overrideEnv ? new OverrideEnvironmentSettings() : playerData.overrideEnvironmentSettings;
+            if (overrideEnv)
+            {
+                environmentSettings.overrideEnvironments = true;
+                environmentSettings.SetEnvironmentInfoForType(NormalEnvironmentType, environment);
+            }
+
+            data?.Init("Solo", difficulty, difficulty.level, environmentSettings,
+                playerData.colorSchemesSettings.GetOverrideColorScheme(),
+                replay.GetModifiersFromReplay(),
+                playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
+                replay.GetPracticeSettingsFromReplay(), "Menu");
+
+            return data;
+        }
         public static string GetEnvironmentSerializedNameByEnvironmentName(string name)
         {
             name = name.Replace(" ", "");
@@ -150,11 +171,23 @@ namespace BeatLeader.Utils
 
         #endregion
 
-        #region DataManagement
+        #region Data Management
 
+        public static string ParseModifierLocalizationKeyToServerName(this string modifierLocalizationKey)
+        {
+            if (string.IsNullOrEmpty(modifierLocalizationKey)) return modifierLocalizationKey;
+
+            int idx1 = modifierLocalizationKey.IndexOf('_') + 1;
+            var char1 = modifierLocalizationKey[idx1];
+
+            int idx2 = modifierLocalizationKey.IndexOf('_', idx1) + 1;
+            var char2 = modifierLocalizationKey[idx2];
+
+            return $"{char.ToUpper(char1)}{char.ToUpper(char2)}";
+        }
         public static GameplayModifiers GetModifiersFromReplay(this Replay replay)
         {
-            ReplayModifiers replayModifiers = new ReplayModifiers();
+            EditableModifiers replayModifiers = new EditableModifiers();
             string[] modifiers = replay.info.modifiers.Split(',');
             foreach (string modifier in modifiers)
             {
@@ -214,30 +247,9 @@ namespace BeatLeader.Utils
         {
             return replay.info.startTime != 0 ? new PracticeSettings(replay.info.startTime, replay.info.speed) : null;
         }
-        public static PlayerSpecificSettings ModifyPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay)
+        public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay)
         {
             return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
-        }
-        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, PlayerDataModel playerModel, IDifficultyBeatmap difficulty, EnvironmentInfoSO environment = null)
-        {
-            var data = Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-            var playerData = playerModel.playerData;
-            bool overrideEnv = environment != null;
-
-            var environmentSettings = overrideEnv ? new OverrideEnvironmentSettings() : playerData.overrideEnvironmentSettings;
-            if (overrideEnv)
-            {
-                environmentSettings.overrideEnvironments = true;
-                environmentSettings.SetEnvironmentInfoForType(normalEnvironmentType, environment);
-            }
-
-            data?.Init("Solo", difficulty, difficulty.level, environmentSettings,
-                playerData.colorSchemesSettings.GetOverrideColorScheme(),
-                replay.GetModifiersFromReplay(),
-                playerData.playerSpecificSettings.ModifyPlayerSettingsByReplay(replay),
-                replay.GetPracticeSettingsFromReplay(), "Menu");
-
-            return data;
         }
         public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
         {
@@ -264,8 +276,7 @@ namespace BeatLeader.Utils
             for (int i = 0; i < replay.notes.Count; i++)
             {
                 var item = replay.notes[i];
-                if ((item.noteID == ID || item.noteID == ID - 30000) && 
-                    item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f)
+                if ((item.noteID == ID || item.noteID == ID - 30000) && item.spawnTime >= time)
                     return (i, item);
             }
             return default;
@@ -291,30 +302,22 @@ namespace BeatLeader.Utils
             TryGetFrameByTime(frames, time, out var frame);
             return frame;
         }
-        public static bool TryGetFrameByTime(this LinkedList<Frame> frames, float time, out LinkedListNode<Frame> frame)
+        public static bool TryGetFrameByTime(this LinkedListNode<Frame> entryPoint, float time, out LinkedListNode<Frame> frame)
         {
-            frame = null;
-            for (frame = frames.First; frame != null; frame = frame.Next)
-                if (frame.Value.time >= time)
-                    return true;
-            return false;
-        }
-        public static Frame GetFrameByTime(this Replay replay, float time)
-        {
-            return GetFrameByTime(new LinkedList<Frame>(replay.frames), time).Value;
-        }
-        public static bool TryGetReplays(Func<Replay, bool> filter, out List<Replay> replays)
-        {
-            string[] replaysPaths = FileManager.GetAllReplaysPaths();
-            replays = new List<Replay>();
-
-            foreach (var path in replaysPaths)
+            for (frame = entryPoint; frame != null; frame = frame.Next)
             {
-                if (!FileManager.TryReadReplay(path, out var extractedReplay)) continue;
-                if (filter(extractedReplay)) replays.Add(extractedReplay);
+                if (frame.Value.time >= time)
+                {
+                    return true;
+                }
             }
 
-            return replays.Count >= 0;
+            frame = null;
+            return false;
+        }
+        public static bool TryGetFrameByTime(this LinkedList<Frame> frames, float time, out LinkedListNode<Frame> frame)
+        {
+            return TryGetFrameByTime(frames.First, time, out frame);
         }
 
         #endregion
@@ -339,7 +342,6 @@ namespace BeatLeader.Utils
             noteId /= 10;
             scoringType = (NoteData.ScoringType)(noteId - 2);
         }
-
         public static int ComputeObstacleID(this ObstacleData obstacleData)
         {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;

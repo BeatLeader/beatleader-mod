@@ -99,7 +99,8 @@ namespace BeatLeader.Models
 
         public static GameNoteCutInfo Convert(NoteCutInfo info, NoteData data)
         {
-            return new GameNoteCutInfo(data,
+            return new GameNoteCutInfo(
+                data,
                 info.speedOK,
                 info.directionOK,
                 info.saberTypeOK,
@@ -232,8 +233,8 @@ namespace BeatLeader.Models
         public Transform() { }
         public Transform(UnityEngine.Transform transform)
         {
-            this.position = transform.localPosition;
-            this.rotation = transform.localRotation;
+            position = transform.position;
+            rotation = transform.rotation;
         }
         public Transform(Vector3 position, Quaternion rotation)
         {

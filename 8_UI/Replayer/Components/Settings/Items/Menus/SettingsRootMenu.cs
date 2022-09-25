@@ -23,7 +23,7 @@ namespace BeatLeader.Components.Settings
             _bodyMenuButton = CreateButtonForMenu(this, InstantiateInContainer<BodyMenu>(Container), "Body");
             _speedSetting = ReeUIComponentV2WithContainer.InstantiateInContainer<SpeedSetting>(Container, null);
             _layoutEditorSetting = ReeUIComponentV2WithContainer.InstantiateInContainer<LayoutEditorSetting>(Container, null);
-            _layoutEditorSetting.OnEnteredEditMode += () => CloseSettings(false);
+            _layoutEditorSetting.EnteredEditModeEvent += () => CloseSettings(false);
         }
         private void SetupCameraMenu()
         {

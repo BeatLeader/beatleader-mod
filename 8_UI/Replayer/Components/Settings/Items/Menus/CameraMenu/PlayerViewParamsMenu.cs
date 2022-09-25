@@ -51,13 +51,13 @@ namespace BeatLeader.Components.Settings
             vectorControls.increment = 5;
             vectorControls.zSlider.multiplier = -0.01f;
 
-            vectorControls.OnVectorChanged += NotifyVectorChanged;
+            vectorControls.VectorChangedEvent += HandleVectorChanged;
             vectorControls.multipliedVector = _offset;
             _offsetsMenuButton = CreateButtonForMenu(this, vectorControls, "Offsets");
 
             _Smoothness = _movementSmoothness;
         }
-        private void NotifyVectorChanged(Vector3 vector)
+        private void HandleVectorChanged(Vector3 vector)
         {
             _cameraPose.offset = vector;
             _offset = vector;

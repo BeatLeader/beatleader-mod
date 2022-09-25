@@ -8,10 +8,10 @@ namespace BeatLeader.Components.Settings
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.BodyMenu.bsml")]
     internal class BodyMenu : MenuWithContainer
     {
-        [Inject] private readonly VRControllersManager _controllersManager;
+        [Inject] private readonly VRControllersProvider _controllersManager;
         [Inject] private readonly Models.ReplayLaunchData _replayData;
 
-        [UIValue("show-head")] private bool showHead
+        [UIValue("show-head")] private bool _ShowHead
         {
             get => _replayData.actualSettings.ShowHead;
             set
@@ -20,7 +20,7 @@ namespace BeatLeader.Components.Settings
                 _controllersManager.ShowNode(XRNode.Head, value);
             }
         }
-        [UIValue("show-left-saber")] private bool showLeftSaber
+        [UIValue("show-left-saber")] private bool _ShowLeftSaber
         {
             get => _replayData.actualSettings.ShowLeftSaber;
             set
@@ -29,7 +29,7 @@ namespace BeatLeader.Components.Settings
                 _controllersManager.ShowNode(XRNode.LeftHand, value);
             }
         }
-        [UIValue("show-right-saber")] private bool showRightSaber
+        [UIValue("show-right-saber")] private bool _ShowRightSaber
         {
             get => _replayData.actualSettings.ShowRightSaber;
             set

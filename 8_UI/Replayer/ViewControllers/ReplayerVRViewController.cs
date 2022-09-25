@@ -13,7 +13,7 @@ namespace BeatLeader.ViewControllers
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerVRView.bsml")]
     internal class ReplayerVRViewController : MonoBehaviour
     {
-        [Inject] private readonly VRControllersManager _vrControllersManager;
+        [Inject] private readonly VRControllersProvider _vrControllersManager;
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly DiContainer _container;
 

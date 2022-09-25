@@ -83,7 +83,7 @@ namespace BeatLeader.Components.Settings
             }
         }
 
-        public event Action<Vector3> OnVectorChanged;
+        public event Action<Vector3> VectorChangedEvent;
 
         #region BSMLShit
 
@@ -154,7 +154,7 @@ namespace BeatLeader.Components.Settings
         private void NotifyVectorChanged()
         {
             UpdateVectorText();
-            OnVectorChanged?.Invoke(multipliedVector);
+            VectorChangedEvent?.Invoke(multipliedVector);
         }
     }
 }

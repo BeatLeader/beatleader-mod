@@ -6,11 +6,11 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Movement
 {
-    //TODO: optimize
     public class VRControllersMovementEmulator : MonoBehaviour
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] private readonly VRControllersManager _vrControllersManager;
+        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly VRControllersProvider _vrControllersManager;
         [Inject] private readonly ReplayLaunchData _replayData;
 
         protected LinkedList<Frame> _frames;
@@ -26,10 +26,18 @@ namespace BeatLeader.Replayer.Movement
         {
             _frames = new LinkedList<Frame>(_replayData.replay.frames);
             _lastProcessedNode = _frames.First;
+
+            _beatmapTimeController.SongRewindEvent += HandleSongWasRewinded;
         }
+        protected void OnDestroy()
+        {
+            _beatmapTimeController.SongRewindEvent -= HandleSongWasRewinded;
+        }
+
         protected virtual void Update()
         {
-            if (IsPlaying && _frames.TryGetFrameByTime(_audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
+            if (IsPlaying && _lastProcessedNode.TryGetFrameByTime(
+                _audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
             {
                 PlayFrame(frame.Previous);
             }
@@ -56,6 +64,11 @@ namespace BeatLeader.Replayer.Movement
             _LeftSaber.transform.SetLocalPose(leftSaberPose);
             _RightSaber.transform.SetLocalPose(rightSaberPose);
             _Head.transform.SetLocalPose(headPose);
+        }
+
+        private void HandleSongWasRewinded(float time)
+        {
+            _lastProcessedNode = _frames.First;
         }
     }
 }

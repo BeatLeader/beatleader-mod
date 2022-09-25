@@ -18,8 +18,8 @@ namespace BeatLeader.Replayer
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
-        public event Action<float> OnSongSpeedChanged;
-        public event Action<float> OnSongRewind;
+        public event Action<float> SongSpeedChangedEvent;
+        public event Action<float> SongRewindEvent;
 
         private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
         private BombCutSoundEffect.Pool _bombCutSoundPool;
@@ -30,20 +30,18 @@ namespace BeatLeader.Replayer
         private AudioManagerSO _audioManagerSO;
         private AudioSource _beatmapAudioSource;
 
-        private void Awake()
+        private void Start()
         {
             _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
             _audioManagerSO = Resources.FindObjectsOfTypeAll<AudioManagerSO>().First();
-            _beatmapAudioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
-        }
-        private void Start()
-        {
+
             _spawnedBeatmapObjectControllers = _beatmapObjectManager
                 .GetField<List<IBeatmapObjectController>, BeatmapObjectManager>("_allBeatmapObjects");
             _callbacksInTimes = _beatmapCallbacksController
                 .GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
             _noteCutSoundPoolContainer = _noteCutSoundEffectManager
                 .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
+            _beatmapAudioSource = _audioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
         }
         public void Rewind(float time, bool resume = true)
         {
@@ -63,10 +61,10 @@ namespace BeatLeader.Replayer
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
             _callbacksInTimes.ToList().ForEach(x => x.Value.lastProcessedNode = null);
 
+            SongRewindEvent?.Invoke(time);
+
             if (!flag && resume) _audioTimeSyncController.Resume();
             _beatmapCallbacksUpdater.Resume();
-
-            OnSongRewind?.Invoke(time);
         }
         public void SetSpeedMultiplier(float multiplier, bool resume = true)
         {
@@ -81,7 +79,7 @@ namespace BeatLeader.Replayer
             
             if (!flag && resume) _audioTimeSyncController.Resume();
 
-            OnSongSpeedChanged?.Invoke(multiplier);
+            SongSpeedChangedEvent?.Invoke(multiplier);
         }
 
         private void DespawnAllBeatmapObjects() => _spawnedBeatmapObjectControllers.ForEach(x => x.Dissolve(0));

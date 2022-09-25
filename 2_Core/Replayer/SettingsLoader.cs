@@ -48,7 +48,7 @@ namespace BeatLeader.Replayer
 
             if (_2DManager != null)
             {
-                _2DManager.OnUIVisibilityChanged += NotifyUIVisibilityChanged;
+                _2DManager.UIVisibilityChangedEvent += HandleUIVisibilityChanged;
                 _2DManager.ShowUI = _replayData.actualSettings.ShowUI;
             }
 
@@ -57,11 +57,11 @@ namespace BeatLeader.Replayer
                 if (InputManager.IsInFPFC)
                 {
                     _cameraController.FieldOfView = _replayData.actualSettings.CameraFOV;
-                    _cameraController.OnCameraFOVChanged += NotifyCameraFOVChanged;
+                    _cameraController.CameraFOVChangedEvent += HandleCameraFOVChanged;
                 }
-                _cameraController.SetCameraPose(InputManager.IsInFPFC ? 
+                _cameraController.SetCameraPose(InputManager.IsInFPFC ?
                     _replayData.actualSettings.FPFCCameraPose : _replayData.actualSettings.VRCameraPose);
-                _cameraController.OnCameraPoseChanged += NotifyCameraPoseChanged;
+                _cameraController.CameraPoseChangedEvent += HandleCameraPoseChanged;
             }
         }
         public virtual void Dispose()
@@ -71,17 +71,25 @@ namespace BeatLeader.Replayer
                 _roomPosition.value = _tempPosition;
                 _roomRotation.value = _tempRotation;
             }
+
+            if (_cameraController != null)
+            {
+                _cameraController.CameraFOVChangedEvent -= HandleCameraFOVChanged;
+                _cameraController.CameraPoseChangedEvent -= HandleCameraPoseChanged;
+            }
+
+            if (_2DManager != null) _2DManager.UIVisibilityChangedEvent -= HandleUIVisibilityChanged;
         }
 
-        private void NotifyUIVisibilityChanged(bool visible)
+        private void HandleUIVisibilityChanged(bool visible)
         {
             _replayData.actualToWriteSettings.ShowUI = visible;
         }
-        private void NotifyCameraFOVChanged(int fov)
+        private void HandleCameraFOVChanged(int fov)
         {
             _replayData.actualSettings.CameraFOV = fov;
         }
-        private void NotifyCameraPoseChanged(ICameraPoseProvider poseProvider)
+        private void HandleCameraPoseChanged(ICameraPoseProvider poseProvider)
         {
             var settings = _replayData.actualToWriteSettings;
             settings.FPFCCameraPose = InputManager.IsInFPFC ? poseProvider.Name : settings.FPFCCameraPose;

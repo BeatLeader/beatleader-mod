@@ -24,11 +24,11 @@ namespace BeatLeader.Models
         public virtual ReplayerSettings actualSettings => overrideSettings ? settings : ConfigFileData.Instance.ReplayerSettings;
         public virtual ReplayerSettings actualToWriteSettings => ConfigFileData.Instance.ReplayerSettings;
 
-        public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults, ReplayLaunchData> OnReplayFinish;
+        public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults, ReplayLaunchData> replayWasFinishedEvent;
 
         public void NotifyReplayDidFinish(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults)
         {
-            OnReplayFinish?.Invoke(transitionData, completionResults, this);
+            replayWasFinishedEvent?.Invoke(transitionData, completionResults, this);
         }
     }
 }

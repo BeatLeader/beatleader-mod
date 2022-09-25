@@ -56,10 +56,15 @@ namespace BeatLeader {
             ObserveEnabled();
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
+            InitInterop();
+            RaycastBlocker.BlockerMask = 1 << 5;
+        }
+
+        private static void InitInterop() {
             BetterSongListInterop.TryRegister();
             Cam2Interop.Init();
             NoodleExtensionsInterop.Init();
-            RaycastBlocker.BlockerMask = 1 << 5;
+            ScoreSaberInterop.Init();
         }
 
         private static void ObserveEnabled() {

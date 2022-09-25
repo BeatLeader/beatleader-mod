@@ -9,12 +9,11 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Movement
 {
-    public class VRControllersManager : MonoBehaviour
+    public class VRControllersProvider : MonoBehaviour
     {
         [Inject] protected readonly PlayerVRControllersManager _vrControllersManager;
         [Inject] protected readonly PlayerTransforms _playerTransforms;
         [Inject] protected readonly PauseMenuManager _pauseMenuManager;
-        [Inject] protected readonly LocksController _softLocksController;
         [Inject] protected readonly MainCamera _mainCamera;
         [Inject] protected readonly DiContainer _diContainer;
         [Inject] private readonly Models.ReplayLaunchData _replayData;

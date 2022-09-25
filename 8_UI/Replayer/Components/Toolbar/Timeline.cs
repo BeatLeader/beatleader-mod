@@ -75,12 +75,12 @@ namespace BeatLeader.Components
             });
 
             var provider = _slider.gameObject.AddComponent<InteractionEventsProvider>();
-            provider.OnPointerEnterEvent += OnPointerEnter;
-            provider.OnPointerLeaveEvent += OnPointerLeave;
-            provider.OnBeginDragEvent += OnDragStart;
-            provider.OnEndDragEvent += OnDragEnd;
-            provider.OnPointerUpEvent += OnPointerUp;
-            provider.OnPointerDownEvent += x => _wasPaused = _playbackController.IsPaused;
+            provider.PointerEnterEvent += OnPointerEnter;
+            provider.PointerLeaveEvent += OnPointerLeave;
+            provider.BeginDragEvent += OnDragStart;
+            provider.EndDragEvent += OnDragEnd;
+            provider.PointerUpEvent += OnPointerUp;
+            provider.PointerDownEvent += x => _wasPaused = _playbackController.IsPaused;
 
             _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
             _missPrefab.sprite = BSMLUtility.LoadSprite("#bad-cut-icon");

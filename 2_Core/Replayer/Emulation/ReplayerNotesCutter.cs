@@ -5,35 +5,28 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer
+namespace BeatLeader.Replayer.Emulation
 {
     public class ReplayerNotesCutter : MonoBehaviour
     {
-        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
-        [Inject] private readonly ReplayEventsProcessor _eventsEmitter;
+        [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
+        [Inject] protected readonly ReplayEventsProcessor _eventsEmitter;
 
         protected virtual void Awake()
         {
-            _eventsEmitter.OnNoteCutRequested += NotifyNoteCutRequested;
-            _beatmapObjectManager.noteWasSpawnedEvent += NotifyNoteWasSpawned;
-            _beatmapObjectManager.noteWasDespawnedEvent += NotifyNoteWasDespawned;
+            _eventsEmitter.NoteCutRequestedEvent += HandleNoteCutRequested;
+
+            _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
+            _beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
         }
         protected virtual void OnDestroy()
         {
-            _beatmapObjectManager.noteWasSpawnedEvent -= NotifyNoteWasSpawned;
-            _beatmapObjectManager.noteWasDespawnedEvent -= NotifyNoteWasDespawned;
+            _eventsEmitter.NoteCutRequestedEvent -= HandleNoteCutRequested;
+
+            _beatmapObjectManager.noteWasSpawnedEvent -= HandleNoteWasSpawned;
+            _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
         }
-        protected virtual void NotifyNoteCutRequested(NoteEvent noteEvent)
-        {
-            switch (noteEvent.eventType)
-            {
-                case NoteEventType.good:
-                case NoteEventType.bad:
-                case NoteEventType.bomb:
-                    TryCutNote(noteEvent);
-                    break;
-            }
-        }
+
         protected void TryCutNote(NoteEvent noteEvent)
         {
             var noteController = FindSpawnedNoteOrNull(noteEvent);
@@ -51,16 +44,27 @@ namespace BeatLeader.Replayer
 
         private readonly Dictionary<NoteController, int> _spawnedNotes = new(10);
 
-        private void NotifyNoteWasSpawned(NoteController noteController)
+        protected void HandleNoteCutRequested(NoteEvent noteEvent)
+        {
+            switch (noteEvent.eventType)
+            {
+                case NoteEventType.good:
+                case NoteEventType.bad:
+                case NoteEventType.bomb:
+                    TryCutNote(noteEvent);
+                    break;
+            }
+        }
+        private void HandleNoteWasSpawned(NoteController noteController)
         {
             _spawnedNotes[noteController] = noteController.noteData.ComputeNoteID();
         }
-        private void NotifyNoteWasDespawned(NoteController noteController)
+        private void HandleNoteWasDespawned(NoteController noteController)
         {
             if (!_spawnedNotes.ContainsKey(noteController)) return;
             _spawnedNotes.Remove(noteController);
         }
-        private NoteController FindSpawnedNoteOrNull(NoteEvent replayNote, float timeMargin = 0.2f)
+        protected NoteController FindSpawnedNoteOrNull(NoteEvent replayNote, float timeMargin = 0.2f)
         {
             var minTimeDifference = float.MaxValue;
             NoteController noteController = null;

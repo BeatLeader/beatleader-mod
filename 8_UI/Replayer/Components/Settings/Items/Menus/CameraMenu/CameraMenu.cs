@@ -1,8 +1,8 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer;
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -39,29 +39,34 @@ namespace BeatLeader.Components.Settings
         [UIObject("camera-fov-container")] private GameObject _cameraFovContainer;
         [UIValue("pose-menu-button")] private SubMenuButton _poseMenuButton;
 
+        private static readonly IReadOnlyList<Type> _cameraMenus = new[]
+        {
+            typeof(FlyingViewParamsMenu),
+            typeof(PlayerViewParamsMenu)
+        };
         private List<CameraParamsMenu> _posesParams;
         private CanvasGroup _poseMenuButtonCanvasGroup;
 
         protected override void OnBeforeParse()
         {
-            _posesParams = Assembly.GetExecutingAssembly().ScanAndActivateTypes(null, x => (CameraParamsMenu)Instantiate(x));
+            _posesParams = _cameraMenus.Select(x => (CameraParamsMenu)Instantiate(x)).ToList();
             _poseMenuButton = CreateButtonForMenu(this, null, "View params");
             _cameraViewValues = new List<object>(_cameraController.PoseProviders.Select(x => x.Name));
-            _cameraController.OnCameraPoseChanged += NotifyCameraPoseChanged;
-            _cameraController.OnCameraFOVChanged += NotifyCameraFOVChanged;
+            _cameraController.CameraPoseChangedEvent += HandleCameraPoseChanged;
+            _cameraController.CameraFOVChangedEvent += HandleCameraFOVChanged;
         }
         protected override void OnAfterParse()
         {
             _cameraFovContainer.AddComponent<InputDependentObject>().Init(InputManager.InputType.FPFC);
             _poseMenuButtonCanvasGroup = _poseMenuButton.ButtonGameObject.AddComponent<CanvasGroup>();
-            NotifyCameraPoseChanged(_cameraController.CurrentPose);
+            HandleCameraPoseChanged(_cameraController.CurrentPose);
         }
 
-        private void NotifyCameraFOVChanged(int fov)
+        private void HandleCameraFOVChanged(int fov)
         {
             NotifyPropertyChanged(nameof(cameraFov));
         }
-        private void NotifyCameraPoseChanged(ICameraPoseProvider provider)
+        private void HandleCameraPoseChanged(ICameraPoseProvider provider)
         {
             NotifyPropertyChanged(nameof(cameraView));
             var menu = _posesParams.FirstOrDefault(x => x.Id == provider.Id && x.Type == provider.GetType());

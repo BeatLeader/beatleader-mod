@@ -1,14 +1,27 @@
 ﻿using System;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using UnityEngine;
 
-namespace BeatLeader.Replayer
+namespace BeatLeader.Replayer.Emulation
 {
     public class NoteControllerEmulator : NoteController
     {
-        #region Create NoteData
+        public override NoteData noteData => _noteData;
+        public NoteCutInfo CutInfo { get; private set; }
 
-        private static readonly NoteData emptyNoteData = NoteData.CreateBasicNoteData(0, 0, NoteLineLayer.Base, ColorType.ColorA, NoteCutDirection.Any);
+        private NoteData _noteData;
+
+        public void Setup(NoteEvent noteEvent)
+        {
+            _noteData = CreateNoteData(noteEvent);
+            CutInfo = Models.NoteCutInfo.Convert(noteEvent?.noteCutInfo ?? emptyNoteCutInfo, _noteData);
+        }
+
+        private static readonly NoteData emptyNoteData = NoteData
+            .CreateBasicNoteData(0, 0, NoteLineLayer.Base, ColorType.ColorA, NoteCutDirection.Any);
+        private static readonly Models.NoteCutInfo emptyNoteCutInfo = new();
+
         private static NoteData CreateNoteData(NoteEvent noteEvent)
         {
             ReplayDataHelper.DecodeNoteId(
@@ -29,7 +42,7 @@ namespace BeatLeader.Replayer
                 NoteData.ScoringType.SliderTail => NoteData.GameplayType.Normal,
                 NoteData.ScoringType.BurstSliderHead => NoteData.GameplayType.BurstSliderHead,
                 NoteData.ScoringType.BurstSliderElement => NoteData.GameplayType.BurstSliderElement,
-                _ => throw new ArgumentOutOfRangeException()
+                _ => NoteData.GameplayType.Normal
             };
 
             return emptyNoteData.CopyWith(
@@ -43,20 +56,11 @@ namespace BeatLeader.Replayer
             );
         }
 
-        #endregion
-
-        public override NoteData noteData => _noteData;
-        public NoteCutInfo CutInfo { get; private set; }
-
-        private NoteData _noteData;
-
-        public void Setup(NoteEvent noteEvent)
-        {
-            _noteData = CreateNoteData(noteEvent);
-            CutInfo = Models.NoteCutInfo.Convert(noteEvent.noteCutInfo, _noteData);
-        }
+        #region Garbage
 
         protected override void HiddenStateDidChange(bool _) { }
         public override void Pause(bool _) { }
+
+        #endregion
     }
 }

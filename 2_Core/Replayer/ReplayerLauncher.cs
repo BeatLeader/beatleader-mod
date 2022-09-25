@@ -7,6 +7,7 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 using static BeatmapLevelsModel;
+using BeatLeader.DataManager;
 
 namespace BeatLeader.Replayer
 {
@@ -19,8 +20,8 @@ namespace BeatLeader.Replayer
         public static ReplayLaunchData LaunchData { get; private set; }
         public static bool IsStartedAsReplay { get; private set; }
 
-        public static event Action<ReplayLaunchData> OnReplayStart;
-        public static event Action<ReplayLaunchData> OnReplayFinish;
+        public static event Action<ReplayLaunchData> ReplayDidStartedEvent;
+        public static event Action<ReplayLaunchData> ReplayDidFinishedEvent;
 
         public async Task<bool> StartReplayAsync(ReplayLaunchData data, Action<bool> callback = null)
         {
@@ -42,12 +43,16 @@ namespace BeatLeader.Replayer
                 return false;
             }
 
+            Plugin.Log.Notice("[Launcher] Loading modifiers from server...");
+            if (!LoadModifiersIfNeeded(data.difficultyBeatmap))
+                Plugin.Log.Error("[Launcher] Unable to load modifiers from server, scores may be differ!");
+
             IsStartedAsReplay = true;
             LaunchData = data;
 
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
             callback?.Invoke(true);
-            OnReplayStart?.Invoke(data);
+            ReplayDidStartedEvent?.Invoke(data);
             Plugin.Log.Notice("[Launcher] Starting replay...");
 
             return true;
@@ -56,12 +61,10 @@ namespace BeatLeader.Replayer
         private async Task<bool> AssignDataAsync(ReplayLaunchData data, CancellationToken token)
         {
             if (data.difficultyBeatmap != null) return true;
-
             var loadingResult = await GetBeatmapDifficultyByReplayInfoAsync(data.replay.info, token);
-            if (loadingResult.isError || token.IsCancellationRequested) return false;
 
             data.difficultyBeatmap = loadingResult.value;
-            return true;
+            return !loadingResult.isError;
         }
         private async Task<RequestResult<IDifficultyBeatmap>> GetBeatmapDifficultyByReplayInfoAsync(ReplayInfo info, CancellationToken token)
         {
@@ -94,6 +97,20 @@ namespace BeatLeader.Replayer
             return await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token);
         }
 
+        private bool LoadModifiersIfNeeded(IDifficultyBeatmap beatmap)
+        {
+            var key = LeaderboardKey.FromBeatmap(beatmap);
+            var loadingResult = LeaderboardsCache.TryGetLeaderboardInfo(key, out var data);
+            if (!loadingResult) return false;
+
+            var diffInfo = data.DifficultyInfo;
+            var modifiersMap = diffInfo.modifierValues;
+
+            var applyPositive = !FormatUtils.NegativeModifiersAppliers.Contains(FormatUtils.GetRankedStatus(diffInfo));
+            ModifiersMapManager.LoadCustomModifiersMap(modifiersMap, x => x > 0 && applyPositive ? x : 0);
+
+            return true;
+        }
         private RequestResult<EnvironmentInfoSO> GetEnvironmentByLaunchData(ReplayLaunchData data)
         {
             EnvironmentInfoSO environment = null;
@@ -112,9 +129,13 @@ namespace BeatLeader.Replayer
         {
             transitionData.didFinishEvent -= ResetData;
             LaunchData.NotifyReplayDidFinish(transitionData, completionResults);
-            OnReplayFinish?.Invoke(LaunchData);
+            ReplayDidFinishedEvent?.Invoke(LaunchData);
             LaunchData = null;
             IsStartedAsReplay = false;
+
+            Plugin.Log.Notice("[Launcher] Loading modifiers back...");
+            ModifiersMapManager.LoadGameplayModifiersMap();
+            Plugin.Log.Notice("[Launcher] Modifiers successfully loaded");
         }
     }
 }

@@ -221,6 +221,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="0_Harmony\HarmonyMultisilencer.cs" />
     <Compile Include="0_Harmony\ModifiersPatches\GameplayModifiersPanelPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderCustomCampaignUtilPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderMultiplayerUtilPatch.cs" />
@@ -233,8 +234,10 @@
     <Compile Include="0_Harmony\InstallersPatches\MenuInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PreSwingRatingEnhancerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />
-    <Compile Include="0_Harmony\Replayer\AudioTimeSyncControllerPatch.cs" />
-    <Compile Include="0_Harmony\Replayer\RaycastBlocker.cs" />
+    <Compile Include="0_Harmony\ReplayerPatches\AudioTimeSyncControllerPatch.cs" />
+    <Compile Include="0_Harmony\ReplayerPatches\GameplayManagerPatch.cs" />
+    <Compile Include="0_Harmony\ReplayerPatches\PauseMenuManagerPatch.cs" />
+    <Compile Include="0_Harmony\ReplayerPatches\RaycastBlocker.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
     <Compile Include="0_Harmony\UIPatches\HideModalsOnPlay.cs" />
@@ -298,11 +301,9 @@
     <Compile Include="2_Core\Models\CombinedCameraMovementData.cs" />
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
     <Compile Include="2_Core\Models\ICameraPoseProvider.cs" />
-    <Compile Include="2_Core\Models\IReplayerScoreController.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
     <Compile Include="2_Core\Models\LeaderboardsInfoResponse.cs" />
     <Compile Include="2_Core\Models\LeaderboardKey.cs" />
-    <Compile Include="2_Core\Models\LockData.cs" />
     <Compile Include="2_Core\Models\OculusUserInfo.cs" />
     <Compile Include="2_Core\Models\PlayerRole.cs" />
     <Compile Include="2_Core\Models\RankedStatus.cs" />
@@ -320,8 +321,11 @@
     <Compile Include="2_Core\Models\ScoresScope.cs" />
     <Compile Include="2_Core\Replayer\Emulation\ReplayEventsProcessor.cs" />
     <Compile Include="2_Core\Replayer\Emulation\ReplayerNotesCutter.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\ReplayerScoreProcessor.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\NoteControllerEmulator.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayerScoreProcessor.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Scoring\NoteControllerEmulator.cs" />
+    <Compile Include="2_Core\Managers\ModifiersMapManager.cs" />
+    <Compile Include="7_Utils\Interop\ScoreSaberInterop.cs" />
+    <Compile Include="0_Harmony\HarmonySilencer.cs" />
     <Compile Include="7_Utils\UtilityClasses\SliderValuesApplier.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
     <Compile Include="2_Core\Models\ReplayerSettings.cs" />
@@ -331,7 +335,7 @@
     <Compile Include="2_Core\Replayer\Camera\Poses\PlayerViewCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\StaticCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\ReplayerCameraController.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersManager.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersProvider.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersMovementEmulator.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllerEmulator.cs" />
     <Compile Include="2_Core\Replayer\ReplayerCache.cs" />
@@ -340,9 +344,7 @@
     <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
     <Compile Include="2_Core\Replayer\SceneTweaksManager.cs" />
     <Compile Include="2_Core\Replayer\PlaybackController.cs" />
-    <Compile Include="2_Core\Replayer\ReplayerManualInstaller.cs" />
     <Compile Include="2_Core\Replayer\ReplayerMenuLoader.cs" />
-    <Compile Include="2_Core\Replayer\LocksController.cs" />
     <Compile Include="2_Core\Replayer\HotkeysManager.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
@@ -372,7 +374,6 @@
     <Compile Include="7_Utils\StaticUtils\Extensions\GameObjectExtension.cs" />
     <Compile Include="7_Utils\StaticUtils\HarmonyUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\InstallerUtils.cs" />
-    <Compile Include="7_Utils\StaticUtils\LayerMaskHelper.cs" />
     <Compile Include="7_Utils\StaticUtils\ReflectionUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\ResourcesUtils.cs" />
     <Compile Include="7_Utils\StaticUtils\Extensions\TransformExtension.cs" />

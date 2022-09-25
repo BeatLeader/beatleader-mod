@@ -16,7 +16,7 @@ namespace BeatLeader.Components
             }
         }
 
-        public event Action<Pose> OnPoseChanged;
+        public event Action<Pose> PoseChangedEvent;
 
         public bool isListening;
         private Transform _transformToListen;
@@ -36,7 +36,7 @@ namespace BeatLeader.Components
             if (!isListening || !_canListen) return;
 
             var currentPose = TransformToListen.GetPose();
-            if (_pose != currentPose) OnPoseChanged?.Invoke(currentPose);
+            if (_pose != currentPose) PoseChangedEvent?.Invoke(currentPose);
             _pose = currentPose;
         }
     }

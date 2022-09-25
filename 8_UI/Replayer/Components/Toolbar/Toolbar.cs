@@ -22,13 +22,13 @@ namespace BeatLeader.Components
         [UIComponent("exit-button-icon")] private BetterImage _exitButtonIcon;
         [UIComponent("settings-modal")] private ModalView _settingsModal;
 
-        [UIValue("combined-song-time")] private string combinedSongTime
+        [UIValue("combined-song-time")] private string _CombinedSongTime
         {
             get => _combinedSongTime;
             set
             {
                 _combinedSongTime = value;
-                NotifyPropertyChanged(nameof(combinedSongTime));
+                NotifyPropertyChanged(nameof(_CombinedSongTime));
             }
         }
         [UIValue("timeline")] private Timeline _timeline;
@@ -52,16 +52,16 @@ namespace BeatLeader.Components
             _timeline = InstantiateInContainer<Timeline>(Container, transform);
             _settingsNavigator = InstantiateInContainer<SettingsController>(Container, transform);
             _settingsNavigator.RootMenu = MenuWithContainer.InstantiateInContainer<SettingsRootMenu>(Container);
-            _playbackController.OnPauseStateChanged += ChangePauseButtonSprite;
+            _playbackController.PauseStateChangedEvent += HandlePauseStateChanged;
         }
         protected override void OnInitialize()
         {
             var button = _exitButtonBackground.gameObject.AddComponent<NoTransitionsButton>();
-            button.selectionStateDidChangeEvent += ExitButtonSelectionStateChanged;
+            button.selectionStateDidChangeEvent += HandleExitButtonSelectionStateChanged;
             button.onClick.AddListener(_playbackController.EscapeToMenu);
             button.navigation = new Navigation() { mode = Navigation.Mode.None };
-            _settingsModal.blockerClickedEvent += _settingsNavigator.NotifySettingsClosed;
-            _settingsNavigator.OnSettingsCloseRequested += x => _settingsModal.Hide(x, () => _settingsNavigator.NotifySettingsClosed());
+            _settingsModal.blockerClickedEvent += _settingsNavigator.HandleSettingsWasClosed;
+            _settingsNavigator.SettingsCloseRequestedEvent += x => _settingsModal.Hide(x, () => _settingsNavigator.HandleSettingsWasClosed());
         }
         private void Update()
         {
@@ -74,10 +74,15 @@ namespace BeatLeader.Components
             float totalSeconds = Mathf.FloorToInt(totalTime - (totalMinutes * 60));
 
             string combinedTotalTime = $"{totalMinutes}.{(totalSeconds < 10 ? $"0{totalSeconds}" : totalSeconds)}";
-            combinedSongTime = $"{minutes}.{(seconds < 10 ? $"0{seconds}" : seconds)}/{combinedTotalTime}";
+            _CombinedSongTime = $"{minutes}.{(seconds < 10 ? $"0{seconds}" : seconds)}/{combinedTotalTime}";
         }
 
-        private void ExitButtonSelectionStateChanged(NoTransitionsButton.SelectionState state)
+        [UIAction("pause-button-clicked")]
+        private void OnPauseButtonClicked()
+        {
+            _playbackController.Pause(!_playbackController.IsPaused);
+        }
+        private void HandleExitButtonSelectionStateChanged(NoTransitionsButton.SelectionState state)
         {
             if (state == NoTransitionsButton.SelectionState.Highlighted)
             {
@@ -88,13 +93,9 @@ namespace BeatLeader.Components
                 _exitButtonIcon.Image.sprite = _closedDoorSprite;
             }
         }
-        private void ChangePauseButtonSprite(bool pause)
+        private void HandlePauseStateChanged(bool pause)
         {
             _playButton.TargetGraphic.sprite = pause ? _playSprite : _pauseSprite;
-        }
-        [UIAction("pause-button-clicked")] private void PauseButtonClicked()
-        {
-            _playbackController.Pause(!_playbackController.IsPaused);
         }
     }
 }

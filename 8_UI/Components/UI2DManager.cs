@@ -18,11 +18,11 @@ namespace BeatLeader.Components
             set
             {
                 gameObject.SetActive(value);
-                OnUIVisibilityChanged?.Invoke(value);
+                UIVisibilityChangedEvent?.Invoke(value);
             }
         }
 
-        public event Action<bool> OnUIVisibilityChanged;
+        public event Action<bool> UIVisibilityChangedEvent;
 
         private List<(GameObject, Transform)> _objects = new();
         private CanvasScaler _canvasScaler;

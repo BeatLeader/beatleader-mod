@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BeatLeader.Utils;
+using System;
 using System.Reflection;
 using UnityEngine;
 using Zenject;
@@ -12,10 +13,9 @@ namespace BeatLeader.Replayer
         [Inject] private readonly PauseController _pauseController;
         [Inject] private readonly AudioTimeSyncController _songTimeSyncController;
         [Inject] private readonly GameplayModifiers _modifiers;
-
         [Inject] private readonly SaberManager _saberManager;
-        [Inject] private readonly BeatmapVisualsController _beatmapEffectsController;
         [Inject] private readonly IGamePause _gamePause;
+
         [Inject] private readonly IVRPlatformHelper _vrPlatformHelper;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger;
 
@@ -25,8 +25,24 @@ namespace BeatLeader.Replayer
         public float SongSpeedMultiplier => _modifiers.songSpeedMul;
         public bool IsPaused => _gamePause.isPaused;
 
-        public event Action<bool> OnPauseStateChanged;
+        public event Action<bool> PauseStateChangedEvent;
 
+        private void Awake()
+        {
+            _didPauseEventInfo = typeof(PauseController).GetField("didPauseEvent", ReflectionUtils.DefaultFlags);
+            _didResumeEventInfo = typeof(PauseController).GetField("didResumeEvent", ReflectionUtils.DefaultFlags);
+            _pauseInfo = _gamePause.GetType().GetField("_pause", ReflectionUtils.DefaultFlags);
+
+            _vrPlatformHelper.hmdUnmountedEvent += HandleHMDUnmounted;
+            _vrPlatformHelper.inputFocusWasCapturedEvent += HandleInputFocusWasLost;
+            _pauseButtonTrigger.menuButtonTriggeredEvent += HandleMenuButtonTriggered;
+        }
+        private void OnDestroy()
+        {
+            _vrPlatformHelper.hmdUnmountedEvent -= HandleHMDUnmounted;
+            _vrPlatformHelper.inputFocusWasCapturedEvent -= HandleInputFocusWasLost;
+            _pauseButtonTrigger.menuButtonTriggeredEvent -= HandleMenuButtonTriggered;
+        }
         public void Pause(bool pause, bool notify = true, bool force = false)
         {
             if (force) SetPauseState(!pause);
@@ -46,43 +62,26 @@ namespace BeatLeader.Replayer
 
             if (notify) InvokePauseEvent(pause);
             _beatmapObjectManager.PauseAllBeatmapObjects(pause);
-            _beatmapEffectsController.PauseEffects(pause);
-            OnPauseStateChanged?.Invoke(pause);
+            PauseStateChangedEvent?.Invoke(pause);
         }
         public void EscapeToMenu() => _pauseMenuManager.MenuButtonPressed();
 
-        private void Start()
-        {
-            _didPauseEventInfo = _pauseController.GetType().GetField("didPauseEvent",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            _didResumeEventInfo = _pauseController.GetType().GetField("didResumeEvent",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            _pauseInfo = _gamePause.GetType().GetField("_pause", BindingFlags.NonPublic | BindingFlags.Instance);
+        #region Events
 
-            _vrPlatformHelper.hmdUnmountedEvent += NotifyPauseRequired;
-            _vrPlatformHelper.inputFocusWasCapturedEvent += NotifyPauseRequired;
-            _pauseButtonTrigger.menuButtonTriggeredEvent += NotifyPauseSwitchRequired;
-        }
-        private void OnDestroy()
-        {
-            if (_vrPlatformHelper != null)
-            {
-                _vrPlatformHelper.hmdUnmountedEvent -= NotifyPauseRequired;
-                _vrPlatformHelper.inputFocusWasCapturedEvent -= NotifyPauseRequired;
-            }
-            if (_pauseButtonTrigger != null)
-            {
-                _pauseButtonTrigger.menuButtonTriggeredEvent -= NotifyPauseSwitchRequired;
-            }
-        }
-        private void NotifyPauseSwitchRequired()
+        private void HandleMenuButtonTriggered()
         {
             Pause(!IsPaused);
         }
-        private void NotifyPauseRequired()
+        private void HandleHMDUnmounted()
+        {
+           Pause(true);
+        }
+        private void HandleInputFocusWasLost()
         {
             Pause(true);
         }
+
+        #endregion
 
         #region Reflection
 

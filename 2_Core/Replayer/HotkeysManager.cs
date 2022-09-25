@@ -11,9 +11,9 @@ namespace BeatLeader.Replayer
     public class HotkeysManager : ITickable
     {
         [InjectOptional] private readonly UI2DManager _2DManager;
-        [InjectOptional] private readonly Models.ReplayLaunchData _replayData;
+        [InjectOptional] private readonly ReplayerCameraController _cameraController;
+        [Inject] private readonly Models.ReplayLaunchData _replayData;
         [Inject] private readonly PlaybackController _playbackController;
-        [Inject] private readonly ReplayerCameraController _cameraController;
 
         public KeyCode HideUIHotkey = KeyCode.H;
         public KeyCode HideCursorHotkey = KeyCode.C;
@@ -23,7 +23,7 @@ namespace BeatLeader.Replayer
         public KeyCode IncFOVHotkey = KeyCode.UpArrow;
         public KeyCode DecFOVHotkey = KeyCode.DownArrow;
 
-        public event Action<bool> OnCursorVisibilityChanged;
+        public event Action<bool> CursorVisibilityChangedEvent;
 
         public void Tick()
         {
@@ -34,7 +34,7 @@ namespace BeatLeader.Replayer
             if (Input.GetKeyDown(HideCursorHotkey))
             {
                 InputManager.SwitchCursor();
-                OnCursorVisibilityChanged?.Invoke(Cursor.visible);
+                CursorVisibilityChangedEvent?.Invoke(Cursor.visible);
             }
             if (Input.GetKeyDown(PauseHotkey))
             {
@@ -42,24 +42,25 @@ namespace BeatLeader.Replayer
             }
             if (Input.GetKeyDown(SwitchViewRightHotkey))
             {
-                SwitchView(1);
+                SwitchCameraView(1);
             }
             if (Input.GetKeyDown(SwitchViewLeftHotkey))
             {
-                SwitchView(-1);
+                SwitchCameraView(-1);
             }
-            if (Input.GetKeyDown(IncFOVHotkey))
+            if (_cameraController != null)
             {
-                if (_cameraController.FieldOfView < _replayData.actualSettings.MaxFOV)
+                if (Input.GetKeyDown(IncFOVHotkey) && _cameraController.FieldOfView < _replayData.actualSettings.MaxFOV)
+                {
                     _cameraController.FieldOfView += 1;
-            }
-            if (Input.GetKeyDown(DecFOVHotkey))
-            {
-                if (_cameraController.FieldOfView > _replayData.actualSettings.MinFOV)
+                }
+                if (Input.GetKeyDown(DecFOVHotkey) && _cameraController.FieldOfView > _replayData.actualSettings.MinFOV)
+                {
                     _cameraController.FieldOfView -= 1;
+                }
             }
         }
-        private void SwitchView(int offset)
+        private void SwitchCameraView(int offset)
         {
             var poses = _cameraController.PoseProviders;
             var idx = poses.Select(x => x.Name).ToList().IndexOf(_cameraController.CurrentPoseName);

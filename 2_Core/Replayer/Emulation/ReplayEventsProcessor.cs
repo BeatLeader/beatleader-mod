@@ -4,40 +4,40 @@ using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer
+namespace BeatLeader.Replayer.Emulation
 {
-    public class ReplayEventsProcessor : MonoBehaviour
+    public class ReplayEventsProcessor : IInitializable, ILateTickable, IDisposable
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] private readonly BeatmapTimeController _beatmapTimeController;
         [Inject] private readonly ReplayLaunchData _launchData;
 
-        public bool IsReprocessingEventsNow => _isRewinding;
+        public bool IsReprocessingEventsNow => _isReprocessing;
 
-        public event Action<NoteEvent> OnNoteCutRequested;
-        public event Action<WallEvent> OnWallInteractionRequested;
-        public event Action OnReprocessRequested;
-        public event Action OnReprocessDone;
+        public event Action<NoteEvent> NoteCutRequestedEvent;
+        public event Action<WallEvent> WallInteractionRequestedEvent;
+        public event Action ReprocessRequestedEvent;
+        public event Action ReprocessDoneEvent;
 
         private IReadOnlyList<NoteEvent> _notes;
         private IReadOnlyList<WallEvent> _walls;
-        private bool _isRewinding;
+        private bool _isReprocessing;
         private int _nextNoteIndex;
         private int _nextWallIndex;
         private float _lastTime;
 
-        protected virtual void Awake()
+        public void Initialize()
         {
-            _beatmapTimeController.OnSongRewind += NotifySongWasRewinded;
+            _beatmapTimeController.SongRewindEvent += HandleSongWasRewinded;
 
             _notes = _launchData.replay.notes;
             _walls = _launchData.replay.walls;
         }
-        protected virtual void OnDestroy()
+        public void Dispose()
         {
-            _beatmapTimeController.OnSongRewind -= NotifySongWasRewinded;
+            _beatmapTimeController.SongRewindEvent -= HandleSongWasRewinded;
         }
-        protected virtual void LateUpdate()
+        public void LateTick()
         {
             var songTime = _audioTimeSyncController.songTime;
 
@@ -58,7 +58,7 @@ namespace BeatLeader.Replayer
                     if (nextWall!.time > songTime) break;
                     try
                     {
-                        OnWallInteractionRequested?.Invoke(nextWall);
+                        WallInteractionRequestedEvent?.Invoke(nextWall);
                     }
                     finally
                     {
@@ -70,7 +70,7 @@ namespace BeatLeader.Replayer
                     if (nextNote!.eventTime > songTime) break;
                     try
                     {
-                        OnNoteCutRequested?.Invoke(nextNote);
+                        NoteCutRequestedEvent?.Invoke(nextNote);
                     }
                     finally
                     {
@@ -80,21 +80,24 @@ namespace BeatLeader.Replayer
             } while (true);
 
             _lastTime = songTime;
-            if (_isRewinding)
+            if (_isReprocessing)
             {
-                _isRewinding = false;
-                OnReprocessDone?.Invoke();
+                _isReprocessing = false;
+                ReprocessDoneEvent?.Invoke();
             }
         }
 
-        private void NotifySongWasRewinded(float newTime)
+        private void HandleSongWasRewinded(float newTime)
         {
-            _isRewinding = true;
-            if (newTime > _lastTime) return;
-            _nextNoteIndex = 0;
-            _nextWallIndex = 0;
-            _lastTime = 0f;
-            OnReprocessRequested?.Invoke();
+            if (newTime < _lastTime)
+            {
+                _nextNoteIndex = 0;
+                _nextWallIndex = 0;
+                _lastTime = 0f;
+                _isReprocessing = true;
+            }
+
+            ReprocessRequestedEvent?.Invoke();
         }
     }
 }

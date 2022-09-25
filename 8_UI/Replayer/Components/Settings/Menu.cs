@@ -13,10 +13,10 @@ namespace BeatLeader.Components.Settings
         public virtual bool ParseOnConstructor => true;
         public bool IsParsed { get; protected set; }
 
-        public event Action<bool> OnSettingsCloseRequested;
-        public event Action<Menu> OnMenuPresentRequested;
-        public event Func<bool> OnMenuDismissRequested;
-        public event Action OnMenuDismissToRootRequested;
+        public event Action<bool> SettingsCloseRequestedEvent;
+        public event Action<Menu> MenuPresentRequestedEvent;
+        public event Func<bool> MenuDismissRequestedEvent;
+        public event Action MenuDismissToRootRequestedEvent;
 
         public static SubMenuButton CreateButtonForMenu(Menu parent, Menu child, string text)
         {
@@ -92,10 +92,10 @@ namespace BeatLeader.Components.Settings
 
         #region Menus
 
-        protected void PresentMenu(Menu menu) => OnMenuPresentRequested?.Invoke(menu);
-        protected void DismissMenu() => OnMenuDismissRequested?.Invoke();
-        protected void DismissToRootMenu() => OnMenuDismissToRootRequested?.Invoke();
-        protected void CloseSettings(bool animated = false) => OnSettingsCloseRequested?.Invoke(animated);
+        protected void PresentMenu(Menu menu) => MenuPresentRequestedEvent?.Invoke(menu);
+        protected void DismissMenu() => MenuDismissRequestedEvent?.Invoke();
+        protected void DismissToRootMenu() => MenuDismissToRootRequestedEvent?.Invoke();
+        protected void CloseSettings(bool animated = false) => SettingsCloseRequestedEvent?.Invoke(animated);
 
         #endregion
 

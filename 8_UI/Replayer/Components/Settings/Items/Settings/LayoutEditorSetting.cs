@@ -9,7 +9,7 @@ namespace BeatLeader.Components.Settings
     {
         [InjectOptional] private readonly LayoutEditor _layoutEditor;
 
-        public event Action OnEnteredEditMode;
+        public event Action EnteredEditModeEvent;
 
         protected override void OnInitialize()
         {
@@ -19,7 +19,7 @@ namespace BeatLeader.Components.Settings
         [UIAction("button-clicked")] private void OpenEditor()
         {
             _layoutEditor?.SetEditModeEnabled(true);
-            OnEnteredEditMode?.Invoke();
+            EnteredEditModeEvent?.Invoke();
         }
     }
 }

@@ -33,10 +33,10 @@ namespace BeatLeader.Components
         protected override void OnInitialize()
         {
             _button = _background.gameObject.AddComponent<NoTransitionsButton>();
-            _button.selectionStateDidChangeEvent += NotifyStateChanged;
+            _button.selectionStateDidChangeEvent += HandleStateChanged;
             _button.onClick.AddListener(Click);
         }
-        private void NotifyStateChanged(NoTransitionsButton.SelectionState state)
+        private void HandleStateChanged(NoTransitionsButton.SelectionState state)
         {
             if (state is NoTransitionsButton.SelectionState.Highlighted)
             {

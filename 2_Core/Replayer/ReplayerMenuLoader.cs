@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
+using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
@@ -146,7 +147,7 @@ namespace BeatLeader.Replayer
         private async Task<bool> StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null)
         {
             var data = new ReplayLaunchData(replay, player, settings);
-            data.OnReplayFinish += NotifyLevelDidFinish;
+            data.replayWasFinishedEvent += OnLevelWasFinished;
 
             Plugin.Log.Notice("[Loader] Download done, replay data:");
             string line = string.Empty;
@@ -157,12 +158,12 @@ namespace BeatLeader.Replayer
             line += $"Environment: {replay.info.environment}";
             Plugin.Log.Info(line);
 
-            return await _launcher.StartReplayAsync(data);
+            return await _launcher.StartReplayAsync(data, x => ScoreSaberInterop.RecordingEnabled = !x);
         }
 
-        private void NotifyLevelDidFinish(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults, ReplayLaunchData launchData)
+        private void OnLevelWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults, ReplayLaunchData launchData)
         {
-            launchData.OnReplayFinish -= NotifyLevelDidFinish;
+            launchData.replayWasFinishedEvent -= OnLevelWasFinished;
             _scenesManager.PopScenes(completionResults.levelEndStateType == 0 ? 0.35f : 1.3f);
 
             if (InputManager.IsInFPFC)
@@ -170,6 +171,7 @@ namespace BeatLeader.Replayer
                 InputManager.EnableCursor(false);
                 _fpfcSettings.Enabled = true;
             }
+            ScoreSaberInterop.RecordingEnabled = true;
         }
 
         #endregion

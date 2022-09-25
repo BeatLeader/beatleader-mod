@@ -78,7 +78,7 @@ namespace BeatLeader.DataManager {
                 role = "",
                 clans = Array.Empty<Clan>(),
                 socials = Array.Empty<ServiceIntegration>(),
-                patreonFeatures = null
+                profileSettings = null
             };
         }
 

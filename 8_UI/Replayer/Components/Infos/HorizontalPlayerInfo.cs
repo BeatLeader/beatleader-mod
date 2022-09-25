@@ -32,7 +32,7 @@ namespace BeatLeader.Components
         }
         protected override void OnInitialize()
         {
-            _playerAvatar.SetAvatar(_player.avatar, FormatUtils.ParsePlayerRoles(_player.role));
+            _playerAvatar.SetPlayer(_player);
             _playerCountryFlag.SetCountry(_player.country);
         }
     }

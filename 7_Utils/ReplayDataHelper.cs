@@ -9,14 +9,6 @@ namespace BeatLeader.Utils
 {
     public static class ReplayDataHelper
     {
-        static ReplayDataHelper()
-        {
-            NormalEnvironmentType = Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
-                .FirstOrDefault(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE");
-            StandardLevelScenesTransitionSetupDataSO = Resources
-                .FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
-        }
-
         private class EditableModifiers : GameplayModifiers
         {
             public new EnergyType energyType
@@ -112,8 +104,11 @@ namespace BeatLeader.Utils
 
         #region Scenes Management
 
-        public static readonly EnvironmentTypeSO NormalEnvironmentType;
-        public static readonly StandardLevelScenesTransitionSetupDataSO StandardLevelScenesTransitionSetupDataSO;
+        public static readonly EnvironmentTypeSO NormalEnvironmentType = Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
+                .FirstOrDefault(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE");
+
+        public static readonly StandardLevelScenesTransitionSetupDataSO StandardLevelScenesTransitionSetupDataSO = Resources
+                .FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
         public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, 
             PlayerDataModel playerModel, IDifficultyBeatmap difficulty, EnvironmentInfoSO environment = null)

@@ -7,6 +7,13 @@ namespace BeatLeader.Replayer.Emulation
 {
     public class NoteControllerEmulator : NoteController
     {
+        static NoteControllerEmulator()
+        {
+            emptyNoteData = NoteData.CreateBasicNoteData(0, 0, 
+                NoteLineLayer.Base, ColorType.ColorA, NoteCutDirection.Any);
+            emptyNoteCutInfo = new();
+        }
+
         public override NoteData noteData => _noteData;
         public NoteCutInfo CutInfo { get; private set; }
 
@@ -18,9 +25,8 @@ namespace BeatLeader.Replayer.Emulation
             CutInfo = Models.NoteCutInfo.Convert(noteEvent?.noteCutInfo ?? emptyNoteCutInfo, _noteData);
         }
 
-        private static readonly NoteData emptyNoteData = NoteData
-            .CreateBasicNoteData(0, 0, NoteLineLayer.Base, ColorType.ColorA, NoteCutDirection.Any);
-        private static readonly Models.NoteCutInfo emptyNoteCutInfo = new();
+        private static readonly NoteData emptyNoteData;
+        private static readonly Models.NoteCutInfo emptyNoteCutInfo;
 
         private static NoteData CreateNoteData(NoteEvent noteEvent)
         {
@@ -44,6 +50,7 @@ namespace BeatLeader.Replayer.Emulation
                 NoteData.ScoringType.BurstSliderElement => NoteData.GameplayType.BurstSliderElement,
                 _ => NoteData.GameplayType.Normal
             };
+            Debug.Log(gameplayType);
 
             return emptyNoteData.CopyWith(
                 time: noteEvent.spawnTime,

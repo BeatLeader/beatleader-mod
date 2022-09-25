@@ -56,7 +56,7 @@ namespace BeatLeader
                 IncFOVHotkey = KeyCode.UpArrow,
                 DecFOVHotkey = KeyCode.DownArrow
             }
-    };
+        };
 
         public static readonly FloatingConfig FloatingConfig = new()
         {

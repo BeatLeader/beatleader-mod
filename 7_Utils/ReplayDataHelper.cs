@@ -128,7 +128,7 @@ namespace BeatLeader.Utils
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(),
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
-                replay.CreatePracticeSettingsFromReplay(), "Menu");
+                replay.GetPracticeSettingsFromReplay(), "Menu");
 
             return data;
         }

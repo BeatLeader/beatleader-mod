@@ -325,6 +325,7 @@
     <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayerScoreProcessor.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Scoring\NoteControllerEmulator.cs" />
     <Compile Include="2_Core\Managers\ModifiersMapManager.cs" />
+    <Compile Include="7_Utils\Interop\BeatSaviorInterop.cs" />
     <Compile Include="7_Utils\Interop\ScoreSaberInterop.cs" />
     <Compile Include="0_Harmony\HarmonySilencer.cs" />
     <Compile Include="7_Utils\UtilityClasses\SliderValuesApplier.cs" />

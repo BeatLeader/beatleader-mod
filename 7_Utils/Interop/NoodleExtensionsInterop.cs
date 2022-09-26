@@ -31,19 +31,7 @@ namespace BeatLeader.Interop
 
             try
             {
-                _neCallbacksControllerType = _neAssembly.GetType("NoodleExtensions.Managers.NoodleObjectsCallbacksManager");
-                var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-
-                _neCallbacksControllerUpdateMethod = _neCallbacksControllerType.GetMethod("ManualUpdate", flags);
-                if (_neCallbacksControllerUpdateMethod == null) return;
-
-                _prevSongTimeField = _neCallbacksControllerType.GetField("_prevSongtime", flags);
-                _callbacksInTimeField = _neCallbacksControllerType.GetField("_callbacksInTime", flags);
-                if (_prevSongTimeField == null || _callbacksInTimeField == null) return;
-
-                _prefixMethod = typeof(NoodleExtensionsInterop).GetMethod(nameof(NoodleCallbacksControllerPrefix),
-                    BindingFlags.NonPublic | BindingFlags.Static);
-
+                ResolveData();
                 _harmony = new Harmony("BeatLeader.Replayer.NEInterop");
                 HarmonyUtils.Patch(_harmony, new HarmonyPatchDescriptor(_neCallbacksControllerUpdateMethod, _prefixMethod));
             }
@@ -51,6 +39,18 @@ namespace BeatLeader.Interop
             {
                 Plugin.Log.Error("Failed to resolve NoodleExtensions data, replays system may work not properly!");
             }
+        }
+        private static void ResolveData()
+        {
+            _neCallbacksControllerType = _neAssembly.GetType("NoodleExtensions.Managers.NoodleObjectsCallbacksManager");
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+            _prevSongTimeField = _neCallbacksControllerType.GetField("_prevSongtime", flags);
+            _callbacksInTimeField = _neCallbacksControllerType.GetField("_callbacksInTime", flags);
+
+            _neCallbacksControllerUpdateMethod = _neCallbacksControllerType.GetMethod("ManualUpdate", flags);
+            _prefixMethod = typeof(NoodleExtensionsInterop).GetMethod(nameof(NoodleCallbacksControllerPrefix),
+                BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         private static void NoodleCallbacksControllerPrefix(object __instance)

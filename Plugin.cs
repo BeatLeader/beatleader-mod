@@ -65,6 +65,7 @@ namespace BeatLeader {
             Cam2Interop.Init();
             NoodleExtensionsInterop.Init();
             ScoreSaberInterop.Init();
+            BeatSaviorInterop.Init();
         }
 
         private static void ObserveEnabled() {

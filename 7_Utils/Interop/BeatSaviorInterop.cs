@@ -22,7 +22,7 @@ namespace BeatLeader.Interop
             get => (bool)_getBoolMethod?.Invoke(_configInstance, 
                 new object[] { "BeatSaviorData", submissionParameterName, false, true });
             set => _setBoolMethod?.Invoke(_configInstance, 
-                new object[] { "BeatSaviorData", submissionParameterName, value });
+                new object[] { "BeatSaviorData", submissionParameterName, !value });
         }
 
         public static void Init()

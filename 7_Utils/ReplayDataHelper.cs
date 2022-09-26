@@ -110,7 +110,7 @@ namespace BeatLeader.Utils
         public static readonly StandardLevelScenesTransitionSetupDataSO StandardLevelScenesTransitionSetupDataSO = Resources
                 .FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
-        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay, 
+        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay,
             PlayerDataModel playerModel, IDifficultyBeatmap difficulty, EnvironmentInfoSO environment = null)
         {
             var data = StandardLevelScenesTransitionSetupDataSO;
@@ -252,7 +252,7 @@ namespace BeatLeader.Utils
         }
         public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
         {
-            return GetNoteEventById(replay, noteData.ComputeNoteID(), noteData.time);
+            return GetNoteEventById(replay, noteData.ComputeNoteId(), noteData.time);
         }
         public static NoteEvent GetNoteEvent(this NoteController noteController, Replay replay)
         {
@@ -260,11 +260,11 @@ namespace BeatLeader.Utils
         }
         public static (int, NoteEvent) GetNoteEventInOrder(this NoteController noteController, Replay replay)
         {
-            return GetNoteEventByIdInOrder(replay, noteController.noteData.ComputeNoteID(), noteController.noteData.time);
+            return GetNoteEventByIdInOrder(replay, noteController.noteData.ComputeNoteId(), noteController.noteData.time);
         }
         public static WallEvent GetWallEvent(this ObstacleData obstacleData, Replay replay)
         {
-            return GetWallEventById(replay, obstacleData.ComputeObstacleID(), obstacleData.time);
+            return GetWallEventById(replay, obstacleData.ComputeObstacleId(), obstacleData.time);
         }
         public static NoteEvent GetNoteEventById(this Replay replay, int ID, float time)
         {
@@ -322,9 +322,8 @@ namespace BeatLeader.Utils
         #endregion
 
         #region Computing
-        
-        public static void DecodeNoteId(
-            int noteId,
+
+        public static void DecodeNoteId(int noteId,
             out NoteData.ScoringType scoringType,
             out int lineIndex,
             out NoteLineLayer noteLineLayer,
@@ -338,21 +337,23 @@ namespace BeatLeader.Utils
             noteLineLayer = (NoteLineLayer)(noteId % 10);
             noteId /= 10;
             lineIndex = noteId % 10;
-            noteId = (noteId / 10) - 2;
-            scoringType = (NoteData.ScoringType)(noteId < -1 ? 0 : noteId);
+            noteId /= 10;
+            scoringType = (NoteData.ScoringType)((noteId -= 2) < -1 ? noteId + 3 : noteId);
         }
-        public static int ComputeObstacleID(this ObstacleData obstacleData)
+        public static int ComputeObstacleId(this ObstacleData obstacleData)
         {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
         }
-        public static int ComputeNoteID(this NoteData noteData)
+        public static int ComputeNoteId(this NoteData noteData)
         {
-            return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex * 1000 +
-                   (int)noteData.noteLineLayer * 100 + (int)noteData.colorType * 10 + (int)noteData.cutDirection;
+            return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex
+                * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType
+                * 10 + (int)noteData.cutDirection;
         }
         public static int ComputeNoteScore(this NoteEvent note)
         {
             if (note.eventType != NoteEventType.good)
+            {
                 return note.eventType switch
                 {
                     NoteEventType.bad => -2,
@@ -360,12 +361,16 @@ namespace BeatLeader.Utils
                     NoteEventType.bomb => -4,
                     _ => -1
                 };
+            }
 
-            var cut = note.noteCutInfo;
-            double beforeCutRawScore = Mathf.Clamp((float)Math.Round(70 * cut.beforeCutRating), 0, 70);
-            double afterCutRawScore = Mathf.Clamp((float)Math.Round(30 * cut.afterCutRating), 0, 30);
-            double num = 1 - Mathf.Clamp(cut.cutDistanceToCenter / 0.3f, 0.0f, 1.0f);
+            var noteCutInfo = note.noteCutInfo;
+
+            double beforeCutRawScore = Mathf.Clamp((float)Math.Round(70 * noteCutInfo.beforeCutRating), 0, 70);
+            double afterCutRawScore = Mathf.Clamp((float)Math.Round(30 * noteCutInfo.afterCutRating), 0, 30);
+
+            double num = 1 - Mathf.Clamp(noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f);
             double cutDistanceRawScore = Math.Round(15 * num);
+
             return (int)beforeCutRawScore + (int)afterCutRawScore + (int)cutDistanceRawScore;
         }
         public static float ComputeEnergyChange(this NoteData.GameplayType type, bool allIsOK, bool miss)
@@ -385,14 +390,12 @@ namespace BeatLeader.Utils
         }
         public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData.ScoringType scoringType)
         {
-            switch (scoringType)
+            return scoringType switch
             {
-                default:
-                    return ScoreMultiplierCounter.MultiplierEventType.Positive;
-                case NoteData.ScoringType.Ignore:
-                case NoteData.ScoringType.NoScore:
-                    return ScoreMultiplierCounter.MultiplierEventType.Neutral;
-            }
+                NoteData.ScoringType.Ignore => ScoreMultiplierCounter.MultiplierEventType.Neutral,
+                NoteData.ScoringType.NoScore => ScoreMultiplierCounter.MultiplierEventType.Neutral,
+                _ => ScoreMultiplierCounter.MultiplierEventType.Positive,
+            };
         }
         public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData noteData)
         {

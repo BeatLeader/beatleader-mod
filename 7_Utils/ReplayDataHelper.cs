@@ -338,8 +338,8 @@ namespace BeatLeader.Utils
             noteLineLayer = (NoteLineLayer)(noteId % 10);
             noteId /= 10;
             lineIndex = noteId % 10;
-            noteId /= 10;
-            scoringType = (NoteData.ScoringType)(noteId - 2);
+            noteId = (noteId / 10) - 2;
+            scoringType = (NoteData.ScoringType)(noteId < -1 ? 0 : noteId);
         }
         public static int ComputeObstacleID(this ObstacleData obstacleData)
         {

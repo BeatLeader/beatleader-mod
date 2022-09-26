@@ -10,7 +10,7 @@ namespace BeatLeader.Interop
 {
     internal static class Cam2Interop
     {
-        public static bool Detected { get; private set; } = false;
+        public static bool DetectedAndValid { get; private set; } = false;
 
         private static Assembly _pluginAssembly;
         private static Type _genericSourceType;
@@ -22,18 +22,25 @@ namespace BeatLeader.Interop
 
         private static Timer _updater;
         private static Transform _headTranform;
-        private static bool _isPlaying;
 
         public static void Init()
         {
             _pluginAssembly = PluginManager.GetPluginFromId("Camera2")?.Assembly;
             if (_pluginAssembly == null) return;
-            Detected = true;
 
-            ResolveData();
-            _genericSourceInstance = CreateGenericSourceInstance("BeatLeaderReplayer");
-            RegisterSource(_genericSourceInstance);
+            try
+            {
+                ResolveData();
+                _genericSourceInstance = CreateGenericSourceInstance("BeatLeaderReplayer");
+                RegisterSource(_genericSourceInstance);
+            }
+            catch
+            {
+                Plugin.Log.Error("Failed to resolve Camera2 data, replays system may conflict with Camera2!");
+                return;
+            }
 
+            DetectedAndValid = true;
             _updater = new Timer(1);
             _updater.Elapsed += OnRepeaterUpdated;
 
@@ -46,7 +53,8 @@ namespace BeatLeader.Interop
         }
         public static void SetReplayState(bool state)
         {
-            _isPlaying = state;
+            if (_setActiveMethod == null) return;
+
             _setActiveMethod.Invoke(_genericSourceInstance, new object[] { state });
             _updater.Enabled = state;
         }
@@ -57,8 +65,11 @@ namespace BeatLeader.Interop
         }
         private static void UpdateGenericSource()
         {
-            var pos = _headTranform != null ? _headTranform.localPosition : Vector3.zero;
-            var rot = _headTranform != null ? _headTranform.localRotation : Quaternion.identity;
+            if (DetectedAndValid && _headTranform == null) return;
+
+            var pos = _headTranform.localPosition;
+            var rot = _headTranform.localRotation;
+
             ref var posRef = ref pos;
             ref var rotRef = ref rot;
 
@@ -69,7 +80,7 @@ namespace BeatLeader.Interop
         }
         private static void RegisterSource(object source)
         {
-            _registerMethod.Invoke(null, new object[] { source });
+            _registerMethod?.Invoke(null, new object[] { source });
         }
         private static void ResolveData()
         {

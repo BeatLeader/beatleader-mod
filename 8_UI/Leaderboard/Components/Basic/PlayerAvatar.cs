@@ -1,4 +1,5 @@
 using BeatLeader.Models;
+using BeatLeader.Themes;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
@@ -13,23 +14,31 @@ namespace BeatLeader.Components {
         private static readonly int FadeValuePropertyId = Shader.PropertyToID("_FadeValue");
         private static readonly int HueShiftPropertyId = Shader.PropertyToID("_HueShift");
         private static readonly int SaturationPropertyId = Shader.PropertyToID("_Saturation");
+        private static readonly int ScalePropertyId = Shader.PropertyToID("_Scale");
 
         private Texture _texture;
         private float _fadeValue;
         private float _hueShift;
         private float _saturation;
 
+        private Material _baseMaterial;
         private Material _materialInstance;
         private bool _materialSet;
 
         private void SelectMaterial(Player player) {
-            GetPlayerSpecificSettings(player, out var baseMaterial, out _hueShift, out _saturation);
-            if (!_materialSet || _materialInstance.shader != baseMaterial.shader) {
+            ThemesUtils.GetAvatarParams(player, _useSmallMaterialVersion, out var baseMaterial, out _hueShift, out _saturation);
+
+            if (!_materialSet || baseMaterial != _baseMaterial) {
+                _baseMaterial = baseMaterial;
+                
                 if (_materialSet) Destroy(_materialInstance);
                 _materialInstance = Instantiate(baseMaterial);
                 _image.material = _materialInstance;
                 _materialSet = true;
+                var scale = _materialInstance.GetFloat(ScalePropertyId);
+                _image.transform.localScale = new Vector3(scale, scale, scale);
             }
+
             UpdateMaterialProperties();
         }
 
@@ -41,59 +50,27 @@ namespace BeatLeader.Components {
             _materialInstance.SetFloat(SaturationPropertyId, _saturation);
         }
 
-        private static void GetPlayerSpecificSettings(Player player, out Material baseMaterial, out float hueShift, out float saturation) {
-            if (player.profileSettings == null) {
-                hueShift = 0.0f;
-                saturation = 1.0f;
-                baseMaterial = BundleLoader.DefaultAvatarMaterial;
-                return;
-            }
-            
-            hueShift = (player.profileSettings.hue / 360.0f) * (Mathf.PI * 2);
-            saturation = player.profileSettings.saturation;
-            baseMaterial = player.profileSettings.effectName switch {
-                "TheSun_Tier1" => BundleLoader.TheSunTier1Material,
-                "TheSun_Tier2" => BundleLoader.TheSunTier2Material,
-                "TheSun_Tier3" => BundleLoader.TheSunTier3Material,
-
-                "TheMoon_Tier1" => BundleLoader.TheMoonTier1Material,
-                "TheMoon_Tier2" => BundleLoader.TheMoonTier2Material,
-                "TheMoon_Tier3" => BundleLoader.TheMoonTier3Material,
-
-                "TheStar_Tier1" => BundleLoader.TheStarTier1Material,
-                "TheStar_Tier2" => BundleLoader.TheStarTier2Material,
-                "TheStar_Tier3" => BundleLoader.TheStarTier3Material,
-
-                "Sparks_Tier1" => BundleLoader.SparksTier1Material,
-                "Sparks_Tier2" => BundleLoader.SparksTier2Material,
-                "Sparks_Tier3" => BundleLoader.SparksTier3Material,
-
-                "Special_Tier1" => BundleLoader.SpecialTier1Material,
-                "Special_Tier2" => BundleLoader.SpecialTier2Material,
-                "Special_Tier3" => BundleLoader.SpecialTier3Material,
-
-                _ => BundleLoader.DefaultAvatarMaterial
-            };
-        }
-
         #endregion
 
-        #region BufferTexture
+        #region Initialize / Dispose / Setup
 
         private const int Width = 200;
         private const int Height = 200;
-        private const float Scale = 1.5f;
 
         private RenderTexture _bufferTexture;
+        private bool _useSmallMaterialVersion;
 
         protected override void OnInitialize() {
             _bufferTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.Default, 10);
             _bufferTexture.Create();
-            _image.transform.localScale = new Vector3(Scale, Scale, Scale);
         }
 
         protected override void OnDispose() {
             _bufferTexture.Release();
+        }
+
+        public void Setup(bool useSmallMaterialVersion) {
+            _useSmallMaterialVersion = useSmallMaterialVersion;
         }
 
         #endregion

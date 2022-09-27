@@ -13,14 +13,15 @@ namespace BeatLeader.Components {
 
         private void Awake() {
             _playerAvatar = Instantiate<PlayerAvatar>(transform);
+            _playerAvatar.Setup(true);
         }
 
         #endregion
 
         #region Implementation
 
-        public void SetValues(string url, PlayerRole[] playerRoles) {
-            _playerAvatar.SetAvatar(url, playerRoles);
+        public void SetPlayer(Player player) {
+            _playerAvatar.SetPlayer(player);
             isEmpty = false;
         }
 

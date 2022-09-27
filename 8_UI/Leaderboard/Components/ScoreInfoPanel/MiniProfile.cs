@@ -51,9 +51,9 @@ namespace BeatLeader.Components {
             var player = HiddenPlayersCache.ModifyPlayer(_player);
             
             _miniProfileButtons.SetPlayer(player);
-            _playerAvatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
+            _playerAvatar.SetPlayer(player);
             _countryFlag.SetCountry(player.country);
-            SetMessage(player.patreonFeatures?.message ?? "");
+            SetMessage(player.profileSettings?.message ?? "");
 
             PlayerName = FormatUtils.FormatUserName(player.name);
             PlayerGlobalRank = FormatUtils.FormatRank(player.rank, true);

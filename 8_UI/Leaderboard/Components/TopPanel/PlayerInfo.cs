@@ -77,7 +77,7 @@ namespace BeatLeader.Components {
 
         private void OnProfileUpdated(Player player) {
             _countryFlag.SetCountry(player.country);
-            _avatar.SetAvatar(player.avatar, FormatUtils.ParsePlayerRoles(player.role));
+            _avatar.SetPlayer(player);
             NameText = FormatUtils.FormatUserName(player.name);
             GlobalRankText = FormatUtils.FormatRank(player.rank, true);
             CountryRankText = FormatUtils.FormatRank(player.countryRank, true);

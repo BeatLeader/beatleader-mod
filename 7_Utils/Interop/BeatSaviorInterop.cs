@@ -19,7 +19,7 @@ namespace BeatLeader.Interop
 
         public static bool EnableScoreSubmission
         {
-            get => (bool)_getBoolMethod?.Invoke(_configInstance, 
+            get => !(bool)_getBoolMethod?.Invoke(_configInstance, 
                 new object[] { "BeatSaviorData", submissionParameterName, false, true });
             set => _setBoolMethod?.Invoke(_configInstance, 
                 new object[] { "BeatSaviorData", submissionParameterName, !value });

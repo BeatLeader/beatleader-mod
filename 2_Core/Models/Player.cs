@@ -16,7 +16,7 @@
         public string role;
         public Clan[] clans;
         public ServiceIntegration[] socials;
-        public PatreonFeatures patreonFeatures;
+        public ProfileSettings profileSettings;
     }
 
     public class Clan {
@@ -24,8 +24,11 @@
         public string color;
     }
 
-    public class PatreonFeatures {
+    public class ProfileSettings {
         public string message;
+        public string effectName;
+        public int hue;
+        public float saturation;
     }
 
     public class ServiceIntegration {

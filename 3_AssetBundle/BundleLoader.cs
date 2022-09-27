@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Themes;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -35,10 +36,12 @@ namespace BeatLeader {
 
         public static GameObject MonkeyPrefab;
         public static GameObject AccuracyGraphPrefab;
+        public static ThemesCollection ThemesCollection;
 
         private static void LoadPrefabs(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
             AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
+            ThemesCollection = assetBundle.LoadAsset<ThemesCollection>("ThemesCollection");
         }
 
         #endregion
@@ -46,7 +49,7 @@ namespace BeatLeader {
         #region Materials
 
         public static Material LogoMaterial;
-        public static Material PlayerAvatarMaterial;
+        public static Material DefaultAvatarMaterial;
         public static Material UIAdditiveGlowMaterial;
         public static Material ScoreBackgroundMaterial;
         public static Material ScoreUnderlineMaterial;
@@ -61,7 +64,7 @@ namespace BeatLeader {
         private static void LoadMaterials(AssetBundle assetBundle)
         {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
-            PlayerAvatarMaterial = assetBundle.LoadAsset<Material>("PlayerAvatarMaterial");
+            DefaultAvatarMaterial = assetBundle.LoadAsset<Material>("DefaultAvatar");
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
             ScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("ScoreBackgroundMaterial");
             ScoreUnderlineMaterial = assetBundle.LoadAsset<Material>("ScoreUnderlineMaterial");

@@ -180,7 +180,7 @@ namespace BeatLeader.Replayer
             }
 
             ScoreSaberInterop.RecordingEnabled = true;
-            BeatSaviorInterop.EnableScoreSubmission = true;
+            BeatSaviorInterop.MarkScoreSubmissionToEnable();
         }
 
         #endregion

@@ -32,7 +32,8 @@ namespace BeatLeader.Interop
             try
             {
                 ResolveData();
-                _harmony = new Harmony("BeatLeader.Replayer.NEInterop");
+
+                _harmony = new Harmony("BeatLeader.Interop.NoodleExtensions");
                 HarmonyUtils.Patch(_harmony, new HarmonyPatchDescriptor(_neCallbacksControllerUpdateMethod, _prefixMethod));
             }
             catch

@@ -20,8 +20,8 @@ namespace BeatLeader.Replayer
         public static ReplayLaunchData LaunchData { get; private set; }
         public static bool IsStartedAsReplay { get; private set; }
 
-        public static event Action<ReplayLaunchData> ReplayDidStartedEvent;
-        public static event Action<ReplayLaunchData> ReplayDidFinishedEvent;
+        public static event Action<ReplayLaunchData> ReplayWasStartedEvent;
+        public static event Action<ReplayLaunchData> ReplayWasFinishedEvent;
 
         public async Task<bool> StartReplayAsync(ReplayLaunchData data, Action<bool> callback = null)
         {
@@ -52,7 +52,7 @@ namespace BeatLeader.Replayer
 
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
             callback?.Invoke(true);
-            ReplayDidStartedEvent?.Invoke(data);
+            ReplayWasStartedEvent?.Invoke(data);
             Plugin.Log.Notice("[Launcher] Starting replay...");
 
             return true;
@@ -129,7 +129,7 @@ namespace BeatLeader.Replayer
         {
             transitionData.didFinishEvent -= ResetData;
             LaunchData.NotifyReplayDidFinish(transitionData, completionResults);
-            ReplayDidFinishedEvent?.Invoke(LaunchData);
+            ReplayWasFinishedEvent?.Invoke(LaunchData);
             LaunchData = null;
             IsStartedAsReplay = false;
 

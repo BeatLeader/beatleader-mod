@@ -44,8 +44,8 @@ namespace BeatLeader.Interop
             _updater = new Timer(1);
             _updater.Elapsed += OnRepeaterUpdated;
 
-            ReplayerLauncher.ReplayDidStartedEvent += OnReplayStarted;
-            ReplayerLauncher.ReplayDidFinishedEvent += OnReplayFinished;
+            ReplayerLauncher.ReplayWasStartedEvent += OnReplayStarted;
+            ReplayerLauncher.ReplayWasFinishedEvent += OnReplayFinished;
         }
         public static void SetHeadTransform(Transform transform)
         {

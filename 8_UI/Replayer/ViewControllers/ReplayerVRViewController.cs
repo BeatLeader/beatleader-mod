@@ -7,6 +7,7 @@ using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Replayer.Camera;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.ViewControllers
 {
@@ -14,7 +15,9 @@ namespace BeatLeader.ViewControllers
     internal class ReplayerVRViewController : MonoBehaviour
     {
         [Inject] private readonly VRControllersProvider _vrControllersManager;
+        [Inject] private readonly PlaybackController _playbackController;
         [Inject] private readonly ReplayerCameraController _cameraController;
+        [Inject] private readonly Models.ReplayLaunchData _launchData;
         [Inject] private readonly DiContainer _container;
 
         [UIValue("toolbar")] private Toolbar _toolbar;
@@ -39,9 +42,8 @@ namespace BeatLeader.ViewControllers
             _floating.HighlightHandle = true;
             _floating.handle.transform.localPosition = new Vector3(11, -23.5f, 0);
             _floating.handle.transform.localScale = new Vector3(20, 3.67f, 3.67f);
-
-            _floatingControls.Floating = _floating;
-            _floatingControls.Head = _cameraController.Camera.transform;
+            _floatingControls.Setup(_floating, _playbackController,
+                _cameraController.Camera.transform, !_launchData.actualSettings.ShowUI);
 
             _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();

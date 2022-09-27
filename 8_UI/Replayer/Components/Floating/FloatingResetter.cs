@@ -29,7 +29,7 @@ namespace BeatLeader.Components
             this.ParseInObjectHierarchy();
             _animator = _image.gameObject.AddComponent<ResetUIAnimator>();
             _animator.image = _image.Image;
-            _animator.OnRevealFinished += NotifyRevealFinished;
+            _animator.RevealWasFinishedEvent += HandleRevealFinished;
         }
         private void Update()
         {
@@ -55,7 +55,8 @@ namespace BeatLeader.Components
                 }
             }
         }
-        private void NotifyRevealFinished(bool result)
+
+        private void HandleRevealFinished(bool result)
         {
             if (!result) return;
 

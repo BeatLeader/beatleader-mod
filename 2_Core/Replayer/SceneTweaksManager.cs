@@ -7,10 +7,12 @@ using BeatLeader.Utils;
 using IPA.Utilities;
 using BeatLeader.Replayer.Camera;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace BeatLeader.Replayer
 {
-    public class SceneTweaksManager : IInitializable, IDisposable
+    public class SceneTweaksManager : MonoBehaviour
     {
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly ReplayerCameraController _cameraController;
@@ -27,24 +29,32 @@ namespace BeatLeader.Replayer
         public EventSystem CustomEventSystem { get; private set; }
         public EventSystem BaseEventSystem { get; private set; }
 
-        public void Initialize()
+        private void Start()
         {
-            DisableUselessStuff();
-            UnsubscribeEvents();
-            PatchInputSystem();
-            if (!InputManager.IsInFPFC) PatchSmoothCamera();
+            try
+            {
+                DisableUselessStuff();
+                UnsubscribeEvents();
+                PatchInputSystem();
+                if (!InputManager.IsInFPFC) PatchSmoothCamera();
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Error("Failed to patch some gameplay stuff, replays system may work not properly!" + "\r\n" + ex);
+            }
 
             RaycastBlocker.EnableBlocker = true;
         }
-        public void Dispose()
+        private void OnDestroy()
         {
+            _multisilencer.Dispose();
+
             RaycastBlocker.EnableBlocker = false;
             RaycastBlocker.ReleaseMemory();
         }
 
         private void DisableUselessStuff()
         {
-            Resources.FindObjectsOfTypeAll<CuttingManager>().First().enabled = false;
             Resources.FindObjectsOfTypeAll<VRLaserPointer>().FirstOrDefault()?.gameObject.SetActive(!InputManager.IsInFPFC);
             Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().FirstOrDefault()?.gameObject.SetActive(!InputManager.IsInFPFC);
 
@@ -92,5 +102,23 @@ namespace BeatLeader.Replayer
             smoothCamera.SetField("_mainCamera", fakeCam);
             smoothCamera.gameObject.SetActive(true);
         }
+
+        #region Harmony
+
+        private static readonly IReadOnlyList<MethodInfo> silencedMethods = new[]
+        {
+            typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.ShowMenu), ReflectionUtils.DefaultFlags),
+            typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.Update), ReflectionUtils.DefaultFlags),
+            typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.StartResumeAnimation), ReflectionUtils.DefaultFlags),
+            typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.RestartButtonPressed), ReflectionUtils.DefaultFlags),
+            typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.ContinueButtonPressed), ReflectionUtils.DefaultFlags),
+
+            typeof(StandardLevelGameplayManager).GetMethod(nameof(StandardLevelGameplayManager.Update), ReflectionUtils.DefaultFlags),
+            typeof(CuttingManager).GetMethod(nameof(CuttingManager.HandleSaberManagerDidUpdateSaberPositions), ReflectionUtils.DefaultFlags),
+        };
+        
+        private HarmonyMultisilencer _multisilencer = new(silencedMethods);
+
+        #endregion 
     }
 }

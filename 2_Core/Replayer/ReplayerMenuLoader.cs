@@ -5,6 +5,7 @@ using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
+using SiraUtil.Submissions;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
@@ -147,7 +148,7 @@ namespace BeatLeader.Replayer
         private async Task<bool> StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null)
         {
             var data = new ReplayLaunchData(replay, player, settings);
-            data.replayWasFinishedEvent += OnLevelWasFinished;
+            data.replayWasFinishedEvent += HandleReplayWasFinished;
 
             Plugin.Log.Notice("[Loader] Download done, replay data:");
             string line = string.Empty;
@@ -158,12 +159,18 @@ namespace BeatLeader.Replayer
             line += $"Environment: {replay.info.environment}";
             Plugin.Log.Info(line);
 
-            return await _launcher.StartReplayAsync(data, x => ScoreSaberInterop.RecordingEnabled = !x);
+            return await _launcher.StartReplayAsync(data, result =>
+            {
+                if (!result) return;
+
+                ScoreSaberInterop.RecordingEnabled = false;
+                BeatSaviorInterop.EnableScoreSubmission = false;
+            });
         }
 
-        private void OnLevelWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults, ReplayLaunchData launchData)
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults, ReplayLaunchData launchData)
         {
-            launchData.replayWasFinishedEvent -= OnLevelWasFinished;
+            launchData.replayWasFinishedEvent -= HandleReplayWasFinished;
             _scenesManager.PopScenes(completionResults.levelEndStateType == 0 ? 0.35f : 1.3f);
 
             if (InputManager.IsInFPFC)
@@ -171,7 +178,9 @@ namespace BeatLeader.Replayer
                 InputManager.EnableCursor(false);
                 _fpfcSettings.Enabled = true;
             }
+
             ScoreSaberInterop.RecordingEnabled = true;
+            BeatSaviorInterop.MarkScoreSubmissionToEnable();
         }
 
         #endregion

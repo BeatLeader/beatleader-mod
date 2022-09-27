@@ -30,7 +30,7 @@ namespace BeatLeader.Components.Settings
             var settings = _replayData.actualSettings;
             bool useReplayerCam = settings.ForceUseReplayerCamera;
 
-            bool setupAsCam2 = Cam2Interop.Detected && InputManager.IsInFPFC && !useReplayerCam;
+            bool setupAsCam2 = Cam2Interop.DetectedAndValid && InputManager.IsInFPFC && !useReplayerCam;
             string text = setupAsCam2 ? "Camera <color=\"red\">(Cam2 detected)" : "Camera";
             _cameraMenuButton = CreateButtonForMenu(this, InstantiateInContainer<CameraMenu>(Container), text);
 

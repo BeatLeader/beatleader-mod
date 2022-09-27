@@ -10,6 +10,7 @@ namespace BeatLeader.Interop
     internal static class ScoreSaberInterop
     {
         private static Assembly _assembly;
+        private static List<MethodInfo> _installersMethods;
         private static HarmonyMultisilencer _installatorsSilencer;
 
         public static bool RecordingEnabled
@@ -29,25 +30,28 @@ namespace BeatLeader.Interop
 
             try
             {
-                var types = _assembly.GetTypes();
-                var methods = new List<MethodInfo>();
-
-                foreach (var item in types)
-                {
-                    if (item.IsSubclassOf(typeof(Installer)))
-                    {
-                        var method = item.GetMethod(nameof(
-                            Installer.InstallBindings), ReflectionUtils.DefaultFlags);
-                        methods.Add(method);
-                    }
-                }
-
-                Plugin.Log.Info($"Found {methods.Count} ScoreSaber installators");
-                _installatorsSilencer = new(methods, false);
+                ResolveData();
+                _installatorsSilencer = new(_installersMethods, false);
+                Plugin.Log.Info($"Successfully patched {_installersMethods.Count} ScoreSaber installators!");
             }
             catch
             {
                 Plugin.Log.Error("Failed to resolve ScoreSaber data, replays system may conflict with ScoreSaber!");
+            }
+        }
+        private static void ResolveData()
+        {
+            var types = _assembly.GetTypes();
+            _installersMethods = new List<MethodInfo>();
+
+            foreach (var item in types)
+            {
+                if (item.IsSubclassOf(typeof(Installer)))
+                {
+                    var method = item.GetMethod(nameof(
+                        Installer.InstallBindings), ReflectionUtils.DefaultFlags);
+                    _installersMethods.Add(method);
+                }
             }
         }
     }

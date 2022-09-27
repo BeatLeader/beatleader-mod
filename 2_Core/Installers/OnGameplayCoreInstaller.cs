@@ -14,7 +14,6 @@ using BeatLeader.Components;
 using BeatLeader.ViewControllers;
 using SiraUtil.Tools.FPFC;
 using System;
-using System.ComponentModel;
 
 namespace BeatLeader.Installers
 {
@@ -69,7 +68,7 @@ namespace BeatLeader.Installers
 
         #region Replayer
 
-        private static readonly ReplayerCameraController.InitData CameraInitData = new ReplayerCameraController.InitData(
+        private static readonly ReplayerCameraController.InitData cameraInitData = new ReplayerCameraController.InitData(
 
            new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.FPFC),
            new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.VR),
@@ -101,7 +100,7 @@ namespace BeatLeader.Installers
             Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(CameraInitData).AsSingle().Lazy();
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle().Lazy();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<SceneTweaksManager>().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
@@ -117,11 +116,6 @@ namespace BeatLeader.Installers
             else Container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Plugin.Log.Notice("[Installer] Replay system successfully installed!");
-        }
-        private void DisableScoreSubmission()
-        {
-            var submission = Container.Resolve<Submission>();
-            submission.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
         }
         private void PatchSiraFreeView()
         {
@@ -143,6 +137,24 @@ namespace BeatLeader.Installers
             {
                 Plugin.Log.Critical($"An unhandled exception occurred during attemping to remove Sira's FPFC system! {ex}");
             }
+        }
+
+        #endregion
+
+        #region Submission
+
+        private static Ticket _submissionTicket;
+
+        private void DisableScoreSubmission()
+        {
+            _submissionTicket = Container.Resolve<Submission>()?.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
+            ReplayerLauncher.LaunchData.replayWasFinishedEvent += HandleReplayWasFinished;
+        }
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data,
+            LevelCompletionResults results, Models.ReplayLaunchData launchData)
+        {
+            if (_submissionTicket != null)
+                Container.Resolve<Submission>()?.Remove(_submissionTicket);
         }
 
         #endregion

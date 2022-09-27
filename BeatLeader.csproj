@@ -325,6 +325,7 @@
     <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayerScoreProcessor.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Scoring\NoteControllerEmulator.cs" />
     <Compile Include="2_Core\Managers\ModifiersMapManager.cs" />
+    <Compile Include="7_Utils\Interop\BeatSaviorInterop.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeMaterials.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemesCollection.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemesUtils.cs" />

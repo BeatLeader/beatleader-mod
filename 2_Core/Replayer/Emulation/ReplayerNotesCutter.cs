@@ -42,7 +42,7 @@ namespace BeatLeader.Replayer.Emulation
 
         #region NotesHash
 
-        private readonly Dictionary<NoteController, int> _spawnedNotes = new(10);
+        private readonly HashSet<NoteController> _spawnedNotes = new();
 
         protected void HandleNoteCutRequested(NoteEvent noteEvent)
         {
@@ -57,11 +57,10 @@ namespace BeatLeader.Replayer.Emulation
         }
         private void HandleNoteWasSpawned(NoteController noteController)
         {
-            _spawnedNotes[noteController] = noteController.noteData.ComputeNoteID();
+            _spawnedNotes.Add(noteController);
         }
         private void HandleNoteWasDespawned(NoteController noteController)
         {
-            if (!_spawnedNotes.ContainsKey(noteController)) return;
             _spawnedNotes.Remove(noteController);
         }
         protected NoteController FindSpawnedNoteOrNull(NoteEvent replayNote, float timeMargin = 0.2f)
@@ -69,14 +68,20 @@ namespace BeatLeader.Replayer.Emulation
             var minTimeDifference = float.MaxValue;
             NoteController noteController = null;
 
-            foreach (var pair in _spawnedNotes)
+            foreach (var item in _spawnedNotes)
             {
-                if (replayNote.noteID != pair.Value) continue;
-                var timeDifference = Mathf.Abs(replayNote.spawnTime - pair.Key.noteData.time);
+                var noteId = item.noteData.ComputeNoteId();
+
+                if (replayNote.noteID != noteId
+                    && replayNote.noteID != noteId - 30000) continue;
+
+                var timeDifference = Mathf.Abs(replayNote.spawnTime - item.noteData.time);
                 if (timeDifference > minTimeDifference) continue;
+
                 minTimeDifference = timeDifference;
                 if (minTimeDifference > timeMargin) continue;
-                noteController = pair.Key;
+
+                noteController = item;
             }
 
             return noteController;

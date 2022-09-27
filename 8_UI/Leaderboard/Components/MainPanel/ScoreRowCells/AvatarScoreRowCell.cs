@@ -13,6 +13,7 @@ namespace BeatLeader.Components {
 
         private void Awake() {
             _playerAvatar = Instantiate<PlayerAvatar>(transform);
+            _playerAvatar.Setup(true);
         }
 
         #endregion

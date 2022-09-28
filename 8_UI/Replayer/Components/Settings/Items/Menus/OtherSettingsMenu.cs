@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Replayer.Movement;
 using BeatSaberMarkupLanguage.Attributes;
+using UnityEngine;
 using UnityEngine.XR;
 using Zenject;
 
@@ -44,9 +45,12 @@ namespace BeatLeader.Components.Settings
             get => _replayWatermark.Enabled;
             set => _replayWatermark.Enabled = value;
         }
-        [UIValue("watermark-can-be-disabled")] private bool _WatermarkCanBeDisabled
+
+        [UIObject("watermark-toggle")] private GameObject _watermarkToggle;
+
+        protected override void OnAfterParse()
         {
-            get => _replayWatermark.CanBeDisabled;
+            _watermarkToggle.SetActive(_replayWatermark.CanBeDisabled);
         }
     }
 }

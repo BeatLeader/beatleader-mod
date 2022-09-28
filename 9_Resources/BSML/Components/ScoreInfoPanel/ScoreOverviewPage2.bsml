@@ -1,0 +1,18 @@
+<horizontal active="~active" pref-height="30">
+    <vertical min-width="40" pad="2" vertical-fit="PreferredSize">
+        <horizontal pref-height="10">
+            <text id="platform-text" word-wrapping="false" align="Center"/>
+        </horizontal>
+        <horizontal pref-height="7">
+            <text id="details-text" word-wrapping="false" align="Center"/>
+        </horizontal>
+        <horizontal pad-top="1" pref-height="4.5">
+            <text text="&lt;u&gt;Average HMD position" font-size="3" font-color="#888888" word-wrapping="false" align="Center"/>
+        </horizontal>
+        <horizontal spacing="2" pref-height="5">
+            <text id="x-text-component" word-wrapping="false" align="Center"/>
+            <text id="y-text-component" word-wrapping="false" align="Center"/>
+            <text id="z-text-component" word-wrapping="false" align="Center"/>
+        </horizontal>
+    </vertical>
+</horizontal>

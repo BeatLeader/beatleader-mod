@@ -100,7 +100,10 @@ namespace BeatLeader {
         public static Sprite ModifiersIcon;
 
         [UsedImplicitly]
-        public static Sprite OverviewIcon;
+        public static Sprite Overview1Icon;
+
+        [UsedImplicitly]
+        public static Sprite Overview2Icon;
 
         [UsedImplicitly]
         public static Sprite DetailsIcon;
@@ -174,7 +177,8 @@ namespace BeatLeader {
             TransparentPixel = assetBundle.LoadAsset<Sprite>("TransparentPixel");
             FileError = assetBundle.LoadAsset<Sprite>("FileError");
             ModifiersIcon = assetBundle.LoadAsset<Sprite>("ModifiersIcon");
-            OverviewIcon = assetBundle.LoadAsset<Sprite>("BL_OverviewIcon");
+            Overview1Icon = assetBundle.LoadAsset<Sprite>("BL_Overview1Icon");
+            Overview2Icon = assetBundle.LoadAsset<Sprite>("BL_Overview2Icon");
             DetailsIcon = assetBundle.LoadAsset<Sprite>("BL_DetailsIcon");
             GridIcon = assetBundle.LoadAsset<Sprite>("BL_GridIcon");
             GraphIcon = assetBundle.LoadAsset<Sprite>("BL_GraphIcon");

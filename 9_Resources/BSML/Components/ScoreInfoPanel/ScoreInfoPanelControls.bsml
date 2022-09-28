@@ -1,9 +1,13 @@
 <horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
     <macro.define name="icon-width" value="4"/>
     
-    <!--  OVERVIEW BUTTON  -->
-    <clickable-image src="#BL_OverviewIcon" id="overview-component" pref-width="~icon-width" preserve-aspect="true"
-                     on-click="overview-on-click"/>
+    <!--  OVERVIEW PAGE1 BUTTON  -->
+    <clickable-image src="#BL_Overview1Icon" id="overview-page1-component" pref-width="~icon-width" preserve-aspect="true"
+                     on-click="overview-page1-on-click"/>
+    
+    <!--  OVERVIEW PAGE2 BUTTON  -->
+    <clickable-image src="#BL_Overview2Icon" id="overview-page2-component" pref-width="~icon-width" preserve-aspect="true"
+                     on-click="overview-page2-on-click"/>
 
     <!--  ACCURACY BUTTON  -->
     <clickable-image src="#BL_DetailsIcon" id="accuracy-component" pref-width="~icon-width" preserve-aspect="true"

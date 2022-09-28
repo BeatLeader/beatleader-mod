@@ -1,6 +1,7 @@
 ﻿namespace BeatLeader.Models {
     internal enum ScoreInfoPanelTab {
-        Overview,
+        OverviewPage1,
+        OverviewPage2,
         Accuracy,
         Grid,
         Graph,

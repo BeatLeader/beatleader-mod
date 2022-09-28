@@ -16,8 +16,11 @@ namespace BeatLeader.Components {
         [UIValue("score-stats-loading-screen"), UsedImplicitly]
         private ScoreStatsLoadingScreen _scoreStatsLoadingScreen;
 
-        [UIValue("score-overview"), UsedImplicitly]
-        private ScoreOverview _scoreOverview;
+        [UIValue("score-overview-page1"), UsedImplicitly]
+        private ScoreOverviewPage1 _scoreOverviewPage1;
+
+        [UIValue("score-overview-page2"), UsedImplicitly]
+        private ScoreOverviewPage2 _scoreOverviewPage2;
 
         [UIValue("accuracy-details"), UsedImplicitly]
         private AccuracyDetails _accuracyDetails;
@@ -37,7 +40,8 @@ namespace BeatLeader.Components {
         private void Awake() {
             _miniProfile = Instantiate<MiniProfile>(transform);
             _scoreStatsLoadingScreen = Instantiate<ScoreStatsLoadingScreen>(transform);
-            _scoreOverview = Instantiate<ScoreOverview>(transform);
+            _scoreOverviewPage1 = Instantiate<ScoreOverviewPage1>(transform);
+            _scoreOverviewPage2 = Instantiate<ScoreOverviewPage2>(transform);
             _accuracyDetails = Instantiate<AccuracyDetails>(transform);
             _accuracyGrid = Instantiate<AccuracyGrid>(transform);
             _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>(transform);
@@ -88,10 +92,11 @@ namespace BeatLeader.Components {
 
         private void OnTabWasSelected(ScoreInfoPanelTab tab) {
             switch (tab) {
-                case ScoreInfoPanelTab.Overview:
+                case ScoreInfoPanelTab.OverviewPage1:
                 case ScoreInfoPanelTab.Replay:
                     break;
                 
+                case ScoreInfoPanelTab.OverviewPage2:
                 case ScoreInfoPanelTab.Accuracy:
                 case ScoreInfoPanelTab.Grid:
                 case ScoreInfoPanelTab.Graph:
@@ -111,15 +116,20 @@ namespace BeatLeader.Components {
 
         private void UpdateVisibility() {
             _scoreStatsLoadingScreen.SetActive(false);
-            _scoreOverview.SetActive(false);
+            _scoreOverviewPage1.SetActive(false);
+            _scoreOverviewPage2.SetActive(false);
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
             _accuracyGraphPanel.SetActive(false);
             _replayPanel.SetActive(false);
 
             switch (LeaderboardState.ScoreInfoPanelTab) {
-                case ScoreInfoPanelTab.Overview:
-                    _scoreOverview.SetActive(true);
+                case ScoreInfoPanelTab.OverviewPage1:
+                    _scoreOverviewPage1.SetActive(true);
+                    break;
+                case ScoreInfoPanelTab.OverviewPage2:
+                    _scoreOverviewPage2.SetActive(!_scoreStatsUpdateRequired);
+                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Accuracy:
                     _accuracyDetails.SetActive(!_scoreStatsUpdateRequired);
@@ -149,6 +159,7 @@ namespace BeatLeader.Components {
 
         private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
             if (state is not API.RequestState.Finished) return;
+            _scoreOverviewPage2.SetScoreAndStats(_score, result);
             _accuracyDetails.SetScoreStats(result);
             _accuracyGrid.SetScoreStats(result);
             _accuracyGraphPanel.SetScoreStats(result);
@@ -160,7 +171,7 @@ namespace BeatLeader.Components {
             _score = score;
             _scoreStatsUpdateRequired = true;
             _miniProfile.SetPlayer(score.player);
-            _scoreOverview.SetScore(score);
+            _scoreOverviewPage1.SetScore(score);
             _replayPanel.SetScore(score);
             _controls.Reset();
             UpdateVisibility();

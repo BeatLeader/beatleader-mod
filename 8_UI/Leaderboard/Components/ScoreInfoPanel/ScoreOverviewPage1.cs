@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using ModestTree;
 
 namespace BeatLeader.Components {
-    internal class ScoreOverview : ReeUIComponentV2 {
+    internal class ScoreOverviewPage1 : ReeUIComponentV2 {
         #region SetScore
 
         public void SetScore(Score score) {

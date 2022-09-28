@@ -12,8 +12,13 @@
                     <macro.reparent transform="ui-component"/>
                 </macro.as-host>
 
-                <!--  SCORE OVERVIEW  -->
-                <macro.as-host host="score-overview">
+                <!--  SCORE OVERVIEW PAGE1 -->
+                <macro.as-host host="score-overview-page1">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+
+                <!--  SCORE OVERVIEW PAGE2 -->
+                <macro.as-host host="score-overview-page2">
                     <macro.reparent transform="ui-component"/>
                 </macro.as-host>
 

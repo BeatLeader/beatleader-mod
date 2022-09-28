@@ -43,6 +43,8 @@
     internal class WinTracker {
         public int id;
 
+        public Vector3 averageHeadPosition;
+        public float averageHeight;
         public float jumpDistance;
         public int nbOfPause;
         public int totalScore;

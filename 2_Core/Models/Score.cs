@@ -19,5 +19,6 @@
         public string timeSet;
         public Player player;
         public string replay;
+        public string platform;
     }
 }

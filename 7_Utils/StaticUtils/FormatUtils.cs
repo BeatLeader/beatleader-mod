@@ -8,6 +8,19 @@ using UnityEngine;
 
 namespace BeatLeader {
     internal static class FormatUtils {
+        #region Platform
+
+        public static string GetFullPlatformName(string serverPlatform) {
+            return serverPlatform switch {
+                "oculus" => "Oculus Standalone",
+                "oculuspc" => "Oculus PC",
+                "steam" => "Steam",
+                _ => serverPlatform
+            };
+        }
+
+        #endregion
+        
         #region RankedStatus
 
         public static readonly IReadOnlyList<RankedStatus> NegativeModifiersAppliers = new RankedStatus[]

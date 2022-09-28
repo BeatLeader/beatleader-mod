@@ -445,12 +445,13 @@
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGrid.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\AccuracyGridCell.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\MiniProfileButtons.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreOverviewPage2.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ReplayerSettingsPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ReplayPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanel.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\MiniProfile.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanelControls.cs" />
-    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreOverview.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreOverviewPage1.cs" />
     <Compile Include="8_UI\Leaderboard\Components\ScoreInfoPanel\ScoreStatsLoadingScreen.cs" />
     <Compile Include="8_UI\Leaderboard\Components\TopPanel\Logo.cs" />
     <Compile Include="8_UI\Leaderboard\Components\TopPanel\NotificationIcon.cs" />
@@ -495,6 +496,7 @@
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <Compile Include="8_UI\Components\UI2DManager.cs" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreOverviewPage2.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\PlayerViewParamsMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\FloatingResetter.bsml" />
     <Compile Include="Plugin.cs" />
@@ -540,7 +542,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\MiniProfile.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreOverview.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreOverviewPage1.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ScoreStatsLoadingScreen.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ReplayPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Components\ScoreInfoPanel\ReplayerSettingsPanel.bsml" />

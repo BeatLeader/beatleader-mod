@@ -25,7 +25,7 @@ namespace BeatLeader.Components {
         #region Reset
 
         public void Reset() {
-            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Overview;
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.OverviewPage1;
         }
 
         #endregion
@@ -33,7 +33,8 @@ namespace BeatLeader.Components {
         #region OnScoreInfoPanelTabChanged
 
         private void OnScoreInfoPanelTabChanged(ScoreInfoPanelTab tab) {
-            SetColor(_overviewComponent, tab is ScoreInfoPanelTab.Overview);
+            SetColor(_overviewPage1Component, tab is ScoreInfoPanelTab.OverviewPage1);
+            SetColor(_overviewPage2Component, tab is ScoreInfoPanelTab.OverviewPage2);
             SetColor(_accuracyComponent, tab is ScoreInfoPanelTab.Accuracy);
             SetColor(_gridComponent, tab is ScoreInfoPanelTab.Grid);
             SetColor(_graphComponent, tab is ScoreInfoPanelTab.Graph);
@@ -48,8 +49,11 @@ namespace BeatLeader.Components {
         private static readonly Color FadedColor = new(0.8f, 0.8f, 0.8f, 0.2f);
         private static readonly Color FadedHoverColor = new(0.5f, 0.5f, 0.5f, 0.2f);
 
-        [UIComponent("overview-component"), UsedImplicitly]
-        private ClickableImage _overviewComponent;
+        [UIComponent("overview-page1-component"), UsedImplicitly]
+        private ClickableImage _overviewPage1Component;
+
+        [UIComponent("overview-page2-component"), UsedImplicitly]
+        private ClickableImage _overviewPage2Component;
 
         [UIComponent("accuracy-component"), UsedImplicitly]
         private ClickableImage _accuracyComponent;
@@ -64,7 +68,8 @@ namespace BeatLeader.Components {
         private ClickableImage _replayComponent;
 
         private void SetMaterials() {
-            _overviewComponent.material = BundleLoader.UIAdditiveGlowMaterial;
+            _overviewPage1Component.material = BundleLoader.UIAdditiveGlowMaterial;
+            _overviewPage2Component.material = BundleLoader.UIAdditiveGlowMaterial;
             _accuracyComponent.material = BundleLoader.UIAdditiveGlowMaterial;
             _gridComponent.material = BundleLoader.UIAdditiveGlowMaterial;
             _graphComponent.material = BundleLoader.UIAdditiveGlowMaterial;
@@ -80,9 +85,14 @@ namespace BeatLeader.Components {
 
         #region ClickEvents
 
-        [UIAction("overview-on-click"), UsedImplicitly]
-        private void OverviewOnClick() {
-            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.Overview;
+        [UIAction("overview-page1-on-click"), UsedImplicitly]
+        private void OverviewPage1OnClick() {
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.OverviewPage1;
+        }
+
+        [UIAction("overview-page2-on-click"), UsedImplicitly]
+        private void OverviewPage2OnClick() {
+            LeaderboardState.ScoreInfoPanelTab = ScoreInfoPanelTab.OverviewPage2;
         }
 
         [UIAction("accuracy-on-click"), UsedImplicitly]

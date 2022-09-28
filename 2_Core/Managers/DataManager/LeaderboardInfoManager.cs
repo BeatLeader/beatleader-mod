@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using UnityEngine;
@@ -53,13 +54,9 @@ namespace BeatLeader.DataManager {
         #region FullCacheUpdate
 
         private static IEnumerator FullCacheUpdateTask() {
-            yield return UpdateLeaderboards("nominated");
-            yield return UpdateLeaderboards("qualified");
-            yield return UpdateLeaderboards("ranked");
-            LeaderboardsCache.NotifyCacheWasChanged();
-        }
-
-        private static IEnumerator UpdateLeaderboards(string type) {
+            var lastTimestamp = LeaderboardsCache.LastCheckTime;
+            var newTimestamp = DateTime.UtcNow.ToUnixTime();
+            
             const int itemsPerPage = 500;
             var totalPages = 1;
             var page = 1;
@@ -76,12 +73,15 @@ namespace BeatLeader.DataManager {
 
             void OnFail(string reason) {
                 failed = true;
-                Plugin.Log.Debug($"{type} {page}/{totalPages} cache update failed! {reason}");
+                Plugin.Log.Debug($"{lastTimestamp} | {page}/{totalPages} | cache update failed! {reason}");
             }
 
             do {
-                yield return LeaderboardsRequest.SendBulkRequest(type, page, itemsPerPage, OnSuccess, OnFail);
-            } while (!failed && page < totalPages);
+                yield return LeaderboardsRequest.SendRankingRequest(lastTimestamp, page, itemsPerPage, OnSuccess, OnFail);
+            } while (!failed && page <= totalPages);
+
+            if (!failed) LeaderboardsCache.LastCheckTime = newTimestamp;
+            LeaderboardsCache.NotifyCacheWasChanged();
         }
 
         #endregion

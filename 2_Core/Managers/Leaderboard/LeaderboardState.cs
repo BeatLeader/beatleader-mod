@@ -77,7 +77,7 @@ namespace BeatLeader {
 
         public static event Action<ScoreInfoPanelTab> ScoreInfoPanelTabChangedEvent;
 
-        private static ScoreInfoPanelTab _scoreInfoPanelTab = ScoreInfoPanelTab.Overview;
+        private static ScoreInfoPanelTab _scoreInfoPanelTab = ScoreInfoPanelTab.OverviewPage1;
 
         public static ScoreInfoPanelTab ScoreInfoPanelTab {
             get => _scoreInfoPanelTab;

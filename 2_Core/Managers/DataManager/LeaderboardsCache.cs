@@ -12,6 +12,7 @@ namespace BeatLeader.DataManager {
         #region LeaderboardsCache
 
         private static readonly Dictionary<LeaderboardKey, LeaderboardCacheEntry> LeaderboardInfoCache = new();
+        public static long LastCheckTime;
 
         public static bool TryGetLeaderboardInfo(LeaderboardKey key, out LeaderboardCacheEntry data) {
             if (!LeaderboardInfoCache.ContainsKey(key)) {
@@ -110,8 +111,10 @@ namespace BeatLeader.DataManager {
             try {
                 if (!File.Exists(CacheFileName)) return;
 
-                var list = JsonConvert.DeserializeObject<List<LeaderboardCacheEntry>>(File.ReadAllText(CacheFileName), SerializerSettings);
-                foreach (var entry in list) {
+                var serialized = File.ReadAllText(CacheFileName);
+                var fileData = JsonConvert.DeserializeObject<CacheFileData>(serialized, SerializerSettings);
+                LastCheckTime = fileData.LastCheckTime;
+                foreach (var entry in fileData.Entries) {
                     LeaderboardInfoCache[LeaderboardKey.FromSongDiff(entry.SongInfo, entry.DifficultyInfo)] = entry;
                 }
             } catch (Exception e) {
@@ -121,10 +124,22 @@ namespace BeatLeader.DataManager {
 
         public static void Save() {
             try {
+                var fileData = new CacheFileData(LeaderboardInfoCache.Values.ToList(), LastCheckTime);
+                var serialized = JsonConvert.SerializeObject(fileData, SerializerSettings);
                 FileManager.EnsureDirectoryExists(CacheFileName);
-                File.WriteAllText(CacheFileName, JsonConvert.SerializeObject(LeaderboardInfoCache.Values.ToList(), SerializerSettings));
+                File.WriteAllText(CacheFileName, serialized);
             } catch (Exception e) {
                 Plugin.Log.Debug($"LeaderboardsCache save failed! {e}");
+            }
+        }
+
+        private class CacheFileData {
+            public readonly List<LeaderboardCacheEntry> Entries;
+            public readonly long LastCheckTime;
+
+            public CacheFileData(List<LeaderboardCacheEntry> entries, long lastCheckTime) {
+                Entries = entries;
+                LastCheckTime = lastCheckTime;
             }
         }
 

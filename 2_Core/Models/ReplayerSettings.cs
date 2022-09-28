@@ -10,6 +10,7 @@
         public bool ShowHead { get; set; }
         public bool ShowLeftSaber { get; set; }
         public bool ShowRightSaber { get; set; }
+        public bool ShowWatermark { get; set; }
 
         public int MaxFOV { get; set; }
         public int MinFOV { get; set; }

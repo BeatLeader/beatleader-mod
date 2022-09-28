@@ -39,6 +39,7 @@ namespace BeatLeader
             ShowHead = false,
             ShowLeftSaber = true,
             ShowRightSaber = true,
+            ShowWatermark = true,
 
             MaxFOV = 110,
             MinFOV = 70,

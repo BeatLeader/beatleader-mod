@@ -10,11 +10,24 @@ namespace BeatLeader.Components
     {
         [Inject] private Models.ReplayLaunchData _launchData;
 
+        public bool Enabled
+        {
+            get => _text.gameObject.activeSelf;
+            set
+            {
+                if (!CanBeDisabled) return;
+
+                _text.gameObject.SetActive(value);
+                _launchData.actualToWriteSettings.ShowWatermark = value;
+            }
+        }
+        public bool CanBeDisabled { get; private set; }
+
         private TextMeshPro _text;
 
         private void Awake()
         {
-            if (!IsInstallationRequired()) return;
+            CanBeDisabled = IsWatermarkCanBeDisabled();
 
             _text = gameObject.AddComponent<TextMeshPro>();
             _text.richText = true;
@@ -24,14 +37,16 @@ namespace BeatLeader.Components
 
             var level = _launchData.difficultyBeatmap.level;
             _text.text = GetFormattedText(_launchData.player.name, level.songName, level.songAuthorName);
+
+            Enabled = _launchData.actualSettings.ShowWatermark;
         }
         private string GetFormattedText(string player, string songName, string songAuthor)
         {
             return $"<i><b><color=\"red\">REPLAY</color></b>   {songName} - {songAuthor}   Player: {player}</i>";
         }
-        private bool IsInstallationRequired()
+        private bool IsWatermarkCanBeDisabled()
         {
-            return !ProfileManager.IsCurrentPlayer(_launchData.player);
+            return ProfileManager.IsCurrentPlayer(_launchData.player);
         }
     }
 }

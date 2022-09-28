@@ -471,7 +471,7 @@
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\LayoutEditor.cs" />
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalPlayerInfo.cs" />
     <Compile Include="8_UI\Replayer\Components\ReplayWatermark.cs" />
-    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\BodyMenu.cs" />
+    <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\OtherSettingsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\CameraParamsMenu.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\Items\Menus\CameraMenu\FlyingViewParamsMenu.cs" />
@@ -569,7 +569,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\CameraMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SubMenuButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\LayoutEditorSetting.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\BodyMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\OtherSettingsMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalPlayerInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SettingsRootMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\Vector3MatrixMenu.bsml" />

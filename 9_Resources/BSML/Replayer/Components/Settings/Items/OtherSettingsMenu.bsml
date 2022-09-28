@@ -1,0 +1,21 @@
+﻿<horizontal>
+	<vertical child-align="UpperLeft" pref-width="48">
+
+		<horizontal pref-height="6" pad-top="1">
+			<better-image id="background" src="#black-transparent-bg" type="Sliced" ppu="10" pref-height="6">
+				<horizontal pad="1">
+					<text text="Visibility" align="Center"/>
+				</horizontal>
+			</better-image>
+		</horizontal>
+
+		<horizontal pref-height="27">
+			<vertical child-expand-height="false" pref-width="46">
+				<bool-setting text="Head" value="show-head" apply-on-change="true" skew="0"/>
+				<bool-setting text="Left saber" value="show-left-saber" apply-on-change="true" skew="0"/>
+				<bool-setting text="Right saber" value="show-right-saber" apply-on-change="true" skew="0"/>
+				<bool-setting id="watermark-toggle" text="Watermark" value="show-watermark" apply-on-change="true" skew="0"/>
+			</vertical>
+		</horizontal>
+	</vertical>
+</horizontal>

@@ -1,48 +1,50 @@
-﻿using BeatLeader.Utils;
+﻿using BeatLeader.Replayer;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.FloatingScreen;
+using IPA.Config.Data;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components
 {
-    [SerializeAutomatically]
     internal class FloatingControls : ReeUIComponentV2
     {
-        public FloatingScreen Floating
-        {
-            get => _viewFloating;
-            set
-            {
-                _viewFloating = value;
-                _poseListener.TransformToListen = _viewFloating.transform;
-                _resetter.Transform = _viewFloating.transform;
-
-                LoadSettings();
-            }
-        }
-        public Transform Head
-        {
-            get => _head;
-            set
-            {
-                _head = value;
-                _resetFloating.transform.SetParent(_head, false);
-                _resetFloating.transform.localPosition = new Vector3(0, 0, 0.7f);
-            }
-        }
         private FloatingConfig _Config => ConfigFileData.Instance.FloatingConfig;
 
         [UIValue("pin-button")] private ToggleButton _pinButton;
         [UIValue("align-button")] private SimpleButton _alignButton;
-        [UIObject("spacer-one")] private GameObject _spacerOne; 
-        [UIObject("spacer-two")] private GameObject _spacerTwo; 
+        [UIObject("spacer-one")] private GameObject _spacerOne;
+        [UIObject("spacer-two")] private GameObject _spacerTwo;
 
         private TransformListener _poseListener;
-        private FloatingResetter _resetter;
+        private FloatingResetter _floatingResetter;
         private FloatingScreen _viewFloating;
         private FloatingScreen _resetFloating;
+        private PlaybackController _playbackController;
         private Transform _head;
+        private bool _hideUI;
+
+        public void Setup(FloatingScreen floating,
+            PlaybackController playbackController,
+            Transform headTransform, bool hideUI = false)
+        {
+            _viewFloating = floating;
+            _poseListener.TransformToListen = _viewFloating.transform;
+            _floatingResetter.Transform = _viewFloating.transform;
+
+            _head = headTransform;
+            _resetFloating.transform.SetParent(_head, false);
+            _resetFloating.transform.localPosition = new Vector3(0, 0, 0.7f);
+
+            _playbackController = playbackController;
+            _playbackController.PauseStateChangedEvent += HandlePauseStateChanged;
+
+            _hideUI = hideUI;
+
+            LoadSettings();
+        }
 
         protected override void OnInstantiate()
         {
@@ -62,8 +64,8 @@ namespace BeatLeader.Components
             _resetFloating = FloatingScreen.CreateFloatingScreen(new Vector2(6, 6), false, Vector3.zero, Quaternion.identity);
             _resetFloating.GetComponent<BaseRaycaster>().TryDestroy();
 
-            _resetter = _resetFloating.gameObject.AddComponent<FloatingResetter>();
-            _resetter.resetPose = new Pose(ConfigDefaults.FloatingConfig.Position, ConfigDefaults.FloatingConfig.Rotation);
+            _floatingResetter = _resetFloating.gameObject.AddComponent<FloatingResetter>();
+            _floatingResetter.resetPose = new Pose(ConfigDefaults.FloatingConfig.Position, ConfigDefaults.FloatingConfig.Rotation);
 
             _poseListener = gameObject.AddComponent<TransformListener>();
             _poseListener.PoseChangedEvent += HandlePoseChanged;
@@ -73,12 +75,13 @@ namespace BeatLeader.Components
         {
             _viewFloating.transform.SetLocalPositionAndRotation(_Config.Position, _Config.Rotation);
             _pinButton.Toggle(_Config.IsPinned);
+            HandlePauseStateChanged(false);
         }
 
         private void HandlePinToggled(bool pin)
         {
             _Config.IsPinned = pin;
-            Floating.handle.gameObject.SetActive(!pin);
+            _viewFloating?.handle.gameObject.SetActive(!pin);
             _spacerOne.SetActive(!pin);
             _spacerTwo.SetActive(!pin);
         }
@@ -91,12 +94,20 @@ namespace BeatLeader.Components
                 pos[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.localPosition[i], _Config.GridPosIncrement);
                 rot[i] = MathUtils.GetClosestCoordinate(_viewFloating.transform.localEulerAngles[i], _Config.GridRotIncrement);
             }
-            _viewFloating.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(rot));
+            _viewFloating?.transform.SetLocalPositionAndRotation(pos, Quaternion.Euler(rot));
         }
         private void HandlePoseChanged(Pose pose)
         {
             _Config.Position = _viewFloating.transform.localPosition;
             _Config.Rotation = _viewFloating.transform.localRotation;
+        }
+        private void HandlePauseStateChanged(bool state)
+        {
+            if (_hideUI)
+            {
+                _viewFloating.gameObject.SetActive(state);
+                _floatingResetter.enabled = state;
+            }
         }
     }
 }

@@ -13,14 +13,14 @@ namespace BeatLeader.Components.Settings
         [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         [UIValue("camera-menu-button")] private SubMenuButton _cameraMenuButton;
-        [UIValue("body-menu-button")] private SubMenuButton _bodyMenuButton;
+        [UIValue("body-menu-button")] private SubMenuButton _otherMenuButton;
         [UIValue("speed-setting")] private SpeedSetting _speedSetting;
         [UIValue("layout-editor-setting")] private LayoutEditorSetting _layoutEditorSetting;
 
         protected override void OnBeforeParse()
         {
             SetupCameraMenu();
-            _bodyMenuButton = CreateButtonForMenu(this, InstantiateInContainer<BodyMenu>(Container), "Body");
+            _otherMenuButton = CreateButtonForMenu(this, InstantiateInContainer<OtherSettingsMenu>(Container), "Other");
             _speedSetting = ReeUIComponentV2WithContainer.InstantiateInContainer<SpeedSetting>(Container, null);
             _layoutEditorSetting = ReeUIComponentV2WithContainer.InstantiateInContainer<LayoutEditorSetting>(Container, null);
             _layoutEditorSetting.EnteredEditModeEvent += () => CloseSettings(false);

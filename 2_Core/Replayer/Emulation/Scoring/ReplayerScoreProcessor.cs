@@ -116,7 +116,7 @@ namespace BeatLeader.Replayer.Emulation
         private void HandleReprocessRequested()
         {
             _cutScoreSpawnerSilencer.Enabled = true;
-            if (!_eventsProcessor.IsReprocessingEventsNow) return;
+            if (!_eventsProcessor.TimeWasSmallerThanActualTime) return;
 
             _scoreController.SetField("_modifiedScore", 0);
             _scoreController.SetField("_multipliedScore", 0);

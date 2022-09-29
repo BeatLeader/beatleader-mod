@@ -13,6 +13,7 @@ namespace BeatLeader.Replayer.Emulation
         [Inject] private readonly ReplayLaunchData _launchData;
 
         public bool IsReprocessingEventsNow => _isReprocessing;
+        public bool TimeWasSmallerThanActualTime => _timeWasSmallerThanActualTime;
 
         public event Action<NoteEvent> NoteCutRequestedEvent;
         public event Action<WallEvent> WallInteractionRequestedEvent;
@@ -21,6 +22,7 @@ namespace BeatLeader.Replayer.Emulation
 
         private IReadOnlyList<NoteEvent> _notes;
         private IReadOnlyList<WallEvent> _walls;
+        private bool _timeWasSmallerThanActualTime;
         private bool _isReprocessing;
         private int _nextNoteIndex;
         private int _nextWallIndex;
@@ -83,6 +85,7 @@ namespace BeatLeader.Replayer.Emulation
             if (_isReprocessing)
             {
                 _isReprocessing = false;
+                _timeWasSmallerThanActualTime = false;
                 ReprocessDoneEvent?.Invoke();
             }
         }
@@ -94,10 +97,11 @@ namespace BeatLeader.Replayer.Emulation
                 _nextNoteIndex = 0;
                 _nextWallIndex = 0;
                 _lastTime = 0f;
-                _isReprocessing = true;
+                _timeWasSmallerThanActualTime = true; 
             }
 
             ReprocessRequestedEvent?.Invoke();
+            _isReprocessing = true;
         }
     }
 }

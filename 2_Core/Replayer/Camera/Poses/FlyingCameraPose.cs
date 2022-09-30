@@ -1,7 +1,7 @@
 ﻿using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
-using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using static BeatLeader.Utils.InputManager;
+using System;
 
 namespace BeatLeader.Replayer.Camera
 {
@@ -23,27 +23,25 @@ namespace BeatLeader.Replayer.Camera
             _name = name;
         }
 
-        public bool followOrigin = true;
         public bool disableInputOnUnlockedCursor;
         public Vector2 mouseSensitivity;
         public float flySpeed;
 
         protected Quaternion _lastHeadRot;
         protected Vector3 _lastHeadPos;
-        protected Quaternion _lastOriginRot;
-        protected Vector3 _lastOriginPos;
         protected bool _returnToTheLastPos;
         protected string _name;
+        protected bool _resetRequested;
 
         public InputType AvailableInputs => InputType.FPFC;
         public int Id => 5;
         public bool UpdateEveryFrame => true;
         public string Name => _name;
 
-        public void ProcessPose(ref CombinedCameraMovementData data)
+        public void ProcessPose(ref ValueTuple<Pose, Pose> data)
         {
-            ref var currentPos = ref data.cameraPose.position;
-            ref var currentRot = ref data.cameraPose.rotation;
+            ref var currentPos = ref data.Item1.position;
+            ref var currentRot = ref data.Item1.rotation;
 
             bool flag = false;
             if (disableInputOnUnlockedCursor && Cursor.lockState != CursorLockMode.Locked)
@@ -51,12 +49,6 @@ namespace BeatLeader.Replayer.Camera
                 currentPos = _lastHeadPos;
                 currentRot = _lastHeadRot;
                 flag = true;
-            }
-
-            if (!followOrigin)
-            {
-                currentPos -= data.originPose.position - _lastOriginPos;
-                currentRot.eulerAngles -= data.originPose.rotation.eulerAngles - _lastOriginRot.eulerAngles;
             }
 
             if (flag) return;
@@ -68,11 +60,19 @@ namespace BeatLeader.Replayer.Camera
                 _returnToTheLastPos = false;
             }
 
+            if (_resetRequested)
+            {
+                currentPos = new Vector3(0, 1.7f, 0);
+                currentRot = Quaternion.identity;
+                _resetRequested = false;
+            }
+
             _lastHeadPos = currentPos = GetPosition(currentPos, currentRot);
             _lastHeadRot = currentRot = GetRotation(currentRot);
-
-            _lastOriginPos = data.originPose.position;
-            _lastOriginRot = data.originPose.rotation;
+        }
+        public void Reset()
+        {
+            _resetRequested = true;
         }
         protected virtual Vector3 GetPosition(Vector3 currentPosition, Quaternion currentRotation)
         {

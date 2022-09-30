@@ -1,4 +1,6 @@
-﻿using static BeatLeader.Utils.InputManager;
+﻿using System;
+using UnityEngine;
+using static BeatLeader.Utils.InputManager;
 
 namespace BeatLeader.Models
 {
@@ -9,6 +11,6 @@ namespace BeatLeader.Models
         public int Id { get; }
         public string Name { get; }
 
-        public void ProcessPose(ref CombinedCameraMovementData data);
+        public void ProcessPose(ref ValueTuple<Pose, Pose> data);
     }
 }

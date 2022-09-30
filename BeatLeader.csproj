@@ -296,7 +296,6 @@
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
-    <Compile Include="2_Core\Models\CombinedCameraMovementData.cs" />
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
     <Compile Include="2_Core\Models\ICameraPoseProvider.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
@@ -331,6 +330,7 @@
     <Compile Include="3_AssetBundle\Themes\ThemeType.cs" />
     <Compile Include="7_Utils\Interop\ScoreSaberInterop.cs" />
     <Compile Include="0_Harmony\HarmonySilencer.cs" />
+    <Compile Include="7_Utils\UtilityClasses\OffsetsApplier.cs" />
     <Compile Include="7_Utils\UtilityClasses\SliderValuesApplier.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
     <Compile Include="2_Core\Models\ReplayerSettings.cs" />

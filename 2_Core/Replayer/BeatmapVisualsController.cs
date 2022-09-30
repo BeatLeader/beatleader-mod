@@ -90,7 +90,7 @@ namespace BeatLeader.Replayer
         }
         private void HandleReprocessRequested()
         {
-            _wasInProcess = _eventsProcessor.IsReprocessingEventsNow;
+            _wasInProcess = _eventsProcessor.TimeWasSmallerThanActualTime;
             _comboWasBroke = false;
         }
         private void HandleReprocessDone()

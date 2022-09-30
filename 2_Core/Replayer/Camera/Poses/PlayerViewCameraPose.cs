@@ -1,7 +1,7 @@
 ﻿using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
-using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using static BeatLeader.Utils.InputManager;
+using System;
 
 namespace BeatLeader.Replayer.Camera
 {
@@ -23,16 +23,16 @@ namespace BeatLeader.Replayer.Camera
 
         private string _name;
 
-        public void ProcessPose(ref CombinedCameraMovementData data)
+        public void ProcessPose(ref ValueTuple<Pose, Pose> data)
         {
-            var camPose = data.cameraPose;
+            var camPose = data.Item1;
             camPose.position -= offset;
 
-            camPose.position = Vector3.Lerp(camPose.position, data.headPose.position, Time.deltaTime * smoothness);
-            camPose.rotation = Quaternion.Lerp(camPose.rotation, data.headPose.rotation, Time.deltaTime * smoothness);
+            camPose.position = Vector3.Lerp(camPose.position, data.Item2.position, Time.deltaTime * smoothness);
+            camPose.rotation = Quaternion.Lerp(camPose.rotation, data.Item2.rotation, Time.deltaTime * smoothness);
 
             camPose.position += offset;
-            data.cameraPose = camPose;
+            data.Item1 = camPose;
         }
     }
 }

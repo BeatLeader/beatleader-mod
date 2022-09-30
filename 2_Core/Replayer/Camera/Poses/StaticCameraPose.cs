@@ -2,6 +2,8 @@
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 using static BeatLeader.Utils.InputManager;
+using System;
+using UnityEngine;
 
 namespace BeatLeader.Replayer.Camera
 {
@@ -35,10 +37,10 @@ namespace BeatLeader.Replayer.Camera
         public bool UpdateEveryFrame => false;
         public string Name => _name;
 
-        public void ProcessPose(ref CombinedCameraMovementData data)
+        public void ProcessPose(ref ValueTuple<Pose, Pose> data)
         {
-            data.cameraPose.position = _position;
-            data.cameraPose.rotation = _rotation;
+            data.Item1.position = _position;
+            data.Item1.rotation = _rotation;
         }
     }
 }

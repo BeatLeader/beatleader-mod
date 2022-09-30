@@ -15,7 +15,8 @@ namespace BeatLeader.Replayer.Emulation
         [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
         [Inject] private readonly ReplayEventsProcessor _eventsProcessor;
 
-        private readonly NoteControllerEmulator _noteControllerEmulator = new();
+        private readonly NoteControllerEmulator _noteControllerEmulator = 
+            new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
         private SaberSwingRatingCounter _lastSaberSwingCounter;
 
         private void Awake()

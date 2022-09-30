@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections.Generic;
 using BeatLeader.Replayer.Movement;
 using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
-using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Utils;
@@ -38,21 +37,21 @@ namespace BeatLeader.Replayer.Camera
         [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
         public List<ICameraPoseProvider> PoseProviders { get; protected set; }
+        public string CurrentPoseName => _currentPose?.Name ?? string.Empty;
         public UnityEngine.Camera Camera => _camera;
-        public CombinedCameraMovementData CombinedMovementData
+        public ICameraPoseProvider CurrentPose => _currentPose;
+        public ValueTuple<Pose, Pose> CameraAndHeadPosesTuple
         {
-            get => new CombinedCameraMovementData(transform, _vrControllersManager.HeadContainer.transform, _vrControllersManager.OriginTransform);
+            get => (transform.GetLocalPose(), _vrControllersManager.HeadContainer.transform.GetLocalPose());
             protected set
             {
-                transform.SetLocalPose(value.cameraPose);
-                _vrControllersManager.HeadContainer.transform.SetLocalPose(value.headPose);
+                transform.SetLocalPose(value.Item1);
+                _vrControllersManager.HeadContainer.transform.SetLocalPose(value.Item2);
+
                 if (InputManager.IsInFPFC) return;
-                _vrControllersManager.MenuHandsContainerTransform.SetLocalPose(value.cameraPose);
+                _vrControllersManager.MenuHandsContainerTransform.SetLocalPose(value.Item1);
             }
         }
-        public ICameraPoseProvider CurrentPose => _currentPose;
-        public string CurrentPoseName => _currentPose != null ? _currentPose.Name : "NaN";
-        public bool IsInitialized { get; private set; }
         public int CullingMask
         {
             get => _camera.cullingMask;
@@ -79,50 +78,47 @@ namespace BeatLeader.Replayer.Camera
         private int _fieldOfView;
         private bool _wasRequestedLastTime;
         private string _requestedPose;
+        private bool _isInitialized;
 
         private void Awake()
         {
-            if (_data == null || IsInitialized) return;
-            var smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
-                .FirstOrDefault(x => x.transform.parent.name == "LocalPlayerGameCore");
+            if (_data == null || _isInitialized) return;
 
-            if (smoothCamera == null)
+            if (!CreateAndAssignCamera())
             {
                 Plugin.Log.Error("Failed to initialize ReplayerCamera!");
                 return;
             }
 
-            smoothCamera.gameObject.SetActive(false);
-            _camera = Instantiate(smoothCamera.GetComponent<UnityEngine.Camera>(), gameObject.transform, true);
-
-            _camera.gameObject.SetActive(false);
-            _camera.name = "ReplayerViewCamera";
-            DestroyImmediate(_camera.GetComponent<SmoothCameraController>());
-            DestroyImmediate(_camera.GetComponent<SmoothCamera>());
-            _camera.gameObject.SetActive(true);
             _camera.nearClipPlane = 0.01f;
-            //_diContainer.Bind<Camera>().FromInstance(_camera).WithConcreteId("ReplayerCamera").NonLazy();
             transform.SetParent(_vrControllersManager.OriginTransform, false);
 
             PoseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
             SetEnabled(true);
-            IsInitialized = true;
+            _isInitialized = true;
         }
         private void LateUpdate()
         {
-            if (!IsInitialized) return;
+            if (!_isInitialized) return;
 
             if (_wasRequestedLastTime)
             {
                 SetCameraPose(_requestedPose);
                 _wasRequestedLastTime = false;
             }
-            if (_currentPose != null && _currentPose.UpdateEveryFrame)
+            if (_currentPose?.UpdateEveryFrame ?? false)
             {
-                CombinedMovementData = ProcessPose(_currentPose);
+                CameraAndHeadPosesTuple = ProcessPose(_currentPose);
             }
+        }
+
+        public void RequestCameraPose(string name)
+        {
+            if (name == string.Empty) return;
+            _requestedPose = name;
+            _wasRequestedLastTime = true;
         }
         public void SetCameraPose(string name)
         {
@@ -132,7 +128,7 @@ namespace BeatLeader.Replayer.Camera
             if (cameraPose == null) return;
 
             _currentPose = cameraPose;
-            CombinedMovementData = ProcessPose(_currentPose);
+            CameraAndHeadPosesTuple = ProcessPose(_currentPose);
             RefreshCamera();
             CameraPoseChangedEvent?.Invoke(cameraPose);
         }
@@ -152,9 +148,9 @@ namespace BeatLeader.Replayer.Camera
             gameObject.SetActive(enabled);
         }
 
-        protected CombinedCameraMovementData ProcessPose(ICameraPoseProvider provider)
+        protected ValueTuple<Pose, Pose> ProcessPose(ICameraPoseProvider provider)
         {
-            var data = CombinedMovementData;
+            var data = CameraAndHeadPosesTuple;
             _currentPose.ProcessPose(ref data);
             return data;
         }
@@ -163,11 +159,24 @@ namespace BeatLeader.Replayer.Camera
             _camera.stereoTargetEye = InputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
             if (InputManager.IsInFPFC) _camera.fieldOfView = _fieldOfView;
         }
-        protected void RequestCameraPose(string name)
+        private bool CreateAndAssignCamera()
         {
-            if (name == string.Empty) return;
-            _requestedPose = name;
-            _wasRequestedLastTime = true;
+            var smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
+                .FirstOrDefault(x => x.transform.parent.name == "LocalPlayerGameCore");
+
+            if (smoothCamera == null) return false;
+
+            smoothCamera.gameObject.SetActive(false);
+            _camera = Instantiate(smoothCamera.GetComponent<UnityEngine.Camera>(), gameObject.transform, true);
+            _camera.gameObject.SetActive(false);
+
+            DestroyImmediate(_camera.GetComponent<SmoothCameraController>());
+            DestroyImmediate(_camera.GetComponent<SmoothCamera>());
+
+            _camera.gameObject.SetActive(true);
+            _camera.name = "ReplayerViewCamera";
+
+            return true;
         }
     }
 }

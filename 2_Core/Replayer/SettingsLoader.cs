@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
+using BeatLeader.Replayer.Movement;
 using BeatLeader.Utils;
 using IPA.Utilities;
 using System;
@@ -14,10 +15,13 @@ namespace BeatLeader.Replayer
     {
         [InjectOptional] private readonly PlayerDataModel _playerDataModel;
         [InjectOptional] private readonly ReplayerCameraController _cameraController;
+        [InjectOptional] private readonly VRControllersProvider _controllersProvider;
         [InjectOptional] private readonly ReplayLaunchData _replayData;
         [InjectOptional] private readonly UI2DManager _2DManager;
 
         private RoomAdjustSettingsViewController _roomAdjustViewController;
+        private OffsetsApplier _cameraOffsetsApplier;
+        private OffsetsApplier _handsOffsetsApplier;
         private Vector3SO _roomPosition;
         private FloatSO _roomRotation;
 
@@ -26,13 +30,7 @@ namespace BeatLeader.Replayer
 
         public virtual void Initialize()
         {
-            if (_playerDataModel != null && _cameraController != null)
-            {
-                if (!_playerDataModel.playerData.playerSpecificSettings.reduceDebris)
-                    _cameraController.CullingMask |= 1 << LayerMasks.noteDebrisLayer;
-                else
-                    _cameraController.CullingMask &= ~(1 << LayerMasks.noteDebrisLayer);
-            }
+            bool roomWasApplied = false;
 
             _roomAdjustViewController = Resources.FindObjectsOfTypeAll<RoomAdjustSettingsViewController>().FirstOrDefault();
             if (_roomAdjustViewController != null)
@@ -44,6 +42,32 @@ namespace BeatLeader.Replayer
                 _tempRotation = _roomRotation;
 
                 _roomAdjustViewController.ResetRoom();
+                roomWasApplied = true;
+            }
+
+            if (_playerDataModel != null && _cameraController != null)
+            {
+                if (!_playerDataModel.playerData.playerSpecificSettings.reduceDebris)
+                    _cameraController.CullingMask |= 1 << LayerMasks.noteDebrisLayer;
+                else
+                    _cameraController.CullingMask &= ~(1 << LayerMasks.noteDebrisLayer);
+
+                if (roomWasApplied && !InputManager.IsInFPFC)
+                {
+                    _cameraOffsetsApplier = new GameObject("CameraOffsetsApplier").AddComponent<OffsetsApplier>();
+                    _handsOffsetsApplier = new GameObject("HandsOffsetsApplier").AddComponent<OffsetsApplier>();
+
+                    _cameraOffsetsApplier.Setup(_cameraController.transform);
+
+                    var pose = new Pose(_tempPosition, UnityEngine.Quaternion.Euler(0, _roomRotation, 0));
+                    _cameraOffsetsApplier.Offsets = pose;
+
+                    if (_controllersProvider != null)
+                    {
+                        _handsOffsetsApplier.Setup(_controllersProvider.MenuHandsContainerTransform);
+                        _handsOffsetsApplier.Offsets = pose;
+                    }
+                }
             }
 
             if (_2DManager != null)

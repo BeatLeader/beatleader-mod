@@ -158,7 +158,7 @@ namespace BeatLeader.Components {
         private Score _score;
 
         private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
+            if (_score == null || state is not API.RequestState.Finished) return;
             _scoreOverviewPage2.SetScoreAndStats(_score, result);
             _accuracyDetails.SetScoreStats(result);
             _accuracyGrid.SetScoreStats(result);

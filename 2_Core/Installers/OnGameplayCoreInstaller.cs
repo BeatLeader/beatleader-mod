@@ -19,14 +19,16 @@ namespace BeatLeader.Installers
 {
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller>
     {
-        private static readonly List<string> modes = new() { "Solo", "Multiplayer" };
-
         public override void InstallBindings()
         {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
             if (ReplayerLauncher.IsStartedAsReplay) InitReplayer();
             else InitRecorder();
         }
+
+        #region Recorder
+
+        private static readonly List<string> modes = new() { "Solo", "Multiplayer" };
 
         private void InitRecorder()
         {
@@ -39,23 +41,23 @@ namespace BeatLeader.Installers
                 #region Gates
                 if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
                 {
-                    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
+                    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started!");
                     return;
                 }
                 if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
                 {
-                    Plugin.Log.Debug("OST level detected. No recording.");
+                    Plugin.Log.Debug("OST level detected, BL Replay Recorder will not be started!");
                     return;
                 }
-                var gameMode = GameMode();
+                var gameMode = GetGameMode();
                 if (gameMode != null && !modes.Contains(gameMode))
                 {
-                    Plugin.Log.Debug("Not allowed game mode");
+                    Plugin.Log.Debug("Not allowed game mode, BL Replay Recorder will not be started!");
                     return;
                 }
                 #endregion
 
-                Plugin.Log.Debug("Starting a BL Replay Recorder.");
+                Plugin.Log.Debug("Starting a BL Replay Recorder...");
 
                 Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
@@ -65,6 +67,8 @@ namespace BeatLeader.Installers
                 //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
             }
         }
+
+        #endregion
 
         #region Replayer
 
@@ -154,14 +158,17 @@ namespace BeatLeader.Installers
             LevelCompletionResults results, Models.ReplayLaunchData launchData)
         {
             if (_submissionTicket != null)
+            {
                 Container.Resolve<Submission>()?.Remove(_submissionTicket);
+                _submissionTicket = null;
+            }
         }
 
         #endregion
 
         #region Game mode stuff
 
-        private string GameMode()
+        private string GetGameMode()
         {
             string singleGM = GetStandardDataSO()?.gameMode;
             string multiGM = GetMultiDataSO()?.gameMode;
@@ -188,7 +195,6 @@ namespace BeatLeader.Installers
                 return null;
             }
         }
-
         private MultiplayerLevelScenesTransitionSetupDataSO GetMultiDataSO()
         {
             try

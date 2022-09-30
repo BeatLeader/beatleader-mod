@@ -8,10 +8,6 @@ An open-source leaderboard System for Beat Saber
 
 ## Usage
 
-```diff
-- PC Steam version only. Oculus PC support is coming soon
-```
-
 - Download zip for your game version from the [Releases](https://github.com/BeatLeader/beatleader-mod/releases) and extract it to your BeatSaber directory
 - Make sure to install and update all required [dependencies](#dependencies)
 

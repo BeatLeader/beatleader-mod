@@ -91,7 +91,7 @@ namespace BeatLeader.Installers
             Container.Bind<Models.ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle().Lazy();
             Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().Lazy();
 
-            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle().Lazy();
             Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
@@ -102,7 +102,7 @@ namespace BeatLeader.Installers
 
             Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle().Lazy();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesTo<SceneTweaksManager>().AsSingle().NonLazy();
+            Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<HotkeysManager>().AsSingle().NonLazy();
             Container.Bind<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

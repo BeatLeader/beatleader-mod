@@ -7,7 +7,7 @@ namespace BeatLeader.Components
 {
     internal class ResetUIAnimator : MonoBehaviour
     {
-        public event Action<bool> OnRevealFinished;
+        public event Action<bool> RevealWasFinishedEvent;
 
         public Image image;
         public int animationFrameRate = 120;
@@ -42,7 +42,7 @@ namespace BeatLeader.Components
                 yield return new WaitForSeconds(frameDuration);
             }
 
-            OnRevealFinished?.Invoke(!_wasCancelled);
+            RevealWasFinishedEvent?.Invoke(!_wasCancelled);
             StartCoroutine(DissolveAnimationCoroutine(duration * 0.2f, _wasCancelled));
         }
         private IEnumerator DissolveAnimationCoroutine(float duration, bool flowBack)

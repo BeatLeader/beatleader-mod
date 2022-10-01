@@ -7,9 +7,7 @@ namespace BeatLeader.Models
         public KeyCode HideUIHotkey { get; set; }
         public KeyCode HideCursorHotkey { get; set; }
         public KeyCode PauseHotkey { get; set; }
-        public KeyCode SwitchViewRightHotkey { get; set; }
-        public KeyCode SwitchViewLeftHotkey { get; set; }
-        public KeyCode IncFOVHotkey { get; set; }
-        public KeyCode DecFOVHotkey { get; set; }
+        public KeyCode RewindForwardHotkey { get; set; }
+        public KeyCode RewindBackwardHotkey { get; set; }
     }
 }

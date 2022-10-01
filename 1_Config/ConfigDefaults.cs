@@ -30,7 +30,7 @@ namespace BeatLeader
 
         #region ReplayerSettings
 
-        public static readonly ReplayerSettings ReplayerSettings = new()
+        public static ReplayerSettings ReplayerSettings => new()
         {
             ShowUI = true,
             ForceUseReplayerCamera = false,
@@ -52,14 +52,12 @@ namespace BeatLeader
                 HideUIHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,
-                SwitchViewRightHotkey = KeyCode.RightArrow,
-                SwitchViewLeftHotkey = KeyCode.LeftArrow,
-                IncFOVHotkey = KeyCode.UpArrow,
-                DecFOVHotkey = KeyCode.DownArrow
+                RewindForwardHotkey = KeyCode.RightArrow,
+                RewindBackwardHotkey = KeyCode.LeftArrow,
             }
         };
 
-        public static readonly FloatingConfig FloatingConfig = new()
+        public static FloatingConfig FloatingConfig => new()
         {
             Position = new UnityEngine.Vector3(0, 1, 2),
             Rotation = UnityEngine.Quaternion.Euler(new UnityEngine.Vector3(40, 0, 0)),

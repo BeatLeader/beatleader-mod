@@ -24,7 +24,7 @@ namespace BeatLeader.Replayer.Movement
 
         protected void Start()
         {
-            _frames = new LinkedList<Frame>(_replayData.replay.frames);
+            _frames = new LinkedList<Frame>(_replayData.Replay.frames);
             _lastProcessedNode = _frames.First;
 
             _beatmapTimeController.SongRewindEvent += HandleSongWasRewinded;

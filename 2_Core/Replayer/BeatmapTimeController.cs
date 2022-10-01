@@ -18,6 +18,10 @@ namespace BeatLeader.Replayer
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
+        public float SongTime => _audioTimeSyncController.songTime;
+        public float TotalSongTime => _audioTimeSyncController.songEndTime;
+        public float SongSpeedMultiplier => _audioTimeSyncController.timeScale;
+
         public event Action<float> SongSpeedChangedEvent;
         public event Action<float> SongRewindEvent;
 
@@ -45,41 +49,52 @@ namespace BeatLeader.Replayer
         }
         public void Rewind(float time, bool resume = true)
         {
-            if (Math.Abs(time - _audioTimeSyncController.songTime) < 0.001f) return;
+            if (Math.Abs(time - SongTime) < 0.001f) return;
 
-            bool flag = _audioTimeSyncController.state == AudioTimeSyncController.State.Paused;
-            if (!flag) _audioTimeSyncController.Pause();
+            time = time > TotalSongTime ? TotalSongTime : time;
+            time = time < 0 ? 0 : time;
+
+            bool wasPausedBeforeRewind = _audioTimeSyncController
+                .state.Equals(AudioTimeSyncController.State.Paused);
+            if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
 
             DespawnAllNoteControllerSounds();
             DespawnAllBeatmapObjects();
 
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
             _audioTimeSyncController.SeekTo(time / _audioTimeSyncController.timeScale);
+
             _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
-            NoodleExtensionsInterop.RequestReprocess();
             _beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
-            _callbacksInTimes.ToList().ForEach(x => x.Value.lastProcessedNode = null);
+            foreach (var callback in _callbacksInTimes)
+                callback.Value.lastProcessedNode = null;
+
+            NoodleExtensionsInterop.RequestReprocess();
 
             SongRewindEvent?.Invoke(time);
 
-            if (!flag && resume) _audioTimeSyncController.Resume();
+            if (!wasPausedBeforeRewind && resume) 
+                _audioTimeSyncController.Resume();
             _beatmapCallbacksUpdater.Resume();
         }
         public void SetSpeedMultiplier(float multiplier, bool resume = true)
         {
             if (Math.Abs(multiplier - _audioTimeSyncController.timeScale) < 0.001f) return;
-            bool flag = _audioTimeSyncController.state == AudioTimeSyncController.State.Paused;
-            if (!flag) _audioTimeSyncController.Pause();
+
+            bool wasPausedBeforeRewind = _audioTimeSyncController
+                .state.Equals(AudioTimeSyncController.State.Paused);
+            if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
 
             DespawnAllNoteControllerSounds();
             _audioTimeSyncController.SetField("_timeScale", multiplier);
             _beatmapAudioSource.pitch = multiplier;
             _audioManagerSO.musicPitch = 1f / multiplier;
-            
-            if (!flag && resume) _audioTimeSyncController.Resume();
 
             SongSpeedChangedEvent?.Invoke(multiplier);
+
+            if (!wasPausedBeforeRewind && resume) 
+                _audioTimeSyncController.Resume();
         }
 
         private void DespawnAllBeatmapObjects() => _spawnedBeatmapObjectControllers.ForEach(x => x.Dissolve(0));

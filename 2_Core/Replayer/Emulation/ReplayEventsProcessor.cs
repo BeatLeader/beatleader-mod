@@ -32,8 +32,8 @@ namespace BeatLeader.Replayer.Emulation
         {
             _beatmapTimeController.SongRewindEvent += HandleSongWasRewinded;
 
-            _notes = _launchData.replay.notes;
-            _walls = _launchData.replay.walls;
+            _notes = _launchData.Replay.notes;
+            _walls = _launchData.Replay.walls;
         }
         public void Dispose()
         {

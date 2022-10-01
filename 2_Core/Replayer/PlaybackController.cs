@@ -8,21 +8,19 @@ namespace BeatLeader.Replayer
 {
     public class PlaybackController : MonoBehaviour
     {
-        [Inject] private readonly PauseMenuManager _pauseMenuManager;
+        #region Injection
+
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly PauseController _pauseController;
         [Inject] private readonly AudioTimeSyncController _songTimeSyncController;
-        [Inject] private readonly GameplayModifiers _modifiers;
         [Inject] private readonly SaberManager _saberManager;
         [Inject] private readonly IGamePause _gamePause;
 
         [Inject] private readonly IVRPlatformHelper _vrPlatformHelper;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger;
 
-        public float CurrentSongTime => _songTimeSyncController.songTime;
-        public float TotalSongTime => _songTimeSyncController.songEndTime;
-        public float CurrentSongSpeedMultiplier => _songTimeSyncController.timeScale;
-        public float SongSpeedMultiplier => _modifiers.songSpeedMul;
+        #endregion
+
         public bool IsPaused => _gamePause.isPaused;
 
         public event Action<bool> PauseStateChangedEvent;
@@ -43,6 +41,7 @@ namespace BeatLeader.Replayer
             _vrPlatformHelper.inputFocusWasCapturedEvent -= HandleInputFocusWasLost;
             _pauseButtonTrigger.menuButtonTriggeredEvent -= HandleMenuButtonTriggered;
         }
+
         public void Pause(bool pause, bool notify = true, bool force = false)
         {
             if (force) SetPauseState(!pause);
@@ -64,7 +63,7 @@ namespace BeatLeader.Replayer
             _beatmapObjectManager.PauseAllBeatmapObjects(pause);
             PauseStateChangedEvent?.Invoke(pause);
         }
-        public void EscapeToMenu() => _pauseMenuManager.MenuButtonPressed();
+        public void EscapeToMenu() => _pauseController.HandlePauseMenuManagerDidPressMenuButton();
 
         #region Events
 

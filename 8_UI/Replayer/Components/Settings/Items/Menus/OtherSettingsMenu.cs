@@ -15,28 +15,28 @@ namespace BeatLeader.Components.Settings
 
         [UIValue("show-head")] private bool _ShowHead
         {
-            get => _replayData.actualSettings.ShowHead;
+            get => _replayData.ActualSettings.ShowHead;
             set
             {
-                _replayData.actualToWriteSettings.ShowHead = value;
+                _replayData.ActualToWriteSettings.ShowHead = value;
                 _controllersManager.ShowNode(XRNode.Head, value);
             }
         }
         [UIValue("show-left-saber")] private bool _ShowLeftSaber
         {
-            get => _replayData.actualSettings.ShowLeftSaber;
+            get => _replayData.ActualSettings.ShowLeftSaber;
             set
             {
-                _replayData.actualToWriteSettings.ShowLeftSaber = value;
+                _replayData.ActualToWriteSettings.ShowLeftSaber = value;
                 _controllersManager.ShowNode(XRNode.LeftHand, value);
             }
         }
         [UIValue("show-right-saber")] private bool _ShowRightSaber
         {
-            get => _replayData.actualSettings.ShowRightSaber;
+            get => _replayData.ActualSettings.ShowRightSaber;
             set
             {
-                _replayData.actualToWriteSettings.ShowRightSaber = value;
+                _replayData.ActualToWriteSettings.ShowRightSaber = value;
                 _controllersManager.ShowNode(XRNode.RightHand, value);
             }
         }

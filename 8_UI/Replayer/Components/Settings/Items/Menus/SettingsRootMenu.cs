@@ -27,7 +27,7 @@ namespace BeatLeader.Components.Settings
         }
         private void SetupCameraMenu()
         {
-            var settings = _replayData.actualSettings;
+            var settings = _replayData.ActualSettings;
             bool useReplayerCam = settings.ForceUseReplayerCamera;
 
             bool setupAsCam2 = Cam2Interop.DetectedAndValid && InputManager.IsInFPFC && !useReplayerCam;

@@ -15,10 +15,19 @@ namespace BeatLeader.Utils
             set => transform.SetLocalPose(value);
         }
 
-        public void Setup(Transform transform)
+        private Transform _transform;
+
+        public void Setup(Transform objectTransform)
         {
-            this.transform.SetParent(transform.parent);
-            transform.SetParent(this.transform);
+            _transform = objectTransform;
+            var thisTransform = transform;
+            
+            thisTransform.SetParent(objectTransform.parent, false);
+            objectTransform.SetParent(thisTransform);
+        }
+        public void Dispose()
+        {
+            _transform?.SetParent(transform.parent, false);
         }
     }
 }

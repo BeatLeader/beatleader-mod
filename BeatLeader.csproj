@@ -298,6 +298,7 @@
     <Compile Include="2_Core\Models\AvatarImage.cs" />
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
     <Compile Include="2_Core\Models\ICameraPoseProvider.cs" />
+    <Compile Include="2_Core\Models\ILateInitializable.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
     <Compile Include="2_Core\Models\LeaderboardsInfoResponse.cs" />
     <Compile Include="2_Core\Models\LeaderboardKey.cs" />
@@ -317,11 +318,29 @@
     <Compile Include="2_Core\Models\Score.cs" />
     <Compile Include="2_Core\Models\ScoresContext.cs" />
     <Compile Include="2_Core\Models\ScoresScope.cs" />
+    <Compile Include="2_Core\Models\ZenjectComponentModel.cs" />
+    <Compile Include="2_Core\Replayer\Binding\Hotkeys\RewindForwardHotkey.cs" />
     <Compile Include="2_Core\Replayer\Emulation\ReplayEventsProcessor.cs" />
     <Compile Include="2_Core\Replayer\Emulation\ReplayerNotesCutter.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayerScoreProcessor.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Scoring\NoteControllerEmulator.cs" />
     <Compile Include="2_Core\Managers\ModifiersMapManager.cs" />
+    <Compile Include="2_Core\Replayer\Binding\GameHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Binding\Hotkeys\HideCursorHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Binding\Hotkeys\HideUIHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Binding\HotkeysHandler.cs" />
+    <Compile Include="2_Core\Replayer\Binding\Hotkeys\PauseHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Binding\Hotkeys\RewindBackwardHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\GarbageDisablerTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\EventsSubscriberTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\GameTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InputSystemTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\ModifiersTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RaycastBlockerTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\MethodsSilencerTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RoomOffsetsTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SmoothCameraTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\TweaksLoader.cs" />
     <Compile Include="7_Utils\Interop\BeatSaviorInterop.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeMaterials.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemesCollection.cs" />
@@ -347,10 +366,8 @@
     <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
     <Compile Include="7_Utils\InputManager.cs" />
     <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
-    <Compile Include="2_Core\Replayer\SceneTweaksManager.cs" />
     <Compile Include="2_Core\Replayer\PlaybackController.cs" />
     <Compile Include="2_Core\Replayer\ReplayerMenuLoader.cs" />
-    <Compile Include="2_Core\Replayer\HotkeysManager.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphUtils.cs" />
@@ -597,5 +614,6 @@
     <Content Include=".gitignore" />
     <Content Include="Media\cover.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

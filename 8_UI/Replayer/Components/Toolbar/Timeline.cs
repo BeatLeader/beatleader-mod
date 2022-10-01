@@ -67,7 +67,7 @@ namespace BeatLeader.Components
             _slider.handleRect = _handle.rectTransform;
             _slider.fillRect = _fill.rectTransform;
             _slider.minValue = 0;
-            _slider.maxValue = _playbackController.TotalSongTime;
+            _slider.maxValue = _timeController.TotalSongTime;
             _slider.onValueChanged.AddListener(x =>
             {
                 _timeController.Rewind(x, false);
@@ -90,9 +90,9 @@ namespace BeatLeader.Components
             _bombPrefab.sprite = BSMLUtility.LoadSprite("#bad-cut-icon");
             _bombPrefab.color = Color.yellow;
 
-            GenerateMarkers(_replayData.replay.notes.Where(x => x.eventType == Models.NoteEventType.miss || x.eventType == Models.NoteEventType.bad)
+            GenerateMarkers(_replayData.Replay.notes.Where(x => x.eventType == Models.NoteEventType.miss || x.eventType == Models.NoteEventType.bad)
                 .Select(x => x.eventTime), _missPrefab.gameObject);
-            GenerateMarkers(_replayData.replay.notes.Where(x => x.eventType == Models.NoteEventType.bomb)
+            GenerateMarkers(_replayData.Replay.notes.Where(x => x.eventType == Models.NoteEventType.bomb)
                 .Select(x => x.eventTime), _bombPrefab.gameObject);
         }
 
@@ -112,7 +112,7 @@ namespace BeatLeader.Components
 
         private void Update()
         {
-            _slider.SetValueWithoutNotify(_playbackController.CurrentSongTime);
+            _slider.SetValueWithoutNotify(_timeController.SongTime);
 
             if ((_focusWasLost && !_dragging) || (_focusWasLost && _currentState && !_dragging))
             {
@@ -178,7 +178,7 @@ namespace BeatLeader.Components
         }
         private float MapTimelineMarker(float time)
         {
-            float val = MathUtils.Map(time, 0 /* song start offset */, _playbackController.TotalSongTime,
+            float val = MathUtils.Map(time, 0 /* song start offset */, _timeController.TotalSongTime,
                 -(_marksArea.sizeDelta.x / 2), _marksArea.sizeDelta.x / 2);
             if ((_marksArea.sizeDelta.x / 2) - val.ToPositive() < (CalculateMarkerSize().x / 2))
             {

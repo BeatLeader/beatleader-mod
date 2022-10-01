@@ -64,7 +64,7 @@ namespace BeatLeader.Replayer.Movement
 
             InjectControllers();
             Cam2Interop.SetHeadTransform(HeadContainer.transform);
-            LoadConfig(_replayData.actualSettings);
+            LoadConfig(_replayData.ActualSettings);
             IsInitialized = true;
         }
         protected virtual void OnDestroy()

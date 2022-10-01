@@ -18,7 +18,7 @@ namespace BeatLeader.Components
                 if (!CanBeDisabled) return;
 
                 _text.gameObject.SetActive(value);
-                _launchData.actualToWriteSettings.ShowWatermark = value;
+                _launchData.ActualToWriteSettings.ShowWatermark = value;
             }
         }
         public bool CanBeDisabled { get; private set; }
@@ -35,10 +35,10 @@ namespace BeatLeader.Components
             _text.alignment = TextAlignmentOptions.Center;
             transform.position = new Vector3(0, 2.6f, 6);
 
-            var level = _launchData.difficultyBeatmap.level;
-            _text.text = GetFormattedText(_launchData.player.name, level.songName, level.songAuthorName);
+            var level = _launchData.DifficultyBeatmap.level;
+            _text.text = GetFormattedText(_launchData.Player.name, level.songName, level.songAuthorName);
 
-            Enabled = _launchData.actualSettings.ShowWatermark;
+            Enabled = _launchData.ActualSettings.ShowWatermark;
         }
         private string GetFormattedText(string player, string songName, string songAuthor)
         {
@@ -46,7 +46,7 @@ namespace BeatLeader.Components
         }
         private bool IsWatermarkCanBeDisabled()
         {
-            return ProfileManager.IsCurrentPlayer(_launchData.player);
+            return ProfileManager.IsCurrentPlayer(_launchData.Player);
         }
     }
 }

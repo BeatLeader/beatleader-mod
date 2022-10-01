@@ -14,7 +14,10 @@ namespace BeatLeader.Components
     internal class Toolbar : EditableElement
     {
         [Inject] private readonly PlaybackController _playbackController;
+        [Inject] private readonly BeatmapTimeController _timeController;
         [InjectOptional] private readonly LayoutEditor _layoutEditor;
+
+        #region BSML
 
         [UIComponent("container")] private RectTransform _container;
         [UIComponent("play-button")] private BetterButton _playButton;
@@ -33,6 +36,8 @@ namespace BeatLeader.Components
         }
         [UIValue("timeline")] private Timeline _timeline;
         [UIValue("settings-navigator")] private SettingsController _settingsNavigator;
+
+        #endregion
 
         protected override RectTransform ContainerRect => _container;
         public override bool Locked => true;
@@ -65,8 +70,8 @@ namespace BeatLeader.Components
         }
         private void Update()
         {
-            float time = _playbackController.CurrentSongTime;
-            float totalTime = _playbackController.TotalSongTime;
+            float time = _timeController.SongTime;
+            float totalTime = _timeController.TotalSongTime;
 
             float minutes = Mathf.FloorToInt(time / 60);
             float seconds = Mathf.FloorToInt(time - (minutes * 60));

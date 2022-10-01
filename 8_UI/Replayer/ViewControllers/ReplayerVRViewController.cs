@@ -43,7 +43,7 @@ namespace BeatLeader.ViewControllers
             _floating.handle.transform.localPosition = new Vector3(11, -23.5f, 0);
             _floating.handle.transform.localScale = new Vector3(20, 3.67f, 3.67f);
             _floatingControls.Setup(_floating, _playbackController,
-                _cameraController.Camera.transform, !_launchData.actualSettings.ShowUI);
+                _cameraController.Camera.transform, !_launchData.ActualSettings.ShowUI);
 
             _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
             _vrControllersManager.ShowMenuControllers();

@@ -44,7 +44,7 @@ namespace BeatLeader.Components
 
         protected override void OnInitialize()
         {
-            IPreviewBeatmapLevel previewBeatmapLevel = _replayData.difficultyBeatmap.level;
+            IPreviewBeatmapLevel previewBeatmapLevel = _replayData.DifficultyBeatmap.level;
             songName = previewBeatmapLevel.songName;
             songAuthor = previewBeatmapLevel.levelAuthorName;
             LoadAndAssignImage(previewBeatmapLevel);

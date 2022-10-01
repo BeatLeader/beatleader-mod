@@ -23,7 +23,7 @@ namespace BeatLeader.Components
         protected override HideMode Mode => HideMode.Opacity;
         public override string Name => "PlayerInfo";
 
-        private Player _player => _replayData.player;
+        private Player _player => _replayData.Player;
 
         protected override void OnInstantiate()
         {

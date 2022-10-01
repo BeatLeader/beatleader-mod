@@ -34,7 +34,6 @@ namespace BeatLeader.Replayer.Camera
 
         [Inject] protected readonly VRControllersProvider _vrControllersManager;
         [Inject] protected readonly InitData _data;
-        [Inject] protected readonly Models.ReplayLaunchData _replayData;
 
         public List<ICameraPoseProvider> PoseProviders { get; protected set; }
         public string CurrentPoseName => _currentPose?.Name ?? string.Empty;

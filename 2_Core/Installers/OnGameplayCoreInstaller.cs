@@ -14,6 +14,9 @@ using BeatLeader.Components;
 using BeatLeader.ViewControllers;
 using SiraUtil.Tools.FPFC;
 using System;
+using BeatLeader.Replayer.Tweaking;
+using BeatLeader.Replayer.Binding;
+using static BeatLeader.Utils.InputManager;
 
 namespace BeatLeader.Installers
 {
@@ -74,14 +77,15 @@ namespace BeatLeader.Installers
 
         private static readonly ReplayerCameraController.InitData cameraInitData = new ReplayerCameraController.InitData(
 
-           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.FPFC),
-           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.VR),
-           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.FPFC),
-           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.VR),
-           new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.identity, InputManager.InputType.FPFC),
-           new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Quaternion.identity, InputManager.InputType.VR),
-           new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Quaternion.identity, InputManager.InputType.FPFC),
-           new StaticCameraPose(3, "CenterView", Vector3.zero, Quaternion.identity, InputManager.InputType.VR),
+           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), new Vector3(0, 60, 0), InputType.FPFC),
+           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, -1.10f), new Vector3(0, -60, 0), InputType.FPFC),
+           new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Vector3.zero, InputType.FPFC),
+           new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Vector3.zero, InputType.FPFC),
+
+           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), new Vector3(0, 60, 0), InputType.VR),
+           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 0, -1.10f), new Vector3(0, -60, 0), InputType.VR),
+           new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Vector3.zero, InputType.VR),
+           new StaticCameraPose(3, "CenterView", Vector3.zero, Vector3.zero, InputType.VR),
 
            new FlyingCameraPose(new Vector2(0.5f, 0.5f), new Vector2(0, 1.7f), 4, true, "FreeView"),
            new PlayerViewCameraPose(3)
@@ -106,9 +110,10 @@ namespace BeatLeader.Installers
 
             Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle().Lazy();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            //Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<TweaksLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<HotkeysHandler>().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<HotkeysManager>().AsSingle().NonLazy();
             Container.Bind<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             if (InputManager.IsInFPFC)
@@ -152,10 +157,9 @@ namespace BeatLeader.Installers
         private void DisableScoreSubmission()
         {
             _submissionTicket = Container.Resolve<Submission>()?.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
-            ReplayerLauncher.LaunchData.replayWasFinishedEvent += HandleReplayWasFinished;
+            ReplayerLauncher.LaunchData.ReplayWasFinishedEvent += HandleReplayWasFinished;
         }
-        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data,
-            LevelCompletionResults results, Models.ReplayLaunchData launchData)
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data, Models.ReplayLaunchData launchData)
         {
             if (_submissionTicket != null)
             {

@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Emulation;
+using BeatLeader.Utils;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
@@ -15,10 +16,10 @@ namespace BeatLeader.Replayer
         [Inject] protected readonly ComboController _comboController;
         [Inject] protected readonly ReplayEventsProcessor _eventsProcessor;
 
-        protected ComboUIController _comboUIController;
-        protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
-        protected NoteDebrisSpawner _noteDebrisSpawner;
-        protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
+        [FirstResourceAttribute] protected ComboUIController _comboUIController;
+        [FirstResourceAttribute] protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
+        [FirstResourceAttribute] protected NoteDebrisSpawner _noteDebrisSpawner;
+        [FirstResourceAttribute] protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
 
         protected float _debrisCutDirMultiplier;
         protected float _debrisFromCenterSpeed;
@@ -28,10 +29,7 @@ namespace BeatLeader.Replayer
 
         protected virtual void Awake()
         {
-            _comboUIController = Resources.FindObjectsOfTypeAll<ComboUIController>().First();
-            _sparkleEffectManager = Resources.FindObjectsOfTypeAll<ObstacleSaberSparkleEffectManager>().First();
-            _saberBurnMarkSparkles = Resources.FindObjectsOfTypeAll<SaberBurnMarkSparkles>().First();
-            _noteDebrisSpawner = Resources.FindObjectsOfTypeAll<NoteDebrisSpawner>().First();
+            this.LoadResources();
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
             _debrisFromCenterSpeed = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_fromCenterSpeed");
             _debrisMoveSpeedMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_moveSpeedMultiplier");

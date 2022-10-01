@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Interop;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Replayer
 {
@@ -18,6 +18,9 @@ namespace BeatLeader.Replayer
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
+        [FirstResourceAttribute] private BombCutSoundEffectManager _bombCutSoundEffectManager;
+        [FirstResourceAttribute] private AudioManagerSO _audioManagerSO;
+
         public float SongTime => _audioTimeSyncController.songTime;
         public float TotalSongTime => _audioTimeSyncController.songEndTime;
         public float SongSpeedMultiplier => _audioTimeSyncController.timeScale;
@@ -27,18 +30,13 @@ namespace BeatLeader.Replayer
 
         private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
         private BombCutSoundEffect.Pool _bombCutSoundPool;
-
         private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers;
         private Dictionary<float, CallbacksInTime> _callbacksInTimes;
-        private BombCutSoundEffectManager _bombCutSoundEffectManager;
-        private AudioManagerSO _audioManagerSO;
         private AudioSource _beatmapAudioSource;
 
         private void Start()
         {
-            _bombCutSoundEffectManager = Resources.FindObjectsOfTypeAll<BombCutSoundEffectManager>().First();
-            _audioManagerSO = Resources.FindObjectsOfTypeAll<AudioManagerSO>().First();
-
+            this.LoadResources();
             _spawnedBeatmapObjectControllers = _beatmapObjectManager
                 .GetField<List<IBeatmapObjectController>, BeatmapObjectManager>("_allBeatmapObjects");
             _callbacksInTimes = _beatmapCallbacksController

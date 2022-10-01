@@ -41,14 +41,14 @@ namespace BeatLeader.Replayer.Camera
         public ICameraPoseProvider CurrentPose => _currentPose;
         public ValueTuple<Pose, Pose> CameraAndHeadPosesTuple
         {
-            get => (transform.GetLocalPose(), _vrControllersManager.HeadContainer.transform.GetLocalPose());
+            get => (transform.GetLocalPose(), _vrControllersManager.Head.transform.GetLocalPose());
             protected set
             {
                 transform.SetLocalPose(value.Item1);
-                _vrControllersManager.HeadContainer.transform.SetLocalPose(value.Item2);
+                _vrControllersManager.Head.transform.SetLocalPose(value.Item2);
 
                 if (InputManager.IsInFPFC) return;
-                _vrControllersManager.MenuHandsContainerTransform.SetLocalPose(value.Item1);
+                _vrControllersManager.MenuHandsContainer.SetLocalPose(value.Item1);
             }
         }
         public int CullingMask

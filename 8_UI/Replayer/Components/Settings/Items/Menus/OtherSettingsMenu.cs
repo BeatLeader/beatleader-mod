@@ -1,7 +1,6 @@
 ﻿using BeatLeader.Replayer.Movement;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
-using UnityEngine.XR;
 using Zenject;
 
 namespace BeatLeader.Components.Settings
@@ -19,7 +18,7 @@ namespace BeatLeader.Components.Settings
             set
             {
                 _replayData.ActualToWriteSettings.ShowHead = value;
-                _controllersManager.ShowNode(XRNode.Head, value);
+                _controllersManager.Head.gameObject.SetActive(value);
             }
         }
         [UIValue("show-left-saber")] private bool _ShowLeftSaber
@@ -28,7 +27,7 @@ namespace BeatLeader.Components.Settings
             set
             {
                 _replayData.ActualToWriteSettings.ShowLeftSaber = value;
-                _controllersManager.ShowNode(XRNode.LeftHand, value);
+                _controllersManager.LeftSaber.gameObject.SetActive(value);
             }
         }
         [UIValue("show-right-saber")] private bool _ShowRightSaber
@@ -37,7 +36,7 @@ namespace BeatLeader.Components.Settings
             set
             {
                 _replayData.ActualToWriteSettings.ShowRightSaber = value;
-                _controllersManager.ShowNode(XRNode.RightHand, value);
+                _controllersManager.RightSaber.gameObject.SetActive(value);
             }
         }
         [UIValue("show-watermark")] private bool _ShowWatermark

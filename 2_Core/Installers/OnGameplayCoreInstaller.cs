@@ -104,7 +104,7 @@ namespace BeatLeader.Installers
             Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle().Lazy();
             Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

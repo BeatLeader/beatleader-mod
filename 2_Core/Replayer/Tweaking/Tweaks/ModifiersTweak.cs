@@ -14,12 +14,14 @@ namespace BeatLeader.Replayer.Tweaking
             Plugin.Log.Notice("[Tweaker] Loading modifiers from server...");
             if (!LoadModifiersIfNeeded(_launchData.DifficultyBeatmap))
                 Plugin.Log.Error("[Tweaker] Unable to load modifiers from server, scores may be differ!");
+            else
+                Plugin.Log.Notice("[Tweaker] Modifiers successfully loaded!");
         }
         public override void Dispose()
         {
             Plugin.Log.Notice("[Tweaker] Loading modifiers back...");
             ModifiersMapManager.LoadGameplayModifiersMap();
-            Plugin.Log.Notice("[Tweaker] Modifiers successfully loaded");
+            Plugin.Log.Notice("[Tweaker] Modifiers successfully loaded!");
         }
 
         private bool LoadModifiersIfNeeded(IDifficultyBeatmap beatmap)

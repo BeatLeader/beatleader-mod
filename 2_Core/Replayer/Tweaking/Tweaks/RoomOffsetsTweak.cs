@@ -62,7 +62,7 @@ namespace BeatLeader.Replayer.Tweaking
             _handsOffsetsApplier = new GameObject("HandsOffsetsApplier").AddComponent<OffsetsApplier>();
 
             _cameraOffsetsApplier.Setup(_cameraController.transform);
-            _handsOffsetsApplier.Setup(_controllersProvider.MenuHandsContainerTransform);
+            _handsOffsetsApplier.Setup(_controllersProvider.MenuHandsContainer);
 
             var pose = new Pose(_tempRoomPosition, Quaternion.Euler(0, _roomRotation, 0));
             _cameraOffsetsApplier.Offsets = pose;

@@ -19,7 +19,7 @@ namespace BeatLeader.Replayer.Movement
 
         protected VRController _LeftSaber => _vrControllersManager.LeftSaber;
         protected VRController _RightSaber => _vrControllersManager.RightSaber;
-        protected VRController _Head => _vrControllersManager.HeadContainer;
+        protected VRController _Head => _vrControllersManager.Head;
         public bool IsPlaying => _audioTimeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
 
         protected void Start()

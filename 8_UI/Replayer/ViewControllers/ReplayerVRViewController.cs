@@ -45,7 +45,7 @@ namespace BeatLeader.ViewControllers
             _floatingControls.Setup(_floating, _playbackController,
                 _cameraController.Camera.transform, !_launchData.ActualSettings.ShowUI);
 
-            _vrControllersManager.AttachToTheNode(XRNode.GameController, container.transform);
+            container.transform.SetParent(_vrControllersManager.MenuHandsContainer, false);
             _vrControllersManager.ShowMenuControllers();
         }
     }

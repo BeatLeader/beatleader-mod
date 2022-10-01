@@ -242,7 +242,6 @@
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />
     <Compile Include="1_Config\PluginConfig.cs" />
-    <Compile Include="1_Config\SerializeAutomaticallyAttribute.cs" />
     <Compile Include="1_Config\AutomaticConfigTool.cs" />
     <Compile Include="2_Core\API\Abstract\IWebRequestDescriptor.cs" />
     <Compile Include="2_Core\API\Abstract\IWebRequestHandler.cs" />
@@ -268,6 +267,8 @@
     <Compile Include="2_Core\API\RequestDescriptors\RawGetRequestDescriptor.cs" />
     <Compile Include="2_Core\API\RequestHandlers\PersistentSingletonRequestHandler.cs" />
     <Compile Include="2_Core\API\RequestHandlers\SimpleRequestHandler.cs" />
+    <Compile Include="2_Core\Attributes\FirstResourceAttribute.cs" />
+    <Compile Include="2_Core\Attributes\SerializeAutomaticallyAttribute.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
     <Compile Include="2_Core\CountryFlagsStorage.cs" />
     <Compile Include="2_Core\Installers\OnAppInitInstaller.cs" />
@@ -349,6 +350,7 @@
     <Compile Include="3_AssetBundle\Themes\ThemeType.cs" />
     <Compile Include="7_Utils\Interop\ScoreSaberInterop.cs" />
     <Compile Include="0_Harmony\HarmonySilencer.cs" />
+    <Compile Include="7_Utils\StaticUtils\UnityResourcesHelper.cs" />
     <Compile Include="7_Utils\UtilityClasses\OffsetsApplier.cs" />
     <Compile Include="7_Utils\UtilityClasses\SliderValuesApplier.cs" />
     <Compile Include="2_Core\Models\Voting.cs" />
@@ -614,6 +616,5 @@
     <Content Include=".gitignore" />
     <Content Include="Media\cover.png" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

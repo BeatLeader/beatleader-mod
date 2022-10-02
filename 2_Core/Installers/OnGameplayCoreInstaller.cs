@@ -9,7 +9,7 @@ using Zenject;
 using BeatLeader.Replayer.Camera;
 using UnityEngine;
 using BeatLeader.Replayer.Emulation;
-using BeatLeader.Replayer.Movement;
+using BeatLeader.Replayer.Emulation;
 using BeatLeader.Components;
 using BeatLeader.ViewControllers;
 using SiraUtil.Tools.FPFC;
@@ -110,7 +110,6 @@ namespace BeatLeader.Installers
 
             Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle().Lazy();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            //Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<TweaksLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<HotkeysHandler>().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();

@@ -337,7 +337,7 @@
     <Compile Include="2_Core\Replayer\Tweaking\GameTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InputSystemTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\ModifiersTweak.cs" />
-    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RaycastBlockerTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InteropsLoaderTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\MethodsSilencerTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RoomOffsetsTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SmoothCameraTweak.cs" />

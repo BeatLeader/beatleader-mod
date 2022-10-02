@@ -22,11 +22,11 @@ namespace BeatLeader.Replayer
         public static event Action<ReplayLaunchData> ReplayWasStartedEvent;
         public static event Action<ReplayLaunchData> ReplayWasFinishedEvent;
 
-        public async Task<bool> StartReplayAsync(ReplayLaunchData data, Action<bool> callback = null)
+        public async Task<bool> StartReplayAsync(ReplayLaunchData data)
         {
-            return await StartReplayAsync(data, new CancellationToken(), callback);
+            return await StartReplayAsync(data, new CancellationToken());
         }
-        public async Task<bool> StartReplayAsync(ReplayLaunchData data, CancellationToken token, Action<bool> callback)
+        public async Task<bool> StartReplayAsync(ReplayLaunchData data, CancellationToken token)
         {
             Plugin.Log.Notice("[Launcher] Loading replay data...");
             bool loadResult = await AssignDataAsync(data, token);
@@ -36,17 +36,10 @@ namespace BeatLeader.Replayer
             var transitionData = data.Replay.CreateTransitionData(_playerDataModel, data.DifficultyBeatmap, environmentInfo.value);
             transitionData.didFinishEvent += ResetData;
 
-            if (token.IsCancellationRequested)
-            {
-                callback?.Invoke(false);
-                return false;
-            }
-
             IsStartedAsReplay = true;
             LaunchData = data;
 
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
-            callback?.Invoke(true);
             ReplayWasStartedEvent?.Invoke(data);
             Plugin.Log.Notice("[Launcher] Starting replay...");
 

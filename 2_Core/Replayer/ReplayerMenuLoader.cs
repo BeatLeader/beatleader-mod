@@ -159,13 +159,13 @@ namespace BeatLeader.Replayer
             line += $"Environment: {replay.info.environment}";
             Plugin.Log.Info(line);
 
-            return await _launcher.StartReplayAsync(data, result =>
+            if (await _launcher.StartReplayAsync(data))
             {
-                if (!result) return;
-
                 ScoreSaberInterop.RecordingEnabled = false;
                 BeatSaviorInterop.EnableScoreSubmission = false;
-            });
+                return true;
+            }
+            else return false;
         }
 
         private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData)

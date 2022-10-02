@@ -4,7 +4,7 @@ using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer.Movement
+namespace BeatLeader.Replayer.Emulation
 {
     public class VRControllersMovementEmulator : MonoBehaviour
     {

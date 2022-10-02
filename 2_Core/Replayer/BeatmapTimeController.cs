@@ -10,6 +10,8 @@ namespace BeatLeader.Replayer
 {
     public class BeatmapTimeController : MonoBehaviour
     {
+        #region Injection
+
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
@@ -18,8 +20,10 @@ namespace BeatLeader.Replayer
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
-        [FirstResourceAttribute] private BombCutSoundEffectManager _bombCutSoundEffectManager;
-        [FirstResourceAttribute] private AudioManagerSO _audioManagerSO;
+        [FirstResource] private BombCutSoundEffectManager _bombCutSoundEffectManager;
+        [FirstResource] private AudioManagerSO _audioManagerSO;
+
+        #endregion
 
         public float SongTime => _audioTimeSyncController.songTime;
         public float TotalSongTime => _audioTimeSyncController.songEndTime;

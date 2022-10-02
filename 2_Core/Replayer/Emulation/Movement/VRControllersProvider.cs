@@ -4,7 +4,7 @@ using UnityEngine.XR;
 using Zenject;
 using BeatLeader.Utils;
 
-namespace BeatLeader.Replayer.Movement
+namespace BeatLeader.Replayer.Emulation
 {
     public class VRControllersProvider : MonoBehaviour
     {
@@ -20,7 +20,7 @@ namespace BeatLeader.Replayer.Movement
         public VRController LeftHand { get; protected set; }
         public VRController RightHand { get; protected set; }
         public Transform MenuHandsContainer { get; protected set; }
-        [FirstResource("VRGameCore")] public Transform OriginTransform { get; protected set; }
+        [FirstResource("VRGameCore")] public Transform Origin { get; protected set; }
 
         private Transform _menuHandsTransform;
         private bool _isInitialized;
@@ -43,12 +43,12 @@ namespace BeatLeader.Replayer.Movement
             RightHand = _menuHandsTransform.Find("ControllerRight")?.GetComponent<VRController>();
 
             Head = Instantiate(BundleLoader.MonkeyPrefab, null, false).AddComponent<VRControllerEmulator>();
-            Head.transform.SetParent(OriginTransform, false);
+            Head.transform.SetParent(Origin, false);
             Head.node = XRNode.Head;
 
             //you ask me why? smth just moves menu hands to the zero pose
             MenuHandsContainer = new GameObject("PauseMenuHands").transform;
-            MenuHandsContainer.SetParent(OriginTransform, true);
+            MenuHandsContainer.SetParent(Origin, true);
             _menuHandsTransform.SetParent(MenuHandsContainer, false);
 
             _vrControllersManager.leftHandVRController.enabled = false;

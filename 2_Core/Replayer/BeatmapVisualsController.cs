@@ -11,15 +11,19 @@ namespace BeatLeader.Replayer
 {
     public class BeatmapVisualsController : MonoBehaviour
     {
+        #region Injection
+
         [Inject] protected readonly PlaybackController _playbackController;
         [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
         [Inject] protected readonly ComboController _comboController;
         [Inject] protected readonly ReplayEventsProcessor _eventsProcessor;
 
-        [FirstResourceAttribute] protected ComboUIController _comboUIController;
-        [FirstResourceAttribute] protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
-        [FirstResourceAttribute] protected NoteDebrisSpawner _noteDebrisSpawner;
-        [FirstResourceAttribute] protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
+        [FirstResource] protected ComboUIController _comboUIController;
+        [FirstResource] protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
+        [FirstResource] protected NoteDebrisSpawner _noteDebrisSpawner;
+        [FirstResource] protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
+
+        #endregion
 
         protected float _debrisCutDirMultiplier;
         protected float _debrisFromCenterSpeed;
@@ -53,8 +57,12 @@ namespace BeatLeader.Replayer
         {
             _saberBurnMarkSparkles.enabled = !pause;
             _sparkleEffectManager.gameObject.SetActive(!pause);
-            _sparkleEffectManager.GetField<ObstacleSaberSparkleEffect[], ObstacleSaberSparkleEffectManager>("_effects")
-                .ToList().ForEach(x => x.gameObject.SetActive(!pause));
+
+            var effects = _sparkleEffectManager.GetField<
+                ObstacleSaberSparkleEffect[], ObstacleSaberSparkleEffectManager>("_effects");
+
+            foreach (var effect in effects)
+                effect.gameObject.SetActive(!pause);
         }
         public void ModifyCombo(int combo, int maxCombo, bool isBroken = false)
         {
@@ -73,6 +81,8 @@ namespace BeatLeader.Replayer
             _noteDebrisSpawner.SetField("_moveSpeedMultiplier", _debrisMoveSpeedMultiplier * multiplier);
             _noteDebrisSpawner.SetField("_fromCenterSpeed", _debrisFromCenterSpeed * multiplier);
         }
+
+        #region Events
 
         private void HandlePauseStateChanged(bool state)
         {
@@ -99,5 +109,7 @@ namespace BeatLeader.Replayer
                 _wasInProcess = false;
             }
         }
+
+        #endregion
     }
 }

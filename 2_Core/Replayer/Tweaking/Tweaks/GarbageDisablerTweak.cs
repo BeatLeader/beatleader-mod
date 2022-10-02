@@ -10,13 +10,12 @@ namespace BeatLeader.Replayer.Tweaking
     {
         [Inject] private readonly MainCamera _mainCamera;
 
-        private SaberBurnMarkArea _burnMarkArea;
-        private VRLaserPointer _pointer;
+        [FirstResource] private SaberBurnMarkArea _burnMarkArea;
+        [FirstResource] private VRLaserPointer _pointer;
 
         public override void Initialize()
         {
-            _pointer = Resources.FindObjectsOfTypeAll<VRLaserPointer>().FirstOrDefault();
-            _burnMarkArea = Resources.FindObjectsOfTypeAll<SaberBurnMarkArea>().FirstOrDefault();
+            this.LoadResources();
 
             _pointer.gameObject.SetActive(!InputManager.IsInFPFC);
             _burnMarkArea.gameObject.SetActive(!InputManager.IsInFPFC);

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using BeatLeader.Replayer.Movement;
 using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Utils;
+using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.Replayer.Camera
 {
@@ -90,7 +90,7 @@ namespace BeatLeader.Replayer.Camera
             }
 
             _camera.nearClipPlane = 0.01f;
-            transform.SetParent(_vrControllersManager.OriginTransform, false);
+            transform.SetParent(_vrControllersManager.Origin, false);
 
             PoseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);

@@ -1,4 +1,4 @@
-﻿using BeatLeader.Replayer.Movement;
+﻿using BeatLeader.Replayer.Emulation;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
 using Zenject;

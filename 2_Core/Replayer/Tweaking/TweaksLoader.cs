@@ -21,7 +21,7 @@ namespace BeatLeader.Replayer.Tweaking
             new InputSystemTweak(),
             new EventsSubscriberTweak(),
             new GarbageDisablerTweak(),
-            new RaycastBlockerTweak(),
+            new InteropsLoaderTweak(),
             new MethodsSilencerTweak(),
             new ModifiersTweak(),
             new RoomOffsetsTweak()

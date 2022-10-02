@@ -1,7 +1,6 @@
 ﻿using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
-using System.Linq;
-using BeatLeader.Replayer.Movement;
+using BeatLeader.Replayer.Emulation;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
@@ -14,8 +13,8 @@ namespace BeatLeader.Replayer.Tweaking
 
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly VRControllersProvider _controllersProvider;
+        [Inject] private readonly MainSettingsModelSO _mainSettingsModel;
 
-        private RoomAdjustSettingsViewController _roomAdjustViewController;
         private OffsetsApplier _cameraOffsetsApplier;
         private OffsetsApplier _handsOffsetsApplier;
 
@@ -27,16 +26,13 @@ namespace BeatLeader.Replayer.Tweaking
 
         public override void Initialize()
         {
-            _roomAdjustViewController =
-                Resources.FindObjectsOfTypeAll<RoomAdjustSettingsViewController>().FirstOrDefault();
-            if (_roomAdjustViewController == null) return;
+            this.LoadResources();
 
-            _tempRoomPosition = _roomPosition =
-                _roomAdjustViewController.GetField<Vector3SO, RoomAdjustSettingsViewController>("_roomCenter");
-            _tempRoomRotation = _roomRotation =
-                _roomAdjustViewController.GetField<FloatSO, RoomAdjustSettingsViewController>("_roomRotation");
+            _tempRoomPosition = _roomPosition = _mainSettingsModel.roomCenter;
+            _tempRoomRotation = _roomRotation = _mainSettingsModel.roomRotation;
 
-            _roomAdjustViewController.ResetRoom();
+            _roomPosition.value = new Vector3(0f, 0f, 0f);
+            _roomRotation.value = 0f;
             CreateOffsetsAppliers();
         }
         public override void Dispose()

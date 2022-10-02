@@ -1,8 +1,7 @@
 ﻿using BeatLeader.Components;
-using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer.Movement;
+using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
 using System;
 using Zenject;
@@ -52,8 +51,6 @@ namespace BeatLeader.Replayer
                 _controllersProvider.Head.gameObject.SetActive(settings.ShowHead);
                 _controllersProvider.LeftSaber.gameObject.SetActive(settings.ShowLeftSaber);
                 _controllersProvider.RightSaber.gameObject.SetActive(settings.ShowRightSaber);
-
-                Cam2Interop.SetHeadTransform(_controllersProvider.Head.transform);
             }
         }
         public virtual void Dispose()
@@ -65,8 +62,6 @@ namespace BeatLeader.Replayer
             }
 
             if (_uiManager != null) _uiManager.UIVisibilityChangedEvent -= HandleUIVisibilityChanged;
-
-            Cam2Interop.SetHeadTransform(null);
         }
 
         private void HandleUIVisibilityChanged(bool visible)

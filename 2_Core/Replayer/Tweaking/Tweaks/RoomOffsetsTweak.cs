@@ -25,9 +25,7 @@ namespace BeatLeader.Replayer.Tweaking
         private float _tempRoomRotation;
 
         public override void Initialize()
-        {
-            this.LoadResources();
-
+        {            
             _tempRoomPosition = _roomPosition = _mainSettingsModel.roomCenter;
             _tempRoomRotation = _roomRotation = _mainSettingsModel.roomRotation;
 

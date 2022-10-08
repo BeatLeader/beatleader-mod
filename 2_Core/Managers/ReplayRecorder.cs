@@ -297,17 +297,16 @@ namespace BeatLeader {
                     Plugin.Log.Info("Level Cleared. Save replay");
                     ScoreUtil.ProcessReplay(_replay);
                     break;
-                case LevelCompletionResults.LevelEndStateType.Failed:
+                case LevelCompletionResults.LevelEndStateType.Incomplete:
                     if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
                     {
                         Plugin.Log.Info("Restart");
                     }
-                    else
-                    {
-                        _replay.info.failTime = _timeSyncController.songTime;
-                        Plugin.Log.Info("Level Failed. Save replay");
-                        ScoreUtil.ProcessReplay(_replay);
-                    }
+                    break;
+                case LevelCompletionResults.LevelEndStateType.Failed:
+                    _replay.info.failTime = _timeSyncController.songTime;
+                    Plugin.Log.Info("Level Failed. Save replay");
+                    ScoreUtil.ProcessReplay(_replay);
                     break;
             }
 

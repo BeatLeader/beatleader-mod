@@ -40,7 +40,7 @@ namespace BeatLeader {
     }
 
     // Restart button from a GameCore paused screen
-    [HarmonyPatch(typeof(PauseMenuManager), "RestartButtonPressed")]
+    [HarmonyPatch(typeof(PauseController), "HandlePauseMenuManagerDidPressRestartButton")]
     public static class PauseRestartButtonListener {
 
         private static void Prefix() {
@@ -72,17 +72,4 @@ namespace BeatLeader {
     }
 
     #endregion
-
-    [HarmonyPatch(typeof(GameScenesManager), "ScenesTransitionCoroutine")]
-    internal static class SceneTransitionPatch {
-        private static void Prefix(List<string> scenesToPresent, List<string> scenesToDismiss) {
-            bool menuToGame = scenesToDismiss.Contains("MainMenu") && scenesToPresent.Contains("StandardGameplay");
-            bool gameToMenu = scenesToDismiss.Contains("StandardGameplay") && scenesToPresent.Contains("MainMenu");
-
-            bool menuToMulti = scenesToDismiss.Contains("MainMenu") && scenesToPresent.Contains("MultiplayerGameplay");
-            bool multiToMenu = scenesToDismiss.Contains("MultiplayerGameplay") && scenesToPresent.Contains("MainMenu");
-
-            RecorderUtils.OnSceneTransitionStarted(menuToGame, gameToMenu, menuToMulti, multiToMenu);
-        }
-    }
 }

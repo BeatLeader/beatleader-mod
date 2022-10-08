@@ -9,7 +9,7 @@ namespace BeatLeader.Replayer.Tweaking
 {
     internal class SmoothCameraTweak : GameTweak
     {
-        public override bool CanBeInstalled => !InputManager.IsInFPFC;
+        public override bool CanBeInstalled => !InputUtils.IsInFPFC;
 
         [Inject] private readonly ReplayerCameraController _cameraController;
 

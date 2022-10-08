@@ -56,9 +56,19 @@ namespace BeatLeader {
 
         #region ReplayerSettings
 
+        public static event Action<ReplayerSettings> ReplayerSettingsChangedEvent;
+
         public static ReplayerSettings ReplayerSettings {
             get => ConfigFileData.Instance.ReplayerSettings;
-            set => ConfigFileData.Instance.ReplayerSettings = value;
+            set
+            {
+                ConfigFileData.Instance.ReplayerSettings = value;
+                ReplayerSettingsChangedEvent?.Invoke(value);
+            }
+        }
+
+        public static void NotifyReplayerSettingsChanged() {
+            ReplayerSettingsChangedEvent?.Invoke(ReplayerSettings);
         }
 
         #endregion

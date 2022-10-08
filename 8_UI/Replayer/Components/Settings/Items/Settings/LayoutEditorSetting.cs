@@ -13,7 +13,7 @@ namespace BeatLeader.Components.Settings
 
         protected override void OnInitialize()
         {
-           Content.gameObject.AddComponent<InputDependentObject>().Init(InputManager.InputType.FPFC);
+           Content.gameObject.AddComponent<InputDependentObject>().Init(InputUtils.InputType.FPFC);
         }
 
         [UIAction("button-clicked")] private void OpenEditor()

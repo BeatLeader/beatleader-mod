@@ -1,22 +1,22 @@
-﻿using BeatLeader.Components;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Replayer.Emulation;
+using BeatLeader.UI;
 using BeatLeader.Utils;
 using System;
 using Zenject;
 
 namespace BeatLeader.Replayer
 {
-    public class SettingsLoader : IInitializable, IDisposable
+    internal class SettingsLoader : IInitializable, IDisposable
     {
         [Inject] private readonly PlayerDataModel _playerDataModel;
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly ReplayLaunchData _launchData;
         [Inject] private readonly VRControllersProvider _controllersProvider;
-        [InjectOptional] private readonly UI2DManager _uiManager;
+        [Inject] private readonly ReplayerUIBinder _uiBinder;
 
-        public virtual void Initialize()
+        public void Initialize()
         {
             if (_playerDataModel != null && _cameraController != null)
             {
@@ -26,20 +26,17 @@ namespace BeatLeader.Replayer
                     _cameraController.CullingMask &= ~(1 << LayerMasks.noteDebrisLayer);
             }
 
-            if (_uiManager != null)
-            {
-                _uiManager.UIVisibilityChangedEvent += HandleUIVisibilityChanged;
-                _uiManager.ShowUI = _launchData.ActualSettings.ShowUI;
-            }
+            if (_uiBinder != null)
+                _uiBinder.UIVisibilityChangedEvent += HandleUIVisibilityChanged;
 
             if (_cameraController != null)
             {
-                if (InputManager.IsInFPFC)
+                if (InputUtils.IsInFPFC)
                 {
                     _cameraController.FieldOfView = _launchData.ActualSettings.CameraFOV;
                     _cameraController.CameraFOVChangedEvent += HandleCameraFOVChanged;
                 }
-                _cameraController.SetCameraPose(InputManager.IsInFPFC ?
+                _cameraController.SetCameraPose(InputUtils.IsInFPFC ?
                     _launchData.ActualSettings.FPFCCameraPose : _launchData.ActualSettings.VRCameraPose);
                 _cameraController.CameraPoseChangedEvent += HandleCameraPoseChanged;
             }
@@ -53,7 +50,7 @@ namespace BeatLeader.Replayer
                 _controllersProvider.RightSaber.gameObject.SetActive(settings.ShowRightSaber);
             }
         }
-        public virtual void Dispose()
+        public void Dispose()
         {
             if (_cameraController != null)
             {
@@ -61,7 +58,9 @@ namespace BeatLeader.Replayer
                 _cameraController.CameraPoseChangedEvent -= HandleCameraPoseChanged;
             }
 
-            if (_uiManager != null) _uiManager.UIVisibilityChangedEvent -= HandleUIVisibilityChanged;
+            if (_uiBinder != null) _uiBinder.UIVisibilityChangedEvent -= HandleUIVisibilityChanged;
+
+            PluginConfig.NotifyReplayerSettingsChanged();
         }
 
         private void HandleUIVisibilityChanged(bool visible)
@@ -70,13 +69,13 @@ namespace BeatLeader.Replayer
         }
         private void HandleCameraFOVChanged(int fov)
         {
-            _launchData.ActualSettings.CameraFOV = fov;
+            _launchData.ActualToWriteSettings.CameraFOV = fov;
         }
         private void HandleCameraPoseChanged(ICameraPoseProvider poseProvider)
         {
             var settings = _launchData.ActualToWriteSettings;
-            settings.FPFCCameraPose = InputManager.IsInFPFC ? poseProvider.Name : settings.FPFCCameraPose;
-            settings.VRCameraPose = !InputManager.IsInFPFC ? poseProvider.Name : settings.VRCameraPose;
+            settings.FPFCCameraPose = InputUtils.IsInFPFC ? poseProvider.Name : settings.FPFCCameraPose;
+            settings.VRCameraPose = !InputUtils.IsInFPFC ? poseProvider.Name : settings.VRCameraPose;
         }
     }
 }

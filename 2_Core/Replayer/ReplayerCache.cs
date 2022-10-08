@@ -5,7 +5,7 @@ using IPA.Utilities;
 
 namespace BeatLeader.Replayer
 {
-    public static class ReplayerCache
+    internal static class ReplayerCache
     {
         private static string CacheDirectory => Path.Combine(UnityGame.UserDataPath, "BeatLeader", "ReplayerCache");
 

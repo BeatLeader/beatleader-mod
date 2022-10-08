@@ -13,7 +13,10 @@ namespace BeatLeader.Replayer.Binding
 
         public override void OnKeyDown()
         {
-            _playbackController.Pause(!_playbackController.IsPaused);
+            if (!_playbackController.IsPaused)
+                _playbackController.Pause();
+            else
+                _playbackController.Resume();
         }
     }
 }

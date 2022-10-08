@@ -5,7 +5,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking
 {
-    internal class TweaksLoader : MonoBehaviour
+    public class TweaksLoader : MonoBehaviour
     {
         private enum ActionType
         {
@@ -24,7 +24,8 @@ namespace BeatLeader.Replayer.Tweaking
             new InteropsLoaderTweak(),
             new MethodsSilencerTweak(),
             new ModifiersTweak(),
-            new RoomOffsetsTweak()
+            new RoomOffsetsTweak(),
+            //new SiraUtilFreeViewTweak()
         }; //not static to dispose the garbage inside tweaks
 
         [Inject] private readonly DiContainer _container;

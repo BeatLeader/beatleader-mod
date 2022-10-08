@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Runtime.InteropServices;
-using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
+﻿using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
 using IPA.Utilities;
 using UnityEngine;
@@ -25,13 +22,15 @@ namespace BeatLeader.Replayer
 
         #endregion
 
+        #region Setup
+
         protected float _debrisCutDirMultiplier;
         protected float _debrisFromCenterSpeed;
         protected float _debrisMoveSpeedMultiplier;
         private bool _comboWasBroke;
         private bool _wasInProcess;
 
-        protected virtual void Awake()
+        private void Awake()
         {
             this.LoadResources();
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
@@ -44,7 +43,7 @@ namespace BeatLeader.Replayer
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
         }
-        protected virtual void OnDestroy()
+        private void OnDestroy()
         {
             _playbackController.PauseStateChangedEvent -= HandlePauseStateChanged;
             _beatmapTimeController.SongSpeedChangedEvent -= HandleSongSpeedChanged;
@@ -52,6 +51,10 @@ namespace BeatLeader.Replayer
             _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent -= HandleComboDidBreak;
         }
+
+        #endregion
+
+        #region Visuals control
 
         public void PauseSabersSparkles(bool pause)
         {
@@ -82,7 +85,9 @@ namespace BeatLeader.Replayer
             _noteDebrisSpawner.SetField("_fromCenterSpeed", _debrisFromCenterSpeed * multiplier);
         }
 
-        #region Events
+        #endregion
+
+        #region Event Handlers
 
         private void HandlePauseStateChanged(bool state)
         {

@@ -19,11 +19,11 @@ namespace BeatLeader.Replayer.Tweaking
             _baseEventSystem = _inputModule.GetComponent<EventSystem>();
 
             GameObject inputSystemContainer;
-            if (InputManager.IsInFPFC)
+            if (InputUtils.IsInFPFC)
             {
                 inputSystemContainer = new GameObject("2DEventSystem");
                 inputSystemContainer.AddComponent<StandaloneInputModule>();
-                InputManager.EnableCursor(true);
+                InputUtils.EnableCursor(true);
             }
             else
             {
@@ -38,7 +38,7 @@ namespace BeatLeader.Replayer.Tweaking
         {
             _customEventSystem?.gameObject.TryDestroy();
             EventSystem.current = _baseEventSystem;
-            if (InputManager.IsInFPFC) InputManager.EnableCursor(false);
+            if (InputUtils.IsInFPFC) InputUtils.EnableCursor(false);
         }
     }
 }

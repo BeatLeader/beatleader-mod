@@ -9,14 +9,14 @@ using Zenject;
 using BeatLeader.Replayer.Camera;
 using UnityEngine;
 using BeatLeader.Replayer.Emulation;
-using BeatLeader.Replayer.Emulation;
 using BeatLeader.Components;
 using BeatLeader.ViewControllers;
 using SiraUtil.Tools.FPFC;
 using System;
 using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
-using static BeatLeader.Utils.InputManager;
+using static BeatLeader.Utils.InputUtils;
+using BeatLeader.UI;
 
 namespace BeatLeader.Installers
 {
@@ -75,7 +75,7 @@ namespace BeatLeader.Installers
 
         #region Replayer
 
-        private static readonly ReplayerCameraController.InitData cameraInitData = new ReplayerCameraController.InitData(
+        private static readonly ReplayerCameraController.InitData cameraInitData = new(
 
            new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), new Vector3(0, 60, 0), InputType.FPFC),
            new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, -1.10f), new Vector3(0, -60, 0), InputType.FPFC),
@@ -96,32 +96,39 @@ namespace BeatLeader.Installers
         {
             DisableScoreSubmission();
 
-            Container.Bind<Models.ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle().Lazy();
-            Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().Lazy();
+            //Dependencies
+            Container.Bind<Models.ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle();
 
-            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle().Lazy();
+            //Core logic(Notes handling)
+            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle();
             Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle().Lazy();
-            Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            //Core logic(Playback)
             Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle().Lazy();
+            //Tweaks and tools
+            Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<TweaksLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<HotkeysHandler>().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
             Container.Bind<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            if (InputManager.IsInFPFC)
+            //UI
+            Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<ScreenSpaceScreen>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
+            if (InputUtils.IsInFPFC)
             {
-                Container.Bind<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 PatchSiraFreeView();
             }
-            else Container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Plugin.Log.Notice("[Installer] Replay system successfully installed!");
         }

@@ -1,6 +1,6 @@
 namespace BeatLeader {
     internal partial class ModPanelUI {
-        private const string ResourcePath = Plugin.ResourcesPath + ".BSML.ModPanelUI.bsml";
+        private const string ResourcePath = Plugin.ResourcesPath + ".BSML.Leaderboard.ModPanelUI.bsml";
         private const string TabName = Plugin.FancyName;
 
         private static bool _tabActive;

@@ -1,51 +1,40 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using BeatLeader.Replayer.Emulation;
 using BeatLeader.Components;
-using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.FloatingScreen;
-using UnityEngine;
 using Zenject;
-using BeatLeader.Replayer.Camera;
+using BeatSaberMarkupLanguage.ViewControllers;
+using BeatLeader.Models;
 using BeatLeader.Replayer;
+using BeatLeader.UI;
+using BeatSaberMarkupLanguage.FloatingScreen;
+using BeatLeader.Replayer.Camera;
 
 namespace BeatLeader.ViewControllers
 {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerVRView.bsml")]
-    internal class ReplayerVRViewController : MonoBehaviour
+    internal class ReplayerVRViewController : BSMLAutomaticViewController
     {
-        [Inject] private readonly VRControllersProvider _vrControllersManager;
+        [Inject] private readonly ReplayerCameraController _camera;
         [Inject] private readonly PlaybackController _playbackController;
-        [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly Models.ReplayLaunchData _launchData;
+        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly ReplayLaunchData _launchData;
         [Inject] private readonly DiContainer _container;
+        [Inject] private readonly ReplayerUIBinder _uiBinder;
 
         [UIValue("toolbar")] private Toolbar _toolbar;
         [UIValue("floating-controls")] private FloatingControls _floatingControls;
 
-        private FloatingScreen _floating;
-
-        private void Start()
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
             _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
 
-            var container = new GameObject("Container");
-            var viewContainer = new GameObject("ViewContainer");
-            viewContainer.transform.SetParent(container.transform, false);
+            _floatingControls.Setup((FloatingScreen)_uiBinder.Screen, _playbackController,
+                _camera.Camera.transform, !_launchData.ActualSettings.ShowUI);
 
-            _floating = FloatingScreen.CreateFloatingScreen(new Vector2(100, 55), true, Vector3.zero, Quaternion.identity);
-            _floating.ParseInObjectHierarchy(BSMLUtility.ReadViewDefinition<ReplayerVRViewController>(), this);
+            _toolbar.Setup(_launchData.Replay, _playbackController,
+                _playbackController, _beatmapTimeController);
 
-            _floating.transform.SetParent(viewContainer.transform, false);
-            _floating.HandleSide = FloatingScreen.Side.Bottom;
-            _floating.HighlightHandle = true;
-            _floating.handle.transform.localPosition = new Vector3(11, -23.5f, 0);
-            _floating.handle.transform.localScale = new Vector3(20, 3.67f, 3.67f);
-            _floatingControls.Setup(_floating, _playbackController,
-                _cameraController.Camera.transform, !_launchData.ActualSettings.ShowUI);
-
-            container.transform.SetParent(_vrControllersManager.MenuHandsContainer, false);
-            _vrControllersManager.ShowMenuControllers();
+            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
         }
     }
 }

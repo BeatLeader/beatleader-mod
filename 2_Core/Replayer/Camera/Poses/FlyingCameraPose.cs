@@ -1,11 +1,11 @@
 ﻿using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using UnityEngine;
-using static BeatLeader.Utils.InputManager;
+using static BeatLeader.Utils.InputUtils;
 using System;
 
 namespace BeatLeader.Replayer.Camera
 {
-    public class FlyingCameraPose : ICameraPoseProvider
+    internal class FlyingCameraPose : ICameraPoseProvider
     {
         public FlyingCameraPose(Vector2 mouseSensitivity, float flySpeed, bool disableInputOnUnlockedCursor, string name = "FlyingCameraView")
         {

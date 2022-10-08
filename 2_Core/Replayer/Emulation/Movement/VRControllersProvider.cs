@@ -42,9 +42,13 @@ namespace BeatLeader.Replayer.Emulation
             LeftHand = _menuHandsTransform.Find("ControllerLeft")?.GetComponent<VRController>();
             RightHand = _menuHandsTransform.Find("ControllerRight")?.GetComponent<VRController>();
 
-            Head = Instantiate(BundleLoader.MonkeyPrefab, null, false).AddComponent<VRControllerEmulator>();
+            Head = new GameObject("ReplayerFakeHead").AddComponent<VRControllerEmulator>();
             Head.transform.SetParent(Origin, false);
             Head.node = XRNode.Head;
+
+            var monke = Instantiate(BundleLoader.MonkeyPrefab, null, false);
+            monke.transform.localEulerAngles = new Vector3(0, 180, 0);
+            monke.transform.SetParent(Head.transform, false);
 
             //you ask me why? smth just moves menu hands to the zero pose
             MenuHandsContainer = new GameObject("PauseMenuHands").transform;

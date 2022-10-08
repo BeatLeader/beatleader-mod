@@ -47,7 +47,7 @@ namespace BeatLeader.Replayer.Camera
                 transform.SetLocalPose(value.Item1);
                 _vrControllersManager.Head.transform.SetLocalPose(value.Item2);
 
-                if (InputManager.IsInFPFC) return;
+                if (InputUtils.IsInFPFC) return;
                 _vrControllersManager.MenuHandsContainer.SetLocalPose(value.Item1);
             }
         }
@@ -85,14 +85,14 @@ namespace BeatLeader.Replayer.Camera
 
             if (!CreateAndAssignCamera())
             {
-                Plugin.Log.Error("Failed to initialize ReplayerCamera!");
+                Plugin.Log.Error("Failed to initialize Replayer Camera!");
                 return;
             }
 
             _camera.nearClipPlane = 0.01f;
             transform.SetParent(_vrControllersManager.Origin, false);
 
-            PoseProviders = _data.poseProviders.Where(x => InputManager.MatchesCurrentInput(x.AvailableInputs)).ToList();
+            PoseProviders = _data.poseProviders.Where(x => InputUtils.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
             SetEnabled(true);
@@ -155,8 +155,8 @@ namespace BeatLeader.Replayer.Camera
         }
         protected void RefreshCamera()
         {
-            _camera.stereoTargetEye = InputManager.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
-            if (InputManager.IsInFPFC) _camera.fieldOfView = _fieldOfView;
+            _camera.stereoTargetEye = InputUtils.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
+            if (InputUtils.IsInFPFC) _camera.fieldOfView = _fieldOfView;
         }
         private bool CreateAndAssignCamera()
         {

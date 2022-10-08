@@ -1,7 +1,6 @@
 ﻿using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatLeader.Replayer.Emulation;
-using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
@@ -9,11 +8,11 @@ namespace BeatLeader.Replayer.Tweaking
 {
     internal class RoomOffsetsTweak : GameTweak
     {
-        public override bool CanBeInstalled => !InputManager.IsInFPFC;
+        public override bool CanBeInstalled => !InputUtils.IsInFPFC;
 
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly VRControllersProvider _controllersProvider;
-        [Inject] private readonly MainSettingsModelSO _mainSettingsModel;
+        [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
 
         private OffsetsApplier _cameraOffsetsApplier;
         private OffsetsApplier _handsOffsetsApplier;
@@ -26,6 +25,8 @@ namespace BeatLeader.Replayer.Tweaking
 
         public override void Initialize()
         {            
+            this.LoadResources();
+            
             _tempRoomPosition = _roomPosition = _mainSettingsModel.roomCenter;
             _tempRoomRotation = _roomRotation = _mainSettingsModel.roomRotation;
 

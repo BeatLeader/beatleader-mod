@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
-using UnityEngine.Scripting;
 
 namespace BeatLeader
 {
-    public class HarmonyMultisilencer : IDisposable
+    internal class HarmonyMultisilencer : IDisposable
     {
         public HarmonyMultisilencer(IEnumerable<MethodInfo> methods = null, bool enable = true)
         {

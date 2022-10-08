@@ -8,7 +8,7 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components.Settings
 {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.Vector3MatrixMenu.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Settings.Items.VectorControlsMenu.bsml")]
     internal class VectorControlsMenu : Menu
     {
         public SliderValuesApplier xSlider { get; private set; }
@@ -85,7 +85,7 @@ namespace BeatLeader.Components.Settings
 
         public event Action<Vector3> VectorChangedEvent;
 
-        #region BSMLShit
+        #region BSML Stuff
 
         [UIValue("x")] private int x
         {

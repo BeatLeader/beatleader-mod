@@ -10,7 +10,7 @@
 		<macro.as-host host="player-info">
 			<macro.reparent transform="ui-component"/>
 		</macro.as-host>
-		
+
 	</vertical>
 
 	<vertical child-control-height="false" child-expand-height="false" child-align="LowerCenter">

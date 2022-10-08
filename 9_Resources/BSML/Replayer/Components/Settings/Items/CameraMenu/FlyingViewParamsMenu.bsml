@@ -1,6 +1,6 @@
 ﻿<vertical pref-width="48">
 
-	<horizontal>
+	<horizontal pad-top="1">
 		<macro.as-host host="sensitivity-menu-button">
 			<macro.reparent transform="ui-component"/>
 		</macro.as-host>

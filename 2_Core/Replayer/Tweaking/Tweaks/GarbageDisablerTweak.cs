@@ -17,8 +17,8 @@ namespace BeatLeader.Replayer.Tweaking
         {
             this.LoadResources();
 
-            _pointer.gameObject.SetActive(!InputManager.IsInFPFC);
-            _burnMarkArea.gameObject.SetActive(!InputManager.IsInFPFC);
+            _pointer.gameObject.SetActive(!InputUtils.IsInFPFC);
+            _burnMarkArea.gameObject.SetActive(!InputUtils.IsInFPFC);
             _mainCamera.gameObject.SetActive(false);
         }
         public override void Dispose()

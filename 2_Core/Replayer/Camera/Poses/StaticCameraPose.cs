@@ -1,7 +1,7 @@
 ﻿using BeatLeader.Models;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
-using static BeatLeader.Utils.InputManager;
+using static BeatLeader.Utils.InputUtils;
 using System;
 using UnityEngine;
 

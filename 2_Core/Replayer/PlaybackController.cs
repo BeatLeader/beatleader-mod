@@ -1,4 +1,5 @@
-﻿using BeatLeader.Utils;
+﻿using BeatLeader.Models;
+using BeatLeader.Utils;
 using System;
 using System.Reflection;
 using UnityEngine;
@@ -6,7 +7,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer
 {
-    public class PlaybackController : MonoBehaviour
+    public class PlaybackController : MonoBehaviour, IReplayPauseController, IReplayExitController
     {
         #region Injection
 
@@ -21,9 +22,15 @@ namespace BeatLeader.Replayer
 
         #endregion
 
+        #region Info & Events
+
         public bool IsPaused => _gamePause.isPaused;
 
         public event Action<bool> PauseStateChangedEvent;
+
+        #endregion
+
+        #region Initialize & Dispose
 
         private void Awake()
         {
@@ -42,38 +49,59 @@ namespace BeatLeader.Replayer
             _pauseButtonTrigger.menuButtonTriggeredEvent -= HandleMenuButtonTriggered;
         }
 
-        public void Pause(bool pause, bool notify = true, bool force = false)
+        #endregion
+
+        #region Pause & Resume
+
+        public void Pause(bool notifyListeners = true, bool forcePause = false)
         {
-            if (force) SetPauseState(!pause);
+            if (forcePause) SetPauseState(false);
 
-            if (pause)
-            {
-                _gamePause.Pause();
-                _saberManager.disableSabers = false;
-                _songTimeSyncController.Pause();
-            }
-            else
-            {
-                _gamePause.WillResume();
-                _gamePause.Resume();
-                _songTimeSyncController.Resume();
-            }
+            _gamePause.Pause();
+            _saberManager.disableSabers = false;
+            _songTimeSyncController.Pause();
 
-            if (notify) InvokePauseEvent(pause);
-            _beatmapObjectManager.PauseAllBeatmapObjects(pause);
-            PauseStateChangedEvent?.Invoke(pause);
+            if (notifyListeners) InvokePauseEvent(true);
+            _beatmapObjectManager.PauseAllBeatmapObjects(true);
+            PauseStateChangedEvent?.Invoke(true);
         }
-        public void EscapeToMenu() => _pauseController.HandlePauseMenuManagerDidPressMenuButton();
 
-        #region Events
+        public void Resume(bool notifyListeners = true, bool forceResume = false)
+        {
+            if (forceResume) SetPauseState(false);
+
+            _gamePause.WillResume();
+            _gamePause.Resume();
+            _songTimeSyncController.Resume();
+
+            if (notifyListeners) InvokePauseEvent(false);
+            _beatmapObjectManager.PauseAllBeatmapObjects(false);
+            PauseStateChangedEvent?.Invoke(false);
+        }
+
+        #endregion
+
+        #region Exit
+
+        public void Exit()
+        {
+            _pauseController.HandlePauseMenuManagerDidPressMenuButton();
+        }
+
+        #endregion
+
+        #region Event Handlers
 
         private void HandleMenuButtonTriggered()
         {
-            Pause(!IsPaused);
+            if (!IsPaused)
+                Pause();
+            else
+                Resume();
         }
         private void HandleHMDUnmounted()
         {
-           Pause(true);
+            Pause(true);
         }
         private void HandleInputFocusWasLost()
         {

@@ -1,5 +1,5 @@
-﻿using BeatLeader.Components;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
+using BeatLeader.UI;
 using UnityEngine;
 using Zenject;
 
@@ -9,13 +9,13 @@ namespace BeatLeader.Replayer.Binding
     {
         public override KeyCode Key => _launchData.ActualSettings.Shortcuts.HideUIHotkey;
 
-        [InjectOptional] private UI2DManager _uiManager;
+        [InjectOptional] private ReplayerUIBinder _uiBinder;
         [Inject] private ReplayLaunchData _launchData;
 
         public override void OnKeyDown()
         {
-            if (_uiManager != null)
-                _uiManager.ShowUI = !_uiManager.ShowUI;
+            if (_uiBinder != null)
+                _uiBinder.ShowUI = !_uiBinder.ShowUI;
         }
     }
 }

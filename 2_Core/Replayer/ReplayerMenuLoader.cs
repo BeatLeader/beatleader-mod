@@ -173,9 +173,9 @@ namespace BeatLeader.Replayer
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             _scenesManager.PopScenes(0.3f);
 
-            if (InputManager.IsInFPFC)
+            if (InputUtils.IsInFPFC)
             {
-                InputManager.EnableCursor(false);
+                InputUtils.EnableCursor(false);
                 _fpfcSettings.Enabled = true;
             }
 

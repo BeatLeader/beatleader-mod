@@ -13,7 +13,7 @@ namespace BeatLeader.Replayer.Binding
 
         public override void OnKeyDown()
         {
-            InputManager.SwitchCursor();
+            InputUtils.SwitchCursor();
         }
     }
 }

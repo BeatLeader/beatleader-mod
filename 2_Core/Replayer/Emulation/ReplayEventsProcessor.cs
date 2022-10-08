@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BeatLeader.Models;
-using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation
@@ -15,8 +14,8 @@ namespace BeatLeader.Replayer.Emulation
         public bool IsReprocessingEventsNow => _isReprocessing;
         public bool TimeWasSmallerThanActualTime => _timeWasSmallerThanActualTime;
 
-        public event Action<NoteEvent> NoteCutRequestedEvent;
-        public event Action<WallEvent> WallInteractionRequestedEvent;
+        public event Action<NoteEvent> NoteProcessRequestedEvent;
+        public event Action<WallEvent> WallProcessRequestedEvent;
         public event Action ReprocessRequestedEvent;
         public event Action ReprocessDoneEvent;
 
@@ -60,7 +59,7 @@ namespace BeatLeader.Replayer.Emulation
                     if (nextWall!.time > songTime) break;
                     try
                     {
-                        WallInteractionRequestedEvent?.Invoke(nextWall);
+                        WallProcessRequestedEvent?.Invoke(nextWall);
                     }
                     finally
                     {
@@ -72,7 +71,7 @@ namespace BeatLeader.Replayer.Emulation
                     if (nextNote!.eventTime > songTime) break;
                     try
                     {
-                        NoteCutRequestedEvent?.Invoke(nextNote);
+                        NoteProcessRequestedEvent?.Invoke(nextNote);
                     }
                     finally
                     {

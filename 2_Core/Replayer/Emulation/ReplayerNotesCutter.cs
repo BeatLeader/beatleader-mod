@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -9,64 +8,74 @@ namespace BeatLeader.Replayer.Emulation
 {
     public class ReplayerNotesCutter : MonoBehaviour
     {
+        #region Injection
+
         [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] protected readonly ReplayEventsProcessor _eventsEmitter;
 
-        protected virtual void Awake()
+        #endregion
+
+        #region Setup
+
+        private readonly HarmonySilencer _missSilencer = new(typeof(NoteController)
+            .GetMethod("HandleNoteDidPassMissedMarkerEvent", ReflectionUtils.DefaultFlags));
+
+        private void Awake()
         {
-            _eventsEmitter.NoteCutRequestedEvent += HandleNoteCutRequested;
+            _eventsEmitter.NoteProcessRequestedEvent += HandleNoteProcessRequested;
 
             _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
             _beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
         }
-        protected virtual void OnDestroy()
+        private void OnDestroy()
         {
-            _eventsEmitter.NoteCutRequestedEvent -= HandleNoteCutRequested;
+            _eventsEmitter.NoteProcessRequestedEvent -= HandleNoteProcessRequested;
 
             _beatmapObjectManager.noteWasSpawnedEvent -= HandleNoteWasSpawned;
             _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
+
+            _missSilencer.Dispose();
         }
 
-        protected void TryCutNote(NoteEvent noteEvent)
-        {
-            var noteController = FindSpawnedNoteOrNull(noteEvent);
-            if (noteController == null) return;
+        #endregion
 
-            var noteCutInfo = Models.NoteCutInfo.Convert(noteEvent.noteCutInfo, noteController);
-            var cutEvents = ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)noteController.noteWasCutEvent).items;
-            foreach (var cutEvent in cutEvents)
+        #region ProcessNote
+
+        protected void ProcessNote(NoteEvent noteEvent)
+        {
+            if (!TryFindSpawnedNote(noteEvent, out var noteController))
             {
-                cutEvent.HandleNoteControllerNoteWasCut(noteController, noteCutInfo);
+                Plugin.Log.Error("[Replayer] Not found note for id " + noteEvent.noteID);
+                return;
+            }
+
+            switch (noteEvent.eventType)
+            {
+                case NoteEventType.miss:
+                    var missEvents = ((LazyCopyHashSet<INoteControllerNoteWasMissedEvent>)noteController.noteWasMissedEvent).items;
+                    missEvents.ForEach(x => x.HandleNoteControllerNoteWasMissed(noteController));
+                    break;
+
+                case NoteEventType.good:
+                case NoteEventType.bad:
+                case NoteEventType.bomb:
+                    var noteCutInfo = Models.NoteCutInfo.Convert(noteEvent.noteCutInfo, noteController);
+                    var cutEvents = ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)noteController.noteWasCutEvent).items;
+                    cutEvents.ForEach(x => x.HandleNoteControllerNoteWasCut(noteController, noteCutInfo));
+                    break;
             }
         }
+
+        #endregion
 
         #region NotesHash
 
         private readonly HashSet<NoteController> _spawnedNotes = new();
 
-        protected void HandleNoteCutRequested(NoteEvent noteEvent)
-        {
-            switch (noteEvent.eventType)
-            {
-                case NoteEventType.good:
-                case NoteEventType.bad:
-                case NoteEventType.bomb:
-                    TryCutNote(noteEvent);
-                    break;
-            }
-        }
-        private void HandleNoteWasSpawned(NoteController noteController)
-        {
-            _spawnedNotes.Add(noteController);
-        }
-        private void HandleNoteWasDespawned(NoteController noteController)
-        {
-            _spawnedNotes.Remove(noteController);
-        }
-        protected NoteController FindSpawnedNoteOrNull(NoteEvent replayNote, float timeMargin = 0.2f)
+        protected bool TryFindSpawnedNote(NoteEvent replayNote, out NoteController noteController, float timeMargin = 0.2f)
         {
             var minTimeDifference = float.MaxValue;
-            NoteController noteController = null;
+            noteController = null;
 
             foreach (var item in _spawnedNotes)
             {
@@ -84,7 +93,24 @@ namespace BeatLeader.Replayer.Emulation
                 noteController = item;
             }
 
-            return noteController;
+            return noteController != null;
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void HandleNoteProcessRequested(NoteEvent noteEvent)
+        {
+            ProcessNote(noteEvent);
+        }
+        private void HandleNoteWasSpawned(NoteController noteController)
+        {
+            _spawnedNotes.Add(noteController);
+        }
+        private void HandleNoteWasDespawned(NoteController noteController)
+        {
+            _spawnedNotes.Remove(noteController);
         }
 
         #endregion

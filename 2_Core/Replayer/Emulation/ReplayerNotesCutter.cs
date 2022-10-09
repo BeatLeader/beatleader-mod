@@ -45,7 +45,8 @@ namespace BeatLeader.Replayer.Emulation
         {
             if (!TryFindSpawnedNote(noteEvent, out var noteController))
             {
-                Plugin.Log.Error("[Replayer] Not found note for id " + noteEvent.noteID);
+                if (!_eventsEmitter.IsReprocessingEventsNow)
+                    Plugin.Log.Error("[Replayer] Not found note for id " + noteEvent.noteID);
                 return;
             }
 

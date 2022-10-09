@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.UI;
+using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
@@ -14,7 +15,7 @@ namespace BeatLeader.Replayer.Binding
 
         public override void OnKeyDown()
         {
-            if (_uiBinder != null)
+            if (_uiBinder != null && InputUtils.IsInFPFC)
                 _uiBinder.ShowUI = !_uiBinder.ShowUI;
         }
     }

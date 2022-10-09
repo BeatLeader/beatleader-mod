@@ -21,7 +21,7 @@ namespace BeatLeader.Components
                 AdditionalCanvasShaderChannels.TexCoord1
                 | AdditionalCanvasShaderChannels.TexCoord2;
 
-            _canvasScaler.referenceResolution = new(300, 300);
+            _canvasScaler.referenceResolution = new(350, 300);
             _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             _canvasScaler.dynamicPixelsPerUnit = 3.44f;
             _canvasScaler.referencePixelsPerUnit = 10;

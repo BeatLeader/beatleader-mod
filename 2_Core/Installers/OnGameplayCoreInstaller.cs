@@ -77,8 +77,8 @@ namespace BeatLeader.Installers
 
         private static readonly ReplayerCameraController.InitData cameraInitData = new(
 
-           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, 0), new Vector3(0, 90, 0), InputType.FPFC),
-           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, 0), new Vector3(0, -90, 0), InputType.FPFC),
+           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 1.70f, 0), new Vector3(0, 90, 0), InputType.FPFC),
+           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 1.70f, 0), new Vector3(0, -90, 0), InputType.FPFC),
            new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Vector3.zero, InputType.FPFC),
            new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Vector3.zero, InputType.FPFC),
 
@@ -167,6 +167,7 @@ namespace BeatLeader.Installers
         }
         private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data, Models.ReplayLaunchData launchData)
         {
+            launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             if (_submissionTicket != null)
             {
                 Container.Resolve<Submission>()?.Remove(_submissionTicket);

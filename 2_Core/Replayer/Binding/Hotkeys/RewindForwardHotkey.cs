@@ -9,7 +9,7 @@ namespace BeatLeader.Replayer.Binding
         public override KeyCode Key => _launchData.ActualSettings.Shortcuts.RewindForwardHotkey;
 
         [Inject] private ReplayLaunchData _launchData;
-        [Inject] private BeatmapTimeController _beatmapTimeController;
+        [Inject] private IBeatmapTimeController _beatmapTimeController;
 
         public override void OnKeyDown()
         {

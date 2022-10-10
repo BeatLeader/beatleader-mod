@@ -17,6 +17,8 @@ using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
 using static BeatLeader.Utils.InputUtils;
 using BeatLeader.UI;
+using BeatLeader.Models;
+using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Installers
 {
@@ -97,18 +99,18 @@ namespace BeatLeader.Installers
             DisableScoreSubmission();
 
             //Dependencies
-            Container.Bind<Models.ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle();
+            Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle();
+
+            //Core logic(Playback)
+            Container.BindInterfacesAndSelfTo<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //Core logic(Notes handling)
             Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle();
             Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            //Core logic(Playback)
-            Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //Tweaks and tools
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -150,7 +152,7 @@ namespace BeatLeader.Installers
             }
             catch (Exception ex)
             {
-                Plugin.Log.Critical($"An unhandled exception occurred during attemping to remove Sira's FPFC system! {ex}");
+                Plugin.Log.Error($"[Installer] Error during attemping to remove Sira's FPFC system! \r\n {ex}");
             }
         }
 

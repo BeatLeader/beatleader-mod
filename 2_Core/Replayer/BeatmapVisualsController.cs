@@ -1,4 +1,5 @@
-﻿using BeatLeader.Replayer.Emulation;
+﻿using BeatLeader.Models;
+using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
 using IPA.Utilities;
 using UnityEngine;
@@ -10,8 +11,8 @@ namespace BeatLeader.Replayer
     {
         #region Injection
 
-        [Inject] protected readonly PlaybackController _playbackController;
-        [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] protected readonly IReplayPauseController _playbackController;
+        [Inject] protected readonly IBeatmapTimeController _beatmapTimeController;
         [Inject] protected readonly ComboController _comboController;
         [Inject] protected readonly ReplayEventsProcessor _eventsProcessor;
 

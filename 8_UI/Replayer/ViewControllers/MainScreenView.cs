@@ -8,8 +8,9 @@ namespace BeatLeader.Components
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.MainScreenSpaceView.bsml")]
     internal class MainScreenView : ReeUIComponentV2WithContainer
     {
-        [Inject] private readonly PlaybackController _playbackController;
-        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly IReplayPauseController _pauseController;
+        [Inject] private readonly IReplayExitController _exitController;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
         [Inject] private readonly ReplayLaunchData _launchData;
 
         [UIValue("song-info")] private HorizontalBeatmapLevelPreview _songInfo;
@@ -26,8 +27,7 @@ namespace BeatLeader.Components
 
             _playerInfo.SetPlayer(_launchData.Player);
             _songInfo.SetBeatmapLevel(_launchData.DifficultyBeatmap.level);
-            _toolbar.Setup(_launchData.Replay, _playbackController,
-                _playbackController, _beatmapTimeController);  
+            _toolbar.Setup(_launchData.Replay, _pauseController, _exitController, _beatmapTimeController);  
         }
         protected override void OnInitialize()
         {

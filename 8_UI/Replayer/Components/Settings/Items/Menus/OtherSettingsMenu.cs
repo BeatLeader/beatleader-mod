@@ -9,7 +9,7 @@ namespace BeatLeader.Components.Settings
     internal class OtherSettingsMenu : MenuWithContainer
     {
         [Inject] private readonly VRControllersProvider _controllersManager;
-        [Inject] private readonly ReplayWatermark _replayWatermark;
+        [InjectOptional] private readonly ReplayWatermark _replayWatermark;
         [Inject] private readonly Models.ReplayLaunchData _replayData;
 
         [UIValue("show-head")] private bool _ShowHead
@@ -41,15 +41,16 @@ namespace BeatLeader.Components.Settings
         }
         [UIValue("show-watermark")] private bool _ShowWatermark
         {
-            get => _replayWatermark.Enabled;
-            set => _replayWatermark.Enabled = value;
+            get => _replayWatermark?.Enabled ?? false;
+            set
+            {
+                if (_replayWatermark != null)
+                    _replayWatermark.Enabled = value;
+            }
         }
-
-        [UIObject("watermark-toggle")] private GameObject _watermarkToggle;
-
-        protected override void OnAfterParse()
+        [UIValue("watermark-can-be-disabled")] private bool _WatermarkCanBeDisabled
         {
-            _watermarkToggle.SetActive(_replayWatermark.CanBeDisabled);
+            get => _replayWatermark?.CanBeDisabled ?? false;
         }
     }
 }

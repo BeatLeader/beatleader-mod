@@ -8,7 +8,7 @@ namespace BeatLeader.Replayer.Emulation
     public class ReplayEventsProcessor : IInitializable, ILateTickable, IDisposable
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
         [Inject] private readonly ReplayLaunchData _launchData;
 
         public bool IsReprocessingEventsNow => _isReprocessing;

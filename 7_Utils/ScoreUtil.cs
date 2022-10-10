@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
+using BeatLeader.Models.Activity;
 
 namespace BeatLeader.Utils {
     internal static class ScoreUtil {
@@ -26,7 +27,7 @@ namespace BeatLeader.Utils {
 
         public static Action<Replay> ReplayUploadStartedEvent;
 
-        public static void ProcessReplay(Replay replay) {
+        public static void ProcessReplay(Replay replay, PlayEndData data) {
             if (replay.info.score <= 0) { // no lightshow here
                 Plugin.Log.Debug("Zero score, skip replay processing");
                 return;
@@ -45,15 +46,34 @@ namespace BeatLeader.Utils {
             if (ShouldSubmit()) {
                 Plugin.Log.Debug("Uploading replay");
                 FileManager.TryWriteReplay(replay);
-                UploadReplay(replay);
+
+                switch (data.EndType) {
+                    case PlayEndData.LevelEndType.Clear: {
+                            UploadReplay(replay, data);
+                            break;
+                        }
+                    case PlayEndData.LevelEndType.Unknown: {
+                            Plugin.Log.Debug("Unknown level end Type");
+                            break;
+                        }
+                    default: {
+                            UploadPlay(replay, data);
+                            break;
+                        }
+                }
             } else {
                 Plugin.Log.Debug("Score submission was disabled");
             }
         }
 
-        public static void UploadReplay(Replay replay) {
+        public static void UploadReplay(Replay replay, PlayEndData data) {
             ReplayUploadStartedEvent?.Invoke(replay);
             UploadReplayRequest.SendRequest(replay);
+        }
+
+        public static void UploadPlay(Replay replay, PlayEndData data) {
+            replay.frames = new(); // remove the frame data
+            UploadPlayRequest.SendRequest(replay, data);
         }
 
         #endregion

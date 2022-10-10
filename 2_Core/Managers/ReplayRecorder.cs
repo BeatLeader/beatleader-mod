@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using BeatLeader.API.Methods;
 using BeatLeader.Core.Managers.NoteEnhancer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
+using BeatLeader.Models.Activity;
 using BeatLeader.Utils;
 using HarmonyLib;
 using IPA.Loader;
@@ -12,6 +14,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using static BeatLeader.Models.Activity.PlayEndData;
 using Transform = BeatLeader.Models.Transform;
 
 namespace BeatLeader {
@@ -286,39 +289,18 @@ namespace BeatLeader {
             _stopRecording = true;
             _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
 
-
             _replay.info.score = results.multipliedScore;
             MapEnhancer.energy = results.energy; 
             MapEnhancer.Enhance(_replay);
             _trackingDeviceEnhancer.Enhance(_replay);
-            switch (results.levelEndStateType)
-            {
-                case LevelCompletionResults.LevelEndStateType.Cleared:
-                    Plugin.Log.Info("Level Cleared. Save replay");
-                    ScoreUtil.ProcessReplay(_replay);
-                    break;
-                case LevelCompletionResults.LevelEndStateType.Incomplete:
-                    if (results.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
-                    {
-                        Plugin.Log.Info("Restart");
-                    }
-                    break;
-                case LevelCompletionResults.LevelEndStateType.Failed:
-                    _replay.info.failTime = _timeSyncController.songTime;
-                    Plugin.Log.Info("Level Failed. Save replay");
-                    ScoreUtil.ProcessReplay(_replay);
-                    break;
+
+            PlayEndData playEndData = new(results);
+            if (playEndData.EndType == LevelEndType.Fail) {
+                _replay.info.failTime = _timeSyncController.songTime;
             }
 
-            switch (results.levelEndAction)
-            {
-                case LevelCompletionResults.LevelEndAction.Quit:
-                    
-                    break;
-                case LevelCompletionResults.LevelEndAction.Restart:
-                    
-                    break;
-            }
+            Plugin.Log.Debug($"Level result: {playEndData.EndType}");
+            ScoreUtil.ProcessReplay(_replay, playEndData);
         }
 
         private void OnMultiplayerTransitionSetupOnDidFinishEvent(MultiplayerLevelScenesTransitionSetupDataSO data, MultiplayerResultsData results)
@@ -336,21 +318,13 @@ namespace BeatLeader {
                 _trackingDeviceEnhancer.Enhance(_replay);
 
                 if (mpResults.playerLevelEndState == MultiplayerLevelCompletionResults.MultiplayerPlayerLevelEndState.SongFinished) {
-                    switch (levelCompResults.levelEndStateType) {
-                        case LevelCompletionResults.LevelEndStateType.Cleared:
-                            Plugin.Log.Info("Level Cleared. Save replay");
-                            ScoreUtil.ProcessReplay(_replay);
-                            break;
-                        case LevelCompletionResults.LevelEndStateType.Failed:
-                            if (levelCompResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart) {
-                                Plugin.Log.Info("Restart");
-                            } else {
-                                _replay.info.failTime = _timeSyncController.songTime;
-                                Plugin.Log.Info("Level Failed. Save replay");
-                                ScoreUtil.ProcessReplay(_replay);
-                            }
-                            break;
+
+                    PlayEndData playEndData = new(levelCompResults);
+                    if (playEndData.EndType == LevelEndType.Fail) {
+                        _replay.info.failTime = _timeSyncController.songTime;
                     }
+
+                    ScoreUtil.ProcessReplay(_replay, playEndData);
                 }
             }
         }

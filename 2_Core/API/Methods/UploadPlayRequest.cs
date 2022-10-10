@@ -1,26 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Models;
 using BeatLeader.Models.Activity;
 using BeatLeader.Utils;
-using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 namespace BeatLeader.API.Methods {
-    internal class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Score> {
+    internal class UploadPlayRequest : PersistentSingletonRequestHandler<UploadPlayRequest, Score> {
         private const string WithCookieEndpoint = BLConstants.BEATLEADER_API_URL + "/replayoculus?{0}";
 
-        private const int UploadRetryCount = 3;
-        private const int UploadTimeoutSeconds = 120;
+        private const int UploadRetryCount = 1;
+        private const int UploadTimeoutSeconds = 15;
 
         protected override bool KeepState => false;
+        protected override bool AllowConcurrentRequests => true;
 
-        public static void SendRequest(Replay replay) {
-            var requestDescriptor = new UploadWithCookieRequestDescriptor(replay);
+        public static void SendRequest(Replay replay, PlayEndData data) {
+            var requestDescriptor = new UploadWithCookieRequestDescriptor(replay, data);
             instance.Send(requestDescriptor, UploadRetryCount, UploadTimeoutSeconds);
         }
 
@@ -28,17 +27,17 @@ namespace BeatLeader.API.Methods {
 
         private class UploadWithCookieRequestDescriptor : IWebRequestDescriptor<Score> {
             private readonly byte[] _compressedData;
-            private readonly float _endTime;
+            private readonly PlayEndData _data;
 
-            public UploadWithCookieRequestDescriptor(Replay replay) {
+            public UploadWithCookieRequestDescriptor(Replay replay, PlayEndData data) {
                 _compressedData = CompressReplay(replay);
-                _endTime = replay.frames.Last().time;
+                _data = data;
             }
 
             public UnityWebRequest CreateWebRequest() {
                 var query = new Dictionary<string, object>() {
-                    { "type", (int)PlayEndData.LevelEndType.Clear },
-                    { "time", _endTime }
+                    { "type", (int)_data.EndType },
+                    { "time", _data.Time }
                 };
                 var url = string.Format(WithCookieEndpoint, NetworkingUtils.ToHttpParams(query));
                 var request = UnityWebRequest.Put(url, _compressedData);
@@ -47,7 +46,7 @@ namespace BeatLeader.API.Methods {
             }
 
             public Score ParseResponse(UnityWebRequest request) {
-                return JsonConvert.DeserializeObject<Score>(request.downloadHandler.text, NetworkingUtils.SerializerSettings);
+                return null;
             }
 
             private static byte[] CompressReplay(Replay replay) {

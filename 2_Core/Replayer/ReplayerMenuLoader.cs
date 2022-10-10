@@ -123,6 +123,7 @@ namespace BeatLeader.Replayer
                     _downloadReplayScoreId = Score.id;
                     SetState(LoaderState.Downloading);
                     DownloadReplayRequest.SendRequest(Score.replay);
+                    SendViewReplayRequest.SendRequest(Score.id);
                     break;
             }
         }

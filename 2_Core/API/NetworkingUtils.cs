@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Utils;
@@ -148,11 +149,24 @@ namespace BeatLeader.API {
 
             foreach (var item in param) {
                 if (sb.Length > 0) sb.Append("&");
-                sb.Append($"{item.Key}={item.Value}");
+                sb.Append($"{item.Key}={ArgToString(item.Value)}");
             }
 
             return sb.ToString();
         }
+
+        private static string ArgToString(object o) {
+            return Convert.ToString(o, pointCulture);
+        }
+
+        private static readonly CultureInfo pointCulture = new("en") {
+            NumberFormat = {
+                NumberGroupSeparator = "",
+                NumberDecimalSeparator = ".",
+                PercentGroupSeparator = "",
+                PercentDecimalSeparator = "."
+            }
+        };
 
         #endregion
     }

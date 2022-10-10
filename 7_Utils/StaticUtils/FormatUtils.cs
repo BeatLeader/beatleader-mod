@@ -193,13 +193,11 @@ namespace BeatLeader {
 
         public static string FormatSongTime(float time, float totalTime)
         {
-            float minutes = Mathf.FloorToInt(time / 60);
-            float seconds = Mathf.FloorToInt(time - (minutes * 60));
-            float totalMinutes = Mathf.FloorToInt(totalTime / 60);
-            float totalSeconds = Mathf.FloorToInt(totalTime - (totalMinutes * 60));
-
-            string combinedTotalTime = $"{totalMinutes}.{(totalSeconds < 10 ? $"0{totalSeconds}" : totalSeconds)}";
-            return $"{minutes}.{(seconds < 10 ? $"0{seconds}" : seconds)}/{combinedTotalTime}";
+            var minutes = Mathf.FloorToInt(time / 60);
+            var seconds = Mathf.FloorToInt(time % 60);
+            var totalMinutes = Mathf.FloorToInt(totalTime / 60);
+            var totalSeconds = Mathf.FloorToInt(totalTime % 60);
+            return $"{minutes}:{seconds:0#}/{totalMinutes}:{totalSeconds:0#}";
         }
 
         #endregion

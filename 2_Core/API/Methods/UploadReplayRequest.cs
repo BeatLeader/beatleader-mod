@@ -1,18 +1,15 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Models;
-using BeatLeader.Models.Activity;
 using BeatLeader.Utils;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 namespace BeatLeader.API.Methods {
     internal class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Score> {
-        private const string WithCookieEndpoint = BLConstants.BEATLEADER_API_URL + "/replayoculus?{0}";
+        private const string WithCookieEndpoint = BLConstants.BEATLEADER_API_URL + "/replayoculus";
 
         private const int UploadRetryCount = 3;
         private const int UploadTimeoutSeconds = 120;
@@ -28,20 +25,13 @@ namespace BeatLeader.API.Methods {
 
         private class UploadWithCookieRequestDescriptor : IWebRequestDescriptor<Score> {
             private readonly byte[] _compressedData;
-            private readonly float _endTime;
 
             public UploadWithCookieRequestDescriptor(Replay replay) {
                 _compressedData = CompressReplay(replay);
-                _endTime = replay.frames.Last().time;
             }
 
             public UnityWebRequest CreateWebRequest() {
-                var query = new Dictionary<string, object>() {
-                    { "type", (int)PlayEndData.LevelEndType.Clear },
-                    { "time", _endTime }
-                };
-                var url = string.Format(WithCookieEndpoint, NetworkingUtils.ToHttpParams(query));
-                var request = UnityWebRequest.Put(url, _compressedData);
+                var request = UnityWebRequest.Put(WithCookieEndpoint, _compressedData);
                 request.SetRequestHeader("Content-Encoding", "gzip");
                 return request;
             }

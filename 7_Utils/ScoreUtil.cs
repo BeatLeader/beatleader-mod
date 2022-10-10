@@ -49,7 +49,7 @@ namespace BeatLeader.Utils {
 
                 switch (data.EndType) {
                     case PlayEndData.LevelEndType.Clear: {
-                            UploadReplay(replay, data);
+                            UploadReplay(replay);
                             break;
                         }
                     case PlayEndData.LevelEndType.Unknown: {
@@ -66,7 +66,7 @@ namespace BeatLeader.Utils {
             }
         }
 
-        public static void UploadReplay(Replay replay, PlayEndData data) {
+        public static void UploadReplay(Replay replay) {
             ReplayUploadStartedEvent?.Invoke(replay);
             UploadReplayRequest.SendRequest(replay);
         }

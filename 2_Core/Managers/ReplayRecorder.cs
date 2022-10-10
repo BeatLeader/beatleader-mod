@@ -299,8 +299,12 @@ namespace BeatLeader {
                 _replay.info.failTime = _timeSyncController.songTime;
             }
 
-            Plugin.Log.Debug($"Level result: {playEndData.EndType}");
-            ScoreUtil.ProcessReplay(_replay, playEndData);
+            Plugin.Log.Debug($"Level result: {playEndData.EndType}, end time: {playEndData.Time}");
+            if (_replay.notes.Count > 0) {
+                ScoreUtil.ProcessReplay(_replay, playEndData);
+            } else {
+                Plugin.Log.Debug("Not enough notes to submit");
+            }
         }
 
         private void OnMultiplayerTransitionSetupOnDidFinishEvent(MultiplayerLevelScenesTransitionSetupDataSO data, MultiplayerResultsData results)
@@ -324,7 +328,12 @@ namespace BeatLeader {
                         _replay.info.failTime = _timeSyncController.songTime;
                     }
 
-                    ScoreUtil.ProcessReplay(_replay, playEndData);
+                    Plugin.Log.Debug($"Level result: {playEndData.EndType}, end time: {playEndData.Time}");
+                    if (_replay.notes.Count > 0) {
+                        ScoreUtil.ProcessReplay(_replay, playEndData);
+                    } else {
+                        Plugin.Log.Debug("Not enough notes to submit");
+                    }
                 }
             }
         }

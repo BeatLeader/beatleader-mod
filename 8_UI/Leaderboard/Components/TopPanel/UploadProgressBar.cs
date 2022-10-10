@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API.Methods;
 using BeatLeader.Models;
-using BeatLeader.Models.Activity;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -71,8 +69,7 @@ namespace BeatLeader.Components {
 
         private void OnRetryClicked() {
             if (_lastReplay == null) return;
-            ScoreUtil.UploadReplay(_lastReplay,
-                new(PlayEndData.LevelEndType.Clear, _lastReplay.frames.Last().time)); // semi-hack, probably need an object with (replay, playEndData)
+            ScoreUtil.UploadReplay(_lastReplay);
         }
 
         #endregion

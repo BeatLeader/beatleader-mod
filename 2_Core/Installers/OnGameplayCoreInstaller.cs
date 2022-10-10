@@ -9,24 +9,31 @@ using Zenject;
 using BeatLeader.Replayer.Camera;
 using UnityEngine;
 using BeatLeader.Replayer.Emulation;
-using BeatLeader.Replayer.Movement;
 using BeatLeader.Components;
 using BeatLeader.ViewControllers;
 using SiraUtil.Tools.FPFC;
 using System;
+using BeatLeader.Replayer.Tweaking;
+using BeatLeader.Replayer.Binding;
+using static BeatLeader.Utils.InputUtils;
+using BeatLeader.UI;
+using BeatLeader.Models;
+using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Installers
 {
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller>
     {
-        private static readonly List<string> modes = new() { "Solo", "Multiplayer" };
-
         public override void InstallBindings()
         {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
             if (ReplayerLauncher.IsStartedAsReplay) InitReplayer();
             else InitRecorder();
         }
+
+        #region Recorder
+
+        private static readonly List<string> modes = new() { "Solo", "Multiplayer" };
 
         private void InitRecorder()
         {
@@ -39,23 +46,23 @@ namespace BeatLeader.Installers
                 #region Gates
                 if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
                 {
-                    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started.");
+                    Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started!");
                     return;
                 }
                 if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
                 {
-                    Plugin.Log.Debug("OST level detected. No recording.");
+                    Plugin.Log.Debug("OST level detected, BL Replay Recorder will not be started!");
                     return;
                 }
-                var gameMode = GameMode();
+                var gameMode = GetGameMode();
                 if (gameMode != null && !modes.Contains(gameMode))
                 {
-                    Plugin.Log.Debug("Not allowed game mode");
+                    Plugin.Log.Debug("Not allowed game mode, BL Replay Recorder will not be started!");
                     return;
                 }
                 #endregion
 
-                Plugin.Log.Debug("Starting a BL Replay Recorder.");
+                Plugin.Log.Debug("Starting a BL Replay Recorder...");
 
                 Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
@@ -66,18 +73,21 @@ namespace BeatLeader.Installers
             }
         }
 
+        #endregion
+
         #region Replayer
 
-        private static readonly ReplayerCameraController.InitData cameraInitData = new ReplayerCameraController.InitData(
+        private static readonly ReplayerCameraController.InitData cameraInitData = new(
 
-           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.FPFC),
-           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, 60, 0)), InputManager.InputType.VR),
-           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 2.30f, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.FPFC),
-           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 0, -1.10f), Quaternion.Euler(new Vector3(0, -60, 0)), InputManager.InputType.VR),
-           new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Quaternion.identity, InputManager.InputType.FPFC),
-           new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Quaternion.identity, InputManager.InputType.VR),
-           new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Quaternion.identity, InputManager.InputType.FPFC),
-           new StaticCameraPose(3, "CenterView", Vector3.zero, Quaternion.identity, InputManager.InputType.VR),
+           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 1.70f, 0), new Vector3(0, 90, 0), InputType.FPFC),
+           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 1.70f, 0), new Vector3(0, -90, 0), InputType.FPFC),
+           new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Vector3.zero, InputType.FPFC),
+           new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Vector3.zero, InputType.FPFC),
+
+           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), new Vector3(0, 60, 0), InputType.VR),
+           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 0, -1.10f), new Vector3(0, -60, 0), InputType.VR),
+           new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Vector3.zero, InputType.VR),
+           new StaticCameraPose(3, "CenterView", Vector3.zero, Vector3.zero, InputType.VR),
 
            new FlyingCameraPose(new Vector2(0.5f, 0.5f), new Vector2(0, 1.7f), 4, true, "FreeView"),
            new PlayerViewCameraPose(3)
@@ -88,32 +98,39 @@ namespace BeatLeader.Installers
         {
             DisableScoreSubmission();
 
-            Container.Bind<Models.ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle().Lazy();
-            Container.Bind<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().Lazy();
+            //Dependencies
+            Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle();
 
-            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle().Lazy();
+            //Core logic(Playback)
+            Container.BindInterfacesAndSelfTo<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
+            //Core logic(Notes handling)
+            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle();
             Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
+            //Tweaks and tools
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<VRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle().Lazy();
+            Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<SceneTweaksManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<TweaksLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<HotkeysHandler>().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<HotkeysManager>().AsSingle().NonLazy();
             Container.Bind<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            if (InputManager.IsInFPFC)
+            //UI
+            Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<ScreenSpaceScreen>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
+            if (InputUtils.IsInFPFC)
             {
-                Container.Bind<UI2DManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.Bind<ReplayerPCViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 PatchSiraFreeView();
             }
-            else Container.Bind<ReplayerVRViewController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Plugin.Log.Notice("[Installer] Replay system successfully installed!");
         }
@@ -135,7 +152,7 @@ namespace BeatLeader.Installers
             }
             catch (Exception ex)
             {
-                Plugin.Log.Critical($"An unhandled exception occurred during attemping to remove Sira's FPFC system! {ex}");
+                Plugin.Log.Error($"[Installer] Error during attemping to remove Sira's FPFC system! \r\n {ex}");
             }
         }
 
@@ -148,20 +165,23 @@ namespace BeatLeader.Installers
         private void DisableScoreSubmission()
         {
             _submissionTicket = Container.Resolve<Submission>()?.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
-            ReplayerLauncher.LaunchData.replayWasFinishedEvent += HandleReplayWasFinished;
+            ReplayerLauncher.LaunchData.ReplayWasFinishedEvent += HandleReplayWasFinished;
         }
-        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data,
-            LevelCompletionResults results, Models.ReplayLaunchData launchData)
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data, Models.ReplayLaunchData launchData)
         {
+            launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             if (_submissionTicket != null)
+            {
                 Container.Resolve<Submission>()?.Remove(_submissionTicket);
+                _submissionTicket = null;
+            }
         }
 
         #endregion
 
         #region Game mode stuff
 
-        private string GameMode()
+        private string GetGameMode()
         {
             string singleGM = GetStandardDataSO()?.gameMode;
             string multiGM = GetMultiDataSO()?.gameMode;
@@ -188,7 +208,6 @@ namespace BeatLeader.Installers
                 return null;
             }
         }
-
         private MultiplayerLevelScenesTransitionSetupDataSO GetMultiDataSO()
         {
             try

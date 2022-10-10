@@ -4,7 +4,6 @@
     {
         public bool ShowUI { get; set; }
         public bool LoadPlayerEnvironment { get; set; }
-        public bool SyncUIRotationWithHead { get; set; }
         public bool ForceUseReplayerCamera { get; set; }
 
         public bool ShowHead { get; set; }

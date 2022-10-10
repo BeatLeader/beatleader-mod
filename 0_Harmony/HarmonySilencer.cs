@@ -2,11 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 
 namespace BeatLeader
 {
-    public class HarmonySilencer : IDisposable
+    internal class HarmonySilencer : IDisposable
     {
         static HarmonySilencer()
         {

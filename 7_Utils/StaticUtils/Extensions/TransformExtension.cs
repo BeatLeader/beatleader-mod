@@ -8,7 +8,7 @@ namespace BeatLeader.Utils
         public static List<Transform> GetChildren(this Transform transform)
         {
             List<Transform> children = new List<Transform>();
-            for(int idx = 0; idx < transform.childCount; idx++)
+            for (int idx = 0; idx < transform.childCount; idx++)
             {
                 children.Add(transform.GetChild(idx));
             }
@@ -28,6 +28,18 @@ namespace BeatLeader.Utils
         {
             transform.localPosition = pose.position;
             transform.localRotation = pose.rotation;
+        }
+        public static Pose AddPose(this Pose pose1, Pose pose2)
+        {
+            pose1.position += pose2.position;
+            pose1.rotation *= pose2.rotation;
+            return pose1;
+        }
+        public static Pose RemovePose(this Pose pose1, Pose pose2)
+        {
+            pose1.position -= pose2.position;
+            pose1.rotation *= Quaternion.Inverse(pose2.rotation);
+            return pose1;
         }
         public static Pose GetPose(this Transform transform)
         {

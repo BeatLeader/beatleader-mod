@@ -1,101 +1,161 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Components.Settings;
 using BeatLeader.UI.BSML_Addons.Components;
-using BeatLeader.UI.BSML_Addons;
-using BeatLeader.Replayer;
 using UnityEngine.UI;
 using UnityEngine;
-using Zenject;
 using HMUI;
 using BeatLeader.Utils;
+using BeatLeader.Models;
+using static HMUI.NoTransitionsButton;
 
 namespace BeatLeader.Components
 {
     internal class Toolbar : EditableElement
     {
-        [Inject] private readonly PlaybackController _playbackController;
-        [InjectOptional] private readonly LayoutEditor _layoutEditor;
+        #region UI Components
 
-        [UIComponent("container")] private RectTransform _container;
-        [UIComponent("play-button")] private BetterButton _playButton;
-        [UIComponent("exit-button-background")] private RectTransform _exitButtonBackground;
-        [UIComponent("exit-button-icon")] private BetterImage _exitButtonIcon;
-        [UIComponent("settings-modal")] private ModalView _settingsModal;
+        [UIComponent("exit-button-background")] private readonly RectTransform _exitButtonBackground;
+        [UIComponent("container")] private readonly RectTransform _container;
 
-        [UIValue("combined-song-time")] private string _CombinedSongTime
+        [UIComponent("play-button")] private readonly BetterButton _playButton;
+        [UIComponent("exit-button-icon")] private readonly BetterImage _exitButtonIcon;
+        [UIComponent("settings-modal")] private readonly ModalView _settingsModal;
+
+        [UIValue("settings-navigator")] private SettingsController _settingsNavigator;
+        [UIValue("timeline")] private Timeline _timeline;
+
+        private NoTransitionsButton _exitButton;
+
+        #endregion
+
+        #region FormattedSongTime
+
+        [UIValue("combined-song-time")]
+        public string FormattedSongTime
         {
-            get => _combinedSongTime;
-            set
+            get => _formattedSongTime;
+            private set
             {
-                _combinedSongTime = value;
-                NotifyPropertyChanged(nameof(_CombinedSongTime));
+                _formattedSongTime = value;
+                NotifyPropertyChanged(nameof(FormattedSongTime));
             }
         }
-        [UIValue("timeline")] private Timeline _timeline;
-        [UIValue("settings-navigator")] private SettingsController _settingsNavigator;
+
+        #endregion
+
+        #region Editable
 
         protected override RectTransform ContainerRect => _container;
         public override bool Locked => true;
 
-        private Sprite _playSprite;
-        private Sprite _pauseSprite;
-        private Sprite _openedDoorSprite;
-        private Sprite _closedDoorSprite;
-        private string _combinedSongTime;
+        #endregion
+
+        #region Setup
+
+        private readonly Sprite _playSprite = BSMLUtility.LoadSprite("#play-icon");
+        private readonly Sprite _pauseSprite = BSMLUtility.LoadSprite("#pause-icon");
+        private readonly Sprite _openedDoorSprite = BSMLUtility.LoadSprite("#opened-door-icon");
+        private readonly Sprite _closedDoorSprite = BSMLUtility.LoadSprite("#closed-door-icon");
+        private string _formattedSongTime;
+
+        private IReplayPauseController _pauseController;
+        private IReplayExitController _exitController;
+        private IBeatmapTimeController _beatmapTimeController;
+        private Replay _replay;
+
+        public void Setup(
+            Replay replay,
+            IReplayPauseController pauseController,
+            IReplayExitController exitController,
+            IBeatmapTimeController beatmapTimeController)
+        {
+            if (_pauseController != null)
+                _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
+
+            _replay = replay;
+            _pauseController = pauseController;
+            _exitController = exitController;
+            _beatmapTimeController = beatmapTimeController;
+
+            _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
+            _timeline.Setup(_replay, _pauseController, _beatmapTimeController);
+        }
 
         protected override void OnInstantiate()
         {
-            _playSprite = BSMLUtility.LoadSprite("#play-icon");
-            _pauseSprite = BSMLUtility.LoadSprite("#pause-icon");
-            _openedDoorSprite = BSMLUtility.LoadSprite("#opened-door-icon");
-            _closedDoorSprite = BSMLUtility.LoadSprite("#closed-door-icon");
-            _timeline = InstantiateInContainer<Timeline>(Container, transform);
+            _timeline = Instantiate<Timeline>(transform);
             _settingsNavigator = InstantiateInContainer<SettingsController>(Container, transform);
             _settingsNavigator.RootMenu = MenuWithContainer.InstantiateInContainer<SettingsRootMenu>(Container);
-            _playbackController.PauseStateChangedEvent += HandlePauseStateChanged;
         }
         protected override void OnInitialize()
         {
-            var button = _exitButtonBackground.gameObject.AddComponent<NoTransitionsButton>();
-            button.selectionStateDidChangeEvent += HandleExitButtonSelectionStateChanged;
-            button.onClick.AddListener(_playbackController.EscapeToMenu);
-            button.navigation = new Navigation() { mode = Navigation.Mode.None };
+            _exitButton = _exitButtonBackground.gameObject.AddComponent<NoTransitionsButton>();
+            _exitButton.selectionStateDidChangeEvent += HandleExitButtonSelectionStateChanged;
+            _exitButton.navigation = new Navigation() { mode = Navigation.Mode.None };
+            _exitButton.onClick.AddListener(HandleExitButtonClicked);
+
             _settingsModal.blockerClickedEvent += _settingsNavigator.HandleSettingsWasClosed;
-            _settingsNavigator.SettingsCloseRequestedEvent += x => _settingsModal.Hide(x, () => _settingsNavigator.HandleSettingsWasClosed());
+            _settingsNavigator.SettingsCloseRequestedEvent += HandleSettingsCloseRequested;
         }
+
+        #endregion
+
+        #region Update Song Time
+
         private void Update()
         {
-            float time = _playbackController.CurrentSongTime;
-            float totalTime = _playbackController.TotalSongTime;
-
-            float minutes = Mathf.FloorToInt(time / 60);
-            float seconds = Mathf.FloorToInt(time - (minutes * 60));
-            float totalMinutes = Mathf.FloorToInt(totalTime / 60);
-            float totalSeconds = Mathf.FloorToInt(totalTime - (totalMinutes * 60));
-
-            string combinedTotalTime = $"{totalMinutes}.{(totalSeconds < 10 ? $"0{totalSeconds}" : totalSeconds)}";
-            _CombinedSongTime = $"{minutes}.{(seconds < 10 ? $"0{seconds}" : seconds)}/{combinedTotalTime}";
+            UpdateSongTime();
         }
+        private void UpdateSongTime()
+        {
+            float time = _beatmapTimeController.SongTime;
+            float totalTime = _beatmapTimeController.TotalSongTime;
+
+            FormattedSongTime = FormatUtils.FormatSongTime(time, totalTime);
+        }
+
+        #endregion
+
+        #region UI Event Handlers
 
         [UIAction("pause-button-clicked")]
-        private void OnPauseButtonClicked()
+        private void HandlePauseButtonClicked()
         {
-            _playbackController.Pause(!_playbackController.IsPaused);
+            if (_pauseController == null) return;
+
+            if (!_pauseController.IsPaused)
+                _pauseController.Pause();
+            else
+                _pauseController.Resume();
         }
-        private void HandleExitButtonSelectionStateChanged(NoTransitionsButton.SelectionState state)
+
+        private void HandleExitButtonClicked()
         {
-            if (state == NoTransitionsButton.SelectionState.Highlighted)
+            _exitController?.Exit();
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void HandleExitButtonSelectionStateChanged(SelectionState state)
+        {
+            _exitButtonIcon.Image.sprite = state switch
             {
-                _exitButtonIcon.Image.sprite = _openedDoorSprite;
-            }
-            if (state == NoTransitionsButton.SelectionState.Normal)
-            {
-                _exitButtonIcon.Image.sprite = _closedDoorSprite;
-            }
+                SelectionState.Pressed => _openedDoorSprite,
+                SelectionState.Highlighted => _openedDoorSprite,
+                _ => _closedDoorSprite
+            };
+        }
+        private void HandleSettingsCloseRequested(bool animated)
+        {
+            _settingsModal.Hide(animated, _settingsNavigator.HandleSettingsWasClosed);
         }
         private void HandlePauseStateChanged(bool pause)
         {
             _playButton.TargetGraphic.sprite = pause ? _playSprite : _pauseSprite;
         }
+
+        #endregion
     }
 }

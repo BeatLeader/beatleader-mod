@@ -14,7 +14,9 @@
 				<bool-setting text="Head" value="show-head" apply-on-change="true" skew="0"/>
 				<bool-setting text="Left saber" value="show-left-saber" apply-on-change="true" skew="0"/>
 				<bool-setting text="Right saber" value="show-right-saber" apply-on-change="true" skew="0"/>
-				<bool-setting id="watermark-toggle" text="Watermark" value="show-watermark" apply-on-change="true" skew="0"/>
+				<macro.if value="watermark-can-be-disabled">
+					<bool-setting text="Watermark" value="show-watermark" apply-on-change="true" skew="0"/>
+				</macro.if>
 			</vertical>
 		</horizontal>
 	</vertical>

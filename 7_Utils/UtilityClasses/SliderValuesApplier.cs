@@ -15,7 +15,7 @@ namespace BeatLeader
             _slider = slider;
         }
 
-        public float multiplier;
+        public float multiplier = 1;
         private RangeValuesTextSlider _slider;
         private int _increment;
 

@@ -10,18 +10,25 @@ namespace BeatLeader.Replayer.Emulation
 {
     public class ReplayerScoreProcessor : MonoBehaviour
     {
+        #region Injection
+
         [Inject] private readonly ScoreController _scoreController;
         [Inject] private readonly ComboController _comboController;
         [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
         [Inject] private readonly ReplayEventsProcessor _eventsProcessor;
 
-        private readonly NoteControllerEmulator _noteControllerEmulator = new();
+        #endregion
+
+        #region Setup
+
+        private readonly NoteControllerEmulator _noteControllerEmulator = 
+            new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
         private SaberSwingRatingCounter _lastSaberSwingCounter;
 
         private void Awake()
         {
-            _eventsProcessor.NoteCutRequestedEvent += HandleNoteCutRequested;
-            _eventsProcessor.WallInteractionRequestedEvent += HandleWallInteractionRequested;
+            _eventsProcessor.NoteProcessRequestedEvent += HandleNoteProcessRequested;
+            _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
 
@@ -29,8 +36,8 @@ namespace BeatLeader.Replayer.Emulation
         }
         private void OnDestroy()
         {
-            _eventsProcessor.NoteCutRequestedEvent -= HandleNoteCutRequested;
-            _eventsProcessor.WallInteractionRequestedEvent -= HandleWallInteractionRequested;
+            _eventsProcessor.NoteProcessRequestedEvent -= HandleNoteProcessRequested;
+            _eventsProcessor.WallProcessRequestedEvent -= HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
 
@@ -39,6 +46,10 @@ namespace BeatLeader.Replayer.Emulation
             _scoringMultisilencer.Dispose();
             _cutScoreSpawnerSilencer.Dispose();
         }
+
+        #endregion
+
+        #region Logic
 
         protected void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut)
         {
@@ -88,9 +99,11 @@ namespace BeatLeader.Replayer.Emulation
             _lastSaberSwingCounter.Finish();
         }
 
+        #endregion
+
         #region Events
 
-        private void HandleNoteCutRequested(NoteEvent noteEvent)
+        private void HandleNoteProcessRequested(NoteEvent noteEvent)
         {
             switch (noteEvent.eventType)
             {
@@ -106,7 +119,7 @@ namespace BeatLeader.Replayer.Emulation
                     break;
             }
         }
-        private void HandleWallInteractionRequested(WallEvent wallEvent)
+        private void HandleWallProcessRequested(WallEvent wallEvent)
         {
             _scoringMultisilencer.Enabled = false;
             _scoreController.HandlePlayerHeadDidEnterObstacles();
@@ -116,7 +129,7 @@ namespace BeatLeader.Replayer.Emulation
         private void HandleReprocessRequested()
         {
             _cutScoreSpawnerSilencer.Enabled = true;
-            if (!_eventsProcessor.IsReprocessingEventsNow) return;
+            if (!_eventsProcessor.TimeWasSmallerThanActualTime) return;
 
             _scoreController.SetField("_modifiedScore", 0);
             _scoreController.SetField("_multipliedScore", 0);

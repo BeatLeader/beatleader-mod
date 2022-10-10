@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using System.Runtime.InteropServices;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.Replayer.Emulation;
+using BeatLeader.Utils;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
@@ -10,15 +9,21 @@ namespace BeatLeader.Replayer
 {
     public class BeatmapVisualsController : MonoBehaviour
     {
-        [Inject] protected readonly PlaybackController _playbackController;
-        [Inject] protected readonly BeatmapTimeController _beatmapTimeController;
+        #region Injection
+
+        [Inject] protected readonly IReplayPauseController _playbackController;
+        [Inject] protected readonly IBeatmapTimeController _beatmapTimeController;
         [Inject] protected readonly ComboController _comboController;
         [Inject] protected readonly ReplayEventsProcessor _eventsProcessor;
 
-        protected ComboUIController _comboUIController;
-        protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
-        protected NoteDebrisSpawner _noteDebrisSpawner;
-        protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
+        [FirstResource] protected ComboUIController _comboUIController;
+        [FirstResource] protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
+        [FirstResource] protected NoteDebrisSpawner _noteDebrisSpawner;
+        [FirstResource] protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
+
+        #endregion
+
+        #region Setup
 
         protected float _debrisCutDirMultiplier;
         protected float _debrisFromCenterSpeed;
@@ -26,12 +31,9 @@ namespace BeatLeader.Replayer
         private bool _comboWasBroke;
         private bool _wasInProcess;
 
-        protected virtual void Awake()
+        private void Awake()
         {
-            _comboUIController = Resources.FindObjectsOfTypeAll<ComboUIController>().First();
-            _sparkleEffectManager = Resources.FindObjectsOfTypeAll<ObstacleSaberSparkleEffectManager>().First();
-            _saberBurnMarkSparkles = Resources.FindObjectsOfTypeAll<SaberBurnMarkSparkles>().First();
-            _noteDebrisSpawner = Resources.FindObjectsOfTypeAll<NoteDebrisSpawner>().First();
+            this.LoadResources();
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
             _debrisFromCenterSpeed = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_fromCenterSpeed");
             _debrisMoveSpeedMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_moveSpeedMultiplier");
@@ -42,7 +44,7 @@ namespace BeatLeader.Replayer
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
         }
-        protected virtual void OnDestroy()
+        private void OnDestroy()
         {
             _playbackController.PauseStateChangedEvent -= HandlePauseStateChanged;
             _beatmapTimeController.SongSpeedChangedEvent -= HandleSongSpeedChanged;
@@ -51,12 +53,20 @@ namespace BeatLeader.Replayer
             _comboController.comboBreakingEventHappenedEvent -= HandleComboDidBreak;
         }
 
+        #endregion
+
+        #region Visuals control
+
         public void PauseSabersSparkles(bool pause)
         {
             _saberBurnMarkSparkles.enabled = !pause;
             _sparkleEffectManager.gameObject.SetActive(!pause);
-            _sparkleEffectManager.GetField<ObstacleSaberSparkleEffect[], ObstacleSaberSparkleEffectManager>("_effects")
-                .ToList().ForEach(x => x.gameObject.SetActive(!pause));
+
+            var effects = _sparkleEffectManager.GetField<
+                ObstacleSaberSparkleEffect[], ObstacleSaberSparkleEffectManager>("_effects");
+
+            foreach (var effect in effects)
+                effect.gameObject.SetActive(!pause);
         }
         public void ModifyCombo(int combo, int maxCombo, bool isBroken = false)
         {
@@ -76,6 +86,10 @@ namespace BeatLeader.Replayer
             _noteDebrisSpawner.SetField("_fromCenterSpeed", _debrisFromCenterSpeed * multiplier);
         }
 
+        #endregion
+
+        #region Event Handlers
+
         private void HandlePauseStateChanged(bool state)
         {
             PauseSabersSparkles(state);
@@ -90,7 +104,7 @@ namespace BeatLeader.Replayer
         }
         private void HandleReprocessRequested()
         {
-            _wasInProcess = _eventsProcessor.IsReprocessingEventsNow;
+            _wasInProcess = _eventsProcessor.TimeWasSmallerThanActualTime;
             _comboWasBroke = false;
         }
         private void HandleReprocessDone()
@@ -101,5 +115,7 @@ namespace BeatLeader.Replayer
                 _wasInProcess = false;
             }
         }
+
+        #endregion
     }
 }

@@ -189,6 +189,19 @@ namespace BeatLeader {
 
         #endregion
 
+        #region FormatSongTime
+
+        public static string FormatSongTime(float time, float totalTime)
+        {
+            var minutes = Mathf.FloorToInt(time / 60);
+            var seconds = Mathf.FloorToInt(time % 60);
+            var totalMinutes = Mathf.FloorToInt(totalTime / 60);
+            var totalSeconds = Mathf.FloorToInt(totalTime % 60);
+            return $"{minutes}:{seconds:0#}/{totalMinutes}:{totalSeconds:0#}";
+        }
+
+        #endregion
+
         #region FormatRank
 
         public static string FormatRank(int rank, bool withPrefix) {

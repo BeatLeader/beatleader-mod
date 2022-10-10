@@ -1,11 +1,15 @@
 ﻿<vertical>
 	<vertical pad-top="1" pref-width="48" vertical-fit="Unconstrained" child-expand-height="false" child-control-height="false" child-align="UpperLeft" spacing="1">
-		<macro.as-host host="offsets-menu-button">
+		<macro.as-host host="position-menu-button">
+			<macro.reparent transform="ui-component"/>
+		</macro.as-host>
+
+		<macro.as-host host="rotation-menu-button">
 			<macro.reparent transform="ui-component"/>
 		</macro.as-host>
 	</vertical>
+	
 	<vertical vertical-fit="Unconstrained" child-expand-height="false" child-control-height="false" child-align="LowerLeft" spacing="1">
-		
 		<horizontal pref-height="12">
 			<better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
 				<vertical pref-width="46">
@@ -15,6 +19,5 @@
 				</vertical>
 			</better-image>
 		</horizontal>
-
 	</vertical>
 </vertical>

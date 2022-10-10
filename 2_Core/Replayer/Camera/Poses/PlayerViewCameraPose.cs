@@ -1,11 +1,11 @@
 ﻿using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
-using CombinedCameraMovementData = BeatLeader.Models.CombinedCameraMovementData;
 using UnityEngine;
-using static BeatLeader.Utils.InputManager;
+using static BeatLeader.Utils.InputUtils;
+using System;
 
 namespace BeatLeader.Replayer.Camera
 {
-    public class PlayerViewCameraPose : ICameraPoseProvider
+    internal class PlayerViewCameraPose : ICameraPoseProvider
     {
         public PlayerViewCameraPose(float smoothness, string name = "PlayerView")
         {
@@ -18,21 +18,24 @@ namespace BeatLeader.Replayer.Camera
         public bool UpdateEveryFrame => true;
         public string Name => _name;
 
-        public Vector3 offset;
+        public Vector3 positionOffset;
+        public Quaternion rotationOffset = Quaternion.identity;
         public float smoothness;
 
         private string _name;
 
-        public void ProcessPose(ref CombinedCameraMovementData data)
+        public void ProcessPose(ref ValueTuple<Pose, Pose> data)
         {
-            var camPose = data.cameraPose;
-            camPose.position -= offset;
+            ref var camPose = ref data.Item1;
 
-            camPose.position = Vector3.Lerp(camPose.position, data.headPose.position, Time.deltaTime * smoothness);
-            camPose.rotation = Quaternion.Lerp(camPose.rotation, data.headPose.rotation, Time.deltaTime * smoothness);
+            camPose.position -= positionOffset;
+            camPose.rotation *= Quaternion.Inverse(rotationOffset);
 
-            camPose.position += offset;
-            data.cameraPose = camPose;
+            camPose.position = Vector3.Lerp(camPose.position, data.Item2.position, Time.deltaTime * smoothness);
+            camPose.rotation = Quaternion.Lerp(camPose.rotation, data.Item2.rotation, Time.deltaTime * smoothness);
+
+            camPose.position += positionOffset;
+            camPose.rotation *= rotationOffset;
         }
     }
 }

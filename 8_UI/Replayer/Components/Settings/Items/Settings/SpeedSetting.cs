@@ -3,32 +3,55 @@ using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine.UI;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Models;
 
 namespace BeatLeader.Components.Settings
 {
     internal class SpeedSetting : ReeUIComponentV2WithContainer
     {
+        #region Configuration
+
         private const float minAvailableSpeedMultiplier = 0.2f;
         private const float maxAvailableSpeedMultiplier = 2f;
 
-        [Inject] private readonly PlaybackController _playbackController;
-        [Inject] private readonly BeatmapTimeController _timeController;
+        #endregion
 
-        [UIComponent("slider-container")] private RectTransform _sliderContainer;
-        [UIComponent("handle")] private Image _handle;
+        #region Injection
 
-        [UIValue("speed-multiplier-text")] private string speedMultiplierText
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly GameplayModifiers _gameplayModifiers;
+
+        #endregion
+
+        #region SpeedMultiplierText
+
+        [UIValue("speed-multiplier-text")]
+        private string _SpeedMultiplierText
         {
             get => _speedMultiplierText;
             set
             {
                 _speedMultiplierText = value;
-                NotifyPropertyChanged(nameof(speedMultiplierText));
+                NotifyPropertyChanged(nameof(_SpeedMultiplierText));
             }
         }
 
+        #endregion
+
+        #region Components
+
+        [UIComponent("slider-container")] 
+        private RectTransform _sliderContainer;
+
+        [UIComponent("handle")]
+        private Image _handle;
+
         private string _speedMultiplierText;
         private Slider _slider;
+
+        #endregion
+
+        #region Logic
 
         protected override void OnInitialize()
         {
@@ -44,15 +67,23 @@ namespace BeatLeader.Components.Settings
         private void OnSliderDrag(float value)
         {
             float speedMultiplier = value * 0.1f;
-            if (speedMultiplier > maxAvailableSpeedMultiplier || speedMultiplier < minAvailableSpeedMultiplier) return;
-            _timeController.SetSpeedMultiplier(speedMultiplier);
-            string currentMulColor = speedMultiplier == _playbackController.SongSpeedMultiplier ? "yellow" :
-                speedMultiplier == minAvailableSpeedMultiplier || speedMultiplier == maxAvailableSpeedMultiplier ? "red" : "#00ffffff" /*cyan*/;
-            speedMultiplierText = $"<color={currentMulColor}>{speedMultiplier * 100}%</color> | <color=yellow>{_playbackController.SongSpeedMultiplier * 100}%</color>";
+            if (speedMultiplier > maxAvailableSpeedMultiplier 
+                || speedMultiplier < minAvailableSpeedMultiplier) return;
+
+            _beatmapTimeController.SetSpeedMultiplier(speedMultiplier);
+            string currentMulColor = 
+                speedMultiplier.Equals(_gameplayModifiers.songSpeedMul) ? "yellow" :
+                speedMultiplier.Equals(minAvailableSpeedMultiplier) || 
+                speedMultiplier.Equals(maxAvailableSpeedMultiplier) ? "red" : "#00ffffff" /*cyan*/;
+
+            _SpeedMultiplierText = $"<color={currentMulColor}>{speedMultiplier * 100}%</color>" +
+                $" | <color=yellow>{_gameplayModifiers.songSpeedMul * 100}%</color>";
         }
         private void ResetSpeed()
         {
-            OnSliderDrag(_slider.value = _playbackController.SongSpeedMultiplier * 10);
+            OnSliderDrag(_slider.value = _gameplayModifiers.songSpeedMul * 10);
         }
+
+        #endregion
     }
 }

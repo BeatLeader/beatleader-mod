@@ -16,23 +16,18 @@ namespace BeatLeader.Utils
         {
             return (T)value;
         }
-        public static List<FieldInfo> GetFields(this Type targetType, Func<FieldInfo, bool> filter = null, BindingFlags flags = DefaultFlags)
-        {
-            return targetType.GetFields(flags).Where(x => filter is null ? true : filter(x)).ToList();
-        }
-        public static List<PropertyInfo> GetProperties(this Type targetType, Func<PropertyInfo, bool> filter = null, BindingFlags flags = DefaultFlags)
-        {
-            return targetType.GetProperties(flags).Where(x => filter is null ? true : filter(x)).ToList();
-        }
         public static List<Type> GetTypes(this Assembly assembly, Func<Type, bool> filter)
         {
             return assembly.GetTypes().Where(filter).ToList();
         }
-        public static List<T> ScanAndActivateTypes<T>(this Assembly assembly, Func<T, bool> filter = null, Func<Type, T> activator = null)
+
+        public static void AddDefaultConstructor(this TypeBuilder typeBuilder)
         {
-            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T)).Where(x => !x.IsAbstract)
-                .Select(x => activator != null ? activator(x) : (T)Activator.CreateInstance(x))
-                .Where(filter != null ? filter : x => true).ToList();
+            var ctor0 = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, Type.EmptyTypes);
+            var ctor0IL = ctor0.GetILGenerator();
+            ctor0IL.Emit(OpCodes.Ldarg_0);
+            ctor0IL.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes)!);
+            ctor0IL.Emit(OpCodes.Ret);
         }
         public static ModuleBuilder CreateModuleBuilder(string name)
         {
@@ -40,7 +35,11 @@ namespace BeatLeader.Utils
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             return assemblyBuilder.DefineDynamicModule(assemblyName.Name);
         }
-        public static PropertyBuilder AddGetOnlyProperty(this TypeBuilder typeBuilder, string name, FieldInfo fieldInfo, MethodInfo overrider = null)
+
+        public static PropertyBuilder AddGetOnlyProperty(
+            this TypeBuilder typeBuilder,
+            string name, FieldInfo fieldInfo,
+            MethodInfo overrider = null)
         {
             var type = fieldInfo.FieldType;
             var getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual;
@@ -58,13 +57,31 @@ namespace BeatLeader.Utils
             property.SetGetMethod(getAccessor);
             return property;
         }
-        public static void AddDefaultConstructor(this TypeBuilder typeBuilder)
+
+        public static List<FieldInfo> GetFields(
+            this Type targetType,
+            Func<FieldInfo, bool> filter = null,
+            BindingFlags flags = DefaultFlags)
         {
-            var ctor0 = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, Type.EmptyTypes);
-            var ctor0IL = ctor0.GetILGenerator();
-            ctor0IL.Emit(OpCodes.Ldarg_0);
-            ctor0IL.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes)!);
-            ctor0IL.Emit(OpCodes.Ret);
+            return targetType.GetFields(flags).Where(x => filter is null ? true : filter(x)).ToList();
+        }
+
+        public static List<PropertyInfo> GetProperties(
+            this Type targetType, 
+            Func<PropertyInfo, bool> filter = null, 
+            BindingFlags flags = DefaultFlags)
+        {
+            return targetType.GetProperties(flags).Where(x => filter is null ? true : filter(x)).ToList();
+        }
+
+        public static List<T> ScanAndActivateTypes<T>(
+            this Assembly assembly,
+            Func<T, bool> filter = null,
+            Func<Type, T> activator = null)
+        {
+            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T)).Where(x => !x.IsAbstract)
+                .Select(x => activator != null ? activator(x) : (T)Activator.CreateInstance(x))
+                .Where(filter != null ? filter : x => true).ToList();
         }
     }
 }

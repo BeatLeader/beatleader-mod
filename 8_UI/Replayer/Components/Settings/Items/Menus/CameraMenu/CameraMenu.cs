@@ -31,7 +31,7 @@ namespace BeatLeader.Components.Settings
             get => _cameraController.FieldOfView;
             set
             {
-                _replayData.actualToWriteSettings.CameraFOV = value;
+                _replayData.ActualToWriteSettings.CameraFOV = value;
                 _cameraController.FieldOfView = value;
             }
         }
@@ -57,7 +57,7 @@ namespace BeatLeader.Components.Settings
         }
         protected override void OnAfterParse()
         {
-            _cameraFovContainer.AddComponent<InputDependentObject>().Init(InputManager.InputType.FPFC);
+            _cameraFovContainer.AddComponent<InputDependentObject>().Init(InputUtils.InputType.FPFC);
             _poseMenuButtonCanvasGroup = _poseMenuButton.ButtonGameObject.AddComponent<CanvasGroup>();
             HandleCameraPoseChanged(_cameraController.CurrentPose);
         }

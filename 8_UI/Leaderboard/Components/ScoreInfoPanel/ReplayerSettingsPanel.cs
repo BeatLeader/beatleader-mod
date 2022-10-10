@@ -47,6 +47,13 @@ namespace BeatLeader.Components
             _saveToggle.Setup(BundleLoader.SaveIcon, "Save after download", _hintField);
             _saveToggle.Value = PluginConfig.EnableReplayCaching;
             _saveToggle.OnClick += OnSaveToggleValueChanged;
+
+            PluginConfig.ReplayerSettingsChangedEvent += UpdateReplayerSettings;
+        }
+
+        protected override void OnDispose()
+        {
+            PluginConfig.ReplayerSettingsChangedEvent -= UpdateReplayerSettings;
         }
 
         #endregion
@@ -58,13 +65,16 @@ namespace BeatLeader.Components
             PluginConfig.EnableReplayCaching = value;
         }
 
+        private void UpdateReplayerSettings(ReplayerSettings settings)
+        {
+            _showUIToggle.Value = settings.ShowUI;
+        }
+
         private void UpdateReplayerSettings()
         {
             var settings = PluginConfig.ReplayerSettings;
             settings.ShowUI = _showUIToggle.Value;
-            settings.ForceUseReplayerCamera = PluginConfig.ReplayerSettings.ForceUseReplayerCamera;
             settings.LoadPlayerEnvironment = _overrideEnvironmentToggle.Value;
-
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿<horizontal id="container" child-control-height="false" child-control-width="false" child-expand-width="false"
 			child-align="MiddleLeft" pref-height="20">
+
 	<horizontal id="wrapper" pref-height="20" horizontal-fit="PreferredSize" spacing="1">
 
 		<better-image src="#black-transparent-bg" type="Sliced" ppu="5" use-as-mask="true" pref-height="20" pref-width="20">
@@ -25,4 +26,5 @@
 		</vertical>
 
 	</horizontal>
+
 </horizontal>

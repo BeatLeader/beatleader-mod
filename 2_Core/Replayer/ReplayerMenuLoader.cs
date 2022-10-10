@@ -142,13 +142,13 @@ namespace BeatLeader.Replayer
 
         private void StartReplay()
         {
-            StartReplayAsync(Replay, Score.player);
+            StartReplayAsync(Replay, Score.player, ConfigFileData.Instance.ReplayerSettings);
         }
 
         private async Task<bool> StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null)
         {
-            var data = new ReplayLaunchData(replay, player, settings);
-            data.replayWasFinishedEvent += HandleReplayWasFinished;
+            var data = new ReplayLaunchData(replay, player, settings: settings);
+            data.ReplayWasFinishedEvent += HandleReplayWasFinished;
 
             Plugin.Log.Notice("[Loader] Download done, replay data:");
             string line = string.Empty;
@@ -159,23 +159,23 @@ namespace BeatLeader.Replayer
             line += $"Environment: {replay.info.environment}";
             Plugin.Log.Info(line);
 
-            return await _launcher.StartReplayAsync(data, result =>
+            if (await _launcher.StartReplayAsync(data))
             {
-                if (!result) return;
-
                 ScoreSaberInterop.RecordingEnabled = false;
                 BeatSaviorInterop.EnableScoreSubmission = false;
-            });
+                return true;
+            }
+            else return false;
         }
 
-        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults, ReplayLaunchData launchData)
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData)
         {
-            launchData.replayWasFinishedEvent -= HandleReplayWasFinished;
-            _scenesManager.PopScenes(completionResults.levelEndStateType == 0 ? 0.35f : 1.3f);
+            launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
+            _scenesManager.PopScenes(0.3f);
 
-            if (InputManager.IsInFPFC)
+            if (InputUtils.IsInFPFC)
             {
-                InputManager.EnableCursor(false);
+                InputUtils.EnableCursor(false);
                 _fpfcSettings.Enabled = true;
             }
 

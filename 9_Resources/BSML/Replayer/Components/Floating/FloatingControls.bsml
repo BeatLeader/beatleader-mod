@@ -1,38 +1,5 @@
 ﻿<horizontal pref-height="6" spacing="1">
 
-	<!--<vertical pref-width="6">
-		<horizontal pref-height="6">
-			<better-image src="#black-transparent-bg" type="Sliced" ppu="10" pref-height="6">
-				<horizontal pad="1">
-					<better-button id="vertical-sync-button" normal-image="#vertical-sync-icon" transition="None"
-								   preserve-aspect="true" pref-height="4" pref-width="4"/>
-				</horizontal>
-			</better-image>
-		</horizontal>
-	</vertical>
-
-	<vertical pref-width="6">
-		<horizontal pref-height="6">
-			<better-image src="#black-transparent-bg" type="Sliced" ppu="10" pref-height="6">
-				<horizontal pad="1">
-					<better-button id="horizontal-sync-button" normal-image="#horizontal-sync-icon" transition="None"
-								   preserve-aspect="true" pref-height="4" pref-width="4"/>
-				</horizontal>
-			</better-image>
-		</horizontal>
-	</vertical>
-	
-	<vertical pref-width="6">
-		<horizontal pref-height="6">
-			<better-image src="#black-transparent-bg" type="Sliced" ppu="10" pref-height="6">
-				<horizontal pad="1">
-					<better-button id="pin-button" normal-image="#pin-icon" transition="None"
-								   preserve-aspect="true" pref-height="4" pref-width="4"/>
-				</horizontal>
-			</better-image>
-		</horizontal>
-	</vertical>-->
-
 	<vertical id="spacer-one" pref-width="35"/>
 	
 	<vertical pref-width="6">

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace BeatLeader.Utils
 {
-    public static class InputManager
+    public static class InputUtils
     {
         [Flags] public enum InputType
         {

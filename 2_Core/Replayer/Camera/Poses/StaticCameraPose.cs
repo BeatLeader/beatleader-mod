@@ -1,24 +1,26 @@
 ﻿using BeatLeader.Models;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
-using static BeatLeader.Utils.InputManager;
+using static BeatLeader.Utils.InputUtils;
+using System;
+using UnityEngine;
 
 namespace BeatLeader.Replayer.Camera
 {
     public class StaticCameraPose : ICameraPoseProvider
     {
-        public StaticCameraPose(int id, string name, Vector3 position, Quaternion rotation)
+        public StaticCameraPose(int id, string name, Vector3 position, Vector3 rotation)
         {
             _id = id;
-            _rotation = rotation;
+            _rotation = Quaternion.Euler(rotation);
             _position = position;
             _name = name;
             _availableInputs = InputType.FPFC | InputType.VR;
         }
-        public StaticCameraPose(int id, string name, Vector3 position, Quaternion rotation, InputType availableInputs)
+        public StaticCameraPose(int id, string name, Vector3 position, Vector3 rotation, InputType availableInputs)
         {
             _id = id;
-            _rotation = rotation;
+            _rotation = Quaternion.Euler(rotation);
             _position = position;
             _name = name;
             _availableInputs = availableInputs;
@@ -35,10 +37,10 @@ namespace BeatLeader.Replayer.Camera
         public bool UpdateEveryFrame => false;
         public string Name => _name;
 
-        public void ProcessPose(ref CombinedCameraMovementData data)
+        public void ProcessPose(ref ValueTuple<Pose, Pose> data)
         {
-            data.cameraPose.position = _position;
-            data.cameraPose.rotation = _rotation;
+            data.Item1.position = _position;
+            data.Item1.rotation = _rotation;
         }
     }
 }

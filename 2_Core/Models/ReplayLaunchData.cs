@@ -4,31 +4,44 @@ namespace BeatLeader.Models
 {
     public class ReplayLaunchData
     {
-        public ReplayLaunchData(Replay replay, Player player = null, ReplayerSettings settings = null, 
-            IDifficultyBeatmap difficultyBeatmap = null, EnvironmentInfoSO environmentInfo = null)
+        public ReplayLaunchData(
+            Replay replay,
+            Player player = null,
+            IDifficultyBeatmap difficultyBeatmap = null, 
+            EnvironmentInfoSO environmentInfo = null,
+            ReplayerSettings settings = null)
         {
-            this.replay = replay;
-            this.player = player;
-            this.settings = settings;
-            this.difficultyBeatmap = difficultyBeatmap;
-            this.environmentInfo = environmentInfo;
+            Replay = replay;
+            Player = player;
+            DifficultyBeatmap = difficultyBeatmap;
+            OverrideEnvironmentInfo = environmentInfo;
+            _settings = settings ?? ConfigDefaults.ReplayerSettings;
         }
 
-        public Replay replay { get; }
-        public Player player { get; set; }
-        public IDifficultyBeatmap difficultyBeatmap { get; set; }
-        public EnvironmentInfoSO environmentInfo { get; set; }
-        protected ReplayerSettings settings { get; }
+        public Replay Replay { get; }
+        public Player Player { get; }
+        public IDifficultyBeatmap DifficultyBeatmap { get; private set; }
+        public EnvironmentInfoSO OverrideEnvironmentInfo { get; private set; }
 
-        public virtual bool overrideSettings => settings != null;
-        public virtual ReplayerSettings actualSettings => overrideSettings ? settings : ConfigFileData.Instance.ReplayerSettings;
-        public virtual ReplayerSettings actualToWriteSettings => ConfigFileData.Instance.ReplayerSettings;
+        public virtual ReplayerSettings ActualSettings => _settings;
+        public virtual ReplayerSettings ActualToWriteSettings => _settings;
 
-        public event Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults, ReplayLaunchData> replayWasFinishedEvent;
+        public event Action<StandardLevelScenesTransitionSetupDataSO, ReplayLaunchData> ReplayWasFinishedEvent;
 
-        public void NotifyReplayDidFinish(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults)
+        protected ReplayerSettings _settings;
+
+        public void OverrideWith(
+            IDifficultyBeatmap beatmap = null, 
+            EnvironmentInfoSO environment = null,
+            ReplayerSettings settings = null)
         {
-            replayWasFinishedEvent?.Invoke(transitionData, completionResults, this);
+            DifficultyBeatmap = beatmap ?? DifficultyBeatmap;
+            OverrideEnvironmentInfo = environment ?? OverrideEnvironmentInfo;
+            _settings = settings ?? _settings;
+        }
+        public void HandleReplayDidFinish(StandardLevelScenesTransitionSetupDataSO transitionData)
+        {
+            ReplayWasFinishedEvent?.Invoke(transitionData, this);
         }
     }
 }

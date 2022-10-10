@@ -60,11 +60,11 @@ namespace BeatLeader.Utils
         }
         public static bool ParseInObjectHierarchy<T>(this T obj, string content = null, object host = null) where T : Behaviour
         {
-            content ??= ReadViewDefinition(host != null ? host.GetType() : typeof(T));
+            content ??= ReadViewDefinition(host?.GetType() ?? typeof(T));
             if (string.IsNullOrEmpty(content)) return false;
             try
             {
-                BSMLParser.instance.Parse(content, obj.gameObject, host != null ? host : obj);
+                BSMLParser.instance.Parse(content, obj.gameObject, host ?? obj);
             }
             catch (Exception ex)
             {

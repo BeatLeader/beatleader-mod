@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using static BeatLeader.Utils.InputManager;
+using static BeatLeader.Utils.InputUtils;
 
 namespace BeatLeader.Components
 {

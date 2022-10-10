@@ -7,7 +7,6 @@ using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 using static BeatmapLevelsModel;
-using BeatLeader.DataManager;
 
 namespace BeatLeader.Replayer
 {
@@ -23,35 +22,24 @@ namespace BeatLeader.Replayer
         public static event Action<ReplayLaunchData> ReplayWasStartedEvent;
         public static event Action<ReplayLaunchData> ReplayWasFinishedEvent;
 
-        public async Task<bool> StartReplayAsync(ReplayLaunchData data, Action<bool> callback = null)
+        public async Task<bool> StartReplayAsync(ReplayLaunchData data)
         {
-            return await StartReplayAsync(data, new CancellationToken(), callback);
+            return await StartReplayAsync(data, new CancellationToken());
         }
-        public async Task<bool> StartReplayAsync(ReplayLaunchData data, CancellationToken token, Action<bool> callback)
+        public async Task<bool> StartReplayAsync(ReplayLaunchData data, CancellationToken token)
         {
             Plugin.Log.Notice("[Launcher] Loading replay data...");
             bool loadResult = await AssignDataAsync(data, token);
             if (!loadResult) return false;
 
             var environmentInfo = GetEnvironmentByLaunchData(data);
-            var transitionData = data.replay.CreateTransitionData(_playerDataModel, data.difficultyBeatmap, environmentInfo.value);
+            var transitionData = data.Replay.CreateTransitionData(_playerDataModel, data.DifficultyBeatmap, environmentInfo.value);
             transitionData.didFinishEvent += ResetData;
-
-            if (token.IsCancellationRequested)
-            {
-                callback?.Invoke(false);
-                return false;
-            }
-
-            Plugin.Log.Notice("[Launcher] Loading modifiers from server...");
-            if (!LoadModifiersIfNeeded(data.difficultyBeatmap))
-                Plugin.Log.Error("[Launcher] Unable to load modifiers from server, scores may be differ!");
 
             IsStartedAsReplay = true;
             LaunchData = data;
 
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
-            callback?.Invoke(true);
             ReplayWasStartedEvent?.Invoke(data);
             Plugin.Log.Notice("[Launcher] Starting replay...");
 
@@ -60,10 +48,10 @@ namespace BeatLeader.Replayer
 
         private async Task<bool> AssignDataAsync(ReplayLaunchData data, CancellationToken token)
         {
-            if (data.difficultyBeatmap != null) return true;
-            var loadingResult = await GetBeatmapDifficultyByReplayInfoAsync(data.replay.info, token);
+            if (data.DifficultyBeatmap != null) return true;
+            var loadingResult = await GetBeatmapDifficultyByReplayInfoAsync(data.Replay.info, token);
 
-            data.difficultyBeatmap = loadingResult.value;
+            data.OverrideWith(loadingResult.value);
             return !loadingResult.isError;
         }
         private async Task<RequestResult<IDifficultyBeatmap>> GetBeatmapDifficultyByReplayInfoAsync(ReplayInfo info, CancellationToken token)
@@ -97,45 +85,28 @@ namespace BeatLeader.Replayer
             return await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token);
         }
 
-        private bool LoadModifiersIfNeeded(IDifficultyBeatmap beatmap)
-        {
-            var key = LeaderboardKey.FromBeatmap(beatmap);
-            var loadingResult = LeaderboardsCache.TryGetLeaderboardInfo(key, out var data);
-            if (!loadingResult) return false;
-
-            var diffInfo = data.DifficultyInfo;
-            var modifiersMap = diffInfo.modifierValues;
-
-            var applyPositive = !FormatUtils.NegativeModifiersAppliers.Contains(FormatUtils.GetRankedStatus(diffInfo));
-            ModifiersMapManager.LoadCustomModifiersMap(modifiersMap, x => x > 0 && !applyPositive ? 0 : x);
-
-            return true;
-        }
         private RequestResult<EnvironmentInfoSO> GetEnvironmentByLaunchData(ReplayLaunchData data)
         {
             EnvironmentInfoSO environment = null;
 
-            if (data.actualSettings.LoadPlayerEnvironment)
+            if (data.ActualSettings.LoadPlayerEnvironment)
             {
-                environment = ReplayDataHelper.GetEnvironmentByName(data.replay.info.environment);
+                environment = ReplayDataHelper.GetEnvironmentByName(data.Replay.info.environment);
                 if (environment == null) Plugin.Log.Error("[Launcher] Failed to parse player environment!");
             }
-            else if (data.environmentInfo != null)
-                environment = data.environmentInfo;
+            else if (data.OverrideEnvironmentInfo != null)
+                environment = data.OverrideEnvironmentInfo;
 
             return new RequestResult<EnvironmentInfoSO>(environment == null, environment);
         }
         private static void ResetData(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults)
         {
             transitionData.didFinishEvent -= ResetData;
-            LaunchData.NotifyReplayDidFinish(transitionData, completionResults);
+            LaunchData.HandleReplayDidFinish(transitionData);
             ReplayWasFinishedEvent?.Invoke(LaunchData);
+
             LaunchData = null;
             IsStartedAsReplay = false;
-
-            Plugin.Log.Notice("[Launcher] Loading modifiers back...");
-            ModifiersMapManager.LoadGameplayModifiersMap();
-            Plugin.Log.Notice("[Launcher] Modifiers successfully loaded");
         }
     }
 }

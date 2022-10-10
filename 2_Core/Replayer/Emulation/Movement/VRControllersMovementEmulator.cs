@@ -4,12 +4,12 @@ using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer.Movement
+namespace BeatLeader.Replayer.Emulation
 {
     public class VRControllersMovementEmulator : MonoBehaviour
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] private readonly BeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
         [Inject] private readonly VRControllersProvider _vrControllersManager;
         [Inject] private readonly ReplayLaunchData _replayData;
 
@@ -19,12 +19,12 @@ namespace BeatLeader.Replayer.Movement
 
         protected VRController _LeftSaber => _vrControllersManager.LeftSaber;
         protected VRController _RightSaber => _vrControllersManager.RightSaber;
-        protected VRController _Head => _vrControllersManager.HeadContainer;
+        protected VRController _Head => _vrControllersManager.Head;
         public bool IsPlaying => _audioTimeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
 
         protected void Start()
         {
-            _frames = new LinkedList<Frame>(_replayData.replay.frames);
+            _frames = new LinkedList<Frame>(_replayData.Replay.frames);
             _lastProcessedNode = _frames.First;
 
             _beatmapTimeController.SongRewindEvent += HandleSongWasRewinded;

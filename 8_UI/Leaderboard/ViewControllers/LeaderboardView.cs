@@ -4,7 +4,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
 
 namespace BeatLeader.ViewControllers {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.LeaderboardView.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.Leaderboard.LeaderboardView.bsml")]
     internal class LeaderboardView : BSMLAutomaticViewController {
         #region Components
 

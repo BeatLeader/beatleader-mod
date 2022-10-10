@@ -1,132 +1,83 @@
-﻿using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using BeatLeader.Interop;
-using IPA.Utilities;
+﻿using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.XR;
 using Zenject;
+using BeatLeader.Utils;
 
-namespace BeatLeader.Replayer.Movement
+namespace BeatLeader.Replayer.Emulation
 {
     public class VRControllersProvider : MonoBehaviour
     {
-        [Inject] protected readonly PlayerVRControllersManager _vrControllersManager;
-        [Inject] protected readonly PlayerTransforms _playerTransforms;
-        [Inject] protected readonly PauseMenuManager _pauseMenuManager;
-        [Inject] protected readonly MainCamera _mainCamera;
-        [Inject] protected readonly DiContainer _diContainer;
-        [Inject] private readonly Models.ReplayLaunchData _replayData;
-
-        protected Dictionary<Transform, (XRNode, Transform)> _attachedObjects = new();
+        [Inject] private readonly PlayerVRControllersManager _vrControllersManager;
+        [Inject] private readonly PauseMenuManager _pauseMenuManager;
+        [Inject] private readonly PlayerTransforms _playerTransforms;
+        [Inject] private readonly DiContainer _diContainer;
 
         public VRController LeftSaber { get; protected set; }
         public VRController RightSaber { get; protected set; }
+        public VRController Head { get; protected set; }
+
         public VRController LeftHand { get; protected set; }
         public VRController RightHand { get; protected set; }
-        public VRController HeadContainer { get; protected set; }
-        public Transform HeadTransform { get; protected set; }
-        public Transform MenuHandsContainerTransform { get; protected set; }
-        public Transform MenuHandsTranform { get; protected set; }
-        public Transform OriginTransform { get; protected set; }
-        public bool IsInitialized { get; protected set; }
+        public Transform MenuHandsContainer { get; protected set; }
+        [FirstResource("VRGameCore")] public Transform Origin { get; protected set; }
 
-        protected virtual void Awake()
-        {
-            MenuHandsTranform = _pauseMenuManager.transform.Find("MenuControllers");
-            LeftHand = MenuHandsTranform.Find("ControllerLeft").GetComponent<VRController>();
-            RightHand = MenuHandsTranform.Find("ControllerRight").GetComponent<VRController>();
-            OriginTransform = Resources.FindObjectsOfTypeAll<Transform>().First(x => x.gameObject.name == "VRGameCore");
-
-            _mainCamera.GetComponentInChildren<BoxCollider>().gameObject.SetActive(false);
-            HeadContainer = new GameObject("ReplayerFakeHead").AddComponent<VRControllerEmulator>();
-            HeadContainer.node = XRNode.Head;
-
-            HeadTransform = Instantiate(BundleLoader.MonkeyPrefab, null, false).transform;
-            HeadTransform.SetParent(HeadContainer.transform, false);
-            HeadTransform.GetChild(0).eulerAngles = new Vector3(0, 180, 0);
-
-            //you ask me why? smth just moves menu hands to the zero pose
-            MenuHandsContainerTransform = new GameObject("PauseMenuHands").transform;
-            MenuHandsTranform.SetParent(MenuHandsContainerTransform, false);
-            MenuHandsContainerTransform.SetParent(OriginTransform, true);
-            HeadContainer.transform.SetParent(OriginTransform, false);
-
-            _vrControllersManager.leftHandVRController.enabled = false;
-            _vrControllersManager.rightHandVRController.enabled = false;
-
-            LeftSaber = _vrControllersManager.leftHandVRController;
-            RightSaber = _vrControllersManager.rightHandVRController;
-
-            _playerTransforms.SetField("_headTransform", HeadContainer.transform);
-            _vrControllersManager.SetField("_leftHandVRController", LeftSaber);
-            _vrControllersManager.SetField("_rightHandVRController", RightSaber);
-
-            InjectControllers();
-            Cam2Interop.SetHeadTransform(HeadContainer.transform);
-            LoadConfig(_replayData.actualSettings);
-            IsInitialized = true;
-        }
-        protected virtual void OnDestroy()
-        {
-            Cam2Interop.SetHeadTransform(null);
-        }
+        private Transform _menuHandsTransform;
+        private bool _isInitialized;
 
         public void ShowMenuControllers(bool show = true)
         {
             LeftHand.gameObject.SetActive(show);
             RightHand.gameObject.SetActive(show);
-            MenuHandsTranform.gameObject.SetActive(show);
+            _menuHandsTransform.gameObject.SetActive(show);
         }
-        public void ShowNode(XRNode node, bool show = true)
+
+        private void Awake()
         {
-            var go = node switch
-            {
-                XRNode.Head => HeadContainer.gameObject,
-                XRNode.LeftHand => LeftSaber.gameObject,
-                XRNode.RightHand => RightSaber.gameObject,
-                XRNode.GameController => MenuHandsContainerTransform.gameObject,
-                _ => null
-            };
-            go?.SetActive(show);
+            if (_isInitialized) return;
+
+            this.LoadResources();
+
+            _menuHandsTransform = _pauseMenuManager.transform.Find("MenuControllers");
+            LeftHand = _menuHandsTransform.Find("ControllerLeft")?.GetComponent<VRController>();
+            RightHand = _menuHandsTransform.Find("ControllerRight")?.GetComponent<VRController>();
+
+            Head = new GameObject("ReplayerFakeHead").AddComponent<VRControllerEmulator>();
+            Head.transform.SetParent(Origin, false);
+            Head.node = XRNode.Head;
+
+            var monke = Instantiate(BundleLoader.MonkeyPrefab, null, false);
+            monke.transform.localEulerAngles = new Vector3(0, 180, 0);
+            monke.transform.SetParent(Head.transform, false);
+
+            //you ask me why? smth just moves menu hands to the zero pose
+            MenuHandsContainer = new GameObject("PauseMenuHands").transform;
+            MenuHandsContainer.SetParent(Origin, true);
+            _menuHandsTransform.SetParent(MenuHandsContainer, false);
+
+            _vrControllersManager.leftHandVRController.enabled = false;
+            _vrControllersManager.rightHandVRController.enabled = false;
+
+            _playerTransforms.SetField("_headTransform", Head.transform);
+            _vrControllersManager.SetField("_leftHandVRController",
+                LeftSaber = _vrControllersManager.leftHandVRController);
+            _vrControllersManager.SetField("_rightHandVRController",
+                RightSaber = _vrControllersManager.rightHandVRController);
+
+            InjectControllers();
+            _isInitialized = true;
         }
-        public void AttachToTheNode(XRNode node, Transform transform)
+        private void InjectControllers()
         {
-            if (_attachedObjects.ContainsKey(transform)) return;
-            Transform originalParent = transform.parent;
-            transform.SetParent(node switch
+            foreach (var item in GetType().GetProperties())
             {
-                XRNode.Head => HeadContainer.transform,
-                XRNode.LeftHand => LeftHand.transform,
-                XRNode.RightHand => RightHand.transform,
-                XRNode.GameController => MenuHandsContainerTransform,
-                _ => originalParent
-            }, false);
-            _attachedObjects.Add(transform, (node, originalParent));
-        }
-        public void DetachFromTheNode(Transform transform, bool reparentToOriginalParent)
-        {
-            if (_attachedObjects.TryGetValue(transform, out var pair))
-            {
-                Plugin.Log.Warn("[Binder] This object is not attached to any node!");
-                return;
+                if (!item.CanWrite || item.PropertyType != typeof(VRController)) continue;
+
+                var value = item.GetValue(this);
+                if (value == null) continue;
+
+                _diContainer.Inject(item.GetValue(this));
             }
-
-            transform.SetParent(reparentToOriginalParent ? pair.Item2 : null);
-            _attachedObjects.Remove(transform);
-        }
-
-        protected void LoadConfig(Models.ReplayerSettings settings)
-        {
-            HeadContainer.gameObject.SetActive(settings.ShowHead);
-            LeftSaber.gameObject.SetActive(settings.ShowLeftSaber);
-            RightSaber.gameObject.SetActive(settings.ShowRightSaber);
-        }
-        protected void InjectControllers()
-        {
-            foreach (var item in GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                if (item.CanWrite && item.PropertyType == typeof(VRController))
-                    _diContainer.Inject(item.GetValue(this));
         }
     }
 }

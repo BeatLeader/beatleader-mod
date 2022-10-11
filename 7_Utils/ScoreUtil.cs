@@ -34,11 +34,8 @@ namespace BeatLeader.Utils {
             }
 
             bool practice = replay.info.speed != 0;
-            bool fail = replay.info.failTime > 0;
-
-            if (practice || fail) {
-                Plugin.Log.Debug("Practice/fail, only local replay would be saved");
-
+            if (practice) {
+                Plugin.Log.Debug("Practice, only local replay would be saved");
                 FileManager.TryWriteReplay(replay); // save the last replay
                 return;
             }

@@ -15,6 +15,8 @@ namespace BeatLeader.Utils
         private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
         private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 
+        public static string LastSavedReplay = "";
+
         static FileManager()
         {
             EnsureDirectoryExists(ReplaysFolderPath);
@@ -31,7 +33,8 @@ namespace BeatLeader.Utils
             return Directory.GetFiles(ReplaysFolderPath);
         }
         public static bool TryWriteReplay(Replay replay) {
-            return TryWriteReplay(ToFileName(replay), replay);
+            LastSavedReplay = ToFileName(replay);
+            return TryWriteReplay(LastSavedReplay, replay);
         }
         public static bool TryWriteReplay(string fileName, Replay replay)
         {

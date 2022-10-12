@@ -109,12 +109,12 @@ namespace BeatLeader.Manager {
 
         #endregion
 
-        #region AvatarWasPressed
+        #region SettingsButtonWasPressed
 
-        public static event Action AvatarWasPressedEvent;
+        public static event Action SettingsButtonWasPressedEvent;
 
-        public static void NotifyAvatarWasPressed() {
-            AvatarWasPressedEvent?.Invoke();
+        public static void NotifySettingsButtonWasPressed() {
+            SettingsButtonWasPressedEvent?.Invoke();
         }
 
         #endregion

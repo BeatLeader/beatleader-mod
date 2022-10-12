@@ -11,14 +11,14 @@ namespace BeatLeader.Components {
         #region Init / Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.AvatarWasPressedEvent += ShowModal;
+            LeaderboardEvents.SettingsButtonWasPressedEvent += ShowModal;
             LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             ApplyScale();
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.AvatarWasPressedEvent -= ShowModal;
+            LeaderboardEvents.SettingsButtonWasPressedEvent -= ShowModal;
             LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
         }

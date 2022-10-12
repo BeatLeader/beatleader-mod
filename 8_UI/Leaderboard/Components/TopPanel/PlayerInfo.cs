@@ -1,5 +1,4 @@
 using BeatLeader.API.Methods;
-using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -36,11 +35,6 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
-
-        [UIAction("avatar-on-click"), UsedImplicitly]
-        private void AvatarOnClick() {
-            LeaderboardEvents.NotifyAvatarWasPressed();
-        }
 
         private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
             if (state is not API.RequestState.Finished) return;

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
@@ -21,10 +22,18 @@ namespace BeatLeader.Components {
         [UIValue("approval-checkbox"), UsedImplicitly]
         private QualificationCheckbox _approvalCheckbox;
 
+        [UIValue("website-button"), UsedImplicitly]
+        private HeaderButton _websiteButton;
+
+        [UIValue("settings-button"), UsedImplicitly]
+        private HeaderButton _settingsButton;
+
         private void Awake() {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _mapperCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
+            _websiteButton = Instantiate<HeaderButton>(transform, false);
+            _settingsButton = Instantiate<HeaderButton>(transform, false);
         }
 
         #endregion
@@ -32,6 +41,11 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
+            _websiteButton.Setup(BundleLoader.ProfileIcon);
+            _settingsButton.Setup(BundleLoader.GetSpriteFromBundle("SettingsIcon"));
+            
+            _websiteButton.OnClick += WebsiteButtonOnClick;
+            _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
             ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
             OnPlayerRolesUpdated(ProfileManager.Roles);
@@ -41,6 +55,8 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
+            _websiteButton.OnClick -= WebsiteButtonOnClick;
+            _settingsButton.OnClick -= SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
             ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
             ExMachinaRequest.RemoveStateListener(OnExMachinaRequestStateChanged);
@@ -174,8 +190,6 @@ namespace BeatLeader.Components {
             ExMachinaText = $"Ex Machina: {exMachinaStarsStr}";
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
-            
-            WebsiteButtonActive = _websiteLink != null && _roles.Any(RtToolsVisibleToRole);
         }
 
         #endregion
@@ -280,24 +294,15 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region WebsiteButton
-
-        private bool _websiteButtonActive;
-
-        [UIValue("website-button-active"), UsedImplicitly]
-        private bool WebsiteButtonActive {
-            get => _websiteButtonActive;
-            set {
-                if (_websiteButtonActive.Equals(value)) return;
-                _websiteButtonActive = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        [UIAction("website-button-on-click"), UsedImplicitly]
+        #region Buttons
+        
         private void WebsiteButtonOnClick() {
             if (_websiteLink == null) return;
             EnvironmentUtils.OpenBrowserPage(_websiteLink);
+        }
+        
+        private void SettingsButtonOnClick() {
+            LeaderboardEvents.NotifySettingsButtonWasPressed();
         }
 
         #endregion

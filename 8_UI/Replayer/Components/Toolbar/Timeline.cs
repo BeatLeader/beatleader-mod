@@ -31,7 +31,7 @@ namespace BeatLeader.Components
         private IReplayPauseController _pauseController;
         private IBeatmapTimeController _beatmapTimeController;
         private Replay _replay;
-        private bool _allowTimeUpdate;
+        private bool _allowTimeUpdate = true;
         private bool _allowRewind;
         private bool _wasPausedBeforeRewind;
 

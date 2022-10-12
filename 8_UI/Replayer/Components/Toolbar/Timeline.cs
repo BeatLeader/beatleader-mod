@@ -89,7 +89,7 @@ namespace BeatLeader.Components
         private void SetupSlider()
         {
             _slider.minValue = _beatmapTimeController.SongStartTime;
-            _slider.maxValue = _beatmapTimeController.SongEndTime;
+            _slider.maxValue = _replay.info.failTime <= 0 ? _beatmapTimeController.SongEndTime : _replay.info.failTime;
         }
 
         #endregion

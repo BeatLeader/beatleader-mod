@@ -257,8 +257,10 @@
     <Compile Include="2_Core\API\Methods\RemoveFriendRequest.cs" />
     <Compile Include="2_Core\API\Methods\ScoresRequest.cs" />
     <Compile Include="2_Core\API\Methods\ScoreStatsRequest.cs" />
+    <Compile Include="2_Core\API\Methods\UploadPlayRequest.cs" />
     <Compile Include="2_Core\API\Methods\UploadReplayRequest.cs" />
     <Compile Include="2_Core\API\Methods\UserRequest.cs" />
+    <Compile Include="2_Core\API\Methods\SendViewReplayRequest.cs" />
     <Compile Include="2_Core\API\Methods\VoteRequest.cs" />
     <Compile Include="2_Core\API\Methods\VoteStatusRequest.cs" />
     <Compile Include="2_Core\API\NetworkingUtils.cs" />
@@ -296,6 +298,7 @@
     <Compile Include="2_Core\Managers\ReplayEnhancer\TrackingDeviceEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
+    <Compile Include="2_Core\Models\Activity\PlayEndData.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
     <Compile Include="2_Core\Models\IBeatmapTimeController.cs" />

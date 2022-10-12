@@ -21,7 +21,7 @@ namespace BeatLeader.Replayer
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
-        [FirstResource] private BombCutSoundEffectManager _bombCutSoundEffectManager;
+        //[FirstResource] private BombCutSoundEffectManager _bombCutSoundEffectManager;
         [FirstResource] private AudioManagerSO _audioManagerSO;
 
         #endregion
@@ -80,12 +80,12 @@ namespace BeatLeader.Replayer
             bool wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(AudioTimeSyncController.State.Paused);
             if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
-
+            
             DespawnAllNoteControllerSounds();
             DespawnAllBeatmapObjects();
 
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
-            _audioTimeSyncController.SeekTo(time / _audioTimeSyncController.timeScale);
+            _audioTimeSyncController.SeekTo(time / _audioTimeSyncController.timeScale - SongStartTime);
 
             _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
             _beatmapCallbacksController.SetField("_startFilterTime", time);

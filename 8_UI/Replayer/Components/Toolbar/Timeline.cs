@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatLeader.Replayer;
 using BeatLeader.Utils;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
-using Zenject;
 using BeatLeader.Models;
 
 namespace BeatLeader.Components
@@ -35,6 +31,8 @@ namespace BeatLeader.Components
         private IReplayPauseController _pauseController;
         private IBeatmapTimeController _beatmapTimeController;
         private Replay _replay;
+        private bool _allowTimeUpdate;
+        private bool _allowRewind;
         private bool _wasPausedBeforeRewind;
 
         public void Setup(
@@ -48,6 +46,7 @@ namespace BeatLeader.Components
 
             SetupSlider();
             SetupMarkers();
+            _allowRewind = true;
         }
 
         protected override void OnInitialize()
@@ -60,7 +59,6 @@ namespace BeatLeader.Components
             _slider.targetGraphic = _handle;
             _slider.handleRect = _handle.rectTransform;
             _slider.fillRect = _fill.rectTransform;
-            _slider.minValue = 0;
             _slider.onValueChanged.AddListener(HandleSliderValueChanged);
 
             _timelineAnimator = _slider.gameObject.AddComponent<TimelineAnimator>();
@@ -100,16 +98,19 @@ namespace BeatLeader.Components
 
         private void HandleSliderValueChanged(float value)
         {
-            _beatmapTimeController?.Rewind(value, false);
+            if (_allowRewind)
+                _beatmapTimeController?.Rewind(value, false);
         }
         private void HandleSliderReleased()
         {
             if (!_wasPausedBeforeRewind)
                 _pauseController?.Resume(true);
+            _allowTimeUpdate = true;
         }
         private void HandleSliderPressed()
         {
             _wasPausedBeforeRewind = _pauseController?.IsPaused ?? false;
+            _allowTimeUpdate = false;
         }
 
         #endregion
@@ -118,7 +119,8 @@ namespace BeatLeader.Components
 
         private void Update()
         {
-            _slider.SetValueWithoutNotify(_beatmapTimeController.SongTime);
+            if (_allowTimeUpdate)
+                _slider.SetValueWithoutNotify(_beatmapTimeController.SongTime);
         }
 
         #endregion

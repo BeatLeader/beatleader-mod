@@ -16,7 +16,7 @@ namespace BeatLeader.Replayer.Tweaking
         public override void Dispose()
         {
             RaycastBlocker.EnableBlocker = false;
-            RaycastBlocker.ReleaseMemory();
+            //RaycastBlocker.ReleaseMemory();
             Cam2Interop.SetHeadTransform(null);
         }
     }

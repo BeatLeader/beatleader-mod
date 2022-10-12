@@ -85,7 +85,7 @@ namespace BeatLeader.Replayer
             DespawnAllBeatmapObjects();
 
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
-            _audioTimeSyncController.SeekTo(time / _audioTimeSyncController.timeScale - SongStartTime);
+            _audioTimeSyncController.SeekTo((time - SongStartTime) / _audioTimeSyncController.timeScale);
 
             _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
             _beatmapCallbacksController.SetField("_startFilterTime", time);

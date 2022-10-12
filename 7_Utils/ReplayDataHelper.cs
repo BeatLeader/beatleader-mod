@@ -128,7 +128,7 @@ namespace BeatLeader.Utils
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(),
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
-                replay.GetPracticeSettingsFromReplay(), "Menu");
+                replay.CreatePracticeSettingsFromReplay(), "Menu");
 
             return data;
         }
@@ -241,10 +241,6 @@ namespace BeatLeader.Utils
         public static PracticeSettings CreatePracticeSettingsFromReplay(this Replay replay)
         {
             return new PracticeSettings(replay.info.startTime, replay.info.speed);
-        }
-        public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay)
-        {
-            return replay.info.startTime != 0 ? CreatePracticeSettingsFromReplay(replay) : null;
         }
         public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay)
         {

@@ -21,11 +21,10 @@ namespace BeatLeader.Replayer.Tweaking
             new InputSystemTweak(),
             new EventsSubscriberTweak(),
             new GarbageDisablerTweak(),
-            new InteropsLoaderTweak(),
+            new PatchesLoaderTweak(),
             new MethodsSilencerTweak(),
             new ModifiersTweak(),
             new RoomOffsetsTweak(),
-            //new SiraUtilFreeViewTweak()
         }; //not static to dispose the garbage inside tweaks
 
         [Inject] private readonly DiContainer _container;

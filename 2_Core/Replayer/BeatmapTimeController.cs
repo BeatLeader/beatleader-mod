@@ -26,11 +26,13 @@ namespace BeatLeader.Replayer
 
         #endregion
 
-        #region Time, TotalTime, SpeedMultiplier
+        #region Time, EndTime, SpeedMultiplier
 
-        public float SongTime => _audioTimeSyncController.songTime;
-        public float TotalSongTime => _audioTimeSyncController.songEndTime;
         public float SongSpeedMultiplier => _audioTimeSyncController.timeScale;
+        public float SongTime => _audioTimeSyncController.songTime;
+        public float SongEndTime => _audioTimeSyncController.songEndTime;
+        public float SongStartTime => _audioTimeSyncController
+            .GetField<float, AudioTimeSyncController>("_startSongTime");
 
         #endregion
 
@@ -72,8 +74,8 @@ namespace BeatLeader.Replayer
         {
             if (Math.Abs(time - SongTime) < 0.001f) return;
 
-            time = time > TotalSongTime ? TotalSongTime : time;
-            time = time < 0 ? 0 : time;
+            time = time > SongEndTime ? SongEndTime : time;
+            time = time < SongStartTime ? SongStartTime : time;
 
             bool wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(AudioTimeSyncController.State.Paused);

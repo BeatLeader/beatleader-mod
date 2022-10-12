@@ -1,21 +1,22 @@
 ﻿using BeatLeader.ViewControllers;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatLeader.UIPatches
 {
     [HarmonyPatch(typeof(ResultsViewController), "SetDataToUI")]
-    class ResultsViewControllerPatches
+    internal class ResultsViewControllerPatches
     {
-        static ResultsScreenUI screenUI;
-        static void Postfix(ref ResultsViewController __instance)
+        private static ReplayButton _replayButton;
+
+        private static void Postfix(ResultsViewController __instance)
         {
-            screenUI = ReeUIComponentV2.Instantiate<ResultsScreenUI>(__instance.transform);
-            screenUI.gameObject.SetActive(true);
+            if (_replayButton != null) return;
+
+            _replayButton = ReeUIComponentV2.Instantiate<ReplayButton>(
+                __instance.transform.Find("Container/BottomPanel"));
+            _replayButton.transform.localPosition = new Vector2(-71, 10);
+            _replayButton.gameObject.SetActive(true);
         }
     }
 }

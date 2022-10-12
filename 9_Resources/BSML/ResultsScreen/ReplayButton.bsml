@@ -1,0 +1,2 @@
+﻿<icon-button icon="#BL_ReplayIcon" pref-height="10" pref-width="12" skew="0.18"
+			 preserve-aspect="true" on-click="replay-button-clicked" hover-hint="Watch last replay"/>

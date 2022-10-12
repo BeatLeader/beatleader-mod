@@ -90,7 +90,8 @@ namespace BeatLeader.Components
         }
         private void SetupSlider()
         {
-            _slider.maxValue = _beatmapTimeController.TotalSongTime;
+            _slider.minValue = _beatmapTimeController.SongStartTime;
+            _slider.maxValue = _beatmapTimeController.SongEndTime;
         }
 
         #endregion
@@ -158,8 +159,8 @@ namespace BeatLeader.Components
             float marksArXDiv2 = _marksArea.sizeDelta.x / 2;
             float markXDiv2 = CalculateMarkerSize().x / 2;
 
-            float val = MathUtils.Map(time, 0, _beatmapTimeController
-                .TotalSongTime, -marksArXDiv2, marksArXDiv2);
+            float val = MathUtils.Map(time, _beatmapTimeController.SongStartTime
+                , _beatmapTimeController.SongEndTime, -marksArXDiv2, marksArXDiv2);
 
             if (marksArXDiv2 - Mathf.Abs(val) < markXDiv2)
             {

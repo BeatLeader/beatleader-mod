@@ -4,7 +4,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking
 {
-    internal class InteropsLoaderTweak : GameTweak
+    internal class PatchesLoaderTweak : GameTweak
     {
         [Inject] private readonly VRControllersProvider _controllersProvider;
 
@@ -16,6 +16,7 @@ namespace BeatLeader.Replayer.Tweaking
         public override void Dispose()
         {
             RaycastBlocker.EnableBlocker = false;
+            RaycastBlocker.ReleaseMemory();
             Cam2Interop.SetHeadTransform(null);
         }
     }

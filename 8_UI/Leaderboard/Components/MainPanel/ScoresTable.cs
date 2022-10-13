@@ -49,6 +49,7 @@ namespace BeatLeader.Components {
             SetupLayout();
 
             ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibleChanged;
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
             OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
@@ -56,6 +57,7 @@ namespace BeatLeader.Components {
 
         protected override void OnDispose() {
             ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibleChanged;
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
         }
@@ -64,17 +66,30 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {
-            UpdateLayout();
-        }
+        private Paged<Score> _scoresData;
 
         private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
             if (state is not API.RequestState.Finished) {
+                _scoresData = null;
                 ClearScores();
                 return;
             }
             
+            _scoresData = result;
             ShowScores(result);
+        }
+        
+        private void OnLeaderboardVisibleChanged(bool isVisible) {
+            if (isVisible) return;
+            if (_scoresData == null) {
+                FadeOutInstant();
+            } else {
+                FadeInInstant(_scoresData);
+            }
+        }
+
+        private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {
+            UpdateLayout();
         }
 
         private void ClearScores() {

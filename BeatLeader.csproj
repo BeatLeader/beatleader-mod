@@ -428,6 +428,7 @@
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ImageViewExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ModalViewExtensionHandler.cs" />
+    <Compile Include="8_UI\Leaderboard\Components\Basic\HeaderButton.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Highlightable2DView.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\InputDependentObject.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Draggable2DView.cs" />
@@ -524,6 +525,7 @@
     <Compile Include="8_UI\Results\ResultsScreenUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
+    <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\HeaderButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ScoreOverviewPage2.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\PlayerViewParamsMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\ResetProgressUI.bsml" />

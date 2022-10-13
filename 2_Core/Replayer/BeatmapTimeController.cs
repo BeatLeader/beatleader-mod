@@ -6,6 +6,8 @@ using Zenject;
 using BeatLeader.Interop;
 using BeatLeader.Utils;
 using BeatLeader.Models;
+using System.Reflection;
+using System.Linq;
 
 namespace BeatLeader.Replayer
 {
@@ -64,6 +66,13 @@ namespace BeatLeader.Replayer
             //thats why i can't move it to Awake instead of Start
             _noteCutSoundPoolContainer = _noteCutSoundEffectManager
                 .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
+
+            _despawnNoteMethod = typeof(BeatmapObjectManager)
+                .GetMethod("Despawn", ReflectionUtils.DefaultFlags, null, new Type[] { typeof(NoteController) }, null);
+            _despawnSliderMethod = typeof(BeatmapObjectManager)
+                .GetMethod("Despawn", ReflectionUtils.DefaultFlags, null, new Type[] { typeof(SliderController) }, null);
+            _despawnObstacleMethod = typeof(BeatmapObjectManager)
+                .GetMethod("Despawn", ReflectionUtils.DefaultFlags, null, new Type[] { typeof(ObstacleController) }, null);
         }
 
         #endregion
@@ -73,28 +82,26 @@ namespace BeatLeader.Replayer
         public void Rewind(float time, bool resumeAfterRewind = true)
         {
             if (Math.Abs(time - SongTime) < 0.001f) return;
-
-            time = time > SongEndTime ? SongEndTime : time;
-            time = time < SongStartTime ? SongStartTime : time;
+            time = Mathf.Clamp(time, SongStartTime, SongEndTime);
 
             bool wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(AudioTimeSyncController.State.Paused);
             if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
 
-            _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
-            _audioTimeSyncController.SeekTo((time - SongStartTime) / _audioTimeSyncController.timeScale);
-
-            _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
-            _beatmapCallbacksController.SetField("_startFilterTime", time);
-            _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
-            foreach (var callback in _callbacksInTimes)
-                callback.Value.lastProcessedNode = null;
+            _beatmapCallbacksUpdater.Pause();
 
             DespawnAllNoteControllerSounds();
             DespawnAllBeatmapObjects();
 
-            NoodleExtensionsInterop.RequestReprocess();
+            _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
+            _audioTimeSyncController.SeekTo((time - SongStartTime) / _audioTimeSyncController.timeScale);
 
+            //_beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
+            _beatmapCallbacksController.SetField("_startFilterTime", time);
+            _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
+            foreach (var callback in _callbacksInTimes) callback.Value.lastProcessedNode = null;
+
+            NoodleExtensionsInterop.RequestReprocess();
             SongRewindEvent?.Invoke(time);
 
             if (!wasPausedBeforeRewind && resumeAfterRewind) 
@@ -129,9 +136,37 @@ namespace BeatLeader.Replayer
 
         #region Despawn
 
+        private MethodInfo _despawnNoteMethod;
+        private MethodInfo _despawnSliderMethod;
+        private MethodInfo _despawnObstacleMethod;
+
         private void DespawnAllBeatmapObjects()
         {
-            _spawnedBeatmapObjectControllers.ForEach(x => x.Dissolve(0));
+            foreach (var item in _spawnedBeatmapObjectControllers.ToList())
+            {
+                var param = new object[] { item };
+
+                NoteController note = item as NoteController;
+                if (note != null)
+                {
+                    _despawnNoteMethod.Invoke(_beatmapObjectManager, param);
+                    continue;
+                }
+
+                SliderController slider = item as SliderController;
+                if (slider != null)
+                {
+                    _despawnSliderMethod.Invoke(_beatmapObjectManager, param);
+                    continue;
+                }
+
+                ObstacleController obstacle = item as ObstacleController;
+                if (obstacle != null)
+                {
+                    _despawnObstacleMethod.Invoke(_beatmapObjectManager, param);
+                    continue;
+                }
+            }
         }
         private void DespawnAllNoteControllerSounds()
         {

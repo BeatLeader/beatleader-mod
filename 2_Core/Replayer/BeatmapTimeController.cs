@@ -19,11 +19,9 @@ namespace BeatLeader.Replayer
         [Inject] private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
 
-        [Inject] private readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData;
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
-        //[FirstResource] private BombCutSoundEffectManager _bombCutSoundEffectManager;
         [FirstResource] private AudioManagerSO _audioManagerSO;
 
         #endregion
@@ -48,7 +46,6 @@ namespace BeatLeader.Replayer
         #region Setup
 
         private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
-        //private BombCutSoundEffect.Pool _bombCutSoundPool;
         private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers;
         private Dictionary<float, CallbacksInTime> _callbacksInTimes;
         private AudioSource _beatmapAudioSource;
@@ -66,15 +63,7 @@ namespace BeatLeader.Replayer
             //thats why i can't move it to Awake instead of Start
             _noteCutSoundPoolContainer = _noteCutSoundEffectManager
                 .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
-
-            _despawnNoteMethod = typeof(BeatmapObjectManager)
-                .GetMethod("Despawn", ReflectionUtils.DefaultFlags, null, new Type[] { typeof(NoteController) }, null);
-            _despawnSliderMethod = typeof(BeatmapObjectManager)
-                .GetMethod("Despawn", ReflectionUtils.DefaultFlags, null, new Type[] { typeof(SliderController) }, null);
-            _despawnObstacleMethod = typeof(BeatmapObjectManager)
-                .GetMethod("Despawn", ReflectionUtils.DefaultFlags, null, new Type[] { typeof(ObstacleController) }, null);
         }
-
         #endregion
 
         #region Rewind
@@ -96,7 +85,6 @@ namespace BeatLeader.Replayer
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
             _audioTimeSyncController.SeekTo((time - SongStartTime) / _audioTimeSyncController.timeScale);
 
-            //_beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
             _beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
             foreach (var callback in _callbacksInTimes) callback.Value.lastProcessedNode = null;
@@ -136,9 +124,17 @@ namespace BeatLeader.Replayer
 
         #region Despawn
 
-        private MethodInfo _despawnNoteMethod;
-        private MethodInfo _despawnSliderMethod;
-        private MethodInfo _despawnObstacleMethod;
+        private readonly MethodInfo _despawnNoteMethod = 
+            typeof(BeatmapObjectManager).GetMethod("Despawn",
+                ReflectionUtils.DefaultFlags, new Type[] { typeof(NoteController)});
+
+        private readonly MethodInfo _despawnSliderMethod = 
+            typeof(BeatmapObjectManager).GetMethod("Despawn", 
+                ReflectionUtils.DefaultFlags, new Type[] { typeof(SliderController) });
+
+        private readonly MethodInfo _despawnObstacleMethod = 
+            typeof(BeatmapObjectManager).GetMethod("Despawn",
+                ReflectionUtils.DefaultFlags, new Type[] { typeof(ObstacleController) });
 
         private void DespawnAllBeatmapObjects()
         {
@@ -170,13 +166,11 @@ namespace BeatLeader.Replayer
         }
         private void DespawnAllNoteControllerSounds()
         {
-            //don't have any sense because we can't access spawned members
-            //_bombCutSoundPool.Clear();
             _noteCutSoundPoolContainer.activeItems.ForEach(x => x.StopPlayingAndFinish());
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
             _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);
         }
 
-        #endregion 
+        #endregion
     }
 }

@@ -58,12 +58,22 @@ namespace BeatLeader.Utils
             return property;
         }
 
+        public static MethodInfo GetMethod(
+            this Type targetType,
+            string name, 
+            BindingFlags bindingAttr = DefaultFlags,
+            Type[] types = null,
+            Binder binder = null)
+        {
+            return targetType.GetMethod(name, bindingAttr, binder, types, null);
+        }
+
         public static List<FieldInfo> GetFields(
             this Type targetType,
             Func<FieldInfo, bool> filter = null,
             BindingFlags flags = DefaultFlags)
         {
-            return targetType.GetFields(flags).Where(x => filter is null ? true : filter(x)).ToList();
+            return targetType.GetFields(flags).Where(x => filter is null || filter(x)).ToList();
         }
 
         public static List<PropertyInfo> GetProperties(
@@ -71,7 +81,7 @@ namespace BeatLeader.Utils
             Func<PropertyInfo, bool> filter = null, 
             BindingFlags flags = DefaultFlags)
         {
-            return targetType.GetProperties(flags).Where(x => filter is null ? true : filter(x)).ToList();
+            return targetType.GetProperties(flags).Where(x => filter is null || filter(x)).ToList();
         }
 
         public static List<T> ScanAndActivateTypes<T>(
@@ -79,9 +89,10 @@ namespace BeatLeader.Utils
             Func<T, bool> filter = null,
             Func<Type, T> activator = null)
         {
-            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T)).Where(x => !x.IsAbstract)
+            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T))
+                .Where(x => !x.IsAbstract)
                 .Select(x => activator != null ? activator(x) : (T)Activator.CreateInstance(x))
-                .Where(filter != null ? filter : x => true).ToList();
+                .Where(filter ?? (x => true)).ToList();
         }
     }
 }

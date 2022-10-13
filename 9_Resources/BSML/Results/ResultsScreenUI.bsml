@@ -7,7 +7,7 @@
 				 anchor-pos-x="-45" anchor-pos-y="1" preserve-aspect="true" 
 				 on-click="replay-button-clicked" hover-hint="Watch last replay"/>
 
-	<vertical ignore-layout="true" anchor-pos-x="-65" anchor-pos-y="22" pref-width="8" >
+	<vertical ignore-layout="true" anchor-pos-x="-65" anchor-pos-y="22" pref-width="8">
 		<macro.as-host host="voting-button">
 			<macro.reparent transform="ui-component"/>
 		</macro.as-host>

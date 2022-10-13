@@ -80,9 +80,6 @@ namespace BeatLeader.Replayer
             bool wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(AudioTimeSyncController.State.Paused);
             if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
-            
-            DespawnAllNoteControllerSounds();
-            DespawnAllBeatmapObjects();
 
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
             _audioTimeSyncController.SeekTo((time - SongStartTime) / _audioTimeSyncController.timeScale);
@@ -92,6 +89,9 @@ namespace BeatLeader.Replayer
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
             foreach (var callback in _callbacksInTimes)
                 callback.Value.lastProcessedNode = null;
+
+            DespawnAllNoteControllerSounds();
+            DespawnAllBeatmapObjects();
 
             NoodleExtensionsInterop.RequestReprocess();
 

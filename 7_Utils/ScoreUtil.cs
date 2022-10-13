@@ -30,6 +30,7 @@ namespace BeatLeader.Utils {
         public static void ProcessReplay(Replay replay, PlayEndData data) {
             if (replay.info.score <= 0) { // no lightshow here
                 Plugin.Log.Debug("Zero score, skip replay processing");
+                FileManager.TryWriteTempReplay(replay);
                 return;
             }
 
@@ -59,6 +60,7 @@ namespace BeatLeader.Utils {
                         }
                 }
             } else {
+                FileManager.TryWriteTempReplay(replay);
                 Plugin.Log.Debug("Score submission was disabled");
             }
         }

@@ -1,0 +1,13 @@
+<horizontal preferred-height="8" >
+	<macro.as-host host="voting-panel">
+		<macro.reparent transform="ui-component"/>
+	</macro.as-host>
+
+	<icon-button ignore-layout="true" anchor-pos-x="-46" anchor-pos-y="1" icon="#BL_ReplayIcon" pref-height="10" pref-width="12" preserve-aspect="true" on-click="replay-button-clicked" hover-hint="Watch last replay"/>
+
+	<vertical ignore-layout="true" anchor-pos-x="-65" anchor-pos-y="22" pref-width="8" >
+		<macro.as-host host="voting-button">
+			<macro.reparent transform="ui-component"/>
+		</macro.as-host>
+	</vertical>
+</horizontal>

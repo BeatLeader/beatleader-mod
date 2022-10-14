@@ -31,7 +31,7 @@ namespace BeatLeader.Replayer.Emulation {
             _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
 
-            _saberSwingRatingCounterProcessPatch.Dispose();
+            _finishSwingRatingCounterPatch.Dispose();
             _scoringMultisilencer.Dispose();
             _cutScoreSpawnerSilencer.Dispose();
         }
@@ -170,7 +170,7 @@ namespace BeatLeader.Replayer.Emulation {
             typeof(NoteCutScoreSpawner).GetMethod(nameof(
                 NoteCutScoreSpawner.HandleScoringForNoteStarted)), false);
 
-        private readonly HarmonyAutoPatch _saberSwingRatingCounterProcessPatch = new(cutScoreBufferPatchDescriptor);
+        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(cutScoreBufferPatchDescriptor);
         private readonly HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
 
         private static void GoodCutScoringInitPostfix(GoodCutScoringElement __instance) {

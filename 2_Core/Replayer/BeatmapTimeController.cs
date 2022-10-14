@@ -8,8 +8,6 @@ using BeatLeader.Utils;
 using BeatLeader.Models;
 using System.Reflection;
 using System.Linq;
-using IPA.Config.Data;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 
 namespace BeatLeader.Replayer {
     public class BeatmapTimeController : MonoBehaviour, IBeatmapTimeController {

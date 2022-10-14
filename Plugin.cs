@@ -61,6 +61,7 @@ namespace BeatLeader {
         }
 
         private static void InitInterop() {
+            SongCoreInterop.Init();
             BetterSongListInterop.TryRegister();
             Cam2Interop.Init();
             NoodleExtensionsInterop.Init();

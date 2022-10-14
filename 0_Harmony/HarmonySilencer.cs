@@ -7,14 +7,6 @@ namespace BeatLeader
 {
     internal class HarmonySilencer : IDisposable
     {
-        static HarmonySilencer()
-        {
-            harmony = new("BeatLeader.SilencersRegistry");
-            silencerPrefix = new(typeof(HarmonySilencer).GetMethod(
-                nameof(SilencerPrefix), BindingFlags.Static | BindingFlags.NonPublic));
-            silencersRegistry = new();
-        }
-
         public HarmonySilencer(MethodInfo method, bool enable = true)
         {
             Method = method;
@@ -35,9 +27,12 @@ namespace BeatLeader
             silencersRegistry.Remove(Method);
         } //dont even know why destructor is not work, maybe GC thingy
 
-        private static readonly Harmony harmony;
-        private static readonly HarmonyMethod silencerPrefix;
-        private static readonly Dictionary<MethodInfo, bool> silencersRegistry;
+        private static readonly Harmony harmony = new("BeatLeader.SilencersRegistry");
+        private static readonly Dictionary<MethodInfo, bool> silencersRegistry = new();
+
+        private static readonly HarmonyMethod silencerPrefix = 
+            new(typeof(HarmonySilencer).GetMethod(nameof(SilencerPrefix),
+                BindingFlags.Static | BindingFlags.NonPublic));
 
         private static bool SilencerPrefix(MethodInfo __originalMethod)
         {

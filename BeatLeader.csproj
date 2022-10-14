@@ -222,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="0_Harmony\HarmonyMultisilencer.cs" />
+    <Compile Include="0_Harmony\HarmonyAutoPatch.cs" />
     <Compile Include="0_Harmony\ModifiersPatches\GameplayModifiersPanelPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderCustomCampaignUtilPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderMultiplayerUtilPatch.cs" />

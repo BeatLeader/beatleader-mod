@@ -164,7 +164,7 @@ namespace BeatLeader.Replayer.Emulation {
             typeof(GoodCutScoringElement).GetMethod(nameof(
                 GoodCutScoringElement.Init), ReflectionUtils.DefaultFlags), postfix:
             typeof(ReplayerScoreProcessor).GetMethod(nameof(
-                CutScoreBufferInitPostfix), BindingFlags.NonPublic | BindingFlags.Static));
+                GoodCutScoringInitPostfix), BindingFlags.NonPublic | BindingFlags.Static));
 
         private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
             typeof(NoteCutScoreSpawner).GetMethod(nameof(
@@ -173,7 +173,7 @@ namespace BeatLeader.Replayer.Emulation {
         private readonly HarmonyAutoPatch _saberSwingRatingCounterProcessPatch = new(cutScoreBufferPatchDescriptor);
         private readonly HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
 
-        private static void CutScoreBufferInitPostfix(GoodCutScoringElement __instance) {
+        private static void GoodCutScoringInitPostfix(GoodCutScoringElement __instance) {
             if (!_lastCutIsGood) return;
 
             var buffer = (CutScoreBuffer)__instance.cutScoreBuffer;

@@ -8,8 +8,6 @@ namespace BeatLeader.Replayer.Tweaking
 {
     internal class RoomOffsetsTweak : GameTweak
     {
-        public override bool CanBeInstalled => !InputUtils.IsInFPFC;
-
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly VRControllersProvider _controllersProvider;
         [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
@@ -32,7 +30,7 @@ namespace BeatLeader.Replayer.Tweaking
 
             _roomPosition.value = new Vector3(0f, 0f, 0f);
             _roomRotation.value = 0f;
-            CreateOffsetsAppliers();
+            if (!InputUtils.IsInFPFC) CreateOffsetsAppliers();
         }
         public override void Dispose()
         {

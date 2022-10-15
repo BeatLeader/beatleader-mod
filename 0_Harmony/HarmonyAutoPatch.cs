@@ -69,7 +69,8 @@ namespace BeatLeader
                     {
                         var param = resolvedParams[i];
                         invokationParams[i] = param.Name == "__instance"
-                            && param.ParameterType == instance.GetType() ? instance : null;
+                            && (param.ParameterType == instance.GetType() 
+                            || param.ParameterType == typeof(object)) ? instance : null;
                     }
                 }
 

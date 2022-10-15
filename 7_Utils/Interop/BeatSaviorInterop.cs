@@ -1,16 +1,19 @@
-﻿using HarmonyLib;
-using IPA.Loader;
+﻿using BeatLeader.Attributes;
+using BeatLeader.Utils;
+using HarmonyLib;
 using System;
 using System.Reflection;
 
-namespace BeatLeader.Interop
-{
-    internal static class BeatSaviorInterop
-    {
-        private const string submissionParameterName = "DisableBeatSaviorUpload";
+namespace BeatLeader.Interop {
+    [PluginInterop("BeatSaviorData")]
+    internal static class BeatSaviorInterop {
+        [PluginAssembly] private static readonly Assembly _pluginAssembly;
 
-        private static Assembly _pluginAssembly;
-        private static Harmony _harmony;
+        [PluginType("BeatSaviorData.SettingsMenu")]
+        private static readonly Type _settingsMenuType;
+
+        private static readonly Harmony _harmony = new Harmony("BeatLeader.Interop.BeatSavior");
+
         private static MethodInfo _setBoolMethod;
         private static MethodInfo _getBoolMethod;
         private static MethodInfo _uploadScoreMethodPostfix;
@@ -18,44 +21,19 @@ namespace BeatLeader.Interop
         private static object _configInstance;
         private static bool _isMarkedToEnable;
 
-        public static bool EnableScoreSubmission
-        {
+        public static bool ScoreSubmissionEnabled {
             get => (bool)_getBoolMethod?.Invoke(_configInstance,
-                new object[] { "BeatSaviorData", submissionParameterName, false, true });
+                new object[] { "BeatSaviorData", "DisableBeatSaviorUpload", false, true });
             set => _setBoolMethod?.Invoke(_configInstance,
-                new object[] { "BeatSaviorData", submissionParameterName, !value });
+                new object[] { "BeatSaviorData", "DisableBeatSaviorUpload", !value });
         }
 
-        public static void MarkScoreSubmissionToEnable()
-        {
-            _isMarkedToEnable = true;
-        }
-
-        public static void Init()
-        {
-            _pluginAssembly = PluginManager.GetPluginFromId("BeatSaviorData")?.Assembly;
-            if (_pluginAssembly == null) return;
-
-            try
-            {
-                ResolveData();
-
-                _harmony = new Harmony("BeatLeader.Interop.BeatSavior");
-                HarmonyUtils.Patch(_harmony, new HarmonyPatchDescriptor(_uploadScoreMethod, null, _uploadScoreMethodPostfix));
-            }
-            catch
-            {
-                Plugin.Log.Error("Failed to resolve BeatSavior data, replays system may submit scores to it!");
-            }
-        }
-
-        private static void ResolveData()
-        {
-            _configInstance = _pluginAssembly.GetType("BeatSaviorData.SettingsMenu")
-                .GetField("config", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+        [InteropEntry]
+        private static void Init() {
+            _configInstance = _settingsMenuType.GetField("config", ReflectionUtils.StaticFlags).GetValue(null);
 
             _uploadScoreMethod = _pluginAssembly.GetType("BeatSaviorData.Plugin").GetMethod(
-                "UploadData", BindingFlags.Instance | BindingFlags.NonPublic);
+                "UploadData", ReflectionUtils.DefaultFlags);
 
             _setBoolMethod = _configInstance.GetType().GetMethod("SetBool",
                 new Type[] { typeof(string), typeof(string), typeof(bool) });
@@ -64,13 +42,15 @@ namespace BeatLeader.Interop
 
             _uploadScoreMethodPostfix = typeof(BeatSaviorInterop).GetMethod(
                 nameof(UploadScorePostfix), BindingFlags.Static | BindingFlags.NonPublic);
-        }
 
-        private static void UploadScorePostfix()
-        {
-            if (_isMarkedToEnable)
-            {
-                EnableScoreSubmission = true;
+            HarmonyUtils.Patch(_harmony, new HarmonyPatchDescriptor(_uploadScoreMethod, postfix: _uploadScoreMethodPostfix));
+        }
+        public static void MarkScoreSubmissionToEnable() {
+            _isMarkedToEnable = true;
+        }
+        private static void UploadScorePostfix() {
+            if (_isMarkedToEnable) {
+                ScoreSubmissionEnabled = true;
                 _isMarkedToEnable = false;
             }
         }

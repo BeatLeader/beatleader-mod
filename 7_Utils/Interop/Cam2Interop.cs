@@ -1,71 +1,64 @@
 ﻿using BeatLeader.Replayer;
-using IPA.Loader;
 using System;
 using System.Timers;
 using System.Reflection;
 using UnityEngine;
-using System.Threading.Tasks;
+using BeatLeader.Attributes;
+using BeatLeader.Utils;
 
-namespace BeatLeader.Interop
-{
-    internal static class Cam2Interop
-    {
-        public static bool DetectedAndValid { get; private set; } = false;
+namespace BeatLeader.Interop {
+    [PluginInterop("Camera2")]
+    internal static class Cam2Interop {
+        [PluginAssembly] 
+        private static readonly Assembly _pluginAssembly;
 
-        private static Assembly _pluginAssembly;
+        [PluginType("Camera2.SDK.ReplaySources")] 
+        private static readonly Type _replaySourcesType;
+
+        [PluginState]
+        public static bool IsInitialized { get; private set; }
+
+        private static object[] _cachedArgs;
+        private static Timer _updater;
+        private static Transform _headTranform;
+
         private static Type _genericSourceType;
         private static MethodInfo _registerMethod;
         private static MethodInfo _updateMethod;
         private static MethodInfo _setActiveMethod;
         private static object _genericSourceInstance;
-        private static object[] _cachedArgs = new object[2];
 
-        private static Timer _updater;
-        private static Transform _headTranform;
+        [InteropEntry]
+        private static void Init() {
+            _genericSourceType = _replaySourcesType.GetNestedType("GenericSource");
+            _setActiveMethod = _genericSourceType.GetMethod("SetActive", ReflectionUtils.DefaultFlags);
+            _updateMethod = _genericSourceType.GetMethod("Update", ReflectionUtils.DefaultFlags);
+            _registerMethod = _pluginAssembly.GetType("Camera2.SDK.ReplaySources")
+               .GetMethod("Register", ReflectionUtils.StaticFlags);
 
-        public static void Init()
-        {
-            _pluginAssembly = PluginManager.GetPluginFromId("Camera2")?.Assembly;
-            if (_pluginAssembly == null) return;
+            _genericSourceInstance = CreateGenericSourceInstance("BeatLeaderReplayer");
+            RegisterSource(_genericSourceInstance);
 
-            try
-            {
-                ResolveData();
-                _genericSourceInstance = CreateGenericSourceInstance("BeatLeaderReplayer");
-                RegisterSource(_genericSourceInstance);
-            }
-            catch
-            {
-                Plugin.Log.Error("Failed to resolve Camera2 data, replays system may conflict with Camera2!");
-                return;
-            }
-
-            DetectedAndValid = true;
-            _updater = new Timer(1);
+            _cachedArgs = new object[2];
+            _updater = new(1);
             _updater.Elapsed += OnRepeaterUpdated;
 
             ReplayerLauncher.ReplayWasStartedEvent += OnReplayStarted;
             ReplayerLauncher.ReplayWasFinishedEvent += OnReplayFinished;
         }
-        public static void SetHeadTransform(Transform transform)
-        {
+        public static void SetHeadTransform(Transform transform) {
             _headTranform = transform;
         }
-        public static void SetReplayState(bool state)
-        {
-            if (_setActiveMethod == null) return;
-
-            _setActiveMethod.Invoke(_genericSourceInstance, new object[] { state });
+        public static void SetReplayState(bool state) {
+            _setActiveMethod?.Invoke(_genericSourceInstance, new object[] { state });
             _updater.Enabled = state;
         }
 
-        private static object CreateGenericSourceInstance(string name)
-        {
+        private static object CreateGenericSourceInstance(string name) {
             return Activator.CreateInstance(_genericSourceType, new object[] { name });
         }
-        private static void UpdateGenericSource()
-        {
-            if (DetectedAndValid && _headTranform == null) return;
+        private static void UpdateGenericSource() {
+            if (_headTranform == null) return;
 
             var pos = _headTranform.localPosition;
             var rot = _headTranform.localRotation;
@@ -78,27 +71,11 @@ namespace BeatLeader.Interop
 
             _updateMethod.Invoke(_genericSourceInstance, _cachedArgs);
         }
-        private static void RegisterSource(object source)
-        {
+        private static void RegisterSource(object source) {
             _registerMethod?.Invoke(null, new object[] { source });
         }
-        private static void ResolveData()
-        {
-            var replaySourcesType = _pluginAssembly.GetType("Camera2.SDK.ReplaySources");
-            _genericSourceType = replaySourcesType.GetNestedType("GenericSource");
 
-            _setActiveMethod = _genericSourceType.GetMethod("SetActive",
-                BindingFlags.Instance | BindingFlags.Public);
-
-            _updateMethod = _genericSourceType.GetMethod("Update",
-                BindingFlags.Instance | BindingFlags.Public);
-
-            _registerMethod = _pluginAssembly.GetType("Camera2.SDK.ReplaySources")
-               .GetMethod("Register", BindingFlags.Public | BindingFlags.Static);
-        }
-
-        private static void OnRepeaterUpdated(object sender, ElapsedEventArgs e)
-        {
+        private static void OnRepeaterUpdated(object sender, ElapsedEventArgs e) {
             UpdateGenericSource();
         }
         private static void OnReplayStarted(Models.ReplayLaunchData data) => SetReplayState(true);

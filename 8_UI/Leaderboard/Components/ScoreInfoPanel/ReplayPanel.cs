@@ -87,7 +87,7 @@ namespace BeatLeader.Components {
         [UIComponent("play-button"), UsedImplicitly]
         private Button _playButton;
 
-        private bool _buttonShouldBeInteractable;
+        private bool _buttonShouldBeInteractable = true;
 
         private void InitializePlayButton() {
             _playButton.onClick.AddListener(ReplayerMenuLoader.NotifyPlayButtonWasPressed);

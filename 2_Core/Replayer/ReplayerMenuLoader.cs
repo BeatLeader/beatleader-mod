@@ -180,7 +180,7 @@ namespace BeatLeader.Replayer
             if (await _launcher.StartReplayAsync(data))
             {
                 ScoreSaberInterop.RecordingEnabled = false;
-                BeatSaviorInterop.EnableScoreSubmission = false;
+                BeatSaviorInterop.ScoreSubmissionEnabled = false;
                 return true;
             }
             else return false;

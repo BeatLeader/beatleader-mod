@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using BeatLeader.Attributes;
 using BeatLeader.Utils;
-using IPA.Loader;
 
 namespace BeatLeader.Interop {
+    [PluginInterop("SongCore")]
     internal static class SongCoreInterop {
         #region Init
 
-        private static Assembly _assembly;
-        private static Type _loaderType;
-        private static Type _collectionsType;
+        [PluginAssembly] private static readonly Assembly _assembly;
+
+        [PluginType("SongCore.Loader")] 
+        private static readonly Type _loaderType;
+
+        [PluginType("SongCore.Collections")]
+        private static readonly Type _collectionsType;
+
         private static MethodInfo _loaderRefreshSongsMethod;
         private static MethodInfo _collectionsRetrieveDataMethod;
         private static MethodInfo _collectionsGetCapabilitiesMethod;
@@ -18,34 +24,25 @@ namespace BeatLeader.Interop {
         private static FieldInfo _dataRequirementsField;
         private static FieldInfo _dataAdditionalDiffField;
 
-        public static void Init() {
-            _assembly = PluginManager.GetPluginFromId("SongCore")?.Assembly;
-            if (_assembly == null) return;
+        [InteropEntry]
+        private static void Init() {
+            _loaderInstanceField = _loaderType
+                .GetField("Instance", BindingFlags.Static | BindingFlags.Public);
+            _loaderRefreshSongsMethod = _loaderType
+                .GetMethod("RefreshSongs", ReflectionUtils.DefaultFlags);
+            _collectionsRetrieveDataMethod = _collectionsType
+                .GetMethod("RetrieveDifficultyData", BindingFlags.Static | BindingFlags.Public);
 
-            try {
-                _loaderType = _assembly.GetType("SongCore.Loader");
-                _loaderInstanceField = _loaderType
-                    .GetField("Instance", BindingFlags.Static | BindingFlags.Public);
-                _loaderRefreshSongsMethod = _loaderType
-                    .GetMethod("RefreshSongs", ReflectionUtils.DefaultFlags);
+            var extraType = _assembly.GetType("SongCore.Data.ExtraSongData");
+            var difficultyDataType = extraType.GetNestedType("DifficultyData");
+            var requirementDataType = extraType.GetNestedType("RequirementData");
 
-                _collectionsType = _assembly.GetType("SongCore.Collections");
-                _collectionsRetrieveDataMethod = _collectionsType
-                    .GetMethod("RetrieveDifficultyData", BindingFlags.Static | BindingFlags.Public);
-
-                var extraType = _assembly.GetType("SongCore.Data.ExtraSongData");
-                var difficultyDataType = extraType.GetNestedType("DifficultyData");
-                var requirementDataType = extraType.GetNestedType("RequirementData");
-
-                _dataAdditionalDiffField = difficultyDataType
-                    .GetField("additionalDifficultyData", ReflectionUtils.DefaultFlags);
-                _dataRequirementsField = requirementDataType
-                    .GetField("_requirements", ReflectionUtils.DefaultFlags);
-                _collectionsGetCapabilitiesMethod = _collectionsType
-                    .GetProperty("capabilities", BindingFlags.Static | BindingFlags.Public).GetGetMethod();
-            } catch (Exception ex) {
-                Plugin.Log.Error("Failed to resolve SongCore data, some features may not work properly!");
-            }
+            _dataAdditionalDiffField = difficultyDataType
+                .GetField("additionalDifficultyData", ReflectionUtils.DefaultFlags);
+            _dataRequirementsField = requirementDataType
+                .GetField("_requirements", ReflectionUtils.DefaultFlags);
+            _collectionsGetCapabilitiesMethod = _collectionsType
+                .GetProperty("capabilities", BindingFlags.Static | BindingFlags.Public).GetGetMethod();
         }
 
         #endregion

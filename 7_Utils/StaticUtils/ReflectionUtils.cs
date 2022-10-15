@@ -2,8 +2,6 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection.Emit;
 
 namespace BeatLeader.Utils
@@ -11,6 +9,7 @@ namespace BeatLeader.Utils
     public static class ReflectionUtils
     {
         public const BindingFlags DefaultFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        public const BindingFlags StaticFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
         public static T Cast<T>(this object value)
         {

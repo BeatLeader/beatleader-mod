@@ -272,6 +272,11 @@
     <Compile Include="2_Core\API\RequestHandlers\PersistentSingletonRequestHandler.cs" />
     <Compile Include="2_Core\API\RequestHandlers\SimpleRequestHandler.cs" />
     <Compile Include="2_Core\Attributes\FirstResourceAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginStateAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginTypeAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginInteropAttribute.cs" />
+    <Compile Include="2_Core\Attributes\InteropEntryAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginAssemblyAttribute.cs" />
     <Compile Include="2_Core\Attributes\SerializeAutomaticallyAttribute.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
     <Compile Include="2_Core\CountryFlagsStorage.cs" />
@@ -350,12 +355,14 @@
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RoomOffsetsTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SmoothCameraTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\TweaksLoader.cs" />
+    <Compile Include="7_Utils\InteropLoader.cs" />
     <Compile Include="7_Utils\Interop\BeatSaviorInterop.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeMaterials.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemesCollection.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemesUtils.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeTier.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeType.cs" />
+    <Compile Include="7_Utils\Interop\CustomNotesInterop.cs" />
     <Compile Include="7_Utils\Interop\ScoreSaberInterop.cs" />
     <Compile Include="0_Harmony\HarmonySilencer.cs" />
     <Compile Include="7_Utils\StaticUtils\UnityResourcesHelper.cs" />
@@ -390,8 +397,7 @@
     <Compile Include="7_Utils\BLConstants.cs" />
     <Compile Include="7_Utils\Interop\Cam2Interop.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
-    <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
-    <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
+    <Compile Include="7_Utils\Interop\BetterSongListInterop.cs" />
     <Compile Include="7_Utils\Interop\NoodleExtensionsInterop.cs" />
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />

@@ -13,28 +13,28 @@ namespace BeatLeader.Replayer.Emulation
         [Inject] private readonly VRControllersProvider _vrControllersManager;
         [Inject] private readonly ReplayLaunchData _replayData;
 
-        protected LinkedList<Frame> _frames;
-        protected LinkedListNode<Frame> _lastProcessedNode;
+        private LinkedList<Frame> _frames;
+        private LinkedListNode<Frame> _lastProcessedNode;
         public bool lerpEnabled = true;
 
-        protected VRController _LeftSaber => _vrControllersManager.LeftSaber;
-        protected VRController _RightSaber => _vrControllersManager.RightSaber;
-        protected VRController _Head => _vrControllersManager.Head;
+        private VRController _LeftSaber => _vrControllersManager.LeftSaber;
+        private VRController _RightSaber => _vrControllersManager.RightSaber;
+        private VRController _Head => _vrControllersManager.Head;
         public bool IsPlaying => _audioTimeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
 
-        protected void Start()
+        private void Start()
         {
             _frames = new LinkedList<Frame>(_replayData.Replay.frames);
             _lastProcessedNode = _frames.First;
 
             _beatmapTimeController.SongRewindEvent += HandleSongWasRewinded;
         }
-        protected void OnDestroy()
+        private void OnDestroy()
         {
             _beatmapTimeController.SongRewindEvent -= HandleSongWasRewinded;
         }
 
-        protected virtual void Update()
+        private void Update()
         {
             if (IsPlaying && _lastProcessedNode.TryGetFrameByTime(
                 _audioTimeSyncController.songTime, out LinkedListNode<Frame> frame))
@@ -42,7 +42,7 @@ namespace BeatLeader.Replayer.Emulation
                 PlayFrame(frame.Previous);
             }
         }
-        protected virtual void PlayFrame(LinkedListNode<Frame> frame)
+        private void PlayFrame(LinkedListNode<Frame> frame)
         {
             if (frame == null || frame.Next == null) return;
             _lastProcessedNode = frame;

@@ -160,7 +160,7 @@ namespace BeatLeader.Replayer.Emulation {
             typeof(ComboController).GetMethod(nameof(ComboController.HandlePlayerHeadDidEnterObstacles), ReflectionUtils.DefaultFlags),
         };
 
-        private static readonly HarmonyPatchDescriptor cutScoreBufferPatchDescriptor = new(
+        private static readonly HarmonyPatchDescriptor finishSwingRatingCounterPatchDescriptor = new(
             typeof(GoodCutScoringElement).GetMethod(nameof(
                 GoodCutScoringElement.Init), ReflectionUtils.DefaultFlags), postfix:
             typeof(ReplayerScoreProcessor).GetMethod(nameof(
@@ -170,7 +170,7 @@ namespace BeatLeader.Replayer.Emulation {
             typeof(NoteCutScoreSpawner).GetMethod(nameof(
                 NoteCutScoreSpawner.HandleScoringForNoteStarted)), false);
 
-        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(cutScoreBufferPatchDescriptor);
+        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(finishSwingRatingCounterPatchDescriptor);
         private readonly HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
 
         private static void GoodCutScoringInitPostfix(GoodCutScoringElement __instance) {

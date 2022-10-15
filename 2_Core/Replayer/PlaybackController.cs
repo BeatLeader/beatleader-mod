@@ -34,10 +34,6 @@ namespace BeatLeader.Replayer
 
         private void Awake()
         {
-            _didPauseEventInfo = typeof(PauseController).GetField("didPauseEvent", ReflectionUtils.DefaultFlags);
-            _didResumeEventInfo = typeof(PauseController).GetField("didResumeEvent", ReflectionUtils.DefaultFlags);
-            _pauseInfo = _gamePause.GetType().GetField("_pause", ReflectionUtils.DefaultFlags);
-
             _vrPlatformHelper.hmdUnmountedEvent += HandleHMDUnmounted;
             _vrPlatformHelper.inputFocusWasCapturedEvent += HandleInputFocusWasLost;
             _pauseButtonTrigger.menuButtonTriggeredEvent += HandleMenuButtonTriggered;
@@ -112,18 +108,20 @@ namespace BeatLeader.Replayer
 
         #region Reflection
 
-        private FieldInfo _didPauseEventInfo;
-        private FieldInfo _didResumeEventInfo;
-        private FieldInfo _pauseInfo;
+        private static readonly FieldInfo _didPauseEventInfo = 
+            typeof(PauseController).GetField("didPauseEvent", ReflectionUtils.DefaultFlags);
+        private static readonly FieldInfo _didResumeEventInfo = 
+            typeof(PauseController).GetField("didResumeEvent", ReflectionUtils.DefaultFlags);
+        private static readonly FieldInfo _pauseInfo =
+            typeof(GamePause).GetField("_pause", ReflectionUtils.DefaultFlags);
 
         private void SetPauseState(bool pause)
         {
-            _pauseInfo.SetValue(_gamePause, pause);
+            _pauseInfo?.SetValue(_gamePause, pause);
         }
         private void InvokePauseEvent(bool pause)
         {
-            var info = pause ? _didPauseEventInfo : _didResumeEventInfo;
-            ((Delegate)info.GetValue(_pauseController))?.DynamicInvoke();
+            ((Delegate)(pause ? _didPauseEventInfo : _didResumeEventInfo)?.GetValue(_pauseController))?.DynamicInvoke();
         }
 
         #endregion

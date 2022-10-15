@@ -84,22 +84,22 @@ namespace BeatLeader.Replayer {
             //_beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
             foreach (var pair in _callbacksInTimes) {
-                pair.Value.lastProcessedNode = FindItem(time);
+                pair.Value.lastProcessedNode = FindBeatmapItem(time);
             }
 
             NoodleExtensionsInterop.RequestReprocess();
-            SongRewindEvent?.Invoke(time);
 
             if (!wasPausedBeforeRewind && resumeAfterRewind)
                 _audioTimeSyncController.Resume();
             _beatmapCallbacksUpdater.Resume();
+
+            SongRewindEvent?.Invoke(time);
         }
 
-        private LinkedListNode<BeatmapDataItem> FindItem(float time) {
+        private LinkedListNode<BeatmapDataItem> FindBeatmapItem(float time) {
             LinkedListNode<BeatmapDataItem> item = null;
             for (var node = _beatmapData.allBeatmapDataItems.First; node != null; node = node.Next) {
-                var beatmapItem = node.Value;
-                var nodeTime = beatmapItem.time;
+                var nodeTime = node.Value.time;
                 var filterTime = _beatmapCallbacksControllerInitData.startFilterTime;
                 if (nodeTime >= filterTime && nodeTime >= time) break;
                 item = node;
@@ -133,15 +133,15 @@ namespace BeatLeader.Replayer {
 
         #region Despawn
 
-        private readonly MethodInfo _despawnNoteMethod =
+        private static readonly MethodInfo _despawnNoteMethod =
             typeof(BeatmapObjectManager).GetMethod("Despawn",
                 ReflectionUtils.DefaultFlags, new Type[] { typeof(NoteController) });
 
-        private readonly MethodInfo _despawnSliderMethod =
+        private static readonly MethodInfo _despawnSliderMethod =
             typeof(BeatmapObjectManager).GetMethod("Despawn",
                 ReflectionUtils.DefaultFlags, new Type[] { typeof(SliderController) });
 
-        private readonly MethodInfo _despawnObstacleMethod =
+        private static readonly MethodInfo _despawnObstacleMethod =
             typeof(BeatmapObjectManager).GetMethod("Despawn",
                 ReflectionUtils.DefaultFlags, new Type[] { typeof(ObstacleController) });
 

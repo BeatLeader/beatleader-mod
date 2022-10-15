@@ -27,7 +27,9 @@ namespace BeatLeader.DataManager {
             private set {
                 if (_latestReleaseInfo.Equals(value)) return;
                 _latestReleaseInfo = value;
-                IsUpToDate = value.version.Equals(CurrentReleaseInfo.version);
+                var current = Version.TryParse(CurrentReleaseInfo.version, out var tmp) ? tmp : new Version(0 ,0);
+                var latest = Version.TryParse(value.version, out tmp) ? tmp : new Version(0 ,0);
+                IsUpToDate = current >= latest;
                 LatestVersionChangedEvent?.Invoke(value);
             }
         }

@@ -7,7 +7,8 @@ using Zenject;
 namespace BeatLeader.Interop {
     [PluginInterop("ScoreSaber")]
     internal static class ScoreSaberInterop {
-        [PluginAssembly] private static readonly Assembly _assembly;
+        [PluginAssembly] 
+        private static readonly Assembly _assembly;
 
         private static List<MethodInfo> _installersMethods;
         private static HarmonyMultisilencer _installatorsSilencer;

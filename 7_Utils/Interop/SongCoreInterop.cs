@@ -9,7 +9,8 @@ namespace BeatLeader.Interop {
     internal static class SongCoreInterop {
         #region Init
 
-        [PluginAssembly] private static readonly Assembly _assembly;
+        [PluginAssembly] 
+        private static readonly Assembly _assembly;
 
         [PluginType("SongCore.Loader")] 
         private static readonly Type _loaderType;

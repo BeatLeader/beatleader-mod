@@ -7,7 +7,8 @@ using System.Reflection;
 namespace BeatLeader.Interop {
     [PluginInterop("NoodleExtensions")]
     internal static class NoodleExtensionsInterop {
-        [PluginAssembly] private static readonly Assembly _neAssembly;
+        [PluginAssembly] 
+        private static readonly Assembly _assembly;
 
         [PluginType("NoodleExtensions.Managers.NoodleObjectsCallbacksManager")]
         private static readonly Type _neCallbacksControllerType;

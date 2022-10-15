@@ -7,13 +7,13 @@ using System.Reflection;
 namespace BeatLeader.Interop {
     [PluginInterop("BeatSaviorData")]
     internal static class BeatSaviorInterop {
-        [PluginAssembly] private static readonly Assembly _pluginAssembly;
+        [PluginAssembly] 
+        private static readonly Assembly _assembly;
 
         [PluginType("BeatSaviorData.SettingsMenu")]
         private static readonly Type _settingsMenuType;
 
-        private static readonly Harmony _harmony = new Harmony("BeatLeader.Interop.BeatSavior");
-
+        private static Harmony _harmony;
         private static MethodInfo _setBoolMethod;
         private static MethodInfo _getBoolMethod;
         private static MethodInfo _uploadScoreMethodPostfix;
@@ -32,7 +32,7 @@ namespace BeatLeader.Interop {
         private static void Init() {
             _configInstance = _settingsMenuType.GetField("config", ReflectionUtils.StaticFlags).GetValue(null);
 
-            _uploadScoreMethod = _pluginAssembly.GetType("BeatSaviorData.Plugin").GetMethod(
+            _uploadScoreMethod = _assembly.GetType("BeatSaviorData.Plugin").GetMethod(
                 "UploadData", ReflectionUtils.DefaultFlags);
 
             _setBoolMethod = _configInstance.GetType().GetMethod("SetBool",
@@ -43,6 +43,7 @@ namespace BeatLeader.Interop {
             _uploadScoreMethodPostfix = typeof(BeatSaviorInterop).GetMethod(
                 nameof(UploadScorePostfix), BindingFlags.Static | BindingFlags.NonPublic);
 
+            _harmony = new Harmony("BeatLeader.Interop.BeatSavior");
             HarmonyUtils.Patch(_harmony, new HarmonyPatchDescriptor(_uploadScoreMethod, postfix: _uploadScoreMethodPostfix));
         }
         public static void MarkScoreSubmissionToEnable() {

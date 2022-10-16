@@ -38,7 +38,7 @@ namespace BeatLeader.Utils {
         private static bool IsVersionCorrect(Version pluginVersion, string specifiedVersion) {
             if (string.IsNullOrEmpty(specifiedVersion)) return true;
             if (!Version.TryParse(specifiedVersion, out var specPlugVer)) return false;
-            return pluginVersion <= specPlugVer;
+            return pluginVersion < specPlugVer;
         }
 
         #endregion

@@ -1,7 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
-using JetBrains.Annotations;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -30,7 +29,7 @@ namespace BeatLeader.Components{
             _foregroundImage.__Refresh();
         }
 
-        [UIAction("replay-button-clicked"), UsedImplicitly]
+        [UIAction("replay-button-clicked")]
         private void HandleReplayButtonClicked() {
             ReplayButtonClickedEvent?.Invoke();
         }

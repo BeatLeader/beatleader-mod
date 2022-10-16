@@ -20,7 +20,7 @@ namespace BeatLeader.ViewControllers {
         [UIValue("replay-button")]
         private readonly ReplayButton _replayButton = InstantiateOnSceneRoot<ReplayButton>(false);
 
-        protected override void OnInstantiate() {
+        private void Awake() {
             _votingButton.SetParent(transform);
             _votingPanel.SetParent(transform);
             _replayButton.SetParent(transform);

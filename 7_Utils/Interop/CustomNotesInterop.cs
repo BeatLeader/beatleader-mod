@@ -44,12 +44,17 @@ namespace BeatLeader.Interop {
         public static bool TryDespawnCustomObject(NoteController controller) {
             if (!_isInitialized) return false;
             try {
-                if (controller as GameNoteController != null)
-                    DespawnCustomNote(controller);
-                else if (controller as BombNoteController != null)
-                    DespawnCustomBomb(controller);
-                else if (controller as BurstSliderGameNoteController != null)
-                    DespawnCustomSlider(controller);
+                switch (controller) {
+                    case GameNoteController:
+                        DespawnCustomNote(controller);
+                        break;
+                    case BombNoteController:
+                        DespawnCustomBomb(controller);
+                        break;
+                    case BurstSliderGameNoteController:
+                        DespawnCustomSlider(controller);
+                        break;
+                }
                 return true;
             } catch (Exception ex) {
                 Plugin.Log.Error("Failed to despawn custom note \r\n" + ex);

@@ -148,24 +148,18 @@ namespace BeatLeader.Replayer {
         private void DespawnAllBeatmapObjects() {
             var param = new object[1];
             foreach (var item in _spawnedBeatmapObjectControllers.ToList()) {
-                param[0] = item; 
-                NoteController note = item as NoteController;
-                if (note != null) {
-                    //CustomNotesInterop.TryDespawnCustomObject(note);
-                    _despawnNoteMethod.Invoke(_beatmapObjectManager, param);
-                    continue;
-                }
-
-                SliderController slider = item as SliderController;
-                if (slider != null) {
-                    _despawnSliderMethod.Invoke(_beatmapObjectManager, param);
-                    continue;
-                }
-
-                ObstacleController obstacle = item as ObstacleController;
-                if (obstacle != null) {
-                    _despawnObstacleMethod.Invoke(_beatmapObjectManager, param);
-                    continue;
+                param[0] = item;
+                switch (item) {
+                    case NoteController:
+                        //CustomNotesInterop.TryDespawnCustomObject(note);
+                        _despawnNoteMethod.Invoke(_beatmapObjectManager, param);
+                        continue;
+                    case SliderController:
+                        _despawnSliderMethod.Invoke(_beatmapObjectManager, param);
+                        continue;
+                    case ObstacleController:
+                        _despawnObstacleMethod.Invoke(_beatmapObjectManager, param);
+                        continue;
                 }
             }
         }

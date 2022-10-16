@@ -12,7 +12,7 @@ namespace BeatLeader.Utils {
         public static IReadOnlyCollection<KeyValuePair<Type, PluginInteropAttribute>> Interops { get; private set; }
 
         public static void Init() {
-            Interops = GetInteropsInAssembly(typeof(InteropLoader).Assembly);
+            Interops = typeof(InteropLoader).Assembly.GetTypesWithAttribute<PluginInteropAttribute>();
             foreach (var interop in Interops) {
                 LoadInterop(interop.Key, interop.Value);
             }
@@ -61,7 +61,7 @@ namespace BeatLeader.Utils {
         }
         private static bool SetPluginTypes(Type type, Assembly assembly) {
             bool smthWasNull = false;
-            foreach (var pair in GetFields<PluginTypeAttribute>(type)) {
+            foreach (var pair in type.GetFieldsWithAttribute<PluginTypeAttribute>(ReflectionUtils.StaticFlags)) {
                 var field = pair.Key;
                 if (!CheckAndLogIsTypeCorrect(assembly, pair.Value.type, out var reqType)) {
                     smthWasNull = true;
@@ -73,7 +73,7 @@ namespace BeatLeader.Utils {
                     smthWasNull = true;
                 }
             }
-            foreach (var pair in GetProperties<PluginTypeAttribute>(type)) {
+            foreach (var pair in type.GetPropertiesWithAttribute<PluginTypeAttribute>(ReflectionUtils.StaticFlags)) {
                 var property = pair.Key;
                 if (!CheckAndLogIsTypeCorrect(assembly, pair.Value.type, out var reqType)) {
                     smthWasNull = true;
@@ -108,33 +108,6 @@ namespace BeatLeader.Utils {
             }
 
             return false;
-        }
-        private static IReadOnlyCollection<KeyValuePair<PropertyInfo, T>> GetProperties<T>(Type type) where T : Attribute {
-            Dictionary<PropertyInfo, T> dictionary = new();
-            foreach (var property in type.GetProperties(ReflectionUtils.StaticFlags)) {
-                var attr = property.GetCustomAttribute<T>();
-                if (attr == null) continue;
-                dictionary.Add(property, attr);
-            }
-            return dictionary;
-        }
-        private static IReadOnlyCollection<KeyValuePair<FieldInfo, T>> GetFields<T>(Type type) where T : Attribute {
-            Dictionary<FieldInfo, T> dictionary = new();
-            foreach (var field in type.GetFields(ReflectionUtils.StaticFlags)) {
-                var attr = field.GetCustomAttribute<T>();
-                if (attr == null) continue;
-                dictionary.Add(field, attr);
-            }
-            return dictionary;
-        }
-        private static IReadOnlyCollection<KeyValuePair<Type, PluginInteropAttribute>> GetInteropsInAssembly(Assembly assembly) {
-            Dictionary<Type, PluginInteropAttribute> dictionary = new();
-            foreach (var type in assembly.GetTypes()) {
-                var attr = type.GetCustomAttribute<PluginInteropAttribute>();
-                if (attr == null) continue;
-                dictionary.Add(type, attr);
-            }
-            return dictionary;
         }
 
         #endregion

@@ -151,7 +151,7 @@ namespace BeatLeader.Replayer {
                 param[0] = item; 
                 NoteController note = item as NoteController;
                 if (note != null) {
-                    CustomNotesInterop.TryDespawnCustomObject(note);
+                    //CustomNotesInterop.TryDespawnCustomObject(note);
                     _despawnNoteMethod.Invoke(_beatmapObjectManager, param);
                     continue;
                 }

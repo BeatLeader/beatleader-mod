@@ -2,10 +2,6 @@
 using BeatLeader.Components;
 using JetBrains.Annotations;
 using BeatLeader.Replayer;
-using UnityEngine;
-using HMUI;
-using IPA.Utilities;
-using System.Linq;
 
 namespace BeatLeader.ViewControllers {
     internal class ResultsScreenUI : ReeUIComponentV2 {

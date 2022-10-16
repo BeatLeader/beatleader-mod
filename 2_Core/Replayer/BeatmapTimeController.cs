@@ -87,8 +87,6 @@ namespace BeatLeader.Replayer {
                 pair.Value.lastProcessedNode = FindBeatmapItem(time);
             }
 
-            NoodleExtensionsInterop.RequestReprocess();
-
             if (!wasPausedBeforeRewind && resumeAfterRewind)
                 _audioTimeSyncController.Resume();
             _beatmapCallbacksUpdater.Resume();

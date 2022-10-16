@@ -5,6 +5,8 @@ namespace BeatLeader
 {
     internal class HarmonyAutoPatch : IDisposable
     {
+        private static readonly Harmony _harmony = new("BeatLeader.AutoPatchesRegistry");
+
         public HarmonyAutoPatch(HarmonyPatchDescriptor descriptor)
         {
             Descriptor = descriptor;
@@ -21,6 +23,6 @@ namespace BeatLeader
                 _harmony.Unpatch(Descriptor.Postfix.method, HarmonyPatchType.Postfix);
         }
 
-        private static readonly Harmony _harmony = new("BeatLeader.AutoPatchesRegistry");
+        public static implicit operator HarmonyAutoPatch(HarmonyPatchDescriptor descriptor) => new(descriptor);
     }
 }

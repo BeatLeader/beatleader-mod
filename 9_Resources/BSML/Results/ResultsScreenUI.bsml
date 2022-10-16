@@ -3,7 +3,7 @@
 		<macro.reparent transform="ui-component"/>
 	</macro.as-host>
 
-	<icon-button icon="#BL_ReplayIcon" ignore-layout="true" skew="0.18" pref-height="10" pref-width="12"
+	<icon-button icon="#BL_ReplayIcon" ignore-layout="true" skew="~image-skew" pref-height="10" pref-width="12"
 				 anchor-pos-x="-45" anchor-pos-y="1" preserve-aspect="true" 
 				 on-click="replay-button-clicked" hover-hint="Watch last replay"/>
 

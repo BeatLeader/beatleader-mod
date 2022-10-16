@@ -19,6 +19,9 @@ namespace BeatLeader.ViewControllers
         [UIValue("voting-panel"), UsedImplicitly]
         private VotingPanel _votingPanel = ReeUIComponentV2.InstantiateOnSceneRoot<VotingPanel>(false);
 
+        [UIValue("image-skew")]
+        private readonly float _imageSkew = 0.18f;
+
         #region Callbacks
 
         [UIAction("replay-button-clicked"), UsedImplicitly]

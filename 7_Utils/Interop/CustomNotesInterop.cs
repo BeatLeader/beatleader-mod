@@ -59,15 +59,17 @@ namespace BeatLeader.Interop {
 
         private static void DespawnCustomNote(NoteController controller) {
             var component = controller.GetComponent(_customNoteControllerType);
+            if (component == null) return;
             _missNoteControllerMethod.Invoke(component, new object[] { controller });
         }
         private static void DespawnCustomBomb(NoteController controller) {
             var component = controller.GetComponent(_customBombControllerType);
-            if (_bombControllerContainerField.GetValue(component) != null)
-                _finishBombControllerMethod.Invoke(component, null);
+            if (component == null || _bombControllerContainerField.GetValue(component) == null) return;
+            _finishBombControllerMethod.Invoke(component, null);
         }
         private static void DespawnCustomSlider(NoteController controller) {
             var component = controller.GetComponent(_customSliderControllerType);
+            if (component == null) return;
             _missSliderControllerMethod.Invoke(component, new object[] { null });
         }
 

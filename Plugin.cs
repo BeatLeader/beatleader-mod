@@ -1,14 +1,12 @@
 ﻿using BeatLeader.DataManager;
-using BeatLeader.Interop;
-using BeatLeader.Interop.BetterSongList;
 using BeatLeader.UI.BSML_Addons;
+using BeatLeader.Utils;
 using Hive.Versioning;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
 using JetBrains.Annotations;
-using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
 namespace BeatLeader {
@@ -56,16 +54,8 @@ namespace BeatLeader {
             ObserveEnabled();
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
-            InitInterop();
+            InteropLoader.Init();
             RaycastBlocker.BlockerMask = 1 << 5;
-        }
-
-        private static void InitInterop() {
-            BetterSongListInterop.TryRegister();
-            Cam2Interop.Init();
-            NoodleExtensionsInterop.Init();
-            ScoreSaberInterop.Init();
-            BeatSaviorInterop.Init();
         }
 
         private static void ObserveEnabled() {

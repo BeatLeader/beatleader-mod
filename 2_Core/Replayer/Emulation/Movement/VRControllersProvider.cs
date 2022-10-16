@@ -4,14 +4,13 @@ using UnityEngine.XR;
 using Zenject;
 using BeatLeader.Utils;
 
-namespace BeatLeader.Replayer.Emulation
-{
-    public class VRControllersProvider : MonoBehaviour
-    {
+namespace BeatLeader.Replayer.Emulation {
+    public class VRControllersProvider : MonoBehaviour {
         [Inject] private readonly PlayerVRControllersManager _vrControllersManager;
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly PlayerTransforms _playerTransforms;
         [Inject] private readonly DiContainer _diContainer;
+        [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
 
         public VRController LeftSaber { get; protected set; }
         public VRController RightSaber { get; protected set; }
@@ -25,19 +24,15 @@ namespace BeatLeader.Replayer.Emulation
         private Transform _menuHandsTransform;
         private bool _isInitialized;
 
-        public void ShowMenuControllers(bool show = true)
-        {
+        public void ShowMenuControllers(bool show = true) {
             LeftHand.gameObject.SetActive(show);
             RightHand.gameObject.SetActive(show);
             _menuHandsTransform.gameObject.SetActive(show);
         }
 
-        private void Awake()
-        {
+        private void Awake() {
             if (_isInitialized) return;
-
             this.LoadResources();
-
             _menuHandsTransform = _pauseMenuManager.transform.Find("MenuControllers");
             LeftHand = _menuHandsTransform.Find("ControllerLeft")?.GetComponent<VRController>();
             RightHand = _menuHandsTransform.Find("ControllerRight")?.GetComponent<VRController>();
@@ -50,10 +45,11 @@ namespace BeatLeader.Replayer.Emulation
             monke.transform.localEulerAngles = new Vector3(0, 180, 0);
             monke.transform.SetParent(Head.transform, false);
 
-            //you ask me why? smth just moves menu hands to the zero pose
             MenuHandsContainer = new GameObject("PauseMenuHands").transform;
             MenuHandsContainer.SetParent(Origin, true);
             _menuHandsTransform.SetParent(MenuHandsContainer, false);
+            MenuHandsContainer.transform.localPosition = _mainSettingsModel.roomCenter;
+            MenuHandsContainer.transform.localEulerAngles = new Vector3(0, _mainSettingsModel.roomRotation, 0);
 
             _vrControllersManager.leftHandVRController.enabled = false;
             _vrControllersManager.rightHandVRController.enabled = false;
@@ -67,10 +63,8 @@ namespace BeatLeader.Replayer.Emulation
             InjectControllers();
             _isInitialized = true;
         }
-        private void InjectControllers()
-        {
-            foreach (var item in GetType().GetProperties())
-            {
+        private void InjectControllers() {
+            foreach (var item in GetType().GetProperties()) {
                 if (!item.CanWrite || item.PropertyType != typeof(VRController)) continue;
 
                 var value = item.GetValue(this);

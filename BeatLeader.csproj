@@ -222,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="0_Harmony\HarmonyMultisilencer.cs" />
+    <Compile Include="0_Harmony\HarmonyAutoPatch.cs" />
     <Compile Include="0_Harmony\ModifiersPatches\GameplayModifiersPanelPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderCustomCampaignUtilPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderMultiplayerUtilPatch.cs" />
@@ -239,6 +240,7 @@
     <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
     <Compile Include="0_Harmony\UIPatches\HideModalsOnPlay.cs" />
+    <Compile Include="0_Harmony\UIPatches\ResultsViewControllerPatch.cs" />
     <Compile Include="1_Config\ConfigDefaults.cs" />
     <Compile Include="1_Config\ConfigFileData.cs" />
     <Compile Include="1_Config\PluginConfig.cs" />
@@ -270,6 +272,11 @@
     <Compile Include="2_Core\API\RequestHandlers\PersistentSingletonRequestHandler.cs" />
     <Compile Include="2_Core\API\RequestHandlers\SimpleRequestHandler.cs" />
     <Compile Include="2_Core\Attributes\FirstResourceAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginStateAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginTypeAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginInteropAttribute.cs" />
+    <Compile Include="2_Core\Attributes\InteropEntryAttribute.cs" />
+    <Compile Include="2_Core\Attributes\PluginAssemblyAttribute.cs" />
     <Compile Include="2_Core\Attributes\SerializeAutomaticallyAttribute.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
     <Compile Include="2_Core\CountryFlagsStorage.cs" />
@@ -343,17 +350,19 @@
     <Compile Include="2_Core\Replayer\Tweaking\GameTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InputSystemTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\ModifiersTweak.cs" />
-    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InteropsLoaderTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\PatchesLoaderTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\MethodsSilencerTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RoomOffsetsTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SmoothCameraTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\TweaksLoader.cs" />
+    <Compile Include="7_Utils\InteropLoader.cs" />
     <Compile Include="7_Utils\Interop\BeatSaviorInterop.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeMaterials.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemesCollection.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemesUtils.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeTier.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeType.cs" />
+    <Compile Include="7_Utils\Interop\CustomNotesInterop.cs" />
     <Compile Include="7_Utils\Interop\ScoreSaberInterop.cs" />
     <Compile Include="0_Harmony\HarmonySilencer.cs" />
     <Compile Include="7_Utils\StaticUtils\UnityResourcesHelper.cs" />
@@ -388,8 +397,7 @@
     <Compile Include="7_Utils\BLConstants.cs" />
     <Compile Include="7_Utils\Interop\Cam2Interop.cs" />
     <Compile Include="7_Utils\FileManager.cs" />
-    <Compile Include="7_Utils\Interop\BetterSongList\ReflectionHell.cs" />
-    <Compile Include="7_Utils\Interop\BetterSongList\BetterSongListInterop.cs" />
+    <Compile Include="7_Utils\Interop\BetterSongListInterop.cs" />
     <Compile Include="7_Utils\Interop\NoodleExtensionsInterop.cs" />
     <Compile Include="7_Utils\Interop\PlaylistsLibInterop.cs" />
     <Compile Include="7_Utils\Interop\SongCoreInterop.cs" />
@@ -521,6 +529,8 @@
     <Compile Include="8_UI\Replayer\ScreenSpaceScreen.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\Replayer2DViewController.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerVRViewController.cs" />
+    <Compile Include="8_UI\Results\ReplayButton.cs" />
+    <Compile Include="8_UI\Results\ResultsScreenUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\HeaderButton.bsml" />
@@ -607,6 +617,8 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\FloatingControls.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\ToggleButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\MainScreenSpaceView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Results\ResultsScreenUI.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Results\ReplayButton.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />
@@ -626,5 +638,6 @@
     <Content Include=".gitignore" />
     <Content Include="Media\cover.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

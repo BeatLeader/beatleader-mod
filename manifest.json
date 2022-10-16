@@ -12,8 +12,14 @@
     "BSIPA": "^4.2.2",
     "SiraUtil": "^3.1.0"
   },
-  "loadBefore": [
-    "BetterSongList"
+  "loadAfter": [
+    "BetterSongList",
+    "Camera2",
+    "BeatSaviorData",
+    "NoodleExtensions",
+    "ScoreSaber",
+    "SongCore",
+    "Custom Notes"
   ],
   "features": []
 }

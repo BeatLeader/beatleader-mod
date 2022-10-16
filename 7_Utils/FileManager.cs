@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace BeatLeader.Utils
 {
@@ -13,10 +14,14 @@ namespace BeatLeader.Utils
         #region Directories
 
         private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
+        private static string CacheDirectory => Application.temporaryCachePath + "\\BeatLeader\\Replays\\";
         private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
+
+        public static string LastSavedReplay = "";
 
         static FileManager()
         {
+            EnsureDirectoryExists(CacheDirectory);
             EnsureDirectoryExists(ReplaysFolderPath);
             EnsureDirectoryExists(PlaylistsFolderPath);
         }
@@ -31,7 +36,13 @@ namespace BeatLeader.Utils
             return Directory.GetFiles(ReplaysFolderPath);
         }
         public static bool TryWriteReplay(Replay replay) {
-            return TryWriteReplay(ToFileName(replay), replay);
+            LastSavedReplay = ToFileName(replay, ReplaysFolderPath);
+            return TryWriteReplay(LastSavedReplay, replay);
+        }
+        public static bool TryWriteTempReplay(Replay replay)
+        {
+            LastSavedReplay = ToFileName(replay, CacheDirectory);
+            return TryWriteReplay(LastSavedReplay, replay);
         }
         public static bool TryWriteReplay(string fileName, Replay replay)
         {
@@ -47,14 +58,14 @@ namespace BeatLeader.Utils
             }
         }
 
-        public static string ToFileName(Replay replay)
+        public static string ToFileName(Replay replay, string folder)
         {
             string practice = replay.info.speed != 0 ? "-practice" : "";
             string fail = replay.info.failTime != 0 ? "-fail" : "";
             string filename = $"{replay.info.playerID}{practice}{fail}-{replay.info.songName}-{replay.info.difficulty}-{replay.info.mode}-{replay.info.hash}.bsor";
             string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             Regex r = new (string.Format("[{0}]", Regex.Escape(regexSearch)));
-            return ReplaysFolderPath + r.Replace(filename, "_");
+            return folder + r.Replace(filename, "_");
         }
 
         public static bool TryReadReplay(string filename, out Replay replay)

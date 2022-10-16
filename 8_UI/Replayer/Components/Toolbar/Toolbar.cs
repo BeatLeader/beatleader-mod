@@ -109,7 +109,7 @@ namespace BeatLeader.Components
         private void UpdateSongTime()
         {
             float time = _beatmapTimeController.SongTime;
-            float totalTime = _beatmapTimeController.TotalSongTime;
+            float totalTime = _beatmapTimeController.SongEndTime;
 
             FormattedSongTime = FormatUtils.FormatSongTime(time, totalTime);
         }

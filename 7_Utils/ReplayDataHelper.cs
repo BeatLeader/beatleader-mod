@@ -244,7 +244,7 @@ namespace BeatLeader.Utils
         }
         public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay)
         {
-            return replay.info.startTime != 0 ? CreatePracticeSettingsFromReplay(replay) : null;
+            return replay.info.speed <= 0 ? null : CreatePracticeSettingsFromReplay(replay);
         }
         public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay)
         {

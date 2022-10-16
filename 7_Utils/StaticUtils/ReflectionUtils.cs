@@ -2,45 +2,35 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection.Emit;
 
-namespace BeatLeader.Utils
-{
-    public static class ReflectionUtils
-    {
+namespace BeatLeader.Utils {
+    public static class ReflectionUtils {
+        #region Constants
+
         public const BindingFlags DefaultFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        public const BindingFlags StaticFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
-        public static T Cast<T>(this object value)
-        {
-            return (T)value;
-        }
-        public static List<Type> GetTypes(this Assembly assembly, Func<Type, bool> filter)
-        {
-            return assembly.GetTypes().Where(filter).ToList();
-        }
+        #endregion
 
-        public static void AddDefaultConstructor(this TypeBuilder typeBuilder)
-        {
+        #region ModuleBuilder
+
+        public static void AddDefaultConstructor(this TypeBuilder typeBuilder) {
             var ctor0 = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, Type.EmptyTypes);
             var ctor0IL = ctor0.GetILGenerator();
             ctor0IL.Emit(OpCodes.Ldarg_0);
             ctor0IL.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes)!);
             ctor0IL.Emit(OpCodes.Ret);
         }
-        public static ModuleBuilder CreateModuleBuilder(string name)
-        {
+        public static ModuleBuilder CreateModuleBuilder(string name) {
             var assemblyName = new AssemblyName(name);
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             return assemblyBuilder.DefineDynamicModule(assemblyName.Name);
         }
-
         public static PropertyBuilder AddGetOnlyProperty(
             this TypeBuilder typeBuilder,
             string name, FieldInfo fieldInfo,
-            MethodInfo overrider = null)
-        {
+            MethodInfo overrider = null) {
             var type = fieldInfo.FieldType;
             var getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
@@ -58,30 +48,90 @@ namespace BeatLeader.Utils
             return property;
         }
 
-        public static List<FieldInfo> GetFields(
+        #endregion
+
+        #region Attributes
+
+        public static IReadOnlyCollection<KeyValuePair<PropertyInfo, T>> GetPropertiesWithAttribute<T>(this Type type, BindingFlags flags = DefaultFlags) where T : Attribute {
+            Dictionary<PropertyInfo, T> dictionary = new();
+            foreach (var property in type.GetProperties(flags)) {
+                var attr = property.GetCustomAttribute<T>();
+                if (attr == null) continue;
+                dictionary.Add(property, attr);
+            }
+            return dictionary;
+        }
+        public static IReadOnlyCollection<KeyValuePair<FieldInfo, T>> GetFieldsWithAttribute<T>(this Type type, BindingFlags flags = DefaultFlags) where T : Attribute {
+            Dictionary<FieldInfo, T> dictionary = new();
+            foreach (var field in type.GetFields(flags)) {
+                var attr = field.GetCustomAttribute<T>();
+                if (attr == null) continue;
+                dictionary.Add(field, attr);
+            }
+            return dictionary;
+        }
+        public static IReadOnlyCollection<KeyValuePair<Type, T>> GetTypesWithAttribute<T>(this Assembly assembly) where T : Attribute {
+            Dictionary<Type, T> dictionary = new();
+            foreach (var type in assembly.GetTypes()) {
+                var attr = type.GetCustomAttribute<T>();
+                if (attr == null) continue;
+                dictionary.Add(type, attr);
+            }
+            return dictionary;
+        }
+
+        #endregion
+
+        #region CustomGetters
+
+        public static MethodInfo GetMethod(
+            this Type targetType,
+            string name,
+            BindingFlags bindingAttr = DefaultFlags,
+            Type[] types = null,
+            Binder binder = null) {
+            return targetType.GetMethod(name, bindingAttr, binder, types, null);
+        }
+
+        public static IReadOnlyCollection<Type> GetTypes(
+            this Assembly assembly,
+            Func<Type, bool> filter) {
+            return assembly.GetTypes().Where(filter).ToList();
+        }
+
+        public static IReadOnlyCollection<FieldInfo> GetFields(
             this Type targetType,
             Func<FieldInfo, bool> filter = null,
-            BindingFlags flags = DefaultFlags)
-        {
-            return targetType.GetFields(flags).Where(x => filter is null ? true : filter(x)).ToList();
+            BindingFlags flags = DefaultFlags) {
+            return targetType.GetFields(flags).Where(x => filter?.Invoke(x) ?? true).ToList();
         }
 
-        public static List<PropertyInfo> GetProperties(
-            this Type targetType, 
-            Func<PropertyInfo, bool> filter = null, 
-            BindingFlags flags = DefaultFlags)
-        {
-            return targetType.GetProperties(flags).Where(x => filter is null ? true : filter(x)).ToList();
+        public static IReadOnlyCollection<PropertyInfo> GetProperties(
+            this Type targetType,
+            Func<PropertyInfo, bool> filter = null,
+            BindingFlags flags = DefaultFlags) {
+            return targetType.GetProperties(flags).Where(x => filter?.Invoke(x) ?? true).ToList();
         }
 
-        public static List<T> ScanAndActivateTypes<T>(
+
+        #endregion
+
+        #region CustomActivator
+
+        public static IReadOnlyCollection<T> ScanAndActivateTypes<T>(
             this Assembly assembly,
             Func<T, bool> filter = null,
-            Func<Type, T> activator = null)
-        {
-            return GetTypes(assembly, x => x == typeof(T) || x.BaseType == typeof(T)).Where(x => !x.IsAbstract)
-                .Select(x => activator != null ? activator(x) : (T)Activator.CreateInstance(x))
-                .Where(filter != null ? filter : x => true).ToList();
+            Func<Type, T> activator = null) {
+            List<T> types = new();
+            foreach (var item in assembly.GetTypes()) {
+                if (item != typeof(T) && item.BaseType != typeof(T)) continue;
+                var instance = activator != null ? activator(item) : (T)Activator.CreateInstance(item);
+                if (!filter?.Invoke(instance) ?? false) continue;
+                types.Add(instance);
+            }
+            return types;
         }
+
+        #endregion
     }
 }

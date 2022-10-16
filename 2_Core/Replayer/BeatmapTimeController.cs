@@ -6,31 +6,33 @@ using Zenject;
 using BeatLeader.Interop;
 using BeatLeader.Utils;
 using BeatLeader.Models;
+using System.Reflection;
+using System.Linq;
 
-namespace BeatLeader.Replayer
-{
-    public class BeatmapTimeController : MonoBehaviour, IBeatmapTimeController
-    {
+namespace BeatLeader.Replayer {
+    public class BeatmapTimeController : MonoBehaviour, IBeatmapTimeController {
         #region Injection
 
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
+        [Inject] private readonly IReadonlyBeatmapData _beatmapData;
 
         [Inject] private readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData;
         [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
         [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
 
-        [FirstResource] private BombCutSoundEffectManager _bombCutSoundEffectManager;
         [FirstResource] private AudioManagerSO _audioManagerSO;
 
         #endregion
 
-        #region Time, TotalTime, SpeedMultiplier
+        #region Time, EndTime, SpeedMultiplier
 
-        public float SongTime => _audioTimeSyncController.songTime;
-        public float TotalSongTime => _audioTimeSyncController.songEndTime;
         public float SongSpeedMultiplier => _audioTimeSyncController.timeScale;
+        public float SongTime => _audioTimeSyncController.songTime;
+        public float SongEndTime => _audioTimeSyncController.songEndTime;
+        public float SongStartTime => _audioTimeSyncController
+            .GetField<float, AudioTimeSyncController>("_startSongTime");
 
         #endregion
 
@@ -43,14 +45,12 @@ namespace BeatLeader.Replayer
 
         #region Setup
 
-        private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
-        //private BombCutSoundEffect.Pool _bombCutSoundPool;
-        private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers;
         private Dictionary<float, CallbacksInTime> _callbacksInTimes;
+        private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
+        private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers;
         private AudioSource _beatmapAudioSource;
 
-        private void Start()
-        {
+        private void Start() {
             this.LoadResources();
 
             _beatmapAudioSource = _audioTimeSyncController
@@ -63,49 +63,53 @@ namespace BeatLeader.Replayer
             _noteCutSoundPoolContainer = _noteCutSoundEffectManager
                 .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
-
         #endregion
 
         #region Rewind
 
-        public void Rewind(float time, bool resumeAfterRewind = true)
-        {
+        public void Rewind(float time, bool resumeAfterRewind = true) {
             if (Math.Abs(time - SongTime) < 0.001f) return;
-
-            time = time > TotalSongTime ? TotalSongTime : time;
-            time = time < 0 ? 0 : time;
+            time = Mathf.Clamp(time, SongStartTime, SongEndTime);
 
             bool wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(AudioTimeSyncController.State.Paused);
             if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
 
+            _beatmapCallbacksUpdater.Pause();
             DespawnAllNoteControllerSounds();
             DespawnAllBeatmapObjects();
 
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
-            _audioTimeSyncController.SeekTo(time / _audioTimeSyncController.timeScale);
-
-            _beatmapCallbacksControllerInitData.SetField("startFilterTime", time);
-            _beatmapCallbacksController.SetField("_startFilterTime", time);
+            _audioTimeSyncController.SeekTo((time - SongStartTime) / _audioTimeSyncController.timeScale);
+            //_beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
-            foreach (var callback in _callbacksInTimes)
-                callback.Value.lastProcessedNode = null;
+            foreach (var pair in _callbacksInTimes) {
+                pair.Value.lastProcessedNode = FindBeatmapItem(time);
+            }
 
-            NoodleExtensionsInterop.RequestReprocess();
-
-            SongRewindEvent?.Invoke(time);
-
-            if (!wasPausedBeforeRewind && resumeAfterRewind) 
+            if (!wasPausedBeforeRewind && resumeAfterRewind)
                 _audioTimeSyncController.Resume();
             _beatmapCallbacksUpdater.Resume();
+
+            SongRewindEvent?.Invoke(time);
+        }
+
+        private LinkedListNode<BeatmapDataItem> FindBeatmapItem(float time) {
+            LinkedListNode<BeatmapDataItem> item = null;
+            for (var node = _beatmapData.allBeatmapDataItems.First; node != null; node = node.Next) {
+                var nodeTime = node.Value.time;
+                var filterTime = _beatmapCallbacksControllerInitData.startFilterTime;
+                if (nodeTime >= filterTime && nodeTime >= time) break;
+                item = node;
+            }
+            return item;
         }
 
         #endregion
 
         #region ChangeSpeed
 
-        public void SetSpeedMultiplier(float speedMultiplier, bool resumeAfterSpeedChange = true)
-        {
+        public void SetSpeedMultiplier(float speedMultiplier, bool resumeAfterSpeedChange = true) {
             if (Math.Abs(speedMultiplier - _audioTimeSyncController.timeScale) < 0.001f) return;
 
             bool wasPausedBeforeRewind = _audioTimeSyncController
@@ -119,7 +123,7 @@ namespace BeatLeader.Replayer
 
             SongSpeedChangedEvent?.Invoke(speedMultiplier);
 
-            if (!wasPausedBeforeRewind && resumeAfterSpeedChange) 
+            if (!wasPausedBeforeRewind && resumeAfterSpeedChange)
                 _audioTimeSyncController.Resume();
         }
 
@@ -127,19 +131,42 @@ namespace BeatLeader.Replayer
 
         #region Despawn
 
-        private void DespawnAllBeatmapObjects()
-        {
-            _spawnedBeatmapObjectControllers.ForEach(x => x.Dissolve(0));
+        private static readonly MethodInfo _despawnNoteMethod =
+            typeof(BeatmapObjectManager).GetMethod("Despawn",
+                ReflectionUtils.DefaultFlags, new Type[] { typeof(NoteController) });
+
+        private static readonly MethodInfo _despawnSliderMethod =
+            typeof(BeatmapObjectManager).GetMethod("Despawn",
+                ReflectionUtils.DefaultFlags, new Type[] { typeof(SliderController) });
+
+        private static readonly MethodInfo _despawnObstacleMethod =
+            typeof(BeatmapObjectManager).GetMethod("Despawn",
+                ReflectionUtils.DefaultFlags, new Type[] { typeof(ObstacleController) });
+
+        private void DespawnAllBeatmapObjects() {
+            var param = new object[1];
+            foreach (var item in _spawnedBeatmapObjectControllers.ToList()) {
+                param[0] = item;
+                switch (item) {
+                    case NoteController:
+                        //CustomNotesInterop.TryDespawnCustomObject(note);
+                        _despawnNoteMethod.Invoke(_beatmapObjectManager, param);
+                        continue;
+                    case SliderController:
+                        _despawnSliderMethod.Invoke(_beatmapObjectManager, param);
+                        continue;
+                    case ObstacleController:
+                        _despawnObstacleMethod.Invoke(_beatmapObjectManager, param);
+                        continue;
+                }
+            }
         }
-        private void DespawnAllNoteControllerSounds()
-        {
-            //don't have any sense because we can't access spawned members
-            //_bombCutSoundPool.Clear();
+        private void DespawnAllNoteControllerSounds() {
             _noteCutSoundPoolContainer.activeItems.ForEach(x => x.StopPlayingAndFinish());
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
             _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);
         }
 
-        #endregion 
+        #endregion
     }
 }

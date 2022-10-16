@@ -6,10 +6,8 @@ using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer.Emulation
-{
-    public class ReplayerScoreProcessor : MonoBehaviour
-    {
+namespace BeatLeader.Replayer.Emulation {
+    public class ReplayerScoreProcessor : MonoBehaviour {
         #region Injection
 
         [Inject] private readonly ScoreController _scoreController;
@@ -21,28 +19,19 @@ namespace BeatLeader.Replayer.Emulation
 
         #region Setup
 
-        private readonly NoteControllerEmulator _noteControllerEmulator = 
-            new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
-        private SaberSwingRatingCounter _lastSaberSwingCounter;
-
-        private void Awake()
-        {
+        private void Awake() {
             _eventsProcessor.NoteProcessRequestedEvent += HandleNoteProcessRequested;
             _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
-
-            _scoreController.scoringForNoteStartedEvent += HandleScoringForNoteStarted;
         }
-        private void OnDestroy()
-        {
+        private void OnDestroy() {
             _eventsProcessor.NoteProcessRequestedEvent -= HandleNoteProcessRequested;
             _eventsProcessor.WallProcessRequestedEvent -= HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
 
-            _scoreController.scoringForNoteStartedEvent -= HandleScoringForNoteStarted;
-
+            _finishSwingRatingCounterPatch.Dispose();
             _scoringMultisilencer.Dispose();
             _cutScoreSpawnerSilencer.Dispose();
         }
@@ -51,62 +40,59 @@ namespace BeatLeader.Replayer.Emulation
 
         #region Logic
 
-        protected void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut)
-        {
-            _noteControllerEmulator.Setup(noteEvent);
+        private readonly NoteControllerEmulator _noteControllerEmulator =
+            new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
 
+        private static bool _lastCutIsGood;
+        private static float _lastCutBeforeCutRating;
+        private static float _lastCutAfterCutRating;
+
+        private void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut) {
+            if (isGoodCut) {
+                _lastCutBeforeCutRating = noteEvent.noteCutInfo.beforeCutRating;
+                _lastCutAfterCutRating = noteEvent.noteCutInfo.afterCutRating;
+                _lastCutIsGood = true;
+            }
+            _noteControllerEmulator.Setup(noteEvent);
             _scoringMultisilencer.Enabled = false;
-            try
-            {
+            try {
                 _scoreController.HandleNoteWasSpawned(_noteControllerEmulator);
                 _scoreController.HandleNoteWasCut(_noteControllerEmulator, _noteControllerEmulator.CutInfo);
-                if (isGoodCut) FinishSaberSwingRatingCounter(
-                        noteEvent.noteCutInfo.beforeCutRating, noteEvent.noteCutInfo.afterCutRating);
                 _scoreController.LateUpdate();
 
                 _gameEnergyCounter.HandleNoteWasCut(_noteControllerEmulator, _noteControllerEmulator.CutInfo);
                 _comboController.HandleNoteWasCut(_noteControllerEmulator, _noteControllerEmulator.CutInfo);
-            }
-            finally
-            {
+            } finally {
                 _scoringMultisilencer.Enabled = true;
             }
         }
-        protected void SimulateNoteWasMissed(NoteEvent noteEvent)
-        {
+        private void SimulateNoteWasMissed(NoteEvent noteEvent) {
             _noteControllerEmulator.Setup(noteEvent);
-
             _scoringMultisilencer.Enabled = false;
-            try
-            {
+            try {
                 _scoreController.HandleNoteWasSpawned(_noteControllerEmulator);
                 _scoreController.HandleNoteWasMissed(_noteControllerEmulator);
                 _scoreController.LateUpdate();
 
                 _gameEnergyCounter.HandleNoteWasMissed(_noteControllerEmulator);
                 _comboController.HandleNoteWasMissed(_noteControllerEmulator);
-            }
-            finally
-            {
+            } finally {
                 _scoringMultisilencer.Enabled = true;
             }
         }
-        private void FinishSaberSwingRatingCounter(float beforeCutRating, float afterCutRating)
-        {
-            if (_lastSaberSwingCounter == null) return;
-            _lastSaberSwingCounter.SetField("_beforeCutRating", Mathf.Clamp01(beforeCutRating));
-            _lastSaberSwingCounter.SetField("_afterCutRating", Mathf.Clamp01(afterCutRating));
-            _lastSaberSwingCounter.Finish();
+        private static void FinishSaberSwingRatingCounter(SaberSwingRatingCounter counter, float beforeCutRating, float afterCutRating) {
+            if (counter == null) return;
+            counter.SetField("_beforeCutRating", Mathf.Clamp01(beforeCutRating));
+            counter.SetField("_afterCutRating", Mathf.Clamp01(afterCutRating));
+            counter.Finish();
         }
 
         #endregion
 
         #region Events
 
-        private void HandleNoteProcessRequested(NoteEvent noteEvent)
-        {
-            switch (noteEvent.eventType)
-            {
+        private void HandleNoteProcessRequested(NoteEvent noteEvent) {
+            switch (noteEvent.eventType) {
                 case NoteEventType.good:
                     SimulateNoteWasCut(noteEvent, true);
                     break;
@@ -119,15 +105,13 @@ namespace BeatLeader.Replayer.Emulation
                     break;
             }
         }
-        private void HandleWallProcessRequested(WallEvent wallEvent)
-        {
+        private void HandleWallProcessRequested(WallEvent wallEvent) {
             _scoringMultisilencer.Enabled = false;
             _scoreController.HandlePlayerHeadDidEnterObstacles();
             _comboController.HandlePlayerHeadDidEnterObstacles();
             _scoringMultisilencer.Enabled = true;
         }
-        private void HandleReprocessRequested()
-        {
+        private void HandleReprocessRequested() {
             _cutScoreSpawnerSilencer.Enabled = true;
             if (!_eventsProcessor.TimeWasSmallerThanActualTime) return;
 
@@ -152,20 +136,8 @@ namespace BeatLeader.Replayer.Emulation
             _comboController.SetField("_combo", 0);
             _comboController.SetField("_maxCombo", 0);
         }
-        private void HandleReprocessDone()
-        {
+        private void HandleReprocessDone() {
             _cutScoreSpawnerSilencer.Enabled = false;
-        }
-        private void HandleScoringForNoteStarted(ScoringElement element)
-        {
-            var goodScoringElement = element as GoodCutScoringElement;
-            if (goodScoringElement == null) return;
-
-            var cutScoreBuffer = goodScoringElement
-                .GetField<CutScoreBuffer, GoodCutScoringElement>("_cutScoreBuffer");
-
-            _lastSaberSwingCounter = cutScoreBuffer
-                .GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
         }
 
         #endregion
@@ -188,9 +160,28 @@ namespace BeatLeader.Replayer.Emulation
             typeof(ComboController).GetMethod(nameof(ComboController.HandlePlayerHeadDidEnterObstacles), ReflectionUtils.DefaultFlags),
         };
 
-        private HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
-        private HarmonySilencer _cutScoreSpawnerSilencer = new(typeof(NoteCutScoreSpawner)
-            .GetMethod(nameof(NoteCutScoreSpawner.HandleScoringForNoteStarted)), false);
+        private static readonly HarmonyPatchDescriptor finishSwingRatingCounterPatchDescriptor = new(
+            typeof(GoodCutScoringElement).GetMethod(nameof(
+                GoodCutScoringElement.Init), ReflectionUtils.DefaultFlags), postfix:
+            typeof(ReplayerScoreProcessor).GetMethod(nameof(
+                GoodCutScoringInitPostfix), BindingFlags.NonPublic | BindingFlags.Static));
+
+        private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
+            typeof(NoteCutScoreSpawner).GetMethod(nameof(
+                NoteCutScoreSpawner.HandleScoringForNoteStarted)), false);
+
+        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(finishSwingRatingCounterPatchDescriptor);
+        private readonly HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
+
+        private static void GoodCutScoringInitPostfix(GoodCutScoringElement __instance) {
+            if (!_lastCutIsGood) return;
+
+            var buffer = (CutScoreBuffer)__instance.cutScoreBuffer;
+            var swingCounter = buffer.GetField<SaberSwingRatingCounter, CutScoreBuffer>("_saberSwingRatingCounter");
+
+            FinishSaberSwingRatingCounter(swingCounter, _lastCutBeforeCutRating, _lastCutAfterCutRating);
+            _lastCutIsGood = false;
+        }
 
         #endregion
     }

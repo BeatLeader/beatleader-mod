@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Utils;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -14,14 +13,21 @@ namespace BeatLeader
         private const string ConfigsSavePath = @"UserData\BeatLeader\Configs";
         private const string ConfigFileFormat = ".json";
 
-        public static void Load() => Scan().ForEach(x => TryLoadSettingsForPersistance(x));
-        public static void Save() => Scan().ForEach(x => TrySaveSettingsForPersistance(x));
+        public static void Load() {
+            foreach (var pair in Scan()) {
+                TryLoadSettingsForPersistance(pair.Key);
+            }
+        }
+        public static void Save() {
+            foreach (var pair in Scan()) {
+                TrySaveSettingsForPersistance(pair.Key);
+            }
+        }
         public static void NotifyTypeChanged(Type type) => TrySaveSettingsForPersistance(type);
 
-        private static List<Type> Scan()
+        private static IReadOnlyCollection<KeyValuePair<Type, SerializeAutomaticallyAttribute>> Scan()
         {
-            return Assembly.GetExecutingAssembly().GetTypes(x => x.GetCustomAttributes()
-            .FirstOrDefault(x => x.GetType() == typeof(SerializeAutomaticallyAttribute)) != null);
+            return Assembly.GetExecutingAssembly().GetTypesWithAttribute<SerializeAutomaticallyAttribute>();
         }
         private static bool TryLoadSettingsForPersistance(Type type)
         {
@@ -52,7 +58,7 @@ namespace BeatLeader
             }
             catch (Exception ex)
             {
-                Plugin.Log.Critical($"An unhandled exception occured during attempting to load config for {type}! {ex}");
+                Plugin.Log.Error($"Failed to load config for {type}! \r\n{ex}");
                 return false;
             }
             return true;
@@ -64,11 +70,16 @@ namespace BeatLeader
             Dictionary<string, object> convertedFields = new();
             var flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
-            type.GetFields(x => x.GetCustomAttribute<SerializeAutomaticallyAttribute>() != null, flags)
-                .ForEach(x => convertedFields.Add(x.Name, x.GetValue(null)));
+            foreach (var pair in type.GetFieldsWithAttribute<SerializeAutomaticallyAttribute>(flags)) {
+                var field = pair.Key;
+                convertedFields.Add(field.Name, field.GetValue(null));
+            }
 
-            type.GetProperties(x => x.GetCustomAttribute<SerializeAutomaticallyAttribute>() != null
-                 && x.CanRead && x.CanWrite, flags).ForEach(x => convertedFields.Add(x.Name, x.GetValue(null)));
+            foreach (var pair in type.GetPropertiesWithAttribute<SerializeAutomaticallyAttribute>(flags)) {
+                var prop = pair.Key;
+                if (!prop.CanRead || !prop.CanWrite) continue;
+                convertedFields.Add(prop.Name, prop.GetValue(null));
+            }
 
             CreateConfigsFolderIfNeeded();
             File.WriteAllText(GeneratePath(type), JsonConvert.SerializeObject(convertedFields));

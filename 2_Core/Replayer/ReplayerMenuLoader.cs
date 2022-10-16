@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
+using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -18,6 +19,7 @@ namespace BeatLeader.Replayer
 
         private static event Action<Score> ScoreWasSelectedEvent;
         private static event Action PlayButtonWasPressed;
+        private static event Action PlayLastButtonWasPressed;
 
         public static void NotifyScoreWasSelected(Score score)
         {
@@ -27,6 +29,11 @@ namespace BeatLeader.Replayer
         public static void NotifyPlayButtonWasPressed()
         {
             PlayButtonWasPressed?.Invoke();
+        }
+
+        public static void NotifyPlayLastButtonWasPressed()
+        {
+            PlayLastButtonWasPressed?.Invoke();
         }
 
         #endregion
@@ -74,6 +81,7 @@ namespace BeatLeader.Replayer
         {
             ScoreWasSelectedEvent += OnScoreWasSelected;
             PlayButtonWasPressed += OnPlayButtonWasPressed;
+            PlayLastButtonWasPressed += OnPlayLastButtonWasPressed;
             DownloadReplayRequest.AddStateListener(OnDownloadRequestStateChanged);
         }
 
@@ -81,6 +89,7 @@ namespace BeatLeader.Replayer
         {
             ScoreWasSelectedEvent -= OnScoreWasSelected;
             PlayButtonWasPressed -= OnPlayButtonWasPressed;
+            PlayLastButtonWasPressed -= OnPlayLastButtonWasPressed;
             DownloadReplayRequest.RemoveStateListener(OnDownloadRequestStateChanged);
         }
 
@@ -109,7 +118,7 @@ namespace BeatLeader.Replayer
 
             Replay = result;
             SetState(LoaderState.ReadyToPlay);
-            StartReplay();
+            StartReplay(Score.player);
         }
 
         private void OnPlayButtonWasPressed()
@@ -117,7 +126,7 @@ namespace BeatLeader.Replayer
             switch (State)
             {
                 case LoaderState.ReadyToPlay:
-                    StartReplay();
+                    StartReplay(Score.player);
                     break;
                 case LoaderState.DownloadRequired:
                     _downloadReplayScoreId = Score.id;
@@ -125,6 +134,14 @@ namespace BeatLeader.Replayer
                     DownloadReplayRequest.SendRequest(Score.replay);
                     SendViewReplayRequest.SendRequest(Score.id);
                     break;
+            }
+        }
+
+        private void OnPlayLastButtonWasPressed()
+        {
+            if (FileManager.TryReadReplay(FileManager.LastSavedReplay, out var storedReplay)) {
+                Replay = storedReplay;
+                StartReplay(ProfileManager.Profile);
             }
         }
 
@@ -141,9 +158,9 @@ namespace BeatLeader.Replayer
         [Inject, UsedImplicitly]
         private readonly IFPFCSettings _fpfcSettings;
 
-        private void StartReplay()
+        private void StartReplay(Player player)
         {
-            StartReplayAsync(Replay, Score.player, ConfigFileData.Instance.ReplayerSettings);
+            StartReplayAsync(Replay, player, ConfigFileData.Instance.ReplayerSettings);
         }
 
         private async Task<bool> StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null)
@@ -163,7 +180,7 @@ namespace BeatLeader.Replayer
             if (await _launcher.StartReplayAsync(data))
             {
                 ScoreSaberInterop.RecordingEnabled = false;
-                BeatSaviorInterop.EnableScoreSubmission = false;
+                BeatSaviorInterop.ScoreSubmissionEnabled = false;
                 return true;
             }
             else return false;

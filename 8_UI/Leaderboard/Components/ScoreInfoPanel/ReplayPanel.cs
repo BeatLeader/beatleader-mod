@@ -1,9 +1,12 @@
 ﻿using BeatLeader.API.Methods;
+using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
@@ -26,11 +29,13 @@ namespace BeatLeader.Components {
 
             DownloadReplayRequest.AddProgressListener(OnDownloadProgressChanged);
             ReplayerMenuLoader.AddStateListener(OnLoaderStateChanged);
+            LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
         protected override void OnDispose() {
             DownloadReplayRequest.RemoveProgressListener(OnDownloadProgressChanged);
             ReplayerMenuLoader.RemoveStateListener(OnLoaderStateChanged);
+            LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
         #endregion
@@ -44,6 +49,21 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
+
+        private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
+            if (!SongCoreInterop.TryGetBeatmapRequirements(beatmap, out var requirements)
+                || !SongCoreInterop.TryGetCapabilities(out var capabilities)) return;
+
+            bool interactable = true;
+            foreach (var item in requirements) {
+                if (!capabilities.Contains(item)) {
+                    interactable = false;
+                    break;
+                }
+            }
+
+            _buttonShouldBeInteractable = interactable;
+        }
 
         private void OnLoaderStateChanged(ReplayerMenuLoader.LoaderState state, Score score, Replay replay1) {
             _playButton.interactable = state is not ReplayerMenuLoader.LoaderState.Downloading;
@@ -67,6 +87,8 @@ namespace BeatLeader.Components {
         [UIComponent("play-button"), UsedImplicitly]
         private Button _playButton;
 
+        private bool _buttonShouldBeInteractable = true;
+
         private void InitializePlayButton() {
             _playButton.onClick.AddListener(ReplayerMenuLoader.NotifyPlayButtonWasPressed);
         }
@@ -77,6 +99,7 @@ namespace BeatLeader.Components {
 
         public void SetActive(bool value) {
             Active = value;
+            _playButton.interactable = _buttonShouldBeInteractable;
         }
 
         #endregion

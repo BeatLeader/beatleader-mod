@@ -24,8 +24,8 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Warn($"Plugin {attr.pluginId} not found, {type.Name} will not be loaded");
                 return;
             }
-            if (!IsVersionCorrect(plugin.HVersion, attr.version)) {
-                Plugin.Log.Warn($"Plugin {attr.pluginId} version({plugin.HVersion}) not matches specified({attr.version}), {type.Name} will not be loaded");
+            if (!IsVersionCorrect(plugin.HVersion, attr.worksUntilVersion)) {
+                Plugin.Log.Warn($"Plugin {attr.pluginId} version({plugin.HVersion}) not matches specified({attr.worksUntilVersion}), {type.Name} will not be loaded");
                 return;
             }
             var assembly = plugin.Assembly;
@@ -38,7 +38,7 @@ namespace BeatLeader.Utils {
         private static bool IsVersionCorrect(Version pluginVersion, string specifiedVersion) {
             if (string.IsNullOrEmpty(specifiedVersion)) return true;
             if (!Version.TryParse(specifiedVersion, out var specPlugVer)) return false;
-            return pluginVersion == specPlugVer;
+            return pluginVersion <= specPlugVer;
         }
 
         #endregion

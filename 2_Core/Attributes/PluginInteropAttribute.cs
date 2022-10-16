@@ -3,12 +3,12 @@
 namespace BeatLeader.Attributes {
     [AttributeUsage(AttributeTargets.Class)]
     internal class PluginInteropAttribute : Attribute {
-        public PluginInteropAttribute(string pluginId, string? version = null) {
+        public PluginInteropAttribute(string pluginId, string? worksUntilVersion = null) {
             this.pluginId = pluginId;
-            this.version = version;
+            this.worksUntilVersion = worksUntilVersion;
         }
 
         public readonly string pluginId;
-        public readonly string? version;
+        public readonly string? worksUntilVersion;
     }
 }

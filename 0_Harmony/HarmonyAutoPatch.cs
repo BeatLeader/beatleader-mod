@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace BeatLeader
 {
@@ -10,7 +8,7 @@ namespace BeatLeader
         public HarmonyAutoPatch(HarmonyPatchDescriptor descriptor)
         {
             Descriptor = descriptor;
-            harmony.Patch(descriptor);
+            _harmony.Patch(descriptor);
         }
 
         public HarmonyPatchDescriptor Descriptor { get; private set; }
@@ -18,11 +16,11 @@ namespace BeatLeader
         public void Dispose()
         {
             if (Descriptor.Prefix != null)
-                harmony.Unpatch(Descriptor.Prefix.method, HarmonyPatchType.Prefix);
+                _harmony.Unpatch(Descriptor.Prefix.method, HarmonyPatchType.Prefix);
             if (Descriptor.Postfix != null)
-                harmony.Unpatch(Descriptor.Postfix.method, HarmonyPatchType.Postfix);
+                _harmony.Unpatch(Descriptor.Postfix.method, HarmonyPatchType.Postfix);
         }
 
-        private static readonly Harmony harmony = new("BeatLeader.AutoPatchesRegistry");
+        private static readonly Harmony _harmony = new("BeatLeader.AutoPatchesRegistry");
     }
 }

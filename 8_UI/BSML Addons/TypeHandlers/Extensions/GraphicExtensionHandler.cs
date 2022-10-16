@@ -4,25 +4,20 @@ using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.TypeHandlers;
 using UnityEngine.UI;
 
-namespace BeatLeader.UI.BSML_Addons.Extensions
-{
+namespace BeatLeader.UI.BSML_Addons.Extensions {
     [ComponentHandler(typeof(Graphic))]
-    internal class GraphicExtensionHandler : TypeHandler
-    {
+    internal class GraphicExtensionHandler : TypeHandler {
         public override Dictionary<string, string[]> Props => new Dictionary<string, string[]>()
         {
             { "useMask", new string[] { "as-mask", "maskable", "use-as-mask", } }
         };
 
-        public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams)
-        {
+        public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
             Graphic graphic;
-            if ((graphic = componentType.component as Graphic) != null)
-            {
-                if (componentType.data.TryGetValue("useMask", out string useAsMask))
-                {
-                    graphic.gameObject.AddComponent<Mask>();
-                }
+            if ((graphic = componentType.component as Graphic) != null
+                && componentType.data.TryGetValue("useMask", out string asMaskStr) 
+                && bool.TryParse(asMaskStr, out bool asMask) && asMask) {
+                graphic.gameObject.AddComponent<Mask>();
             }
         }
     }

@@ -529,6 +529,7 @@
     <Compile Include="8_UI\Replayer\ScreenSpaceScreen.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\Replayer2DViewController.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerVRViewController.cs" />
+    <Compile Include="8_UI\Results\ReplayButton.cs" />
     <Compile Include="8_UI\Results\ResultsScreenUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUtils.cs" />
@@ -617,6 +618,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\ToggleButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\MainScreenSpaceView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Results\ResultsScreenUI.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Results\ReplayButton.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

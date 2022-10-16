@@ -21,7 +21,7 @@ namespace BeatLeader.Components{
 
         private void SetupReplayButton() {
             var images = _buttonTransform.GetComponentsInChildren<ImageView>();
-            Debug.Log("Images " + images.Length);
+
             _backgroundImage = images.FirstOrDefault(x => x.gameObject.name == "BG");
             _foregroundImage = images.FirstOrDefault(x => x.gameObject.name == "Icon");
 

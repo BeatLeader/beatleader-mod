@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Version = Hive.Versioning.Version;
 
 namespace BeatLeader.Utils {
     internal static class InteropLoader {
@@ -18,15 +19,26 @@ namespace BeatLeader.Utils {
             }
         }
         private static void LoadInterop(Type type, PluginInteropAttribute attr) {
-            var assembly = PluginManager.GetPluginFromId(attr.pluginId)?.Assembly;
-            if (assembly == null) {
+            var plugin = PluginManager.GetPluginFromId(attr.pluginId);
+            if (plugin == null) {
                 Plugin.Log.Warn($"Plugin {attr.pluginId} not found, {type.Name} will not be loaded");
                 return;
             }
+            if (!IsVersionCorrect(plugin.HVersion, attr.version)) {
+                Plugin.Log.Warn($"Plugin {attr.pluginId} version({plugin.HVersion}) not matches specified({attr.version}), {type.Name} will not be loaded");
+                return;
+            }
+            var assembly = plugin.Assembly;
             SetPluginAssembly(type, assembly);
             bool setAssemblyResult = SetPluginTypes(type, assembly);
             bool invokeEntryResult = InvokeEntryMethod(type, setAssemblyResult);
             SetPluginState(type, invokeEntryResult);
+        }
+
+        private static bool IsVersionCorrect(Version pluginVersion, string specifiedVersion) {
+            if (string.IsNullOrEmpty(specifiedVersion)) return true;
+            if (!Version.TryParse(specifiedVersion, out var specPlugVer)) return false;
+            return pluginVersion == specPlugVer;
         }
 
         #endregion

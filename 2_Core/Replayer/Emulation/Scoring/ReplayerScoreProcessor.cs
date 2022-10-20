@@ -20,6 +20,8 @@ namespace BeatLeader.Replayer.Emulation {
         #region Setup
 
         private void Awake() {
+            _gameEnergyStaticCounter = _gameEnergyCounter;
+
             _eventsProcessor.NoteProcessRequestedEvent += HandleNoteProcessRequested;
             _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
@@ -31,6 +33,8 @@ namespace BeatLeader.Replayer.Emulation {
             _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
 
+            _noteWasCutEnergyCounterPatch.Dispose();
+            _noteWasMissedEnergyCounterPatch.Dispose();
             _finishSwingRatingCounterPatch.Dispose();
             _scoringMultisilencer.Dispose();
             _cutScoreSpawnerSilencer.Dispose();
@@ -160,18 +164,34 @@ namespace BeatLeader.Replayer.Emulation {
             typeof(ComboController).GetMethod(nameof(ComboController.HandlePlayerHeadDidEnterObstacles), ReflectionUtils.DefaultFlags),
         };
 
-        private static readonly HarmonyPatchDescriptor finishSwingRatingCounterPatchDescriptor = new(
+        private static readonly HarmonyPatchDescriptor _finishSwingRatingCounterPatchDescriptor = new(
             typeof(GoodCutScoringElement).GetMethod(nameof(
                 GoodCutScoringElement.Init), ReflectionUtils.DefaultFlags), postfix:
             typeof(ReplayerScoreProcessor).GetMethod(nameof(
                 GoodCutScoringInitPostfix), BindingFlags.NonPublic | BindingFlags.Static));
 
+        private static readonly HarmonyPatchDescriptor _noteWasCutEnergyCounterPatchDescriptor = new(
+            typeof(GameEnergyCounter).GetMethod(nameof(
+                GameEnergyCounter.HandleNoteWasCut), ReflectionUtils.DefaultFlags), postfix:
+            typeof(ReplayerScoreProcessor).GetMethod(nameof(
+                NoteWasProcessedPostfix), ReflectionUtils.StaticFlags));
+
+        private static readonly HarmonyPatchDescriptor _noteWasMissedEnergyCounterPatchDescriptor = new(
+            typeof(GameEnergyCounter).GetMethod(nameof(
+               GameEnergyCounter.HandleNoteWasMissed), ReflectionUtils.DefaultFlags), postfix:
+            typeof(ReplayerScoreProcessor).GetMethod(nameof(
+                NoteWasProcessedPostfix), ReflectionUtils.StaticFlags));
+
         private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
             typeof(NoteCutScoreSpawner).GetMethod(nameof(
                 NoteCutScoreSpawner.HandleScoringForNoteStarted)), false);
 
-        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(finishSwingRatingCounterPatchDescriptor);
+        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(_finishSwingRatingCounterPatchDescriptor);
+        private readonly HarmonyAutoPatch _noteWasCutEnergyCounterPatch = new(_noteWasCutEnergyCounterPatchDescriptor);
+        private readonly HarmonyAutoPatch _noteWasMissedEnergyCounterPatch = new(_noteWasMissedEnergyCounterPatchDescriptor);
         private readonly HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
+
+        private static GameEnergyCounter _gameEnergyStaticCounter;
 
         private static void GoodCutScoringInitPostfix(GoodCutScoringElement __instance) {
             if (!_lastCutIsGood) return;
@@ -181,6 +201,9 @@ namespace BeatLeader.Replayer.Emulation {
 
             FinishSaberSwingRatingCounter(swingCounter, _lastCutBeforeCutRating, _lastCutAfterCutRating);
             _lastCutIsGood = false;
+        }
+        private static void NoteWasProcessedPostfix() {
+            _gameEnergyStaticCounter.LateUpdate();
         }
 
         #endregion

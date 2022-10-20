@@ -2,24 +2,29 @@
 using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
 using IPA.Utilities;
+using UnityEngine.Playables;
 using UnityEngine;
 using Zenject;
+using UnityEngine.UI;
+using HMUI;
 
-namespace BeatLeader.Replayer
-{
-    public class BeatmapVisualsController : MonoBehaviour
-    {
+namespace BeatLeader.Replayer {
+    public class BeatmapVisualsController : MonoBehaviour {
         #region Injection
 
-        [Inject] protected readonly IReplayPauseController _playbackController;
-        [Inject] protected readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] protected readonly ComboController _comboController;
-        [Inject] protected readonly ReplayEventsProcessor _eventsProcessor;
+        [Inject] private readonly IReplayPauseController _playbackController;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly ComboController _comboController;
+        [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
+        [Inject] private readonly ReplayEventsProcessor _eventsProcessor;
 
-        [FirstResource] protected ComboUIController _comboUIController;
-        [FirstResource] protected ObstacleSaberSparkleEffectManager _sparkleEffectManager;
-        [FirstResource] protected NoteDebrisSpawner _noteDebrisSpawner;
-        [FirstResource] protected SaberBurnMarkSparkles _saberBurnMarkSparkles;
+        [FirstResource] private readonly ComboUIController _comboUIController;
+        [FirstResource] private readonly GameEnergyUIPanel _gameEnergyUIPanel;
+        [FirstResource] private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager;
+        [FirstResource] private readonly NoteDebrisSpawner _noteDebrisSpawner;
+        [FirstResource] private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles;
+        [FirstResource("EnergyIconEmpty")] private readonly ImageView _energyIconEmpty;
+        [FirstResource("EnergyIconFull")] private readonly ImageView _energyIconFull;
 
         #endregion
 
@@ -31,8 +36,7 @@ namespace BeatLeader.Replayer
         private bool _comboWasBroke;
         private bool _wasInProcess;
 
-        private void Awake()
-        {
+        private void Awake() {
             this.LoadResources();
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
             _debrisFromCenterSpeed = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_fromCenterSpeed");
@@ -44,8 +48,7 @@ namespace BeatLeader.Replayer
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
         }
-        private void OnDestroy()
-        {
+        private void OnDestroy() {
             _playbackController.PauseStateChangedEvent -= HandlePauseStateChanged;
             _beatmapTimeController.SongSpeedChangedEvent -= HandleSongSpeedChanged;
             _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
@@ -56,9 +59,8 @@ namespace BeatLeader.Replayer
         #endregion
 
         #region Visuals control
-
-        public void PauseSabersSparkles(bool pause)
-        {
+ 
+        public void PauseSabersSparkles(bool pause) {
             _saberBurnMarkSparkles.enabled = !pause;
             _sparkleEffectManager.gameObject.SetActive(!pause);
 
@@ -68,19 +70,32 @@ namespace BeatLeader.Replayer
             foreach (var effect in effects)
                 effect.gameObject.SetActive(!pause);
         }
-        public void ModifyCombo(int combo, int maxCombo, bool isBroken = false)
-        {
+        public void ModifyComboPanel(int combo, int maxCombo, bool shouldBeBroken = false) {
             _comboController.SetField("_combo", combo);
             _comboController.SetField("_maxCombo", maxCombo);
             _comboUIController.HandleComboDidChange(combo);
             _comboUIController.SetField("_fullComboLost", false);
-            if (isBroken)
+            if (shouldBeBroken)
                 _comboUIController.HandleComboBreakingEventHappened();
             else
                 _comboUIController.GetField<Animator, ComboUIController>("_animator").Rebind();
         }
-        public void ModifyDebrisPhysics(float multiplier)
-        {
+        public void ModifyEnergyPanel(float energy, bool shouldBeLost = false) {
+            var energyBar = _gameEnergyUIPanel.GetField<Image, GameEnergyUIPanel>("_energyBar");
+            if (!shouldBeLost && !energyBar.enabled) {
+                var director = _gameEnergyUIPanel.GetField<
+                    PlayableDirector, GameEnergyUIPanel>("_playableDirector");
+                director.Stop();
+                director.RebindPlayableGraphOutputs();
+                director.Evaluate();
+                energyBar.enabled = true;
+                _energyIconFull.transform.localPosition = new(59, 0);
+                _energyIconEmpty.transform.localPosition = new(-59, 0);
+                _gameEnergyCounter.gameEnergyDidChangeEvent += _gameEnergyUIPanel.RefreshEnergyUI;
+            }
+            _gameEnergyUIPanel.RefreshEnergyUI(energy);
+        }
+        public void ModifyDebrisPhysics(float multiplier) {
             _noteDebrisSpawner.SetField("_cutDirMultiplier", _debrisCutDirMultiplier * multiplier);
             _noteDebrisSpawner.SetField("_moveSpeedMultiplier", _debrisMoveSpeedMultiplier * multiplier);
             _noteDebrisSpawner.SetField("_fromCenterSpeed", _debrisFromCenterSpeed * multiplier);
@@ -90,30 +105,28 @@ namespace BeatLeader.Replayer
 
         #region Event Handlers
 
-        private void HandlePauseStateChanged(bool state)
-        {
+        private void HandlePauseStateChanged(bool state) {
             PauseSabersSparkles(state);
         }
-        private void HandleSongSpeedChanged(float speedMul)
-        {
+        private void HandleSongSpeedChanged(float speedMul) {
             ModifyDebrisPhysics(speedMul);
         }
-        private void HandleComboDidBreak()
-        {
+        private void HandleComboDidBreak() {
             _comboWasBroke = true;
         }
-        private void HandleReprocessRequested()
-        {
+        private void HandleReprocessRequested() {
             _wasInProcess = _eventsProcessor.TimeWasSmallerThanActualTime;
             _comboWasBroke = false;
         }
-        private void HandleReprocessDone()
-        {
-            if (_wasInProcess)
-            {
-                ModifyCombo(_comboController.GetField<int, ComboController>("_combo"), _comboController.maxCombo, _comboWasBroke);
+        private void HandleReprocessDone() {
+            if (_wasInProcess) {
+                ModifyComboPanel(_comboController.GetField<int,
+                    ComboController>("_combo"), _comboController.maxCombo, _comboWasBroke);
                 _wasInProcess = false;
             }
+
+            ModifyEnergyPanel(_gameEnergyCounter.energy, _gameEnergyCounter
+                .GetField<bool, GameEnergyCounter>("_didReach0Energy"));
         }
 
         #endregion

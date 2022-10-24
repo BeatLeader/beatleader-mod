@@ -1,4 +1,6 @@
-﻿namespace BeatLeader.Models
+﻿using BeatLeader.Utils;
+
+namespace BeatLeader.Models
 {
     public class ReplayerSettings
     {
@@ -18,5 +20,7 @@
         public string VRCameraPose { get; set; }
 
         public ReplayerShortcuts Shortcuts { get; set; }
+
+        public string ActualCameraPose => InputUtils.IsInFPFC ? FPFCCameraPose : VRCameraPose;
     }
 }

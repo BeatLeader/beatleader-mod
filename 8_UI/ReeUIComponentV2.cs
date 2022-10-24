@@ -9,12 +9,10 @@ using JetBrains.Annotations;
 using BeatLeader.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Zenject;
+using BeatLeader.Components;
 
-namespace BeatLeader
-{
-    internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged
-    {
+namespace BeatLeader {
+    internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged {
         #region BSML Cache
 
         private static readonly Dictionary<Type, string> BsmlCache = new();
@@ -51,8 +49,7 @@ namespace BeatLeader
             return Instantiate<T>(sceneRoot, parseImmediately);
         }
 
-        public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2
-        {
+        public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2 {
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
             component.OnInstantiate();
             component.Setup(parent, parseImmediately);
@@ -73,9 +70,8 @@ namespace BeatLeader
 
         #region UnityEvents
 
-        protected virtual void OnDestroy()
-        {
-            if (!IsParsed) return;
+        protected virtual void OnDestroy() {
+            if (!IsHierarchySet) return;
             OnDispose();
         }
 
@@ -107,7 +103,8 @@ namespace BeatLeader
 
         private State _state = State.Uninitialized;
 
-        protected bool IsParsed => _state == State.HierarchySet;
+        protected bool IsHierarchySet => _state == State.HierarchySet;
+        protected bool IsParsed => _state == State.Parsed || IsHierarchySet;
 
         private enum State {
             Uninitialized,
@@ -133,8 +130,7 @@ namespace BeatLeader
         protected Transform Content { get; private set; }
 
         [UIAction("#post-parse"), UsedImplicitly]
-        private protected virtual void PostParse()
-        {
+        private protected virtual void PostParse() {
             if (_state == State.Parsing) return;
             DisposeIfNeeded();
             ParseSelfIfNeeded();
@@ -158,7 +154,7 @@ namespace BeatLeader
 
         private void ApplyHierarchy() {
             if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
-            
+
             Content.SetParent(Transform.parent, true);
 
             Transform.SetParent(_parent, false);

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BeatLeader.Utils
 {
-    public static class UnityResourcesHelper
+    internal static class UnityResourcesHelper
     {
         public static void LoadResources<T>(this T obj)
         {

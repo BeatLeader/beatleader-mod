@@ -7,6 +7,7 @@ using UnityEngine;
 using Zenject;
 using UnityEngine.UI;
 using HMUI;
+using System.Linq;
 
 namespace BeatLeader.Replayer {
     public class BeatmapVisualsController : MonoBehaviour {
@@ -23,8 +24,10 @@ namespace BeatLeader.Replayer {
         [FirstResource] private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager;
         [FirstResource] private readonly NoteDebrisSpawner _noteDebrisSpawner;
         [FirstResource] private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles;
-        [FirstResource("EnergyIconEmpty")] private readonly ImageView _energyIconEmpty;
-        [FirstResource("EnergyIconFull")] private readonly ImageView _energyIconFull;
+
+        private GameObject _laser;
+        private ImageView _energyIconEmpty;
+        private ImageView _energyIconFull;
 
         #endregion
 
@@ -38,6 +41,12 @@ namespace BeatLeader.Replayer {
 
         private void Awake() {
             this.LoadResources();
+
+            var images = _gameEnergyUIPanel.GetComponentsInChildren<ImageView>();
+            _energyIconEmpty = images.FirstOrDefault(x => x.name == "EnergyIconEmpty");
+            _energyIconFull = images.FirstOrDefault(x => x.name == "EnergyIconFull");
+            _laser = _gameEnergyUIPanel.transform.Find("Laser").gameObject;
+
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
             _debrisFromCenterSpeed = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_fromCenterSpeed");
             _debrisMoveSpeedMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_moveSpeedMultiplier");
@@ -89,6 +98,7 @@ namespace BeatLeader.Replayer {
                 director.RebindPlayableGraphOutputs();
                 director.Evaluate();
                 energyBar.enabled = true;
+                _laser.SetActive(false);
                 _energyIconFull.transform.localPosition = new(59, 0);
                 _energyIconEmpty.transform.localPosition = new(-59, 0);
                 _gameEnergyCounter.gameEnergyDidChangeEvent += _gameEnergyUIPanel.RefreshEnergyUI;

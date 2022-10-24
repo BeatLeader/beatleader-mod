@@ -2,7 +2,7 @@
 using System.Linq;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
-using BeatLeader.Utils;
+using System;
 
 namespace BeatLeader.Components
 {
@@ -10,6 +10,8 @@ namespace BeatLeader.Components
     internal class LayoutEditor : ReeUIComponentV2WithContainer
     {
         [SerializeAutomatically] private static Dictionary<string, bool> _objectsConfig = new();
+
+        public event Action<bool> EditModeChangedEvent;
 
         private List<EditableElement> _editableObjects = new();
         public bool EditMode { get; private set; }
@@ -20,6 +22,7 @@ namespace BeatLeader.Components
             _editableObjects.ToList().ForEach(x => x.SetEditableEnabled(enabled, applySettings));
             Content.gameObject.SetActive(enabled);
             EditMode = enabled;
+            EditModeChangedEvent?.Invoke(enabled);
         }
         public bool TryAddObject(EditableElement editable, bool loadConfig = true)
         {

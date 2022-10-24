@@ -1,0 +1,17 @@
+﻿<horizontal>
+  <!--Settings-->
+  <macro.define id="height" value="46"/>
+  <macro.define id="width" value="55"/>
+
+  <horizontal pref-height="~height">
+    <modal id="settings-modal" clickerino-offerino-closerino="true" move-to-center="false"
+			   hide-bg="true" size-delta-x="~width" size-delta-y="~height" anchor-min-x="1" anchor-min-y="0"
+			   anchor-max-x="1" anchor-max-y="0" anchor-pos-x="-25.5" anchor-pos-y="22">
+      <vertical pref-width="~width" pad="1">
+        <macro.as-host host="settings-container">
+          <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+      </vertical>
+    </modal>
+  </horizontal>
+</horizontal>

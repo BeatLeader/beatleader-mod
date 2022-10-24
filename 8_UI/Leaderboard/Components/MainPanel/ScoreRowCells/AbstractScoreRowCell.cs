@@ -28,7 +28,7 @@ namespace BeatLeader.Components {
         private float _cellWidth = 1f;
 
         private void UpdateRootNode() {
-            if (!IsParsed) return;
+            if (!IsHierarchySet) return;
             rootNode.preferredWidth = _cellWidth;
             rootNode.gameObject.SetActive(_isActive);
             gameObject.SetActive(_isActive);

@@ -23,7 +23,7 @@ namespace BeatLeader.UI.BSML_Addons.Tags
             //fitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
 
             gameObject.AddComponent<LayoutElement>();
-            gameObject.AddComponent<BetterImage>().Init(image);
+            gameObject.AddComponent<BetterImage>().Image = image;
 
             image.rectTransform.SetParent(parent, false);
             return gameObject;

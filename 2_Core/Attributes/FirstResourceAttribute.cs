@@ -3,7 +3,7 @@
 namespace BeatLeader
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class FirstResourceAttribute : Attribute
+    internal class FirstResourceAttribute : Attribute
     {
         public FirstResourceAttribute() { }
         public FirstResourceAttribute(string name)

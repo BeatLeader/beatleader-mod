@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection.Emit;
 
 namespace BeatLeader.Utils {
-    public static class ReflectionUtils {
+    internal static class ReflectionUtils {
         #region Constants
 
         public const BindingFlags DefaultFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;

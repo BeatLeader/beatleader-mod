@@ -43,15 +43,12 @@ namespace BeatLeader.Replayer.Camera
             ref var currentPos = ref data.Item1.position;
             ref var currentRot = ref data.Item1.rotation;
 
-            bool flag = false;
             if (disableInputOnUnlockedCursor && Cursor.lockState != CursorLockMode.Locked)
             {
-                currentPos = _lastHeadPos;
-                currentRot = _lastHeadRot;
-                flag = true;
+                currentPos = _resetRequested ? new Vector3(0, 1.7f, 0) : _lastHeadPos;
+                currentRot = _resetRequested ? Quaternion.identity : _lastHeadRot;
+                return;
             }
-
-            if (flag) return;
 
             if (_returnToTheLastPos)
             {
@@ -110,8 +107,8 @@ namespace BeatLeader.Replayer.Camera
         protected virtual Quaternion GetRotation(Quaternion currentRotation)
         {
             Vector3 rotation = currentRotation.eulerAngles;
-            rotation.x += -Input.GetAxis("MouseY") * mouseSensitivity.x;
-            rotation.y += Input.GetAxis("MouseX") * mouseSensitivity.y;
+            rotation.x += -Input.GetAxis("MouseY") * mouseSensitivity.y;
+            rotation.y += Input.GetAxis("MouseX") * mouseSensitivity.x;
             return Quaternion.Euler(rotation);
         }
     }

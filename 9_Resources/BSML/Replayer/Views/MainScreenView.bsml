@@ -1,0 +1,38 @@
+﻿<vertical horizontal-fit="Unconstrained">
+
+  <vertical horizontal-fit="Unconstrained" child-control-height="false" child-expand-height="false"
+			  child-align="UpperCenter" pad="1" spacing="1">
+
+    <macro.as-host host="song-info">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+    <macro.as-host host="player-info">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+  </vertical>
+
+  <vertical child-control-height="false" child-expand-height="false" child-align="LowerCenter">
+    <horizontal child-expand-width="false" child-control-width="false" 
+                child-align="LowerRight" pad-bottom="2">
+      <horizontal pref-height="46">
+        <macro.as-host host="settings-modal">
+          <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+      </horizontal>
+    </horizontal>
+    <horizontal pref-height="10">
+      <macro.as-host host="toolbar">
+        <macro.reparent transform="ui-component"/>
+      </macro.as-host>
+    </horizontal>
+  </vertical>
+
+  <vertical ignore-layout="true" child-expand-height="false">
+    <macro.as-host host="layout-editor">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </vertical>
+
+</vertical>

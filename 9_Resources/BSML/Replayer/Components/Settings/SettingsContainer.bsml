@@ -1,0 +1,35 @@
+﻿<vertical pref-width="~width">
+  <horizontal pref-height="~height" spacing="1">
+    <better-image src="#black-transparent-bg" image-type="Sliced" ppu="5" pref-width="~bg-width">
+      <vertical id="container-group" pref-width="~bg-width" pad="1" child-expand-height="false">
+
+        <horizontal active="false" id="navigation-button-container" pad-bottom="1" pref-height="6"
+                    child-control-height="false" child-expand-height="false">
+          <macro.as-host host="navigation-button">
+            <macro.reparent transform="ui-component"/>
+          </macro.as-host>
+        </horizontal>
+
+        <vertical horizontal-fit="Unconstrained" flexible-width="1">
+          <scrollable-container id="content-view-scrollable">
+            <vertical id="content-group" pref-width="~bg-width" 
+                      pad-left="1" pad-right="1" vertical-fit="PreferredSize">
+              <horizontal child-expand-width="false">
+                <!--Actual content-->
+                <macro.as-host host="root-content-view">
+                  <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+              </horizontal>
+            </vertical>
+          </scrollable-container>
+        </vertical>
+
+      </vertical>
+    </better-image>
+    <vertical child-expand-width="false">
+      <vertical pref-width="~scrollbar-width">
+        <bg id="scrollbar-container"/>
+      </vertical>
+    </vertical>
+  </horizontal>
+</vertical>

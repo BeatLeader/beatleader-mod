@@ -97,26 +97,31 @@ namespace BeatLeader.Replayer.Camera {
             }
         }
 
-        public void RequestCameraPose(string name) {
-            if (name == string.Empty) return;
+        public bool RequestCameraPose(string name) {
+            if (string.IsNullOrEmpty(name)
+                || name == CurrentPoseName) return false;
             _requestedPose = name;
             _wasRequestedLastTime = true;
+            return true;
         }
-        public void SetCameraPose(string name) {
-            if (_camera == null || string.IsNullOrEmpty(name) || name == CurrentPoseName) return;
+        public bool SetCameraPose(string name) {
+            if (string.IsNullOrEmpty(name)
+                || name == CurrentPoseName) return false;
 
             ICameraPoseProvider cameraPose = PoseProviders.FirstOrDefault(x => x.Name == name);
-            if (cameraPose == null) return;
+            if (cameraPose == null) return false;
 
             _currentPose = cameraPose;
             CameraAndHeadPosesTuple = ProcessPose(_currentPose);
             RefreshCamera();
             CameraPoseChangedEvent?.Invoke(cameraPose);
+            return true;
         }
-        public void SetCameraPose(ICameraPoseProvider provider) {
-            if (!PoseProviders.Contains(provider))
-                PoseProviders.Add(provider);
+        public bool SetCameraPose(ICameraPoseProvider provider) {
+            if (PoseProviders.Contains(provider)) return false;
+            PoseProviders.Add(provider);
             SetCameraPose(provider.Name);
+            return true;
         }
         public void SetEnabled(bool enabled) {
             if (_camera != null) {

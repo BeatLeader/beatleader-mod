@@ -81,7 +81,7 @@ namespace BeatLeader.Utils
         {
             ViewDefinitionAttribute viewDefinitionAttribute;
 
-            return ((viewDefinitionAttribute = type.GetCustomAttribute(typeof(ViewDefinitionAttribute)) as ViewDefinitionAttribute) != null) ?
+            return ((viewDefinitionAttribute = type.GetCustomAttribute<ViewDefinitionAttribute>()) != null) ?
                  Utilities.GetResourceContent(type.Assembly, viewDefinitionAttribute.Definition) : string.Empty;
         }
     }

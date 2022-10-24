@@ -2,14 +2,12 @@
 using System.IO;
 using System.Collections.Generic;
 using BeatLeader.Utils;
-using Newtonsoft.Json;
 using System.Reflection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace BeatLeader
-{
-    public static class AutomaticConfigTool
-    {
+namespace BeatLeader {
+    internal static class AutomaticConfigTool {
         private const string ConfigsSavePath = @"UserData\BeatLeader\Configs";
         private const string ConfigFileFormat = ".json";
 
@@ -23,48 +21,38 @@ namespace BeatLeader
                 TrySaveSettingsForPersistance(pair.Key);
             }
         }
-        public static void NotifyTypeChanged(Type type) => TrySaveSettingsForPersistance(type);
-
-        private static IReadOnlyCollection<KeyValuePair<Type, SerializeAutomaticallyAttribute>> Scan()
-        {
-            return Assembly.GetExecutingAssembly().GetTypesWithAttribute<SerializeAutomaticallyAttribute>();
+        public static void NotifyTypeChanged(Type type) {
+            TrySaveSettingsForPersistance(type);
         }
-        private static bool TryLoadSettingsForPersistance(Type type)
-        {
+
+        private static bool TryLoadSettingsForPersistance(Type type) {
             string pathToFile = GeneratePath(type);
             if (!File.Exists(pathToFile)) return false;
             var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
-            try
-            {
+            try {
                 var obj = JObject.Parse(File.ReadAllText(pathToFile));
-                foreach (var item in obj)
-                {
-                    
+                foreach (var item in obj) {
+
                     FieldInfo field = null;
-                    if ((field = type.GetField(item.Key, flags)) != null)
-                    {
+                    if ((field = type.GetField(item.Key, flags)) != null) {
                         field.SetValue(null, item.Value.ToObject(field.FieldType));
                         continue;
                     }
                     PropertyInfo property = null;
-                    if ((property = type.GetProperty(item.Key, flags)) != null)
-                    {
+                    if ((property = type.GetProperty(item.Key, flags)) != null) {
                         property.SetValue(null, item.Value.ToObject(property.PropertyType));
                         continue;
                     }
                     Plugin.Log.Warn($"Could not find {item.Key}");
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to load config for {type}! \r\n{ex}");
                 return false;
             }
             return true;
         }
-        private static bool TrySaveSettingsForPersistance(Type type)
-        {
+        private static bool TrySaveSettingsForPersistance(Type type) {
             if (type.GetCustomAttribute<SerializeAutomaticallyAttribute>() == null) return false;
 
             Dictionary<string, object> convertedFields = new();
@@ -85,14 +73,16 @@ namespace BeatLeader
             File.WriteAllText(GeneratePath(type), JsonConvert.SerializeObject(convertedFields));
             return true;
         }
-        private static void CreateConfigsFolderIfNeeded()
-        {
+
+        private static IReadOnlyCollection<KeyValuePair<Type, SerializeAutomaticallyAttribute>> Scan() {
+            return Assembly.GetExecutingAssembly().GetTypesWithAttribute<SerializeAutomaticallyAttribute>();
+        }
+        private static void CreateConfigsFolderIfNeeded() {
             if (!Directory.Exists(ConfigsSavePath)) Directory.CreateDirectory(ConfigsSavePath);
         }
-        private static string GeneratePath(Type type)
-        {
-            var attr = type.GetCustomAttribute<SerializeAutomaticallyAttribute>();
-            return GeneratePath(attr.configName != string.Empty ? attr.configName : type.Name + "Config");
+        private static string GeneratePath(Type type) {
+            return GeneratePath(type.GetCustomAttribute
+                <SerializeAutomaticallyAttribute>()?.configName ?? type.Name + "Config");
         }
         private static string GeneratePath(string confName) => $"{ConfigsSavePath}\\{confName}{ConfigFileFormat}";
     }

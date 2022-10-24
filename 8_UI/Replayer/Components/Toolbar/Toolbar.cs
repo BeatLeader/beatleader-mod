@@ -1,5 +1,4 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using BeatLeader.Components.Settings;
 using BeatLeader.UI.BSML_Addons.Components;
 using UnityEngine.UI;
 using UnityEngine;
@@ -7,11 +6,10 @@ using HMUI;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using static HMUI.NoTransitionsButton;
+using System;
 
-namespace BeatLeader.Components
-{
-    internal class Toolbar : EditableElement
-    {
+namespace BeatLeader.Components {
+    internal class Toolbar : EditableElement {
         #region UI Components
 
         [UIComponent("exit-button-background")] private readonly RectTransform _exitButtonBackground;
@@ -19,23 +17,26 @@ namespace BeatLeader.Components
 
         [UIComponent("play-button")] private readonly BetterButton _playButton;
         [UIComponent("exit-button-icon")] private readonly BetterImage _exitButtonIcon;
-        [UIComponent("settings-modal")] private readonly ModalView _settingsModal;
 
-        [UIValue("settings-navigator")] private SettingsController _settingsNavigator;
+        //[UIValue("settings-container")] private SettingsContainer _settingsContainer;
         [UIValue("timeline")] private Timeline _timeline;
 
         private NoTransitionsButton _exitButton;
 
         #endregion
 
+        #region Events
+
+        public event Action SettingsButtonClickedEvent;
+
+        #endregion
+
         #region FormattedSongTime
 
         [UIValue("combined-song-time")]
-        public string FormattedSongTime
-        {
+        public string FormattedSongTime {
             get => _formattedSongTime;
-            private set
-            {
+            private set {
                 _formattedSongTime = value;
                 NotifyPropertyChanged(nameof(FormattedSongTime));
             }
@@ -67,8 +68,7 @@ namespace BeatLeader.Components
             Replay replay,
             IReplayPauseController pauseController,
             IReplayExitController exitController,
-            IBeatmapTimeController beatmapTimeController)
-        {
+            IBeatmapTimeController beatmapTimeController) {
             if (_pauseController != null)
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
 
@@ -81,33 +81,25 @@ namespace BeatLeader.Components
             _timeline.Setup(_replay, _pauseController, _beatmapTimeController);
         }
 
-        protected override void OnInstantiate()
-        {
+        protected override void OnInstantiate() {
             _timeline = Instantiate<Timeline>(transform);
-            _settingsNavigator = InstantiateInContainer<SettingsController>(Container, transform);
-            _settingsNavigator.RootMenu = MenuWithContainer.InstantiateInContainer<SettingsRootMenu>(Container);
+            //_settingsContainer = Instantiate<SettingsContainer>(transform);
         }
-        protected override void OnInitialize()
-        {
+        protected override void OnInitialize() {
             _exitButton = _exitButtonBackground.gameObject.AddComponent<NoTransitionsButton>();
             _exitButton.selectionStateDidChangeEvent += HandleExitButtonSelectionStateChanged;
             _exitButton.navigation = new Navigation() { mode = Navigation.Mode.None };
             _exitButton.onClick.AddListener(HandleExitButtonClicked);
-
-            _settingsModal.blockerClickedEvent += _settingsNavigator.HandleSettingsWasClosed;
-            _settingsNavigator.SettingsCloseRequestedEvent += HandleSettingsCloseRequested;
         }
 
         #endregion
 
-        #region Update Song Time
+        #region UpdateSongTime
 
-        private void Update()
-        {
+        private void Update() {
             UpdateSongTime();
         }
-        private void UpdateSongTime()
-        {
+        private void UpdateSongTime() {
             float time = _beatmapTimeController.SongTime;
             float totalTime = _beatmapTimeController.SongEndTime;
 
@@ -116,11 +108,10 @@ namespace BeatLeader.Components
 
         #endregion
 
-        #region UI Event Handlers
+        #region UI Callbacks
 
         [UIAction("pause-button-clicked")]
-        private void HandlePauseButtonClicked()
-        {
+        private void HandlePauseButtonClicked() {
             if (_pauseController == null) return;
 
             if (!_pauseController.IsPaused)
@@ -129,30 +120,27 @@ namespace BeatLeader.Components
                 _pauseController.Resume();
         }
 
-        private void HandleExitButtonClicked()
-        {
+        [UIAction("settings-button-clicked")]
+        private void HandleSettingsButtonClicked() {
+            SettingsButtonClickedEvent?.Invoke();
+        }
+
+        private void HandleExitButtonClicked() {
             _exitController?.Exit();
         }
 
         #endregion
 
-        #region Event Handlers
+        #region Callbacks
 
-        private void HandleExitButtonSelectionStateChanged(SelectionState state)
-        {
-            _exitButtonIcon.Image.sprite = state switch
-            {
+        private void HandleExitButtonSelectionStateChanged(SelectionState state) {
+            _exitButtonIcon.Image.sprite = state switch {
                 SelectionState.Pressed => _openedDoorSprite,
                 SelectionState.Highlighted => _openedDoorSprite,
                 _ => _closedDoorSprite
             };
         }
-        private void HandleSettingsCloseRequested(bool animated)
-        {
-            _settingsModal.Hide(animated, _settingsNavigator.HandleSettingsWasClosed);
-        }
-        private void HandlePauseStateChanged(bool pause)
-        {
+        private void HandlePauseStateChanged(bool pause) {
             _playButton.TargetGraphic.sprite = pause ? _playSprite : _pauseSprite;
         }
 

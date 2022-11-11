@@ -19,7 +19,11 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Setup
 
+        private NoteControllerEmulator _noteControllerEmulator;
+
         private void Awake() {
+            _noteControllerEmulator = new GameObject(nameof(NoteControllerEmulator)).AddComponent<NoteControllerEmulator>();
+
             _eventsProcessor.NoteProcessRequestedEvent += HandleNoteProcessRequested;
             _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
@@ -39,9 +43,6 @@ namespace BeatLeader.Replayer.Emulation {
         #endregion
 
         #region Logic
-
-        private readonly NoteControllerEmulator _noteControllerEmulator =
-            new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
 
         private static bool _lastCutIsGood;
         private static float _lastCutBeforeCutRating;

@@ -19,6 +19,7 @@ namespace BeatLeader.ViewControllers {
         private void Awake() {
             _votingButton.SetParent(transform);
             _votingPanel.SetParent(transform);
+            _votingPanel.isOnResultsScreen = true;
             _replayButton.SetParent(transform);
             _replayButton.ReplayButtonClickedEvent += HandleReplayButtonClicked;
         }

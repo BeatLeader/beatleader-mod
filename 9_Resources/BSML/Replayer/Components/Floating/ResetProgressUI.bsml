@@ -1,5 +1,5 @@
 ﻿<vertical pref-width="6">
 	<horizontal pref-height="6">
-		<better-image id="animation-image" src="#reset-progress-icon" type="Filled" fill-origin="Top" fill-amount="0"/>
+		<better-image id="animation-image" src="#bl-progress-ring-icon" type="Filled" fill-origin="Top" fill-amount="0"/>
 	</horizontal>
 </vertical>

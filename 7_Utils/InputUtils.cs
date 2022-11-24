@@ -12,7 +12,12 @@ namespace BeatLeader.Utils
             FPFC = 2
         }
 
-        public static bool IsInFPFC => Environment.GetCommandLineArgs().Contains("fpfc");
+        public static bool IsInFPFC => forceFPFC ?? containsFPFCArg;
+
+        public static bool? forceFPFC = null;
+
+        public static readonly bool containsFPFCArg = Environment
+            .GetCommandLineArgs().Contains("fpfc");
 
         public static bool MatchesCurrentInput(InputType type)
         {

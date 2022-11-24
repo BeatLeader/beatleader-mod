@@ -1,0 +1,118 @@
+ManifestFileVersion: 0
+CRC: 3280291593
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 8824751d018186252a7c7e67c71816cd
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2ff16d20d4402f87c4db1cdbea421cbd
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 89
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fdb916e3be6c4dbfa150878ad0fd54c8, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d0400e399a6742bc858c605ee902bbdb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6c66675d29834394ac49315dccfc14b8, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8b50e01eba5e485596534317df4ee0b1, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_GraphIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_SettingsIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Community/BL_Discord.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_PlayIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_RotateRightIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Community/BL_Website.png
+- Assets/BeatLeader/4_Materials/Themes/ThemesCollection.asset
+- Assets/BeatLeader/4_Materials/UI/HandAccIndicatorMaterial.mat
+- Assets/BeatLeader/4_Materials/UI/LogoMaterial.mat
+- Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_TwitchIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_ClosedDoorIcon.png
+- Assets/BeatLeader/5_Textures/Icons/FileError.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_WarningIcon.png
+- Assets/BeatLeader/4_Materials/ScoreUnderlines/ScoreUnderlineMaterial.mat
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_PinIcon.png
+- Assets/BeatLeader/5_Textures/Backgrounds/BeatLeaderLogoGradient.png
+- Assets/BeatLeader/4_Materials/UI/ClanTagBackgroundMaterial.mat
+- Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_Overview2Icon.png
+- Assets/BeatLeader/5_Textures/Icons/Leaderboard/ModifiersIcon.png
+- Assets/BeatLeader/5_Textures/Backgrounds/BL_WhiteBG.png
+- Assets/BeatLeader/5_Textures/Icons/BL_DebrisIcon.png
+- Assets/BeatLeader/4_Materials/UI/AccGridBackgroundMaterial.mat
+- Assets/BeatLeader/4_Materials/UI/TextureSplitterMaterial.mat
+- Assets/BeatLeader/4_Materials/UI/VotingButtonMaterial.mat
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_LockIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_RotateLeftIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_EditLayoutIcon.png
+- Assets/BeatLeader/5_Textures/Icons/BL_SaveIcon.png
+- Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_GridIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_CrossIcon.png
+- Assets/BeatLeader/5_Textures/TransparentPixel.png
+- Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_YoutubeIcon.png
+- Assets/BeatLeader/4_Materials/UI/AccDetailsRowMaterial.mat
+- Assets/BeatLeader/5_Textures/Backgrounds/BL_BlackTransparentBGOutline.png
+- Assets/BeatLeader/3_Shaders/UI/TextureSplitterShader.shader
+- Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_DetailsIcon.png
+- Assets/BeatLeader/5_Textures/Backgrounds/BL_BlackTransparentBG.png
+- Assets/BeatLeader/1_Prefabs/TemplatePrefab.prefab
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_LeftArrowIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Leaderboard/BL_NotificationIcon.png
+- Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_IncognitoIcon.png
+- Assets/BeatLeader/4_Materials/UI/ScoreBackgroundMaterial.mat
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_RightArrowIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_OpenedDoorIcon.png
+- Assets/BeatLeader/4_Materials/UI/UIAdditiveGlow.mat
+- Assets/BeatLeader/5_Textures/Icons/Leaderboard/RowSeparatorIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_AnchorBGDots.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_EyeIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_ProgressRingIcon.png
+- Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_ReplayIcon.png
+- Assets/BeatLeader/3_Shaders/UI/UIGrid.shader
+- Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_FriendsIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_AnchorIcon.png
+- Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_Overview1Icon.png
+- Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_TwitterIcon.png
+- Assets/BeatLeader/1_Prefabs/AccuracyGraph.prefab
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_ExitIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Leaderboard/LocationIcon.png
+- Assets/BeatLeader/5_Textures/Icons/BL_SceneIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Community/BL_Patreon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_AlignIcon.png
+- Assets/BeatLeader/5_Textures/Icons/BL_UIIcon.png
+- Assets/BeatLeader/5_Textures/Icons/Replayer/BL_PauseIcon.png
+- Assets/BeatLeader/4_Materials/UI/UIGridMaterial.mat
+- Assets/BeatLeader/4_Materials/Themes/DefaultAvatar.mat
+- Assets/BeatLeader/4_Materials/UI/UIMiniProfileBackgroundMaterial.mat
+- Assets/BeatLeader/3_Shaders/TMP_SpriteCurved.shader
+- Assets/BeatLeader/5_Textures/Icons/MiniProfile/BL_ProfileIcon.png
+Dependencies: []

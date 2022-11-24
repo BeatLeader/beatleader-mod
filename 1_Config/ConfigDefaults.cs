@@ -49,21 +49,12 @@ namespace BeatLeader
 
             Shortcuts = new()
             {
-                HideUIHotkey = KeyCode.H,
+                LayoutEditorHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,
                 RewindForwardHotkey = KeyCode.RightArrow,
                 RewindBackwardHotkey = KeyCode.LeftArrow,
             }
-        };
-
-        public static FloatingConfig FloatingConfig => new()
-        {
-            Position = new UnityEngine.Vector3(0, 1, 2),
-            Rotation = UnityEngine.Quaternion.Euler(new UnityEngine.Vector3(40, 0, 0)),
-            GridPosIncrement = 0.2f,
-            GridRotIncrement = 5,
-            IsPinned = true
         };
 
         #endregion

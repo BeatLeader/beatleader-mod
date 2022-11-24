@@ -133,5 +133,13 @@ namespace BeatLeader.Utils {
         }
 
         #endregion
+
+        #region Casting
+
+        public static bool TryDefine<T, U>(this T obj, out U defined) where U : T {
+            return (defined = obj is U u ? u : default) != null;
+        }
+
+        #endregion
     }
 }

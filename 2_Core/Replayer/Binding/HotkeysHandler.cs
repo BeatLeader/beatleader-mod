@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer.Binding
-{
-    public class HotkeysHandler : IInitializable, ITickable
-    {
+namespace BeatLeader.Replayer.Binding {
+    public class HotkeysHandler : IInitializable, ITickable {
         public readonly List<GameHotkey> hotkeys = new()
         {
-            new HideUIHotkey(),
+            new LayoutEditorHotkey(),
             new HideCursorHotkey(),
             new PauseHotkey(),
             new RewindBackwardHotkey(),
@@ -18,27 +16,19 @@ namespace BeatLeader.Replayer.Binding
 
         [Inject] private readonly DiContainer _container;
 
-        public void Initialize()
-        {
-            foreach (var item in hotkeys)
-            {
+        public void Initialize() {
+            foreach (var item in hotkeys) {
                 _container.Inject(item);
             }
         }
-        public void Tick()
-        {
-            foreach (var item in hotkeys)
-            {
-                try
-                {
+        public void Tick() {
+            foreach (var item in hotkeys) {
+                try {
                     if (Input.GetKeyDown(item.Key))
                         item.OnKeyDown();
-
                     else if (Input.GetKeyUp(item.Key))
                         item.OnKeyUp();
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     Plugin.Log.Error($"[HotkeysHandler] Error during attempting to perform {item.GetType().Name} hotkey! \r\n {ex}");
                 }
             }

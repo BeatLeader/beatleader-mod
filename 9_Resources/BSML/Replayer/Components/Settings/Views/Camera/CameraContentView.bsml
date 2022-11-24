@@ -1,7 +1,7 @@
 ﻿<vertical spacing="1">
 
   <horizontal id="camera-fov-container" pref-height="12">
-    <better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
+    <better-image src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
       <vertical pref-width="46">
         <text text="Camera FOV" font-align="Center"/>
         <slider-setting value="camera-fov" min="70" max="110" increment="1" apply-on-change="true"
@@ -11,7 +11,7 @@
   </horizontal>
 
   <horizontal>
-    <better-image pref-height="19" src="#black-transparent-bg" type="Sliced" ppu="5">
+    <better-image pref-height="19" src="#bl-black-transparent-bg" type="Sliced" ppu="5">
       <vertical child-expand-height="false" pref-width="46">
 
         <text text="Camera View" font-align="Center"/>

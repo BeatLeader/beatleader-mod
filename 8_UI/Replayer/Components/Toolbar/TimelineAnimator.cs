@@ -3,21 +3,19 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace BeatLeader.Components
-{
+namespace BeatLeader.Components {
     internal class TimelineAnimator : MonoBehaviour,
         IPointerEnterHandler,
         IPointerExitHandler,
         IPointerUpHandler,
-        IPointerDownHandler
-    {
+        IPointerDownHandler {
         #region Configuration
 
-        private const float _handleExpandSize = 0.8f;
-        private const float _backgroundExpandSize = 1f;
-        private const float _animationFrameRate = 60f;
-        private const float _expandTransitionDuration = 0.15f;
-        private const float _shrinkTransitionDuration = 0.1f;
+        private const float HandleExpandSize = 0.8f;
+        private const float BackgroundExpandSize = 1f;
+        private const float AnimationFrameRate = 60f;
+        private const float ExpandTransitionDuration = 0.15f;
+        private const float ShrinkTransitionDuration = 0.1f;
 
         #endregion
 
@@ -33,8 +31,7 @@ namespace BeatLeader.Components
             RectTransform background,
             RectTransform handle,
             RectTransform marksAreaContainer,
-            RectTransform fillArea)
-        {
+            RectTransform fillArea) {
             _background = background;
             _handle = handle;
             _marksAreaContainer = marksAreaContainer;
@@ -53,36 +50,23 @@ namespace BeatLeader.Components
 
         #region Triggers
 
-        private bool _normalStateTrigger = true;
-        private bool _pressedStateTrigger;
         private bool _highlightedStateTrigger;
 
-        private void Update()
-        {
+        private void Update() {
             if (!_initialized) return;
-
-            _normalStateTrigger = !_pressedStateTrigger 
-                && !_highlightedStateTrigger;
-
-            SetState(!_normalStateTrigger);
+            StartAnimation(_highlightedStateTrigger);
         }
 
-        public void OnPointerEnter(PointerEventData data)
-        {
+        public void OnPointerEnter(PointerEventData data) {
             _highlightedStateTrigger = true;
         }
-        public void OnPointerExit(PointerEventData data)
-        {
+        public void OnPointerExit(PointerEventData data) {
             _highlightedStateTrigger = false;
         }
-        public void OnPointerUp(PointerEventData data)
-        {
-            _pressedStateTrigger = false;
+        public void OnPointerUp(PointerEventData data) {
             HandleReleasedEvent?.Invoke();
         }
-        public void OnPointerDown(PointerEventData data)
-        {
-            _pressedStateTrigger = true;
+        public void OnPointerDown(PointerEventData data) {
             HandlePressedEvent?.Invoke();
         }
 
@@ -91,51 +75,46 @@ namespace BeatLeader.Components
         #region Animation
 
         private bool _highlighted;
-        private bool _inProcess;
+        private bool _isAnimating;
 
-        private bool SetState(bool highlighted = true)
-        {
-            if (_inProcess || highlighted == _highlighted) return false;
-            _inProcess = true;
-            StartCoroutine(AnimationCoroutine(
-                highlighted ? _expandTransitionDuration : _shrinkTransitionDuration,
-                highlighted));
+        private bool StartAnimation(bool highlighted = true) {
+            if (_isAnimating || highlighted == _highlighted) return false;
+            _isAnimating = true;
+            var duration = highlighted ? ExpandTransitionDuration : ShrinkTransitionDuration;
+            StartCoroutine(AnimationCoroutine(duration, highlighted));
             return true;
         }
-        private IEnumerator AnimationCoroutine(float duration, bool highlight)
-        {
-            float totalFramesCount = Mathf.FloorToInt(duration * _animationFrameRate);
-            float frameDuration = duration / totalFramesCount;
-            float sizeStepBG = _backgroundExpandSize / totalFramesCount;
-            float sizeStepHandle = _handleExpandSize / totalFramesCount;
 
-            for (int frame = 0; frame < totalFramesCount; frame++)
-            {
-                Vector2 nextSizeBG = new Vector2(_background.sizeDelta.x,
-                    highlight ? _background.sizeDelta.y + sizeStepBG : _background.sizeDelta.y - sizeStepBG);
+        private IEnumerator AnimationCoroutine(float duration, bool highlight) {
+            var totalFramesCount = Mathf.FloorToInt(duration * AnimationFrameRate);
+            var frameDuration = duration / totalFramesCount;
+            var sizeStepBG = BackgroundExpandSize / totalFramesCount;
+            var sizeStepHandle = HandleExpandSize / totalFramesCount;
+            var nextSizeBG = _background.sizeDelta;
+            var nextSizeFillArea = _fillArea.sizeDelta;
+            var nextPosMarksArea = _marksAreaContainer.localPosition;
 
-                Vector2 nextSizeFillArea = new Vector2(_fillArea.sizeDelta.x,
-                    highlight ? _fillArea.sizeDelta.y + sizeStepBG : _fillArea.sizeDelta.y - sizeStepBG);
+            sizeStepBG = highlight ? sizeStepBG : -sizeStepBG;
+            sizeStepHandle = highlight ? sizeStepHandle : -sizeStepHandle;
 
-                Vector2 nextSizeHandle = new Vector2(
-                    highlight ? _handle.localScale.x + sizeStepHandle : _handle.localScale.x - sizeStepHandle,
-                    highlight ? _handle.localScale.y + sizeStepHandle : _handle.localScale.y - sizeStepHandle);
+            var vecStepHandle = new Vector3(sizeStepHandle, sizeStepHandle);
+            var sizeStepBGDiv2 = sizeStepBG / 2;
 
-                var sizeStepBGDiv2 = sizeStepBG / 2;
-                Vector2 nextPosMarksArea = new Vector2(_marksAreaContainer.localPosition.x,
-                    highlight ? _marksAreaContainer.localPosition.y - sizeStepBGDiv2 :
-                    _marksAreaContainer.localPosition.y + sizeStepBGDiv2);
+            for (int frame = 0; frame < totalFramesCount; frame++) {
+                nextSizeBG.y += sizeStepBG;
+                nextSizeFillArea.y += sizeStepBG;
+                nextPosMarksArea.y += sizeStepBGDiv2;
 
                 _marksAreaContainer.localPosition = nextPosMarksArea;
                 _background.sizeDelta = nextSizeBG;
                 _fillArea.sizeDelta = nextSizeFillArea;
-                _handle.localScale = nextSizeHandle;
+                _handle.localScale += vecStepHandle;
 
                 yield return new WaitForSeconds(frameDuration);
             }
 
             _highlighted = highlight;
-            _inProcess = false;
+            _isAnimating = false;
         }
 
         #endregion

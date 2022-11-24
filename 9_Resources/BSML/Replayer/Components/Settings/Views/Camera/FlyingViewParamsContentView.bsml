@@ -14,7 +14,7 @@
   </horizontal>
 
   <horizontal pref-height="12">
-    <better-image src="#black-transparent-bg" type="Sliced" ppu="5" pref-width="48">
+    <better-image src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-width="48">
       <vertical pref-width="48">
         <text text="Fly speed" font-align="Center"/>
         <slider-setting value="fly-speed" min="1" max="8" increment="1" apply-on-change="true"

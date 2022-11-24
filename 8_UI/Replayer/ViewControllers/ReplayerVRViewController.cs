@@ -18,7 +18,6 @@ namespace BeatLeader.ViewControllers
         [Inject] private readonly IReplayExitController _exitController;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
         [Inject] private readonly ReplayLaunchData _launchData;
-        [Inject] private readonly DiContainer _container;
         [Inject] private readonly ReplayerUIBinder _uiBinder;
 
         [UIValue("toolbar")] private Toolbar _toolbar;
@@ -27,7 +26,7 @@ namespace BeatLeader.ViewControllers
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
-            _toolbar = ReeUIComponentV2WithContainer.InstantiateInContainer<Toolbar>(_container, transform);
+            _toolbar = ReeUIComponentV2.Instantiate<Toolbar>(transform);
 
             _floatingControls.Setup((FloatingScreen)_uiBinder.Screen, _pauseController,
                 _camera.Camera.transform, !_launchData.ActualSettings.ShowUI);

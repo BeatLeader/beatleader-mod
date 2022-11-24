@@ -3,12 +3,9 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static OVRPlugin;
 
-namespace BeatLeader.Components
-{
-    internal class FloatingControls : ReeUIComponentV2
-    {
+namespace BeatLeader.Components {
+    internal class FloatingControls : ReeUIComponentV2 {
         #region UI Components
 
         [UIValue("pin-button")] private ToggleButton _pinButton;
@@ -32,8 +29,7 @@ namespace BeatLeader.Components
             FloatingScreen floating,
             Models.IReplayPauseController pauseController,
             Transform headTransform,
-            bool hideUI = false)
-        {
+            bool hideUI = false) {
             if (_pauseController != null)
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
 
@@ -47,8 +43,7 @@ namespace BeatLeader.Components
             if (_resetController != null)
                 _resetController.ResetTransform = _viewFloating.transform;
 
-            if (_resetFloating != null)
-            {
+            if (_resetFloating != null) {
                 _resetFloating.transform.SetParent(_head, false);
                 _resetFloating.transform.localPosition = new Vector3(0, 0, 0.7f);
             }
@@ -60,20 +55,18 @@ namespace BeatLeader.Components
             _viewFloating.transform.SetLocalPose(LoadPoseFromConfig());
         }
 
-        protected override void OnInstantiate()
-        {
+        protected override void OnInstantiate() {
             _pinButton = Instantiate<ToggleButton>(transform);
             _alignButton = Instantiate<SimpleButton>(transform);
         }
-        protected override void OnInitialize()
-        {
+        protected override void OnInitialize() {
             _pinButton.OnToggle += HandlePinToggled;
-            _pinButton.DisabledSprite = BSMLUtility.LoadSprite("#pin-icon");
-            _pinButton.EnabledColor = Color.cyan;
+            _pinButton.DisabledSprite = BundleLoader.PinIcon;
+            _pinButton.enabledColor = Color.cyan;
 
             _alignButton.OnClick += HandleAlignPressed;
-            _alignButton.Sprite = BSMLUtility.LoadSprite("#align-icon");
-            _alignButton.HighlightedColor = Color.cyan;
+            _alignButton.Sprite = BundleLoader.AlignIcon;
+            _alignButton.highlightedColor = Color.cyan;
 
             _resetFloating = FloatingScreen.CreateFloatingScreen(new Vector2(6, 6), false, Vector3.zero, Quaternion.identity);
             _resetFloating.GetComponent<BaseRaycaster>().TryDestroy();
@@ -92,56 +85,48 @@ namespace BeatLeader.Components
 
         #region Config
 
-        private static readonly Pose defaultPose =
-            new(ConfigDefaults.FloatingConfig.Position, ConfigDefaults.FloatingConfig.Rotation);
+        private static readonly Pose defaultPose = new(new(0, 1, 2), Quaternion.Euler(new(40, 0, 0)));
 
-        private FloatingConfig _Config => ConfigFileData.Instance.FloatingConfig;
+        private FloatingConfig Config => FloatingConfig.Instance;
 
-        private void LoadConfig()
-        {
+        private void LoadConfig() {
             _viewFloating?.transform.SetLocalPose(LoadPoseFromConfig());
-            _pinButton.Toggle(_Config.IsPinned);
+            _pinButton.Toggle(Config.IsPinned);
             HandlePauseStateChanged(false);
         }
-        private Pose LoadPoseFromConfig()
-        {
-            return new Pose(_Config.Position, _Config.Rotation);
+        private Pose LoadPoseFromConfig() {
+            return new Pose(Config.Position, Config.Rotation);
         }
-        private void SavePoseToConfig()
-        {
+        private void SavePoseToConfig() {
             SavePoseToConfig(_viewFloating?.transform.GetLocalPose() ?? default);
         }
-        private void SavePoseToConfig(Pose pose)
-        {
-            _Config.Position = pose.position;
-            _Config.Rotation = pose.rotation;
+        private void SavePoseToConfig(Pose pose) {
+            Config.Position = pose.position;
+            Config.Rotation = pose.rotation;
         }
 
         #endregion
 
         #region Event Handlers
 
-        private void HandlePinToggled(bool pin)
-        {
+        private void HandlePinToggled(bool pin) {
             if (_viewFloating == null) return;
 
-            _Config.IsPinned = pin;
+            Config.IsPinned = pin;
             _viewFloating.handle.gameObject.SetActive(!pin);
             _spacerOne.SetActive(!pin);
             _spacerTwo.SetActive(!pin);
         }
-        private void HandleAlignPressed()
-        {
+        private void HandleAlignPressed() {
             if (_viewFloating.transform == null) return;
 
             var pos = new Vector3();
             var rot = new Vector3();
             var transform = _viewFloating.transform;
 
-            for (int i = 0; i <= 2; i++)
-            {
-                pos[i] = MathUtils.GetClosestCoordinate(transform.localPosition[i], _Config.GridPosIncrement);
-                rot[i] = MathUtils.GetClosestCoordinate(transform.localEulerAngles[i], _Config.GridRotIncrement);
+            for (int i = 0; i <= 2; i++) {
+                pos[i] = MathUtils.GetClosestCoordinate(transform.localPosition[i], Config.GridPosIncrement);
+                rot[i] = MathUtils.GetClosestCoordinate(transform.localEulerAngles[i], Config.GridRotIncrement);
             }
 
             var pose = new Pose(pos, Quaternion.Euler(rot));
@@ -149,16 +134,13 @@ namespace BeatLeader.Components
             transform.SetLocalPose(pose);
             SavePoseToConfig(pose);
         }
-        private void HandleFloatingHandleWasReleased(object sender, FloatingScreenHandleEventArgs args)
-        {
+        private void HandleFloatingHandleWasReleased(object sender, FloatingScreenHandleEventArgs args) {
             SavePoseToConfig();
         }
-        private void HandlePoseWasResetted()
-        {
+        private void HandlePoseWasResetted() {
             SavePoseToConfig();
         }
-        private void HandlePauseStateChanged(bool state)
-        {
+        private void HandlePauseStateChanged(bool state) {
             if (!_hideUI || _viewFloating == null) return;
 
             _viewFloating.gameObject.SetActive(state);

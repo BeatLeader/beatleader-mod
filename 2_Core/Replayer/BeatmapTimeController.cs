@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
-using BeatLeader.Interop;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using System.Reflection;
@@ -39,6 +38,7 @@ namespace BeatLeader.Replayer {
         #region Events
 
         public event Action<float> SongSpeedChangedEvent;
+        public event Action<float> EarlySongRewindEvent;
         public event Action<float> SongRewindEvent;
 
         #endregion
@@ -52,7 +52,6 @@ namespace BeatLeader.Replayer {
 
         private void Start() {
             this.LoadResources();
-
             _beatmapAudioSource = _audioTimeSyncController
                 .GetField<AudioSource, AudioTimeSyncController>("_audioSource");
             _spawnedBeatmapObjectControllers = _beatmapObjectManager
@@ -63,6 +62,7 @@ namespace BeatLeader.Replayer {
             _noteCutSoundPoolContainer = _noteCutSoundEffectManager
                 .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
+
         #endregion
 
         #region Rewind
@@ -70,6 +70,8 @@ namespace BeatLeader.Replayer {
         public void Rewind(float time, bool resumeAfterRewind = true) {
             if (Math.Abs(time - SongTime) < 0.001f) return;
             time = Mathf.Clamp(time, SongStartTime, SongEndTime);
+
+            EarlySongRewindEvent?.Invoke(time);
 
             bool wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(AudioTimeSyncController.State.Paused);

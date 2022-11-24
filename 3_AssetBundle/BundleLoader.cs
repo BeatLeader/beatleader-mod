@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Themes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -59,7 +57,8 @@ namespace BeatLeader {
         public static Material ClanTagBackgroundMaterial;
         public static Material VotingButtonMaterial;
         public static Material MiniProfileBackgroundMaterial;
-        public static Material UIBlurMaterial;
+        public static Material UIGridMaterial;
+        public static Material TextureSplitterMaterial;
 
         private static void LoadMaterials(AssetBundle assetBundle)
         {
@@ -74,7 +73,8 @@ namespace BeatLeader {
             ClanTagBackgroundMaterial = assetBundle.LoadAsset<Material>("ClanTagBackgroundMaterial");
             VotingButtonMaterial = assetBundle.LoadAsset<Material>("VotingButtonMaterial");
             MiniProfileBackgroundMaterial = assetBundle.LoadAsset<Material>("UIMiniProfileBackgroundMaterial");
-            UIBlurMaterial = assetBundle.LoadAsset<Material>("UIBlurMaterial");
+            UIGridMaterial = assetBundle.LoadAsset<Material>("UIGridMaterial");
+            TextureSplitterMaterial = assetBundle.LoadAsset<Material>("TextureSplitterMaterial");
         }
 
         #endregion
@@ -159,16 +159,75 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite SaveIcon;
 
-        private static List<Sprite> _loadedSprites;
-        
-        public static Sprite GetSpriteFromBundle(string name)
-        {
-            return _ready ? _loadedSprites.Where(x => x.name == name).FirstOrDefault() : null;
-        }
-        public static bool TryGetSpriteFromBundle(string name, out Sprite sprite)
-        {
-            return (sprite = GetSpriteFromBundle(name)) != null;
-        }
+        [UsedImplicitly]
+        public static Sprite AlignIcon;
+
+        [UsedImplicitly]
+        public static Sprite AnchorIcon;
+
+        [UsedImplicitly]
+        public static Sprite CrossIcon;
+
+        [UsedImplicitly]
+        public static Sprite EditLayoutIcon;
+
+        [UsedImplicitly]
+        public static Sprite ClosedDoorIcon;
+
+        [UsedImplicitly]
+        public static Sprite OpenedDoorIcon;
+
+        [UsedImplicitly]
+        public static Sprite ExitIcon;
+
+        [UsedImplicitly]
+        public static Sprite LeftArrowIcon;
+
+        [UsedImplicitly]
+        public static Sprite RightArrowIcon;
+
+        [UsedImplicitly]
+        public static Sprite LockIcon;
+
+        [UsedImplicitly]
+        public static Sprite PauseIcon;
+
+        [UsedImplicitly]
+        public static Sprite PlayIcon;
+
+        [UsedImplicitly]
+        public static Sprite PinIcon;
+
+        [UsedImplicitly]
+        public static Sprite ProgressRingIcon;
+
+        [UsedImplicitly]
+        public static Sprite RotateLeftIcon;
+
+        [UsedImplicitly]
+        public static Sprite RotateRightIcon;
+
+        [UsedImplicitly]
+        public static Sprite SettingsIcon;
+
+        [UsedImplicitly]
+        public static Sprite WarningIcon;
+
+        [UsedImplicitly]
+        public static Sprite EyeIcon;
+
+        [UsedImplicitly]
+        public static Sprite BlackTransparentBG;
+
+        [UsedImplicitly]
+        public static Sprite AnchorBGDots;
+
+        [UsedImplicitly]
+        public static Sprite BlackTransparentBGOutline;
+
+        [UsedImplicitly]
+        public static Sprite WhiteBG;
+
         private static void LoadSprites(AssetBundle assetBundle)
         {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
@@ -197,8 +256,29 @@ namespace BeatLeader {
             DebrisIcon = assetBundle.LoadAsset<Sprite>("BL_DebrisIcon");
             SceneIcon = assetBundle.LoadAsset<Sprite>("BL_SceneIcon");
             SaveIcon = assetBundle.LoadAsset<Sprite>("BL_SaveIcon");
-            
-            _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
+            AlignIcon = assetBundle.LoadAsset<Sprite>("BL_AlignIcon");
+            AnchorIcon = assetBundle.LoadAsset<Sprite>("BL_AnchorIcon");
+            CrossIcon = assetBundle.LoadAsset<Sprite>("BL_CrossIcon");
+            EditLayoutIcon = assetBundle.LoadAsset<Sprite>("BL_EditLayoutIcon");
+            ClosedDoorIcon = assetBundle.LoadAsset<Sprite>("BL_ClosedDoorIcon");
+            OpenedDoorIcon = assetBundle.LoadAsset<Sprite>("BL_OpenedDoorIcon");
+            ExitIcon = assetBundle.LoadAsset<Sprite>("BL_ExitIcon");
+            LeftArrowIcon = assetBundle.LoadAsset<Sprite>("BL_LeftArrowIcon");
+            RightArrowIcon = assetBundle.LoadAsset<Sprite>("BL_RightArrowIcon");
+            LockIcon = assetBundle.LoadAsset<Sprite>("BL_LockIcon");
+            PauseIcon = assetBundle.LoadAsset<Sprite>("BL_PauseIcon");
+            PlayIcon = assetBundle.LoadAsset<Sprite>("BL_PlayIcon");
+            PinIcon = assetBundle.LoadAsset<Sprite>("BL_PinIcon");
+            ProgressRingIcon = assetBundle.LoadAsset<Sprite>("BL_ProgressRingIcon");
+            RotateLeftIcon = assetBundle.LoadAsset<Sprite>("BL_RotateLeftIcon");
+            RotateRightIcon = assetBundle.LoadAsset<Sprite>("BL_RotateRightIcon");
+            SettingsIcon = assetBundle.LoadAsset<Sprite>("BL_SettingsIcon");
+            WarningIcon = assetBundle.LoadAsset<Sprite>("BL_WarningIcon");
+            EyeIcon = assetBundle.LoadAsset<Sprite>("BL_EyeIcon");
+            BlackTransparentBG = assetBundle.LoadAsset<Sprite>("BL_BlackTransparentBG");
+            AnchorBGDots = assetBundle.LoadAsset<Sprite>("BL_AnchorBGDots");
+            BlackTransparentBGOutline = assetBundle.LoadAsset<Sprite>("BL_BlackTransparentBGOutline");
+            WhiteBG = assetBundle.LoadAsset<Sprite>("BL_WhiteBG");
         }
 
         #endregion

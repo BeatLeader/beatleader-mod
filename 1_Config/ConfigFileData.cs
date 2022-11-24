@@ -42,8 +42,6 @@ namespace BeatLeader
 
         public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
 
-        public FloatingConfig FloatingConfig = ConfigDefaults.FloatingConfig;
-
         #endregion
 
         #region EnableReplayCaching

@@ -25,37 +25,38 @@ namespace BeatLeader.Components {
 
         #region UI Components
 
-        [UIValue("root-content-view")] private RootContentView _contentView;
-        [UIValue("navigation-button")] private NavigationButton _navigationButton;
-
         [UIComponent("content-view-scrollable")] private readonly BSMLScrollableContainer _scrollView;
         [UIComponent("scrollbar-container")] private readonly Transform _scrollbarContainer;
         [UIComponent("container-group")] private readonly RectTransform _containerGroup;
         [UIComponent("content-group")] private readonly RectTransform _contentGroup;
-        [UIObject("navigation-button-container")] private readonly GameObject _navigationButtonContainer;
+        [UIComponent("content-host")] private readonly Transform _contentHost;
+
+        [UIObject("navigation-button-container")] 
+        private readonly GameObject _navigationButtonContainer;
+
+        [UIValue("navigation-button")] 
+        private NavigationButton _navigationButton;
 
         #endregion
 
         #region Setup
 
-        public void Setup(
-            Models.IBeatmapTimeController timeController,
-            SongSpeedData speedData,
-            ReplayerCameraController cameraController,
-            VRControllersProvider controllersProvider,
-            ReplayWatermark watermark,
-            LayoutEditor layoutEditor,
-            Models.ReplayLaunchData launchData) {
-            _contentView.Setup(timeController, speedData, 
-                cameraController, controllersProvider, watermark, layoutEditor, launchData);
+        private ContentView _hostContentView;
+
+        public void Setup(ContentView contentView) {
+            if (_hostContentView != null) {
+                _hostContentView.ContentWasPresentedEvent -= HandleContentWasPresented;
+                _hostContentView.ContentWasDismissedEvent -= HandleContentWasDismissed;
+                _hostContentView.SetViewParent(null);
+            }
+            _hostContentView = contentView;
+            _hostContentView.ContentWasPresentedEvent += HandleContentWasPresented;
+            _hostContentView.ContentWasDismissedEvent += HandleContentWasDismissed;
+            _hostContentView.SetViewParent(_contentHost);
         }
 
         protected override void OnInstantiate() {
-            _contentView = Instantiate<RootContentView>(transform);
             _navigationButton = Instantiate<NavigationButton>(transform);
-
-            _contentView.ContentWasPresentedEvent += HandleContentWasPresented;
-            _contentView.ContentWasDismissedEvent += HandleContentWasDismissed;
         }
         protected override void OnInitialize() {
             SetupScrollbar();

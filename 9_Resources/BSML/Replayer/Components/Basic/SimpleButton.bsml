@@ -1,0 +1,8 @@
+﻿<better-image id="background" src="#bl-black-transparent-bg" type="Sliced" ppu="10"
+              horizontal-fit="PreferredSize" vertical-fit="PreferredSize"
+              pref-height="~height" pref-width="~width">
+  <horizontal pad="1" horizontal-fit="PreferredSize"
+              pref-height="~height" pref-width="~width">
+    <better-image id="image" preserve-aspect="true"/>
+  </horizontal>
+</better-image>

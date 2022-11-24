@@ -41,7 +41,6 @@ namespace BeatLeader {
 
         private static void InitializeConfig(Config config) {
             ConfigFileData.Instance = config.Generated<ConfigFileData>();
-            AutomaticConfigTool.Load();
         }
 
         #endregion
@@ -81,7 +80,7 @@ namespace BeatLeader {
         [UsedImplicitly]
         public void OnApplicationQuit()
         {
-            AutomaticConfigTool.Save();
+            SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
         }
 

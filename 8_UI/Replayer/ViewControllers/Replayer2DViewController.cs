@@ -12,6 +12,10 @@ namespace BeatLeader.ViewControllers
 
         [UIValue("main-view")] private MainScreenView _mainScreenView;
 
+        public void OpenLayoutEditor() {
+            _mainScreenView?.OpenLayoutEditor();
+        }
+
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             _mainScreenView = ReeUIComponentV2WithContainer.InstantiateInContainer<MainScreenView>(_container, null);

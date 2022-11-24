@@ -9,12 +9,12 @@ namespace BeatLeader.Components {
 
         [UIValue("movement-smoothness")]
         private int _Smoothness {
-            get => PlayerViewConfig.MovementSmoothness;
+            get => PlayerViewConfig.Instance.MovementSmoothness;
             set {
                 if (!IsParsed) return;
                 Pose.smoothness = MathUtils.Map(value, 1, 10, 10, 1);
-                PlayerViewConfig.MovementSmoothness = value;
-                AutomaticConfigTool.NotifyTypeChanged(typeof(PlayerViewConfig));
+                PlayerViewConfig.Instance.MovementSmoothness = value;
+                PlayerViewConfig.Instance.Save();
             }
         }
 
@@ -50,10 +50,10 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _posVectorControls.MultipliedVector = PlayerViewConfig.PositionOffset;
-            _rotVectorControls.Vector = PlayerViewConfig.RotationOffset;
+            _posVectorControls.MultipliedVector = PlayerViewConfig.Instance.PositionOffset;
+            _rotVectorControls.Vector = PlayerViewConfig.Instance.RotationOffset;
 
-            _Smoothness = PlayerViewConfig.MovementSmoothness;
+            _Smoothness = PlayerViewConfig.Instance.MovementSmoothness;
             NotifyPropertyChanged();
         }
 
@@ -82,14 +82,14 @@ namespace BeatLeader.Components {
 
         private void HandlePositionChanged(Vector3 vector) {
             Pose.positionOffset = vector;
-            PlayerViewConfig.PositionOffset = vector;
-            AutomaticConfigTool.NotifyTypeChanged(typeof(PlayerViewConfig));
+            PlayerViewConfig.Instance.PositionOffset = vector;
+            PlayerViewConfig.Instance.Save();
         }
 
         private void HandleRotationChanged(Vector3 vector) {
             Pose.rotationOffset = Quaternion.Euler(vector);
-            PlayerViewConfig.RotationOffset = vector;
-            AutomaticConfigTool.NotifyTypeChanged(typeof(PlayerViewConfig));
+            PlayerViewConfig.Instance.RotationOffset = vector;
+            PlayerViewConfig.Instance.Save();
         }
 
         #endregion

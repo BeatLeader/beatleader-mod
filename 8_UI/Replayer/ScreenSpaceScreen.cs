@@ -3,17 +3,19 @@ using HMUI;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatLeader.Components
-{
-    internal class ScreenSpaceScreen : HMUI.Screen
-    {
-        private Canvas _canvas;
-        private CanvasScaler _canvasScaler;
+namespace BeatLeader.Components {
+    internal class ScreenSpaceScreen : HMUI.Screen {
+        public int SortingOrder {
+            get => _canvas.sortingOrder; 
+            set => _canvas.sortingOrder = value; 
+        }
+        public CanvasScaler CanvasScaler { get; private set; }
 
-        private void Awake()
-        {
+        private Canvas _canvas;
+
+        private void Awake() {
             _canvas = gameObject.AddComponent<Canvas>();
-            _canvasScaler = gameObject.AddComponent<CanvasScaler>();
+            CanvasScaler = gameObject.AddComponent<CanvasScaler>();
 
             _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _canvas.sortingOrder = 1;
@@ -21,13 +23,12 @@ namespace BeatLeader.Components
                 AdditionalCanvasShaderChannels.TexCoord1
                 | AdditionalCanvasShaderChannels.TexCoord2;
 
-            _canvasScaler.referenceResolution = new(350, 300);
-            _canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            _canvasScaler.dynamicPixelsPerUnit = 3.44f;
-            _canvasScaler.referencePixelsPerUnit = 10;
+            CanvasScaler.referenceResolution = new(350, 300);
+            CanvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            CanvasScaler.dynamicPixelsPerUnit = 3.44f;
+            CanvasScaler.referencePixelsPerUnit = 10;
         }
-        public override void SetRootViewController(ViewController newRootViewController, ViewController.AnimationType animationType)
-        {
+        public override void SetRootViewController(ViewController newRootViewController, ViewController.AnimationType animationType) {
             newRootViewController.gameObject.GetOrAddComponent<GraphicRaycaster>();
             base.SetRootViewController(newRootViewController, animationType);
         }

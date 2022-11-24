@@ -11,7 +11,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly PlayerDataModel _playerDataModel;
         [Inject] private readonly ReplayerCameraController _cameraController;
         [Inject] private readonly ReplayLaunchData _launchData;
-        [Inject] private readonly VRControllersProvider _controllersProvider;
+        [Inject] private readonly VRControllersAccessor _controllersProvider;
         [Inject] private readonly ReplayerUIBinder _uiBinder;
 
         public void Initialize() {

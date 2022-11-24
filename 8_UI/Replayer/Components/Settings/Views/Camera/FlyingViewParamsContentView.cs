@@ -8,22 +8,22 @@ namespace BeatLeader.Components {
 
         [UIValue("fly-speed")]
         private int _FlySpeed {
-            get => FlyingViewConfig.FlySpeed;
+            get => FlyingViewConfig.Instance.FlySpeed;
             set {
                 if (!IsParsed) return;
                 Pose.flySpeed = value;
-                FlyingViewConfig.FlySpeed = value;
-                AutomaticConfigTool.NotifyTypeChanged(typeof(FlyingViewConfig));
+                FlyingViewConfig.Instance.FlySpeed = value;
+                FlyingViewConfig.Instance.Save();
             }
         }
         [UIValue("disable-input-on-unlocked-cursor")]
         private bool _DisableInputOnUnlockedCursor {
-            get => FlyingViewConfig.DisableOnUnCur;
+            get => FlyingViewConfig.Instance.DisableOnUnCur;
             set {
                 if (!IsParsed) return;
                 Pose.disableInputOnUnlockedCursor = value;
-                FlyingViewConfig.DisableOnUnCur = value;
-                AutomaticConfigTool.NotifyTypeChanged(typeof(FlyingViewConfig));
+                FlyingViewConfig.Instance.DisableOnUnCur = value;
+                FlyingViewConfig.Instance.Save();
             }
         }
         public override int Id => 5;
@@ -51,9 +51,9 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             _sensitivityVectorControls.MultipliedVector = new(
-                 FlyingViewConfig.SensitivityX, FlyingViewConfig.SensitivityY);
-            _FlySpeed = FlyingViewConfig.FlySpeed;
-            _DisableInputOnUnlockedCursor = FlyingViewConfig.DisableOnUnCur;
+                 FlyingViewConfig.Instance.SensitivityX, FlyingViewConfig.Instance.SensitivityY);
+            _FlySpeed = FlyingViewConfig.Instance.FlySpeed;
+            _DisableInputOnUnlockedCursor = FlyingViewConfig.Instance.DisableOnUnCur;
             NotifyPropertyChanged();
         }
 
@@ -72,9 +72,9 @@ namespace BeatLeader.Components {
 
         private void HandleVectorChanged(Vector3 vector) {
             Pose.mouseSensitivity = vector;
-            FlyingViewConfig.SensitivityX = vector.x;
-            FlyingViewConfig.SensitivityY = vector.y;
-            AutomaticConfigTool.NotifyTypeChanged(typeof(FlyingViewConfig));
+            FlyingViewConfig.Instance.SensitivityX = vector.x;
+            FlyingViewConfig.Instance.SensitivityY = vector.y;
+            FlyingViewConfig.Instance.Save();
         }
 
         [UIAction("reset-position")]

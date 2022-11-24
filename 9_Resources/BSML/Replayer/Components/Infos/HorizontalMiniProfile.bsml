@@ -1,6 +1,4 @@
-﻿<horizontal id="container" child-control-height="false" child-control-width="false" child-expand-width="false"
-			child-align="MiddleLeft" pref-height="20">
-	<horizontal id="wrapper" pref-height="20" horizontal-fit="PreferredSize" spacing="1">
+﻿<horizontal ignore-layout="true" pref-height="20" horizontal-fit="PreferredSize" spacing="1">
 
 		<vertical pref-width="20">
 			<horizontal pref-height="20">
@@ -34,4 +32,3 @@
 			</horizontal>
 		</vertical>
 	</horizontal>
-</horizontal>

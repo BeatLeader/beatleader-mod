@@ -4,7 +4,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking {
     internal class PatchesLoaderTweak : GameTweak {
-        [Inject] private readonly VRControllersProvider _controllersProvider;
+        [Inject] private readonly VRControllersAccessor _controllersProvider;
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly BeatmapTimeController _beatmapTimeController;
 

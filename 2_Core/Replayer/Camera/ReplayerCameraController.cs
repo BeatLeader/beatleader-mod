@@ -26,7 +26,7 @@ namespace BeatLeader.Replayer.Camera {
             }
         }
 
-        [Inject] protected readonly VRControllersProvider _vrControllersManager;
+        [Inject] protected readonly VRControllersAccessor _vrControllersManager;
         [Inject] protected readonly InitData _data;
         [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
 
@@ -41,7 +41,7 @@ namespace BeatLeader.Replayer.Camera {
                 _vrControllersManager.Head.transform.SetLocalPose(value.Item2);
 
                 if (InputUtils.IsInFPFC) return;
-                _vrControllersManager.MenuHandsContainer.SetLocalPose(value.Item1);
+                _vrControllersManager.HandsContainer.SetLocalPose(value.Item1);
             }
         }
         public int CullingMask {

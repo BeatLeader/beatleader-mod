@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using GameNoteCutInfo = NoteCutInfo;
 using UVector3 = UnityEngine.Vector3;
 using UQuaternion = UnityEngine.Quaternion;
+using UnityEngine;
 
 namespace BeatLeader.Models
 {
@@ -615,10 +615,11 @@ namespace BeatLeader.Models
                 result.noteCutInfo = DecodeCutInfo(buffer, ref pointer);
             }
 
-            if (result.noteID == -1 || ("" + result.noteID).Last() == '9')
+            if (result.noteID == -1 || (result.noteID > 0 && result.noteID < 100000 && result.noteID % 10 == 9))
             {
                 result.noteID += 4;
                 result.eventType = NoteEventType.bomb;
+                Debug.Log(result.noteID);
             }
 
             return result;

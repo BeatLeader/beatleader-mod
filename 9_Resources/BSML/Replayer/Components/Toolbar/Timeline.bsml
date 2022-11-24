@@ -1,7 +1,7 @@
 ﻿<horizontal pref-height="8">
 	<vertical id="container" child-expand-height="false" child-control-height="false" pref-width="50">
 		<better-image id="clickable-area" ignore-layout="true" size-delta-x="50" size-delta-y="4"/>
-		<better-image id="background" ignore-layout="true" type="Sliced" src="#white-bg" ppu="100" size-delta-x="50" size-delta-y="1"/>
+		<better-image id="background" ignore-layout="true" type="Sliced" src="#bl-white-bg" ppu="100" size-delta-x="50" size-delta-y="1"/>
 
 		<vertical id="marks-area-container" ignore-layout="true" pref-width="50" anchor-pos-y="-2.2">
 			<horizontal pref-height="2">
@@ -13,7 +13,7 @@
 			<horizontal pref-height="1">
 				<bg>
 					<bg id="handle-slide-area">
-						<better-image id="handle" type="Sliced" src="#white-bg" image-color="Red" ppu="0"
+						<better-image id="handle" type="Sliced" src="#bl-white-bg" image-color="Red" ppu="0"
 						 preserve-aspect="true" size-delta-x="4" size-delta-y="3"/>
 					</bg>
 				</bg>
@@ -24,7 +24,7 @@
 			<horizontal pref-height="1">
 				<bg>
 					<bg id="fill-area">
-						<better-image id="fill" type="Sliced" src="#white-bg" image-color="Red" ppu="100" 
+						<better-image id="fill" type="Sliced" src="#bl-white-bg" image-color="Red" ppu="100" 
 									  size-delta-x="0" size-delta-y="0"/>
 					</bg>
 				</bg>

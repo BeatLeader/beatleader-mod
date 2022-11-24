@@ -8,13 +8,11 @@ using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
 using System;
 
-namespace BeatLeader.UI
-{
-    internal class ReplayerUIBinder : MonoBehaviour
-    {
+namespace BeatLeader.UI {
+    internal class ReplayerUIBinder : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly VRControllersProvider _controllerProvider;
+        [Inject] private readonly VRControllersAccessor _controllerProvider;
         [Inject] private readonly ScreenSpaceScreen _screenSpaceScreen;
         [Inject] private readonly Replayer2DViewController _screenViewController;
         [Inject] private readonly ReplayerVRViewController _vrViewController;
@@ -22,19 +20,15 @@ namespace BeatLeader.UI
 
         #endregion
 
-        #region ShowUI & UI Type & Screen 
+        #region UI Visibility
 
-        public bool ShowUI
-        {
+        public bool AlwaysShowUI {
             get => Screen.gameObject.activeSelf;
-            set
-            {
+            set {
                 Screen?.gameObject.SetActive(value);
                 UIVisibilityChangedEvent?.Invoke(value);
             }
         }
-        public InputUtils.InputType InstalledUIType { get; private set; }
-        public HMUI.Screen Screen { get; private set; }
 
         #endregion
 
@@ -46,22 +40,21 @@ namespace BeatLeader.UI
 
         #region Setup
 
+        public HMUI.Screen Screen { get; private set; }
+
         private ViewController _viewController;
 
-        private void Start()
-        {
+        private void Start() {
             bool isInFPFC = InputUtils.IsInFPFC;
 
-            InstalledUIType =isInFPFC ? InputUtils.InputType.FPFC : InputUtils.InputType.VR;
             Screen = isInFPFC ? _screenSpaceScreen : SetupFloatingScreen();
             _viewController = isInFPFC ? _screenViewController : _vrViewController;
 
             Screen.SetRootViewController(_viewController, ViewController.AnimationType.None);
-            ShowUI = _launchData.ActualSettings.ShowUI;
+            AlwaysShowUI = _launchData.ActualSettings.ShowUI;
         }
 
-        private FloatingScreen SetupFloatingScreen()
-        {
+        private FloatingScreen SetupFloatingScreen() {
             var container = new GameObject("Container");
             var viewContainer = new GameObject("ViewContainer");
             viewContainer.transform.SetParent(container.transform, false);
@@ -76,8 +69,8 @@ namespace BeatLeader.UI
             floating.handle.transform.localPosition = new(11, -23.5f, 0);
             floating.handle.transform.localScale = new(20, 3.67f, 3.67f);
 
-            container.transform.SetParent(_controllerProvider.MenuHandsContainer, false);
-            _controllerProvider.ShowMenuControllers();
+            container.transform.SetParent(_controllerProvider.HandsContainer, false);
+            _controllerProvider.ShowHands();
 
             return floating;
         }

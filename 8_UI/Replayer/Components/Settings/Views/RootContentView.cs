@@ -17,7 +17,7 @@ namespace BeatLeader.Components {
             IBeatmapTimeController timeController,
             SongSpeedData speedData,
             ReplayerCameraController cameraController,
-            VRControllersProvider controllersProvider,
+            VRControllersAccessor controllersProvider,
             ReplayWatermark watermark,
             LayoutEditor layoutEditor,
             ReplayLaunchData launchData) {

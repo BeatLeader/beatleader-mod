@@ -10,7 +10,7 @@ namespace BeatLeader.Replayer.Emulation
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly VRControllersProvider _vrControllersManager;
+        [Inject] private readonly VRControllersAccessor _vrControllersManager;
         [Inject] private readonly ReplayLaunchData _replayData;
 
         private LinkedList<Frame> _frames;

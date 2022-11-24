@@ -4,18 +4,18 @@
     <!--Exit Button-->
     <vertical pref-width="10">
       <bg>
-        <better-image id="exit-button-background" image="#black-transparent-bg" pref-height="10" pref-width="10"
+        <better-image id="exit-button-background" image="#bl-black-transparent-bg" pref-height="10" pref-width="10"
 							        vertical-fit="PreferredSize" horizontal-fit="PreferredSize" type="Sliced" ppu="5"/>
-        <better-image id="exit-button-icon" src="#closed-door-icon" preserve-aspect="true" raycast-image="false"
+        <better-image id="exit-button-icon" src="#bl-closed-door-icon" preserve-aspect="true" raycast-image="false"
 							        size-delta-x="6" size-delta-y="6" anchor-pos-x="-0.3"/>
       </bg>
     </vertical>
     <!--Toolbar-->
     <vertical pref-width="81">
       <horizontal pref-height="10">
-        <better-image src="#black-transparent-bg" image-type="Sliced" ppu="5">
+        <better-image src="#bl-black-transparent-bg" image-type="Sliced" ppu="5">
           <horizontal pref-height="8">
-            <better-button id="play-button" transition="ColorTint" normal-image="#pause-icon" normal-color="#ffffff"
+            <better-button id="play-button" transition="ColorTint" normal-image="#bl-pause-icon" normal-color="#ffffff"
 									         highlighted-color="#00ffee" preserve-aspect="true" pref-height="5" pref-width="5"
 									         on-click="pause-button-clicked"/>
             <horizontal pref-height="8">
@@ -26,7 +26,7 @@
               </vertical>
             </horizontal>
             <text text="~combined-song-time" font-align="Center" font-size="3"/>
-            <better-button transition="ColorTint" normal-image="#settings-icon" normal-color="#ffffff"
+            <better-button transition="ColorTint" normal-image="#bl-settings-icon" normal-color="#ffffff"
 									         highlighted-color="#00ffee" preserve-aspect="true" pref-height="6" pref-width="6"
 								           on-click="settings-button-clicked"/>
           </horizontal>

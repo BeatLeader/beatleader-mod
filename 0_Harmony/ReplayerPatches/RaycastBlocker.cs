@@ -4,24 +4,18 @@ using IPA.Utilities;
 using UnityEngine;
 using VRUIControls;
 
-namespace BeatLeader
-{
-    public static class RaycastBlocker
-    {
-        public static LayerMask BlockerMask
-        {
+namespace BeatLeader {
+    public static class RaycastBlocker {
+        public static LayerMask BlockerMask {
             get => _blockerMask;
-            set
-            {
+            set {
                 _blockerMask = value;
                 UpdateMasks();
             }
         }
-        public static bool EnableBlocker
-        {
+        public static bool EnableBlocker {
             get => _enableBlocker;
-            set
-            {
+            set {
                 _enableBlocker = value;
                 UpdateMasks();
             }
@@ -33,46 +27,37 @@ namespace BeatLeader
         private static bool _lastBlockerState;
         private static bool _enableBlocker;
 
-        public static void ReleaseMemory()
-        {
+        public static void ReleaseMemory() {
             _raycasters.Clear();
         }
-        private static void UpdateMasks()
-        {
+        private static void UpdateMasks() {
             var enable = EnableBlocker;
-            foreach (var raycaster in _raycasters)
-            {
+            foreach (var raycaster in _raycasters) {
                 if (enable && !_lastBlockerState)
                     _modificationCache.Add((raycaster.Key, GetMask(raycaster.Key)));
                 SetMask(raycaster.Key, enable ? BlockerMask : raycaster.Value);
             }
 
-            foreach (var item in _modificationCache)
-            {
-                _raycasters[item.Item1] = item.Item2; 
+            foreach (var item in _modificationCache) {
+                _raycasters[item.Item1] = item.Item2;
             }
             _modificationCache.Clear();
             _lastBlockerState = enable;
         }
-        private static void SetMask(VRGraphicRaycaster raycaster)
-        {
+        private static void SetMask(VRGraphicRaycaster raycaster) {
             SetMask(raycaster, BlockerMask);
         }
-        private static void SetMask(VRGraphicRaycaster raycaster, LayerMask mask)
-        {
+        private static void SetMask(VRGraphicRaycaster raycaster, LayerMask mask) {
             raycaster.SetField("_blockingMask", mask);
         }
-        private static LayerMask GetMask(VRGraphicRaycaster raycaster)
-        {
+        private static LayerMask GetMask(VRGraphicRaycaster raycaster) {
             return raycaster.GetField<LayerMask, VRGraphicRaycaster>("_blockingMask");
         }
 
         [HarmonyPatch(typeof(VRGraphicRaycaster), MethodType.Constructor)]
-        private static class RaycastersGrabber
-        {
+        private static class RaycastersGrabber {
             [HarmonyPostfix]
-            private static void GrabRaycaster(VRGraphicRaycaster __instance)
-            {
+            private static void GrabRaycaster(VRGraphicRaycaster __instance) {
                 if (!_raycasters.ContainsKey(__instance))
                     _raycasters.Add(__instance, GetMask(__instance));
                 SetMask(__instance);

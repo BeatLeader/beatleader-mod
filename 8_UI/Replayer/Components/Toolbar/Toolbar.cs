@@ -3,13 +3,12 @@ using BeatLeader.UI.BSML_Addons.Components;
 using UnityEngine.UI;
 using UnityEngine;
 using HMUI;
-using BeatLeader.Utils;
 using BeatLeader.Models;
 using static HMUI.NoTransitionsButton;
 using System;
 
 namespace BeatLeader.Components {
-    internal class Toolbar : EditableElement {
+    internal class Toolbar : ReeUIComponentV2 {
         #region UI Components
 
         [UIComponent("exit-button-background")] private readonly RectTransform _exitButtonBackground;
@@ -44,19 +43,12 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Editable
-
-        protected override RectTransform ContainerRect => _container;
-        public override bool Locked => true;
-
-        #endregion
-
         #region Setup
 
-        private readonly Sprite _playSprite = BSMLUtility.LoadSprite("#play-icon");
-        private readonly Sprite _pauseSprite = BSMLUtility.LoadSprite("#pause-icon");
-        private readonly Sprite _openedDoorSprite = BSMLUtility.LoadSprite("#opened-door-icon");
-        private readonly Sprite _closedDoorSprite = BSMLUtility.LoadSprite("#closed-door-icon");
+        private readonly Sprite _playSprite = BundleLoader.PlayIcon;
+        private readonly Sprite _pauseSprite = BundleLoader.PauseIcon;
+        private readonly Sprite _openedDoorSprite = BundleLoader.OpenedDoorIcon;
+        private readonly Sprite _closedDoorSprite = BundleLoader.ClosedDoorIcon;
         private string _formattedSongTime;
 
         private IReplayPauseController _pauseController;
@@ -101,7 +93,8 @@ namespace BeatLeader.Components {
         }
         private void UpdateSongTime() {
             float time = _beatmapTimeController.SongTime;
-            float totalTime = _beatmapTimeController.SongEndTime;
+            float totalTime = _replay.info.failTime <= 0 ? 
+                _beatmapTimeController.SongEndTime : _replay.info.failTime;
 
             FormattedSongTime = FormatUtils.FormatSongTime(time, totalTime);
         }

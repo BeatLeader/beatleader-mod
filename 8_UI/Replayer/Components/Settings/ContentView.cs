@@ -13,6 +13,11 @@ namespace BeatLeader.Components {
 
         #region Present & Dismiss
 
+        public void SetViewParent(Transform transform) {
+            if (_presentedView != null) return;
+            Content.SetParent(transform);
+        }
+
         private Transform _viewOriginalParent;
         private ContentView _presentedView;
 

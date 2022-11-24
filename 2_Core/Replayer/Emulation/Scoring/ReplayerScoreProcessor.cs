@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -14,13 +15,19 @@ namespace BeatLeader.Replayer.Emulation {
         [Inject] private readonly ComboController _comboController;
         [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
         [Inject] private readonly ReplayEventsProcessor _eventsProcessor;
+        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
+        [Inject] private readonly IReadonlyBeatmapData _beatmapData;
 
         #endregion
 
         #region Setup
 
+        private static readonly Models.NoteCutInfo emptyNoteCutInfo = new();
+
         private void Awake() {
-            _gameEnergyStaticCounter = _gameEnergyCounter;
+            _generatedBeatmapNoteData = CreateSortedNoteDatasList(_beatmapData.allBeatmapDataItems);
+            _generatedBeatmapNoteData.OrderBy(x => x.time);
+            _genList.AddRange(_generatedBeatmapNoteData);
 
             _eventsProcessor.NoteProcessRequestedEvent += HandleNoteProcessRequested;
             _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
@@ -40,9 +47,64 @@ namespace BeatLeader.Replayer.Emulation {
             _cutScoreSpawnerSilencer.Dispose();
         }
 
+        private bool SetupEmulator(NoteEvent noteEvent) {
+            if (!TryFindNoteData(noteEvent, out NoteData noteData)) return false;
+            var noteCutInfo = Models.NoteCutInfo.Convert(noteEvent?.noteCutInfo ?? emptyNoteCutInfo, noteData);
+            _noteControllerEmulator.Setup(noteData, noteCutInfo);
+            return true;
+        }
+
         #endregion
 
-        #region Logic
+        #region NoteData
+
+        private LinkedList<NoteData> _generatedBeatmapNoteData;
+        private LinkedListNode<NoteData> _lastProcessedNode;
+
+        private List<NoteData> _genList = new();
+
+        private bool TryFindNoteData(NoteEvent noteEvent, out NoteData noteData) {
+            var startNode = _lastProcessedNode ?? _generatedBeatmapNoteData.First;
+            Debug.Log($"[{noteEvent.eventTime}] Last: " + _genList.IndexOf(_lastProcessedNode?.Value));
+            for (var node = startNode; node != null; node = node.Next) {
+                noteData = node.Value;
+                if ((_lastProcessedNode?.Value.time ?? 0) != noteData.time) {
+                    _lastProcessedNode = node;
+                }
+                if (noteEvent.IsMatch(noteData)) {
+                    //Debug.Log("Found at: " + _genList.IndexOf(noteData));
+                    return true;
+                }
+            }
+            foreach (var item in _genList) {
+                if (noteEvent.IsMatch(item)) {
+                    Debug.Log($"[{item.time}] Found on second cycle at: " + _genList.IndexOf(item));
+                    break;
+                }
+            }
+            noteData = null;
+            _lastProcessedNode = null;
+            Plugin.Log.Error("[Replayer] Not found NoteData for id " + noteEvent.noteID);
+            return false;
+        }
+
+        private static LinkedList<NoteData> CreateSortedNoteDatasList(IEnumerable<BeatmapDataItem> items) {
+            var list = new LinkedList<NoteData>();
+            foreach (var item in items) {
+                if (!item.TryDefine(out NoteData noteData)
+                    && item.TryDefine(out SliderData sliderData)) {
+                    noteData = NoteData.CreateBurstSliderNoteData(
+                        sliderData.time, sliderData.headLineIndex, sliderData.headLineLayer,
+                        sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f);
+                }
+                if (noteData != null) list.AddLast(noteData);
+            }
+            return list;
+        }
+
+        #endregion
+
+        #region Simulation
 
         private readonly NoteControllerEmulator _noteControllerEmulator =
             new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
@@ -52,12 +114,12 @@ namespace BeatLeader.Replayer.Emulation {
         private static float _lastCutAfterCutRating;
 
         private void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut) {
+            if (!SetupEmulator(noteEvent)) return;
             if (isGoodCut) {
                 _lastCutBeforeCutRating = noteEvent.noteCutInfo.beforeCutRating;
                 _lastCutAfterCutRating = noteEvent.noteCutInfo.afterCutRating;
                 _lastCutIsGood = true;
             }
-            _noteControllerEmulator.Setup(noteEvent);
             _scoringMultisilencer.Enabled = false;
             try {
                 _scoreController.HandleNoteWasSpawned(_noteControllerEmulator);
@@ -71,7 +133,7 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
         private void SimulateNoteWasMissed(NoteEvent noteEvent) {
-            _noteControllerEmulator.Setup(noteEvent);
+            if (!SetupEmulator(noteEvent)) return;
             _scoringMultisilencer.Enabled = false;
             try {
                 _scoreController.HandleNoteWasSpawned(_noteControllerEmulator);
@@ -84,6 +146,7 @@ namespace BeatLeader.Replayer.Emulation {
                 _scoringMultisilencer.Enabled = true;
             }
         }
+
         private static void FinishSaberSwingRatingCounter(SaberSwingRatingCounter counter, float beforeCutRating, float afterCutRating) {
             if (counter == null) return;
             counter.SetField("_beforeCutRating", Mathf.Clamp01(beforeCutRating));
@@ -117,6 +180,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
         private void HandleReprocessRequested() {
             _cutScoreSpawnerSilencer.Enabled = true;
+            _lastProcessedNode = null;
             if (!_eventsProcessor.TimeWasSmallerThanActualTime) return;
 
             _scoreController.SetField("_modifiedScore", 0);
@@ -191,8 +255,6 @@ namespace BeatLeader.Replayer.Emulation {
         private readonly HarmonyAutoPatch _noteWasMissedEnergyCounterPatch = new(_noteWasMissedEnergyCounterPatchDescriptor);
         private readonly HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
 
-        private static GameEnergyCounter _gameEnergyStaticCounter;
-
         private static void GoodCutScoringInitPostfix(GoodCutScoringElement __instance) {
             if (!_lastCutIsGood) return;
 
@@ -202,8 +264,8 @@ namespace BeatLeader.Replayer.Emulation {
             FinishSaberSwingRatingCounter(swingCounter, _lastCutBeforeCutRating, _lastCutAfterCutRating);
             _lastCutIsGood = false;
         }
-        private static void NoteWasProcessedPostfix() {
-            _gameEnergyStaticCounter.LateUpdate();
+        private static void NoteWasProcessedPostfix(GameEnergyCounter __instance) {
+            __instance.LateUpdate();
         }
 
         #endregion

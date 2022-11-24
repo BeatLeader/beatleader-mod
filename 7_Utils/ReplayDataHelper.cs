@@ -323,23 +323,6 @@ namespace BeatLeader.Utils
 
         #region Computing
 
-        public static void DecodeNoteId(int noteId,
-            out NoteData.ScoringType scoringType,
-            out int lineIndex,
-            out NoteLineLayer noteLineLayer,
-            out ColorType colorType,
-            out NoteCutDirection cutDirection
-        ) {
-            cutDirection = (NoteCutDirection)(noteId % 10);
-            noteId /= 10;
-            colorType = (ColorType)(noteId % 10);
-            noteId /= 10;
-            noteLineLayer = (NoteLineLayer)(noteId % 10);
-            noteId /= 10;
-            lineIndex = noteId % 10;
-            noteId /= 10;
-            scoringType = (NoteData.ScoringType)((noteId -= 2) < -1 ? noteId + 3 : noteId);
-        }
         public static int ComputeObstacleId(this ObstacleData obstacleData)
         {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
@@ -349,6 +332,11 @@ namespace BeatLeader.Utils
             return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex
                 * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType
                 * 10 + (int)noteData.cutDirection;
+        }
+        public static bool IsMatch(this NoteEvent noteEvent, NoteData noteData) {
+            var calcId = noteData.ComputeNoteId();
+            var id = noteEvent.noteID;
+            return id == calcId || id == calcId - 30000;
         }
         public static int ComputeNoteScore(this NoteEvent note)
         {

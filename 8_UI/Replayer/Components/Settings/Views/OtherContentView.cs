@@ -49,12 +49,12 @@ namespace BeatLeader.Components {
 
         [UIObject("watermark")] private GameObject _watermark;
 
-        private VRControllersProvider _controllersProvider;
+        private VRControllersAccessor _controllersProvider;
         private ReplayLaunchData _launchData;
         private ReplayWatermark _replayWatermark;
 
         public void Setup(
-            VRControllersProvider controllersProvider,
+            VRControllersAccessor controllersProvider,
             ReplayLaunchData launchData, 
             ReplayWatermark watermark = null) {
             _controllersProvider = controllersProvider;

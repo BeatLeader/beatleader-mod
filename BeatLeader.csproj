@@ -251,7 +251,6 @@
     <Compile Include="1_Config\PluginConfig.cs" />
     <Compile Include="1_Config\Standalone\FlyingViewConfig.cs" />
     <Compile Include="1_Config\Standalone\LayoutEditorConfig.cs" />
-    <Compile Include="1_Config\Standalone\LayoutMapsConfig.cs" />
     <Compile Include="1_Config\Standalone\PlayerViewConfig.cs" />
     <Compile Include="2_Core\API\Abstract\IWebRequestDescriptor.cs" />
     <Compile Include="2_Core\API\Abstract\IWebRequestHandler.cs" />
@@ -451,9 +450,11 @@
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ModalViewExtensionHandler.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\HeaderButton.cs" />
+    <Compile Include="8_UI\Replayer\Components\CanvasScreen.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\LayoutHandle.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\HandleHighlighter.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\InputDependentObject.cs" />
+    <Compile Include="8_UI\Replayer\Components\StandaloneViewController.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\TextureSplitter.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditorWindow\AnchorSelector\AnchorButton.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditorWindow\AnchorSelector\AnchorSelector.cs" />
@@ -553,7 +554,6 @@
     <Compile Include="8_UI\Replayer\Components\Toolbar\Toolbar.cs" />
     <Compile Include="8_UI\Replayer\Components\Floating\ResetProgressAnimator.cs" />
     <Compile Include="8_UI\Replayer\ReplayerUIBinder.cs" />
-    <Compile Include="8_UI\Replayer\ScreenSpaceScreen.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\Replayer2DViewController.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerVRViewController.cs" />
     <Compile Include="8_UI\Results\ReplayButton.cs" />

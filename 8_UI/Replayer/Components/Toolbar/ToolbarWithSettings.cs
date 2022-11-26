@@ -2,7 +2,6 @@
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Replayer.Emulation;
 using BeatSaberMarkupLanguage.Attributes;
-using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ToolbarWithSettings : EditableElement {
@@ -38,12 +37,14 @@ namespace BeatLeader.Components {
             ReplayerCameraController cameraController,
             VRControllersAccessor controllersAccessor,
             ReplayWatermark watermark,
-            LayoutEditor layoutEditor) {
+            LayoutEditor layoutEditor = null) {
             if (_layoutEditor != null) {
                 _layoutEditor.EditModeChangedEvent -= HandleEditModeChanged;
             }
             _layoutEditor = layoutEditor;
-            _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
+            if (_layoutEditor != null) {
+                _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
+            }
             _rootContentView.Setup(timeController, speedData,
                 cameraController, controllersAccessor, watermark, layoutEditor, launchData);
             _toolbar.Setup(launchData.Replay, pauseController, exitController, timeController);

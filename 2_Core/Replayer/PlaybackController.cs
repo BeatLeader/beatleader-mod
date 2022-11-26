@@ -28,6 +28,8 @@ namespace BeatLeader.Replayer
 
         public event Action<bool> PauseStateChangedEvent;
 
+        public event Action ReplayExitEvent;
+
         #endregion
 
         #region Initialize & Dispose
@@ -81,6 +83,7 @@ namespace BeatLeader.Replayer
 
         public void Exit()
         {
+            ReplayExitEvent?.Invoke();
             _pauseController.HandlePauseMenuManagerDidPressMenuButton();
         }
 

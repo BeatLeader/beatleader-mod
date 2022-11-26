@@ -166,16 +166,19 @@ namespace BeatLeader.Components {
 
         #region UI Grid
 
+        public int gridCellSize;
+        public int gridLineThickness;
+
         private void SetupGrid() {
             _layoutGrid?.TryDestroy();
             _layoutGrid = EditorZone.gameObject.AddComponent<LayoutGrid>();
-            _layoutGrid.LineThickness = LayoutEditorConfig.Instance.LineThickness;
-            _layoutGrid.CellSize = LayoutEditorConfig.Instance.CellSize;
             _layoutWindow.gridModel = _layoutGrid;
             RefreshGrid();
         }
 
         private void RefreshGrid() {
+            _layoutGrid.LineThickness = gridLineThickness;
+            _layoutGrid.CellSize = gridCellSize;
             CoroutinesHandler.instance.StartCoroutine(RefreshGridCoroutine());
         }
 

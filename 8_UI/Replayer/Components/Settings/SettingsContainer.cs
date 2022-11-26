@@ -1,6 +1,4 @@
-﻿using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer.Emulation;
-using BeatLeader.Utils;
+﻿using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;

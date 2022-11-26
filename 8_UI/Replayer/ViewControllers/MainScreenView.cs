@@ -2,12 +2,15 @@
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Replayer.Emulation;
 using BeatSaberMarkupLanguage.Attributes;
+using System;
 using System.Collections;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Components {
     internal class MainScreenView : ReeUIComponentV2WithContainer {
+        #region Injection
+
         [Inject] private readonly IReplayPauseController _pauseController;
         [Inject] private readonly IReplayExitController _exitController;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
@@ -17,6 +20,16 @@ namespace BeatLeader.Components {
         [Inject] private readonly ReplayLaunchData _launchData;
         [Inject] private readonly SongSpeedData _speedData;
 
+        #endregion
+
+        #region Events
+
+        public event Action LayoutBuiltEvent;
+
+        #endregion
+
+        #region UI Components
+
         [UIValue("song-info")] private HorizontalBeatmapLevelPreview _songInfo;
         [UIValue("player-info")] private HorizontalMiniProfile _playerInfo;
         [UIValue("toolbar")] private ToolbarWithSettings _toolbar;
@@ -25,10 +38,9 @@ namespace BeatLeader.Components {
         [UIComponent("container-group")]
         private readonly RectTransform _containerRect;
 
-        public void OpenLayoutEditor() {
-            _layoutEditor.SetEditorEnabled(true);
-            _pauseController.Pause();
-        }
+        #endregion
+
+        #region Setup
 
         protected override void OnInstantiate() {
             _playerInfo = Instantiate<HorizontalMiniProfile>(transform);
@@ -42,8 +54,13 @@ namespace BeatLeader.Components {
                 _exitController, _launchData, _speedData, _cameraController,
                 _controllersAccessor, _watermark, _layoutEditor);
         }
+
         protected override void OnInitialize() {
-            _layoutEditor.layoutMapsSource = LayoutMapsConfig.Instance;
+            var configInstance = LayoutEditorConfig.Instance;
+            _layoutEditor.gridCellSize = configInstance.CellSize;
+            _layoutEditor.gridLineThickness = configInstance.LineThickness;
+            _layoutEditor.layoutMapsSource = configInstance;
+
             _layoutEditor.Setup(_containerRect);
             _layoutEditor.Add(_playerInfo);
             _layoutEditor.Add(_toolbar);
@@ -52,9 +69,21 @@ namespace BeatLeader.Components {
             CoroutinesHandler.instance.StartCoroutine(MapLayoutCoroutine());
         }
 
+        #endregion
+
+        #region Layout
+
+        public void OpenLayoutEditor() {
+            _layoutEditor.SetEditorEnabled(true);
+            _pauseController.Pause();
+        }
+
         private IEnumerator MapLayoutCoroutine() {
             yield return new WaitForEndOfFrame();
             _layoutEditor.RefreshLayout();
+            LayoutBuiltEvent?.Invoke();
         }
+
+        #endregion
     }
 }

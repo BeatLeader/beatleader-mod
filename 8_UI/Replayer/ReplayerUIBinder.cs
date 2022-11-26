@@ -1,33 +1,46 @@
 ﻿using BeatLeader.ViewControllers;
 using UnityEngine;
 using Zenject;
-using HMUI;
 using BeatLeader.Components;
-using BeatSaberMarkupLanguage.FloatingScreen;
-using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
 using System;
+using BeatLeader.Models;
+using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.UI {
     internal class ReplayerUIBinder : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly VRControllersAccessor _controllerProvider;
-        [Inject] private readonly ScreenSpaceScreen _screenSpaceScreen;
+        [Inject] private readonly VRControllersAccessor _controllersAccessor;
         [Inject] private readonly Replayer2DViewController _screenViewController;
         [Inject] private readonly ReplayerVRViewController _vrViewController;
-        [Inject] private readonly Models.ReplayLaunchData _launchData;
+        [Inject] private readonly ReplayLaunchData _launchData;
+        [Inject] private readonly IReplayPauseController _pauseController;
 
         #endregion
 
         #region UI Visibility
 
         public bool AlwaysShowUI {
-            get => Screen.gameObject.activeSelf;
+            get => _alwaysShowUI;
             set {
-                Screen?.gameObject.SetActive(value);
-                UIVisibilityChangedEvent?.Invoke(value);
+                _alwaysShowUI = value;
+                RefreshUIVisibility();
             }
+        }
+
+        public bool UIEnabled { get; private set; }
+
+        private bool _alwaysShowUI;
+        private bool _isPaused;
+
+        private void RefreshUIVisibility() {
+            if (ViewController == null) return;
+            var active = _alwaysShowUI || _isPaused;
+            if (UIEnabled == active) return;
+            UIEnabled = active;
+            ViewController.Container.SetActive(UIEnabled);
+            UIVisibilityChangedEvent?.Invoke(UIEnabled);
         }
 
         #endregion
@@ -40,39 +53,31 @@ namespace BeatLeader.UI {
 
         #region Setup
 
-        public HMUI.Screen Screen { get; private set; }
-
-        private ViewController _viewController;
+        public IStandaloneViewController ViewController { get; private set; }
 
         private void Start() {
-            bool isInFPFC = InputUtils.IsInFPFC;
-
-            Screen = isInFPFC ? _screenSpaceScreen : SetupFloatingScreen();
-            _viewController = isInFPFC ? _screenViewController : _vrViewController;
-
-            Screen.SetRootViewController(_viewController, ViewController.AnimationType.None);
+            _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
+            ViewController = InputUtils.IsInFPFC ? _screenViewController : _vrViewController;
+            if (!InputUtils.IsInFPFC) {
+                ViewController = _vrViewController;
+                //ViewController.Container.transform
+                //    .SetParent(_controllersAccessor.HandsContainer, false);
+            } else ViewController = _screenViewController;
+            ViewController.Init();
             AlwaysShowUI = _launchData.ActualSettings.ShowUI;
         }
 
-        private FloatingScreen SetupFloatingScreen() {
-            var container = new GameObject("Container");
-            var viewContainer = new GameObject("ViewContainer");
-            viewContainer.transform.SetParent(container.transform, false);
+        private void OnDestroy() {
+            _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
+        }
 
-            var floating = FloatingScreen.CreateFloatingScreen(
-                new(100, 55), true, Vector3.zero, Quaternion.identity);
+        #endregion
 
-            floating.transform.SetParent(viewContainer.transform, false);
-            floating.HandleSide = FloatingScreen.Side.Bottom;
-            floating.HighlightHandle = true;
+        #region Callbacks
 
-            floating.handle.transform.localPosition = new(11, -23.5f, 0);
-            floating.handle.transform.localScale = new(20, 3.67f, 3.67f);
-
-            container.transform.SetParent(_controllerProvider.HandsContainer, false);
-            _controllerProvider.ShowHands();
-
-            return floating;
+        private void HandlePauseStateChanged(bool state) {
+            _isPaused = state;
+            RefreshUIVisibility();
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using BeatLeader.Models;
+﻿using BeatLeader.Components;
+using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Replayer.Emulation;
 using BeatLeader.UI;
@@ -8,13 +9,18 @@ using Zenject;
 
 namespace BeatLeader.Replayer {
     internal class SettingsLoader : IInitializable, IDisposable {
-        [Inject] private readonly PlayerDataModel _playerDataModel;
-        [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly ReplayLaunchData _launchData;
-        [Inject] private readonly VRControllersAccessor _controllersProvider;
-        [Inject] private readonly ReplayerUIBinder _uiBinder;
+        [InjectOptional] private readonly PlayerDataModel _playerDataModel;
+        [InjectOptional] private readonly ReplayWatermark _watermark;
+        [InjectOptional] private readonly ReplayerCameraController _cameraController;
+        [InjectOptional] private readonly ReplayLaunchData _launchData;
+        [InjectOptional] private readonly VRControllersAccessor _controllersProvider;
+        [InjectOptional] private readonly ReplayerUIBinder _uiBinder;
 
         public void Initialize() {
+            if (_watermark != null) {
+                _watermark.Enabled = _launchData.ActualSettings.ShowWatermark;
+            }
+
             if (_playerDataModel != null && _cameraController != null) {
                 if (!_playerDataModel.playerData.playerSpecificSettings.reduceDebris)
                     _cameraController.CullingMask |= 1 << LayerMasks.noteDebrisLayer;
@@ -41,6 +47,8 @@ namespace BeatLeader.Replayer {
                 _controllersProvider.Head.gameObject.SetActive(settings.ShowHead);
                 _controllersProvider.LeftSaber.gameObject.SetActive(settings.ShowLeftSaber);
                 _controllersProvider.RightSaber.gameObject.SetActive(settings.ShowRightSaber);
+
+                _controllersProvider.ShowHands();
             }
         }
         public void Dispose() {

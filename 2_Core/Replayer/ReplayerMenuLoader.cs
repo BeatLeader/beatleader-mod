@@ -162,7 +162,7 @@ namespace BeatLeader.Replayer {
             if (await _launcher.StartReplayAsync(data)) {
                 ScoreSaberInterop.RecordingEnabled = false;
                 BeatSaviorInterop.ScoreSubmissionEnabled = false;
-                InputUtils.forceFPFC = !_fpfcSettings.Ignore;
+                //InputUtils.forceFPFC = !_fpfcSettings.Ignore;
                 return true;
             }
             return false;

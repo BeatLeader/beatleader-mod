@@ -107,13 +107,12 @@ namespace BeatLeader.Installers {
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<TweaksLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<HotkeysHandler>().AsSingle().NonLazy();
-            Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
             Container.Bind<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
 
             //UI
             Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<ScreenSpaceScreen>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             if (InputUtils.IsInFPFC) {

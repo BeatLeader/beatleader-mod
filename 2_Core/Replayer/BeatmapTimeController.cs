@@ -83,7 +83,6 @@ namespace BeatLeader.Replayer {
 
             _audioTimeSyncController.SetField("_prevAudioSamplePos", -1);
             _audioTimeSyncController.SeekTo((time - SongStartTime) / _audioTimeSyncController.timeScale);
-            //_beatmapCallbacksController.SetField("_startFilterTime", time);
             _beatmapCallbacksController.SetField("_prevSongTime", float.MinValue);
             foreach (var pair in _callbacksInTimes) {
                 pair.Value.lastProcessedNode = FindBeatmapItem(time);

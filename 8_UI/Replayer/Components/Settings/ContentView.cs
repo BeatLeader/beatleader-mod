@@ -1,5 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -25,7 +24,7 @@ namespace BeatLeader.Components {
             _presentedView = view;
             _viewOriginalParent = view.Content.parent;
 
-            _presentedView.Content.SetParent(Content.parent);
+            _presentedView.Content.SetParent(Content.parent, false);
             _presentedView.Content.gameObject.SetActive(true);
             Content.gameObject.SetActive(false);
 
@@ -38,7 +37,7 @@ namespace BeatLeader.Components {
             if (_presentedView == null) return false;
 
             _presentedView.Content.gameObject.SetActive(false);
-            _presentedView.Content.SetParent(_viewOriginalParent);
+            _presentedView.Content.SetParent(_viewOriginalParent, false);
             Content.gameObject.SetActive(true);
 
             UnsubscribeFromView(_presentedView);
@@ -78,7 +77,7 @@ namespace BeatLeader.Components {
         #region RefreshContentSize
 
         private void RefreshContentSize(ContentView view) {
-            view.Content.transform.transform.localScale = Vector3.one;
+            view.Content.transform.localScale = Vector3.one;
         }
 
         #endregion

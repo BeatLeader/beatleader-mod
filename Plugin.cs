@@ -54,7 +54,6 @@ namespace BeatLeader {
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
             InteropLoader.Init();
-            RaycastBlocker.BlockerMask = 1 << 5;
         }
 
         private static void ObserveEnabled() {

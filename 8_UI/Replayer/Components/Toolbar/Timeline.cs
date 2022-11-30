@@ -61,7 +61,9 @@ namespace BeatLeader.Components {
             _timelineAnimator.HandleReleasedEvent += HandleSliderReleased;
             _timelineAnimator.Setup(_background.rectTransform,
                 _handle.rectTransform, _marksAreaContainer, _fillArea);
+        }
 
+        private void SetupMarkers() {
             _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
             _missPrefab.sprite = BundleLoader.CrossIcon;
             _missPrefab.color = Color.red;
@@ -69,9 +71,11 @@ namespace BeatLeader.Components {
             _bombPrefab = new GameObject("BombIcon").AddComponent<Image>();
             _bombPrefab.sprite = BundleLoader.CrossIcon;
             _bombPrefab.color = Color.yellow;
-        }
 
-        private void SetupMarkers() {
+            _pausePrefab = new GameObject("PauseIcon").AddComponent<Image>();
+            _pausePrefab.sprite = BundleLoader.PauseIcon;
+            _pausePrefab.color = Color.blue;
+
             GenerateMarkers(_replay.notes
                 .Where(x => x.eventType == NoteEventType.miss || x.eventType == NoteEventType.bad)
                 .Select(x => x.eventTime), _missPrefab.gameObject);
@@ -79,6 +83,9 @@ namespace BeatLeader.Components {
             GenerateMarkers(_replay.notes
                 .Where(x => x.eventType == NoteEventType.bomb)
                 .Select(x => x.eventTime), _bombPrefab.gameObject);
+
+            GenerateMarkers(_replay.pauses
+                .Select(x => x.time), _pausePrefab.gameObject);
         }
         private void SetupSlider() {
             _slider.minValue = _beatmapTimeController.SongStartTime;
@@ -87,7 +94,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Event Handlers
+        #region Callbacks
 
         private void HandleSliderValueChanged(float value) {
             if (_allowRewind)
@@ -105,7 +112,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Logic
+        #region UpdateTime
 
         private void Update() {
             if (_allowTimeUpdate)
@@ -118,6 +125,7 @@ namespace BeatLeader.Components {
 
         private Image _missPrefab;
         private Image _bombPrefab;
+        private Image _pausePrefab;
 
         private readonly Dictionary<GameObject, List<GameObject>> _marks = new();
 

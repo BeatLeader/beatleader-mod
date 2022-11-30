@@ -18,20 +18,20 @@ namespace BeatLeader.Components {
             if (IsInitialized) return;
             Container = new(GetType().Name + "Container");
             Screen = Container.AddComponent<T>();
-            InitInternal();
+            OnInit();
             Screen.SetRootViewController(this, AnimationType.None);
             IsInitialized = true;
         }
 
         protected override sealed void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-            if (firstActivation) OnInstantiate();
+            if (firstActivation) OnPreParse();
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
         }
 
-        protected virtual void InitInternal() {
+        protected virtual void OnInit() {
             Container.transform.SetParent(transform.parent, false);
             transform.SetParent(Container.transform, false);
         }
-        protected virtual void OnInstantiate() { }
+        protected virtual void OnPreParse() { }
     }
 }

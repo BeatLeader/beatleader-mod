@@ -103,7 +103,7 @@ namespace BeatLeader.Components {
             for (int frame = 0; frame < totalFramesCount; frame++) {
                 nextSizeBG.y += sizeStepBG;
                 nextSizeFillArea.y += sizeStepBG;
-                nextPosMarksArea.y += sizeStepBGDiv2;
+                nextPosMarksArea.y -= sizeStepBGDiv2;
 
                 _marksAreaContainer.localPosition = nextPosMarksArea;
                 _background.sizeDelta = nextSizeBG;

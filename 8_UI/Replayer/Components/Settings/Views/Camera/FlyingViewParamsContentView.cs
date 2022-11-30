@@ -7,26 +7,24 @@ namespace BeatLeader.Components {
         #region UI Values
 
         [UIValue("fly-speed")]
-        private int _FlySpeed {
+        private int FlySpeed {
             get => FlyingViewConfig.Instance.FlySpeed;
             set {
                 if (!IsParsed) return;
                 Pose.flySpeed = value;
                 FlyingViewConfig.Instance.FlySpeed = value;
-                FlyingViewConfig.Instance.Save();
             }
         }
+
         [UIValue("disable-input-on-unlocked-cursor")]
-        private bool _DisableInputOnUnlockedCursor {
+        private bool DisableInputOnUnlockedCursor {
             get => FlyingViewConfig.Instance.DisableOnUnCur;
             set {
                 if (!IsParsed) return;
                 Pose.disableInputOnUnlockedCursor = value;
                 FlyingViewConfig.Instance.DisableOnUnCur = value;
-                FlyingViewConfig.Instance.Save();
             }
         }
-        public override int Id => 5;
 
         #endregion
 
@@ -40,6 +38,8 @@ namespace BeatLeader.Components {
 
         #region Setup
 
+        public override int Id => 5;
+
         protected override void OnInstantiate() {
             _sensitivityVectorControls = InstantiateOnSceneRoot<VectorControlsContentView>();
             _sensitivityMenuButton = Instantiate<NavigationButton>(transform);
@@ -50,10 +50,10 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _sensitivityVectorControls.MultipliedVector = new(
-                 FlyingViewConfig.Instance.SensitivityX, FlyingViewConfig.Instance.SensitivityY);
-            _FlySpeed = FlyingViewConfig.Instance.FlySpeed;
-            _DisableInputOnUnlockedCursor = FlyingViewConfig.Instance.DisableOnUnCur;
+            var config = FlyingViewConfig.Instance;
+            _sensitivityVectorControls.MultipliedVector = config.Sensitivity;
+            FlySpeed = config.FlySpeed;
+            DisableInputOnUnlockedCursor = config.DisableOnUnCur;
             NotifyPropertyChanged();
         }
 
@@ -72,13 +72,11 @@ namespace BeatLeader.Components {
 
         private void HandleVectorChanged(Vector3 vector) {
             Pose.mouseSensitivity = vector;
-            FlyingViewConfig.Instance.SensitivityX = vector.x;
-            FlyingViewConfig.Instance.SensitivityY = vector.y;
-            FlyingViewConfig.Instance.Save();
+            FlyingViewConfig.Instance.Sensitivity = (Vector2)vector;
         }
 
         [UIAction("reset-position")]
-        private void HandlePositionResetClicked() {
+        private void HandlePositionResetButtonClicked() {
             Pose.Reset();
         }
 

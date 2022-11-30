@@ -65,7 +65,7 @@ namespace BeatLeader.Components {
             if (!_isInitialized) return;
             DefaultLayoutMap = layoutMap;
             Position = _editor.Map(layoutMap.position, Size, layoutMap.anchor);
-            Layer = layoutMap.layer;
+            Layer = layoutMap.layer != DefaultLayoutMap.layer ? layoutMap.layer : Layer;
             State = layoutMap.enabled;
             SetWrapperPseudoState(layoutMap.enabled);
         }

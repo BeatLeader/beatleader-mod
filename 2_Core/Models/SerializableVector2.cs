@@ -1,4 +1,5 @@
 ﻿using UVector2 = UnityEngine.Vector2;
+using UVector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Models {
     internal struct SerializableVector2 {
@@ -11,8 +12,9 @@ namespace BeatLeader.Models {
             this.y = y;
         }
 
-        public static implicit operator UVector2(SerializableVector2 vector) => new UVector2(vector.x, vector.y);
-        public static implicit operator SerializableVector2(UVector2 vector) => new SerializableVector2(vector);
+        public static implicit operator UVector3(SerializableVector2 vector) => new(vector.x, vector.y);
+        public static implicit operator UVector2(SerializableVector2 vector) => new(vector.x, vector.y);
+        public static implicit operator SerializableVector2(UVector2 vector) => new(vector);
 
         public float x;
         public float y;

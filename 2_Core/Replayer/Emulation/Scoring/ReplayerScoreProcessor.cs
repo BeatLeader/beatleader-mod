@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -25,9 +24,8 @@ namespace BeatLeader.Replayer.Emulation {
         private static readonly Models.NoteCutInfo emptyNoteCutInfo = new();
 
         private void Awake() {
-            _generatedBeatmapNoteData = CreateSortedNoteDatasList(_beatmapData.allBeatmapDataItems);
-            _generatedBeatmapNoteData.OrderBy(x => x.time);
-            _genList.AddRange(_generatedBeatmapNoteData);
+            var sortedList = CreateSortedNoteDatasList(_beatmapData.allBeatmapDataItems);
+            _generatedBeatmapNoteData = new LinkedList<NoteData>(sortedList);
 
             _eventsProcessor.NoteProcessRequestedEvent += HandleNoteProcessRequested;
             _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
@@ -58,47 +56,50 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region NoteData
 
-        private LinkedList<NoteData> _generatedBeatmapNoteData;
-        private LinkedListNode<NoteData> _lastProcessedNode;
+        private class BeatmapDataItemsComparer : IComparer<BeatmapDataItem> {
+            public bool invert;
 
-        private List<NoteData> _genList = new();
+            public int Compare(BeatmapDataItem left, BeatmapDataItem right) {
+                var calc = left.time > right.time ? 1 : left.time < right.time ? -1 : 0;
+                return invert ? -calc : calc;
+            }
+        }
+
+        private static readonly BeatmapDataItemsComparer _beatmapItemsComparer = new();
+        private LinkedList<NoteData> _generatedBeatmapNoteData;
+        private LinkedListNode<NoteData> _startNodeForLastProcessedTime;
 
         private bool TryFindNoteData(NoteEvent noteEvent, out NoteData noteData) {
-            var startNode = _lastProcessedNode ?? _generatedBeatmapNoteData.First;
-            Debug.Log($"[{noteEvent.eventTime}] Last: " + _genList.IndexOf(_lastProcessedNode?.Value));
+            var startNode = _startNodeForLastProcessedTime ?? _generatedBeatmapNoteData.First;
+            var prevNode = _startNodeForLastProcessedTime;
             for (var node = startNode; node != null; node = node.Next) {
                 noteData = node.Value;
-                if ((_lastProcessedNode?.Value.time ?? 0) != noteData.time) {
-                    _lastProcessedNode = node;
+                if (Mathf.Abs(_startNodeForLastProcessedTime?.Value.time ?? 0 - noteData.time) < 0.01f) {
+                    _startNodeForLastProcessedTime = node;
                 }
                 if (noteEvent.IsMatch(noteData)) {
-                    //Debug.Log("Found at: " + _genList.IndexOf(noteData));
                     return true;
                 }
             }
-            foreach (var item in _genList) {
-                if (noteEvent.IsMatch(item)) {
-                    Debug.Log($"[{item.time}] Found on second cycle at: " + _genList.IndexOf(item));
-                    break;
-                }
-            }
+            _startNodeForLastProcessedTime = prevNode;
             noteData = null;
-            _lastProcessedNode = null;
-            Plugin.Log.Error("[Replayer] Not found NoteData for id " + noteEvent.noteID);
+            Plugin.Log.Error("[Replayer] NoteData not found for id " + noteEvent.noteID);
             return false;
         }
 
-        private static LinkedList<NoteData> CreateSortedNoteDatasList(IEnumerable<BeatmapDataItem> items) {
-            var list = new LinkedList<NoteData>();
+        private static List<NoteData> CreateSortedNoteDatasList(IEnumerable<BeatmapDataItem> items) {
+            var list = new List<NoteData>();
             foreach (var item in items) {
-                if (!item.TryDefine(out NoteData noteData)
-                    && item.TryDefine(out SliderData sliderData)) {
+                if (!item.TryDefine(out NoteData noteData) && item.TryDefine(out SliderData sliderData)) {
                     noteData = NoteData.CreateBurstSliderNoteData(
                         sliderData.time, sliderData.headLineIndex, sliderData.headLineLayer,
                         sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f);
                 }
-                if (noteData != null) list.AddLast(noteData);
+                if (noteData != null) {
+                    list.Add(noteData);
+                }
             }
+            list.Sort(_beatmapItemsComparer);
             return list;
         }
 
@@ -180,7 +181,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
         private void HandleReprocessRequested() {
             _cutScoreSpawnerSilencer.Enabled = true;
-            _lastProcessedNode = null;
+            _startNodeForLastProcessedTime = null;
             if (!_eventsProcessor.TimeWasSmallerThanActualTime) return;
 
             _scoreController.SetField("_modifiedScore", 0);
@@ -264,6 +265,7 @@ namespace BeatLeader.Replayer.Emulation {
             FinishSaberSwingRatingCounter(swingCounter, _lastCutBeforeCutRating, _lastCutAfterCutRating);
             _lastCutIsGood = false;
         }
+
         private static void NoteWasProcessedPostfix(GameEnergyCounter __instance) {
             __instance.LateUpdate();
         }

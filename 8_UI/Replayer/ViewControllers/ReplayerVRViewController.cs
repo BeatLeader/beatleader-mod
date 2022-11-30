@@ -27,7 +27,7 @@ namespace BeatLeader.ViewControllers {
         [UIValue("toolbar")] private ToolbarWithSettings _toolbar;
         [UIValue("floating-controls")] private FloatingControls _floatingControls;
 
-        protected override void OnInstantiate() {
+        protected override void OnPreParse() {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
             _toolbar = ReeUIComponentV2.Instantiate<ToolbarWithSettings>(transform);
             _floatingControls.Setup(Screen, _pauseController,
@@ -37,16 +37,13 @@ namespace BeatLeader.ViewControllers {
                 _controllersAccessor, _watermark);
         }
 
-        protected override void InitInternal() {
-            base.InitInternal();
+        protected override void OnInit() {
+            base.OnInit();
 
             var container = new GameObject("Container");
-            var viewContainer = new GameObject("ViewContainer");
 
             container.transform.SetParent(Container.transform.parent, false);
-            viewContainer.transform.SetParent(container.transform, false);
-
-            Container.transform.SetParent(viewContainer.transform, false);
+            Container.transform.SetParent(container.transform, false);
             Container.transform.localScale = new(0.02f, 0.02f, 0.02f);
             Container = container;
 
@@ -59,7 +56,7 @@ namespace BeatLeader.ViewControllers {
             screen.HandleSide = FloatingScreen.Side.Bottom;
             screen.HighlightHandle = true;
 
-            screen.handle.transform.localPosition = new(11, -23.5f, 0);
+            screen.handle.transform.localPosition = new(11, -29, 0);
             screen.handle.transform.localScale = new(20, 3.67f, 3.67f);
 
             var scaler = screen.gameObject.GetOrAddComponent<CanvasScaler>();

@@ -58,12 +58,11 @@ namespace BeatLeader.UI {
         private void Start() {
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
             ViewController = InputUtils.IsInFPFC ? _screenViewController : _vrViewController;
-            if (!InputUtils.IsInFPFC) {
-                ViewController = _vrViewController;
-                //ViewController.Container.transform
-                //    .SetParent(_controllersAccessor.HandsContainer, false);
-            } else ViewController = _screenViewController;
             ViewController.Init();
+            if (!InputUtils.IsInFPFC) {
+                ViewController.Container.transform
+                    .SetParent(_controllersAccessor.HandsContainer, false);
+            }
             AlwaysShowUI = _launchData.ActualSettings.ShowUI;
         }
 

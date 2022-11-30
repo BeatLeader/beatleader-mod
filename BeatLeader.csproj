@@ -239,8 +239,6 @@
     <Compile Include="0_Harmony\InstallersPatches\MenuInstallerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PreSwingRatingEnhancerPatch.cs" />
     <Compile Include="0_Harmony\InstallersPatches\PostSwingRatingEnhancerPatch.cs" />
-    <Compile Include="0_Harmony\ReplayerPatches\AudioTimeSyncControllerPatch.cs" />
-    <Compile Include="0_Harmony\ReplayerPatches\RaycastBlocker.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\BS_UtilsSubmissionPatch.cs" />
     <Compile Include="0_Harmony\SubmissionPatches\SiraUtilSubmissionPatch.cs" />
     <Compile Include="0_Harmony\UIPatches\HideModalsOnPlay.cs" />
@@ -356,13 +354,15 @@
     <Compile Include="2_Core\Replayer\Binding\HotkeysHandler.cs" />
     <Compile Include="2_Core\Replayer\Binding\Hotkeys\PauseHotkey.cs" />
     <Compile Include="2_Core\Replayer\Binding\Hotkeys\RewindBackwardHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\AudioTimeSyncControllerTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\GarbageDisablerTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\EventsSubscriberTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\GameTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InputSystemTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\ModifiersTweak.cs" />
-    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\PatchesLoaderTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InteropsLoaderTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\MethodsSilencerTweak.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RaycastBlockerTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RoomOffsetsTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SmoothCameraTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\TweaksLoader.cs" />

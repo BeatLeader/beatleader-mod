@@ -8,7 +8,7 @@ namespace BeatLeader.Components {
         #region UI Values
 
         [UIValue("show-head")]
-        private bool _ShowHead {
+        private bool ShowHead {
             get => _launchData?.ActualSettings.ShowHead ?? false;
             set {
                 _launchData.ActualToWriteSettings.ShowHead = value;
@@ -17,7 +17,7 @@ namespace BeatLeader.Components {
         }
 
         [UIValue("show-left-saber")]
-        private bool _ShowLeftSaber {
+        private bool ShowLeftSaber {
             get => _launchData?.ActualSettings.ShowLeftSaber ?? false;
             set {
                 _launchData.ActualToWriteSettings.ShowLeftSaber = value;
@@ -26,7 +26,7 @@ namespace BeatLeader.Components {
         }
 
         [UIValue("show-right-saber")]
-        private bool _ShowRightSaber {
+        private bool ShowRightSaber {
             get => _launchData?.ActualSettings.ShowRightSaber ?? false;
             set {
                 _launchData.ActualToWriteSettings.ShowRightSaber = value;
@@ -35,7 +35,7 @@ namespace BeatLeader.Components {
         }
 
         [UIValue("show-watermark")]
-        private bool _ShowWatermark {
+        private bool ShowWatermark {
             get => _replayWatermark?.Enabled ?? false;
             set {
                 if (_replayWatermark != null)
@@ -61,10 +61,10 @@ namespace BeatLeader.Components {
             _launchData = launchData;
             _replayWatermark = watermark;
 
-            NotifyPropertyChanged(nameof(_ShowHead));
-            NotifyPropertyChanged(nameof(_ShowLeftSaber));
-            NotifyPropertyChanged(nameof(_ShowRightSaber));
-            NotifyPropertyChanged(nameof(_ShowWatermark));
+            NotifyPropertyChanged(nameof(ShowHead));
+            NotifyPropertyChanged(nameof(ShowLeftSaber));
+            NotifyPropertyChanged(nameof(ShowRightSaber));
+            NotifyPropertyChanged(nameof(ShowWatermark));
             _watermark.SetActive(_replayWatermark.CanBeDisabled);
         }
 

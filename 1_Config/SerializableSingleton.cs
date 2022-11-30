@@ -23,7 +23,7 @@ namespace BeatLeader {
             foreach (var item in _registeredSingletons) {
                 try {
                     item.Save();
-                    Plugin.Log.Info("Successfully saved " + item.GetType());
+                    Plugin.Log.Info("Successfully saved " + item.GetType().Name);
                 } catch (Exception ex) {
                     Plugin.Log.Error($"Failed to serialize {item.GetType()}! \r\n{ex}");
                 }

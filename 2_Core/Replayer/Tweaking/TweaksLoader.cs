@@ -13,13 +13,15 @@ namespace BeatLeader.Replayer.Tweaking {
         }
 
         public readonly List<GameTweak> tweaks = new() {
+            new AudioTimeSyncControllerTweak(),
             new SmoothCameraTweak(),
             new InputSystemTweak(),
             new EventsSubscriberTweak(),
             new GarbageDisablerTweak(),
-            new PatchesLoaderTweak(),
+            new InteropsLoaderTweak(),
             new MethodsSilencerTweak(),
             new ModifiersTweak(),
+            new RaycastBlockerTweak(),
             new RoomOffsetsTweak(),
             new SoundEffectsCountLimiterTweak()
         }; //not static to dispose the garbage inside tweaks

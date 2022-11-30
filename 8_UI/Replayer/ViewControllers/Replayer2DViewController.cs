@@ -32,8 +32,8 @@ namespace BeatLeader.ViewControllers {
             _mainScreenView?.OpenLayoutEditor();
         }
 
-        protected override void InitInternal() {
-            base.InitInternal();
+        protected override void OnInit() {
+            base.OnInit();
             var canvas = Screen.Canvas;
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 1;
@@ -51,7 +51,7 @@ namespace BeatLeader.ViewControllers {
             _canvasGroup = Screen.gameObject.GetOrAddComponent<CanvasGroup>();
         }
 
-        protected override void OnInstantiate() {
+        protected override void OnPreParse() {
             _canvasGroup.alpha = 0f;
             _mainScreenView = ReeUIComponentV2WithContainer
                 .InstantiateInContainer<MainScreenView>(_container, null);

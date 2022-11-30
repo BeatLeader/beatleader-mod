@@ -52,7 +52,7 @@ namespace BeatLeader.Components {
             _viewFloating.HandleReleased += HandleFloatingHandleWasReleased;
 
             _hideUI = hideUI;
-            _viewFloating.transform.SetLocalPose(LoadPoseFromConfig());
+            _viewFloating.transform.SetLocalPose(FloatingConfig.Instance.Pose);
         }
 
         protected override void OnInstantiate() {
@@ -75,7 +75,7 @@ namespace BeatLeader.Components {
 
             _resetController = _resetFloating.gameObject.AddComponent<ResetController>();
             _resetController.PoseWasResettedEvent += HandlePoseWasResetted;
-            _resetController.pose = defaultPose;
+            _resetController.pose = FloatingConfig.DefaultPose;
             _resetController.ResetTransform = _viewFloating?.transform ?? null;
 
             LoadConfig();
@@ -85,24 +85,13 @@ namespace BeatLeader.Components {
 
         #region Config
 
-        private static readonly Pose defaultPose = new(new(0, 1, 2), Quaternion.Euler(new(40, 0, 0)));
-
-        private FloatingConfig Config => FloatingConfig.Instance;
-
         private void LoadConfig() {
-            _viewFloating?.transform.SetLocalPose(LoadPoseFromConfig());
-            _pinButton.Toggle(Config.IsPinned);
+            _viewFloating?.transform.SetLocalPose(FloatingConfig.Instance.Pose);
+            _pinButton.Toggle(FloatingConfig.Instance.IsPinned);
             HandlePauseStateChanged(false);
         }
-        private Pose LoadPoseFromConfig() {
-            return new Pose(Config.Position, Config.Rotation);
-        }
         private void SavePoseToConfig() {
-            SavePoseToConfig(_viewFloating?.transform.GetLocalPose() ?? default);
-        }
-        private void SavePoseToConfig(Pose pose) {
-            Config.Position = pose.position;
-            Config.Rotation = pose.rotation;
+            FloatingConfig.Instance.Pose = _viewFloating?.transform.GetLocalPose() ?? default;
         }
 
         #endregion
@@ -112,11 +101,12 @@ namespace BeatLeader.Components {
         private void HandlePinToggled(bool pin) {
             if (_viewFloating == null) return;
 
-            Config.IsPinned = pin;
+            FloatingConfig.Instance.IsPinned = pin;
             _viewFloating.handle.gameObject.SetActive(!pin);
             _spacerOne.SetActive(!pin);
             _spacerTwo.SetActive(!pin);
         }
+
         private void HandleAlignPressed() {
             if (_viewFloating.transform == null) return;
 
@@ -125,21 +115,24 @@ namespace BeatLeader.Components {
             var transform = _viewFloating.transform;
 
             for (int i = 0; i <= 2; i++) {
-                pos[i] = MathUtils.GetClosestCoordinate(transform.localPosition[i], Config.GridPosIncrement);
-                rot[i] = MathUtils.GetClosestCoordinate(transform.localEulerAngles[i], Config.GridRotIncrement);
+                pos[i] = MathUtils.GetClosestCoordinate(transform.localPosition[i], FloatingConfig.Instance.GridPosIncrement);
+                rot[i] = MathUtils.GetClosestCoordinate(transform.localEulerAngles[i], FloatingConfig.Instance.GridRotIncrement);
             }
 
             var pose = new Pose(pos, Quaternion.Euler(rot));
 
             transform.SetLocalPose(pose);
-            SavePoseToConfig(pose);
+            FloatingConfig.Instance.Pose = pose;
         }
+
         private void HandleFloatingHandleWasReleased(object sender, FloatingScreenHandleEventArgs args) {
             SavePoseToConfig();
         }
+
         private void HandlePoseWasResetted() {
             SavePoseToConfig();
         }
+
         private void HandlePauseStateChanged(bool state) {
             if (!_hideUI || _viewFloating == null) return;
 

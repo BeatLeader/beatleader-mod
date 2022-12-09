@@ -160,10 +160,10 @@ namespace BeatLeader.Replayer
 
         private void StartReplay(Player player)
         {
-            StartReplayAsync(Replay, player, ConfigFileData.Instance.ReplayerSettings);
+            StartReplayAsync(Replay, player, ConfigFileData.Instance.ReplayerSettings).Wait();
         }
 
-        private async Task<bool> StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null)
+        private async Task<bool> StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null)
         {
             var data = new ReplayLaunchData(replay, player, settings: settings);
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;

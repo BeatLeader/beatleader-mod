@@ -79,7 +79,7 @@ namespace BeatLeader.Components {
 
         public void SetPlayer(Player player) {
             _player = player;
-            _isMe = ProfileManager.IsCurrentPlayer(player);
+            _isMe = ProfileManager.IsCurrentPlayer(player?.id);
 
             UpdateFriendButton();
             UpdateHideButton();

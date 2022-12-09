@@ -42,7 +42,7 @@ namespace BeatLeader.Components {
             }
 
             UpInteractable = scoresData.metadata.page > 1;
-            AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => ProfileManager.IsCurrentPlayer(it.player));
+            AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => ProfileManager.IsCurrentPlayer(it.player?.id));
             DownInteractable = scoresData.metadata.page * scoresData.metadata.itemsPerPage < scoresData.metadata.total;
         }
 

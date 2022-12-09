@@ -42,8 +42,8 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        public static bool IsCurrentPlayer(Player other) {
-            return HasProfile && string.Equals(Profile.id, other?.id, StringComparison.Ordinal);
+        public static bool IsCurrentPlayer(string otherId) {
+            return HasProfile && string.Equals(Profile.id, otherId, StringComparison.Ordinal);
         }
 
         public static bool TryGetUserId(out string userId) {

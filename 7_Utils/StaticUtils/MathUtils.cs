@@ -28,5 +28,19 @@ namespace BeatLeader.Utils
         {
             return val > 0 ? val * -1 : val;
         }
+
+        public static float IncorporateBool(this float val, bool flag)
+        {
+            int i = BitConverter.ToInt32(BitConverter.GetBytes(val), 0);
+            if (flag)
+            {
+                i |= 1;
+            }
+            else
+            {
+                i &= ~1;
+            }
+            return BitConverter.ToSingle(BitConverter.GetBytes(i), 0);
+        }
     }
 }

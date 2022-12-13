@@ -6,6 +6,7 @@ using System.Text;
 using GameNoteCutInfo = NoteCutInfo;
 using UVector3 = UnityEngine.Vector3;
 using UQuaternion = UnityEngine.Quaternion;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Models
 {
@@ -392,17 +393,7 @@ namespace BeatLeader.Models
             stream.Write(info.directionOK);
             stream.Write(info.saberTypeOK);
             stream.Write(info.wasCutTooSoon);
-
-            int i = BitConverter.ToInt32(BitConverter.GetBytes(info.saberSpeed), 0);
-            if (info.cutDistanceToCenterPositive)
-            {
-                i |= 1;
-            }
-            else
-            {
-                i &= ~1;
-            }
-            stream.Write(BitConverter.ToSingle(BitConverter.GetBytes(i), 0));
+            stream.Write(info.saberSpeed.IncorporateBool(info.cutDistanceToCenterPositive));
             EncodeVector(info.saberDir, stream);
             stream.Write(info.saberType);
             stream.Write(info.timeDeviation);

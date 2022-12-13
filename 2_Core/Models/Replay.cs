@@ -161,21 +161,22 @@ namespace BeatLeader.Models
             cutAngle = info.cutAngle
         };
 
-        public bool speedOK;
-        public bool directionOK;
-        public bool saberTypeOK;
-        public bool wasCutTooSoon;
-        public float saberSpeed;
-        public Vector3 saberDir;
-        public int saberType;
-        public float timeDeviation;
-        public float cutDirDeviation;
-        public Vector3 cutPoint;
-        public Vector3 cutNormal;
-        public float cutDistanceToCenter;
-        public float cutAngle;
-        public float beforeCutRating;
-        public float afterCutRating;
+        public bool speedOK { get; set; }
+        public bool directionOK { get; set; }
+        public bool saberTypeOK { get; set; }
+        public bool wasCutTooSoon { get; set; }
+        public float saberSpeed { get; set; }
+        public bool cutDistanceToCenterPositive { get; set; }
+        public Vector3 saberDir { get; set; }
+        public int saberType { get; set; }
+        public float timeDeviation { get; set; }
+        public float cutDirDeviation { get; set; }
+        public Vector3 cutPoint { get; set; }
+        public Vector3 cutNormal { get; set; }
+        public float cutDistanceToCenter { get; set; }
+        public float cutAngle{ get; set; }
+        public float beforeCutRating{ get; set; }
+        public float afterCutRating { get; set; }
 
         public bool allIsOK => speedOK && directionOK && saberTypeOK && !wasCutTooSoon;
     }
@@ -391,7 +392,17 @@ namespace BeatLeader.Models
             stream.Write(info.directionOK);
             stream.Write(info.saberTypeOK);
             stream.Write(info.wasCutTooSoon);
-            stream.Write(info.saberSpeed);
+
+            int i = BitConverter.ToInt32(BitConverter.GetBytes(info.saberSpeed), 0);
+            if (info.cutDistanceToCenterPositive)
+            {
+                i |= 1;
+            }
+            else
+            {
+                i &= ~1;
+            }
+            stream.Write(BitConverter.ToSingle(BitConverter.GetBytes(i), 0));
             EncodeVector(info.saberDir, stream);
             stream.Write(info.saberType);
             stream.Write(info.timeDeviation);

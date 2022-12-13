@@ -531,7 +531,10 @@ namespace BeatLeader.Models
             List<Frame> result = new List<Frame>();
             for (int i = 0; i < length; i++)
             {
-                result.Add(DecodeFrame(buffer, ref pointer));
+                var frame  = DecodeFrame(buffer, ref pointer);
+                if (frame.time != 0) {
+                    result.Add(frame);
+                }
             }
             if (result.Count > 2)
             {

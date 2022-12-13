@@ -225,7 +225,7 @@ namespace BeatLeader {
             var noteEvent = _noteEventCache[noteId];
             noteEvent.noteCutInfo = noteCutInfo;
 
-            if (UnityEngine.Vector3.Dot(noteCutInfo.cutNormal, noteCutInfo.notePosition - noteController.noteTransform.position) <= 0) {
+            if (UnityEngine.Vector3.Dot(noteCutInfo.cutNormal, noteCutInfo.cutPoint - noteController.noteTransform.position) <= 0) {
                 noteEvent.noteCutInfo.cutDistanceToCenterPositive = true;
             }
         }

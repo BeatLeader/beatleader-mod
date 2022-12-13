@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 using BeatLeader.Models;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace BeatLeader.Components {
     internal class SpeedSetting : ReeUIComponentV2 {
@@ -54,11 +55,11 @@ namespace BeatLeader.Components {
         #region SpeedMultiplierText
 
         [UIValue("speed-multiplier-text")]
-        private string _SpeedMultiplierText {
+        private string SpeedMultiplierText {
             get => _speedMultiplierText;
             set {
                 _speedMultiplierText = value;
-                NotifyPropertyChanged(nameof(_SpeedMultiplierText));
+                NotifyPropertyChanged(nameof(SpeedMultiplierText));
             }
         }
 
@@ -69,11 +70,13 @@ namespace BeatLeader.Components {
         #region UI Callbacks
 
         private void OnSliderDrag(float value) {
-            if (!_isInitialized) return;
+            if (!_isInitialized 
+                || float.IsInfinity(value) 
+                || float.IsNaN(value)) return;
 
-            float speedMultiplier = value * 0.1f;
-            if (speedMultiplier > MaxAvailableSpeedMultiplier
-                || speedMultiplier < MinAvailableSpeedMultiplier) return;
+            var speedMultiplier = value * 0.1f;
+            speedMultiplier = Mathf.Clamp(speedMultiplier, 
+                MinAvailableSpeedMultiplier, MaxAvailableSpeedMultiplier);
 
             _beatmapTimeController.SetSpeedMultiplier(speedMultiplier);
             RefreshText(speedMultiplier);
@@ -89,7 +92,7 @@ namespace BeatLeader.Components {
                 mul.Equals(MinAvailableSpeedMultiplier) ||
                 mul.Equals(MaxAvailableSpeedMultiplier) ? "red" : "#00ffffff" /*cyan*/;
 
-            _SpeedMultiplierText = $"<color={currentMulColor}>{mul * 100}%</color>" +
+            SpeedMultiplierText = $"<color={currentMulColor}>{mul * 100}%</color>" +
                 $" | <color=yellow>{_songSpeedData.speedMul * 100}%</color>";
         }
 

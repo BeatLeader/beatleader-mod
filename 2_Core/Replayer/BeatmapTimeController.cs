@@ -68,7 +68,8 @@ namespace BeatLeader.Replayer {
         #region Rewind
 
         public void Rewind(float time, bool resumeAfterRewind = true) {
-            if (Math.Abs(time - SongTime) < 0.001f) return;
+            if (Math.Abs(time - SongTime) < 0.001f 
+                || float.IsInfinity(time) || float.IsNaN(time)) return;
             time = Mathf.Clamp(time, SongStartTime, SongEndTime);
 
             EarlySongRewindEvent?.Invoke(time);

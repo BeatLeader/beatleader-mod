@@ -4,11 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
-    internal class TimelineAnimator : MonoBehaviour,
-        IPointerEnterHandler,
-        IPointerExitHandler,
-        IPointerUpHandler,
-        IPointerDownHandler {
+    internal class TimelineAnimator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
         #region Configuration
 
         private const float HandleExpandSize = 0.8f;
@@ -51,23 +47,27 @@ namespace BeatLeader.Components {
         #region Triggers
 
         private bool _highlightedStateTrigger;
+        private bool _pressedStateTrigger;
 
         private void Update() {
             if (!_initialized) return;
-            StartAnimation(_highlightedStateTrigger);
+            if (Input.GetMouseButtonDown(0)) {
+                HandlePressedEvent?.Invoke();
+                _pressedStateTrigger = true;
+            }
+            else if (Input.GetMouseButtonUp(0)) {
+                HandleReleasedEvent?.Invoke();
+                _pressedStateTrigger = false;
+            }
+            StartAnimation(_highlightedStateTrigger || _pressedStateTrigger);
         }
 
         public void OnPointerEnter(PointerEventData data) {
             _highlightedStateTrigger = true;
         }
+
         public void OnPointerExit(PointerEventData data) {
             _highlightedStateTrigger = false;
-        }
-        public void OnPointerUp(PointerEventData data) {
-            HandleReleasedEvent?.Invoke();
-        }
-        public void OnPointerDown(PointerEventData data) {
-            HandlePressedEvent?.Invoke();
         }
 
         #endregion

@@ -99,6 +99,7 @@ namespace BeatLeader.Components {
         private ParamsContentViewBase _selectedParamsMenu;
 
         private void HandlePoseChanged(ICameraPoseProvider provider) {
+            if (provider == null) return;
             NotifyPropertyChanged(nameof(_CameraView));
             _paramsMenuButton.Interactable = TryFindView(provider, out _selectedParamsMenu);
         }

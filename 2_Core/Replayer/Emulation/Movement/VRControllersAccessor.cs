@@ -48,7 +48,9 @@ namespace BeatLeader.Replayer.Emulation {
 
             SetInputControllers(LeftHand, RightHand);
             InjectControllers();
+            ShowHands(false);
         }
+
         private void SetupHands() {
             var menuHandsTransform = _pauseMenuManager.transform.Find("MenuControllers");
             LeftHand = Instantiate(menuHandsTransform.Find("ControllerLeft")).GetComponent<VRController>();
@@ -71,6 +73,7 @@ namespace BeatLeader.Replayer.Emulation {
             pointer.SetField("_leftVRController", left);
             pointer.SetField("_rightVRController", right);
         }
+
         private void InjectControllers() {
             foreach (var item in GetType().GetProperties()) {
                 if (!item.CanWrite || item.PropertyType != typeof(VRController)) continue;

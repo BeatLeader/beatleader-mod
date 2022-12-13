@@ -51,7 +51,8 @@ namespace BeatLeader.Components {
             if (enabled) {
                 ReloadTable();
                 RefreshGrid();
-            } else SaveLayout();
+            } else 
+                SaveLayout();
             SetWindowEnabled(enabled);
             SetGridEnabled(enabled);
             EditModeEnabled = enabled;

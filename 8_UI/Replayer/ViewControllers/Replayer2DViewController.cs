@@ -28,8 +28,16 @@ namespace BeatLeader.ViewControllers {
 
         #region Setup
 
+        private bool _enableAfterBuild = true;
+        private bool _isUIBuilt;
+
         public void OpenLayoutEditor() {
             _mainScreenView?.OpenLayoutEditor();
+        }
+
+        public override void Hide(bool hide = true) {
+            _canvasGroup.alpha = !hide && _isUIBuilt ? 1 : 0;
+            _enableAfterBuild = !hide;
         }
 
         protected override void OnInit() {
@@ -52,7 +60,7 @@ namespace BeatLeader.ViewControllers {
         }
 
         protected override void OnPreParse() {
-            _canvasGroup.alpha = 0f;
+            _canvasGroup.alpha = 0;
             _mainScreenView = ReeUIComponentV2WithContainer
                 .InstantiateInContainer<MainScreenView>(_container, null);
             _exitController.ReplayExitEvent += HandleReplayExit;
@@ -69,7 +77,11 @@ namespace BeatLeader.ViewControllers {
         #region Callbacks
 
         private void HandleUIBuilt() {
-            CoroutinesHandler.instance.StartCoroutine(UIAnimationCoroutine());
+            if (_isUIBuilt) return;
+            _isUIBuilt = true;
+            if (_enableAfterBuild) {
+                CoroutinesHandler.instance.StartCoroutine(UIAnimationCoroutine());
+            }
         }
 
         private void HandleReplayExit() {
@@ -86,7 +98,7 @@ namespace BeatLeader.ViewControllers {
 
         private IEnumerator UIAnimationCoroutine(bool show = true) {
             yield return new WaitForEndOfFrame();
-            _canvasGroup.alpha = show ? 0 : 1;
+            Hide(show);
             var duration = show ? InDuration : OutDuration;
             var totalFramesCount = Mathf.FloorToInt(duration * AnimationFrameRate);
             var frameDuration = duration / totalFramesCount;

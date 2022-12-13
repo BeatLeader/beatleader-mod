@@ -48,8 +48,7 @@ namespace BeatLeader.Replayer {
                 _controllersProvider.LeftSaber.gameObject.SetActive(settings.ShowLeftSaber);
                 _controllersProvider.RightSaber.gameObject.SetActive(settings.ShowRightSaber);
 
-                if (!InputUtils.IsInFPFC)
-                _controllersProvider.ShowHands();
+                if (!InputUtils.IsInFPFC) _controllersProvider.ShowHands();
             }
         }
         public void Dispose() {

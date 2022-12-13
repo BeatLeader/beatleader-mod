@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
-using ReplayNoteCutInfo = BeatLeader.Models.NoteCutInfo;
 using UnityEngine;
 
 namespace BeatLeader.Utils
@@ -250,57 +248,6 @@ namespace BeatLeader.Utils
         {
             return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
         }
-        public static NoteEvent GetNoteEvent(this NoteData noteData, Replay replay)
-        {
-            return GetNoteEventById(replay, noteData.ComputeNoteId(), noteData.time);
-        }
-        public static NoteEvent GetNoteEvent(this NoteController noteController, Replay replay)
-        {
-            return GetNoteEventInOrder(noteController, replay).Item2;
-        }
-        public static (int, NoteEvent) GetNoteEventInOrder(this NoteController noteController, Replay replay)
-        {
-            return GetNoteEventByIdInOrder(replay, noteController.noteData.ComputeNoteId(), noteController.noteData.time);
-        }
-        public static WallEvent GetWallEvent(this ObstacleData obstacleData, Replay replay)
-        {
-            return GetWallEventById(replay, obstacleData.ComputeObstacleId(), obstacleData.time);
-        }
-        public static NoteEvent GetNoteEventById(this Replay replay, int ID, float time)
-        {
-            return GetNoteEventByIdInOrder(replay, ID, time).Item2;
-        }
-        public static (int, NoteEvent) GetNoteEventByIdInOrder(this Replay replay, int ID, float time)
-        {
-            for (int i = 0; i < replay.notes.Count; i++)
-            {
-                var item = replay.notes[i];
-                if ((item.noteID == ID || item.noteID == ID - 30000) && item.spawnTime >= time)
-                    return (i, item);
-            }
-            return default;
-        }
-        public static WallEvent GetWallEventById(this Replay replay, int ID, float time)
-        {
-            foreach (var item in replay.walls)
-                if (item.wallID == ID && (item.spawnTime >= time - 0.05f && item.spawnTime <= time + 0.15f))
-                    return item;
-            return null;
-        }
-        public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, NoteEvent noteEvent)
-        {
-            return ReplayNoteCutInfo.Convert(noteEvent.noteCutInfo, noteController);
-        }
-        public static NoteCutInfo GetNoteCutInfo(this NoteController noteController, Replay replay)
-        {
-            var noteEvent = GetNoteEvent(noteController, replay);
-            return noteEvent != null ? ReplayNoteCutInfo.Convert(noteEvent.noteCutInfo, noteController) : default;
-        }
-        public static LinkedListNode<Frame> GetFrameByTime(this LinkedList<Frame> frames, float time)
-        {
-            TryGetFrameByTime(frames, time, out var frame);
-            return frame;
-        }
         public static bool TryGetFrameByTime(this LinkedListNode<Frame> entryPoint, float time, out LinkedListNode<Frame> frame)
         {
             for (frame = entryPoint; frame != null; frame = frame.Next)
@@ -314,10 +261,6 @@ namespace BeatLeader.Utils
             frame = null;
             return false;
         }
-        public static bool TryGetFrameByTime(this LinkedList<Frame> frames, float time, out LinkedListNode<Frame> frame)
-        {
-            return TryGetFrameByTime(frames.First, time, out frame);
-        }
 
         #endregion
 
@@ -327,67 +270,18 @@ namespace BeatLeader.Utils
         {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
         }
+
         public static int ComputeNoteId(this NoteData noteData)
         {
             return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex
                 * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType
                 * 10 + (int)noteData.cutDirection;
         }
+
         public static bool IsMatch(this NoteEvent noteEvent, NoteData noteData) {
             var calcId = noteData.ComputeNoteId();
             var id = noteEvent.noteID;
             return id == calcId || id == calcId - 30000;
-        }
-        public static int ComputeNoteScore(this NoteEvent note)
-        {
-            if (note.eventType != NoteEventType.good)
-            {
-                return note.eventType switch
-                {
-                    NoteEventType.bad => -2,
-                    NoteEventType.miss => -3,
-                    NoteEventType.bomb => -4,
-                    _ => -1
-                };
-            }
-
-            var noteCutInfo = note.noteCutInfo;
-
-            double beforeCutRawScore = Mathf.Clamp((float)Math.Round(70 * noteCutInfo.beforeCutRating), 0, 70);
-            double afterCutRawScore = Mathf.Clamp((float)Math.Round(30 * noteCutInfo.afterCutRating), 0, 30);
-
-            double num = 1 - Mathf.Clamp(noteCutInfo.cutDistanceToCenter / 0.3f, 0.0f, 1.0f);
-            double cutDistanceRawScore = Math.Round(15 * num);
-
-            return (int)beforeCutRawScore + (int)afterCutRawScore + (int)cutDistanceRawScore;
-        }
-        public static float ComputeEnergyChange(this NoteData.GameplayType type, bool allIsOK, bool miss)
-        {
-            switch (type)
-            {
-                case NoteData.GameplayType.Normal:
-                case NoteData.GameplayType.BurstSliderHead:
-                    return miss ? (-0.15f) : allIsOK ? 0.01f : (-0.1f);
-                case NoteData.GameplayType.Bomb:
-                    return miss ? 0 : (-0.15f);
-                case NoteData.GameplayType.BurstSliderElement:
-                    return miss ? (-0.03f) : allIsOK ? 0.002f : (-0.025f);
-                default:
-                    return 0;
-            }
-        }
-        public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData.ScoringType scoringType)
-        {
-            return scoringType switch
-            {
-                NoteData.ScoringType.Ignore => ScoreMultiplierCounter.MultiplierEventType.Neutral,
-                NoteData.ScoringType.NoScore => ScoreMultiplierCounter.MultiplierEventType.Neutral,
-                _ => ScoreMultiplierCounter.MultiplierEventType.Positive,
-            };
-        }
-        public static ScoreMultiplierCounter.MultiplierEventType ComputeNoteMultiplier(this NoteData noteData)
-        {
-            return ComputeNoteMultiplier(noteData.scoringType);
         }
 
         #endregion

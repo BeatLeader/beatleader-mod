@@ -11,7 +11,7 @@
   </horizontal>
 
   <horizontal>
-    <better-image pref-height="19" src="#bl-black-transparent-bg" type="Sliced" ppu="5">
+    <better-image pref-height="19" src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-width="48">
       <vertical child-expand-height="false" pref-width="46">
 
         <text text="Camera View" font-align="Center"/>

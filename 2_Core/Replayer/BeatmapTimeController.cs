@@ -108,7 +108,7 @@ namespace BeatLeader.Replayer {
 
         #endregion
 
-        #region ChangeSpeed
+        #region Change Speed
 
         public void SetSpeedMultiplier(float speedMultiplier, bool resumeAfterSpeedChange = true) {
             if (Math.Abs(speedMultiplier - _audioTimeSyncController.timeScale) < 0.001f) return;
@@ -148,18 +148,14 @@ namespace BeatLeader.Replayer {
             var param = new object[1];
             foreach (var item in _spawnedBeatmapObjectControllers.ToList()) {
                 param[0] = item;
-                switch (item) {
-                    case NoteController:
-                        //CustomNotesInterop.TryDespawnCustomObject(note);
-                        _despawnNoteMethod.Invoke(_beatmapObjectManager, param);
-                        continue;
-                    case SliderController:
-                        _despawnSliderMethod.Invoke(_beatmapObjectManager, param);
-                        continue;
-                    case ObstacleController:
-                        _despawnObstacleMethod.Invoke(_beatmapObjectManager, param);
-                        continue;
-                }
+                //TODO: potential bug
+                item.Pause(false);
+                (item switch {
+                    NoteController => _despawnNoteMethod,
+                    SliderController => _despawnSliderMethod,
+                    ObstacleController => _despawnObstacleMethod,
+                    _ => null
+                })?.Invoke(_beatmapObjectManager, param);
             }
         }
         private void DespawnAllNoteControllerSounds() {

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace BeatLeader.Components {
     internal class EditorTableCell : ReeUIComponentV2 {
         private static readonly Color defaultColor = new(0.3f, 0.3f, 0.3f);
-        private static readonly Color selectedColor = new(0, 170, 230);
+        private static readonly Color selectedColor = new(0.85f, 0.85f, 0);
 
         [UIValue("name")]
         public string Name => Element?.Name ?? string.Empty;

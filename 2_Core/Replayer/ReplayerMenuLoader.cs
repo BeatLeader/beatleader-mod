@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatLeader.UI;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
-using SiraUtil.Submissions;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
@@ -146,7 +143,7 @@ namespace BeatLeader.Replayer {
             StartReplayAsync(Replay, player, ConfigFileData.Instance.ReplayerSettings);
         }
 
-        private async Task<bool> StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null) {
+        public async void StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null) {
             var data = new ReplayLaunchData(replay, player, settings: settings);
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
 
@@ -163,9 +160,7 @@ namespace BeatLeader.Replayer {
                 ScoreSaberInterop.RecordingEnabled = false;
                 BeatSaviorInterop.ScoreSubmissionEnabled = false;
                 //InputUtils.forceFPFC = !_fpfcSettings.Ignore;
-                return true;
             }
-            return false;
         }
 
         private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData) {

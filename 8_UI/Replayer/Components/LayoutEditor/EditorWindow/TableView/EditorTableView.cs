@@ -42,6 +42,7 @@ namespace BeatLeader.Components {
             _models.ForEach(x => x.RefreshTexts());
             _models.Sort(_comparer);
             _tableView.ReloadData();
+            RefreshLayers();
         }
 
         public void SelectCell(EditableElement element) {
@@ -61,6 +62,13 @@ namespace BeatLeader.Components {
             var model = _models.FirstOrDefault(x => x.Element == element);
             if (model == null) return false;
             return _models.Remove(model);
+        }
+
+        private void RefreshLayers() {
+            foreach (var item in _models) {
+                var editable = item.Element;
+                editable.tempLayoutMap.layer = editable.Layer;
+            }
         }
 
         protected override void OnInitialize() {

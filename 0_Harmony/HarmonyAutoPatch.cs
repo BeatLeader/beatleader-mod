@@ -1,26 +1,22 @@
 ﻿using HarmonyLib;
 using System;
 
-namespace BeatLeader
-{
-    internal class HarmonyAutoPatch : IDisposable
-    {
-        private static readonly Harmony _harmony = new("BeatLeader.AutoPatchesRegistry");
-
-        public HarmonyAutoPatch(HarmonyPatchDescriptor descriptor)
-        {
-            Descriptor = descriptor;
-            _harmony.Patch(descriptor);
+namespace BeatLeader {
+    internal class HarmonyAutoPatch : IDisposable {
+        public HarmonyAutoPatch(HarmonyPatchDescriptor descriptor) {
+            this.descriptor = descriptor;
+            harmony.Patch(descriptor);
         }
 
-        public HarmonyPatchDescriptor Descriptor { get; private set; }
+        private static readonly Harmony harmony = new("BeatLeader.AutoPatchesRegistry");
 
-        public void Dispose()
-        {
-            if (Descriptor.Prefix != null)
-                _harmony.Unpatch(Descriptor.Prefix.method, HarmonyPatchType.Prefix);
-            if (Descriptor.Postfix != null)
-                _harmony.Unpatch(Descriptor.Postfix.method, HarmonyPatchType.Postfix);
+        public readonly HarmonyPatchDescriptor descriptor;
+
+        public void Dispose() {
+            if (descriptor.Prefix != null)
+                harmony.Unpatch(descriptor.Prefix.method, HarmonyPatchType.Prefix);
+            if (descriptor.Postfix != null)
+                harmony.Unpatch(descriptor.Postfix.method, HarmonyPatchType.Postfix);
         }
 
         public static implicit operator HarmonyAutoPatch(HarmonyPatchDescriptor descriptor) => new(descriptor);

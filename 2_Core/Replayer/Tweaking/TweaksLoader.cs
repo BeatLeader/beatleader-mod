@@ -23,7 +23,6 @@ namespace BeatLeader.Replayer.Tweaking {
             new ModifiersTweak(),
             new RaycastBlockerTweak(),
             new RoomOffsetsTweak(),
-            new SoundEffectsCountLimiterTweak()
         }; //not static to dispose the garbage inside tweaks
 
         [Inject] private readonly DiContainer _container;

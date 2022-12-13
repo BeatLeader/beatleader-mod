@@ -32,12 +32,16 @@ namespace BeatLeader.Replayer {
                 if (loadingResult.isError) return false;
             }
 
-            var environmentInfo = GetEnvironmentByLaunchData(data);
+            if (token.IsCancellationRequested) return false;
+            var environmentInfo = await GetEnvironmentByLaunchData(data);
+
+            if (token.IsCancellationRequested) return false;
             var transitionData = data.Replay.CreateTransitionData(_playerDataModel, data.DifficultyBeatmap, environmentInfo.value);
             transitionData.didFinishEvent += ResetData;
 
             IsStartedAsReplay = true;
             LaunchData = data;
+            if (token.IsCancellationRequested) return false;
 
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
             ReplayWasStartedEvent?.Invoke(data);
@@ -75,16 +79,18 @@ namespace BeatLeader.Replayer {
             return await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token);
         }
 
-        private RequestResult<EnvironmentInfoSO> GetEnvironmentByLaunchData(ReplayLaunchData data) {
+        private Task<RequestResult<EnvironmentInfoSO>> GetEnvironmentByLaunchData(ReplayLaunchData data) {
             EnvironmentInfoSO environment = null;
 
             if (data.ActualSettings.LoadPlayerEnvironment) {
                 environment = ReplayDataHelper.GetEnvironmentByName(data.Replay.info.environment);
-                if (environment == null) Plugin.Log.Error("[Launcher] Failed to parse player environment!");
-            } else if (data.OverrideEnvironmentInfo != null)
+                if (environment == null)
+                    Plugin.Log.Error("[Launcher] Failed to parse player environment!");
+            } else if (data.OverrideEnvironmentInfo != null) {
                 environment = data.OverrideEnvironmentInfo;
+            }
 
-            return new RequestResult<EnvironmentInfoSO>(environment == null, environment);
+            return Task.FromResult(new RequestResult<EnvironmentInfoSO>(environment == null, environment));
         }
         private static void ResetData(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults) {
             transitionData.didFinishEvent -= ResetData;

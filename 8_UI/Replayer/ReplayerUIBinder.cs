@@ -32,14 +32,12 @@ namespace BeatLeader.UI {
         public bool UIEnabled { get; private set; }
 
         private bool _alwaysShowUI;
-        private bool _isPaused;
 
         private void RefreshUIVisibility() {
             if (ViewController == null) return;
-            var active = _alwaysShowUI || _isPaused;
-            if (UIEnabled == active) return;
+            var active = _alwaysShowUI || _pauseController.IsPaused;
             UIEnabled = active;
-            ViewController.Container.SetActive(UIEnabled);
+            ViewController.Hide(!UIEnabled);
             UIVisibilityChangedEvent?.Invoke(UIEnabled);
         }
 
@@ -60,8 +58,8 @@ namespace BeatLeader.UI {
             ViewController = InputUtils.IsInFPFC ? _screenViewController : _vrViewController;
             ViewController.Init();
             if (!InputUtils.IsInFPFC) {
-                ViewController.Container.transform
-                    .SetParent(_controllersAccessor.HandsContainer, false);
+                ViewController.Container.transform.SetParent(
+                    _controllersAccessor.HandsContainer, false);
             }
             AlwaysShowUI = _launchData.ActualSettings.ShowUI;
         }
@@ -75,7 +73,6 @@ namespace BeatLeader.UI {
         #region Callbacks
 
         private void HandlePauseStateChanged(bool state) {
-            _isPaused = state;
             RefreshUIVisibility();
         }
 

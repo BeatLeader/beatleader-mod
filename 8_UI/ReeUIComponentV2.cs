@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using BeatLeader.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using BeatLeader.Components;
 
 namespace BeatLeader {
     internal abstract class ReeUIComponentV2 : MonoBehaviour, INotifyPropertyChanged {

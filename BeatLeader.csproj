@@ -228,6 +228,7 @@
     <Compile Include="0_Harmony\HarmonyMultisilencer.cs" />
     <Compile Include="0_Harmony\HarmonyAutoPatch.cs" />
     <Compile Include="0_Harmony\ModifiersPatches\GameplayModifiersPanelPatch.cs" />
+    <Compile Include="0_Harmony\NotesTestPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderCustomCampaignUtilPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderMultiplayerUtilPatch.cs" />
     <Compile Include="0_Harmony\RecorderPatches\RecorderUtilPatch.cs" />
@@ -366,7 +367,6 @@
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RoomOffsetsTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SmoothCameraTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\TweaksLoader.cs" />
-    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SoundEffectsCountLimiterTweak.cs" />
     <Compile Include="7_Utils\InteropLoader.cs" />
     <Compile Include="7_Utils\Interop\BeatSaviorInterop.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeMaterials.cs" />
@@ -450,6 +450,7 @@
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\LayoutElementExtensionHandler.cs" />
     <Compile Include="8_UI\BSML Addons\TypeHandlers\Extensions\ModalViewExtensionHandler.cs" />
     <Compile Include="8_UI\Leaderboard\Components\Basic\HeaderButton.cs" />
+    <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\HorizontalSeparator.cs" />
     <Compile Include="8_UI\Replayer\Components\CanvasScreen.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\LayoutHandle.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\HandleHighlighter.cs" />
@@ -526,7 +527,7 @@
     <Compile Include="8_UI\Replayer\Components\Floating\ResetController.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\Editable\EditableElement.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\Editable\GlassWrapper.cs" />
-    <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditorWindow\LayoutEditor.cs" />
+    <Compile Include="8_UI\Replayer\Components\LayoutEditor\LayoutEditor.cs" />
     <Compile Include="8_UI\Replayer\Components\Infos\HorizontalMiniProfile.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\LayoutWindow.cs" />
     <Compile Include="8_UI\Replayer\Components\Settings\ContentView.cs" />
@@ -651,6 +652,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableController.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\HorizontalSeparator.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

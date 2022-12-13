@@ -5,7 +5,6 @@ using UnityEngine;
 namespace BeatLeader.Components {
     internal abstract class EditableElement : ReeUIComponentV2 {
         public virtual LayoutMapData DefaultLayoutMap { get; protected set; }
-        public LayoutMapData tempLayoutMap;
 
         public abstract string Name { get; }
         public bool State {
@@ -49,6 +48,8 @@ namespace BeatLeader.Components {
         public event Action<EditableElement> ElementPositionChangedEvent;
         public event Action<EditableElement> ElementSelectedEvent;
 
+        public LayoutMapData tempLayoutMap;
+
         private ILayoutEditor _editor;
         private GridLayoutWindow _wrapperWindow;
         private RectTransform _contentRect;
@@ -65,7 +66,7 @@ namespace BeatLeader.Components {
             if (!_isInitialized) return;
             DefaultLayoutMap = layoutMap;
             Position = _editor.Map(layoutMap.position, Size, layoutMap.anchor);
-            Layer = layoutMap.layer != DefaultLayoutMap.layer ? layoutMap.layer : Layer;
+            Layer = layoutMap.layer;
             State = layoutMap.enabled;
             SetWrapperPseudoState(layoutMap.enabled);
         }
@@ -96,6 +97,7 @@ namespace BeatLeader.Components {
             Wrapper.container = _wrapperWindow.Handle = WrapperContainer;
             Wrapper.WrapperStateChangedEvent += HandleWrapperStateChanged;
             Wrapper.WrapperSelectedEvent += HandleWrapperSelected;
+            HandleWrapperStateChanged(false);
             RefreshWrapper();
         }
     }

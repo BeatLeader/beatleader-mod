@@ -7,6 +7,7 @@ namespace BeatLeader.Components {
         bool IsInitialized { get; }
 
         void Init();
+        void Hide(bool hide = true);
     }
 
     internal abstract class StandaloneViewController<T> : BSMLAutomaticViewController, IStandaloneViewController where T : HMUI.Screen {
@@ -21,6 +22,10 @@ namespace BeatLeader.Components {
             OnInit();
             Screen.SetRootViewController(this, AnimationType.None);
             IsInitialized = true;
+        }
+
+        public virtual void Hide(bool hide) {
+            Container.SetActive(!hide);
         }
 
         protected override sealed void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {

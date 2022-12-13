@@ -70,14 +70,12 @@ namespace BeatLeader.Components {
         private void TurnLayerDown() {
             if (!CanTurnDown) return;
             _selectedElement.Layer--;
-            _selectedElement.tempLayoutMap.layer--;
             TableReloadRequestedEvent?.Invoke();
         }
 
         private void TurnLayerUp() {
             if (!CanTurnUp) return;
             _selectedElement.Layer++;
-            _selectedElement.tempLayoutMap.layer++;
             TableReloadRequestedEvent?.Invoke();
         }
 

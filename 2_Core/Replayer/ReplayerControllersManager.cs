@@ -4,14 +4,16 @@ using UnityEngine.XR;
 using Zenject;
 using BeatLeader.Utils;
 using VRUIControls;
+using BeatLeader.Replayer.Emulation;
 
-namespace BeatLeader.Replayer.Emulation {
-    public class VRControllersAccessor : MonoBehaviour {
+namespace BeatLeader.Replayer {
+    public class ReplayerControllersManager : MonoBehaviour {
         [Inject] private readonly PlayerVRControllersManager _vrControllersManager;
         [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly PlayerTransforms _playerTransforms;
         [Inject] private readonly DiContainer _diContainer;
         [Inject] private readonly VRInputModule _vrInputModule;
+
         [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
 
         public VRController LeftSaber { get; protected set; }

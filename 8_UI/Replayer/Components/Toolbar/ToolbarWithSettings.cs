@@ -1,6 +1,6 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer.Emulation;
+using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 
 namespace BeatLeader.Components {
@@ -11,7 +11,7 @@ namespace BeatLeader.Components {
         private RootContentView _rootContentView;
         private LayoutEditor _layoutEditor;
 
-        public override string Name => "Toolbar";
+        public override string Name { get; } = "Toolbar";
         public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
             enabled = true,
             position = new(0.5f, 0)
@@ -35,7 +35,7 @@ namespace BeatLeader.Components {
             ReplayLaunchData launchData,
             SongSpeedData speedData,
             ReplayerCameraController cameraController,
-            VRControllersAccessor controllersAccessor,
+            ReplayerControllersManager controllersManager,
             ReplayWatermark watermark,
             LayoutEditor layoutEditor = null) {
             if (_layoutEditor != null) {
@@ -45,9 +45,12 @@ namespace BeatLeader.Components {
             if (_layoutEditor != null) {
                 _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
             }
-            _rootContentView.Setup(timeController, speedData,
-                cameraController, controllersAccessor, watermark, layoutEditor, launchData);
-            _toolbar.Setup(launchData.Replay, pauseController, exitController, timeController);
+            _rootContentView.Setup(timeController,
+                pauseController, speedData,
+                cameraController, controllersManager, 
+                watermark, layoutEditor, launchData);
+            _toolbar.Setup(launchData.Replay, pauseController, 
+                exitController, timeController, controllersManager);
         }
 
         private void HandleEditModeChanged(bool state) {

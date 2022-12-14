@@ -1,15 +1,14 @@
 ﻿using BeatLeader.Interop;
-using BeatLeader.Replayer.Emulation;
 using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking {
     internal class InteropsLoaderTweak : GameTweak {
-        [Inject] private readonly VRControllersAccessor _controllersProvider;
+        [Inject] private readonly ReplayerControllersManager _controllersManager;
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly BeatmapTimeController _beatmapTimeController;
 
         public override void Initialize() {
-            Cam2Interop.SetHeadTransform(_controllersProvider.Head.transform);
+            Cam2Interop.SetHeadTransform(_controllersManager.Head.transform);
 
             _beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
             _beatmapTimeController.SongRewindEvent += HandleSongWasRewinded;

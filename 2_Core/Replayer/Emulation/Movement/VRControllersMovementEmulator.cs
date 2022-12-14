@@ -10,16 +10,16 @@ namespace BeatLeader.Replayer.Emulation
     {
         [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly VRControllersAccessor _vrControllersManager;
+        [Inject] private readonly ReplayerControllersManager _vrControllersManager;
         [Inject] private readonly ReplayLaunchData _replayData;
 
         private LinkedList<Frame> _frames;
         private LinkedListNode<Frame> _lastProcessedNode;
         public bool lerpEnabled = true;
 
-        private VRController _LeftSaber => _vrControllersManager.LeftSaber;
-        private VRController _RightSaber => _vrControllersManager.RightSaber;
-        private VRController _Head => _vrControllersManager.Head;
+        private VRController LeftSaber => _vrControllersManager.LeftSaber;
+        private VRController RightSaber => _vrControllersManager.RightSaber;
+        private VRController Head => _vrControllersManager.Head;
         public bool IsPlaying => _audioTimeSyncController.state.Equals(AudioTimeSyncController.State.Playing);
 
         private void Start()
@@ -61,9 +61,9 @@ namespace BeatLeader.Replayer.Emulation
                 headPose = headPose.Lerp(frame.Next.Value.head.GetPose(), slerp);
             }
 
-            _LeftSaber.transform.SetLocalPose(leftSaberPose);
-            _RightSaber.transform.SetLocalPose(rightSaberPose);
-            _Head.transform.SetLocalPose(headPose);
+            LeftSaber.transform.SetLocalPose(leftSaberPose);
+            RightSaber.transform.SetLocalPose(rightSaberPose);
+            Head.transform.SetLocalPose(headPose);
         }
 
         private void HandleSongWasRewinded(float time)

@@ -93,7 +93,7 @@ namespace BeatLeader.Installers {
             //Core logic(Playback)
             Container.BindInterfacesAndSelfTo<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<VRControllersAccessor>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<ReplayerControllersManager>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //Core logic(Notes handling)

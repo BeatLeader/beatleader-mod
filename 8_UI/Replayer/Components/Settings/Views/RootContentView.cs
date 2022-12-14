@@ -1,6 +1,6 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer.Emulation;
+using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 
@@ -17,16 +17,17 @@ namespace BeatLeader.Components {
 
         public void Setup(
             IBeatmapTimeController timeController,
+            IReplayPauseController pauseController,
             SongSpeedData speedData,
             ReplayerCameraController cameraController,
-            VRControllersAccessor controllersProvider,
+            ReplayerControllersManager controllersManager,
             ReplayWatermark watermark,
             LayoutEditor layoutEditor,
             ReplayLaunchData launchData) {
             _speedSetting.Setup(timeController, speedData);
-            _layoutEditorSetting.Setup(layoutEditor);
+            _layoutEditorSetting.Setup(layoutEditor, pauseController);
             _cameraContentView.Setup(cameraController, launchData);
-            _otherContentView.Setup(controllersProvider, launchData, watermark);
+            _otherContentView.Setup(controllersManager, launchData, watermark);
         }
 
         protected override void OnInstantiate() {

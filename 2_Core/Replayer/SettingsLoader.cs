@@ -13,7 +13,7 @@ namespace BeatLeader.Replayer {
         [InjectOptional] private readonly ReplayWatermark _watermark;
         [InjectOptional] private readonly ReplayerCameraController _cameraController;
         [InjectOptional] private readonly ReplayLaunchData _launchData;
-        [InjectOptional] private readonly VRControllersAccessor _controllersProvider;
+        [InjectOptional] private readonly ReplayerControllersManager _controllersManager;
         [InjectOptional] private readonly ReplayerUIBinder _uiBinder;
 
         public void Initialize() {
@@ -41,14 +41,14 @@ namespace BeatLeader.Replayer {
                 _cameraController.CameraPoseChangedEvent += HandleCameraPoseChanged;
             }
 
-            if (_controllersProvider != null) {
+            if (_controllersManager != null) {
                 var settings = _launchData.ActualSettings;
 
-                _controllersProvider.Head.gameObject.SetActive(settings.ShowHead);
-                _controllersProvider.LeftSaber.gameObject.SetActive(settings.ShowLeftSaber);
-                _controllersProvider.RightSaber.gameObject.SetActive(settings.ShowRightSaber);
+                _controllersManager.Head.gameObject.SetActive(settings.ShowHead);
+                _controllersManager.LeftSaber.gameObject.SetActive(settings.ShowLeftSaber);
+                _controllersManager.RightSaber.gameObject.SetActive(settings.ShowRightSaber);
 
-                if (!InputUtils.IsInFPFC) _controllersProvider.ShowHands();
+                if (!InputUtils.IsInFPFC) _controllersManager.ShowHands();
             }
         }
         public void Dispose() {

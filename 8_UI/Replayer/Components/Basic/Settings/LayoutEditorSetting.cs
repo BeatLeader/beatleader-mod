@@ -1,4 +1,5 @@
-﻿using BeatLeader.Utils;
+﻿using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
 
@@ -12,10 +13,12 @@ namespace BeatLeader.Components {
 
         #region Setup
 
+        private IReplayPauseController _pauseController;
         private LayoutEditor _layoutEditor;
 
-        public void Setup(LayoutEditor editor) {
+        public void Setup(LayoutEditor editor, IReplayPauseController pauseController) {
             _layoutEditor = editor;
+            _pauseController = pauseController;
         }
 
         protected override void OnInitialize() {
@@ -31,6 +34,7 @@ namespace BeatLeader.Components {
             if (_layoutEditor == null) return;
 
             _layoutEditor.SetEditorEnabled(true);
+            _pauseController.Pause();
             EnteredEditModeEvent?.Invoke();
         }
 

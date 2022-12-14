@@ -8,7 +8,7 @@ using UnityEngine;
 using VRUIControls;
 using BeatSaberMarkupLanguage;
 using IPA.Utilities;
-using BeatLeader.Replayer.Emulation;
+using BeatLeader.Replayer;
 using UnityEngine.UI;
 using BeatLeader.Utils;
 
@@ -19,7 +19,7 @@ namespace BeatLeader.ViewControllers {
         [Inject] private readonly IReplayExitController _exitController;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
         [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly VRControllersAccessor _controllersAccessor;
+        [Inject] private readonly ReplayerControllersManager _controllersManager;
         [Inject] private readonly ReplayWatermark _watermark;
         [Inject] private readonly ReplayLaunchData _launchData;
         [Inject] private readonly SongSpeedData _speedData;
@@ -34,7 +34,7 @@ namespace BeatLeader.ViewControllers {
                 _cameraController.Camera.transform, !_launchData.ActualSettings.ShowUI);
             _toolbar.Setup(_beatmapTimeController, _pauseController,
                 _exitController, _launchData, _speedData, _cameraController,
-                _controllersAccessor, _watermark);
+                _controllersManager, _watermark);
         }
 
         protected override void OnInit() {

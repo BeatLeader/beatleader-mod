@@ -6,6 +6,7 @@ using HMUI;
 using BeatLeader.Models;
 using static HMUI.NoTransitionsButton;
 using System;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.Components {
     internal class Toolbar : ReeUIComponentV2 {
@@ -60,7 +61,8 @@ namespace BeatLeader.Components {
             Replay replay,
             IReplayPauseController pauseController,
             IReplayExitController exitController,
-            IBeatmapTimeController beatmapTimeController) {
+            IBeatmapTimeController beatmapTimeController,
+            ReplayerControllersManager controllersManager) {
             if (_pauseController != null)
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
 
@@ -70,7 +72,8 @@ namespace BeatLeader.Components {
             _beatmapTimeController = beatmapTimeController;
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
-            _timeline.Setup(_replay, _pauseController, _beatmapTimeController);
+            _timeline.Setup(_replay, _pauseController, 
+                _beatmapTimeController, controllersManager);
         }
 
         protected override void OnInstantiate() {

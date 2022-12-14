@@ -5,6 +5,7 @@ using BeatLeader.Utils;
 using UnityEngine.UI;
 using UnityEngine;
 using BeatLeader.Models;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.Components {
     internal class Timeline : ReeUIComponentV2 {
@@ -35,10 +36,13 @@ namespace BeatLeader.Components {
         public void Setup(
             Replay replay,
             IReplayPauseController pauseController,
-            IBeatmapTimeController beatmapTimeController) {
+            IBeatmapTimeController beatmapTimeController,
+            ReplayerControllersManager controllersManager) {
             _replay = replay;
             _pauseController = pauseController;
             _beatmapTimeController = beatmapTimeController;
+            _timelineAnimator.Setup(controllersManager, _background
+                .rectTransform, _handle.rectTransform, _marksAreaContainer, _fillArea);
 
             SetupSlider();
             SetupMarkers();
@@ -59,8 +63,6 @@ namespace BeatLeader.Components {
             _timelineAnimator = _slider.gameObject.AddComponent<TimelineAnimator>();
             _timelineAnimator.HandlePressedEvent += HandleSliderPressed;
             _timelineAnimator.HandleReleasedEvent += HandleSliderReleased;
-            _timelineAnimator.Setup(_background.rectTransform,
-                _handle.rectTransform, _marksAreaContainer, _fillArea);
         }
 
         private void SetupMarkers() {

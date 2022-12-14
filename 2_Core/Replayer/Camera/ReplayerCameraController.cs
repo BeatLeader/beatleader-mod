@@ -26,7 +26,7 @@ namespace BeatLeader.Replayer.Camera {
             }
         }
 
-        [Inject] protected readonly VRControllersAccessor _vrControllersManager;
+        [Inject] protected readonly ReplayerControllersManager _vrControllersManager;
         [Inject] protected readonly InitData _data;
         [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
 

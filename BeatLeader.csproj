@@ -389,7 +389,7 @@
     <Compile Include="2_Core\Replayer\Camera\Poses\PlayerViewCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\StaticCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\ReplayerCameraController.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersAccessor.cs" />
+    <Compile Include="2_Core\Replayer\ReplayerControllersManager.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersMovementEmulator.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllerEmulator.cs" />
     <Compile Include="2_Core\Replayer\ReplayerCache.cs" />

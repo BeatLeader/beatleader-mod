@@ -5,13 +5,13 @@ using BeatLeader.Components;
 using BeatLeader.Utils;
 using System;
 using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.UI {
     internal class ReplayerUIBinder : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly VRControllersAccessor _controllersAccessor;
+        [Inject] private readonly ReplayerControllersManager _controllersManager;
         [Inject] private readonly Replayer2DViewController _screenViewController;
         [Inject] private readonly ReplayerVRViewController _vrViewController;
         [Inject] private readonly ReplayLaunchData _launchData;
@@ -59,7 +59,7 @@ namespace BeatLeader.UI {
             ViewController.Init();
             if (!InputUtils.IsInFPFC) {
                 ViewController.Container.transform.SetParent(
-                    _controllersAccessor.HandsContainer, false);
+                    _controllersManager.HandsContainer, false);
             }
             AlwaysShowUI = _launchData.ActualSettings.ShowUI;
         }

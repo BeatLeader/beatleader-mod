@@ -1,5 +1,5 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
+using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ namespace BeatLeader.Components {
             get => _launchData?.ActualSettings.ShowHead ?? false;
             set {
                 _launchData.ActualToWriteSettings.ShowHead = value;
-                _controllersProvider.Head.gameObject.SetActive(value);
+                _controllersManager.Head.gameObject.SetActive(value);
             }
         }
 
@@ -21,7 +21,7 @@ namespace BeatLeader.Components {
             get => _launchData?.ActualSettings.ShowLeftSaber ?? false;
             set {
                 _launchData.ActualToWriteSettings.ShowLeftSaber = value;
-                _controllersProvider.LeftSaber.gameObject.SetActive(value);
+                _controllersManager.LeftSaber.gameObject.SetActive(value);
             }
         }
 
@@ -30,7 +30,7 @@ namespace BeatLeader.Components {
             get => _launchData?.ActualSettings.ShowRightSaber ?? false;
             set {
                 _launchData.ActualToWriteSettings.ShowRightSaber = value;
-                _controllersProvider.RightSaber.gameObject.SetActive(value);
+                _controllersManager.RightSaber.gameObject.SetActive(value);
             }
         }
 
@@ -49,15 +49,15 @@ namespace BeatLeader.Components {
 
         [UIObject("watermark")] private GameObject _watermark;
 
-        private VRControllersAccessor _controllersProvider;
+        private ReplayerControllersManager _controllersManager;
         private ReplayLaunchData _launchData;
         private ReplayWatermark _replayWatermark;
 
         public void Setup(
-            VRControllersAccessor controllersProvider,
+            ReplayerControllersManager controllersManager,
             ReplayLaunchData launchData, 
             ReplayWatermark watermark = null) {
-            _controllersProvider = controllersProvider;
+            _controllersManager = controllersManager;
             _launchData = launchData;
             _replayWatermark = watermark;
 

@@ -27,21 +27,7 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateImage() {
-            Clear();
-            var loadTask = CountryFlagsStorage.GetCountryFlagCoroutine(_country, false, OnLoadSuccess, OnLoadFailed);
-            StartCoroutine(loadTask);
-        }
-
-        private void Clear() {
-            SetSprite(BundleLoader.TransparentPixel);
-        }
-
-        private void OnLoadSuccess(Sprite sprite) {
-            SetSprite(sprite);
-        }
-
-        private void OnLoadFailed(string reason) {
-            SetSprite(BundleLoader.LocationIcon);
+            SetSprite(BundleLoader.GetSpriteFromBundle(_country.ToLower()) ?? BundleLoader.LocationIcon);
         }
 
         #endregion

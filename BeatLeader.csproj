@@ -279,7 +279,6 @@
     <Compile Include="2_Core\Attributes\PluginAssemblyAttribute.cs" />
     <Compile Include="2_Core\Attributes\SerializeAutomaticallyAttribute.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
-    <Compile Include="2_Core\CountryFlagsStorage.cs" />
     <Compile Include="2_Core\Installers\OnAppInitInstaller.cs" />
     <Compile Include="2_Core\Installers\OnGameplayCoreInstaller.cs" />
     <Compile Include="2_Core\Installers\OnMenuInstaller.cs" />

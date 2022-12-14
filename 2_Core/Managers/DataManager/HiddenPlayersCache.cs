@@ -71,7 +71,6 @@ namespace BeatLeader.DataManager {
                 id = player.id,
                 rank = 0,
                 name = "~hidden player~",
-                avatar = BLConstants.HiddenPlayerAvatar,
                 country = "not set",
                 countryRank = 0,
                 pp = 0f,

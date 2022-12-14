@@ -19,13 +19,11 @@ using static BeatLeader.Utils.InputUtils;
 using BeatLeader.UI;
 using BeatLeader.Models;
 using Vector3 = UnityEngine.Vector3;
+using System.Linq;
 
-namespace BeatLeader.Installers
-{
-    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller>
-    {
-        public override void InstallBindings()
-        {
+namespace BeatLeader.Installers {
+    public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
+        public override void InstallBindings() {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
             if (ReplayerLauncher.IsStartedAsReplay) InitReplayer();
             else InitRecorder();
@@ -35,28 +33,23 @@ namespace BeatLeader.Installers
 
         private static readonly List<string> modes = new() { "Solo", "Multiplayer" };
 
-        private void InitRecorder()
-        {
+        private void InitRecorder() {
             RecorderUtils.buffer = RecorderUtils.shouldRecord;
 
-            if (RecorderUtils.shouldRecord)
-            {
+            if (RecorderUtils.shouldRecord) {
                 RecorderUtils.shouldRecord = false;
 
                 #region Gates
-                if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false)
-                {
+                if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
                     Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started!");
                     return;
                 }
-                if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId)))
-                {
+                if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId))) {
                     Plugin.Log.Debug("OST level detected, BL Replay Recorder will not be started!");
                     return;
                 }
                 var gameMode = GetGameMode();
-                if (gameMode != null && !modes.Contains(gameMode))
-                {
+                if (gameMode != null && !modes.Contains(gameMode)) {
                     Plugin.Log.Debug("Not allowed game mode, BL Replay Recorder will not be started!");
                     return;
                 }
@@ -66,9 +59,7 @@ namespace BeatLeader.Installers
 
                 Container.BindInterfacesAndSelfTo<ReplayRecorder>().AsSingle();
                 Container.BindInterfacesAndSelfTo<TrackingDeviceEnhancer>().AsTransient();
-            }
-            else
-            {
+            } else {
                 //Plugin.Log.Info("Unknown flow detected, recording would not be started.");
             }
         }
@@ -94,8 +85,8 @@ namespace BeatLeader.Installers
 
         );
 
-        private void InitReplayer()
-        {
+        private void InitReplayer() {
+            PatchMultiplayerObjects();
             DisableScoreSubmission();
 
             //Dependencies
@@ -127,17 +118,30 @@ namespace BeatLeader.Installers
             Container.Bind<ScreenSpaceScreen>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            if (InputUtils.IsInFPFC)
-            {
+            if (InputUtils.IsInFPFC) {
                 PatchSiraFreeView();
             }
 
             Plugin.Log.Notice("[Installer] Replay system successfully installed!");
         }
-        private void PatchSiraFreeView()
-        {
-            try
-            {
+
+        private void PatchMultiplayerObjects() {
+            var names = new string[] {
+                "MultiplayerLocalActivePlayerController",
+                "MultiplayerLocalInactivePlayerController",
+                "MultiplayerConnectedPlayerController",
+                "MultiplayerDuelLocalActivePlayerController",
+                "MultiplayerDuelConnectedPlayerController"
+            };
+            foreach (var name in names) {
+                var obj = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == name);
+                if (obj == null) continue;
+                GameObject.DestroyImmediate(obj);
+            }
+        }
+
+        private void PatchSiraFreeView() {
+            try {
                 Container.Resolve<IFPFCSettings>().Enabled = false;
                 Assembly assembly = typeof(IFPFCSettings).Assembly;
 
@@ -149,9 +153,7 @@ namespace BeatLeader.Installers
                 Container.UnbindInterfacesTo(smoothCameraListenerType);
                 Container.UnbindInterfacesTo(FPFCToggleType);
                 //GameObject.Destroy((UnityEngine.Object)Container.TryResolve(simpleCameraControllerType));
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Plugin.Log.Error($"[Installer] Error during attemping to remove Sira's FPFC system! \r\n {ex}");
             }
         }
@@ -162,16 +164,13 @@ namespace BeatLeader.Installers
 
         private static Ticket _submissionTicket;
 
-        private void DisableScoreSubmission()
-        {
+        private void DisableScoreSubmission() {
             _submissionTicket = Container.Resolve<Submission>()?.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
             ReplayerLauncher.LaunchData.ReplayWasFinishedEvent += HandleReplayWasFinished;
         }
-        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data, Models.ReplayLaunchData launchData)
-        {
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data, Models.ReplayLaunchData launchData) {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
-            if (_submissionTicket != null)
-            {
+            if (_submissionTicket != null) {
                 Container.Resolve<Submission>()?.Remove(_submissionTicket);
                 _submissionTicket = null;
             }
@@ -181,15 +180,12 @@ namespace BeatLeader.Installers
 
         #region Game mode stuff
 
-        private string GetGameMode()
-        {
+        private string GetGameMode() {
             string singleGM = GetStandardDataSO()?.gameMode;
             string multiGM = GetMultiDataSO()?.gameMode;
 
-            foreach (string mode in new[] { singleGM, multiGM })
-            {
-                if (mode != null && mode.Length > 0)
-                {
+            foreach (string mode in new[] { singleGM, multiGM }) {
+                if (mode != null && mode.Length > 0) {
                     return mode;
                 }
             }
@@ -197,25 +193,17 @@ namespace BeatLeader.Installers
             return null;
         }
 
-        private StandardLevelScenesTransitionSetupDataSO GetStandardDataSO()
-        {
-            try
-            {
+        private StandardLevelScenesTransitionSetupDataSO GetStandardDataSO() {
+            try {
                 return Container.TryResolve<StandardLevelScenesTransitionSetupDataSO>();
-            }
-            catch
-            {
+            } catch {
                 return null;
             }
         }
-        private MultiplayerLevelScenesTransitionSetupDataSO GetMultiDataSO()
-        {
-            try
-            {
+        private MultiplayerLevelScenesTransitionSetupDataSO GetMultiDataSO() {
+            try {
                 return Container.TryResolve<MultiplayerLevelScenesTransitionSetupDataSO>();
-            }
-            catch
-            {
+            } catch {
                 return null;
             }
         }

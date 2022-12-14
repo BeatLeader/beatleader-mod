@@ -16,6 +16,7 @@ namespace BeatLeader.Replayer.Tweaking {
             _centerAdjust.transform.localRotation = Quaternion.identity;
         }
         public override void Dispose() {
+            if (_centerAdjust == null) return;
             _centerAdjust.transform.localPosition = _mainSettingsModel.roomCenter;
             _centerAdjust.transform.localEulerAngles = new Vector3(0, _mainSettingsModel.roomRotation, 0);
             _centerAdjust.enabled = true;

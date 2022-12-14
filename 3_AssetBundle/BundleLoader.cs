@@ -159,6 +159,9 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite SaveIcon;
 
+        [UsedImplicitly]
+        public static Sprite DefaultAvatar;
+
         private static List<Sprite> _loadedSprites = new(1);
         
         public static Sprite GetSpriteFromBundle(string name)
@@ -208,6 +211,7 @@ namespace BeatLeader {
             DebrisIcon = assetBundle.LoadAsset<Sprite>("BL_DebrisIcon");
             SceneIcon = assetBundle.LoadAsset<Sprite>("BL_SceneIcon");
             SaveIcon = assetBundle.LoadAsset<Sprite>("BL_SaveIcon");
+            DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
         }
 
         #endregion

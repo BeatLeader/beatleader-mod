@@ -92,14 +92,18 @@ namespace BeatLeader.Components {
         private string _url;
 
         public void SetPlayer(Player player) {
-            if (player.avatar.Equals(_url)) return;
+            if (_url == player.avatar || player.avatar?.Equals(_url) == true) return;
             _url = player.avatar;
             SelectMaterial(player);
             UpdateAvatar();
         }
 
         private void UpdateAvatar() {
-            if (!gameObject.activeInHierarchy || _url == null) return;
+            if (!gameObject.activeInHierarchy) return;
+            if (_url == null) {
+                ShowTexture(BundleLoader.DefaultAvatar.texture);
+                return;
+            }
             ShowSpinner();
             StopAllCoroutines();
             var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url, false, OnAvatarLoadSuccess, OnAvatarLoadFailed);
@@ -112,7 +116,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnAvatarLoadFailed(string reason) {
-            ShowTexture(BundleLoader.FileError.texture);
+            ShowTexture(BundleLoader.DefaultAvatar.texture);
         }
 
         #endregion

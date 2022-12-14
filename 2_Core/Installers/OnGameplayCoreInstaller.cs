@@ -19,6 +19,7 @@ using static BeatLeader.Utils.InputUtils;
 using BeatLeader.UI;
 using BeatLeader.Models;
 using Vector3 = UnityEngine.Vector3;
+using System.Linq;
 
 namespace BeatLeader.Installers
 {
@@ -94,8 +95,8 @@ namespace BeatLeader.Installers
 
         );
 
-        private void InitReplayer()
-        {
+        private void InitReplayer() {
+            PatchMultiplayerObjects();
             DisableScoreSubmission();
 
             //Dependencies
@@ -134,10 +135,24 @@ namespace BeatLeader.Installers
 
             Plugin.Log.Notice("[Installer] Replay system successfully installed!");
         }
-        private void PatchSiraFreeView()
-        {
-            try
-            {
+
+        private void PatchMultiplayerObjects() {
+            var names = new string[] {
+                "MultiplayerLocalActivePlayerController",
+                "MultiplayerLocalInactivePlayerController",
+                "MultiplayerConnectedPlayerController",
+                "MultiplayerDuelLocalActivePlayerController",
+                "MultiplayerDuelConnectedPlayerController"
+            };
+            foreach (var name in names) {
+                var obj = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == name);
+                if (obj == null) continue;
+                GameObject.DestroyImmediate(obj);
+            }
+        }
+
+        private void PatchSiraFreeView() {
+            try {
                 Container.Resolve<IFPFCSettings>().Enabled = false;
                 Assembly assembly = typeof(IFPFCSettings).Assembly;
 

@@ -89,10 +89,10 @@ namespace BeatLeader.Components {
 
         #region SetAvatar
 
-        private string _url;
+        private string _url = "";
 
         public void SetPlayer(Player player) {
-            if (_url == player.avatar || player.avatar?.Equals(_url) == true) return;
+            if (_url == player.avatar) return;
             _url = player.avatar;
             SelectMaterial(player);
             UpdateAvatar();

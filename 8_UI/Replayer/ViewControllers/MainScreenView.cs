@@ -25,7 +25,9 @@ namespace BeatLeader.Components
             _layoutEditor = InstantiateInContainer<LayoutEditor>(Container, transform);
             _toolbar = InstantiateInContainer<Toolbar>(Container, transform);
 
-            _playerInfo.SetPlayer(_launchData.Player);
+            if (_launchData.Player != null) {
+                _playerInfo.SetPlayer(_launchData.Player);
+            }
             _songInfo.SetBeatmapLevel(_launchData.DifficultyBeatmap.level);
             _toolbar.Setup(_launchData.Replay, _pauseController, _exitController, _beatmapTimeController);  
         }

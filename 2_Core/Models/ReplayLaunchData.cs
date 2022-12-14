@@ -6,7 +6,7 @@ namespace BeatLeader.Models
     {
         public ReplayLaunchData(
             Replay replay,
-            Player player = null,
+            Player? player = null,
             IDifficultyBeatmap difficultyBeatmap = null, 
             EnvironmentInfoSO environmentInfo = null,
             ReplayerSettings settings = null)
@@ -19,7 +19,7 @@ namespace BeatLeader.Models
         }
 
         public Replay Replay { get; }
-        public Player Player { get; }
+        public Player? Player { get; }
         public IDifficultyBeatmap DifficultyBeatmap { get; private set; }
         public EnvironmentInfoSO OverrideEnvironmentInfo { get; private set; }
 

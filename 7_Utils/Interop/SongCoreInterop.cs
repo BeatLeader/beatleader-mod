@@ -68,7 +68,15 @@ namespace BeatLeader.Interop {
         public static bool TryGetBeatmapRequirements(IDifficultyBeatmap beatmap, out string[] requirements) {
             try {
                 var data = _collectionsRetrieveDataMethod.Invoke(null, new object[] { beatmap });
+                if (data == null) {
+                    requirements = null;
+                    return false; 
+                }
                 var reqData = _dataAdditionalDiffField.GetValue(data);
+                if (reqData == null) {
+                    requirements = null;
+                    return false; 
+                }
                 requirements = (string[])_dataRequirementsField.GetValue(reqData);
                 return true;
             } catch (Exception e) {

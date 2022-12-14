@@ -36,7 +36,7 @@ namespace BeatLeader.Components
             transform.position = new Vector3(0, 2.6f, 6);
 
             var level = _launchData.DifficultyBeatmap.level;
-            _text.text = GetFormattedText(_launchData.Player.name, level.songName, level.songAuthorName);
+            _text.text = GetFormattedText(_launchData.Player.name ?? _launchData.Replay.info.playerName, level.songName, level.songAuthorName);
 
             Enabled = _launchData.ActualSettings.ShowWatermark;
         }
@@ -46,7 +46,7 @@ namespace BeatLeader.Components
         }
         private bool IsWatermarkCanBeDisabled()
         {
-            return ProfileManager.IsCurrentPlayer(_launchData.Player);
+            return ProfileManager.IsCurrentPlayer(_launchData.Player?.id ?? _launchData.Replay.info.playerID);
         }
     }
 }

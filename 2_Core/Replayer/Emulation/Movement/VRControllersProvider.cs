@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using Zenject;
 using BeatLeader.Utils;
+using System.Linq;
 
 namespace BeatLeader.Replayer.Emulation {
     public class VRControllersProvider : MonoBehaviour {
@@ -19,7 +20,7 @@ namespace BeatLeader.Replayer.Emulation {
         public VRController LeftHand { get; protected set; }
         public VRController RightHand { get; protected set; }
         public Transform MenuHandsContainer { get; protected set; }
-        [FirstResource("VRGameCore")] public Transform Origin { get; protected set; }
+        [FirstResource("VRGameCore", true)] public Transform Origin { get; protected set; }
 
         private Transform _menuHandsTransform;
         private bool _isInitialized;

@@ -1,6 +1,4 @@
 ﻿using BeatLeader.Utils;
-using System.Linq;
-using UnityEngine;
 using VRUIControls;
 using Zenject;
 
@@ -10,8 +8,8 @@ namespace BeatLeader.Replayer.Tweaking
     {
         [Inject] private readonly MainCamera _mainCamera;
 
-        [FirstResource] private SaberBurnMarkArea _burnMarkArea;
-        [FirstResource] private VRLaserPointer _pointer;
+        [FirstResource(requireActiveInHierarchy: true)] private readonly SaberBurnMarkArea _burnMarkArea;
+        [FirstResource] private readonly VRLaserPointer _pointer;
 
         public override void Initialize()
         {

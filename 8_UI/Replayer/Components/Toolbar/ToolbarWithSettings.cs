@@ -49,8 +49,7 @@ namespace BeatLeader.Components {
                 pauseController, speedData,
                 cameraController, controllersManager, 
                 watermark, layoutEditor, launchData);
-            _toolbar.Setup(launchData.Replay, pauseController, 
-                exitController, timeController, controllersManager);
+            _toolbar.Setup(launchData.Replay, pauseController, exitController, timeController);
         }
 
         private void HandleEditModeChanged(bool state) {

@@ -6,19 +6,15 @@ using HMUI;
 using BeatLeader.Models;
 using static HMUI.NoTransitionsButton;
 using System;
-using BeatLeader.Replayer;
 
 namespace BeatLeader.Components {
     internal class Toolbar : ReeUIComponentV2 {
         #region UI Components
 
         [UIComponent("exit-button-background")] private readonly RectTransform _exitButtonBackground;
-        [UIComponent("container")] private readonly RectTransform _container;
-
         [UIComponent("play-button")] private readonly BetterButton _playButton;
         [UIComponent("exit-button-icon")] private readonly BetterImage _exitButtonIcon;
 
-        //[UIValue("settings-container")] private SettingsContainer _settingsContainer;
         [UIValue("timeline")] private Timeline _timeline;
 
         private NoTransitionsButton _exitButton;
@@ -61,8 +57,7 @@ namespace BeatLeader.Components {
             Replay replay,
             IReplayPauseController pauseController,
             IReplayExitController exitController,
-            IBeatmapTimeController beatmapTimeController,
-            ReplayerControllersManager controllersManager) {
+            IBeatmapTimeController beatmapTimeController) {
             if (_pauseController != null)
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
 
@@ -72,13 +67,11 @@ namespace BeatLeader.Components {
             _beatmapTimeController = beatmapTimeController;
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
-            _timeline.Setup(_replay, _pauseController, 
-                _beatmapTimeController, controllersManager);
+            _timeline.Setup(_replay, _pauseController, _beatmapTimeController);
         }
 
         protected override void OnInstantiate() {
             _timeline = Instantiate<Timeline>(transform);
-            //_settingsContainer = Instantiate<SettingsContainer>(transform);
         }
         protected override void OnInitialize() {
             _exitButton = _exitButtonBackground.gameObject.AddComponent<NoTransitionsButton>();

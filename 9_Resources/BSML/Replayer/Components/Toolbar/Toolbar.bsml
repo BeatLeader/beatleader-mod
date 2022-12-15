@@ -1,6 +1,6 @@
 ﻿<vertical child-expand-height="false" child-control-height="false" child-align="LowerCenter" pref-width="93">
   <!--Container-->
-  <horizontal id="container">
+  <horizontal>
     <!--Exit Button-->
     <vertical pref-width="10">
       <bg>

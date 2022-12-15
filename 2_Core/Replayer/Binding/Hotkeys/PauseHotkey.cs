@@ -8,8 +8,8 @@ namespace BeatLeader.Replayer.Binding
     {
         public override KeyCode Key => _launchData.ActualSettings.Shortcuts.PauseHotkey;
 
-        [Inject] private IReplayPauseController _playbackController;
-        [Inject] private ReplayLaunchData _launchData;
+        [Inject] private readonly IReplayPauseController _playbackController;
+        [Inject] private readonly ReplayLaunchData _launchData;
 
         public override void OnKeyDown()
         {

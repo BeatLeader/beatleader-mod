@@ -63,6 +63,10 @@ namespace BeatLeader.Replayer {
                 .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
 
+        private void OnDestroy() {
+            _soundSpawnerSilencer.Dispose();
+        }
+
         #endregion
 
         #region Rewind
@@ -79,6 +83,7 @@ namespace BeatLeader.Replayer {
             if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
 
             _beatmapCallbacksUpdater.Pause();
+            _soundSpawnerSilencer.Enabled = true;
             DespawnAllNoteControllerSounds();
             DespawnAllBeatmapObjects();
 
@@ -91,7 +96,10 @@ namespace BeatLeader.Replayer {
 
             if (!wasPausedBeforeRewind && resumeAfterRewind)
                 _audioTimeSyncController.Resume();
+
+            _beatmapCallbacksUpdater.LateUpdate();
             _beatmapCallbacksUpdater.Resume();
+            _soundSpawnerSilencer.Enabled = false;
 
             SongRewindEvent?.Invoke(time);
         }
@@ -132,6 +140,11 @@ namespace BeatLeader.Replayer {
         #endregion
 
         #region Despawn
+
+        private readonly HarmonySilencer _soundSpawnerSilencer = new(
+            typeof(NoteCutSoundEffectManager).GetMethod(nameof(
+                NoteCutSoundEffectManager.HandleNoteWasSpawned), 
+                ReflectionUtils.DefaultFlags), false);
 
         private static readonly MethodInfo _despawnNoteMethod =
             typeof(BeatmapObjectManager).GetMethod("Despawn",

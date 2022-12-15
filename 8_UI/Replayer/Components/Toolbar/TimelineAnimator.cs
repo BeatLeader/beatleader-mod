@@ -6,7 +6,11 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
-    internal class TimelineAnimator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+    internal class TimelineAnimator : MonoBehaviour,
+        IPointerEnterHandler,
+        IPointerExitHandler,
+        IPointerDownHandler,
+        IPointerUpHandler {
         #region Configuration
 
         private const float HandleExpandSize = 0.8f;
@@ -19,7 +23,6 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        private ReplayerControllersManager _controllersManager;
         private RectTransform _background;
         private RectTransform _handle;
         private RectTransform _marksAreaContainer;
@@ -27,12 +30,10 @@ namespace BeatLeader.Components {
         private bool _initialized;
 
         public void Setup(
-            ReplayerControllersManager controllersManager,
             RectTransform background,
             RectTransform handle,
             RectTransform marksAreaContainer,
             RectTransform fillArea) {
-            _controllersManager = controllersManager;
             _background = background;
             _handle = handle;
             _marksAreaContainer = marksAreaContainer;
@@ -56,23 +57,7 @@ namespace BeatLeader.Components {
 
         private void Update() {
             if (!_initialized) return;
-            var buttonState = GetPrimaryButtonState();
-            if (buttonState != _pressedStateTrigger) {
-                _pressedStateTrigger = buttonState;
-                if (buttonState) {
-                    HandlePressedEvent?.Invoke();
-                } else {
-                    HandleReleasedEvent?.Invoke();
-                }
-            }
             StartAnimation(_highlightedStateTrigger || _pressedStateTrigger);
-        }
-
-        private bool GetPrimaryButtonState() {
-            if (InputUtils.IsInFPFC)
-                return Input.GetMouseButton(0);
-            return _controllersManager.LeftHand.triggerValue > 0.1f
-                || _controllersManager.RightHand.triggerValue > 0.1f;
         }
 
         public void OnPointerEnter(PointerEventData data) {
@@ -81,6 +66,16 @@ namespace BeatLeader.Components {
 
         public void OnPointerExit(PointerEventData data) {
             _highlightedStateTrigger = false;
+        }
+
+        public void OnPointerDown(PointerEventData eventData) {
+            HandlePressedEvent?.Invoke();
+            _pressedStateTrigger = true;
+        }
+
+        public void OnPointerUp(PointerEventData eventData) {
+            HandleReleasedEvent?.Invoke();
+            _pressedStateTrigger = false;
         }
 
         #endregion

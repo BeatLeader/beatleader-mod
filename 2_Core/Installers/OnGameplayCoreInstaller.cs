@@ -96,7 +96,6 @@ namespace BeatLeader.Installers
         );
 
         private void InitReplayer() {
-            PatchMultiplayerObjects();
             DisableScoreSubmission();
 
             //Dependencies
@@ -134,21 +133,6 @@ namespace BeatLeader.Installers
             }
 
             Plugin.Log.Notice("[Installer] Replay system successfully installed!");
-        }
-
-        private void PatchMultiplayerObjects() {
-            var names = new string[] {
-                "MultiplayerLocalActivePlayerController",
-                "MultiplayerLocalInactivePlayerController",
-                "MultiplayerConnectedPlayerController",
-                "MultiplayerDuelLocalActivePlayerController",
-                "MultiplayerDuelConnectedPlayerController"
-            };
-            foreach (var name in names) {
-                var obj = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == name);
-                if (obj == null) continue;
-                GameObject.DestroyImmediate(obj);
-            }
         }
 
         private void PatchSiraFreeView() {

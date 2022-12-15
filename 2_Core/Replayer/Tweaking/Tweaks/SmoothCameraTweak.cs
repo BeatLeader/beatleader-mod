@@ -13,14 +13,15 @@ namespace BeatLeader.Replayer.Tweaking
 
         [Inject] private readonly ReplayerCameraController _cameraController;
 
+        private readonly MainCamera _fakeCamera = new();
         private SmoothCamera _smoothCamera;
         private MainCamera _originalCamera;
-        private MainCamera _fakeCamera = new();
 
         public override void LateInitialize()
         {
             _smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
-                .FirstOrDefault(x => x.transform.parent.name == "LocalPlayerGameCore");
+                .FirstOrDefault(x => x.transform.parent
+                .name == "LocalPlayerGameCore" && x.isActiveAndEnabled);
 
             _fakeCamera.SetField("_camera", _cameraController.Camera);
             _fakeCamera.SetField("_transform", _cameraController.Camera.transform);

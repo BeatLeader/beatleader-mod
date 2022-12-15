@@ -137,7 +137,9 @@ namespace BeatLeader.Replayer.Camera {
         }
         private bool CreateAndAssignCamera() {
             var smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
-                .FirstOrDefault(x => x.transform.parent.name == "LocalPlayerGameCore");
+                .FirstOrDefault(x => x.transform
+                .parent.name == "LocalPlayerGameCore" 
+                && x.gameObject.activeInHierarchy);
 
             if (smoothCamera == null) return false;
 

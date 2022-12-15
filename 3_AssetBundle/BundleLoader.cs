@@ -11,22 +11,22 @@ namespace BeatLeader {
 
         private const string BundleName = Plugin.ResourcesPath + ".AssetBundles.asset_bundle";
         private static bool _ready;
-        private static AssetBundle assetBundle;
 
         public static void Initialize() {
             if (_ready) return;
 
             using var stream = ResourcesUtils.GetEmbeddedResourceStream(BundleName);
-            assetBundle = AssetBundle.LoadFromStream(stream);
+            var localAssetBundle = AssetBundle.LoadFromStream(stream);
 
-            if (assetBundle == null) {
+            if (localAssetBundle == null) {
                 throw new Exception("AssetBundle load error!");
             }
 
-            LoadSprites(assetBundle);
-            LoadMaterials(assetBundle);
-            LoadPrefabs(assetBundle);
+            LoadSprites(localAssetBundle);
+            LoadMaterials(localAssetBundle);
+            LoadPrefabs(localAssetBundle);
 
+            localAssetBundle.Unload(false);
             _ready = true;
         }
 
@@ -162,23 +162,12 @@ namespace BeatLeader {
         [UsedImplicitly]
         public static Sprite DefaultAvatar;
 
-        private static List<Sprite> _loadedSprites = new(1);
+        private static List<Sprite> _loadedSprites;
         
         public static Sprite GetSpriteFromBundle(string name)
         {
-            Sprite result = null;
-            if (_ready) {
-                result = _loadedSprites.Where(x => x.name == name).FirstOrDefault();
-                if (result == null) {
-                    result = assetBundle.LoadAsset<Sprite>(name);
-                    if (result != null) {
-                        _loadedSprites.Add(result);
-                    }
-                }
-            }
-            return result;
+            return _ready ? _loadedSprites.Where(x => x.name == name).FirstOrDefault() : null;
         }
-
         public static bool TryGetSpriteFromBundle(string name, out Sprite sprite)
         {
             return (sprite = GetSpriteFromBundle(name)) != null;
@@ -212,6 +201,8 @@ namespace BeatLeader {
             SceneIcon = assetBundle.LoadAsset<Sprite>("BL_SceneIcon");
             SaveIcon = assetBundle.LoadAsset<Sprite>("BL_SaveIcon");
             DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
+
+            _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 
         #endregion

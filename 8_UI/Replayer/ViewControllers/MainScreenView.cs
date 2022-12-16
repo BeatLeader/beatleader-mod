@@ -48,7 +48,9 @@ namespace BeatLeader.Components {
             _toolbar = Instantiate<ToolbarWithSettings>(transform);
             _layoutEditor = Instantiate<LayoutEditor>(transform);
 
-            _playerInfo.SetPlayer(_launchData.Player);
+            if (_launchData.Player != null) {
+                _playerInfo.SetPlayer(_launchData.Player);
+            }
             _songInfo.SetBeatmapLevel(_launchData.DifficultyBeatmap.level);
             _toolbar.Setup(_beatmapTimeController, _pauseController,
                 _exitController, _launchData, _speedData, _cameraController,

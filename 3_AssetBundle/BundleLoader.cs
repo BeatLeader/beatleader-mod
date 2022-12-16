@@ -227,6 +227,9 @@ namespace BeatLeader {
 
         [UsedImplicitly]
         public static Sprite WhiteBG;
+        
+        [UsedImplicitly]
+        public static Sprite DefaultAvatar;
 
         private static void LoadSprites(AssetBundle assetBundle)
         {
@@ -279,6 +282,7 @@ namespace BeatLeader {
             AnchorBGDots = assetBundle.LoadAsset<Sprite>("BL_AnchorBGDots");
             BlackTransparentBGOutline = assetBundle.LoadAsset<Sprite>("BL_BlackTransparentBGOutline");
             WhiteBG = assetBundle.LoadAsset<Sprite>("BL_WhiteBG");
+            DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
         }
 
         #endregion

@@ -48,7 +48,11 @@ namespace BeatLeader.Components {
 
         #region Events
 
+        public bool isOnResultsScreen;
+
         private void OnVotingWasPressed() {
+            if (isOnResultsScreen == LeaderboardState.IsVisible) return;
+            
             _rankabilitySelector.Reset();
             _starsSelector.Reset();
             _mapTypeSelector.Reset();

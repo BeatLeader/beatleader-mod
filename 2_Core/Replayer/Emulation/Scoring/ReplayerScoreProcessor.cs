@@ -26,7 +26,7 @@ namespace BeatLeader.Replayer.Emulation {
         private void Awake() {
             var sortedList = CreateSortedNoteDatasList(_beatmapData.allBeatmapDataItems);
             _generatedBeatmapNoteData = new LinkedList<NoteData>(sortedList);
-
+            _noteControllerEmulator = new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
             _eventsProcessor.NoteProcessRequestedEvent += HandleNoteProcessRequested;
             _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
@@ -107,9 +107,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Simulation
 
-        private readonly NoteControllerEmulator _noteControllerEmulator =
-            new GameObject("NoteControllerEmulator").AddComponent<NoteControllerEmulator>();
-
+        private NoteControllerEmulator _noteControllerEmulator;
+        
         private static bool _lastCutIsGood;
         private static float _lastCutBeforeCutRating;
         private static float _lastCutAfterCutRating;

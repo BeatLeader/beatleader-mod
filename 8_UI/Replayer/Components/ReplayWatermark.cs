@@ -21,22 +21,18 @@ namespace BeatLeader.Components {
         private TextMeshPro _text;
 
         private void Awake() {
-            CanBeDisabled = IsWatermarkCanBeDisabled();
+            CanBeDisabled = ProfileManager.IsCurrentPlayer(_launchData.Player);
             _text = gameObject.AddComponent<TextMeshPro>();
             _text.richText = true;
             _text.fontSize = 1.5f;
             _text.alignment = TextAlignmentOptions.Center;
-            transform.position = new Vector3(0, 2.6f, 6);
+            transform.position = new(0, 2.6f, 6);
             var level = _launchData.DifficultyBeatmap.level;
             _text.text = GetFormattedText(_launchData.Player.name, level.songName, level.songAuthorName);
         }
 
         private string GetFormattedText(string player, string songName, string songAuthor) {
             return $"<i><b><color=\"red\">REPLAY</color></b>   {songName} - {songAuthor}   Player: {player}</i>";
-        }
-
-        private bool IsWatermarkCanBeDisabled() {
-            return ProfileManager.IsCurrentPlayer(_launchData.Player);
         }
     }
 }

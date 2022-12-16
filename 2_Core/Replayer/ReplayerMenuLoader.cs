@@ -139,11 +139,11 @@ namespace BeatLeader.Replayer {
         [Inject, UsedImplicitly]
         private readonly IFPFCSettings _fpfcSettings;
 
-        private void StartReplay(Player player) {
+        private void StartReplay(Player player) { 
             StartReplayAsync(Replay, player, ConfigFileData.Instance.ReplayerSettings);
         }
 
-        public async void StartReplayAsync(Replay replay, Player player, ReplayerSettings settings = null) {
+        public async void StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
             var data = new ReplayLaunchData(replay, player, settings: settings);
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
 

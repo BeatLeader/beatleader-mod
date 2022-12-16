@@ -30,8 +30,6 @@
 
         #region Website links
 
-        public const string HiddenPlayerAvatar = "https://cdn.beatleader.xyz/assets/DefaultAvatar.png";
-
         public static string LeaderboardPage(string leaderboardId) {
             return $"{BEATLEADER_WEBSITE_URL}/leaderboard/global/{leaderboardId}";
         }

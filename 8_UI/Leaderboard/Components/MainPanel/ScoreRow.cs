@@ -214,7 +214,7 @@ namespace BeatLeader.Components {
             if (_score == null) return;
             var player = HiddenPlayersCache.ModifyPlayer(_score.player);
             
-            SetHighlight(ProfileManager.IsCurrentPlayer(player));
+            SetHighlight(ProfileManager.IsCurrentPlayer(player?.id));
             
             var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
             ApplyColorScheme(playerRoles);

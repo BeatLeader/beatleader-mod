@@ -19,11 +19,11 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
         [Inject] private readonly ReplayEventsProcessor _eventsProcessor;
 
-        [FirstResource] private readonly ComboUIController _comboUIController;
-        [FirstResource] private readonly GameEnergyUIPanel _gameEnergyUIPanel;
-        [FirstResource] private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager;
-        [FirstResource] private readonly NoteDebrisSpawner _noteDebrisSpawner;
-        [FirstResource] private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles;
+        [FirstResource(requireActiveInHierarchy: true)] private readonly ComboUIController _comboUIController;
+        [FirstResource(requireActiveInHierarchy: true)] private readonly GameEnergyUIPanel _gameEnergyUIPanel;
+        [FirstResource(requireActiveInHierarchy: true)] private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager;
+        [FirstResource(requireActiveInHierarchy: true)] private readonly NoteDebrisSpawner _noteDebrisSpawner;
+        [FirstResource(requireActiveInHierarchy: true)] private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles;
 
         private GameObject _laser;
         private ImageView _energyIconEmpty;

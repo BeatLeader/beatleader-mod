@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using GameNoteCutInfo = NoteCutInfo;
 using UVector3 = UnityEngine.Vector3;
 using UQuaternion = UnityEngine.Quaternion;
-using UnityEngine;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Models
 {
@@ -161,21 +162,22 @@ namespace BeatLeader.Models
             cutAngle = info.cutAngle
         };
 
-        public bool speedOK;
-        public bool directionOK;
-        public bool saberTypeOK;
-        public bool wasCutTooSoon;
-        public float saberSpeed;
-        public Vector3 saberDir;
-        public int saberType;
-        public float timeDeviation;
-        public float cutDirDeviation;
-        public Vector3 cutPoint;
-        public Vector3 cutNormal;
-        public float cutDistanceToCenter;
-        public float cutAngle;
-        public float beforeCutRating;
-        public float afterCutRating;
+        public bool speedOK { get; set; }
+        public bool directionOK { get; set; }
+        public bool saberTypeOK { get; set; }
+        public bool wasCutTooSoon { get; set; }
+        public float saberSpeed { get; set; }
+        public bool cutDistanceToCenterPositive { get; set; }
+        public Vector3 saberDir { get; set; }
+        public int saberType { get; set; }
+        public float timeDeviation { get; set; }
+        public float cutDirDeviation { get; set; }
+        public Vector3 cutPoint { get; set; }
+        public Vector3 cutNormal { get; set; }
+        public float cutDistanceToCenter { get; set; }
+        public float cutAngle{ get; set; }
+        public float beforeCutRating{ get; set; }
+        public float afterCutRating { get; set; }
 
         public bool allIsOK => speedOK && directionOK && saberTypeOK && !wasCutTooSoon;
     }
@@ -391,7 +393,7 @@ namespace BeatLeader.Models
             stream.Write(info.directionOK);
             stream.Write(info.saberTypeOK);
             stream.Write(info.wasCutTooSoon);
-            stream.Write(info.saberSpeed);
+            stream.Write(info.saberSpeed.IncorporateBool(info.cutDistanceToCenterPositive));
             EncodeVector(info.saberDir, stream);
             stream.Write(info.saberType);
             stream.Write(info.timeDeviation);
@@ -531,7 +533,30 @@ namespace BeatLeader.Models
             List<Frame> result = new List<Frame>();
             for (int i = 0; i < length; i++)
             {
-                result.Add(DecodeFrame(buffer, ref pointer));
+                var frame  = DecodeFrame(buffer, ref pointer);
+                if (frame.time != 0) {
+                    result.Add(frame);
+                }
+            }
+            if (result.Count > 2)
+            {
+                var sameFramesCount = 0;
+                while (result[sameFramesCount].time == result[sameFramesCount + 1].time)
+                {
+                    sameFramesCount++;
+                }
+
+                if (sameFramesCount > 0)
+                {
+                    sameFramesCount++;
+
+                    var newResult = new List<Frame>();
+                    for (int index = 0; index < result.Count; index += sameFramesCount)
+                    {
+                        newResult.Add(result[index]);
+                    }
+                    result = newResult;
+                }
             }
             return result;
         }
@@ -615,11 +640,10 @@ namespace BeatLeader.Models
                 result.noteCutInfo = DecodeCutInfo(buffer, ref pointer);
             }
 
-            if (result.noteID == -1 || (result.noteID > 0 && result.noteID < 100000 && result.noteID % 10 == 9))
+            if (result.noteID == -1 || ("" + result.noteID).Last() == '9')
             {
                 result.noteID += 4;
                 result.eventType = NoteEventType.bomb;
-                Debug.Log(result.noteID);
             }
 
             return result;

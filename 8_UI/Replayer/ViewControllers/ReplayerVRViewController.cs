@@ -40,7 +40,7 @@ namespace BeatLeader.ViewControllers {
         protected override void OnInit() {
             base.OnInit();
 
-            var container = new GameObject("HandsContainer");
+            var container = new GameObject("Container");
 
             container.transform.SetParent(Container.transform.parent, false);
             Container.transform.SetParent(container.transform, false);

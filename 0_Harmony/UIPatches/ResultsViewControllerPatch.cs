@@ -13,7 +13,7 @@ namespace BeatLeader.UIPatches
         {
             if (_resultsScreen != null) return;
 
-            _resultsScreen = ReeUIComponentV2.Instantiate<ResultsScreenUI>(__instance.transform.Find("HandsContainer/BottomPanel"));
+            _resultsScreen = ReeUIComponentV2.Instantiate<ResultsScreenUI>(__instance.transform.Find("Container/BottomPanel"));
             _resultsScreen.gameObject.SetActive(true);
         }
     }

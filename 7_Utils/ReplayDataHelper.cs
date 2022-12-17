@@ -3,98 +3,80 @@ using System.Linq;
 using BeatLeader.Models;
 using UnityEngine;
 
-namespace BeatLeader.Utils
-{
-    public static class ReplayDataHelper
-    {
-        private class EditableModifiers : GameplayModifiers
-        {
-            public new EnergyType energyType
-            {
+namespace BeatLeader.Utils {
+    public static class ReplayDataHelper {
+        private class EditableModifiers : GameplayModifiers {
+            public new EnergyType energyType {
                 get => this._energyType;
                 set => this._energyType = value;
             }
 
-            public new bool noFailOn0Energy
-            {
+            public new bool noFailOn0Energy {
                 get => this._noFailOn0Energy;
                 set => this._noFailOn0Energy = value;
             }
 
-            public new bool instaFail
-            {
+            public new bool instaFail {
                 get => this._instaFail;
                 set => this._instaFail = value;
             }
 
-            public new bool failOnSaberClash
-            {
+            public new bool failOnSaberClash {
                 get => this._failOnSaberClash;
                 set => this._failOnSaberClash = value;
             }
 
-            public new EnabledObstacleType enabledObstacleType
-            {
+            public new EnabledObstacleType enabledObstacleType {
                 get => this._enabledObstacleType;
                 set => this._enabledObstacleType = value;
             }
 
-            public new bool fastNotes
-            {
+            public new bool fastNotes {
                 get => this._fastNotes;
                 set => this._fastNotes = value;
             }
 
-            public new bool strictAngles
-            {
+            public new bool strictAngles {
                 get => this._strictAngles;
                 set => this._strictAngles = value;
             }
 
-            public new bool disappearingArrows
-            {
+            public new bool disappearingArrows {
                 get => this._disappearingArrows;
                 set => this._disappearingArrows = value;
             }
 
-            public new bool ghostNotes
-            {
+            public new bool ghostNotes {
                 get => this._ghostNotes;
                 set => this._ghostNotes = value;
             }
 
-            public new bool noBombs
-            {
+            public new bool noBombs {
                 get => this._noBombs;
                 set => this._noBombs = value;
             }
 
-            public new SongSpeed songSpeed
-            {
+            public new SongSpeed songSpeed {
                 get => this._songSpeed;
                 set => this._songSpeed = value;
             }
 
-            public new bool noArrows
-            {
+            public new bool noArrows {
                 get => this._noArrows;
                 set => this._noArrows = value;
             }
 
-            public new bool proMode
-            {
+            public new bool proMode {
                 get => this._proMode;
                 set => this._proMode = value;
             }
 
-            public new bool zenMode
-            {
+            public new bool zenMode {
                 get => this._zenMode;
                 set => this._zenMode = value;
             }
 
-            public new bool smallCubes
-            {
+            public new bool smallCubes {
                 get => this._smallCubes;
                 set => this._smallCubes = value;
             }
@@ -108,39 +90,40 @@ namespace BeatLeader.Utils
         public static readonly StandardLevelScenesTransitionSetupDataSO StandardLevelScenesTransitionSetupDataSO = Resources
                 .FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault();
 
-        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(this Replay replay,
-            PlayerDataModel playerModel, IDifficultyBeatmap difficulty, EnvironmentInfoSO environment = null)
-        {
-            var data = StandardLevelScenesTransitionSetupDataSO;
+        public static StandardLevelScenesTransitionSetupDataSO CreateTransitionData(
+            this ReplayLaunchData launchData, PlayerDataModel playerModel) {
+            var transitionData = StandardLevelScenesTransitionSetupDataSO;
             var playerData = playerModel.playerData;
-            bool overrideEnv = environment != null;
 
-            var environmentSettings = overrideEnv ? new OverrideEnvironmentSettings() : playerData.overrideEnvironmentSettings;
-            if (overrideEnv)
-            {
-                environmentSettings.overrideEnvironments = true;
-                environmentSettings.SetEnvironmentInfoForType(NormalEnvironmentType, environment);
+            var overrideEnv = launchData.EnvironmentInfo != null;
+            var envSettings = overrideEnv ? new() :
+                playerData.overrideEnvironmentSettings;
+            if (overrideEnv) {
+                envSettings.overrideEnvironments = true;
+                envSettings.SetEnvironmentInfoForType(
+                    NormalEnvironmentType, launchData.EnvironmentInfo);
             }
 
-            data?.Init("Solo", difficulty, difficulty.level, environmentSettings,
+            var replay = launchData.MainReplay;
+            var practiceSettings = launchData.IsBattleRoyale 
+                ? null : replay.GetPracticeSettingsFromReplay();
+            var beatmap = launchData.DifficultyBeatmap;
+
+            transitionData?.Init("Solo", beatmap, beatmap.level, envSettings,
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(),
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
-                replay.GetPracticeSettingsFromReplay(), "Menu");
+                practiceSettings, "Menu");
 
-            return data;
+            return transitionData;
         }
-        public static string GetEnvironmentSerializedNameByEnvironmentName(string name)
-        {
+
+        public static string GetEnvironmentSerializedNameByEnvironmentName(string name) {
             name = name.Replace(" ", "");
-            if (name != "TheFirst" && name != "Spooky" && name != "FallOutBoy")
-            {
+            if (name != "TheFirst" && name != "Spooky" && name != "FallOutBoy") {
                 return name + "Environment";
-            }
-            else
-            {
-                switch (name)
-                {
+            } else {
+                switch (name) {
                     case "TheFirst":
                         return "DefaultEnvironment";
                     case "Spooky":
@@ -152,12 +135,8 @@ namespace BeatLeader.Utils
 
             return "!UNDEFINED!";
         }
-        public static EnvironmentInfoSO GetEnvironmentBySerializedName(string name)
-        {
-            return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().First(x => x.serializedName == name);
-        }
-        public static EnvironmentInfoSO GetEnvironmentByName(string name)
-        {
+
+        public static EnvironmentInfoSO GetEnvironmentByName(string name) {
             return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().FirstOrDefault(x =>
                 x.serializedName == GetEnvironmentSerializedNameByEnvironmentName(name));
         }
@@ -166,8 +145,7 @@ namespace BeatLeader.Utils
 
         #region Data Management
 
-        public static string ParseModifierLocalizationKeyToServerName(this string modifierLocalizationKey)
-        {
+        public static string ParseModifierLocalizationKeyToServerName(this string modifierLocalizationKey) {
             if (string.IsNullOrEmpty(modifierLocalizationKey)) return modifierLocalizationKey;
 
             int idx1 = modifierLocalizationKey.IndexOf('_') + 1;
@@ -178,14 +156,11 @@ namespace BeatLeader.Utils
 
             return $"{char.ToUpper(char1)}{char.ToUpper(char2)}";
         }
-        public static GameplayModifiers GetModifiersFromReplay(this Replay replay)
-        {
-            EditableModifiers replayModifiers = new EditableModifiers();
+        public static GameplayModifiers GetModifiersFromReplay(this Replay replay) {
+            EditableModifiers replayModifiers = new();
             string[] modifiers = replay.info.modifiers.Split(',');
-            foreach (string modifier in modifiers)
-            {
-                switch (modifier)
-                {
+            foreach (string modifier in modifiers) {
+                switch (modifier) {
                     case "DA":
                         replayModifiers.disappearingArrows = true;
                         break;
@@ -236,24 +211,15 @@ namespace BeatLeader.Utils
 
             return replayModifiers;
         }
-        public static PracticeSettings CreatePracticeSettingsFromReplay(this Replay replay)
-        {
-            return new PracticeSettings(replay.info.startTime, replay.info.speed);
+        public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay) {
+            return replay.info.speed <= 0 ? null : new(replay.info.startTime, replay.info.speed);
         }
-        public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay)
-        {
-            return replay.info.speed <= 0 ? null : CreatePracticeSettingsFromReplay(replay);
-        }
-        public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay)
-        {
+        public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay) {
             return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
         }
-        public static bool TryGetFrameByTime(this LinkedListNode<Frame> entryPoint, float time, out LinkedListNode<Frame> frame)
-        {
-            for (frame = entryPoint; frame != null; frame = frame.Next)
-            {
-                if (frame.Value.time >= time)
-                {
+        public static bool TryGetFrameByTime(this LinkedListNode<Frame> entryPoint, float time, out LinkedListNode<Frame> frame) {
+            for (frame = entryPoint; frame != null; frame = frame.Next) {
+                if (frame.Value.time >= time) {
                     return true;
                 }
             }
@@ -266,13 +232,11 @@ namespace BeatLeader.Utils
 
         #region Computing
 
-        public static int ComputeObstacleId(this ObstacleData obstacleData)
-        {
+        public static int ComputeObstacleId(this ObstacleData obstacleData) {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
         }
 
-        public static int ComputeNoteId(this NoteData noteData)
-        {
+        public static int ComputeNoteId(this NoteData noteData) {
             return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex
                 * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType
                 * 10 + (int)noteData.cutDirection;

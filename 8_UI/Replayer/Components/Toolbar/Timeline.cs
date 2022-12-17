@@ -5,6 +5,7 @@ using BeatLeader.Utils;
 using UnityEngine.UI;
 using UnityEngine;
 using BeatLeader.Models;
+using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.Components {
     internal class Timeline : ReeUIComponentV2 {
@@ -27,23 +28,33 @@ namespace BeatLeader.Components {
 
         private IReplayPauseController _pauseController;
         private IBeatmapTimeController _beatmapTimeController;
-        private Replay _replay;
+        private IVirtualPlayersManager _playersManager;
+        private ReplayLaunchData _launchData;
         private bool _allowTimeUpdate = true;
         private bool _allowRewind;
         private bool _wasPausedBeforeRewind;
 
         public void Setup(
-            Replay replay,
+            ReplayLaunchData launchData,
+            IVirtualPlayersManager playersManager,
             IReplayPauseController pauseController,
             IBeatmapTimeController beatmapTimeController) {
-            _replay = replay;
+            if (_playersManager != null)
+                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChangedEvent;
+
+            _launchData = launchData;
+            _playersManager = playersManager;
             _pauseController = pauseController;
             _beatmapTimeController = beatmapTimeController;
-            _timelineAnimator.Setup(_background.rectTransform, 
-                _handle.rectTransform, _marksAreaContainer, _fillArea);
+            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChangedEvent;
 
             SetupSlider();
             SetupMarkers();
+
+            _timelineAnimator.Setup(_background.rectTransform,
+                _handle.rectTransform, _marksAreaContainer, _fillArea);
+
+            HandlePriorityPlayerChangedEvent(playersManager.PriorityPlayer);
             _allowRewind = true;
         }
 
@@ -63,48 +74,30 @@ namespace BeatLeader.Components {
             _timelineAnimator.HandleReleasedEvent += HandleSliderReleased;
         }
 
-        private void SetupMarkers() {
-            _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
-            _missPrefab.sprite = BundleLoader.CrossIcon;
-            _missPrefab.color = Color.red;
-
-            _bombPrefab = new GameObject("BombIcon").AddComponent<Image>();
-            _bombPrefab.sprite = BundleLoader.CrossIcon;
-            _bombPrefab.color = Color.yellow;
-
-            _pausePrefab = new GameObject("PauseIcon").AddComponent<Image>();
-            _pausePrefab.sprite = BundleLoader.PauseIcon;
-            _pausePrefab.color = Color.blue;
-
-            GenerateMarkers(_replay.notes
-                .Where(x => x.eventType == NoteEventType.miss || x.eventType == NoteEventType.bad)
-                .Select(x => x.eventTime), _missPrefab.gameObject);
-
-            GenerateMarkers(_replay.notes
-                .Where(x => x.eventType == NoteEventType.bomb)
-                .Select(x => x.eventTime), _bombPrefab.gameObject);
-
-            GenerateMarkers(_replay.pauses
-                .Select(x => x.time), _pausePrefab.gameObject);
-        }
         private void SetupSlider() {
             _slider.minValue = _beatmapTimeController.SongStartTime;
-            _slider.maxValue = _replay.info.failTime <= 0 ? _beatmapTimeController.SongEndTime : _replay.info.failTime;
+            _slider.maxValue = EndTime;
         }
 
         #endregion
 
         #region Callbacks
 
+        private void HandlePriorityPlayerChangedEvent(VirtualPlayer player) {
+            GenerateDefaultMarkersFromReplay(player.Replay);
+        }
+
         private void HandleSliderValueChanged(float value) {
             if (_allowRewind)
                 _beatmapTimeController?.Rewind(value, false);
         }
+
         private void HandleSliderReleased() {
             if (!_wasPausedBeforeRewind)
                 _pauseController?.Resume(true);
             _allowTimeUpdate = true;
         }
+
         private void HandleSliderPressed() {
             _wasPausedBeforeRewind = _pauseController?.IsPaused ?? false;
             _allowTimeUpdate = false;
@@ -114,9 +107,17 @@ namespace BeatLeader.Components {
 
         #region UpdateTime
 
+        private float EndTime {
+            get {
+                var failTime = !_launchData.IsBattleRoyale ? _launchData.MainReplay.info.failTime : 0;
+                return failTime <= 0 ? _beatmapTimeController.SongEndTime : failTime; 
+            }
+        }
+
         private void Update() {
-            if (_allowTimeUpdate)
+            if (_allowTimeUpdate) {
                 _slider.SetValueWithoutNotify(_beatmapTimeController.SongTime);
+            }
         }
 
         #endregion
@@ -129,36 +130,60 @@ namespace BeatLeader.Components {
 
         private readonly Dictionary<GameObject, List<GameObject>> _marks = new();
 
+        private void GenerateDefaultMarkersFromReplay(Replay replay) {
+            GenerateMarkers(replay.notes
+                .Where(x => x.eventType == NoteEventType.miss || x.eventType == NoteEventType.bad)
+                .Select(x => x.eventTime), _missPrefab.gameObject);
+
+            GenerateMarkers(replay.notes
+                .Where(x => x.eventType == NoteEventType.bomb)
+                .Select(x => x.eventTime), _bombPrefab.gameObject);
+
+            GenerateMarkers(replay.pauses
+                .Select(x => x.time), _pausePrefab.gameObject);
+        }
+
+        private void SetupMarkers() {
+            _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
+            _missPrefab.sprite = BundleLoader.CrossIcon;
+            _missPrefab.color = Color.red;
+
+            _bombPrefab = new GameObject("BombIcon").AddComponent<Image>();
+            _bombPrefab.sprite = BundleLoader.CrossIcon;
+            _bombPrefab.color = Color.yellow;
+
+            _pausePrefab = new GameObject("PauseIcon").AddComponent<Image>();
+            _pausePrefab.sprite = BundleLoader.PauseIcon;
+            _pausePrefab.color = Color.blue;
+        }
+
         private void GenerateMarkers(IEnumerable<float> times, GameObject prefab) {
             ClearMarkers(prefab);
-            List<GameObject> marks = new();
+            var marks = new List<GameObject>();
             foreach (var item in times) {
-                GameObject instance = Instantiate(prefab, _marksArea, false);
-                RectTransform instanceRect = instance.GetComponent<RectTransform>();
-                instanceRect.localPosition = new Vector2(MapTimelineMarker(item), 0);
+                var instance = Instantiate(prefab, _marksArea, false);
+                var instanceRect = instance.GetComponent<RectTransform>();
+                instanceRect.localPosition = new(MapTimelineMarker(item), 0);
                 instanceRect.sizeDelta = CalculateMarkerSize();
-
                 marks.Add(instance);
             }
             _marks.Add(prefab, marks);
         }
+
         private void ClearMarkers(GameObject prefab) {
-            if (_marks.TryGetValue(prefab, out List<GameObject> marks)) marks.Clear();
+            if (_marks.TryGetValue(prefab, out var marks)) marks.Clear();
         }
 
         private Vector2 CalculateMarkerSize() {
-            return new Vector2(_marksArea.sizeDelta.y, _marksArea.sizeDelta.y);
+            return new(_marksArea.sizeDelta.y, _marksArea.sizeDelta.y);
         }
+
         private float MapTimelineMarker(float time) {
-            float marksArXDiv2 = _marksArea.sizeDelta.x / 2;
-            float markXDiv2 = CalculateMarkerSize().x / 2;
-            float endTime = _replay.info.failTime <= 0 ?
-                _beatmapTimeController.SongEndTime : _replay.info.failTime;
-
-            float val = MathUtils.Map(time, _beatmapTimeController.SongStartTime, endTime, -marksArXDiv2, marksArXDiv2);
-
+            var marksArXDiv2 = _marksArea.sizeDelta.x / 2;
+            var markXDiv2 = CalculateMarkerSize().x / 2;
+            var val = MathUtils.Map(time, _beatmapTimeController.SongStartTime, EndTime, -marksArXDiv2, marksArXDiv2);
             if (marksArXDiv2 - Mathf.Abs(val) < markXDiv2) {
-                float pos = marksArXDiv2 - markXDiv2;
+                var pos = marksArXDiv2 - markXDiv2;
                 val = val < 0 ? (-pos) : pos;
             }
             return val;

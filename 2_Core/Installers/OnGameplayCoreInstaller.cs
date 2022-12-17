@@ -91,10 +91,16 @@ namespace BeatLeader.Installers {
             Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle();
 
             //Core logic(Playback)
-            Container.BindInterfacesAndSelfTo<PlaybackController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<ReplayPauseController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<ReplayFinishController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerControllersManager>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<VRControllersMovementEmulator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
+            Container.BindInterfacesAndSelfTo<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<VRControllersInstantiator>().AsSingle();
+            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2)
+                .FromComponentInNewPrefab(new GameObject("VirtualPlayerPrefab").AddComponent<VirtualPlayer>());
+            Container.BindInterfacesAndSelfTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //Core logic(Notes handling)
             Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle();
@@ -105,8 +111,8 @@ namespace BeatLeader.Installers {
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<TweaksLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<HotkeysHandler>().AsSingle().NonLazy();
+            Container.Bind<TweaksHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<HotkeysHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
 
@@ -124,11 +130,11 @@ namespace BeatLeader.Installers {
         private void PatchSiraFreeView() {
             try {
                 Container.Resolve<IFPFCSettings>().Enabled = false;
-                Assembly assembly = typeof(IFPFCSettings).Assembly;
+                var assembly = typeof(IFPFCSettings).Assembly;
 
-                Type smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
-                Type FPFCToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
-                Type simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
+                var smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
+                var FPFCToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
+                var simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
 
                 //Container.Unbind<IFPFCSettings>();
                 Container.UnbindInterfacesTo(smoothCameraListenerType);

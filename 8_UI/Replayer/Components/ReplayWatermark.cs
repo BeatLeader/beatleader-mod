@@ -1,19 +1,19 @@
 ﻿using BeatLeader.DataManager;
+using BeatLeader.Models;
 using TMPro;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Components {
-    internal class ReplayWatermark : MonoBehaviour {
-        [Inject] private readonly Models.ReplayLaunchData _launchData;
+    internal class ReplayWatermark : MonoBehaviour, IReplayWatermark {
+        [Inject] private readonly ReplayLaunchData _launchData;
 
         public bool Enabled {
             get => _text.gameObject.activeSelf;
             set {
                 if (!CanBeDisabled) return;
-
                 _text.gameObject.SetActive(value);
-                _launchData.ActualToWriteSettings.ShowWatermark = value;
+                _launchData.Settings.ShowWatermark = value;
             }
         }
         public bool CanBeDisabled { get; private set; }
@@ -21,18 +21,30 @@ namespace BeatLeader.Components {
         private TextMeshPro _text;
 
         private void Awake() {
-            CanBeDisabled = ProfileManager.IsCurrentPlayer(_launchData.Player);
             _text = gameObject.AddComponent<TextMeshPro>();
             _text.richText = true;
             _text.fontSize = 1.5f;
             _text.alignment = TextAlignmentOptions.Center;
             transform.position = new(0, 2.6f, 6);
-            var level = _launchData.DifficultyBeatmap.level;
-            _text.text = GetFormattedText(_launchData.Player.name, level.songName, level.songAuthorName);
+            RefreshText();
         }
 
-        private string GetFormattedText(string player, string songName, string songAuthor) {
-            return $"<i><b><color=\"red\">REPLAY</color></b>   {songName} - {songAuthor}   Player: {player}</i>";
+        public void RefreshText() {
+            var text = $"<i><b><color=\"red\">REPLAY</color></b>   ";
+            var level = _launchData.DifficultyBeatmap.level;
+            text += $"{level.songName} - {level.songAuthorName}   ";
+            if (_launchData.IsBattleRoyale) {
+                CanBeDisabled = true;
+                text += "<color=\"yellow\">BATTLE ROYALE</color>";
+            } else {
+                var pair = _launchData.Replays[0];
+                var replay = pair.Value;
+                var player = pair.Key;
+                CanBeDisabled = ProfileManager.IsCurrentPlayer(player?.id ?? replay.info.playerID);
+                text += $"Player:  {player?.name ?? replay.info.playerName}";
+            }
+            text += "</i>";
+            _text.text = text;
         }
     }
 }

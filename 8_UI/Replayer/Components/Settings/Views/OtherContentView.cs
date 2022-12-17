@@ -1,36 +1,42 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
+using BeatLeader.Replayer.Emulation;
 using BeatSaberMarkupLanguage.Attributes;
+using IPA.Config.Data;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class OtherContentView : ContentView {
-        #region UI Values
-
-        [UIValue("show-head")]
-        private bool ShowHead {
-            get => _launchData?.ActualSettings.ShowHead ?? false;
-            set {
-                _launchData.ActualToWriteSettings.ShowHead = value;
-                _controllersManager.Head.gameObject.SetActive(value);
-            }
-        }
+        #region Visibility
 
         [UIValue("show-left-saber")]
         private bool ShowLeftSaber {
-            get => _launchData?.ActualSettings.ShowLeftSaber ?? false;
+            get => _launchData?.Settings.ShowLeftSaber ?? false;
             set {
-                _launchData.ActualToWriteSettings.ShowLeftSaber = value;
-                _controllersManager.LeftSaber.gameObject.SetActive(value);
+                _showLeftSaber = value;
+                _launchData.Settings.ShowLeftSaber = value;
+                RefreshVisibility();
             }
         }
 
         [UIValue("show-right-saber")]
         private bool ShowRightSaber {
-            get => _launchData?.ActualSettings.ShowRightSaber ?? false;
+            get => _launchData?.Settings.ShowRightSaber ?? false;
             set {
-                _launchData.ActualToWriteSettings.ShowRightSaber = value;
-                _controllersManager.RightSaber.gameObject.SetActive(value);
+                _showRightSaber = value;
+                _launchData.Settings.ShowRightSaber = value;
+                RefreshVisibility();
+            }
+        }
+
+        [UIValue("show-head")]
+        private bool ShowHead {
+            get => _launchData?.Settings.ShowHead ?? false;
+            set {
+                _showHead = value;
+                _launchData.Settings.ShowHead = value;
+                RefreshVisibility();
             }
         }
 
@@ -38,8 +44,24 @@ namespace BeatLeader.Components {
         private bool ShowWatermark {
             get => _replayWatermark?.Enabled ?? false;
             set {
-                if (_replayWatermark != null)
-                    _replayWatermark.Enabled = value;
+                _showWatermark = value;
+                RefreshVisibility();
+            }
+        }
+
+        private IVRControllersProvider _controllersProvider;
+
+        private bool _showLeftSaber;
+        private bool _showRightSaber;
+        private bool _showHead;
+        private bool _showWatermark;
+
+        private void RefreshVisibility() {
+            _controllersProvider.LeftSaber.gameObject.SetActive(_showLeftSaber);
+            _controllersProvider.RightSaber.gameObject.SetActive(_showRightSaber);
+            _controllersProvider.Head.gameObject.SetActive(_showHead);
+            if (_replayWatermark != null) {
+                _replayWatermark.Enabled = _showWatermark;
             }
         }
 
@@ -47,25 +69,46 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        [UIObject("watermark")] private GameObject _watermark;
+        [UIObject("watermark-toggle")]
+        private readonly GameObject _watermarkToggleObject;
 
-        private ReplayerControllersManager _controllersManager;
         private ReplayLaunchData _launchData;
-        private ReplayWatermark _replayWatermark;
+        private IVirtualPlayersManager _playersManager;
+        private IReplayWatermark _replayWatermark;
 
-        public void Setup(
-            ReplayerControllersManager controllersManager,
-            ReplayLaunchData launchData, 
-            ReplayWatermark watermark = null) {
-            _controllersManager = controllersManager;
+        public void Init(ReplayLaunchData launchData, IVirtualPlayersManager playersManager, IReplayWatermark watermark = null) {
+            if (_playersManager != null)
+                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
+
+            _playersManager = playersManager;
             _launchData = launchData;
             _replayWatermark = watermark;
 
+            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
+            _watermarkToggleObject.SetActive(_replayWatermark?.CanBeDisabled ?? false);
+
+            HandlePriorityPlayerChanged(_playersManager.PriorityPlayer);
+            RefreshToggles();
+        }
+
+        protected override void OnDispose() {
+            _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
+        }
+
+        private void RefreshToggles() {
             NotifyPropertyChanged(nameof(ShowHead));
             NotifyPropertyChanged(nameof(ShowLeftSaber));
             NotifyPropertyChanged(nameof(ShowRightSaber));
             NotifyPropertyChanged(nameof(ShowWatermark));
-            _watermark.SetActive(_replayWatermark.CanBeDisabled);
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
+            _controllersProvider = player.ControllersProvider;
+            RefreshVisibility();
         }
 
         #endregion

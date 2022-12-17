@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Themes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -60,8 +62,7 @@ namespace BeatLeader {
         public static Material UIGridMaterial;
         public static Material TextureSplitterMaterial;
 
-        private static void LoadMaterials(AssetBundle assetBundle)
-        {
+        private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
             DefaultAvatarMaterial = assetBundle.LoadAsset<Material>("DefaultAvatar");
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
@@ -81,158 +82,113 @@ namespace BeatLeader {
 
         #region Sprites
 
-        [UsedImplicitly]
-        public static Sprite LocationIcon;
+        [UsedImplicitly] public static Sprite LocationIcon;
 
-        [UsedImplicitly]
-        public static Sprite RowSeparatorIcon;
+        [UsedImplicitly] public static Sprite RowSeparatorIcon;
 
-        [UsedImplicitly]
-        public static Sprite BeatLeaderLogoGradient;
+        [UsedImplicitly] public static Sprite BeatLeaderLogoGradient;
 
-        [UsedImplicitly]
-        public static Sprite TransparentPixel;
+        [UsedImplicitly] public static Sprite TransparentPixel;
 
-        [UsedImplicitly]
-        public static Sprite FileError;
+        [UsedImplicitly] public static Sprite FileError;
 
-        [UsedImplicitly]
-        public static Sprite ModifiersIcon;
+        [UsedImplicitly] public static Sprite ModifiersIcon;
 
-        [UsedImplicitly]
-        public static Sprite Overview1Icon;
+        [UsedImplicitly] public static Sprite Overview1Icon;
 
-        [UsedImplicitly]
-        public static Sprite Overview2Icon;
+        [UsedImplicitly] public static Sprite Overview2Icon;
 
-        [UsedImplicitly]
-        public static Sprite DetailsIcon;
+        [UsedImplicitly] public static Sprite DetailsIcon;
 
-        [UsedImplicitly]
-        public static Sprite GridIcon;
+        [UsedImplicitly] public static Sprite GridIcon;
 
-        [UsedImplicitly]
-        public static Sprite GraphIcon;
+        [UsedImplicitly] public static Sprite GraphIcon;
 
-        [UsedImplicitly]
-        public static Sprite NotificationIcon;
+        [UsedImplicitly] public static Sprite NotificationIcon;
 
-        [UsedImplicitly]
-        public static Sprite WebsiteLinkIcon;
+        [UsedImplicitly] public static Sprite WebsiteLinkIcon;
 
-        [UsedImplicitly]
-        public static Sprite DiscordLinkIcon;
+        [UsedImplicitly] public static Sprite DiscordLinkIcon;
 
-        [UsedImplicitly]
-        public static Sprite PatreonLinkIcon;
+        [UsedImplicitly] public static Sprite PatreonLinkIcon;
 
-        [UsedImplicitly]
-        public static Sprite TwitterIcon;
+        [UsedImplicitly] public static Sprite TwitterIcon;
 
-        [UsedImplicitly]
-        public static Sprite TwitchIcon;
+        [UsedImplicitly] public static Sprite TwitchIcon;
 
-        [UsedImplicitly]
-        public static Sprite YoutubeIcon;
+        [UsedImplicitly] public static Sprite YoutubeIcon;
 
-        [UsedImplicitly]
-        public static Sprite ProfileIcon;
+        [UsedImplicitly] public static Sprite ProfileIcon;
 
-        [UsedImplicitly]
-        public static Sprite FriendsIcon;
+        [UsedImplicitly] public static Sprite FriendsIcon;
 
-        [UsedImplicitly]
-        public static Sprite IncognitoIcon;
+        [UsedImplicitly] public static Sprite IncognitoIcon;
 
-        [UsedImplicitly]
-        public static Sprite ReplayIcon;
+        [UsedImplicitly] public static Sprite ReplayIcon;
 
-        [UsedImplicitly]
-        public static Sprite UIIcon;
+        [UsedImplicitly] public static Sprite UIIcon;
 
-        [UsedImplicitly]
-        public static Sprite DebrisIcon;
+        [UsedImplicitly] public static Sprite DebrisIcon;
 
-        [UsedImplicitly]
-        public static Sprite SceneIcon;
+        [UsedImplicitly] public static Sprite SceneIcon;
 
-        [UsedImplicitly]
-        public static Sprite SaveIcon;
+        [UsedImplicitly] public static Sprite SaveIcon;
 
-        [UsedImplicitly]
-        public static Sprite AlignIcon;
+        [UsedImplicitly] public static Sprite AlignIcon;
 
-        [UsedImplicitly]
-        public static Sprite AnchorIcon;
+        [UsedImplicitly] public static Sprite AnchorIcon;
 
-        [UsedImplicitly]
-        public static Sprite CrossIcon;
+        [UsedImplicitly] public static Sprite CrossIcon;
 
-        [UsedImplicitly]
-        public static Sprite EditLayoutIcon;
+        [UsedImplicitly] public static Sprite EditLayoutIcon;
 
-        [UsedImplicitly]
-        public static Sprite ClosedDoorIcon;
+        [UsedImplicitly] public static Sprite ClosedDoorIcon;
 
-        [UsedImplicitly]
-        public static Sprite OpenedDoorIcon;
+        [UsedImplicitly] public static Sprite OpenedDoorIcon;
 
-        [UsedImplicitly]
-        public static Sprite ExitIcon;
+        [UsedImplicitly] public static Sprite ExitIcon;
 
-        [UsedImplicitly]
-        public static Sprite LeftArrowIcon;
+        [UsedImplicitly] public static Sprite LeftArrowIcon;
 
-        [UsedImplicitly]
-        public static Sprite RightArrowIcon;
+        [UsedImplicitly] public static Sprite RightArrowIcon;
 
-        [UsedImplicitly]
-        public static Sprite LockIcon;
+        [UsedImplicitly] public static Sprite LockIcon;
 
-        [UsedImplicitly]
-        public static Sprite PauseIcon;
+        [UsedImplicitly] public static Sprite PauseIcon;
 
-        [UsedImplicitly]
-        public static Sprite PlayIcon;
+        [UsedImplicitly] public static Sprite PlayIcon;
 
-        [UsedImplicitly]
-        public static Sprite PinIcon;
+        [UsedImplicitly] public static Sprite PinIcon;
 
-        [UsedImplicitly]
-        public static Sprite ProgressRingIcon;
+        [UsedImplicitly] public static Sprite ProgressRingIcon;
 
-        [UsedImplicitly]
-        public static Sprite RotateLeftIcon;
+        [UsedImplicitly] public static Sprite RotateLeftIcon;
 
-        [UsedImplicitly]
-        public static Sprite RotateRightIcon;
+        [UsedImplicitly] public static Sprite RotateRightIcon;
 
-        [UsedImplicitly]
-        public static Sprite SettingsIcon;
+        [UsedImplicitly] public static Sprite SettingsIcon;
 
-        [UsedImplicitly]
-        public static Sprite WarningIcon;
+        [UsedImplicitly] public static Sprite WarningIcon;
 
-        [UsedImplicitly]
-        public static Sprite EyeIcon;
+        [UsedImplicitly] public static Sprite EyeIcon;
 
-        [UsedImplicitly]
-        public static Sprite BlackTransparentBG;
+        [UsedImplicitly] public static Sprite BlackTransparentBG;
 
-        [UsedImplicitly]
-        public static Sprite AnchorBGDots;
+        [UsedImplicitly] public static Sprite AnchorBGDots;
 
-        [UsedImplicitly]
-        public static Sprite BlackTransparentBGOutline;
+        [UsedImplicitly] public static Sprite BlackTransparentBGOutline;
 
-        [UsedImplicitly]
-        public static Sprite WhiteBG;
-        
-        [UsedImplicitly]
-        public static Sprite DefaultAvatar;
+        [UsedImplicitly] public static Sprite WhiteBG;
 
-        private static void LoadSprites(AssetBundle assetBundle)
-        {
+        [UsedImplicitly] public static Sprite DefaultAvatar;
+
+        private static List<Sprite> _loadedSprites;
+
+        public static Sprite GetSpriteFromBundle(string name) {
+            return _ready ? _loadedSprites.FirstOrDefault(x => x.name == name) : null;
+        }
+
+        private static void LoadSprites(AssetBundle assetBundle) {
             LocationIcon = assetBundle.LoadAsset<Sprite>("LocationIcon");
             RowSeparatorIcon = assetBundle.LoadAsset<Sprite>("RowSeparatorIcon");
             BeatLeaderLogoGradient = assetBundle.LoadAsset<Sprite>("BeatLeaderLogoGradient");
@@ -283,6 +239,7 @@ namespace BeatLeader {
             BlackTransparentBGOutline = assetBundle.LoadAsset<Sprite>("BL_BlackTransparentBGOutline");
             WhiteBG = assetBundle.LoadAsset<Sprite>("BL_WhiteBG");
             DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
+            _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 
         #endregion

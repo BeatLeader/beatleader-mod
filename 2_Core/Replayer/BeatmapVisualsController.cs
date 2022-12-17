@@ -52,14 +52,14 @@ namespace BeatLeader.Replayer {
             _debrisMoveSpeedMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_moveSpeedMultiplier");
 
             _playbackController.PauseStateChangedEvent += HandlePauseStateChanged;
-            _beatmapTimeController.SongSpeedChangedEvent += HandleSongSpeedChanged;
+            _beatmapTimeController.SongSpeedWasChangedEvent += HandleSongSpeedChanged;
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
         }
         private void OnDestroy() {
             _playbackController.PauseStateChangedEvent -= HandlePauseStateChanged;
-            _beatmapTimeController.SongSpeedChangedEvent -= HandleSongSpeedChanged;
+            _beatmapTimeController.SongSpeedWasChangedEvent -= HandleSongSpeedChanged;
             _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent -= HandleComboDidBreak;

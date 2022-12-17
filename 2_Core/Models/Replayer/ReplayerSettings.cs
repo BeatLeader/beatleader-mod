@@ -4,9 +4,10 @@ namespace BeatLeader.Models
 {
     public class ReplayerSettings
     {
-        public bool ShowUI { get; set; }
+        public bool AlwaysShowUI { get; set; }
         public bool LoadPlayerEnvironment { get; set; }
         public bool ForceUseReplayerCamera { get; set; }
+        public bool ExitReplayAutomatically { get; set; }
 
         public bool ShowHead { get; set; }
         public bool ShowLeftSaber { get; set; }

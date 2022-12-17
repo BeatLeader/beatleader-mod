@@ -16,10 +16,10 @@ namespace BeatLeader.ViewControllers {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerVRView.bsml")]
     internal class ReplayerVRViewController : StandaloneViewController<FloatingScreen> {
         [Inject] private readonly IReplayPauseController _pauseController;
-        [Inject] private readonly IReplayExitController _exitController;
+        [Inject] private readonly IReplayFinishController _finishController;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly IVirtualPlayersManager _playersManager;
         [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly ReplayerControllersManager _controllersManager;
         [Inject] private readonly ReplayWatermark _watermark;
         [Inject] private readonly ReplayLaunchData _launchData;
         [Inject] private readonly SongSpeedData _speedData;
@@ -31,16 +31,16 @@ namespace BeatLeader.ViewControllers {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
             _toolbar = ReeUIComponentV2.Instantiate<ToolbarWithSettings>(transform);
             _floatingControls.Setup(Screen, _pauseController,
-                _cameraController.Camera.transform, !_launchData.ActualSettings.ShowUI);
+                _cameraController.Camera.transform, !_launchData.Settings.AlwaysShowUI);
             _toolbar.Setup(_beatmapTimeController, _pauseController,
-                _exitController, _launchData, _speedData, _cameraController,
-                _controllersManager, _watermark);
+                _finishController, _playersManager, _launchData, 
+                _speedData, _cameraController, _watermark);
         }
 
         protected override void OnInit() {
             base.OnInit();
 
-            var container = new GameObject("Container");
+            var container = new GameObject("HandsContainer");
 
             container.transform.SetParent(Container.transform.parent, false);
             Container.transform.SetParent(container.transform, false);

@@ -7,18 +7,20 @@ using Zenject;
 
 namespace BeatLeader.Replayer
 {
-    public class PlaybackController : MonoBehaviour, IReplayPauseController, IReplayExitController
+    internal class ReplayPauseController : MonoBehaviour, IReplayPauseController
     {
         #region Injection
 
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
         [Inject] private readonly PauseController _pauseController;
         [Inject] private readonly AudioTimeSyncController _songTimeSyncController;
+        [Inject] private readonly PauseMenuManager _pauseMenuManager;
         [Inject] private readonly SaberManager _saberManager;
         [Inject] private readonly IGamePause _gamePause;
 
         [Inject] private readonly IVRPlatformHelper _vrPlatformHelper;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger;
+        [Inject] private readonly ILevelStartController _levelStartController;
 
         #endregion
 
@@ -28,23 +30,44 @@ namespace BeatLeader.Replayer
 
         public event Action<bool> PauseStateChangedEvent;
 
-        public event Action ReplayExitEvent;
-
         #endregion
 
-        #region Initialize & Dispose
+        #region Setup
 
         private void Awake()
         {
+            UnsubscribeStandardEvents();
             _vrPlatformHelper.hmdUnmountedEvent += HandleHMDUnmounted;
             _vrPlatformHelper.inputFocusWasCapturedEvent += HandleInputFocusWasLost;
             _pauseButtonTrigger.menuButtonTriggeredEvent += HandleMenuButtonTriggered;
         }
+
         private void OnDestroy()
         {
             _vrPlatformHelper.hmdUnmountedEvent -= HandleHMDUnmounted;
             _vrPlatformHelper.inputFocusWasCapturedEvent -= HandleInputFocusWasLost;
             _pauseButtonTrigger.menuButtonTriggeredEvent -= HandleMenuButtonTriggered;
+            SubscribeStandardEvents();
+        }
+
+        private void UnsubscribeStandardEvents() {
+            _vrPlatformHelper.inputFocusWasCapturedEvent -= _pauseController.HandleInputFocusWasCaptured;
+            _vrPlatformHelper.hmdUnmountedEvent -= _pauseController.HandleHMDUnmounted;
+            _pauseMenuManager.didFinishResumeAnimationEvent -= _pauseController.HandlePauseMenuManagerDidFinishResumeAnimation;
+            _pauseMenuManager.didPressContinueButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressContinueButton;
+            _pauseMenuManager.didPressRestartButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressRestartButton;
+            _levelStartController.levelDidStartEvent -= _pauseController.HandleLevelDidStart;
+            _levelStartController.levelWillStartIntroEvent -= _pauseController.HandleLevelWillStartIntro;
+        }
+
+        private void SubscribeStandardEvents() {
+            _vrPlatformHelper.inputFocusWasCapturedEvent += _pauseController.HandleInputFocusWasCaptured;
+            _vrPlatformHelper.hmdUnmountedEvent += _pauseController.HandleHMDUnmounted;
+            _pauseMenuManager.didFinishResumeAnimationEvent += _pauseController.HandlePauseMenuManagerDidFinishResumeAnimation;
+            _pauseMenuManager.didPressContinueButtonEvent += _pauseController.HandlePauseMenuManagerDidPressContinueButton;
+            _pauseMenuManager.didPressRestartButtonEvent += _pauseController.HandlePauseMenuManagerDidPressRestartButton;
+            _levelStartController.levelDidStartEvent += _pauseController.HandleLevelDidStart;
+            _levelStartController.levelWillStartIntroEvent += _pauseController.HandleLevelWillStartIntro;
         }
 
         #endregion
@@ -79,17 +102,7 @@ namespace BeatLeader.Replayer
 
         #endregion
 
-        #region Exit
-
-        public void Exit()
-        {
-            ReplayExitEvent?.Invoke();
-            _pauseController.HandlePauseMenuManagerDidPressMenuButton();
-        }
-
-        #endregion
-
-        #region Event Handlers
+        #region Callbacks
 
         private void HandleMenuButtonTriggered()
         {

@@ -32,7 +32,7 @@ namespace BeatLeader
 
         public static ReplayerSettings ReplayerSettings => new()
         {
-            ShowUI = true,
+            AlwaysShowUI = true,
             ForceUseReplayerCamera = false,
             LoadPlayerEnvironment = false,
 

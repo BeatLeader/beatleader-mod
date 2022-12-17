@@ -1,0 +1,8 @@
+﻿<better-image src="#bl-black-transparent-bg" type="Sliced" ppu="10"
+              vertical-fit="PreferredSize" horizontal-fit="PreferredSize"
+              pref-height="80" pref-width="60">
+  <vertical>
+    <text text="The end" font-size="12"/>
+    <button text="Restart"/>
+  </vertical>
+</better-image>

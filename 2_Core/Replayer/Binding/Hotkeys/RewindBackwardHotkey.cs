@@ -6,7 +6,7 @@ namespace BeatLeader.Replayer.Binding
 {
     internal class RewindBackwardHotkey : GameHotkey
     {
-        public override KeyCode Key => _launchData.ActualSettings.Shortcuts.RewindBackwardHotkey;
+        public override KeyCode Key => _launchData.Settings.Shortcuts.RewindBackwardHotkey;
 
         [Inject] private readonly ReplayLaunchData _launchData;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;

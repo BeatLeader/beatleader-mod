@@ -14,7 +14,7 @@ namespace BeatLeader.ViewControllers {
         #region Injection
 
         [Inject] private readonly DiContainer _container;
-        [Inject] private readonly IReplayExitController _exitController;
+        [Inject] private readonly IReplayFinishController _finishController;
 
         #endregion
 
@@ -63,13 +63,13 @@ namespace BeatLeader.ViewControllers {
             _canvasGroup.alpha = 0;
             _mainScreenView = ReeUIComponentV2WithContainer
                 .InstantiateInContainer<MainScreenView>(_container, null);
-            _exitController.ReplayExitEvent += HandleReplayExit;
+            _finishController.ReplayWasExitedEvent += HandleReplayFinish;
             _mainScreenView.LayoutBuiltEvent += HandleUIBuilt;
         }
 
         protected override void OnDestroy() {
             base.OnDestroy();
-            _exitController.ReplayExitEvent -= HandleReplayExit;
+            _finishController.ReplayWasExitedEvent -= HandleReplayFinish;
         }
 
         #endregion
@@ -84,7 +84,7 @@ namespace BeatLeader.ViewControllers {
             }
         }
 
-        private void HandleReplayExit() {
+        private void HandleReplayFinish() {
             CoroutinesHandler.instance.StartCoroutine(UIAnimationCoroutine(false));
         }
 

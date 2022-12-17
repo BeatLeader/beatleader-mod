@@ -6,6 +6,7 @@ using HMUI;
 using BeatLeader.Models;
 using static HMUI.NoTransitionsButton;
 using System;
+using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.Components {
     internal class Toolbar : ReeUIComponentV2 {
@@ -49,25 +50,30 @@ namespace BeatLeader.Components {
         private string _formattedSongTime;
 
         private IReplayPauseController _pauseController;
-        private IReplayExitController _exitController;
+        private IReplayFinishController _finishController;
         private IBeatmapTimeController _beatmapTimeController;
-        private Replay _replay;
+        private IVirtualPlayersManager _playersManager;
 
         public void Setup(
-            Replay replay,
+            ReplayLaunchData launchData,
             IReplayPauseController pauseController,
-            IReplayExitController exitController,
-            IBeatmapTimeController beatmapTimeController) {
+            IReplayFinishController finishController,
+            IBeatmapTimeController beatmapTimeController,
+            IVirtualPlayersManager playersManager) {
             if (_pauseController != null)
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
+            if (_playersManager != null)
+                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
 
-            _replay = replay;
             _pauseController = pauseController;
-            _exitController = exitController;
+            _finishController = finishController;
             _beatmapTimeController = beatmapTimeController;
+            _playersManager = playersManager;
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
-            _timeline.Setup(_replay, _pauseController, _beatmapTimeController);
+            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
+
+            _timeline.Setup(launchData, playersManager, pauseController, beatmapTimeController);
         }
 
         protected override void OnInstantiate() {
@@ -87,17 +93,17 @@ namespace BeatLeader.Components {
         private void Update() {
             UpdateSongTime();
         }
-        private void UpdateSongTime() {
-            float time = _beatmapTimeController.SongTime;
-            float totalTime = _replay.info.failTime <= 0 ? 
-                _beatmapTimeController.SongEndTime : _replay.info.failTime;
 
+        private void UpdateSongTime() {
+            var time = _beatmapTimeController.SongTime;
+            var failTime = _playersManager.PriorityPlayer.Replay.info.failTime;
+            var totalTime = failTime <= 0 ? _beatmapTimeController.SongEndTime : failTime;
             FormattedSongTime = FormatUtils.FormatSongTime(time, totalTime);
         }
 
         #endregion
 
-        #region UI Callbacks
+        #region Callbacks
 
         [UIAction("pause-button-clicked")]
         private void HandlePauseButtonClicked() {
@@ -115,12 +121,8 @@ namespace BeatLeader.Components {
         }
 
         private void HandleExitButtonClicked() {
-            _exitController?.Exit();
+            _finishController?.Exit();
         }
-
-        #endregion
-
-        #region Callbacks
 
         private void HandleExitButtonSelectionStateChanged(SelectionState state) {
             _exitButtonIcon.Image.sprite = state switch {
@@ -129,6 +131,11 @@ namespace BeatLeader.Components {
                 _ => _closedDoorSprite
             };
         }
+
+        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
+
+        }
+
         private void HandlePauseStateChanged(bool pause) {
             _playButton.TargetGraphic.sprite = pause ? _playSprite : _pauseSprite;
         }

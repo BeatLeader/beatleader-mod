@@ -12,10 +12,10 @@ namespace BeatLeader.Components {
         #region Injection
 
         [Inject] private readonly IReplayPauseController _pauseController;
-        [Inject] private readonly IReplayExitController _exitController;
+        [Inject] private readonly IReplayFinishController _finishController;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
+        [Inject] private readonly IVirtualPlayersManager _playersManager;
         [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly ReplayerControllersManager _controllersManager;
         [Inject] private readonly ReplayWatermark _watermark;
         [Inject] private readonly ReplayLaunchData _launchData;
         [Inject] private readonly SongSpeedData _speedData;
@@ -48,13 +48,19 @@ namespace BeatLeader.Components {
             _toolbar = Instantiate<ToolbarWithSettings>(transform);
             _layoutEditor = Instantiate<LayoutEditor>(transform);
 
-            if (_launchData.Player != null) {
-                _playerInfo.SetPlayer(_launchData.Player);
-            }
             _songInfo.SetBeatmapLevel(_launchData.DifficultyBeatmap.level);
             _toolbar.Setup(_beatmapTimeController, _pauseController,
-                _exitController, _launchData, _speedData, _cameraController,
-                _controllersManager, _watermark, _layoutEditor);
+                _finishController, _playersManager, _launchData, _speedData, 
+                _cameraController, _watermark, _layoutEditor);
+            SetupPlayers();
+        }
+
+        private void SetupPlayers() {
+            if (!_launchData.IsBattleRoyale) {
+                var player = _launchData.Replays[0].Key;
+                if (player != null) _playerInfo.SetPlayer(player);
+                return;
+            }
         }
 
         protected override void OnInitialize() {

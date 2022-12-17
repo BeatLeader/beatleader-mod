@@ -13,7 +13,7 @@
       <bool-setting text="Head" value="show-head" apply-on-change="true" bind-value="true" skew="0"/>
       <bool-setting text="Left saber" value="show-left-saber" apply-on-change="true" bind-value="true" skew="0"/>
       <bool-setting text="Right saber" value="show-right-saber" apply-on-change="true" bind-value="true" skew="0"/>
-      <bool-setting id="watermark" text="Watermark" value="show-watermark" apply-on-change="true" bind-value="true" skew="0"/>
+      <bool-setting id="watermark-toggle" text="Watermark" value="show-watermark" apply-on-change="true" bind-value="true" skew="0"/>
     </vertical>
   </horizontal>
 

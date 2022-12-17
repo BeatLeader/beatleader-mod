@@ -144,7 +144,8 @@ namespace BeatLeader.Replayer {
         }
 
         public async void StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
-            var data = new ReplayLaunchData(replay, player, settings: settings);
+            var data = new ReplayLaunchData();
+            data.Init(replay, settings, player);
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
 
             Plugin.Log.Notice("[Loader] Download done, replay data:");

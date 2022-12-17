@@ -37,9 +37,9 @@ namespace BeatLeader.Replayer {
 
         #region Events
 
-        public event Action<float> SongSpeedChangedEvent;
-        public event Action<float> EarlySongRewindEvent;
-        public event Action<float> SongRewindEvent;
+        public event Action<float> SongSpeedWasChangedEvent;
+        public event Action<float> EarlySongWasRewoundEvent;
+        public event Action<float> SongWasRewoundEvent;
 
         #endregion
 
@@ -76,7 +76,7 @@ namespace BeatLeader.Replayer {
                 || float.IsInfinity(time) || float.IsNaN(time)) return;
             time = Mathf.Clamp(time, SongStartTime, SongEndTime);
 
-            EarlySongRewindEvent?.Invoke(time);
+            EarlySongWasRewoundEvent?.Invoke(time);
 
             bool wasPausedBeforeRewind = _audioTimeSyncController
                 .state.Equals(AudioTimeSyncController.State.Paused);
@@ -101,7 +101,7 @@ namespace BeatLeader.Replayer {
             _beatmapCallbacksUpdater.Resume();
             _soundSpawnerSilencer.Enabled = false;
 
-            SongRewindEvent?.Invoke(time);
+            SongWasRewoundEvent?.Invoke(time);
         }
 
         private LinkedListNode<BeatmapDataItem> FindBeatmapItem(float time) {
@@ -131,7 +131,7 @@ namespace BeatLeader.Replayer {
             _beatmapAudioSource.pitch = speedMultiplier;
             _audioManagerSO.musicPitch = 1f / speedMultiplier;
 
-            SongSpeedChangedEvent?.Invoke(speedMultiplier);
+            SongSpeedWasChangedEvent?.Invoke(speedMultiplier);
 
             if (!wasPausedBeforeRewind && resumeAfterSpeedChange)
                 _audioTimeSyncController.Resume();

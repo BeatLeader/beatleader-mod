@@ -18,16 +18,16 @@ namespace BeatLeader.Components {
         public void Setup(
             IBeatmapTimeController timeController,
             IReplayPauseController pauseController,
-            SongSpeedData speedData,
+            IVirtualPlayersManager playersManager,
             ReplayerCameraController cameraController,
-            ReplayerControllersManager controllersManager,
-            ReplayWatermark watermark,
-            LayoutEditor layoutEditor,
-            ReplayLaunchData launchData) {
+            ReplayLaunchData launchData,
+            SongSpeedData speedData,
+            IReplayWatermark watermark,
+            LayoutEditor layoutEditor) {
             _speedSetting.Setup(timeController, speedData);
             _layoutEditorSetting.Setup(layoutEditor, pauseController);
             _cameraContentView.Setup(cameraController, launchData);
-            _otherContentView.Setup(controllersManager, launchData, watermark);
+            _otherContentView.Init(launchData, playersManager, watermark);
         }
 
         protected override void OnInstantiate() {

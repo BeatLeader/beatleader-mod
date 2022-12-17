@@ -5,7 +5,6 @@ using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Utils;
-using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.Replayer.Camera {
     public class ReplayerCameraController : MonoBehaviour {
@@ -26,22 +25,30 @@ namespace BeatLeader.Replayer.Camera {
             }
         }
 
-        [Inject] protected readonly ReplayerControllersManager _vrControllersManager;
-        [Inject] protected readonly InitData _data;
-        [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
+        [Inject] private readonly MenuControllersManager _menuControllersManager;
+        [Inject] private readonly Models.IVirtualPlayersManager _playersManager;
+        [Inject] private readonly InitData _data;
+
+        [FirstResource]
+        private readonly MainSettingsModelSO _mainSettingsModel;
+
+        [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
+        private readonly Transform Origin;
 
         public List<ICameraPoseProvider> PoseProviders { get; protected set; }
         public string CurrentPoseName => _currentPose?.Name ?? string.Empty;
         public UnityEngine.Camera Camera => _camera;
         public ICameraPoseProvider CurrentPose => _currentPose;
         public ValueTuple<Pose, Pose> CameraAndHeadPosesTuple {
-            get => (transform.GetLocalPose(), _vrControllersManager.Head.transform.GetLocalPose());
-            protected set {
+            get => (transform.GetLocalPose(), _playersManager
+                .PriorityPlayer.ControllersProvider.Head.transform.GetLocalPose());
+            private set {
                 transform.SetLocalPose(value.Item1);
-                _vrControllersManager.Head.transform.SetLocalPose(value.Item2);
+                _playersManager.PriorityPlayer.ControllersProvider
+                    .Head.transform.SetLocalPose(value.Item2);
 
                 if (InputUtils.IsInFPFC) return;
-                _vrControllersManager.HandsContainer.SetLocalPose(value.Item1);
+                _menuControllersManager.HandsContainer.SetLocalPose(value.Item1);
             }
         }
         public int CullingMask {
@@ -61,8 +68,8 @@ namespace BeatLeader.Replayer.Camera {
         public event Action<ICameraPoseProvider> CameraPoseChangedEvent;
         public event Action<int> CameraFOVChangedEvent;
 
-        protected ICameraPoseProvider _currentPose;
-        protected UnityEngine.Camera _camera;
+        private ICameraPoseProvider _currentPose;
+        private UnityEngine.Camera _camera;
 
         private int _fieldOfView;
         private bool _wasRequestedLastTime;
@@ -81,7 +88,7 @@ namespace BeatLeader.Replayer.Camera {
             PoseProviders = _data.poseProviders.Where(x => InputUtils.MatchesCurrentInput(x.AvailableInputs)).ToList();
             RequestCameraPose(_data.cameraStartPose);
 
-            transform.SetParent(_vrControllersManager.Origin, false);
+            transform.SetParent(Origin, false);
             SetEnabled(true);
             _isInitialized = true;
         }

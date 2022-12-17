@@ -4,25 +4,25 @@ using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Binding {
-    public class HotkeysHandler : IInitializable, ITickable {
-        public readonly List<GameHotkey> hotkeys = new()
-        {
+    public class HotkeysHandler : MonoBehaviour {
+        [Inject] private readonly DiContainer _container;
+
+        public IReadOnlyList<GameHotkey> Hotkeys { get; } = new List<GameHotkey> {
             new LayoutEditorHotkey(),
             new HideCursorHotkey(),
             new PauseHotkey(),
             new RewindBackwardHotkey(),
             new RewindForwardHotkey()
-        };//not static to dispose the garbage inside hotkeys
+        };
 
-        [Inject] private readonly DiContainer _container;
-
-        public void Initialize() {
-            foreach (var item in hotkeys) {
+        private void Awake() {
+            foreach (var item in Hotkeys) {
                 _container.Inject(item);
             }
         }
-        public void Tick() {
-            foreach (var item in hotkeys) {
+
+        private void Update() {
+            foreach (var item in Hotkeys) {
                 try {
                     if (Input.GetKeyDown(item.Key))
                         item.OnKeyDown();

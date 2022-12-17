@@ -31,25 +31,24 @@ namespace BeatLeader.Components {
         public void Setup(
             IBeatmapTimeController timeController,
             IReplayPauseController pauseController,
-            IReplayExitController exitController,
+            IReplayFinishController finishController,
+            IVirtualPlayersManager playersManager,
             ReplayLaunchData launchData,
             SongSpeedData speedData,
             ReplayerCameraController cameraController,
-            ReplayerControllersManager controllersManager,
-            ReplayWatermark watermark,
+            IReplayWatermark watermark,
             LayoutEditor layoutEditor = null) {
-            if (_layoutEditor != null) {
+            if (_layoutEditor != null) 
                 _layoutEditor.EditModeChangedEvent -= HandleEditModeChanged;
-            }
+
             _layoutEditor = layoutEditor;
-            if (_layoutEditor != null) {
-                _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
-            }
+            _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
+
             _rootContentView.Setup(timeController,
-                pauseController, speedData,
-                cameraController, controllersManager, 
-                watermark, layoutEditor, launchData);
-            _toolbar.Setup(launchData.Replay, pauseController, exitController, timeController);
+                pauseController, playersManager, cameraController,
+                launchData, speedData, watermark, layoutEditor);
+            _toolbar.Setup(launchData, pauseController,
+                finishController, timeController, playersManager);
         }
 
         private void HandleEditModeChanged(bool state) {

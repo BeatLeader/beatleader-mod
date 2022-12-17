@@ -11,7 +11,7 @@ namespace BeatLeader.UI {
     internal class ReplayerUIBinder : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly ReplayerControllersManager _controllersManager;
+        [Inject] private readonly MenuControllersManager _menuControllersManager;
         [Inject] private readonly Replayer2DViewController _screenViewController;
         [Inject] private readonly ReplayerVRViewController _vrViewController;
         [Inject] private readonly ReplayLaunchData _launchData;
@@ -58,10 +58,9 @@ namespace BeatLeader.UI {
             ViewController = InputUtils.IsInFPFC ? _screenViewController : _vrViewController;
             ViewController.Init();
             if (!InputUtils.IsInFPFC) {
-                ViewController.Container.transform.SetParent(
-                    _controllersManager.HandsContainer, false);
+                ViewController.Container.transform.SetParent(_menuControllersManager.HandsContainer, false);
             }
-            AlwaysShowUI = _launchData.ActualSettings.ShowUI;
+            AlwaysShowUI = _launchData.Settings.AlwaysShowUI;
         }
 
         private void OnDestroy() {

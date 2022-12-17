@@ -4,7 +4,7 @@ using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking {
-    public class TweaksLoader : MonoBehaviour {
+    public class TweaksHandler : MonoBehaviour {
         private enum ActionType {
             Initialize,
             LateInitialize,
@@ -12,52 +12,53 @@ namespace BeatLeader.Replayer.Tweaking {
             Inject
         }
 
-        public readonly List<GameTweak> tweaks = new() {
+        [Inject] private readonly DiContainer _container;
+
+        public IReadOnlyList<GameTweak> Tweaks { get; } = new List<GameTweak> {
             new AudioTimeSyncControllerTweak(),
             new SmoothCameraTweak(),
             new InputSystemTweak(),
-            new EventsSubscriberTweak(),
             new GarbageDisablerTweak(),
             new InteropsLoaderTweak(),
             new MethodsSilencerTweak(),
             new ModifiersTweak(),
             new RaycastBlockerTweak(),
-            new RoomOffsetsTweak(),
-        }; //not static to dispose the garbage inside tweaks
-
-        [Inject] private readonly DiContainer _container;
-
+            new RoomOffsetsTweak()
+        }; 
+        
         private void Awake() {
             PerformAction(ActionType.Inject);
             PerformAction(ActionType.Initialize);
         }
+        
         private void Start() {
             PerformAction(ActionType.LateInitialize);
         }
+        
         private void OnDestroy() {
             PerformAction(ActionType.Dispose);
         }
 
         private void PerformAction(ActionType action) {
-            foreach (var item in tweaks) {
-                if (!item.CanBeInstalled) continue;
+            foreach (var tweak in Tweaks) {
+                if (!tweak.CanBeInstalled) continue;
                 try {
                     switch (action) {
                         case ActionType.Inject:
-                            _container.Inject(item);
+                            _container.Inject(tweak);
                             break;
                         case ActionType.Initialize:
-                            item.Initialize();
+                            tweak.Initialize();
                             break;
                         case ActionType.LateInitialize:
-                            item.LateInitialize();
+                            tweak.LateInitialize();
                             break;
                         case ActionType.Dispose:
-                            item.Dispose();
+                            tweak.Dispose();
                             break;
                     }
                 } catch (Exception ex) {
-                    Plugin.Log.Error($"[TweaksLoader] Error during attempting to perform {action} on {item.GetType().Name} tweak! \r\n {ex}");
+                    Plugin.Log.Error($"[TweaksLoader] Error during attempting to perform {action} on {tweak.GetType().Name} tweak! \r\n {ex}");
                 }
             }
         }

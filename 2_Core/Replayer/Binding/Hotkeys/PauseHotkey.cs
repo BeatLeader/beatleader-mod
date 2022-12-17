@@ -6,7 +6,7 @@ namespace BeatLeader.Replayer.Binding
 {
     internal class PauseHotkey : GameHotkey
     {
-        public override KeyCode Key => _launchData.ActualSettings.Shortcuts.PauseHotkey;
+        public override KeyCode Key => _launchData.Settings.Shortcuts.PauseHotkey;
 
         [Inject] private readonly IReplayPauseController _playbackController;
         [Inject] private readonly ReplayLaunchData _launchData;

@@ -284,7 +284,6 @@
     <Compile Include="2_Core\Attributes\PluginAssemblyAttribute.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
     <Compile Include="2_Core\CoroutinesHandler.cs" />
-    <Compile Include="2_Core\CountryFlagsStorage.cs" />
     <Compile Include="2_Core\Installers\OnAppInitInstaller.cs" />
     <Compile Include="2_Core\Installers\OnGameplayCoreInstaller.cs" />
     <Compile Include="2_Core\Installers\OnMenuInstaller.cs" />
@@ -310,18 +309,21 @@
     <Compile Include="2_Core\Managers\ReplayEnhancer\TrackingDeviceEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayEnhancer\UserEnhancer.cs" />
     <Compile Include="2_Core\Managers\ReplayRecorder.cs" />
-    <Compile Include="2_Core\Models\ILayoutMapsSource.cs" />
+    <Compile Include="2_Core\Models\Replayer\IVirtualPlayersManager.cs" />
+    <Compile Include="2_Core\Models\Replayer\UI\ILayoutMapsSource.cs" />
     <Compile Include="2_Core\Models\PlayEndData.cs" />
     <Compile Include="2_Core\Models\AvatarImage.cs" />
     <Compile Include="2_Core\Models\ExMachinaResponse.cs" />
     <Compile Include="2_Core\Models\Replayer\IBeatmapTimeController.cs" />
     <Compile Include="2_Core\Models\Replayer\ICameraPoseProvider.cs" />
     <Compile Include="2_Core\Models\ILateInitializable.cs" />
-    <Compile Include="2_Core\Models\ILayoutGridModel.cs" />
-    <Compile Include="2_Core\Models\Replayer\IReplayExitController.cs" />
+    <Compile Include="2_Core\Models\Replayer\UI\ILayoutGridModel.cs" />
+    <Compile Include="2_Core\Models\Replayer\IVRControllersProvider.cs" />
+    <Compile Include="2_Core\Models\Replayer\IReplayFinishController.cs" />
     <Compile Include="2_Core\Models\Replayer\IReplayPauseController.cs" />
     <Compile Include="2_Core\Models\LatestReleases.cs" />
-    <Compile Include="2_Core\Models\LayoutMapData.cs" />
+    <Compile Include="2_Core\Models\Replayer\UI\IReplayWatermark.cs" />
+    <Compile Include="2_Core\Models\Replayer\UI\LayoutMapData.cs" />
     <Compile Include="2_Core\Models\LeaderboardsInfoResponse.cs" />
     <Compile Include="2_Core\Models\LeaderboardKey.cs" />
     <Compile Include="2_Core\Models\OculusUserInfo.cs" />
@@ -343,6 +345,11 @@
     <Compile Include="2_Core\Models\SerializableVector2.cs" />
     <Compile Include="2_Core\Models\ZenjectComponentModel.cs" />
     <Compile Include="2_Core\Replayer\Binding\Hotkeys\RewindForwardHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Controllers\OriginalVRControllersProvider.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Controllers\GenericVRControllersProvider.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Controllers\VRControllersInstantiator.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Players\VirtualPlayer.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Players\VirtualPlayersManager.cs" />
     <Compile Include="2_Core\Replayer\Emulation\ReplayEventsProcessor.cs" />
     <Compile Include="2_Core\Replayer\Emulation\ReplayerNotesCutter.cs" />
     <Compile Include="2_Core\Replayer\Emulation\Scoring\ReplayerScoreProcessor.cs" />
@@ -354,9 +361,11 @@
     <Compile Include="2_Core\Replayer\Binding\HotkeysHandler.cs" />
     <Compile Include="2_Core\Replayer\Binding\Hotkeys\PauseHotkey.cs" />
     <Compile Include="2_Core\Replayer\Binding\Hotkeys\RewindBackwardHotkey.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Controllers\MenuControllersManager.cs" />
+    <Compile Include="2_Core\Replayer\ReplayFinishController.cs" />
+    <Compile Include="2_Core\Replayer\ReplayPauseController.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\AudioTimeSyncControllerTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\GarbageDisablerTweak.cs" />
-    <Compile Include="2_Core\Replayer\Tweaking\Tweaks\EventsSubscriberTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\GameTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\InputSystemTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\ModifiersTweak.cs" />
@@ -365,7 +374,7 @@
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RaycastBlockerTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\RoomOffsetsTweak.cs" />
     <Compile Include="2_Core\Replayer\Tweaking\Tweaks\SmoothCameraTweak.cs" />
-    <Compile Include="2_Core\Replayer\Tweaking\TweaksLoader.cs" />
+    <Compile Include="2_Core\Replayer\Tweaking\TweaksHandler.cs" />
     <Compile Include="7_Utils\InteropLoader.cs" />
     <Compile Include="7_Utils\Interop\BeatSaviorInterop.cs" />
     <Compile Include="3_AssetBundle\Themes\ThemeMaterials.cs" />
@@ -389,14 +398,11 @@
     <Compile Include="2_Core\Replayer\Camera\Poses\PlayerViewCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\Poses\StaticCameraPose.cs" />
     <Compile Include="2_Core\Replayer\Camera\ReplayerCameraController.cs" />
-    <Compile Include="2_Core\Replayer\ReplayerControllersManager.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllersMovementEmulator.cs" />
-    <Compile Include="2_Core\Replayer\Emulation\Movement\VRControllerEmulator.cs" />
+    <Compile Include="2_Core\Replayer\Emulation\Controllers\VRControllerEmulator.cs" />
     <Compile Include="2_Core\Replayer\ReplayerCache.cs" />
     <Compile Include="2_Core\Replayer\SettingsLoader.cs" />
     <Compile Include="7_Utils\InputUtils.cs" />
     <Compile Include="2_Core\Replayer\ReplayerLauncher.cs" />
-    <Compile Include="2_Core\Replayer\PlaybackController.cs" />
     <Compile Include="2_Core\Replayer\ReplayerMenuLoader.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraph.cs" />
     <Compile Include="3_AssetBundle\AccuracyGraph\AccuracyGraphLine.cs" />
@@ -454,6 +460,7 @@
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\LayoutHandle.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\HandleHighlighter.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\InputDependentObject.cs" />
+    <Compile Include="8_UI\Replayer\Components\ReplayFinishPanel.cs" />
     <Compile Include="8_UI\Replayer\Components\StandaloneViewController.cs" />
     <Compile Include="8_UI\Replayer\Components\Basic\Miscellaneous\TextureSplitter.cs" />
     <Compile Include="8_UI\Replayer\Components\LayoutEditor\EditorWindow\AnchorSelector\AnchorButton.cs" />
@@ -556,6 +563,7 @@
     <Compile Include="8_UI\Replayer\ReplayerUIBinder.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\Replayer2DViewController.cs" />
     <Compile Include="8_UI\Replayer\ViewControllers\ReplayerVRViewController.cs" />
+    <Compile Include="8_UI\Replayer\ViewControllers\ReplayFinishViewController.cs" />
     <Compile Include="8_UI\Results\ReplayButton.cs" />
     <Compile Include="8_UI\Results\ResultsScreenUI.cs" />
     <Compile Include="8_UI\SettingsPanel\SettingsPanelUI.cs" />
@@ -652,6 +660,8 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableController.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableCell.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\HorizontalSeparator.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\ReplayFinishPanel.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayFinishView.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />

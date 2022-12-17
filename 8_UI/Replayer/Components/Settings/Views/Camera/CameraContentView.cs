@@ -35,7 +35,7 @@ namespace BeatLeader.Components {
             get => _cameraController?.FieldOfView ?? 0;
             set {
                 if (!_isInitialized) return;
-                _replayData.ActualToWriteSettings.CameraFOV = value;
+                _replayData.Settings.CameraFOV = value;
                 _cameraController.FieldOfView = value;
             }
         }

@@ -1,19 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
     <LocalRefsDir Condition="Exists('.\Refs')">.\Refs</LocalRefsDir>
     <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-    <VersionType>Unofficial</VersionType>
-    <CommitHash>local</CommitHash>
-    <GitBranch>
-    </GitBranch>
-    <GitModified>
-    </GitModified>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <WarningLevel>3</WarningLevel>
@@ -275,7 +269,10 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\MainScreenSpaceView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Results\ResultsScreenUI.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Results\ReplayButton.bsml" />
+    <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
+    <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
     <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks">

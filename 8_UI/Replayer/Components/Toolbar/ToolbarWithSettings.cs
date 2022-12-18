@@ -5,11 +5,11 @@ using BeatSaberMarkupLanguage.Attributes;
 
 namespace BeatLeader.Components {
     internal class ToolbarWithSettings : EditableElement {
-        [UIValue("settings-modal")] private SettingsModal _settingsModal;
-        [UIValue("toolbar")] private Toolbar _toolbar;
+        [UIValue("settings-modal")] private SettingsModal _settingsModal = null!;
+        [UIValue("toolbar")] private Toolbar _toolbar = null!;
 
-        private RootContentView _rootContentView;
-        private LayoutEditor _layoutEditor;
+        private RootContentView _rootContentView = null!;
+        private LayoutEditor? _layoutEditor;
 
         public override string Name { get; } = "Toolbar";
         public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
@@ -22,7 +22,7 @@ namespace BeatLeader.Components {
             _toolbar = Instantiate<Toolbar>(transform);
             _rootContentView = InstantiateOnSceneRoot<RootContentView>();
 
-            _rootContentView.ManualInit(null);
+            _rootContentView.ManualInit(null!);
             _settingsModal.Setup(_rootContentView);
 
             _toolbar.SettingsButtonClickedEvent += _settingsModal.ShowModal;
@@ -34,21 +34,20 @@ namespace BeatLeader.Components {
             IReplayFinishController finishController,
             IVirtualPlayersManager playersManager,
             ReplayLaunchData launchData,
-            SongSpeedData speedData,
             ReplayerCameraController cameraController,
-            IReplayWatermark watermark,
-            LayoutEditor layoutEditor = null) {
-            if (_layoutEditor != null) 
+            IReplayWatermark? watermark = null,
+            LayoutEditor? layoutEditor = null) {
+            if (_layoutEditor != null)
                 _layoutEditor.EditModeChangedEvent -= HandleEditModeChanged;
 
-            _layoutEditor = layoutEditor;
-            _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
+            if ((_layoutEditor = layoutEditor) != null)
+                _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
 
             _rootContentView.Setup(timeController,
-                pauseController, playersManager, cameraController,
-                launchData, speedData, watermark, layoutEditor);
-            _toolbar.Setup(launchData, pauseController,
-                finishController, timeController, playersManager);
+                pauseController, playersManager, launchData,
+                cameraController, watermark, layoutEditor);
+            _toolbar.Setup(pauseController, finishController,
+                timeController, playersManager, launchData);
         }
 
         private void HandleEditModeChanged(bool state) {

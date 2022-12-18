@@ -6,18 +6,18 @@ using Zenject;
 
 namespace BeatLeader.Replayer {
     internal class MenuControllersManager : MonoBehaviour {
-        [Inject] private readonly PauseMenuManager _pauseMenuManager;
-        [Inject] private readonly DiContainer _diContainer;
-        [Inject] private readonly VRInputModule _vrInputModule;
+        [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
+        [Inject] private readonly DiContainer _diContainer = null!; 
+        [Inject] private readonly VRInputModule _vrInputModule = null!;
 
-        [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel;
+        [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel = null!;
 
-        public Transform HandsContainer { get; private set; }
-        public VRController LeftHand { get; private set; }
-        public VRController RightHand { get; private set; }
+        public Transform HandsContainer { get; private set; } = null!;
+        public VRController LeftHand { get; private set; } = null!;
+        public VRController RightHand { get; private set; } = null!;
 
         [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
-        private readonly Transform Origin;
+        private readonly Transform Origin = null!;
 
         public void ShowHands(bool show = true) {
             LeftHand.gameObject.SetActive(show);

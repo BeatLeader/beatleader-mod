@@ -5,62 +5,65 @@ using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.Components {
-    internal class MainScreenView : ReeUIComponentV2WithContainer {
-        #region Injection
-
-        [Inject] private readonly IReplayPauseController _pauseController;
-        [Inject] private readonly IReplayFinishController _finishController;
-        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly IVirtualPlayersManager _playersManager;
-        [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly ReplayWatermark _watermark;
-        [Inject] private readonly ReplayLaunchData _launchData;
-        [Inject] private readonly SongSpeedData _speedData;
-
-        #endregion
-
+    internal class MainScreenView : ReeUIComponentV2 {
         #region Events
 
-        public event Action LayoutBuiltEvent;
+        public event Action? LayoutBuiltEvent;
 
         #endregion
 
         #region UI Components
 
-        [UIValue("song-info")] private HorizontalBeatmapLevelPreview _songInfo;
-        [UIValue("player-info")] private HorizontalMiniProfile _playerInfo;
-        [UIValue("toolbar")] private ToolbarWithSettings _toolbar;
-        [UIValue("layout-editor")] private LayoutEditor _layoutEditor;
+        [UIValue("song-info")]
+        private HorizontalBeatmapLevelPreview _songInfo = null!;
+
+        [UIValue("player-info")]
+        private HorizontalMiniProfile _playerInfo = null!;
+
+        [UIValue("toolbar")]
+        private ToolbarWithSettings _toolbar = null!;
+
+        [UIValue("layout-editor")] 
+        private LayoutEditor _layoutEditor = null!;
 
         [UIComponent("container-group")]
-        private readonly RectTransform _containerRect;
+        private readonly RectTransform _containerRect = null!;
 
         #endregion
 
         #region Setup
+
+        private IReplayPauseController _pauseController = null!;
+        private bool _isInitialized;
+
+        public void Setup(
+            IReplayPauseController pauseController,
+            IReplayFinishController finishController,
+            IBeatmapTimeController beatmapTimeController,
+            IVirtualPlayersManager playersManager,
+            ReplayLaunchData launchData,
+            ReplayerCameraController cameraController,
+            IReplayWatermark? watermark = null) {
+            _pauseController = pauseController;
+            _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap.level);
+            _toolbar.Setup(beatmapTimeController, pauseController,
+                finishController, playersManager, launchData,
+                cameraController, watermark, _layoutEditor);
+            if (!launchData.IsBattleRoyale) {
+                var player = launchData.Replays[0].Key;
+                if (player != null) _playerInfo.SetPlayer(player);
+                return;
+            }
+            _isInitialized = true;
+        }
 
         protected override void OnInstantiate() {
             _playerInfo = Instantiate<HorizontalMiniProfile>(transform);
             _songInfo = Instantiate<HorizontalBeatmapLevelPreview>(transform);
             _toolbar = Instantiate<ToolbarWithSettings>(transform);
             _layoutEditor = Instantiate<LayoutEditor>(transform);
-
-            _songInfo.SetBeatmapLevel(_launchData.DifficultyBeatmap.level);
-            _toolbar.Setup(_beatmapTimeController, _pauseController,
-                _finishController, _playersManager, _launchData, _speedData, 
-                _cameraController, _watermark, _layoutEditor);
-            SetupPlayers();
-        }
-
-        private void SetupPlayers() {
-            if (!_launchData.IsBattleRoyale) {
-                var player = _launchData.Replays[0].Key;
-                if (player != null) _playerInfo.SetPlayer(player);
-                return;
-            }
         }
 
         protected override void OnInitialize() {
@@ -82,6 +85,7 @@ namespace BeatLeader.Components {
         #region Layout
 
         public void OpenLayoutEditor() {
+            if (!_isInitialized) return;
             _layoutEditor.SetEditorEnabled(true);
             _pauseController.Pause();
         }

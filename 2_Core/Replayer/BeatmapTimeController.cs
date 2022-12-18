@@ -12,43 +12,45 @@ namespace BeatLeader.Replayer {
     public class BeatmapTimeController : MonoBehaviour, IBeatmapTimeController {
         #region Injection
 
-        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
-        [Inject] private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager;
-        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] private readonly IReadonlyBeatmapData _beatmapData;
+        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
+        [Inject] private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager = null!;
+        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null!;
+        [Inject] private readonly SongSpeedData _speedData = null!;   
+        [Inject] private readonly IReadonlyBeatmapData _beatmapData = null!;
 
-        [Inject] private readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData;
-        [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController;
-        [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater;
+        [Inject] private readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData = null!;
+        [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController = null!;
+        [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null!;
 
-        [FirstResource] private readonly AudioManagerSO _audioManagerSO;
+        [FirstResource] private readonly AudioManagerSO _audioManagerSO = null!;
 
         #endregion
 
         #region Time, EndTime, SpeedMultiplier
 
-        public float SongSpeedMultiplier => _audioTimeSyncController.timeScale;
-        public float SongTime => _audioTimeSyncController.songTime;
         public float SongEndTime => _audioTimeSyncController.songEndTime;
         public float SongStartTime => _audioTimeSyncController
             .GetField<float, AudioTimeSyncController>("_startSongTime");
+        public float SongTime => _audioTimeSyncController.songTime;
+        public float SongStartSpeedMultiplier => _speedData.speedMul;
+        public float SongSpeedMultiplier => _audioTimeSyncController.timeScale;
 
         #endregion
 
         #region Events
 
-        public event Action<float> SongSpeedWasChangedEvent;
-        public event Action<float> EarlySongWasRewoundEvent;
-        public event Action<float> SongWasRewoundEvent;
+        public event Action<float>? SongSpeedWasChangedEvent;
+        public event Action<float>? EarlySongWasRewoundEvent;
+        public event Action<float>? SongWasRewoundEvent;
 
         #endregion
 
         #region Setup
 
-        private Dictionary<float, CallbacksInTime> _callbacksInTimes;
-        private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer;
-        private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers;
-        private AudioSource _beatmapAudioSource;
+        private Dictionary<float, CallbacksInTime> _callbacksInTimes = null!;
+        private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer = null!;
+        private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers = null!;
+        private AudioSource _beatmapAudioSource = null!;
 
         private void Start() {
             this.LoadResources();
@@ -104,8 +106,8 @@ namespace BeatLeader.Replayer {
             SongWasRewoundEvent?.Invoke(time);
         }
 
-        private LinkedListNode<BeatmapDataItem> FindBeatmapItem(float time) {
-            LinkedListNode<BeatmapDataItem> item = null;
+        private LinkedListNode<BeatmapDataItem>? FindBeatmapItem(float time) {
+            LinkedListNode<BeatmapDataItem>? item = null;
             for (var node = _beatmapData.allBeatmapDataItems.First; node != null; node = node.Next) {
                 var nodeTime = node.Value.time;
                 var filterTime = _beatmapCallbacksControllerInitData.startFilterTime;

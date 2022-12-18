@@ -40,7 +40,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Editable
-        public override string Name => "Player Info";
+        public override string Name => "Mini Profile";
         public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
             enabled = true,
             position = new(0, 1)

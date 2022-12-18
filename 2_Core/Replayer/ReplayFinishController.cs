@@ -6,17 +6,19 @@ using Zenject;
 
 namespace BeatLeader.Replayer {
     internal class ReplayFinishController : MonoBehaviour, IReplayFinishController {
-        [Inject] private readonly StandardLevelGameplayManager _gameplayManager;
-        [Inject] private readonly PauseMenuManager _pauseMenuManager;
-        [Inject] private readonly PauseController _pauseController;
-        [Inject] private readonly ReplayLaunchData _launchData;
-        [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger;
-        [FirstResource] private readonly StandardLevelFinishedController _finishController;
+        [Inject] private readonly StandardLevelGameplayManager _gameplayManager = null!;
+        [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
+        [Inject] private readonly PauseController _pauseController = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
+        [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
+
+        [FirstResource] 
+        private readonly StandardLevelFinishedController _finishController = null!;
 
         public bool ExitAutomatically { get; private set; }
 
-        public event Action ReplayWasExitedEvent;
-        public event Action ReplayWasFinishedEvent;
+        public event Action? ReplayWasExitedEvent;
+        public event Action? ReplayWasFinishedEvent;
 
         private void Awake() {
             this.LoadResources();

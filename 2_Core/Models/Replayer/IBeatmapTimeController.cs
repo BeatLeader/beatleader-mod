@@ -2,9 +2,10 @@
 
 namespace BeatLeader.Models {
     public interface IBeatmapTimeController {
-        float SongTime { get; }
         float SongEndTime { get; }
         float SongStartTime { get; }
+        float SongTime { get; }
+        float SongStartSpeedMultiplier { get; }
         float SongSpeedMultiplier { get; }
 
         event Action<float> SongSpeedWasChangedEvent;

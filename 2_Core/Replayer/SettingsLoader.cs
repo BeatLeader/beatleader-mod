@@ -1,19 +1,19 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer.Emulation;
 using BeatLeader.UI;
 using BeatLeader.Utils;
 using System;
 using Zenject;
 
 namespace BeatLeader.Replayer {
+    //i believe that i will remove it one day
     internal class SettingsLoader : IInitializable, IDisposable {
-        [InjectOptional] private readonly PlayerDataModel _playerDataModel;
-        [InjectOptional] private readonly ReplayWatermark _watermark;
-        [InjectOptional] private readonly ReplayerCameraController _cameraController;
-        [InjectOptional] private readonly ReplayLaunchData _launchData;
-        [InjectOptional] private readonly ReplayerUIBinder _uiBinder;
+        [InjectOptional] private readonly ReplayWatermark? _watermark;
+        [InjectOptional] private readonly ReplayerCameraController? _cameraController;
+        [InjectOptional] private readonly ReplayerUIBinder? _uiBinder;
+        [Inject] private readonly PlayerDataModel _playerDataModel = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public void Initialize() {
             if (_watermark != null) {

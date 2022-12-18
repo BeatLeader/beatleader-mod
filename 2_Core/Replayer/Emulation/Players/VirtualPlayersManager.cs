@@ -7,17 +7,17 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     internal class VirtualPlayersManager : MonoBehaviour, IVirtualPlayersManager {
-        [Inject] private readonly VRControllersInstantiator _controllersInstantiator;
-        [Inject] private readonly VirtualPlayer.Pool _virtualPlayersPool;
-        [Inject] private readonly ReplayLaunchData _launchData;
+        [Inject] private readonly VRControllersInstantiator _controllersInstantiator = null!;
+        [Inject] private readonly VirtualPlayer.Pool _virtualPlayersPool = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public IReadOnlyList<VirtualPlayer> Players => _virtualPlayers;
         public VirtualPlayer PriorityPlayer => _priorityPlayer ?? _virtualPlayers.FirstOrDefault();
 
-        public event Action<VirtualPlayer> PriorityPlayerWasChangedEvent;
+        public event Action<VirtualPlayer>? PriorityPlayerWasChangedEvent;
 
         private readonly List<VirtualPlayer> _virtualPlayers = new();
-        private VirtualPlayer _priorityPlayer;
+        private VirtualPlayer? _priorityPlayer;
 
         private void Awake() {
             foreach (var replayPair in _launchData.Replays) {

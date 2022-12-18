@@ -15,17 +15,17 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly IReplayPauseController _pauseController;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
+        [Inject] private readonly IReplayPauseController _pauseController = null!;
 
-        public Player Player { get; private set; }
-        public Replay Replay { get; private set; }
-        public IVRControllersProvider ControllersProvider { get; private set; }
+        public Player? Player { get; private set; }
+        public Replay? Replay { get; private set; }
+        public IVRControllersProvider? ControllersProvider { get; private set; }
 
         public bool enableInterpolation = true;
 
-        private LinkedListNode<Frame> _lastProcessedNode;
-        private LinkedList<Frame> _frames;
+        private LinkedListNode<Frame>? _lastProcessedNode;
+        private LinkedList<Frame>? _frames;
         private bool _allowPlayback;
 
         public void Init(Player player, Replay replay, IVRControllersProvider provider) {
@@ -55,13 +55,13 @@ namespace BeatLeader.Replayer.Emulation {
                 headPose = headPose.Lerp(frame.Next.Value.head.GetPose(), slerp);
             }
 
-            ControllersProvider.LeftSaber.transform.SetLocalPose(leftSaberPose);
+            ControllersProvider!.LeftSaber.transform.SetLocalPose(leftSaberPose);
             ControllersProvider.RightSaber.transform.SetLocalPose(rightSaberPose);
             ControllersProvider.Head.transform.SetLocalPose(headPose);
         }
 
         private void Update() {
-            if (_allowPlayback && _lastProcessedNode.TryGetFrameByTime(
+            if (_allowPlayback && _lastProcessedNode!.TryGetFrameByTime(
                 _beatmapTimeController.SongTime, out var frame)) {
                 PlayFrame(frame.Previous);
             }
@@ -83,7 +83,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void HandleSongWasRewound(float time) {
-            _lastProcessedNode = _frames.First;
+            _lastProcessedNode = _frames!.First;
         }
 
         private void HandlePauseStateChanged(bool state) {

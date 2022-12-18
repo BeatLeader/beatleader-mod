@@ -1,33 +1,44 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 
 namespace BeatLeader.Components {
     internal class RootContentView : ContentView {
-        [UIValue("camera-menu-button")] private NavigationButton _cameraMenuButton;
-        [UIValue("other-menu-button")] private NavigationButton _otherMenuButton;
-        [UIValue("separator")] private HorizontalSeparator _horizontalSeparator;
-        [UIValue("speed-setting")] private SpeedSetting _speedSetting;
-        [UIValue("layout-editor-setting")] private LayoutEditorSetting _layoutEditorSetting;
+        #region UI Components
 
-        private OtherContentView _otherContentView;
-        private CameraContentView _cameraContentView;
+        [UIValue("camera-menu-button")]
+        private NavigationButton _cameraMenuButton = null!;
+
+        [UIValue("other-menu-button")] 
+        private NavigationButton _otherMenuButton = null!;
+
+        [UIValue("separator")]
+        private HorizontalSeparator _horizontalSeparator = null!;
+
+        [UIValue("speed-setting")]
+        private SpeedSetting _speedSetting = null!;
+
+        [UIValue("layout-editor-setting")] 
+        private LayoutEditorSetting _layoutEditorSetting = null!;
+
+        private OtherContentView _otherContentView = null!;
+        private CameraContentView _cameraContentView = null!;
+
+        #endregion
 
         public void Setup(
             IBeatmapTimeController timeController,
             IReplayPauseController pauseController,
             IVirtualPlayersManager playersManager,
-            ReplayerCameraController cameraController,
             ReplayLaunchData launchData,
-            SongSpeedData speedData,
-            IReplayWatermark watermark,
-            LayoutEditor layoutEditor) {
-            _speedSetting.Setup(timeController, speedData);
+            ReplayerCameraController cameraController,
+            IReplayWatermark? watermark = null,
+            LayoutEditor? layoutEditor = null) {
+            _speedSetting.Setup(timeController);
             _layoutEditorSetting.Setup(layoutEditor, pauseController);
             _cameraContentView.Setup(cameraController, launchData);
-            _otherContentView.Init(launchData, playersManager, watermark);
+            _otherContentView.Setup(playersManager, launchData, watermark);
         }
 
         protected override void OnInstantiate() {
@@ -41,8 +52,8 @@ namespace BeatLeader.Components {
 
             _cameraContentView = InstantiateOnSceneRoot<CameraContentView>();
             _otherContentView = InstantiateOnSceneRoot<OtherContentView>();
-            _otherContentView.ManualInit(null);
-            _cameraContentView.ManualInit(null);
+            _otherContentView.ManualInit(null!);
+            _cameraContentView.ManualInit(null!);
 
             _cameraMenuButton.Setup(this, _cameraContentView, "Camera");
             _otherMenuButton.Setup(this, _otherContentView, "Other");

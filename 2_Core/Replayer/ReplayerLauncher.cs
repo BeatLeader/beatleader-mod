@@ -10,15 +10,15 @@ using static BeatmapLevelsModel;
 
 namespace BeatLeader.Replayer {
     public class ReplayerLauncher : MonoBehaviour {
-        [Inject] private readonly BeatmapLevelsModel _levelsModel;
-        [Inject] private readonly GameScenesManager _gameScenesManager;
-        [Inject] private readonly PlayerDataModel _playerDataModel;
+        [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
+        [Inject] private readonly GameScenesManager _gameScenesManager = null!;
+        [Inject] private readonly PlayerDataModel _playerDataModel = null!;
 
-        public static ReplayLaunchData LaunchData { get; private set; }
+        public static ReplayLaunchData? LaunchData { get; private set; }
         public static bool IsStartedAsReplay { get; private set; }
 
-        public static event Action<ReplayLaunchData> ReplayWasStartedEvent;
-        public static event Action<ReplayLaunchData> ReplayWasFinishedEvent;
+        public static event Action<ReplayLaunchData>? ReplayWasStartedEvent;
+        public static event Action<ReplayLaunchData>? ReplayWasFinishedEvent;
 
         public async Task<bool> StartReplayAsync(ReplayLaunchData data) {
             return await StartReplayAsync(data, new CancellationToken());
@@ -39,7 +39,7 @@ namespace BeatLeader.Replayer {
             var environmentInfo = await GetEnvironmentByLaunchData(data);
 
             if (token.IsCancellationRequested) return false;
-            data.Init(data.Replays, data.Settings, beatmapDiff, data.EnvironmentInfo);
+            data.Init(data.Replays, data.Settings, beatmapDiff!, data.EnvironmentInfo);
 
             if (token.IsCancellationRequested) return false;
             var transitionData = data.CreateTransitionData(_playerDataModel);
@@ -87,7 +87,7 @@ namespace BeatLeader.Replayer {
         private Task<RequestResult<EnvironmentInfoSO>> GetEnvironmentByLaunchData(ReplayLaunchData data) {
             if (data.Replays.Count > 1)
                 return Task.FromResult(new RequestResult<EnvironmentInfoSO>(true, null));
-            EnvironmentInfoSO environment = null;
+            EnvironmentInfoSO? environment = null;
 
             try {
                 if (data.Settings.LoadPlayerEnvironment) {
@@ -106,7 +106,7 @@ namespace BeatLeader.Replayer {
         
         private static void ResetData(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults) {
             transitionData.didFinishEvent -= ResetData;
-            LaunchData.FinishReplay(transitionData);
+            LaunchData!.FinishReplay(transitionData);
             ReplayWasFinishedEvent?.Invoke(LaunchData);
 
             LaunchData = null;

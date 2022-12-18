@@ -24,7 +24,7 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        public event Action SettingsButtonClickedEvent;
+        public event Action? SettingsButtonClickedEvent;
 
         #endregion
 
@@ -47,33 +47,32 @@ namespace BeatLeader.Components {
         private readonly Sprite _pauseSprite = BundleLoader.PauseIcon;
         private readonly Sprite _openedDoorSprite = BundleLoader.OpenedDoorIcon;
         private readonly Sprite _closedDoorSprite = BundleLoader.ClosedDoorIcon;
-        private string _formattedSongTime;
+        private string _formattedSongTime = null!;
 
-        private IReplayPauseController _pauseController;
-        private IReplayFinishController _finishController;
-        private IBeatmapTimeController _beatmapTimeController;
-        private IVirtualPlayersManager _playersManager;
+        private IReplayPauseController _pauseController = null!;
+        private IReplayFinishController _finishController = null!;
+        private IBeatmapTimeController _beatmapTimeController = null!;
+        private IVirtualPlayersManager _playersManager = null!;
+        private ReplayLaunchData _launchData = null!;
 
         public void Setup(
-            ReplayLaunchData launchData,
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
             IBeatmapTimeController beatmapTimeController,
-            IVirtualPlayersManager playersManager) {
+            IVirtualPlayersManager playersManager,
+            ReplayLaunchData launchData) {
             if (_pauseController != null)
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
-            if (_playersManager != null)
-                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
 
             _pauseController = pauseController;
             _finishController = finishController;
             _beatmapTimeController = beatmapTimeController;
             _playersManager = playersManager;
+            _launchData = launchData;
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
 
-            _timeline.Setup(launchData, playersManager, pauseController, beatmapTimeController);
+            _timeline.Setup(playersManager, pauseController, beatmapTimeController, launchData);
         }
 
         protected override void OnInstantiate() {
@@ -95,10 +94,9 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateSongTime() {
-            var time = _beatmapTimeController.SongTime;
-            var failTime = _playersManager.PriorityPlayer.Replay.info.failTime;
+            var failTime = _launchData.IsBattleRoyale ? 0 : _launchData.MainReplay.info.failTime;
             var totalTime = failTime <= 0 ? _beatmapTimeController.SongEndTime : failTime;
-            FormattedSongTime = FormatUtils.FormatSongTime(time, totalTime);
+            FormattedSongTime = FormatUtils.FormatSongTime(_beatmapTimeController.SongTime, totalTime);
         }
 
         #endregion
@@ -107,8 +105,6 @@ namespace BeatLeader.Components {
 
         [UIAction("pause-button-clicked")]
         private void HandlePauseButtonClicked() {
-            if (_pauseController == null) return;
-
             if (!_pauseController.IsPaused)
                 _pauseController.Pause();
             else
@@ -130,10 +126,6 @@ namespace BeatLeader.Components {
                 SelectionState.Highlighted => _openedDoorSprite,
                 _ => _closedDoorSprite
             };
-        }
-
-        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-
         }
 
         private void HandlePauseStateChanged(bool pause) {

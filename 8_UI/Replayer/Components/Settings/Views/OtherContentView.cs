@@ -1,9 +1,6 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer;
 using BeatLeader.Replayer.Emulation;
 using BeatSaberMarkupLanguage.Attributes;
-using IPA.Config.Data;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -49,7 +46,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private IVRControllersProvider _controllersProvider;
+        private IVRControllersProvider _controllersProvider = null!;
 
         private bool _showLeftSaber;
         private bool _showRightSaber;
@@ -70,13 +67,13 @@ namespace BeatLeader.Components {
         #region Setup
 
         [UIObject("watermark-toggle")]
-        private readonly GameObject _watermarkToggleObject;
+        private readonly GameObject _watermarkToggleObject = null!;
 
-        private ReplayLaunchData _launchData;
-        private IVirtualPlayersManager _playersManager;
-        private IReplayWatermark _replayWatermark;
+        private ReplayLaunchData _launchData = null!;
+        private IVirtualPlayersManager _playersManager = null!;
+        private IReplayWatermark? _replayWatermark;
 
-        public void Init(ReplayLaunchData launchData, IVirtualPlayersManager playersManager, IReplayWatermark watermark = null) {
+        public void Setup(IVirtualPlayersManager playersManager, ReplayLaunchData launchData, IReplayWatermark? watermark = null) {
             if (_playersManager != null)
                 _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
 

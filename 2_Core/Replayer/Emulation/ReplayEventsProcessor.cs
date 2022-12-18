@@ -5,20 +5,20 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     public class ReplayEventsProcessor : IInitializable, ILateTickable, IDisposable {
-        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly IVirtualPlayersManager _virtualPlayersManager;
+        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null!;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
+        [Inject] private readonly IVirtualPlayersManager _virtualPlayersManager = null!;
 
         public bool IsReprocessingEventsNow => _isReprocessing;
         public bool TimeWasSmallerThanActualTime => _timeWasSmallerThanActualTime;
 
-        public event Action<NoteEvent> NoteProcessRequestedEvent;
-        public event Action<WallEvent> WallProcessRequestedEvent;
-        public event Action ReprocessRequestedEvent;
-        public event Action ReprocessDoneEvent;
+        public event Action<NoteEvent>? NoteProcessRequestedEvent;
+        public event Action<WallEvent>? WallProcessRequestedEvent;
+        public event Action? ReprocessRequestedEvent;
+        public event Action? ReprocessDoneEvent;
 
-        private IReadOnlyList<NoteEvent> _notes;
-        private IReadOnlyList<WallEvent> _walls;
+        private IReadOnlyList<NoteEvent> _notes = null!;
+        private IReadOnlyList<WallEvent> _walls = null!;
         private bool _timeWasSmallerThanActualTime;
         private bool _isReprocessing;
         private int _nextNoteIndex;
@@ -45,8 +45,8 @@ namespace BeatLeader.Replayer.Emulation {
                 var nextNote = hasNextNote ? _notes[_nextNoteIndex] : null;
                 var nextWall = hasNextWall ? _walls[_nextWallIndex] : null;
 
-                var nextNoteTime = hasNextNote ? nextNote.eventTime : float.MaxValue;
-                var nextWallTime = hasNextWall ? nextWall.time : float.MaxValue;
+                var nextNoteTime = hasNextNote ? nextNote!.eventTime : float.MaxValue;
+                var nextWallTime = hasNextWall ? nextWall!.time : float.MaxValue;
 
                 if (hasNextWall && nextWallTime <= nextNoteTime) {
                     if (nextWall!.time > songTime) break;

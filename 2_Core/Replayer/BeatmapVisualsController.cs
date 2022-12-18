@@ -13,21 +13,30 @@ namespace BeatLeader.Replayer {
     public class BeatmapVisualsController : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly IReplayPauseController _playbackController;
-        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly ComboController _comboController;
-        [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
-        [Inject] private readonly ReplayEventsProcessor _eventsProcessor;
+        [Inject] private readonly IReplayPauseController _playbackController = null!;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
+        [Inject] private readonly ComboController _comboController = null!;
+        [Inject] private readonly GameEnergyCounter _gameEnergyCounter = null!;
+        [Inject] private readonly ReplayEventsProcessor _eventsProcessor = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)] private readonly ComboUIController _comboUIController;
-        [FirstResource(requireActiveInHierarchy: true)] private readonly GameEnergyUIPanel _gameEnergyUIPanel;
-        [FirstResource(requireActiveInHierarchy: true)] private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager;
-        [FirstResource(requireActiveInHierarchy: true)] private readonly NoteDebrisSpawner _noteDebrisSpawner;
-        [FirstResource(requireActiveInHierarchy: true)] private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles;
+        [FirstResource(requireActiveInHierarchy: true)]
+        private readonly ComboUIController _comboUIController = null!;
 
-        private GameObject _laser;
-        private ImageView _energyIconEmpty;
-        private ImageView _energyIconFull;
+        [FirstResource(requireActiveInHierarchy: true)] 
+        private readonly GameEnergyUIPanel _gameEnergyUIPanel = null!;
+
+        [FirstResource(requireActiveInHierarchy: true)] 
+        private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager = null!;
+
+        [FirstResource(requireActiveInHierarchy: true)] 
+        private readonly NoteDebrisSpawner _noteDebrisSpawner = null!;
+
+        [FirstResource(requireActiveInHierarchy: true)]
+        private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles = null!;  
+
+        private GameObject _laser = null!;
+        private ImageView _energyIconEmpty = null!;
+        private ImageView _energyIconFull = null!;
 
         #endregion
 
@@ -57,6 +66,7 @@ namespace BeatLeader.Replayer {
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
         }
+
         private void OnDestroy() {
             _playbackController.PauseStateChangedEvent -= HandlePauseStateChanged;
             _beatmapTimeController.SongSpeedWasChangedEvent -= HandleSongSpeedChanged;
@@ -67,7 +77,7 @@ namespace BeatLeader.Replayer {
 
         #endregion
 
-        #region Visuals control
+        #region Visuals Control
  
         public void PauseSabersSparkles(bool pause) {
             _saberBurnMarkSparkles.enabled = !pause;
@@ -79,6 +89,7 @@ namespace BeatLeader.Replayer {
             foreach (var effect in effects)
                 effect.gameObject.SetActive(!pause);
         }
+
         public void ModifyComboPanel(int combo, int maxCombo, bool shouldBeBroken = false) {
             _comboController.SetField("_combo", combo);
             _comboController.SetField("_maxCombo", maxCombo);
@@ -89,6 +100,7 @@ namespace BeatLeader.Replayer {
             else
                 _comboUIController.GetField<Animator, ComboUIController>("_animator").Rebind();
         }
+
         public void ModifyEnergyPanel(float energy, bool shouldBeLost = false) {
             var energyBar = _gameEnergyUIPanel.GetField<Image, GameEnergyUIPanel>("_energyBar");
             if (!shouldBeLost && !energyBar.enabled) {
@@ -105,6 +117,7 @@ namespace BeatLeader.Replayer {
             }
             _gameEnergyUIPanel.RefreshEnergyUI(energy);
         }
+
         public void ModifyDebrisPhysics(float multiplier) {
             _noteDebrisSpawner.SetField("_cutDirMultiplier", _debrisCutDirMultiplier * multiplier);
             _noteDebrisSpawner.SetField("_moveSpeedMultiplier", _debrisMoveSpeedMultiplier * multiplier);

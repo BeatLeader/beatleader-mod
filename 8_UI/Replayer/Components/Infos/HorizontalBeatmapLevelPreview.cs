@@ -34,7 +34,7 @@ namespace BeatLeader.Components {
 
         #region Editable
 
-        public override string Name => "Song Info";
+        public override string Name => "Beatmap Preview";
         public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
             enabled = true,
             position = new(0, 0.8f)

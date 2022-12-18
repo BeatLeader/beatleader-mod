@@ -71,18 +71,6 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="netstandard">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Main">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
       <Private>False</Private>
@@ -261,11 +249,6 @@
     <Compile Include="2_Core\API\RequestHandlers\PersistentSingletonRequestHandler.cs" />
     <Compile Include="2_Core\API\RequestHandlers\SimpleRequestHandler.cs" />
     <Compile Include="2_Core\Attributes\FirstResourceAttribute.cs" />
-    <Compile Include="2_Core\Attributes\PluginStateAttribute.cs" />
-    <Compile Include="2_Core\Attributes\PluginTypeAttribute.cs" />
-    <Compile Include="2_Core\Attributes\PluginInteropAttribute.cs" />
-    <Compile Include="2_Core\Attributes\InteropEntryAttribute.cs" />
-    <Compile Include="2_Core\Attributes\PluginAssemblyAttribute.cs" />
     <Compile Include="2_Core\AvatarStorage.cs" />
     <Compile Include="2_Core\CoroutinesHandler.cs" />
     <Compile Include="2_Core\Installers\OnAppInitInstaller.cs" />

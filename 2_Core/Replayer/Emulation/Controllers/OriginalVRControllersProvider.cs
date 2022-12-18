@@ -5,12 +5,12 @@ using IPA.Utilities;
 
 namespace BeatLeader.Replayer.Emulation {
     internal class OriginalVRControllersProvider : MonoBehaviour, Models.IVRControllersProvider {
-        [Inject] private readonly PlayerVRControllersManager _vrControllersManager;
-        [Inject] private readonly PlayerTransforms _playerTransforms;
+        [Inject] private readonly PlayerVRControllersManager _vrControllersManager = null!;
+        [Inject] private readonly PlayerTransforms _playerTransforms = null!;
 
-        public VRController LeftSaber { get; private set; }
-        public VRController RightSaber { get; private set; }
-        public VRController Head { get; private set; }
+        public VRController LeftSaber { get; private set; } = null!;
+        public VRController RightSaber { get; private set; } = null!;
+        public VRController Head { get; private set; } = null!;
 
         public void ShowControllers(bool show = true) {
             LeftSaber.gameObject.SetActive(show);

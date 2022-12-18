@@ -11,34 +11,48 @@ namespace BeatLeader.Components {
     internal class Timeline : ReeUIComponentV2 {
         #region UI Components 
 
-        [UIComponent("container")] private readonly RectTransform _container;
-        [UIComponent("fill-area")] private readonly RectTransform _fillArea;
-        [UIComponent("marks-area")] private readonly RectTransform _marksArea;
-        [UIComponent("marks-area-container")] private readonly RectTransform _marksAreaContainer;
-        [UIComponent("background")] private readonly Image _background;
-        [UIComponent("handle")] private readonly Image _handle;
-        [UIComponent("fill")] private readonly Image _fill;
+        [UIComponent("container")] 
+        private readonly RectTransform _container = null!;
 
-        private TimelineAnimator _timelineAnimator;
-        private Slider _slider;
+        [UIComponent("fill-area")] 
+        private readonly RectTransform _fillArea = null!;
+
+        [UIComponent("marks-area")]
+        private readonly RectTransform _marksArea = null!;
+
+        [UIComponent("marks-area-container")]
+        private readonly RectTransform _marksAreaContainer = null!;
+
+        [UIComponent("background")]
+        private readonly Image _background = null!;
+
+        [UIComponent("handle")]
+        private readonly Image _handle = null!;
+
+        [UIComponent("fill")] 
+        private readonly Image _fill = null!;
+
+        private TimelineAnimator _timelineAnimator = null!;
+        private Slider _slider = null!;
 
         #endregion
 
         #region Setup
 
-        private IReplayPauseController _pauseController;
-        private IBeatmapTimeController _beatmapTimeController;
-        private IVirtualPlayersManager _playersManager;
-        private ReplayLaunchData _launchData;
+        private IReplayPauseController _pauseController = null!;
+        private IBeatmapTimeController _beatmapTimeController = null!;
+        private IVirtualPlayersManager _playersManager = null!;
+        private ReplayLaunchData _launchData = null!;
+
         private bool _allowTimeUpdate = true;
         private bool _allowRewind;
         private bool _wasPausedBeforeRewind;
 
         public void Setup(
-            ReplayLaunchData launchData,
             IVirtualPlayersManager playersManager,
             IReplayPauseController pauseController,
-            IBeatmapTimeController beatmapTimeController) {
+            IBeatmapTimeController beatmapTimeController,
+            ReplayLaunchData launchData) {
             if (_playersManager != null)
                 _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChangedEvent;
 
@@ -72,6 +86,20 @@ namespace BeatLeader.Components {
             _timelineAnimator = _slider.gameObject.AddComponent<TimelineAnimator>();
             _timelineAnimator.HandlePressedEvent += HandleSliderPressed;
             _timelineAnimator.HandleReleasedEvent += HandleSliderReleased;
+        }
+
+        private void SetupMarkers() {
+            _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
+            _missPrefab.sprite = BundleLoader.CrossIcon;
+            _missPrefab.color = Color.red;
+
+            _bombPrefab = new GameObject("BombIcon").AddComponent<Image>();
+            _bombPrefab.sprite = BundleLoader.CrossIcon;
+            _bombPrefab.color = Color.yellow;
+
+            _pausePrefab = new GameObject("PauseIcon").AddComponent<Image>();
+            _pausePrefab.sprite = BundleLoader.PauseIcon;
+            _pausePrefab.color = Color.blue;
         }
 
         private void SetupSlider() {
@@ -124,9 +152,9 @@ namespace BeatLeader.Components {
 
         #region Marks
 
-        private Image _missPrefab;
-        private Image _bombPrefab;
-        private Image _pausePrefab;
+        private Image _missPrefab = null!;
+        private Image _bombPrefab = null!;
+        private Image _pausePrefab = null!;
 
         private readonly Dictionary<GameObject, List<GameObject>> _marks = new();
 
@@ -141,20 +169,6 @@ namespace BeatLeader.Components {
 
             GenerateMarkers(replay.pauses
                 .Select(x => x.time), _pausePrefab.gameObject);
-        }
-
-        private void SetupMarkers() {
-            _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
-            _missPrefab.sprite = BundleLoader.CrossIcon;
-            _missPrefab.color = Color.red;
-
-            _bombPrefab = new GameObject("BombIcon").AddComponent<Image>();
-            _bombPrefab.sprite = BundleLoader.CrossIcon;
-            _bombPrefab.color = Color.yellow;
-
-            _pausePrefab = new GameObject("PauseIcon").AddComponent<Image>();
-            _pausePrefab.sprite = BundleLoader.PauseIcon;
-            _pausePrefab.color = Color.blue;
         }
 
         private void GenerateMarkers(IEnumerable<float> times, GameObject prefab) {

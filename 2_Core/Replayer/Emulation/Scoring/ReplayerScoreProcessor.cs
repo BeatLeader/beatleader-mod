@@ -10,12 +10,12 @@ namespace BeatLeader.Replayer.Emulation {
     public class ReplayerScoreProcessor : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly ScoreController _scoreController;
-        [Inject] private readonly ComboController _comboController;
-        [Inject] private readonly GameEnergyCounter _gameEnergyCounter;
-        [Inject] private readonly ReplayEventsProcessor _eventsProcessor;
-        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController;
-        [Inject] private readonly IReadonlyBeatmapData _beatmapData;
+        [Inject] private readonly ScoreController _scoreController = null!;
+        [Inject] private readonly ComboController _comboController = null!;
+        [Inject] private readonly GameEnergyCounter _gameEnergyCounter = null!;
+        [Inject] private readonly ReplayEventsProcessor _eventsProcessor = null!;
+        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null!;
+        [Inject] private readonly IReadonlyBeatmapData _beatmapData = null!;
 
         #endregion
 
@@ -46,9 +46,9 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private bool SetupEmulator(NoteEvent noteEvent) {
-            if (!TryFindNoteData(noteEvent, out NoteData noteData)) return false;
-            var noteCutInfo = Models.NoteCutInfo.Convert(noteEvent?.noteCutInfo ?? emptyNoteCutInfo, noteData);
-            _noteControllerEmulator.Setup(noteData, noteCutInfo);
+            if (!TryFindNoteData(noteEvent, out var noteData)) return false;
+            var noteCutInfo = Models.NoteCutInfo.Convert(noteEvent?.noteCutInfo ?? emptyNoteCutInfo, noteData!);
+            _noteControllerEmulator.Setup(noteData!, noteCutInfo);
             return true;
         }
 
@@ -66,10 +66,10 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private static readonly BeatmapDataItemsComparer _beatmapItemsComparer = new();
-        private LinkedList<NoteData> _generatedBeatmapNoteData;
-        private LinkedListNode<NoteData> _startNodeForLastProcessedTime;
+        private LinkedList<NoteData> _generatedBeatmapNoteData = null!;
+        private LinkedListNode<NoteData>? _startNodeForLastProcessedTime;
 
-        private bool TryFindNoteData(NoteEvent noteEvent, out NoteData noteData) {
+        private bool TryFindNoteData(NoteEvent noteEvent, out NoteData? noteData) {
             var startNode = _startNodeForLastProcessedTime ?? _generatedBeatmapNoteData.First;
             var prevNode = _startNodeForLastProcessedTime;
             for (var node = startNode; node != null; node = node.Next) {
@@ -107,7 +107,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Simulation
 
-        private NoteControllerEmulator _noteControllerEmulator;
+        private NoteControllerEmulator _noteControllerEmulator = null!;
         
         private static bool _lastCutIsGood;
         private static float _lastCutBeforeCutRating;
@@ -156,7 +156,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         #endregion
 
-        #region Events
+        #region Callbacks
 
         private void HandleNoteProcessRequested(NoteEvent noteEvent) {
             switch (noteEvent.eventType) {

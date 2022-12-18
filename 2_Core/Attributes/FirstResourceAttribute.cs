@@ -3,7 +3,7 @@
 namespace BeatLeader {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class FirstResourceAttribute : Attribute {
-        public FirstResourceAttribute(string name = null, bool requireActiveInHierarchy = false) {
+        public FirstResourceAttribute(string? name = null, bool requireActiveInHierarchy = false) {
             this.name = name;
             this.requireActiveInHierarchy = requireActiveInHierarchy;
         }

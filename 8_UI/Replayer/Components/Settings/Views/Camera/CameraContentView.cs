@@ -2,7 +2,6 @@
 using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,18 +10,21 @@ namespace BeatLeader.Components {
     internal class CameraContentView : ContentView {
         #region UI Components
 
-        [UIValue("params-menu-button")] private NavigationButton _paramsMenuButton;
-        [UIObject("camera-fov-container")] private GameObject _cameraFovContainer;
+        [UIValue("params-menu-button")] 
+        private NavigationButton _paramsMenuButton = null!;
+
+        [UIObject("camera-fov-container")]
+        private readonly GameObject _cameraFovContainer = null!;
 
         #endregion
 
         #region UI Values
 
         [UIValue("camera-view-values")]
-        private List<object> _cameraViewValues = new() { string.Empty };
+        private readonly List<object> _cameraViewValues = new() { string.Empty };
 
         [UIValue("camera-view")]
-        private string _CameraView {
+        private string CameraView {
             get => _cameraController?.CurrentPoseName ?? string.Empty;
             set {
                 if (!_isInitialized) return;
@@ -31,7 +33,7 @@ namespace BeatLeader.Components {
         }
 
         [UIValue("camera-fov")]
-        private int _CameraFov {
+        private int CameraFov {
             get => _cameraController?.FieldOfView ?? 0;
             set {
                 if (!_isInitialized) return;
@@ -44,27 +46,24 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        private ReplayerCameraController _cameraController;
-        private ReplayLaunchData _replayData;
+        private ReplayerCameraController _cameraController = null!;
+        private ReplayLaunchData _replayData = null!;
         private bool _isInitialized;
 
-        public void Setup(
-            ReplayerCameraController cameraController,
-            ReplayLaunchData launchData) {
+        public void Setup(ReplayerCameraController cameraController, ReplayLaunchData launchData) {
             if (_cameraController != null)
                 _cameraController.CameraPoseChangedEvent -= HandlePoseChanged;
 
             _cameraController = cameraController;
             _replayData = launchData;
-            _isInitialized = true;
 
             _cameraController.CameraPoseChangedEvent += HandlePoseChanged;
-
             _cameraViewValues.Clear();
             _cameraViewValues.AddRange(_cameraController.PoseProviders.Select(x => x.Name));
+            _isInitialized = true;
 
-            NotifyPropertyChanged(nameof(_CameraView));
-            NotifyPropertyChanged(nameof(_CameraFov));
+            NotifyPropertyChanged(nameof(CameraView));
+            NotifyPropertyChanged(nameof(CameraFov));
             InitPoses();
             HandlePoseChanged(_cameraController.CurrentPose);
         }
@@ -96,11 +95,11 @@ namespace BeatLeader.Components {
             InstantiateOnSceneRoot<FlyingViewParamsContentView>()
         };
 
-        private ParamsContentViewBase _selectedParamsMenu;
+        private ParamsContentViewBase? _selectedParamsMenu;
 
         private void HandlePoseChanged(ICameraPoseProvider provider) {
             if (provider == null) return;
-            NotifyPropertyChanged(nameof(_CameraView));
+            NotifyPropertyChanged(nameof(CameraView));
             _paramsMenuButton.Interactable = TryFindView(provider, out _selectedParamsMenu);
         }
 
@@ -118,7 +117,7 @@ namespace BeatLeader.Components {
             foreach (var item in _contentViews) {
                 if (!TryFindPose(item, out var provider)) continue;
                 item.Setup(provider);
-                item.ManualInit(null);
+                item.ManualInit(null!);
             }
         }
 

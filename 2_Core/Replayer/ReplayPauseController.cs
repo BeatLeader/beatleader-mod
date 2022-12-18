@@ -5,22 +5,20 @@ using System.Reflection;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer
-{
-    internal class ReplayPauseController : MonoBehaviour, IReplayPauseController
-    {
+namespace BeatLeader.Replayer {
+    internal class ReplayPauseController : MonoBehaviour, IReplayPauseController {
         #region Injection
 
-        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager;
-        [Inject] private readonly PauseController _pauseController;
-        [Inject] private readonly AudioTimeSyncController _songTimeSyncController;
-        [Inject] private readonly PauseMenuManager _pauseMenuManager;
-        [Inject] private readonly SaberManager _saberManager;
-        [Inject] private readonly IGamePause _gamePause;
+        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
+        [Inject] private readonly PauseController _pauseController = null!;
+        [Inject] private readonly AudioTimeSyncController _songTimeSyncController = null!;
+        [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
+        [Inject] private readonly SaberManager _saberManager = null!;
+        [Inject] private readonly IGamePause _gamePause = null!;
 
-        [Inject] private readonly IVRPlatformHelper _vrPlatformHelper;
-        [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger;
-        [Inject] private readonly ILevelStartController _levelStartController;
+        [Inject] private readonly IVRPlatformHelper _vrPlatformHelper = null!;
+        [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
+        [Inject] private readonly ILevelStartController _levelStartController = null!;
 
         #endregion
 
@@ -28,22 +26,20 @@ namespace BeatLeader.Replayer
 
         public bool IsPaused => _gamePause.isPaused;
 
-        public event Action<bool> PauseStateChangedEvent;
+        public event Action<bool>? PauseStateChangedEvent;
 
         #endregion
 
         #region Setup
 
-        private void Awake()
-        {
+        private void Awake() {
             UnsubscribeStandardEvents();
             _vrPlatformHelper.hmdUnmountedEvent += HandleHMDUnmounted;
             _vrPlatformHelper.inputFocusWasCapturedEvent += HandleInputFocusWasLost;
             _pauseButtonTrigger.menuButtonTriggeredEvent += HandleMenuButtonTriggered;
         }
 
-        private void OnDestroy()
-        {
+        private void OnDestroy() {
             _vrPlatformHelper.hmdUnmountedEvent -= HandleHMDUnmounted;
             _vrPlatformHelper.inputFocusWasCapturedEvent -= HandleInputFocusWasLost;
             _pauseButtonTrigger.menuButtonTriggeredEvent -= HandleMenuButtonTriggered;
@@ -74,8 +70,7 @@ namespace BeatLeader.Replayer
 
         #region Pause & Resume
 
-        public void Pause(bool notifyListeners = true, bool forcePause = false)
-        {
+        public void Pause(bool notifyListeners = true, bool forcePause = false) {
             if (forcePause) SetPauseState(false);
 
             _gamePause.Pause();
@@ -87,8 +82,7 @@ namespace BeatLeader.Replayer
             PauseStateChangedEvent?.Invoke(true);
         }
 
-        public void Resume(bool notifyListeners = true, bool forceResume = false)
-        {
+        public void Resume(bool notifyListeners = true, bool forceResume = false) {
             if (forceResume) SetPauseState(false);
 
             _gamePause.WillResume();
@@ -104,19 +98,16 @@ namespace BeatLeader.Replayer
 
         #region Callbacks
 
-        private void HandleMenuButtonTriggered()
-        {
+        private void HandleMenuButtonTriggered() {
             if (!IsPaused)
                 Pause();
             else
                 Resume();
         }
-        private void HandleHMDUnmounted()
-        {
+        private void HandleHMDUnmounted() {
             Pause(true);
         }
-        private void HandleInputFocusWasLost()
-        {
+        private void HandleInputFocusWasLost() {
             Pause(true);
         }
 
@@ -124,20 +115,18 @@ namespace BeatLeader.Replayer
 
         #region Reflection
 
-        private static readonly FieldInfo _didPauseEventInfo = 
+        private static readonly FieldInfo _didPauseEventInfo =
             typeof(PauseController).GetField("didPauseEvent", ReflectionUtils.DefaultFlags);
-        private static readonly FieldInfo _didResumeEventInfo = 
+        private static readonly FieldInfo _didResumeEventInfo =
             typeof(PauseController).GetField("didResumeEvent", ReflectionUtils.DefaultFlags);
         private static readonly FieldInfo _pauseInfo =
             typeof(GamePause).GetField("_pause", ReflectionUtils.DefaultFlags);
 
-        private void SetPauseState(bool pause)
-        {
+        private void SetPauseState(bool pause) {
             _pauseInfo?.SetValue(_gamePause, pause);
         }
-        private void InvokePauseEvent(bool pause)
-        {
-            ((Delegate)(pause ? _didPauseEventInfo : _didResumeEventInfo)?.GetValue(_pauseController))?.DynamicInvoke();
+        private void InvokePauseEvent(bool pause) {
+            ((Delegate?)(pause ? _didPauseEventInfo : _didResumeEventInfo)?.GetValue(_pauseController))?.DynamicInvoke();
         }
 
         #endregion

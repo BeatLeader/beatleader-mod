@@ -7,7 +7,7 @@ using System;
 using Zenject;
 
 namespace BeatLeader.Replayer {
-    //i believe that i will remove it one day
+    //i believe that i will remove this one day
     internal class SettingsLoader : IInitializable, IDisposable {
         [InjectOptional] private readonly ReplayWatermark? _watermark;
         [InjectOptional] private readonly ReplayerCameraController? _cameraController;
@@ -52,7 +52,7 @@ namespace BeatLeader.Replayer {
         }
 
         private void HandleUIVisibilityChanged(bool visible) {
-            _launchData.Settings.AlwaysShowUI = visible;
+            _launchData.Settings.AutoHideUI = visible;
         }
         private void HandleCameraFOVChanged(int fov) {
             _launchData.Settings.CameraFOV = fov;

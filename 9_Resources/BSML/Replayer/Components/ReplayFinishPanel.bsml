@@ -1,8 +1,16 @@
-﻿<better-image src="#bl-black-transparent-bg" type="Sliced" ppu="10"
+﻿<better-image id="container-image" active="false" src="#bl-black-transparent-bg" type="Sliced" ppu="4"
               vertical-fit="PreferredSize" horizontal-fit="PreferredSize"
-              pref-height="80" pref-width="60">
-  <vertical>
-    <text text="The end" font-size="12"/>
-    <button text="Restart"/>
+              pref-height="60" pref-width="40">
+  <vertical child-expand-height="false" child-align="MiddleCenter">
+    <horizontal pref-height="20" pad-bottom="30" pad-top="5" child-expand-height="false">
+      <text text="The end" font-size="10" align="Center"/>
+    </horizontal>
+    <better-button transition="SpriteSwap" normal-image="#bl-black-transparent-bg-outline"
+                   highlighted-image="#bl-cyan-bg-outline" image-type="Sliced" ppu="4"
+                   on-click="exit-button-clicked" pref-height="10" pref-width="30">
+      <vertical child-align="MiddleCenter">
+        <text text="Exit" font-size="6" align="Center"/>
+      </vertical>
+    </better-button>
   </vertical>
 </better-image>

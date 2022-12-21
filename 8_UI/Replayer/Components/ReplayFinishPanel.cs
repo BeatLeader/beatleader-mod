@@ -1,11 +1,21 @@
-﻿using BeatLeader.Models;
+﻿using BeatSaberMarkupLanguage.Attributes;
+using System;
+using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ReplayFinishPanel : ReeUIComponentV2 {
-        private IReplayFinishController _finishController;
+        public event Action? ExitButtonClickedEvent;
 
-        public void Setup(IReplayFinishController finishController) {
-            _finishController = finishController;
+        [UIObject("container-image")]
+        private readonly GameObject _containerObject =null!;
+
+        public void SetEnabled(bool enabled) {
+            _containerObject.SetActive(enabled);
+        }
+
+        [UIAction("exit-button-clicked")]
+        private void HandleExitButtonClicked() {
+            ExitButtonClickedEvent?.Invoke();   
         }
     }
 }

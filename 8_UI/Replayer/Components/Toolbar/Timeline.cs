@@ -53,9 +53,7 @@ namespace BeatLeader.Components {
             IReplayPauseController pauseController,
             IBeatmapTimeController beatmapTimeController,
             ReplayLaunchData launchData) {
-            if (_playersManager != null)
-                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChangedEvent;
-
+            OnDispose();
             _launchData = launchData;
             _playersManager = playersManager;
             _pauseController = pauseController;
@@ -64,12 +62,16 @@ namespace BeatLeader.Components {
 
             SetupSlider();
             SetupMarkers();
-
             _timelineAnimator.Setup(_background.rectTransform,
                 _handle.rectTransform, _marksAreaContainer, _fillArea);
 
             HandlePriorityPlayerChangedEvent(playersManager.PriorityPlayer);
             _allowRewind = true;
+        }
+
+        protected override void OnDispose() {
+            if (_playersManager != null)
+                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChangedEvent;
         }
 
         protected override void OnInitialize() {

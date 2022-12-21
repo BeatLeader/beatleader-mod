@@ -61,9 +61,7 @@ namespace BeatLeader.Components {
             IBeatmapTimeController beatmapTimeController,
             IVirtualPlayersManager playersManager,
             ReplayLaunchData launchData) {
-            if (_pauseController != null)
-                _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
-
+            OnDispose();
             _pauseController = pauseController;
             _finishController = finishController;
             _beatmapTimeController = beatmapTimeController;
@@ -71,18 +69,23 @@ namespace BeatLeader.Components {
             _launchData = launchData;
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
-
             _timeline.Setup(playersManager, pauseController, beatmapTimeController, launchData);
         }
 
         protected override void OnInstantiate() {
             _timeline = Instantiate<Timeline>(transform);
         }
+
         protected override void OnInitialize() {
             _exitButton = _exitButtonBackground.gameObject.AddComponent<NoTransitionsButton>();
             _exitButton.selectionStateDidChangeEvent += HandleExitButtonSelectionStateChanged;
             _exitButton.navigation = new Navigation() { mode = Navigation.Mode.None };
             _exitButton.onClick.AddListener(HandleExitButtonClicked);
+        }
+
+        protected override void OnDispose() {
+            if (_pauseController != null)
+                _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
         }
 
         #endregion

@@ -8,43 +8,45 @@ using UnityEngine;
 using VRUIControls;
 using BeatSaberMarkupLanguage;
 using IPA.Utilities;
-using BeatLeader.Replayer;
 using UnityEngine.UI;
 using BeatLeader.Utils;
 
 namespace BeatLeader.ViewControllers {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerVRView.bsml")]
     internal class ReplayerVRViewController : StandaloneViewController<FloatingScreen> {
-        [Inject] private readonly IReplayPauseController _pauseController;
-        [Inject] private readonly IReplayFinishController _finishController;
-        [Inject] private readonly IBeatmapTimeController _beatmapTimeController;
-        [Inject] private readonly IVirtualPlayersManager _playersManager;
-        [Inject] private readonly ReplayerCameraController _cameraController;
-        [Inject] private readonly ReplayWatermark _watermark;
-        [Inject] private readonly ReplayLaunchData _launchData;
-        [Inject] private readonly SongSpeedData _speedData;
+        [Inject] private readonly IReplayPauseController _pauseController = null!;
+        [Inject] private readonly IReplayFinishController _finishController = null!;
+        [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
+        [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
+        [Inject] private readonly ReplayerCameraController _cameraController = null!;
+        [Inject] private readonly ReplayWatermark _watermark = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
 
-        [UIValue("toolbar")] private ToolbarWithSettings _toolbar;
-        [UIValue("floating-controls")] private FloatingControls _floatingControls;
+        [UIValue("toolbar")]
+        private ToolbarWithSettings _toolbar = null!;
+
+        [UIValue("floating-controls")] 
+        private FloatingControls _floatingControls = null!;
 
         protected override void OnPreParse() {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
             _toolbar = ReeUIComponentV2.Instantiate<ToolbarWithSettings>(transform);
             _floatingControls.Setup(Screen, _pauseController,
-                _cameraController.Camera.transform, !_launchData.Settings.AlwaysShowUI);
+                _cameraController.Camera.transform, !_launchData.Settings.AutoHideUI);
             _toolbar.Setup(_beatmapTimeController, _pauseController,
-                _finishController, _playersManager, _launchData, 
-                _speedData, _cameraController, _watermark);
+                _finishController, _playersManager, _launchData, _cameraController, _watermark);
         }
 
-        protected override void OnInit() {
-            base.OnInit();
+        protected override void OnInitialize() {
+            base.OnInitialize();
 
             var container = new GameObject("Container");
+            var containerTransform = Container.transform;
 
-            container.transform.SetParent(Container.transform.parent, false);
-            Container.transform.SetParent(container.transform, false);
-            Container.transform.localScale = new(0.02f, 0.02f, 0.02f);
+            container.transform.SetParent(containerTransform.parent, false);
+            containerTransform.SetParent(container.transform, false);
+
+            containerTransform.localScale = new(0.02f, 0.02f, 0.02f);
             Container = container;
 
             var screen = Screen;
@@ -56,8 +58,9 @@ namespace BeatLeader.ViewControllers {
             screen.HandleSide = FloatingScreen.Side.Bottom;
             screen.HighlightHandle = true;
 
-            screen.handle.transform.localPosition = new(11, -29, 0);
-            screen.handle.transform.localScale = new(20, 3.67f, 3.67f);
+            var screenHandle = screen.handle;
+            screenHandle.transform.localPosition = new(11, -29, 0);
+            screenHandle.transform.localScale = new(20, 3.67f, 3.67f);
 
             var scaler = screen.gameObject.GetOrAddComponent<CanvasScaler>();
             scaler.dynamicPixelsPerUnit = 3.44f;

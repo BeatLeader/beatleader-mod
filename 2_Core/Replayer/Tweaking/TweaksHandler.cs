@@ -12,7 +12,7 @@ namespace BeatLeader.Replayer.Tweaking {
             Inject
         }
 
-        [Inject] private readonly DiContainer _container;
+        [Inject] private readonly DiContainer _container = null!;
 
         public IReadOnlyList<GameTweak> Tweaks { get; } = new List<GameTweak> {
             new AudioTimeSyncControllerTweak(),

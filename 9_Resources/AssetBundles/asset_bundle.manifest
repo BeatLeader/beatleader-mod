@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3638492538
+CRC: 2438485074
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 6d3717536bbd63045b1ee1a1762d350f
+    Hash: 895fb268e198093743550364c74eedc4
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2ff16d20d4402f87c4db1cdbea421cbd
@@ -347,6 +347,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/bz.png
 - Assets/BeatLeader/5_Textures/Flags/sm.png
 - Assets/BeatLeader/5_Textures/Flags/no.png
+- Assets/BeatLeader/5_Textures/Backgrounds/BL_CyanBGOutline.png
 - Assets/BeatLeader/5_Textures/Flags/mm.png
 - Assets/BeatLeader/5_Textures/Icons/Replayer/BL_ExitIcon.png
 - Assets/BeatLeader/5_Textures/Flags/gb.png

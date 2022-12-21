@@ -86,9 +86,10 @@ namespace BeatLeader.Installers {
 
         private void InitReplayer() {
             DisableScoreSubmission();
+            PatchSiraFreeView();
 
             //Dependencies
-            Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData).AsSingle();
+            Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData!).AsSingle();
 
             //Core logic(Playback)
             Container.BindInterfacesAndSelfTo<ReplayPauseController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -117,17 +118,15 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
 
             //UI
+            Container.Bind<ReplayFinishViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
             Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            if (InputUtils.IsInFPFC) {
-                PatchSiraFreeView();
-            }
-
             Plugin.Log.Notice("[Installer] Replays system successfully installed!");
         }
         private void PatchSiraFreeView() {
+            if (!InputUtils.IsInFPFC) return;
             try {
                 Container.Resolve<IFPFCSettings>().Enabled = false;
                 var assembly = typeof(IFPFCSettings).Assembly;

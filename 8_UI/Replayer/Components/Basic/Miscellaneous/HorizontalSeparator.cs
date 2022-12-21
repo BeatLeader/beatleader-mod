@@ -9,6 +9,6 @@ namespace BeatLeader.Components {
         }
 
         [UIComponent("separator-group")]
-        private readonly LayoutElement _separatorElement;
+        private readonly LayoutElement _separatorElement = null!;
     }
 }

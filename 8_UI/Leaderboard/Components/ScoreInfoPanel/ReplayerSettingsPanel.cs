@@ -37,7 +37,7 @@ namespace BeatLeader.Components
             _hintField.Setup("<alpha=#66>Player Settings");
 
             _showUIToggle.Setup(BundleLoader.UIIcon, "Enable UI", _hintField);
-            _showUIToggle.Value = PluginConfig.ReplayerSettings.AlwaysShowUI;
+            _showUIToggle.Value = !PluginConfig.ReplayerSettings.AutoHideUI;
             _showUIToggle.OnClick += _ => UpdateReplayerSettings();
 
             _overrideEnvironmentToggle.Setup(BundleLoader.SceneIcon, "Override environment", _hintField);
@@ -67,13 +67,13 @@ namespace BeatLeader.Components
 
         private void UpdateReplayerSettings(ReplayerSettings settings)
         {
-            _showUIToggle.Value = settings.AlwaysShowUI;
+            _showUIToggle.Value = settings.AutoHideUI;
         }
 
         private void UpdateReplayerSettings()
         {
             var settings = PluginConfig.ReplayerSettings;
-            settings.AlwaysShowUI = _showUIToggle.Value;
+            settings.AutoHideUI = !_showUIToggle.Value;
             settings.LoadPlayerEnvironment = _overrideEnvironmentToggle.Value;
         }
 

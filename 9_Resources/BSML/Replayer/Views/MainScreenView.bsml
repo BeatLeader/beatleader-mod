@@ -1,5 +1,5 @@
 ﻿<vertical id="container-group" horizontal-fit="Unconstrained">
-  
+
   <vertical horizontal-fit="Unconstrained" vertical-fit="Unconstrained">
     <macro.as-host host="song-info">
       <macro.reparent transform="ui-component"/>

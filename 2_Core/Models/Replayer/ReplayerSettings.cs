@@ -4,9 +4,8 @@ namespace BeatLeader.Models
 {
     public class ReplayerSettings
     {
-        public bool AlwaysShowUI { get; set; }
+        public bool AutoHideUI { get; set; }
         public bool LoadPlayerEnvironment { get; set; }
-        public bool ForceUseReplayerCamera { get; set; }
         public bool ExitReplayAutomatically { get; set; }
 
         public bool ShowHead { get; set; }
@@ -17,11 +16,11 @@ namespace BeatLeader.Models
         public int MaxFOV { get; set; }
         public int MinFOV { get; set; }
         public int CameraFOV { get; set; }
-        public string FPFCCameraPose { get; set; }
-        public string VRCameraPose { get; set; }
+        public string? FPFCCameraPose { get; set; }
+        public string? VRCameraPose { get; set; }
 
-        public ReplayerShortcuts Shortcuts { get; set; }
+        public ReplayerShortcuts Shortcuts { get; set; } = new();
 
-        public string ActualCameraPose => InputUtils.IsInFPFC ? FPFCCameraPose : VRCameraPose;
+        public string? ActualCameraPose => InputUtils.IsInFPFC ? FPFCCameraPose : VRCameraPose;
     }
 }

@@ -21,23 +21,22 @@ namespace BeatLeader.UI {
 
         #region UI Visibility
 
-        public bool AlwaysShowUI {
-            get => _alwaysShowUI;
+        public bool AutoHideUI {
+            get => _autoHideUI;
             set {
-                _alwaysShowUI = value;
+                _autoHideUI = value;
                 RefreshUIVisibility();
             }
         }
 
         public bool UIEnabled { get; private set; }
 
-        private bool _alwaysShowUI;
+        private bool _autoHideUI;
 
         private void RefreshUIVisibility() {
             if (ViewController == null) return;
-            var active = _alwaysShowUI || _pauseController.IsPaused;
-            UIEnabled = active;
-            ViewController.Hide(!UIEnabled);
+            UIEnabled = !_autoHideUI || _pauseController.IsPaused;
+            ViewController.IsVisible = UIEnabled;
             UIVisibilityChangedEvent?.Invoke(UIEnabled);
         }
 
@@ -45,13 +44,13 @@ namespace BeatLeader.UI {
 
         #region Events
 
-        public event Action<bool> UIVisibilityChangedEvent;
+        public event Action<bool>? UIVisibilityChangedEvent;
 
         #endregion
 
         #region Setup
 
-        public IStandaloneViewController ViewController { get; private set; }
+        public IStandaloneViewController ViewController { get; private set; } = null!;
 
         private void Start() {
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
@@ -60,7 +59,7 @@ namespace BeatLeader.UI {
             if (!InputUtils.IsInFPFC) {
                 ViewController.Container.transform.SetParent(_menuControllersManager.HandsContainer, false);
             }
-            AlwaysShowUI = _launchData.Settings.AlwaysShowUI;
+            AutoHideUI = _launchData.Settings.AutoHideUI;
         }
 
         private void OnDestroy() {

@@ -12,6 +12,8 @@ namespace BeatLeader.Components {
         RectTransform EditorZone { get; }
 
         Vector2 Map(Vector2 pos, Vector2 size, Vector2 anchor);
+        void SetEditorEnabled(bool enabled);
+        void MapLayout();
     }
 
     internal class LayoutEditor : ReeUIComponentV2, ILayoutEditor {
@@ -31,10 +33,10 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        public ILayoutMapsSource layoutMapsSource;
+        public ILayoutMapsSource? layoutMapsSource;
 
         private readonly List<EditableElement> _editableElements = new();
-        private EditableElement _selectedElement;
+        private EditableElement? _selectedElement;
         private bool _wasApplied;
 
         public void SetEditorEnabled(bool enabled) {
@@ -71,6 +73,12 @@ namespace BeatLeader.Components {
 
         #region Editable Handling
 
+        public void Add(params EditableElement[] elements) {
+            foreach (var element in elements) {
+                Add(element);
+            }
+        }
+
         public void Add(EditableElement element) {
             if (EditModeEnabled || !IsParsed) return;
             _editableElements.Add(element);
@@ -97,8 +105,8 @@ namespace BeatLeader.Components {
             return LayoutTool.MapPosition(pos, size, anchor, _layoutGrid);
         }
 
-        public void RefreshLayout() {
-            if (EditModeEnabled || EditorZone == null) return;
+        public void MapLayout() {
+            if (EditModeEnabled) return;
             foreach (var editable in _editableElements) {
                 var map = new LayoutMapData();
                 if (!layoutMapsSource?.Maps.TryGetValue(editable.Name, out map) ?? true) {
@@ -120,20 +128,20 @@ namespace BeatLeader.Components {
         #region UI Components
 
         [UIComponent("window")]
-        private readonly RectTransform _window;
+        private readonly RectTransform _window = null!;
 
         [UIComponent("window-handle")]
-        private readonly RectTransform _windowHandle;
+        private readonly RectTransform _windowHandle = null!;
 
         [UIValue("table-view")]
-        private EditorTableView _tableView;
+        private EditorTableView _tableView = null!;
 
         [UIValue("editable-controller")]
-        private EditableController _editController;
+        private EditableController _editController = null!;
 
-        private HandleHighlighter _handleHighlighter;
-        private GridLayoutWindow _layoutWindow;
-        private LayoutGrid _layoutGrid;
+        private HandleHighlighter _handleHighlighter = null!;
+        private GridLayoutWindow _layoutWindow = null!;
+        private LayoutGrid _layoutGrid = null!;
 
         #endregion
 

@@ -20,7 +20,7 @@ namespace BeatLeader.Replayer {
         public event Action? ReplayWasExitedEvent;
         public event Action? ReplayWasFinishedEvent;
 
-        private void Awake() {
+        private void Start() {
             this.LoadResources();
             ExitAutomatically = _launchData.Settings.ExitReplayAutomatically;
 

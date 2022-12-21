@@ -1,6 +1,5 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections;
@@ -46,15 +45,16 @@ namespace BeatLeader.Components {
             ReplayLaunchData launchData,
             ReplayerCameraController cameraController,
             IReplayWatermark? watermark = null) {
+            OnDispose();
             _pauseController = pauseController;
             _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap.level);
             _toolbar.Setup(beatmapTimeController, pauseController,
                 finishController, playersManager, launchData,
                 cameraController, watermark, _layoutEditor);
+
             if (!launchData.IsBattleRoyale) {
                 var player = launchData.Replays[0].Key;
                 if (player != null) _playerInfo.SetPlayer(player);
-                return;
             }
             _isInitialized = true;
         }
@@ -73,9 +73,7 @@ namespace BeatLeader.Components {
             _layoutEditor.layoutMapsSource = configInstance;
 
             _layoutEditor.Setup(_containerRect);
-            _layoutEditor.Add(_playerInfo);
-            _layoutEditor.Add(_toolbar);
-            _layoutEditor.Add(_songInfo);
+            _layoutEditor.Add(_playerInfo, _toolbar, _songInfo);
 
             CoroutinesHandler.instance.StartCoroutine(MapLayoutCoroutine());
         }
@@ -92,7 +90,7 @@ namespace BeatLeader.Components {
 
         private IEnumerator MapLayoutCoroutine() {
             yield return new WaitForEndOfFrame();
-            _layoutEditor.RefreshLayout();
+            _layoutEditor.MapLayout();
             LayoutBuiltEvent?.Invoke();
         }
 

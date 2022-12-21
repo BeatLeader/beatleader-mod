@@ -74,7 +74,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            _notes = player.Replay.notes;
+            _notes = player.Replay!.notes;
             _walls = player.Replay.walls;
             //_nextNoteIndex = 0;
             //_nextWallIndex = 0;

@@ -14,6 +14,7 @@ namespace BeatLeader.UI.BSML_Addons {
         {
             { "black-transparent-bg", BundleLoader.BlackTransparentBG },
             { "black-transparent-bg-outline", BundleLoader.BlackTransparentBGOutline },
+            { "cyan-bg-outline", BundleLoader.CyanBGOutline },
             { "white-bg", BundleLoader.WhiteBG },
             { "closed-door-icon", BundleLoader.ClosedDoorIcon },
             { "opened-door-icon", BundleLoader.OpenedDoorIcon },

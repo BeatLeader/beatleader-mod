@@ -43,6 +43,7 @@ namespace BeatLeader.Replayer {
             LeftHand.transform.SetParent(HandsContainer, false);
             RightHand.transform.SetParent(HandsContainer, false);
             SetInputControllers(LeftHand, RightHand);
+            ShowHands(!InputUtils.IsInFPFC);
         }
 
         private void SetInputControllers(VRController left, VRController right) {

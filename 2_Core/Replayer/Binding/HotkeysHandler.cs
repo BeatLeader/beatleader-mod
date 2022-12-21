@@ -5,7 +5,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Binding {
     public class HotkeysHandler : MonoBehaviour {
-        [Inject] private readonly DiContainer _container;
+        [Inject] private readonly DiContainer _container = null!;
 
         public IReadOnlyList<GameHotkey> Hotkeys { get; } = new List<GameHotkey> {
             new LayoutEditorHotkey(),

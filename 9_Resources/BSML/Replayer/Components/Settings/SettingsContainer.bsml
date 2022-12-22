@@ -3,8 +3,9 @@
     <better-image src="#bl-black-transparent-bg" image-type="Sliced" ppu="5" pref-width="~bg-width">
       <vertical id="container-group" pref-width="~bg-width" pad="1" child-expand-height="false">
 
-        <horizontal active="false" id="navigation-button-container" pad-bottom="1" pref-height="6"
-                    child-control-height="false" child-expand-height="false">
+        <horizontal active="false" id="navigation-button-container" horizontal-fit="PreferredSize"
+                    pad-bottom="1" pref-height="6" child-control-height="false"
+                    child-expand-height="false" pref-width="48">
           <macro.as-host host="navigation-button">
             <macro.reparent transform="ui-component"/>
           </macro.as-host>

@@ -15,15 +15,13 @@ namespace BeatLeader.Replayer {
         [FirstResource] 
         private readonly StandardLevelFinishedController _finishController = null!;
 
-        public bool ExitAutomatically { get; private set; }
+        public bool ExitAutomatically => _launchData?.Settings.ExitReplayAutomatically ?? true;
 
-        public event Action? ReplayWasExitedEvent;
+        public event Action? ReplayWasLeftEvent;
         public event Action? ReplayWasFinishedEvent;
 
         private void Start() {
             this.LoadResources();
-            ExitAutomatically = _launchData.Settings.ExitReplayAutomatically;
-
             _gameplayManager.levelFinishedEvent -= _finishController.HandleLevelFinished;
             _pauseMenuManager.didPressMenuButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressMenuButton;
             _pauseButtonTrigger.menuButtonTriggeredEvent -= _pauseController.HandleMenuButtonTriggered;
@@ -38,7 +36,7 @@ namespace BeatLeader.Replayer {
         }
 
         public void Exit() {
-            ReplayWasExitedEvent?.Invoke();
+            ReplayWasLeftEvent?.Invoke();
             _pauseController.HandlePauseMenuManagerDidPressMenuButton();
         }
 

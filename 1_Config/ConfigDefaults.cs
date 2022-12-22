@@ -1,10 +1,8 @@
 using BeatLeader.Models;
 using UnityEngine;
 
-namespace BeatLeader
-{
-    internal static class ConfigDefaults
-    {
+namespace BeatLeader {
+    internal static class ConfigDefaults {
         #region Enabled
 
         public const bool Enabled = true;
@@ -30,15 +28,19 @@ namespace BeatLeader
 
         #region ReplayerSettings
 
-        public static ReplayerSettings ReplayerSettings => new()
-        {
+        public static ReplayerSettings ReplayerSettings => new() {
             AutoHideUI = false,
             LoadPlayerEnvironment = false,
+            ExitReplayAutomatically = true,
 
             ShowHead = false,
             ShowLeftSaber = true,
             ShowRightSaber = true,
             ShowWatermark = true,
+
+            ShowTimelineMisses = true,
+            ShowTimelineBombs = true,
+            ShowTimelinePauses = true,
 
             MaxFOV = 110,
             MinFOV = 70,
@@ -46,8 +48,7 @@ namespace BeatLeader
             FPFCCameraPose = "PlayerView",
             VRCameraPose = "BehindView",
 
-            Shortcuts = new()
-            {
+            Shortcuts = new() {
                 LayoutEditorHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,

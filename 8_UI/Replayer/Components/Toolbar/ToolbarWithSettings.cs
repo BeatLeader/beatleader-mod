@@ -45,7 +45,7 @@ namespace BeatLeader.Components {
 
             _rootContentView.Setup(timeController,
                 pauseController, playersManager, launchData,
-                cameraController, watermark, layoutEditor);
+                cameraController, watermark, _toolbar.Timeline, layoutEditor);
             _toolbar.Setup(pauseController, finishController,
                 timeController, playersManager, launchData);
         }

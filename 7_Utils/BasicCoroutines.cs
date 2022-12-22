@@ -11,8 +11,11 @@ namespace BeatLeader.Utils {
         }
 
         public static IEnumerator AnimateGroupCoroutine(this CanvasGroup group, 
-            float startPoint, float endPoint, float duration = 0.5f, int fps = 120) {
-            yield return new WaitForEndOfFrame();
+            float startPoint, float endPoint, float duration = 0.5f, 
+            int fps = 120, bool startImmediately = false) {
+            if (!startImmediately) {
+                yield return new WaitForEndOfFrame();
+            }
             group.alpha = startPoint;
             var totalFramesCount = Mathf.FloorToInt(duration * fps);
             var frameDuration = duration / totalFramesCount;

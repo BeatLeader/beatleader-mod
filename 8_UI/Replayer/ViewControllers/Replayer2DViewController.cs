@@ -36,13 +36,11 @@ namespace BeatLeader.ViewControllers {
             get => Screen.CanvasGroup.alpha == 1;
             set {
                 Screen.CanvasGroup.alpha = value && _isUIBuilt ? 1 : 0;
-                _isVisible = value;
                 _enableAfterBuild = value;
             }
         }
 
         private bool _enableAfterBuild = true;
-        private bool _isVisible;
         private bool _isUIBuilt;
 
         public void OpenLayoutEditor() {
@@ -62,12 +60,12 @@ namespace BeatLeader.ViewControllers {
             _mainScreenView.Setup(_pauseController, _finishController,
                 _beatmapTimeController, _playersManager, _launchData, _cameraController, _watermark);
 
-            _finishController.ReplayWasExitedEvent += HandleReplayFinish;
+            _finishController.ReplayWasLeftEvent += HandleReplayFinish;
             _mainScreenView.LayoutBuiltEvent += HandleUIBuilt;
         }
 
         protected override void OnDispose() {
-            _finishController.ReplayWasExitedEvent -= HandleReplayFinish;
+            _finishController.ReplayWasLeftEvent -= HandleReplayFinish;
         }
 
         #endregion
@@ -78,12 +76,12 @@ namespace BeatLeader.ViewControllers {
             if (_isUIBuilt) return;
             _isUIBuilt = true;
             if (!_enableAfterBuild) return;
-            CoroutinesHandler.instance.StartCoroutine(UIAnimationCoroutine());
+            StartCoroutine(UIAnimationCoroutine());
         }
 
         private void HandleReplayFinish() {
-            if (!_isVisible) return;
-            CoroutinesHandler.instance.StartCoroutine(UIAnimationCoroutine(false));
+            if (!IsVisible) return;
+            StartCoroutine(UIAnimationCoroutine(false));
         }
 
         #endregion
@@ -96,8 +94,9 @@ namespace BeatLeader.ViewControllers {
         private IEnumerator UIAnimationCoroutine(bool show = true) {
             var start = show ? 0 : 1;
             var end = !show ? 0 : 1;
-            yield return BasicCoroutines.AnimateGroupCoroutine(
-                Screen.CanvasGroup, start, end, show ? InDuration : OutDuration);
+            return BasicCoroutines.AnimateGroupCoroutine(
+                Screen.CanvasGroup, start, end, show 
+                ? InDuration : OutDuration);
         }
 
         #endregion

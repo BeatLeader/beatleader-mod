@@ -27,9 +27,6 @@ namespace BeatLeader.Replayer {
                     _cameraController.CullingMask &= ~(1 << LayerMasks.noteDebrisLayer);
             }
 
-            if (_uiBinder != null)
-                _uiBinder.UIVisibilityChangedEvent += HandleUIVisibilityChanged;
-
             if (_cameraController != null) {
                 if (InputUtils.IsInFPFC) {
                     _cameraController.FieldOfView = _launchData.Settings.CameraFOV;
@@ -46,14 +43,9 @@ namespace BeatLeader.Replayer {
                 _cameraController.CameraPoseChangedEvent -= HandleCameraPoseChanged;
             }
 
-            if (_uiBinder != null) _uiBinder.UIVisibilityChangedEvent -= HandleUIVisibilityChanged;
-
             PluginConfig.NotifyReplayerSettingsChanged();
         }
 
-        private void HandleUIVisibilityChanged(bool visible) {
-            _launchData.Settings.AutoHideUI = visible;
-        }
         private void HandleCameraFOVChanged(int fov) {
             _launchData.Settings.CameraFOV = fov;
         }

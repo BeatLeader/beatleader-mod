@@ -34,11 +34,12 @@ namespace BeatLeader.Components {
             ReplayLaunchData launchData,
             ReplayerCameraController cameraController,
             IReplayWatermark? watermark = null,
+            IReplayTimeline? timeline = null,
             LayoutEditor? layoutEditor = null) {
             _speedSetting.Setup(timeController);
             _layoutEditorSetting.Setup(layoutEditor, pauseController);
             _cameraContentView.Setup(cameraController, launchData);
-            _otherContentView.Setup(playersManager, launchData, watermark);
+            _otherContentView.Setup(playersManager, launchData, watermark, timeline);
         }
 
         protected override void OnInstantiate() {

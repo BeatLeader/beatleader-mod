@@ -67,7 +67,7 @@ namespace BeatLeader.Components
 
         private void UpdateReplayerSettings(ReplayerSettings settings)
         {
-            _showUIToggle.Value = settings.AutoHideUI;
+            _showUIToggle.Value = !settings.AutoHideUI;
         }
 
         private void UpdateReplayerSettings()

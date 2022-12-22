@@ -6,19 +6,26 @@ using HMUI;
 using BeatLeader.Models;
 using static HMUI.NoTransitionsButton;
 using System;
-using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.Components {
     internal class Toolbar : ReeUIComponentV2 {
         #region UI Components
 
-        [UIComponent("exit-button-background")] private readonly RectTransform _exitButtonBackground;
-        [UIComponent("play-button")] private readonly BetterButton _playButton;
-        [UIComponent("exit-button-icon")] private readonly BetterImage _exitButtonIcon;
+        public IReplayTimeline Timeline => _timeline;
 
-        [UIValue("timeline")] private Timeline _timeline;
+        [UIComponent("exit-button-background")] 
+        private readonly RectTransform _exitButtonBackground = null!;
 
-        private NoTransitionsButton _exitButton;
+        [UIComponent("play-button")]
+        private readonly BetterButton _playButton = null!;
+
+        [UIComponent("exit-button-icon")] 
+        private readonly BetterImage _exitButtonIcon = null!;
+
+        [UIValue("timeline")]
+        private Timeline _timeline = null!;
+
+        private NoTransitionsButton _exitButton = null!;
 
         #endregion
 

@@ -6,9 +6,10 @@ using UnityEngine.UI;
 using UnityEngine;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Emulation;
+using System;
 
 namespace BeatLeader.Components {
-    internal class Timeline : ReeUIComponentV2 {
+    internal class Timeline : ReeUIComponentV2, IReplayTimeline {
         #region UI Components 
 
         [UIComponent("container")] 
@@ -90,19 +91,6 @@ namespace BeatLeader.Components {
             _timelineAnimator.HandleReleasedEvent += HandleSliderReleased;
         }
 
-        private void SetupMarkers() {
-            _missPrefab = new GameObject("MissIcon").AddComponent<Image>();
-            _missPrefab.sprite = BundleLoader.CrossIcon;
-            _missPrefab.color = Color.red;
-
-            _bombPrefab = new GameObject("BombIcon").AddComponent<Image>();
-            _bombPrefab.sprite = BundleLoader.CrossIcon;
-            _bombPrefab.color = Color.yellow;
-
-            _pausePrefab = new GameObject("PauseIcon").AddComponent<Image>();
-            _pausePrefab.sprite = BundleLoader.PauseIcon;
-            _pausePrefab.color = Color.blue;
-        }
 
         private void SetupSlider() {
             _slider.minValue = _beatmapTimeController.SongStartTime;
@@ -114,7 +102,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandlePriorityPlayerChangedEvent(VirtualPlayer player) {
-            GenerateDefaultMarkersFromReplay(player.Replay);
+            GenerateDefaultMarkersFromReplay(player.Replay!);
         }
 
         private void HandleSliderValueChanged(float value) {
@@ -152,14 +140,26 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Marks
+        #region Default Marks
 
         private Image _missPrefab = null!;
         private Image _bombPrefab = null!;
         private Image _pausePrefab = null!;
 
-        private readonly Dictionary<GameObject, List<GameObject>> _marks = new();
+        private void SetupMarkers() {
+            _missPrefab = new GameObject("MissMark").AddComponent<Image>();
+            _missPrefab.sprite = BundleLoader.CrossIcon;
+            _missPrefab.color = Color.red;
 
+            _bombPrefab = new GameObject("BombMark").AddComponent<Image>();
+            _bombPrefab.sprite = BundleLoader.CrossIcon;
+            _bombPrefab.color = Color.yellow;
+
+            _pausePrefab = new GameObject("PauseMark").AddComponent<Image>();
+            _pausePrefab.sprite = BundleLoader.PauseIcon;
+            _pausePrefab.color = Color.blue;
+        }
+        
         private void GenerateDefaultMarkersFromReplay(Replay replay) {
             GenerateMarkers(replay.notes
                 .Where(x => x.eventType == NoteEventType.miss || x.eventType == NoteEventType.bad)
@@ -173,9 +173,19 @@ namespace BeatLeader.Components {
                 .Select(x => x.time), _pausePrefab.gameObject);
         }
 
+        #endregion
+
+        #region Marks
+
+        public event Action? MarkersWasGeneratedEvent;
+
+        private readonly Dictionary<string, List<GameObject>> _marks = new();
+
         private void GenerateMarkers(IEnumerable<float> times, GameObject prefab) {
-            ClearMarkers(prefab);
-            var marks = new List<GameObject>();
+            ClearMarkers(prefab.name);
+            if (!_marks.TryGetValue(prefab.name, out var marks)) {
+                marks = new();
+            }
             foreach (var item in times) {
                 var instance = Instantiate(prefab, _marksArea, false);
                 var instanceRect = instance.GetComponent<RectTransform>();
@@ -183,11 +193,16 @@ namespace BeatLeader.Components {
                 instanceRect.sizeDelta = CalculateMarkerSize();
                 marks.Add(instance);
             }
-            _marks.Add(prefab, marks);
+            _marks[prefab.name] = marks;
+            MarkersWasGeneratedEvent?.Invoke();
         }
 
-        private void ClearMarkers(GameObject prefab) {
-            if (_marks.TryGetValue(prefab, out var marks)) marks.Clear();
+        public void ShowMarkers(string name, bool show) {
+            if (_marks.TryGetValue(name, out var marks)) marks.ForEach(x => x.SetActive(show));
+        }
+
+        public void ClearMarkers(string name) {
+            if (_marks.TryGetValue(name, out var marks)) marks.Clear();
         }
 
         private Vector2 CalculateMarkerSize() {

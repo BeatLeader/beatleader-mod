@@ -13,6 +13,10 @@ namespace BeatLeader.Models
         public bool ShowRightSaber { get; set; }
         public bool ShowWatermark { get; set; }
 
+        public bool ShowTimelineMisses { get; set; }
+        public bool ShowTimelineBombs { get; set; }
+        public bool ShowTimelinePauses { get; set; }
+
         public int MaxFOV { get; set; }
         public int MinFOV { get; set; }
         public int CameraFOV { get; set; }

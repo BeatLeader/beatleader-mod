@@ -43,10 +43,6 @@ namespace BeatLeader.ViewControllers {
             }
         }
 
-        protected override void OnDispose() {
-            _finishController.ReplayWasFinishedEvent -= HandleReplayFinish;
-        }
-
         private void HandleReplayFinish() {
             if (_finishController.ExitAutomatically) return;
             Container.SetActive(true);

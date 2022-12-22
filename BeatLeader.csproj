@@ -38,11 +38,13 @@
     <None Remove="9_Resources\BSML\Replayer\Components\ReplayFinishPanel.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\SettingsContainer.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\SettingsModal.bsml" />
+    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\BodyContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\CameraContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\FlyingViewParamsContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\PlayerViewParamsContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\OtherContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\RootContentView.bsml" />
+    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\TimelineContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Views\MainScreenView.bsml" />
@@ -278,11 +280,13 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\ReplayFinishPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsContainer.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsModal.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\BodyContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\CameraContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\FlyingViewParamsContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\PlayerViewParamsContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\OtherContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\RootContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\TimelineContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\MainScreenView.bsml" />

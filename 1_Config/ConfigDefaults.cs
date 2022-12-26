@@ -42,11 +42,11 @@ namespace BeatLeader {
             ShowTimelineBombs = true,
             ShowTimelinePauses = true,
 
-            MaxFOV = 110,
-            MinFOV = 70,
+            MaxCameraFOV = 110,
+            MinCameraFOV = 70,
             CameraFOV = 90,
-            FPFCCameraPose = "PlayerView",
-            VRCameraPose = "BehindView",
+            FPFCCameraView = "PlayerView",
+            VRCameraView = "BehindView",
 
             Shortcuts = new() {
                 LayoutEditorHotkey = KeyCode.H,

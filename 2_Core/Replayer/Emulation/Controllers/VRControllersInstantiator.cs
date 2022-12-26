@@ -8,13 +8,18 @@ namespace BeatLeader.Replayer.Emulation {
         public VRControllersInstantiator(IVRControllersProvider provider, DiContainer container) {
             _provider = provider;
             _container = container;
+            this.LoadResources();
         }
+
+        [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
+        private readonly UnityEngine.Transform Origin = null!;
 
         private readonly IVRControllersProvider _provider;
         private readonly DiContainer _container;
 
         public IVRControllersProvider CreateInstance(string? name = null) {
             var transform = new GameObject(name ?? "InstantiatedVRControllersContainer").transform;
+            transform.SetParent(Origin, false);
 
             var leftGo = Object.Instantiate(_provider.LeftSaber.gameObject);
             var rightGo = Object.Instantiate(_provider.RightSaber.gameObject);

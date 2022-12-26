@@ -1,13 +1,15 @@
-﻿namespace BeatLeader.Replayer.Tweaking {
+﻿using BeatLeader.Utils;
+
+namespace BeatLeader.Replayer.Tweaking {
     internal class AudioTimeSyncControllerTweak : GameTweak {
         private static readonly HarmonyPatchDescriptor audioTimeSyncControllerUpdatePatchDecriptor = new(
-            typeof(AudioTimeSyncController).GetMethod(nameof(AudioTimeSyncController.Update)),
-            typeof(AudioTimeSyncControllerTweak).GetMethod(nameof(AudioTimeSyncControllerUpdatePrefix)));
+            typeof(AudioTimeSyncController).GetMethod(nameof(AudioTimeSyncController.Update), ReflectionUtils.DefaultFlags),
+            typeof(AudioTimeSyncControllerTweak).GetMethod(nameof(AudioTimeSyncControllerUpdatePrefix), ReflectionUtils.StaticFlags));
 
         private HarmonyAutoPatch _harmonyPatch;
 
         public override void Initialize() {
-            _harmonyPatch = new(audioTimeSyncControllerUpdatePatchDecriptor);
+            _harmonyPatch = audioTimeSyncControllerUpdatePatchDecriptor;
         }
 
         public override void Dispose() {

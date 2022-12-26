@@ -1,5 +1,4 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Camera;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections;
@@ -42,15 +41,15 @@ namespace BeatLeader.Components {
             IReplayFinishController finishController,
             IBeatmapTimeController beatmapTimeController,
             IVirtualPlayersManager playersManager,
+            IViewableCameraController cameraController,
             ReplayLaunchData launchData,
-            ReplayerCameraController cameraController,
             IReplayWatermark? watermark = null) {
             OnDispose();
             _pauseController = pauseController;
-            _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap.level);
+            _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap!.level);
             _toolbar.Setup(beatmapTimeController, pauseController,
-                finishController, playersManager, launchData,
-                cameraController, watermark, _layoutEditor);
+                finishController, playersManager, cameraController,
+                launchData, watermark, _layoutEditor);
 
             if (!launchData.IsBattleRoyale) {
                 var player = launchData.Replays[0].Key;

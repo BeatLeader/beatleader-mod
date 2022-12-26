@@ -6,8 +6,6 @@
         <macro.reparent transform="ui-component"/>
       </macro.as-host>
       <vertical pref-width="46">
-        <bool-setting text="Locked cursor only" value="disable-input-on-unlocked-cursor"
-                      bind-value="true" apply-on-change="true" skew="0"/>
         <button text="Reset position" on-click="reset-position" skew="0"/>
       </vertical>
     </vertical>

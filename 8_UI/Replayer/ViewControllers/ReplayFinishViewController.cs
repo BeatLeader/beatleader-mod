@@ -5,6 +5,8 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using IPA.Utilities;
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VRUIControls;
 using Zenject;
@@ -30,13 +32,14 @@ namespace BeatLeader.ViewControllers {
         }
 
         protected override void OnInitialize() {
+            base.OnInitialize();
             if (InputUtils.IsInFPFC) {
                 Screen.Apply2DTemplate();
                 Screen.Canvas.sortingOrder = 2;
                 gameObject.GetOrAddComponent<GraphicRaycaster>();
             } else {
                 Screen.ApplyVRTemplate();
-                screen.gameObject.GetOrAddComponent<VRGraphicRaycaster>()
+                Screen.gameObject.GetOrAddComponent<VRGraphicRaycaster>()?
                     .SetField("_physicsRaycaster", BeatSaberUI.PhysicsRaycasterWithCache);
                 Container.transform.localScale = new(0.02f, 0.02f, 0.02f);
                 Container.transform.position = new(0f, 1.5f, 3f);

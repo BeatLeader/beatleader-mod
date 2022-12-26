@@ -1,6 +1,4 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Camera;
-using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 
 namespace BeatLeader.Components {
@@ -33,8 +31,8 @@ namespace BeatLeader.Components {
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
             IVirtualPlayersManager playersManager,
+            IViewableCameraController cameraController,
             ReplayLaunchData launchData,
-            ReplayerCameraController cameraController,
             IReplayWatermark? watermark = null,
             LayoutEditor? layoutEditor = null) {
             if (_layoutEditor != null)
@@ -44,8 +42,8 @@ namespace BeatLeader.Components {
                 _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
 
             _rootContentView.Setup(timeController,
-                pauseController, playersManager, launchData,
-                cameraController, watermark, _toolbar.Timeline, layoutEditor);
+                pauseController, playersManager, cameraController,
+                launchData, watermark, _toolbar.Timeline, layoutEditor);
             _toolbar.Setup(pauseController, finishController,
                 timeController, playersManager, launchData);
         }

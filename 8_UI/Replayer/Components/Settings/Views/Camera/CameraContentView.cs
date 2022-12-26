@@ -1,5 +1,4 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using System.Collections.Generic;
@@ -25,20 +24,21 @@ namespace BeatLeader.Components {
 
         [UIValue("camera-view")]
         private string CameraView {
-            get => _cameraController?.CurrentPoseName ?? string.Empty;
+            get => _cameraController?.SelectedView?.Name ?? string.Empty;
             set {
                 if (!_isInitialized) return;
-                _cameraController.SetCameraPose(value);
+                _cameraController.SetView(value);
+                _launchData.Settings.ActualCameraView = value;
             }
         }
 
         [UIValue("camera-fov")]
         private int CameraFov {
-            get => _cameraController?.FieldOfView ?? 0;
+            get => (int)(_cameraController?.Camera?.fieldOfView ?? 0);
             set {
                 if (!_isInitialized) return;
-                _replayData.Settings.CameraFOV = value;
-                _cameraController.FieldOfView = value;
+                _cameraController.Camera!.fieldOfView = value;
+                _launchData.Settings.CameraFOV = value;
             }
         }
 
@@ -46,31 +46,32 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        private ReplayerCameraController _cameraController = null!;
-        private ReplayLaunchData _replayData = null!;
+        private IViewableCameraController _cameraController = null!;
+        private ReplayLaunchData _launchData = null!;
         private bool _isInitialized;
 
-        public void Setup(ReplayerCameraController cameraController, ReplayLaunchData launchData) {
+        public void Setup(IViewableCameraController cameraController, ReplayLaunchData launchData) {
             if (_cameraController != null)
-                _cameraController.CameraPoseChangedEvent -= HandlePoseChanged;
+                _cameraController.CameraViewChangedEvent -= HandleViewChanged;
 
             _cameraController = cameraController;
-            _replayData = launchData;
+            _launchData = launchData;
 
-            _cameraController.CameraPoseChangedEvent += HandlePoseChanged;
+            _cameraController.CameraViewChangedEvent += HandleViewChanged;
             _cameraViewValues.Clear();
-            _cameraViewValues.AddRange(_cameraController.PoseProviders.Select(x => x.Name));
+            _cameraViewValues.AddRange(_cameraController.Views.Select(x => x.Name));
             _isInitialized = true;
 
             NotifyPropertyChanged(nameof(CameraView));
             NotifyPropertyChanged(nameof(CameraFov));
             InitPoses();
-            HandlePoseChanged(_cameraController.CurrentPose);
+            HandleViewChanged(_cameraController.SelectedView!);
         }
 
         protected override void OnInitialize() {
             _cameraFovContainer.AddComponent<InputDependentObject>().Init(InputUtils.InputType.FPFC);
         }
+
         protected override void OnInstantiate() {
             _paramsMenuButton = Instantiate<NavigationButton>(transform);
             _paramsMenuButton.OnClick += HandleParamsButtonClicked;
@@ -97,20 +98,20 @@ namespace BeatLeader.Components {
 
         private ParamsContentViewBase? _selectedParamsMenu;
 
-        private void HandlePoseChanged(ICameraPoseProvider provider) {
-            if (provider == null) return;
+        private void HandleViewChanged(ICameraView view) {
+            if (view == null) return;
             NotifyPropertyChanged(nameof(CameraView));
-            _paramsMenuButton.Interactable = TryFindView(provider, out _selectedParamsMenu);
+            _paramsMenuButton.Interactable = TryFindView(view, out _selectedParamsMenu);
         }
 
-        private bool TryFindView(ICameraPoseProvider provider, out ParamsContentViewBase view) {
+        private bool TryFindView(ICameraView provider, out ParamsContentViewBase view) {
             return (view = _contentViews.FirstOrDefault(
-                x => x.PoseType == provider.GetType() && x.Id == provider.Id)) != null;
+                x => x.ViewType == provider.GetType())) != null;
         }
 
-        private bool TryFindPose(ParamsContentViewBase view, out ICameraPoseProvider provider) {
-            return (provider = _cameraController.PoseProviders
-                .FirstOrDefault(x => x.GetType() == view.PoseType && x.Id == view.Id)) != null;
+        private bool TryFindPose(ParamsContentViewBase view, out ICameraView provider) {
+            return (provider = _cameraController.Views
+                .FirstOrDefault(x => x.GetType() == view.ViewType)) != null;
         }
 
         private void InitPoses() {

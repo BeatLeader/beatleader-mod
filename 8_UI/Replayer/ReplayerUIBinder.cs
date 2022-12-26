@@ -29,15 +29,13 @@ namespace BeatLeader.UI {
             }
         }
 
-        public bool UIEnabled { get; private set; }
-
         private bool _autoHideUI;
 
         private void RefreshUIVisibility() {
             if (ViewController == null || !_autoHideUI) return;
-            UIEnabled = _pauseController.IsPaused;
-            ViewController.IsVisible = UIEnabled;
-            UIVisibilityChangedEvent?.Invoke(UIEnabled);
+            var enabled = _pauseController.IsPaused;
+            ViewController.IsVisible = enabled;
+            UIVisibilityChangedEvent?.Invoke(enabled);
         }
 
         #endregion

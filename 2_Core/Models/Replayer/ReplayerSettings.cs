@@ -1,9 +1,7 @@
 ﻿using BeatLeader.Utils;
 
-namespace BeatLeader.Models
-{
-    public class ReplayerSettings
-    {
+namespace BeatLeader.Models {
+    public class ReplayerSettings {
         public bool AutoHideUI { get; set; }
         public bool LoadPlayerEnvironment { get; set; }
         public bool ExitReplayAutomatically { get; set; }
@@ -17,14 +15,23 @@ namespace BeatLeader.Models
         public bool ShowTimelineBombs { get; set; }
         public bool ShowTimelinePauses { get; set; }
 
-        public int MaxFOV { get; set; }
-        public int MinFOV { get; set; }
+        public int MaxCameraFOV { get; set; }
+        public int MinCameraFOV { get; set; }
         public int CameraFOV { get; set; }
-        public string? FPFCCameraPose { get; set; }
-        public string? VRCameraPose { get; set; }
+        public string? FPFCCameraView { get; set; }
+        public string? VRCameraView { get; set; }
 
         public ReplayerShortcuts Shortcuts { get; set; } = new();
 
-        public string? ActualCameraPose => InputUtils.IsInFPFC ? FPFCCameraPose : VRCameraPose;
+        public string? ActualCameraView {
+            get => InputUtils.IsInFPFC ? FPFCCameraView : VRCameraView;
+            set {
+                if (InputUtils.IsInFPFC) {
+                    FPFCCameraView = value;
+                } else {
+                    VRCameraView = value;
+                }
+            }
+        }
     }
 }

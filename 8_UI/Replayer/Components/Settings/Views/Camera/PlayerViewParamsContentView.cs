@@ -1,23 +1,21 @@
-﻿using BeatLeader.Replayer.Camera;
+﻿using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class PlayerViewParamsContentView : ParamsContentView<PlayerViewCameraPose> {
+    internal class PlayerViewParamsContentView : ParamsContentView<PlayerViewCameraView> {
         #region UI Values
 
         [UIValue("movement-smoothness")]
-        private int _Smoothness {
+        private int Smoothness {
             get => PlayerViewConfig.Instance.MovementSmoothness;
             set {
                 if (!IsParsed) return;
-                Pose.smoothness = MathUtils.Map(value, 1, 10, 10, 1);
+                View!.smoothness = MathUtils.Map(value, 1, 10, 10, 1);
                 PlayerViewConfig.Instance.MovementSmoothness = value;
             }
         }
-
-        public override int Id => 4;
 
         #endregion
 
@@ -39,8 +37,8 @@ namespace BeatLeader.Components {
             _posNavigationButton = Instantiate<NavigationButton>(transform);
             _rotNavigationButton = Instantiate<NavigationButton>(transform);
 
-            _posVectorControls.ManualInit(null);
-            _rotVectorControls.ManualInit(null);
+            _posVectorControls.ManualInit(null!);
+            _rotVectorControls.ManualInit(null!);
             _posNavigationButton.Setup(this, _posVectorControls, "Position Offset");
             _rotNavigationButton.Setup(this, _rotVectorControls, "Rotation Offset");
 
@@ -52,7 +50,7 @@ namespace BeatLeader.Components {
             var config = PlayerViewConfig.Instance;
             _posVectorControls.MultipliedVector = config.PositionOffset;
             _rotVectorControls.Vector = config.RotationOffset;
-            _Smoothness = config.MovementSmoothness;
+            Smoothness = config.MovementSmoothness;
             NotifyPropertyChanged();
         }
 
@@ -80,12 +78,12 @@ namespace BeatLeader.Components {
         #region UI Callbacks
 
         private void HandlePositionChanged(Vector3 vector) {
-            Pose.positionOffset = vector;
+            View!.positionOffset = vector;
             PlayerViewConfig.Instance.PositionOffset = vector;
         }
 
         private void HandleRotationChanged(Vector3 vector) {
-            Pose.rotationOffset = Quaternion.Euler(vector);
+            View!.rotationOffset = Quaternion.Euler(vector);
             PlayerViewConfig.Instance.RotationOffset = vector;
         }
 

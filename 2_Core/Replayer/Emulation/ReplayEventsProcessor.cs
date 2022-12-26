@@ -5,7 +5,6 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     public class ReplayEventsProcessor : IInitializable, ILateTickable, IDisposable {
-        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null!;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
         [Inject] private readonly IVirtualPlayersManager _virtualPlayersManager = null!;
 
@@ -28,14 +27,14 @@ namespace BeatLeader.Replayer.Emulation {
         public void Initialize() {
             _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewinded;
             _virtualPlayersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
-            HandlePriorityPlayerChanged(_virtualPlayersManager.PriorityPlayer);
+            HandlePriorityPlayerChanged(_virtualPlayersManager.PriorityPlayer!);
         }
         public void Dispose() {
             _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewinded;
             _virtualPlayersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
         public void LateTick() {
-            var songTime = _audioTimeSyncController.songTime;
+            var songTime = _beatmapTimeController.SongTime;
 
             do {
                 var hasNextNote = _nextNoteIndex < _notes.Count;
@@ -76,8 +75,8 @@ namespace BeatLeader.Replayer.Emulation {
         private void HandlePriorityPlayerChanged(VirtualPlayer player) {
             _notes = player.Replay!.notes;
             _walls = player.Replay.walls;
-            //_nextNoteIndex = 0;
-            //_nextWallIndex = 0;
+            _nextNoteIndex = 0;
+            _nextWallIndex = 0;
         }
         private void HandleSongWasRewinded(float newTime) {
             if (newTime < _lastTime) {

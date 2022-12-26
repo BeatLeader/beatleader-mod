@@ -27,11 +27,16 @@ namespace BeatLeader.Components {
             _text.alignment = TextAlignmentOptions.Center;
             transform.position = new(0, 2.6f, 6);
             RefreshText();
+            RefreshVisibility();
+        }
+
+        public void RefreshVisibility() {
+            Enabled = _launchData.Settings.ShowWatermark;
         }
 
         public void RefreshText() {
             var text = $"<i><b><color=\"red\">REPLAY</color></b>   ";
-            var level = _launchData.DifficultyBeatmap.level;
+            var level = _launchData.DifficultyBeatmap!.level;
             text += $"{level.songName} - {level.songAuthorName}   ";
             if (_launchData.IsBattleRoyale) {
                 CanBeDisabled = true;

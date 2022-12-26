@@ -18,26 +18,20 @@ namespace BeatLeader.Components {
 
         #region UI Components
 
-        [UIComponent("animation-image")] private readonly BetterImage _image;
+        [UIComponent("animation-image")]
+        private readonly BetterImage _image = null!;
 
         #endregion
 
         #region Setup
 
-        public Transform ResetTransform {
-            get => _resetTransform;
-            set {
-                _resetTransform = value;
-                _initialized = value != null;
-            }
-        }
+        public Transform? ResetTransform { get; private set; }
 
         public InputDevice actionInputDevice = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
         public InputFeatureUsage<bool> actionFeature = CommonUsages.secondaryButton;
         public Pose pose;
 
-        private ResetProgressAnimator _animator;
-        private Transform _resetTransform;
+        private ResetProgressAnimator _animator = null!;
         private bool _initialized;
 
         private void Awake() {
@@ -47,17 +41,22 @@ namespace BeatLeader.Components {
             _animator.RevealWasFinishedEvent += HandleRevealWasFinished;
         }
 
+        public void SetResetObject(Transform obj) {
+            ResetTransform = obj;
+            _initialized = obj != null;
+        }
+
         #endregion
 
         #region Events
 
-        public event Action PoseWasResettedEvent;
+        public event Action? PoseWasResettedEvent;
 
         #endregion
 
         #region Logic
 
-        private Stopwatch _stopwatch = new();
+        private readonly Stopwatch _stopwatch = new();
         private bool _wasExecuted;
 
         private void Update() {
@@ -85,7 +84,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Event Handlers
+        #region Callbacks
 
         private void HandleRevealWasFinished(bool result) {
             if (!result) return;

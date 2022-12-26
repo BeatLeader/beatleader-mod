@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace BeatLeader.Models {
     public interface IVirtualPlayersManager {
         IReadOnlyList<VirtualPlayer> Players { get; }
-        VirtualPlayer PriorityPlayer { get; }
+        VirtualPlayer? PriorityPlayer { get; }
 
         event Action<VirtualPlayer> PriorityPlayerWasChangedEvent;
 

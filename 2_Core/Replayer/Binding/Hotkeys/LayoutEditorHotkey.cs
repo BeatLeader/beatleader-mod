@@ -13,7 +13,7 @@ namespace BeatLeader.Replayer.Binding {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public override void OnKeyDown() {
-            if (_binder != null && _binder.UIEnabled) {
+            if (_binder != null && _binder.ViewController.IsVisible) {
                 _viewController?.OpenLayoutEditor();
             }
         }

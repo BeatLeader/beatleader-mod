@@ -8,50 +8,46 @@ namespace BeatLeader.Components {
     internal class FloatingControls : ReeUIComponentV2 {
         #region UI Components
 
-        [UIValue("pin-button")] private ToggleButton _pinButton;
-        [UIValue("align-button")] private SimpleButton _alignButton;
-        [UIObject("spacer-one")] private GameObject _spacerOne;
-        [UIObject("spacer-two")] private GameObject _spacerTwo;
+        [UIValue("pin-button")]
+        private ToggleButton _pinButton = null!;
+
+        [UIValue("align-button")]
+        private SimpleButton _alignButton = null!;
+
+        [UIObject("spacer-one")]
+        private readonly GameObject _spacerOne = null!;
+
+        [UIObject("spacer-two")]
+        private readonly GameObject _spacerTwo = null!;
 
         #endregion
 
         #region Setup
 
-        private Models.IReplayPauseController _pauseController;
-        private ResetController _resetController;
-        private FloatingScreen _resetFloating;
+        private ResetController _resetController = null!;
+        private FloatingScreen _resetFloating = null!;
 
-        private FloatingScreen _viewFloating;
-        private Transform _head;
-        private bool _hideUI;
+        private FloatingScreen _viewFloating = null!;
+        private Transform _head = null!;
 
         public void Setup(
             FloatingScreen floating,
-            Models.IReplayPauseController pauseController,
-            Transform headTransform,
-            bool hideUI = false) {
-            if (_pauseController != null)
-                _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
-
+            Transform headTransform) {
             if (_viewFloating != null)
                 _viewFloating.HandleReleased -= HandleFloatingHandleWasReleased;
 
             _viewFloating = floating;
             _head = headTransform;
-            _pauseController = pauseController;
 
             if (_resetController != null)
-                _resetController.ResetTransform = _viewFloating.transform;
+                _resetController.SetResetObject(_viewFloating.transform);
 
             if (_resetFloating != null) {
                 _resetFloating.transform.SetParent(_head, false);
                 _resetFloating.transform.localPosition = new Vector3(0, 0, 0.7f);
             }
 
-            _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
             _viewFloating.HandleReleased += HandleFloatingHandleWasReleased;
-
-            _hideUI = hideUI;
             _viewFloating.transform.SetLocalPose(FloatingConfig.Instance.Pose);
         }
 
@@ -59,6 +55,7 @@ namespace BeatLeader.Components {
             _pinButton = Instantiate<ToggleButton>(transform);
             _alignButton = Instantiate<SimpleButton>(transform);
         }
+
         protected override void OnInitialize() {
             _pinButton.OnToggle += HandlePinToggled;
             _pinButton.DisabledSprite = BundleLoader.PinIcon;
@@ -76,22 +73,10 @@ namespace BeatLeader.Components {
             _resetController = _resetFloating.gameObject.AddComponent<ResetController>();
             _resetController.PoseWasResettedEvent += HandlePoseWasResetted;
             _resetController.pose = FloatingConfig.DefaultPose;
-            _resetController.ResetTransform = _viewFloating?.transform ?? null;
+            _resetController.SetResetObject(_viewFloating?.transform ?? null!);
 
-            LoadConfig();
-        }
-
-        #endregion
-
-        #region Config
-
-        private void LoadConfig() {
             _viewFloating?.transform.SetLocalPose(FloatingConfig.Instance.Pose);
             _pinButton.Toggle(FloatingConfig.Instance.IsPinned);
-            HandlePauseStateChanged(false);
-        }
-        private void SavePoseToConfig() {
-            FloatingConfig.Instance.Pose = _viewFloating?.transform.GetLocalPose() ?? default;
         }
 
         #endregion
@@ -126,18 +111,11 @@ namespace BeatLeader.Components {
         }
 
         private void HandleFloatingHandleWasReleased(object sender, FloatingScreenHandleEventArgs args) {
-            SavePoseToConfig();
+            HandlePoseWasResetted();
         }
 
         private void HandlePoseWasResetted() {
-            SavePoseToConfig();
-        }
-
-        private void HandlePauseStateChanged(bool state) {
-            if (!_hideUI || _viewFloating == null) return;
-
-            _viewFloating.gameObject.SetActive(state);
-            _resetController.enabled = state;
+            FloatingConfig.Instance.Pose = _viewFloating?.transform.GetLocalPose() ?? default;
         }
 
         #endregion

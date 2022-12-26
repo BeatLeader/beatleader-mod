@@ -6,7 +6,6 @@ using BeatLeader.Utils;
 using HarmonyLib;
 using SiraUtil.Submissions;
 using Zenject;
-using BeatLeader.Replayer.Camera;
 using UnityEngine;
 using BeatLeader.Replayer.Emulation;
 using BeatLeader.Components;
@@ -15,10 +14,8 @@ using SiraUtil.Tools.FPFC;
 using System;
 using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
-using static BeatLeader.Utils.InputUtils;
 using BeatLeader.UI;
 using BeatLeader.Models;
-using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Installers {
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
@@ -67,23 +64,6 @@ namespace BeatLeader.Installers {
 
         #region Replayer
 
-        private static readonly ReplayerCameraController.InitData cameraInitData = new(
-
-           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 1.70f, 0), new Vector3(0, 90, 0), InputType.FPFC),
-           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 1.70f, 0), new Vector3(0, -90, 0), InputType.FPFC),
-           new StaticCameraPose(2, "BehindView", new Vector3(0f, 1.9f, -2f), Vector3.zero, InputType.FPFC),
-           new StaticCameraPose(3, "CenterView", new Vector3(0f, 1.7f, 0f), Vector3.zero, InputType.FPFC),
-
-           new StaticCameraPose(0, "LeftView", new Vector3(-3.70f, 0, -1.10f), new Vector3(0, 60, 0), InputType.VR),
-           new StaticCameraPose(1, "RightView", new Vector3(3.70f, 0, -1.10f), new Vector3(0, -60, 0), InputType.VR),
-           new StaticCameraPose(2, "BehindView", new Vector3(0, 0, -2), Vector3.zero, InputType.VR),
-           new StaticCameraPose(3, "CenterView", Vector3.zero, Vector3.zero, InputType.VR),
-
-           new FlyingCameraPose(new Vector2(0.5f, 0.5f), new Vector2(0, 1.7f), 4, true, "FreeView"),
-           new PlayerViewCameraPose(3)
-
-        );
-
         private void InitReplayer() {
             DisableScoreSubmission();
             PatchSiraFreeView();
@@ -110,12 +90,10 @@ namespace BeatLeader.Installers {
 
             //Tweaks and tools
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController.InitData>().FromInstance(cameraInitData).AsSingle();
             Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<TweaksHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<HotkeysHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesTo<SettingsLoader>().AsSingle().NonLazy();
 
             //UI
             Container.Bind<ReplayFinishViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();

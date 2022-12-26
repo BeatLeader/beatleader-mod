@@ -1,5 +1,4 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Camera;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 
@@ -31,8 +30,8 @@ namespace BeatLeader.Components {
             IBeatmapTimeController timeController,
             IReplayPauseController pauseController,
             IVirtualPlayersManager playersManager,
+            IViewableCameraController cameraController,
             ReplayLaunchData launchData,
-            ReplayerCameraController cameraController,
             IReplayWatermark? watermark = null,
             IReplayTimeline? timeline = null,
             LayoutEditor? layoutEditor = null) {

@@ -1,15 +1,15 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Components;
 using Zenject;
-using BeatLeader.Models;
 using BeatSaberMarkupLanguage.FloatingScreen;
-using BeatLeader.Replayer.Camera;
 using UnityEngine;
 using VRUIControls;
 using BeatSaberMarkupLanguage;
 using IPA.Utilities;
 using UnityEngine.UI;
 using BeatLeader.Utils;
+using BeatLeader.Replayer;
+using BeatLeader.Models;
 
 namespace BeatLeader.ViewControllers {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.ReplayerVRView.bsml")]
@@ -18,9 +18,9 @@ namespace BeatLeader.ViewControllers {
         [Inject] private readonly IReplayFinishController _finishController = null!;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly ReplayerCameraController _cameraController = null!;
         [Inject] private readonly ReplayWatermark _watermark = null!;
-        [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         [UIValue("toolbar")]
         private ToolbarWithSettings _toolbar = null!;
@@ -31,10 +31,9 @@ namespace BeatLeader.ViewControllers {
         protected override void OnPreParse() {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
             _toolbar = ReeUIComponentV2.Instantiate<ToolbarWithSettings>(transform);
-            _floatingControls.Setup(Screen, _pauseController,
-                _cameraController.Camera.transform, !_launchData.Settings.AutoHideUI);
+            _floatingControls.Setup(Screen, _cameraController.ViewableCamera.Camera!.transform);
             _toolbar.Setup(_beatmapTimeController, _pauseController,
-                _finishController, _playersManager, _launchData, _cameraController, _watermark);
+                _finishController, _playersManager, _cameraController.ViewableCamera, _launchData, _watermark);
         }
 
         protected override void OnInitialize() {

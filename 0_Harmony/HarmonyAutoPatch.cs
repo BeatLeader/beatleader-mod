@@ -13,10 +13,7 @@ namespace BeatLeader {
         public readonly HarmonyPatchDescriptor descriptor;
 
         public void Dispose() {
-            if (descriptor.Prefix != null)
-                harmony.Unpatch(descriptor.Prefix.method, HarmonyPatchType.Prefix);
-            if (descriptor.Postfix != null)
-                harmony.Unpatch(descriptor.Postfix.method, HarmonyPatchType.Postfix);
+            harmony.Unpatch(descriptor);
         }
 
         public static implicit operator HarmonyAutoPatch(HarmonyPatchDescriptor descriptor) => new(descriptor);

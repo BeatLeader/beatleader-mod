@@ -1,176 +1,144 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using ICameraPoseProvider = BeatLeader.Models.ICameraPoseProvider;
+﻿using System.Linq;
 using UnityEngine;
 using Zenject;
 using BeatLeader.Utils;
+using System.Collections.Generic;
+using BeatLeader.Models;
+using Vector3 = UnityEngine.Vector3;
+using Transform = UnityEngine.Transform;
+using BeatLeader.Replayer.Emulation;
 
-namespace BeatLeader.Replayer.Camera {
+namespace BeatLeader.Replayer {
     public class ReplayerCameraController : MonoBehaviour {
-        public class InitData {
-            public readonly ICameraPoseProvider[] poseProviders;
-            public readonly string cameraStartPose;
+        private static readonly IReadOnlyList<ICameraView> FPFCViews = new List<ICameraView>() {
+            new StaticCameraView("LeftView", new(-3.70f, 1.70f, 0), new(0, 90, 0)),
+            new StaticCameraView("RightView", new(3.70f, 1.70f, 0), new(0, -90, 0)),
+            new StaticCameraView("BehindView", new(0f, 1.9f, -2f), Vector3.zero),
+            new StaticCameraView("CenterView", new(0f, 1.7f, 0f), Vector3.zero),
+            new PlayerViewCameraView(),
+            new FlyingCameraView("FreeView", new(0, 1.7f)) {
+                mouseSensitivity = new(0.5f, 0.5f),
+                flySpeed = 4
+            },
+        };
 
-            public InitData(string cameraStartPose = null) {
-                this.cameraStartPose = cameraStartPose;
-                poseProviders = new ICameraPoseProvider[0];
-            }
-            public InitData(string cameraStartPose = null, params ICameraPoseProvider[] poseProviders) {
-                this.cameraStartPose = cameraStartPose;
-                this.poseProviders = poseProviders;
-            }
-            public InitData(params ICameraPoseProvider[] poseProviders) {
-                this.poseProviders = poseProviders;
-            }
-        }
+        private static readonly IReadOnlyList<ICameraView> VRViews = new List<ICameraView>() {
+            new StaticCameraView("LeftView", new(-3.70f, 0, -1.10f), new(0, 60, 0)),
+            new StaticCameraView("RightView", new(3.70f, 0, -1.10f), new(0, -60, 0)),
+            new StaticCameraView("BehindView", new(0, 0, -2), Vector3.zero),
+            new StaticCameraView("CenterView", Vector3.zero, Vector3.zero),
+        };
 
-        [Inject] private readonly MenuControllersManager _menuControllersManager;
-        [Inject] private readonly Models.IVirtualPlayersManager _playersManager;
-        [Inject] private readonly InitData _data;
+        [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
+        [Inject] private readonly MenuControllersManager _menuControllersManager = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
+        [Inject] private readonly PlayerDataModel _playerDataModel = null!;
+
+        public IViewableCameraController ViewableCamera => _cameraController;
 
         [FirstResource]
-        private readonly MainSettingsModelSO _mainSettingsModel;
+        private readonly MainSettingsModelSO _mainSettingsModel = null!;
 
         [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
-        private readonly Transform Origin;
+        private readonly Transform Origin = null!;
 
-        public List<ICameraPoseProvider> PoseProviders { get; protected set; }
-        public string CurrentPoseName => _currentPose?.Name ?? string.Empty;
-        public UnityEngine.Camera Camera => _camera;
-        public ICameraPoseProvider CurrentPose => _currentPose;
-        public ValueTuple<Pose, Pose> CameraAndHeadPosesTuple {
-            get => (transform.GetLocalPose(), _playersManager
-                .PriorityPlayer.ControllersProvider.Head.transform.GetLocalPose());
-            private set {
-                transform.SetLocalPose(value.Item1);
-                _playersManager.PriorityPlayer.ControllersProvider
-                    .Head.transform.SetLocalPose(value.Item2);
-
-                if (InputUtils.IsInFPFC) return;
-                _menuControllersManager.HandsContainer.SetLocalPose(value.Item1);
-            }
-        }
-        public int CullingMask {
-            get => _camera.cullingMask;
-            set => _camera.cullingMask = value;
-        }
-        public int FieldOfView {
-            get => (int)_camera.fieldOfView;
-            set {
-                if (_fieldOfView == value) return;
-                _fieldOfView = value;
-                RefreshCamera();
-                CameraFOVChangedEvent?.Invoke(value);
-            }
-        }
-
-        public event Action<ICameraPoseProvider> CameraPoseChangedEvent;
-        public event Action<int> CameraFOVChangedEvent;
-
-        private ICameraPoseProvider _currentPose;
-        private UnityEngine.Camera _camera;
-
-        private int _fieldOfView;
-        private bool _wasRequestedLastTime;
-        private string _requestedPose;
         private bool _isInitialized;
+        private ViewableCameraController _cameraController = null!;
+        private Camera? _camera;
+
+        private Vector3 _handsOriginalPos;
+        private Vector3 _handsOriginalRot;
 
         private void Awake() {
-            if (_data == null || _isInitialized) return;
             this.LoadResources();
-            if (!CreateAndAssignCamera()) {
-                Plugin.Log.Error("Failed to initialize Replayer Camera!");
+            _camera = CreateCamera();
+            if (_camera == null) {
+                Plugin.Log.Error("[Replayer] Failed to initialize Camera!");
                 return;
             }
-            if (!InputUtils.IsInFPFC)
-                ApplyOffsets(_mainSettingsModel.roomCenter, _mainSettingsModel.roomRotation);
-            PoseProviders = _data.poseProviders.Where(x => InputUtils.MatchesCurrentInput(x.AvailableInputs)).ToList();
-            RequestCameraPose(_data.cameraStartPose);
-
+            var cameraTransform = _camera.transform;
+            cameraTransform.SetParent(transform, false);
+            if (!InputUtils.IsInFPFC) {
+                cameraTransform.localPosition = _mainSettingsModel.roomCenter;
+                cameraTransform.localEulerAngles = new(0, _mainSettingsModel.roomRotation, 0);
+            }
+            _cameraController = gameObject.AddComponent<ViewableCameraController>();
+            _cameraController.SetCamera(_camera);
+            var viewsList = _cameraController.Views;
+            foreach (var view in InputUtils.IsInFPFC ? FPFCViews : VRViews) {
+                viewsList.Add(view);
+            }
+            HandlePriorityPlayerChanged(_playersManager.PriorityPlayer!);
             transform.SetParent(Origin, false);
-            SetEnabled(true);
+            _camera.enabled = true;
             _isInitialized = true;
         }
-        private void LateUpdate() {
+
+        private void Setup() {
+            if (InputUtils.IsInFPFC) {
+                _camera!.fieldOfView = _launchData.Settings.CameraFOV;
+            }
+            _cameraController.SetView(_launchData.Settings.ActualCameraView!);
+
+            if (!_playerDataModel.playerData.playerSpecificSettings.reduceDebris) {
+                _camera!.cullingMask |= 1 << LayerMasks.noteDebrisLayer;
+            } else {
+                _camera!.cullingMask &= ~(1 << LayerMasks.noteDebrisLayer);
+            }
+        }
+
+        private void Start() {
             if (!_isInitialized) return;
-
-            if (_wasRequestedLastTime) {
-                SetCameraPose(_requestedPose);
-                _wasRequestedLastTime = false;
+            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
+            if (!InputUtils.IsInFPFC) {
+                var container = _menuControllersManager.HandsContainer;
+                _handsOriginalPos = container.localPosition;
+                _handsOriginalRot = container.localEulerAngles;
+                _cameraController.CameraViewProcessedEvent += HandleViewProcessedEvent;
             }
-            if (_currentPose?.UpdateEveryFrame ?? false) {
-                CameraAndHeadPosesTuple = ProcessPose(_currentPose);
-            }
+            Setup();
         }
 
-        public bool RequestCameraPose(string name) {
-            if (string.IsNullOrEmpty(name)
-                || name == CurrentPoseName) return false;
-            _requestedPose = name;
-            _wasRequestedLastTime = true;
-            return true;
-        }
-        public bool SetCameraPose(string name) {
-            if (string.IsNullOrEmpty(name)
-                || name == CurrentPoseName) return false;
-
-            ICameraPoseProvider cameraPose = PoseProviders.FirstOrDefault(x => x.Name == name);
-            if (cameraPose == null) return false;
-
-            _currentPose = cameraPose;
-            CameraAndHeadPosesTuple = ProcessPose(_currentPose);
-            RefreshCamera();
-            CameraPoseChangedEvent?.Invoke(cameraPose);
-            return true;
-        }
-        public bool SetCameraPose(ICameraPoseProvider provider) {
-            if (PoseProviders.Contains(provider)) return false;
-            PoseProviders.Add(provider);
-            SetCameraPose(provider.Name);
-            return true;
-        }
-        public void SetEnabled(bool enabled) {
-            if (_camera != null) {
-                _camera.gameObject.SetActive(enabled);
-                _camera.enabled = enabled;
-            }
-            gameObject.SetActive(enabled);
+        private void OnDestroy() {
+            _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
 
-        protected ValueTuple<Pose, Pose> ProcessPose(ICameraPoseProvider provider) {
-            var data = CameraAndHeadPosesTuple;
-            _currentPose.ProcessPose(ref data);
-            return data;
+        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
+            _cameraController.SetControllers(player.ControllersProvider!);
         }
-        protected void RefreshCamera() {
-            _camera.stereoTargetEye = InputUtils.IsInFPFC ? StereoTargetEyeMask.None : StereoTargetEyeMask.Both;
-            if (InputUtils.IsInFPFC) _camera.fieldOfView = _fieldOfView;
+
+        private void HandleViewProcessedEvent() {
+            var container = _menuControllersManager.HandsContainer;
+            container.localPosition = _handsOriginalPos + transform.localPosition;
+            container.localEulerAngles = _handsOriginalRot + transform.localEulerAngles;
         }
-        private bool CreateAndAssignCamera() {
+
+        private static Camera? CreateCamera() {
             var smoothCamera = Resources.FindObjectsOfTypeAll<SmoothCamera>()
                 .FirstOrDefault(x => x.transform
-                .parent.name == "LocalPlayerGameCore" 
+                .parent.name == "LocalPlayerGameCore"
                 && x.gameObject.activeInHierarchy);
 
-            if (smoothCamera == null) return false;
+            if (smoothCamera == null) return null;
 
-            smoothCamera.gameObject.SetActive(false);
-            _camera = Instantiate(smoothCamera.GetComponent<UnityEngine.Camera>(), gameObject.transform, true);
-            _camera.gameObject.SetActive(false);
+            var camera = Instantiate(smoothCamera.GetComponent<Camera>(), null, true);
+            camera.gameObject.SetActive(false);
 
-            DestroyImmediate(_camera.GetComponent<SmoothCameraController>());
-            DestroyImmediate(_camera.GetComponent<SmoothCamera>());
+            DestroyImmediate(camera.GetComponent<SmoothCameraController>());
+            DestroyImmediate(camera.GetComponent<SmoothCamera>());
 
-            _camera.nearClipPlane = 0.01f;
-            _camera.gameObject.SetActive(true);
-            _camera.name = "ReplayerViewCamera";
+            camera.nearClipPlane = 0.01f;
+            camera.gameObject.SetActive(true);
+            camera.name = "ReplayerViewCamera";
 
-            return true;
-        }
-        private void ApplyOffsets(Vector3 pos, float rot) {
-            _camera.transform.localPosition = pos;
-            _camera.transform.localEulerAngles = new Vector3(0, rot, 0);
+            if (InputUtils.IsInFPFC) {
+                camera.stereoTargetEye = StereoTargetEyeMask.None;
+                camera.fieldOfView = 90;
+            } else {
+                camera.stereoTargetEye = StereoTargetEyeMask.Both;
+            }
+
+            return camera;
         }
     }
 }

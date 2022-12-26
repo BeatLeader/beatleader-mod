@@ -1,12 +1,11 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatLeader.Components;
 using Zenject;
-using UnityEngine;
 using BeatLeader.Utils;
 using UnityEngine.UI;
 using System.Collections;
 using BeatLeader.Models;
-using BeatLeader.Replayer.Camera;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.ViewControllers {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Views.Replayer2DView.bsml")]
@@ -58,7 +57,8 @@ namespace BeatLeader.ViewControllers {
 
             _mainScreenView = ReeUIComponentV2.Instantiate<MainScreenView>(transform);
             _mainScreenView.Setup(_pauseController, _finishController,
-                _beatmapTimeController, _playersManager, _launchData, _cameraController, _watermark);
+                _beatmapTimeController, _playersManager, 
+                _cameraController.ViewableCamera, _launchData, _watermark);
 
             _finishController.ReplayWasLeftEvent += HandleReplayFinish;
             _mainScreenView.LayoutBuiltEvent += HandleUIBuilt;

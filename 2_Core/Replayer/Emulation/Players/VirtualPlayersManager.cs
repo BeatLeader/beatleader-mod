@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,23 @@ using Zenject;
 namespace BeatLeader.Replayer.Emulation {
     internal class VirtualPlayersManager : MonoBehaviour, IVirtualPlayersManager {
         [Inject] private readonly VRControllersInstantiator _controllersInstantiator = null!;
+        [Inject] private readonly PlayerTransforms _playerTransforms = null!;
         [Inject] private readonly VirtualPlayer.Pool _virtualPlayersPool = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public IReadOnlyList<VirtualPlayer> Players => _virtualPlayers;
-        public VirtualPlayer PriorityPlayer => _priorityPlayer ?? _virtualPlayers.FirstOrDefault();
+        public VirtualPlayer? PriorityPlayer { get; private set; }
 
         public event Action<VirtualPlayer>? PriorityPlayerWasChangedEvent;
 
         private readonly List<VirtualPlayer> _virtualPlayers = new();
-        private VirtualPlayer? _priorityPlayer;
 
         private void Awake() {
             foreach (var replayPair in _launchData.Replays) {
                 Spawn(replayPair.Key, replayPair.Value);
+            }
+            if (_virtualPlayers.Count != 0) {
+                SetPriorityPlayer(_virtualPlayers[0]);
             }
         }
 
@@ -41,7 +45,15 @@ namespace BeatLeader.Replayer.Emulation {
 
         public void SetPriorityPlayer(VirtualPlayer player) {
             if (!_virtualPlayers.Contains(player)) return;
-            _priorityPlayer = player;
+            SetPriorityControllers(player.ControllersProvider!);
+            PriorityPlayer = player;
+            PriorityPlayerWasChangedEvent?.Invoke(player);
+        }
+
+        private void SetPriorityControllers(IVRControllersProvider provider) {
+            _playerTransforms.SetField("_headTransform", provider.Head.transform);
+            _playerTransforms.SetField("_leftHandTransform", provider.LeftSaber.transform);
+            _playerTransforms.SetField("_rightHandTransform", provider.RightSaber.transform);
         }
     }
 }

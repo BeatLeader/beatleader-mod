@@ -8,6 +8,7 @@ using Zenject;
 using UnityEngine.UI;
 using HMUI;
 using System.Linq;
+using TMPro;
 
 namespace BeatLeader.Replayer {
     public class BeatmapVisualsController : MonoBehaviour {
@@ -32,15 +33,19 @@ namespace BeatLeader.Replayer {
         private readonly NoteDebrisSpawner _noteDebrisSpawner = null!;
 
         [FirstResource(requireActiveInHierarchy: true)]
-        private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles = null!;  
+        private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles = null!;
 
-        private GameObject _laser = null!;
-        private ImageView _energyIconEmpty = null!;
-        private ImageView _energyIconFull = null!;
+        [FirstResource]
+        private readonly LevelFailedTextEffect _levelFailedTextEffect = null!;
 
         #endregion
 
         #region Setup
+
+        private TextMeshPro _levelFailedEffectText = null!;
+        private GameObject _laser = null!;
+        private ImageView _energyIconEmpty = null!;
+        private ImageView _energyIconFull = null!;
 
         protected float _debrisCutDirMultiplier;
         protected float _debrisFromCenterSpeed;
@@ -51,6 +56,7 @@ namespace BeatLeader.Replayer {
         private void Awake() {
             this.LoadResources();
 
+            _levelFailedEffectText = _levelFailedTextEffect.transform.Find("Text").GetComponent<TextMeshPro>();
             var images = _gameEnergyUIPanel.GetComponentsInChildren<ImageView>();
             _energyIconEmpty = images.FirstOrDefault(x => x.name == "EnergyIconEmpty");
             _energyIconFull = images.FirstOrDefault(x => x.name == "EnergyIconFull");
@@ -65,6 +71,10 @@ namespace BeatLeader.Replayer {
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
+        }
+
+        private void Start() {
+            ModifyLevelFailedTextEffect(false);
         }
 
         private void OnDestroy() {
@@ -88,6 +98,10 @@ namespace BeatLeader.Replayer {
 
             foreach (var effect in effects)
                 effect.gameObject.SetActive(!pause);
+        }
+
+        public void ModifyLevelFailedTextEffect(bool showText) {
+            _levelFailedEffectText.enabled = showText;
         }
 
         public void ModifyComboPanel(int combo, int maxCombo, bool shouldBeBroken = false) {
@@ -126,21 +140,25 @@ namespace BeatLeader.Replayer {
 
         #endregion
 
-        #region Event Handlers
+        #region Callbacks
 
         private void HandlePauseStateChanged(bool state) {
             PauseSabersSparkles(state);
         }
+
         private void HandleSongSpeedChanged(float speedMul) {
             ModifyDebrisPhysics(speedMul);
         }
+
         private void HandleComboDidBreak() {
             _comboWasBroke = true;
         }
+
         private void HandleReprocessRequested() {
             _wasInProcess = _eventsProcessor.TimeWasSmallerThanActualTime;
             _comboWasBroke = false;
         }
+
         private void HandleReprocessDone() {
             if (_wasInProcess) {
                 ModifyComboPanel(_comboController.GetField<int,

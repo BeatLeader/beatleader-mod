@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Utils;
+using HarmonyLib;
 using System;
 using UnityEngine;
 using Zenject;
@@ -10,10 +11,14 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
         [Inject] private readonly PauseController _pauseController = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
+        [Inject] private readonly GameSongController _songController = null!;
+        [Inject] private readonly BeatmapObjectSpawnController _beatmapObjectSpawnController = null!;
+        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
+        [Inject] private readonly IGameEnergyCounter _gameEnergyCounter = null!;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
 
         [FirstResource] 
-        private readonly StandardLevelFinishedController _finishController = null!;
+        private readonly LevelFailedTextEffect _levelFailedTextEffect = null!;
 
         public bool ExitAutomatically => _launchData?.Settings.ExitReplayAutomatically ?? true;
 
@@ -22,17 +27,21 @@ namespace BeatLeader.Replayer {
 
         private void Start() {
             this.LoadResources();
-            _gameplayManager.levelFinishedEvent -= _finishController.HandleLevelFinished;
             _pauseMenuManager.didPressMenuButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressMenuButton;
             _pauseButtonTrigger.menuButtonTriggeredEvent -= _pauseController.HandleMenuButtonTriggered;
-            _gameplayManager.levelFinishedEvent += HandleLevelFinished;
+            _gameEnergyCounter.gameEnergyDidReach0Event -= _gameplayManager.HandleGameEnergyDidReach0;
+            _songController.songDidFinishEvent -= _gameplayManager.HandleSongDidFinish;
+            _gameEnergyCounter.gameEnergyDidReach0Event += HandleLevelFailed;
+            _songController.songDidFinishEvent += HandleLevelFinished;
         }
 
         private void OnDestroy() {
-            _gameplayManager.levelFinishedEvent -= HandleLevelFinished;
-            _gameplayManager.levelFinishedEvent += _finishController.HandleLevelFinished;
+            _gameEnergyCounter.gameEnergyDidReach0Event -= HandleLevelFailed;
+            _songController.songDidFinishEvent -= HandleLevelFinished;
             _pauseMenuManager.didPressMenuButtonEvent += _pauseController.HandlePauseMenuManagerDidPressMenuButton;
             _pauseButtonTrigger.menuButtonTriggeredEvent += _pauseController.HandleMenuButtonTriggered;
+            _gameEnergyCounter.gameEnergyDidReach0Event += _gameplayManager.HandleGameEnergyDidReach0;
+            _songController.songDidFinishEvent += _gameplayManager.HandleSongDidFinish;
         }
 
         public void Exit() {
@@ -43,6 +52,14 @@ namespace BeatLeader.Replayer {
         private void HandleLevelFinished() {
             ReplayWasFinishedEvent?.Invoke();
             if (ExitAutomatically) Exit();
+        }
+
+        private void HandleLevelFailed() {
+            _songController.FailStopSong();
+            _beatmapObjectSpawnController.StopSpawning();
+            _beatmapObjectManager.DissolveAllObjects();
+            _levelFailedTextEffect.ShowEffect();
+            HandleLevelFinished();
         }
     }
 }

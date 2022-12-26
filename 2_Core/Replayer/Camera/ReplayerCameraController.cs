@@ -121,6 +121,7 @@ namespace BeatLeader.Replayer {
 
             if (smoothCamera == null) return null;
 
+            smoothCamera.GetComponent<Camera>().enabled = false;
             var camera = Instantiate(smoothCamera.GetComponent<Camera>(), null, true);
             camera.gameObject.SetActive(false);
 

@@ -121,7 +121,6 @@ namespace BeatLeader.Replayer {
 
             if (smoothCamera == null) return null;
 
-            smoothCamera.GetComponent<Camera>().enabled = false;
             var camera = Instantiate(smoothCamera.GetComponent<Camera>(), null, true);
             camera.gameObject.SetActive(false);
 
@@ -133,6 +132,7 @@ namespace BeatLeader.Replayer {
             camera.name = "ReplayerViewCamera";
 
             if (InputUtils.IsInFPFC) {
+                smoothCamera.gameObject.SetActive(false);
                 camera.stereoTargetEye = StereoTargetEyeMask.None;
                 camera.fieldOfView = 90;
             } else {

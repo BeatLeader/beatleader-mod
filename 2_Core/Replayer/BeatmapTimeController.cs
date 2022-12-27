@@ -9,20 +9,20 @@ using System.Reflection;
 using System.Linq;
 
 namespace BeatLeader.Replayer {
-    public class BeatmapTimeController : MonoBehaviour, IBeatmapTimeController {
+    internal class BeatmapTimeController : MonoBehaviour, IBeatmapTimeController {
         #region Injection
 
-        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
-        [Inject] private readonly NoteCutSoundEffectManager _noteCutSoundEffectManager = null!;
-        [Inject] private readonly AudioTimeSyncController _audioTimeSyncController = null!;
-        [Inject] private readonly SongSpeedData _speedData = null!;   
-        [Inject] private readonly IReadonlyBeatmapData _beatmapData = null!;
+        [Inject] protected readonly BeatmapObjectManager _beatmapObjectManager = null!;
+        [Inject] protected readonly NoteCutSoundEffectManager _noteCutSoundEffectManager = null!;
+        [Inject] protected readonly AudioTimeSyncController _audioTimeSyncController = null!;
+        [Inject] protected readonly SongSpeedData _speedData = null!;   
+        [Inject] protected readonly IReadonlyBeatmapData _beatmapData = null!;
 
-        [Inject] private readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData = null!;
-        [Inject] private readonly BeatmapCallbacksController _beatmapCallbacksController = null!;
-        [Inject] private readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null!;
+        [Inject] protected readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData = null!;
+        [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController = null!;
+        [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null!;
 
-        [FirstResource] private readonly AudioManagerSO _audioManagerSO = null!;
+        [FirstResource] protected readonly AudioManagerSO _audioManagerSO = null!;
 
         #endregion
 
@@ -73,7 +73,7 @@ namespace BeatLeader.Replayer {
 
         #region Rewind
 
-        public void Rewind(float time, bool resumeAfterRewind = true) {
+        public virtual void Rewind(float time, bool resumeAfterRewind = true) {
             if (Math.Abs(time - SongTime) < 0.001f 
                 || float.IsInfinity(time) || float.IsNaN(time)) return;
             time = Mathf.Clamp(time, SongStartTime, SongEndTime);
@@ -121,7 +121,7 @@ namespace BeatLeader.Replayer {
 
         #region Change Speed
 
-        public void SetSpeedMultiplier(float speedMultiplier, bool resumeAfterSpeedChange = true) {
+        public virtual void SetSpeedMultiplier(float speedMultiplier, bool resumeAfterSpeedChange = true) {
             if (Math.Abs(speedMultiplier - _audioTimeSyncController.timeScale) < 0.001f) return;
 
             bool wasPausedBeforeRewind = _audioTimeSyncController
@@ -143,24 +143,24 @@ namespace BeatLeader.Replayer {
 
         #region Despawn
 
-        private readonly HarmonySilencer _soundSpawnerSilencer = new(
+        protected readonly HarmonySilencer _soundSpawnerSilencer = new(
             typeof(NoteCutSoundEffectManager).GetMethod(nameof(
                 NoteCutSoundEffectManager.HandleNoteWasSpawned), 
                 ReflectionUtils.DefaultFlags), false);
 
-        private static readonly MethodInfo _despawnNoteMethod =
+        protected static readonly MethodInfo _despawnNoteMethod =
             typeof(BeatmapObjectManager).GetMethod("Despawn",
                 ReflectionUtils.DefaultFlags, new Type[] { typeof(NoteController) });
 
-        private static readonly MethodInfo _despawnSliderMethod =
+        protected static readonly MethodInfo _despawnSliderMethod =
             typeof(BeatmapObjectManager).GetMethod("Despawn",
                 ReflectionUtils.DefaultFlags, new Type[] { typeof(SliderController) });
 
-        private static readonly MethodInfo _despawnObstacleMethod =
+        protected static readonly MethodInfo _despawnObstacleMethod =
             typeof(BeatmapObjectManager).GetMethod("Despawn",
                 ReflectionUtils.DefaultFlags, new Type[] { typeof(ObstacleController) });
 
-        private void DespawnAllBeatmapObjects() {
+        protected virtual void DespawnAllBeatmapObjects() {
             var param = new object[1];
             foreach (var item in _spawnedBeatmapObjectControllers.ToList()) {
                 param[0] = item;
@@ -174,7 +174,8 @@ namespace BeatLeader.Replayer {
                 })?.Invoke(_beatmapObjectManager, param);
             }
         }
-        private void DespawnAllNoteControllerSounds() {
+
+        protected virtual void DespawnAllNoteControllerSounds() {
             _noteCutSoundPoolContainer.activeItems.ForEach(x => x.StopPlayingAndFinish());
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
             _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);

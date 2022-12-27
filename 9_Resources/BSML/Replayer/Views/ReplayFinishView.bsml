@@ -1,3 +1,0 @@
-﻿<macro.as-host host="replay-finish-panel">
-  <macro.reparent transform="ui-component"/>
-</macro.as-host>

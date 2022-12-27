@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace BeatLeader.Models
-{
-    public interface IReplayPauseController
-    {
+namespace BeatLeader.Models {
+    public interface IReplayPauseController {
+        bool LockUnpause { get; set; }
         bool IsPaused { get; }
 
         event Action<bool> PauseStateChangedEvent;

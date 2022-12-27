@@ -1,6 +1,5 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Utils;
-using HarmonyLib;
 using System;
 using UnityEngine;
 using Zenject;
@@ -12,15 +11,10 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly PauseController _pauseController = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly GameSongController _songController = null!;
-        [Inject] private readonly BeatmapObjectSpawnController _beatmapObjectSpawnController = null!;
-        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
         [Inject] private readonly IGameEnergyCounter _gameEnergyCounter = null!;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
 
-        [FirstResource] 
-        private readonly LevelFailedTextEffect _levelFailedTextEffect = null!;
-
-        public bool ExitAutomatically => _launchData?.Settings.ExitReplayAutomatically ?? true;
+        public bool ExitAutomatically => _launchData.Settings.ExitReplayAutomatically;
 
         public event Action? ReplayWasLeftEvent;
         public event Action? ReplayWasFinishedEvent;
@@ -55,10 +49,6 @@ namespace BeatLeader.Replayer {
         }
 
         private void HandleLevelFailed() {
-            _songController.FailStopSong();
-            _beatmapObjectSpawnController.StopSpawning();
-            _beatmapObjectManager.DissolveAllObjects();
-            _levelFailedTextEffect.ShowEffect();
             HandleLevelFinished();
         }
     }

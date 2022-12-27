@@ -74,7 +74,7 @@ namespace BeatLeader.Installers {
             //Core logic(Playback)
             Container.BindInterfacesAndSelfTo<ReplayPauseController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayFinishController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesAndSelfTo<BeatmapTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<ReplayTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.BindInterfacesAndSelfTo<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -96,7 +96,7 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //UI
-            Container.Bind<ReplayFinishViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
+            //Container.Bind<ReplayFinishViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
             Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

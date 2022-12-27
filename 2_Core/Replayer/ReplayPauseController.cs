@@ -24,6 +24,7 @@ namespace BeatLeader.Replayer {
 
         #region Info & Events
 
+        public bool LockUnpause { get; set; }
         public bool IsPaused => _gamePause.isPaused;
 
         public event Action<bool>? PauseStateChangedEvent;
@@ -83,6 +84,7 @@ namespace BeatLeader.Replayer {
         }
 
         public void Resume(bool notifyListeners = true, bool forceResume = false) {
+            if (LockUnpause) return;
             if (forceResume) SetPauseState(false);
 
             _gamePause.WillResume();

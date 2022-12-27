@@ -35,7 +35,6 @@
     <None Remove="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableController.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableCell.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\ReplayFinishPanel.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\SettingsContainer.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\SettingsModal.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\BodyContentView.bsml" />
@@ -48,7 +47,6 @@
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Views\MainScreenView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Views\ReplayFinishView.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -277,7 +275,6 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableController.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableCell.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableView.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\ReplayFinishPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsContainer.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsModal.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\BodyContentView.bsml" />
@@ -290,7 +287,6 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\MainScreenView.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayFinishView.bsml" />
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardView.bsml" />

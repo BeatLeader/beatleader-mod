@@ -25,12 +25,8 @@ namespace BeatLeader.Replayer {
             _songReachedReplayEnd = false;
         }
 
-        void IBeatmapTimeController.Rewind(float time, bool resumeAfterRewind) {
-            this.Rewind(time, resumeAfterRewind);
-        }
-
         private void Update() {
-            if (!_songReachedReplayEnd && SongTime >= ReplayEndTime) {
+            if (!_songReachedReplayEnd && Mathf.Abs(SongTime - ReplayEndTime) < 0.1f) {
                 SongReachedReplayEndEvent?.Invoke();
                 _songReachedReplayEnd = true;
             }

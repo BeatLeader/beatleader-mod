@@ -84,6 +84,7 @@ namespace BeatLeader.Components {
             _slider.targetGraphic = _handle;
             _slider.handleRect = _handle.rectTransform;
             _slider.fillRect = _fill.rectTransform;
+            _slider.navigation = new() { mode = Navigation.Mode.None };
             _slider.onValueChanged.AddListener(HandleSliderValueChanged);
 
             _timelineAnimator = _slider.gameObject.AddComponent<TimelineAnimator>();

@@ -37,7 +37,8 @@ namespace BeatLeader.Components {
         public override string Name => "Beatmap Preview";
         public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
             enabled = true,
-            position = new(0, 0.8f)
+            position = new(0f, 1f),
+            anchor = new(0f, 1f)
         };
 
         #endregion

@@ -16,7 +16,6 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
-        [Inject] private readonly IReplayPauseController _pauseController = null!;
 
         public Player? Player { get; private set; }
         public Replay? Replay { get; private set; }
@@ -68,14 +67,12 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void HandleInstanceSpawned() {
-            _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
             _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewound;
         }
 
         private void HandleInstanceDespawned() {
             gameObject.SetActive(false);
             _allowPlayback = false;
-            _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
             _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewound;
             ControllersProvider = null;
             _lastProcessedNode = null;
@@ -84,10 +81,6 @@ namespace BeatLeader.Replayer.Emulation {
 
         private void HandleSongWasRewound(float time) {
             _lastProcessedNode = _frames!.First;
-        }
-
-        private void HandlePauseStateChanged(bool state) {
-            _allowPlayback = !state;
         }
     }
 }

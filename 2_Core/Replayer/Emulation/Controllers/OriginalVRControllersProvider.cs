@@ -1,12 +1,10 @@
 ﻿using UnityEngine.XR;
 using UnityEngine;
 using Zenject;
-using IPA.Utilities;
 
 namespace BeatLeader.Replayer.Emulation {
     internal class OriginalVRControllersProvider : MonoBehaviour, Models.IVRControllersProvider {
         [Inject] private readonly PlayerVRControllersManager _vrControllersManager = null!;
-        [Inject] private readonly PlayerTransforms _playerTransforms = null!;
 
         public VRController LeftSaber { get; private set; } = null!;
         public VRController RightSaber { get; private set; } = null!;
@@ -28,10 +26,9 @@ namespace BeatLeader.Replayer.Emulation {
 
             LeftSaber = _vrControllersManager.leftHandVRController;
             RightSaber = _vrControllersManager.rightHandVRController;
-            _playerTransforms.SetField("_headTransform", Head.transform);
             _vrControllersManager.DisableAllVRControllers();
 
-            ShowControllers(false);
+            //ShowControllers(false);
         }
     }
 }

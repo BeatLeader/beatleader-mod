@@ -17,6 +17,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         public event Action<VirtualPlayer>? PriorityPlayerWasChangedEvent;
 
+        public bool allowImmediateInit;
+
         private readonly List<VirtualPlayer> _virtualPlayers = new();
 
         private void Awake() {
@@ -31,8 +33,8 @@ namespace BeatLeader.Replayer.Emulation {
         public void Spawn(Player player, Replay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
             player ??= new() { name = "Undefined Player" };
-            var controllers = _controllersInstantiator.CreateInstance(
-                player.name.Replace(" ", "") + "Controllers");
+            var name = player.name.Replace(" ", "") + "Controllers";
+            var controllers = _controllersInstantiator.CreateInstance(name);
             virtualPlayer.Init(player, replay, controllers);
             _virtualPlayers.Add(virtualPlayer);
         }

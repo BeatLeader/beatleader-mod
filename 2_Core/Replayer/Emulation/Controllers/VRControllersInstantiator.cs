@@ -16,8 +16,25 @@ namespace BeatLeader.Replayer.Emulation {
 
         private readonly IVRControllersProvider _provider;
         private readonly DiContainer _container;
+        private bool _originalSabersIsUsed;
+
+        public IVRControllersProvider CreateEmpty() {
+            var transform = new GameObject("EmptyControllers").transform;
+            var left = new GameObject("left").AddComponent<VRControllerEmulator>();
+            var right = new GameObject("right").AddComponent<VRControllerEmulator>();
+            var head = new GameObject("head").AddComponent<VRControllerEmulator>();
+            foreach (var item in new[] { left, right, head }) {
+                item.transform.SetParent(transform, false);
+            }
+            return new GenericVRControllersProvider(left, right, head);
+        }
 
         public IVRControllersProvider CreateInstance(string? name = null) {
+            if (!_originalSabersIsUsed) {
+                _originalSabersIsUsed = true;
+                return _provider;
+            }
+
             var transform = new GameObject(name ?? "InstantiatedVRControllersContainer").transform;
             transform.SetParent(Origin, false);
 

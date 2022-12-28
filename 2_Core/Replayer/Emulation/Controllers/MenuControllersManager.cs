@@ -5,7 +5,7 @@ using VRUIControls;
 using Zenject;
 
 namespace BeatLeader.Replayer {
-    internal class MenuControllersManager : MonoBehaviour {
+    public class MenuControllersManager : MonoBehaviour {
         [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
         [Inject] private readonly DiContainer _diContainer = null!; 
         [Inject] private readonly VRInputModule _vrInputModule = null!;

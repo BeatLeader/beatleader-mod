@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using UnityEngine;
 using Zenject;
 
@@ -14,7 +17,9 @@ namespace BeatLeader.Replayer.Tweaking {
 
         [Inject] private readonly DiContainer _container = null!;
 
-        public IReadOnlyList<GameTweak> Tweaks { get; } = new List<GameTweak> {
+        public IList<GameTweak> Tweaks => _tweaks;
+
+        private readonly ObservableCollection<GameTweak> _tweaks = new() {
             new AudioTimeSyncControllerTweak(),
             new SmoothCameraTweak(),
             new InputSystemTweak(),
@@ -24,23 +29,33 @@ namespace BeatLeader.Replayer.Tweaking {
             new ModifiersTweak(),
             new RaycastBlockerTweak(),
             new RoomOffsetsTweak()
-        }; 
-        
+        };
+
         private void Awake() {
-            PerformAction(ActionType.Inject);
-            PerformAction(ActionType.Initialize);
-        }
-        
-        private void Start() {
-            PerformAction(ActionType.LateInitialize);
-        }
-        
-        private void OnDestroy() {
-            PerformAction(ActionType.Dispose);
+            HandleAddedTweaks(_tweaks, false);
         }
 
-        private void PerformAction(ActionType action) {
-            foreach (var tweak in Tweaks) {
+        private void Start() {
+            HandleAddedTweaks(_tweaks);
+            _tweaks.CollectionChanged += HandleCollectionChanged;
+        }
+
+        private void OnDestroy() {
+            HandleRemovedTweaks(_tweaks);
+        }
+
+        private void HandleAddedTweaks(IEnumerable tweaks, bool late = true) {
+            var items = (IEnumerable<GameTweak>)tweaks;
+            PerformAction(ActionType.Inject, items);
+            PerformAction(late ? ActionType.LateInitialize : ActionType.Initialize, items);
+        }
+
+        private void HandleRemovedTweaks(IEnumerable tweaks) {
+            PerformAction(ActionType.Dispose, (IEnumerable<GameTweak>)tweaks);
+        }
+
+        private void PerformAction(ActionType action, IEnumerable<GameTweak> tweaks) {
+            foreach (var tweak in tweaks) {
                 if (!tweak.CanBeInstalled) continue;
                 try {
                     switch (action) {
@@ -58,8 +73,24 @@ namespace BeatLeader.Replayer.Tweaking {
                             break;
                     }
                 } catch (Exception ex) {
-                    Plugin.Log.Error($"[TweaksLoader] Error during attempting to perform {action} on {tweak.GetType().Name} tweak! \r\n {ex}");
+                    Plugin.Log.Error($"[TweaksLoader] Error during attempting to perform {action} on {tweak.GetType().Name} tweak!\r\n{ex}");
                 }
+            }
+        }
+
+        private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    HandleAddedTweaks(e.NewItems);
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Remove:
+                    HandleRemovedTweaks(e.OldItems);
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    HandleRemovedTweaks(e.OldItems);
+                    HandleAddedTweaks(e.NewItems);
+                    break;
             }
         }
     }

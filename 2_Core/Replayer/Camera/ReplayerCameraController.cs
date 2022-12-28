@@ -10,7 +10,7 @@ using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.Replayer {
     public class ReplayerCameraController : MonoBehaviour {
-        private static readonly IReadOnlyList<ICameraView> FPFCViews = new List<ICameraView>() {
+        public static readonly IList<ICameraView> FPFCViews = new List<ICameraView>() {
             new StaticCameraView("LeftView", new(-3.70f, 1.70f, 0), new(0, 90, 0)),
             new StaticCameraView("RightView", new(3.70f, 1.70f, 0), new(0, -90, 0)),
             new StaticCameraView("BehindView", new(0f, 1.9f, -2f), Vector3.zero),
@@ -22,7 +22,7 @@ namespace BeatLeader.Replayer {
             },
         };
 
-        private static readonly IReadOnlyList<ICameraView> VRViews = new List<ICameraView>() {
+        public static readonly IList<ICameraView> VRViews = new List<ICameraView>() {
             new StaticCameraView("LeftView", new(-3.70f, 0, -1.10f), new(0, 60, 0)),
             new StaticCameraView("RightView", new(3.70f, 0, -1.10f), new(0, -60, 0)),
             new StaticCameraView("BehindView", new(0, 0, -2), Vector3.zero),

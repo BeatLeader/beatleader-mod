@@ -7,7 +7,7 @@ namespace BeatLeader.Replayer.Binding {
     public class HotkeysHandler : MonoBehaviour {
         [Inject] private readonly DiContainer _container = null!;
 
-        public IReadOnlyList<GameHotkey> Hotkeys { get; } = new List<GameHotkey> {
+        public IList<GameHotkey> Hotkeys { get; } = new List<GameHotkey> {
             new LayoutEditorHotkey(),
             new HideCursorHotkey(),
             new PauseHotkey(),
@@ -29,7 +29,7 @@ namespace BeatLeader.Replayer.Binding {
                     else if (Input.GetKeyUp(item.Key))
                         item.OnKeyUp();
                 } catch (Exception ex) {
-                    Plugin.Log.Error($"[HotkeysHandler] Error during attempting to perform {item.GetType().Name} hotkey! \r\n {ex}");
+                    Plugin.Log.Error($"[HotkeysHandler] Error during attempting to perform {item.GetType().Name} hotkey!\r\n{ex}");
                 }
             }
         }

@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Utils;
+using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     public class ReplayerSettings {
@@ -23,6 +24,7 @@ namespace BeatLeader.Models {
 
         public ReplayerShortcuts Shortcuts { get; set; } = new();
 
+        [JsonIgnore]
         public string? ActualCameraView {
             get => InputUtils.IsInFPFC ? FPFCCameraView : VRCameraView;
             set {

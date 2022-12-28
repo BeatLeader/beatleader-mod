@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using BeatLeader.Models;
 using IPA.Config.Stores;
+using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
@@ -9,7 +10,7 @@ namespace BeatLeader
 {
     [UsedImplicitly]
     internal class ConfigFileData {
-        public static ConfigFileData Instance { get; set; }
+        public static ConfigFileData Instance { get; set; } = null!;
 
         #region ConfigVersion
         
@@ -28,12 +29,14 @@ namespace BeatLeader
 
         #region ScoresContext
 
+        [UseConverter]
         public ScoresContext ScoresContext = ConfigDefaults.ScoresContext;
 
         #endregion
 
         #region LeaderboardTableMask
 
+        [UseConverter]
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
 
         #endregion

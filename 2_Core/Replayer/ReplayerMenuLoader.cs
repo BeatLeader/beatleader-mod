@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
 using BeatLeader.Interop;
@@ -33,13 +34,13 @@ namespace BeatLeader.Replayer {
 
         #region State
 
-        public delegate void StateChangedDelegate(LoaderState state, Score score, Replay replay);
+        public delegate void StateChangedDelegate(LoaderState state, Score? score, Replay? replay);
 
-        private static event StateChangedDelegate StateChangedEvent;
+        private static event StateChangedDelegate? StateChangedEvent;
 
         public static LoaderState State { get; private set; } = LoaderState.Uninitialized;
-        public static Score Score { get; private set; }
-        public static Replay Replay { get; private set; }
+        public static Score? Score { get; private set; }
+        public static Replay? Replay { get; private set; }
 
         public static void AddStateListener(StateChangedDelegate handler) {
             StateChangedEvent += handler;
@@ -89,12 +90,12 @@ namespace BeatLeader.Replayer {
         private void OnScoreWasSelected(Score score) {
             Score = score;
             var storedReplayAvailable = ReplayerCache.TryReadReplay(score.id, out var storedReplay);
-            Replay = storedReplayAvailable ? storedReplay : default;
+            Replay = storedReplayAvailable ? storedReplay : default!;
             SetState(storedReplayAvailable ? LoaderState.ReadyToPlay : LoaderState.DownloadRequired);
         }
 
         private void OnDownloadRequestStateChanged(API.RequestState requestState, Replay result, string failReason) {
-            if (State is LoaderState.Uninitialized || requestState is not API.RequestState.Finished || _downloadReplayScoreId != Score.id) return;
+            if (State is LoaderState.Uninitialized || requestState is not API.RequestState.Finished || _downloadReplayScoreId != Score!.id) return;
 
             if (PluginConfig.EnableReplayCaching) {
                 ReplayerCache.TryWriteReplay(Score.id, result);
@@ -108,10 +109,10 @@ namespace BeatLeader.Replayer {
         private void OnPlayButtonWasPressed() {
             switch (State) {
                 case LoaderState.ReadyToPlay:
-                    StartReplay(Score.player);
+                    StartReplay(Score!.player);
                     break;
                 case LoaderState.DownloadRequired:
-                    _downloadReplayScoreId = Score.id;
+                    _downloadReplayScoreId = Score!.id;
                     SetState(LoaderState.Downloading);
                     DownloadReplayRequest.SendRequest(Score.replay);
                     SendViewReplayRequest.SendRequest(Score.id);
@@ -131,31 +132,30 @@ namespace BeatLeader.Replayer {
         #region StartReplay
 
         [Inject, UsedImplicitly]
-        private readonly ReplayerLauncher _launcher;
+        private readonly ReplayerLauncher _launcher = null!;
 
         [Inject, UsedImplicitly]
-        private readonly GameScenesManager _scenesManager;
+        private readonly GameScenesManager _scenesManager = null!;
 
         [Inject, UsedImplicitly]
-        private readonly IFPFCSettings _fpfcSettings;
+        private readonly IFPFCSettings _fpfcSettings = null!;
 
         private void StartReplay(Player player) { 
-            StartReplayAsync(Replay, player, ConfigFileData.Instance.ReplayerSettings);
+            StartReplayAsync(Replay!, player, ConfigFileData.Instance.ReplayerSettings);
         }
 
         public async void StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
+            settings ??= ConfigFileData.Instance.ReplayerSettings;
             var data = new ReplayLaunchData();
             data.Init(replay, settings, player);
+            await StartReplayAsync(data);
+        }
+
+        public async Task StartReplayAsync(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
 
-            Plugin.Log.Notice("[Loader] Download done, replay data:");
-            string line = string.Empty;
-            line += $"Player: {replay.info.playerName}\r\n";
-            line += $"Song: {replay.info.songName}\r\n";
-            line += $"Difficulty: {replay.info.difficulty}\r\n";
-            line += $"Modifiers: {replay.info.modifiers}\r\n";
-            line += $"Environment: {replay.info.environment}";
-            Plugin.Log.Info(line);
+            Plugin.Log.Notice("[Loader] Download completed!");
+            Plugin.Log.Info(data.ToString());
 
             if (await _launcher.StartReplayAsync(data)) {
                 ScoreSaberInterop.RecordingEnabled = false;

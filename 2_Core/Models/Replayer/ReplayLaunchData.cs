@@ -30,5 +30,16 @@ namespace BeatLeader.Models {
         public void FinishReplay(StandardLevelScenesTransitionSetupDataSO transitionData) {
             ReplayWasFinishedEvent?.Invoke(transitionData, this);
         }
+
+        public override string ToString() {
+            var line = string.Empty;
+            line += "ReplayerMode: ";
+            if (IsBattleRoyale) {
+                line += "BattleRoyale\r\n";
+                line += $"PlayersCount: {Replays.Count}\r\n";
+            } else line += "Default\r\n";
+            line += MainReplay.info.ToString();
+            return line;
+        }
     }
 }

@@ -85,13 +85,13 @@ namespace BeatLeader.Replayer {
             return await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token);
         }
         private Task<RequestResult<EnvironmentInfoSO>> GetEnvironmentByLaunchData(ReplayLaunchData data) {
-            if (data.Replays.Count > 1)
+            if (data.IsBattleRoyale)
                 return Task.FromResult(new RequestResult<EnvironmentInfoSO>(true, null));
             EnvironmentInfoSO? environment = null;
 
             try {
                 if (data.Settings.LoadPlayerEnvironment) {
-                    environment = ReplayDataHelper.GetEnvironmentByName(data.Replays[0].Value.info.environment);
+                    environment = ReplayDataHelper.GetEnvironmentByName(data.MainReplay.info.environment);
                     if (environment == null)
                         Plugin.Log.Error("[Launcher] Failed to parse player environment!");
                 } else if (data.EnvironmentInfo != null) {

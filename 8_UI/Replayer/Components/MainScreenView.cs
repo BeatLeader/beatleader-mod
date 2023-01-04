@@ -63,6 +63,7 @@ namespace BeatLeader.Components {
             _songInfo = Instantiate<HorizontalBeatmapLevelPreview>(transform);
             _toolbar = Instantiate<ToolbarWithSettings>(transform);
             _layoutEditor = Instantiate<LayoutEditor>(transform);
+            _layoutEditor.EditModeChangedEvent += HandleLayoutEditorEditModeChanged;
         }
 
         protected override void OnInitialize() {
@@ -91,6 +92,14 @@ namespace BeatLeader.Components {
             yield return new WaitForEndOfFrame();
             _layoutEditor.MapLayout();
             LayoutBuiltEvent?.Invoke();
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleLayoutEditorEditModeChanged(bool enabled) {
+            _pauseController.LockUnpause = enabled;
         }
 
         #endregion

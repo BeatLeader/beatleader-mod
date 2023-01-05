@@ -3,19 +3,24 @@ using BeatSaberMarkupLanguage.Attributes;
 
 namespace BeatLeader.Components {
     internal class ToolbarWithSettings : EditableElement {
-        [UIValue("settings-modal")] private SettingsModal _settingsModal = null!;
-        [UIValue("toolbar")] private Toolbar _toolbar = null!;
+        [UIValue("settings-modal")] 
+        private SettingsModal _settingsModal = null!;
 
-        private RootContentView _rootContentView = null!;
-        private LayoutEditor? _layoutEditor;
+        [UIValue("toolbar")] 
+        private Toolbar _toolbar = null!;
 
         public override string Name { get; } = "Toolbar";
-        public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
+
+        public override LayoutMap LayoutMap { get; } = new() {
             enabled = true,
             position = new(0.5f, 0)
         };
 
-        protected override void OnInstantiate() {
+        private RootContentView _rootContentView = null!;
+        private LayoutEditor? _layoutEditor;
+
+        protected override void OnInstantiate() {   
+            base.OnInstantiate();
             _settingsModal = Instantiate<SettingsModal>(transform);
             _toolbar = Instantiate<Toolbar>(transform);
             _rootContentView = InstantiateOnSceneRoot<RootContentView>();
@@ -36,10 +41,10 @@ namespace BeatLeader.Components {
             IReplayWatermark? watermark = null,
             LayoutEditor? layoutEditor = null) {
             if (_layoutEditor != null)
-                _layoutEditor.EditModeChangedEvent -= HandleEditModeChanged;
+                _layoutEditor.EditModeStateWasChangedEvent -= HandleEditModeChanged;
 
             if ((_layoutEditor = layoutEditor) != null)
-                _layoutEditor.EditModeChangedEvent += HandleEditModeChanged;
+                _layoutEditor.EditModeStateWasChangedEvent += HandleEditModeChanged;
 
             _rootContentView.Setup(timeController,
                 pauseController, playersManager, cameraController,

@@ -5,7 +5,7 @@ using System.Collections;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class MainScreenView : ReeUIComponentV2 {
+    internal class MainScreenPanel : ReeUIComponentV2 {
         #region Events
 
         public event Action? LayoutBuiltEvent;
@@ -13,6 +13,9 @@ namespace BeatLeader.Components {
         #endregion
 
         #region UI Components
+
+        [UIValue("layout-editor")]
+        public LayoutEditor LayoutEditor { get; private set; } = null!;
 
         [UIValue("song-info")]
         private HorizontalBeatmapLevelPreview _songInfo = null!;
@@ -22,9 +25,6 @@ namespace BeatLeader.Components {
 
         [UIValue("toolbar")]
         private ToolbarWithSettings _toolbar = null!;
-
-        [UIValue("layout-editor")] 
-        private LayoutEditor _layoutEditor = null!;
 
         [UIComponent("container-group")]
         private readonly RectTransform _containerRect = null!;
@@ -49,7 +49,8 @@ namespace BeatLeader.Components {
             _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap!.level);
             _toolbar.Setup(beatmapTimeController, pauseController,
                 finishController, playersManager, cameraController,
-                launchData, watermark, _layoutEditor);
+                launchData, watermark, LayoutEditor);
+            LayoutEditor.AntiSnapKeyCode = launchData.Settings.Shortcuts.LayoutEditorAntiSnapHotkey;
 
             if (!launchData.IsBattleRoyale) {
                 var player = launchData.Replays[0].Key;
@@ -62,19 +63,17 @@ namespace BeatLeader.Components {
             _playerInfo = Instantiate<HorizontalMiniProfile>(transform);
             _songInfo = Instantiate<HorizontalBeatmapLevelPreview>(transform);
             _toolbar = Instantiate<ToolbarWithSettings>(transform);
-            _layoutEditor = Instantiate<LayoutEditor>(transform);
-            _layoutEditor.EditModeChangedEvent += HandleLayoutEditorEditModeChanged;
+            LayoutEditor = Instantiate<LayoutEditor>(transform);
+            LayoutEditor.EditModeStateWasChangedEvent += HandleLayoutEditorStateChanged;
         }
 
         protected override void OnInitialize() {
             var configInstance = LayoutEditorConfig.Instance;
-            _layoutEditor.gridCellSize = configInstance.CellSize;
-            _layoutEditor.gridLineThickness = configInstance.LineThickness;
-            _layoutEditor.layoutMapsSource = configInstance;
+            LayoutEditor.layoutGridModel = configInstance.LayoutGridModel;
+            LayoutEditor.layoutMapsSource = configInstance;
 
-            _layoutEditor.Setup(_containerRect);
-            _layoutEditor.Add(_playerInfo, _toolbar, _songInfo);
-
+            LayoutEditor.Setup(_containerRect);
+            LayoutEditor.Add(_playerInfo, _toolbar, _songInfo);
             CoroutinesHandler.instance.StartCoroutine(MapLayoutCoroutine());
         }
 
@@ -82,15 +81,9 @@ namespace BeatLeader.Components {
 
         #region Layout
 
-        public void OpenLayoutEditor() {
-            if (!_isInitialized) return;
-            _layoutEditor.SetEditorEnabled(true);
-            _pauseController.Pause();
-        }
-
-        private IEnumerator MapLayoutCoroutine() {
+        public IEnumerator MapLayoutCoroutine() {
             yield return new WaitForEndOfFrame();
-            _layoutEditor.MapLayout();
+            LayoutEditor.ForceMapLayout();
             LayoutBuiltEvent?.Invoke();
         }
 
@@ -98,7 +91,7 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandleLayoutEditorEditModeChanged(bool enabled) {
+        private void HandleLayoutEditorStateChanged(bool enabled) {
             _pauseController.LockUnpause = enabled;
         }
 

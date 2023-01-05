@@ -1,11 +1,11 @@
 ﻿namespace BeatLeader.Models {
-    internal struct LayoutMapData {
+    internal struct LayoutMap {
         public SerializableVector2 position;
         public SerializableVector2 anchor;
         public int layer;
         public bool enabled;
 
-        public LayoutMapData CopyWith(
+        public LayoutMap CopyWith(
             SerializableVector2? position = null,
             SerializableVector2? anchor = null, 
             int? layer = null,

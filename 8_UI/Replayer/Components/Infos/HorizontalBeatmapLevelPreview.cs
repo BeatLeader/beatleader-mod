@@ -7,7 +7,8 @@ namespace BeatLeader.Components {
     internal class HorizontalBeatmapLevelPreview : EditableElement {
         #region Components
 
-        [UIComponent("song-preview-image")] private readonly Image _songPreviewImage;
+        [UIComponent("song-preview-image")]
+        private readonly Image _songPreviewImage;
 
         #endregion
 
@@ -34,8 +35,9 @@ namespace BeatLeader.Components {
 
         #region Editable
 
-        public override string Name => "Beatmap Preview";
-        public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
+        public override string Name { get; } = "Beatmap Preview";
+
+        public override LayoutMap LayoutMap { get; } = new() {
             enabled = true,
             position = new(0f, 1f),
             anchor = new(0f, 1f)

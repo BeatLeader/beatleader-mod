@@ -15,16 +15,16 @@ namespace BeatLeader.Components {
         [UIValue("layer")]
         public int Layer => Element?.Layer ?? 0;
 
-        public EditableElement Element { get; private set; }
-        public TableCell Cell { get; private set; }
+        public EditableElement? Element { get; private set; }
+        public TableCell? Cell { get; private set; }
 
         #region Setup
 
         [UIComponent("bg-image")]
-        private readonly BetterImage _bgImage;
+        private readonly BetterImage _bgImage = null!;
 
         [UIValue("visibility-toggle")]
-        private ToggleButton _visibilityToggle;
+        private ToggleButton _visibilityToggle = null!;
 
         public void Setup(EditableElement element) {
             if (Element != null)
@@ -51,7 +51,7 @@ namespace BeatLeader.Components {
 
         private void RefreshVisibilityToggle() {
             if (Element == null) return;
-            _visibilityToggle.Toggle(Element.DefaultLayoutMap.enabled);
+            _visibilityToggle.Toggle(Element.TempLayoutMap.enabled);
         }
 
         public void RefreshTexts() {
@@ -68,8 +68,8 @@ namespace BeatLeader.Components {
         }
 
         private void HandleToggleStateChanged(bool state) {
-            Element.tempLayoutMap.enabled = state;
-            Element.SetWrapperPseudoState(state);
+            Element!.TempLayoutMap.enabled = state;
+            Element.WrapperPseudoState = state;
         }
 
         private void HandleElementPropertyChanged(object sender, PropertyChangedEventArgs e) {

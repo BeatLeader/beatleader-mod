@@ -1,8 +1,8 @@
 ﻿using BeatLeader.Components;
-using System.Collections.Generic;
 
 namespace BeatLeader.Models {
     internal interface ILayoutMapsSource {
-        IDictionary<string, LayoutMapData> Maps { get; }
+        bool TryRequestLayoutMap(EditableElement element, out LayoutMap map);
+        void OverrideLayoutMap(EditableElement element, LayoutMap map);
     }
 }

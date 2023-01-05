@@ -1,12 +1,10 @@
 ﻿using IPA.Config.Stores.Attributes;
 using UnityEngine;
 
-namespace BeatLeader.Models
-{
-    public class ReplayerShortcuts
-    {
+namespace BeatLeader.Models {
+    public class ReplayerShortcuts {
         [UseConverter]
-        public KeyCode LayoutEditorHotkey { get; set; }
+        public KeyCode LayoutEditorPartialModeHotkey { get; set; }
 
         [UseConverter]
         public KeyCode HideCursorHotkey { get; set; }
@@ -19,5 +17,8 @@ namespace BeatLeader.Models
 
         [UseConverter]
         public KeyCode RewindBackwardHotkey { get; set; }
+
+        [UseConverter]
+        public KeyCode LayoutEditorAntiSnapHotkey { get; set; }
     }
 }

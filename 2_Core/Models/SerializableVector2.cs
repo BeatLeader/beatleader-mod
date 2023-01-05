@@ -1,5 +1,6 @@
 ﻿using UVector2 = UnityEngine.Vector2;
 using UVector3 = UnityEngine.Vector3;
+using System;
 
 namespace BeatLeader.Models {
     internal struct SerializableVector2 {
@@ -12,11 +13,21 @@ namespace BeatLeader.Models {
             this.y = y;
         }
 
-        public static implicit operator UVector3(SerializableVector2 vector) => new(vector.x, vector.y);
-        public static implicit operator UVector2(SerializableVector2 vector) => new(vector.x, vector.y);
-        public static implicit operator SerializableVector2(UVector2 vector) => new(vector);
+        public float this[int idx] {
+            get {
+                return idx switch {
+                    0 => x,
+                    1 => y,
+                    _ => throw new IndexOutOfRangeException()
+                };
+            }
+        }
 
         public float x;
         public float y;
+
+        public static implicit operator UVector3(SerializableVector2 vector) => new(vector.x, vector.y);
+        public static implicit operator UVector2(SerializableVector2 vector) => new(vector.x, vector.y);
+        public static implicit operator SerializableVector2(UVector2 vector) => new(vector);
     }
 }

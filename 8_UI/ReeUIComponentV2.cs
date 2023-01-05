@@ -146,7 +146,13 @@ namespace BeatLeader {
         private void ParseSelfIfNeeded() {
             if (_state != State.Uninitialized) return;
             _state = State.Parsing;
-            PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
+            try {
+                Debug.Log("Parsing " + GetType().Name);
+                PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
+            } catch (Exception e) {
+                Debug.Log(e);
+                return;
+            }
             Content = Transform.GetChild(0);
             _state = State.Parsed;
         }

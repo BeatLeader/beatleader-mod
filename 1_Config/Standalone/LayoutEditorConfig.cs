@@ -1,11 +1,17 @@
-﻿using BeatLeader.Models;
+﻿using BeatLeader.Components;
+using BeatLeader.Models;
 using System.Collections.Generic;
 
 namespace BeatLeader {
     internal class LayoutEditorConfig : SerializableSingleton<LayoutEditorConfig>, ILayoutMapsSource {
-        public IDictionary<string, LayoutMapData> Maps { get; set; } = new Dictionary<string, LayoutMapData>();
+        public LayoutGridModel LayoutGridModel { get; set; } = new LayoutGridModel(5, 0.4f);
+        public IDictionary<string, LayoutMap> LayoutMaps { get; set; } = new Dictionary<string, LayoutMap>();
 
-        public int LineThickness { get; set; } = 1;
-        public int CellSize { get; set; } = 7;
+        public bool TryRequestLayoutMap(EditableElement element, out LayoutMap map) {
+            return LayoutMaps.TryGetValue(element.Name, out map);
+        }
+        public void OverrideLayoutMap(EditableElement element, LayoutMap map) {
+            LayoutMaps[element.Name] = map;
+        }
     }
 }

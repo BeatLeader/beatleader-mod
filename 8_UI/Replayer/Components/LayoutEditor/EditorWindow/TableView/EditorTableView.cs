@@ -5,6 +5,7 @@ using HMUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -39,6 +40,7 @@ namespace BeatLeader.Components {
         private readonly List<EditorTableCell> _models = new();
 
         public void ReloadTable() {
+            Debug.Log("Reload table");
             _models.ForEach(x => x.RefreshTexts());
             _models.Sort(_comparer);
             _tableView.ReloadData();
@@ -54,7 +56,7 @@ namespace BeatLeader.Components {
         public void Add(EditableElement element) {
             var cell = InstantiateOnSceneRoot<EditorTableCell>();
             cell.Setup(element);
-            cell.ManualInit(null);
+            cell.ManualInit(null!);
             _models.Add(cell);
         }
 
@@ -67,7 +69,7 @@ namespace BeatLeader.Components {
         private void RefreshLayers() {
             foreach (var item in _models) {
                 var editable = item.Element;
-                editable.tempLayoutMap.layer = editable.Layer;
+                editable.TempLayoutMap.layer = editable.Layer;
             }
         }
 
@@ -76,7 +78,7 @@ namespace BeatLeader.Components {
             _tableView.SetDataSource(this, false);
             _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
             var list = Content.Find("BSMLCustomList").gameObject;
-            list.GetComponent<BaseRaycaster>()?.TryDestroy();
+            list.GetComponent<BaseRaycaster>().TryDestroy();
             list.AddComponent<GraphicRaycaster>();
         }
 

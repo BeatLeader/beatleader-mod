@@ -57,16 +57,16 @@ namespace BeatLeader.Components {
 
         private void ApplyHandleTo(GameObject go) {
             if (_layoutHandle != null) {
-                _layoutHandle.DragEvent -= OnDrag;
-                _layoutHandle.BeginDragEvent -= OnBeginDrag;
-                _layoutHandle.EndDragEvent -= OnEndDrag;
+                _layoutHandle.HandleDraggingEvent -= OnDrag;
+                _layoutHandle.HandleWasGrabbedEvent-= OnBeginDrag;
+                _layoutHandle.HandleWasReleasedEvent -= OnEndDrag;
             }
-            _layoutHandle?.TryDestroy();
+            _layoutHandle.TryDestroy();
             _layoutHandle = go.AddComponent<LayoutHandle>();
 
-            _layoutHandle.DragEvent += OnDrag;
-            _layoutHandle.BeginDragEvent += OnBeginDrag;
-            _layoutHandle.EndDragEvent += OnEndDrag;
+            _layoutHandle.HandleDraggingEvent += OnDrag;
+            _layoutHandle.HandleWasGrabbedEvent += OnBeginDrag;
+            _layoutHandle.HandleWasReleasedEvent += OnEndDrag;
         }
         private bool TransformMousePos(out Vector2 transformedMousePos) {
             return RectTransformUtility.ScreenPointToLocalPointInRectangle(

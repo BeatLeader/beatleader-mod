@@ -49,11 +49,12 @@ namespace BeatLeader {
             VRCameraView = "BehindView",
 
             Shortcuts = new() {
-                LayoutEditorHotkey = KeyCode.H,
+                LayoutEditorPartialModeHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,
                 RewindForwardHotkey = KeyCode.RightArrow,
                 RewindBackwardHotkey = KeyCode.LeftArrow,
+                LayoutEditorAntiSnapHotkey = KeyCode.LeftShift,
             }
         };
 

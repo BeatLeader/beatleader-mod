@@ -5,8 +5,11 @@ namespace BeatLeader.Components {
     internal class HorizontalMiniProfile : EditableElement {
         #region Components
 
-        [UIValue("player-avatar")] private PlayerAvatar _playerAvatar;
-        [UIValue("country-flag")] private CountryFlag _playerCountryFlag;
+        [UIValue("player-avatar")] 
+        private PlayerAvatar _playerAvatar;
+
+        [UIValue("country-flag")] 
+        private CountryFlag _playerCountryFlag;
 
         #endregion
 
@@ -40,8 +43,10 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Editable
-        public override string Name => "Mini Profile";
-        public override LayoutMapData DefaultLayoutMap { get; protected set; } = new() {
+
+        public override string Name { get; } = "Mini Profile";
+
+        public override LayoutMap LayoutMap { get; } = new() {
             enabled = true,
             position = new(0f, 0.85f),
             anchor = new(0f, 0f)
@@ -65,6 +70,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInstantiate() {
+            base.OnInstantiate();
             _playerAvatar = Instantiate<PlayerAvatar>(transform);
             _playerCountryFlag = Instantiate<CountryFlag>(transform);
         }

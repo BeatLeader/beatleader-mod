@@ -4,62 +4,62 @@ using BeatSaberMarkupLanguage.Attributes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal interface ILayoutEditor {
-        ILayoutGridModel LayoutGrid { get; }
-        RectTransform EditorZone { get; }
+    internal class LayoutEditor : ReeUIComponentV2 {
+        public RectTransform EditorZone { get; private set; } = null!;
+        public bool PartialDisplayEnabled { get; private set; }
+        public bool EditorEnabled { get; private set; }
 
-        Vector2 Map(Vector2 pos, Vector2 size, Vector2 anchor);
-        void SetEditorEnabled(bool enabled);
-        void MapLayout();
-    }
+        public event Action<bool>? PartialDisplayModeStateWasChangedEvent;
+        public event Action<bool>? EditModeStateWasChangedEvent;
 
-    internal class LayoutEditor : ReeUIComponentV2, ILayoutEditor {
-        #region ILayoutEditor
-
-        public bool EditModeEnabled { get; private set; }
-        public RectTransform EditorZone { get; private set; }
-        public ILayoutGridModel LayoutGrid => _layoutGrid;
-
-        #endregion
-
-        #region Events
-
-        public event Action<bool> EditModeChangedEvent;
-
-        #endregion
+        public KeyCode AntiSnapKeyCode = KeyCode.LeftShift;
+        public ILayoutMapsSource? layoutMapsSource;
+        public ILayoutGridModel? layoutGridModel;
 
         #region Setup
 
-        public ILayoutMapsSource? layoutMapsSource;
-
-        private readonly List<EditableElement> _editableElements = new();
+        private readonly Dictionary<EditableElement, LayoutMap> _editablesWithMaps = new();
         private EditableElement? _selectedElement;
         private bool _wasApplied;
 
-        public void SetEditorEnabled(bool enabled) {
-            if (EditModeEnabled == enabled || EditorZone == null) return;
-            foreach (var element in _editableElements) {
-                if (enabled) {
-                    element.tempLayoutMap = element.DefaultLayoutMap;
-                    element.State = enabled;
-                } else {
-                    element.ApplyMap(_wasApplied ? element.tempLayoutMap : element.DefaultLayoutMap);
+        public void SetEnabled(bool enabled = true) {
+            if (EditorEnabled == enabled || PartialDisplayEnabled || EditorZone == null) return;
+            foreach (var pair in _editablesWithMaps.ToList()) {
+                var element = pair.Key;
+                if (_wasApplied && !enabled) {
+                    var map = element.TempLayoutMap;
+                    _editablesWithMaps[element] = map;
+                    layoutMapsSource?.OverrideLayoutMap(element, map);
+                } else if (enabled || !_wasApplied) {
+                    var map = pair.Value;
+                    element.TempLayoutMap = map;
+                    MapElement(element, map);
                 }
-                element.Wrapper.State = enabled;
+                element.WrapperSelectionState = false;
+                element.WrapperState = enabled;
             }
             if (enabled) {
                 ReloadTable();
                 RefreshGrid();
-            } else 
-                SaveLayout();
+            }
             SetWindowEnabled(enabled);
             SetGridEnabled(enabled);
-            EditModeEnabled = enabled;
+            EditorEnabled = enabled;
             _wasApplied = false;
-            EditModeChangedEvent?.Invoke(enabled);
+            EditModeStateWasChangedEvent?.Invoke(enabled);
+        }
+        public void SetPartialModeEnabled(bool enabled = true) {
+            if (EditorEnabled) return;
+            PartialDisplayEnabled = enabled;
+            foreach (var pair in _editablesWithMaps) {
+                var element = pair.Key;
+                element.Root.gameObject.SetActive(!enabled || pair.Value.enabled);
+            }
+            PartialDisplayModeStateWasChangedEvent?.Invoke(enabled);
         }
 
         public void Setup(RectTransform zoneRect) {
@@ -80,47 +80,62 @@ namespace BeatLeader.Components {
         }
 
         public void Add(EditableElement element) {
-            if (EditModeEnabled || !IsParsed) return;
-            _editableElements.Add(element);
+            if (EditorEnabled && !_editablesWithMaps.ContainsKey(element)) return;
+            //element.Root.SetParent(EditorZone);
+            SubscribeEditable(element);
             _tableView.Add(element);
-            element.ElementPositionChangedEvent += HandleEditablePositionChanged;
-            element.ElementSelectedEvent += HandleEditableSelected;
-            element.Setup(this);
+            var map = GetElementMap(element);
+            _editablesWithMaps.TryAdd(element, map);
         }
 
         public void Remove(EditableElement element) {
-            if (EditModeEnabled || !IsParsed || !_editableElements.Remove(element)) return;
+            if (!_editablesWithMaps.Remove(element)) return;
+            UnsubscribeEditable(element);
             _tableView.Remove(element);
-            element.ElementPositionChangedEvent -= HandleEditablePositionChanged;
-            element.ElementSelectedEvent -= HandleEditableSelected;
-            element.Setup(this);
+            //element.Root.SetParent(null);
+        }
+
+        private void SubscribeEditable(EditableElement element) {
+            element.ElementWasSelectedEvent += HandleEditableWasSelected;
+            element.ElementWasGrabbedEvent += HandleEditableWasGrabbed;
+            element.ElementWasReleasedEvent += HandleEditableWasReleased;
+            element.ElementDraggingEvent += HandleEditableDragging;
+        }
+        private void UnsubscribeEditable(EditableElement element) {
+            element.ElementWasSelectedEvent -= HandleEditableWasSelected;
+            element.ElementWasGrabbedEvent -= HandleEditableWasGrabbed;
+            element.ElementWasReleasedEvent -= HandleEditableWasReleased;
+            element.ElementDraggingEvent -= HandleEditableDragging;
         }
 
         #endregion
 
         #region Mapping
 
-        public Vector2 Map(Vector2 pos, Vector2 size, Vector2 anchor) {
-            pos = MathUtils.ToAbsPos(pos, EditorZone.rect.size);
-            return LayoutTool.MapPosition(pos, size, anchor, _layoutGrid);
-        }
-
-        public void MapLayout() {
-            if (EditModeEnabled) return;
-            foreach (var editable in _editableElements) {
-                var map = new LayoutMapData();
-                if (!layoutMapsSource?.Maps.TryGetValue(editable.Name, out map) ?? true) {
-                    map = editable.DefaultLayoutMap;
-                }
-                editable.ApplyMap(map);
+        public void ForceMapLayout() {
+            if (EditorEnabled) return;
+            foreach (var pair in _editablesWithMaps) {
+                MapElement(pair.Key, pair.Value);
             }
         }
 
-        private void SaveLayout() {
-            if (layoutMapsSource == null) return;
-            foreach (var editable in _editableElements) {
-                layoutMapsSource.Maps[editable.Name] = editable.DefaultLayoutMap;
+        private void MapElement(EditableElement element, LayoutMap map) {
+            var content = element.Root;
+            content.localPosition = LayoutMapper.MapClamped(
+                map.position, content.rect.size / 2, EditorZone.rect.size);
+            content.SetSiblingIndex(map.layer);
+            element.State = map.enabled;
+        }
+
+        private LayoutMap GetElementMap(EditableElement element) {
+            if (_editablesWithMaps.TryGetValue(element, out var map)) {
+                return map;
             }
+            if (!(layoutMapsSource?.TryRequestLayoutMap(element, out map) ?? false)) {
+                map = element.LayoutMap;
+            }
+            _editablesWithMaps[element] = map;
+            return map;
         }
 
         #endregion
@@ -140,19 +155,15 @@ namespace BeatLeader.Components {
         private EditableController _editController = null!;
 
         private HandleHighlighter _handleHighlighter = null!;
-        private GridLayoutWindow _layoutWindow = null!;
+        private BoundedLayoutWindow _layoutWindow = null!;
         private LayoutGrid _layoutGrid = null!;
 
         #endregion
 
-        #region UI Setup
+        #region UI Window
 
         private void SetWindowEnabled(bool value) {
             Content.gameObject.SetActive(value);
-        }
-
-        private void SetGridEnabled(bool value) {
-            _layoutGrid.enabled = value;
         }
 
         protected override void OnInstantiate() {
@@ -163,9 +174,8 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _layoutWindow = _windowHandle.gameObject.AddComponent<GridLayoutWindow>();
+            _layoutWindow = _windowHandle.gameObject.AddComponent<BoundedLayoutWindow>();
             _layoutWindow.Setup(_window, _windowHandle);
-            _layoutWindow.adjustByGrid = false;
             _handleHighlighter = _windowHandle.gameObject.AddComponent<HandleHighlighter>();
             _handleHighlighter.Setup(Color.cyan, Color.yellow);
             SetWindowEnabled(false);
@@ -175,19 +185,20 @@ namespace BeatLeader.Components {
 
         #region UI Grid
 
-        public int gridCellSize;
-        public int gridLineThickness;
-
         private void SetupGrid() {
-            _layoutGrid?.TryDestroy();
+            _layoutGrid.TryDestroy();
             _layoutGrid = EditorZone.gameObject.AddComponent<LayoutGrid>();
-            _layoutWindow.gridModel = _layoutGrid;
+            _layoutWindow.bounds = _layoutGrid.Size;
             RefreshGrid();
         }
 
+        private void SetGridEnabled(bool value) {
+            _layoutGrid.enabled = value;
+        }
+
         private void RefreshGrid() {
-            _layoutGrid.LineThickness = gridLineThickness;
-            _layoutGrid.CellSize = gridCellSize;
+            _layoutGrid.LineThickness = layoutGridModel?.LineThickness ?? _layoutGrid.LineThickness;
+            _layoutGrid.CellSize = layoutGridModel?.CellSize ?? _layoutGrid.CellSize;
             CoroutinesHandler.instance.StartCoroutine(RefreshGridCoroutine());
         }
 
@@ -202,7 +213,7 @@ namespace BeatLeader.Components {
 
         private void ReloadTable() {
             _tableView.ReloadTable();
-            SelectTableCell(_selectedElement);
+            SelectTableCell(_selectedElement!);
         }
 
         private void SelectTableCell(EditableElement element) {
@@ -218,29 +229,46 @@ namespace BeatLeader.Components {
         [UIAction("apply-button-clicked")]
         private void HandleApplyButtonClicked() {
             _wasApplied = true;
-            SetEditorEnabled(false);
+            SetEnabled(false);
         }
 
         [UIAction("cancel-button-clicked")]
         private void HandleCancelButtonClicked() {
-            SetEditorEnabled(false);
+            SetEnabled(false);
         }
 
         private void HandleCellSelected(EditorTableCell model) {
-            HandleEditableSelected(model.Element);
+            HandleEditableWasSelected(model.Element!);
         }
 
-        private void HandleEditablePositionChanged(EditableElement element) {
-            element.tempLayoutMap.position = MathUtils.ToRelPos(element.LastWindowCursorPos, EditorZone.rect.size);
-        }
-
-        private void HandleEditableSelected(EditableElement element) {
-            if (_selectedElement != null) {
-                _selectedElement.Wrapper.BgColor = GlassWrapper.DefaultColor;
+        private void HandleEditableWasSelected(EditableElement element) {
+            if (_selectedElement != element && _selectedElement != null) {
+                _selectedElement!.WrapperSelectionState = false;
             }
+            _selectedElement = element;
+            _selectedElement.WrapperSelectionState = true;
             SelectTableCell(element);
             _editController.SetEditable(element);
-            element.Wrapper.BgColor = GlassWrapper.SelectedColor;
+        }
+
+        private void HandleEditableDragging(Vector2 position) {
+            var content = _selectedElement!.Root;
+            var contentSize = content.rect.size;
+            if (!Input.GetKey(AntiSnapKeyCode)) {
+                position = LayoutMapper.MapByGridUnclamped(position,
+                    contentSize, _selectedElement.TempLayoutMap.anchor, _layoutGrid!);
+            }
+            content.localPosition = LayoutMapper
+                .ClampInZone(position, contentSize, _layoutGrid.Size);
+        }
+
+        private void HandleEditableWasReleased() {
+            _selectedElement!.TempLayoutMap.position = MathUtils.ToRelPos(
+                _selectedElement!.Root.localPosition, EditorZone.rect.size);
+        }
+
+        private void HandleEditableWasGrabbed() {
+
         }
 
         #endregion

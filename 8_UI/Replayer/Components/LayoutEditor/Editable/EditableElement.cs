@@ -1,104 +1,114 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.Utils;
 using System;
 using UnityEngine;
 
 namespace BeatLeader.Components {
     internal abstract class EditableElement : ReeUIComponentV2 {
-        public virtual LayoutMapData DefaultLayoutMap { get; protected set; }
+        public static readonly Color IdlingColor = new(0, 1, 1);
+        public static readonly Color SelectedColor = new(1, 1, 0);
+        public static readonly Color TextColor = Color.black;
 
+        public virtual RectTransform Root => _container;
         public abstract string Name { get; }
-        public bool State {
-            get => Content.gameObject.activeSelf;
-            set {
-                Content.gameObject.SetActive(value);
-                NotifyPropertyChanged(nameof(State));
-            }
-        }
+        public virtual LayoutMap LayoutMap { get; }
+
+        public LayoutMap TempLayoutMap;
         public int Layer {
-            get => Content.GetSiblingIndex();
+            get => Root.GetSiblingIndex();
             set {
-                Content.SetSiblingIndex(value);
+                TempLayoutMap.layer = value;
+                Root.SetSiblingIndex(value);
                 NotifyPropertyChanged(nameof(Layer));
             }
         }
-        public int TotalLayersCount {
-            get => Content.parent.childCount;
+        public bool State {
+            get => TempLayoutMap.enabled;
+            set {
+                TempLayoutMap.enabled = value;
+                NotifyPropertyChanged(nameof(State));
+            }
         }
 
-        public Vector2 LastWindowCursorPos {
-            get => _wrapperWindow.LastCursorPos;
+        public bool WrapperPseudoState {
+            set {
+                var alpha = value ? 0.8f : 0.6f;
+                _idlingColor.SetAlpha(alpha);
+                _selectedColor.SetAlpha(alpha);
+                WrapperSelectionState = _selectionState;
+                NotifyPropertyChanged(nameof(WrapperPseudoState));
+            }
         }
-        public Vector2 Position {
-            get => Content.localPosition;
-            private set => Content.localPosition = value;
+        public bool WrapperSelectionState {
+            get => _selectionState;
+            set {
+                _wrapper.Color = (_selectionState = value) ? _selectedColor : _idlingColor;
+                NotifyPropertyChanged(nameof(WrapperSelectionState));
+            }
         }
-        public Vector2 Size {
-            get => Content.GetComponent<RectTransform>().rect.size;
-        }
-        public Vector2 GridAnchor {
-            get => _wrapperWindow.anchor;
-            set => _wrapperWindow.anchor = value;
-        }
-
-        protected virtual RectTransform WrapperContainer {
-            get => _contentRect;
-        }
-        public GlassWrapper Wrapper { get; private set; }
-
-        public event Action<EditableElement> ElementPositionChangedEvent;
-        public event Action<EditableElement> ElementSelectedEvent;
-
-        public LayoutMapData tempLayoutMap;
-
-        private ILayoutEditor _editor;
-        private GridLayoutWindow _wrapperWindow;
-        private RectTransform _contentRect;
-        private bool _isInitialized;
-
-        public void Setup(ILayoutEditor editor) {
-            if (!IsParsed) return;
-            RefreshWrapper();
-            _editor = editor;
-            _wrapperWindow.gridModel = _editor.LayoutGrid;
-            _isInitialized = true;
-        }
-        public void ApplyMap(LayoutMapData layoutMap) {
-            if (!_isInitialized) return;
-            DefaultLayoutMap = layoutMap;
-            Position = _editor.Map(layoutMap.position, Size, layoutMap.anchor);
-            Layer = layoutMap.layer;
-            State = layoutMap.enabled;
-            SetWrapperPseudoState(layoutMap.enabled);
-        }
-        public void RefreshWrapper() {
-            Wrapper.ComponentName = Name;
-        }
-        public void SetWrapperPseudoState(bool state) {
-            Wrapper.BgFixedOpacity = state ? GlassWrapper.EnabledOpacity : GlassWrapper.DisabledOpacity;
+        public bool WrapperState {
+            get => _wrapper.IsEnabled;
+            set {
+                _wrapper.SetEnabled(value);
+                NotifyPropertyChanged(nameof(WrapperState));
+            }
         }
 
-        private void HandleWrapperStateChanged(bool state) {
-            _wrapperWindow.enabled = state;
-        }
-        private void HandleWrapperSelected() {
-            ElementSelectedEvent?.Invoke(this);
-        }
-        private void HandleWindowPositionChanged(Vector2 position) {
-            ElementPositionChangedEvent?.Invoke(this);
+        public event Action<EditableElement>? ElementWasSelectedEvent;
+        public event Action<Vector2>? ElementDraggingEvent;
+        public event Action? ElementWasGrabbedEvent;
+        public event Action? ElementWasReleasedEvent;
+
+        private RectTransform _container = null!;
+        private GlassWrapper _wrapper = null!;
+        private LayoutHandle _handle = null!;
+        private Color _idlingColor = IdlingColor;
+        private Color _selectedColor = SelectedColor;
+        private bool _selectionState;
+
+        #region Setup
+
+        protected override void OnInstantiate() {
+            _wrapper = new GameObject("Wrapper").AddComponent<GlassWrapper>();
+            _wrapper.WrapperWasSelectedEvent += HandleWrapperWasSelected;
+            _handle = _wrapper.gameObject.AddComponent<LayoutHandle>();
+            _handle.HandleWasGrabbedEvent += HandleHandleWasGrabbedEvent;
+            _handle.HandleWasReleasedEvent += HandleHandleWasReleasedEvent;
+            _handle.HandleDraggingEvent += HandleHandleDraggingEvent;
         }
 
         protected override void OnInitialize() {
-            _contentRect = Content.GetComponent<RectTransform>();
-            _wrapperWindow = gameObject.AddComponent<GridLayoutWindow>();
-            _wrapperWindow.Target = Content.GetComponent<RectTransform>();
-            _wrapperWindow.WindowPositionChangedEvent += HandleWindowPositionChanged;
-
-            Wrapper = new GameObject(Name.Replace(" ", "") + "Wrapper").AddComponent<GlassWrapper>();
-            Wrapper.container = _wrapperWindow.Handle = WrapperContainer;
-            Wrapper.WrapperStateChangedEvent += HandleWrapperStateChanged;
-            Wrapper.WrapperSelectedEvent += HandleWrapperSelected;
-            HandleWrapperStateChanged(false);
-            RefreshWrapper();
+            _wrapper.container = _container = Content
+                .gameObject.GetOrAddComponent<RectTransform>();
+            _wrapper.ComponentName = Name;
         }
+
+        protected override void OnDispose() {
+            _wrapper?.gameObject.TryDestroy();
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleWrapperWasSelected() {
+            ElementWasSelectedEvent?.Invoke(this);
+        }
+
+        private void HandleHandleWasGrabbedEvent() {
+            ElementWasGrabbedEvent?.Invoke();
+        }
+
+        private void HandleHandleWasReleasedEvent() {
+            ElementWasReleasedEvent?.Invoke();
+        }
+
+        private void HandleHandleDraggingEvent() {
+            var parent = _container.parent.GetComponent<RectTransform>();
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, Input.mousePosition, null, out var pos);
+            ElementDraggingEvent?.Invoke(pos);
+        }
+
+        #endregion
     }
 }

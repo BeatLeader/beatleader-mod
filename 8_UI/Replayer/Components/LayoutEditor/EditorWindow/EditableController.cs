@@ -8,39 +8,40 @@ namespace BeatLeader.Components {
         #region UI Components
 
         [UIComponent("up-button")]
-        private readonly Button _upButton;
+        private readonly Button _upButton = null!;
 
         [UIComponent("down-button")]
-        private readonly Button _downButton;
+        private readonly Button _downButton = null!;
 
         [UIValue("anchor-selector")]
-        private AnchorSelector _anchorSelector;
+        private AnchorSelector _anchorSelector = null!;
 
         #endregion
 
         #region Layers
 
-        private bool CanTurnUp => ElementLayer < _selectedElement?.TotalLayersCount - 1;
+        private bool CanTurnUp => ElementLayer < TotalLayersCount - 1;
         private bool CanTurnDown => ElementLayer > 0;
 
         private int ElementLayer => _selectedElement?.Layer ?? -1;
+        private int TotalLayersCount => _selectedElement?.Root.parent.childCount ?? 0;
 
         #endregion
 
         #region Events
 
-        public event Action TableReloadRequestedEvent;
+        public event Action? TableReloadRequestedEvent;
 
         #endregion
 
         #region Setup
 
-        private EditableElement _selectedElement;
+        private EditableElement? _selectedElement;
 
         public void SetEditable(EditableElement element) {
             _selectedElement = element;
             RefreshButtons();
-            _anchorSelector.Select(element.tempLayoutMap.anchor);
+            _anchorSelector.Select(element.TempLayoutMap.anchor);
         }
 
         public void RefreshButtons() {
@@ -63,19 +64,18 @@ namespace BeatLeader.Components {
 
         private void SetAnchor(Vector2 anchor) {
             if (_selectedElement == null) return;
-            _selectedElement.tempLayoutMap.anchor = anchor;
-            _selectedElement.GridAnchor = anchor;
+            _selectedElement.TempLayoutMap.anchor = anchor;
         }
 
         private void TurnLayerDown() {
             if (!CanTurnDown) return;
-            _selectedElement.Layer--;
+            _selectedElement!.Layer--;
             TableReloadRequestedEvent?.Invoke();
         }
 
         private void TurnLayerUp() {
             if (!CanTurnUp) return;
-            _selectedElement.Layer++;
+            _selectedElement!.Layer++;
             TableReloadRequestedEvent?.Invoke();
         }
 

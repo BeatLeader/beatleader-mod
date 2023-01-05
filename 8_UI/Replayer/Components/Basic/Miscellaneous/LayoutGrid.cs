@@ -1,22 +1,20 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     [RequireComponent(typeof(Image))]
-    internal class LayoutGrid : MonoBehaviour, ILayoutGridModel {
-        public int LineThickness { get; set; } = 6;
-        public int CellSize { get; set; } = 70;
-        public int Width => (int)_rect.sizeDelta.x;
-        public int Height => (int)_rect.sizeDelta.y;
+    internal class LayoutGrid : MonoBehaviour, ILayoutGrid {
+        public float LineThickness { get; set; } = 6;
+        public float CellSize { get; set; } = 70;
+        public Vector2 Size => _rect.sizeDelta;
 
         public Color color = Color.white;
         public Color bgColor = new(0.2f, 0.2f, 0.2f);
 
-        private Material _gridMaterial;
-        private RectTransform _rect;
-        private Image _image;
+        private Material _gridMaterial = null!;
+        private RectTransform _rect = null!;
+        private Image _image = null!;
 
         private void Awake() {
             _image = GetComponent<Image>();
@@ -40,8 +38,8 @@ namespace BeatLeader.Components {
             _gridMaterial.SetColor("_BgColor", bgColor);
             _gridMaterial.SetFloat("_LineThickness", LineThickness);
             _gridMaterial.SetFloat("_CellSize", CellSize);
-            _gridMaterial.SetFloat("_Width", Width);
-            _gridMaterial.SetFloat("_Height", Height);
+            _gridMaterial.SetFloat("_Width", Size.x);
+            _gridMaterial.SetFloat("_Height", Size.y);
         }
     }
 }

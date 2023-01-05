@@ -25,7 +25,7 @@ namespace BeatLeader.ViewControllers {
         #region UI Components
 
         [UIValue("main-view")]
-        private MainScreenView _mainScreenView = null!;
+        private MainScreenPanel _mainScreenPanel = null!;
 
         #endregion
 
@@ -42,10 +42,6 @@ namespace BeatLeader.ViewControllers {
         private bool _enableAfterBuild = true;
         private bool _isUIBuilt;
 
-        public void OpenLayoutEditor() {
-            _mainScreenView?.OpenLayoutEditor();
-        }
-
         protected override void OnInitialize() {
             base.OnInitialize();
             Screen.Apply2DTemplate();
@@ -55,17 +51,32 @@ namespace BeatLeader.ViewControllers {
         protected override void OnPreParse() {
             Screen.CanvasGroup.alpha = 0;
 
-            _mainScreenView = ReeUIComponentV2.Instantiate<MainScreenView>(transform);
-            _mainScreenView.Setup(_pauseController, _finishController,
+            _mainScreenPanel = ReeUIComponentV2.Instantiate<MainScreenPanel>(transform);
+            _mainScreenPanel.Setup(_pauseController, _finishController,
                 _beatmapTimeController, _playersManager, 
                 _cameraController.ViewableCamera, _launchData, _watermark);
 
             _finishController.ReplayWasLeftEvent += HandleReplayFinish;
-            _mainScreenView.LayoutBuiltEvent += HandleUIBuilt;
+            _mainScreenPanel.LayoutBuiltEvent += HandleUIBuilt;
+            if (_launchData.Settings.AutoHideUI) {
+                _partialDisplayShouldBeEnabled = true;
+            }
         }
 
         protected override void OnDispose() {
             _finishController.ReplayWasLeftEvent -= HandleReplayFinish;
+        }
+
+        #endregion
+
+        #region Layout Editor
+
+        private bool _partialDisplayShouldBeEnabled;
+        private bool _partialModeEnabled;
+
+        public void SwitchLayoutEditorPartialMode() {
+            _partialModeEnabled = !_partialModeEnabled;
+            _mainScreenPanel.LayoutEditor.SetPartialModeEnabled(_partialModeEnabled);
         }
 
         #endregion
@@ -75,6 +86,11 @@ namespace BeatLeader.ViewControllers {
         private void HandleUIBuilt() {
             if (_isUIBuilt) return;
             _isUIBuilt = true;
+            if (_partialDisplayShouldBeEnabled) {
+                _mainScreenPanel.LayoutEditor.SetPartialModeEnabled(true);
+                _partialDisplayShouldBeEnabled = false;
+                _partialModeEnabled = true;
+            }
             if (!_enableAfterBuild) return;
             StartCoroutine(UIAnimationCoroutine());
         }

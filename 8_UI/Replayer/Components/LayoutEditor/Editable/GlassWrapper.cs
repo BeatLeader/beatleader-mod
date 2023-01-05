@@ -1,5 +1,4 @@
-﻿using BeatLeader.Utils;
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,39 +7,7 @@ using UnityEngine.UI;
 namespace BeatLeader.Components {
     [RequireComponent(typeof(RectTransform))]
     internal class GlassWrapper : MonoBehaviour, IPointerDownHandler {
-        public static readonly Color DefaultColor = new(0, 1, 1);
-        public static readonly Color SelectedColor = new(1, 1, 0);
-
-        public const float EnabledOpacity = 0.7f;
-        public const float DisabledOpacity = 0.4f;
-
-        public RectTransform container;
-
-        public Color BgColor {
-            get => _background?.color ?? _bgColor;
-            set {
-                _bgColor = value.SetAlpha(_bgFixedOpacity != -1 ? _bgFixedOpacity : value.a);
-                if (_background != null) {
-                    _background.color = _bgColor;
-                }
-            }
-        }
-        public Color TextColor {
-            get => _text?.color ?? _textColor;
-            set {
-                _textColor = value;
-                if (_text != null) {
-                    _text.color = value;
-                }
-            }
-        }
-        public float BgFixedOpacity {
-            get => _bgFixedOpacity;
-            set {
-                _bgFixedOpacity = value;
-                BgColor = BgColor;
-            }
-        }
+        public bool IsEnabled => _wrapperState;
         public string ComponentName {
             get => _text?.text ?? _componentName;
             set {
@@ -50,38 +17,63 @@ namespace BeatLeader.Components {
                 }
             }
         }
-        public bool State {
-            get => _wrapperState;
+        public Color Color {
+            get => _background?.color ?? _color;
             set {
-                if (value)
-                    Wrap();
-                else
-                    Unwrap();
+                _color = value;
+                if (_background != null) {
+                    _background.color = _color;
+                }
+            }
+        }
+        public Color TextColor {
+            get => _text?.color ?? _textColor;
+            set {
+                _textColor = value;
+                if (_text != null) {
+                    _text.color = _textColor;
+                }
             }
         }
 
-        public event Action<bool> WrapperStateChangedEvent;
-        public event Action WrapperSelectedEvent;
+        public event Action<bool>? WrapperStateChangedEvent;
+        public event Action? WrapperWasSelectedEvent;
 
-        private Color _bgColor = DefaultColor;
+        public RectTransform? container;
+
+        private Color _color = Color.clear;
         private Color _textColor = Color.black;
-        private string _componentName;
-        private float _bgFixedOpacity = -1;
+        private string _componentName = string.Empty;
         private bool _wrapperState;
 
         private bool _wrapperConstructed;
-        private RectTransform _wrapperRect;
-        private TextMeshProUGUI _text;
-        private Image _background;
+        private RectTransform _wrapperRect = null!;
+        private TextMeshProUGUI _text = null!;
+        private Image _background = null!;
 
-        private void Awake() {
-            _wrapperRect = GetComponent<RectTransform>();
+        public void SetEnabled(bool enabled = true) {
+            if (enabled) {
+                if (container == null || _wrapperState) return;
+                CreateWrapperIfNeeded();
+                _wrapperRect.sizeDelta = container.rect.size;
+                _wrapperRect.localPosition = Vector2.zero;
+                _wrapperRect.localScale = Vector2.one;
+                _wrapperRect.gameObject.SetActive(true);
+                _wrapperRect.SetParent(container, false);
+                WrapperStateChangedEvent?.Invoke(true);
+                _wrapperState = true;
+            } else if (_wrapperState) {
+                _wrapperRect.gameObject.SetActive(false);
+                _wrapperRect.SetParent(null);
+                WrapperStateChangedEvent?.Invoke(false);
+                _wrapperState = false;
+            }
         }
         private void CreateWrapperIfNeeded() {
             if (_wrapperConstructed) return;
             _background = gameObject.AddComponent<Image>();
             _background.sprite = BundleLoader.WhiteBG;
-            _background.color = _bgColor;
+            _background.color = _color;
             _background.type = Image.Type.Sliced;
             _background.pixelsPerUnitMultiplier = 5;
 
@@ -104,27 +96,11 @@ namespace BeatLeader.Components {
             _wrapperConstructed = true;
         }
 
-        public void Wrap() {
-            if (container == null) return;
-            CreateWrapperIfNeeded();
-            _wrapperRect.sizeDelta = container.rect.size;
-            _wrapperRect.localPosition = Vector2.zero;
-            _wrapperRect.localScale = Vector2.one;
-            _wrapperRect.gameObject.SetActive(true);
-            _wrapperRect.SetParent(container, false);
-            WrapperStateChangedEvent?.Invoke(true);
-            _wrapperState = true;
+        private void Awake() {
+            _wrapperRect = GetComponent<RectTransform>();
         }
-        public void Unwrap() {
-            if (!State) return;
-            _wrapperRect.gameObject.SetActive(false);
-            _wrapperRect.SetParent(null);
-            WrapperStateChangedEvent?.Invoke(false);
-            _wrapperState = false;
-        }
-
         public void OnPointerDown(PointerEventData eventData) {
-            WrapperSelectedEvent?.Invoke();
+            WrapperWasSelectedEvent?.Invoke();
         }
     }
 }

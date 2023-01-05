@@ -32,7 +32,7 @@ namespace BeatLeader.UI {
         private bool _autoHideUI;
 
         private void RefreshUIVisibility() {
-            if (ViewController == null || !_autoHideUI) return;
+            if (InputUtils.IsInFPFC || ViewController == null || !_autoHideUI) return;
             var enabled = _pauseController.IsPaused;
             ViewController.IsVisible = enabled;
             UIVisibilityChangedEvent?.Invoke(enabled);

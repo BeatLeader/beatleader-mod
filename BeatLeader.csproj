@@ -46,7 +46,7 @@
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\TimelineContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
     <None Remove="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Views\MainScreenView.bsml" />
+    <None Remove="9_Resources\BSML\Replayer\Views\MainScreenPanel.bsml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -286,7 +286,7 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\TimelineContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\MainScreenView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\MainScreenPanel.bsml" />
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardView.bsml" />

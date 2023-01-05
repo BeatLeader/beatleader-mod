@@ -8,7 +8,7 @@ namespace BeatLeader.Replayer.Binding {
         [Inject] private readonly DiContainer _container = null!;
 
         public IList<GameHotkey> Hotkeys { get; } = new List<GameHotkey> {
-            new LayoutEditorHotkey(),
+            new PartialDisplayModeHotkey(),
             new HideCursorHotkey(),
             new PauseHotkey(),
             new RewindBackwardHotkey(),

@@ -47,12 +47,18 @@ namespace BeatLeader.Replayer {
 
         #region Setup
 
+        private static MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer = null!;
         private Dictionary<float, CallbacksInTime> _callbacksInTimes = null!;
-        private MemoryPoolContainer<NoteCutSoundEffect> _noteCutSoundPoolContainer = null!;
         private List<IBeatmapObjectController> _spawnedBeatmapObjectControllers = null!;
         private AudioSource _beatmapAudioSource = null!;
 
-        private void Start() {
+        private readonly HarmonyAutoPatch _fetchCutSoundPoolPatch = new HarmonyPatchDescriptor(
+            typeof(NoteCutSoundEffectManager).GetMethod(nameof(
+                NoteCutSoundEffectManager.Start), ReflectionUtils.DefaultFlags), postfix: 
+            typeof(BeatmapTimeController).GetMethod(nameof(
+                NoteCutSoundEffectManagerStartPostfix), ReflectionUtils.StaticFlags));
+
+        private void Awake() {
             this.LoadResources();
             _beatmapAudioSource = _audioTimeSyncController
                 .GetField<AudioSource, AudioTimeSyncController>("_audioSource");
@@ -60,13 +66,16 @@ namespace BeatLeader.Replayer {
                 .GetField<List<IBeatmapObjectController>, BeatmapObjectManager>("_allBeatmapObjects");
             _callbacksInTimes = _beatmapCallbacksController
                 .GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
-            //thats why i can't move it to Awake instead of Start
-            _noteCutSoundPoolContainer = _noteCutSoundEffectManager
-                .GetField<MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
 
         private void OnDestroy() {
             _soundSpawnerSilencer.Dispose();
+            _fetchCutSoundPoolPatch.Dispose();
+        }
+
+        private static void NoteCutSoundEffectManagerStartPostfix(NoteCutSoundEffectManager __instance) {
+            _noteCutSoundPoolContainer = __instance.GetField<
+                MemoryPoolContainer<NoteCutSoundEffect>, NoteCutSoundEffectManager>("_noteCutSoundEffectPoolContainer");
         }
 
         #endregion
@@ -176,7 +185,7 @@ namespace BeatLeader.Replayer {
         }
 
         protected virtual void DespawnAllNoteControllerSounds() {
-            _noteCutSoundPoolContainer.activeItems.ForEach(x => x.StopPlayingAndFinish());
+            _noteCutSoundPoolContainer?.activeItems.ForEach(x => x.StopPlayingAndFinish());
             _noteCutSoundEffectManager.SetField("_prevNoteATime", -1f);
             _noteCutSoundEffectManager.SetField("_prevNoteBTime", -1f);
         }

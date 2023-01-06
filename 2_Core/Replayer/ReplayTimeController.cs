@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using IPA.Utilities;
 using System;
 using UnityEngine;
 using Zenject;
@@ -6,6 +7,7 @@ using Zenject;
 namespace BeatLeader.Replayer {
     internal class ReplayTimeController : BeatmapTimeController, IReplayTimeController {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
+        [Inject] private readonly GameSongController _songController = null!; 
 
         public float ReplayEndTime {
             get {
@@ -22,14 +24,19 @@ namespace BeatLeader.Replayer {
         public override void Rewind(float time, bool resumeAfterRewind = true) {
             time = Mathf.Clamp(time, SongStartTime, ReplayEndTime);
             base.Rewind(time, resumeAfterRewind);
+            RefreshSongState();
             _songReachedReplayEnd = false;
         }
 
-        private void Update() {
+        private void LateUpdate() {
             if (!_songReachedReplayEnd && Mathf.Abs(SongTime - ReplayEndTime) < 0.1f) {
                 SongReachedReplayEndEvent?.Invoke();
                 _songReachedReplayEnd = true;
             }
+        }
+
+        private void RefreshSongState() {
+            _songController.SetField("_songDidFinish", false);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace BeatLeader.Replayer.Tweaking {
     internal class AudioTimeSyncControllerTweak : GameTweak {
         [Inject] private readonly IReplayTimeController _timeController = null!;
         [Inject] private readonly IReplayPauseController _pauseController = null!;
+        [Inject] private readonly IReplayFinishController _finishController = null!;
 
         private static readonly HarmonyPatchDescriptor audioTimeSyncControllerUpdatePatchDecriptor = new(
             typeof(AudioTimeSyncController).GetMethod(nameof(AudioTimeSyncController.Update), ReflectionUtils.DefaultFlags),
@@ -16,18 +17,19 @@ namespace BeatLeader.Replayer.Tweaking {
         private bool _wasFinished;
 
         public override void Initialize() {
-            _timeController.SongReachedReplayEndEvent += HandleReplayFinished;
+            _finishController.ReplayWasFinishedEvent += HandleReplayFinished;
             _timeController.EarlySongWasRewoundEvent += HandleSongRewound;
             _harmonyPatch = audioTimeSyncControllerUpdatePatchDecriptor;
         }
 
         public override void Dispose() {
             _harmonyPatch.Dispose();
-            _timeController.SongReachedReplayEndEvent -= HandleReplayFinished;
+            _finishController.ReplayWasFinishedEvent -= HandleReplayFinished;
             _timeController.EarlySongWasRewoundEvent -= HandleSongRewound;
         }
 
         private void HandleReplayFinished() {
+            if (_finishController.ExitAutomatically) return;
             _pauseController.Pause();
             _pauseController.LockUnpause = true;
             _wasFinished = true;

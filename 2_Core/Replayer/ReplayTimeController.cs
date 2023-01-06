@@ -25,11 +25,10 @@ namespace BeatLeader.Replayer {
             time = Mathf.Clamp(time, SongStartTime, ReplayEndTime);
             base.Rewind(time, resumeAfterRewind);
             RefreshSongState();
-            _songReachedReplayEnd = false;
         }
 
         private void LateUpdate() {
-            if (!_songReachedReplayEnd && Mathf.Abs(SongTime - ReplayEndTime) < 0.1f) {
+            if (!_songReachedReplayEnd && Mathf.Approximately(SongTime, ReplayEndTime)) {
                 SongReachedReplayEndEvent?.Invoke();
                 _songReachedReplayEnd = true;
             }
@@ -37,6 +36,7 @@ namespace BeatLeader.Replayer {
 
         private void RefreshSongState() {
             _songController.SetField("_songDidFinish", false);
+            _songReachedReplayEnd = false;
         }
     }
 }

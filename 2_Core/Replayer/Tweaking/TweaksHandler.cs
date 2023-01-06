@@ -28,7 +28,8 @@ namespace BeatLeader.Replayer.Tweaking {
             new MethodsSilencerTweak(),
             new ModifiersTweak(),
             new RaycastBlockerTweak(),
-            new RoomOffsetsTweak()
+            new RoomOffsetsTweak(),
+            new ReplayFailTweak()
         };
 
         private void Awake() {

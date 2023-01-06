@@ -121,8 +121,10 @@ namespace BeatLeader.Components {
 
         private void MapElement(EditableElement element, LayoutMap map) {
             var content = element.Root;
-            content.localPosition = LayoutMapper.MapClamped(
-                map.position, content.rect.size / 2, EditorZone.rect.size);
+            var contentSize = content.rect.size;
+            var pos = MathUtils.ToAbsPos(map.position, EditorZone.rect.size);
+            pos = LayoutMapper.ToActualPosition(pos, contentSize, map.anchor);
+            content.localPosition = pos;
             content.SetSiblingIndex(map.layer);
             element.State = map.enabled;
         }
@@ -263,8 +265,11 @@ namespace BeatLeader.Components {
         }
 
         private void HandleEditableWasReleased() {
-            _selectedElement!.TempLayoutMap.position = MathUtils.ToRelPos(
-                _selectedElement!.Root.localPosition, EditorZone.rect.size);
+            var content = _selectedElement!.Root;
+            var pos = LayoutMapper.ToAnchoredPosition(content.localPosition,
+                content.rect.size, _selectedElement.TempLayoutMap.anchor);
+            pos = MathUtils.ToRelPos(pos, EditorZone.rect.size);
+            _selectedElement!.TempLayoutMap.position = pos;
         }
 
         private void HandleEditableWasGrabbed() {

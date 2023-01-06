@@ -12,8 +12,8 @@ namespace BeatLeader.Components {
         public override string Name { get; } = "Toolbar";
 
         public override LayoutMap LayoutMap { get; } = new() {
-            enabled = true,
-            position = new(0.5f, 0)
+            layer = 1,
+            position = new(0.375f, 0f)
         };
 
         private RootContentView _rootContentView = null!;

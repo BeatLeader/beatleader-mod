@@ -47,9 +47,9 @@ namespace BeatLeader.Components {
         public override string Name { get; } = "Mini Profile";
 
         public override LayoutMap LayoutMap { get; } = new() {
-            enabled = true,
-            position = new(0f, 0.85f),
-            anchor = new(0f, 0f)
+            layer = 2,
+            position = new(0f, 0.885f),
+            anchor = new(0f, 1f)
         };
 
         #endregion

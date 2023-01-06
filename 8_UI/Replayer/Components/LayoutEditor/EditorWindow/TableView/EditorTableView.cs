@@ -33,6 +33,7 @@ namespace BeatLeader.Components {
 
         [UIComponent("elements-list")]
         private readonly CustomCellListTableData _customList;
+
         private TableView _tableView;
 
         private readonly CellsComparer _comparer = new() { invert = true };
@@ -46,6 +47,10 @@ namespace BeatLeader.Components {
         }
 
         public void SelectCell(EditableElement element) {
+            if (element == null) {
+                _tableView.ClearSelection();
+                return;
+            }
             var idx = _models.FindIndex(x => x.Element == element);
             if (idx == -1) return;
             _tableView.SelectCellWithIdx(idx);

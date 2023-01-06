@@ -71,6 +71,7 @@ namespace BeatLeader.Replayer {
         private void OnDestroy() {
             _soundSpawnerSilencer.Dispose();
             _fetchCutSoundPoolPatch.Dispose();
+            _noteCutSoundPoolContainer = null!;
         }
 
         private static void NoteCutSoundEffectManagerStartPostfix(NoteCutSoundEffectManager __instance) {

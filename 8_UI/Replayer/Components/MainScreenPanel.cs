@@ -50,7 +50,7 @@ namespace BeatLeader.Components {
             _toolbar.Setup(beatmapTimeController, pauseController,
                 finishController, playersManager, cameraController,
                 launchData, watermark, LayoutEditor);
-            LayoutEditor.AntiSnapKeyCode = launchData.Settings.Shortcuts.LayoutEditorAntiSnapHotkey;
+            LayoutEditor.antiSnapKeyCode = launchData.Settings.Shortcuts.LayoutEditorAntiSnapHotkey;
 
             if (!launchData.IsBattleRoyale) {
                 var player = launchData.Replays[0].Key;

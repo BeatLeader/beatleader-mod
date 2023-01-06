@@ -41,7 +41,12 @@ namespace BeatLeader.Components {
         public void SetEditable(EditableElement element) {
             _selectedElement = element;
             RefreshButtons();
-            _anchorSelector.Select(element.TempLayoutMap.anchor);
+            if (_selectedElement != null) {
+                _anchorSelector.Select(element.TempLayoutMap.anchor);
+            } else {
+                _anchorSelector.SetEnabled(false);
+                _anchorSelector.Degenerate();
+            }
         }
 
         public void RefreshButtons() {

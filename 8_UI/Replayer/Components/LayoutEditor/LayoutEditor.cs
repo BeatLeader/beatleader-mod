@@ -16,7 +16,7 @@ namespace BeatLeader.Components {
         public event Action<bool>? PartialDisplayModeStateWasChangedEvent;
         public event Action<bool>? EditModeStateWasChangedEvent;
 
-        public KeyCode AntiSnapKeyCode = KeyCode.LeftShift;
+        public KeyCode antiSnapKeyCode = KeyCode.LeftShift;
         public ILayoutMapsSource? layoutMapsSource;
         public ILayoutGridModel? layoutGridModel;
 
@@ -45,6 +45,7 @@ namespace BeatLeader.Components {
             if (enabled) {
                 ReloadTable();
                 RefreshGrid();
+                HandleEditableWasSelected(null!);
             }
             SetWindowEnabled(enabled);
             SetGridEnabled(enabled);
@@ -65,6 +66,7 @@ namespace BeatLeader.Components {
         public void Setup(RectTransform zoneRect) {
             if (!IsParsed) return;
             EditorZone = zoneRect;
+            _layoutWindow.boundsRect = zoneRect;
             SetupGrid();
             SetGridEnabled(false);
         }
@@ -190,7 +192,6 @@ namespace BeatLeader.Components {
         private void SetupGrid() {
             _layoutGrid.TryDestroy();
             _layoutGrid = EditorZone.gameObject.AddComponent<LayoutGrid>();
-            _layoutWindow.bounds = _layoutGrid.Size;
             RefreshGrid();
         }
 
@@ -219,7 +220,6 @@ namespace BeatLeader.Components {
         }
 
         private void SelectTableCell(EditableElement element) {
-            if (element == null) return;
             _selectedElement = element;
             _tableView.SelectCell(element);
         }
@@ -248,7 +248,9 @@ namespace BeatLeader.Components {
                 _selectedElement!.WrapperSelectionState = false;
             }
             _selectedElement = element;
-            _selectedElement.WrapperSelectionState = true;
+            if (_selectedElement != null) {
+                _selectedElement.WrapperSelectionState = true;
+            }
             SelectTableCell(element);
             _editController.SetEditable(element);
         }
@@ -256,7 +258,7 @@ namespace BeatLeader.Components {
         private void HandleEditableDragging(Vector2 position) {
             var content = _selectedElement!.Root;
             var contentSize = content.rect.size;
-            if (!Input.GetKey(AntiSnapKeyCode)) {
+            if (!Input.GetKey(antiSnapKeyCode)) {
                 position = LayoutMapper.MapByGridUnclamped(position,
                     contentSize, _selectedElement.TempLayoutMap.anchor, _layoutGrid!);
             }

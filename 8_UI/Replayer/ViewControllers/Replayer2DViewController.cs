@@ -14,7 +14,7 @@ namespace BeatLeader.ViewControllers {
 
         [Inject] private readonly IReplayPauseController _pauseController = null!;
         [Inject] private readonly IReplayFinishController _finishController = null!;
-        [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
+        [Inject] private readonly IReplayTimeController _timeController = null!;
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly ReplayerCameraController _cameraController = null!;
@@ -53,7 +53,7 @@ namespace BeatLeader.ViewControllers {
 
             _mainScreenPanel = ReeUIComponentV2.Instantiate<MainScreenPanel>(transform);
             _mainScreenPanel.Setup(_pauseController, _finishController,
-                _beatmapTimeController, _playersManager, 
+                _timeController, _playersManager, 
                 _cameraController.ViewableCamera, _launchData, _watermark);
 
             _finishController.ReplayWasLeftEvent += HandleReplayFinish;

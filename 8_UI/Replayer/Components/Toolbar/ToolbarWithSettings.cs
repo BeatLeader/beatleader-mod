@@ -32,7 +32,7 @@ namespace BeatLeader.Components {
         }
 
         public void Setup(
-            IBeatmapTimeController timeController,
+            IReplayTimeController timeController,
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
             IVirtualPlayersManager playersManager,

@@ -65,18 +65,18 @@ namespace BeatLeader.Components {
         public void Setup(
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
-            IBeatmapTimeController beatmapTimeController,
+            IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
             ReplayLaunchData launchData) {
             OnDispose();
             _pauseController = pauseController;
             _finishController = finishController;
-            _beatmapTimeController = beatmapTimeController;
+            _beatmapTimeController = timeController;
             _playersManager = playersManager;
             _launchData = launchData;
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
-            _timeline.Setup(playersManager, pauseController, beatmapTimeController, launchData);
+            _timeline.Setup(playersManager, pauseController, timeController);
         }
 
         protected override void OnInstantiate() {

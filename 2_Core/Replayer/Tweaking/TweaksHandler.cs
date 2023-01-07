@@ -29,7 +29,8 @@ namespace BeatLeader.Replayer.Tweaking {
             new ModifiersTweak(),
             new RaycastBlockerTweak(),
             new RoomOffsetsTweak(),
-            new ReplayFailTweak()
+            new ReplayFailTweak(),
+            new ReplayFinishTweak()
         };
 
         private void Awake() {

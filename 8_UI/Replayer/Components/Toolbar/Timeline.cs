@@ -41,9 +41,8 @@ namespace BeatLeader.Components {
         #region Setup
 
         private IReplayPauseController _pauseController = null!;
-        private IBeatmapTimeController _beatmapTimeController = null!;
+        private IReplayTimeController _timeController = null!;
         private IVirtualPlayersManager _playersManager = null!;
-        private ReplayLaunchData _launchData = null!;
 
         private bool _allowTimeUpdate = true;
         private bool _allowRewind;
@@ -52,13 +51,11 @@ namespace BeatLeader.Components {
         public void Setup(
             IVirtualPlayersManager playersManager,
             IReplayPauseController pauseController,
-            IBeatmapTimeController beatmapTimeController,
-            ReplayLaunchData launchData) {
+            IReplayTimeController timeController) {
             OnDispose();
-            _launchData = launchData;
             _playersManager = playersManager;
             _pauseController = pauseController;
-            _beatmapTimeController = beatmapTimeController;
+            _timeController = timeController;
             _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChangedEvent;
 
             SetupSlider();
@@ -66,7 +63,7 @@ namespace BeatLeader.Components {
             _timelineAnimator.Setup(_background.rectTransform,
                 _handle.rectTransform, _marksAreaContainer, _fillArea);
 
-            HandlePriorityPlayerChangedEvent(playersManager.PriorityPlayer);
+            HandlePriorityPlayerChangedEvent(playersManager.PriorityPlayer!);
             _allowRewind = true;
         }
 
@@ -94,8 +91,8 @@ namespace BeatLeader.Components {
 
 
         private void SetupSlider() {
-            _slider.minValue = _beatmapTimeController.SongStartTime;
-            _slider.maxValue = EndTime;
+            _slider.minValue = _timeController.SongStartTime;
+            _slider.maxValue = _timeController.ReplayEndTime;
         }
 
         #endregion
@@ -108,7 +105,7 @@ namespace BeatLeader.Components {
 
         private void HandleSliderValueChanged(float value) {
             if (_allowRewind)
-                _beatmapTimeController?.Rewind(value, false);
+                _timeController?.Rewind(value, false);
         }
 
         private void HandleSliderReleased() {
@@ -126,16 +123,9 @@ namespace BeatLeader.Components {
 
         #region UpdateTime
 
-        private float EndTime {
-            get {
-                var failTime = !_launchData.IsBattleRoyale ? _launchData.MainReplay.info.failTime : 0;
-                return failTime <= 0 ? _beatmapTimeController.SongEndTime : failTime; 
-            }
-        }
-
         private void Update() {
             if (_allowTimeUpdate) {
-                _slider.SetValueWithoutNotify(_beatmapTimeController.SongTime);
+                _slider.SetValueWithoutNotify(_timeController.SongTime);
             }
         }
 
@@ -213,7 +203,8 @@ namespace BeatLeader.Components {
         private float MapTimelineMarker(float time) {
             var marksArXDiv2 = _marksArea.sizeDelta.x / 2;
             var markXDiv2 = CalculateMarkerSize().x / 2;
-            var val = MathUtils.Map(time, _beatmapTimeController.SongStartTime, EndTime, -marksArXDiv2, marksArXDiv2);
+            var val = MathUtils.Map(time, _timeController.SongStartTime,
+                _timeController.ReplayEndTime, -marksArXDiv2, marksArXDiv2);
             if (marksArXDiv2 - Mathf.Abs(val) < markXDiv2) {
                 var pos = marksArXDiv2 - markXDiv2;
                 val = val < 0 ? (-pos) : pos;

@@ -16,7 +16,7 @@ namespace BeatLeader.ViewControllers {
     internal class ReplayerVRViewController : StandaloneViewController<FloatingScreen> {
         [Inject] private readonly IReplayPauseController _pauseController = null!;
         [Inject] private readonly IReplayFinishController _finishController = null!;
-        [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
+        [Inject] private readonly IReplayTimeController _timeController = null!;
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly ReplayerCameraController _cameraController = null!;
@@ -32,8 +32,8 @@ namespace BeatLeader.ViewControllers {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
             _toolbar = ReeUIComponentV2.Instantiate<ToolbarWithSettings>(transform);
             _floatingControls.Setup(Screen, _cameraController.ViewableCamera.Camera!.transform);
-            _toolbar.Setup(_beatmapTimeController, _pauseController,
-                _finishController, _playersManager, _cameraController.ViewableCamera, _launchData, _watermark);
+            _toolbar.Setup(_timeController, _pauseController, _finishController,
+                _playersManager, _cameraController.ViewableCamera, _launchData, _watermark);
         }
 
         protected override void OnInitialize() {

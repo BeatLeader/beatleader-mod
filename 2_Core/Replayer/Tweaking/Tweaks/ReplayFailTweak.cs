@@ -16,7 +16,7 @@ namespace BeatLeader.Replayer.Tweaking {
         }
 
         private void HandleReplayFinished() {
-            if (_launchData.MainReplay.info.failTime != 0) {
+            if (_launchData.MainReplay.info.failTime >= _timeController.SongTime) {
                 _energyCounter.ProcessEnergyChange(-1f);
             }
         }

@@ -1,11 +1,13 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Utils;
+using IPA.Utilities;
 using System;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer {
     internal class ReplayFinishController : MonoBehaviour, IReplayFinishController {
+        [Inject] private readonly StandardLevelGameplayManager.InitData _gameplayManagerInitData = null!;
         [Inject] private readonly StandardLevelGameplayManager _gameplayManager = null!;
         [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
         [Inject] private readonly PauseController _pauseController = null!;
@@ -13,6 +15,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly GameSongController _songController = null!;
         [Inject] private readonly IGameEnergyCounter _gameEnergyCounter = null!;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
+        [Inject] private readonly IBeatmapTimeController _timeController = null!;
 
         public bool ExitAutomatically => _launchData.Settings.ExitReplayAutomatically;
 
@@ -27,9 +30,11 @@ namespace BeatLeader.Replayer {
             _songController.songDidFinishEvent -= _gameplayManager.HandleSongDidFinish;
             _gameEnergyCounter.gameEnergyDidReach0Event += HandleLevelFailed;
             _songController.songDidFinishEvent += HandleLevelFinished;
+            _timeController.SongWasRewoundEvent += HandleSongRewound;
         }
 
         private void OnDestroy() {
+            _timeController.SongWasRewoundEvent -= HandleSongRewound;
             _gameEnergyCounter.gameEnergyDidReach0Event -= HandleLevelFailed;
             _songController.songDidFinishEvent -= HandleLevelFinished;
             _pauseMenuManager.didPressMenuButtonEvent += _pauseController.HandlePauseMenuManagerDidPressMenuButton;
@@ -49,7 +54,12 @@ namespace BeatLeader.Replayer {
         }
 
         private void HandleLevelFailed() {
+            if (!_gameplayManagerInitData.failOn0Energy) return;
             HandleLevelFinished();
+        }
+
+        private void HandleSongRewound(float time) {
+            _songController.SetField("_songDidFinish", false);
         }
     }
 }

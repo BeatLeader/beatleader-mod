@@ -34,12 +34,11 @@ namespace BeatLeader.Components {
         #region Setup
 
         private IReplayPauseController _pauseController = null!;
-        private bool _isInitialized;
 
         public void Setup(
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
-            IBeatmapTimeController beatmapTimeController,
+            IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
             IViewableCameraController cameraController,
             ReplayLaunchData launchData,
@@ -47,7 +46,7 @@ namespace BeatLeader.Components {
             OnDispose();
             _pauseController = pauseController;
             _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap!.level);
-            _toolbar.Setup(beatmapTimeController, pauseController,
+            _toolbar.Setup(timeController, pauseController,
                 finishController, playersManager, cameraController,
                 launchData, watermark, LayoutEditor);
             LayoutEditor.antiSnapKeyCode = launchData.Settings.Shortcuts.LayoutEditorAntiSnapHotkey;
@@ -56,7 +55,6 @@ namespace BeatLeader.Components {
                 var player = launchData.Replays[0].Key;
                 if (player != null) _playerInfo.SetPlayer(player);
             }
-            _isInitialized = true;
         }
 
         protected override void OnInstantiate() {

@@ -28,6 +28,8 @@ namespace BeatLeader.Replayer.Emulation {
             RightSaber = _vrControllersManager.rightHandVRController;
             _vrControllersManager.DisableAllVRControllers();
 
+            Head.transform.SetParent(LeftSaber.transform.parent, false);
+
             //ShowControllers(false);
         }
     }

@@ -25,8 +25,8 @@ namespace BeatLeader.Replayer {
 
         public virtual void ProcessView(Models.ICameraControllerBase cameraController) {
             var transform = cameraController.CameraContainer;
-            var position = transform.position;
-            var rotatiton = transform.rotation;
+            var position = transform.localPosition;
+            var rotatiton = transform.localRotation;
 
             var cursorUnlocked = false;
             if (Cursor.lockState != CursorLockMode.Locked) {
@@ -44,8 +44,8 @@ namespace BeatLeader.Replayer {
                 rotatiton = GetRotation(rotatiton);
             }
 
-            transform.position = _lastHeadPos = position;
-            transform.rotation = _lastHeadRot = rotatiton;
+            transform.localPosition = _lastHeadPos = position;
+            transform.localRotation = _lastHeadRot = rotatiton;
         }
 
         protected virtual Vector3 GetPosition(Vector3 currentPosition, Quaternion currentRotation) {

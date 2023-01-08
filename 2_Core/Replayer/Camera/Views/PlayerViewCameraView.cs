@@ -25,11 +25,11 @@ namespace BeatLeader.Replayer {
 
             var slerp = Time.deltaTime * smoothness;
             var head = cameraController.ControllersProvider.Head.transform;
-            position = Vector3.Lerp(position, head.position, slerp);
-            rotation = Quaternion.Lerp(rotation, head.rotation, slerp);
+            position = Vector3.Lerp(position, head.localPosition, slerp);
+            rotation = Quaternion.Lerp(rotation, head.localRotation, slerp);
 
-            transform.position = position += positionOffset;
-            transform.rotation = rotation *= rotationOffset;
+            transform.localPosition = position += positionOffset;
+            transform.localRotation = rotation *= rotationOffset;
         }
     }
 }

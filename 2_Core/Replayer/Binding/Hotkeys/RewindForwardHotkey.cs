@@ -7,7 +7,7 @@ namespace BeatLeader.Replayer.Binding {
         public override KeyCode Key => _launchData.Settings.Shortcuts.RewindForwardHotkey;
 
         [Inject] private readonly ReplayLaunchData _launchData = null!;
-        [Inject] private readonly IReplayTimeController _timeController = null!;
+        [Inject] private readonly IBeatmapTimeController _timeController = null!;
 
         public override void OnKeyDown() {
             _timeController.Rewind(_timeController.SongTime + 5);

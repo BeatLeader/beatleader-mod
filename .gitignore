@@ -3,4 +3,7 @@
 .vs
 bin
 obj
+9_Resources\AssetBundles\asset_bundle.manifest
+9_Resources\AssetBundles\AssetBundles
+9_Resources\AssetBundles\AssetBundles.manifest
 BeatLeader.csproj.user

@@ -41,17 +41,19 @@ namespace BeatLeader.Replayer.Emulation {
             if (frame == null || frame.Next == null) return;
             _lastProcessedNode = frame;
 
-            var leftSaberPose = frame.Value.leftHand.GetPose();
-            var rightSaberPose = frame.Value.rightHand.GetPose();
-            var headPose = frame.Value.head.GetPose();
+            var currentFrame = frame.Value;
+            var leftSaberPose = currentFrame.leftHand.GetPose();
+            var rightSaberPose = currentFrame.rightHand.GetPose();
+            var headPose = currentFrame.head.GetPose();
 
             if (enableInterpolation) {
-                float slerp = (_beatmapTimeController.SongTime - frame.Value.time) /
-                (frame.Next.Value.time - frame.Value.time);
+                float t = (_beatmapTimeController.SongTime - frame.Value.time) /
+                    (frame.Next.Value.time - frame.Value.time);
 
-                leftSaberPose = leftSaberPose.Lerp(frame.Next.Value.leftHand.GetPose(), slerp);
-                rightSaberPose = rightSaberPose.Lerp(frame.Next.Value.rightHand.GetPose(), slerp);
-                headPose = headPose.Lerp(frame.Next.Value.head.GetPose(), slerp);
+                var nextFrame = frame.Next.Value;
+                leftSaberPose = leftSaberPose.Lerp(nextFrame.leftHand.GetPose(), t);
+                rightSaberPose = rightSaberPose.Lerp(nextFrame.rightHand.GetPose(), t);
+                headPose = headPose.Lerp(nextFrame.head.GetPose(), t);
             }
 
             ControllersProvider!.LeftSaber.transform.SetLocalPose(leftSaberPose);

@@ -26,29 +26,6 @@
     <DisableZipRelease>True</DisableZipRelease>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="9_Resources\BSML\Replayer\Components\Basic\HorizontalSeparator.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Basic\NavigationButton.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Basic\Settings\LayoutEditorSetting.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Basic\Settings\SpeedSetting.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Basic\SimpleButton.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\LayoutEditor\AnchorSelector.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableController.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableCell.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\SettingsContainer.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\SettingsModal.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\BodyContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\CameraContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\FlyingViewParamsContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\PlayerViewParamsContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\OtherContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\RootContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\TimelineContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
-    <None Remove="9_Resources\BSML\Replayer\Views\MainScreenPanel.bsml" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>

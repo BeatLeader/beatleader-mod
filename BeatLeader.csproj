@@ -59,10 +59,6 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="netstandard">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Main">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
       <Private>False</Private>
@@ -103,6 +99,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.DirectorModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -187,7 +186,11 @@
   <ItemGroup>
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\HeaderButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ScoreOverviewPage2.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\PlayerViewParamsMenu.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\HorizontalSeparator.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\NavigationButton.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\Settings\LayoutEditorSetting.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\Settings\SpeedSetting.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\SimpleButton.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\ResetProgressUI.bsml" />
   </ItemGroup>
   <ItemGroup>
@@ -239,6 +242,22 @@
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\PlayerInfo.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\StatusBar.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\UploadProgressBar.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\AnchorSelector.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableController.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableCell.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsContainer.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsModal.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\BodyContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\CameraContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\FlyingViewParamsContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\PlayerViewParamsContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\OtherContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\RootContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\TimelineContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml" />
+    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\MainScreenPanel.bsml" />
     <EmbeddedResource Include="manifest.json" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardView.bsml" />
@@ -251,22 +270,10 @@
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\Replayer2DView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Timeline.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Toolbar.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SpeedSetting.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsController.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\LayoutEditor.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableWrapper.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerVRView.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\CameraMenu.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SubMenuButton.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\LayoutEditorSetting.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\OtherSettingsMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalMiniProfile.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\SettingsRootMenu.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\VectorControlsMenu.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Items\CameraMenu\FlyingViewParamsMenu.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\FloatingControls.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\ToggleButton.bsml" />
-    <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\MainScreenSpaceView.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Results\ResultsScreenUI.bsml" />
     <EmbeddedResource Include="9_Resources\BSML\Results\ReplayButton.bsml" />
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
@@ -279,9 +286,6 @@
       <Version>1.4.3</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="NETStandard.Library">
-      <Version>2.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

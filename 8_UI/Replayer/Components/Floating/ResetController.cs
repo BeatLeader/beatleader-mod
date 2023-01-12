@@ -6,73 +6,65 @@ using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.XR;
 
-namespace BeatLeader.Components
-{
+namespace BeatLeader.Components {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Floating.ResetProgressUI.bsml")]
-    internal class ResetController : MonoBehaviour
-    {
+    internal class ResetController : MonoBehaviour {
         #region Configuration
 
-        private const int preHoldTime = 300;
-        private const int holdTime = 700;
+        private const int PreHoldTime = 300;
+        private const int HoldTime = 700;
 
         #endregion
 
         #region UI Components
 
-        [UIComponent("animation-image")] private readonly BetterImage _image;
+        [UIComponent("animation-image")]
+        private readonly BetterImage _image = null!;
 
         #endregion
 
         #region Setup
 
-        public Transform ResetTransform
-        {
-            get => _resetTransform;
-            set
-            {
-                _resetTransform = value;
-                _initialized = value != null;
-            }
-        }
+        public Transform? ResetTransform { get; private set; }
 
         public InputDevice actionInputDevice = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
         public InputFeatureUsage<bool> actionFeature = CommonUsages.secondaryButton;
         public Pose pose;
 
-        private ResetProgressAnimator _animator;
-        private Transform _resetTransform;
+        private ResetProgressAnimator _animator = null!;
         private bool _initialized;
 
-        private void Awake()
-        {
+        private void Awake() {
             this.ParseInObjectHierarchy();
             _animator = gameObject.AddComponent<ResetProgressAnimator>();
             _animator.SetImage(_image.Image);
             _animator.RevealWasFinishedEvent += HandleRevealWasFinished;
         }
 
+        public void SetResetObject(Transform obj) {
+            ResetTransform = obj;
+            _initialized = obj != null;
+        }
+
         #endregion
 
         #region Events
 
-        public event Action PoseWasResettedEvent;
+        public event Action? PoseWasResettedEvent;
 
         #endregion
 
         #region Logic
 
-        private Stopwatch _stopwatch = new();
+        private readonly Stopwatch _stopwatch = new();
         private bool _wasExecuted;
 
-        private void Update()
-        {
+        private void Update() {
             if (!_initialized) return;
 
             actionInputDevice.TryGetFeatureValue(actionFeature, out bool state);
 
-            if (!state)
-            {
+            if (!state) {
                 _animator.CancelAnimation();
                 _stopwatch.Stop();
                 _stopwatch.Reset();
@@ -80,13 +72,11 @@ namespace BeatLeader.Components
                 return;
             }
 
-            if (!_wasExecuted)
-            {
+            if (!_wasExecuted) {
                 _stopwatch.Start();
 
-                if (_stopwatch.ElapsedMilliseconds >= preHoldTime)
-                {
-                    _animator.StartAnimation((float)holdTime / 1000);
+                if (_stopwatch.ElapsedMilliseconds >= PreHoldTime) {
+                    _animator.StartAnimation((float)HoldTime / 1000);
                     _wasExecuted = true;
                 }
             }
@@ -94,10 +84,9 @@ namespace BeatLeader.Components
 
         #endregion
 
-        #region Event Handlers
+        #region Callbacks
 
-        private void HandleRevealWasFinished(bool result)
-        {
+        private void HandleRevealWasFinished(bool result) {
             if (!result) return;
 
             _stopwatch.Stop();

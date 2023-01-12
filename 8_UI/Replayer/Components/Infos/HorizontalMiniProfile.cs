@@ -1,46 +1,40 @@
 ﻿using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
-using UnityEngine;
 
-namespace BeatLeader.Components
-{
-    internal class HorizontalMiniProfile : EditableElement
-    {
+namespace BeatLeader.Components {
+    internal class HorizontalMiniProfile : EditableElement {
         #region Components
 
-        [UIValue("player-avatar")] private PlayerAvatar _playerAvatar;
-        [UIValue("country-flag")] private CountryFlag _playerCountryFlag;
+        [UIValue("player-avatar")] 
+        private PlayerAvatar _playerAvatar;
 
-        [UIComponent("container")] private readonly RectTransform _container;
-        [UIComponent("wrapper")] private readonly RectTransform _wrapper;
+        [UIValue("country-flag")] 
+        private CountryFlag _playerCountryFlag;
 
         #endregion
 
         #region Name, Rank, PP
 
-        [UIValue("player-name")] public string PlayerName
-        {
+        [UIValue("player-name")]
+        public string PlayerName {
             get => _playerName;
-            private set
-            {
+            private set {
                 _playerName = value;
                 NotifyPropertyChanged(nameof(PlayerName));
             }
         }
-        [UIValue("player-global-rank")] public string PlayerGlobalRank
-        {
+        [UIValue("player-global-rank")]
+        public string PlayerGlobalRank {
             get => _playerGlobalRank;
-            private set
-            {
+            private set {
                 _playerGlobalRank = value;
                 NotifyPropertyChanged(nameof(PlayerGlobalRank));
             }
         }
-        [UIValue("player-pp")] public string PlayerPp
-        {
+        [UIValue("player-pp")]
+        public string PlayerPp {
             get => _playerPp;
-            private set
-            {
+            private set {
                 _playerPp = value;
                 NotifyPropertyChanged(nameof(PlayerPp));
             }
@@ -50,10 +44,13 @@ namespace BeatLeader.Components
 
         #region Editable
 
-        protected override RectTransform ContainerRect => _container;
-        protected override RectTransform WrapperRect => _wrapper;
-        protected override HideMode Mode => HideMode.Opacity;
-        public override string Name => "Player Info";
+        public override string Name { get; } = "Mini Profile";
+
+        public override LayoutMap LayoutMap { get; } = new() {
+            layer = 2,
+            position = new(0f, 0.885f),
+            anchor = new(0f, 1f)
+        };
 
         #endregion
 
@@ -63,8 +60,7 @@ namespace BeatLeader.Components
         private string _playerGlobalRank;
         private string _playerPp;
 
-        public void SetPlayer(Player player)
-        {
+        public void SetPlayer(Player player) {
             _playerAvatar.SetPlayer(player);
             _playerCountryFlag.SetCountry(player.country);
 
@@ -73,8 +69,8 @@ namespace BeatLeader.Components
             PlayerPp = FormatUtils.FormatPP(player.pp);
         }
 
-        protected override void OnInstantiate()
-        {
+        protected override void OnInstantiate() {
+            base.OnInstantiate();
             _playerAvatar = Instantiate<PlayerAvatar>(transform);
             _playerCountryFlag = Instantiate<CountryFlag>(transform);
         }

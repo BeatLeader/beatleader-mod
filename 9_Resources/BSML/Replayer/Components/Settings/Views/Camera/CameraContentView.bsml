@@ -1,0 +1,33 @@
+﻿<vertical spacing="1">
+
+  <horizontal id="camera-fov-container" pref-height="12">
+    <better-image src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
+      <vertical pref-width="46">
+        <text text="Camera FOV" font-align="Center"/>
+        <slider-setting value="camera-fov" min="70" max="110" increment="1" apply-on-change="true"
+              bind-value="true" show-buttons="true" integer-only="true" hide-text="true" skew="0"/>
+      </vertical>
+    </better-image>
+  </horizontal>
+
+  <horizontal>
+    <better-image pref-height="19" src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-width="48">
+      <vertical child-expand-height="false" pref-width="46">
+
+        <text text="Camera View" font-align="Center"/>
+        <list-setting value="camera-view" choices="camera-view-values" bind-value="true"
+							  apply-on-change="true" hide-text="true" skew="0"/>
+
+        <horizontal pref-height="6">
+          <vertical pref-width="45">
+            <macro.as-host host="params-menu-button">
+              <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+          </vertical>
+        </horizontal>
+
+      </vertical>
+    </better-image>
+  </horizontal>
+
+</vertical>

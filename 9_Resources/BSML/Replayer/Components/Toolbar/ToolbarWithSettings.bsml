@@ -1,0 +1,14 @@
+﻿<vertical ignore-layout="true" vertical-fit="PreferredSize">
+  <horizontal child-expand-width="false" child-control-width="false" child-align="LowerRight" pad-bottom="2">
+    <horizontal pref-height="46">
+      <macro.as-host host="settings-modal">
+        <macro.reparent transform="ui-component"/>
+      </macro.as-host>
+    </horizontal>
+  </horizontal>
+  <horizontal pref-height="10">
+    <macro.as-host host="toolbar">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </horizontal>
+</vertical>

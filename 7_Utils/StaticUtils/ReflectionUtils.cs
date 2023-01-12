@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection.Emit;
 
 namespace BeatLeader.Utils {
-    public static class ReflectionUtils {
+    internal static class ReflectionUtils {
         #region Constants
 
         public const BindingFlags DefaultFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -130,6 +130,14 @@ namespace BeatLeader.Utils {
                 types.Add(instance);
             }
             return types;
+        }
+
+        #endregion
+
+        #region Casting
+
+        public static bool TryDefine<T, U>(this T obj, out U defined) where U : T {
+            return (defined = obj is U u ? u : default) != null;
         }
 
         #endregion

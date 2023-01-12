@@ -18,6 +18,9 @@ namespace BeatLeader.Interop {
         [PluginType("SongCore.Collections")]
         private static readonly Type _collectionsType;
 
+        [PluginState]
+        private static readonly bool _isInitialized;
+
         private static MethodInfo _loaderRefreshSongsMethod;
         private static MethodInfo _collectionsRetrieveDataMethod;
         private static MethodInfo _collectionsGetCapabilitiesMethod;
@@ -51,6 +54,7 @@ namespace BeatLeader.Interop {
         #region TryRefreshSongs
 
         public static bool TryRefreshSongs(bool fullRefresh) {
+            if (!_isInitialized) return false;
             try {
                 var loaderInstance = _loaderInstanceField.GetValue(null);
                 _loaderRefreshSongsMethod.Invoke(loaderInstance, new object[] { fullRefresh });
@@ -66,6 +70,10 @@ namespace BeatLeader.Interop {
         #region TryGetBeatmapRequirements
 
         public static bool TryGetBeatmapRequirements(IDifficultyBeatmap beatmap, out string[] requirements) {
+            if (!_isInitialized) {
+                requirements = null;
+                return false;
+            }
             try {
                 var data = _collectionsRetrieveDataMethod.Invoke(null, new object[] { beatmap });
                 if (data == null) {
@@ -91,6 +99,10 @@ namespace BeatLeader.Interop {
         #region TryGetCapabilities
 
         public static bool TryGetCapabilities(out IReadOnlyCollection<string> capabilities) {
+            if (!_isInitialized) {
+                capabilities = null;
+                return false;
+            }
             try {
                 capabilities = (IReadOnlyCollection<string>)_collectionsGetCapabilitiesMethod.Invoke(null, null);
                 return true;

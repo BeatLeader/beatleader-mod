@@ -41,7 +41,6 @@ namespace BeatLeader {
 
         private static void InitializeConfig(Config config) {
             ConfigFileData.Instance = config.Generated<ConfigFileData>();
-            AutomaticConfigTool.Load();
         }
 
         #endregion
@@ -55,7 +54,6 @@ namespace BeatLeader {
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
             InteropLoader.Init();
-            RaycastBlocker.BlockerMask = 1 << 5;
         }
 
         private static void ObserveEnabled() {
@@ -81,7 +79,7 @@ namespace BeatLeader {
         [UsedImplicitly]
         public void OnApplicationQuit()
         {
-            AutomaticConfigTool.Save();
+            SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
         }
 

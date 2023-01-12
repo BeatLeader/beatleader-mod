@@ -1,7 +1,0 @@
-﻿<horizontal pref-height="6">
-	<better-image id="background" src="#black-transparent-bg" type="Sliced" ppu="10" pref-height="6">
-		<horizontal pad="1">
-			<better-image id="image" preserve-aspect="true" pref-height="4" pref-width="4"/>
-		</horizontal>
-	</better-image>
-</horizontal>

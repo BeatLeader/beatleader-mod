@@ -2,25 +2,21 @@
 using VRUIControls;
 using Zenject;
 
-namespace BeatLeader.Replayer.Tweaking
-{
-    internal class GarbageDisablerTweak : GameTweak
-    {
+namespace BeatLeader.Replayer.Tweaking {
+    internal class GarbageDisablerTweak : GameTweak {
         [Inject] private readonly MainCamera _mainCamera;
 
         [FirstResource(requireActiveInHierarchy: true)] private readonly SaberBurnMarkArea _burnMarkArea;
         [FirstResource] private readonly VRLaserPointer _pointer;
 
-        public override void Initialize()
-        {
+        public override void Initialize() {
             this.LoadResources();
 
             _pointer.gameObject.SetActive(!InputUtils.IsInFPFC);
             _burnMarkArea.gameObject.SetActive(!InputUtils.IsInFPFC);
             _mainCamera.gameObject.SetActive(false);
         }
-        public override void Dispose()
-        {
+        public override void Dispose() {
             if (_pointer != null)
                 _pointer.gameObject.SetActive(true);
 

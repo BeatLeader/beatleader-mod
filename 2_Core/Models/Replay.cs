@@ -52,6 +52,19 @@ namespace BeatLeader.Models
         public float startTime;
         public float failTime;
         public float speed;
+
+        public override string ToString() {
+            var line = string.Empty;
+            line += $"ModVersion: {version}\r\n";
+            line += $"GameVersion: {gameVersion}\r\n";
+            line += $"Platform: {platform}\r\n";
+            line += $"PlayerID: {playerID}\r\n";
+            line += $"SongHash: {hash}\r\n";
+            line += $"Mode: {mode}\r\n";
+            line += $"Modifiers: {modifiers}\r\n";
+            line += $"TotalScore: {score}\r\n";
+            return line;
+        }
     }
     public class Frame
     {

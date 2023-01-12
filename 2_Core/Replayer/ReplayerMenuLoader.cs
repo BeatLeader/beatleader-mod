@@ -6,33 +6,27 @@ using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
-using SiraUtil.Submissions;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.Replayer
-{
-    public class ReplayerMenuLoader : MonoBehaviour
-    {
+namespace BeatLeader.Replayer {
+    public class ReplayerMenuLoader : MonoBehaviour {
         #region Input Events
 
         private static event Action<Score> ScoreWasSelectedEvent;
         private static event Action PlayButtonWasPressed;
         private static event Action PlayLastButtonWasPressed;
 
-        public static void NotifyScoreWasSelected(Score score)
-        {
+        public static void NotifyScoreWasSelected(Score score) {
             ScoreWasSelectedEvent?.Invoke(score);
         }
 
-        public static void NotifyPlayButtonWasPressed()
-        {
+        public static void NotifyPlayButtonWasPressed() {
             PlayButtonWasPressed?.Invoke();
         }
 
-        public static void NotifyPlayLastButtonWasPressed()
-        {
+        public static void NotifyPlayLastButtonWasPressed() {
             PlayLastButtonWasPressed?.Invoke();
         }
 
@@ -40,33 +34,29 @@ namespace BeatLeader.Replayer
 
         #region State
 
-        public delegate void StateChangedDelegate(LoaderState state, Score score, Replay replay);
+        public delegate void StateChangedDelegate(LoaderState state, Score? score, Replay? replay);
 
-        private static event StateChangedDelegate StateChangedEvent;
+        private static event StateChangedDelegate? StateChangedEvent;
 
         public static LoaderState State { get; private set; } = LoaderState.Uninitialized;
-        public static Score Score { get; private set; }
-        public static Replay Replay { get; private set; }
+        public static Score? Score { get; private set; }
+        public static Replay? Replay { get; private set; }
 
-        public static void AddStateListener(StateChangedDelegate handler)
-        {
+        public static void AddStateListener(StateChangedDelegate handler) {
             StateChangedEvent += handler;
             handler?.Invoke(State, Score, Replay);
         }
 
-        public static void RemoveStateListener(StateChangedDelegate handler)
-        {
+        public static void RemoveStateListener(StateChangedDelegate handler) {
             StateChangedEvent -= handler;
         }
 
-        private static void SetState(LoaderState state)
-        {
+        private static void SetState(LoaderState state) {
             State = state;
             StateChangedEvent?.Invoke(State, Score, Replay);
         }
 
-        public enum LoaderState
-        {
+        public enum LoaderState {
             Uninitialized,
             DownloadRequired,
             Downloading,
@@ -77,16 +67,14 @@ namespace BeatLeader.Replayer
 
         #region Events Subscription
 
-        private void Awake()
-        {
+        private void Awake() {
             ScoreWasSelectedEvent += OnScoreWasSelected;
             PlayButtonWasPressed += OnPlayButtonWasPressed;
             PlayLastButtonWasPressed += OnPlayLastButtonWasPressed;
             DownloadReplayRequest.AddStateListener(OnDownloadRequestStateChanged);
         }
 
-        private void OnDestroy()
-        {
+        private void OnDestroy() {
             ScoreWasSelectedEvent -= OnScoreWasSelected;
             PlayButtonWasPressed -= OnPlayButtonWasPressed;
             PlayLastButtonWasPressed -= OnPlayLastButtonWasPressed;
@@ -99,20 +87,17 @@ namespace BeatLeader.Replayer
 
         private int _downloadReplayScoreId = -1;
 
-        private void OnScoreWasSelected(Score score)
-        {
+        private void OnScoreWasSelected(Score score) {
             Score = score;
             var storedReplayAvailable = ReplayerCache.TryReadReplay(score.id, out var storedReplay);
-            Replay = storedReplayAvailable ? storedReplay : default;
+            Replay = storedReplayAvailable ? storedReplay : default!;
             SetState(storedReplayAvailable ? LoaderState.ReadyToPlay : LoaderState.DownloadRequired);
         }
 
-        private void OnDownloadRequestStateChanged(API.RequestState requestState, Replay result, string failReason)
-        {
-            if (State is LoaderState.Uninitialized || requestState is not API.RequestState.Finished || _downloadReplayScoreId != Score.id) return;
+        private void OnDownloadRequestStateChanged(API.RequestState requestState, Replay result, string failReason) {
+            if (State is LoaderState.Uninitialized || requestState is not API.RequestState.Finished || _downloadReplayScoreId != Score!.id) return;
 
-            if (PluginConfig.EnableReplayCaching)
-            {
+            if (PluginConfig.EnableReplayCaching) {
                 ReplayerCache.TryWriteReplay(Score.id, result);
             }
 
@@ -121,15 +106,13 @@ namespace BeatLeader.Replayer
             StartReplay(Score.player);
         }
 
-        private void OnPlayButtonWasPressed()
-        {
-            switch (State)
-            {
+        private void OnPlayButtonWasPressed() {
+            switch (State) {
                 case LoaderState.ReadyToPlay:
-                    StartReplay(Score.player);
+                    StartReplay(Score!.player);
                     break;
                 case LoaderState.DownloadRequired:
-                    _downloadReplayScoreId = Score.id;
+                    _downloadReplayScoreId = Score!.id;
                     SetState(LoaderState.Downloading);
                     DownloadReplayRequest.SendRequest(Score.replay);
                     SendViewReplayRequest.SendRequest(Score.id);
@@ -137,8 +120,7 @@ namespace BeatLeader.Replayer
             }
         }
 
-        private void OnPlayLastButtonWasPressed()
-        {
+        private void OnPlayLastButtonWasPressed() {
             if (FileManager.TryReadReplay(FileManager.LastSavedReplay, out var storedReplay)) {
                 Replay = storedReplay;
                 StartReplay(ProfileManager.Profile);
@@ -150,53 +132,45 @@ namespace BeatLeader.Replayer
         #region StartReplay
 
         [Inject, UsedImplicitly]
-        private readonly ReplayerLauncher _launcher;
+        private readonly ReplayerLauncher _launcher = null!;
 
         [Inject, UsedImplicitly]
-        private readonly GameScenesManager _scenesManager;
+        private readonly GameScenesManager _scenesManager = null!;
 
         [Inject, UsedImplicitly]
-        private readonly IFPFCSettings _fpfcSettings;
+        private readonly IFPFCSettings _fpfcSettings = null!;
 
-        private void StartReplay(Player player)
-        {
-            StartReplayAsync(Replay, player, ConfigFileData.Instance.ReplayerSettings).Wait();
+        private void StartReplay(Player player) { 
+            StartReplayAsync(Replay!, player, ConfigFileData.Instance.ReplayerSettings);
         }
 
-        private async Task<bool> StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null)
-        {
-            var data = new ReplayLaunchData(replay, player, settings: settings);
+        public async void StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
+            settings ??= ConfigFileData.Instance.ReplayerSettings;
+            var data = new ReplayLaunchData();
+            data.Init(replay, settings, player);
+            await StartReplayAsync(data);
+        }
+
+        public async Task StartReplayAsync(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
 
-            Plugin.Log.Notice("[Loader] Download done, replay data:");
-            string line = string.Empty;
-            line += $"Player: {replay.info.playerName}\r\n";
-            line += $"Song: {replay.info.songName}\r\n";
-            line += $"Difficulty: {replay.info.difficulty}\r\n";
-            line += $"Modifiers: {replay.info.modifiers}\r\n";
-            line += $"Environment: {replay.info.environment}";
-            Plugin.Log.Info(line);
+            Plugin.Log.Notice("[Loader] Download completed!");
+            Plugin.Log.Info(data.ToString());
 
-            if (await _launcher.StartReplayAsync(data))
-            {
+            if (await _launcher.StartReplayAsync(data)) {
                 ScoreSaberInterop.RecordingEnabled = false;
                 BeatSaviorInterop.ScoreSubmissionEnabled = false;
-                return true;
+                //InputUtils.forceFPFC = !_fpfcSettings.Ignore;
             }
-            else return false;
         }
 
-        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData)
-        {
+        private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData) {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             _scenesManager.PopScenes(0.3f);
 
-            if (InputUtils.IsInFPFC)
-            {
-                InputUtils.EnableCursor(false);
-                _fpfcSettings.Enabled = true;
-            }
-
+            InputUtils.forceFPFC = null;
+            InputUtils.EnableCursor(!InputUtils.containsFPFCArg);
+            _fpfcSettings.Enabled = InputUtils.containsFPFCArg;
             ScoreSaberInterop.RecordingEnabled = true;
             BeatSaviorInterop.MarkScoreSubmissionToEnable();
         }

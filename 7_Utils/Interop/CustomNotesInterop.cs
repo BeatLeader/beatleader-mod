@@ -75,7 +75,7 @@ namespace BeatLeader.Interop {
         private static void DespawnCustomSlider(NoteController controller) {
             var component = controller.GetComponent(_customSliderControllerType);
             if (component == null) return;
-            _missSliderControllerMethod.Invoke(component, new object[] { null });
+            _missSliderControllerMethod.Invoke(component, new object[] { controller });
         }
 
         #endregion

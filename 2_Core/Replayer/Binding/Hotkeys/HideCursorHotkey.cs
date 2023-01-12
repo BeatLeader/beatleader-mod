@@ -7,9 +7,9 @@ namespace BeatLeader.Replayer.Binding
 {
     internal class HideCursorHotkey : GameHotkey
     {
-        public override KeyCode Key => _launchData.ActualSettings.Shortcuts.HideCursorHotkey;
+        public override KeyCode Key => _launchData.Settings.Shortcuts.HideCursorHotkey;
 
-        [Inject] private ReplayLaunchData _launchData;
+        [Inject] private readonly ReplayLaunchData _launchData;
 
         public override void OnKeyDown()
         {

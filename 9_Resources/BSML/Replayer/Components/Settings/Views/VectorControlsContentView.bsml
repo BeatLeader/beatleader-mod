@@ -1,0 +1,30 @@
+﻿<vertical vertical-fit="PreferredSize" spacing="1">
+
+	<horizontal id="text-container" pref-height="8">
+		<better-image src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
+			<horizontal>
+				<text id="text" rich-text="true" align="Center"/>
+			</horizontal>
+		</better-image>
+	</horizontal>
+
+	<horizontal pref-height="22">
+		<better-image src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-height="22" pref-width="48">
+			<vertical pref-width="46">
+				<horizontal id="x-slider-container" pref-height="6.5">
+					<slider-setting id="x-slider" value="x" min="~min" max="~max" increment="~increment" apply-on-change="true"
+								bind-value="true" show-buttons="true" integer-only="true" hide-text="true" skew="0"/>
+				</horizontal>
+				<horizontal id="y-slider-container" pref-height="6.5">
+					<slider-setting id="y-slider" value="y" min="~min" max="~max" increment="~increment" apply-on-change="true"
+								bind-value="true" show-buttons="true" integer-only="true" hide-text="true" skew="0"/>
+				</horizontal>
+				<horizontal id="z-slider-container" pref-height="6.5">
+					<slider-setting id="z-slider" value="z" min="~min" max="~max" increment="~increment" apply-on-change="true"
+								bind-value="true" show-buttons="true" integer-only="true" hide-text="true" skew="0"/>
+				</horizontal>
+			</vertical>
+		</better-image>
+	</horizontal>
+
+</vertical>

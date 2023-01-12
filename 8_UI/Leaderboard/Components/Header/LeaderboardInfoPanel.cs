@@ -42,7 +42,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             _websiteButton.Setup(BundleLoader.ProfileIcon);
-            _settingsButton.Setup(BundleLoader.GetSpriteFromBundle("SettingsIcon"));
+            _settingsButton.Setup(BundleLoader.SettingsIcon);
             
             _websiteButton.OnClick += WebsiteButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;

@@ -1,0 +1,8 @@
+﻿<vertical pref-width="14">
+  <better-image id="background" ignore-layout="true" src="#bl-black-transparent-bg-outline" type="Sliced" ppu="4"
+                horizontal-fit="PreferredSize" vertical-fit="PreferredSize"
+                pref-height="14" pref-width="14"/>
+  <better-image ignore-layout="true" src="#bl-anchor-icon" horizontal-fit="PreferredSize" 
+                vertical-fit="PreferredSize" pref-height="6" pref-width="5"/>
+  <bg id="container" size-delta-y="14"/>
+</vertical>

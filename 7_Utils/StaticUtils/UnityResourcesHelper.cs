@@ -9,7 +9,7 @@ namespace BeatLeader.Utils {
             var flags = BindingFlags.Public | BindingFlags.NonPublic
                 | BindingFlags.Static | BindingFlags.Instance;
 
-            var type = obj.GetType();
+            var type = obj!.GetType();
             var fields = type.GetFields(flags);
             var properties = type.GetProperties(flags);
 
@@ -27,19 +27,15 @@ namespace BeatLeader.Utils {
                     !TryFindObject(property.PropertyType,
                     attribute, out var resource)) continue;
 
-                type.GetMethod("set_" + property.Name, flags).Invoke(obj, new object[] { resource });
+                type.GetMethod("set_" + property.Name, flags)?.Invoke(obj, new object[] { resource });
             }
         }
 
         private static bool TryFindObject(Type type, FirstResourceAttribute attr, out UnityEngine.Object obj) {
             return (obj = Resources.FindObjectsOfTypeAll(type)
-                .FirstOrDefault(x => {
-                    if (!(attr.name?.Equals(type) ?? true)) return false;
-                    var comp = x as Component;
-                    if (comp != null && !(!attr.requireActiveInHierarchy 
-                    || comp.gameObject.activeInHierarchy)) return false;
-                    return true;
-                })) != null;
+                .FirstOrDefault(x => (attr.name?.Equals(x.name) ?? true)
+                && (x is not Component || !attr.requireActiveInHierarchy 
+                || (x as Component)!.gameObject.activeInHierarchy))) != null;
         }
     }
 }

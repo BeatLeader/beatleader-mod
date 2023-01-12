@@ -1,0 +1,17 @@
+﻿<vertical spacing="1" pref-width="48">
+
+  <macro.as-host host="body-menu-button">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+  <macro.as-host host="timeline-menu-button">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+
+  <vertical pref-width="46">
+    <bool-setting id="watermark-toggle" text="Watermark" value="show-watermark"
+                  apply-on-change="true" bind-value="true" skew="0"/>
+    <bool-setting text="Auto-Exit replay" value="exit-replay-automatically"
+                  apply-on-change="true" bind-value="true" skew="0"/>
+  </vertical>
+</vertical>
+

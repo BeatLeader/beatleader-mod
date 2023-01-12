@@ -19,24 +19,31 @@ namespace BeatLeader.UI.BSML_Addons.Extensions {
             if (!componentType.data.TryGetValue("hideText", out string showText) || 
                 !bool.TryParse(showText, out bool showTextBool) || !showTextBool) return;
 
+            GameObject text = null;
+            Transform transform = null;
+            Transform parent = null;
             switch (componentType.component) {
                 case SliderSetting sliderSetting:
-                    Transform parent = sliderSetting.slider.transform.parent;
-                    GameObject.Destroy(sliderSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject);
-                    sliderSetting.slider.transform.GetChildren()
-                        .ForEach(x => x.transform.SetParent(parent, false));
+                    parent = sliderSetting.slider.transform.parent;
+                    transform = sliderSetting.slider.transform;
+                    text = sliderSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject;
                     break;
                 case IncDecSetting incDecSetting:
-                    GameObject.Destroy(incDecSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject);
-                    incDecSetting.text.transform.parent.GetChildren()
-                        .ForEach(x => x.transform.SetParent(incDecSetting.transform, false));
+                    text = incDecSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject;
+                    transform = incDecSetting.text.transform.parent; 
+                    parent = incDecSetting.transform;
                     break;
                 case ToggleSetting toggleSetting:
-                    GameObject.Destroy(toggleSetting.text.gameObject);
-                    toggleSetting.toggle.transform.GetChildren()
-                        .ForEach(x => x.transform.SetParent(toggleSetting.transform, false));
+                    text = toggleSetting.text.gameObject;
+                    transform = toggleSetting.toggle.transform; 
+                    parent = toggleSetting.transform;
                     break;
+                default:
+                    return;
             }
+            
+            GameObject.Destroy(text);
+            transform.GetChildren().ForEach(x => x.transform.SetParent(parent, false));
         }
     }
 }

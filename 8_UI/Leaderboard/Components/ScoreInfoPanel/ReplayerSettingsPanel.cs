@@ -1,5 +1,4 @@
-﻿using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components
@@ -9,16 +8,16 @@ namespace BeatLeader.Components
         #region Components
 
         [UIValue("hint-field"), UsedImplicitly]
-        private HintField _hintField;
+        private HintField _hintField = null!;
 
         [UIValue("show-ui-toggle"), UsedImplicitly]
-        private ReplayerSettingsToggle _showUIToggle;
+        private ReplayerSettingsToggle _showUIToggle = null!;
 
         [UIValue("override-environment-toggle"), UsedImplicitly]
-        private ReplayerSettingsToggle _overrideEnvironmentToggle;
+        private ReplayerSettingsToggle _overrideEnvironmentToggle = null!;
 
         [UIValue("save-toggle"), UsedImplicitly]
-        private ReplayerSettingsToggle _saveToggle;
+        private ReplayerSettingsToggle _saveToggle = null!;
 
         private void Awake()
         {
@@ -37,7 +36,7 @@ namespace BeatLeader.Components
             _hintField.Setup("<alpha=#66>Player Settings");
 
             _showUIToggle.Setup(BundleLoader.UIIcon, "Enable UI", _hintField);
-            _showUIToggle.Value = PluginConfig.ReplayerSettings.ShowUI;
+            _showUIToggle.Value = !PluginConfig.ReplayerSettings.AutoHideUI;
             _showUIToggle.OnClick += _ => UpdateReplayerSettings();
 
             _overrideEnvironmentToggle.Setup(BundleLoader.SceneIcon, "Override environment", _hintField);
@@ -47,13 +46,6 @@ namespace BeatLeader.Components
             _saveToggle.Setup(BundleLoader.SaveIcon, "Save after download", _hintField);
             _saveToggle.Value = PluginConfig.EnableReplayCaching;
             _saveToggle.OnClick += OnSaveToggleValueChanged;
-
-            PluginConfig.ReplayerSettingsChangedEvent += UpdateReplayerSettings;
-        }
-
-        protected override void OnDispose()
-        {
-            PluginConfig.ReplayerSettingsChangedEvent -= UpdateReplayerSettings;
         }
 
         #endregion
@@ -65,15 +57,10 @@ namespace BeatLeader.Components
             PluginConfig.EnableReplayCaching = value;
         }
 
-        private void UpdateReplayerSettings(ReplayerSettings settings)
-        {
-            _showUIToggle.Value = settings.ShowUI;
-        }
-
         private void UpdateReplayerSettings()
         {
             var settings = PluginConfig.ReplayerSettings;
-            settings.ShowUI = _showUIToggle.Value;
+            settings.AutoHideUI = !_showUIToggle.Value;
             settings.LoadPlayerEnvironment = _overrideEnvironmentToggle.Value;
         }
 

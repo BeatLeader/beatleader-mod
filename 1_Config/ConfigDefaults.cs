@@ -1,10 +1,8 @@
 using BeatLeader.Models;
 using UnityEngine;
 
-namespace BeatLeader
-{
-    internal static class ConfigDefaults
-    {
+namespace BeatLeader {
+    internal static class ConfigDefaults {
         #region Enabled
 
         public const bool Enabled = true;
@@ -30,40 +28,34 @@ namespace BeatLeader
 
         #region ReplayerSettings
 
-        public static ReplayerSettings ReplayerSettings => new()
-        {
-            ShowUI = true,
-            ForceUseReplayerCamera = false,
+        public static ReplayerSettings ReplayerSettings => new() {
+            AutoHideUI = false,
             LoadPlayerEnvironment = false,
+            ExitReplayAutomatically = true,
 
             ShowHead = false,
             ShowLeftSaber = true,
             ShowRightSaber = true,
             ShowWatermark = true,
 
-            MaxFOV = 110,
-            MinFOV = 70,
-            CameraFOV = 90,
-            FPFCCameraPose = "PlayerView",
-            VRCameraPose = "BehindView",
+            ShowTimelineMisses = true,
+            ShowTimelineBombs = true,
+            ShowTimelinePauses = true,
 
-            Shortcuts = new()
-            {
-                HideUIHotkey = KeyCode.H,
+            MaxCameraFOV = 110,
+            MinCameraFOV = 70,
+            CameraFOV = 90,
+            FPFCCameraView = "PlayerView",
+            VRCameraView = "BehindView",
+
+            Shortcuts = new() {
+                LayoutEditorPartialModeHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,
                 RewindForwardHotkey = KeyCode.RightArrow,
                 RewindBackwardHotkey = KeyCode.LeftArrow,
+                LayoutEditorAntiSnapHotkey = KeyCode.LeftShift,
             }
-        };
-
-        public static FloatingConfig FloatingConfig => new()
-        {
-            Position = new UnityEngine.Vector3(0, 1, 2),
-            Rotation = UnityEngine.Quaternion.Euler(new UnityEngine.Vector3(40, 0, 0)),
-            GridPosIncrement = 0.2f,
-            GridRotIncrement = 5,
-            IsPinned = true
         };
 
         #endregion

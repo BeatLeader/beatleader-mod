@@ -1,0 +1,13 @@
+﻿<horizontal>
+	<better-button id="button" normal-image="#bl-white-bg" type="Sliced" ppu="8" 
+                 transition="ColorTint" on-click="button-clicked"
+				         pref-height="5" horizontal-fit="Unconstrained">
+		<horizontal id="contents-group" pad-left="2" pad-right="2" child-align="MiddleLeft">
+			<text id="text" rich-text="true"/>
+			<horizontal id="arrow-group" child-expand-width="false" child-align="MiddleRight">
+				<better-image id="arrow" src="#bl-right-arrow-icon" pref-height="4" pref-width="3" 
+                      vertical-fit="PreferredSize" horizontal-fit="PreferredSize"/>
+			</horizontal>
+		</horizontal>
+	</better-button>
+</horizontal>

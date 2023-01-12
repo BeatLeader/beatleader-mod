@@ -1,0 +1,17 @@
+﻿<vertical spacing="1">
+  <macro.as-host host="other-menu-button">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+  <macro.as-host host="camera-menu-button">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+  <macro.as-host host="separator">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+  <macro.as-host host="layout-editor-setting">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+  <macro.as-host host="speed-setting">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+</vertical>

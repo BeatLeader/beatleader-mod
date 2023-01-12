@@ -91,7 +91,6 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                     }
                     #endregion
 
-                    #region Button images
                     if (componentType.data.TryGetValue("highlightedSprite", out string highlightedImage))
                     {
                         SpriteState spriteState = button.Button.spriteState;
@@ -104,7 +103,6 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                         spriteState.pressedSprite = BSMLUtility.LoadSprite(pressedImage);
                         button.Button.spriteState = spriteState;
                     }
-                    #endregion
 
                     BetterImageHandler.HandleImage(componentType.data, button.TargetGraphic);
                 }

@@ -19,6 +19,7 @@ namespace BeatLeader {
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
             PatchScoreSubmission();
             PatchCustomCampaigns();
+            PatchTournamentAssistant();
         }
 
         private static void PatchScoreSubmission() {
@@ -36,6 +37,15 @@ namespace BeatLeader {
                 RecorderCustomCampaignUtilPatch.ApplyPatch(_harmony);
             } catch (Exception e) {
                 Plugin.Log.Warn("Can't patch Custom Campaigns methods");
+                Plugin.Log.Warn(e);
+            }
+        }
+
+        private static void PatchTournamentAssistant() {
+            try {
+                RecorderTournamentAssistantUtilPatch.ApplyPatch(_harmony);
+            } catch (Exception e) {
+                Plugin.Log.Warn("Can't patch Tournament Assistant methods");
                 Plugin.Log.Warn(e);
             }
         }

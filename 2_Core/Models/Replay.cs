@@ -547,28 +547,8 @@ namespace BeatLeader.Models
             for (int i = 0; i < length; i++)
             {
                 var frame  = DecodeFrame(buffer, ref pointer);
-                if (frame.time != 0) {
+                if (frame.time != 0 && (result.length == 0 || frame.time != result[result.length - 1].time)) {
                     result.Add(frame);
-                }
-            }
-            if (result.Count > 2)
-            {
-                var sameFramesCount = 0;
-                while (result[sameFramesCount].time == result[sameFramesCount + 1].time)
-                {
-                    sameFramesCount++;
-                }
-
-                if (sameFramesCount > 0)
-                {
-                    sameFramesCount++;
-
-                    var newResult = new List<Frame>();
-                    for (int index = 0; index < result.Count; index += sameFramesCount)
-                    {
-                        newResult.Add(result[index]);
-                    }
-                    result = newResult;
                 }
             }
             return result;

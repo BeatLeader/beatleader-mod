@@ -3,28 +3,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Transform = UnityEngine.Transform;
 
 namespace BeatLeader.Replayer {
     internal class ViewableCameraController : MonoBehaviour, IViewableCameraController {
-        public IVRControllersProvider ControllersProvider { get; private set; } = null!;
+        public IVRControllersProvider ControllersProvider { get; set; } = null!;
+        public Transform CameraContainer {
+            get => _cameraContainer;
+            set => _cameraContainer = value ?? transform;
+        }
+        public Camera? Camera => _camera;
         public IList<ICameraView> Views { get; } = new List<ICameraView>();
         public ICameraView? SelectedView => _view;
-        public Camera? Camera => _camera;
-        public UnityEngine.Transform CameraContainer => transform;
 
         public event Action<ICameraView>? CameraViewChangedEvent;
         public event Action? CameraViewProcessedEvent;
 
         private ICameraView? _view;
         private Camera? _camera;
+        private Transform _cameraContainer = null!;
         private bool _cameraIsNotNull;
         private bool _viewIsNotNull;
 
-        public void SetControllers(IVRControllersProvider provider) {
-            ControllersProvider = provider;
+        private void Awake() {
+            _cameraContainer = transform;
         }
 
-        public void SetCamera(Camera camera) {
+        public void SetCamera(Camera? camera) {
             _camera = camera;
             _cameraIsNotNull = camera != null;
             UpdateView();

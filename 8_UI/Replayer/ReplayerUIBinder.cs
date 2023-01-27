@@ -11,11 +11,11 @@ namespace BeatLeader.UI {
     internal class ReplayerUIBinder : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly MenuControllersManager _menuControllersManager;
-        [Inject] private readonly Replayer2DViewController _screenViewController;
-        [Inject] private readonly ReplayerVRViewController _vrViewController;
-        [Inject] private readonly ReplayLaunchData _launchData;
-        [Inject] private readonly IReplayPauseController _pauseController;
+        [Inject] private readonly ReplayerExtraObjectsProvider _extraObjects = null!;
+        [Inject] private readonly Replayer2DViewController _screenViewController = null!;
+        [Inject] private readonly ReplayerVRViewController _vrViewController = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
+        [Inject] private readonly IReplayPauseController _pauseController = null!;
 
         #endregion
 
@@ -55,7 +55,8 @@ namespace BeatLeader.UI {
             ViewController = InputUtils.IsInFPFC ? _screenViewController : _vrViewController;
             ViewController.Init();
             if (!InputUtils.IsInFPFC) {
-                ViewController.Container.transform.SetParent(_menuControllersManager.HandsContainer, false);
+                ViewController.Container.transform
+                    .SetParent(_extraObjects.ReplayerCenterAdjust, false);
             }
             AutoHideUI = _launchData.Settings.AutoHideUI;
         }

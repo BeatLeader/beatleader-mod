@@ -70,6 +70,7 @@ namespace BeatLeader.Installers {
 
             //Dependencies
             Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData!).AsSingle();
+            Container.Bind<ReplayerExtraObjectsProvider>().FromNewComponentOnNewGameObject().AsSingle();
 
             //Core logic(Playback)
             Container.BindInterfacesAndSelfTo<ReplayPauseController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

@@ -6,18 +6,14 @@ using Zenject;
 
 namespace BeatLeader.Replayer {
     public class MenuControllersManager : MonoBehaviour {
+        [Inject] private readonly ReplayerExtraObjectsProvider _extraObjects = null!;
         [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
         [Inject] private readonly DiContainer _diContainer = null!; 
         [Inject] private readonly VRInputModule _vrInputModule = null!;
 
-        [FirstResource] private readonly MainSettingsModelSO _mainSettingsModel = null!;
-
         public Transform HandsContainer { get; private set; } = null!;
         public VRController LeftHand { get; private set; } = null!;
         public VRController RightHand { get; private set; } = null!;
-
-        [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
-        private readonly Transform Origin = null!;
 
         public void ShowHands(bool show = true) {
             LeftHand.gameObject.SetActive(show);
@@ -36,9 +32,7 @@ namespace BeatLeader.Replayer {
             _diContainer.InjectComponentsInChildren(RightHand.gameObject);
 
             HandsContainer = new GameObject("ReplayerHands").transform;
-            HandsContainer.SetParent(Origin, true);
-            HandsContainer.transform.localPosition = _mainSettingsModel.roomCenter;
-            HandsContainer.transform.localEulerAngles = new(0, _mainSettingsModel.roomRotation, 0);
+            HandsContainer.SetParent(_extraObjects.ReplayerCenterAdjust, false);
 
             LeftHand.transform.SetParent(HandsContainer, false);
             RightHand.transform.SetParent(HandsContainer, false);

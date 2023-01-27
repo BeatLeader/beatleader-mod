@@ -5,7 +5,6 @@ using BeatLeader.Utils;
 using System.Collections.Generic;
 using BeatLeader.Models;
 using Vector3 = UnityEngine.Vector3;
-using Transform = UnityEngine.Transform;
 using BeatLeader.Replayer.Emulation;
 
 namespace BeatLeader.Replayer {
@@ -30,24 +29,15 @@ namespace BeatLeader.Replayer {
         };
 
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
-        [Inject] private readonly MenuControllersManager _menuControllersManager = null!;
+        [Inject] private readonly ReplayerExtraObjectsProvider _extraObjects = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;
 
         public IViewableCameraController ViewableCamera => _cameraController;
 
-        [FirstResource]
-        private readonly MainSettingsModelSO _mainSettingsModel = null!;
-
-        [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
-        private readonly Transform Origin = null!;
-
         private bool _isInitialized;
         private ViewableCameraController _cameraController = null!;
         private Camera? _camera;
-
-        private Vector3 _handsOriginalPos;
-        private Vector3 _handsOriginalRot;
 
         private void Awake() {
             this.LoadResources();
@@ -58,23 +48,22 @@ namespace BeatLeader.Replayer {
             }
             var cameraTransform = _camera.transform;
             cameraTransform.SetParent(transform, false);
-            if (!InputUtils.IsInFPFC) {
-                cameraTransform.localPosition = _mainSettingsModel.roomCenter;
-                cameraTransform.localEulerAngles = new(0, _mainSettingsModel.roomRotation, 0);
-            }
             _cameraController = gameObject.AddComponent<ViewableCameraController>();
             _cameraController.SetCamera(_camera);
+            _cameraController.CameraContainer = _extraObjects.ReplayerCore;
             var viewsList = _cameraController.Views;
             foreach (var view in InputUtils.IsInFPFC ? FPFCViews : VRViews) {
                 viewsList.Add(view);
             }
             HandlePriorityPlayerChanged(_playersManager.PriorityPlayer!);
-            transform.SetParent(Origin, false);
+            transform.SetParent(_extraObjects.ReplayerCenterAdjust, false);
             _camera.enabled = true;
             _isInitialized = true;
         }
 
-        private void Setup() {
+        private void Start() {
+            if (!_isInitialized) return;
+            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
             if (InputUtils.IsInFPFC) {
                 _camera!.fieldOfView = _launchData.Settings.CameraFOV;
             }
@@ -87,30 +76,12 @@ namespace BeatLeader.Replayer {
             }
         }
 
-        private void Start() {
-            if (!_isInitialized) return;
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
-            if (!InputUtils.IsInFPFC) {
-                var container = _menuControllersManager.HandsContainer;
-                _handsOriginalPos = container.localPosition;
-                _handsOriginalRot = container.localEulerAngles;
-                _cameraController.CameraViewProcessedEvent += HandleViewProcessedEvent;
-            }
-            Setup();
-        }
-
         private void OnDestroy() {
             _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
 
         private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            _cameraController.SetControllers(player.ControllersProvider!);
-        }
-
-        private void HandleViewProcessedEvent() {
-            var container = _menuControllersManager.HandsContainer;
-            container.localPosition = _handsOriginalPos + transform.localPosition;
-            container.localEulerAngles = _handsOriginalRot + transform.localEulerAngles;
+            _cameraController.ControllersProvider = player.ControllersProvider!;
         }
 
         private static Camera? CreateCamera() {

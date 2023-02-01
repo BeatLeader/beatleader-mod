@@ -94,6 +94,8 @@ namespace BeatLeader.Components {
             if (!_editablesWithMaps.Remove(element)) return;
             UnsubscribeEditable(element);
             _tableView.Remove(element);
+            element.WrapperState = false;
+            element.Root.gameObject.SetActive(false);
             //element.Root.SetParent(null);
         }
 

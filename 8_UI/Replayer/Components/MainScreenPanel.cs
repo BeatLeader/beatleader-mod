@@ -34,6 +34,7 @@ namespace BeatLeader.Components {
         #region Setup
 
         private IReplayPauseController _pauseController = null!;
+        private bool _playerNotSet;
 
         public void Setup(
             IReplayPauseController pauseController,
@@ -53,7 +54,12 @@ namespace BeatLeader.Components {
 
             if (!launchData.IsBattleRoyale) {
                 var player = launchData.Replays[0].Key;
-                if (player != null) _playerInfo.SetPlayer(player);
+                if (player != null) {
+                    _playerInfo.SetPlayer(player);
+                } else {
+                    _playerNotSet = true;
+                    LayoutEditor.Remove(_playerInfo);
+                }
             }
         }
 
@@ -71,7 +77,11 @@ namespace BeatLeader.Components {
             LayoutEditor.layoutMapsSource = configInstance;
 
             LayoutEditor.Setup(_containerRect);
-            LayoutEditor.Add(_playerInfo, _toolbar, _songInfo);
+            LayoutEditor.Add(_toolbar, _songInfo);
+            if (!_playerNotSet) {
+                LayoutEditor.Add(_playerInfo);
+            }
+            _playerInfo.Root.gameObject.SetActive(!_playerNotSet);
             CoroutinesHandler.instance.StartCoroutine(MapLayoutCoroutine());
         }
 

@@ -97,7 +97,6 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //UI
-            //Container.Bind<ReplayFinishViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
             Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -112,7 +111,7 @@ namespace BeatLeader.Installers {
 
                 var smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
                 var FPFCToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
-                var simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
+                //var simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
 
                 //Container.Unbind<IFPFCSettings>();
                 Container.UnbindInterfacesTo(smoothCameraListenerType);

@@ -35,8 +35,8 @@ namespace BeatLeader.Interop {
         public static void ResetMissedCounter() {
             InteractMissedCounter(static x => {
                 _missedCounterNotesMissedFld.SetValue(x, 0);
-                var text = (TMP_Text)_missedCounterNotesMissedTextFld.GetValue(_missedCounterObj);
-                text.text = 0.ToString();
+                var text = ((TMP_Text)_missedCounterNotesMissedTextFld
+                    .GetValue(_missedCounterObj)).text = 0.ToString();
             });
         }
 

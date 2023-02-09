@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Utilities;
@@ -171,6 +172,9 @@ namespace BeatLeader.Replayer.Emulation {
                     SimulateNoteWasMissed(noteEvent);
                     break;
             }
+            if (!_eventsProcessor.IsReprocessingEventsNow) return;
+            CountersPlusInterop.HandleMissedCounterNoteWasCut(
+                _noteControllerEmulator.CutInfo);
         }
         private void HandleWallProcessRequested(WallEvent wallEvent) {
             _scoringMultisilencer.Enabled = false;
@@ -203,6 +207,8 @@ namespace BeatLeader.Replayer.Emulation {
 
             _comboController.SetField("_combo", 0);
             _comboController.SetField("_maxCombo", 0);
+
+            CountersPlusInterop.ResetMissedCounter();
         }
         private void HandleReprocessDone() {
             _cutScoreSpawnerSilencer.Enabled = false;

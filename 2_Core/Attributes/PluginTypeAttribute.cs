@@ -1,8 +1,8 @@
-﻿using BeatLeader.Models;
-using System;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace BeatLeader.Attributes {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property), MeansImplicitUse]
     internal class PluginTypeAttribute : Attribute {
         public PluginTypeAttribute(string type) {
             this.type = type;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 
 namespace BeatLeader.Utils {
@@ -30,7 +29,7 @@ namespace BeatLeader.Utils {
         public static PropertyBuilder AddGetOnlyProperty(
             this TypeBuilder typeBuilder,
             string name, FieldInfo fieldInfo,
-            MethodInfo overrider = null) {
+            MethodInfo? overrider = null) {
             var type = fieldInfo.FieldType;
             var getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
@@ -52,25 +51,20 @@ namespace BeatLeader.Utils {
 
         #region Attributes
 
-        public static IReadOnlyCollection<KeyValuePair<PropertyInfo, T>> GetPropertiesWithAttribute<T>(this Type type, BindingFlags flags = DefaultFlags) where T : Attribute {
-            Dictionary<PropertyInfo, T> dictionary = new();
-            foreach (var property in type.GetProperties(flags)) {
-                var attr = property.GetCustomAttribute<T>();
-                if (attr == null) continue;
-                dictionary.Add(property, attr);
+        public static Dictionary<U, T> GetMembersWithAttribute<T, U>(
+            this Type type, BindingFlags flags = DefaultFlags) 
+            where T : Attribute where U : MemberInfo {
+            Dictionary<U, T> dictionary = new();
+            foreach (var member in type.GetMembers(flags)) {
+                var attr = member.GetCustomAttribute<T>();
+                if (attr == null || !member.TryDefine
+                    <MemberInfo, U>(out var definedMember)) continue;
+                dictionary.Add(definedMember!, attr);
             }
             return dictionary;
         }
-        public static IReadOnlyCollection<KeyValuePair<FieldInfo, T>> GetFieldsWithAttribute<T>(this Type type, BindingFlags flags = DefaultFlags) where T : Attribute {
-            Dictionary<FieldInfo, T> dictionary = new();
-            foreach (var field in type.GetFields(flags)) {
-                var attr = field.GetCustomAttribute<T>();
-                if (attr == null) continue;
-                dictionary.Add(field, attr);
-            }
-            return dictionary;
-        }
-        public static IReadOnlyCollection<KeyValuePair<Type, T>> GetTypesWithAttribute<T>(this Assembly assembly) where T : Attribute {
+
+        public static Dictionary<Type, T> GetTypesWithAttribute<T>(this Assembly assembly) where T : Attribute {
             Dictionary<Type, T> dictionary = new();
             foreach (var type in assembly.GetTypes()) {
                 var attr = type.GetCustomAttribute<T>();
@@ -82,61 +76,46 @@ namespace BeatLeader.Utils {
 
         #endregion
 
-        #region CustomGetters
+        #region GetMethod
 
         public static MethodInfo GetMethod(
             this Type targetType,
             string name,
             BindingFlags bindingAttr = DefaultFlags,
-            Type[] types = null,
-            Binder binder = null) {
+            Type[]? types = null,
+            Binder? binder = null) {
             return targetType.GetMethod(name, bindingAttr, binder, types, null);
-        }
-
-        public static IReadOnlyCollection<Type> GetTypes(
-            this Assembly assembly,
-            Func<Type, bool> filter) {
-            return assembly.GetTypes().Where(filter).ToList();
-        }
-
-        public static IReadOnlyCollection<FieldInfo> GetFields(
-            this Type targetType,
-            Func<FieldInfo, bool> filter = null,
-            BindingFlags flags = DefaultFlags) {
-            return targetType.GetFields(flags).Where(x => filter?.Invoke(x) ?? true).ToList();
-        }
-
-        public static IReadOnlyCollection<PropertyInfo> GetProperties(
-            this Type targetType,
-            Func<PropertyInfo, bool> filter = null,
-            BindingFlags flags = DefaultFlags) {
-            return targetType.GetProperties(flags).Where(x => filter?.Invoke(x) ?? true).ToList();
-        }
-
-
-        #endregion
-
-        #region CustomActivator
-
-        public static IReadOnlyCollection<T> ScanAndActivateTypes<T>(
-            this Assembly assembly,
-            Func<T, bool> filter = null,
-            Func<Type, T> activator = null) {
-            List<T> types = new();
-            foreach (var item in assembly.GetTypes()) {
-                if (item != typeof(T) && item.BaseType != typeof(T)) continue;
-                var instance = activator != null ? activator(item) : (T)Activator.CreateInstance(item);
-                if (!filter?.Invoke(instance) ?? false) continue;
-                types.Add(instance);
-            }
-            return types;
         }
 
         #endregion
 
         #region Casting
 
-        public static bool TryDefine<T, U>(this T obj, out U defined) where U : T {
+        public static bool SetValueImplicitly(this MemberInfo member, object? obj, object? value) {
+            switch (member) {
+                case FieldInfo fld:
+                    fld.SetValue(null, value);
+                    break;
+                case PropertyInfo prop:
+                    prop.SetValue(null, value);
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+
+        public static bool GetMemberTypeImplicitly(this MemberInfo member, out Type? type) {
+            return (type = member.MemberType switch {
+                MemberTypes.Event => (member as EventInfo)!.EventHandlerType,
+                MemberTypes.Field => (member as FieldInfo)!.FieldType,
+                MemberTypes.Property => (member as PropertyInfo)!.PropertyType,
+                MemberTypes.Method => (member as MethodInfo)!.ReturnType,
+                _ => null
+            }) != null;
+        }
+
+        public static bool TryDefine<T, U>(this T obj, out U? defined) where U : T {
             return (defined = obj is U u ? u : default) != null;
         }
 

@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     public class ReplayerSettings {
+        public static ReplayerSettings UserSettings => ConfigDefaults.ReplayerSettings;
+
         public bool AutoHideUI { get; set; }
         public bool LoadPlayerEnvironment { get; set; }
         public bool ExitReplayAutomatically { get; set; }

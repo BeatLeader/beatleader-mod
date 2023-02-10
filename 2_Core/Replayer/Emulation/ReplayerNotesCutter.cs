@@ -39,11 +39,6 @@ namespace BeatLeader.Replayer.Emulation {
                 return;
             }
             switch (noteEvent.eventType) {
-                case NoteEventType.miss:
-                    var missEvents = ((LazyCopyHashSet<INoteControllerNoteWasMissedEvent>)noteController!.noteWasMissedEvent).items;
-                    missEvents.ForEach(x => x.HandleNoteControllerNoteWasMissed(noteController));
-                    break;
-
                 case NoteEventType.good:
                 case NoteEventType.bad:
                 case NoteEventType.bomb:

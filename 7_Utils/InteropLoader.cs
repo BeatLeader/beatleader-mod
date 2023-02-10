@@ -22,20 +22,24 @@ namespace BeatLeader.Utils {
         }
 
         private static void LoadInterop(Type type, PluginInteropAttribute attr) {
-            var plugin = PluginManager.GetPluginFromId(attr.pluginId);
-            if (plugin == null) {
-                Plugin.Log.Warn($"Plugin {attr.pluginId} not found, {type.Name} will not be loaded");
-                return;
+            try {
+                var plugin = PluginManager.GetPluginFromId(attr.pluginId);
+                if (plugin == null) {
+                    Plugin.Log.Warn($"Plugin {attr.pluginId} not found, {type.Name} will not be loaded");
+                    return;
+                }
+                if (!IsVersionCorrect(plugin.HVersion, attr.worksUntilVersion!)) {
+                    Plugin.Log.Warn($"Plugin {attr.pluginId} version({plugin.HVersion}) not matches specified({attr.worksUntilVersion}), {type.Name} will not be loaded");
+                    return;
+                }
+                var assembly = plugin.Assembly;
+                SetPluginAssembly(type, assembly);
+                var setAssemblyResult = SetPluginTypes(type, assembly);
+                var invokeEntryResult = InvokeEntryMethod(type, !setAssemblyResult);
+                SetPluginState(type, invokeEntryResult);
+            } catch (Exception ex) {
+                Plugin.Log.Warn($"Plugin {attr.pluginId} interop load failed with exception: {ex}");
             }
-            if (!IsVersionCorrect(plugin.HVersion, attr.worksUntilVersion!)) {
-                Plugin.Log.Warn($"Plugin {attr.pluginId} version({plugin.HVersion}) not matches specified({attr.worksUntilVersion}), {type.Name} will not be loaded");
-                return;
-            }
-            var assembly = plugin.Assembly;
-            SetPluginAssembly(type, assembly);
-            var setAssemblyResult = SetPluginTypes(type, assembly);
-            var invokeEntryResult = InvokeEntryMethod(type, !setAssemblyResult);
-            SetPluginState(type, invokeEntryResult);
         }
 
         private static bool IsVersionCorrect(Version pluginVersion, string specifiedVersion) {

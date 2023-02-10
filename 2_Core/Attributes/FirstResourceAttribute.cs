@@ -1,7 +1,8 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace BeatLeader {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property), MeansImplicitUse]
     public class FirstResourceAttribute : Attribute {
         public FirstResourceAttribute(string? name = null, bool requireActiveInHierarchy = false) {
             this.name = name;

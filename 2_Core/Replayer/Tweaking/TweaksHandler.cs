@@ -30,8 +30,11 @@ namespace BeatLeader.Replayer.Tweaking {
             new RaycastBlockerTweak(),
             new RoomOffsetsTweak(),
             new ReplayFailTweak(),
-            new ReplayFinishTweak()
+            new ReplayFinishTweak(),
+            new JumpDistanceTweak()
         };
+
+        #region Installation
 
         private void Awake() {
             HandleAddedTweaks(_tweaks, false);
@@ -46,19 +49,9 @@ namespace BeatLeader.Replayer.Tweaking {
             HandleRemovedTweaks(_tweaks);
         }
 
-        private void HandleAddedTweaks(IEnumerable tweaks, bool late = true) {
-            var items = (IEnumerable<GameTweak>)tweaks;
-            PerformAction(ActionType.Inject, items);
-            PerformAction(late ? ActionType.LateInitialize : ActionType.Initialize, items);
-        }
-
-        private void HandleRemovedTweaks(IEnumerable tweaks) {
-            PerformAction(ActionType.Dispose, (IEnumerable<GameTweak>)tweaks);
-        }
-
         private void PerformAction(ActionType action, IEnumerable<GameTweak> tweaks) {
             foreach (var tweak in tweaks) {
-                if (!tweak.CanBeInstalled) continue;
+                if (action != ActionType.Inject && !tweak.CanBeInstalled) continue;
                 try {
                     switch (action) {
                         case ActionType.Inject:
@@ -80,6 +73,20 @@ namespace BeatLeader.Replayer.Tweaking {
             }
         }
 
+        #endregion
+
+        #region Collection
+
+        private void HandleAddedTweaks(IEnumerable tweaks, bool late = true) {
+            var items = (IEnumerable<GameTweak>)tweaks;
+            PerformAction(ActionType.Inject, items);
+            PerformAction(late ? ActionType.LateInitialize : ActionType.Initialize, items);
+        }
+
+        private void HandleRemovedTweaks(IEnumerable tweaks) {
+            PerformAction(ActionType.Dispose, (IEnumerable<GameTweak>)tweaks);
+        }
+
         private void HandleCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Add:
@@ -95,5 +102,7 @@ namespace BeatLeader.Replayer.Tweaking {
                     break;
             }
         }
+
+        #endregion
     }
 }

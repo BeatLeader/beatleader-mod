@@ -14,7 +14,7 @@ namespace BeatLeader.Components {
         #region Components
 
         [UIValue("settings-panel"), UsedImplicitly]
-        private ReplayerSettingsPanel _settingsPanel;
+        private ReplayerSettingsPanel _settingsPanel = null!;
 
         private void Awake() {
             _settingsPanel = Instantiate<ReplayerSettingsPanel>(transform);
@@ -85,7 +85,7 @@ namespace BeatLeader.Components {
         #region Play button
 
         [UIComponent("play-button"), UsedImplicitly]
-        private Button _playButton;
+        private Button _playButton = null!;
 
         private bool _buttonShouldBeInteractable = true;
 

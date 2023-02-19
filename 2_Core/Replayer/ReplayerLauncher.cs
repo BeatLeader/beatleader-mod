@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
-using static BeatmapLevelsModel;
 
 namespace BeatLeader.Replayer {
     public class ReplayerLauncher : MonoBehaviour {
@@ -29,21 +28,18 @@ namespace BeatLeader.Replayer {
             if (data.Replays.Count == 0) return false;
 
             var beatmapDiff = data.DifficultyBeatmap;
-            if (beatmapDiff == null) {
-                var loadingResult = await GetBeatmapDifficultyByReplayInfoAsync(data.MainReplay.info, token);
-                if (loadingResult.isError) return false;
-                beatmapDiff = loadingResult.value;
-            }
+            beatmapDiff ??= await GetBeatmapDifficultyByReplayInfoAsync(data.MainReplay.info, token);
+            if (beatmapDiff == null) return false;
 
             if (token.IsCancellationRequested) return false;
             var environmentInfo = await GetEnvironmentByLaunchData(data);
 
             if (token.IsCancellationRequested) return false;
-            data.Init(data.Replays, data.Settings, beatmapDiff!, data.EnvironmentInfo);
+            data.Init(data.Replays, data.Settings, beatmapDiff!, environmentInfo);
 
             if (token.IsCancellationRequested) return false;
             var transitionData = data.CreateTransitionData(_playerDataModel);
-            transitionData.didFinishEvent += ResetData;
+            transitionData.didFinishEvent += HandleLevelFinish;
 
             IsStartedAsReplay = true;
             LaunchData = data;
@@ -56,56 +52,47 @@ namespace BeatLeader.Replayer {
             return true;
         }
 
-        private async Task<RequestResult<IDifficultyBeatmap>> GetBeatmapDifficultyByReplayInfoAsync(ReplayInfo info, CancellationToken token) {
-            static RequestResult<IDifficultyBeatmap> GenerateError() => new(true, null);
+        private async Task<IDifficultyBeatmap?> GetBeatmapDifficultyByReplayInfoAsync(ReplayInfo info, CancellationToken token) {
+            var beatmapLevel = await GetBeatmapLevelByHashAsync(info.hash, token);
+            if (beatmapLevel == null || token.IsCancellationRequested
+                || !Enum.TryParse(info.difficulty, out BeatmapDifficulty difficulty)) return null;
 
-            var beatmapLevelResult = await GetBeatmapLevelByHashAsync(info.hash, token);
-            if (beatmapLevelResult.isError || token.IsCancellationRequested)
-                return GenerateError();
-
-            if (!Enum.TryParse(info.difficulty, out BeatmapDifficulty difficulty))
-                return GenerateError();
-
-            var characteristic = beatmapLevelResult.beatmapLevel.beatmapLevelData
+            var characteristic = beatmapLevel.beatmapLevelData
                 .difficultyBeatmapSets.Select(x => x.beatmapCharacteristic)
                 .FirstOrDefault(x => x.serializedName == info.mode);
+            if (characteristic == null || token.IsCancellationRequested) return null;
 
-            if (characteristic == null || token.IsCancellationRequested)
-                return GenerateError();
+            var difficultyBeatmap = beatmapLevel.beatmapLevelData
+                .GetDifficultyBeatmap(characteristic, difficulty);
+            if (difficultyBeatmap == null || token.IsCancellationRequested) return null;
 
-            var difficultyBeatmap = beatmapLevelResult.beatmapLevel.
-                beatmapLevelData.GetDifficultyBeatmap(characteristic, difficulty);
-
-            if (difficultyBeatmap == null || token.IsCancellationRequested)
-                return GenerateError();
-
-            return new(false, difficultyBeatmap);
+            return difficultyBeatmap;
         }
-        private async Task<GetBeatmapLevelResult> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {
-            return await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token);
+        private async Task<IBeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {
+            return (await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token)).beatmapLevel;
         }
-        private Task<RequestResult<EnvironmentInfoSO>> GetEnvironmentByLaunchData(ReplayLaunchData data) {
-            if (data.IsBattleRoyale)
-                return Task.FromResult(new RequestResult<EnvironmentInfoSO>(true, null));
-            EnvironmentInfoSO? environment = null;
-
+        private Task<EnvironmentInfoSO?> GetEnvironmentByLaunchData(ReplayLaunchData data) {
+            if (data.IsBattleRoyale) return Task.FromResult<EnvironmentInfoSO?>(null);
+            var environment = default(EnvironmentInfoSO?);
             try {
                 if (data.Settings.LoadPlayerEnvironment) {
                     environment = ReplayDataHelper.GetEnvironmentByName(data.MainReplay.info.environment);
-                    if (environment == null)
-                        Plugin.Log.Error("[Launcher] Failed to parse player environment!");
+                    if (environment == null) throw new ArgumentException();
+                    Plugin.Log.Warn(environment.environmentName + " " + data.MainReplay.info.environment);
                 } else if (data.EnvironmentInfo != null) {
                     environment = data.EnvironmentInfo;
                 }
             } catch (Exception ex) {
-                Plugin.Log.Error("[Launcher] Failed to load player environment! \r\n" + ex);
+                Plugin.Log.Error("[Launcher] Failed to load player environment:\r\n" + ex);
             }
-
-            return Task.FromResult(new RequestResult<EnvironmentInfoSO>(environment == null, environment));
+            return Task.FromResult(environment);
         }
-        
-        private static void ResetData(StandardLevelScenesTransitionSetupDataSO transitionData, LevelCompletionResults completionResults) {
-            transitionData.didFinishEvent -= ResetData;
+
+        private static void HandleLevelFinish(
+            StandardLevelScenesTransitionSetupDataSO transitionData, 
+            LevelCompletionResults completionResults
+            ) {
+            transitionData.didFinishEvent -= HandleLevelFinish;
             LaunchData!.FinishReplay(transitionData);
             ReplayWasFinishedEvent?.Invoke(LaunchData);
 

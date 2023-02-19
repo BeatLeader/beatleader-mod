@@ -6,8 +6,9 @@ namespace BeatLeader.Models {
         public static ReplayerSettings UserSettings => ConfigDefaults.ReplayerSettings;
 
         public bool AutoHideUI { get; set; }
-        public bool LoadPlayerEnvironment { get; set; }
         public bool ExitReplayAutomatically { get; set; }
+        public bool LoadPlayerEnvironment { get; set; }
+        public bool LoadPlayerJumpDistance { get; set; }
 
         public bool ShowHead { get; set; }
         public bool ShowLeftSaber { get; set; }

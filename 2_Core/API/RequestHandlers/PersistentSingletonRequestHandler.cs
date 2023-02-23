@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace BeatLeader.API.RequestHandlers {
-    internal abstract class PersistentSingletonRequestHandler<T, R> : PersistentSingleton<T>, IWebRequestHandler<R> where T : MonoBehaviour {
+    public abstract class PersistentSingletonRequestHandler<T, R> : PersistentSingleton<T>, IWebRequestHandler<R> where T : MonoBehaviour {
         #region State
 
         public delegate void StateChangedDelegate(RequestState state, R result, string failReason);

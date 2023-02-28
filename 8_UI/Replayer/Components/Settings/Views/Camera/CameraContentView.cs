@@ -28,7 +28,7 @@ namespace BeatLeader.Components {
             set {
                 if (!_isInitialized) return;
                 _cameraController.SetView(value);
-                _launchData.Settings.ActualCameraView = value;
+                _launchData.Settings.SetActualCameraView(value);
             }
         }
 

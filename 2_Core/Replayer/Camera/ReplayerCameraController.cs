@@ -67,7 +67,7 @@ namespace BeatLeader.Replayer {
             if (InputUtils.IsInFPFC) {
                 _camera!.fieldOfView = _launchData.Settings.CameraFOV;
             }
-            _cameraController.SetView(_launchData.Settings.ActualCameraView!);
+            _cameraController.SetView(_launchData.Settings.GetActualCameraView()!);
 
             if (!_playerDataModel.playerData.playerSpecificSettings.reduceDebris) {
                 _camera!.cullingMask |= 1 << LayerMasks.noteDebrisLayer;

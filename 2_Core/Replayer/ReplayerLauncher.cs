@@ -76,9 +76,10 @@ namespace BeatLeader.Replayer {
             var environment = default(EnvironmentInfoSO?);
             try {
                 if (data.Settings.LoadPlayerEnvironment) {
-                    environment = ReplayDataHelper.GetEnvironmentByName(data.MainReplay.info.environment);
+                    var envName = data.MainReplay.info.environment;
+                    environment = ReplayDataHelper.GetEnvironmentByName(envName);
                     if (environment == null) throw new ArgumentException();
-                    Plugin.Log.Warn(environment.environmentName + " " + data.MainReplay.info.environment);
+                    Plugin.Log.Notice($"[Launcher] Applied player environment: " + envName);
                 } else if (data.EnvironmentInfo != null) {
                     environment = data.EnvironmentInfo;
                 }
@@ -89,7 +90,7 @@ namespace BeatLeader.Replayer {
         }
 
         private static void HandleLevelFinish(
-            StandardLevelScenesTransitionSetupDataSO transitionData, 
+            StandardLevelScenesTransitionSetupDataSO transitionData,
             LevelCompletionResults completionResults
             ) {
             transitionData.didFinishEvent -= HandleLevelFinish;

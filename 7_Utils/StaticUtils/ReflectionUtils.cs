@@ -7,8 +7,10 @@ namespace BeatLeader.Utils {
     internal static class ReflectionUtils {
         #region Constants
 
-        public const BindingFlags DefaultFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-        public const BindingFlags StaticFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+        public const BindingFlags DefaultFlags = RequiredFlags | BindingFlags.Instance;
+        public const BindingFlags StaticFlags = RequiredFlags | BindingFlags.Static;
+        public const BindingFlags RequiredFlags = BindingFlags.Public | BindingFlags.NonPublic;
+        public const BindingFlags UniversalFlags = RequiredFlags | BindingFlags.Instance | BindingFlags.Static;
 
         #endregion
 
@@ -51,10 +53,9 @@ namespace BeatLeader.Utils {
 
         #region Attributes
 
-        public static Dictionary<U, T> GetMembersWithAttribute<T, U>(
-            this Type type, BindingFlags flags = DefaultFlags) 
-            where T : Attribute where U : MemberInfo {
-            Dictionary<U, T> dictionary = new();
+        public static Dictionary<U, T> GetMembersWithAttribute<T, U>(this Type type,
+            BindingFlags flags = DefaultFlags) where T : Attribute where U : MemberInfo {
+            var dictionary = new Dictionary<U, T>();
             foreach (var member in type.GetMembers(flags)) {
                 var attr = member.GetCustomAttribute<T>();
                 if (attr == null || !member.TryDefine
@@ -65,7 +66,7 @@ namespace BeatLeader.Utils {
         }
 
         public static Dictionary<Type, T> GetTypesWithAttribute<T>(this Assembly assembly) where T : Attribute {
-            Dictionary<Type, T> dictionary = new();
+            var dictionary = new Dictionary<Type, T>();
             foreach (var type in assembly.GetTypes()) {
                 var attr = type.GetCustomAttribute<T>();
                 if (attr == null) continue;
@@ -94,10 +95,10 @@ namespace BeatLeader.Utils {
         public static bool SetValueImplicitly(this MemberInfo member, object? obj, object? value) {
             switch (member) {
                 case FieldInfo fld:
-                    fld.SetValue(null, value);
+                    fld.SetValue(obj, value);
                     break;
                 case PropertyInfo prop:
-                    prop.SetValue(null, value);
+                    prop.SetValue(obj, value);
                     break;
                 default:
                     return false;

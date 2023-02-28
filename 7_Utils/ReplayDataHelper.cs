@@ -196,7 +196,7 @@ namespace BeatLeader.Utils {
             return replay.info.speed == 0 ? null : new(replay.info.startTime, replay.info.speed);
         }
         public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay) {
-            return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
+            return settings.CopyWith(replay.info.leftHanded, automaticPlayerHeight: true);
         }
         public static bool TryGetFrameByTime(this LinkedListNode<Frame> entryPoint, float time, out LinkedListNode<Frame>? frame) {
             for (frame = entryPoint; frame != null; frame = frame.Next) {

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 namespace BeatLeader.API.Methods {
-    internal class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Score> {
+    public class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Score> {
         private const string WithCookieEndpoint = BLConstants.BEATLEADER_API_URL + "/replayoculus";
 
         private const int UploadRetryCount = 3;

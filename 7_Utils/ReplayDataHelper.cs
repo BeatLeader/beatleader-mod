@@ -214,16 +214,25 @@ namespace BeatLeader.Utils {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
         }
 
-        public static int ComputeNoteId(this NoteData noteData) {
-            return ((int)noteData.scoringType + 2) * 10000 + noteData.lineIndex
-                * 1000 + (int)noteData.noteLineLayer * 100 + (int)noteData.colorType
-                * 10 + (int)noteData.cutDirection;
+        public static int ComputeNoteId(this NoteData noteData, bool noscoring = false, bool altBomb = false) {
+            // Bombs may have both correct values as well as default.
+            int colorType = altBomb && noteData.colorType == ColorType.None ? 0 : (int)noteData.colorType;
+            int cutDirection = altBomb && noteData.colorType == ColorType.None ? 3 : (int)noteData.cutDirection;
+
+            // Pre 1.20 replays has no scoring in ID
+            int scoringPart = noscoring ? 0 : ((int)noteData.scoringType + 2) * 10000;
+
+            return scoringPart + noteData.lineIndex
+                * 1000 + (int)noteData.noteLineLayer * 100 + colorType
+                * 10 + cutDirection;
         }
 
         public static bool IsMatch(this NoteEvent noteEvent, NoteData noteData) {
-            var calcId = noteData.ComputeNoteId();
             var id = noteEvent.noteID;
-            return id == calcId || id == calcId - 30000;
+            return id == noteData.ComputeNoteId() 
+                || id == noteData.ComputeNoteId(true, false)
+                || id == noteData.ComputeNoteId(true, true)
+                || id == noteData.ComputeNoteId(false, true);
         }
 
         #endregion

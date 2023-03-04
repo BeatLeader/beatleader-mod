@@ -1,5 +1,5 @@
 ﻿namespace BeatLeader.API {
-    internal enum RequestState {
+    public enum RequestState {
         Uninitialized,
         Started,
         Finished,

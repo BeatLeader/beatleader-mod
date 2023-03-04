@@ -38,14 +38,11 @@ namespace BeatLeader.Replayer.Emulation {
                     Plugin.Log.Error("[Replayer] Not found NoteController for id " + noteEvent.noteID);
                 return;
             }
-            switch (noteEvent.eventType) {
-                case NoteEventType.good:
-                case NoteEventType.bad:
-                case NoteEventType.bomb:
-                    var noteCutInfo = Models.NoteCutInfo.Convert(noteEvent.noteCutInfo, noteController!);
-                    var cutEvents = ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)noteController!.noteWasCutEvent).items;
-                    cutEvents.ForEach(x => x.HandleNoteControllerNoteWasCut(noteController, noteCutInfo));
-                    break;
+
+            if (noteEvent.eventType != NoteEventType.miss) {
+                var noteCutInfo = noteEvent.eventType == NoteEventType.bomb ? Models.NoteCutInfo.ConvertToBomb(noteController!) : Models.NoteCutInfo.Convert(noteEvent.noteCutInfo, noteController!);
+                var cutEvents = ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)noteController!.noteWasCutEvent).items;
+                cutEvents.ForEach(x => x.HandleNoteControllerNoteWasCut(noteController, noteCutInfo));
             }
         }
 

@@ -158,6 +158,30 @@ namespace BeatLeader.Models
                 _emptyMovementData);
         }
 
+        public static GameNoteCutInfo ConvertToBomb(NoteController controller)
+        {
+            return new GameNoteCutInfo(
+                controller.noteData, 
+                false,
+                false,
+                false,
+                true,
+                0,
+                new UVector3(), 
+                SaberType.SaberA,
+                0,
+                0,
+                new UVector3(),
+                new UVector3(), 
+                0, 
+                0,
+                controller.worldRotation,
+                controller.inverseWorldRotation,
+                controller.noteTransform.localRotation,
+                controller.noteTransform.position, 
+                _emptyMovementData);
+        }
+
         public static implicit operator NoteCutInfo(GameNoteCutInfo info) => new NoteCutInfo()
         {
             speedOK = info.speedOK,
@@ -547,28 +571,8 @@ namespace BeatLeader.Models
             for (int i = 0; i < length; i++)
             {
                 var frame  = DecodeFrame(buffer, ref pointer);
-                if (frame.time != 0) {
+                if (frame.time != 0 && (result.Count == 0 || frame.time != result[result.Count - 1].time)) {
                     result.Add(frame);
-                }
-            }
-            if (result.Count > 2)
-            {
-                var sameFramesCount = 0;
-                while (result[sameFramesCount].time == result[sameFramesCount + 1].time)
-                {
-                    sameFramesCount++;
-                }
-
-                if (sameFramesCount > 0)
-                {
-                    sameFramesCount++;
-
-                    var newResult = new List<Frame>();
-                    for (int index = 0; index < result.Count; index += sameFramesCount)
-                    {
-                        newResult.Add(result[index]);
-                    }
-                    result = newResult;
                 }
             }
             return result;
@@ -651,12 +655,6 @@ namespace BeatLeader.Models
             if (result.eventType == NoteEventType.good || result.eventType == NoteEventType.bad)
             {
                 result.noteCutInfo = DecodeCutInfo(buffer, ref pointer);
-            }
-
-            if (result.noteID == -1 || ("" + result.noteID).Last() == '9')
-            {
-                result.noteID += 4;
-                result.eventType = NoteEventType.bomb;
             }
 
             return result;

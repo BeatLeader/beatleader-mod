@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
@@ -61,13 +62,18 @@ namespace BeatLeader.API {
                 yield return AwaitRequestWithProgress(request, requestHandler);
                 Plugin.Log.Debug($"Response[{request.GetHashCode()}]: {request.error ?? request.responseCode.ToString()}");
 
+                var bodyContent = request.downloadHandler?.text;
+
                 if (request.isNetworkError) {
                     requestHandler.OnRequestFailed($"Network error: {request.error} {request.downloadHandler?.text}");
                     continue; //retry
                 }
 
                 if (request.isHttpError) {
-                    GetRequestFailReason(request.responseCode, request.downloadHandler?.text, out var failReason, out var shouldRetry);
+                    GetRequestFailReason(request.responseCode, bodyContent, out var failReason, out var shouldRetry);
+                    if (bodyContent != null && !Regex.IsMatch(bodyContent, @"^(\s*[\<\{])")) { // doesn't start as json or html data
+                        Plugin.Log.Debug($"Http error, server response: {bodyContent}");
+                    }
                     requestHandler.OnRequestFailed(failReason);
                     if (shouldRetry) continue; //retry
                     break; //no retry

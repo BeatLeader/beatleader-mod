@@ -10,6 +10,9 @@ namespace BeatLeader.Interop {
         [PluginType("CountersPlus.Counters.MissedCounter")]
         private static readonly Type _missedCounterType = null!;
 
+        [PluginState]
+        private static readonly bool _isInitialized;
+
         private static HarmonyPatchDescriptor _missedCounterInitDescriptor = null!;
         private static HarmonyAutoPatch _missedCounterInitPatch = null!;
         private static MethodInfo _missedCounterNoteCutMtd = null!;
@@ -48,6 +51,7 @@ namespace BeatLeader.Interop {
         }
 
         private static void InteractMissedCounter(Action<object> callback) {
+            if (!_isInitialized) return;
             try {
                 if (_missedCounterObj == null) {
                     Plugin.Log.Warn("MissedCounter instance is not captured! Is counter uninitialized?");

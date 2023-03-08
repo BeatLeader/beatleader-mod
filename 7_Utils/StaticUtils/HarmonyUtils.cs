@@ -9,9 +9,9 @@ namespace BeatLeader {
 
         public static void Unpatch(this Harmony harmony, HarmonyPatchDescriptor descriptor) {
             if (descriptor.Prefix != null)
-                harmony.Unpatch(descriptor.Prefix.method, HarmonyPatchType.Prefix);
+                harmony.Unpatch(descriptor.Original, descriptor.Prefix.method);
             if (descriptor.Postfix != null)
-                harmony.Unpatch(descriptor.Postfix.method, HarmonyPatchType.Postfix);
+                harmony.Unpatch(descriptor.Original, descriptor.Postfix.method);
         }
     }
 

@@ -96,8 +96,7 @@ namespace BeatLeader.Utils {
             var playerData = playerModel.playerData;
 
             var overrideEnv = launchData.EnvironmentInfo != null;
-            var envSettings = overrideEnv ? new() :
-                playerData.overrideEnvironmentSettings;
+            var envSettings = overrideEnv ? new() : playerData.overrideEnvironmentSettings;
             if (overrideEnv) {
                 envSettings.overrideEnvironments = true;
                 envSettings.SetEnvironmentInfoForType(
@@ -109,36 +108,18 @@ namespace BeatLeader.Utils {
                 ? null : replay.GetPracticeSettingsFromReplay();
             var beatmap = launchData.DifficultyBeatmap;
 
-            transitionData?.Init("Solo", beatmap, beatmap.level, envSettings,
+            transitionData?.Init("Solo", beatmap, beatmap!.level, envSettings,
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.GetModifiersFromReplay(),
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
                 practiceSettings, "Menu");
 
-            return transitionData;
-        }
-
-        public static string GetEnvironmentSerializedNameByEnvironmentName(string name) {
-            name = name.Replace(" ", "");
-            if (name != "TheFirst" && name != "Spooky" && name != "FallOutBoy") {
-                return name + "Environment";
-            } else {
-                switch (name) {
-                    case "TheFirst":
-                        return "DefaultEnvironment";
-                    case "Spooky":
-                        return "HalloweenEnvironment";
-                    case "FallOutBoy":
-                        return "PyroEnvironment";
-                }
-            }
-
-            return "!UNDEFINED!";
+            return transitionData!;
         }
 
         public static EnvironmentInfoSO GetEnvironmentByName(string name) {
-            return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().FirstOrDefault(x =>
-                x.serializedName == GetEnvironmentSerializedNameByEnvironmentName(name));
+            return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
+                .FirstOrDefault(x => x.environmentName == name);
         }
 
         #endregion
@@ -211,19 +192,16 @@ namespace BeatLeader.Utils {
 
             return replayModifiers;
         }
-        public static PracticeSettings GetPracticeSettingsFromReplay(this Replay replay) {
-            return replay.info.speed <= 0 ? null : new(replay.info.startTime, replay.info.speed);
+        public static PracticeSettings? GetPracticeSettingsFromReplay(this Replay replay) {
+            return replay.info.speed == 0 ? null : new(replay.info.startTime, replay.info.speed);
         }
         public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, Replay replay) {
-            return settings.CopyWith(replay.info.leftHanded, replay.info.height, false);
+            return settings.CopyWith(replay.info.leftHanded, automaticPlayerHeight: true);
         }
-        public static bool TryGetFrameByTime(this LinkedListNode<Frame> entryPoint, float time, out LinkedListNode<Frame> frame) {
+        public static bool TryGetFrameByTime(this LinkedListNode<Frame> entryPoint, float time, out LinkedListNode<Frame>? frame) {
             for (frame = entryPoint; frame != null; frame = frame.Next) {
-                if (frame.Value.time >= time) {
-                    return true;
-                }
+                if (frame.Value.time >= time) return true;
             }
-
             frame = null;
             return false;
         }

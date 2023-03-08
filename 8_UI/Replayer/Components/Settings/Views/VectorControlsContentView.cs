@@ -138,12 +138,9 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateVectorText() {
-            static double round(float t) => Math.Round(t, 2);
-            string line = $"<color=\"green\">X:{round(MultipliedVector.x)} ";
-            if (_dimensions >= 2) line += $"<color=\"red\">Y:{round(MultipliedVector.y)} ";
-            if (_dimensions >= 3) line += $"<color=\"blue\">Z:{round(MultipliedVector.z)}";
-            _vectorText.text = line;
+            _vectorText.text = FormatUtils.FormatLocation(MultipliedVector, dimensions: _dimensions);
         }
+
         private void NotifyVectorChanged() {
             UpdateVectorText();
             VectorChangedEvent?.Invoke(MultipliedVector);

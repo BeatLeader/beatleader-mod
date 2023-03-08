@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Utils;
+using IPA.Config.Data;
 using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
@@ -6,8 +7,9 @@ namespace BeatLeader.Models {
         public static ReplayerSettings UserSettings => ConfigDefaults.ReplayerSettings;
 
         public bool AutoHideUI { get; set; }
-        public bool LoadPlayerEnvironment { get; set; }
         public bool ExitReplayAutomatically { get; set; }
+        public bool LoadPlayerEnvironment { get; set; }
+        public bool LoadPlayerJumpDistance { get; set; }
 
         public bool ShowHead { get; set; }
         public bool ShowLeftSaber { get; set; }
@@ -26,15 +28,15 @@ namespace BeatLeader.Models {
 
         public ReplayerShortcuts Shortcuts { get; set; } = new();
 
-        [JsonIgnore]
-        public string? ActualCameraView {
-            get => InputUtils.IsInFPFC ? FPFCCameraView : VRCameraView;
-            set {
-                if (InputUtils.IsInFPFC) {
-                    FPFCCameraView = value;
-                } else {
-                    VRCameraView = value;
-                }
+        public string? GetActualCameraView() { 
+            return InputUtils.IsInFPFC ? FPFCCameraView : VRCameraView;
+        }
+
+        public void SetActualCameraView(string? view) {
+            if (InputUtils.IsInFPFC) {
+                FPFCCameraView = view;
+            } else {
+                VRCameraView = view;
             }
         }
     }

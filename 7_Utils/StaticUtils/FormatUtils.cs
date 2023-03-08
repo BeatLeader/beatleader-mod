@@ -284,5 +284,18 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        #region FormatLocation
+
+        public static string FormatLocation(UnityEngine.Vector3 location, float? rotation = null, int dimensions = 3) {
+            static double round(float t) => Math.Round(t, 2);
+            var line = $"<color=\"green\">X:{round(location.x)} ";
+            line += dimensions >= 2 ? $"<color=\"red\">Y:{round(location.y)} " : string.Empty;
+            line += dimensions >= 3 ? $"<color=\"blue\">Z:{round(location.z)} " : string.Empty;
+            line += rotation != null ? $"<color=\"yellow\">R:{rotation}°" : string.Empty;
+            return line;
+        }
+
+        #endregion
     }
 }

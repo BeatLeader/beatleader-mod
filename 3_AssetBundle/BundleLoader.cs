@@ -132,6 +132,8 @@ namespace BeatLeader {
 
         [UsedImplicitly] public static Sprite SceneIcon;
 
+        [UsedImplicitly] public static Sprite JumpDistanceIcon;
+
         [UsedImplicitly] public static Sprite SaveIcon;
 
         [UsedImplicitly] public static Sprite AlignIcon;
@@ -184,9 +186,9 @@ namespace BeatLeader {
 
         [UsedImplicitly] public static Sprite DefaultAvatar;
 
-        private static List<Sprite> _loadedSprites;
+        private static List<Sprite> _loadedSprites = null!;
 
-        public static Sprite GetSpriteFromBundle(string name) {
+        public static Sprite? GetSpriteFromBundle(string name) {
             return _ready ? _loadedSprites.FirstOrDefault(x => x.name == name) : null;
         }
 
@@ -216,6 +218,7 @@ namespace BeatLeader {
             UIIcon = assetBundle.LoadAsset<Sprite>("BL_UIIcon");
             DebrisIcon = assetBundle.LoadAsset<Sprite>("BL_DebrisIcon");
             SceneIcon = assetBundle.LoadAsset<Sprite>("BL_SceneIcon");
+            JumpDistanceIcon = assetBundle.LoadAsset<Sprite>("BL_JumpDistanceIcon");
             SaveIcon = assetBundle.LoadAsset<Sprite>("BL_SaveIcon");
             AlignIcon = assetBundle.LoadAsset<Sprite>("BL_AlignIcon");
             AnchorIcon = assetBundle.LoadAsset<Sprite>("BL_AnchorIcon");

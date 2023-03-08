@@ -17,8 +17,6 @@ namespace BeatLeader.Replayer.Emulation {
 
         public event Action<VirtualPlayer>? PriorityPlayerWasChangedEvent;
 
-        public bool allowImmediateInit;
-
         private readonly List<VirtualPlayer> _virtualPlayers = new();
 
         private void Awake() {

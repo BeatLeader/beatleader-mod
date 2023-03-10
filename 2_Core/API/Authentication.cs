@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatLeader.Utils;
+using BS_Utils.Gameplay;
 using Oculus.Platform;
 using Steamworks;
 using UnityEngine;
@@ -37,10 +38,12 @@ namespace BeatLeader.API {
         }
 
         public static async Task<string> SteamTicket() {
+            await GetUserInfo.GetUserAsync();
             return (await new SteamPlatformUserModel().GetUserAuthToken()).token;
         }
 
         public static async Task<string> OculusTicket() {
+            await GetUserInfo.GetUserAsync();
             TaskCompletionSource<string> tcs = new();
             Users.GetAccessToken().OnComplete(delegate(Message<string> message) { tcs.TrySetResult(message.IsError ? null : message.Data); });
             return await tcs.Task;

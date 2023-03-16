@@ -446,8 +446,9 @@ namespace BeatLeader.Models
         static void EncodeString(string value, BinaryWriter stream)
         {
             string toEncode = value != null ? value : "";
-            stream.Write((int)toEncode.Length);
-            stream.Write(Encoding.UTF8.GetBytes(toEncode));
+            var bytes = Encoding.UTF8.GetBytes(toEncode);
+            stream.Write(bytes.Length);
+            stream.Write(bytes);
         }
 
         static void EncodeVector(Vector3 vector, BinaryWriter stream)
@@ -746,7 +747,7 @@ namespace BeatLeader.Models
         private static string DecodeString(byte[] buffer, ref int pointer)
         {
             int length = BitConverter.ToInt32(buffer, pointer);
-            if (length > 1000 || length < 0)
+            if (length > 300 || length < 0)
             {
                 pointer += 1;
                 return DecodeString(buffer, ref pointer);

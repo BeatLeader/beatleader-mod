@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using BeatLeader.Interop;
 using BeatLeader.Models;
@@ -129,6 +130,8 @@ namespace BeatLeader.Replayer.Emulation {
 
                 _gameEnergyCounter.HandleNoteWasCut(_noteControllerEmulator, _noteControllerEmulator.CutInfo);
                 _comboController.HandleNoteWasCut(_noteControllerEmulator, _noteControllerEmulator.CutInfo);
+            } catch (Exception e) {
+                Plugin.Log.Debug(e);
             } finally {
                 _scoringMultisilencer.Enabled = true;
             }
@@ -143,6 +146,8 @@ namespace BeatLeader.Replayer.Emulation {
 
                 _gameEnergyCounter.HandleNoteWasMissed(_noteControllerEmulator);
                 _comboController.HandleNoteWasMissed(_noteControllerEmulator);
+            } catch (Exception e) {
+                Plugin.Log.Debug(e);
             } finally {
                 _scoringMultisilencer.Enabled = true;
             }

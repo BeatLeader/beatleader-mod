@@ -5,82 +5,6 @@ using UnityEngine;
 
 namespace BeatLeader.Utils {
     public static class ReplayDataHelper {
-        private class EditableModifiers : GameplayModifiers {
-            public new EnergyType energyType {
-                get => this._energyType;
-                set => this._energyType = value;
-            }
-
-            public new bool noFailOn0Energy {
-                get => this._noFailOn0Energy;
-                set => this._noFailOn0Energy = value;
-            }
-
-            public new bool instaFail {
-                get => this._instaFail;
-                set => this._instaFail = value;
-            }
-
-            public new bool failOnSaberClash {
-                get => this._failOnSaberClash;
-                set => this._failOnSaberClash = value;
-            }
-
-            public new EnabledObstacleType enabledObstacleType {
-                get => this._enabledObstacleType;
-                set => this._enabledObstacleType = value;
-            }
-
-            public new bool fastNotes {
-                get => this._fastNotes;
-                set => this._fastNotes = value;
-            }
-
-            public new bool strictAngles {
-                get => this._strictAngles;
-                set => this._strictAngles = value;
-            }
-
-            public new bool disappearingArrows {
-                get => this._disappearingArrows;
-                set => this._disappearingArrows = value;
-            }
-
-            public new bool ghostNotes {
-                get => this._ghostNotes;
-                set => this._ghostNotes = value;
-            }
-
-            public new bool noBombs {
-                get => this._noBombs;
-                set => this._noBombs = value;
-            }
-
-            public new SongSpeed songSpeed {
-                get => this._songSpeed;
-                set => this._songSpeed = value;
-            }
-
-            public new bool noArrows {
-                get => this._noArrows;
-                set => this._noArrows = value;
-            }
-
-            public new bool proMode {
-                get => this._proMode;
-                set => this._proMode = value;
-            }
-
-            public new bool zenMode {
-                get => this._zenMode;
-                set => this._zenMode = value;
-            }
-
-            public new bool smallCubes {
-                get => this._smallCubes;
-                set => this._smallCubes = value;
-            }
-        }
 
         #region Scenes Management
 
@@ -137,60 +61,34 @@ namespace BeatLeader.Utils {
 
             return $"{char.ToUpper(char1)}{char.ToUpper(char2)}";
         }
-        public static GameplayModifiers GetModifiersFromReplay(this Replay replay) {
-            EditableModifiers replayModifiers = new();
-            string[] modifiers = replay.info.modifiers.Split(',');
-            foreach (string modifier in modifiers) {
-                switch (modifier) {
-                    case "DA":
-                        replayModifiers.disappearingArrows = true;
-                        break;
-                    case "FS":
-                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.Faster;
-                        break;
-                    case "SS":
-                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.Slower;
-                        break;
-                    case "SF":
-                        replayModifiers.songSpeed = GameplayModifiers.SongSpeed.SuperFast;
-                        break;
-                    case "GN":
-                        replayModifiers.ghostNotes = true;
-                        break;
-                    case "NA":
-                        replayModifiers.noArrows = true;
-                        break;
-                    case "NB":
-                        replayModifiers.noBombs = true;
-                        break;
-                    case "NF":
-                        replayModifiers.noFailOn0Energy = true;
-                        break;
-                    case "NO":
-                        replayModifiers.enabledObstacleType = GameplayModifiers.EnabledObstacleType.NoObstacles;
-                        break;
-                    case "SA":
-                        replayModifiers.strictAngles = true;
-                        break;
-                    case "PM":
-                        replayModifiers.proMode = true;
-                        break;
-                    case "SC":
-                        replayModifiers.smallCubes = true;
-                        break;
-                    case "CS":
-                        replayModifiers.failOnSaberClash = true;
-                        break;
-                    case "IF":
-                        replayModifiers.instaFail = true;
-                        break;
-                    case "BE":
-                        replayModifiers.energyType = GameplayModifiers.EnergyType.Battery;
-                        break;
-                }
-            }
 
-            return replayModifiers;
+        private static GameplayModifiers.SongSpeed SongSpeedFromModifiers(string modifiers) {
+            if (modifiers.Contains("SS")) return GameplayModifiers.SongSpeed.Slower;
+            if (modifiers.Contains("SF")) return GameplayModifiers.SongSpeed.SuperFast;
+            if (modifiers.Contains("FS")) return GameplayModifiers.SongSpeed.Faster;
+
+            return GameplayModifiers.SongSpeed.Normal;
+        }
+
+        public static GameplayModifiers GetModifiersFromReplay(this Replay replay) {
+            var modifiers = replay.info.modifiers;
+
+            return new GameplayModifiers(
+                energyType: modifiers.Contains("BE") ? GameplayModifiers.EnergyType.Battery : GameplayModifiers.EnergyType.Bar,
+                noFailOn0Energy: modifiers.Contains("NF"),
+                instaFail: modifiers.Contains("IF"),
+                failOnSaberClash: modifiers.Contains("CS"),
+                enabledObstacleType: modifiers.Contains("NO") ? GameplayModifiers.EnabledObstacleType.NoObstacles : GameplayModifiers.EnabledObstacleType.All,
+                noBombs: modifiers.Contains("NB"),
+                fastNotes: false,
+                strictAngles: modifiers.Contains("SA"),
+                disappearingArrows: modifiers.Contains("DA"),
+                songSpeed: SongSpeedFromModifiers(modifiers),
+                noArrows: modifiers.Contains("NA"),
+                ghostNotes: modifiers.Contains("GN"),
+                proMode: modifiers.Contains("PM"),
+                zenMode: false,
+                smallCubes: modifiers.Contains("SC"));
         }
         public static PracticeSettings? GetPracticeSettingsFromReplay(this Replay replay) {
             return replay.info.speed == 0 ? null : new(replay.info.startTime, replay.info.speed);

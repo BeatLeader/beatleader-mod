@@ -102,6 +102,8 @@ namespace BeatLeader.Components {
         private bool _hasExMachinaRating;
         private float _exMachinaRating;
         private string _websiteLink;
+        private string _captorClanTag;
+        private string _captorClanColor;
 
         private void SetBeatmap(IDifficultyBeatmap beatmap) {
             if (beatmap == null) {
@@ -122,6 +124,9 @@ namespace BeatLeader.Components {
             _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
             _starRating = data.DifficultyInfo.stars;
             _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
+            _captorClanTag = data.ClanRankingInfo.clan.tag ?? "Uncaptured";
+            _captorClanColor = data.ClanRankingInfo.clan.color ?? "#FFFFFD";
+            Plugin.Log.Error(_captorClanColor);
 
             UpdateCheckboxes(data.QualificationInfo);
             UpdateVisuals();
@@ -188,6 +193,11 @@ namespace BeatLeader.Components {
             ExMachinaActive = _hasExMachinaRating && _roles.Any(ExMachinaVisibleToRole);
             var exMachinaStarsStr = _exMachinaRating > 0 ? $"{_exMachinaRating:F1}*" : "-";
             ExMachinaText = $"Ex Machina: {exMachinaStarsStr}";
+
+            CaptorClanActive = _rankedStatus is RankedStatus.Ranked;
+            CaptorClanText = $"Captured by: {_captorClanTag:F1}";
+            CaptorClanBgColor = $"{_captorClanColor:F1}FF".ToUpper();
+            Plugin.Log.Error(CaptorClanBgColor);
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
         }
@@ -294,8 +304,54 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region ClanCaptorPanel
+
+        private bool _captorClanActive;
+
+        [UIValue("captor-clan-active"), UsedImplicitly]
+        private bool CaptorClanActive
+        {
+            get => _captorClanActive;
+            set
+            {
+                if (_captorClanActive.Equals(value)) return;
+                _captorClanActive = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _captorClanText = "";
+
+        [UIValue("captor-clan-text"), UsedImplicitly]
+        private string CaptorClanText
+        {
+            get => _captorClanText;
+            set
+            {
+                if (_captorClanText.Equals(value)) return;
+                _captorClanText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _captorClanBgColor = "";
+
+        [UIValue("captor-clan-bg-color"), UsedImplicitly]
+        private string CaptorClanBgColor
+        {
+            get => _captorClanBgColor;
+            set
+            {
+                if (_captorClanBgColor.Equals(value)) return;
+                _captorClanBgColor = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+
         #region Buttons
-        
+
         private void WebsiteButtonOnClick() {
             if (_websiteLink == null) return;
             EnvironmentUtils.OpenBrowserPage(_websiteLink);

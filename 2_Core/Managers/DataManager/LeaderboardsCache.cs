@@ -24,9 +24,9 @@ namespace BeatLeader.DataManager {
             return true;
         }
 
-        public static void PutLeaderboardInfo(SongInfo songInfo, string leaderboardId, DiffInfo diffInfo, QualificationInfo qualificationInfo) {
+        public static void PutLeaderboardInfo(SongInfo songInfo, string leaderboardId, DiffInfo diffInfo, QualificationInfo qualificationInfo, ClanRankingInfo clanRanking) {
             var key = LeaderboardKey.FromSongDiff(songInfo, diffInfo);
-            LeaderboardInfoCache[key] = new LeaderboardCacheEntry(leaderboardId, songInfo, diffInfo, qualificationInfo);
+            LeaderboardInfoCache[key] = new LeaderboardCacheEntry(leaderboardId, songInfo, diffInfo, qualificationInfo, clanRanking);
         }
 
         public readonly struct LeaderboardCacheEntry {
@@ -34,12 +34,14 @@ namespace BeatLeader.DataManager {
             public readonly SongInfo SongInfo;
             public readonly DiffInfo DifficultyInfo;
             public readonly QualificationInfo QualificationInfo;
+            public readonly ClanRankingInfo ClanRankingInfo;
 
-            public LeaderboardCacheEntry(string leaderboardId, SongInfo songInfo, DiffInfo difficultyInfo, QualificationInfo qualificationInfo) {
+            public LeaderboardCacheEntry(string leaderboardId, SongInfo songInfo, DiffInfo difficultyInfo, QualificationInfo qualificationInfo, ClanRankingInfo clanRanking) {
                 SongInfo = songInfo;
                 DifficultyInfo = difficultyInfo;
                 QualificationInfo = qualificationInfo;
                 LeaderboardId = leaderboardId;
+                ClanRankingInfo = clanRanking;
             }
         }
 

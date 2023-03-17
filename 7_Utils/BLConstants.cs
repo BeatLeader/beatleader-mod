@@ -10,10 +10,12 @@
 
         #region Basic links
 
-        public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
-        
-        public const string BEATLEADER_WEBSITE_URL = "https://www.beatleader.xyz";
-        
+        //public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
+        public const string BEATLEADER_API_URL = "https://localhost:44313";
+
+        //public const string BEATLEADER_WEBSITE_URL = "https://www.beatleader.xyz";
+        public const string BEATLEADER_WEBSITE_URL = "http://localhost:8888";
+
         public const string EX_MACHINA_API_URL = "https://bs-replays-ai.azurewebsites.net";
 
         #endregion

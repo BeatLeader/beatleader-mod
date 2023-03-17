@@ -5,6 +5,9 @@
     <vertical active="~ex-machina-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD">
         <text text="~ex-machina-text" align="Midline"/>
     </vertical>
+    <!--<vertical active="~captor-clan-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="~captor-clan-bg-color">
+      <text text="~captor-clan-text" align="Midline"/>
+    </vertical>-->
     <horizontal active="~qualification-active" spacing="1">
         <macro.as-host host="criteria-checkbox">
             <macro.reparent transform="ui-component"/>

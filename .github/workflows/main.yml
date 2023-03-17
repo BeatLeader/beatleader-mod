@@ -19,12 +19,12 @@ jobs:
             - name: Acquire SIRA References
               uses: ProjectSIRA/download-sira-stripped@1.0.0
               with:
-                  manifest: ./manifest.json
+                  manifest: ${{ github.workspace }}/Source/manifest.json
                   sira-server-code: ${{ secrets.SIRA_SERVER_CODE }}
             - name: Download Mod Dependencies
               uses: Goobwabber/download-beatmods-deps@1.2
               with:
-                  manifest: ${{github.workspace}}/manifest.json
+                  manifest: ${{ github.workspace }}/Source/manifest.json
             - name: Build
               id: Build
               env: 

@@ -185,103 +185,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\HeaderButton.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ScoreOverviewPage2.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\HorizontalSeparator.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\NavigationButton.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\Settings\LayoutEditorSetting.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\Settings\SpeedSetting.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Basic\SimpleButton.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\ResetProgressUI.bsml"/>
+        <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
+        <EmbeddedResource Include="9_Resources\BSML\**\*.bsml" />
+        <EmbeddedResource Include="manifest.json" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\ClanTag.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\ClanTags.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\CountryFlag.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\MiniProfileButton.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\PlayerAvatar.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\ReplayerSettingsToggle.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Basic\HintField.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Header\LeaderboardInfoPanel.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\Header\QualificationCheckbox.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\BeatLeaderInfo.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ContextSelector.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\EmptyBoardMessage.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\LeaderboardSettings.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\Pagination.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScopeSelector.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoreRow.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoreRowCells\AvatarScoreRowCell.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoreRowCells\ClansScoreRowCell.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoreRowCells\CountryScoreRowCell.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoreRowCells\MistakesScoreRowCell.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoreRowCells\TextScoreRowCell.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoreRowDivider.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\ScoresTable.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\Voting\MapTypeSelector.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\Voting\RankabilitySelector.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\Voting\StarsSelector.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\Voting\VotingButton.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\MainPanel\Voting\VotingPanel.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\AccuracyDetails.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\AccuracyDetailsAverages.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\AccuracyDetailsRow.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\AccuracyGraphPanel.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\AccuracyGrid.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\AccuracyGridCell.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\AccuracyPieChart.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\MiniProfileButtons.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanel.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\MiniProfile.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ScoreInfoPanelControls.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ScoreOverviewPage1.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ScoreStatsLoadingScreen.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ReplayPanel.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\ScoreInfoPanel\ReplayerSettingsPanel.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\Logo.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\NotificationIcon.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\PlayerInfo.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\StatusBar.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\Components\TopPanel\UploadProgressBar.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\AnchorSelector.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\EditableController.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableCell.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\TableView\EditorTableView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsContainer.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\SettingsModal.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\BodyContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\CameraContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\FlyingViewParamsContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\Camera\PlayerViewParamsContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\OtherContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\RootContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\TimelineContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Settings\Views\VectorControlsContentView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\ToolbarWithSettings.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\MainScreenPanel.bsml"/>
-        <EmbeddedResource Include="manifest.json"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardPanel.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\LeaderboardView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\ModPanelUI.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Leaderboard\SettingsPanelUI.bsml"/>
-        <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalBeatmapLevelPreview.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\Replayer2DView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Timeline.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Toolbar\Toolbar.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\LayoutEditor\LayoutEditor.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Views\ReplayerVRView.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Infos\HorizontalMiniProfile.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Replayer\Components\Floating\FloatingControls.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Results\ResultsScreenUI.bsml"/>
-        <EmbeddedResource Include="9_Resources\BSML\Results\ReplayButton.bsml"/>
-        <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')"/>
-        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')"/>
-        <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')"/>
+        <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />
+        <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
+        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
+        <None Include="README.md" />
     </ItemGroup>
 
     <ItemGroup>

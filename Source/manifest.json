@@ -11,7 +11,7 @@
     "BeatSaberMarkupLanguage": "^1.6.6",
     "BSIPA": "^4.2.2",
     "SiraUtil": "^3.1.0",
-    "BS Utils": "^1.12.2"
+    "BS Utils": "^1.12.1"
   },
   "loadAfter": [
     "BetterSongList",

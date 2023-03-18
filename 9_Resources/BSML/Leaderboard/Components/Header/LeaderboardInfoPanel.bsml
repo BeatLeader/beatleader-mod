@@ -5,9 +5,15 @@
     <vertical active="~ex-machina-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD">
         <text text="~ex-machina-text" align="Midline"/>
     </vertical>
-    <!--<vertical active="~captor-clan-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="~captor-clan-bg-color">
+
+    <!-- TODO: How do you make the clanTag smaller than the pref-height of the container it's in?-->
+    <horizontal active="~captor-clan-active" pref-height="6" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD">
       <text text="~captor-clan-text" align="Midline"/>
-    </vertical>-->
+      <vertical active="~leaderboard-captured" id="background" bg="round-rect-panel">
+        <text id="text-component" word-wrapping="false" align="Midline"/>
+      </vertical>
+    </horizontal>
+
     <horizontal active="~qualification-active" spacing="1">
         <macro.as-host host="criteria-checkbox">
             <macro.reparent transform="ui-component"/>

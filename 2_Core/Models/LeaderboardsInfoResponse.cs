@@ -22,6 +22,7 @@ namespace BeatLeader.Models {
         public DiffInfo difficulty;
         public QualificationInfo qualification;
         public ClanRankingInfo clanRanking;
+        public bool clanRankingContested;
     }
 
     internal struct SongInfo {

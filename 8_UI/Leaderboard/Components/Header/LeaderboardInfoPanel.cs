@@ -8,6 +8,9 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReeUIComponentV2 {
@@ -52,6 +55,8 @@ namespace BeatLeader.Components {
             
             ExMachinaRequest.AddStateListener(OnExMachinaRequestStateChanged);
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
+
+            SetCaptorClanMaterial();
         }
 
         protected override void OnDispose() {
@@ -102,8 +107,7 @@ namespace BeatLeader.Components {
         private bool _hasExMachinaRating;
         private float _exMachinaRating;
         private string _websiteLink;
-        private string _captorClanTag;
-        private string _captorClanColor;
+
 
         private void SetBeatmap(IDifficultyBeatmap beatmap) {
             if (beatmap == null) {
@@ -124,9 +128,26 @@ namespace BeatLeader.Components {
             _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
             _starRating = data.DifficultyInfo.stars;
             _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
-            _captorClanTag = data.ClanRankingInfo.clan.tag ?? "Uncaptured";
-            _captorClanColor = data.ClanRankingInfo.clan.color ?? "#FFFFFD";
-            Plugin.Log.Error(_captorClanColor);
+
+            if (data.ClanRankingContested)
+            {
+                // Clan Ranking was contested
+                LeaderboardCaptured = false;
+                CaptorClanText = "Contested";
+            } 
+            else if (data.ClanRankingInfo.clan.tag == null)
+            {
+                // Map is not captured
+                LeaderboardCaptured = false;
+                CaptorClanText = "Uncaptured";
+            } 
+            else
+            {
+                // Map is captured by a clan
+                LeaderboardCaptured = true;
+                CaptorClanText = "Captured By:";
+                UpdateCaptorClan(data.ClanRankingInfo.clan);
+            }
 
             UpdateCheckboxes(data.QualificationInfo);
             UpdateVisuals();
@@ -194,10 +215,8 @@ namespace BeatLeader.Components {
             var exMachinaStarsStr = _exMachinaRating > 0 ? $"{_exMachinaRating:F1}*" : "-";
             ExMachinaText = $"Ex Machina: {exMachinaStarsStr}";
 
-            CaptorClanActive = _rankedStatus is RankedStatus.Ranked;
-            CaptorClanText = $"Captured by: {_captorClanTag:F1}";
-            CaptorClanBgColor = $"{_captorClanColor:F1}FF".ToUpper();
-            Plugin.Log.Error(CaptorClanBgColor);
+            //CaptorClanActive = _rankedStatus is RankedStatus.Ranked;
+            CaptorClanActive = true;
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
         }
@@ -306,7 +325,58 @@ namespace BeatLeader.Components {
 
         #region ClanCaptorPanel
 
-        private bool _captorClanActive;
+        public void UpdateCaptorClan(ClanRankingClanInfo value)
+        {
+                _textComponent.text = FormatUtils.FormatClanTag(value.tag);
+                SetCaptorClanColor(value.color);
+        }
+
+        #region Background
+
+        [UIComponent("background"), UsedImplicitly]
+        private Image _backgroundImage;
+
+        private float _alpha = 1.0f;
+        private Color _color = Color.black;
+
+        private void SetCaptorClanMaterial()
+        {
+            _backgroundImage.material = BundleLoader.ClanTagBackgroundMaterial;
+        }
+
+        private void SetCaptorClanColor(string strColor)
+        {
+            ColorUtility.TryParseHtmlString(strColor, out var color);
+            var useDarkFont = (color.r * 0.299f + color.g * 0.687f + color.b * 0.114f) > 0.73f;
+            _textComponent.color = useDarkFont ? Color.black : Color.white;
+            _color = color;
+            UpdateCaptorClanColor();
+        }
+
+        private void UpdateCaptorClanColor()
+        {
+            _backgroundImage.color = _color.ColorWithAlpha(_alpha);
+        }
+
+        #endregion
+
+        #region TextComponent
+
+        [UIComponent("text-component"), UsedImplicitly]
+        private TextMeshProUGUI _textComponent;
+
+        private void InitializeText()
+        {
+            _textComponent.enableAutoSizing = true;
+            _textComponent.fontSizeMin = 0.1f;
+            _textComponent.fontSizeMax = 2.0f;
+        }
+
+        #endregion
+
+        #region ClanCaptorVariables
+
+        private bool _captorClanActive = false;
 
         [UIValue("captor-clan-active"), UsedImplicitly]
         private bool CaptorClanActive
@@ -316,6 +386,20 @@ namespace BeatLeader.Components {
             {
                 if (_captorClanActive.Equals(value)) return;
                 _captorClanActive = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private bool _leaderboardCaptured = false;
+
+        [UIValue("leaderboard-captured"), UsedImplicitly]
+        private bool LeaderboardCaptured
+        {
+            get => _leaderboardCaptured;
+            set
+            {
+                if (_leaderboardCaptured.Equals(value)) return;
+                _leaderboardCaptured = value;
                 NotifyPropertyChanged();
             }
         }
@@ -334,19 +418,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private string _captorClanBgColor = "";
-
-        [UIValue("captor-clan-bg-color"), UsedImplicitly]
-        private string CaptorClanBgColor
-        {
-            get => _captorClanBgColor;
-            set
-            {
-                if (_captorClanBgColor.Equals(value)) return;
-                _captorClanBgColor = value;
-                NotifyPropertyChanged();
-            }
-        }
+        #endregion
 
         #endregion
 

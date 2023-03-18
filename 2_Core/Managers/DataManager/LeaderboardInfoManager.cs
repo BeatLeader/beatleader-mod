@@ -36,7 +36,14 @@ namespace BeatLeader.DataManager {
 
             void OnSuccess(HashLeaderboardsInfoResponse result) {
                 foreach (var leaderboardInfo in result.leaderboards) {
-                    LeaderboardsCache.PutLeaderboardInfo(result.song, leaderboardInfo.id, leaderboardInfo.difficulty, leaderboardInfo.qualification, leaderboardInfo.clanRanking);
+                    LeaderboardsCache.PutLeaderboardInfo(
+                        result.song,
+                        leaderboardInfo.id,
+                        leaderboardInfo.difficulty,
+                        leaderboardInfo.qualification,
+                        leaderboardInfo.clanRanking,
+                        leaderboardInfo.clanRankingContested
+                        );
                 }
 
                 LeaderboardsCache.NotifyCacheWasChanged();

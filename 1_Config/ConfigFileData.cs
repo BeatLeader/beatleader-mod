@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
@@ -38,6 +39,12 @@ namespace BeatLeader
 
         [UseConverter]
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
+
+        #endregion
+
+        #region LeaderboardDisplaySettings
+
+        public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
 
         #endregion
 

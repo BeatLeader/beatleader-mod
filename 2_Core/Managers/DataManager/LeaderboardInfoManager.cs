@@ -71,7 +71,14 @@ namespace BeatLeader.DataManager {
 
             void OnSuccess(Paged<MassLeaderboardsInfoResponse> result) {
                 foreach (var response in result.data) {
-                    //LeaderboardsCache.PutLeaderboardInfo(response.song, response.id, response.difficulty, response.qualification);
+                    LeaderboardsCache.PutLeaderboardInfo(
+                        response.song,
+                        response.id,
+                        response.difficulty,
+                        response.qualification,
+                        response.clanRanking,
+                        response.clanRankingContested
+                        );
                 }
 
                 totalPages = Mathf.CeilToInt((float) result.metadata.total / result.metadata.itemsPerPage);

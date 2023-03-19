@@ -10,6 +10,8 @@ namespace BeatLeader.Models {
         public SongInfo song;
         public DiffInfo difficulty;
         public QualificationInfo qualification;
+        public ClanRankingInfo clanRanking;
+        public bool clanRankingContested;
     }
 
     internal struct HashLeaderboardsInfoResponse {

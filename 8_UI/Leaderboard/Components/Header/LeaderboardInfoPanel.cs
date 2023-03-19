@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
@@ -8,6 +8,7 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
+using Oculus.Platform.Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -51,6 +52,8 @@ namespace BeatLeader.Components {
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
             ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
+            PluginConfig.LeaderboardDisplaySettingsChangedEvent += OnLeaderboardDisplaySettingsChanged;
+
             OnPlayerRolesUpdated(ProfileManager.Roles);
             
             ExMachinaRequest.AddStateListener(OnExMachinaRequestStateChanged);
@@ -66,11 +69,18 @@ namespace BeatLeader.Components {
             ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
             ExMachinaRequest.RemoveStateListener(OnExMachinaRequestStateChanged);
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
+            PluginConfig.LeaderboardDisplaySettingsChangedEvent -= OnLeaderboardDisplaySettingsChanged;
         }
 
         #endregion
 
         #region Events
+
+        private void OnLeaderboardDisplaySettingsChanged(LeaderboardDisplaySettings settings)
+        {
+            _displayCaptorClan = settings.ClanCaptureDisplay;
+            UpdateVisuals();
+        }
 
         private void OnPlayerRolesUpdated(PlayerRole[] playerRoles) {
             _roles = playerRoles;
@@ -107,6 +117,7 @@ namespace BeatLeader.Components {
         private bool _hasExMachinaRating;
         private float _exMachinaRating;
         private string _websiteLink;
+        private bool _displayCaptorClan = PluginConfig.LeaderboardDisplaySettings.ClanCaptureDisplay;
 
 
         private void SetBeatmap(IDifficultyBeatmap beatmap) {
@@ -133,19 +144,25 @@ namespace BeatLeader.Components {
             {
                 // Clan Ranking was contested
                 LeaderboardCaptured = false;
-                CaptorClanText = "Contested";
+                CaptorClanText = $"⚔ Contested";
+                CaptorClanTextColor = "#C0C0C0FF";
+                CaptorClanHover = "Set a score on this leaderboard to break the tie and capture it for your clan!";
             } 
-            else if (data.ClanRankingInfo.clan.tag == null)
+            else if (data.ClanRankingInfo.clan.tag == null || true)
             {
                 // Map is not captured
                 LeaderboardCaptured = false;
-                CaptorClanText = "Uncaptured";
+                CaptorClanText = $"👑 Uncaptured";
+                CaptorClanTextColor = "#FFFFFFFF";
+                CaptorClanHover = "Set a score on this leaderboard to capture it for your clan!";
             } 
             else
             {
                 // Map is captured by a clan
                 LeaderboardCaptured = true;
-                CaptorClanText = "Captured By:";
+                CaptorClanText = $"👑 ";
+                CaptorClanTextColor = "#FFD700FF";
+                CaptorClanHover = "Clan with the highest weighted PP on this leaderboard!";
                 UpdateCaptorClan(data.ClanRankingInfo.clan);
             }
 
@@ -214,9 +231,7 @@ namespace BeatLeader.Components {
             ExMachinaActive = _hasExMachinaRating && _roles.Any(ExMachinaVisibleToRole);
             var exMachinaStarsStr = _exMachinaRating > 0 ? $"{_exMachinaRating:F1}*" : "-";
             ExMachinaText = $"Ex Machina: {exMachinaStarsStr}";
-
-            //CaptorClanActive = _rankedStatus is RankedStatus.Ranked;
-            CaptorClanActive = true;
+            CaptorClanActive = _displayCaptorClan && _rankedStatus is RankedStatus.Ranked;
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
         }
@@ -414,6 +429,34 @@ namespace BeatLeader.Components {
             {
                 if (_captorClanText.Equals(value)) return;
                 _captorClanText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _captorClanHover = "";
+
+        [UIValue("captor-clan-hover"), UsedImplicitly]
+        private string CaptorClanHover
+        {
+            get => _captorClanHover;
+            set
+            {
+                if (_captorClanHover.Equals(value)) return;
+                _captorClanHover = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _captorClanTextColor = "#FFFFFFDD";
+
+        [UIValue("captor-clan-text-color"), UsedImplicitly]
+        private string CaptorClanTextColor
+        {
+            get => _captorClanTextColor;
+            set
+            {
+                if (_captorClanTextColor.Equals(value)) return;
+                _captorClanTextColor = value;
                 NotifyPropertyChanged();
             }
         }

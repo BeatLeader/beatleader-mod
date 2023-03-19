@@ -155,6 +155,21 @@ namespace BeatLeader.Components {
             }
         }
 
+        [UIValue("clan-capture-value"), UsedImplicitly]
+        private bool ClanCaptureValue
+        {
+            get => PluginConfig.LeaderboardDisplaySettings.ClanCaptureDisplay;
+            set
+            {
+                // Might be a more elegant solution for calling the PluginConfig
+                // LeaderboardDisplaySettings setter
+                PluginConfig.LeaderboardDisplaySettings = new LeaderboardDisplaySettings
+                {
+                    ClanCaptureDisplay = value
+                };
+            }
+        }
+
         #endregion
     }
 }

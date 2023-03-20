@@ -62,7 +62,7 @@ namespace BeatLeader.Utils
         {
             string practice = replay.info.speed != 0 ? "-practice" : "";
             string fail = replay.info.failTime != 0 ? "-fail" : "";
-            string filename = $"{replay.info.playerID}{practice}{fail}-{replay.info.songName}-{replay.info.difficulty}-{replay.info.mode}-{replay.info.hash}.bsor";
+            string filename = $"{replay.info.playerID}{practice}{fail}-{replay.info.songName}-{replay.info.difficulty}-{replay.info.mode}-{replay.info.score}-{replay.info.hash}.bsor";
             string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             Regex r = new (string.Format("[{0}]", Regex.Escape(regexSearch)));
             return folder + r.Replace(filename, "_");

@@ -11,24 +11,22 @@ jobs:
     Build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v3
             - name: Setup dotnet
-              uses: actions/setup-dotnet@v1
+              uses: actions/setup-dotnet@v3
               with:
-                  dotnet-version: 5.0.x
+                  dotnet-version: 7.0.x
             - name: Acquire SIRA References
               uses: ProjectSIRA/download-sira-stripped@1.0.0
               with:
-                  manifest: ./manifest.json
+                  manifest: ${{ github.workspace }}/Source/manifest.json
                   sira-server-code: ${{ secrets.SIRA_SERVER_CODE }}
             - name: Download Mod Dependencies
               uses: Goobwabber/download-beatmods-deps@1.2
               with:
-                  manifest: ${{github.workspace}}/manifest.json
+                  manifest: ${{ github.workspace }}/Source/manifest.json
             - name: Build
               id: Build
-              env: 
-                  FrameworkPathOverride: /usr/lib/mono/4.8-api
               run: dotnet build --configuration Release
             - name: GitStatus
               run: git status

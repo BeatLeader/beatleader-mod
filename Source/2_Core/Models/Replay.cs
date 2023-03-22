@@ -8,8 +8,7 @@ using UVector3 = UnityEngine.Vector3;
 using UQuaternion = UnityEngine.Quaternion;
 using BeatLeader.Utils;
 
-namespace BeatLeader.Models
-{
+namespace BeatLeader.Models.Replay {
     public class Replay
     {
         public ReplayInfo info = new ReplayInfo();
@@ -21,7 +20,6 @@ namespace BeatLeader.Models
         public List<AutomaticHeight> heights = new List<AutomaticHeight>();
         public List<Pause> pauses = new List<Pause>();
     }
-
     public class ReplayInfo
     {
         public string version;
@@ -62,7 +60,7 @@ namespace BeatLeader.Models
             line += $"SongHash: {hash}\r\n";
             line += $"Mode: {mode}\r\n";
             line += $"Modifiers: {modifiers}\r\n";
-            line += $"TotalScore: {score}\r\n";
+            line += $"TotalScore: {score.ToString()}\r\n";
             return line;
         }
     }
@@ -108,82 +106,73 @@ namespace BeatLeader.Models
         public float time;
     }
     public class NoteCutInfo
-    {
+    {        
         private static readonly SaberMovementData _emptyMovementData = new();
+        
+        public static readonly GameNoteCutInfo BombNoteCutInfo = new(
+            null, 
+            false,
+            false,
+            false,
+            true,
+            0,
+            new UVector3(), 
+            SaberType.SaberA,
+            0,
+            0,
+            new UVector3(),
+            new UVector3(), 
+            0, 
+            0,
+            UQuaternion.identity,
+            UQuaternion.identity,
+            UQuaternion.identity,
+            UVector3.zero,
+            _emptyMovementData);
 
-        public static GameNoteCutInfo Convert(NoteCutInfo info, NoteData data)
-        {
-            return new GameNoteCutInfo(
-                data,
-                info.speedOK,
-                info.directionOK,
-                info.saberTypeOK,
-                info.wasCutTooSoon,
-                info.saberSpeed,
-                info.saberDir,
-                (SaberType)info.saberType,
-                info.timeDeviation,
-                info.cutDirDeviation,
-                info.cutPoint,
-                info.cutNormal,
-                info.cutDistanceToCenter,
-                info.cutAngle,
-                UQuaternion.identity,
-                UQuaternion.identity,
-                UQuaternion.identity,
-                UVector3.zero,
-                _emptyMovementData);
-        }
-        public static GameNoteCutInfo Convert(NoteCutInfo info, NoteController controller)
-        {
-            return new GameNoteCutInfo(
-                controller.noteData, 
-                info.speedOK,
-                info.directionOK,
-                info.saberTypeOK,
-                info.wasCutTooSoon,
-                info.saberSpeed,
-                info.saberDir, 
-                (SaberType)info.saberType,
-                info.timeDeviation,
-                info.cutDirDeviation,
-                info.cutPoint,
-                info.cutNormal, 
-                info.cutDistanceToCenter, 
-                info.cutAngle,
-                controller.worldRotation,
-                controller.inverseWorldRotation,
-                controller.noteTransform.localRotation,
-                controller.noteTransform.position, 
-                _emptyMovementData);
-        }
+        public static GameNoteCutInfo Convert(NoteCutInfo info) => new(
+            null,
+            info.speedOK,
+            info.directionOK,
+            info.saberTypeOK,
+            info.wasCutTooSoon,
+            info.saberSpeed,
+            info.saberDir,
+            (SaberType)info.saberType,
+            info.timeDeviation,
+            info.cutDirDeviation,
+            info.cutPoint,
+            info.cutNormal,
+            info.cutDistanceToCenter,
+            info.cutAngle,
+            UQuaternion.identity,
+            UQuaternion.identity,
+            UQuaternion.identity,
+            UVector3.zero,
+            _emptyMovementData);
+        
+        public static GameNoteCutInfo Convert(NoteCutInfo info, NoteController controller) => new(
+            controller.noteData, 
+            info.speedOK,
+            info.directionOK,
+            info.saberTypeOK,
+            info.wasCutTooSoon,
+            info.saberSpeed,
+            info.saberDir, 
+            (SaberType)info.saberType,
+            info.timeDeviation,
+            info.cutDirDeviation,
+            info.cutPoint,
+            info.cutNormal, 
+            info.cutDistanceToCenter, 
+            info.cutAngle,
+            controller.worldRotation,
+            controller.inverseWorldRotation,
+            controller.noteTransform.localRotation,
+            controller.noteTransform.position, 
+            _emptyMovementData);
 
-        public static GameNoteCutInfo ConvertToBomb(NoteController controller)
-        {
-            return new GameNoteCutInfo(
-                controller.noteData, 
-                false,
-                false,
-                false,
-                true,
-                0,
-                new UVector3(), 
-                SaberType.SaberA,
-                0,
-                0,
-                new UVector3(),
-                new UVector3(), 
-                0, 
-                0,
-                controller.worldRotation,
-                controller.inverseWorldRotation,
-                controller.noteTransform.localRotation,
-                controller.noteTransform.position, 
-                _emptyMovementData);
-        }
-
-        public static implicit operator NoteCutInfo(GameNoteCutInfo info) => new NoteCutInfo()
-        {
+        public static implicit operator NoteCutInfo(GameNoteCutInfo info) => new() {
             speedOK = info.speedOK,
             directionOK = info.directionOK,
             saberTypeOK = info.saberTypeOK,
@@ -198,7 +187,7 @@ namespace BeatLeader.Models
             cutDistanceToCenter = info.cutDistanceToCenter,
             cutAngle = info.cutAngle
         };
-
+        
         public bool speedOK { get; set; }
         public bool directionOK { get; set; }
         public bool saberTypeOK { get; set; }
@@ -291,10 +280,9 @@ namespace BeatLeader.Models
         public Vector3 position;
         public Quaternion rotation;
     }
-
     static class ReplayEncoder
     {
-        public static void Encode(Replay replay, BinaryWriter stream)
+        public static void Encode(Models.Replay.Replay replay, BinaryWriter stream)
         {
             stream.Write(0x442d3d69);
             stream.Write((byte)1);
@@ -424,7 +412,7 @@ namespace BeatLeader.Models
             }
         }
 
-        static void EncodeNoteInfo(NoteCutInfo info, BinaryWriter stream)
+        static void EncodeNoteInfo(Models.Replay.NoteCutInfo info, BinaryWriter stream)
         {
             stream.Write(info.speedOK);
             stream.Write(info.directionOK);
@@ -468,7 +456,7 @@ namespace BeatLeader.Models
     }
     static class ReplayDecoder
     {
-        public static bool TryDecode(byte[] buffer, out Replay replay)
+        public static bool TryDecode(byte[] buffer, out Models.Replay.Replay replay)
         {
             replay = null;
             try
@@ -481,7 +469,7 @@ namespace BeatLeader.Models
                 return false;
             }
         }
-        public static Replay Decode(byte[] buffer)
+        public static Models.Replay.Replay Decode(byte[] buffer)
         {
             int arrayLength = (int)buffer.Length;
 
@@ -492,7 +480,7 @@ namespace BeatLeader.Models
 
             if (magic == 0x442d3d69 && version == 1)
             {
-                Replay replay = new Replay();
+                Models.Replay.Replay replay = new Models.Replay.Replay();
 
                 for (int a = 0; a < ((int)StructType.pauses) + 1 && pointer < arrayLength; a++)
                 {
@@ -661,9 +649,9 @@ namespace BeatLeader.Models
             return result;
         }
 
-        private static NoteCutInfo DecodeCutInfo(byte[] buffer, ref int pointer)
+        private static Models.Replay.NoteCutInfo DecodeCutInfo(byte[] buffer, ref int pointer)
         {
-            NoteCutInfo result = new NoteCutInfo();
+            Models.Replay.NoteCutInfo result = new Models.Replay.NoteCutInfo();
             result.speedOK = DecodeBool(buffer, ref pointer);
             result.directionOK = DecodeBool(buffer, ref pointer);
             result.saberTypeOK = DecodeBool(buffer, ref pointer);

@@ -2,6 +2,8 @@
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
+using BeatLeader.Models.AbstractReplay;
+using BeatLeader.Models.Replay;
 using UnityEngine;
 using Zenject;
 
@@ -20,20 +22,19 @@ namespace BeatLeader.Replayer.Emulation {
         private readonly List<VirtualPlayer> _virtualPlayers = new();
 
         private void Awake() {
-            foreach (var replayPair in _launchData.Replays) {
-                Spawn(replayPair.Key, replayPair.Value);
+            foreach (var replay in _launchData.Replays) {
+                Spawn(replay);
             }
             if (_virtualPlayers.Count != 0) {
                 SetPriorityPlayer(_virtualPlayers[0]);
             }
         }
 
-        public void Spawn(Player player, Replay replay) {
+        public void Spawn(IReplay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
-            player ??= new() { name = "Undefined Player" };
-            var name = player.name.Replace(" ", "") + "Controllers";
-            var controllers = _controllersInstantiator.CreateInstance(name);
-            virtualPlayer.Init(player, replay, controllers);
+            var controllers = _controllersInstantiator
+                .CreateInstance(replay.ReplayData.Player?.name + "Controllers");
+            virtualPlayer.Init(replay, controllers);
             _virtualPlayers.Add(virtualPlayer);
         }
 

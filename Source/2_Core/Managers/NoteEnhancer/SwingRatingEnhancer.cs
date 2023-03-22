@@ -23,7 +23,7 @@ namespace BeatLeader.Core.Managers.NoteEnhancer {
             postSwingMap.Remove(counter);
         }
 
-        public static void Enhance(Models.NoteCutInfo cutInfo, SaberSwingRatingCounter counter) {
+        public static void Enhance(Models.Replay.NoteCutInfo cutInfo, SaberSwingRatingCounter counter) {
             cutInfo.beforeCutRating = GetBeforeCutSwingRating(counter);
             cutInfo.afterCutRating = GetAfterCutSwingRating(counter);
         }

@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.Models.Replay;
 
 namespace BeatLeader
 {

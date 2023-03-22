@@ -51,23 +51,13 @@ namespace BeatLeader.Components {
             OnDispose();
             _timeline = timeline;
             _launchData = launchData;
-            _timeline.MarkersWasGeneratedEvent += HandleMarkersWasGenerated;
             RefreshToggles();
-        }
-
-        protected override void OnDispose() {
-            if (_timeline != null)
-                _timeline.MarkersWasGeneratedEvent -= HandleMarkersWasGenerated;
         }
 
         private void RefreshToggles() {
             NotifyPropertyChanged(nameof(ShowMisses));
             NotifyPropertyChanged(nameof(ShowBombs));
             NotifyPropertyChanged(nameof(ShowPauses));
-        }
-
-        private void HandleMarkersWasGenerated() {
-
         }
     }
 }

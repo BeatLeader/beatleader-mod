@@ -104,7 +104,7 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateSongTime() {
-            var failTime = _launchData.IsBattleRoyale ? 0 : _launchData.MainReplay.info.failTime;
+            var failTime = _launchData.IsBattleRoyale ? 0 : _launchData.MainReplay.ReplayData.FailTime;
             var totalTime = failTime <= 0 ? _beatmapTimeController.SongEndTime : failTime;
             FormattedSongTime = FormatUtils.FormatSongTime(_beatmapTimeController.SongTime, totalTime);
         }

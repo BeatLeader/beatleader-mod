@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Models.Replay;
 using UnityEngine.XR;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer

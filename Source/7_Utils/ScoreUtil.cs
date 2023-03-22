@@ -2,6 +2,7 @@
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatLeader.Models.Activity;
+using BeatLeader.Models.Replay;
 
 namespace BeatLeader.Utils {
     internal static class ScoreUtil {

@@ -11,7 +11,7 @@ namespace BeatLeader.Replayer.Tweaking {
 
         private static readonly HarmonyPatchDescriptor _movementDataInitPatchDescriptor = new(
             typeof(BeatmapObjectSpawnMovementData).GetMethod(nameof(
-                BeatmapObjectSpawnMovementData.Init), ReflectionUtils.DefaultFlags),
+                BeatmapObjectSpawnMovementData.Init), ReflectionUtils.DefaultFlags)!,
             typeof(JumpDistanceTweak).GetMethod(nameof(
                 MovementDataInitPrefix), ReflectionUtils.StaticFlags));
 
@@ -20,8 +20,9 @@ namespace BeatLeader.Replayer.Tweaking {
         private HarmonyAutoPatch _movementDataInitPatch = null!;
 
         public override void Initialize() {
+            //TODO: add br (player switch) support
             JDFixerInterop.Enabled = false;
-            _desiredJumpDistance = _launchData.MainReplay.info.jumpDistance;
+            _desiredJumpDistance = _launchData.MainReplay.ReplayData.JumpDistance;
             _movementDataInitPatch = _movementDataInitPatchDescriptor;
         }
 

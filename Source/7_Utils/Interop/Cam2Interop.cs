@@ -43,8 +43,8 @@ namespace BeatLeader.Interop {
             _updater = new(1);
             _updater.Elapsed += OnRepeaterUpdated;
 
-            ReplayerLauncher.ReplayWasStartedEvent += OnReplayStarted;
-            ReplayerLauncher.ReplayWasFinishedEvent += OnReplayFinished;
+            ReplayerLauncher.ReplayWasStartedEvent += OnReplayWasStarted;
+            ReplayerLauncher.ReplayWasFinishedEvent += OnReplayWasFinished;
         }
         public static void SetHeadTransform(Transform transform) {
             _headTranform = transform;
@@ -78,7 +78,7 @@ namespace BeatLeader.Interop {
         private static void OnRepeaterUpdated(object sender, ElapsedEventArgs e) {
             UpdateGenericSource();
         }
-        private static void OnReplayStarted(Models.ReplayLaunchData data) => SetReplayState(true);
-        private static void OnReplayFinished(Models.ReplayLaunchData data) => SetReplayState(false);
+        private static void OnReplayWasStarted(Models.ReplayLaunchData data) => SetReplayState(true);
+        private static void OnReplayWasFinished(Models.ReplayLaunchData data) => SetReplayState(false);
     }
 }

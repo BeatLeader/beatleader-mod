@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Models;
+using BeatLeader.Models.Replay;
 using UnityEngine.Networking;
 
 namespace BeatLeader.API.Methods {

@@ -148,7 +148,7 @@ namespace BeatLeader.Components {
                 CaptorClanTextColor = "#C0C0C0FF";
                 CaptorClanHover = "Set a score on this leaderboard to break the tie and capture it for your clan!";
             } 
-            else if (data.ClanRankingInfo.clan.tag == null || true)
+            else if (data.ClanRankingInfo.clan.tag == null)
             {
                 // Map is not captured
                 LeaderboardCaptured = false;

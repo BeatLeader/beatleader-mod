@@ -11,5 +11,6 @@ namespace BeatLeader.Models {
         public SerializableQuaternion rotation;
 
         public static implicit operator Pose(SerializablePose pose) => new(pose.position, pose.rotation);
+        public static implicit operator SerializablePose(Pose pose) => new(pose.position, pose.rotation);
     }
 }

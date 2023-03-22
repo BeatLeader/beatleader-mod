@@ -115,7 +115,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandlePoseWasResetted() {
-            FloatingConfig.Instance.Pose = _viewFloating?.transform.GetLocalPose() ?? default;
+            FloatingConfig.Instance.Pose = _viewFloating?.transform.GetLocalPose() ?? default(Pose);
         }
 
         #endregion

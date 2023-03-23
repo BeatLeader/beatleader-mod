@@ -18,18 +18,13 @@ namespace BeatLeader.Replayer {
 
         public static event Action<ReplayLaunchData>? ReplayWasStartedEvent;
         public static event Action<ReplayLaunchData>? ReplayWasFinishedEvent;
-
-        public async Task<bool> StartReplayAsync(ReplayLaunchData data) {
-            return await StartReplayAsync(data, new CancellationToken());
-        }
         
-        public Task<bool> StartReplayAsync(ReplayLaunchData data, CancellationToken token) {
-            Plugin.Log.Notice("[Launcher] Loading replay data...");
+        public bool StartReplay(ReplayLaunchData data) {
+            if (data.Replays.Count == 0) return false;
 
-            if (data.Replays.Count == 0) return Task.FromResult(false);
+            Plugin.Log.Notice("[Launcher] Loading replay data...");
             var transitionData = data.CreateTransitionData(_playerDataModel);
-            if (token.IsCancellationRequested) return Task.FromResult(false);
-            
+
             transitionData.didFinishEvent += HandleLevelFinish;
             IsStartedAsReplay = true;
             LaunchData = data;
@@ -38,7 +33,7 @@ namespace BeatLeader.Replayer {
             ReplayWasStartedEvent?.Invoke(data);
             Plugin.Log.Notice("[Launcher] Starting replay...");
 
-            return Task.FromResult(true);
+            return true;
         }
 
         private static void HandleLevelFinish(

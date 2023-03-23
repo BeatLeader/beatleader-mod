@@ -149,32 +149,32 @@ namespace BeatLeader.Replayer {
         private readonly BeatmapLevelsModel _levelsModel = null!;
 
         private void StartReplay(Player player) {
-            StartReplayAsync(Replay!, player, null);
+            StartReplayAsync(Replay!, player);
         }
 
-        [UsedImplicitly]
+        [PublicAPI]
         public async void StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
 
-        [UsedImplicitly]
+        [PublicAPI]
         public async Task StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings, CancellationToken token) {
             settings ??= ConfigFileData.Instance.ReplayerSettings;
             var data = new ReplayLaunchData();
             var info = replay.info;
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
-            await LoadBeatmap(data, info.hash, info.mode, info.difficulty, token);
-            if (settings.LoadPlayerEnvironment) await LoadEnvironment(data, info.environment);
+            await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
+            if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
             var creplay = ReplayDataHelper.ConvertToAbstractReplay(replay, player);
             data.Init(creplay, ReplayDataHelper.BasicReplayComparator,
                 settings, data.DifficultyBeatmap, data.EnvironmentInfo);
-            await StartReplayAsync(data, token);
+            StartReplay(data);
         }
 
-        [UsedImplicitly]
-        public async Task StartReplayAsync(ReplayLaunchData data, CancellationToken token) {
+        [PublicAPI]
+        public void StartReplay(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
-            if (!await _launcher.StartReplayAsync(data, token)) return;
+            if (!_launcher.StartReplay(data)) return;
             ScoreSaberInterop.RecordingEnabled = false;
             BeatSaviorInterop.ScoreSubmissionEnabled = false;
             //InputUtils.forceFPFC = !_fpfcSettings.Ignore;
@@ -195,8 +195,8 @@ namespace BeatLeader.Replayer {
 
         #region ReplayTools
 
-        [UsedImplicitly]
-        public async Task<bool> LoadBeatmap(ReplayLaunchData launchData,
+        [PublicAPI]
+        public async Task<bool> LoadBeatmapAsync(ReplayLaunchData launchData,
             string hash, string mode, string difficulty, CancellationToken token) {
             var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);
             if (beatmapLevel == null || token.IsCancellationRequested
@@ -215,19 +215,19 @@ namespace BeatLeader.Replayer {
             return true;
         }
 
-        [UsedImplicitly]
-        public Task<bool> LoadEnvironment(ReplayLaunchData launchData, string environmentName) {
+        [PublicAPI]
+        public bool LoadEnvironment(ReplayLaunchData launchData, string environmentName) {
             try {
                 var environment = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
                     .FirstOrDefault(x => x.environmentName == environmentName);
                 if (environment == null) throw new ArgumentException();
                 Plugin.Log.Notice($"[Loader] Applied specified environment: " + environmentName);
                 Reinit(launchData, environment: environment);
-                return Task.FromResult(true);
+                return true;
             } catch (Exception ex) {
                 Plugin.Log.Error($"[Loader] Failed to load specified environment:\r\n" + ex);
             }
-            return Task.FromResult(false);
+            return false;
         }
 
         private async Task<IBeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {

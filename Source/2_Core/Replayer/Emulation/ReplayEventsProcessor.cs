@@ -76,11 +76,15 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            if (player.Replay is null) return;
+            if (player.Replay is null) {
+                _allowProcess = false;
+                return;
+            }
             _notes = player.Replay.NoteEvents;
             _walls = player.Replay.WallEvents;
             _nextNoteIndex = 0;
             _nextWallIndex = 0;
+            _allowProcess = true;
         }
         
         private void HandleSongWasRewound(float newTime) {

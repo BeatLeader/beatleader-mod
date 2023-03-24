@@ -90,13 +90,13 @@ namespace BeatLeader.Replayer.Emulation {
         private static IEnumerable<NoteData> CreateSortedNoteDataList(IEnumerable<BeatmapDataItem> items) {
             var list = new List<NoteData>();
             foreach (var item in items) {
-                if (!item.TryDefine(out NoteData? noteData) && item.TryDefine(out SliderData? sliderData)) {
+                var noteData = item as NoteData;
+                if (item is SliderData sliderData) {
                     noteData = NoteData.CreateBurstSliderNoteData(
-                        sliderData!.time, sliderData.headLineIndex, sliderData.headLineLayer,
+                        sliderData.time, sliderData.headLineIndex, sliderData.headLineLayer,
                         sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f);
                 }
-                if (noteData == null) continue;
-                list.Add(noteData);
+                list.Add(noteData!);
             }
             list.Sort(beatmapItemsComparer);
             return list;

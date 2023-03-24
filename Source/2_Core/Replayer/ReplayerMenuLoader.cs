@@ -149,11 +149,11 @@ namespace BeatLeader.Replayer {
         private readonly BeatmapLevelsModel _levelsModel = null!;
 
         private void StartReplay(Player player) {
-            StartReplayAsync(Replay!, player);
+            _ = StartReplayAsync(Replay!, player);
         }
 
         [PublicAPI]
-        public async void StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings = null) {
+        public async Task StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
 

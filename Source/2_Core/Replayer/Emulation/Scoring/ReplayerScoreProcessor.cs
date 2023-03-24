@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BeatLeader.Interop;
 using BeatLeader.Models;
@@ -87,19 +88,17 @@ namespace BeatLeader.Replayer.Emulation {
             return false;
         }
 
-        private static IEnumerable<NoteData> CreateSortedNoteDataList(IEnumerable<BeatmapDataItem> items) {
-            var list = new List<NoteData>();
-            foreach (var item in items) {
-                var noteData = item as NoteData;
-                if (item is SliderData sliderData) {
-                    noteData = NoteData.CreateBurstSliderNoteData(
+        private static IEnumerable<NoteData?> CreateSortedNoteDataList(IEnumerable<BeatmapDataItem> items) {
+            return items
+                .Select(static x => x switch {
+                    NoteData data => data,
+                    SliderData sliderData => NoteData.CreateBurstSliderNoteData(
                         sliderData.time, sliderData.headLineIndex, sliderData.headLineLayer,
-                        sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f);
-                }
-                list.Add(noteData!);
-            }
-            list.Sort(beatmapItemsComparer);
-            return list;
+                        sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f),
+                    _ => null
+                })
+                .OfType<NoteData>()
+                .OrderBy(static x => x, beatmapItemsComparer);
         }
 
         #endregion

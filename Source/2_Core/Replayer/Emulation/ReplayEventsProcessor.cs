@@ -24,6 +24,7 @@ namespace BeatLeader.Replayer.Emulation {
         private int _nextNoteIndex;
         private int _nextWallIndex;
         private float _lastTime;
+        private bool _allowProcess;
 
         public void Initialize() {
             _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewound;
@@ -35,6 +36,7 @@ namespace BeatLeader.Replayer.Emulation {
             _virtualPlayersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
         public void LateTick() {
+            if (!_allowProcess) return;
             var songTime = _beatmapTimeController.SongTime;
 
             do {
@@ -45,8 +47,8 @@ namespace BeatLeader.Replayer.Emulation {
                 var nextNote = hasNextNote ? _notes[_nextNoteIndex] : default;
                 var nextWall = hasNextWall ? _walls[_nextWallIndex] : default;
 
-                var nextNoteTime = hasNextNote ? nextNote!.eventTime : float.MaxValue;
-                var nextWallTime = hasNextWall ? nextWall!.time : float.MaxValue;
+                var nextNoteTime = hasNextNote ? nextNote.eventTime : float.MaxValue;
+                var nextWallTime = hasNextWall ? nextWall.time : float.MaxValue;
 
                 if (hasNextWall && nextWallTime <= nextNoteTime) {
                     if (nextWall!.time > songTime) break;
@@ -74,7 +76,8 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            _notes = player.Replay!.NoteEvents;
+            if (player.Replay is null) return;
+            _notes = player.Replay.NoteEvents;
             _walls = player.Replay.WallEvents;
             _nextNoteIndex = 0;
             _nextWallIndex = 0;

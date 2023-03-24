@@ -50,7 +50,7 @@ namespace BeatLeader {
             var idx2 = modifierLocalizationKey.IndexOf('_', idx1) + 1;
             var char2 = modifierLocalizationKey[idx2];
 
-            return (char.ToUpper(char1) + char.ToUpper(char2)).ToString();
+            return $"{char.ToUpper(char1)}{char.ToUpper(char2)}";
         }
     }
 }

@@ -53,7 +53,7 @@ namespace BeatLeader.Components {
             LayoutEditor.antiSnapKeyCode = launchData.Settings.Shortcuts.LayoutEditorAntiSnapHotkey;
 
             if (!launchData.IsBattleRoyale) {
-                var player = launchData.Replays[0].Key;
+                var player = launchData.MainReplay.ReplayData.Player;
                 if (player != null) {
                     _playerInfo.SetPlayer(player);
                 } else {

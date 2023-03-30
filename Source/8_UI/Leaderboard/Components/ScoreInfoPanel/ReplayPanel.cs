@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using System.Linq;
+using BeatLeader.Models.Replay;
 using UnityEngine;
 using UnityEngine.UI;
 

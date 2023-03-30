@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Utils;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,43 +18,41 @@ namespace BeatLeader.Replayer.Emulation {
 
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
 
-        public Player? Player { get; private set; }
-        public Replay? Replay { get; private set; }
+        public IReplay? Replay { get; private set; }
         public IVRControllersProvider? ControllersProvider { get; private set; }
 
         public bool enableInterpolation = true;
 
-        private LinkedListNode<Frame>? _lastProcessedNode;
-        private LinkedList<Frame>? _frames;
+        private LinkedListNode<PlayerMovementFrame>? _lastProcessedNode;
+        private LinkedList<PlayerMovementFrame>? _frames;
         private bool _allowPlayback;
 
-        public void Init(Player player, Replay replay, IVRControllersProvider provider) {
-            Player = player;
+        public void Init(IReplay replay, IVRControllersProvider provider) {
             Replay = replay;
             ControllersProvider = provider;
-            _frames = new(replay.frames);
+            _frames = new(replay.PlayerMovementFrames);
             _lastProcessedNode = _frames.First;
             _allowPlayback = true;
             gameObject.SetActive(true);
         }
 
-        private void PlayFrame(LinkedListNode<Frame> frame) {
-            if (frame == null || frame.Next == null) return;
+        private void PlayFrame(LinkedListNode<PlayerMovementFrame>? frame) {
+            if (frame?.Next == null) return;
             _lastProcessedNode = frame;
 
             var currentFrame = frame.Value;
-            var leftSaberPose = currentFrame.leftHand.GetPose();
-            var rightSaberPose = currentFrame.rightHand.GetPose();
-            var headPose = currentFrame.head.GetPose();
+            var leftSaberPose = currentFrame.leftHandPose;
+            var rightSaberPose = currentFrame.rightHandPose;
+            var headPose = currentFrame.headPose;
 
             if (enableInterpolation) {
                 float t = (_beatmapTimeController.SongTime - frame.Value.time) /
                     (frame.Next.Value.time - frame.Value.time);
 
                 var nextFrame = frame.Next.Value;
-                leftSaberPose = leftSaberPose.Lerp(nextFrame.leftHand.GetPose(), t);
-                rightSaberPose = rightSaberPose.Lerp(nextFrame.rightHand.GetPose(), t);
-                headPose = headPose.Lerp(nextFrame.head.GetPose(), t);
+                leftSaberPose = leftSaberPose.Lerp(nextFrame.leftHandPose, t);
+                rightSaberPose = rightSaberPose.Lerp(nextFrame.rightHandPose, t);
+                headPose = headPose.Lerp(nextFrame.headPose, t);
             }
 
             ControllersProvider!.LeftSaber.transform.SetLocalPose(leftSaberPose);
@@ -62,9 +61,9 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void Update() {
-            if (_allowPlayback && _lastProcessedNode!.TryGetFrameByTime(
+            if (_allowPlayback && TryGetFrameByTime(_lastProcessedNode!,
                 _beatmapTimeController.SongTime, out var frame)) {
-                PlayFrame(frame.Previous);
+                PlayFrame(frame?.Previous);
             }
         }
 
@@ -83,6 +82,15 @@ namespace BeatLeader.Replayer.Emulation {
 
         private void HandleSongWasRewound(float time) {
             _lastProcessedNode = _frames!.First;
+        }
+        
+        private static bool TryGetFrameByTime(LinkedListNode<PlayerMovementFrame> entryPoint,
+            float time, out LinkedListNode<PlayerMovementFrame>? frame) {
+            for (frame = entryPoint; frame != null; frame = frame.Next) {
+                if (frame.Value.time >= time) return true;
+            }
+            frame = null;
+            return false;
         }
     }
 }

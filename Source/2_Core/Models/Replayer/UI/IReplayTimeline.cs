@@ -2,9 +2,8 @@
 
 namespace BeatLeader.Models {
     internal interface IReplayTimeline {
-        event Action MarkersWasGeneratedEvent;
+        event Action MarkersWereGeneratedEvent;
 
         void ShowMarkers(string name, bool show = true);
-        void ClearMarkers(string name);
     }
 }

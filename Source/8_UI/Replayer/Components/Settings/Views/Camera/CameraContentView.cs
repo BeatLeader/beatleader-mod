@@ -9,7 +9,7 @@ namespace BeatLeader.Components {
     internal class CameraContentView : ContentView {
         #region UI Components
 
-        [UIValue("params-menu-button")] 
+        [UIValue("params-menu-button")]
         private NavigationButton _paramsMenuButton = null!;
 
         [UIObject("camera-fov-container")]
@@ -20,15 +20,15 @@ namespace BeatLeader.Components {
         #region UI Values
 
         [UIValue("camera-view-values")]
-        private readonly List<object> _cameraViewValues = new() { string.Empty };
+        private readonly List<object> _cameraViewValues = new() { "Empty" };
 
         [UIValue("camera-view")]
         private string CameraView {
             get => _cameraController?.SelectedView?.Name ?? string.Empty;
             set {
                 if (!_isInitialized) return;
-                _cameraController.SetView(value);
-                _launchData.Settings.SetActualCameraView(value);
+                _cameraController!.SetView(value);
+                _launchData.Settings.CameraSettings!.CameraView = value;
             }
         }
 
@@ -37,8 +37,8 @@ namespace BeatLeader.Components {
             get => (int)(_cameraController?.Camera?.fieldOfView ?? 0);
             set {
                 if (!_isInitialized) return;
-                _cameraController.Camera!.fieldOfView = value;
-                _launchData.Settings.CameraFOV = value;
+                _cameraController!.Camera!.fieldOfView = value;
+                _launchData.Settings.CameraSettings!.CameraFOV = value;
             }
         }
 
@@ -46,7 +46,7 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        private IViewableCameraController _cameraController = null!;
+        private IViewableCameraController? _cameraController;
         private ReplayLaunchData _launchData = null!;
         private bool _isInitialized;
 
@@ -58,8 +58,10 @@ namespace BeatLeader.Components {
             _launchData = launchData;
 
             _cameraController.CameraViewChangedEvent += HandleViewChanged;
-            _cameraViewValues.Clear();
-            _cameraViewValues.AddRange(_cameraController.Views.Select(x => x.Name));
+            if (_cameraController.Views.Count > 0) {
+                _cameraViewValues.Clear();
+                _cameraViewValues.AddRange(_cameraController.Views.Select(x => x.Name));
+            }
             _isInitialized = true;
 
             NotifyPropertyChanged(nameof(CameraView));
@@ -98,13 +100,13 @@ namespace BeatLeader.Components {
 
         private ParamsContentViewBase? _selectedParamsMenu;
 
-        private void HandleViewChanged(ICameraView view) {
-            if (view == null) return;
+        private void HandleViewChanged(ICameraView? view) {
             NotifyPropertyChanged(nameof(CameraView));
-            _paramsMenuButton.Interactable = TryFindView(view, out _selectedParamsMenu);
+            _paramsMenuButton.Interactable = view != null
+                && TryFindView(view, out _selectedParamsMenu);
         }
 
-        private bool TryFindView(ICameraView provider, out ParamsContentViewBase view) {
+        private bool TryFindView(ICameraView provider, out ParamsContentViewBase? view) {
             return (view = _contentViews.FirstOrDefault(
                 x => x.ViewType == provider.GetType())) != null;
         }

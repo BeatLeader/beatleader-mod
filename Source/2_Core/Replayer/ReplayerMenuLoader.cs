@@ -159,7 +159,7 @@ namespace BeatLeader.Replayer {
 
         [PublicAPI]
         public async Task StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings, CancellationToken token) {
-            settings ??= ConfigFileData.Instance.ReplayerSettings;
+            settings ??= ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
             var info = replay.info;
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
@@ -217,17 +217,15 @@ namespace BeatLeader.Replayer {
 
         [PublicAPI]
         public bool LoadEnvironment(ReplayLaunchData launchData, string environmentName) {
-            try {
-                var environment = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
-                    .FirstOrDefault(x => x.environmentName == environmentName);
-                if (environment == null) throw new ArgumentException();
-                Plugin.Log.Notice($"[Loader] Applied specified environment: " + environmentName);
-                Reinit(launchData, environment: environment);
-                return true;
-            } catch (Exception ex) {
-                Plugin.Log.Error($"[Loader] Failed to load specified environment:\r\n" + ex);
+            var environment = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
+                .FirstOrDefault(x => x.environmentName == environmentName);
+            if (environment == null) {
+                Plugin.Log.Error($"[Loader] Failed to load specified environment");
+                return false;
             }
-            return false;
+            Plugin.Log.Notice($"[Loader] Applied specified environment: " + environmentName);
+            Reinit(launchData, environment: environment);
+            return true;
         }
 
         private async Task<IBeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {

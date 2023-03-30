@@ -39,11 +39,12 @@ namespace BeatLeader.Replayer {
             gameObject.SetActive(enabled);
         }
 
-        public bool SetView(string name) {
+        public bool SetView(string? name) {
+            if (name == null) return false;
             var view = Views.FirstOrDefault(x => x.Name == name);
             if (view == null) return false;
             _view = view;
-            _viewIsNotNull = view != null;
+            _viewIsNotNull = true;
             CameraViewChangedEvent?.Invoke(view!);
             UpdateView();
             return true;

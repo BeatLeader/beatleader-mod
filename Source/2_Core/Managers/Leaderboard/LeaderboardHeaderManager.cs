@@ -1,15 +1,20 @@
 using System;
 using BeatLeader.Components;
+using BeatLeader.ViewControllers;
 using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using Screen = HMUI.Screen;
 
 namespace BeatLeader {
     [UsedImplicitly]
     public class LeaderboardHeaderManager : IInitializable, ITickable, IDisposable {
         #region Initialize & Dispose
+
+        [Inject, UsedImplicitly]
+        private LeaderboardView _leaderboardView;
 
         public void Initialize() {
             LeaderboardState.IsVisibleChangedEvent += OnVisibilityChanged;
@@ -37,20 +42,36 @@ namespace BeatLeader {
             if (_initialized || _failed) return;
 
             try {
-                var screenTransform = GameObject.Find("RightScreen").transform;
-                var headerObject = screenTransform.FindChildRecursive("HeaderPanel").gameObject;
+                if (!TryFindHeader(out var header)) return;
 
-                _headerText = headerObject.GetComponentInChildren<TextMeshProUGUI>();
-                _headerImage = headerObject.GetComponentInChildren<ImageView>();
+                _headerText = header.GetComponentInChildren<TextMeshProUGUI>();
+                _headerImage = header.GetComponentInChildren<ImageView>();
                 _infoPanel = ReeUIComponentV2.Instantiate<LeaderboardInfoPanel>(_headerImage.transform);
                 _infoPanel.ManualInit(_headerImage.transform);
                 _boringColor0 = _headerImage.color0;
                 _boringColor1 = _headerImage.color1;
                 _initialized = true;
             } catch (Exception e) {
-                Plugin.Log.Error($"LeaderboardHeaderManager initialization failed: {e.Message}");
+                Plugin.Log.Error($"LeaderboardHeaderManager initialization failed: {e}");
                 _failed = true;
             }
+        }
+
+        private bool TryFindHeader(out GameObject header) {
+            var screen = _leaderboardView.gameObject.GetComponentInParent<Screen>();
+            if (screen == null) {
+                header = null;
+                return false;
+            }
+
+            var leaderboardViewController = screen.transform.FindChildRecursive("PlatformLeaderboardViewController");
+            if (leaderboardViewController == null) {
+                header = null;
+                return false;
+            }
+
+            header = leaderboardViewController.transform.FindChildRecursive("HeaderPanel").gameObject;
+            return header != null;
         }
 
         #endregion

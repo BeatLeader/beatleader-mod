@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace BeatLeader {
+    //TODO: rework
     internal class HarmonyMultisilencer : IDisposable {
         public HarmonyMultisilencer(IEnumerable<MethodInfo> methods = null, bool enable = true) {
             silencedMethods = new(methods);

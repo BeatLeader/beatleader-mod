@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
-using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
@@ -16,6 +13,7 @@ using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer {
+    [PublicAPI]
     public class ReplayerMenuLoader : MonoBehaviour {
         #region Input Events
 
@@ -136,28 +134,19 @@ namespace BeatLeader.Replayer {
 
         #region StartReplay
 
-        [Inject, UsedImplicitly]
-        private readonly ReplayerLauncher _launcher = null!;
-
-        [Inject, UsedImplicitly]
-        private readonly GameScenesManager _scenesManager = null!;
-
-        [Inject, UsedImplicitly]
-        private readonly IFPFCSettings _fpfcSettings = null!;
-
-        [Inject, UsedImplicitly]
-        private readonly BeatmapLevelsModel _levelsModel = null!;
+        [Inject] private readonly ReplayerLauncher _launcher = null!;
+        [Inject] private readonly GameScenesManager _scenesManager = null!;
+        [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
+        [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
 
         private void StartReplay(Player player) {
             _ = StartReplayAsync(Replay!, player);
         }
-
-        [PublicAPI]
+        
         public async Task StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
-
-        [PublicAPI]
+        
         public async Task StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings, CancellationToken token) {
             settings ??= ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
@@ -170,13 +159,10 @@ namespace BeatLeader.Replayer {
                 settings, data.DifficultyBeatmap, data.EnvironmentInfo);
             StartReplay(data);
         }
-
-        [PublicAPI]
+        
         public void StartReplay(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
             if (!_launcher.StartReplay(data)) return;
-            ScoreSaberInterop.RecordingEnabled = false;
-            BeatSaviorInterop.ScoreSubmissionEnabled = false;
             //InputUtils.forceFPFC = !_fpfcSettings.Ignore;
         }
 
@@ -187,15 +173,12 @@ namespace BeatLeader.Replayer {
             InputUtils.forceFPFC = null;
             InputUtils.EnableCursor(!InputUtils.containsFPFCArg);
             _fpfcSettings.Enabled = InputUtils.containsFPFCArg;
-            ScoreSaberInterop.RecordingEnabled = true;
-            BeatSaviorInterop.MarkScoreSubmissionToEnable();
         }
 
         #endregion
 
         #region ReplayTools
-
-        [PublicAPI]
+        
         public async Task<bool> LoadBeatmapAsync(ReplayLaunchData launchData,
             string hash, string mode, string difficulty, CancellationToken token) {
             var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);
@@ -215,7 +198,6 @@ namespace BeatLeader.Replayer {
             return true;
         }
 
-        [PublicAPI]
         public bool LoadEnvironment(ReplayLaunchData launchData, string environmentName) {
             var environment = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
                 .FirstOrDefault(x => x.environmentName == environmentName);

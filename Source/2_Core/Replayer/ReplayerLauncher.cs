@@ -23,24 +23,16 @@ namespace BeatLeader.Replayer {
             if (data.Replays.Count == 0) return false;
 
             Plugin.Log.Notice("[Launcher] Loading replay data...");
-            try {
-                var transitionData = data.CreateTransitionData(_playerDataModel);
-                Plugin.Log.Notice("AfterCreate");
+            var transitionData = data.CreateTransitionData(_playerDataModel);
+            transitionData.didFinishEvent += HandleLevelFinish;
+            IsStartedAsReplay = true;
+            LaunchData = data;
+            
+            Plugin.Log.Notice("[Launcher] Starting replay...");
+            _gameScenesManager.PushScenes(transitionData, 0.7f, null);
+            ReplayWasStartedEvent?.Invoke(data);
 
-                transitionData.didFinishEvent += HandleLevelFinish;
-                IsStartedAsReplay = true;
-                LaunchData = data;
-
-                Plugin.Log.Notice("PrePush");
-                _gameScenesManager.PushScenes(transitionData, 0.7f, null);
-                ReplayWasStartedEvent?.Invoke(data);
-                Plugin.Log.Notice("[Launcher] Starting replay...");
-
-                return true;
-            } catch (Exception ex) {
-                Plugin.Log.Error("Exception: \r\n" + ex);
-                return false;
-            }
+            return true;
         }
 
         private static void HandleLevelFinish(

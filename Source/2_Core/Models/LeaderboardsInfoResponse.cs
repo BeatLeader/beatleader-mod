@@ -39,6 +39,9 @@ namespace BeatLeader.Models {
         public int qualifiedTime;
         public int rankedTime;
         public float stars;
+        public float accRating;
+        public float passRating;
+        public float techRating;
         public int type;
         public ModifiersMap modifierValues;
     }

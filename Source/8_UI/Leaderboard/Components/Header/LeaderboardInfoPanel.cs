@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -28,12 +25,16 @@ namespace BeatLeader.Components {
         [UIValue("settings-button"), UsedImplicitly]
         private HeaderButton _settingsButton;
 
+        [UIValue("map-status"), UsedImplicitly]
+        private MapStatus _mapStatus;
+
         private void Awake() {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _mapperCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _websiteButton = Instantiate<HeaderButton>(transform, false);
             _settingsButton = Instantiate<HeaderButton>(transform, false);
+            _mapStatus = Instantiate<MapStatus>(transform, false);
         }
 
         #endregion
@@ -43,14 +44,11 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             _websiteButton.Setup(BundleLoader.ProfileIcon);
             _settingsButton.Setup(BundleLoader.SettingsIcon);
-            
+
             _websiteButton.OnClick += WebsiteButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
-            ProfileManager.RolesUpdatedEvent += OnPlayerRolesUpdated;
-            OnPlayerRolesUpdated(ProfileManager.Roles);
-            
-            ExMachinaRequest.AddStateListener(OnExMachinaRequestStateChanged);
+
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
@@ -58,31 +56,12 @@ namespace BeatLeader.Components {
             _websiteButton.OnClick -= WebsiteButtonOnClick;
             _settingsButton.OnClick -= SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
-            ProfileManager.RolesUpdatedEvent -= OnPlayerRolesUpdated;
-            ExMachinaRequest.RemoveStateListener(OnExMachinaRequestStateChanged);
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         #endregion
 
         #region Events
-
-        private void OnPlayerRolesUpdated(PlayerRole[] playerRoles) {
-            _roles = playerRoles;
-            UpdateVisuals();
-        }
-
-        private void OnExMachinaRequestStateChanged(API.RequestState state, ExMachinaBasicResponse result, string failReason) {
-            if (state is not API.RequestState.Finished) {
-                _hasExMachinaRating = false;
-                UpdateVisuals();
-                return;
-            }
-
-            _hasExMachinaRating = true;
-            _exMachinaRating = result.balanced;
-            UpdateVisuals();
-        }
 
         private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             SetBeatmap(beatmap);
@@ -96,11 +75,8 @@ namespace BeatLeader.Components {
 
         #region SetBeatmap
 
-        private PlayerRole[] _roles = Array.Empty<PlayerRole>();
         private RankedStatus _rankedStatus;
-        private float _starRating;
-        private bool _hasExMachinaRating;
-        private float _exMachinaRating;
+        private DiffInfo _difficultyInfo;
         private string _websiteLink;
 
         private void SetBeatmap(IDifficultyBeatmap beatmap) {
@@ -119,8 +95,8 @@ namespace BeatLeader.Components {
                 return;
             }
 
+            _difficultyInfo = data.DifficultyInfo;
             _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
-            _starRating = data.DifficultyInfo.stars;
             _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
 
             UpdateCheckboxes(data.QualificationInfo);
@@ -133,13 +109,13 @@ namespace BeatLeader.Components {
 
         private void UpdateCheckboxes(QualificationInfo qualificationInfo) {
             string criteriaPostfix;
-            
+
             if (qualificationInfo.criteriaCommentary == null || qualificationInfo.criteriaCommentary.IsEmpty()) {
                 criteriaPostfix = "";
             } else {
                 criteriaPostfix = $"<size=80%>\n\n{qualificationInfo.criteriaCommentary}";
             }
-            
+
             switch (qualificationInfo.criteriaMet) {
                 case 1:
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Checked);
@@ -181,13 +157,8 @@ namespace BeatLeader.Components {
         #region UpdateVisuals
 
         private void UpdateVisuals() {
-            StatusActive = _rankedStatus is not RankedStatus.Unknown;
-            var starsStr = _starRating > 0 ? $": {_starRating:F1}*" : "";
-            StatusText = $"{_rankedStatus}{starsStr}";
-
-            ExMachinaActive = _hasExMachinaRating && _roles.Any(ExMachinaVisibleToRole);
-            var exMachinaStarsStr = _exMachinaRating > 0 ? $"{_exMachinaRating:F1}*" : "-";
-            ExMachinaText = $"Ex Machina: {exMachinaStarsStr}";
+            _mapStatus.SetActive(_rankedStatus is not RankedStatus.Unknown);
+            _mapStatus.SetValues(_rankedStatus, _difficultyInfo);
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
         }
@@ -222,62 +193,6 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region StatusPanel
-
-        private bool _statusActive;
-
-        [UIValue("status-active"), UsedImplicitly]
-        private bool StatusActive {
-            get => _statusActive;
-            set {
-                if (_statusActive.Equals(value)) return;
-                _statusActive = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private string _statusText = "";
-
-        [UIValue("status-text"), UsedImplicitly]
-        private string StatusText {
-            get => _statusText;
-            set {
-                if (_statusText.Equals(value)) return;
-                _statusText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region ExMachinaPanel
-
-        private bool _exMachinaActive;
-
-        [UIValue("ex-machina-active"), UsedImplicitly]
-        private bool ExMachinaActive {
-            get => _exMachinaActive;
-            set {
-                if (_exMachinaActive.Equals(value)) return;
-                _exMachinaActive = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private string _exMachinaText = "";
-
-        [UIValue("ex-machina-text"), UsedImplicitly]
-        private string ExMachinaText {
-            get => _exMachinaText;
-            set {
-                if (_exMachinaText.Equals(value)) return;
-                _exMachinaText = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
         #region QualificationPanel
 
         private bool _qualificationActive;
@@ -295,12 +210,12 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Buttons
-        
+
         private void WebsiteButtonOnClick() {
             if (_websiteLink == null) return;
             EnvironmentUtils.OpenBrowserPage(_websiteLink);
         }
-        
+
         private void SettingsButtonOnClick() {
             LeaderboardEvents.NotifySettingsButtonWasPressed();
         }

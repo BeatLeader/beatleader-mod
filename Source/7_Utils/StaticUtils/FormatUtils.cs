@@ -277,6 +277,14 @@ namespace BeatLeader {
 
         #endregion
 
+        #region FormatStars
+
+        public static string FormatStars(float value) {
+            return $"{value:f2}<size=70%>â˜…</size>";
+        }
+
+        #endregion
+
         #region FormatPauses
 
         public static string FormatPauses(int value) {
@@ -292,7 +300,7 @@ namespace BeatLeader {
             var line = $"<color=\"green\">X:{round(location.x)} ";
             line += dimensions >= 2 ? $"<color=\"red\">Y:{round(location.y)} " : string.Empty;
             line += dimensions >= 3 ? $"<color=\"blue\">Z:{round(location.z)} " : string.Empty;
-            line += rotation != null ? $"<color=\"yellow\">R:{rotation}°" : string.Empty;
+            line += rotation != null ? $"<color=\"yellow\">R:{rotation}ï¿½" : string.Empty;
             return line;
         }
 

@@ -1,0 +1,5 @@
+<image pref-height="30" pref-width="30" preserve-aspect="true" id="image-component" src="#BeatLeaderLogoGradient">
+    <text ignore-layout="true" id="text-component-a" text="" font-size="3.4" align="Center"/>
+    <text ignore-layout="true" id="text-component-b" text="" font-size="3.4" align="Center"/>
+    <text ignore-layout="true" id="text-component-c" text="" font-size="3.4" align="Center"/>
+</image>

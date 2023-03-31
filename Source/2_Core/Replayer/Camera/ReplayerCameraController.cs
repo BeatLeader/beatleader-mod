@@ -31,9 +31,9 @@ namespace BeatLeader.Replayer {
             _cameraController = gameObject.AddComponent<ViewableCameraController>();
             _cameraController.SetCamera(_camera);
             _cameraController.CameraContainer = _extraObjects.ReplayerCore;
-            var viewsList = _cameraController.Views;
-            if (_launchData.Settings.CameraSettings.CameraViews is {} views)
-                foreach (var view in views) viewsList.Add(view);
+            if (_launchData.Settings.CameraSettings.CameraViews is {} views) {
+                _cameraController.Views.AddRange(views);
+            }
             HandlePriorityPlayerChanged(_playersManager.PriorityPlayer!);
             transform.SetParent(_extraObjects.ReplayerCenterAdjust, false);
             _camera.enabled = true;

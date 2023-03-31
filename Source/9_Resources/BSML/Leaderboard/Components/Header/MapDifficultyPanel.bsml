@@ -1,0 +1,7 @@
+<vertical ignore-layout="true" id="root" pad-top="5" pref-width="42">
+    <horizontal pref-height="30" bg="round-rect-panel">
+        <macro.as-host host="skill-triangle">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+    </horizontal>
+</vertical>

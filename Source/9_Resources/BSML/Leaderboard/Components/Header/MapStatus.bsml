@@ -1,0 +1,3 @@
+<horizontal id="background" pref-height="6" pad-left="1" pad-right="1" horizontal-fit="PreferredSize" bg="round-rect-panel" bg-color="#FFFFFFDD">
+    <text id="status-text" align="Midline"/>
+</horizontal>

@@ -143,11 +143,11 @@ namespace BeatLeader.Replayer {
             _ = StartReplayAsync(Replay!, player);
         }
         
-        public async Task StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings = null) {
+        public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
         
-        public async Task StartReplayAsync(Replay replay, Player player, ReplayerSettings? settings, CancellationToken token) {
+        public async Task StartReplayAsync(Replay replay, Player? player, ReplayerSettings? settings, CancellationToken token) {
             settings ??= ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
             var info = replay.info;

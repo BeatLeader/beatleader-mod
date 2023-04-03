@@ -153,8 +153,8 @@ namespace BeatLeader.Components {
         }
 
         private void GenerateDefaultMarkersFromReplay(IReplay replay) {
-            float firstNoteTime = replay.NoteEvents.First().eventTime;
-            float lastNoteTime = replay.NoteEvents.Last().eventTime;
+            float firstNoteTime = replay.NoteEvents.FirstOrDefault().eventTime;
+            float lastNoteTime = replay.NoteEvents.LastOrDefault().eventTime;
 
             GenerateMarkers(replay.NoteEvents
                 .Where(x => x.eventType is NoteEvent.NoteEventType.Miss

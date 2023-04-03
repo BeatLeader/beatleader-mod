@@ -3,95 +3,122 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.Attributes;
 using BeatLeader.DataManager;
 using BeatLeader.Utils;
-using JetBrains.Annotations;
 
 namespace BeatLeader.Interop {
     [PluginInterop("BetterSongList")]
     public static class BetterSongListInterop {
         #region TryRegister
 
-        [PluginAssembly] private static readonly Assembly _bslAssembly;
+        [PluginAssembly]
+        private static readonly Assembly _bslAssembly;
 
         [InteropEntry]
         private static void Init() {
-            Register(_bslAssembly);
-        }
+            var helper = new BslHelper(_bslAssembly);
 
-        private static void Register(Assembly bslAssembly) {
-            var sorterPrimitiveInterface = bslAssembly.GetType("BetterSongList.SortModels.ISorterPrimitive");
-            var sorterWithLegendInterface = bslAssembly.GetType("BetterSongList.SortModels.ISorterWithLegend");
-            var transformerPluginInterface = bslAssembly.GetType("BetterSongList.Interfaces.ITransformerPlugin");
-            var filterInterface = bslAssembly.GetType("BetterSongList.FilterModels.IFilter");
+            helper.AddSort("BL Stars", StarsSortGetter, StarsSortLegend);
+            helper.AddSort("BL Tech Rating", TechSortGetter, TechSortLegend);
+            helper.AddSort("BL Acc Rating", AccSortGetter, AccSortLegend);
+            helper.AddSort("BL Pass Rating", PassSortGetter, PassSortLegend);
 
-            var moduleBuilder = ReflectionUtils.CreateModuleBuilder("BL_BSL_Interop");
-
-            var highestStarsSorter = Activator.CreateInstance(moduleBuilder.CreateSorterType(
-                "HighestStarsSorterType", sorterPrimitiveInterface, sorterWithLegendInterface, transformerPluginInterface,
-                "BL Stars", GetHighestStarsMethodInfo, BuildLegendMethodInfo
-            ));
-
-            var nominatedFilter = Activator.CreateInstance(moduleBuilder.CreateFilterType(
-                "NominatedFilter", filterInterface, transformerPluginInterface,
-                "BL Nominated", IsNominatedMethodInfo
-            ));
-
-            var qualifiedFilter = Activator.CreateInstance(moduleBuilder.CreateFilterType(
-                "QualifiedFilter", filterInterface, transformerPluginInterface,
-                "BL Qualified", IsQualifiedMethodInfo
-            ));
-
-            var rankedFilter = Activator.CreateInstance(moduleBuilder.CreateFilterType(
-                "RankedFilter", filterInterface, transformerPluginInterface,
-                "BL Ranked", IsRankedMethodInfo
-            ));
-
-            var sortMethods = bslAssembly.GetType("BetterSongList.SortMethods");
-            var registerSorterMethodInfo = sortMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic);
-            if (registerSorterMethodInfo == null) registerSorterMethodInfo = sortMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.Public)!;
-            registerSorterMethodInfo.Invoke(null, new[] { highestStarsSorter });
-
-            var filterMethods = bslAssembly.GetType("BetterSongList.FilterMethods");
-            var registerFilterMethodInfo = filterMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic);
-            if (registerFilterMethodInfo == null) registerFilterMethodInfo = filterMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.Public)!;
-            registerFilterMethodInfo.MakeGenericMethod(nominatedFilter.GetType()).Invoke(null, new[] { nominatedFilter });
-            registerFilterMethodInfo.MakeGenericMethod(qualifiedFilter.GetType()).Invoke(null, new[] { qualifiedFilter });
-            registerFilterMethodInfo.MakeGenericMethod(rankedFilter.GetType()).Invoke(null, new[] { rankedFilter });
+            helper.AddFilter("BL Nominated", NominatedFilterGetter);
+            helper.AddFilter("BL Qualified", QualifiedFilterGetter);
+            helper.AddFilter("BL Ranked", RankedFilterGetter);
         }
 
         #endregion
 
-        #region Methods
+        #region Sorts
 
-        private const BindingFlags Flags = BindingFlags.Public | BindingFlags.Static;
-        private static MethodInfo GetHighestStarsMethodInfo => typeof(BetterSongListInterop).GetMethod(nameof(GetHighestStars), Flags);
-        private static MethodInfo BuildLegendMethodInfo => typeof(BetterSongListInterop).GetMethod(nameof(BuildLegend), Flags);
-        private static MethodInfo IsNominatedMethodInfo => typeof(BetterSongListInterop).GetMethod(nameof(IsNominated), Flags);
-        private static MethodInfo IsQualifiedMethodInfo => typeof(BetterSongListInterop).GetMethod(nameof(IsQualified), Flags);
-        private static MethodInfo IsRankedMethodInfo => typeof(BetterSongListInterop).GetMethod(nameof(IsRanked), Flags);
+        public static float? StarsSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestStars;
+        public static float? TechSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestTechStars;
+        public static float? AccSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestAccStars;
+        public static float? PassSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestPassStars;
 
-        public static bool IsNominated(IPreviewBeatmapLevel level) => level.CachedData()?.IsNominated ?? false;
-        public static bool IsQualified(IPreviewBeatmapLevel level) => level.CachedData()?.IsQualified ?? false;
-        public static bool IsRanked(IPreviewBeatmapLevel level) => level.CachedData()?.IsRanked ?? false;
+        public static IEnumerable<KeyValuePair<string, int>> StarsSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, StarsSortGetter);
+        public static IEnumerable<KeyValuePair<string, int>> TechSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, TechSortGetter);
+        public static IEnumerable<KeyValuePair<string, int>> AccSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, AccSortGetter);
+        public static IEnumerable<KeyValuePair<string, int>> PassSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, PassSortGetter);
 
-        public static IEnumerable<KeyValuePair<string, int>> BuildLegend(IPreviewBeatmapLevel[] levels) {
-            return BuildLegendFor(levels, level => {
-                var data = level.CachedData();
-                return data == null ? "-" : $"{data.HighestStars:F0}";
-            });
-        }
+        #endregion
 
-        public static float? GetHighestStars(IPreviewBeatmapLevel level) {
-            return level.CachedData()?.HighestStars;
+        #region Filters
+
+        public static bool NominatedFilterGetter(IPreviewBeatmapLevel level) => level.CachedData()?.IsNominated ?? false;
+        public static bool QualifiedFilterGetter(IPreviewBeatmapLevel level) => level.CachedData()?.IsQualified ?? false;
+        public static bool RankedFilterGetter(IPreviewBeatmapLevel level) => level.CachedData()?.IsRanked ?? false;
+
+        #endregion
+
+        #region BslHelper
+
+        private class BslHelper {
+            private readonly ModuleBuilder _moduleBuilder;
+            private readonly Type _sorterPrimitiveInterface;
+            private readonly Type _sorterWithLegendInterface;
+            private readonly Type _transformerPluginInterface;
+            private readonly Type _filterInterface;
+            private readonly MethodInfo _registerSorterMethodInfo;
+            private readonly MethodInfo _registerFilterMethodInfo;
+
+            public BslHelper(Assembly bslAssembly) {
+                _moduleBuilder = ReflectionUtils.CreateModuleBuilder("BL_BSL_Interop");
+
+                _sorterPrimitiveInterface = bslAssembly.GetType("BetterSongList.SortModels.ISorterPrimitive");
+                _sorterWithLegendInterface = bslAssembly.GetType("BetterSongList.SortModels.ISorterWithLegend");
+                _transformerPluginInterface = bslAssembly.GetType("BetterSongList.Interfaces.ITransformerPlugin");
+                _filterInterface = bslAssembly.GetType("BetterSongList.FilterModels.IFilter");
+
+                var sortMethods = bslAssembly.GetType("BetterSongList.SortMethods");
+                var tmp = sortMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic);
+                if (tmp == null) tmp = sortMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.Public)!;
+                _registerSorterMethodInfo = tmp;
+
+                var filterMethods = bslAssembly.GetType("BetterSongList.FilterMethods");
+                tmp = filterMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic);
+                if (tmp == null) tmp = filterMethods.GetMethod("Register", BindingFlags.Static | BindingFlags.Public)!;
+                _registerFilterMethodInfo = tmp;
+            }
+
+            public void AddSort(string displayName, Func<IPreviewBeatmapLevel, float?> getter, Func<IPreviewBeatmapLevel[], IEnumerable<KeyValuePair<string, int>>> legendBuilder) {
+                var type = _moduleBuilder.CreateSorterType(
+                    $"{displayName.Replace(' ', '_')}Sort",
+                    _sorterPrimitiveInterface, _sorterWithLegendInterface, _transformerPluginInterface,
+                    displayName, getter.Method, legendBuilder.Method
+                );
+                var instance = Activator.CreateInstance(type);
+                _registerSorterMethodInfo.Invoke(null, new[] { instance });
+            }
+
+            public void AddFilter(string displayName, Func<IPreviewBeatmapLevel, bool> getter) {
+                var type = _moduleBuilder.CreateFilterType(
+                    $"{displayName.Replace(' ', '_')}Filter",
+                    _filterInterface, _transformerPluginInterface,
+                    displayName, getter.Method
+                );
+                var instance = Activator.CreateInstance(type);
+                _registerFilterMethodInfo.MakeGenericMethod(type).Invoke(null, new[] { instance });
+            }
         }
 
         #endregion
 
         #region Utils
+
+        private static IEnumerable<KeyValuePair<string, int>> StarsSortLegend(
+            IEnumerable<IPreviewBeatmapLevel> levels,
+            Func<IPreviewBeatmapLevel, float?> getter
+        ) {
+            return BuildLegendFor(levels, level => {
+                var stars = getter(level);
+                return stars.HasValue ? $"{stars:F0}" : "-";
+            });
+        }
 
         private static IEnumerable<KeyValuePair<string, int>> BuildLegendFor(
             IEnumerable<IPreviewBeatmapLevel> beatmaps,
@@ -119,9 +146,8 @@ namespace BeatLeader.Interop {
             }
         }
 
-        [CanBeNull]
-        private static LeaderboardsCache.SortEntry CachedData(this IPreviewBeatmapLevel level) {
-            return !LeaderboardsCache.TryGetSortingInfo(level.Hash(), out var info) ? null : info;
+        private static LeaderboardsCache.SortEntry? CachedData(this IPreviewBeatmapLevel level) {
+            return LeaderboardsCache.GetSortingInfo(level.Hash());
         }
 
         private static string Hash(this IPreviewBeatmapLevel level) => level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");

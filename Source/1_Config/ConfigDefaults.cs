@@ -28,7 +28,15 @@ namespace BeatLeader {
 
         #region ReplayerSettings
 
-        public static ReplayerSettings ReplayerSettings => new() {
+        public static readonly InternalReplayerCameraSettings InternalReplayerCameraSettings = new() {
+            MaxCameraFOV = 110,
+            MinCameraFOV = 70,
+            CameraFOV = 90,
+            FpfcCameraView = "PlayerView",
+            VRCameraView = "BehindView"
+        };
+        
+        public static readonly ReplayerSettings ReplayerSettings = new() {
             AutoHideUI = false,
             LoadPlayerEnvironment = false,
             ExitReplayAutomatically = true,
@@ -42,12 +50,8 @@ namespace BeatLeader {
             ShowTimelineBombs = true,
             ShowTimelinePauses = true,
 
-            MaxCameraFOV = 110,
-            MinCameraFOV = 70,
-            CameraFOV = 90,
-            FPFCCameraView = "PlayerView",
-            VRCameraView = "BehindView",
-
+            CameraSettings = InternalReplayerCameraSettings,
+                
             Shortcuts = new() {
                 LayoutEditorPartialModeHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,

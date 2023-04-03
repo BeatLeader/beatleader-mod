@@ -1,6 +1,5 @@
 ﻿using BeatLeader.Replayer;
 using System;
-using System.Timers;
 using System.Reflection;
 using UnityEngine;
 using BeatLeader.Attributes;
@@ -9,76 +8,78 @@ using BeatLeader.Utils;
 namespace BeatLeader.Interop {
     [PluginInterop("Camera2")]
     internal static class Cam2Interop {
-        [PluginAssembly] 
-        private static readonly Assembly _pluginAssembly;
+        [PluginAssembly]
+        private static readonly Assembly pluginAssembly = null!;
 
-        [PluginType("Camera2.SDK.ReplaySources")] 
-        private static readonly Type _replaySourcesType;
+        [PluginType("Camera2.SDK.ReplaySources")]
+        private static readonly Type replaySourcesType = null!;
 
         [PluginState]
         public static bool IsInitialized { get; private set; }
+        public static Transform? HeadTransform { set => _headTransform = value; }
+        private static bool ReplayState {
+            set {
+                _cachedArgs[0] = value;
+                _setActiveMethod?.Invoke(_genericSourceInstance, _cachedArgs);
+            }
+        }
 
-        private static object[] _cachedArgs;
-        private static Timer _updater;
-        private static Transform _headTranform;
+        private static HarmonyAutoPatch? _headPositionPropertyPatch;
+        private static HarmonyAutoPatch? _headRotationPropertyPatch;
 
-        private static Type _genericSourceType;
-        private static MethodInfo _registerMethod;
-        private static MethodInfo _updateMethod;
-        private static MethodInfo _setActiveMethod;
-        private static object _genericSourceInstance;
+        private static object[] _cachedArgs = null!;
+        private static Transform? _headTransform;
+        private static PropertyInfo? _headPosProp;
+        private static PropertyInfo? _headRotProp;
+        private static MethodInfo? _setActiveMethod;
+        private static object? _genericSourceInstance;
 
         [InteropEntry]
         private static void Init() {
-            _genericSourceType = _replaySourcesType.GetNestedType("GenericSource");
-            _setActiveMethod = _genericSourceType.GetMethod("SetActive", ReflectionUtils.DefaultFlags);
-            _updateMethod = _genericSourceType.GetMethod("Update", ReflectionUtils.DefaultFlags);
-            _registerMethod = _pluginAssembly.GetType("Camera2.SDK.ReplaySources")
-               .GetMethod("Register", ReflectionUtils.StaticFlags);
+            var genericSourceType = replaySourcesType.GetNestedType("GenericSource");
+            var registerMethod = replaySourcesType.GetMethod("Register", ReflectionUtils.StaticFlags);
+            _setActiveMethod = genericSourceType.GetMethod("SetActive", ReflectionUtils.DefaultFlags);
 
-            _genericSourceInstance = CreateGenericSourceInstance("BeatLeaderReplayer");
-            RegisterSource(_genericSourceInstance);
+            _genericSourceInstance = Activator.CreateInstance(genericSourceType, "BeatLeaderReplayer");
+            registerMethod?.Invoke(null, new[] { _genericSourceInstance });
 
-            _cachedArgs = new object[2];
-            _updater = new(1);
-            _updater.Elapsed += OnRepeaterUpdated;
+            _cachedArgs = new object[1];
 
-            ReplayerLauncher.ReplayWasStartedEvent += OnReplayWasStarted;
-            ReplayerLauncher.ReplayWasFinishedEvent += OnReplayWasFinished;
-        }
-        public static void SetHeadTransform(Transform transform) {
-            _headTranform = transform;
-        }
-        public static void SetReplayState(bool state) {
-            _setActiveMethod?.Invoke(_genericSourceInstance, new object[] { state });
-            _updater.Enabled = state;
-        }
+            _headPosProp = genericSourceType.GetProperty(
+                "localHeadPosition", ReflectionUtils.DefaultFlags);
 
-        private static object CreateGenericSourceInstance(string name) {
-            return Activator.CreateInstance(_genericSourceType, new object[] { name });
-        }
-        private static void UpdateGenericSource() {
-            if (_headTranform == null) return;
+            _headRotProp = genericSourceType.GetProperty(
+                "localHeadRotation", ReflectionUtils.DefaultFlags);
+            
+            _headPositionPropertyPatch = new(new(
+                _headPosProp!.GetGetMethod(), typeof(Cam2Interop)
+                    .GetMethod(nameof(LocalHeadPositionPrefix), ReflectionUtils.StaticFlags)));
 
-            var pos = _headTranform.localPosition;
-            var rot = _headTranform.localRotation;
+            _headRotationPropertyPatch = new(new(
+                _headRotProp!.GetGetMethod(), typeof(Cam2Interop)
+                    .GetMethod(nameof(LocalHeadRotationPrefix), ReflectionUtils.StaticFlags)));
 
-            ref var posRef = ref pos;
-            ref var rotRef = ref rot;
-
-            _cachedArgs[0] = posRef;
-            _cachedArgs[1] = rotRef;
-
-            _updateMethod.Invoke(_genericSourceInstance, _cachedArgs);
-        }
-        private static void RegisterSource(object source) {
-            _registerMethod?.Invoke(null, new object[] { source });
+            ReplayerLauncher.ReplayWasStartedEvent += HandleReplayWasStarted;
+            ReplayerLauncher.ReplayWasFinishedEvent += HandleReplayWasFinished;
         }
 
-        private static void OnRepeaterUpdated(object sender, ElapsedEventArgs e) {
-            UpdateGenericSource();
+        // ReSharper disable once InconsistentNaming
+        private static void LocalHeadPositionPrefix(object __instance) {
+            if (_genericSourceInstance != __instance || _headTransform == null) return;
+            _headPosProp?.SetValue(__instance, _headTransform.localPosition);
         }
-        private static void OnReplayWasStarted(Models.ReplayLaunchData data) => SetReplayState(true);
-        private static void OnReplayWasFinished(Models.ReplayLaunchData data) => SetReplayState(false);
+
+        // ReSharper disable once InconsistentNaming
+        private static void LocalHeadRotationPrefix(object __instance) {
+            if (_genericSourceInstance != __instance || _headTransform == null) return;
+            _headRotProp?.SetValue(__instance, _headTransform.localRotation);
+        }
+        
+        private static void HandleReplayWasStarted(Models.ReplayLaunchData data) {
+            ReplayerLauncher.LaunchData!.Settings.CameraSettings = null; //disabling base camera
+            ReplayState = true;
+        }
+
+        private static void HandleReplayWasFinished(Models.ReplayLaunchData data) => ReplayState = false;
     }
 }

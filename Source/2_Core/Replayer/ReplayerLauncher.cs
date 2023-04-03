@@ -18,20 +18,19 @@ namespace BeatLeader.Replayer {
 
         public static event Action<ReplayLaunchData>? ReplayWasStartedEvent;
         public static event Action<ReplayLaunchData>? ReplayWasFinishedEvent;
-        
+
         public bool StartReplay(ReplayLaunchData data) {
             if (data.Replays.Count == 0) return false;
 
             Plugin.Log.Notice("[Launcher] Loading replay data...");
             var transitionData = data.CreateTransitionData(_playerDataModel);
-
             transitionData.didFinishEvent += HandleLevelFinish;
             IsStartedAsReplay = true;
             LaunchData = data;
             
+            Plugin.Log.Notice("[Launcher] Starting replay...");
             _gameScenesManager.PushScenes(transitionData, 0.7f, null);
             ReplayWasStartedEvent?.Invoke(data);
-            Plugin.Log.Notice("[Launcher] Starting replay...");
 
             return true;
         }
@@ -39,7 +38,7 @@ namespace BeatLeader.Replayer {
         private static void HandleLevelFinish(
             StandardLevelScenesTransitionSetupDataSO transitionData,
             LevelCompletionResults completionResults
-            ) {
+        ) {
             transitionData.didFinishEvent -= HandleLevelFinish;
             LaunchData!.FinishReplay(transitionData);
             ReplayWasFinishedEvent?.Invoke(LaunchData);

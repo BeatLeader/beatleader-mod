@@ -6,14 +6,13 @@ using JetBrains.Annotations;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
-namespace BeatLeader
-{
-    [UsedImplicitly]
+namespace BeatLeader {
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal class ConfigFileData {
         public static ConfigFileData Instance { get; set; } = null!;
 
         #region ConfigVersion
-        
+
         public const string CurrentConfigVersion = "1.0";
 
         [UsedImplicitly]
@@ -43,7 +42,17 @@ namespace BeatLeader
 
         #region ReplayerSettings
 
-        public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
+        public InternalReplayerCameraSettings InternalReplayerCameraSettings { get; set; } = ConfigDefaults.InternalReplayerCameraSettings;
+
+        public ReplayerSettings ReplayerSettings {
+            get {
+                _replayerSettings.CameraSettings = InternalReplayerCameraSettings;
+                return _replayerSettings;
+            }
+            set => _replayerSettings = value;
+        }
+        
+        private ReplayerSettings _replayerSettings = ConfigDefaults.ReplayerSettings;
 
         #endregion
 
@@ -52,7 +61,7 @@ namespace BeatLeader
         public bool EnableReplayCaching = ConfigDefaults.EnableReplayCaching;
 
         #endregion
-        
+
         #region OnReload
 
         [UsedImplicitly]

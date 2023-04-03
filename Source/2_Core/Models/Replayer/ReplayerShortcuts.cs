@@ -1,7 +1,9 @@
 ﻿using IPA.Config.Stores.Attributes;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Models {
+    [PublicAPI]
     public class ReplayerShortcuts {
         [UseConverter]
         public KeyCode LayoutEditorPartialModeHotkey { get; set; }

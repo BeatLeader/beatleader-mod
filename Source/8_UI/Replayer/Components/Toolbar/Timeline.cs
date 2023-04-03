@@ -153,6 +153,9 @@ namespace BeatLeader.Components {
         }
 
         private void GenerateDefaultMarkersFromReplay(IReplay replay) {
+            float firstNoteTime = replay.NoteEvents.FirstOrDefault().eventTime;
+            float lastNoteTime = replay.NoteEvents.LastOrDefault().eventTime;
+
             GenerateMarkers(replay.NoteEvents
                 .Where(x => x.eventType is NoteEvent.NoteEventType.Miss
                     or NoteEvent.NoteEventType.BadCut)
@@ -163,6 +166,7 @@ namespace BeatLeader.Components {
                 .Select(x => x.eventTime), _bombPrefab.gameObject);
 
             GenerateMarkers(replay.PauseEvents
+                .Where(x => x.time >= firstNoteTime && x.time <= lastNoteTime)
                 .Select(x => x.time), _pausePrefab.gameObject);
         }
 

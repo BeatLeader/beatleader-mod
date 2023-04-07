@@ -76,7 +76,7 @@ namespace BeatLeader.Interop {
         }
         
         private static void HandleReplayWasStarted(Models.ReplayLaunchData data) {
-            ReplayerLauncher.LaunchData!.Settings.CameraSettings = null; //disabling base camera
+            if (InputUtils.IsInFPFC) ReplayerLauncher.LaunchData!.Settings.CameraSettings = null; //disabling base camera
             ReplayState = true;
         }
 

@@ -27,24 +27,24 @@ namespace BeatLeader.Components {
         private ResetController _resetController = null!;
         private FloatingScreen _resetFloating = null!;
 
-        private FloatingScreen _viewFloating = null!;
-        private Transform _head = null!;
+        private FloatingScreen? _viewFloating;
+        private Transform? _head;
 
         public void Setup(
             FloatingScreen floating,
-            Transform headTransform) {
+            Transform? headTransform) {
             if (_viewFloating != null)
                 _viewFloating.HandleReleased -= HandleFloatingHandleWasReleased;
 
             _viewFloating = floating;
             _head = headTransform;
 
-            if (_resetController != null)
+            if (_resetController != null) {
                 _resetController.SetResetObject(_viewFloating.transform);
+            }
 
             if (_resetFloating != null) {
-                _resetFloating.transform.SetParent(_head, false);
-                _resetFloating.transform.localPosition = new Vector3(0, 0, 0.7f);
+                InitResetFloating();
             }
 
             _viewFloating.HandleReleased += HandleFloatingHandleWasReleased;
@@ -67,16 +67,21 @@ namespace BeatLeader.Components {
 
             _resetFloating = FloatingScreen.CreateFloatingScreen(new Vector2(6, 6), false, Vector3.zero, Quaternion.identity);
             _resetFloating.GetComponent<BaseRaycaster>().TryDestroy();
-            _resetFloating.transform.SetParent(_head, false);
-            _resetFloating.transform.localPosition = new Vector3(0, 0, 0.7f);
+            InitResetFloating();
 
             _resetController = _resetFloating.gameObject.AddComponent<ResetController>();
-            _resetController.PoseWasResettedEvent += HandlePoseWasResetted;
+            _resetController.PoseWasResetEvent += HandlePoseWasReset;
             _resetController.pose = FloatingConfig.DefaultPose;
-            _resetController.SetResetObject(_viewFloating?.transform ?? null!);
+            _resetController.SetResetObject(_resetFloating?.transform);
 
             _viewFloating?.transform.SetLocalPose(FloatingConfig.Instance.Pose);
             _pinButton.Toggle(FloatingConfig.Instance.IsPinned);
+        }
+
+        private void InitResetFloating() {
+            var resTransform = _resetFloating.transform;
+            resTransform.SetParent(_head, false);
+            resTransform.localPosition = new Vector3(0, 0, 0.7f);
         }
 
         #endregion
@@ -93,7 +98,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleAlignPressed() {
-            if (_viewFloating.transform == null) return;
+            if (_viewFloating?.transform == null) return;
 
             var pos = new Vector3();
             var rot = new Vector3();
@@ -111,10 +116,10 @@ namespace BeatLeader.Components {
         }
 
         private void HandleFloatingHandleWasReleased(object sender, FloatingScreenHandleEventArgs args) {
-            HandlePoseWasResetted();
+            HandlePoseWasReset();
         }
 
-        private void HandlePoseWasResetted() {
+        private void HandlePoseWasReset() {
             FloatingConfig.Instance.Pose = _viewFloating?.transform.GetLocalPose() ?? default(Pose);
         }
 

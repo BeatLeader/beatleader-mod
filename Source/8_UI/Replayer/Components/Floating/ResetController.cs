@@ -26,10 +26,10 @@ namespace BeatLeader.Components {
         #region Setup
 
         public Transform? ResetTransform { get; private set; }
+        public Pose pose;
 
         public InputDevice actionInputDevice = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
         public InputFeatureUsage<bool> actionFeature = CommonUsages.secondaryButton;
-        public Pose pose;
 
         private ResetProgressAnimator _animator = null!;
         private bool _initialized;
@@ -41,16 +41,17 @@ namespace BeatLeader.Components {
             _animator.RevealWasFinishedEvent += HandleRevealWasFinished;
         }
 
-        public void SetResetObject(Transform obj) {
+        public void SetResetObject(Transform? obj) {
             ResetTransform = obj;
             _initialized = obj != null;
+            enabled = _initialized;
         }
 
         #endregion
 
         #region Events
 
-        public event Action? PoseWasResettedEvent;
+        public event Action? PoseWasResetEvent;
 
         #endregion
 
@@ -62,7 +63,7 @@ namespace BeatLeader.Components {
         private void Update() {
             if (!_initialized) return;
 
-            actionInputDevice.TryGetFeatureValue(actionFeature, out bool state);
+            actionInputDevice.TryGetFeatureValue(actionFeature, out var state);
 
             if (!state) {
                 _animator.CancelAnimation();
@@ -72,14 +73,12 @@ namespace BeatLeader.Components {
                 return;
             }
 
-            if (!_wasExecuted) {
-                _stopwatch.Start();
+            if (_wasExecuted) return;
+            _stopwatch.Start();
 
-                if (_stopwatch.ElapsedMilliseconds >= PreHoldTime) {
-                    _animator.StartAnimation((float)HoldTime / 1000);
-                    _wasExecuted = true;
-                }
-            }
+            if (_stopwatch.ElapsedMilliseconds < PreHoldTime) return;
+            _animator.StartAnimation((float)HoldTime / 1000);
+            _wasExecuted = true;
         }
 
         #endregion
@@ -92,8 +91,10 @@ namespace BeatLeader.Components {
             _stopwatch.Stop();
             _stopwatch.Reset();
 
-            ResetTransform?.SetLocalPose(pose);
-            PoseWasResettedEvent?.Invoke();
+            if (ResetTransform != null) {
+                ResetTransform.SetLocalPose(pose);
+            }
+            PoseWasResetEvent?.Invoke();
         }
 
         #endregion

@@ -98,7 +98,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleAlignPressed() {
-            if (_viewFloating?.transform == null) return;
+            if (_viewFloating == null) return;
 
             var pos = new Vector3();
             var rot = new Vector3();

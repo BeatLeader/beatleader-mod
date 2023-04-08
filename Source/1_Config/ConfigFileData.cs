@@ -24,7 +24,7 @@ namespace BeatLeader {
         #region ModVersion
 
         [UsedImplicitly]
-        public string LastSessionModVersion { get; set; } = Plugin.Version.ToString();
+        public string LastSessionModVersion { get; set; } = Version.Zero.ToString();
 
         #endregion
         

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using BeatLeader.Models;
+using Hive.Versioning;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
@@ -20,6 +21,13 @@ namespace BeatLeader {
 
         #endregion
 
+        #region GameVersion
+
+        [UsedImplicitly]
+        public string LastSessionModVersion { get; set; } = Plugin.Version.ToString();
+
+        #endregion
+        
         #region Enabled
 
         public bool Enabled = ConfigDefaults.Enabled;

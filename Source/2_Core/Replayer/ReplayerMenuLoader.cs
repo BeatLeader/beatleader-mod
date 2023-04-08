@@ -163,16 +163,16 @@ namespace BeatLeader.Replayer {
         public void StartReplay(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
             if (!_launcher.StartReplay(data)) return;
-            //InputUtils.forceFPFC = !_fpfcSettings.Ignore;
+            InputUtils.forceFPFC = InputUtils.containsFPFCArg && _fpfcSettings.Ignore ? _fpfcSettings.Enabled : null;
         }
 
         private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData) {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             _scenesManager.PopScenes(0.3f);
 
+            _fpfcSettings.Enabled = InputUtils.forceFPFC ?? InputUtils.containsFPFCArg;
             InputUtils.forceFPFC = null;
             InputUtils.EnableCursor(!InputUtils.containsFPFCArg);
-            _fpfcSettings.Enabled = InputUtils.containsFPFCArg;
         }
 
         #endregion

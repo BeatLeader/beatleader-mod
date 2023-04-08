@@ -82,6 +82,7 @@ namespace BeatLeader {
         {
             SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
+            ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
         }
 
         #endregion

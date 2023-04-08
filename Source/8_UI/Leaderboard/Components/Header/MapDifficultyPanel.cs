@@ -43,6 +43,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             OnMapStatusHoverStateChanged += OnHoverStateChanged;
             OnDiffInfoChanged += SetDiffInfo;
+            IsActive = false;
         }
 
         protected override void OnDispose() {

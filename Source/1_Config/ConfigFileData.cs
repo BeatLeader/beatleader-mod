@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using BeatLeader.Models;
+using Hive.Versioning;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
@@ -20,6 +21,13 @@ namespace BeatLeader {
 
         #endregion
 
+        #region ModVersion
+
+        [UsedImplicitly]
+        public string LastSessionModVersion { get; set; } = Version.Zero.ToString();
+
+        #endregion
+        
         #region Enabled
 
         public bool Enabled = ConfigDefaults.Enabled;

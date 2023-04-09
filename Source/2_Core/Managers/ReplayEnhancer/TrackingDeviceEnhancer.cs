@@ -1,47 +1,65 @@
-﻿using BeatLeader.Models;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Models.Replay;
+using BeatLeader.SteamVR;
+using JetBrains.Annotations;
 using UnityEngine.XR;
+using Zenject;
 
-namespace BeatLeader.Core.Managers.ReplayEnhancer
-{
-    class TrackingDeviceEnhancer
-    {
-        private readonly IVRPlatformHelper _vRPlatformHelper;
-        private readonly Dictionary<VRPlatformSDK, Action<Replay>> _trackingDataProcessors = new Dictionary<VRPlatformSDK, Action<Replay>>();
+namespace BeatLeader.Core.Managers.ReplayEnhancer {
+    internal class TrackingDeviceEnhancer {
+        #region Enhance
 
-        public TrackingDeviceEnhancer(IVRPlatformHelper vRPlatformHelper)
-        {
-            _vRPlatformHelper = vRPlatformHelper;
+        [Inject, UsedImplicitly]
+        private IVRPlatformHelper _vrPlatformHelper;
 
-            _trackingDataProcessors.Add(VRPlatformSDK.OpenVR, ProcessOpenVR);
-            _trackingDataProcessors.Add(VRPlatformSDK.Oculus, ProcessOculus);
-            _trackingDataProcessors.Add(VRPlatformSDK.Unknown, ProcessUnknown);
-        }
-        
-        public void Enhance(Replay replay)
-        {
-            VRPlatformSDK trackingSystem = _vRPlatformHelper.vrPlatformSDK;
+        public void Enhance(Replay replay) {
+            var trackingSystem = _vrPlatformHelper.vrPlatformSDK;
             replay.info.trackingSytem = trackingSystem.ToString();
-            _trackingDataProcessors[trackingSystem].Invoke(replay);
+
+            switch (trackingSystem) {
+                case VRPlatformSDK.OpenVR:
+                    ProcessOpenVRDevices(replay);
+                    ProcessOpenVRSettings(replay);
+                    break;
+                case VRPlatformSDK.Oculus:
+                    ProcessOculusDevices(replay);
+                    break;
+                case VRPlatformSDK.Unknown:
+                    ProcessUnknownDevices(replay);
+                    break;
+            }
         }
 
-        private void ProcessOpenVR(Replay replay)
-        {
-            List<InputDevice> headDevices = new List<InputDevice>();
+        #endregion
+
+        #region ProcessOpenVR
+
+        private static void ProcessOpenVRDevices(Replay replay) {
+            var headDevices = new List<InputDevice>();
             InputDevices.GetDevicesAtXRNode(XRNode.Head, headDevices);
             replay.info.hmd = headDevices.Count > 0 ? headDevices.First().name : "Unknown";
 
-            List<InputDevice> handDevices = new List<InputDevice>();
+            var handDevices = new List<InputDevice>();
             InputDevices.GetDevicesAtXRNode(XRNode.RightHand, handDevices);
             replay.info.controller = handDevices.Count > 0 ? handDevices.First().name : "Unknown";
         }
 
-        private void ProcessOculus(Replay replay) 
-        {
-            switch (OVRPlugin.GetSystemHeadsetType())
-            {
+        private static void ProcessOpenVRSettings(Replay replay) {
+            if (replay.frames.Count == 0) return;
+            var firstFrame = replay.frames[0];
+            firstFrame.head.rotation.x = -1.0f;
+            firstFrame.head.rotation.y = SteamVRSettings.GetFloatOrDefault("steam.app.620980.worldScale", -1.0f);
+            firstFrame.head.rotation.z = SteamVRSettings.GetFloatOrDefault("steam.app.620980.additionalFramesToPredict", -1.0f);
+            firstFrame.head.rotation.w = SteamVRSettings.GetFloatOrDefault("steam.app.620980.framesToThrottle", -1.0f);
+        }
+
+        #endregion
+
+        #region ProcessOculus
+
+        private static void ProcessOculusDevices(Replay replay) {
+            switch (OVRPlugin.GetSystemHeadsetType()) {
                 case OVRPlugin.SystemHeadset.None:
                 case OVRPlugin.SystemHeadset.Oculus_Quest:
                 case OVRPlugin.SystemHeadset.Oculus_Link_Quest:
@@ -56,13 +74,19 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                     replay.info.hmd = "Unknown";
                     break;
             }
+
             replay.info.controller = "Unknown";
         }
 
-        private void ProcessUnknown(Replay replay)
-        {
+        #endregion
+
+        #region ProcessUnknown
+
+        private static void ProcessUnknownDevices(Replay replay) {
             replay.info.hmd = "Unknown";
             replay.info.controller = "Unknown";
         }
+
+        #endregion
     }
 }

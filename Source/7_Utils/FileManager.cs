@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using BeatLeader.Models.Replay;
 using UnityEngine;
 
 namespace BeatLeader.Utils

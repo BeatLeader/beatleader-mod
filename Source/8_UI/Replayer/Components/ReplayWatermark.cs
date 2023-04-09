@@ -42,11 +42,9 @@ namespace BeatLeader.Components {
                 CanBeDisabled = true;
                 text += "<color=\"yellow\">BATTLE ROYALE</color>";
             } else {
-                var pair = _launchData.Replays[0];
-                var replay = pair.Value;
-                var player = pair.Key;
-                CanBeDisabled = ProfileManager.IsCurrentPlayer(player?.id ?? replay.info.playerID);
-                text += $"Player:  {player?.name ?? replay.info.playerName}";
+                var player = _launchData.MainReplay.ReplayData.Player;
+                CanBeDisabled = player != null && ProfileManager.IsCurrentPlayer(player.id);
+                text += $"Player:  {player?.name ?? "Unknown"}";
             }
             text += "</i>";
             _text.text = text;

@@ -48,5 +48,10 @@
         <macro.as-host host="scores-table">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
+
+        <!--  MAP DIFFICULTY PANEL  -->
+        <macro.as-host host="map-difficulty-panel">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
     </horizontal>
 </vertical>

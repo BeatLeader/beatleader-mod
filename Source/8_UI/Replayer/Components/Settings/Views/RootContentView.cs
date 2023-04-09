@@ -27,22 +27,24 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        private bool _useCam2;
-
         public void Setup(
             IBeatmapTimeController timeController,
             IReplayPauseController pauseController,
             IVirtualPlayersManager playersManager,
-            IViewableCameraController cameraController,
+            IViewableCameraController? cameraController,
             ReplayLaunchData launchData,
             IReplayWatermark? watermark = null,
             IReplayTimeline? timeline = null,
             LayoutEditor? layoutEditor = null) {
             _speedSetting.Setup(timeController);
             _layoutEditorSetting.Setup(layoutEditor, pauseController);
-            _cameraContentView.Setup(cameraController, launchData);
             _otherContentView.Setup(playersManager, launchData, watermark, timeline);
-            cameraController.SetEnabled(!_useCam2);
+            var useExternalCamera = launchData.Settings
+                .CameraSettings == null || cameraController == null;
+            cameraController?.SetEnabled(!useExternalCamera);
+            UpdateCameraButton(useExternalCamera);
+            if (useExternalCamera) return;
+            _cameraContentView.Setup(cameraController!, launchData);
         }
 
         protected override void OnInstantiate() {
@@ -61,10 +63,12 @@ namespace BeatLeader.Components {
             _cameraMenuButton = Instantiate<NavigationButton>(transform);
             _cameraContentView = InstantiateOnSceneRoot<CameraContentView>();
             _cameraContentView.ManualInit(null!);
-            _useCam2 = Cam2Interop.IsInitialized && InputUtils.IsInFPFC;
-            var text = "Camera" + (_useCam2 ? " <color=\"red\">(Cam2 detected)" : "");
-            _cameraMenuButton.Setup(this, _cameraContentView, text);
-            _cameraMenuButton.Interactable = !_useCam2;
+        }
+
+        private void UpdateCameraButton(bool useExternalCamera) {
+            _cameraMenuButton.Setup(this, _cameraContentView, "Camera"
+                + (useExternalCamera ? " <color=\"red\">(External detected)" : ""));
+            _cameraMenuButton.Interactable = !useExternalCamera;
         }
     }
 }

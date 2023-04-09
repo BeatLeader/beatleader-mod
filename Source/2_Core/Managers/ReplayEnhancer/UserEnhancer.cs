@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BeatLeader.Models;
+using BeatLeader.Models.Replay;
 using IPA.Utilities;
 using UnityEngine;
 

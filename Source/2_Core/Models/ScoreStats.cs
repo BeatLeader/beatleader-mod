@@ -1,4 +1,6 @@
-﻿namespace BeatLeader.Models {
+﻿using BeatLeader.Models.Replay;
+
+namespace BeatLeader.Models {
     internal class ScoreStats {
         public int id;
         public int scoreId;

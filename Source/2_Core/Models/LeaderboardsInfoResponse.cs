@@ -43,6 +43,9 @@ namespace BeatLeader.Models {
         public int qualifiedTime;
         public int rankedTime;
         public float stars;
+        public float accRating;
+        public float passRating;
+        public float techRating;
         public int type;
         public ModifiersMap modifierValues;
     }
@@ -88,16 +91,15 @@ namespace BeatLeader.Models {
         public float pm;
         public float sc;
 
-        public float GetModifierValueByModifierServerName(string name)
-        {
+        //TODO: rework
+        public float GetModifierValueByModifierServerName(string name) {
             return (float)(typeof(ModifiersMap).GetField(name.ToLower(), ReflectionUtils.DefaultFlags)?.GetValue(this) ?? -1f);
         }
-        public void LoadFromGameModifiersParams(IEnumerable<GameplayModifierParamsSO> modifiersParams)
-        {
-            foreach (var item in modifiersParams)
-            {
-                var modifierServerName = item.modifierNameLocalizationKey
-                    .ParseModifierLocalizationKeyToServerName();
+        
+        public void LoadFromGameModifiersParams(IEnumerable<GameplayModifierParamsSO> modifiersParams) {
+            foreach (var item in modifiersParams) {
+                var modifierServerName = ModifiersMapManager
+                    .ParseModifierLocalizationKeyToServerName(item.modifierNameLocalizationKey);
 
                 typeof(ModifiersMap).GetField(modifierServerName.ToLower(),
                     ReflectionUtils.DefaultFlags)?.SetValueDirect(__makeref(this), item.multiplier);

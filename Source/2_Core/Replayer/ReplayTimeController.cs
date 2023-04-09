@@ -10,7 +10,7 @@ namespace BeatLeader.Replayer {
 
         public float ReplayEndTime {
             get {
-                var failTime = !_gameplayManagerInitData.failOn0Energy ? 0 : _launchData.MainReplay.info.failTime;
+                var failTime = !_gameplayManagerInitData.failOn0Energy ? 0 : _launchData.MainReplay.ReplayData.FailTime;
                 return _launchData.IsBattleRoyale || failTime == 0 ? SongEndTime : failTime;
             }
         }

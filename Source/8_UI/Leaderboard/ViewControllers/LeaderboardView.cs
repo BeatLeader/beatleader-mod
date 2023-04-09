@@ -24,6 +24,7 @@ namespace BeatLeader.ViewControllers {
             public ScopeSelector scopeSelector;
             public ContextSelector contextSelector;
             public EmptyBoardMessage emptyBoardMessage;
+            public MapDifficultyPanel mapDifficultyPanel;
 
             private void Awake() {
                 votingPanel = ReeUIComponentV2.InstantiateOnSceneRoot<VotingPanel>(false);
@@ -36,6 +37,7 @@ namespace BeatLeader.ViewControllers {
                 scopeSelector = ReeUIComponentV2.InstantiateOnSceneRoot<ScopeSelector>(false);
                 contextSelector = ReeUIComponentV2.InstantiateOnSceneRoot<ContextSelector>(false);
                 emptyBoardMessage = ReeUIComponentV2.InstantiateOnSceneRoot<EmptyBoardMessage>();
+                mapDifficultyPanel = ReeUIComponentV2.InstantiateOnSceneRoot<MapDifficultyPanel>();
             }
         }
 
@@ -73,6 +75,9 @@ namespace BeatLeader.ViewControllers {
         [UIValue("empty-board-message"), UsedImplicitly]
         private EmptyBoardMessage EmptyBoardMessage => _preParser.emptyBoardMessage;
 
+        [UIValue("map-difficulty-panel"), UsedImplicitly]
+        private MapDifficultyPanel MapDifficultyPanel => _preParser.mapDifficultyPanel;
+
         private void Awake() {
             VotingPanel.SetParent(transform);
             BeatLeaderInfo.SetParent(transform);
@@ -84,6 +89,7 @@ namespace BeatLeader.ViewControllers {
             ScopeSelector.SetParent(transform);
             ContextSelector.SetParent(transform);
             EmptyBoardMessage.SetParent(transform);
+            MapDifficultyPanel.SetParent(transform);
         }
 
         #endregion

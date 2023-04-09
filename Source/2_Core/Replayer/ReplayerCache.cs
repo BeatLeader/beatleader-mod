@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using BeatLeader.Models;
+using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using IPA.Utilities;
 

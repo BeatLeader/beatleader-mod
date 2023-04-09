@@ -123,7 +123,7 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Error($"Failed to set {member.Name} in {interopName}, member was of incorrect type!");
                 return false;
             }
-            if (member.TryDefine<MemberInfo, PropertyInfo>(out var prop) && !prop!.CanWrite) {
+            if (member is PropertyInfo prop && !prop!.CanWrite) {
                 Plugin.Log.Error($"Failed to set {prop.Name} in {interopName}, unable to write property!");
                 return false;
             }

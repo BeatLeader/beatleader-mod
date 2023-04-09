@@ -1,21 +1,15 @@
-<horizontal active="~is-active" pref-height="6" spacing="1" horizontal-fit="PreferredSize">
-    <vertical active="~status-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD">
-        <text text="~status-text" align="Midline"/>
-    </vertical>
-    <vertical active="~ex-machina-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD">
-        <text text="~ex-machina-text" align="Midline"/>
-    </vertical>
+﻿<horizontal active="~is-active" pref-height="6" spacing="1" horizontal-fit="PreferredSize">
+    <!--    STATUS    -->
+    <macro.as-host host="map-status">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
 
-    <!-- TODO: How do you make the clanTag smaller than the pref-height of the container it's in?-->
-    <horizontal active="~captor-clan-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD" apply-on-change="true" hover-hint="~captor-clan-hover">
-      <horizontal pad-right="1">
-        <text text="~captor-clan-text" color="~captor-clan-text-color" align="Midline"/>
-      </horizontal>
-      <vertical active="~leaderboard-captured" id="background" vertical-fit="PreferredSize" pref-height="5" bg="round-rect-panel">
-        <text id="text-component" word-wrapping="false" align="Midline"/>
-      </vertical>
-    </horizontal>
+    <!--    CAPTOR CLAN    -->
+    <macro.as-host host="captor-clan">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
 
+    <!--    QUALIFICATION CHECKBOXES    -->
     <horizontal active="~qualification-active" spacing="1">
         <macro.as-host host="criteria-checkbox">
             <macro.reparent transform="ui-component"/>

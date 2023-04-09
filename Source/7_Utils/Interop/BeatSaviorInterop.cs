@@ -3,57 +3,60 @@ using BeatLeader.Utils;
 using HarmonyLib;
 using System;
 using System.Reflection;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.Interop {
     [PluginInterop("BeatSaviorData")]
     internal static class BeatSaviorInterop {
-        [PluginAssembly] 
-        private static readonly Assembly _assembly;
+        [PluginAssembly]
+        private static readonly Assembly assembly = null!;
 
         [PluginType("BeatSaviorData.SettingsMenu")]
-        private static readonly Type _settingsMenuType;
+        private static readonly Type settingsMenuType = null!;
 
-        private static Harmony _harmony;
-        private static MethodInfo _setBoolMethod;
-        private static MethodInfo _getBoolMethod;
-        private static MethodInfo _uploadScoreMethodPostfix;
-        private static MethodInfo _uploadScoreMethod;
-        private static object _configInstance;
+        [PluginType("BeatSaviorData.Plugin")]
+        private static readonly Type pluginType = null!;
+
+        private static HarmonyAutoPatch? _uploadScoreMethodPatch;
+
+        private static object[] _cachedArgs = null!;
+        private static MethodInfo? _setBoolMethod;
+        private static object? _configInstance;
         private static bool _isMarkedToEnable;
 
-        public static bool ScoreSubmissionEnabled {
-            get => (bool)_getBoolMethod?.Invoke(_configInstance,
-                new object[] { "BeatSaviorData", "DisableBeatSaviorUpload", false, true });
-            set => _setBoolMethod?.Invoke(_configInstance,
-                new object[] { "BeatSaviorData", "DisableBeatSaviorUpload", !value });
+        private static bool SubmissionEnabled {
+            set {
+                _cachedArgs[2] = value;
+                _setBoolMethod?.Invoke(_configInstance, _cachedArgs);
+            }
         }
 
         [InteropEntry]
         private static void Init() {
-            _configInstance = _settingsMenuType.GetField("config", ReflectionUtils.StaticFlags).GetValue(null);
-
-            _uploadScoreMethod = _assembly.GetType("BeatSaviorData.Plugin").GetMethod(
-                "UploadData", ReflectionUtils.DefaultFlags);
+            _configInstance = settingsMenuType.GetField("config",
+                ReflectionUtils.StaticFlags)!.GetValue(null);
+            _cachedArgs = new object[] { "BeatSaviorData", "DisableBeatSaviorUpload", false };
 
             _setBoolMethod = _configInstance.GetType().GetMethod("SetBool",
-                new Type[] { typeof(string), typeof(string), typeof(bool) });
-            _getBoolMethod = _configInstance.GetType().GetMethod("GetBool",
-                new Type[] { typeof(string), typeof(string), typeof(bool), typeof(bool) });
+                new[] { typeof(string), typeof(string), typeof(bool) });
 
-            _uploadScoreMethodPostfix = typeof(BeatSaviorInterop).GetMethod(
-                nameof(UploadScorePostfix), BindingFlags.Static | BindingFlags.NonPublic);
+            _uploadScoreMethodPatch = new(new(
+                pluginType.GetMethod("UploadData",
+                    ReflectionUtils.DefaultFlags)!, postfix:
+                typeof(BeatSaviorInterop).GetMethod(nameof(
+                    UploadScorePostfix), ReflectionUtils.StaticFlags)));
+            
+            ReplayerLauncher.ReplayWasStartedEvent += HandleReplayWasStarted;
+            ReplayerLauncher.ReplayWasFinishedEvent += HandleReplayWasFinished;
+        }
 
-            _harmony = new Harmony("BeatLeader.Interop.BeatSavior");
-            HarmonyUtils.Patch(_harmony, new HarmonyPatchDescriptor(_uploadScoreMethod, postfix: _uploadScoreMethodPostfix));
-        }
-        public static void MarkScoreSubmissionToEnable() {
-            _isMarkedToEnable = true;
-        }
         private static void UploadScorePostfix() {
-            if (_isMarkedToEnable) {
-                ScoreSubmissionEnabled = true;
-                _isMarkedToEnable = false;
-            }
+            if (!_isMarkedToEnable) return;
+            SubmissionEnabled = true;
+            _isMarkedToEnable = false;
         }
+
+        private static void HandleReplayWasStarted(Models.ReplayLaunchData data) => SubmissionEnabled = false;
+        private static void HandleReplayWasFinished(Models.ReplayLaunchData data) => _isMarkedToEnable = true;
     }
 }

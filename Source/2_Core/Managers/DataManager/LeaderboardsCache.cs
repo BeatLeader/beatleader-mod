@@ -58,45 +58,36 @@ namespace BeatLeader.DataManager {
 
             foreach (var pair in LeaderboardInfoCache) {
                 var hash = pair.Key.Hash;
-                var stars = pair.Value.DifficultyInfo.stars;
-                var status = FormatUtils.GetRankedStatus(pair.Value.DifficultyInfo);
-                var isNominated = status is RankedStatus.Nominated;
-                var isQualified = status is RankedStatus.Qualified;
-                var isRanked = status is RankedStatus.Ranked;
 
-                if (SortingCache.ContainsKey(hash)) {
-                    var entry = SortingCache[hash];
-                    if (entry.HighestStars < stars) entry.HighestStars = stars;
-                    entry.IsNominated |= isNominated;
-                    entry.IsQualified |= isQualified;
-                    entry.IsRanked |= isRanked;
-                } else {
-                    SortingCache[hash] = new SortEntry(stars, isNominated, isQualified, isRanked);
-                }
+                var sortEntry = SortingCache.ContainsKey(hash) ? SortingCache[hash] : new SortEntry();
+                sortEntry.Update(pair.Value.DifficultyInfo);
+                SortingCache[hash] = sortEntry;
             }
         }
 
-        public static bool TryGetSortingInfo(string hash, out SortEntry sortingInfo) {
-            if (SortingCache.ContainsKey(hash)) {
-                sortingInfo = SortingCache[hash];
-                return true;
-            }
-
-            sortingInfo = null;
-            return false;
+        public static SortEntry? GetSortingInfo(string hash) {
+            return SortingCache.ContainsKey(hash) ? SortingCache[hash] : null;
         }
 
         public class SortEntry {
             public float HighestStars;
+            public float HighestTechStars;
+            public float HighestAccStars;
+            public float HighestPassStars;
             public bool IsNominated;
             public bool IsQualified;
             public bool IsRanked;
 
-            public SortEntry(float highestStars, bool isNominated, bool isQualified, bool isRanked) {
-                HighestStars = highestStars;
-                IsNominated = isNominated;
-                IsQualified = isQualified;
-                IsRanked = isRanked;
+            public void Update(DiffInfo diffInfo) {
+                if (HighestStars < diffInfo.stars) HighestStars = diffInfo.stars;
+                if (HighestTechStars < diffInfo.techRating) HighestTechStars = diffInfo.techRating;
+                if (HighestAccStars < diffInfo.accRating) HighestAccStars = diffInfo.accRating;
+                if (HighestPassStars < diffInfo.passRating) HighestPassStars = diffInfo.passRating;
+
+                var status = FormatUtils.GetRankedStatus(diffInfo);
+                IsNominated |= status is RankedStatus.Nominated;
+                IsQualified |= status is RankedStatus.Qualified;
+                IsRanked |= status is RankedStatus.Ranked;
             }
         }
 

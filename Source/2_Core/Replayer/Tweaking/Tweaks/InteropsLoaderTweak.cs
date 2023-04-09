@@ -16,18 +16,20 @@ namespace BeatLeader.Replayer.Tweaking {
             _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewound;
         }
         public override void Dispose() {
-            Cam2Interop.SetHeadTransform(null!);
+            Cam2Interop.HeadTransform = null;
             _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
             _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
             _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewound;
         }
 
         private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            Cam2Interop.SetHeadTransform(player.ControllersProvider!.Head.transform);
+            Cam2Interop.HeadTransform = player.ControllersProvider!.Head.transform;
         }
+        
         private void HandleNoteWasDespawned(NoteController controller) {
             CustomNotesInterop.TryDespawnCustomObject(controller);
         }
+        
         private void HandleSongWasRewound(float time) {
             NoodleExtensionsInterop.RequestReprocess();
         }

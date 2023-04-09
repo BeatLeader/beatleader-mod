@@ -6,7 +6,7 @@ namespace BeatLeader {
         public int FlySpeed { get; set; } = 4;
         public SerializableVector2 Sensitivity { get; set; } = new Vector2(0.5f, 0.5f);
 
-        public Models.Vector3 VRPosition { get; set; }
+        public SerializableVector3 VRPosition { get; set; }
         public float VRRotation { get; set; }
     }
 }

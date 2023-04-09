@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Replayer.Emulation;
 using System;
 using System.Collections.Generic;
+using BeatLeader.Models.AbstractReplay;
 
 namespace BeatLeader.Models {
     public interface IVirtualPlayersManager {
@@ -9,7 +10,7 @@ namespace BeatLeader.Models {
 
         event Action<VirtualPlayer> PriorityPlayerWasChangedEvent;
 
-        void Spawn(Player player, Replay replay);
+        void Spawn(IReplay replay);
         void Despawn(VirtualPlayer player);
     }
 }

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Models;
+using JetBrains.Annotations;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
+    [UsedImplicitly]
     public class ReplayEventsProcessor : IInitializable, ILateTickable, IDisposable {
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
         [Inject] private readonly IVirtualPlayersManager _virtualPlayersManager = null!;
 
-        public bool IsReprocessingEventsNow => _isReprocessing;
-        public bool TimeWasSmallerThanActualTime => _timeWasSmallerThanActualTime;
+        public bool IsReprocessingEventsNow { get; private set; }
+        public bool TimeWasSmallerThanActualTime { get; private set; }
 
         public event Action<NoteEvent>? NoteProcessRequestedEvent;
         public event Action<WallEvent>? WallProcessRequestedEvent;
@@ -18,22 +21,22 @@ namespace BeatLeader.Replayer.Emulation {
 
         private IReadOnlyList<NoteEvent> _notes = null!;
         private IReadOnlyList<WallEvent> _walls = null!;
-        private bool _timeWasSmallerThanActualTime;
-        private bool _isReprocessing;
         private int _nextNoteIndex;
         private int _nextWallIndex;
         private float _lastTime;
+        private bool _allowProcess;
 
         public void Initialize() {
-            _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewinded;
+            _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewound;
             _virtualPlayersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
             HandlePriorityPlayerChanged(_virtualPlayersManager.PriorityPlayer!);
         }
         public void Dispose() {
-            _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewinded;
+            _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewound;
             _virtualPlayersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
         public void LateTick() {
+            if (!_allowProcess) return;
             var songTime = _beatmapTimeController.SongTime;
 
             do {
@@ -41,11 +44,11 @@ namespace BeatLeader.Replayer.Emulation {
                 var hasNextWall = _nextWallIndex < _walls.Count;
                 if (!hasNextNote && !hasNextWall) break;
 
-                var nextNote = hasNextNote ? _notes[_nextNoteIndex] : null;
-                var nextWall = hasNextWall ? _walls[_nextWallIndex] : null;
+                var nextNote = hasNextNote ? _notes[_nextNoteIndex] : default;
+                var nextWall = hasNextWall ? _walls[_nextWallIndex] : default;
 
-                var nextNoteTime = hasNextNote ? nextNote!.eventTime : float.MaxValue;
-                var nextWallTime = hasNextWall ? nextWall!.time : float.MaxValue;
+                var nextNoteTime = hasNextNote ? nextNote.eventTime : float.MaxValue;
+                var nextWallTime = hasNextWall ? nextWall.time : float.MaxValue;
 
                 if (hasNextWall && nextWallTime <= nextNoteTime) {
                     if (nextWall!.time > songTime) break;
@@ -65,29 +68,35 @@ namespace BeatLeader.Replayer.Emulation {
             } while (true);
 
             _lastTime = songTime;
-            if (_isReprocessing) {
-                _isReprocessing = false;
-                _timeWasSmallerThanActualTime = false;
+            if (IsReprocessingEventsNow) {
+                IsReprocessingEventsNow = false;
+                TimeWasSmallerThanActualTime = false;
                 ReprocessDoneEvent?.Invoke();
             }
         }
 
         private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            _notes = player.Replay!.notes;
-            _walls = player.Replay.walls;
+            if (player.Replay is null) {
+                _allowProcess = false;
+                return;
+            }
+            _notes = player.Replay.NoteEvents;
+            _walls = player.Replay.WallEvents;
             _nextNoteIndex = 0;
             _nextWallIndex = 0;
+            _allowProcess = true;
         }
-        private void HandleSongWasRewinded(float newTime) {
+        
+        private void HandleSongWasRewound(float newTime) {
             if (newTime < _lastTime) {
                 _nextNoteIndex = 0;
                 _nextWallIndex = 0;
                 _lastTime = 0f;
-                _timeWasSmallerThanActualTime = true;
+                TimeWasSmallerThanActualTime = true;
             }
 
             ReprocessRequestedEvent?.Invoke();
-            _isReprocessing = true;
+            IsReprocessingEventsNow = true;
         }
     }
 }

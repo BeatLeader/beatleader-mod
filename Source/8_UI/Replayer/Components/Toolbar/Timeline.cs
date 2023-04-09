@@ -6,16 +6,17 @@ using UnityEngine.UI;
 using UnityEngine;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Emulation;
+using BeatLeader.Models.AbstractReplay;
 using System;
 
 namespace BeatLeader.Components {
     internal class Timeline : ReeUIComponentV2, IReplayTimeline {
-        #region UI Components 
+        #region UI Components
 
-        [UIComponent("container")] 
+        [UIComponent("container")]
         private readonly RectTransform _container = null!;
 
-        [UIComponent("fill-area")] 
+        [UIComponent("fill-area")]
         private readonly RectTransform _fillArea = null!;
 
         [UIComponent("marks-area")]
@@ -30,7 +31,7 @@ namespace BeatLeader.Components {
         [UIComponent("handle")]
         private readonly Image _handle = null!;
 
-        [UIComponent("fill")] 
+        [UIComponent("fill")]
         private readonly Image _fill = null!;
 
         private TimelineAnimator _timelineAnimator = null!;
@@ -150,17 +151,22 @@ namespace BeatLeader.Components {
             _pausePrefab.sprite = BundleLoader.PauseIcon;
             _pausePrefab.color = Color.blue;
         }
-        
-        private void GenerateDefaultMarkersFromReplay(Replay replay) {
-            GenerateMarkers(replay.notes
-                .Where(x => x.eventType == NoteEventType.miss || x.eventType == NoteEventType.bad)
+
+        private void GenerateDefaultMarkersFromReplay(IReplay replay) {
+            float firstNoteTime = replay.NoteEvents.FirstOrDefault().eventTime;
+            float lastNoteTime = replay.NoteEvents.LastOrDefault().eventTime;
+
+            GenerateMarkers(replay.NoteEvents
+                .Where(x => x.eventType is NoteEvent.NoteEventType.Miss
+                    or NoteEvent.NoteEventType.BadCut)
                 .Select(x => x.eventTime), _missPrefab.gameObject);
 
-            GenerateMarkers(replay.notes
-                .Where(x => x.eventType == NoteEventType.bomb)
+            GenerateMarkers(replay.NoteEvents
+                .Where(x => x.eventType == NoteEvent.NoteEventType.BombCut)
                 .Select(x => x.eventTime), _bombPrefab.gameObject);
 
-            GenerateMarkers(replay.pauses
+            GenerateMarkers(replay.PauseEvents
+                .Where(x => x.time >= firstNoteTime && x.time <= lastNoteTime)
                 .Select(x => x.time), _pausePrefab.gameObject);
         }
 
@@ -168,15 +174,15 @@ namespace BeatLeader.Components {
 
         #region Marks
 
-        public event Action? MarkersWasGeneratedEvent;
+        public event Action? MarkersWereGeneratedEvent;
 
         private readonly Dictionary<string, List<GameObject>> _marks = new();
 
         private void GenerateMarkers(IEnumerable<float> times, GameObject prefab) {
-            ClearMarkers(prefab.name);
-            if (!_marks.TryGetValue(prefab.name, out var marks)) {
-                marks = new();
-            }
+            if (_marks.TryGetValue(prefab.name, out var marks)) {
+                marks.ForEach(static x => DestroyImmediate(x));
+                marks.Clear();
+            } else marks = new();
             foreach (var item in times) {
                 var instance = Instantiate(prefab, _marksArea, false);
                 var instanceRect = instance.GetComponent<RectTransform>();
@@ -185,15 +191,12 @@ namespace BeatLeader.Components {
                 marks.Add(instance);
             }
             _marks[prefab.name] = marks;
-            MarkersWasGeneratedEvent?.Invoke();
+            MarkersWereGeneratedEvent?.Invoke();
         }
 
         public void ShowMarkers(string name, bool show) {
-            if (_marks.TryGetValue(name, out var marks)) marks.ForEach(x => x.SetActive(show));
-        }
-
-        public void ClearMarkers(string name) {
-            if (_marks.TryGetValue(name, out var marks)) marks.Clear();
+            if (!_marks.TryGetValue(name, out var marks)) return;
+            marks.ForEach(x => x.SetActive(show));
         }
 
         private Vector2 CalculateMarkerSize() {

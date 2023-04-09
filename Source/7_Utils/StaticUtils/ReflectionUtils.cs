@@ -58,8 +58,7 @@ namespace BeatLeader.Utils {
             var dictionary = new Dictionary<U, T>();
             foreach (var member in type.GetMembers(flags)) {
                 var attr = member.GetCustomAttribute<T>();
-                if (attr == null || !member.TryDefine
-                    <MemberInfo, U>(out var definedMember)) continue;
+                if (attr == null || member is not U definedMember) continue;
                 dictionary.Add(definedMember!, attr);
             }
             return dictionary;
@@ -114,10 +113,6 @@ namespace BeatLeader.Utils {
                 MemberTypes.Method => (member as MethodInfo)!.ReturnType,
                 _ => null
             }) != null;
-        }
-
-        public static bool TryDefine<T, U>(this T obj, out U? defined) where U : T {
-            return (defined = obj is U u ? u : default) != null;
         }
 
         #endregion

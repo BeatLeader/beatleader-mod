@@ -1,10 +1,9 @@
-﻿using UVector2 = UnityEngine.Vector2;
-using UVector3 = UnityEngine.Vector3;
-using System;
+﻿using System;
+using UnityEngine;
 
 namespace BeatLeader.Models {
-    internal struct SerializableVector2 {
-        public SerializableVector2(UVector2 unityVector) {
+    public struct SerializableVector2 {
+        public SerializableVector2(Vector2 unityVector) {
             x = unityVector.x;
             y = unityVector.y;
         }
@@ -26,8 +25,8 @@ namespace BeatLeader.Models {
         public float x;
         public float y;
 
-        public static implicit operator UVector3(SerializableVector2 vector) => new(vector.x, vector.y);
-        public static implicit operator UVector2(SerializableVector2 vector) => new(vector.x, vector.y);
-        public static implicit operator SerializableVector2(UVector2 vector) => new(vector);
+        public static implicit operator Vector3(SerializableVector2 vector) => new(vector.x, vector.y);
+        public static implicit operator Vector2(SerializableVector2 vector) => new(vector.x, vector.y);
+        public static implicit operator SerializableVector2(Vector2 vector) => new(vector);
     }
 }

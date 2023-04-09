@@ -20,7 +20,7 @@ namespace BeatLeader {
         internal const string HarmonyId = "BeatLeader";
         internal const string FancyName = "BeatLeader";
 
-        internal static Version Version => PluginManager.GetPlugin(PluginId).HVersion;
+        internal static Version Version { get; private set; }
 
         #endregion
 
@@ -29,8 +29,9 @@ namespace BeatLeader {
         internal static IPALogger Log { get; private set; }
 
         [Init]
-        public Plugin(IPALogger logger, Config config) {
+        public Plugin(IPALogger logger, PluginMetadata metadata, Config config) {
             Log = logger;
+            Version = metadata.HVersion;
             InitializeConfig(config);
             InitializeAssets();
         }
@@ -81,6 +82,7 @@ namespace BeatLeader {
         {
             SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
+            ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
         }
 
         #endregion

@@ -7,6 +7,7 @@ using BeatLeader.Core.Managers.NoteEnhancer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Models.Activity;
+using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using HarmonyLib;
 using IPA.Loader;
@@ -15,7 +16,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using static BeatLeader.Models.Activity.PlayEndData;
-using Transform = BeatLeader.Models.Transform;
+using Transform = BeatLeader.Models.Replay.Transform;
 
 namespace BeatLeader {
     [UsedImplicitly]
@@ -368,8 +369,8 @@ namespace BeatLeader {
             _currentPause = null;
         }
 
-        private static Models.NoteCutInfo CreateNoteCutInfo(NoteCutInfo cutInfo) {
-            return new Models.NoteCutInfo {
+        private static Models.Replay.NoteCutInfo CreateNoteCutInfo(NoteCutInfo cutInfo) {
+            return new Models.Replay.NoteCutInfo {
                 speedOK = cutInfo.speedOK,
                 directionOK = cutInfo.directionOK,
                 saberTypeOK = cutInfo.saberTypeOK,

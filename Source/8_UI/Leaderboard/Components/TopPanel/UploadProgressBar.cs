@@ -1,5 +1,6 @@
 ﻿using BeatLeader.API.Methods;
 using BeatLeader.Models;
+using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;

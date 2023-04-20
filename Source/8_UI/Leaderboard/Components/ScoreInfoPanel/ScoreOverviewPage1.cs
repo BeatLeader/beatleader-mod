@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -42,9 +42,14 @@ namespace BeatLeader.Components {
 
         private static string GetTimeSetString(Score score) {
             var sb = new StringBuilder();
-            sb.Append($"<color={Neutral}>{FormatUtils.GetRelativeTimeString(score.timeSet)}");
-            sb.Append($"<color={Faded}><size=70%>   on   </size>");
-            sb.AppendLine($"<color={Neutral}>{FormatUtils.GetHeadsetNameById(score.hmd)}");
+            sb.Append($"<color={Neutral}>{FormatUtils.GetRelativeTimeString(score.timeSet)}</color>");
+            sb.Append($"<color={Faded}><size=70%>   on   </size></color>");
+            sb.AppendLine($"<color={Neutral}>{FormatUtils.GetHeadsetNameById(score.hmd)}</color>");
+            var controllerName = FormatUtils.GetControllerNameById(score.controller);
+            if (!controllerName.Equals("Unknown")) {
+                sb.Append($"<voffset=0.5em><color={Faded}><size=75%>Using   </size></color>");
+                sb.AppendLine($"<color={Neutral}><size=80%>{controllerName}</size></color></voffset>");
+            }
             return sb.ToString();
         }
 

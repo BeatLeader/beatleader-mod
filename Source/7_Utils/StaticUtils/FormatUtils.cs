@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -95,9 +95,51 @@ namespace BeatLeader {
                 16 => "Rift S",
                 32 => "Quest",
                 64 => "Index",
+                65 => "Controllable",
                 128 => "Vive Cosmos",
                 256 => "Quest 2",
                 _ => "Unknown HMD"
+            };
+        }
+
+        #endregion
+
+        #region GetControllerName
+
+        public static string GetControllerNameById(int id) {
+            return id switch {
+                0 => "Unknown",
+                1 => "Oculus Touch",
+                16 => "Oculus Touch 2",
+                256 => "Oculus Touch", //Quest 2
+                2 => "Vive Wands", //Vive
+                4 => "Vive Pro Wands", //Vive Pro
+                8 => "WMR Controllers", //WMR
+                9 => "Odyssey Controllers", //Odyssey
+                10 => "HP Motion",
+                33 => "Pico Neo 3 Controllers", //Pico Neo 3
+                34 => "Pico Neo 2 Controllers", //Pico Neo 2
+                35 => "Vive Pro 2 Wands", //Vive Pro 2
+                37 => "Miramar",
+                44 => "Disco",
+                61 => "Touch Pro", //Quest Pro
+                62 => "Vive Tracker",
+                63 => "Vive Tracker 2",
+                64 => "Knuckles",
+                65 => "Nolo",
+                66 => "Pico Phoenix",
+                67 => "Hands",
+                68 => "Vive Tracker 3",
+                69 => "Pimax",
+                70 => "Huawei",
+                71 => "Polaris",
+                72 => "Tundra",
+                73 => "Cry",
+                74 => "E4",
+                75 => "Gamepad",
+                76 => "Joy-Con",
+                128 => "Cosmos Controllers",
+                _ => "Unknown"
             };
         }
 

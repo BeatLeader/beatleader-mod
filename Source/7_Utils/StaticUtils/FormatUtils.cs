@@ -138,6 +138,7 @@ namespace BeatLeader {
                 74 => "E4",
                 75 => "Gamepad",
                 76 => "Joy-Con",
+                77 => "Steam Deck",
                 128 => "Cosmos Controllers",
                 _ => "Unknown"
             };

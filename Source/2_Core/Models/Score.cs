@@ -16,6 +16,7 @@
         public int pauses;
         public bool fullCombo;
         public int hmd;
+        public int controller;
         public string timeSet;
         public Player player;
         public string replay;

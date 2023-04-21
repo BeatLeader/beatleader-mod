@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -35,6 +35,7 @@ namespace BeatLeader.Components {
 
         private static string GetStringWithLabel(string value, string label) {
             var sb = new StringBuilder();
+            sb.Append("<line-height=80%>");
             sb.Append($"<color={Faded}><size=70%>{label}\n</size></color>");
             sb.Append(value);
             return sb.ToString();
@@ -42,15 +43,22 @@ namespace BeatLeader.Components {
 
         private static string GetTimeSetString(Score score) {
             var sb = new StringBuilder();
-            sb.Append($"<color={Neutral}>{FormatUtils.GetRelativeTimeString(score.timeSet)}");
-            sb.Append($"<color={Faded}><size=70%>   on   </size>");
-            sb.AppendLine($"<color={Neutral}>{FormatUtils.GetHeadsetNameById(score.hmd)}");
+            sb.Append("<line-height=80%>");
+            sb.Append($"<color={Neutral}>{FormatUtils.GetRelativeTimeString(score.timeSet)}</color>");
+            sb.Append($"<color={Faded}><size=70%>   on   </size></color>");
+            sb.AppendLine($"<color={Neutral}>{FormatUtils.GetHeadsetNameById(score.hmd)}</color>");
+            var controllerName = FormatUtils.GetControllerNameById(score.controller);
+            if (!controllerName.Equals("Unknown")) {
+                sb.Append($"<color={Faded}><size=75%>using   </size></color>");
+                sb.AppendLine($"<color={Neutral}><size=80%>{controllerName}</size></color></voffset>");
+            }
             return sb.ToString();
         }
 
         private static string GetDetailsString(Score score) {
             var sb = new StringBuilder();
 
+            sb.Append("<line-height=80%>");
             sb.Append($"<color={Faded}>Pauses: <color={Neutral}>{score.pauses}    ");
             sb.AppendLine(score.modifiers.IsEmpty()
                 ? $"<color={Faded}>No Modifiers"

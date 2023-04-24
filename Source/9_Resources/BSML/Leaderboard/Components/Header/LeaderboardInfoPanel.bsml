@@ -18,8 +18,11 @@
     </horizontal>
     
     <!--    BUTTONS    -->
-    <horizontal spacing="1" horizontal-fit="PreferredSize" ignore-layout="true" anchor-pos-x="38">
+    <horizontal spacing="1" horizontal-fit="PreferredSize" ignore-layout="true" anchor-pos-x="36">
         <macro.as-host host="website-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <macro.as-host host="replayer-button">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
         <macro.as-host host="settings-button">

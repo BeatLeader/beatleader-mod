@@ -11,28 +11,32 @@ namespace BeatLeader.Components {
         #region Components
 
         [UIValue("criteria-checkbox"), UsedImplicitly]
-        private QualificationCheckbox _criteriaCheckbox;
+        private QualificationCheckbox _criteriaCheckbox = null!;
 
         [UIValue("mapper-checkbox"), UsedImplicitly]
-        private QualificationCheckbox _mapperCheckbox;
+        private QualificationCheckbox _mapperCheckbox = null!;
 
         [UIValue("approval-checkbox"), UsedImplicitly]
-        private QualificationCheckbox _approvalCheckbox;
+        private QualificationCheckbox _approvalCheckbox = null!;
 
         [UIValue("website-button"), UsedImplicitly]
-        private HeaderButton _websiteButton;
+        private HeaderButton _websiteButton = null!;
+
+        [UIValue("replayer-button"), UsedImplicitly]
+        private HeaderButton _replayerButton = null!;
 
         [UIValue("settings-button"), UsedImplicitly]
-        private HeaderButton _settingsButton;
+        private HeaderButton _settingsButton = null!;
 
         [UIValue("map-status"), UsedImplicitly]
-        private MapStatus _mapStatus;
+        private MapStatus _mapStatus = null!;
 
         private void Awake() {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _mapperCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _websiteButton = Instantiate<HeaderButton>(transform, false);
+            _replayerButton = Instantiate<HeaderButton>(transform, false);
             _settingsButton = Instantiate<HeaderButton>(transform, false);
             _mapStatus = Instantiate<MapStatus>(transform, false);
         }
@@ -43,9 +47,11 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             _websiteButton.Setup(BundleLoader.ProfileIcon);
+            _replayerButton.Setup(BundleLoader.ReplayIcon);
             _settingsButton.Setup(BundleLoader.SettingsIcon);
 
             _websiteButton.OnClick += WebsiteButtonOnClick;
+            _replayerButton.OnClick += ReplayerButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
 
@@ -54,6 +60,7 @@ namespace BeatLeader.Components {
 
         protected override void OnDispose() {
             _websiteButton.OnClick -= WebsiteButtonOnClick;
+            _replayerButton.OnClick -= ReplayerButtonOnClick;
             _settingsButton.OnClick -= SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
@@ -77,9 +84,9 @@ namespace BeatLeader.Components {
 
         private RankedStatus _rankedStatus;
         private DiffInfo _difficultyInfo;
-        private string _websiteLink;
+        private string? _websiteLink;
 
-        private void SetBeatmap(IDifficultyBeatmap beatmap) {
+        private void SetBeatmap(IDifficultyBeatmap? beatmap) {
             if (beatmap == null) {
                 _rankedStatus = RankedStatus.Unknown;
                 _websiteLink = null;
@@ -216,8 +223,12 @@ namespace BeatLeader.Components {
             EnvironmentUtils.OpenBrowserPage(_websiteLink);
         }
 
+        private void ReplayerButtonOnClick() {
+            LeaderboardEvents.NotifyReplayLaunchPanelButtonWasPressed();
+        }
+
         private void SettingsButtonOnClick() {
-            LeaderboardEvents.NotifySettingsButtonWasPressed();
+            LeaderboardEvents.NotifyLeaderboardSettingsButtonWasPressed();
         }
 
         #endregion

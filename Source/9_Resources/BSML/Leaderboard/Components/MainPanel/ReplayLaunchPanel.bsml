@@ -1,0 +1,69 @@
+<modal id="modal" click-off-closes="true" 
+       size-delta-x="98" size-delta-y="50" hide-bg="true">
+    <horizontal spacing="0.4" pref-width="78"
+                pref-height="40"
+                child-expand-width="false"
+                child-control-width="false">
+        <vertical id="replay-list-container"
+                  bg="round-rect-panel" pad="1"
+                  min-height="20" pref-width="52"
+                  vertical-fit="PreferredSize"
+                  child-expand-height="false"
+                  child-control-height="false"
+                  child-align="MiddleCenter">
+
+            <!--REPLAYS LIST-->
+            <custom-list id="replay-list" show-scrollbar="true" visible-cells="~max-cells-count"
+                         select-cell="select-cell" cell-size="~cell-height">
+                <vertical horizontal-fit="Unconstrained">
+                    <horizontal id="background" bg="round-rect-panel" pref-height="10" pad="1">
+                        <vertical child-expand-width="false" horizontal-fit="Unconstrained">
+                            <text text="~date" align="TopLeft" overflow-mode="Ellipsis"
+                                  font-size="3" word-wrapping="false"/>
+                            <text text="~player-name" align="BottomLeft" overflow-mode="Ellipsis"
+                                  font-size="2.4" word-wrapping="false"/>
+                        </vertical>
+                        <vertical min-width="13" horizontal-fit="Unconstrained"
+                                  child-expand-width="false" child-align="UpperRight">
+                            <text text="~result" overflow-mode="Ellipsis" font-size="2.6"/>
+                        </vertical>
+                    </horizontal>
+                </vertical>
+            </custom-list>
+
+            <!--EMPTY LIST TEXT-->
+            <text active="false" id="empty-text" font-size="4.2" align="Center"
+                  word-wrapping="true" size-delta-y="20"
+                  text="The monkey left you on your own! Try to refresh the list."/>
+
+            <!--REFRESH BUTTON-->
+            <button id="refresh-button" text="Refresh" on-click="refresh"/>
+
+            <!--LOADING CONTAINER-->
+            <vertical active="false" id="loading-container" bg="round-rect-panel"
+                      ignore-layout="true" horizontal-fit="Unconstrained"
+                      child-control-height="false" child-expand-height="false"
+                      child-align="MiddleCenter" pad="2">
+                <vertical pref-width="8" pref-height="8"
+                          vertical-fit="PreferredSize">
+                    <loading-indicator/>
+                </vertical>
+                <button text="Cancel" on-click="stop-loading"/>
+            </vertical>
+
+        </vertical>
+        
+        <!--SEPARATOR-->
+        <vertical pref-width="19"/>
+
+        <!--REPLAY PANEL-->
+        <horizontal pref-width="34">
+            <vertical bg="round-rect-panel" child-expand-height="false" pad="2">
+                <macro.as-host host="replay-panel">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </vertical>
+        </horizontal>
+
+    </horizontal>
+</modal>

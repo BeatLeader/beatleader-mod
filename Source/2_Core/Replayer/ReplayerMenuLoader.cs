@@ -15,14 +15,39 @@ using Zenject;
 namespace BeatLeader.Replayer {
     [PublicAPI]
     public class ReplayerMenuLoader : MonoBehaviour {
+        #region LoadData
+
+        internal class LoadData {
+            public enum Type {
+                Score,
+                File
+            }
+
+            public LoadData(Score score) {
+                this.score = score;
+                type = Type.Score;
+            }
+
+            public LoadData(string filePath) {
+                this.filePath = filePath;
+                type = Type.File;
+            }
+
+            public readonly Type type;
+            public readonly Score? score;
+            public readonly string? filePath;
+        }
+
+        #endregion
+
         #region Input Events
 
-        private static event Action<Score>? ScoreWasSelectedEvent;
+        private static event Action<LoadData>? DataWasSelectedEvent;
         private static event Action? PlayButtonWasPressed;
         private static event Action? PlayLastButtonWasPressed;
 
-        internal static void NotifyScoreWasSelected(Score score) {
-            ScoreWasSelectedEvent?.Invoke(score);
+        internal static void NotifyDataWasSelected(LoadData data) {
+            DataWasSelectedEvent?.Invoke(data);
         }
 
         internal static void NotifyPlayButtonWasPressed() {
@@ -71,14 +96,14 @@ namespace BeatLeader.Replayer {
         #region Events Subscription
 
         private void Awake() {
-            ScoreWasSelectedEvent += OnScoreWasSelected;
+            DataWasSelectedEvent += OnDataWasSelected;
             PlayButtonWasPressed += OnPlayButtonWasPressed;
             PlayLastButtonWasPressed += OnPlayLastButtonWasPressed;
             DownloadReplayRequest.AddStateListener(OnDownloadRequestStateChanged);
         }
 
         private void OnDestroy() {
-            ScoreWasSelectedEvent -= OnScoreWasSelected;
+            DataWasSelectedEvent -= OnDataWasSelected;
             PlayButtonWasPressed -= OnPlayButtonWasPressed;
             PlayLastButtonWasPressed -= OnPlayLastButtonWasPressed;
             DownloadReplayRequest.RemoveStateListener(OnDownloadRequestStateChanged);
@@ -90,11 +115,26 @@ namespace BeatLeader.Replayer {
 
         private int _downloadReplayScoreId = -1;
 
-        private void OnScoreWasSelected(Score score) {
-            Score = score;
-            var storedReplayAvailable = ReplayerCache.TryReadReplay(score.id, out var storedReplay);
-            Replay = storedReplayAvailable ? storedReplay : default!;
-            SetState(storedReplayAvailable ? LoaderState.ReadyToPlay : LoaderState.DownloadRequired);
+        private void OnDataWasSelected(LoadData data) {
+            var type = data.type;
+            switch (type) {
+                case LoadData.Type.Score:
+                    Score = data.score;
+                    var storedReplayAvailable = ReplayerCache
+                        .TryReadReplay(Score!.id, out var storedReplay);
+                    Replay = storedReplayAvailable ? storedReplay : default;
+                    SetState(storedReplayAvailable ? LoaderState.ReadyToPlay : LoaderState.DownloadRequired);
+                    break;
+                case LoadData.Type.File:
+                    Score = null;
+                    if (!FileManager.TryReadReplay(data.filePath!, out var replay)) {
+                        throw new ArgumentException("Unable to read the replay at " + data.filePath);
+                    }
+                    Replay = replay;
+                    SetState(LoaderState.ReadyToPlay);
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(type), type, string.Empty);
+            }
         }
 
         private void OnDownloadRequestStateChanged(API.RequestState requestState, Replay result, string failReason) {
@@ -112,7 +152,7 @@ namespace BeatLeader.Replayer {
         private void OnPlayButtonWasPressed() {
             switch (State) {
                 case LoaderState.ReadyToPlay:
-                    StartReplay(Score!.player);
+                    StartReplay(Score?.player);
                     break;
                 case LoaderState.DownloadRequired:
                     _downloadReplayScoreId = Score!.id;
@@ -139,14 +179,14 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
         [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
 
-        private void StartReplay(Player player) {
+        private void StartReplay(Player? player) {
             _ = StartReplayAsync(Replay!, player);
         }
-        
+
         public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
-        
+
         public async Task StartReplayAsync(Replay replay, Player? player, ReplayerSettings? settings, CancellationToken token) {
             settings ??= ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
@@ -159,7 +199,7 @@ namespace BeatLeader.Replayer {
                 settings, data.DifficultyBeatmap, data.EnvironmentInfo);
             StartReplay(data);
         }
-        
+
         public void StartReplay(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
             if (!_launcher.StartReplay(data)) return;
@@ -178,7 +218,7 @@ namespace BeatLeader.Replayer {
         #endregion
 
         #region ReplayTools
-        
+
         public async Task<bool> LoadBeatmapAsync(ReplayLaunchData launchData,
             string hash, string mode, string difficulty, CancellationToken token) {
             var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);

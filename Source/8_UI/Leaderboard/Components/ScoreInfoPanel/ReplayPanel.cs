@@ -41,33 +41,33 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region SetScore
+        #region SetReplayOrScore
 
         public void SetScore(Score score) {
-            ReplayerMenuLoader.NotifyScoreWasSelected(score);
+            ReplayerMenuLoader.NotifyDataWasSelected(new(score));
+        }
+
+        public void SetReplayPath(string? filePath) {
+            SetPlayButtonInteractable(filePath is not null);
+            if (filePath == null) return;
+            ReplayerMenuLoader.NotifyDataWasSelected(new(filePath));
         }
 
         #endregion
 
         #region Events
 
+        public bool followMenuLoaderState = true;
+
         private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             if (!SongCoreInterop.TryGetBeatmapRequirements(beatmap, out var requirements)
                 || !SongCoreInterop.TryGetCapabilities(out var capabilities)) return;
-
-            bool interactable = true;
-            foreach (var item in requirements) {
-                if (!capabilities.Contains(item)) {
-                    interactable = false;
-                    break;
-                }
-            }
-
-            _buttonShouldBeInteractable = interactable;
+            _buttonCanBeInteractable = requirements.All(x => capabilities.Contains(x));
         }
 
-        private void OnLoaderStateChanged(ReplayerMenuLoader.LoaderState state, Score score, Replay replay1) {
-            _playButton.interactable = state is not ReplayerMenuLoader.LoaderState.Downloading;
+        private void OnLoaderStateChanged(ReplayerMenuLoader.LoaderState state, Score? score, Replay? replay) {
+            if (!followMenuLoaderState) return;
+            SetPlayButtonInteractable(state is not ReplayerMenuLoader.LoaderState.Downloading);
 
             switch (state) {
                 case ReplayerMenuLoader.LoaderState.DownloadRequired:
@@ -78,20 +78,27 @@ namespace BeatLeader.Components {
         }
 
         private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
+            if (!followMenuLoaderState) return;
             _playButton.SetButtonText($"{downloadProgress * 100:F0}<size=60%>%");
         }
 
         #endregion
 
-        #region Play button
+        #region PlayButton
 
         [UIComponent("play-button"), UsedImplicitly]
         private Button _playButton = null!;
 
-        private bool _buttonShouldBeInteractable = true;
+        private bool _buttonCanBeInteractable = true;
 
         private void InitializePlayButton() {
             _playButton.onClick.AddListener(ReplayerMenuLoader.NotifyPlayButtonWasPressed);
+            _playButton.SetButtonText("Watch Replay");
+            SetPlayButtonInteractable(false);
+        }
+
+        private void SetPlayButtonInteractable(bool value) {
+            _playButton.interactable = value && _buttonCanBeInteractable;
         }
 
         #endregion
@@ -100,7 +107,7 @@ namespace BeatLeader.Components {
 
         public void SetActive(bool value) {
             Active = value;
-            _playButton.interactable = _buttonShouldBeInteractable;
+            SetPlayButtonInteractable(true);
         }
 
         #endregion

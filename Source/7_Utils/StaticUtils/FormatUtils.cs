@@ -166,6 +166,12 @@ namespace BeatLeader {
             return GetRelativeTimeString(GetRelativeTime(timeSet));
         }
 
+        public static string GetDateTimeString(string timeSet) {
+            var t = long.Parse(timeSet).AsUnixTime();
+            return $"{t.Year}.{Zero(t.Month)}{t.Month}.{Zero(t.Day)}{t.Day} {Zero(t.Hour)}{t.Hour}:{Zero(t.Minute)}{t.Minute}";
+            static string Zero(int number) => number > 9 ? "" : "0";
+        }
+        
         public static string GetRelativeTimeString(TimeSpan timeSpan) {
             switch (timeSpan.TotalSeconds) {
                 case < 0: return "-";

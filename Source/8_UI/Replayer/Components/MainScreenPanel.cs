@@ -82,7 +82,7 @@ namespace BeatLeader.Components {
                 LayoutEditor.Add(_playerInfo);
             }
             _playerInfo.Root.gameObject.SetActive(!_playerNotSet);
-            CoroutinesHandler.instance.StartCoroutine(MapLayoutCoroutine());
+            RoutineFactory.instance.StartCoroutine(MapLayoutCoroutine());
         }
 
         #endregion

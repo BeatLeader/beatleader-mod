@@ -109,15 +109,26 @@ namespace BeatLeader.Manager {
 
         #endregion
 
-        #region SettingsButtonWasPressed
+        #region LeaderboardSettingsButtonWasPressed
 
-        public static event Action SettingsButtonWasPressedEvent;
+        public static event Action LeaderboardSettingsButtonWasPressedEvent;
 
-        public static void NotifySettingsButtonWasPressed() {
-            SettingsButtonWasPressedEvent?.Invoke();
+        public static void NotifyLeaderboardSettingsButtonWasPressed() {
+            LeaderboardSettingsButtonWasPressedEvent?.Invoke();
         }
 
         #endregion
+        
+        #region ReplayLaunchPanelButtonWasPressed 
+        
+        public static event Action ReplayLaunchPanelButtonWasPressedEvent;
+
+        public static void NotifyReplayLaunchPanelButtonWasPressed() {
+            ReplayLaunchPanelButtonWasPressedEvent?.Invoke();
+        }
+        
+        #endregion
+        
 
         #region LogoWasPressed
 

@@ -18,7 +18,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
             replay.info.trackingSytem = trackingSystem.ToString();
 
             switch (trackingSystem) {
-                case VRPlatformSDK.OpenVR:
+                case VRPlatformSDK.OpenXR:
                     ProcessOpenVRDevices(replay);
                     ProcessOpenVRSettings(replay);
                     break;

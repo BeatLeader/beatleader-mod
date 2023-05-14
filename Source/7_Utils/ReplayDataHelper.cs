@@ -98,7 +98,8 @@ namespace BeatLeader.Utils {
         }
 
         private static PracticeSettings? GetPracticeSettingsFromReplay(this Replay replay) {
-            return replay.info.failTime == 0 ? null : new(replay.info.startTime, replay.info.speed);
+            return replay.info.failTime == 0 ? null : new(replay.info.startTime,
+                replay.info.speed is var speed && speed == 0 ? 1 : speed);
         }
 
         #endregion

@@ -62,9 +62,7 @@ namespace BeatLeader.Components {
         public bool followMenuLoaderDownloadState = true;
 
         private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
-            if (!SongCoreInterop.TryGetBeatmapRequirements(beatmap, out var requirements)
-                || !SongCoreInterop.TryGetCapabilities(out var capabilities)) return;
-            _buttonCanBeInteractable = requirements.All(x => capabilities.Contains(x));
+            _buttonCanBeInteractable = SongCoreInterop.ValidateRequirements(beatmap);
         }
 
         private void OnLoaderStateChanged(ReplayerMenuLoader.LoaderState state, Score? score, Replay? replay) {

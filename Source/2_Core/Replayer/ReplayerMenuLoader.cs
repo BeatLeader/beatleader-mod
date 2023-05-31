@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
+using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
@@ -221,25 +222,23 @@ namespace BeatLeader.Replayer {
 
         #region ReplayTools
 
+        private static IDifficultyBeatmap? _cachedDifficultyBeatmap;
+        private string? _cachedBeatmapHash;
+        private string? _cachedBeatmapCharacteristic;
+
+        public async Task<bool> CanLaunchReplay(ReplayInfo info) {
+            return await LoadBeatmapAsync(info.hash, info.mode, info.difficulty,
+                default) is { } beatmap && SongCoreInterop.ValidateRequirements(beatmap);
+        }
+
         public async Task<bool> LoadBeatmapAsync(
             ReplayLaunchData launchData,
             string hash,
             string mode,
             string difficulty,
-            CancellationToken token) {
-            var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);
-            if (beatmapLevel == null || token.IsCancellationRequested
-                || !Enum.TryParse(difficulty, out BeatmapDifficulty cdifficulty)) return false;
-
-            var characteristic = beatmapLevel.beatmapLevelData
-                .difficultyBeatmapSets.Select(static x => x.beatmapCharacteristic)
-                .FirstOrDefault(x => x.serializedName == mode);
-            if (characteristic == null || token.IsCancellationRequested) return false;
-
-            var difficultyBeatmap = beatmapLevel.beatmapLevelData
-                .GetDifficultyBeatmap(characteristic, cdifficulty);
-            if (difficultyBeatmap == null || token.IsCancellationRequested) return false;
-
+            CancellationToken token
+        ) {
+            if (await LoadBeatmapAsync(hash, mode, difficulty, token) is not { } difficultyBeatmap) return false;
             Reinit(launchData, difficultyBeatmap);
             return true;
         }
@@ -254,6 +253,39 @@ namespace BeatLeader.Replayer {
             Plugin.Log.Notice($"[Loader] Applied specified environment: " + environmentName);
             Reinit(launchData, environment: environment);
             return true;
+        }
+
+        private async Task<IDifficultyBeatmap?> LoadBeatmapAsync(
+            string hash,
+            string mode,
+            string difficulty,
+            CancellationToken token
+        ) {
+            if (!Enum.TryParse(difficulty, out BeatmapDifficulty cdifficulty)) return null;
+            if (_cachedDifficultyBeatmap is not null
+                && _cachedBeatmapHash == hash
+                && _cachedBeatmapCharacteristic == mode
+                && _cachedDifficultyBeatmap.difficulty == cdifficulty
+            ) {
+                return _cachedDifficultyBeatmap;
+            }
+
+            var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);
+            if (beatmapLevel == null) return null;
+
+            var characteristic = beatmapLevel.beatmapLevelData
+                .difficultyBeatmapSets.Select(static x => x.beatmapCharacteristic)
+                .FirstOrDefault(x => x.serializedName == mode);
+            if (characteristic == null || token.IsCancellationRequested) return null;
+
+            var difficultyBeatmap = beatmapLevel.beatmapLevelData
+                .GetDifficultyBeatmap(characteristic, cdifficulty);
+            if (difficultyBeatmap == null || token.IsCancellationRequested) return null;
+            
+            _cachedDifficultyBeatmap = difficultyBeatmap;
+            _cachedBeatmapHash = hash;
+            _cachedBeatmapCharacteristic = mode;
+            return difficultyBeatmap;
         }
 
         private async Task<IBeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BeatLeader.Attributes;
 using BeatLeader.Utils;
@@ -9,10 +10,10 @@ namespace BeatLeader.Interop {
     internal static class SongCoreInterop {
         #region Init
 
-        [PluginAssembly] 
+        [PluginAssembly]
         private static readonly Assembly _assembly;
 
-        [PluginType("SongCore.Loader")] 
+        [PluginType("SongCore.Loader")]
         private static readonly Type _loaderType;
 
         [PluginType("SongCore.Collections")]
@@ -78,12 +79,12 @@ namespace BeatLeader.Interop {
                 var data = _collectionsRetrieveDataMethod.Invoke(null, new object[] { beatmap });
                 if (data == null) {
                     requirements = null;
-                    return false; 
+                    return false;
                 }
                 var reqData = _dataAdditionalDiffField.GetValue(data);
                 if (reqData == null) {
                     requirements = null;
-                    return false; 
+                    return false;
                 }
                 requirements = (string[])_dataRequirementsField.GetValue(reqData);
                 return true;
@@ -111,6 +112,16 @@ namespace BeatLeader.Interop {
                 capabilities = null;
                 return false;
             }
+        }
+
+        #endregion
+
+        #region ValidateRequirements
+
+        public static bool ValidateRequirements(IDifficultyBeatmap beatmap) {
+            return TryGetBeatmapRequirements(beatmap, out var requirements)
+                && TryGetCapabilities(out var capabilities)
+                && requirements.All(x => capabilities.Contains(x));
         }
 
         #endregion

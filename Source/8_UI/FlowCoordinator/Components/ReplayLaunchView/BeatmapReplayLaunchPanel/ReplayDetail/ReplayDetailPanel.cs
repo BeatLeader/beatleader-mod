@@ -1,6 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BeatLeader.Models;
+using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -8,12 +8,6 @@ using static BeatLeader.Models.ReplayStatus;
 
 namespace BeatLeader.Components {
     internal class ReplayDetailPanel : ReeUIComponentV2 {
-        #region Events
-
-        public event Action<IReplayHeader, Player?>? WatchButtonClickedEvent;
-
-        #endregion
-
         #region UI Components
 
         [UIValue("replay-info-panel"), UsedImplicitly]
@@ -47,6 +41,14 @@ namespace BeatLeader.Components {
 
         #region Init
 
+        private ReplayerMenuLoader _menuLoader = null!;
+        private bool _isInitialized;
+        
+        public void Setup(ReplayerMenuLoader loader) {
+            _menuLoader = loader;
+            _isInitialized = true;
+        }
+        
         protected override void OnInstantiate() {
             _replayStatisticsPanel = Instantiate<ReplayStatisticsPanel>(transform);
             _miniProfile = Instantiate<HorizontalMiniProfileContainer>(transform);
@@ -84,7 +86,7 @@ namespace BeatLeader.Components {
                 score = ReplayUtils.ComputeScore(replay);
             }
             _replayStatisticsPanel.SetData(score, stats, _header is null);
-            WatchButtonInteractable = true;
+            WatchButtonInteractable = _isInitialized && await _menuLoader.CanLaunchReplay(header.Info!);
         }
 
         #endregion
@@ -127,7 +129,7 @@ namespace BeatLeader.Components {
         [UIAction("watch-button-click"), UsedImplicitly]
         private void HandleWatchButtonClicked() {
             if (_header is null || _header.Status is Corrupted) return;
-            WatchButtonClickedEvent?.Invoke(_header, _player);
+            _ = _menuLoader.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _player);
         }
 
         #endregion

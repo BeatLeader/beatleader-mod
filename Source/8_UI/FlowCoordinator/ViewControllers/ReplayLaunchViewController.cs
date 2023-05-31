@@ -36,14 +36,13 @@ namespace BeatLeader.ViewControllers {
         private void Awake() {
             _replayPanel = ReeUIComponentV2.Instantiate<BeatmapReplayLaunchPanel>(transform);
             _searchFiltersPanel = ReeUIComponentV2.Instantiate<SearchFiltersPanel>(transform);
-            _replayPanel.Setup(ReplayManager.Instance);
+            _replayPanel.Setup(ReplayManager.Instance, _replayerLoader);
             _searchFiltersPanel.Setup(this,
                 _beatLeaderFlowCoordinator,
                 _levelSelectionNavigationController,
                 _levelCollectionViewController,
                 _standardLevelDetailViewController);
             _searchFiltersPanel.SearchDataChangedEvent += HandleSearchDataChanged;
-            _replayPanel.WatchButtonClickedEvent += HandleWatchButtonClicked;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
@@ -59,11 +58,6 @@ namespace BeatLeader.ViewControllers {
         #endregion
 
         #region Callbacks
-
-        private void HandleWatchButtonClicked(IReplayHeader header, Player? player) {
-            //we can get the result synchronously because ReplayDetailPanel preloaded the replay for us
-            _ = _replayerLoader.StartReplayAsync(header.LoadReplayAsync(default).Result!, player);
-        }
 
         private void HandleSearchDataChanged(string searchPrompt, FiltersMenu.FiltersData filters) {
             var forceUpdate = filters is { overrideBeatmap: true, previewBeatmapLevel: null };

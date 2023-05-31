@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
+using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
@@ -11,12 +12,6 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class BeatmapReplayLaunchPanel : ReeUIComponentV2 {
-        #region Events
-
-        public event Action<IReplayHeader, Player?>? WatchButtonClickedEvent;
-
-        #endregion
-
         #region UI Components
 
         [UIValue("replays-list"), UsedImplicitly]
@@ -49,8 +44,9 @@ namespace BeatLeader.Components {
         private IReplayManager _replayManager = null!;
         private bool _isInitialized;
 
-        public void Setup(IReplayManager replayManager) {
+        public void Setup(IReplayManager replayManager, ReplayerMenuLoader loader) {
             _replayManager = replayManager;
+            _replayPanel.Setup(loader);
             _replayPanel.SetData(null);
             _isInitialized = true;
         }
@@ -70,7 +66,6 @@ namespace BeatLeader.Components {
             _replaysList.ShowEmptyScreenChangedEvent += HandleShowEmptyScreenChanged;
             _replaysListSettingsPanel.SorterChangedEvent += HandleSorterChanged;
             _replaysListSettingsPanel.ShowCorruptedChangedEvent += HandleShowCorruptedChangedEvent;
-            _replayPanel.WatchButtonClickedEvent += HandleWatchButtonClicked;
         }
 
         #endregion
@@ -262,11 +257,7 @@ namespace BeatLeader.Components {
             _replayPanel.SetData(null);
             _replaysList.RemoveReplay(_selectedHeader!);
         }
-
-        private void HandleWatchButtonClicked(IReplayHeader header, Player? player) {
-            WatchButtonClickedEvent?.Invoke(header, player);
-        }
-
+        
         private void HandleReplaySelected(ReplaysList.AbstractDataCell? cell) {
             if (cell is null) return;
             _selectedHeader = cell.ReplayHeader;

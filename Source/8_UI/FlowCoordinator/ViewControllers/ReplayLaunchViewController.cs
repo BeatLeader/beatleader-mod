@@ -6,7 +6,6 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.ViewControllers {
@@ -67,7 +66,6 @@ namespace BeatLeader.ViewControllers {
         }
 
         private void HandleSearchDataChanged(string searchPrompt, FiltersMenu.FiltersData filters) {
-            //Debug.Log("SetData " + searchPrompt + " | " + filters.previewBeatmapLevel + " | " + filters.overrideBeatmap);
             var forceUpdate = filters is { overrideBeatmap: true, previewBeatmapLevel: null };
             _replayPanel.SetBeatmap(filters.previewBeatmapLevel, filters.overrideBeatmap, forceUpdate);
             if (forceUpdate) return;

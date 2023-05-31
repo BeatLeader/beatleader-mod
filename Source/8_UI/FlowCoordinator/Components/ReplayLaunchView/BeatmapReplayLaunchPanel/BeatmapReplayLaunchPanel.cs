@@ -190,7 +190,6 @@ namespace BeatLeader.Components {
         private bool _ascendingOrder;
 
         private void Sort(ReplaysListSettingsPanel.Sorters sorter, bool ascending) {
-            //Debug.Log("Refresh sort " + sorter + " | " + ascending);
             _abstractDataCellComparator ??= new();
             _abstractDataCellComparator.sorter = sorter;
             _ascendingOrder = ascending;

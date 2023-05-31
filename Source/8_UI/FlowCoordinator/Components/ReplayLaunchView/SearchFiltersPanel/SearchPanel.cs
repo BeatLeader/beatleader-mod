@@ -62,7 +62,6 @@ namespace BeatLeader.Components {
 
         private void HandleInputFieldValueChanged(InputFieldView field) {
             TextChangedEvent?.Invoke(field.text);
-            Debug.Log("Text: "+ field.text);
         }
         
         #endregion

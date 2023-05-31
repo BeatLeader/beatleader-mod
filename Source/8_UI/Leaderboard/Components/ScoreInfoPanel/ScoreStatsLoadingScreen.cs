@@ -44,7 +44,6 @@ namespace BeatLeader.Components {
         #region SetFailed
 
         public void SetFailed(bool failed) {
-            Debug.Log("SetFailed");
             Text = failed ? FailMessage : LoadingMessage;
         }
 

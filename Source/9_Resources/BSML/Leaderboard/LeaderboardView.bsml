@@ -15,11 +15,6 @@
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
         
-        <!--  REPLAY LAUNCH PANEL MODAl  -->
-        <macro.as-host host="replay-launch-panel">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-        
         <!--  SCORE MODAl  -->
         <macro.as-host host="score-info-panel">
             <macro.reparent transform="ui-component"/>

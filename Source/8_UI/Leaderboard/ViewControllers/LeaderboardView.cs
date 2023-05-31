@@ -17,7 +17,6 @@ namespace BeatLeader.ViewControllers {
             public VotingPanel votingPanel;
             public BeatLeaderInfo beatLeaderInfo;
             public LeaderboardSettings leaderboardSettings;
-            public ReplayLaunchPanel replayLaunchPanel;
             public ScoreInfoPanel scoreInfoPanel;
             public ScoresTable scoresTable;
             public VotingButton votingButton;
@@ -31,7 +30,6 @@ namespace BeatLeader.ViewControllers {
                 votingPanel = ReeUIComponentV2.InstantiateOnSceneRoot<VotingPanel>(false);
                 beatLeaderInfo = ReeUIComponentV2.InstantiateOnSceneRoot<BeatLeaderInfo>(false);
                 leaderboardSettings = ReeUIComponentV2.InstantiateOnSceneRoot<LeaderboardSettings>(false);
-                replayLaunchPanel = ReeUIComponentV2.InstantiateOnSceneRoot<ReplayLaunchPanel>(false);
                 scoreInfoPanel = ReeUIComponentV2.InstantiateOnSceneRoot<ScoreInfoPanel>(false);
                 scoresTable = ReeUIComponentV2.InstantiateOnSceneRoot<ScoresTable>();
                 votingButton = ReeUIComponentV2.InstantiateOnSceneRoot<VotingButton>(false);
@@ -55,9 +53,6 @@ namespace BeatLeader.ViewControllers {
 
         [UIValue("leaderboard-settings"), UsedImplicitly]
         private LeaderboardSettings LeaderboardSettings => _preParser.leaderboardSettings;
-        
-        [UIValue("replay-launch-panel"), UsedImplicitly]
-        private ReplayLaunchPanel ReplayLaunchPanel => _preParser.replayLaunchPanel;
 
         [UIValue("score-info-panel"), UsedImplicitly]
         private ScoreInfoPanel ScoreInfoPanel => _preParser.scoreInfoPanel;
@@ -86,7 +81,6 @@ namespace BeatLeader.ViewControllers {
         private void Awake() {
             VotingPanel.SetParent(transform);
             BeatLeaderInfo.SetParent(transform);
-            ReplayLaunchPanel.SetParent(transform);
             LeaderboardSettings.SetParent(transform);
             ScoreInfoPanel.SetParent(transform);
             ScoresTable.SetParent(transform);

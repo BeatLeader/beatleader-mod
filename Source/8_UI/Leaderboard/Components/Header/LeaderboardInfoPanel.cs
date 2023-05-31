@@ -25,9 +25,6 @@ namespace BeatLeader.Components {
         [UIValue("website-button"), UsedImplicitly]
         private HeaderButton _websiteButton = null!;
 
-        [UIValue("replayer-button"), UsedImplicitly]
-        private HeaderButton _replayerButton = null!;
-
         [UIValue("settings-button"), UsedImplicitly]
         private HeaderButton _settingsButton = null!;
 
@@ -40,7 +37,6 @@ namespace BeatLeader.Components {
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _menuButton = Instantiate<HeaderButton>(transform, false);
             _websiteButton = Instantiate<HeaderButton>(transform, false);
-            _replayerButton = Instantiate<HeaderButton>(transform, false);
             _settingsButton = Instantiate<HeaderButton>(transform, false);
             _mapStatus = Instantiate<MapStatus>(transform, false);
         }
@@ -50,14 +46,12 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
-            _menuButton.Setup(BundleLoader.LeftArrowIcon);
+            _menuButton.Setup(BundleLoader.ReplayIcon);
             _websiteButton.Setup(BundleLoader.ProfileIcon);
-            _replayerButton.Setup(BundleLoader.ReplayIcon);
             _settingsButton.Setup(BundleLoader.SettingsIcon);
 
             _menuButton.OnClick += MenuButtonOnClick;
             _websiteButton.OnClick += WebsiteButtonOnClick;
-            _replayerButton.OnClick += ReplayerButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
 
@@ -67,7 +61,6 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             _menuButton.OnClick -= MenuButtonOnClick;
             _websiteButton.OnClick -= WebsiteButtonOnClick;
-            _replayerButton.OnClick -= ReplayerButtonOnClick;
             _settingsButton.OnClick -= SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
@@ -232,10 +225,6 @@ namespace BeatLeader.Components {
         private void WebsiteButtonOnClick() {
             if (_websiteLink == null) return;
             EnvironmentUtils.OpenBrowserPage(_websiteLink);
-        }
-
-        private void ReplayerButtonOnClick() {
-            LeaderboardEvents.NotifyReplayLaunchPanelButtonWasPressed();
         }
 
         private void SettingsButtonOnClick() {

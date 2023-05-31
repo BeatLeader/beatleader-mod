@@ -129,17 +129,6 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
-        
-        #region ReplayLaunchPanelButtonWasPressed 
-        
-        public static event Action ReplayLaunchPanelButtonWasPressedEvent;
-
-        public static void NotifyReplayLaunchPanelButtonWasPressed() {
-            ReplayLaunchPanelButtonWasPressedEvent?.Invoke();
-        }
-        
-        #endregion
-        
 
         #region LogoWasPressed
 

@@ -5,6 +5,7 @@ using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ScoreInfoPanel : ReeUIComponentV2 {
@@ -36,6 +37,9 @@ namespace BeatLeader.Components {
 
         [UIValue("controls"), UsedImplicitly]
         private ScoreInfoPanelControls _controls;
+        
+        [UIObject("accuracy-graph-container")]
+        private readonly GameObject _accuracyGraphContainer = null!;
 
         private void Awake() {
             _miniProfile = Instantiate<MiniProfile>(transform);
@@ -120,7 +124,7 @@ namespace BeatLeader.Components {
             _scoreOverviewPage2.SetActive(false);
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
-            _accuracyGraphPanel.SetActive(false);
+            _accuracyGraphContainer.SetActive(false);
             _replayPanel.SetActive(false);
 
             switch (LeaderboardState.ScoreInfoPanelTab) {
@@ -140,7 +144,7 @@ namespace BeatLeader.Components {
                     _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Graph:
-                    _accuracyGraphPanel.SetActive(!_scoreStatsUpdateRequired);
+                    _accuracyGraphContainer.SetActive(!_scoreStatsUpdateRequired);
                     _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Replay:

@@ -1,0 +1,12 @@
+﻿<horizontal pref-height="14">
+  <horizontal id="mini-profile-container" pad-right="1" pad-left="1">
+    <macro.as-host host="mini-profile">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </horizontal>
+  <!-- LOADING SCREEN -->
+  <horizontal id="loading-container" pref-height="14" 
+              ignore-layout="true">
+    <text text="~loading-text" align="Center"/>
+  </horizontal>
+</horizontal>

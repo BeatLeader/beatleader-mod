@@ -19,6 +19,9 @@ namespace BeatLeader.Components {
         [UIValue("approval-checkbox"), UsedImplicitly]
         private QualificationCheckbox _approvalCheckbox = null!;
 
+        [UIValue("menu-button"), UsedImplicitly]
+        private HeaderButton _menuButton = null!;
+
         [UIValue("website-button"), UsedImplicitly]
         private HeaderButton _websiteButton = null!;
 
@@ -35,6 +38,7 @@ namespace BeatLeader.Components {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _mapperCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
+            _menuButton = Instantiate<HeaderButton>(transform, false);
             _websiteButton = Instantiate<HeaderButton>(transform, false);
             _replayerButton = Instantiate<HeaderButton>(transform, false);
             _settingsButton = Instantiate<HeaderButton>(transform, false);
@@ -46,10 +50,12 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
+            _menuButton.Setup(BundleLoader.LeftArrowIcon);
             _websiteButton.Setup(BundleLoader.ProfileIcon);
             _replayerButton.Setup(BundleLoader.ReplayIcon);
             _settingsButton.Setup(BundleLoader.SettingsIcon);
 
+            _menuButton.OnClick += MenuButtonOnClick;
             _websiteButton.OnClick += WebsiteButtonOnClick;
             _replayerButton.OnClick += ReplayerButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
@@ -59,6 +65,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
+            _menuButton.OnClick -= MenuButtonOnClick;
             _websiteButton.OnClick -= WebsiteButtonOnClick;
             _replayerButton.OnClick -= ReplayerButtonOnClick;
             _settingsButton.OnClick -= SettingsButtonOnClick;
@@ -217,6 +224,10 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Buttons
+
+        private void MenuButtonOnClick() {
+            LeaderboardEvents.NotifyMenuButtonWasPressed();
+        }
 
         private void WebsiteButtonOnClick() {
             if (_websiteLink == null) return;

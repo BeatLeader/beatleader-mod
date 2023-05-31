@@ -1,24 +1,35 @@
-<horizontal active="~is-active" pref-height="6" spacing="1" horizontal-fit="PreferredSize">
-    <!--    STATUS    -->
-    <macro.as-host host="map-status">
-        <macro.reparent transform="ui-component"/>
-    </macro.as-host>
-
-    <!--    QUALIFICATION CHECKBOXES    -->
-    <horizontal active="~qualification-active" spacing="1">
-        <macro.as-host host="criteria-checkbox">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-        <macro.as-host host="mapper-checkbox">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-        <macro.as-host host="approval-checkbox">
+<horizontal active="~is-active" pref-height="6" spacing="1" size-delta-x="87">
+    <!--MENU BUTTON-->
+    <horizontal ignore-layout="true" child-expand-width="false" child-control-width="false">
+        <macro.as-host host="menu-button">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
     </horizontal>
-    
+
+    <horizontal ignore-layout="true" horizontal-fit="PreferredSize" spacing="1">
+        <!--    STATUS    -->
+        <macro.as-host host="map-status">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        
+        <!--    QUALIFICATION CHECKBOXES    -->
+        <horizontal active="~qualification-active" spacing="1">
+            <macro.as-host host="criteria-checkbox">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+            <macro.as-host host="mapper-checkbox">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+            <macro.as-host host="approval-checkbox">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+        </horizontal>
+        
+    </horizontal>
+
     <!--    BUTTONS    -->
-    <horizontal spacing="1" horizontal-fit="PreferredSize" ignore-layout="true" anchor-pos-x="36">
+    <horizontal spacing="1" ignore-layout="true" child-expand-width="false" 
+                child-control-width="false" child-align="MiddleRight">
         <macro.as-host host="website-button">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>

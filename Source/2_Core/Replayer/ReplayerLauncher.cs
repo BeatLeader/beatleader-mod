@@ -1,9 +1,5 @@
 ﻿using BeatLeader.Models;
 using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
@@ -19,7 +15,7 @@ namespace BeatLeader.Replayer {
         public static event Action<ReplayLaunchData>? ReplayWasStartedEvent;
         public static event Action<ReplayLaunchData>? ReplayWasFinishedEvent;
 
-        public bool StartReplay(ReplayLaunchData data) {
+        public bool StartReplay(ReplayLaunchData data, Action? afterTransitionCallback = null) {
             if (data.Replays.Count == 0) return false;
 
             Plugin.Log.Notice("[Launcher] Loading replay data...");
@@ -27,9 +23,9 @@ namespace BeatLeader.Replayer {
             transitionData.didFinishEvent += HandleLevelFinish;
             IsStartedAsReplay = true;
             LaunchData = data;
-            
+
             Plugin.Log.Notice("[Launcher] Starting replay...");
-            _gameScenesManager.PushScenes(transitionData, 0.7f, null);
+            _gameScenesManager.PushScenes(transitionData, 0.7f, afterTransitionCallback);
             ReplayWasStartedEvent?.Invoke(data);
 
             return true;

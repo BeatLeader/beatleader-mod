@@ -8,25 +8,7 @@ using UnityEngine;
 
 namespace BeatLeader.Utils {
     internal static class FileManager {
-        #region Directories
-
-        private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
-        private static string CacheDirectory => Application.temporaryCachePath + "\\BeatLeader\\Replays\\";
-        private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
-
-        public static string LastSavedReplay = "";
-
-        static FileManager() {
-            EnsureDirectoryExists(CacheDirectory);
-            EnsureDirectoryExists(ReplaysFolderPath);
-            EnsureDirectoryExists(PlaylistsFolderPath);
-        }
-
-        public static void EnsureDirectoryExists(string directory) {
-            var path = Path.GetDirectoryName(directory);
-            if (Directory.Exists(path) || path == null) return;
-            Directory.CreateDirectory(path);
-        }
+        #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
             return Directory.EnumerateFiles(ReplaysFolderPath, "*.bsor");
@@ -66,21 +48,40 @@ namespace BeatLeader.Utils {
 
         public static bool TryReadReplay(string path, out Replay? replay) {
             if (File.Exists(path)) {
-                return TryDecodeReplay(File.ReadAllBytes(path), out replay);
+                return ReplayDecoder.TryDecodeReplay(File.ReadAllBytes(path), out replay);
             }
             replay = null;
             return false;
         }
 
-        public static bool TryDecodeReplay(byte[] buffer, out Replay? replay) {
-            try {
-                replay = ReplayDecoder.Decode(buffer);
-                return true;
-            } catch (Exception e) {
-                Plugin.Log.Debug(e);
+        public static bool TryReadReplayInfo(string path, out ReplayInfo? replayInfo) {
+            if (File.Exists(path)) {
+                return ReplayDecoder.TryDecodeReplayInfo(File.ReadAllBytes(path), out replayInfo);
             }
-            replay = null;
+            replayInfo = null;
             return false;
+        }
+
+        #endregion
+
+        #region Directories
+
+        private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
+        private static string CacheDirectory => Application.temporaryCachePath + "\\BeatLeader\\Replays\\";
+        private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
+
+        public static string LastSavedReplay = "";
+
+        static FileManager() {
+            EnsureDirectoryExists(CacheDirectory);
+            EnsureDirectoryExists(ReplaysFolderPath);
+            EnsureDirectoryExists(PlaylistsFolderPath);
+        }
+
+        public static void EnsureDirectoryExists(string directory) {
+            var path = Path.GetDirectoryName(directory);
+            if (Directory.Exists(path) || path == null) return;
+            Directory.CreateDirectory(path);
         }
 
         #endregion

@@ -42,6 +42,7 @@ namespace BeatLeader.Models {
         public float accRating;
         public float passRating;
         public float techRating;
+        public int maxScore;
         public int type;
         public ModifiersMap modifierValues;
     }

@@ -88,7 +88,8 @@ namespace BeatLeader.Replayer {
             Uninitialized,
             DownloadRequired,
             Downloading,
-            ReadyToPlay
+            ReadyToPlay,
+            Started,
         }
 
         #endregion
@@ -152,6 +153,7 @@ namespace BeatLeader.Replayer {
         private void OnPlayButtonWasPressed() {
             switch (State) {
                 case LoaderState.ReadyToPlay:
+                    SetState(LoaderState.Started);
                     StartReplay(Score?.player);
                     break;
                 case LoaderState.DownloadRequired:
@@ -194,15 +196,15 @@ namespace BeatLeader.Replayer {
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
             await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
-            var creplay = ReplayDataHelper.ConvertToAbstractReplay(replay, player);
-            data.Init(creplay, ReplayDataHelper.BasicReplayComparator,
+            var creplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
+            data.Init(creplay, ReplayDataUtils.BasicReplayComparator,
                 settings, data.DifficultyBeatmap, data.EnvironmentInfo);
             StartReplay(data);
         }
 
         public void StartReplay(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
-            if (!_launcher.StartReplay(data)) return;
+            if (!_launcher.StartReplay(data, static () => SetState(LoaderState.ReadyToPlay))) return;
             InputUtils.forceFPFC = InputUtils.containsFPFCArg && _fpfcSettings.Ignore ? _fpfcSettings.Enabled : null;
         }
 
@@ -219,8 +221,12 @@ namespace BeatLeader.Replayer {
 
         #region ReplayTools
 
-        public async Task<bool> LoadBeatmapAsync(ReplayLaunchData launchData,
-            string hash, string mode, string difficulty, CancellationToken token) {
+        public async Task<bool> LoadBeatmapAsync(
+            ReplayLaunchData launchData,
+            string hash,
+            string mode,
+            string difficulty,
+            CancellationToken token) {
             var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);
             if (beatmapLevel == null || token.IsCancellationRequested
                 || !Enum.TryParse(difficulty, out BeatmapDifficulty cdifficulty)) return false;

@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.Manager {
     [UsedImplicitly]
+    #nullable disable
     internal static class LeaderboardEvents {
         //-- INPUT ------------------
 
@@ -109,6 +110,16 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region MenuButtonWasPressed
+
+        public static event Action MenuButtonWasPressedEvent;
+
+        public static void NotifyMenuButtonWasPressed() {
+            MenuButtonWasPressedEvent?.Invoke();
+        }
+
+        #endregion
+        
         #region LeaderboardSettingsButtonWasPressed
 
         public static event Action LeaderboardSettingsButtonWasPressedEvent;

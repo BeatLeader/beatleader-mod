@@ -19,7 +19,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInstantiate() {
             _replayPanel = Instantiate<ReplayPanel>(transform);
-            _replayPanel.followMenuLoaderState = false;
+            _replayPanel.followMenuLoaderDownloadState = false;
         }
 
         protected override void OnInitialize() {

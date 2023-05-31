@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using System.Linq;
 using BeatLeader.Models.Replay;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
@@ -48,16 +49,17 @@ namespace BeatLeader.Components {
         }
 
         public void SetReplayPath(string? filePath) {
-            SetPlayButtonInteractable(filePath is not null);
-            if (filePath == null) return;
-            ReplayerMenuLoader.NotifyDataWasSelected(new(filePath));
+            var pathIsNotNull = filePath is not null;
+            SetPlayButtonInteractable(pathIsNotNull);
+            if (!pathIsNotNull) return;
+            ReplayerMenuLoader.NotifyDataWasSelected(new(filePath!));
         }
 
         #endregion
 
         #region Events
-
-        public bool followMenuLoaderState = true;
+        
+        public bool followMenuLoaderDownloadState = true;
 
         private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             if (!SongCoreInterop.TryGetBeatmapRequirements(beatmap, out var requirements)
@@ -66,8 +68,14 @@ namespace BeatLeader.Components {
         }
 
         private void OnLoaderStateChanged(ReplayerMenuLoader.LoaderState state, Score? score, Replay? replay) {
-            if (!followMenuLoaderState) return;
-            SetPlayButtonInteractable(state is not ReplayerMenuLoader.LoaderState.Downloading);
+            //if (!followMenuLoaderDownloadState) {
+            //    SetPlayButtonInteractable(state is not ReplayerMenuLoader.LoaderState.Downloading);
+            //    return;
+            //}
+            SetPlayButtonInteractable(state 
+                is not ReplayerMenuLoader.LoaderState.Downloading 
+                and not ReplayerMenuLoader.LoaderState.Started
+                and not ReplayerMenuLoader.LoaderState.Uninitialized);
 
             switch (state) {
                 case ReplayerMenuLoader.LoaderState.DownloadRequired:
@@ -78,7 +86,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
-            if (!followMenuLoaderState) return;
+            if (!followMenuLoaderDownloadState) return;
             _playButton.SetButtonText($"{downloadProgress * 100:F0}<size=60%>%");
         }
 

@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
 using JetBrains.Annotations;
 using UnityEngine;
 using Replay = BeatLeader.Models.Replay.Replay;
-using NoteEventType = BeatLeader.Models.Replay.NoteEventType;
+using RNoteEventType = BeatLeader.Models.Replay.NoteEventType;
 using RNoteCutInfo = BeatLeader.Models.Replay.NoteCutInfo;
 
 namespace BeatLeader.Utils {
-    public static class ReplayDataHelper {
+    [PublicAPI]
+    public static class ReplayDataUtils {
         #region Encoding
 
-        class ReplayComparator : IReplayComparator {
-            public bool Compare(NoteEvent noteEvent, NoteData noteData) => ReplayDataHelper.Compare(noteEvent, noteData);
+        private class ReplayComparator : IReplayComparator {
+            bool IReplayComparator.Compare(NoteEvent noteEvent, NoteData noteData) => ReplayDataUtils.Compare(noteEvent, noteData);
         }
 
         public static readonly IReplayComparator BasicReplayComparator = new ReplayComparator();
@@ -46,7 +46,7 @@ namespace BeatLeader.Utils {
             var notes = replay.notes.Select(static x => new NoteEvent(
                 x.noteID, x.eventTime, x.spawnTime, (NoteEvent.NoteEventType)x.eventType,
                 x.noteCutInfo?.beforeCutRating ?? 0, x.noteCutInfo?.afterCutRating ?? 0,
-                x.eventType == NoteEventType.bomb ? RNoteCutInfo.BombNoteCutInfo :
+                x.eventType == RNoteEventType.bomb ? RNoteCutInfo.BombNoteCutInfo :
                 x.noteCutInfo != null ? RNoteCutInfo.Convert(x.noteCutInfo) : default
             ));
 
@@ -105,13 +105,11 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region Computing
-
-        [UsedImplicitly]
+        
         public static int ComputeObstacleId(this ObstacleData obstacleData) {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
         }
 
-        [UsedImplicitly]
         public static int ComputeNoteId(this NoteData noteData, bool noScoring = false, bool altBomb = false) {
             // Bombs may have both correct values as well as default.
             var colorType = altBomb && noteData.colorType == ColorType.None ? 0 : (int)noteData.colorType;
@@ -125,7 +123,6 @@ namespace BeatLeader.Utils {
                 * 10 + cutDirection;
         }
 
-        [UsedImplicitly]
         public static bool Compare(NoteEvent noteEvent, NoteData noteData) {
             var id = noteEvent.noteId;
             return id == noteData.ComputeNoteId()

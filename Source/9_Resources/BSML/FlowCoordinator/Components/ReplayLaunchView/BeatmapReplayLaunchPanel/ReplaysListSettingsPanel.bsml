@@ -1,0 +1,33 @@
+﻿<horizontal bg="round-rect-panel" pref-height="5" pad="1">
+  <modal id="settings-modal" show-event="show-settings-modal"
+         click-off-closes="true" move-to-center="false"
+         size-delta-y="30" size-delta-x="60"
+         anchor-pos-x="0" anchor-pos-y="18">
+    <vertical pref-width="60" pref-height="30" pad="2" spacing="2"
+              child-control-height="false" child-align="MiddleCenter">
+      <vertical pref-height="14" vertical-fit="PreferredSize" horizontal-fit="Unconstrained">
+        <dropdown-list-setting text="Sort By" value="sorter" choices="sorters" 
+                               bind-value="true" apply-on-change="true"/>
+        <horizontal pref-height="6">
+          <tab-selector id="tab-selector" tab-tag="sort-order-tab" select-cell="select-order"
+                        child-expand-width="true" child-control-width="true"/>
+        </horizontal>
+        <horizontal active="false">
+          <tab tab-name="Ascending" tags="sort-order-tab"/>
+          <tab tab-name="Descending" tags="sort-order-tab"/>
+        </horizontal>
+      </vertical>
+      <horizontal pref-height="8">
+        <toggle-setting interactable="~show-corrupted-interactable" 
+                        text="Show Corrupted Replays" value="show-corrupted"
+                        bind-value="true" apply-on-change="true" pref-width="-1"/>
+      </horizontal>
+    </vertical>
+  </modal>
+  <text text="List settings" align="Left" font-size="3"/>
+  <vertical pref-width="5" child-control-width="false" horizontal-fit="Unconstrained"
+            child-expand-width="false" child-align="MiddleRight">
+    <clickable-image src="#BL_SettingsIcon" preserve-aspect="true"
+                     click-event="show-settings-modal" size-delta-x="5"/>
+  </vertical>
+</horizontal>

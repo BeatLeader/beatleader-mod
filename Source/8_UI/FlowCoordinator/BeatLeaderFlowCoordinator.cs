@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Reflection;
+using BeatLeader.Components;
 using BeatLeader.Manager;
-using BeatLeader.Utils;
 using BeatLeader.ViewControllers;
 using BeatSaberMarkupLanguage;
 using HMUI;
@@ -22,6 +21,7 @@ namespace BeatLeader {
 
         private void Awake() {
             LeaderboardEvents.MenuButtonWasPressedEvent += PresentFromLeaderboard;
+            ReplaysList.DataCellsMemoryPool.Instance.Expand(ReplaysList.DataCellsMemoryPool.DefaultReservedCellsCount);
         }
 
         private void OnDestroy() {

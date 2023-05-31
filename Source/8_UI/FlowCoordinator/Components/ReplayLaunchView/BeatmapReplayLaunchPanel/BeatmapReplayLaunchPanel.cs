@@ -92,8 +92,7 @@ namespace BeatLeader.Components {
         }
 
         private void FinishReplayLoading(bool isCancelled) {
-            if (!isCancelled)
-                _replaysList.SetData(
+            if (!isCancelled) _replaysList.SetData(
                     _headers, _previewBeatmapLevel is null);
             _tokenSource = null;
             ShowLoadingScreen(false);

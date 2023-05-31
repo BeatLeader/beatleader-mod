@@ -14,6 +14,24 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ReplaysList : ReeUIComponentV2, TableView.IDataSource {
+        #region Cells Pool
+
+        [UsedImplicitly]
+        public class DataCellsMemoryPool : StaticMemoryPool<DataCellsMemoryPool, AbstractDataCell> {
+            public const int DefaultReservedCellsCount = 500;
+
+            private static readonly IReplayHeader emptyReplayHeader = 
+                new GenericReplayHeader(null!, string.Empty, null);
+
+            public override void Expand(int count) {
+                for (var i = 0; i < count; i++) {
+                    items.Push(AbstractDataCell.Create<ReplayDataCell>(emptyReplayHeader));
+                }
+            }
+        }
+
+        #endregion
+        
         #region Cells
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
@@ -238,7 +256,10 @@ namespace BeatLeader.Components {
 
         #region Init
 
+        
         protected override void OnInitialize() {
+            _reusableCells.AddRange(DataCellsMemoryPool.Instance
+                .Shrink(DataCellsMemoryPool.DefaultReservedCellsCount));
             _tableView = _replaysList.tableView;
             _tableView.SetDataSource(this, true);
             _tableView.didSelectCellWithIdxEvent += HandleCellSelected;

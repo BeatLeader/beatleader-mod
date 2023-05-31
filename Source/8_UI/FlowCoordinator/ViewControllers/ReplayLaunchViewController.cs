@@ -18,7 +18,7 @@ namespace BeatLeader.ViewControllers {
         [Inject] private readonly StandardLevelDetailViewController _standardLevelDetailViewController = null!;
         [Inject] private readonly BeatLeaderFlowCoordinator _beatLeaderFlowCoordinator = null!;
         [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;
-        
+
         #endregion
 
         #region UI Components
@@ -64,11 +64,14 @@ namespace BeatLeader.ViewControllers {
             _replayPanel.SetBeatmap(filters.previewBeatmapLevel, filters.overrideBeatmap, forceUpdate);
             if (forceUpdate) return;
             var prompt = searchPrompt.ToLower();
-            _replayPanel.Filter(string.IsNullOrEmpty(prompt) ? null : SearchPredicate);
+            var diff = filters.beatmapDifficulty;
+            var characteristic = filters.beatmapCharacteristic?.serializedName;
+            var hasNoFilters = string.IsNullOrEmpty(prompt)
+                && string.IsNullOrEmpty(characteristic)
+                && !diff.HasValue;
+            _replayPanel.Filter(hasNoFilters ? null : SearchPredicate);
 
             bool SearchPredicate(IReplayHeader header) {
-                var diff = filters.beatmapDifficulty;
-                var characteristic = filters.beatmapCharacteristic?.serializedName;
                 return header.Info is not { } info ||
                     info.playerName.ToLower().Contains(prompt)
                     && (!diff.HasValue || info.difficulty == diff.Value.ToString())

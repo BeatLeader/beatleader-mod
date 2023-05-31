@@ -43,8 +43,8 @@ namespace BeatLeader.Components {
 
         #region SetFailed
 
-        public void SetFailed(bool failed) {
-            Text = failed ? FailMessage : LoadingMessage;
+        public void SetFailed(bool failed, string? failMessage = null) {
+            Text = failed ? failMessage ?? FailMessage : LoadingMessage;
         }
 
         #endregion

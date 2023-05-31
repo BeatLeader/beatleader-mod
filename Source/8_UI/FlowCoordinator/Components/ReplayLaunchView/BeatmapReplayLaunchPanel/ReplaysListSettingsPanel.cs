@@ -99,7 +99,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             _settingsModal.SetField("_animateParentCanvas", false);
-            ShowCorruptedReplays = true;
+            ShowCorruptedReplays = false;
             RefreshSorters();
         }
 

@@ -52,7 +52,7 @@ namespace BeatLeader.Components {
         protected override void OnInstantiate() {
             _replayStatisticsPanel = Instantiate<ReplayStatisticsPanel>(transform);
             _miniProfile = Instantiate<HorizontalMiniProfileContainer>(transform);
-            _replayStatisticsPanel.SetData(null, null, true);
+            _replayStatisticsPanel.SetData(null, null, true, true);
             _miniProfile.SetPlayer(null);
             _miniProfile.PlayerLoadedEvent += HandlePlayerLoaded;
         }
@@ -66,7 +66,7 @@ namespace BeatLeader.Components {
 
         public void SetData(IReplayHeader? header) {
             var invalid = header is null || header.Status is Corrupted;
-            _replayStatisticsPanel.SetData(null, null, invalid);
+            _replayStatisticsPanel.SetData(null, null, invalid, header is null);
             _header = header;
             DeleteButtonInteractable = header is not null;
             WatchButtonInteractable = false;

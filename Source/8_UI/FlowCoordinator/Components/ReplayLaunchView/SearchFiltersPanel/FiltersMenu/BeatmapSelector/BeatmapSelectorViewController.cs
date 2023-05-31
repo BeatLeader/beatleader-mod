@@ -68,6 +68,7 @@ namespace BeatLeader.Components {
             SetLevelDetailWrapperEnabled(true);
             SetCloseButtonEnabled(true);
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            _levelCollectionNavigationController.HideDetailViewController();
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {

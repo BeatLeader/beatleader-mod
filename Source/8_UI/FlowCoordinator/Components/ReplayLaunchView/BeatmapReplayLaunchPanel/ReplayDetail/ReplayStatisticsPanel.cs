@@ -72,9 +72,9 @@ namespace BeatLeader.Components {
             UpdateVisibility(tab);
         }
 
-        public void SetData(Score? score, ScoreStats? stats, bool invalid) {
+        public void SetData(Score? score, ScoreStats? stats, bool invalid, bool notSelected = false) {
             if (score is null || stats is null) {
-                _scoreStatsLoadingScreen.SetFailed(invalid);
+                _scoreStatsLoadingScreen.SetFailed(invalid, notSelected ? string.Empty : null);
                 _panelControlsContainer.SetActive(!invalid);
                 _scoreStatsUpdateRequired = true;
                 UpdateVisibility(invalid ? ScoreInfoPanelTab.OverviewPage1 : _openedTab);
@@ -106,26 +106,23 @@ namespace BeatLeader.Components {
 
             switch (tab) {
                 case ScoreInfoPanelTab.OverviewPage1:
-                    _scoreOverviewPage1.SetActive(true);
+                    _scoreOverviewPage1.SetActive(!_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.OverviewPage2:
                     _scoreOverviewPage2.SetActive(!_scoreStatsUpdateRequired);
-                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Accuracy:
                     _accuracyDetails.SetActive(!_scoreStatsUpdateRequired);
-                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Grid:
                     _accuracyGrid.SetActive(!_scoreStatsUpdateRequired);
-                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Graph:
                     _accuracyGraphPanel.SetActive(!_scoreStatsUpdateRequired);
-                    _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
             }
 
+            _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
             _openedTab = tab;
         }
 

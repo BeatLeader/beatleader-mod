@@ -246,7 +246,7 @@ namespace BeatLeader.Components {
 
         private void HandleShowEmptyScreenChanged(bool show) {
             if (!_isInitialized) return;
-            _settingsPanelContainerObject.SetActive(!show);
+            //_settingsPanelContainerObject.SetActive(!show);
         }
 
         private void HandleShowCorruptedChangedEvent(bool show) {

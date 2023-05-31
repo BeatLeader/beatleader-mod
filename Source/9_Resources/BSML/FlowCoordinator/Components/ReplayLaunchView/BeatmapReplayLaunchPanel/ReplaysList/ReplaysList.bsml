@@ -1,4 +1,4 @@
-﻿<horizontal>
+﻿<horizontal pref-height="56">
   <text id="empty-text" font-size="4.2" align="Center"
         word-wrapping="true" size-delta-y="20"
         text="The monkey left you on your own!"/>

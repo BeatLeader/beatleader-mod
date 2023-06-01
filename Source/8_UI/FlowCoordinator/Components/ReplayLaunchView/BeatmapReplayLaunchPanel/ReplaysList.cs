@@ -255,7 +255,6 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Init
-
         
         protected override void OnInitialize() {
             _reusableCells.AddRange(DataCellsMemoryPool.Instance

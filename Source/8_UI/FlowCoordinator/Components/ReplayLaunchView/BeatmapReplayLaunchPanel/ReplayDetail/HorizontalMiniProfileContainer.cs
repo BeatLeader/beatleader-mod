@@ -65,9 +65,15 @@ namespace BeatLeader.Components {
 
         #region Init
 
+        private bool _isInitialized;
+        
         protected override void OnInstantiate() {
             _horizontalMiniProfile = Instantiate<HorizontalMiniProfile>(transform);
             PlayerRequest.AddStateListener(HandlePlayerRequestStateChanged);
+        }
+
+        protected override void OnInitialize() {
+            _isInitialized = true;
         }
 
         protected override void OnDispose() {
@@ -79,7 +85,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandlePlayerRequestStateChanged(API.RequestState state, Player result, string failReason) {
-            if (state is API.RequestState.Uninitialized) return;
+            if (!_isInitialized || state is API.RequestState.Uninitialized) return;
             var showLoading = state is API.RequestState.Started;
             _loadingContainerObject.SetActive(showLoading);
             _miniProfileContainerObject.SetActive(!showLoading);

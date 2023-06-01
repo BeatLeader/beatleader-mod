@@ -31,36 +31,43 @@ namespace BeatLeader.Components {
             Date
         }
 
-        private bool AscendingSortOrder {
+        public bool AscendingSortOrder {
             get => _ascendingSortOrder;
             set {
                 _ascendingSortOrder = value;
                 _segmentedControl.cells[value ? 0 : 1].SetSelected(true,
                     SelectableCell.TransitionType.Instant, null, false);
-                //RefreshSorters();
+                RefreshSorters();
+            }
+        }
+
+        public Sorters Sorter {
+            get => _sorter;
+            set {
+                _sorter = value;
+                NotifyPropertyChanged(nameof(LocalSorter));
+                RefreshSorters();
             }
         }
 
         [UIValue("sorter"), UsedImplicitly]
-        private string Sorter {
-            get => _sorter;
+        private string LocalSorter {
+            get => _sorter.ToString();
             set {
-                _sorter = value;
-                //AscendingSortOrder = true;
+                _sorter = (Sorters)Enum.Parse(typeof(Sorters), value);
                 RefreshSorters();
             }
         }
 
         [UIValue("sorters"), UsedImplicitly]
         private readonly List<object> _localSorters = sorters;
-        private string _sorter = (string)sorters[0];
         private bool _ascendingSortOrder = true;
+        private Sorters _sorter;
 
         private static readonly List<object> sorters = Enum.GetNames(typeof(Sorters)).ToList<object>();
 
         private void RefreshSorters() {
-            SorterChangedEvent?.Invoke((Sorters)Enum
-                .Parse(typeof(Sorters), _sorter), _ascendingSortOrder);
+            SorterChangedEvent?.Invoke(_sorter, _ascendingSortOrder);
         }
 
         #endregion
@@ -100,6 +107,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             _settingsModal.SetField("_animateParentCanvas", false);
             ShowCorruptedReplays = false;
+            Sorter = Sorters.Date;
             RefreshSorters();
         }
 

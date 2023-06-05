@@ -1,5 +1,6 @@
 ﻿using System;
 using BeatLeader.API.Methods;
+using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
 
@@ -29,7 +30,9 @@ namespace BeatLeader.Utils {
 
         public static void ProcessReplay(Replay replay, PlayEndData data) {
             var replayManager = ReplayManager.Instance;
-            if (replayManager.ValidatePlay(replay, data)) {
+            var isOstLevel = !MapEnhancer.previewBeatmapLevel
+                .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
+            if (replayManager.ValidatePlay(replay, data, isOstLevel)) {
                 Plugin.Log.Debug("Validation completed, replay will be saved");
                 _ = replayManager.SaveReplayAsync(replay, default);
             } else {

@@ -20,29 +20,35 @@ namespace BeatLeader.Components {
 
         [UIValue("save-after-fail"), UsedImplicitly]
         private bool SaveAfterFail {
-            get => ConfigFileData.Instance.ReplaySavingOptions.HasFlag(ReplaySaveOption.Fail);
-            set {
-                if (value) ConfigFileData.Instance.ReplaySavingOptions |= ReplaySaveOption.Fail;
-                else ConfigFileData.Instance.ReplaySavingOptions &= ~ReplaySaveOption.Fail;
-            }
+            get => GetFlag(ReplaySaveOption.Fail);
+            set => WriteFlag(ReplaySaveOption.Fail, value);
         }
 
         [UIValue("save-after-exit"), UsedImplicitly]
         private bool SaveAfterExit {
-            get => ConfigFileData.Instance.ReplaySavingOptions.HasFlag(ReplaySaveOption.Exit);
-            set {
-                if (value) ConfigFileData.Instance.ReplaySavingOptions |= ReplaySaveOption.Exit;
-                else ConfigFileData.Instance.ReplaySavingOptions &= ~ReplaySaveOption.Exit;
-            }
+            get => GetFlag(ReplaySaveOption.Exit);
+            set => WriteFlag(ReplaySaveOption.Exit, value);
         }
 
         [UIValue("save-zero-score"), UsedImplicitly]
         private bool SaveZeroScore {
-            get => ConfigFileData.Instance.ReplaySavingOptions.HasFlag(ReplaySaveOption.ZeroScore);
-            set {
-                if (value) ConfigFileData.Instance.ReplaySavingOptions |= ReplaySaveOption.ZeroScore;
-                else ConfigFileData.Instance.ReplaySavingOptions &= ~ReplaySaveOption.ZeroScore;
-            }
+            get => GetFlag(ReplaySaveOption.ZeroScore);
+            set => WriteFlag(ReplaySaveOption.ZeroScore, value);
+        }
+
+        [UIValue("save-ost"), UsedImplicitly]
+        private bool SaveOST {
+            get => GetFlag(ReplaySaveOption.OST);
+            set => WriteFlag(ReplaySaveOption.OST, value);
+        }
+
+        private static bool GetFlag(ReplaySaveOption option) {
+            return ConfigFileData.Instance.ReplaySavingOptions.HasFlag(option);
+        }
+
+        private static void WriteFlag(ReplaySaveOption option, bool value) {
+            if (value) ConfigFileData.Instance.ReplaySavingOptions |= option;
+            else ConfigFileData.Instance.ReplaySavingOptions &= ~option;
         }
 
         #endregion
@@ -142,7 +148,7 @@ namespace BeatLeader.Components {
         private const string FirstConfirmationMessage = "Do you really want to delete all local replays?";
         private const string SecondConfirmationMessage = "ALL OF YOUR DATA WILL BE ERASED! Do you REALLY want to proceed?";
         private const string FinishMessage = "Successfully deleted {0} replays";
-        
+
         private ModalState _modalState;
         private int _deletedReplaysCount;
 
@@ -167,7 +173,7 @@ namespace BeatLeader.Components {
             _deletionModalText.text = state switch {
                 ModalState.FirstConfirmation => FirstConfirmationMessage,
                 ModalState.SecondConfirmation => SecondConfirmationMessage,
-                ModalState.Finish =>  string.Format(FinishMessage, _deletedReplaysCount),
+                ModalState.Finish => string.Format(FinishMessage, _deletedReplaysCount),
                 _ => _deletionModalText.text
             };
             _deletionModalLoadingContainer.SetActive(state is ModalState.ProcessingDeletion);

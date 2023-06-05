@@ -288,7 +288,12 @@ namespace BeatLeader.Replayer {
         }
 
         private async Task<IBeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {
-            return (await _levelsModel.GetBeatmapLevelAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token)).beatmapLevel;
+            var error = false;
+            Start: ;
+            var result = await _levelsModel.GetBeatmapLevelAsync(error ? hash : CustomLevelLoader.kCustomLevelPrefixId + hash, token);
+            if (!result.isError || error) return result.beatmapLevel;
+            error = true;
+            goto Start;
         }
 
         private static void Reinit(ReplayLaunchData data, IDifficultyBeatmap? beatmap = null, EnvironmentInfoSO? environment = null) {

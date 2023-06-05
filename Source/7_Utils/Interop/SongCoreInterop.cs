@@ -119,9 +119,9 @@ namespace BeatLeader.Interop {
         #region ValidateRequirements
 
         public static bool ValidateRequirements(IDifficultyBeatmap beatmap) {
-            return TryGetBeatmapRequirements(beatmap, out var requirements)
-                && TryGetCapabilities(out var capabilities)
-                && requirements.All(x => capabilities.Contains(x));
+            return !TryGetBeatmapRequirements(beatmap, out var requirements)
+                || !TryGetCapabilities(out var capabilities)
+                || requirements.All(x => capabilities.Contains(x));
         }
 
         #endregion

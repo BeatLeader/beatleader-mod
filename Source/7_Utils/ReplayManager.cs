@@ -65,14 +65,15 @@ namespace BeatLeader.Utils {
         }
 
         [Pure]
-        internal bool ValidatePlay(Replay replay, PlayEndData endData) {
+        internal bool ValidatePlay(Replay replay, PlayEndData endData, bool isOstLevel) {
             var options = ConfigFileData.Instance.ReplaySavingOptions;
             return endData.EndType switch {
-                PlayEndData.LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
-                PlayEndData.LevelEndType.Quit or PlayEndData.LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
-                PlayEndData.LevelEndType.Clear => true,
-                _ => false
-            } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0);
+                    PlayEndData.LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
+                    PlayEndData.LevelEndType.Quit or PlayEndData.LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
+                    PlayEndData.LevelEndType.Clear => true,
+                    _ => false
+                } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0)
+                && (options.HasFlag(ReplaySaveOption.OST) || !isOstLevel);
         }
 
         Task<bool> IReplayManager.DeleteReplayAsync(IReplayHeader header, CancellationToken token) {

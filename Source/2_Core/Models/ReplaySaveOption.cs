@@ -5,6 +5,7 @@ namespace BeatLeader.Models {
     internal enum ReplaySaveOption {
         Exit = 0,
         Fail = 1,
-        ZeroScore = 2
+        ZeroScore = 2,
+        OST = 4
     }
 }

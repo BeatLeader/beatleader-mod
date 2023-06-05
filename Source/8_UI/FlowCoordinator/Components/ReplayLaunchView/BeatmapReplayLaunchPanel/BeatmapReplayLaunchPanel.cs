@@ -247,10 +247,9 @@ namespace BeatLeader.Components {
         private IReplayHeader? _selectedHeader;
 
         private void HandleReplayAdded(IReplayHeader header) {
-            ToggleCorruptedReplays(false);
-            _replaysListSettingsPanel.ShowCorrupted = false;
             _replaysList.AddReplay(header);
-            _replaysList.Refresh();
+            RefreshSortingInternal();
+            _replaysListSettingsPanel.ShowCorrupted = false;
         }
 
         private void HandleReplaysDeleted(string[]? removedPaths) {

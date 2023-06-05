@@ -93,18 +93,16 @@ namespace BeatLeader.Components {
         private bool _isFirstLaunch = true;
         private bool _currentTabOpened;
         private bool _isReady;
+        private bool _currentBeatmapChanged;
 
         public void NotifyBeatmapSelectorReady(bool isReady) {
             if (!IsInitialized) throw new UninitializedComponentException();
-            switch (isReady) {
-                case true when _isFirstLaunch:
-                    HandleSelectedBeatmapChanged(null, _selectionNavigationController!.selectedBeatmapLevel);
-                    break;
-                case false:
-                    _isFirstLaunch = false;
-                    break;
+            if (isReady && _isFirstLaunch) {
+                HandleSelectedBeatmapChanged(null, _selectionNavigationController!.selectedBeatmapLevel);
+                _isFirstLaunch = false;
             }
-            RefreshBeatmapPreview(false);
+            RefreshBeatmapPreview(_currentTabOpened && _currentBeatmapChanged);
+            _currentBeatmapChanged = false;
             _isReady = isReady;
         }
 
@@ -164,6 +162,7 @@ namespace BeatLeader.Components {
         private void HandleSelectedBeatmapChanged(LevelCollectionViewController? controller, IPreviewBeatmapLevel level) {
             if (_isReady || _isSelectorOpened) return;
             _currentPreviewBeatmapLevel = level;
+            _currentBeatmapChanged = true;
         }
 
         private void HandleSelectorBeatmapSelected(IPreviewBeatmapLevel level) {

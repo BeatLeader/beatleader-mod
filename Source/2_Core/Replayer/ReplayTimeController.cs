@@ -29,9 +29,10 @@ namespace BeatLeader.Replayer {
         }
 
         private void LateUpdate() {
-            if (_songReachedReplayEnd || !(SongTime >= ReplayEndTime - 0.01f)) return;
-            SongReachedReplayEndEvent?.Invoke();
-            _songReachedReplayEnd = true;
+            if (!_songReachedReplayEnd && (Math.Abs(SongTime - ReplayEndTime) < 0.01f || SongTime >= ReplayEndTime)) {
+                SongReachedReplayEndEvent?.Invoke();
+                _songReachedReplayEnd = true;
+            }
         }
     }
 }

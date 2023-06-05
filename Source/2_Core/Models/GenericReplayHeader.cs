@@ -13,12 +13,21 @@ namespace BeatLeader.Models {
             _replayManager = replayManager;
             FilePath = filePath;
             Info = replayInfo;
-            Status = replayInfo is null ? ReplayStatus.Corrupted : ReplayStatus.Unloaded;
+            _status = replayInfo is null ? ReplayStatus.Corrupted : ReplayStatus.Unloaded;
+        }
+
+        public GenericReplayHeader(
+            IReplayManager replayManager,
+            string filePath,
+            Replay.Replay replay
+        ) : this(replayManager, filePath, replay.info) {
+            _cachedReplay = replay;
+            _status = ReplayStatus.Loaded;
         }
 
         private readonly IReplayManager _replayManager;
         private Replay.Replay? _cachedReplay;
-        
+
         public string FilePath { get; }
         public ReplayInfo? Info { get; private set; }
         public ReplayStatus Status {

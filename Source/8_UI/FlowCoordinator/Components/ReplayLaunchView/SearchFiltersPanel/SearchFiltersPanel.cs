@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
@@ -35,6 +36,9 @@ namespace BeatLeader.Components {
         [UIValue("filters-menu"), UsedImplicitly]
         private FiltersMenu _filtersMenu = null!;
 
+        [UIValue("settings-button"), UsedImplicitly]
+        private SettingsButton _settingsButton = null!;
+
         [UIComponent("filters-modal")]
         private readonly ModalView _modal = null!;
 
@@ -52,6 +56,7 @@ namespace BeatLeader.Components {
             _searchPanel = Instantiate<SearchPanel>(transform);
             _filterPanel = Instantiate<FilterPanel>(transform);
             _filtersMenu = Instantiate<FiltersMenu>(transform);
+            _settingsButton = Instantiate<SettingsButton>(transform);
             _searchPanel.TextChangedEvent += HandleSearchPromptChanged;
             _filtersMenu.FiltersChangedEvent += HandleFiltersChanged;
             _filterPanel.FilterButtonClickedEvent += HandleFilterButtonClicked;
@@ -59,18 +64,24 @@ namespace BeatLeader.Components {
         }
 
         public void Setup(
+            IReplayManager replayManager,
             ViewController viewController,
             FlowCoordinator flowCoordinator,
             LevelSelectionNavigationController levelSelectionNavigationController,
             LevelCollectionViewController levelCollectionViewController,
             StandardLevelDetailViewController standardLevelDetailViewController
         ) {
+            _settingsButton.Setup(replayManager);
             _filtersMenu.Setup(
                 viewController,
                 flowCoordinator,
                 levelSelectionNavigationController,
                 levelCollectionViewController,
                 standardLevelDetailViewController);
+        }
+
+        public void NotifyContainerStateChanged() {
+            _filtersMenu.NotifyContainerStateChanged(false);
         }
 
         #endregion

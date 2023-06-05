@@ -1,6 +1,5 @@
 ﻿using System;
 using BeatLeader.API.Methods;
-using BeatLeader.Models;
 using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
 
@@ -26,42 +25,42 @@ namespace BeatLeader.Utils {
 
         #region ProcessReplay
 
-        public static Action<Replay> ReplayUploadStartedEvent;
+        public static Action<Replay>? ReplayUploadStartedEvent;
 
         public static void ProcessReplay(Replay replay, PlayEndData data) {
-            if (replay.info.score <= 0) { // no lightshow here
-                Plugin.Log.Debug("Zero score, skip replay processing");
-                FileManager.TryWriteTempReplay(replay);
+            var replayManager = ReplayManager.Instance;
+            if (replayManager.ValidatePlay(replay, data)) {
+                Plugin.Log.Debug("Validation completed, replay will be saved");
+                _ = replayManager.SaveReplayAsync(replay, default);
+            } else {
+                Plugin.Log.Warn("Validation failed, replay will not be saved!");
+                replayManager.ResetLastReplay();
                 return;
             }
 
-            bool practice = replay.info.speed != 0;
-            if (practice) {
-                Plugin.Log.Debug("Practice, only local replay would be saved");
-                FileManager.TryWriteReplay(replay); // save the last replay
+            if (replay.info.speed != 0) {
+                Plugin.Log.Debug("Practice, replay won't be submitted");
                 return;
             }
 
             if (ShouldSubmit()) {
                 Plugin.Log.Debug("Uploading replay");
-                FileManager.TryWriteReplay(replay);
 
                 switch (data.EndType) {
                     case PlayEndData.LevelEndType.Clear: {
-                            UploadReplay(replay);
-                            break;
-                        }
+                        UploadReplay(replay);
+                        break;
+                    }
                     case PlayEndData.LevelEndType.Unknown: {
-                            Plugin.Log.Debug("Unknown level end Type");
-                            break;
-                        }
+                        Plugin.Log.Debug("Unknown level end Type");
+                        break;
+                    }
                     default: {
-                            UploadPlay(replay, data);
-                            break;
-                        }
+                        UploadPlay(replay, data);
+                        break;
+                    }
                 }
             } else {
-                FileManager.TryWriteTempReplay(replay);
                 Plugin.Log.Debug("Score submission was disabled");
             }
         }

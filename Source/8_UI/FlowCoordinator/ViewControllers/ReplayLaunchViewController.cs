@@ -37,7 +37,9 @@ namespace BeatLeader.ViewControllers {
             _replayPanel = ReeUIComponentV2.Instantiate<BeatmapReplayLaunchPanel>(transform);
             _searchFiltersPanel = ReeUIComponentV2.Instantiate<SearchFiltersPanel>(transform);
             _replayPanel.Setup(ReplayManager.Instance, _replayerLoader);
-            _searchFiltersPanel.Setup(this,
+            _searchFiltersPanel.Setup(
+                ReplayManager.Instance,
+                this,
                 _beatLeaderFlowCoordinator,
                 _levelSelectionNavigationController,
                 _levelCollectionViewController,
@@ -48,8 +50,9 @@ namespace BeatLeader.ViewControllers {
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (firstActivation) _replayPanel.SetBeatmap(null, false, true);
+            _searchFiltersPanel.NotifyContainerStateChanged();
         }
-
+        
         public override void __DismissViewController(Action finishedCallback, AnimationDirection animationDirection = AnimationDirection.Horizontal, bool immediately = false) {
             _childViewController?.__DismissViewController(null, immediately: true);
             base.__DismissViewController(finishedCallback, animationDirection, immediately);

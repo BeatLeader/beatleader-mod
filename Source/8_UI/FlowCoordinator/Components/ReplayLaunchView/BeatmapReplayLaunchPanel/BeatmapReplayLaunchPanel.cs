@@ -46,6 +46,8 @@ namespace BeatLeader.Components {
 
         public void Setup(IReplayManager replayManager, ReplayerMenuLoader loader) {
             _replayManager = replayManager;
+            _replayManager.ReplaysDeletedEvent += HandleReplaysDeleted;
+            _replayManager.ReplayAddedEvent += HandleReplayAdded;
             _replayPanel.Setup(loader);
             _replayPanel.SetData(null);
             _isInitialized = true;
@@ -68,13 +70,17 @@ namespace BeatLeader.Components {
             _replaysListSettingsPanel.ShowCorruptedChangedEvent += HandleShowCorruptedChangedEvent;
         }
 
+        protected override void OnDispose() {
+            _replayManager.ReplaysDeletedEvent -= HandleReplaysDeleted;
+            _replayManager.ReplayAddedEvent -= HandleReplayAdded;
+        }
+
         #endregion
 
         #region ReplayHeaders
 
         private IEnumerable<IReplayHeader>? _headers;
         private CancellationTokenSource? _tokenSource;
-        public bool alternativeLoadMethod;
 
         private void CancelReplayInfosLoading() {
             if (_tokenSource == null) return;
@@ -140,13 +146,13 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshFilterInternal() {
-            _replaysListSettingsPanel.ShowCorruptedInteractable = 
+            _replaysListSettingsPanel.ShowCorruptedInteractable =
                 _previewBeatmapLevel is null && _predicate is null;
             if (_headers is null) return;
             var cells = _replaysList.Cells;
             cells.Clear();
             cells.AddRange(_replaysList.ActualCells
-                .Where(cell => cell.ReplayHeader!.Status is not 
+                .Where(cell => cell.ReplayHeader!.Status is not
                     ReplayStatus.Corrupted && (_predicate?.Invoke(cell.ReplayHeader!) ?? true)));
             _replaysList.Refresh();
             RefreshSortingInternal();
@@ -193,10 +199,12 @@ namespace BeatLeader.Components {
 
         private void RefreshSortingInternal() {
             if (_headers is null) return;
+            _corruptedWasTurnedOn = false;
             ToggleCorruptedReplays(false);
             _replaysList.Cells.Sort(_abstractDataCellComparator);
             if (!_ascendingOrder) _replaysList.Cells.Reverse();
             _replaysList.Refresh();
+            _replayPanel.SetData(null);
         }
 
         #endregion
@@ -204,7 +212,7 @@ namespace BeatLeader.Components {
         #region ToggleCorruptedReplays
 
         private readonly List<ReplaysList.AbstractDataCell> _originalCells = new();
-        private bool _wasTurnedOn;
+        private bool _corruptedWasTurnedOn;
         private bool _showCorrupted;
 
         private void ToggleCorruptedReplays(bool show) {
@@ -218,12 +226,13 @@ namespace BeatLeader.Components {
             if (_headers is null || _previewBeatmapLevel is not null) return;
             var cells = _replaysList.Cells;
             if (_showCorrupted) {
-                _wasTurnedOn = true;
+                _corruptedWasTurnedOn = true;
+                _originalCells.Clear();
                 _originalCells.AddRange(cells);
                 cells.Clear();
                 cells.AddRange(_replaysList.ActualCells
                     .Where(x => x.ReplayHeader!.Status is ReplayStatus.Corrupted));
-            } else if (_wasTurnedOn) {
+            } else if (_corruptedWasTurnedOn) {
                 cells.Clear();
                 cells.AddRange(_originalCells);
                 _originalCells.Clear();
@@ -237,8 +246,28 @@ namespace BeatLeader.Components {
 
         private IReplayHeader? _selectedHeader;
 
+        private void HandleReplayAdded(IReplayHeader header) {
+            ToggleCorruptedReplays(false);
+            _replaysListSettingsPanel.ShowCorrupted = false;
+            _replaysList.AddReplay(header);
+            _replaysList.Refresh();
+        }
+
+        private void HandleReplaysDeleted(string[]? removedPaths) {
+            if (removedPaths is null) return;
+            //convert it to dict to not enumerate the whole array since dicts use hash maps
+            var dict = removedPaths.ToDictionary(x => x);
+            CancelReplayInfosLoading();
+            _replaysList.SetData(_replaysList.ActualCells
+                .Select(static x => x.ReplayHeader)
+                .Where(x => x is not null && !dict.ContainsKey(x.FilePath))!);
+            if (_selectedHeader is null || dict.ContainsKey(_selectedHeader.FilePath)) {
+                _replayPanel.SetData(null);
+            }
+        }
+
         private void HandleShowEmptyScreenChanged(bool show) {
-            if (!_isInitialized) return;
+            //if (!_isInitialized) return;
             //_settingsPanelContainerObject.SetActive(!show);
         }
 
@@ -256,7 +285,7 @@ namespace BeatLeader.Components {
             _replayPanel.SetData(null);
             _replaysList.RemoveReplay(_selectedHeader!);
         }
-        
+
         private void HandleReplaySelected(ReplaysList.AbstractDataCell? cell) {
             if (cell is null) return;
             _selectedHeader = cell.ReplayHeader;

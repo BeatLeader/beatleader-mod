@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace BeatLeader {
     [PublicAPI]
-    internal class StaticMemoryPool<T, TItem> : Singleton<T> {
+    internal class StaticMemoryPool<T, TItem> : Singleton<T> where T : class {
         protected static readonly Stack<TItem> items = new();
         
         public virtual IList<TItem> Shrink(int count) {

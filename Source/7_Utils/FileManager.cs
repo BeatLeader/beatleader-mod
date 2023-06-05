@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using BeatLeader.Models.Replay;
-using UnityEngine;
 
 namespace BeatLeader.Utils {
     internal static class FileManager {
@@ -14,33 +13,29 @@ namespace BeatLeader.Utils {
             return Directory.EnumerateFiles(ReplaysFolderPath, "*.bsor");
         }
 
-        public static bool TryWriteReplay(Replay replay) {
-            LastSavedReplay = ToFileName(replay, ReplaysFolderPath);
-            return TryWriteReplay(LastSavedReplay, replay);
-        }
-
-        public static bool TryWriteTempReplay(Replay replay) {
-            LastSavedReplay = ToFileName(replay, CacheDirectory);
-            return TryWriteReplay(LastSavedReplay, replay);
-        }
-
         public static bool TryWriteReplay(string fileName, Replay replay) {
             try {
                 EnsureDirectoryExists(fileName);
                 using BinaryWriter file = new(File.Open(fileName, FileMode.OpenOrCreate), Encoding.UTF8);
                 ReplayEncoder.Encode(replay, file);
                 file.Close();
+                Plugin.Log.Debug("Saved.");
                 return true;
             } catch (Exception ex) {
-                Plugin.Log.Debug($"Unable to save replay. Reason: {ex.Message}");
+                Plugin.Log.Error($"Unable to save replay. Reason: {ex.Message}");
                 return false;
             }
         }
 
+        public static string ToFileName(Replay replay) {
+            return ToFileName(replay, ReplaysFolderPath);
+        }
+        
         public static string ToFileName(Replay replay, string folder) {
             var practice = replay.info.speed != 0 ? "-practice" : "";
             var fail = replay.info.failTime != 0 ? "-fail" : "";
-            var filename = $"{replay.info.playerID}{practice}{fail}-{replay.info.songName}-{replay.info.difficulty}-{replay.info.mode}-{replay.info.hash}.bsor";
+            var info = replay.info;
+            var filename = $"{info.playerID}{practice}{fail}-{info.songName}-{info.difficulty}-{info.mode}-{info.hash}-{info.timestamp}.bsor";
             var regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             var r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
             return folder + r.Replace(filename, "_");
@@ -65,15 +60,11 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region Directories
-
+        
         private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
-        private static string CacheDirectory => Application.temporaryCachePath + "\\BeatLeader\\Replays\\";
         private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 
-        public static string LastSavedReplay = "";
-
         static FileManager() {
-            EnsureDirectoryExists(CacheDirectory);
             EnsureDirectoryExists(ReplaysFolderPath);
             EnsureDirectoryExists(PlaylistsFolderPath);
         }

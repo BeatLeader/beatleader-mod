@@ -71,6 +71,7 @@ namespace BeatLeader.Components {
             DeleteButtonInteractable = header is not null;
             WatchButtonInteractable = false;
             if (!invalid) _ = ProcessDataAsync(header!);
+            else _miniProfile.SetPlayer(null);
         }
 
         private async Task ProcessDataAsync(IReplayHeader header) {

@@ -30,7 +30,7 @@ namespace BeatLeader.Components {
 
         private const string LoadingMessage = "Loading...";
         private const string FailedMessage = "Player with such id doesn't exists";
-        private const string NotSelectedMessage = "Replay is not selected";
+        private const string NotSelectedMessage = "Unknown player";
 
         [UIValue("loading-text"), UsedImplicitly]
         private string LoadingText {

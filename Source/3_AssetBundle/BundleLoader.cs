@@ -189,6 +189,8 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite DefaultAvatar;
         
         [UsedImplicitly] public static Sprite UnknownIcon;
+        
+        [UsedImplicitly] public static Sprite CheckIcon;
 
         private static List<Sprite> _loadedSprites = null!;
 
@@ -250,6 +252,7 @@ namespace BeatLeader {
             CyanBGOutline = assetBundle.LoadAsset<Sprite>("BL_CyanBGOutline");
             DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
             UnknownIcon = assetBundle.LoadAsset<Sprite>("BL_UnknownIcon");
+            CheckIcon = assetBundle.LoadAsset<Sprite>("BL_CheckIcon");
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 

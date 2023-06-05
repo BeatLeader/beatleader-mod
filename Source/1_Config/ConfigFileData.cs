@@ -64,9 +64,12 @@ namespace BeatLeader {
 
         #endregion
 
-        #region EnableReplayCaching
+        #region ReplaySavingSettings
 
         public bool EnableReplayCaching = ConfigDefaults.EnableReplayCaching;
+
+        [UseConverter]
+        public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
 
         #endregion
 

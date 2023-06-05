@@ -166,11 +166,10 @@ namespace BeatLeader.Replayer {
             }
         }
 
-        private void OnPlayLastButtonWasPressed() {
-            if (FileManager.TryReadReplay(FileManager.LastSavedReplay, out var storedReplay)) {
-                Replay = storedReplay;
-                StartReplay(ProfileManager.Profile);
-            }
+        private async void OnPlayLastButtonWasPressed() {
+            if (ReplayManager.Instance.LastSavedReplay is not { } header) return;
+            var replay = await header.LoadReplayAsync(default);
+            _ = StartReplayAsync(replay!, ProfileManager.Profile);
         }
 
         #endregion
@@ -281,7 +280,7 @@ namespace BeatLeader.Replayer {
             var difficultyBeatmap = beatmapLevel.beatmapLevelData
                 .GetDifficultyBeatmap(characteristic, cdifficulty);
             if (difficultyBeatmap == null || token.IsCancellationRequested) return null;
-            
+
             _cachedDifficultyBeatmap = difficultyBeatmap;
             _cachedBeatmapHash = hash;
             _cachedBeatmapCharacteristic = mode;

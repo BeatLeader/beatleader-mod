@@ -79,9 +79,8 @@ namespace BeatLeader.Components {
             get => _showCorruptedInteractable;
             set {
                 _showCorruptedInteractable = value;
-                ShowCorruptedReplays = value && ShowCorruptedReplays;
+                ShowCorrupted = value && ShowCorrupted;
                 NotifyPropertyChanged();
-                NotifyPropertyChanged(nameof(ShowCorruptedReplays));
             }
         }
 
@@ -91,6 +90,14 @@ namespace BeatLeader.Components {
             set {
                 _showCorruptedReplays = value;
                 ShowCorruptedChangedEvent?.Invoke(value);
+            }
+        }
+
+        public bool ShowCorrupted {
+            get => ShowCorruptedReplays;
+            set {
+                ShowCorruptedReplays = value;
+                NotifyPropertyChanged(nameof(ShowCorruptedReplays));
             }
         }
 

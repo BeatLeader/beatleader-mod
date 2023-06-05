@@ -64,9 +64,11 @@ namespace BeatLeader {
 
         #endregion
 
-        #region EnableReplayCaching
+        #region ReplaySavingSettings
 
-        public static bool EnableReplayCaching = false;
+        public const bool EnableReplayCaching = false;
+        
+        public const ReplaySaveOption ReplaySavingOptions = ReplaySaveOption.Exit | ReplaySaveOption.Fail;
 
         #endregion
     }

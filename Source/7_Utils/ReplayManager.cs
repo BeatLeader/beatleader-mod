@@ -20,6 +20,7 @@ namespace BeatLeader.Utils {
 
         public IReplayHeader? LastSavedReplay { get; private set; }
 
+        private IEnumerable<IReplayHeader>? _lastReplayHeaders;
         public bool splitTasks;
 
         public async Task<IEnumerable<IReplayHeader>> LoadReplayHeadersAsync(CancellationToken token) {
@@ -32,6 +33,7 @@ namespace BeatLeader.Utils {
             } else {
                 await Task.Run(DecodeAndAddReplays, token);
             }
+            _lastReplayHeaders = replays;
             return replays;
 
             void DecodeAndAddReplays() {
@@ -53,6 +55,21 @@ namespace BeatLeader.Utils {
 
         public Task<IReplayHeader?> SaveReplayAsync(Replay replay, CancellationToken token) {
             var path = ToFileName(replay);
+            if (ConfigFileData.Instance.OverrideOldReplays
+                && _lastReplayHeaders is not null) {
+                Plugin.Log.Warn("OverrideOldReplays is enabled, old replays will be deleted");
+                var info = replay.info;
+                foreach (var replayHeader in _lastReplayHeaders) {
+                    if (replayHeader.Info is not { } replayInfo ||
+                        replayInfo.playerID != info.playerID ||
+                        replayInfo.songName != info.songName ||
+                        replayInfo.difficulty != info.difficulty
+                        || replayInfo.mode != info.mode
+                        || replayInfo.hash != info.hash) continue;
+                    Plugin.Log.Info("Deleting old replay: " + Path.GetFileName(replayHeader.FilePath));
+                    ((IReplayManager)this).DeleteReplayAsync(replayHeader, default);
+                }
+            }
             if (!TryWriteReplay(path, replay)) return Task.FromResult<IReplayHeader?>(null);
             var header = new GenericReplayHeader(this, path, replay);
             ReplayAddedEvent?.Invoke(header);

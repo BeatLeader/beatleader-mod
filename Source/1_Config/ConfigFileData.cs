@@ -68,6 +68,8 @@ namespace BeatLeader {
 
         public bool EnableReplayCaching = ConfigDefaults.EnableReplayCaching;
 
+        public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;
+        
         [UseConverter]
         public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
 

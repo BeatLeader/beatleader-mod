@@ -37,9 +37,15 @@ namespace BeatLeader.Components {
         }
 
         [UIValue("save-ost"), UsedImplicitly]
-        private bool SaveOST {
+        private bool SaveOst {
             get => GetFlag(ReplaySaveOption.OST);
             set => WriteFlag(ReplaySaveOption.OST, value);
+        }
+        
+        [UIValue("override-old"), UsedImplicitly]
+        private bool OverrideOld {
+            get => ConfigFileData.Instance.OverrideOldReplays;
+            set => ConfigFileData.Instance.OverrideOldReplays = value;
         }
 
         private static bool GetFlag(ReplaySaveOption option) {

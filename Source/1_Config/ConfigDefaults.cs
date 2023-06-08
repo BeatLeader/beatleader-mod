@@ -68,6 +68,8 @@ namespace BeatLeader {
 
         public const bool EnableReplayCaching = false;
         
+        public const bool OverrideOldReplays = true;
+
         public const ReplaySaveOption ReplaySavingOptions = ReplaySaveOption.Exit | ReplaySaveOption.Fail;
 
         #endregion

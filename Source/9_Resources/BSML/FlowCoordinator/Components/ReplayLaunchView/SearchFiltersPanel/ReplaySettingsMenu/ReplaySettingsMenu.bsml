@@ -1,4 +1,4 @@
-﻿<vertical pref-height="56" pref-width="50"
+﻿<vertical pref-height="62" pref-width="50"
           vertical-fit="PreferredSize"
           spacing="2" pad="3">
   <!-- DELETION MODAL -->
@@ -40,7 +40,7 @@
     <macro.reparent transform="ui-component"/>
   </macro.as-host>
   <vertical id="replay-saving-settings" vertical-fit="PreferredSize"
-            horizontal-fit="Unconstrained" pref-height="30">
+            horizontal-fit="Unconstrained" pref-height="36">
     <text text="Replay Saving Settings" align="Center" font-size="3.5" color="grey"/>
     <horizontal pref-height="8">
       <toggle-setting text="Save On Fail" value="save-after-fail"
@@ -56,6 +56,10 @@
     </horizontal>
     <horizontal pref-height="8">
       <toggle-setting text="Save OST" value="save-ost"
+                      bind-value="true" apply-on-change="true" pref-width="-1"/>
+    </horizontal>
+    <horizontal pref-height="8">
+      <toggle-setting text="Override Old" value="override-old"
                       bind-value="true" apply-on-change="true" pref-width="-1"/>
     </horizontal>
   </vertical>

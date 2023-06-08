@@ -47,6 +47,7 @@ namespace BeatLeader.Components {
         public void Setup(IReplayManager replayManager, ReplayerMenuLoader loader) {
             _replayManager = replayManager;
             _replayManager.ReplaysDeletedEvent += HandleReplaysDeleted;
+            _replayManager.ReplayDeletedEvent += HandleReplayDeleted;
             _replayManager.ReplayAddedEvent += HandleReplayAdded;
             _replayPanel.Setup(loader);
             _replayPanel.SetData(null);
@@ -72,6 +73,7 @@ namespace BeatLeader.Components {
 
         protected override void OnDispose() {
             _replayManager.ReplaysDeletedEvent -= HandleReplaysDeleted;
+            _replayManager.ReplayDeletedEvent -= HandleReplayDeleted;
             _replayManager.ReplayAddedEvent -= HandleReplayAdded;
         }
 
@@ -252,6 +254,11 @@ namespace BeatLeader.Components {
             _replaysListSettingsPanel.ShowCorrupted = false;
         }
 
+        private void HandleReplayDeleted(IReplayHeader header) {
+            if (_selectedHeader == header) _replayPanel.SetData(null);
+            _replaysList.RemoveReplay(header);
+        }
+
         private void HandleReplaysDeleted(string[]? removedPaths) {
             if (removedPaths is null) return;
             //convert it to dict to not enumerate the whole array since dicts use hash maps
@@ -279,19 +286,9 @@ namespace BeatLeader.Components {
             Sort(sorters, ascending);
         }
 
-        private void HandleReplayStatusChanged(ReplayStatus status) {
-            if (status is not ReplayStatus.Deleted) return;
-            _replayPanel.SetData(null);
-            _replaysList.RemoveReplay(_selectedHeader!);
-        }
-
         private void HandleReplaySelected(ReplaysList.AbstractDataCell? cell) {
             if (cell is null) return;
             _selectedHeader = cell.ReplayHeader;
-            if (_selectedHeader is not null) {
-                _selectedHeader.StatusChangedEvent -= HandleReplayStatusChanged;
-            }
-            _selectedHeader!.StatusChangedEvent += HandleReplayStatusChanged;
             _replayPanel.SetData(_selectedHeader);
         }
 

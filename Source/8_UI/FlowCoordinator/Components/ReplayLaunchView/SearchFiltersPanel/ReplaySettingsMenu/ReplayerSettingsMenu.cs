@@ -3,13 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components.Settings;
 using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class SettingsMenu : ReeUIComponentV2 {
+    internal class ReplayerSettingsMenu : ReeUIComponentV2 {
         #region Events
 
         public event Action? DeleteAllButtonClickedEvent;
@@ -41,13 +42,31 @@ namespace BeatLeader.Components {
             get => GetFlag(ReplaySaveOption.OST);
             set => WriteFlag(ReplaySaveOption.OST, value);
         }
-        
+
         [UIValue("override-old"), UsedImplicitly]
         private bool OverrideOld {
             get => ConfigFileData.Instance.OverrideOldReplays;
             set => ConfigFileData.Instance.OverrideOldReplays = value;
         }
 
+        [UIValue("save-replays"), UsedImplicitly]
+        private bool SaveReplays {
+            get => ConfigFileData.Instance.SaveLocalReplays;
+            set {
+                ConfigFileData.Instance.SaveLocalReplays = value;
+                RefreshToggles();
+            }
+        }
+
+        private void RefreshToggles() {
+            if (!_isInitialized) return;
+            var interactable = SaveReplays;
+            foreach (var toggle in _togglesContainer
+                .GetComponentsInChildren<ToggleSetting>()) {
+                toggle.interactable = interactable;
+            }
+        }
+        
         private static bool GetFlag(ReplaySaveOption option) {
             return ConfigFileData.Instance.ReplaySavingOptions.HasFlag(option);
         }
@@ -66,6 +85,12 @@ namespace BeatLeader.Components {
 
         [UIObject("replay-saving-settings")]
         private readonly GameObject _replaySavingSettings = null!;
+
+        [UIComponent("toggles-container")]
+        private readonly Transform _togglesContainer = null!;
+        
+        [UIComponent("save-replays-container")]
+        private readonly Transform _saveReplaysContainer = null!;
 
         [UIComponent("delete-all-button")]
         private readonly Transform _deleteAllButton = null!;
@@ -104,6 +129,7 @@ namespace BeatLeader.Components {
         #region Init
 
         private IReplayManager _replayManager = null!;
+        private bool _isInitialized;
 
         public void Setup(IReplayManager replayManager) {
             _replayManager = replayManager;
@@ -115,7 +141,8 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             foreach (var text in _replaySavingSettings.GetComponentsInChildren<TMP_Text>()) text.fontSizeMax = 3.5f;
-            
+            _saveReplaysContainer.localScale = new(0.8f, 0.8f);
+
             _deleteAllButton.GetComponent<NoTransitionsButton>().selectionStateDidChangeEvent += RefreshDeleteAllButton;
             _deleteAllButton.GetComponent<ButtonStaticAnimations>().enabled = false;
             _deletionModalDeleteButton.GetComponent<NoTransitionsButton>().selectionStateDidChangeEvent += RefreshConfirmationButton;
@@ -128,6 +155,9 @@ namespace BeatLeader.Components {
             _deleteAllButtonBg = _deleteAllButton.Find("BG").GetComponent<ImageView>();
             _deleteAllButtonUnderline = _deleteAllButton.Find("Underline").GetComponent<ImageView>();
             _deleteAllButtonText = _deleteAllButton.Find("Content/Text").GetComponent<TextMeshProUGUI>();
+            
+            _isInitialized = true;
+            RefreshToggles();
         }
 
         #endregion

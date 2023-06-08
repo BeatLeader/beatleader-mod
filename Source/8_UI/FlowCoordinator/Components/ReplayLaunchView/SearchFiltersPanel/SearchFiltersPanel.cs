@@ -37,7 +37,7 @@ namespace BeatLeader.Components {
         private FiltersMenu _filtersMenu = null!;
 
         [UIValue("settings-button"), UsedImplicitly]
-        private SettingsButton _settingsButton = null!;
+        private ReplayerSettingsButton _replayerSettingsButton = null!;
 
         [UIComponent("filters-modal")]
         private readonly ModalView _modal = null!;
@@ -56,7 +56,7 @@ namespace BeatLeader.Components {
             _searchPanel = Instantiate<SearchPanel>(transform);
             _filterPanel = Instantiate<FilterPanel>(transform);
             _filtersMenu = Instantiate<FiltersMenu>(transform);
-            _settingsButton = Instantiate<SettingsButton>(transform);
+            _replayerSettingsButton = Instantiate<ReplayerSettingsButton>(transform);
             _searchPanel.TextChangedEvent += HandleSearchPromptChanged;
             _filtersMenu.FiltersChangedEvent += HandleFiltersChanged;
             _filterPanel.FilterButtonClickedEvent += HandleFilterButtonClicked;
@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
             LevelCollectionViewController levelCollectionViewController,
             StandardLevelDetailViewController standardLevelDetailViewController
         ) {
-            _settingsButton.Setup(replayManager);
+            _replayerSettingsButton.Setup(replayManager);
             _filtersMenu.Setup(
                 viewController,
                 flowCoordinator,

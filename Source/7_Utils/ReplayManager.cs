@@ -84,7 +84,7 @@ namespace BeatLeader.Utils {
         [Pure]
         internal bool ValidatePlay(Replay replay, PlayEndData endData, bool isOstLevel) {
             var options = ConfigFileData.Instance.ReplaySavingOptions;
-            return endData.EndType switch {
+            return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
                     PlayEndData.LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
                     PlayEndData.LevelEndType.Quit or PlayEndData.LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
                     PlayEndData.LevelEndType.Clear => true,

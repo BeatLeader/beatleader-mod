@@ -28,7 +28,7 @@
         <primary-button id="deletion-modal-delete-button"
                         on-click="delete-replays" text="Yes"
                         horizontal-fit="Unconstrained"/>
-        <primary-button id="deletion-modal-delete-button-blue" 
+        <primary-button id="deletion-modal-delete-button-blue"
                         on-click="delete-replays" text="Yes"
                         horizontal-fit="Unconstrained"/>
         <button text="No" horizontal-fit="Unconstrained"
@@ -39,29 +39,35 @@
   <macro.as-host host="replayer-settings">
     <macro.reparent transform="ui-component"/>
   </macro.as-host>
-  <vertical id="replay-saving-settings" vertical-fit="PreferredSize"
-            horizontal-fit="Unconstrained" pref-height="36">
+  <vertical id="replay-saving-settings" pref-height="46" horizontal-fit="Unconstrained">
     <text text="Replay Saving Settings" align="Center" font-size="3.5" color="grey"/>
-    <horizontal pref-height="8">
-      <toggle-setting text="Save On Fail" value="save-after-fail"
+    <horizontal id="save-replays-container" pref-height="6">
+      <toggle-setting text="Save Replays" value="save-replays"
                       bind-value="true" apply-on-change="true" pref-width="-1"/>
     </horizontal>
-    <horizontal pref-height="8">
-      <toggle-setting text="Save On Exit" value="save-after-exit"
-                      bind-value="true" apply-on-change="true" pref-width="-1"/>
-    </horizontal>
-    <horizontal pref-height="8">
-      <toggle-setting text="Save With Zero Score" value="save-zero-score"
-                      bind-value="true" apply-on-change="true" pref-width="-1"/>
-    </horizontal>
-    <horizontal pref-height="8">
-      <toggle-setting text="Save OST" value="save-ost"
-                      bind-value="true" apply-on-change="true" pref-width="-1"/>
-    </horizontal>
-    <horizontal pref-height="8">
-      <toggle-setting text="Override Old" value="override-old"
-                      bind-value="true" apply-on-change="true" pref-width="-1"/>
-    </horizontal>
+    <vertical id="toggles-container" vertical-fit="PreferredSize" pref-height="26"
+              horizontal-fit="Unconstrained" pad-left="1" pad-right="1" >
+      <horizontal pref-height="8">
+        <toggle-setting text="Save On Fail" value="save-after-fail"
+                        bind-value="true" apply-on-change="true" pref-width="-1"/>
+      </horizontal>
+      <horizontal pref-height="8">
+        <toggle-setting text="Save On Exit" value="save-after-exit"
+                        bind-value="true" apply-on-change="true" pref-width="-1"/>
+      </horizontal>
+      <!--<horizontal pref-height="8">
+        <toggle-setting text="Save With Zero Score" value="save-zero-score"
+                        bind-value="true" apply-on-change="true" pref-width="-1"/>
+      </horizontal>-->
+      <horizontal pref-height="8">
+        <toggle-setting text="Save OST" value="save-ost"
+                        bind-value="true" apply-on-change="true" pref-width="-1"/>
+      </horizontal>
+      <horizontal pref-height="8">
+        <toggle-setting text="Override Old" value="override-old"
+                        bind-value="true" apply-on-change="true" pref-width="-1"/>
+      </horizontal>
+    </vertical>
   </vertical>
   <horizontal pref-height="6">
     <button id="delete-all-button" text="Delete All Replays" horizontal-fit="Unconstrained"

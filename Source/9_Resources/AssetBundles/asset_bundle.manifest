@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2235328272
+CRC: 8800331
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: da92e599ebe8e91e87d0e4b82b6b1bab
+    Hash: 522ee1f8ba43274ad6fd56b8ec9a1ed4
   TypeTreeHash:
     serializedVersion: 2
     Hash: 2fc669cd0618ec735682138d990ba9be
@@ -77,6 +77,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/na.png
 - Assets/BeatLeader/5_Textures/Icons/ScoreInfoPanelControls/BL_QuestReplayIcon.png
 - Assets/BeatLeader/5_Textures/Flags/bh.png
+- Assets/BeatLeader/5_Textures/Icons/BL_ReplayerSettingsIcon.png
 - Assets/BeatLeader/5_Textures/Icons/Leaderboard/BL_FriendsSelectorIcon.png
 - Assets/BeatLeader/5_Textures/Flags/bq.png
 - Assets/BeatLeader/5_Textures/Flags/me.png

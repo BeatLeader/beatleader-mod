@@ -171,6 +171,8 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite RotateRightIcon;
 
         [UsedImplicitly] public static Sprite SettingsIcon;
+        
+        [UsedImplicitly] public static Sprite ReplayerSettingsIcon;
 
         [UsedImplicitly] public static Sprite WarningIcon;
 
@@ -242,6 +244,7 @@ namespace BeatLeader {
             ProgressRingIcon = assetBundle.LoadAsset<Sprite>("BL_ProgressRingIcon");
             RotateLeftIcon = assetBundle.LoadAsset<Sprite>("BL_RotateLeftIcon");
             RotateRightIcon = assetBundle.LoadAsset<Sprite>("BL_RotateRightIcon");
+            ReplayerSettingsIcon = assetBundle.LoadAsset<Sprite>("BL_ReplayerSettingsIcon");
             SettingsIcon = assetBundle.LoadAsset<Sprite>("BL_SettingsIcon");
             WarningIcon = assetBundle.LoadAsset<Sprite>("BL_WarningIcon");
             EyeIcon = assetBundle.LoadAsset<Sprite>("BL_EyeIcon");

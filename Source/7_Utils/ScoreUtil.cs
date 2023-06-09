@@ -34,7 +34,7 @@ namespace BeatLeader.Utils {
                 .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
             if (replayManager.ValidatePlay(replay, data, isOstLevel)) {
                 Plugin.Log.Debug("Validation completed, replay will be saved");
-                _ = replayManager.SaveReplayAsync(replay, default);
+                _ = replayManager.SaveReplayAsync(replay, data, default);
             } else {
                 Plugin.Log.Warn("Validation failed, replay will not be saved!");
                 replayManager.ResetLastReplay();

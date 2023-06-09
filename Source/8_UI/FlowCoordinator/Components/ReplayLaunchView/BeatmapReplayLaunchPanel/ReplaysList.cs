@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
@@ -12,6 +13,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using static BeatLeader.Models.Activity.PlayEndData.LevelEndType;
 
 namespace BeatLeader.Components {
     internal class ReplaysList : ReeUIComponentV2, TableView.IDataSource {
@@ -187,7 +189,7 @@ namespace BeatLeader.Components {
 
             public bool ShowBeatmapName {
                 set {
-                    if (ReplayHeader?.Info is not { } info) return;
+                    if (ReplayHeader?.ReplayInfo is not { } info) return;
                     TopLeftText = value ? info.songName : MakeDiff(info.difficulty);
                     BottomLeftText = $"{(value ? MakeDiff(info.difficulty) : string.Empty)} {info.playerName}";
                     static string MakeDiff(string diff) => $"[<color=#89ff89>{diff}</color>]";
@@ -195,11 +197,23 @@ namespace BeatLeader.Components {
             }
 
             protected override void OnConstruct() {
-                if (ReplayHeader!.Status is ReplayStatus.Corrupted
-                    || ReplayHeader.Info is not { } info) return;
+                if (ReplayHeader!.FileStatus is FileStatus.Corrupted
+                    || ReplayHeader.ReplayInfo is not { } info) return;
                 ShowBeatmapName = false;
-                TopRightText = info.failTime == 0 ? "Completed" : "Failed";
+                TopRightText = ReplayHeader.ReplayFinishType switch {
+                    Clear => "Completed",
+                    Quit or Restart => "Unfinished",
+                    Fail => $"Failed at {FormatTime(Mathf.FloorToInt(ReplayHeader.ReplayInfo.failTime))}",
+                    _ => "Unknown"
+                };
                 BottomRightText = FormatUtils.GetDateTimeString(info.timestamp);
+            }
+
+            private static string FormatTime(int seconds) {
+                var minutes = seconds / 60;
+                var hours = minutes / 60;
+                return $"{(hours is not 0 ? $"{hours}:" : "")}{Zero(minutes)}{minutes % 60}:{Zero(seconds)}{seconds % 60}";
+                static string Zero(int number) => number > 9 ? "" : "0";
             }
 
             #region Colors
@@ -335,7 +349,7 @@ namespace BeatLeader.Components {
 
         public void AddReplay(IReplayHeader header, bool showBeatmapNameIfCorrect = true) {
             ShowEmptyScreen(false);
-            if (header.Status is ReplayStatus.Corrupted || AddCell<ReplayDataCell>(header) is not ReplayDataCell cell) {
+            if (header.FileStatus is FileStatus.Corrupted || AddCell<ReplayDataCell>(header) is not ReplayDataCell cell) {
                 AddCell<CorruptedReplayDataCell>(header);
                 return;
             }

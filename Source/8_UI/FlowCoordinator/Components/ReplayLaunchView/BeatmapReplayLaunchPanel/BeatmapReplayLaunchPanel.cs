@@ -95,7 +95,7 @@ namespace BeatLeader.Components {
             ShowLoadingScreen(true);
             _tokenSource = new();
             _headers = (await _replayManager.LoadReplayHeadersAsync(_tokenSource.Token))
-                .Where(x => x.Status is ReplayStatus.Corrupted || levelId is null || x.Info?.hash == levelId);
+                .Where(x => x.FileStatus is FileStatus.Corrupted || levelId is null || x.ReplayInfo?.hash == levelId);
             FinishReplayLoading(false);
         }
 
@@ -154,8 +154,8 @@ namespace BeatLeader.Components {
             var cells = _replaysList.Cells;
             cells.Clear();
             cells.AddRange(_replaysList.ActualCells
-                .Where(cell => cell.ReplayHeader!.Status is not
-                    ReplayStatus.Corrupted && (_predicate?.Invoke(cell.ReplayHeader!) ?? true)));
+                .Where(cell => cell.ReplayHeader!.FileStatus is not
+                    FileStatus.Corrupted && (_predicate?.Invoke(cell.ReplayHeader!) ?? true)));
             _replaysList.Refresh();
             RefreshSortingInternal();
         }
@@ -168,8 +168,8 @@ namespace BeatLeader.Components {
             public ReplaysListSettingsPanel.Sorters sorter;
 
             public int Compare(ReplaysList.AbstractDataCell x, ReplaysList.AbstractDataCell y) {
-                var xi = x.ReplayHeader!.Info;
-                var yi = y.ReplayHeader!.Info;
+                var xi = x.ReplayHeader!.ReplayInfo;
+                var yi = y.ReplayHeader!.ReplayInfo;
                 return xi is null || yi is null ? 0 : sorter switch {
                     ReplaysListSettingsPanel.Sorters.Difficulty =>
                         CompareFloat(
@@ -178,13 +178,13 @@ namespace BeatLeader.Components {
                     ReplaysListSettingsPanel.Sorters.Player =>
                         string.CompareOrdinal(xi.playerName, yi.playerName),
                     ReplaysListSettingsPanel.Sorters.Completion =>
-                        CompareFloat(xi.failTime, yi.failTime),
+                        CompareFloat((float)x.ReplayHeader.ReplayFinishType, (float)y.ReplayHeader.ReplayFinishType),
                     ReplaysListSettingsPanel.Sorters.Date =>
                         -CompareFloat(int.Parse(xi.timestamp), int.Parse(yi.timestamp)),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
-
+            
             private static int CompareFloat(float x, float y) => x >= y ? Math.Abs(x - y) < 0.01 ? 0 : 1 : -1;
         }
 
@@ -233,7 +233,7 @@ namespace BeatLeader.Components {
                 _originalCells.AddRange(cells);
                 cells.Clear();
                 cells.AddRange(_replaysList.ActualCells
-                    .Where(x => x.ReplayHeader!.Status is ReplayStatus.Corrupted));
+                    .Where(x => x.ReplayHeader!.FileStatus is FileStatus.Corrupted));
             } else if (_corruptedWasTurnedOn) {
                 cells.Clear();
                 cells.AddRange(_originalCells);

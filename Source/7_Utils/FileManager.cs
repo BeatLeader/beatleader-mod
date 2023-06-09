@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
 
 namespace BeatLeader.Utils {
@@ -27,15 +28,17 @@ namespace BeatLeader.Utils {
             }
         }
 
-        public static string ToFileName(Replay replay) {
-            return ToFileName(replay, ReplaysFolderPath);
+        public static string ToFileName(Replay replay, PlayEndData? playEndData) {
+            return ToFileName(replay, playEndData, ReplaysFolderPath);
         }
         
-        public static string ToFileName(Replay replay, string folder) {
+        public static string ToFileName(Replay replay, PlayEndData? playEndData, string folder) {
             var practice = replay.info.speed != 0 ? "-practice" : "";
             var fail = replay.info.failTime != 0 ? "-fail" : "";
+            var exit = playEndData?.EndType is PlayEndData.LevelEndType
+                .Quit or PlayEndData.LevelEndType.Restart ? "-exit" : "";
             var info = replay.info;
-            var filename = $"{info.playerID}{practice}{fail}-{info.songName}-{info.difficulty}-{info.mode}-{info.hash}-{info.timestamp}.bsor";
+            var filename = $"{info.playerID}{practice}{fail}{exit}-{info.songName}-{info.difficulty}-{info.mode}-{info.hash}-{info.timestamp}.bsor";
             var regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             var r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
             return folder + r.Replace(filename, "_");

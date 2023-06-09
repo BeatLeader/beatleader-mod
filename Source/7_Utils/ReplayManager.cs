@@ -53,14 +53,14 @@ namespace BeatLeader.Utils {
             }
         }
 
-        public Task<IReplayHeader?> SaveReplayAsync(Replay replay, CancellationToken token) {
-            var path = ToFileName(replay);
+        public Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
+            var path = ToFileName(replay, playEndData);
             if (ConfigFileData.Instance.OverrideOldReplays
                 && _lastReplayHeaders is not null) {
                 Plugin.Log.Warn("OverrideOldReplays is enabled, old replays will be deleted");
                 var info = replay.info;
                 foreach (var replayHeader in _lastReplayHeaders) {
-                    if (replayHeader.Info is not { } replayInfo ||
+                    if (replayHeader.ReplayInfo is not { } replayInfo ||
                         replayInfo.playerID != info.playerID ||
                         replayInfo.songName != info.songName ||
                         replayInfo.difficulty != info.difficulty

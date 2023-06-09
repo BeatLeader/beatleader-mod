@@ -4,7 +4,7 @@ using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using static BeatLeader.Models.ReplayStatus;
+using static BeatLeader.Models.FileStatus;
 
 namespace BeatLeader.Components {
     internal class ReplayDetailPanel : ReeUIComponentV2 {
@@ -65,7 +65,7 @@ namespace BeatLeader.Components {
         private Player? _player;
 
         public void SetData(IReplayHeader? header) {
-            var invalid = header is null || header.Status is Corrupted;
+            var invalid = header is null || header.FileStatus is Corrupted;
             _replayStatisticsPanel.SetData(null, null, invalid, header is null);
             _header = header;
             DeleteButtonInteractable = header is not null;
@@ -76,7 +76,7 @@ namespace BeatLeader.Components {
 
         private async Task ProcessDataAsync(IReplayHeader header) {
             var stats = default(ScoreStats?);
-            _miniProfile.SetPlayer(header.Info?.playerID);
+            _miniProfile.SetPlayer(header.ReplayInfo?.playerID);
             DeleteButtonInteractable = false;
             var replay = await header.LoadReplayAsync(default);
             DeleteButtonInteractable = true;
@@ -87,7 +87,7 @@ namespace BeatLeader.Components {
                 score = ReplayUtils.ComputeScore(replay);
             }
             _replayStatisticsPanel.SetData(score, stats, _header is null);
-            WatchButtonInteractable = _isInitialized && await _menuLoader.CanLaunchReplay(header.Info!);
+            WatchButtonInteractable = _isInitialized && await _menuLoader.CanLaunchReplay(header.ReplayInfo!);
         }
 
         #endregion
@@ -129,7 +129,7 @@ namespace BeatLeader.Components {
 
         [UIAction("watch-button-click"), UsedImplicitly]
         private void HandleWatchButtonClicked() {
-            if (_header is null || _header.Status is Corrupted) return;
+            if (_header is null || _header.FileStatus is Corrupted) return;
             _ = _menuLoader.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _player);
         }
 

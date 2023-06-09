@@ -75,7 +75,7 @@ namespace BeatLeader.ViewControllers {
             _replayPanel.Filter(hasNoFilters ? null : SearchPredicate);
 
             bool SearchPredicate(IReplayHeader header) {
-                return header.Info is not { } info ||
+                return header.ReplayInfo is not { } info ||
                     info.playerName.ToLower().Contains(prompt)
                     && (!diff.HasValue || info.difficulty == diff.Value.ToString())
                     && (characteristic is null || info.mode == characteristic);

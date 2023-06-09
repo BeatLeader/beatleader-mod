@@ -1,5 +1,5 @@
 ﻿namespace BeatLeader.Models {
-    public enum ReplayStatus {
+    public enum FileStatus {
         Unloaded,
         Loading,
         Loaded,

@@ -33,6 +33,12 @@ namespace BeatLeader {
         public bool Enabled = ConfigDefaults.Enabled;
 
         #endregion
+        
+        #region MenuButtonEnabled
+
+        public bool MenuButtonEnabled = ConfigDefaults.MenuButtonEnabled;
+
+        #endregion
 
         #region ScoresContext
 

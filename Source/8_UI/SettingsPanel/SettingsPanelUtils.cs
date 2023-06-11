@@ -1,6 +1,6 @@
 namespace BeatLeader {
     internal partial class SettingsPanelUI {
-        private const string ResourcePath = Plugin.ResourcesPath + ".BSML.Leaderboard.SettingsPanelUI.bsml";
+        private const string ResourcePath = Plugin.ResourcesPath + ".BSML.SettingsPanelUI.bsml";
         private const string TabName = Plugin.FancyName;
 
         private static bool _tabActive;

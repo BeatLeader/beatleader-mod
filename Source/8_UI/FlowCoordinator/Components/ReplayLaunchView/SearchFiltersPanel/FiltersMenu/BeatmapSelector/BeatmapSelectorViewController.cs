@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using HMUI;
 using IPA.Utilities;
+using Polyglot;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -18,6 +21,7 @@ namespace BeatLeader.Components {
 
         private LevelSelectionNavigationController _levelSelectionNavigationController = null!;
         private LevelCollectionNavigationController _levelCollectionNavigationController = null!;
+        private LevelFilteringNavigationController _levelFilteringNavigationController = null!;
         private StandardLevelDetailViewController _levelDetailViewController = null!;
         private IconSegmentedControl _levelCategorySegmentedControl = null!;
         private Transform _levelDetailLevelBar = null!;
@@ -27,12 +31,15 @@ namespace BeatLeader.Components {
 
         #region Init & Dispose
 
+        private const string SelectButtonText = "SELECT";
+
         private Vector3 _levelDetailLevelBarOriginalPos;
-        private SelectLevelCategoryViewController.LevelCategory _originalLevelCategory;
-        private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory;
+        private SelectLevelCategoryViewController.LevelCategory _originalLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
+        private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
         private IPreviewBeatmapLevel? _originalPreviewBeatmapLevel;
         private bool _isInitialized;
-        
+        private bool _wasActivatedWithCoordinator;
+
         public void Init(
             LevelSelectionNavigationController levelSelectionNavigationController,
             StandardLevelDetailViewController levelDetailViewController
@@ -41,7 +48,15 @@ namespace BeatLeader.Components {
             _levelSelectionNavigationController = levelSelectionNavigationController;
             _levelCollectionNavigationController = levelSelectionNavigationController.GetField
                 <LevelCollectionNavigationController, LevelSelectionNavigationController>("_levelCollectionNavigationController");
-            _levelCategorySegmentedControl = levelSelectionNavigationController.GetComponentInChildren<IconSegmentedControl>();
+            _levelFilteringNavigationController = _levelSelectionNavigationController.GetField
+                <LevelFilteringNavigationController, LevelSelectionNavigationController>("_levelFilteringNavigationController");
+            var selectLevelCategoryViewController = _levelFilteringNavigationController.GetField
+                <SelectLevelCategoryViewController, LevelFilteringNavigationController>("_selectLevelCategoryViewController");
+            _levelFilteringNavigationController.SetupBeatmapLevelPacks();
+            var levelCategories = _levelFilteringNavigationController.GetField
+                <SelectLevelCategoryViewController.LevelCategory[], LevelFilteringNavigationController>("_enabledLevelCategories");
+            selectLevelCategoryViewController.Setup(levelCategories[0], levelCategories);
+            _levelCategorySegmentedControl = selectLevelCategoryViewController.GetComponentInChildren<IconSegmentedControl>(true);
             _levelDetailViewController = levelDetailViewController;
             _levelDetail = _levelDetailViewController.transform.Find("LevelDetail");
             _levelDetailLevelBar = _levelDetail.Find("LevelBarBig");
@@ -57,9 +72,23 @@ namespace BeatLeader.Components {
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (!_isInitialized) throw new UninitializedComponentException();
             if (firstActivation) {
+                //super tricky-wicked way to check is controller was ever presented with solo flow coordinator
+                _wasActivatedWithCoordinator = _levelSelectionNavigationController
+                    .GetField<string, LevelSelectionNavigationController>("_actionButtonText") == Localization.Get("BUTTON_PLAY");
+                _levelSelectionNavigationController.Setup(
+                    SongPackMask.all,
+                    BeatmapDifficultyMask.All,
+                    Array.Empty<BeatmapCharacteristicSO>(),
+                    false,
+                    false,
+                    SelectButtonText,
+                    null,
+                    SelectLevelCategoryViewController.LevelCategory.None,
+                    null,
+                    true);
                 _levelDetailWrapper = ReeUIComponentV2.Instantiate<LevelDetailWrapper>(_levelDetail.parent);
                 _levelDetailWrapper.SelectButtonPressedEvent += HandleSelectButtonPressed;
-                _closeButton = ReeUIComponentV2.Instantiate<CloseButton>(_levelSelectionNavigationController.transform);
+                _closeButton = ReeUIComponentV2.Instantiate<CloseButton>(_levelFilteringNavigationController.transform);
                 _closeButton.ButtonPressedEvent += HandleCloseButtonPressed;
             }
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
@@ -102,8 +131,9 @@ namespace BeatLeader.Components {
         #region UI Tweaks
 
         private void SetCloseButtonEnabled(bool buttonEnabled) {
-            _closeButton!.gameObject.SetActive(buttonEnabled);
-            _closeButton.transform.position = new(-1.9f, 2.05f, 2.9f);
+            var buttonTransform = _closeButton!.transform;
+            buttonTransform.localPosition = new(_wasActivatedWithCoordinator ? -95 : -80, 5, 0);
+            _closeButton.gameObject.SetActive(buttonEnabled);
         }
 
         private void SetLevelDetailWrapperEnabled(bool wrapperEnabled) {

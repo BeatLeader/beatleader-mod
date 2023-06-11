@@ -4,13 +4,18 @@ using JetBrains.Annotations;
 
 namespace BeatLeader {
     internal partial class SettingsPanelUI : NotifiableSingleton<SettingsPanelUI> {
-        #region Enabled Toggle
+        #region Toggles
 
-        [UIValue("enabled-value")]
-        [UsedImplicitly]
-        private bool EnabledValue {
+        [UIValue("enabled"), UsedImplicitly]
+        private bool Enabled {
             get => PluginConfig.Enabled;
             set => PluginConfig.Enabled = value;
+        }
+
+        [UIValue("menu-button-enabled"), UsedImplicitly]
+        private bool MenuButtonEnabled {
+            get => BeatLeaderMenuButtonManager.MenuButtonEnabled;
+            set => BeatLeaderMenuButtonManager.MenuButtonEnabled = value;
         }
 
         #endregion

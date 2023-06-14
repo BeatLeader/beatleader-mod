@@ -15,7 +15,7 @@ namespace BeatLeader.Components {
 
         private class NotSelectedPreviewBeatmapLevel : IPreviewBeatmapLevel {
             public string? levelID { get; } = string.Empty;
-            public string? songName { get; } = "Not selected";
+            public string? songName { get; } = "Click to select";
             public string? songSubName { get; } = null;
             public string? songAuthorName { get; } = "Unknown";
             public string? levelAuthorName { get; } = null;

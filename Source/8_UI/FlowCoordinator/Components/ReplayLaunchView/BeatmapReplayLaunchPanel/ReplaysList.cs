@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
@@ -17,25 +16,6 @@ using static BeatLeader.Models.Activity.PlayEndData.LevelEndType;
 
 namespace BeatLeader.Components {
     internal class ReplaysList : ReeUIComponentV2, TableView.IDataSource {
-        #region Cells Pool
-
-        private static readonly IReplayHeader emptyReplayHeader =
-            new GenericReplayHeader(null!, string.Empty, default(ReplayInfo?));
-
-
-        [UsedImplicitly]
-        public class DataCellsMemoryPool : StaticMemoryPool<DataCellsMemoryPool, AbstractDataCell> {
-            public const int DefaultReservedCellsCount = 500;
-
-            public override void Expand(int count) {
-                for (var i = 0; i < count; i++) {
-                    items.Push(AbstractDataCell.Create<ReplayDataCell>(emptyReplayHeader));
-                }
-            }
-        }
-
-        #endregion
-
         #region Cells
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
@@ -273,8 +253,6 @@ namespace BeatLeader.Components {
         #region Init
 
         protected override void OnInitialize() {
-            _reusableCells.AddRange(DataCellsMemoryPool.Instance
-                .Shrink(DataCellsMemoryPool.DefaultReservedCellsCount));
             _tableView = _replaysList.tableView;
             _tableView.SetDataSource(this, true);
             _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
@@ -285,6 +263,9 @@ namespace BeatLeader.Components {
         #endregion
 
         #region TableView
+        
+        private static readonly IReplayHeader emptyReplayHeader =
+            new GenericReplayHeader(null!, string.Empty, default(ReplayInfo?));
 
         public List<AbstractDataCell> ActualCells { get; } = new();
         public List<AbstractDataCell> Cells { get; } = new();
@@ -341,19 +322,17 @@ namespace BeatLeader.Components {
             Refresh();
         }
 
-        public void RemoveReplay(IReplayHeader header) {
+        public void RemoveReplay(IReplayHeader header, bool refresh = false) {
             var cell = ActualCells.FirstOrDefault(x => x.ReplayHeader == header);
             if (cell is null || !ActualCells.Remove(cell) || !Cells.Remove(cell)) return;
-            Refresh();
+            if (refresh) Refresh();
         }
 
-        public void AddReplay(IReplayHeader header, bool showBeatmapNameIfCorrect = true) {
-            ShowEmptyScreen(false);
+        public void AddReplay(IReplayHeader header, bool showBeatmapNameIfCorrect = true, bool refresh = false) {
             if (header.FileStatus is FileStatus.Corrupted || AddCell<ReplayDataCell>(header) is not ReplayDataCell cell) {
                 AddCell<CorruptedReplayDataCell>(header);
-                return;
-            }
-            cell.ShowBeatmapName = showBeatmapNameIfCorrect;
+            } else cell.ShowBeatmapName = showBeatmapNameIfCorrect;
+            if (refresh) Refresh();
         }
 
         private void ClearData() {

@@ -21,7 +21,6 @@ namespace BeatLeader {
 
         private void Awake() {
             LeaderboardEvents.MenuButtonWasPressedEvent += PresentFromLeaderboard;
-            ReplaysList.DataCellsMemoryPool.Instance.Expand(ReplaysList.DataCellsMemoryPool.DefaultReservedCellsCount);
         }
 
         private void OnDestroy() {

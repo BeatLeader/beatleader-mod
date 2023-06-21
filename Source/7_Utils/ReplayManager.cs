@@ -12,7 +12,7 @@ using static BeatLeader.Utils.FileManager;
 namespace BeatLeader.Utils {
     [PublicAPI]
     public sealed class ReplayManager : Singleton<ReplayManager>, IReplayManager {
-        private const int PreloadedReplaysCount = 200;
+        private const int PreloadedReplaysCount = 1000;
 
         public event Action<IReplayHeader>? ReplayAddedEvent;
         public event Action<IReplayHeader>? ReplayDeletedEvent;
@@ -21,36 +21,25 @@ namespace BeatLeader.Utils {
         public IReplayHeader? LastSavedReplay { get; private set; }
 
         private IEnumerable<IReplayHeader>? _lastReplayHeaders;
-        public bool splitTasks;
 
-        public async Task<IEnumerable<IReplayHeader>> LoadReplayHeadersAsync(CancellationToken token) {
+        public async Task<IEnumerable<IReplayHeader>?> LoadReplayHeadersAsync(
+            CancellationToken token,
+            Action<IReplayHeader>? loadCallback = null,
+            bool makeArray = true
+        ) {
             var paths = GetAllReplayPaths();
-            var replays = new List<IReplayHeader>(PreloadedReplaysCount);
-            var tasks = splitTasks ? new List<Task>(PreloadedReplaysCount) : null;
-            if (splitTasks) {
-                DecodeAndAddReplays();
-                await Task.WhenAll(tasks!);
-            } else {
-                await Task.Run(DecodeAndAddReplays, token);
-            }
-            _lastReplayHeaders = replays;
-            return replays;
-
-            void DecodeAndAddReplays() {
+            var replays = makeArray ? new List<IReplayHeader>(PreloadedReplaysCount) : null;
+            await Task.Run(() => {
                 foreach (var path in paths) {
-                    if (!splitTasks) {
-                        DecodeAndAdd(this, replays, path);
-                        continue;
-                    }
-                    var task = Task.Run(() => DecodeAndAdd(this, replays, path), token);
-                    tasks!.Add(task);
-                }
-
-                static void DecodeAndAdd(IReplayManager replayManager, ICollection<IReplayHeader> replays, string path) {
+                    if (token.IsCancellationRequested) return;
                     TryReadReplayInfo(path, out var info);
-                    replays.Add(new GenericReplayHeader(replayManager, path, info));
+                    var header = new GenericReplayHeader(this, path, info);
+                    if (makeArray) replays!.Add(header);
+                    loadCallback?.Invoke(header);
                 }
-            }
+            }, token);
+            if (makeArray) _lastReplayHeaders = replays;
+            return replays;
         }
 
         public Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {

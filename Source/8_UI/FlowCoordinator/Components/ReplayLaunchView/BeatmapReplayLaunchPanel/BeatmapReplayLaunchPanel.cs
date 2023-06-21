@@ -82,6 +82,7 @@ namespace BeatLeader.Components {
         #region ReplayHeaders
 
         private IEnumerable<IReplayHeader>? _headers;
+        private IEnumerable<IReplayHeader>? _tempHeaders;
         private CancellationTokenSource? _tokenSource;
 
         private void CancelReplayInfosLoading() {
@@ -90,18 +91,25 @@ namespace BeatLeader.Components {
             FinishReplayLoading(true);
         }
 
-        private async Task StartReplayInfosLoading(string? levelId) {
+        private async Task StartReplayInfosLoading(string? levelId, SynchronizationContext context) {
             if (_tokenSource != null) return;
+            _replaysList.SetData();
             ShowLoadingScreen(true);
             _tokenSource = new();
-            _headers = (await _replayManager.LoadReplayHeadersAsync(_tokenSource.Token))
-                .Where(x => x.FileStatus is FileStatus.Corrupted || levelId is null || x.ReplayInfo?.hash == levelId);
+            var token = _tokenSource.Token;
+            _tempHeaders = await _replayManager.LoadReplayHeadersAsync(token, x => {
+                if (x.FileStatus is not FileStatus.Corrupted
+                    && levelId is not null
+                    && x.ReplayInfo?.hash != levelId) return;
+                context.Send(y => AddReplayToList((IReplayHeader)y), x);
+            });
+            if (token.IsCancellationRequested) return;
             FinishReplayLoading(false);
         }
 
         private void FinishReplayLoading(bool isCancelled) {
-            if (!isCancelled) _replaysList.SetData(
-                    _headers, _previewBeatmapLevel is null);
+            if (!isCancelled) _headers = _tempHeaders;
+            else _replaysList.SetData(_headers, _previewBeatmapLevel is null);
             _tokenSource = null;
             ShowLoadingScreen(false);
             RefreshFilterInternal();
@@ -110,6 +118,10 @@ namespace BeatLeader.Components {
         private void ShowLoadingScreen(bool show) {
             _loadingContainerObject.SetActive(show);
             _mainContainerCanvasGroup.alpha = show ? 0.2f : 1;
+        }
+
+        private void AddReplayToList(IReplayHeader header) {
+            _replaysList.AddReplay(header, _previewBeatmapLevel is null, true);
         }
 
         #endregion
@@ -138,7 +150,9 @@ namespace BeatLeader.Components {
                 return;
             }
             _previewBeatmapLevel = beatmapLevel;
-            _ = StartReplayInfosLoading(beatmapLevel?.levelID.Replace("custom_level_", ""));
+            _ = StartReplayInfosLoading(
+                beatmapLevel?.levelID.Replace("custom_level_", ""),
+                SynchronizationContext.Current);
         }
 
         public void Filter(Func<IReplayHeader, bool>? predicate) {
@@ -256,7 +270,7 @@ namespace BeatLeader.Components {
 
         private void HandleReplayDeleted(IReplayHeader header) {
             if (_selectedHeader == header) _replayPanel.SetData(null);
-            _replaysList.RemoveReplay(header);
+            _replaysList.RemoveReplay(header, true);
         }
 
         private void HandleReplaysDeleted(string[]? removedPaths) {

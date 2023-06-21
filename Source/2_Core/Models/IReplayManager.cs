@@ -15,14 +15,22 @@ namespace BeatLeader.Models {
 
         IReplayHeader? LastSavedReplay { get; }
 
-        Task<IEnumerable<IReplayHeader>> LoadReplayHeadersAsync(CancellationToken token);
+        Task<IEnumerable<IReplayHeader>?> LoadReplayHeadersAsync(
+            CancellationToken token,
+            Action<IReplayHeader>? loadCallback = null,
+            bool makeArray = true
+        );
 
-        Task<IReplayHeader?> SaveReplayAsync(RReplay replay, PlayEndData playEndData, CancellationToken token);
+        Task<IReplayHeader?> SaveReplayAsync(
+            RReplay replay,
+            PlayEndData playEndData,
+            CancellationToken token
+        );
 
         Task<string[]?> DeleteAllReplaysAsync(CancellationToken token);
 
         internal Task<bool> DeleteReplayAsync(IReplayHeader header, CancellationToken token);
-        
+
         internal Task<RReplay?> LoadReplayAsync(IReplayHeader header, CancellationToken token);
     }
 }

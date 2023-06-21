@@ -1,6 +1,7 @@
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.UIPatches;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -54,6 +55,7 @@ namespace BeatLeader.Components {
             _websiteButton.OnClick += WebsiteButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
+            EnvironmentManagerPatch.EnvironmentTypeChangedEvent += OnMenuEnvironmentChanged;
 
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
@@ -63,6 +65,7 @@ namespace BeatLeader.Components {
             _websiteButton.OnClick -= WebsiteButtonOnClick;
             _settingsButton.OnClick -= SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
+            EnvironmentManagerPatch.EnvironmentTypeChangedEvent -= OnMenuEnvironmentChanged;
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
@@ -70,6 +73,10 @@ namespace BeatLeader.Components {
 
         #region Events
 
+        private void OnMenuEnvironmentChanged(MenuEnvironmentManager.MenuEnvironmentType type) {
+            UpdateVisuals();
+        }
+        
         private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             SetBeatmap(beatmap);
         }
@@ -168,6 +175,7 @@ namespace BeatLeader.Components {
             _mapStatus.SetValues(_rankedStatus, _difficultyInfo);
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
+            IsMenuButtonActive = EnvironmentManagerPatch.EnvironmentType is not MenuEnvironmentManager.MenuEnvironmentType.Lobby;
         }
 
         #endregion
@@ -185,7 +193,8 @@ namespace BeatLeader.Components {
         #endregion
 
         #region IsActive
-
+        
+        private bool _isMenuButtonActive;
         private bool _isActive;
 
         [UIValue("is-active"), UsedImplicitly]
@@ -194,6 +203,16 @@ namespace BeatLeader.Components {
             set {
                 if (_isActive.Equals(value)) return;
                 _isActive = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("is-menu-button-active"), UsedImplicitly]
+        public bool IsMenuButtonActive {
+            get => _isMenuButtonActive;
+            set {
+                if (_isMenuButtonActive.Equals(value)) return;
+                _isMenuButtonActive = value;
                 NotifyPropertyChanged();
             }
         }

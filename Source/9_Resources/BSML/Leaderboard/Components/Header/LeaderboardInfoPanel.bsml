@@ -1,6 +1,7 @@
 <horizontal active="~is-active" pref-height="6" spacing="1" size-delta-x="87">
     <!--MENU BUTTON-->
-    <horizontal ignore-layout="true" child-expand-width="false" child-control-width="false">
+    <horizontal active="~is-menu-button-active" ignore-layout="true" 
+                child-expand-width="false" child-control-width="false">
         <macro.as-host host="menu-button">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>

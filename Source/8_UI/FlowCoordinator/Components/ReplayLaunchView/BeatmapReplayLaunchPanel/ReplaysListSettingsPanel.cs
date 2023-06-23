@@ -12,6 +12,7 @@ namespace BeatLeader.Components {
 
         public event Action<Sorters, bool>? SorterChangedEvent;
         public event Action<bool>? ShowCorruptedChangedEvent;
+        public event Action? ReloadDataEvent;
 
         #endregion
 
@@ -126,6 +127,11 @@ namespace BeatLeader.Components {
         private void HandleOrderTabSelected(SegmentedControl control, int cellIdx) {
             _ascendingSortOrder = cellIdx is 0;
             RefreshSorters();
+        }
+
+        [UIAction("reload-replays-list"), UsedImplicitly]
+        private void HandleReloadButtonClicked() {
+            ReloadDataEvent?.Invoke();
         }
 
         #endregion

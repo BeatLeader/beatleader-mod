@@ -70,12 +70,14 @@ namespace BeatLeader.Components {
             _replaysList.ShowEmptyScreenChangedEvent += HandleShowEmptyScreenChanged;
             _replaysListSettingsPanel.SorterChangedEvent += HandleSorterChanged;
             _replaysListSettingsPanel.ShowCorruptedChangedEvent += HandleShowCorruptedChangedEvent;
+            _replaysListSettingsPanel.ReloadDataEvent += ReloadDataInternal;
         }
 
         protected override void OnDispose() {
             _replayManager.ReplaysDeletedEvent -= HandleReplaysDeleted;
             _replayManager.ReplayDeletedEvent -= HandleReplayDeleted;
             _replayManager.ReplayAddedEvent -= HandleReplayAdded;
+            _replaysListSettingsPanel.ReloadDataEvent -= ReloadDataInternal;
         }
 
         #endregion
@@ -86,32 +88,50 @@ namespace BeatLeader.Components {
         private IEnumerable<IReplayHeader>? _tempHeaders;
         private CancellationTokenSource? _tokenSource;
 
+        private bool _cachedShowBeatmapNameIfCorrect;
+        private bool _showBeatmapNameIfCorrect;
+
+        public void ShowEmptyScreen(bool show = true) {
+            _replaysList.ShowEmptyScreen(show);
+        }
+
+        public void ReloadData(bool showBeatmapNameIfCorrect = true) {
+            if (!_isInitialized) throw new UninitializedComponentException();
+            _ = StartReplayInfosLoading(
+                showBeatmapNameIfCorrect,
+                SynchronizationContext.Current);
+        }
+
+        private void ReloadDataInternal() {
+            ReloadData(_cachedShowBeatmapNameIfCorrect);
+        }
+
         private void CancelReplayInfosLoading() {
             if (_tokenSource == null) return;
             _tokenSource.Cancel();
             FinishReplayLoading(true);
         }
 
-        private async Task StartReplayInfosLoading(string? levelId, SynchronizationContext context) {
+        private async Task StartReplayInfosLoading(bool showBeatmapNameIfCorrect, SynchronizationContext context) {
             if (_tokenSource != null) return;
+            _showBeatmapNameIfCorrect = showBeatmapNameIfCorrect;
             _replaysList.SetData();
             ShowLoadingScreen(true);
             _tokenSource = new();
             var token = _tokenSource.Token;
             _tempHeaders = await _replayManager.LoadReplayHeadersAsync(token, x => {
-                if (x.FileStatus is not FileStatus.Corrupted
-                    && levelId is not null
-                    && x.ReplayInfo?.hash != levelId) return;
+                if (x.FileStatus is FileStatus.Corrupted) return;
                 context.Send(y => AddReplayToList((IReplayHeader)y), x);
             });
             await MemoryManager.CleanIfNeeded(token: token);
             if (token.IsCancellationRequested) return;
             FinishReplayLoading(false);
+            _cachedShowBeatmapNameIfCorrect = showBeatmapNameIfCorrect;
         }
 
         private void FinishReplayLoading(bool isCancelled) {
             if (!isCancelled) _headers = _tempHeaders;
-            else _replaysList.SetData(_headers, _previewBeatmapLevel is null);
+            else _replaysList.SetData(_headers, _cachedShowBeatmapNameIfCorrect);
             _tokenSource = null;
             ShowLoadingScreen(false);
             RefreshFilterInternal();
@@ -123,7 +143,7 @@ namespace BeatLeader.Components {
         }
 
         private void AddReplayToList(IReplayHeader header) {
-            _replaysList.AddReplay(header, _previewBeatmapLevel is null, true);
+            _replaysList.AddReplay(header, _showBeatmapNameIfCorrect, true);
         }
 
         #endregion
@@ -131,31 +151,6 @@ namespace BeatLeader.Components {
         #region Filters
 
         private Func<IReplayHeader, bool>? _predicate;
-        private IPreviewBeatmapLevel? _previewBeatmapLevel;
-        private IPreviewBeatmapLevel? _cachedPreviewBeatmapLevel;
-
-        public void SetBeatmap(IPreviewBeatmapLevel? beatmapLevel, bool keepInCache = true, bool forceUpdate = false) {
-            if (!_isInitialized) throw new UninitializedComponentException();
-            if (_previewBeatmapLevel == beatmapLevel && !forceUpdate) return;
-            CancelReplayInfosLoading();
-            if (_cachedPreviewBeatmapLevel is not null
-                && beatmapLevel == _cachedPreviewBeatmapLevel) {
-                _previewBeatmapLevel = _cachedPreviewBeatmapLevel;
-                _cachedPreviewBeatmapLevel = null;
-                _replaysList.ShowEmptyScreen(false);
-                return;
-            }
-            _cachedPreviewBeatmapLevel = null;
-            if (beatmapLevel is null && keepInCache) {
-                _cachedPreviewBeatmapLevel = _previewBeatmapLevel;
-                _replaysList.ShowEmptyScreen(true);
-                return;
-            }
-            _previewBeatmapLevel = beatmapLevel;
-            _ = StartReplayInfosLoading(
-                beatmapLevel?.levelID.Replace("custom_level_", ""),
-                SynchronizationContext.Current);
-        }
 
         public void Filter(Func<IReplayHeader, bool>? predicate) {
             _predicate = predicate;
@@ -164,8 +159,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshFilterInternal() {
-            _replaysListSettingsPanel.ShowCorruptedInteractable =
-                _previewBeatmapLevel is null && _predicate is null;
+            //_replaysListSettingsPanel.ShowCorruptedInteractable = true;
             if (_headers is null) return;
             var cells = _replaysList.Cells;
             cells.Clear();
@@ -200,7 +194,7 @@ namespace BeatLeader.Components {
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
-            
+
             private static int CompareFloat(float x, float y) => x >= y ? Math.Abs(x - y) < 0.01 ? 0 : 1 : -1;
         }
 
@@ -241,7 +235,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshCorruptedReplaysInternal() {
-            if (_headers is null || _previewBeatmapLevel is not null) return;
+            if (_headers is null) return;
             var cells = _replaysList.Cells;
             if (_showCorrupted) {
                 _corruptedWasTurnedOn = true;

@@ -49,7 +49,7 @@ namespace BeatLeader.ViewControllers {
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            if (firstActivation) _replayPanel.SetBeatmap(null, false, true);
+            if (firstActivation) _replayPanel.ReloadData();
             _searchFiltersPanel.NotifyContainerStateChanged();
         }
         
@@ -63,20 +63,24 @@ namespace BeatLeader.ViewControllers {
         #region Callbacks
 
         private void HandleSearchDataChanged(string searchPrompt, FiltersMenu.FiltersData filters) {
-            var forceUpdate = filters is { overrideBeatmap: true, previewBeatmapLevel: null };
-            _replayPanel.SetBeatmap(filters.previewBeatmapLevel, filters.overrideBeatmap, forceUpdate);
-            if (forceUpdate) return;
             var prompt = searchPrompt.ToLower();
+            var beatmap = filters.previewBeatmapLevel;
             var diff = filters.beatmapDifficulty;
             var characteristic = filters.beatmapCharacteristic?.serializedName;
-            var hasNoFilters = string.IsNullOrEmpty(prompt)
+            var hasNoFilters = 
+                !filters.overrideBeatmap 
+                && string.IsNullOrEmpty(prompt)
                 && string.IsNullOrEmpty(characteristic)
                 && !diff.HasValue;
+            var empty = filters is { overrideBeatmap: true, previewBeatmapLevel: null };
+            _replayPanel.ShowEmptyScreen(empty);
+            if (empty) return;
             _replayPanel.Filter(hasNoFilters ? null : SearchPredicate);
 
             bool SearchPredicate(IReplayHeader header) {
                 return header.ReplayInfo is not { } info ||
                     info.playerName.ToLower().Contains(prompt)
+                    && (beatmap is null || beatmap.levelID.Replace("custom_level_", "") == info.hash)
                     && (!diff.HasValue || info.difficulty == diff.Value.ToString())
                     && (characteristic is null || info.mode == characteristic);
             }

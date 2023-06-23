@@ -38,7 +38,7 @@ namespace BeatLeader.Utils {
                     loadCallback?.Invoke(header);
                 }
             }, token);
-            if (makeArray) _lastReplayHeaders = replays;
+            _lastReplayHeaders = replays;
             return replays;
         }
 

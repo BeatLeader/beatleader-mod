@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
@@ -103,6 +104,7 @@ namespace BeatLeader.Components {
                     && x.ReplayInfo?.hash != levelId) return;
                 context.Send(y => AddReplayToList((IReplayHeader)y), x);
             });
+            await MemoryManager.CleanIfNeeded(token: token);
             if (token.IsCancellationRequested) return;
             FinishReplayLoading(false);
         }

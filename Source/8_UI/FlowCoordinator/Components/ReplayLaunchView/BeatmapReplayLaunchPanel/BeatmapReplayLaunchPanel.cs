@@ -123,7 +123,6 @@ namespace BeatLeader.Components {
                 if (x.FileStatus is FileStatus.Corrupted) return;
                 context.Send(y => AddReplayToList((IReplayHeader)y), x);
             });
-            await MemoryManager.CleanIfNeeded(token: token);
             if (token.IsCancellationRequested) return;
             FinishReplayLoading(false);
             _cachedShowBeatmapNameIfCorrect = showBeatmapNameIfCorrect;

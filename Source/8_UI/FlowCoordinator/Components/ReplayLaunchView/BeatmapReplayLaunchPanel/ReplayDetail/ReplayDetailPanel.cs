@@ -88,7 +88,6 @@ namespace BeatLeader.Components {
             }
             _replayStatisticsPanel.SetData(score, stats, _header is null);
             WatchButtonInteractable = _isInitialized && await _menuLoader.CanLaunchReplay(header.ReplayInfo!);
-            await MemoryManager.CleanIfNeeded();
         }
 
         #endregion

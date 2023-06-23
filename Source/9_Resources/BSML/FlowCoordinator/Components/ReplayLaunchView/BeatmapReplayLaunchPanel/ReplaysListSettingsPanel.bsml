@@ -25,7 +25,7 @@
     </vertical>
   </modal>
   <text text="List controls" align="Left" font-size="3"/>
-  <horizontal child-control-width="false" spacing="1"
+  <horizontal child-control-width="false" spacing="1" vertical-fit="Unconstrained"
               child-expand-width="false" child-align="MiddleRight">
     <clickable-image src="#BL_SettingsIcon" preserve-aspect="true"
                      click-event="show-settings-modal" size-delta-x="3"/>

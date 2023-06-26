@@ -29,6 +29,30 @@ namespace BeatLeader.Utils {
         public static Action<Replay>? ReplayUploadStartedEvent;
 
         public static void ProcessReplay(Replay replay, PlayEndData data) {
+            if (replay.info.speed != 0) {
+                Plugin.Log.Debug("Practice, replay won't be submitted");
+                goto SaveReplay;
+            }
+
+            if (!ShouldSubmit()) {
+                Plugin.Log.Debug("Score submission was disabled");
+                goto SaveReplay;
+            }
+
+            Plugin.Log.Debug("Uploading replay");
+            switch (data.EndType) {
+                case PlayEndData.LevelEndType.Clear:
+                    UploadReplay(replay);
+                    break;
+                case PlayEndData.LevelEndType.Unknown:
+                    Plugin.Log.Debug("Unknown level end Type");
+                    break;
+                default:
+                    UploadPlay(replay, data);
+                    break;
+            }
+
+            SaveReplay: ;
             var replayManager = ReplayManager.Instance;
             var isOstLevel = !MapEnhancer.previewBeatmapLevel
                 .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
@@ -38,33 +62,6 @@ namespace BeatLeader.Utils {
             } else {
                 Plugin.Log.Warn("Validation failed, replay will not be saved!");
                 replayManager.ResetLastReplay();
-                return;
-            }
-
-            if (replay.info.speed != 0) {
-                Plugin.Log.Debug("Practice, replay won't be submitted");
-                return;
-            }
-
-            if (ShouldSubmit()) {
-                Plugin.Log.Debug("Uploading replay");
-
-                switch (data.EndType) {
-                    case PlayEndData.LevelEndType.Clear: {
-                        UploadReplay(replay);
-                        break;
-                    }
-                    case PlayEndData.LevelEndType.Unknown: {
-                        Plugin.Log.Debug("Unknown level end Type");
-                        break;
-                    }
-                    default: {
-                        UploadPlay(replay, data);
-                        break;
-                    }
-                }
-            } else {
-                Plugin.Log.Debug("Score submission was disabled");
             }
         }
 

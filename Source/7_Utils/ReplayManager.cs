@@ -44,6 +44,7 @@ namespace BeatLeader.Utils {
 
         public Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
             var path = ToFileName(replay, playEndData);
+            Plugin.Log.Debug($"Replay will be saved as: {path}");
             if (ConfigFileData.Instance.OverrideOldReplays
                 && _lastReplayHeaders is not null) {
                 Plugin.Log.Warn("OverrideOldReplays is enabled, old replays will be deleted");

@@ -23,7 +23,7 @@ namespace BeatLeader.Installers {
                 Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             }
 
-            if (_vrPlatformHelper.vrPlatformSDK is VRPlatformSDK.OpenVR) {
+            if (_vrPlatformHelper.vrPlatformSDK is VRPlatformSDK.OpenXR) {
                 SteamVRSettings.UpdateAsync();
             }
 

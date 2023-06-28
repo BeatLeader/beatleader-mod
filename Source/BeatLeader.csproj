@@ -106,6 +106,9 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="UnityEngine.SpatialTracking">
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.SpatialTracking.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.TextRenderingModule">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
             <Private>False</Private>

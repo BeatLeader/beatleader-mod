@@ -234,31 +234,31 @@ namespace BeatLeader.Replayer.Emulation {
             typeof(ComboController).GetMethod(nameof(ComboController.HandlePlayerHeadDidEnterObstacles), ReflectionUtils.DefaultFlags),
         };
 
-        private static readonly HarmonyPatchDescriptor _finishSwingRatingCounterPatchDescriptor = new(
+        private static readonly HarmonyPatchDescriptor finishSwingRatingCounterPatchDescriptor = new(
             typeof(GoodCutScoringElement).GetMethod(nameof(
-                GoodCutScoringElement.Init), ReflectionUtils.DefaultFlags), postfix:
+                GoodCutScoringElement.Init), ReflectionUtils.DefaultFlags)!, postfix:
             typeof(ReplayerScoreProcessor).GetMethod(nameof(
                 GoodCutScoringInitPostfix), BindingFlags.NonPublic | BindingFlags.Static));
 
-        private static readonly HarmonyPatchDescriptor _noteWasCutEnergyCounterPatchDescriptor = new(
+        private static readonly HarmonyPatchDescriptor noteWasCutEnergyCounterPatchDescriptor = new(
             typeof(GameEnergyCounter).GetMethod(nameof(
-                GameEnergyCounter.HandleNoteWasCut), ReflectionUtils.DefaultFlags), postfix:
+                GameEnergyCounter.HandleNoteWasCut), ReflectionUtils.DefaultFlags)!, postfix:
             typeof(ReplayerScoreProcessor).GetMethod(nameof(
                 NoteWasProcessedPostfix), ReflectionUtils.StaticFlags));
 
-        private static readonly HarmonyPatchDescriptor _noteWasMissedEnergyCounterPatchDescriptor = new(
+        private static readonly HarmonyPatchDescriptor noteWasMissedEnergyCounterPatchDescriptor = new(
             typeof(GameEnergyCounter).GetMethod(nameof(
-                GameEnergyCounter.HandleNoteWasMissed), ReflectionUtils.DefaultFlags), postfix:
+                GameEnergyCounter.HandleNoteWasMissed), ReflectionUtils.DefaultFlags)!, postfix:
             typeof(ReplayerScoreProcessor).GetMethod(nameof(
                 NoteWasProcessedPostfix), ReflectionUtils.StaticFlags));
 
         private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
-            typeof(NoteCutScoreSpawner).GetMethod(nameof(
-                NoteCutScoreSpawner.HandleScoringForNoteStarted)), false);
+            typeof(NoteCutScoreSpawner).GetMethod(nameof(NoteCutScoreSpawner
+                .HandleScoringForNoteStarted), ReflectionUtils.DefaultFlags)!, false);
 
-        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(_finishSwingRatingCounterPatchDescriptor);
-        private readonly HarmonyAutoPatch _noteWasCutEnergyCounterPatch = new(_noteWasCutEnergyCounterPatchDescriptor);
-        private readonly HarmonyAutoPatch _noteWasMissedEnergyCounterPatch = new(_noteWasMissedEnergyCounterPatchDescriptor);
+        private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(finishSwingRatingCounterPatchDescriptor);
+        private readonly HarmonyAutoPatch _noteWasCutEnergyCounterPatch = new(noteWasCutEnergyCounterPatchDescriptor);
+        private readonly HarmonyAutoPatch _noteWasMissedEnergyCounterPatch = new(noteWasMissedEnergyCounterPatchDescriptor);
         private readonly HarmonyMultisilencer _scoringMultisilencer = new(silencedMethods);
 
         private static void GoodCutScoringInitPostfix(GoodCutScoringElement __instance) {

@@ -1,5 +1,6 @@
 ﻿namespace BeatLeader.Replayer.Emulation {
     internal class VRControllerEmulator : VRController {
-        public override void Update() { }
+        private new void Awake() { }
+        private new void Update() { }
     }
 }

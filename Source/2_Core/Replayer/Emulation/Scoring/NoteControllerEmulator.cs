@@ -10,7 +10,7 @@ namespace BeatLeader.Replayer.Emulation {
         private NoteController? _prefab;
         private NoteData? _noteData;
 
-        protected override void Awake() {
+        public override void Awake() {
             _prefab = Resources.FindObjectsOfTypeAll<BeatmapObjectsInstaller>()
                 .FirstOrDefault().GetField<GameNoteController, BeatmapObjectsInstaller>("_normalBasicNotePrefab");
             _noteMovement = _prefab.GetField<NoteMovement, NoteController>("_noteMovement");
@@ -24,8 +24,8 @@ namespace BeatLeader.Replayer.Emulation {
         #region Garbage
 
         public override void ManualUpdate() { }
-        protected override void OnDestroy() { }
-        protected override void HiddenStateDidChange(bool _) { }
+        public override void OnDestroy() { }
+        public override void HiddenStateDidChange(bool _) { }
         public override void Pause(bool _) { }
 
         #endregion

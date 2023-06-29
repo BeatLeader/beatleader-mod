@@ -72,7 +72,6 @@ namespace BeatLeader.Utils {
         }
 
         public static void UploadPlay(Replay replay, PlayEndData data) {
-            replay.frames = new(); // remove the frame data
             UploadPlayRequest.SendRequest(replay, data);
         }
 

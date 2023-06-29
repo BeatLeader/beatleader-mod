@@ -46,12 +46,14 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
         }
 
         private static void ProcessOpenVRSettings(Replay replay) {
-            if (replay.frames.Count == 0) return;
+            if (replay.frames.Count == 0 || !SteamVRSettings.IsAvailable()) return;
             var firstFrame = replay.frames[0];
             firstFrame.head.rotation.x = -1.0f;
             firstFrame.head.rotation.y = SteamVRSettings.GetFloatOrDefault("steam.app.620980.worldScale", -1.0f);
             firstFrame.head.rotation.z = SteamVRSettings.GetFloatOrDefault("steam.app.620980.additionalFramesToPredict", -1.0f);
             firstFrame.head.rotation.w = SteamVRSettings.GetFloatOrDefault("steam.app.620980.framesToThrottle", -1.0f);
+
+            replay.info.hmd = (SteamVRSettings.GetString("LastKnown.HMDManufacturer") ?? "Unknown") + (SteamVRSettings.GetString("LastKnown.HMDModel") ?? "");
         }
 
         #endregion
@@ -59,23 +61,8 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
         #region ProcessOculus
 
         private static void ProcessOculusDevices(Replay replay) {
-            switch (OVRPlugin.GetSystemHeadsetType()) {
-                case OVRPlugin.SystemHeadset.None:
-                case OVRPlugin.SystemHeadset.Oculus_Quest:
-                case OVRPlugin.SystemHeadset.Oculus_Link_Quest:
-                case OVRPlugin.SystemHeadset.Oculus_Quest_2:
-                case OVRPlugin.SystemHeadset.Oculus_Link_Quest_2:
-                case OVRPlugin.SystemHeadset.Rift_CV1:
-                case OVRPlugin.SystemHeadset.Rift_S:
-                    replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
-                    break;
-
-                default:
-                    replay.info.hmd = "Unknown";
-                    break;
-            }
-
-            replay.info.controller = "Unknown";
+            replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
+            replay.info.controller = OVRPlugin.GetActiveController().ToString();
         }
 
         #endregion

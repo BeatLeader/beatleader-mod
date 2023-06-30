@@ -10,7 +10,7 @@ namespace BeatLeader.API.Methods {
 
         public static void SendRequest(string replayUrl) {
             var requestDescriptor = new RequestDescriptor(replayUrl);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
 
         private class RequestDescriptor : IWebRequestDescriptor<Replay> {

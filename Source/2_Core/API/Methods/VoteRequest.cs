@@ -25,7 +25,7 @@ namespace BeatLeader.API.Methods {
 
             var url = string.Format(Endpoint, mapHash, mapDiff, mapMode, NetworkingUtils.ToHttpParams(query));
             var requestDescriptor = new JsonPostRequestDescriptor<VoteStatus>(url);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
     }
 }

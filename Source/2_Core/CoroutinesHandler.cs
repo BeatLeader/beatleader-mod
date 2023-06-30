@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace BeatLeader {
-    internal class CoroutinesHandler : PersistentSingleton<CoroutinesHandler> {
+    internal class CoroutinesHandler : MonoSingleton<CoroutinesHandler> {
         public new void StartCoroutine(IEnumerator coroutine) {
             gameObject.SetActive(true);
             base.StartCoroutine(coroutine);

@@ -30,6 +30,7 @@ namespace BeatLeader.Utils {
             var beatmap = launchData.DifficultyBeatmap;
 
             transitionData.Init("Solo", beatmap, beatmap!.level, envSettings,
+                playerData.colorSchemesSettings.GetSelectedColorScheme(),
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.ReplayData.GameplayModifiers,
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),

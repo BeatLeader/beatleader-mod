@@ -19,7 +19,7 @@ namespace BeatLeader.API.Methods {
 
         public static void SendRequest(Replay replay) {
             var requestDescriptor = new UploadWithCookieRequestDescriptor(replay);
-            instance.Send(requestDescriptor, UploadRetryCount, UploadTimeoutSeconds);
+            Instance.Send(requestDescriptor, UploadRetryCount, UploadTimeoutSeconds);
         }
 
         #region RequestDescriptor

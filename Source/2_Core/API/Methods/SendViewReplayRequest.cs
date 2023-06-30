@@ -11,7 +11,7 @@ namespace BeatLeader.API.Methods {
 
         public static void SendRequest(int scoreId) {
             var requestDescriptor = new SendViewReplayRequestDescriptor(scoreId);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
 
         #region RequestDescriptor

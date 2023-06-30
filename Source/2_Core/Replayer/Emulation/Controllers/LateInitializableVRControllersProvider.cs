@@ -29,7 +29,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void StartCoroutine() {
-            CoroutinesHandler.instance.StartCoroutine(InitializationCoroutine());
+            CoroutinesHandler.Instance.StartCoroutine(InitializationCoroutine());
         }
     }
 }

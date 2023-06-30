@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace BeatLeader.API.RequestHandlers {
-    public abstract class PersistentSingletonRequestHandler<T, R> : PersistentSingleton<T>, IWebRequestHandler<R> where T : MonoBehaviour {
+    public abstract class PersistentSingletonRequestHandler<T, R> : MonoSingleton<T>, IWebRequestHandler<R> where T : MonoBehaviour {
         #region State
 
         public delegate void StateChangedDelegate(RequestState state, R result, string failReason);
@@ -21,15 +21,13 @@ namespace BeatLeader.API.RequestHandlers {
         }
 
         public static void AddStateListener(StateChangedDelegate handler) {
-            if (_applicationIsQuitting) return;
-            var tmp = instance as PersistentSingletonRequestHandler<T, R>;
+            var tmp = Instance as PersistentSingletonRequestHandler<T, R>;
             tmp!.StateChangedEvent += handler;
             handler?.Invoke(tmp.State, tmp.Result, tmp.FailReason);
         }
 
         public static void RemoveStateListener(StateChangedDelegate handler) {
-            if (_applicationIsQuitting) return;
-            var tmp = instance as PersistentSingletonRequestHandler<T, R>;
+            var tmp = Instance as PersistentSingletonRequestHandler<T, R>;
             tmp!.StateChangedEvent -= handler;
         }
 
@@ -53,15 +51,13 @@ namespace BeatLeader.API.RequestHandlers {
         }
 
         public static void AddProgressListener(ProgressChangedDelegate handler) {
-            if (_applicationIsQuitting) return;
-            var tmp = instance as PersistentSingletonRequestHandler<T, R>;
+            var tmp = Instance as PersistentSingletonRequestHandler<T, R>;
             tmp!.ProgressChangedEvent += handler;
             handler?.Invoke(tmp.UploadProgress, tmp.DownloadProgress, tmp.OverallProgress);
         }
 
         public static void RemoveProgressListener(ProgressChangedDelegate handler) {
-            if (_applicationIsQuitting) return;
-            var tmp = instance as PersistentSingletonRequestHandler<T, R>;
+            var tmp = Instance as PersistentSingletonRequestHandler<T, R>;
             tmp!.ProgressChangedEvent -= handler;
         }
 

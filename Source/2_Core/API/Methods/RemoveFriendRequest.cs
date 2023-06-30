@@ -11,7 +11,7 @@ namespace BeatLeader.API.Methods {
 
         public static void SendRequest(Player player) {
             var requestDescriptor = new RequestDescriptor(player);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
 
         private class RequestDescriptor : IWebRequestDescriptor<Player> {

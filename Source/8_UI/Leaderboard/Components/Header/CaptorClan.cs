@@ -101,7 +101,7 @@ namespace BeatLeader.Components {
         public void SetActive(bool value) {
             // Used to be called on initialize
             _background.material = BundleLoader.ClanTagBackgroundMaterial;
-            CaptorClanActive = true;
+            CaptorClanActive = value;
             _background.gameObject.SetActive(value);
         }
 

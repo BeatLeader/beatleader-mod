@@ -1,11 +1,14 @@
 ﻿using System;
 
 namespace BeatLeader {
-    public class Singleton<T, TImpl> where TImpl : class, T {
-        public static T Instance => _instance ??= Activator.CreateInstance<TImpl>();
+    public class Singleton<T> {
+        public static T Instance => _instance ??= _instanceFactory();
 
         private static T? _instance;
-    }
+        private static Func<T> _instanceFactory = Activator.CreateInstance<T>;
 
-    public class Singleton<T> : Singleton<T, T> where T : class { }
+        protected static void AssignFactory(Func<T> factory) {
+            _instanceFactory = factory;
+        }
+    }
 }

@@ -11,7 +11,14 @@ using static BeatLeader.Utils.FileManager;
 
 namespace BeatLeader.Utils {
     [PublicAPI]
-    public sealed class ReplayManager : Singleton<ReplayManager>, IReplayManager {
+    public class ReplayManagerStorage : Singleton<IReplayManager> {
+        static ReplayManagerStorage() {
+            AssignFactory(() => ReplayManager.Instance);
+        }
+    }
+    
+    [UsedImplicitly]
+    internal class ReplayManager : Singleton<ReplayManager>, IReplayManager {
         private const int PreloadedReplaysCount = 1000;
 
         public event Action<IReplayHeader>? ReplayAddedEvent;

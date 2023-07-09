@@ -210,7 +210,7 @@ namespace BeatLeader {
         }
 
         public static string GetDateTimeString(string timeSet) {
-            var t = long.Parse(timeSet).AsUnixTime();
+            var t = long.Parse(timeSet).AsUnixTime().ToLocalTime();
             return $"{t.Year}.{Zero(t.Month)}{t.Month}.{Zero(t.Day)}{t.Day} {Zero(t.Hour)}{t.Hour}:{Zero(t.Minute)}{t.Minute}";
             static string Zero(int number) => number > 9 ? "" : "0";
         }

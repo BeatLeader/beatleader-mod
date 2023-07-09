@@ -107,11 +107,11 @@ namespace BeatLeader.Utils {
                 var filteredPauses = replay.pauses.Where(p => p.time >= firstNoteTime && p.time <= lastNoteTime);
                 result.winTracker = new WinTracker {
                     won = replay.info.failTime < 0.01,
-                    endTime = (replay.frames.LastOrDefault() != null) ? replay.frames.Last().time : 0,
+                    endTime = replay.frames.LastOrDefault()?.time ?? 0,
                     nbOfPause = filteredPauses.Count(),
                     jumpDistance = replay.info.jumpDistance,
                     averageHeight = replay.heights.Any() ? replay.heights.Average(h => h.height) : replay.info.height,
-                    averageHeadPosition = new Vector3() {
+                    averageHeadPosition = replay.frames.Count == 0 ? new() : new() {
                         x = replay.frames.Average(f => f.head.position.x),
                         y = replay.frames.Average(f => f.head.position.y),
                         z = replay.frames.Average(f => f.head.position.z),
@@ -156,10 +156,11 @@ namespace BeatLeader.Utils {
                 result.hitTracker.maxCombo = maxCombo;
                 result.winTracker.totalScore = structs.Last().totalScore;
                 result.accuracyTracker = accuracy;
-                result.scoreGraphTracker = ScoreGraph(structs, (int)replay.frames.Last().time);
+                result.scoreGraphTracker = ScoreGraph(structs, (int)(replay.frames.LastOrDefault()?.time ??  0));
 
                 return result;
-            } catch (Exception) {
+            } catch (Exception ex) {
+                Plugin.Log.Error("Failed to calculate score stats:\n" + ex);
                 return null;
             }
         }

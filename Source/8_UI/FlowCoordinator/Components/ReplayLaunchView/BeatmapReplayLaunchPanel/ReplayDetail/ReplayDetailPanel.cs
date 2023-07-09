@@ -75,44 +75,19 @@ namespace BeatLeader.Components {
         }
 
         private async Task ProcessDataAsync(IReplayHeader header) {
-            var stats = default(ScoreStats?);
             _miniProfile.SetPlayer(header.ReplayInfo?.playerID);
             DeleteButtonInteractable = false;
             var replay = await header.LoadReplayAsync(default);
             DeleteButtonInteractable = true;
-            await Task.Run(() => stats = ReplayStatisticUtils.ComputeScoreStats(replay!));
+            var stats = default(ScoreStats?);
             var score = default(Score?);
             if (replay is not null) {
-                //var diff = await RequestDifficultyInfoByReplay(replay);
+                await Task.Run(() => stats = ReplayStatisticUtils.ComputeScoreStats(replay));
                 score = ReplayUtils.ComputeScore(replay);
             }
-            _replayStatisticsPanel.SetData(score, stats, _header is null);
+            _replayStatisticsPanel.SetData(score, stats, score is null || stats is null);
             WatchButtonInteractable = _isInitialized && await _menuLoader.CanLaunchReplay(header.ReplayInfo!);
         }
-
-        #endregion
-
-        #region DiffInfo
-
-        //private DiffInfo? _cachedDiffInfo;
-        //private string? _cachedDiffHash;
-        //private async Task<DiffInfo?> RequestDifficultyInfoByReplay(Replay replay) {
-        //    var mapHash = replay.info.hash;
-        //    if (_cachedDiffHash == mapHash) return _cachedDiffInfo;
-        //    var str = await (await new HttpClient().SendAsync(new() {
-        //        Method = HttpMethod.Get,
-        //        RequestUri = new Uri(BLConstants.BEATLEADER_API_URL + "/leaderboards/hash/" + mapHash, UriKind.Absolute)
-        //    })).Content.ReadAsStringAsync();
-        //    try {
-        //        var obj = JsonConvert.DeserializeObject<HashLeaderboardsInfoResponse>(str, NetworkingUtils.SerializerSettings);
-        //        _cachedDiffInfo = obj.leaderboards.First(x =>
-        //            x.difficulty.difficultyName == replay.info.difficulty).difficulty;
-        //        _cachedDiffHash = mapHash;
-        //        return _cachedDiffInfo;
-        //    } catch (Exception ex) {
-        //        return null;
-        //    }
-        //}
 
         #endregion
 
@@ -121,7 +96,7 @@ namespace BeatLeader.Components {
         private void HandlePlayerLoaded(Player player) {
             _player = player;
         }
-        
+
         [UIAction("delete-button-click"), UsedImplicitly]
         private void HandleDeleteButtonClicked() {
             _header?.DeleteReplayAsync(default);

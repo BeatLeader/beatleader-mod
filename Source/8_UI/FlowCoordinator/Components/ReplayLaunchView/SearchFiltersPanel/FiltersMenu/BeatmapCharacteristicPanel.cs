@@ -75,13 +75,17 @@ namespace BeatLeader.Components {
                 difficultyBeatmapSets!.First().beatmapCharacteristic);
             RefreshTouchables();
             RefreshActive();
-            _segmentedControl.HandleDifficultySegmentedControlDidSelectCell(null, 0);
+            if (_beatmapCharacteristics?.Count > 0) {
+                _segmentedControl.HandleDifficultySegmentedControlDidSelectCell(null, 0);
+            }
         }
 
         #endregion
         
         #region Init
 
+        private List<BeatmapCharacteristicSO>? _beatmapCharacteristics;
+        
         protected override void OnInitialize() {
             var characteristicPanel = Instantiate(
                 BeatmapCharacteristicSegmentedControl, _container, true);
@@ -89,8 +93,13 @@ namespace BeatLeader.Components {
                 .GetComponentInChildren<IconSegmentedControl>(true)
                 .SetField("_container", BeatSaberUI.DiContainer);
             _canvasGroup = _container.gameObject.AddComponent<CanvasGroup>();
-            _segmentedControl = characteristicPanel.GetComponentInChildren<BeatmapCharacteristicSegmentedControlController>(true);
+            _segmentedControl = characteristicPanel.GetComponentInChildren<
+                BeatmapCharacteristicSegmentedControlController>(true);
             _segmentedControl.didSelectBeatmapCharacteristicEvent += HandleBeatmapCharacteristicSelected;
+            _beatmapCharacteristics = _segmentedControl.GetField<
+                List<BeatmapCharacteristicSO>, 
+                BeatmapCharacteristicSegmentedControlController
+            >("_beatmapCharacteristics");
         }
 
         #endregion

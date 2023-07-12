@@ -125,12 +125,12 @@ namespace BeatLeader.Components {
             });
             if (token.IsCancellationRequested) return;
             FinishReplayLoading(false);
-            _cachedShowBeatmapNameIfCorrect = showBeatmapNameIfCorrect;
         }
 
         private void FinishReplayLoading(bool isCancelled) {
             if (!isCancelled) _headers = _tempHeaders;
             else _replaysList.SetData(_headers, _cachedShowBeatmapNameIfCorrect);
+            _cachedShowBeatmapNameIfCorrect = _showBeatmapNameIfCorrect;
             _tokenSource = null;
             ShowLoadingScreen(false);
             RefreshFilterInternal();

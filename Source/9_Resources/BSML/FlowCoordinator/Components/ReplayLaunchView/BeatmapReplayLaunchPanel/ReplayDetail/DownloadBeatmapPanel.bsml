@@ -1,0 +1,52 @@
+﻿<vertical pref-width="50">
+  <vertical bg="round-rect-panel"
+            vertical-fit="Unconstrained"
+            horizontal-fit="Unconstrained"
+            pref-height="30">
+    <vertical id="searching-panel"
+              child-expand-height="false"
+              child-control-height="false"
+              child-align="MiddleCenter"
+              spacing="1">
+      <text text="Searching across the maps..."
+            align="Center" size-delta-y="6"/>
+      <horizontal horizontal-fit="PreferredSize"
+                  pref-height="16" pref-width="10">
+        <macro.as-host host="search-indicator">
+          <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+      </horizontal>
+    </vertical>
+    <vertical id="download-panel"
+              child-control-height="false"
+              child-expand-height="false"
+              child-align="MiddleCenter"
+              horizontal-fit="Unconstrained">
+      <text text="Monke just found the map on BeatSaver!"
+            align="Center" font-size="3.5" size-delta-y="5"/>
+      <button pad="1" text="" skew="0" horizontal-fit="Unconstrained"
+              on-click="open-link-button-click" pref-height="14">
+        <horizontal pad="1" spacing="1"
+                    child-expand-width="false"
+                    child-control-width="false"
+                    horizontal-fit="Unconstrained">
+          <image id="map-preview-image" preserve-aspect="true"
+                 size-delta-x="10"/>
+          <vertical pref-height="10"
+                    vertical-fit="PreferredSize">
+            <text id="map-text" align="Left"/>
+            <text id="map-bsr-text" align="Left"/>
+          </vertical>
+        </horizontal>
+      </button>
+      <horizontal pref-height="8">
+        <text id="download-info-text" rich-text="true" align="Center"/>
+      </horizontal>
+    </vertical>
+    <vertical id="info-panel">
+      <text id="info-panel-text" align="Center"/>
+    </vertical>
+  </vertical>
+  <button id="back-button" text="~back-button-text" on-click="back-button-click" skew="0"
+          pref-height="6" horizontal-fit="Unconstrained" pad-top="0" pad-bottom="0"/>
+</vertical>

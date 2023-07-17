@@ -1,0 +1,5 @@
+﻿<horizontal id="container" pref-height="6">
+  <horizontal id="text-container" ignore-layout="true">
+    <text text="No Characteristics" font-color="grey" font-align="Center"/>
+  </horizontal>
+</horizontal>

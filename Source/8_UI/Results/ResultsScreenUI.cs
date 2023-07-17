@@ -2,6 +2,7 @@
 using BeatLeader.Components;
 using JetBrains.Annotations;
 using BeatLeader.Replayer;
+using BeatLeader.Utils;
 
 namespace BeatLeader.ViewControllers {
     internal class ResultsScreenUI : ReeUIComponentV2 {
@@ -23,8 +24,13 @@ namespace BeatLeader.ViewControllers {
             _replayButton.SetParent(transform);
             _replayButton.ReplayButtonClickedEvent += HandleReplayButtonClicked;
         }
+        
         protected override void OnDispose() {
             _replayButton.ReplayButtonClickedEvent -= HandleReplayButtonClicked;
+        }
+
+        public void Refresh() {
+            _replayButton.Interactable = ReplayManager.Instance.LastSavedReplay is not null;
         }
 
         #endregion

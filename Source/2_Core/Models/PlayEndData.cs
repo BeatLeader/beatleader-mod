@@ -3,7 +3,7 @@ using LevelEndStateType = LevelCompletionResults.LevelEndStateType;
 using LevelEndAction = LevelCompletionResults.LevelEndAction;
 
 namespace BeatLeader.Models.Activity {
-    internal class PlayEndData {
+    public class PlayEndData {
         private readonly LevelEndType _endType;
         private readonly float _time;
 
@@ -36,7 +36,7 @@ namespace BeatLeader.Models.Activity {
             return _types.TryGetValue((levelEndStateType, levelEndAction), out var type) ? type : LevelEndType.Unknown;
         }
 
-        internal enum LevelEndType {
+        public enum LevelEndType {
             Unknown = 0,
             Clear = 1,
             Fail = 2,

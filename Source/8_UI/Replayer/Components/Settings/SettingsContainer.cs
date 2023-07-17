@@ -144,14 +144,13 @@ namespace BeatLeader.Components {
 
         private void RunNavigationRebuild() {
             if (_isBuilt) return;
-
-            var coroutine = BasicCoroutines.RebuildUICoroutine(_containerGroup);
-            CoroutinesHandler.instance.StartCoroutine(coroutine, () => _isBuilt = true);
+            var coroutine = BasicCoroutines.RebuildUICoroutine(_containerGroup, () => _isBuilt = true);
+            RoutineFactory.StartUnmanagedCoroutine(coroutine);
         }
 
         private void RunContentRebuild() {
             var coroutine = BasicCoroutines.RebuildUICoroutine(_contentGroup);
-            CoroutinesHandler.instance.StartCoroutine(coroutine);
+            RoutineFactory.StartUnmanagedCoroutine(coroutine);
         }
 
         #endregion

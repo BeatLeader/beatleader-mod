@@ -33,6 +33,12 @@ namespace BeatLeader {
         public bool Enabled = ConfigDefaults.Enabled;
 
         #endregion
+        
+        #region MenuButtonEnabled
+
+        public bool MenuButtonEnabled = ConfigDefaults.MenuButtonEnabled;
+
+        #endregion
 
         #region ScoresContext
 
@@ -64,9 +70,16 @@ namespace BeatLeader {
 
         #endregion
 
-        #region EnableReplayCaching
+        #region ReplaySavingSettings
 
         public bool EnableReplayCaching = ConfigDefaults.EnableReplayCaching;
+
+        public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;
+
+        public bool SaveLocalReplays = ConfigDefaults.SaveLocalReplays;
+        
+        [UseConverter]
+        public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
 
         #endregion
 

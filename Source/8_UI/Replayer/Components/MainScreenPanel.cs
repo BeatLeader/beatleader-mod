@@ -21,7 +21,7 @@ namespace BeatLeader.Components {
         private HorizontalBeatmapLevelPreview _songInfo = null!;
 
         [UIValue("player-info")]
-        private HorizontalMiniProfile _playerInfo = null!;
+        private EditableHorizontalMiniProfile _playerInfo = null!;
 
         [UIValue("toolbar")]
         private ToolbarWithSettings _toolbar = null!;
@@ -64,7 +64,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInstantiate() {
-            _playerInfo = Instantiate<HorizontalMiniProfile>(transform);
+            _playerInfo = Instantiate<EditableHorizontalMiniProfile>(transform);
             _songInfo = Instantiate<HorizontalBeatmapLevelPreview>(transform);
             _toolbar = Instantiate<ToolbarWithSettings>(transform);
             LayoutEditor = Instantiate<LayoutEditor>(transform);
@@ -82,7 +82,7 @@ namespace BeatLeader.Components {
                 LayoutEditor.Add(_playerInfo);
             }
             _playerInfo.Root.gameObject.SetActive(!_playerNotSet);
-            CoroutinesHandler.instance.StartCoroutine(MapLayoutCoroutine());
+            RoutineFactory.instance.StartCoroutine(MapLayoutCoroutine());
         }
 
         #endregion

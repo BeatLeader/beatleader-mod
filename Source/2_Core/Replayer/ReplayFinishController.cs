@@ -15,7 +15,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly GameSongController _songController = null!;
         [Inject] private readonly IGameEnergyCounter _gameEnergyCounter = null!;
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
-        [Inject] private readonly IBeatmapTimeController _timeController = null!;
+        [Inject] private readonly IReplayTimeController _timeController = null!;
 
         public bool ExitAutomatically => _launchData.Settings.ExitReplayAutomatically;
 
@@ -31,6 +31,7 @@ namespace BeatLeader.Replayer {
             _gameEnergyCounter.gameEnergyDidReach0Event += HandleLevelFailed;
             _songController.songDidFinishEvent += HandleLevelFinished;
             _timeController.SongWasRewoundEvent += HandleSongRewound;
+            _timeController.SongReachedReplayEndEvent += HandleReplayFinished;
         }
 
         private void OnDestroy() {
@@ -41,6 +42,7 @@ namespace BeatLeader.Replayer {
             _pauseButtonTrigger.menuButtonTriggeredEvent += _pauseController.HandleMenuButtonTriggered;
             _gameEnergyCounter.gameEnergyDidReach0Event += _gameplayManager.HandleGameEnergyDidReach0;
             _songController.songDidFinishEvent += _gameplayManager.HandleSongDidFinish;
+            _timeController.SongReachedReplayEndEvent -= HandleReplayFinished;
         }
 
         public void Exit() {
@@ -53,6 +55,11 @@ namespace BeatLeader.Replayer {
             if (ExitAutomatically) Exit();
         }
 
+        private void HandleReplayFinished() {
+            if (_launchData.IsBattleRoyale || _launchData.MainReplay.ReplayData.FailTime != 0) return;
+            HandleLevelFinished();
+        }
+        
         private void HandleLevelFailed() {
             if (!_gameplayManagerInitData.failOn0Energy) return;
             HandleLevelFinished();

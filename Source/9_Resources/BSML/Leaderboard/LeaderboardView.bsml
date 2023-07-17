@@ -10,7 +10,7 @@
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
         
-        <!--  SETTINGS MODAl  -->
+        <!--  LEADERBOARD SETTINGS MODAl  -->
         <macro.as-host host="leaderboard-settings">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>

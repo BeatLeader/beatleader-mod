@@ -56,6 +56,10 @@ namespace BeatLeader.Components {
                 if (header is null) throw new ArgumentNullException(nameof(header));
                 var instance = new GameObject(nameof(AbstractDataCell)).AddComponent<T>();
                 instance.Init(header);
+                //when you finish a map it invokes the finish event and executes score sending and replay saving.
+                //cell generation also happens there (on the game scene). as we know unity destroys objects after the scene transition
+                //so we need to use DontDestroyOnLoad to keep this cell alive
+                DontDestroyOnLoad(instance);
                 return instance;
             }
 

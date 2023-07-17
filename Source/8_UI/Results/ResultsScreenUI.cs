@@ -38,7 +38,7 @@ namespace BeatLeader.ViewControllers {
         #region Callbacks
 
         private void HandleReplayButtonClicked() {
-            ReplayerMenuLoader.NotifyPlayLastButtonWasPressed();
+            _ = ReplayerMenuLoader.Instance!.StartLastReplayAsync();
         }
 
         #endregion

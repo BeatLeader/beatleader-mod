@@ -1,12 +1,10 @@
 ﻿using System;
 using HMUI;
 using IPA.Utilities;
-using JetBrains.Annotations;
 using UnityEngine;
 using Screen = HMUI.Screen;
 
 namespace BeatLeader.Components {
-    [PublicAPI]
     internal class DummyViewController : ViewController {
         public static DummyViewController Wrap(ViewController controller, bool deactivateAfterTransition = false) {
             var dummy = controller.gameObject.AddComponent<DummyViewController>();

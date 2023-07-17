@@ -42,7 +42,7 @@ namespace BeatLeader.Replayer {
             _pauseButtonTrigger.menuButtonTriggeredEvent += _pauseController.HandleMenuButtonTriggered;
             _gameEnergyCounter.gameEnergyDidReach0Event += _gameplayManager.HandleGameEnergyDidReach0;
             _songController.songDidFinishEvent += _gameplayManager.HandleSongDidFinish;
-            _timeController.SongReachedReplayEndEvent += HandleReplayFinished;
+            _timeController.SongReachedReplayEndEvent -= HandleReplayFinished;
         }
 
         public void Exit() {

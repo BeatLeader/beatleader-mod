@@ -480,6 +480,7 @@ namespace BeatLeader.Models.Replay {
             var pointer = 0;
             if (DecodeInt(buffer, ref pointer) != 0x442d3d69 
                 || buffer[pointer++] != 1) return null;
+            pointer++;
             return DecodeInfo(buffer, ref pointer);
         }
         

@@ -18,7 +18,7 @@ namespace BeatLeader.Replayer.Tweaking {
 
         private void HandleReplayFinished() {
             //TODO: add br support
-            if (Mathf.Abs(_launchData.MainReplay.ReplayData.FailTime - _timeController.SongTime) > 0.05f) return;
+            if (_launchData.MainReplay.ReplayData.FailTime <= _timeController.SongTime) return;
             _energyCounter.ProcessEnergyChange(-1f);
         }
     }

@@ -224,7 +224,6 @@ namespace BeatLeader.Components {
         }
 
         private void SetModalCanBeHidden(bool canBeHidden) {
-            Debug.Log(canBeHidden);
             var go = _modal.GetField<GameObject, ModalView>("_blockerGO");
             if (go) go.GetComponent<Button>().enabled = canBeHidden;
         }

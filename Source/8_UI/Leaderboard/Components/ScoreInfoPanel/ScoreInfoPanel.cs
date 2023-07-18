@@ -40,7 +40,7 @@ namespace BeatLeader.Components {
         [UIValue("controls"), UsedImplicitly]
         private ScoreInfoPanelControls _controls = null!;
 
-        [UIObject("accuracy-graph-container")]
+        [UIObject("accuracy-graph-container"), UsedImplicitly]
         private GameObject _accuracyGraphContainer = null!;
 
         private void Awake() {

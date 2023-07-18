@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.Utils {
     internal static class FileManager {
         #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
-            return Directory.EnumerateFiles(ReplaysFolderPath, "*.bsor");
+            return Directory.EnumerateFiles(ReplaysFolderPath, "*.bsor")
+                .Concat(Directory.EnumerateFiles(ReplayerCache.CacheDirectory, "*.bsor"));
         }
 
         public static bool TryWriteReplay(string fileName, Replay replay) {

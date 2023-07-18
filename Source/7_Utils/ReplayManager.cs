@@ -36,15 +36,18 @@ namespace BeatLeader.Utils {
         ) {
             var paths = GetAllReplayPaths();
             var replays = makeArray ? new List<IReplayHeader>(PreloadedReplaysCount) : null;
+            var cache = new HashSet<(string, string)>();
             await Task.Run(() => {
                 foreach (var path in paths) {
                     if (token.IsCancellationRequested) return;
                     TryReadReplayInfo(path, out var info);
+                    if (info is not null && !cache.Add((info.hash, info.timestamp))) continue;
                     var header = new GenericReplayHeader(this, path, info);
                     if (makeArray) replays!.Add(header);
                     loadCallback?.Invoke(header);
                 }
             }, token);
+            cache.Clear();
             _lastReplayHeaders = replays;
             return replays;
         }

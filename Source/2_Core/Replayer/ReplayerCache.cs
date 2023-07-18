@@ -5,7 +5,7 @@ using IPA.Utilities;
 
 namespace BeatLeader.Replayer {
     internal static class ReplayerCache {
-        public static string CacheDirectory => Path.Combine(UnityGame.UserDataPath, "BeatLeader", "ReplayerCache");
+        public static readonly string CacheDirectory = Path.Combine(UnityGame.UserDataPath, "BeatLeader", "ReplayerCache\\");
 
         private static string GetFileName(int scoreId) => Path.Combine(CacheDirectory, $"{scoreId}.bsor");
 
@@ -17,11 +17,6 @@ namespace BeatLeader.Replayer {
         public static bool TryWriteReplay(int scoreId, Replay replay) {
             var fileName = GetFileName(scoreId);
             return FileManager.TryWriteReplay(fileName, replay);
-        }
-
-        public static void Clear() {
-            if (!Directory.Exists(CacheDirectory)) return;
-            Directory.Delete(CacheDirectory);
         }
     }
 }

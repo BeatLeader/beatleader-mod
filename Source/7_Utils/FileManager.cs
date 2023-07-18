@@ -13,7 +13,7 @@ namespace BeatLeader.Utils {
         #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
-            return Directory.EnumerateFiles(ReplaysFolderPath, "*.bsor")
+            return Directory.EnumerateFiles(replaysFolderPath, "*.bsor")
                 .Concat(Directory.EnumerateFiles(ReplayerCache.CacheDirectory, "*.bsor"));
         }
 
@@ -32,7 +32,7 @@ namespace BeatLeader.Utils {
         }
 
         public static string ToFileName(Replay replay, PlayEndData? playEndData) {
-            return ToFileName(replay, playEndData, ReplaysFolderPath);
+            return ToFileName(replay, playEndData, replaysFolderPath);
         }
         
         public static string ToFileName(Replay replay, PlayEndData? playEndData, string folder) {
@@ -67,12 +67,13 @@ namespace BeatLeader.Utils {
 
         #region Directories
         
-        private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
-        private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
+        private static readonly string replaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
+        private static readonly string playlistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 
         static FileManager() {
-            EnsureDirectoryExists(ReplaysFolderPath);
-            EnsureDirectoryExists(PlaylistsFolderPath);
+            EnsureDirectoryExists(replaysFolderPath);
+            EnsureDirectoryExists(playlistsFolderPath);
+            EnsureDirectoryExists(ReplayerCache.CacheDirectory);
         }
 
         public static void EnsureDirectoryExists(string directory) {
@@ -85,7 +86,7 @@ namespace BeatLeader.Utils {
 
         #region Playlists
 
-        private static string GetPlaylistFileName(string name, bool json = false) => $"{PlaylistsFolderPath}{name}.{(json ? "json" : "bplist")}";
+        private static string GetPlaylistFileName(string name, bool json = false) => $"{playlistsFolderPath}{name}.{(json ? "json" : "bplist")}";
 
         public static void DeletePlaylist(string fileName) {
             try {

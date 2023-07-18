@@ -1,14 +1,15 @@
 ﻿using System.Collections;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class SearchIndicator : ReeUIComponentV2 {
         #region UI Components
 
-        [UIComponent("image")]
-        private readonly RectTransform _imageRect = null!;
+        [UIComponent("image"), UsedImplicitly]
+        private RectTransform _imageRect = null!;
 
         #endregion
 

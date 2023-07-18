@@ -32,35 +32,35 @@ namespace BeatLeader.Components {
         [UIValue("search-indicator"), UsedImplicitly]
         private SearchIndicator _searchIndicator = null!;
 
-        [UIComponent("back-button")]
-        private readonly Button _backButton = null!;
+        [UIComponent("back-button"), UsedImplicitly]
+        private Button _backButton = null!;
 
-        [UIComponent("back-button")]
-        private readonly Transform _backButtonTransform = null!;
+        [UIComponent("back-button"), UsedImplicitly]
+        private Transform _backButtonTransform = null!;
 
-        [UIComponent("download-info-text")]
-        private readonly TMP_Text _downloadInfoText = null!;
+        [UIComponent("download-info-text"), UsedImplicitly]
+        private TMP_Text _downloadInfoText = null!;
 
-        [UIComponent("map-preview-image")]
-        private readonly Image _mapPreviewImage = null!;
+        [UIComponent("map-preview-image"), UsedImplicitly]
+        private Image _mapPreviewImage = null!;
 
-        [UIComponent("map-text")]
-        private readonly TMP_Text _mapText = null!;
+        [UIComponent("map-text"), UsedImplicitly]
+        private TMP_Text _mapText = null!;
 
-        [UIComponent("map-bsr-text")]
-        private readonly TMP_Text _mapBsrText = null!;
+        [UIComponent("map-bsr-text"), UsedImplicitly]
+        private TMP_Text _mapBsrText = null!;
 
-        [UIComponent("info-panel-text")]
-        private readonly TMP_Text _infoPanelText = null!;
+        [UIComponent("info-panel-text"), UsedImplicitly]
+        private TMP_Text _infoPanelText = null!;
 
-        [UIObject("info-panel")]
-        private readonly GameObject _infoPanelObject = null!;
+        [UIObject("info-panel"), UsedImplicitly]
+        private GameObject _infoPanelObject = null!;
 
-        [UIObject("searching-panel")]
-        private readonly GameObject _searchingPanelObject = null!;
+        [UIObject("searching-panel"), UsedImplicitly]
+        private GameObject _searchingPanelObject = null!;
 
-        [UIObject("download-panel")]
-        private readonly GameObject _downloadPanelObject = null!;
+        [UIObject("download-panel"), UsedImplicitly]
+        private GameObject _downloadPanelObject = null!;
 
         #endregion
 

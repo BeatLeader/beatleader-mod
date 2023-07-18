@@ -41,7 +41,7 @@ namespace BeatLeader.Components {
         private ScoreInfoPanelControls _controls = null!;
 
         [UIObject("accuracy-graph-container")]
-        private readonly GameObject _accuracyGraphContainer = null!;
+        private GameObject _accuracyGraphContainer = null!;
 
         private void Awake() {
             _miniProfile = Instantiate<MiniProfile>(transform);
@@ -194,13 +194,13 @@ namespace BeatLeader.Components {
         #region Modal
 
         [UIComponent("modal"), UsedImplicitly]
-        private readonly ModalView _modal = null!;
+        private ModalView _modal = null!;
 
         [UIComponent("middle-panel"), UsedImplicitly]
-        private readonly ImageView _middlePanel = null!;
+        private ImageView _middlePanel = null!;
 
         [UIComponent("bottom-panel"), UsedImplicitly]
-        private readonly ImageView _bottomPanel = null!;
+        private ImageView _bottomPanel = null!;
 
         private void InitializeModal() {
             var background = _modal.GetComponentInChildren<ImageView>();

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Utils {
-    [PublicAPI]
     internal static class WebUtils {
         public static readonly HttpClient HttpClient = new();
 

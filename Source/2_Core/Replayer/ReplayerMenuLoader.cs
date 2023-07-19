@@ -116,7 +116,7 @@ namespace BeatLeader.Replayer {
             return true;
         }
 
-        private async Task<IDifficultyBeatmap?> LoadBeatmapAsync(
+        public async Task<IDifficultyBeatmap?> LoadBeatmapAsync(
             string hash,
             string mode,
             string difficulty,

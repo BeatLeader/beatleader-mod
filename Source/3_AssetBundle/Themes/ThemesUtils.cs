@@ -46,6 +46,7 @@ namespace BeatLeader.Themes {
             }
 
             themeType = split[0] switch {
+                "Booster" => ThemeType.Booster,
                 "TheSun" => ThemeType.TheSun,
                 "TheMoon" => ThemeType.TheMoon,
                 "TheStar" => ThemeType.TheStar,

@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 8800331
+CRC: 2107351242
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 522ee1f8ba43274ad6fd56b8ec9a1ed4
+    Hash: f0bb948896ffd6f00961e4dcd62f225f
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 2fc669cd0618ec735682138d990ba9be
+    Hash: c36d89ffc8c64ec3bb870bacb5d3f133
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -33,8 +33,6 @@ ClassTypes:
   Script: {fileID: 11500000, guid: fdb916e3be6c4dbfa150878ad0fd54c8, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d0400e399a6742bc858c605ee902bbdb, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 6c66675d29834394ac49315dccfc14b8, type: 3}
 - Class: 114
@@ -69,6 +67,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/dm.png
 - Assets/BeatLeader/5_Textures/Flags/mr.png
 - Assets/BeatLeader/5_Textures/Flags/ck.png
+- Assets/BeatLeader/4_Materials/Themes/Booster/Booster_Tier1_small.mat
 - Assets/BeatLeader/5_Textures/Flags/fm.png
 - Assets/BeatLeader/5_Textures/Flags/tt.png
 - Assets/BeatLeader/5_Textures/Flags/ax.png
@@ -176,6 +175,7 @@ Assets:
 - Assets/BeatLeader/5_Textures/Flags/hn.png
 - Assets/BeatLeader/5_Textures/Flags/zm.png
 - Assets/BeatLeader/5_Textures/Flags/ch.png
+- Assets/BeatLeader/4_Materials/Themes/Booster/Booster_Tier1.mat
 - Assets/BeatLeader/5_Textures/Flags/it.png
 - Assets/BeatLeader/4_Materials/UI/TextureSplitterMaterial.mat
 - Assets/BeatLeader/5_Textures/Flags/fr.png

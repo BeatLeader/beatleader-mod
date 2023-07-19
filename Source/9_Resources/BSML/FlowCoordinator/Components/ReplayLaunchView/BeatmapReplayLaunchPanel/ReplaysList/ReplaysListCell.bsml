@@ -1,0 +1,19 @@
+<vertical horizontal-fit="Unconstrained" pad-left="1" pad-right="1">
+  <bg id="background" bg="round-rect-panel" pref-height="8">
+    <text id="top-left" align="TopLeft" overflow-mode="Ellipsis"
+          font-size="4" size-delta-x="45" size-delta-y="5.74"
+          anchor-pos-x="-7" anchor-pos-y="1.2"
+          word-wrapping="false" italics="true"/>
+    <text id="bottom-left" align="BottomLeft" overflow-mode="Ellipsis"
+          font-size="3" size-delta-x="45" size-delta-y="6"
+          anchor-pos-x="-7.5" anchor-pos-y="-1.2" word-wrapping="false"
+          font-color="#FFFFFFBF" italics="true"/>
+    <text id="top-right" align="TopRight" word-wrapping="false"
+          font-size="3" size-delta-x="6" size-delta-y="8"
+          anchor-pos-x="25" anchor-pos-y="-0.2" italics="true"/>
+    <text id="bottom-right" align="BottomRight"
+          font-size="3" size-delta-x="6" size-delta-y="8"
+          anchor-pos-x="24.5" anchor-pos-y="0.6" word-wrapping="false"
+          font-color="#FFFFFFBF" italics="true"/>
+  </bg>
+</vertical>

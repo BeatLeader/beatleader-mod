@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Models;
 using System;
+using System.Linq;
 using UnityEngine;
 using Zenject;
 
@@ -10,7 +11,8 @@ namespace BeatLeader.Replayer {
 
         public float ReplayEndTime {
             get {
-                var failTime = !_gameplayManagerInitData.failOn0Energy ? 0 : _launchData.MainReplay.ReplayData.FailTime;
+                _replayEndTime = _replayEndTime is -1 ? _launchData.MainReplay.PlayerMovementFrames.LastOrDefault().time : _replayEndTime;
+                var failTime = !_gameplayManagerInitData.failOn0Energy ? 0 : _replayEndTime;
                 return _launchData.IsBattleRoyale || failTime == 0 ? SongEndTime : failTime;
             }
         }
@@ -18,6 +20,7 @@ namespace BeatLeader.Replayer {
         public event Action? SongReachedReplayEndEvent;
 
         private bool _songReachedReplayEnd;
+        private float _replayEndTime = -1;
 
         public override void Rewind(float time, bool resumeAfterRewind = true) {
             time = Mathf.Clamp(time, SongStartTime, ReplayEndTime);
@@ -26,10 +29,9 @@ namespace BeatLeader.Replayer {
         }
 
         private void LateUpdate() {
-            if (!_songReachedReplayEnd && SongTime >= ReplayEndTime - 0.01f) {
-                SongReachedReplayEndEvent?.Invoke();
-                _songReachedReplayEnd = true;
-            }
+            if (_songReachedReplayEnd || SongTime < ReplayEndTime) return;
+            SongReachedReplayEndEvent?.Invoke();
+            _songReachedReplayEnd = true;
         }
     }
 }

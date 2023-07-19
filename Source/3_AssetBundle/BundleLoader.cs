@@ -171,6 +171,8 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite RotateRightIcon;
 
         [UsedImplicitly] public static Sprite SettingsIcon;
+        
+        [UsedImplicitly] public static Sprite ReplayerSettingsIcon;
 
         [UsedImplicitly] public static Sprite WarningIcon;
 
@@ -187,6 +189,10 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite WhiteBG;
 
         [UsedImplicitly] public static Sprite DefaultAvatar;
+        
+        [UsedImplicitly] public static Sprite UnknownIcon;
+        
+        [UsedImplicitly] public static Sprite CheckIcon;
 
         private static List<Sprite> _loadedSprites = null!;
 
@@ -238,6 +244,7 @@ namespace BeatLeader {
             ProgressRingIcon = assetBundle.LoadAsset<Sprite>("BL_ProgressRingIcon");
             RotateLeftIcon = assetBundle.LoadAsset<Sprite>("BL_RotateLeftIcon");
             RotateRightIcon = assetBundle.LoadAsset<Sprite>("BL_RotateRightIcon");
+            ReplayerSettingsIcon = assetBundle.LoadAsset<Sprite>("BL_ReplayerSettingsIcon");
             SettingsIcon = assetBundle.LoadAsset<Sprite>("BL_SettingsIcon");
             WarningIcon = assetBundle.LoadAsset<Sprite>("BL_WarningIcon");
             EyeIcon = assetBundle.LoadAsset<Sprite>("BL_EyeIcon");
@@ -247,6 +254,8 @@ namespace BeatLeader {
             WhiteBG = assetBundle.LoadAsset<Sprite>("BL_WhiteBG");
             CyanBGOutline = assetBundle.LoadAsset<Sprite>("BL_CyanBGOutline");
             DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
+            UnknownIcon = assetBundle.LoadAsset<Sprite>("BL_UnknownIcon");
+            CheckIcon = assetBundle.LoadAsset<Sprite>("BL_CheckIcon");
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 

@@ -1,4 +1,4 @@
-<horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
+<horizontal spacing="1" vertical-fit="Unconstrained">
     <macro.define name="icon-width" value="4"/>
     
     <!--  OVERVIEW PAGE1 BUTTON  -->

@@ -1,0 +1,28 @@
+<vertical child-expand-height="false"
+          child-control-height="false"
+          child-align="MiddleCenter"
+          spacing="2">
+  <vertical vertical-fit="PreferredSize" pref-height="21">
+    <toggle-setting text="Filter By Beatmap" value="beatmap-filter"
+                    bind-value="true" apply-on-change="true" pref-width="-1"/>
+    <macro.as-host host="beatmap-selector">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </vertical>
+  <vertical vertical-fit="PreferredSize" horizontal-fit="Unconstrained" pref-height="12">
+    <toggle-setting interactable="~beatmap-characteristic-interactable"
+                    text="Filter By Characteristic" value="beatmap-characteristic"
+                    bind-value="true" apply-on-change="true" pref-width="-1"/>
+    <macro.as-host host="beatmap-characteristic-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </vertical>
+  <vertical vertical-fit="PreferredSize" horizontal-fit="Unconstrained" pref-height="12">
+    <toggle-setting interactable="~beatmap-difficulty-interactable"
+                    text="Filter By Difficulty" value="beatmap-difficulty"
+                    bind-value="true" apply-on-change="true" pref-width="-1"/>
+    <macro.as-host host="beatmap-difficulty-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </vertical>
+</vertical>

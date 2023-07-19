@@ -58,7 +58,7 @@ namespace BeatLeader.Components {
 
         private IReplayPauseController _pauseController = null!;
         private IReplayFinishController _finishController = null!;
-        private IBeatmapTimeController _beatmapTimeController = null!;
+        private IReplayTimeController _beatmapTimeController = null!;
         private IVirtualPlayersManager _playersManager = null!;
         private ReplayLaunchData _launchData = null!;
 
@@ -104,9 +104,7 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateSongTime() {
-            var failTime = _launchData.IsBattleRoyale ? 0 : _launchData.MainReplay.ReplayData.FailTime;
-            var totalTime = failTime <= 0 ? _beatmapTimeController.SongEndTime : failTime;
-            FormattedSongTime = FormatUtils.FormatSongTime(_beatmapTimeController.SongTime, totalTime);
+            FormattedSongTime = FormatUtils.FormatSongTime(_beatmapTimeController.SongTime, _beatmapTimeController.ReplayEndTime);
         }
 
         #endregion

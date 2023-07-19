@@ -40,10 +40,6 @@ namespace BeatLeader.Installers {
                     Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started!");
                     return;
                 }
-                if (!(MapEnhancer.previewBeatmapLevel.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId))) {
-                    Plugin.Log.Debug("OST level detected, BL Replay Recorder will not be started!");
-                    return;
-                }
                 var gameMode = GetGameMode();
                 if (gameMode != null && !modes.Contains(gameMode)) {
                     Plugin.Log.Debug("Not allowed game mode, BL Replay Recorder will not be started!");

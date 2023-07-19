@@ -10,41 +10,42 @@ using TMPro;
 namespace BeatLeader.UI.BSML_Addons.Extensions {
     [ComponentHandler(typeof(GenericSetting))]
     internal class GenericSettingExtensionHandler : TypeHandler {
-        public override Dictionary<string, string[]> Props => new Dictionary<string, string[]>()
-        {
+        public override Dictionary<string, string[]> Props => new() {
             { "hideText", new[] { "hide-text" } },
         };
 
         public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
-            if (!componentType.data.TryGetValue("hideText", out string showText) || 
-                !bool.TryParse(showText, out bool showTextBool) || !showTextBool) return;
+            if (!componentType.data.TryGetValue("hideText", out var showText) ||
+                !bool.TryParse(showText, out var showTextBool) || !showTextBool) return;
 
-            GameObject text = null;
-            Transform transform = null;
-            Transform parent = null;
+            var text = default(GameObject?);
+            var transform = default(Transform?);
+            var parent = default(Transform?);
             switch (componentType.component) {
                 case SliderSetting sliderSetting:
-                    parent = sliderSetting.slider.transform.parent;
-                    transform = sliderSetting.slider.transform;
+                    var sliderTransform = sliderSetting.slider.transform;
+                    parent = sliderTransform.parent;
+                    transform = sliderTransform;
                     text = sliderSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject;
                     break;
                 case IncDecSetting incDecSetting:
                     text = incDecSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject;
-                    transform = incDecSetting.text.transform.parent; 
+                    transform = incDecSetting.text.transform.parent;
                     parent = incDecSetting.transform;
                     break;
                 case ToggleSetting toggleSetting:
                     text = toggleSetting.text.gameObject;
-                    transform = toggleSetting.toggle.transform; 
+                    transform = toggleSetting.toggle.transform;
                     parent = toggleSetting.transform;
                     break;
                 default:
                     return;
             }
-            
-            GameObject.Destroy(text);
-            transform.GetChildren().ForEach(x => x.transform.SetParent(parent, false));
+
+            Object.Destroy(text);
+            foreach (var item in transform.GetChildren()) {
+                item.transform.SetParent(parent, false);
+            }
         }
     }
 }
-

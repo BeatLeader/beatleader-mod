@@ -1,28 +1,108 @@
-﻿using BeatLeader.Models;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using BeatLeader.Interop;
+using BeatLeader.Models.Activity;
+using BeatLeader.Models.BeatSaver;
 using BeatLeader.Models.Replay;
 using UnityEngine;
 
-namespace BeatLeader.Utils
-{
-    internal static class FileManager
-    {
-        #region Directories
+namespace BeatLeader.Utils {
+    internal static class FileManager {
+        #region Beatmaps
 
+        private static string BeatmapsDirectory => Path.Combine(Application.dataPath, "CustomLevels");
+
+        public static async Task<bool> InstallBeatmap(byte[] bytes, string folderName) {
+            try {
+                var path = Path.Combine(BeatmapsDirectory, folderName);
+                using var memoryStream = new MemoryStream(bytes);
+                using var archive = new ZipArchive(memoryStream);
+                foreach (var entry in archive.Entries) {
+                    using var entryStream = entry.Open();
+                    var streamLength = entry.Length;
+                    var entryBuffer = new byte[streamLength];
+                    var bytesRead = await entryStream.ReadAsync(entryBuffer, 0, (int)streamLength);
+                    if (bytesRead < streamLength) throw new FileLoadException();
+                    var destinationPath = Path.Combine(path, entry.FullName);
+                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+                    using var destinationStream = File.OpenWrite(destinationPath);
+                    await destinationStream.WriteAsync(entryBuffer, 0, (int)streamLength);
+                }
+                SongCoreInterop.TryRefreshSongs(true);
+                return true;
+            } catch (Exception ex) {
+                Plugin.Log.Error("Failed to install beatmap:\n" + ex);
+                return false;
+            }
+        }
+        
+        #endregion
+        
+        #region Replays
+
+        public static IEnumerable<string> GetAllReplayPaths() {
+            return Directory.EnumerateFiles(ReplaysFolderPath, "*.bsor");
+        }
+
+        public static bool TryWriteReplay(string fileName, Replay replay) {
+            try {
+                EnsureDirectoryExists(fileName);
+                using BinaryWriter file = new(File.Open(fileName, FileMode.OpenOrCreate), Encoding.UTF8);
+                ReplayEncoder.Encode(replay, file);
+                file.Close();
+                Plugin.Log.Debug("Saved.");
+                return true;
+            } catch (Exception ex) {
+                Plugin.Log.Error($"Unable to save replay. Reason: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static string ToFileName(Replay replay, PlayEndData? playEndData) {
+            return ToFileName(replay, playEndData, ReplaysFolderPath);
+        }
+        
+        public static string ToFileName(Replay replay, PlayEndData? playEndData, string folder) {
+            var practice = replay.info.speed != 0 ? "-practice" : "";
+            var fail = replay.info.failTime != 0 ? "-fail" : "";
+            var exit = playEndData?.EndType is PlayEndData.LevelEndType
+                .Quit or PlayEndData.LevelEndType.Restart ? "-exit" : "";
+            var info = replay.info;
+            var filename = $"{info.playerID}{practice}{fail}{exit}-{info.songName}-{info.difficulty}-{info.mode}-{info.hash}-{info.timestamp}.bsor";
+            var regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            var r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
+            return folder + r.Replace(filename, "_");
+        }
+
+        public static bool TryReadReplay(string path, out Replay? replay) {
+            if (File.Exists(path)) {
+                return ReplayDecoder.TryDecodeReplay(File.ReadAllBytes(path), out replay);
+            }
+            replay = null;
+            return false;
+        }
+
+        public static bool TryReadReplayInfo(string path, out ReplayInfo? replayInfo) {
+            if (File.Exists(path)) {
+                return ReplayDecoder.TryDecodeReplayInfo(File.ReadAllBytes(path), out replayInfo);
+            }
+            replayInfo = null;
+            return false;
+        }
+
+        #endregion
+
+        #region Directories
+        
         private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
-        private static string CacheDirectory => Application.temporaryCachePath + "\\BeatLeader\\Replays\\";
         private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 
-        public static string LastSavedReplay = "";
-
-        static FileManager()
-        {
-            EnsureDirectoryExists(CacheDirectory);
+        static FileManager() {
             EnsureDirectoryExists(ReplaysFolderPath);
             EnsureDirectoryExists(PlaylistsFolderPath);
         }
@@ -31,66 +111,6 @@ namespace BeatLeader.Utils
             var path = Path.GetDirectoryName(directory);
             if (Directory.Exists(path) || path == null) return;
             Directory.CreateDirectory(path);
-        }
-        public static string[] GetAllReplaysPaths()
-        {
-            return Directory.GetFiles(ReplaysFolderPath);
-        }
-        public static bool TryWriteReplay(Replay replay) {
-            LastSavedReplay = ToFileName(replay, ReplaysFolderPath);
-            return TryWriteReplay(LastSavedReplay, replay);
-        }
-        public static bool TryWriteTempReplay(Replay replay)
-        {
-            LastSavedReplay = ToFileName(replay, CacheDirectory);
-            return TryWriteReplay(LastSavedReplay, replay);
-        }
-        public static bool TryWriteReplay(string fileName, Replay replay)
-        {
-            try {
-                EnsureDirectoryExists(fileName);
-                using BinaryWriter file = new(File.Open(fileName, FileMode.OpenOrCreate), Encoding.UTF8);
-                ReplayEncoder.Encode(replay, file);
-                file.Close();
-                return true;
-            } catch (Exception ex) {
-                Plugin.Log.Debug($"Unable to save replay. Reason: {ex.Message}");
-                return false;
-            }
-        }
-
-        public static string ToFileName(Replay replay, string folder)
-        {
-            string practice = replay.info.speed != 0 ? "-practice" : "";
-            string fail = replay.info.failTime != 0 ? "-fail" : "";
-            string filename = $"{replay.info.playerID}{practice}{fail}-{replay.info.songName}-{replay.info.difficulty}-{replay.info.mode}-{replay.info.hash}.bsor";
-            string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            Regex r = new (string.Format("[{0}]", Regex.Escape(regexSearch)));
-            return folder + r.Replace(filename, "_");
-        }
-
-        public static bool TryReadReplay(string filename, out Replay replay)
-        {
-            try
-            {
-                if (File.Exists(filename))
-                {
-                    Stream stream = File.Open(filename, FileMode.Open);
-                    int arrayLength = (int)stream.Length;
-                    byte[] buffer = new byte[arrayLength];
-                    stream.Read(buffer, 0, arrayLength);
-                    stream.Close();
-
-                    replay = ReplayDecoder.Decode(buffer);
-                    return true;
-                }
-            }
-            catch (Exception e) {
-                Plugin.Log.Debug(e);
-            }
-            
-            replay = default;
-            return false;
         }
 
         #endregion

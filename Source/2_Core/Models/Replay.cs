@@ -456,20 +456,35 @@ namespace BeatLeader.Models.Replay {
     }
     static class ReplayDecoder
     {
-        public static bool TryDecode(byte[] buffer, out Models.Replay.Replay replay)
-        {
-            replay = null;
-            try
-            {
-                replay = Decode(buffer);
-                return replay != null;
+        public static bool TryDecodeReplayInfo(byte[] buffer, out ReplayInfo? info) {
+            try {
+                info = DecodeReplayInfo(buffer);
+            } catch (Exception e) {
+                Plugin.Log.Debug(e);
+                info = null;
             }
-            catch
-            {
-                return false;
-            }
+            return info != null;
         }
-        public static Models.Replay.Replay Decode(byte[] buffer)
+        
+        public static bool TryDecodeReplay(byte[] buffer, out Replay? replay) {
+            try {
+                replay = DecodeReplay(buffer);
+            } catch (Exception e) {
+                Plugin.Log.Debug(e);
+                replay = null;
+            }
+            return replay != null;
+        }
+        
+        public static ReplayInfo? DecodeReplayInfo(byte[] buffer) {
+            var pointer = 0;
+            if (DecodeInt(buffer, ref pointer) != 0x442d3d69 
+                || buffer[pointer++] != 1) return null;
+            pointer++;
+            return DecodeInfo(buffer, ref pointer);
+        }
+        
+        public static Models.Replay.Replay DecodeReplay(byte[] buffer)
         {
             int arrayLength = (int)buffer.Length;
 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage;
@@ -25,18 +27,36 @@ namespace BeatLeader {
         }
 
         private static string ReadBsmlOrFallback(Type componentType) {
-            var targetPostfix = $"{componentType.Name}.bsml";
+            var targetName = $"{componentType.Name}.bsml";
 
-            string resource = componentType.ReadViewDefinition();
+            var resource = componentType.ReadViewDefinition();
             if (resource != string.Empty)
                 return resource;
 
+            var strictMatch = true;
+            FindResource: ;
             foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
-                if (!resourceName.EndsWith(targetPostfix)) continue;
+                var actualResourceName = GetResourceName(resourceName);
+                if (strictMatch ? actualResourceName != targetName : !resourceName.EndsWith(targetName)) continue;
                 return Utilities.GetResourceContent(componentType.Assembly, resourceName);
             }
 
-            return $"<text text=\"Resource not found: {targetPostfix}\" align=\"Center\"/>";
+            if (!strictMatch) return $"<text text=\"Resource not found: {targetName}\" align=\"Center\"/>";
+            strictMatch = false;
+            goto FindResource;
+        }
+
+        private static string GetResourceName(string path) {
+            var acc = -1;
+            for (var i = path.Length - 1; i >= 0; i--) {
+                if (path[i] is not '.') continue;
+                if (acc != -1) {
+                    acc = i;
+                    break;
+                }
+                acc = i;
+            }
+            return path.Remove(0, acc + 1);
         }
 
         #endregion
@@ -65,6 +85,8 @@ namespace BeatLeader {
         protected virtual void OnInitialize() { }
 
         protected virtual void OnDispose() { }
+
+        protected virtual void OnRootStateChange(bool active) { }
 
         #endregion
 
@@ -104,7 +126,7 @@ namespace BeatLeader {
         private State _state = State.Uninitialized;
 
         protected bool IsHierarchySet => _state == State.HierarchySet;
-        protected bool IsParsed => _state == State.Parsed || IsHierarchySet;
+        protected bool IsParsed => _state >= State.Parsed;
 
         private enum State {
             Uninitialized,
@@ -126,8 +148,37 @@ namespace BeatLeader {
 
         #endregion
 
+        #region Content
+
+        private class ContentStateListener : MonoBehaviour {
+            public event Action<bool>? StateChangedEvent;
+
+            private void OnEnable() => StateChangedEvent?.Invoke(true);
+
+            private void OnDisable() => StateChangedEvent?.Invoke(false);
+        }
+
+        public void SetRootActive(bool active) {
+            ValidateAndThrow();
+            Content.gameObject.SetActive(active);
+        }
+
+        public Transform GetRootTransform() {
+            ValidateAndThrow();
+            return Content;
+        }
+
+        #endregion
+
         #region Parse
+
         protected Transform Content { get; private set; }
+        protected virtual object ParseHost => this;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ValidateAndThrow() {
+            if (!IsParsed) throw new UninitializedComponentException();
+        }
 
         [UIAction("#post-parse"), UsedImplicitly]
         private protected virtual void PostParse() {
@@ -147,13 +198,14 @@ namespace BeatLeader {
         private void ParseSelfIfNeeded() {
             if (_state != State.Uninitialized) return;
             _state = State.Parsing;
-            PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, this);
+            PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, ParseHost);
             Content = Transform.GetChild(0);
+            Content.gameObject.AddComponent<ContentStateListener>().StateChangedEvent += OnRootStateChange;
             _state = State.Parsed;
         }
 
         private void ApplyHierarchy() {
-            if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
+            ValidateAndThrow();
 
             Content.SetParent(Transform.parent, true);
 

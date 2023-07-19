@@ -9,6 +9,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region MenuButtonEnabled
+
+        public const bool MenuButtonEnabled = true;
+
+        #endregion
+
         #region ScoresContext
 
         public static readonly ScoresContext ScoresContext = ScoresContext.Modifiers;
@@ -18,11 +24,11 @@ namespace BeatLeader {
         #region LeaderboardTableMask
 
         public const ScoreRowCellType LeaderboardTableMask = ScoreRowCellType.Rank |
-                                              ScoreRowCellType.Username |
-                                              ScoreRowCellType.Modifiers |
-                                              ScoreRowCellType.Accuracy |
-                                              ScoreRowCellType.PerformancePoints |
-                                              ScoreRowCellType.Score;
+            ScoreRowCellType.Username |
+            ScoreRowCellType.Modifiers |
+            ScoreRowCellType.Accuracy |
+            ScoreRowCellType.PerformancePoints |
+            ScoreRowCellType.Score;
 
         #endregion
 
@@ -35,7 +41,7 @@ namespace BeatLeader {
             FpfcCameraView = "PlayerView",
             VRCameraView = "BehindView"
         };
-        
+
         public static readonly ReplayerSettings ReplayerSettings = new() {
             AutoHideUI = false,
             LoadPlayerEnvironment = false,
@@ -51,7 +57,7 @@ namespace BeatLeader {
             ShowTimelinePauses = true,
 
             CameraSettings = InternalReplayerCameraSettings,
-                
+
             Shortcuts = new() {
                 LayoutEditorPartialModeHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
@@ -64,9 +70,15 @@ namespace BeatLeader {
 
         #endregion
 
-        #region EnableReplayCaching
+        #region ReplaySavingSettings
 
-        public static bool EnableReplayCaching = false;
+        public const bool EnableReplayCaching = false;
+
+        public const bool OverrideOldReplays = true;
+
+        public const bool SaveLocalReplays = true;
+
+        public const ReplaySaveOption ReplaySavingOptions = ReplaySaveOption.Exit | ReplaySaveOption.Fail | ReplaySaveOption.ZeroScore;
 
         #endregion
     }

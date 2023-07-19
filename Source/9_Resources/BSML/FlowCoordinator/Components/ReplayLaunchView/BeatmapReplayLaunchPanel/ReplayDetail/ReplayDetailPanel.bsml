@@ -1,0 +1,43 @@
+<vertical horizontal-fit="Unconstrained">
+  <!-- DELETION MODAL -->
+  <modal show-event="show-deletion-modal"
+         hide-event="close-deletion-modal"
+         click-off-closes="true"
+         size-delta-x="40" size-delta-y="24">
+    <vertical pref-width="40" pad="2">
+      <text text="Do you really want to delete the replay?"
+            word-wrapping="true" align="Center"/>
+      <horizontal spacing="6">
+        <primary-button on-click="delete-button-click" text="Yes"
+                        click-event="close-deletion-modal"
+                        horizontal-fit="Unconstrained"/>
+        <button text="No" horizontal-fit="Unconstrained"
+                click-event="close-deletion-modal"/>
+      </horizontal>
+    </vertical>
+  </modal>
+  <vertical pref-width="50">
+    <macro.as-host host="player-info-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </vertical>
+  <vertical pref-width="50" pad-top="2" pad-bottom="2"
+            vertical-fit="PreferredSize">
+    <macro.as-host host="replay-info-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <macro.as-host host="download-beatmap-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </vertical>
+  <horizontal pref-height="10" spacing="3">
+    <button interactable="~delete-button-interactable"
+            text="Delete" pref-height="10"
+            click-event="show-deletion-modal"
+            horizontal-fit="Unconstrained"/>
+    <primary-button interactable="~watch-button-interactable" 
+                    text="~watch-button-text"
+                    on-click="watch-button-click" pref-height="10"
+                    horizontal-fit="Unconstrained"/>
+  </horizontal>
+</vertical>

@@ -25,7 +25,7 @@ namespace BeatLeader.API.Methods {
             }
 
             public Replay ParseResponse(UnityWebRequest request) {
-                if (!ReplayDecoder.TryDecode(request.downloadHandler.data, out var replay)) {
+                if (!ReplayDecoder.TryDecodeReplay(request.downloadHandler.data, out var replay)) {
                     throw new Exception("Unable to decode replay!");
                 }
 

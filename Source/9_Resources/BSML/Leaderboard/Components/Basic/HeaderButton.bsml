@@ -1,5 +1,5 @@
-﻿<horizontal id="root" pref-height="4.0" horizontal-fit="PreferredSize">
-    <vertical pref-width="4.0">
+﻿<horizontal id="root" pref-height="~button-size" horizontal-fit="PreferredSize">
+    <vertical pref-width="~button-size">
         <clickable-image id="image-component" src="#PlayerIcon" preserve-aspect="true"/>
     </vertical>
 </horizontal>

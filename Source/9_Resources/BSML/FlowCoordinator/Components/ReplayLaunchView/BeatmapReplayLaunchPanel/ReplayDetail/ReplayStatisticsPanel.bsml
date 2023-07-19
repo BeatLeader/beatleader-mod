@@ -1,0 +1,48 @@
+<vertical pref-width="50">
+  <horizontal bg="round-rect-panel"
+              vertical-fit="Unconstrained"
+              horizontal-fit="Unconstrained"
+              pref-height="30">
+    <!--  SCORE STATS LOADING SCREEN  -->
+    <macro.as-host host="score-stats-loading-screen">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+    <!--  SCORE OVERVIEW PAGE1 -->
+    <macro.as-host host="score-overview-page1">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+    <!--  SCORE OVERVIEW PAGE2 -->
+    <macro.as-host host="score-overview-page2">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+    <!--  ACCURACY DETAILS  -->
+    <macro.as-host host="accuracy-details">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+    <!--  ACCURACY GRID  -->
+    <macro.as-host host="accuracy-grid">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+    <!--  ACCURACY GRAPH  -->
+    <macro.as-host host="accuracy-graph">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+
+    <!--  REPLAY SETTINGS PANEL  -->
+    <macro.as-host host="replay-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </horizontal>
+  <horizontal id="panel-controls-container" bg="round-rect-panel" pref-height="6"
+              vertical-fit="PreferredSize" pad-top="1"
+              pad-bottom="1">
+    <macro.as-host host="panel-controls">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+  </horizontal>
+</vertical>

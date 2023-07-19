@@ -83,9 +83,8 @@ namespace BeatLeader.Components {
             _miniProfile = Instantiate<HorizontalMiniProfileContainer>(transform);
 
             _replayStatisticsPanel.SetData(null, null, true, true);
-            _miniProfile.SetPlayer(null);
-
-            _miniProfile.PlayerLoadedEvent += HandlePlayerLoaded;
+            _ = _miniProfile.SetPlayer(null);
+            
             _downloadBeatmapPanel.BackButtonClickedEvent += HandleDownloadMenuBackButtonClicked;
             _downloadBeatmapPanel.DownloadAbilityChangedEvent += HandleDownloadAbilityChangedEvent;
 
@@ -108,7 +107,6 @@ namespace BeatLeader.Components {
 
         private CancellationTokenSource _cancellationTokenSource = new();
         private IReplayHeader? _header;
-        private Player? _player;
 
         private bool _beatmapIsMissing;
         private bool _isIntoDownloadMenu;
@@ -131,14 +129,14 @@ namespace BeatLeader.Components {
                 _ = ProcessDataAsync(header!, _cancellationTokenSource.Token);
                 return;
             }
-            _miniProfile.SetPlayer(null);
+            _ = _miniProfile.SetPlayer(null);
             _isWorking = false;
         }
 
         private async Task ProcessDataAsync(IReplayHeader header, CancellationToken token) {
-            _miniProfile.SetPlayer(header.ReplayInfo?.playerID);
+            var playerTask = _miniProfile.SetPlayer(header.ReplayInfo?.playerID);
             DeleteButtonInteractable = false;
-            var replay = await header.LoadReplayAsync(default);
+            var replay = await header.LoadReplayAsync(token);
             if (token.IsCancellationRequested) return;
             DeleteButtonInteractable = true;
             var stats = default(ScoreStats?);
@@ -149,6 +147,7 @@ namespace BeatLeader.Components {
             }
             if (token.IsCancellationRequested) return;
             _replayStatisticsPanel.SetData(score, stats, score is null || stats is null);
+            await playerTask;
             await RefreshAvailabilityAsync(header.ReplayInfo!, token);
         }
 
@@ -167,11 +166,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Callbacks
-
-        private void HandlePlayerLoaded(Player player) {
-            _player = player;
-        }
-
+        
         private void HandleDownloadAbilityChangedEvent(bool ableToDownload) {
             WatchButtonInteractable = ableToDownload;
         }
@@ -198,7 +193,7 @@ namespace BeatLeader.Components {
                 return;
             }
             if (!_isInitialized || _header is null || _header.FileStatus is Corrupted) return;
-            _ = _menuLoader!.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _player);
+            _ = _menuLoader!.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _miniProfile.Player);
         }
 
         #endregion

@@ -30,6 +30,7 @@ namespace BeatLeader.Components {
 
             public EnvironmentInfoSO? environmentInfo { get; } = null;
             public EnvironmentInfoSO? allDirectionsEnvironmentInfo { get; } = null;
+            public EnvironmentInfoSO[]? environmentInfos { get; } = null;
             public IReadOnlyList<PreviewDifficultyBeatmapSet>? previewDifficultyBeatmapSets { get; } = null;
 
             public Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken) => Task.FromResult(BundleLoader.UnknownIcon);

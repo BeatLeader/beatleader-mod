@@ -5,6 +5,7 @@ using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
+using HMUI;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -33,6 +34,10 @@ namespace BeatLeader.ViewControllers {
 
         #region Init
 
+        private readonly HarmonyAutoPatch _dismissViewControllerPatch = new HarmonyPatchDescriptor(
+            typeof(ViewController).GetMethod(nameof(ViewController.__DismissViewController), ReflectionUtils.DefaultFlags)!,
+            typeof(ReplayLaunchViewController).GetMethod(nameof(DismissViewControllerPrefix), ReflectionUtils.StaticFlags));
+        
         private void Awake() {
             _replayPanel = ReeUIComponentV2.Instantiate<BeatmapReplayLaunchPanel>(transform);
             _searchFiltersPanel = ReeUIComponentV2.Instantiate<SearchFiltersPanel>(transform);
@@ -53,7 +58,11 @@ namespace BeatLeader.ViewControllers {
             _searchFiltersPanel.NotifyContainerStateChanged();
         }
         
-        public override void __DismissViewController(Action finishedCallback, AnimationDirection animationDirection = AnimationDirection.Horizontal, bool immediately = false) {
+        public void __DismissViewController(
+            Action finishedCallback,
+            AnimationDirection animationDirection,
+            bool immediately)
+        {
             _childViewController?.__DismissViewController(null, immediately: true);
             base.__DismissViewController(finishedCallback, animationDirection, immediately);
         }
@@ -84,6 +93,11 @@ namespace BeatLeader.ViewControllers {
                     && (!diff.HasValue || info.difficulty == diff.Value.ToString())
                     && (characteristic is null || info.mode == characteristic);
             }
+        }
+
+        private static void DismissViewControllerPrefix(object __instance) {
+            if (__instance is not ReplayLaunchViewController { } view) return;
+            view._childViewController?.__DismissViewController(null, immediately: true);
         }
 
         #endregion

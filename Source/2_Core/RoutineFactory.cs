@@ -26,7 +26,7 @@ namespace BeatLeader {
         }
     }
 
-    internal class RoutineFactory : PersistentSingleton<RoutineFactory> {
+    internal class RoutineFactory : MonoSingleton<RoutineFactory> {
         public static IManagedRoutine ReleaseManagedRoutine(IEnumerator coroutine) {
             var routine = new GameObject(nameof(RoutineContainer)).AddComponent<RoutineContainer>();
             routine.Init(coroutine);
@@ -40,8 +40,8 @@ namespace BeatLeader {
         }
         
         public static void StartUnmanagedCoroutine(IEnumerator coroutine) {
-            instance.gameObject.SetActive(true);
-            instance.StartCoroutine(coroutine);
+            Instance.gameObject.SetActive(true);
+            Instance.StartCoroutine(coroutine);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace BeatLeader.Components {
             _originalViewController = originalViewController;
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (_originalViewController == null) throw new ArgumentNullException(nameof(_originalViewController));
             _originalScreen = _originalViewController.screen;
             _originalParentController = _originalViewController.parentViewController;
@@ -33,7 +33,7 @@ namespace BeatLeader.Components {
             _originalViewController.__Activate(addedToHierarchy, screenSystemEnabling);
         }
 
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             if (deactivateAfterTransition) {
                 _originalViewController!.__Deactivate(removedFromHierarchy, false, screenSystemDisabling);
             }

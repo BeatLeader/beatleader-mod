@@ -63,13 +63,13 @@ namespace BeatLeader.Components {
             _isInitialized = true;
         }
 
-        protected override void OnDestroy() {
+        public override void OnDestroy() {
             base.OnDestroy();
             if (_levelDetailWrapper) Destroy(_levelDetailWrapper!.gameObject);
             if (_closeButton) Destroy(_closeButton!.gameObject);
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (!_isInitialized) throw new UninitializedComponentException();
             if (firstActivation) {
                 //super tricky-wicked way to check is controller was ever presented with solo flow coordinator
@@ -100,7 +100,7 @@ namespace BeatLeader.Components {
             _levelCollectionNavigationController.HideDetailViewController();
         }
 
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             SetLevelDetailWrapperEnabled(false);
             SetCloseButtonEnabled(false);
             _lastSelectedLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;

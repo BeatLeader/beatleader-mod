@@ -186,20 +186,13 @@ namespace BeatLeader.Components {
 
         private void HandleCharacteristicSelectedEvent(BeatmapCharacteristicSO characteristic) {
             _beatmapCharacteristic = characteristic;
-            _beatmapDifficultyPanel.SetData(
-                _previewBeatmapLevel?.previewDifficultyBeatmapSets
-                    .FirstOrDefault(x => x.beatmapCharacteristic == _beatmapCharacteristic)?
-                    .beatmapDifficulties.Select(x => new CustomDifficultyBeatmap(
-                        null,
-                        null,
-                        x,
-                        0,
-                        0,
-                        0,
-                        0,
-                        null,
-                        null))
-                    .ToArray());
+            _beatmapDifficultyPanel.SetData(_previewBeatmapLevel?.previewDifficultyBeatmapSets
+                .FirstOrDefault(x => x.beatmapCharacteristic == _beatmapCharacteristic)?
+                .beatmapDifficulties.Select(x => new CustomDifficultyBeatmap(
+                    null, null, x, 0, 0,
+                    0, 0, 0, 0,
+                    null, null))
+                .ToArray());
             RefreshFiltersData();
         }
 

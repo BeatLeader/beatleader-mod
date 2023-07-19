@@ -85,6 +85,8 @@ namespace BeatLeader {
 
         protected virtual void OnDispose() { }
 
+        protected virtual void OnRootStateChange(bool active) { }
+
         #endregion
 
         #region UnityEvents
@@ -123,7 +125,7 @@ namespace BeatLeader {
         private State _state = State.Uninitialized;
 
         protected bool IsHierarchySet => _state == State.HierarchySet;
-        protected bool IsParsed => _state == State.Parsed || IsHierarchySet;
+        protected bool IsParsed => _state >= State.Parsed;
 
         private enum State {
             Uninitialized,
@@ -145,10 +147,37 @@ namespace BeatLeader {
 
         #endregion
 
+        #region Content
+
+        private class ContentStateListener : MonoBehaviour {
+            public event Action<bool>? StateChangedEvent;
+
+            private void OnEnable() => StateChangedEvent?.Invoke(true);
+
+            private void OnDisable() => StateChangedEvent?.Invoke(false);
+        }
+
+        public void SetRootActive(bool active) {
+            ValidateAndThrow();
+            Content.gameObject.SetActive(active);
+        }
+
+        public Transform GetRootTransform() {
+            ValidateAndThrow();
+            return Content;
+        }
+
+        #endregion
+
         #region Parse
-        
+
         protected Transform Content { get; private set; }
         protected virtual object ParseHost => this;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ValidateAndThrow() {
+            if (!IsParsed) throw new UninitializedComponentException();
+        }
 
         [UIAction("#post-parse"), UsedImplicitly]
         private protected virtual void PostParse() {
@@ -170,11 +199,12 @@ namespace BeatLeader {
             _state = State.Parsing;
             PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, ParseHost);
             Content = Transform.GetChild(0);
+            Content.gameObject.AddComponent<ContentStateListener>().StateChangedEvent += OnRootStateChange;
             _state = State.Parsed;
         }
 
         private void ApplyHierarchy() {
-            if (_state != State.Parsed) throw new Exception("Component isn't parsed!");
+            ValidateAndThrow();
 
             Content.SetParent(Transform.parent, true);
 

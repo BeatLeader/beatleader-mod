@@ -1,10 +1,12 @@
 ﻿using BeatLeader.Models;
 using System;
 using BeatLeader.Utils;
+using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer {
+    [PublicAPI]
     public class ReplayerLauncher : MonoBehaviour {
         [Inject] private readonly GameScenesManager _gameScenesManager = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;

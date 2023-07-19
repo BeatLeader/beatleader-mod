@@ -26,13 +26,17 @@
     <macro.as-host host="replay-info-panel">
       <macro.reparent transform="ui-component"/>
     </macro.as-host>
+    <macro.as-host host="download-beatmap-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
   </vertical>
   <horizontal pref-height="10" spacing="3">
     <button interactable="~delete-button-interactable"
             text="Delete" pref-height="10"
             click-event="show-deletion-modal"
             horizontal-fit="Unconstrained"/>
-    <primary-button interactable="~watch-button-interactable" text="Watch"
+    <primary-button interactable="~watch-button-interactable" 
+                    text="~watch-button-text"
                     on-click="watch-button-click" pref-height="10"
                     horizontal-fit="Unconstrained"/>
   </horizontal>

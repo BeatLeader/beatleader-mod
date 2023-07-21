@@ -93,10 +93,10 @@ namespace BeatLeader.Components {
             }
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             _originalPreviewBeatmapLevel = _levelCollectionNavigationController.selectedBeatmapLevel;
-            NavigateToBeatmap(null, _lastSelectedLevelCategory);
             SetLevelDetailWrapperEnabled(true);
             SetCloseButtonEnabled(true);
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            NavigateToBeatmap(null, _lastSelectedLevelCategory);
             _levelCollectionNavigationController.HideDetailViewController();
         }
 

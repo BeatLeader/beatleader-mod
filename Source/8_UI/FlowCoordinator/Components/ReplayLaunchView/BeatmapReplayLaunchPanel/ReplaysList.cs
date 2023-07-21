@@ -196,7 +196,9 @@ namespace BeatLeader.Components {
             private static string FormatTime(int seconds) {
                 var minutes = seconds / 60;
                 var hours = minutes / 60;
-                return $"{(hours is not 0 ? $"{hours}:" : "")}{Zero(minutes)}{minutes % 60}:{Zero(seconds)}{seconds % 60}";
+                var secDiv = seconds % 60;
+                var minDiv = minutes % 60;
+                return $"{(hours is not 0 ? $"{Zero(hours)}{hours}:" : "")}{Zero(minDiv)}{minDiv}:{Zero(secDiv)}{secDiv}";
                 static string Zero(int number) => number > 9 ? "" : "0";
             }
 

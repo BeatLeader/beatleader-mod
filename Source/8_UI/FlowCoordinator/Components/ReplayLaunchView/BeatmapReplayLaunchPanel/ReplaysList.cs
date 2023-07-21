@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.Models.Replay;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -12,14 +11,14 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
-using static BeatLeader.Models.Activity.PlayEndData.LevelEndType;
+using static BeatLeader.Models.LevelEndType;
 
 namespace BeatLeader.Components {
     internal class ReplaysList : ReeUIComponentV2, TableView.IDataSource {
         #region Cells
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-        public abstract class AbstractDataCell : TableCell {
+        private abstract class AbstractDataCell : TableCell {
             #region Config
 
             public const int CellHeight = 8;
@@ -44,7 +43,7 @@ namespace BeatLeader.Components {
 
             #region Data
 
-            public IReplayHeader? ReplayHeader { get; private set; } = null!;
+            public IReplayHeader? ReplayHeader { get; private set; }
 
             #endregion
 
@@ -63,13 +62,7 @@ namespace BeatLeader.Components {
                 return instance;
             }
 
-            public void MakeReusable() {
-                interactable = false;
-                ReplayHeader = null;
-            }
-
             public AbstractDataCell Init(IReplayHeader header) {
-                interactable = true;
                 ReplayHeader = header;
                 if (!_isInitialized) {
                     PersistentSingleton<BSMLParser>.instance.Parse(markup, gameObject, this);
@@ -174,9 +167,10 @@ namespace BeatLeader.Components {
             public bool ShowBeatmapName {
                 set {
                     if (ReplayHeader?.ReplayInfo is not { } info) return;
-                    TopLeftText = value ? info.songName : MakeDiff(info.difficulty);
-                    BottomLeftText = $"{(value ? MakeDiff(info.difficulty) : string.Empty)} {info.playerName}";
-                    static string MakeDiff(string diff) => $"[<color=#89ff89>{diff}</color>]";
+                    var diff = FormatDiff(info.SongDifficulty);
+                    TopLeftText = value ? info.SongName : diff;
+                    BottomLeftText = $"{(value ? diff : string.Empty)} {info.PlayerName}";
+                    static string FormatDiff(string diff) => $"[<color=#89ff89>{diff}</color>]";
                 }
             }
 
@@ -184,13 +178,14 @@ namespace BeatLeader.Components {
                 if (ReplayHeader!.FileStatus is FileStatus.Corrupted
                     || ReplayHeader.ReplayInfo is not { } info) return;
                 ShowBeatmapName = false;
-                TopRightText = ReplayHeader.ReplayFinishType switch {
+                TopRightText = info.LevelEndType switch {
                     Clear => "Completed",
                     Quit or Restart => "Unfinished",
-                    Fail => $"Failed at {FormatTime(Mathf.FloorToInt(ReplayHeader.ReplayInfo.failTime))}",
+                    Fail => $"Failed at {FormatTime(Mathf.FloorToInt(ReplayHeader.ReplayInfo.FailTime))}",
                     _ => "Unknown"
                 };
-                BottomRightText = FormatUtils.GetDateTimeString(info.timestamp);
+                BottomRightText = FormatUtils.GetDateTimeString(info.Timestamp);
+                reuseIdentifier = nameof(ReplayDataCell);
             }
 
             private static string FormatTime(int seconds) {
@@ -241,18 +236,23 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        public event Action<AbstractDataCell?>? ReplaySelectedEvent;
+        public event Action<IReplayHeader?>? ReplaySelectedEvent;
         public event Action<bool>? ShowEmptyScreenChangedEvent;
 
         #endregion
 
         #region UI Components
 
+        [UIValue("visible-cells")]
+        public const int VisibleCells = 7;
+        
         [UIComponent("list")]
         private readonly CustomCellListTableData _replaysList = null!;
 
         [UIObject("empty-text")]
         private readonly GameObject _emptyTextObject = null!;
+
+        private TableView _tableView = null!;
 
         #endregion
 
@@ -262,54 +262,25 @@ namespace BeatLeader.Components {
             _tableView = _replaysList.tableView;
             _tableView.SetDataSource(this, true);
             _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
-            ShowEmptyScreen(false);
             Refresh();
         }
 
         #endregion
 
         #region TableView
-        
-        private static readonly IReplayHeader emptyReplayHeader =
-            new GenericReplayHeader(null!, string.Empty, default(ReplayInfo?));
-
-        public List<AbstractDataCell> ActualCells { get; } = new();
-        public List<AbstractDataCell> Cells { get; } = new();
-
-        private readonly List<AbstractDataCell> _reusableCells = new();
-
-        private TableView _tableView = null!;
 
         float TableView.IDataSource.CellSize() => AbstractDataCell.CellHeight;
-
-        int TableView.IDataSource.NumberOfCells() => Cells.Count;
+        int TableView.IDataSource.NumberOfCells() => _replayHeaders?.Count ?? 0;
 
         TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) {
-            return idx >= Cells.Count ? AbstractDataCell.Create<CorruptedReplayDataCell>(emptyReplayHeader) : Cells[idx];
-        }
-
-        private AbstractDataCell? GetReusableCell<T>() where T : AbstractDataCell {
-            var cellIdx = _reusableCells.FindIndex(x => x is T);
-            if (cellIdx == -1) return null;
-            var cell = _reusableCells[cellIdx];
-            _reusableCells.RemoveAt(cellIdx);
+            if (tableView.DequeueReusableCellForIdentifier(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
+                cell = AbstractDataCell.Create<ReplayDataCell>(_replayHeaders![idx]);
+            } else cell.Init(_replayHeaders![idx]);
+            cell.ShowBeatmapName = _showBeatmapName;
             return cell;
         }
 
-        private AbstractDataCell AddCell<T>(IReplayHeader header) where T : AbstractDataCell {
-            var cell = GetReusableCell<T>()?.Init(header) ?? AbstractDataCell.Create<T>(header);
-            ActualCells.Add(cell);
-            Cells.Add(cell);
-            return cell;
-        }
-
-        private void AddReusableCell(AbstractDataCell cell) {
-            _reusableCells.Add(cell);
-            cell.MakeReusable();
-        }
-
-        public void ShowEmptyScreen(bool show) {
-            if (!show && Cells.Count == 0) return;
+        private void ShowEmptyScreen(bool show) {
             _replaysList.gameObject.SetActive(!show);
             _emptyTextObject.SetActive(show);
             ShowEmptyScreenChangedEvent?.Invoke(show);
@@ -319,42 +290,34 @@ namespace BeatLeader.Components {
 
         #region Data
 
-        public void SetData(IEnumerable<IReplayHeader>? headers = null, bool showBeatmapNameIfCorrect = true) {
-            if (ActualCells.Count != 0) ClearData();
+        private static readonly IReplayHeader emptyReplayHeader =
+            new GenericReplayHeader(null!, null!, default(IReplayInfo));
+
+        private IList<IReplayHeader>? _replayHeaders;
+        private bool _showBeatmapName;
+
+        public void SetData(IList<IReplayHeader>? headers = null, bool showBeatmapNameIfCorrect = true) {
             if (headers is null) return;
-            foreach (var header in headers) {
-                AddReplay(header, showBeatmapNameIfCorrect);
+            _replayHeaders = headers;
+            _showBeatmapName = showBeatmapNameIfCorrect;
+            Refresh();
+        }
+
+        public void PreallocateCells(int count) {
+            ValidateAndThrow();
+            for (var i = 0; i < count; i++) {
+                var cell = AbstractDataCell.Create<ReplayDataCell>(emptyReplayHeader);
+                _tableView.AddCellToReusableCells(cell);
             }
-            Refresh();
-        }
-
-        public void RemoveReplay(IReplayHeader header, bool refresh = false) {
-            var cell = ActualCells.FirstOrDefault(x => x.ReplayHeader == header);
-            if (cell is null || !ActualCells.Remove(cell) || !Cells.Remove(cell)) return;
-            if (refresh) Refresh();
-        }
-
-        public void AddReplay(IReplayHeader header, bool showBeatmapNameIfCorrect = true, bool refresh = false) {
-            if (header.FileStatus is FileStatus.Corrupted || AddCell<ReplayDataCell>(header) is not ReplayDataCell cell) {
-                AddCell<CorruptedReplayDataCell>(header);
-            } else cell.ShowBeatmapName = showBeatmapNameIfCorrect;
-            if (refresh) Refresh();
-        }
-
-        private void ClearData() {
-            ActualCells.ForEach(AddReusableCell);
-            ActualCells.Clear();
-            Cells.Clear();
-            _tableView.ClearSelection();
-            ShowEmptyScreen(true);
-            ReplaySelectedEvent?.Invoke(null);
-            Refresh();
         }
 
         public void Refresh() {
             _tableView.ClearSelection();
             _tableView.ReloadData();
-            ShowEmptyScreen(Cells.Count == 0);
+            var empty = (_replayHeaders?.Count ?? 0) == 0;
+            ShowEmptyScreen(empty);
+            if (!empty) return;
+            ReplaySelectedEvent?.Invoke(null);
         }
 
         #endregion
@@ -362,7 +325,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandleCellSelected(TableView view, int cellIdx) {
-            ReplaySelectedEvent?.Invoke(Cells[cellIdx]);
+            ReplaySelectedEvent?.Invoke(_replayHeaders![cellIdx]);
         }
 
         #endregion

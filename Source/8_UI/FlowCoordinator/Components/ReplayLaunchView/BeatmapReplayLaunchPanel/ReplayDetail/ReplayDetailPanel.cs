@@ -134,7 +134,7 @@ namespace BeatLeader.Components {
         }
 
         private async Task ProcessDataAsync(IReplayHeader header, CancellationToken token) {
-            var playerTask = _miniProfile.SetPlayer(header.ReplayInfo?.playerID);
+            var playerTask = _miniProfile.SetPlayer(header.ReplayInfo?.PlayerID);
             DeleteButtonInteractable = false;
             var replay = await header.LoadReplayAsync(token);
             if (token.IsCancellationRequested) return;
@@ -151,15 +151,15 @@ namespace BeatLeader.Components {
             await RefreshAvailabilityAsync(header.ReplayInfo!, token);
         }
 
-        private async Task RefreshAvailabilityAsync(ReplayInfo info, CancellationToken token) {
+        private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
             var beatmap = await _menuLoader!.LoadBeatmapAsync(
-                info.hash, info.mode, info.difficulty, token);
+                info.SongHash, info.SongMode, info.SongDifficulty, token);
             if (token.IsCancellationRequested) return;
             var invalid = beatmap is null;
             WatchButtonText = invalid ? DownloadText : WatchText;
             WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
             _beatmapIsMissing = invalid;
-            if (invalid) _downloadBeatmapPanel.SetHash(info.hash);
+            if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
             _isWorking = false;
         }
 

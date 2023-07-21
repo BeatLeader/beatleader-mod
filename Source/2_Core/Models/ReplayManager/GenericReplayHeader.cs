@@ -1,30 +1,22 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Models.Activity;
-using BeatLeader.Models.Replay;
 
 namespace BeatLeader.Models {
     public class GenericReplayHeader : IReplayHeader {
         public GenericReplayHeader(
-            IReplayManager replayManager,
+            IReplayFileManager replayManager,
             string filePath,
-            ReplayInfo? replayInfo
+            IReplayInfo? replayInfo
         ) {
             _replayManager = replayManager;
             FilePath = filePath;
             ReplayInfo = replayInfo;
             _status = replayInfo is null ? FileStatus.Corrupted : FileStatus.Unloaded;
-            var filename = Path.GetFileNameWithoutExtension(filePath);
-            ReplayFinishType = 
-                filename.Contains("exit") ? PlayEndData.LevelEndType.Quit :
-                filename.Contains("fail") ? PlayEndData.LevelEndType.Fail : 
-                PlayEndData.LevelEndType.Clear;
         }
 
         public GenericReplayHeader(
-            IReplayManager replayManager,
+            IReplayFileManager replayManager,
             string filePath,
             Replay.Replay replay
         ) : this(replayManager, filePath, replay.info) {
@@ -32,10 +24,9 @@ namespace BeatLeader.Models {
             _status = FileStatus.Loaded;
         }
 
-        private readonly IReplayManager _replayManager;
+        private readonly IReplayFileManager _replayManager;
         private Replay.Replay? _cachedReplay;
 
-        public string FilePath { get; }
         public FileStatus FileStatus {
             get => _status;
             private set {
@@ -43,9 +34,8 @@ namespace BeatLeader.Models {
                 StatusChangedEvent?.Invoke(value);
             }
         }
-        
-        public ReplayInfo? ReplayInfo { get; private set; }
-        public PlayEndData.LevelEndType ReplayFinishType { get; private set; }
+        public string FilePath { get; }
+        public IReplayInfo? ReplayInfo { get; private set; }
 
         public event Action<FileStatus>? StatusChangedEvent;
 

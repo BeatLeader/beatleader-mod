@@ -65,7 +65,7 @@ namespace BeatLeader.Replayer {
 
         public async Task StartLastReplayAsync() {
             if (Instance is null) return;
-            if (ReplayManager.Instance.LastSavedReplay is not { } header) return;
+            if (ReplayManager.Instance.CachedReplay is not { } header) return;
             var replay = await header.LoadReplayAsync(default);
             await StartReplayAsync(replay!, ProfileManager.Profile);
         }

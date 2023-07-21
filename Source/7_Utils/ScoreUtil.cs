@@ -1,7 +1,6 @@
 ﻿using System;
 using BeatLeader.API.Methods;
-using BeatLeader.Core.Managers.ReplayEnhancer;
-using BeatLeader.Models.Activity;
+using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 
 namespace BeatLeader.Utils {
@@ -41,10 +40,10 @@ namespace BeatLeader.Utils {
 
             Plugin.Log.Debug("Uploading replay");
             switch (data.EndType) {
-                case PlayEndData.LevelEndType.Clear:
+                case LevelEndType.Clear:
                     UploadReplay(replay);
                     break;
-                case PlayEndData.LevelEndType.Unknown:
+                case LevelEndType.Unknown:
                     Plugin.Log.Debug("Unknown level end Type");
                     break;
                 default:
@@ -53,16 +52,7 @@ namespace BeatLeader.Utils {
             }
 
             SaveReplay: ;
-            var replayManager = ReplayManager.Instance;
-            var isOstLevel = !MapEnhancer.previewBeatmapLevel
-                .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
-            if (replayManager.ValidatePlay(replay, data, isOstLevel)) {
-                Plugin.Log.Debug("Validation completed, replay will be saved");
-                _ = replayManager.SaveReplayAsync(replay, data, default);
-            } else {
-                Plugin.Log.Warn("Validation failed, replay will not be saved!");
-                replayManager.ResetLastReplay();
-            }
+            _ = ReplayManager.Instance.SaveReplayAsync(replay, data, default);
         }
 
         public static void UploadReplay(Replay replay) {

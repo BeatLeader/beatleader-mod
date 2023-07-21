@@ -30,7 +30,7 @@ namespace BeatLeader.ViewControllers {
         }
 
         public void Refresh() {
-            _replayButton.Interactable = ReplayManager.Instance.LastSavedReplay is not null;
+            _replayButton.Interactable = ReplayManager.Instance.CachedReplay is not null;
         }
 
         #endregion

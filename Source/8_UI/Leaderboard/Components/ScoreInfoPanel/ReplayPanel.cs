@@ -19,6 +19,9 @@ namespace BeatLeader.Components {
 
         [UIComponent("play-button"), UsedImplicitly]
         private Button _playButton = null!;
+        
+        [UIComponent("play-button"), UsedImplicitly]
+        private TMP_Text _playButtonText = null!;
 
         [UIValue("settings-panel"), UsedImplicitly]
         private ReplayerSettingsPanel _settingsPanel = null!;
@@ -149,7 +152,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshPlayButtonText(bool downloading) {
-            _playButton.SetButtonText(downloading ? "Cancel" : "Watch Replay");
+            _playButtonText.text = downloading ? "Cancel" : "Watch Replay";
         }
 
         private void SetPlayButtonInteractable(bool interactable) {

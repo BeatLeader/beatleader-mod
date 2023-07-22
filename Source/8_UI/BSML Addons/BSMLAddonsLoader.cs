@@ -31,7 +31,6 @@ namespace BeatLeader.UI.BSML_Addons {
             { "align-icon", BundleLoader.AlignIcon },
             { "anchor-icon", BundleLoader.AnchorIcon },
             { "progress-ring-icon", BundleLoader.ProgressRingIcon },
-            { "check-icon", BundleLoader.CheckIcon },
             { "refresh-icon", BundleLoader.RotateRightIcon },
         };
 

@@ -6,10 +6,6 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
-using Oculus.Platform.Models;
-using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReeUIComponentV2 {

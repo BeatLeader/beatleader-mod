@@ -1,41 +1,56 @@
-﻿using BeatLeader.API.Methods;
+﻿using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using System.Linq;
 using BeatLeader.Models.Replay;
-using UnityEngine;
+using BeatLeader.Replayer;
+using TMPro;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class ReplayPanel : ReeUIComponentV2 {
-        #region Components
+        #region UI Components
+
+        [UIComponent("download-text"), UsedImplicitly]
+        private TMP_Text _downloadText = null!;
+
+        [UIComponent("play-button"), UsedImplicitly]
+        private Button _playButton = null!;
 
         [UIValue("settings-panel"), UsedImplicitly]
         private ReplayerSettingsPanel _settingsPanel = null!;
 
-        private void Awake() {
-            _settingsPanel = Instantiate<ReplayerSettingsPanel>(transform);
-        }
+        #endregion
 
+        #region Events
+
+        public event Action<bool>? DownloadStateChangedEvent;
+
+        private void RefreshDownloadState(bool state) {
+            DownloadStateChangedEvent?.Invoke(state);
+        }
+        
         #endregion
 
         #region Initialize/Dispose
+
+        protected override void OnInstantiate() {
+            _settingsPanel = Instantiate<ReplayerSettingsPanel>(transform);
+        }
 
         protected override void OnInitialize() {
             InitializePlayButton();
 
             DownloadReplayRequest.AddProgressListener(OnDownloadProgressChanged);
-            ReplayerMenuLoader.AddStateListener(OnLoaderStateChanged);
+            DownloadReplayRequest.AddStateListener(OnDownloadRequestStateChanged);
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
         protected override void OnDispose() {
             DownloadReplayRequest.RemoveProgressListener(OnDownloadProgressChanged);
-            ReplayerMenuLoader.RemoveStateListener(OnLoaderStateChanged);
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
@@ -43,55 +58,102 @@ namespace BeatLeader.Components {
 
         #region SetScore
 
+        private Score? _score;
+
         public void SetScore(Score score) {
-            ReplayerMenuLoader.NotifyScoreWasSelected(score);
+            _score = score;
         }
 
         #endregion
 
-        #region Events
+        #region StartReplay
 
-        private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
-            if (!SongCoreInterop.TryGetBeatmapRequirements(beatmap, out var requirements)
-                || !SongCoreInterop.TryGetCapabilities(out var capabilities)) return;
-
-            bool interactable = true;
-            foreach (var item in requirements) {
-                if (!capabilities.Contains(item)) {
-                    interactable = false;
-                    break;
-                }
-            }
-
-            _buttonShouldBeInteractable = interactable;
+        private void StartReplay(Replay replay) {
+            _ = ReplayerMenuLoader.Instance!.StartReplayAsync(replay, _score!.player);
         }
 
-        private void OnLoaderStateChanged(ReplayerMenuLoader.LoaderState state, Score score, Replay replay1) {
-            _playButton.interactable = state is not ReplayerMenuLoader.LoaderState.Downloading;
+        #endregion
+        
+        #region Callbacks
 
-            switch (state) {
-                case ReplayerMenuLoader.LoaderState.DownloadRequired:
-                case ReplayerMenuLoader.LoaderState.ReadyToPlay:
-                    _playButton.SetButtonText("Watch Replay");
-                    break;
-            }
+        private bool _blockIncomingEvents = true;
+        private bool _isDownloading;
+
+        private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
+            _buttonCanBeInteractable = SongCoreInterop.ValidateRequirements(beatmap);
         }
 
         private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
-            _playButton.SetButtonText($"{downloadProgress * 100:F0}<size=60%>%");
+            if (_blockIncomingEvents) return;
+            _downloadText.text = $"Downloading: {downloadProgress * 100:F0}%";
+        }
+
+        private void OnDownloadRequestStateChanged(API.RequestState state, Replay result, string failReason) {
+            if (_blockIncomingEvents) return;
+            _isDownloading = state is API.RequestState.Started;
+            RefreshPlayButtonText(_isDownloading);
+            RefreshDownloadState(_isDownloading);
+            switch (state) {
+                case API.RequestState.Finished:
+                    _downloadText.text = "Finished!";
+                    if (PluginConfig.EnableReplayCaching) ReplayerCache.TryWriteReplay(_score!.id, result);
+                    SetPlayButtonInteractable(false);
+                    StartReplay(result);
+                    return;
+                case API.RequestState.Failed:
+                    _downloadText.text = FormatFailString(failReason);
+                    return;
+            }
+        }
+
+        private void OnPlayButtonClicked() {
+            if (_isDownloading) {
+                _blockIncomingEvents = true;
+                _isDownloading = false;
+                _downloadText.gameObject.SetActive(false);
+                RefreshPlayButtonText(false);
+                RefreshDownloadState(false);
+                return;
+            }
+            if (_score is null) {
+                _downloadText.text = FormatFailString("Score is unavailable!");
+                return;
+            }
+            if (ReplayerCache.TryReadReplay(_score.id, out var storedReplay)) {
+                StartReplay(storedReplay);
+                return;
+            }
+            RefreshDownloadState(true);
+            _blockIncomingEvents = false;
+            _downloadText.gameObject.SetActive(true);
+            DownloadReplayRequest.SendRequest(_score.replay);
+            SendViewReplayRequest.SendRequest(_score.id);
         }
 
         #endregion
 
-        #region Play button
+        #region Format
 
-        [UIComponent("play-button"), UsedImplicitly]
-        private Button _playButton = null!;
+        private static string FormatFailString(string failReason) {
+            return $"<color=red>Fail: {failReason}</color>";
+        }
 
-        private bool _buttonShouldBeInteractable = true;
+        #endregion
+
+        #region PlayButton
+
+        private bool _buttonCanBeInteractable = true;
 
         private void InitializePlayButton() {
-            _playButton.onClick.AddListener(ReplayerMenuLoader.NotifyPlayButtonWasPressed);
+            _playButton.onClick.AddListener(OnPlayButtonClicked);
+        }
+
+        private void RefreshPlayButtonText(bool downloading) {
+            _playButton.SetButtonText(downloading ? "Cancel" : "Watch Replay");
+        }
+
+        private void SetPlayButtonInteractable(bool interactable) {
+            _playButton.interactable = interactable;
         }
 
         #endregion
@@ -100,7 +162,9 @@ namespace BeatLeader.Components {
 
         public void SetActive(bool value) {
             Active = value;
-            _playButton.interactable = _buttonShouldBeInteractable;
+            _downloadText.gameObject.SetActive(false);
+            SetPlayButtonInteractable(_buttonCanBeInteractable);
+            RefreshPlayButtonText(false);
         }
 
         #endregion

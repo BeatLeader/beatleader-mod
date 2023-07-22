@@ -1,6 +1,7 @@
 ﻿using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.UIPatches;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -15,22 +16,25 @@ namespace BeatLeader.Components {
         #region Components
 
         [UIValue("criteria-checkbox"), UsedImplicitly]
-        private QualificationCheckbox _criteriaCheckbox;
+        private QualificationCheckbox _criteriaCheckbox = null!;
 
         [UIValue("mapper-checkbox"), UsedImplicitly]
-        private QualificationCheckbox _mapperCheckbox;
+        private QualificationCheckbox _mapperCheckbox = null!;
 
         [UIValue("approval-checkbox"), UsedImplicitly]
-        private QualificationCheckbox _approvalCheckbox;
+        private QualificationCheckbox _approvalCheckbox = null!;
+
+        [UIValue("menu-button"), UsedImplicitly]
+        private HeaderButton _menuButton = null!;
 
         [UIValue("website-button"), UsedImplicitly]
-        private HeaderButton _websiteButton;
+        private HeaderButton _websiteButton = null!;
 
         [UIValue("settings-button"), UsedImplicitly]
-        private HeaderButton _settingsButton;
+        private HeaderButton _settingsButton = null!;
 
         [UIValue("map-status"), UsedImplicitly]
-        private MapStatus _mapStatus;
+        private MapStatus _mapStatus = null!;
 
         [UIValue("captor-clan"), UsedImplicitly]
         private CaptorClan _captorClan;
@@ -39,6 +43,7 @@ namespace BeatLeader.Components {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _mapperCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
+            _menuButton = Instantiate<HeaderButton>(transform, false);
             _websiteButton = Instantiate<HeaderButton>(transform, false);
             _settingsButton = Instantiate<HeaderButton>(transform, false);
             _mapStatus = Instantiate<MapStatus>(transform, false);
@@ -50,21 +55,26 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
+            _menuButton.Setup(BundleLoader.ReplayIcon);
             _websiteButton.Setup(BundleLoader.ProfileIcon);
             _settingsButton.Setup(BundleLoader.SettingsIcon);
 
+            _menuButton.OnClick += MenuButtonOnClick;
             _websiteButton.OnClick += WebsiteButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
             PluginConfig.LeaderboardDisplaySettingsChangedEvent += OnLeaderboardDisplaySettingsChanged;
+            EnvironmentManagerPatch.EnvironmentTypeChangedEvent += OnMenuEnvironmentChanged;
 
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
         }
 
         protected override void OnDispose() {
+            _menuButton.OnClick -= MenuButtonOnClick;
             _websiteButton.OnClick -= WebsiteButtonOnClick;
             _settingsButton.OnClick -= SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
+            EnvironmentManagerPatch.EnvironmentTypeChangedEvent -= OnMenuEnvironmentChanged;
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
             PluginConfig.LeaderboardDisplaySettingsChangedEvent -= OnLeaderboardDisplaySettingsChanged;
         }
@@ -79,6 +89,10 @@ namespace BeatLeader.Components {
             UpdateVisuals();
         }
 
+        private void OnMenuEnvironmentChanged(MenuEnvironmentManager.MenuEnvironmentType type) {
+            UpdateVisuals();
+        }
+        
         private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             SetBeatmap(beatmap);
         }
@@ -93,10 +107,10 @@ namespace BeatLeader.Components {
 
         private RankedStatus _rankedStatus;
         private DiffInfo _difficultyInfo;
-        private string _websiteLink;
         private bool _displayCaptorClan = PluginConfig.LeaderboardDisplaySettings.ClanCaptureDisplay;
+        private string? _websiteLink;
 
-        private void SetBeatmap(IDifficultyBeatmap beatmap) {
+        private void SetBeatmap(IDifficultyBeatmap? beatmap) {
             if (beatmap == null) {
                 _rankedStatus = RankedStatus.Unknown;
                 _websiteLink = null;
@@ -180,6 +194,7 @@ namespace BeatLeader.Components {
             _captorClan.SetActive(_displayCaptorClan && _rankedStatus is RankedStatus.Ranked);
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
+            IsMenuButtonActive = EnvironmentManagerPatch.EnvironmentType is not MenuEnvironmentManager.MenuEnvironmentType.Lobby;
         }
 
         #endregion
@@ -197,7 +212,8 @@ namespace BeatLeader.Components {
         #endregion
 
         #region IsActive
-
+        
+        private bool _isMenuButtonActive;
         private bool _isActive;
 
         [UIValue("is-active"), UsedImplicitly]
@@ -206,6 +222,16 @@ namespace BeatLeader.Components {
             set {
                 if (_isActive.Equals(value)) return;
                 _isActive = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("is-menu-button-active"), UsedImplicitly]
+        public bool IsMenuButtonActive {
+            get => _isMenuButtonActive;
+            set {
+                if (_isMenuButtonActive.Equals(value)) return;
+                _isMenuButtonActive = value;
                 NotifyPropertyChanged();
             }
         }
@@ -230,13 +256,17 @@ namespace BeatLeader.Components {
 
         #region Buttons
 
+        private void MenuButtonOnClick() {
+            LeaderboardEvents.NotifyMenuButtonWasPressed();
+        }
+
         private void WebsiteButtonOnClick() {
             if (_websiteLink == null) return;
             EnvironmentUtils.OpenBrowserPage(_websiteLink);
         }
 
         private void SettingsButtonOnClick() {
-            LeaderboardEvents.NotifySettingsButtonWasPressed();
+            LeaderboardEvents.NotifyLeaderboardSettingsButtonWasPressed();
         }
 
         #endregion

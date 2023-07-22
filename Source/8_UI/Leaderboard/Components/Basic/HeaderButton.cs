@@ -30,6 +30,17 @@ namespace BeatLeader.Components {
 
         #region Setup
 
+        [UIValue("button-size")]
+        public float Size {
+            get => _buttonSize;
+            set {
+                _buttonSize = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private float _buttonSize = 4f; 
+        
         public void Setup(Sprite sprite) {
             _imageComponent.sprite = sprite;
         }

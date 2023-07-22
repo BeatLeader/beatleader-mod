@@ -1,13 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Utils {
     internal static class BasicCoroutines {
-        public static IEnumerator RebuildUICoroutine(RectTransform rect) {
+        public static IEnumerator RebuildUICoroutine(RectTransform rect, Action? finishCallback = null) {
             if (rect == null) yield break;
             yield return new WaitForEndOfFrame();
             LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+            finishCallback?.Invoke();
         }
 
         public static IEnumerator AnimateGroupCoroutine(this CanvasGroup group, 

@@ -4,38 +4,44 @@ using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
+using IPA.Utilities;
 using JetBrains.Annotations;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class ScoreInfoPanel : ReeUIComponentV2 {
         #region Components
 
         [UIValue("mini-profile"), UsedImplicitly]
-        private MiniProfile _miniProfile;
+        private MiniProfile _miniProfile = null!;
 
         [UIValue("score-stats-loading-screen"), UsedImplicitly]
-        private ScoreStatsLoadingScreen _scoreStatsLoadingScreen;
+        private ScoreStatsLoadingScreen _scoreStatsLoadingScreen = null!;
 
         [UIValue("score-overview-page1"), UsedImplicitly]
-        private ScoreOverviewPage1 _scoreOverviewPage1;
+        private ScoreOverviewPage1 _scoreOverviewPage1 = null!;
 
         [UIValue("score-overview-page2"), UsedImplicitly]
-        private ScoreOverviewPage2 _scoreOverviewPage2;
+        private ScoreOverviewPage2 _scoreOverviewPage2 = null!;
 
         [UIValue("accuracy-details"), UsedImplicitly]
-        private AccuracyDetails _accuracyDetails;
+        private AccuracyDetails _accuracyDetails = null!;
 
         [UIValue("accuracy-grid"), UsedImplicitly]
-        private AccuracyGrid _accuracyGrid;
+        private AccuracyGrid _accuracyGrid = null!;
 
         [UIValue("accuracy-graph"), UsedImplicitly]
-        private AccuracyGraphPanel _accuracyGraphPanel;
+        private AccuracyGraphPanel _accuracyGraphPanel = null!;
 
         [UIValue("replay-panel"), UsedImplicitly]
-        private ReplayPanel _replayPanel;
+        private ReplayPanel _replayPanel = null!;
 
         [UIValue("controls"), UsedImplicitly]
-        private ScoreInfoPanelControls _controls;
+        private ScoreInfoPanelControls _controls = null!;
+
+        [UIObject("accuracy-graph-container"), UsedImplicitly]
+        private GameObject _accuracyGraphContainer = null!;
 
         private void Awake() {
             _miniProfile = Instantiate<MiniProfile>(transform);
@@ -47,6 +53,8 @@ namespace BeatLeader.Components {
             _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>(transform);
             _replayPanel = Instantiate<ReplayPanel>(transform);
             _controls = Instantiate<ScoreInfoPanelControls>(transform);
+
+            _replayPanel.DownloadStateChangedEvent += OnReplayDownloadStateChangedEvent;
         }
 
         #endregion
@@ -55,7 +63,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             InitializeModal();
-            
+
             ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
             LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
@@ -90,12 +98,16 @@ namespace BeatLeader.Components {
             ShowModal();
         }
 
+        private void OnReplayDownloadStateChangedEvent(bool state) {
+            SetModalCanBeHidden(!state);
+        }
+
         private void OnTabWasSelected(ScoreInfoPanelTab tab) {
             switch (tab) {
                 case ScoreInfoPanelTab.OverviewPage1:
                 case ScoreInfoPanelTab.Replay:
                     break;
-                
+
                 case ScoreInfoPanelTab.OverviewPage2:
                 case ScoreInfoPanelTab.Accuracy:
                 case ScoreInfoPanelTab.Grid:
@@ -120,7 +132,7 @@ namespace BeatLeader.Components {
             _scoreOverviewPage2.SetActive(false);
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
-            _accuracyGraphPanel.SetActive(false);
+            _accuracyGraphContainer.SetActive(false);
             _replayPanel.SetActive(false);
 
             switch (LeaderboardState.ScoreInfoPanelTab) {
@@ -140,7 +152,7 @@ namespace BeatLeader.Components {
                     _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Graph:
-                    _accuracyGraphPanel.SetActive(!_scoreStatsUpdateRequired);
+                    _accuracyGraphContainer.SetActive(!_scoreStatsUpdateRequired);
                     _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Replay:
@@ -155,7 +167,7 @@ namespace BeatLeader.Components {
         #region SetScore
 
         private bool _scoreStatsUpdateRequired;
-        private Score _score;
+        private Score? _score;
 
         private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
             if (_score == null || state is not API.RequestState.Finished) return;
@@ -182,20 +194,20 @@ namespace BeatLeader.Components {
         #region Modal
 
         [UIComponent("modal"), UsedImplicitly]
-        private ModalView _modal;
-        
+        private ModalView _modal = null!;
+
         [UIComponent("middle-panel"), UsedImplicitly]
-        private ImageView _middlePanel;
-        
+        private ImageView _middlePanel = null!;
+
         [UIComponent("bottom-panel"), UsedImplicitly]
-        private ImageView _bottomPanel;
+        private ImageView _bottomPanel = null!;
 
         private void InitializeModal() {
             var background = _modal.GetComponentInChildren<ImageView>();
             if (background != null) background.enabled = false;
             var touchable = _modal.GetComponentInChildren<Touchable>();
             if (touchable != null) touchable.enabled = false;
-            
+
             _middlePanel.raycastTarget = true;
             _bottomPanel.raycastTarget = true;
         }
@@ -209,6 +221,11 @@ namespace BeatLeader.Components {
         private void HideAnimated() {
             if (_modal == null) return;
             _modal.Hide(true);
+        }
+
+        private void SetModalCanBeHidden(bool canBeHidden) {
+            var go = _modal.GetField<GameObject, ModalView>("_blockerGO");
+            if (go) go.GetComponent<Button>().enabled = canBeHidden;
         }
 
         #endregion

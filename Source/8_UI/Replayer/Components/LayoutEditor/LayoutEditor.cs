@@ -204,7 +204,7 @@ namespace BeatLeader.Components {
         private void RefreshGrid() {
             _layoutGrid.LineThickness = layoutGridModel?.LineThickness ?? _layoutGrid.LineThickness;
             _layoutGrid.CellSize = layoutGridModel?.CellSize ?? _layoutGrid.CellSize;
-            CoroutinesHandler.instance.StartCoroutine(RefreshGridCoroutine());
+            RoutineFactory.instance.StartCoroutine(RefreshGridCoroutine());
         }
 
         private IEnumerator RefreshGridCoroutine() {

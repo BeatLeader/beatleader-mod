@@ -188,6 +188,7 @@
         <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
         <EmbeddedResource Include="9_Resources\BSML\**\*.bsml" />
         <EmbeddedResource Include="manifest.json" />
+        <None Remove="9_Resources\BSML\FlowCoordinator\ReplayerView.bsml" />
     </ItemGroup>
 
     <ItemGroup>

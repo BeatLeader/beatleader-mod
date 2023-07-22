@@ -30,6 +30,30 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region SetActive
+        
+        public void SetActive(bool value) {
+            Active = value;
+        }
+
+        #endregion
+
+        #region Active
+
+        private bool _active = true;
+
+        [UIValue("active"), UsedImplicitly]
+        private bool Active {
+            get => _active;
+            set {
+                if (_active.Equals(value)) return;
+                _active = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+        
         #region OnInitialize
 
         protected override void OnInitialize() {

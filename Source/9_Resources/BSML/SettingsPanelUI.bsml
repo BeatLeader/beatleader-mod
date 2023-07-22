@@ -1,0 +1,8 @@
+﻿<vertical preferred-width="100"
+          vertical-fit="PreferredSize"
+          pref-height="60"
+          child-expand-height="false"
+          child-control-height="false">
+  <toggle-setting text="Enabled" value="enabled"/>
+  <toggle-setting text="Menu Button Enabled" value="menu-button-enabled"/>
+</vertical>

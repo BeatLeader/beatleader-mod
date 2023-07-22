@@ -3,6 +3,7 @@
 namespace BeatLeader.Themes {
     [CreateAssetMenu(fileName = "ThemesCollection", menuName = "ThemesCollection")]
     public class ThemesCollection : ScriptableObject {
+        public ThemeMaterials booster;
         public ThemeMaterials theSun;
         public ThemeMaterials theMoon;
         public ThemeMaterials theStar;
@@ -11,6 +12,9 @@ namespace BeatLeader.Themes {
 
         public bool TryGetThemeMaterials(ThemeType themeType, out ThemeMaterials themeMaterials) {
             switch (themeType) {
+                case ThemeType.Booster:
+                    themeMaterials = booster;
+                    return true;
                 case ThemeType.TheSun:
                     themeMaterials = theSun;
                     return true;

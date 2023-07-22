@@ -2,6 +2,7 @@ using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ScoreStatsLoadingScreen : ReeUIComponentV2 {
@@ -20,10 +21,11 @@ namespace BeatLeader.Components {
         #region Events
 
         private const string FailMessage = "<color=#FF8888>Oops!\n<size=60%>Something went wrong";
+        private const string LoadingMessage = "Loading...";
 
         private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
             Text = state switch {
-                API.RequestState.Started => "Loading...",
+                API.RequestState.Started => LoadingMessage,
                 API.RequestState.Failed => FailMessage,
                 _ => ""
             };
@@ -39,6 +41,14 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region SetFailed
+
+        public void SetFailed(bool failed, string? failMessage = null) {
+            Text = failed ? failMessage ?? FailMessage : LoadingMessage;
+        }
+
+        #endregion
+        
         #region Active
 
         private bool _active = true;

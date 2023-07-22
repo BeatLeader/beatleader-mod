@@ -10,11 +10,11 @@ namespace BeatLeader.UIPatches {
         // ReSharper disable once InconsistentNaming
         [UsedImplicitly]
         private static void Postfix(ResultsViewController __instance) {
-            if (_resultsScreen is null) {
+            if (!_resultsScreen) {
                 _resultsScreen = ReeUIComponentV2.Instantiate<ResultsScreenUI>(__instance.transform.Find("Container/BottomPanel"));
                 _resultsScreen.gameObject.SetActive(true);
             } 
-            _resultsScreen.Refresh();
+            _resultsScreen!.Refresh();
         }
     }
 }

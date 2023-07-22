@@ -22,10 +22,11 @@ namespace BeatLeader.Utils {
             var replayData = replay.info;
             var creplayData = new GenericReplayData(
                 replayData.failTime,
-                replayData.timestamp,
+                int.Parse(replayData.timestamp),
                 replayData.leftHanded,
-                replay.GetModifiersFromReplay(),
                 replayData.jumpDistance,
+                replay.heights.Count == 0 ? replayData.height : null,
+                replay.GetModifiersFromReplay(),
                 player, replay.GetPracticeSettingsFromReplay());
 
             var frames = replay.frames.Select(static x => new PlayerMovementFrame(

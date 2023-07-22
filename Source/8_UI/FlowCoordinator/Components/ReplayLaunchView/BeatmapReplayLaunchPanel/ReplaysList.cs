@@ -245,7 +245,7 @@ namespace BeatLeader.Components {
 
         [UIValue("visible-cells")]
         public const int VisibleCells = 7;
-        
+
         [UIComponent("list")]
         private readonly CustomCellListTableData _replaysList = null!;
 
@@ -256,7 +256,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Init
+        #region Init & Dispose
 
         protected override void OnInitialize() {
             _tableView = _replaysList.tableView;
@@ -265,11 +265,18 @@ namespace BeatLeader.Components {
             Refresh();
         }
 
+        protected override void OnDispose() {
+            var cells = _tableView.GetField<Dictionary<string, List<TableCell>>, TableView>("_reusableCells");
+            foreach (var cell in cells.Values.SelectMany(cellList => cellList)) Destroy(cell);
+            foreach (var cell in _tableView.visibleCells) Destroy(cell);
+        }
+
         #endregion
 
         #region TableView
 
         float TableView.IDataSource.CellSize() => AbstractDataCell.CellHeight;
+
         int TableView.IDataSource.NumberOfCells() => _replayHeaders?.Count ?? 0;
 
         TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) {
@@ -301,14 +308,6 @@ namespace BeatLeader.Components {
             _replayHeaders = headers;
             _showBeatmapName = showBeatmapNameIfCorrect;
             Refresh();
-        }
-
-        public void PreallocateCells(int count) {
-            ValidateAndThrow();
-            for (var i = 0; i < count; i++) {
-                var cell = AbstractDataCell.Create<ReplayDataCell>(emptyReplayHeader);
-                _tableView.AddCellToReusableCells(cell);
-            }
         }
 
         public void Refresh() {

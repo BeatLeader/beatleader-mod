@@ -55,7 +55,6 @@ namespace BeatLeader.Components {
             _loadingContainerBackground.sprite = BundleLoader.TransparentPixel;
             _loadingContainerBackground.color = Color.clear;
             _mainContainerCanvasGroup = _mainContainerObject.AddComponent<CanvasGroup>();
-            _replaysList.PreallocateCells(ReplaysList.VisibleCells);
             _replaysList.SetData(_listHeaders);
         }
 

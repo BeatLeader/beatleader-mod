@@ -237,8 +237,6 @@ namespace BeatLeader.Components {
         #region Events
 
         public event Action<IReplayHeader?>? ReplaySelectedEvent;
-        public event Action<bool>? ShowEmptyScreenChangedEvent;
-
         #endregion
 
         #region UI Components
@@ -290,7 +288,6 @@ namespace BeatLeader.Components {
         private void ShowEmptyScreen(bool show) {
             _replaysList.gameObject.SetActive(!show);
             _emptyTextObject.SetActive(show);
-            ShowEmptyScreenChangedEvent?.Invoke(show);
         }
 
         #endregion

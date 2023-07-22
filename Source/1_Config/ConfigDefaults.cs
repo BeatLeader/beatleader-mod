@@ -1,4 +1,5 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
+using System.Windows.Forms;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -29,6 +30,15 @@ namespace BeatLeader {
             ScoreRowCellType.Accuracy |
             ScoreRowCellType.PerformancePoints |
             ScoreRowCellType.Score;
+
+        #endregion
+
+        #region LeaderboardDisplaySettings
+
+        public static LeaderboardDisplaySettings LeaderboardDisplaySettings = new()
+        {
+            ClanCaptureDisplay = true
+        };
 
         #endregion
 

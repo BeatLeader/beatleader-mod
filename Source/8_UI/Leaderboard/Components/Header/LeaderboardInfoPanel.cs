@@ -1,4 +1,4 @@
-using BeatLeader.DataManager;
+﻿using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.UIPatches;
@@ -6,6 +6,10 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
+using Oculus.Platform.Models;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class LeaderboardInfoPanel : ReeUIComponentV2 {
@@ -32,6 +36,9 @@ namespace BeatLeader.Components {
         [UIValue("map-status"), UsedImplicitly]
         private MapStatus _mapStatus = null!;
 
+        [UIValue("captor-clan"), UsedImplicitly]
+        private CaptorClan _captorClan;
+
         private void Awake() {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _mapperCheckbox = Instantiate<QualificationCheckbox>(transform, false);
@@ -40,6 +47,7 @@ namespace BeatLeader.Components {
             _websiteButton = Instantiate<HeaderButton>(transform, false);
             _settingsButton = Instantiate<HeaderButton>(transform, false);
             _mapStatus = Instantiate<MapStatus>(transform, false);
+            _captorClan = Instantiate<CaptorClan>(transform, false);
         }
 
         #endregion
@@ -55,6 +63,7 @@ namespace BeatLeader.Components {
             _websiteButton.OnClick += WebsiteButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
+            PluginConfig.LeaderboardDisplaySettingsChangedEvent += OnLeaderboardDisplaySettingsChanged;
             EnvironmentManagerPatch.EnvironmentTypeChangedEvent += OnMenuEnvironmentChanged;
 
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
@@ -67,11 +76,18 @@ namespace BeatLeader.Components {
             LeaderboardsCache.CacheWasChangedEvent -= OnCacheWasChanged;
             EnvironmentManagerPatch.EnvironmentTypeChangedEvent -= OnMenuEnvironmentChanged;
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
+            PluginConfig.LeaderboardDisplaySettingsChangedEvent -= OnLeaderboardDisplaySettingsChanged;
         }
 
         #endregion
 
         #region Events
+
+        private void OnLeaderboardDisplaySettingsChanged(LeaderboardDisplaySettings settings)
+        {
+            _displayCaptorClan = settings.ClanCaptureDisplay;
+            UpdateVisuals();
+        }
 
         private void OnMenuEnvironmentChanged(MenuEnvironmentManager.MenuEnvironmentType type) {
             UpdateVisuals();
@@ -91,6 +107,7 @@ namespace BeatLeader.Components {
 
         private RankedStatus _rankedStatus;
         private DiffInfo _difficultyInfo;
+        private bool _displayCaptorClan = PluginConfig.LeaderboardDisplaySettings.ClanCaptureDisplay;
         private string? _websiteLink;
 
         private void SetBeatmap(IDifficultyBeatmap? beatmap) {
@@ -112,6 +129,7 @@ namespace BeatLeader.Components {
             _difficultyInfo = data.DifficultyInfo;
             _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
             _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
+            _captorClan.SetValues(data);
 
             UpdateCheckboxes(data.QualificationInfo);
             UpdateVisuals();
@@ -173,6 +191,7 @@ namespace BeatLeader.Components {
         private void UpdateVisuals() {
             _mapStatus.SetActive(_rankedStatus is not RankedStatus.Unknown);
             _mapStatus.SetValues(_rankedStatus, _difficultyInfo);
+            _captorClan.SetActive(_displayCaptorClan && _rankedStatus is RankedStatus.Ranked);
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
             IsMenuButtonActive = EnvironmentManagerPatch.EnvironmentType is not MenuEnvironmentManager.MenuEnvironmentType.Lobby;

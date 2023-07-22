@@ -54,6 +54,22 @@ namespace BeatLeader {
 
         #endregion
 
+        #region LeaderboardDisplaySettings
+
+        public static event Action<LeaderboardDisplaySettings> LeaderboardDisplaySettingsChangedEvent;
+
+        public static LeaderboardDisplaySettings LeaderboardDisplaySettings
+        {
+            get => ConfigFileData.Instance.LeaderboardDisplaySettings;
+            set
+            {
+                ConfigFileData.Instance.LeaderboardDisplaySettings = value;
+                LeaderboardDisplaySettingsChangedEvent?.Invoke(value);
+            }
+        }
+
+        #endregion
+
         #region ReplayerSettings
 
         public static event Action<ReplayerSettings> ReplayerSettingsChangedEvent;

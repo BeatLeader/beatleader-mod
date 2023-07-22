@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using BeatLeader.Components;
 using BeatLeader.ViewControllers;
 using HMUI;

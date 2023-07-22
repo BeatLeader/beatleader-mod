@@ -1,4 +1,4 @@
-<horizontal active="~is-active" pref-height="6" spacing="1" size-delta-x="87">
+﻿<horizontal active="~is-active" pref-height="6" spacing="1" size-delta-x="87">
     <!--MENU BUTTON-->
     <horizontal active="~is-menu-button-active" ignore-layout="true" 
                 child-expand-width="false" child-control-width="false">
@@ -10,6 +10,11 @@
     <horizontal ignore-layout="true" horizontal-fit="PreferredSize" spacing="1">
         <!--    STATUS    -->
         <macro.as-host host="map-status">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+
+        <!--    CAPTOR CLAN    -->
+        <macro.as-host host="captor-clan">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
         

@@ -10,6 +10,8 @@ namespace BeatLeader.Models {
         public SongInfo song;
         public DiffInfo difficulty;
         public QualificationInfo qualification;
+        public ClanRankingInfo clanRanking;
+        public bool clanRankingContested;
     }
 
     internal struct HashLeaderboardsInfoResponse {
@@ -21,6 +23,8 @@ namespace BeatLeader.Models {
         public string id;
         public DiffInfo difficulty;
         public QualificationInfo qualification;
+        public ClanRankingInfo clanRanking;
+        public bool clanRankingContested;
     }
 
     internal struct SongInfo {
@@ -61,6 +65,17 @@ namespace BeatLeader.Models {
         public int approvalTimeset;
         public bool approved;
         public string approvers;
+    }
+
+    public struct ClanRankingInfo
+    {
+        public ClanRankingClanInfo clan;
+    }
+
+    public struct ClanRankingClanInfo
+    {
+        public string tag;
+        public string color;
     }
 
     public struct ModifiersMap {

@@ -303,8 +303,7 @@ namespace BeatLeader.Components {
         private IList<IReplayHeader>? _replayHeaders;
         private bool _showBeatmapName;
 
-        public void SetData(IList<IReplayHeader>? headers = null, bool showBeatmapNameIfCorrect = true) {
-            if (headers is null) return;
+        public void SetData(IList<IReplayHeader> headers, bool showBeatmapNameIfCorrect = true) {
             _replayHeaders = headers;
             _showBeatmapName = showBeatmapNameIfCorrect;
             Refresh();

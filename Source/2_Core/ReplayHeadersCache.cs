@@ -17,15 +17,15 @@ namespace BeatLeader {
                 infosDictionary = JsonConvert.DeserializeObject<Dictionary<string, SerializableReplayInfo>>(content);
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to initialize {nameof(ReplayHeadersCache)}\n{ex}");
+                infosDictionary = new();
             }
         }
 
         private static readonly string cacheFile = Path.Combine(UnityGame.UserDataPath, "BeatLeader", "ReplayHeadersCache");
-        private static readonly Dictionary<string, SerializableReplayInfo>? infosDictionary;
-        
+        private static readonly Dictionary<string, SerializableReplayInfo> infosDictionary;
+
         public static bool TryGetInfoByPath(string path, out IReplayInfo? info) {
-            var serInfo = default(SerializableReplayInfo?);
-            if (!infosDictionary?.TryGetValue(Path.GetFileName(path), out serInfo) ?? false) {
+            if (!infosDictionary.TryGetValue(Path.GetFileName(path), out var serInfo)) {
                 info = null;
                 return false;
             }
@@ -33,9 +33,12 @@ namespace BeatLeader {
             return true;
         }
 
-        public static void WriteInfoByPath(string path, IReplayInfo info) {
-            if (infosDictionary is null) return;
+        public static void AddInfoByPath(string path, IReplayInfo info) {
             infosDictionary[Path.GetFileName(path)] = ToSerializableReplayInfo(info);
+        }
+
+        public static void RemoveInfoByPath(string path) {
+            infosDictionary.Remove(Path.GetFileName(path));
         }
 
         public static void SaveCache() {

@@ -8,7 +8,6 @@ using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using JetBrains.Annotations;
-using UnityEngine;
 using static BeatLeader.Utils.FileManager;
 
 namespace BeatLeader.Utils {
@@ -38,16 +37,18 @@ namespace BeatLeader.Utils {
             await Task.Run(() => {
                 foreach (var path in paths) {
                     if (token.IsCancellationRequested) return;
-                    
                     var fromCache = ReplayHeadersCache.TryGetInfoByPath(path, out var info);
                     if (!fromCache) {
                         TryReadReplayInfo(path, out var info1);
+                        if (info1 is not null && path.Contains("exit")) {
+                            info1.levelEndType = LevelEndType.Quit;
+                        }
                         info = info1;
                     }
-                    
+
                     if (info is null || !cache.Add((info.SongHash, info.Timestamp))) continue;
-                    if (!fromCache) ReplayHeadersCache.WriteInfoByPath(path, info);
-                    
+                    if (!fromCache) ReplayHeadersCache.AddInfoByPath(path, info);
+
                     var header = new GenericReplayHeader(this, path, info);
                     if (makeArray) replays!.Add(header);
                     loadCallback?.Invoke(header);
@@ -103,7 +104,7 @@ namespace BeatLeader.Utils {
                 foreach (var path in GetAllReplayPaths()) {
                     if (token.IsCancellationRequested) return;
                     try {
-                        File.Delete(path);
+                        DeleteReplayInternal(path);
                         removedPaths.Add(path);
                     } catch (Exception ex) {
                         Plugin.Log.Error("Failed to delete the replay! \n" + ex);
@@ -117,9 +118,15 @@ namespace BeatLeader.Utils {
         }
 
         Task<bool> IReplayFileManager.DeleteReplayAsync(IReplayHeader header, CancellationToken token) {
-            File.Delete(header.FilePath);
-            ReplayDeletedEvent?.Invoke(header);
+            DeleteReplayInternal(header.FilePath, header);
             return Task.FromResult(true);
+        }
+        
+        private void DeleteReplayInternal(string filePath, IReplayHeader? header = null) {
+            ReplayHeadersCache.RemoveInfoByPath(filePath);
+            ReplayHeadersCache.SaveCache();
+            File.Delete(filePath);
+            if (header is not null) ReplayDeletedEvent?.Invoke(header);
         }
 
         async Task<Replay?> IReplayFileManager.LoadReplayAsync(IReplayHeader header, CancellationToken token) {
@@ -127,7 +134,7 @@ namespace BeatLeader.Utils {
             await Task.Run(() => TryReadReplay(header.FilePath, out replay), token);
             return replay;
         }
-
+        
         #endregion
 
         [Pure]

@@ -99,14 +99,14 @@ namespace BeatLeader.Components {
         private async Task StartReplayInfosLoading(bool showBeatmapNameIfCorrect) {
             if (_tokenSource != null) return;
             _showBeatmapNameIfCorrect = showBeatmapNameIfCorrect;
-            _replaysList.SetData();
             ShowLoadingScreen(true);
             _tokenSource = new();
+            _listHeaders.Clear();
             var token = _tokenSource.Token;
             var context = SynchronizationContext.Current;
             _tempHeaders = await _replayManager.LoadReplayHeadersAsync(token, x => {
                 if (x.FileStatus is FileStatus.Corrupted || _listHeaders.Count > ReplaysList.VisibleCells) return;
-                context.Send(x => AddReplayToList((IReplayHeader)x), x);
+                context.Send(y => AddReplayToList((IReplayHeader)y), x);
             });
             if (token.IsCancellationRequested) return;
             FinishReplayLoading(false);
@@ -120,7 +120,7 @@ namespace BeatLeader.Components {
 
         private void FinishReplayLoading(bool isCancelled) {
             if (!isCancelled) _headers = _tempHeaders;
-            else  {
+            else {
                 _listHeaders.Clear();
                 if (_headers is not null) _listHeaders.AddRange(_headers);
                 _replaysList.Refresh();
@@ -130,10 +130,10 @@ namespace BeatLeader.Components {
             ShowLoadingScreen(false);
             RefreshFilterInternal();
         }
-
-        private void RemoveReplayFromList(IReplayHeader header) {
+        
+        private void RemoveReplayFromList(IReplayHeader header, bool refresh = true) {
             _listHeaders.Remove(header);
-            _replaysList.Refresh();
+            if (refresh) _replaysList.Refresh();
         }
 
         private void AddReplayToList(IReplayHeader header) {
@@ -238,12 +238,14 @@ namespace BeatLeader.Components {
 
         private void HandleReplaysDeleted(string[]? removedPaths) {
             if (removedPaths is null) return;
-            //convert it to hash set to not enumerate the array
-            var dict = new HashSet<string>(removedPaths);
             CancelReplayInfosLoading();
-            _replaysList.SetData(_listHeaders
-                .Where(x => !dict.Contains(x.FilePath))
-                .ToArray());
+            //convert it to hash set to avoid array enumeration
+            var dict = new HashSet<string>(removedPaths);
+            var replaysToKeep = _listHeaders
+                .Where(x => !dict.Contains(x.FilePath));
+            _listHeaders.Clear();
+            _listHeaders.AddRange(replaysToKeep);
+            _replaysList.Refresh();
             _replayPanel.SetData(null);
         }
 

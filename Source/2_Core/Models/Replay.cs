@@ -27,7 +27,7 @@ namespace BeatLeader.Models.Replay {
         string IReplayInfo.SongDifficulty => difficulty;
         string IReplayInfo.SongMode => mode;
         string IReplayInfo.SongHash => hash;
-        public LevelEndType LevelEndType => levelEndType ?? (failTime > 0 ? LevelEndType.Fail : LevelEndType.Unknown);
+        public LevelEndType LevelEndType => levelEndType ?? (failTime > 0 ? LevelEndType.Fail : LevelEndType.Clear);
         float IReplayInfo.FailTime => failTime;
         string IReplayInfo.Timestamp => timestamp;
 

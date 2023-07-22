@@ -39,6 +39,9 @@ namespace BeatLeader.Components {
             private static readonly Sprite backgroundSprite = Resources.FindObjectsOfTypeAll
                 <Sprite>().FirstOrDefault(x => x.name == "RoundRect10Thin")!;
 
+            private static readonly Signal clickSignal = Resources.FindObjectsOfTypeAll
+                <Signal>().FirstOrDefault(x => x.name == "TableCellWasPressed")!;
+
             #endregion
 
             #region Data
@@ -66,6 +69,7 @@ namespace BeatLeader.Components {
                 ReplayHeader = header;
                 if (!_isInitialized) {
                     PersistentSingleton<BSMLParser>.instance.Parse(markup, gameObject, this);
+                    ((SelectableCell)this).SetField("_wasPressedSignal", clickSignal);
                     gameObject.AddComponent<Touchable>();
                     name = nameof(AbstractDataCell);
                     reuseIdentifier = name;
@@ -237,6 +241,7 @@ namespace BeatLeader.Components {
         #region Events
 
         public event Action<IReplayHeader?>? ReplaySelectedEvent;
+
         #endregion
 
         #region UI Components

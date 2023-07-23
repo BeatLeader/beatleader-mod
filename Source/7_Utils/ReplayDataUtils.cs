@@ -27,7 +27,7 @@ namespace BeatLeader.Utils {
                 replayData.jumpDistance,
                 replay.heights.Count == 0 ? replayData.height : null,
                 replay.GetModifiersFromReplay(),
-                player, replay.GetPracticeSettingsFromReplay());
+                player, replay.info.GetPracticeSettingsFromInfo());
 
             var frames = replay.frames.Select(static x => new PlayerMovementFrame(
                 x.time, new() {
@@ -98,9 +98,9 @@ namespace BeatLeader.Utils {
                 smallCubes: modifiers.Contains("SC"));
         }
 
-        private static PracticeSettings? GetPracticeSettingsFromReplay(this Replay replay) {
-            return replay.info.failTime == 0 ? null : new(replay.info.startTime,
-                replay.info.speed is var speed && speed == 0 ? 1 : speed);
+        private static PracticeSettings? GetPracticeSettingsFromInfo(this Models.Replay.ReplayInfo info) {
+            return info.failTime != 0 || info.startTime != 0 || info.speed != 0 ? new(info.startTime, 
+                info.speed is var speed && speed == 0 ? 1 : speed) : null;
         }
 
         #endregion

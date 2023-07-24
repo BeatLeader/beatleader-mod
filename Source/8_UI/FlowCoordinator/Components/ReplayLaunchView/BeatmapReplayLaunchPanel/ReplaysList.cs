@@ -286,7 +286,7 @@ namespace BeatLeader.Components {
             if (tableView.DequeueReusableCellForIdentifier(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
                 cell = AbstractDataCell.Create<ReplayDataCell>(_replayHeaders![idx]);
             } else cell.Init(_replayHeaders![idx]);
-            cell.ShowBeatmapName = _showBeatmapName;
+            cell.ShowBeatmapName = showBeatmapNameIfCorrect;
             return cell;
         }
 
@@ -298,16 +298,13 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Data
-
-        private static readonly IReplayHeader emptyReplayHeader =
-            new GenericReplayHeader(null!, null!, default(IReplayInfo));
-
+        
         private IList<IReplayHeader>? _replayHeaders;
-        private bool _showBeatmapName;
 
-        public void SetData(IList<IReplayHeader> headers, bool showBeatmapNameIfCorrect = true) {
+        public bool showBeatmapNameIfCorrect = true;
+        
+        public void SetData(IList<IReplayHeader> headers) {
             _replayHeaders = headers;
-            _showBeatmapName = showBeatmapNameIfCorrect;
             Refresh();
         }
 

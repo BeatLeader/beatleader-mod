@@ -144,6 +144,7 @@ namespace BeatLeader.Components {
             if (replay is not null) {
                 await Task.Run(() => stats = ReplayStatisticUtils.ComputeScoreStats(replay), token);
                 score = ReplayUtils.ComputeScore(replay);
+                score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
             }
             if (token.IsCancellationRequested) return;
             _replayStatisticsPanel.SetData(score, stats, score is null || stats is null);

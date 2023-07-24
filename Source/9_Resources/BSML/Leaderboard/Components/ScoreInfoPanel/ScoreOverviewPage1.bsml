@@ -11,6 +11,7 @@
         <horizontal pref-height="12" spacing="2" horizontal-fit="PreferredSize">
             <text text="~score-text" word-wrapping="false" font-size="~font-size" align="Center"/>
             <text text="~acc-text" word-wrapping="false" font-size="~font-size" align="Center"/>
+            <text text="~fc-acc-text" word-wrapping="false" font-size="~font-size" align="Center"/>
             <text text="~pp-text" word-wrapping="false" font-size="~font-size" align="Center"/>
         </horizontal>
 

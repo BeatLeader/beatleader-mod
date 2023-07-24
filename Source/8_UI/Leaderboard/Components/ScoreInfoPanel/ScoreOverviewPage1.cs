@@ -12,6 +12,7 @@ namespace BeatLeader.Components {
             TimeSetText = GetTimeSetString(score);
             ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "score");
             AccText = GetStringWithLabel(FormatUtils.FormatAcc(score.accuracy), "accuracy");
+            FcAccText = GetStringWithLabel(FormatUtils.FormatAcc(score.fcAccuracy), "fc accuracy");
             PpText = GetStringWithLabel(FormatUtils.FormatPP(score.pp), "pp");
             DetailsText = GetDetailsString(score);
         }
@@ -134,6 +135,22 @@ namespace BeatLeader.Components {
             set {
                 if (_accText.Equals(value)) return;
                 _accText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        #endregion
+        
+        #region FcAccText
+
+        private string _fcAccText = "";
+
+        [UIValue("fc-acc-text"), UsedImplicitly]
+        public string FcAccText {
+            get => _fcAccText;
+            set {
+                if (_fcAccText.Equals(value)) return;
+                _fcAccText = value;
                 NotifyPropertyChanged();
             }
         }

@@ -88,7 +88,7 @@ namespace BeatLeader.Components {
 
         private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
             if (_blockIncomingEvents) return;
-            _downloadText.text = $"Downloading: {downloadProgress * 100:F0}%";
+            _downloadText.text = $"<alpha=#66>Downloading: {downloadProgress * 100:F0}%";
         }
 
         private void OnDownloadRequestStateChanged(API.RequestState state, Replay result, string failReason) {
@@ -98,7 +98,7 @@ namespace BeatLeader.Components {
             RefreshDownloadState(_isDownloading);
             switch (state) {
                 case API.RequestState.Finished:
-                    _downloadText.text = "Finished!";
+                    _downloadText.text = "<alpha=#66>Finished!";
                     if (PluginConfig.EnableReplayCaching) ReplayerCache.TryWriteReplay(_score!.id, result);
                     SetPlayButtonInteractable(false);
                     StartReplay(result);

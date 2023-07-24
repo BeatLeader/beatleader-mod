@@ -1,5 +1,5 @@
 <horizontal active="~active" pref-height="30">
-    <vertical pad="2">
+    <vertical pad="2" horizontal-fit="Unconstrained">
         <!--  STYLE  -->
         <macro.define name="font-size" value="4"/>
         <macro.define name="details-font-size" value="3.4"/>
@@ -15,7 +15,7 @@
         </horizontal>
 
         <horizontal pref-height="8">
-            <text text="~details-text" word-wrapping="false" font-size="~details-font-size" align="Center"/>
+            <text text="~details-text" word-wrapping="true" font-size="~details-font-size" align="Center"/>
         </horizontal>
     </vertical>
 </horizontal>

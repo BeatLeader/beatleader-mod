@@ -54,6 +54,7 @@ namespace BeatLeader.Components {
         private void UpdateVisuals() {
             MapDifficultyPanel.NotifyDiffInfoChanged(_diffInfo);
             var stars = _diffInfo.stars;
+            var modifiersApplied = false;
             if (_diffInfo.modifiersRating is { } rating &&
                 _gameplayModifiers is { songSpeed: not GameplayModifiers.SongSpeed.Normal } modifiers) {
                 stars = modifiers.songSpeed switch {
@@ -62,8 +63,12 @@ namespace BeatLeader.Components {
                     GameplayModifiers.SongSpeed.SuperFast => rating.sfStars,
                     _ => stars,
                 };
+                modifiersApplied = true;
             }
-            _statusText.text = _diffInfo.stars > 0 ? $"{_rankedStatus}: {FormatUtils.FormatStars(stars)}" : _rankedStatus.ToString();
+            var text = _rankedStatus.ToString();
+            var modifiersIndicator = modifiersApplied ? "<color=green>[M]</color>" : string.Empty;
+            if (_diffInfo.stars > 0) text += $": {FormatUtils.FormatStars(stars)} {modifiersIndicator}";
+            _statusText.text = text;
         }
 
         #endregion

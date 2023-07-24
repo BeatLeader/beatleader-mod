@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class BeatmapReplayLaunchPanel : ReeUIComponentV2 {
@@ -22,10 +22,7 @@ namespace BeatLeader.Components {
 
         [UIValue("replay-panel"), UsedImplicitly]
         private ReplayDetailPanel _replayPanel = null!;
-
-        [UIComponent("loading-container")]
-        private readonly ImageView _loadingContainerBackground = null!;
-
+        
         [UIObject("loading-container")]
         private readonly GameObject _loadingContainerObject = null!;
 
@@ -52,8 +49,9 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _loadingContainerBackground.sprite = BundleLoader.TransparentPixel;
-            _loadingContainerBackground.color = Color.clear;
+            var image = _loadingContainerObject.AddComponent<Image>();
+            image.sprite = BundleLoader.TransparentPixel;
+            image.color = Color.clear;
             _mainContainerCanvasGroup = _mainContainerObject.AddComponent<CanvasGroup>();
             _replaysList.SetData(_listHeaders);
         }

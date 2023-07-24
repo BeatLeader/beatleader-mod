@@ -40,7 +40,7 @@ namespace BeatLeader.Utils {
                     var fromCache = ReplayHeadersCache.TryGetInfoByPath(path, out var info);
                     if (!fromCache) {
                         TryReadReplayInfo(path, out var info1);
-                        if (info1 is not null && path.Contains("exit")) {
+                        if (info1 is not null && Path.GetFileName(path).Contains("exit")) {
                             info1.levelEndType = LevelEndType.Quit;
                         }
                         info = info1;
@@ -89,6 +89,7 @@ namespace BeatLeader.Utils {
 
             Write: ;
             if (!TryWriteReplay(path, replay)) goto ReturnNull;
+            replay.info.levelEndType = playEndData.EndType;
             var header = new GenericReplayHeader(this, path, replay);
             ReplayAddedEvent?.Invoke(header);
             CachedReplay = header;

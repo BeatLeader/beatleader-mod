@@ -30,12 +30,14 @@ namespace BeatLeader.Utils {
         public static void ProcessReplay(Replay replay, PlayEndData data) {
             if (replay.info.speed != 0) {
                 Plugin.Log.Debug("Practice, replay won't be submitted");
-                goto SaveReplay;
+                SaveReplay(replay, data);
+                return;
             }
 
             if (!ShouldSubmit()) {
                 Plugin.Log.Debug("Score submission was disabled");
-                goto SaveReplay;
+                SaveReplay(replay, data);
+                return;
             }
 
             Plugin.Log.Debug("Uploading replay");
@@ -51,8 +53,11 @@ namespace BeatLeader.Utils {
                     break;
             }
 
-            SaveReplay: ;
-            _ = ReplayManager.Instance.SaveReplayAsync(replay, data, default);
+            SaveReplay(replay, data);
+            
+            static void SaveReplay(Replay replay, PlayEndData data) {
+                _ = ReplayManager.Instance.SaveReplayAsync(replay, data, default).Result;
+            }
         }
 
         public static void UploadReplay(Replay replay) {

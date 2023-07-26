@@ -49,9 +49,13 @@ namespace BeatLeader.Utils {
                 .Concat(Directory.EnumerateFiles(ReplayerCache.CacheDirectory, "*.bsor"));
         }
 
+        public static string GetAbsoluteReplayPath(string fileName) {
+            return Path.Combine(replaysFolderPath, fileName);
+        }
+        
         public static bool TryWriteReplay(string fileName, Replay replay) {
             try {
-                var path = Path.Combine(replaysFolderPath, fileName);
+                var path = GetAbsoluteReplayPath(fileName);
                 using BinaryWriter file = new(File.Open(path, FileMode.OpenOrCreate), Encoding.UTF8);
                 ReplayEncoder.Encode(replay, file);
                 file.Close();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace BeatLeader.Utils {
 
         public IReplayHeader? CachedReplay { get; private set; }
 
-        private IList<IReplayHeader>? _lastReplayHeaders = new List<IReplayHeader>();
+        private IList<IReplayHeader>? _lastReplayHeaders;
 
         public async Task<IList<IReplayHeader>?> LoadReplayHeadersAsync(
             CancellationToken token,
@@ -74,26 +75,23 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Warn("OverrideOldReplays is enabled, old replays will be deleted");
                 var info = replay.info;
                 if (_lastReplayHeaders is null) await LoadReplayHeadersAsync(token);
-                foreach (var replayHeader in _lastReplayHeaders!) {
-                    if (replayHeader.ReplayInfo is not { } replayInfo ||
-                        replayInfo.PlayerID != info.playerID ||
-                        replayInfo.SongName != info.songName ||
-                        replayInfo.SongDifficulty != info.difficulty
-                        || replayInfo.SongMode != info.mode
-                        || replayInfo.SongHash != info.hash) continue;
+                foreach (var replayHeader in _lastReplayHeaders!.Where(x =>
+                        x.ReplayInfo is { } i && i.PlayerID == info.playerID
+                        && i.SongName == info.songName && i.SongDifficulty == info.difficulty
+                        && i.SongMode == info.mode && i.SongHash == info.hash).ToArray()
+                ) {
                     Plugin.Log.Info("Deleting old replay: " + Path.GetFileName(replayHeader.FilePath));
                     ((IReplayFileManager)this).DeleteReplay(replayHeader);
                 }
             }
-            
-            var writeResult = false;
-            await Task.Run(() => writeResult = TryWriteReplay(path, replay), token);
-            if (!writeResult) return null;
+
+            if (!TryWriteReplay(path, replay)) return null;
             replay.info.levelEndType = playEndData.EndType;
-            var header = new GenericReplayHeader(this, path, replay);
-            _lastReplayHeaders!.Add(header);
-            ReplayAddedEvent?.Invoke(header);
+            var absolutePath = GetAbsoluteReplayPath(path);
+            var header = new GenericReplayHeader(this, absolutePath, replay);
+            _lastReplayHeaders?.Add(header);
             CachedReplay = header;
+            ReplayAddedEvent?.Invoke(header);
             return header;
         }
 

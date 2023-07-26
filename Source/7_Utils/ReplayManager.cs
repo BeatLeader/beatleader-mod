@@ -28,12 +28,11 @@ namespace BeatLeader.Utils {
 
         public async Task<IList<IReplayHeader>?> LoadReplayHeadersAsync(
             CancellationToken token,
-            Action<IReplayHeader>? loadCallback = null,
-            bool makeArray = true
+            Action<IReplayHeader>? loadCallback = null
         ) {
             var paths = GetAllReplayPaths();
-            var replays = makeArray ? new List<IReplayHeader>(PreloadedReplaysCount) : null;
-            var cache = new HashSet<(string, string)>();
+            var replays = new List<IReplayHeader>(PreloadedReplaysCount);
+            var cache = new HashSet<(string, string)>(PreloadedReplaysCount);
             await Task.Run(() => {
                 foreach (var path in paths) {
                     if (token.IsCancellationRequested) return;
@@ -50,7 +49,7 @@ namespace BeatLeader.Utils {
                     if (!fromCache) ReplayHeadersCache.AddInfoByPath(path, info);
 
                     var header = new GenericReplayHeader(this, path, info);
-                    if (makeArray) replays!.Add(header);
+                    replays.Add(header);
                     loadCallback?.Invoke(header);
                 }
             }, token);
@@ -71,12 +70,12 @@ namespace BeatLeader.Utils {
 
             var path = FormatFileName(replay, playEndData);
             Plugin.Log.Info($"Replay will be saved as: {path}");
-            if (!ConfigFileData.Instance.OverrideOldReplays
-                || _lastReplayHeaders is null) goto Write;
+            if (!ConfigFileData.Instance.OverrideOldReplays) goto Write;
 
             Plugin.Log.Warn("OverrideOldReplays is enabled, old replays will be deleted");
             var info = replay.info;
-            foreach (var replayHeader in _lastReplayHeaders) {
+            if (_lastReplayHeaders is null) await LoadReplayHeadersAsync(token);
+            foreach (var replayHeader in _lastReplayHeaders!) {
                 if (replayHeader.ReplayInfo is not { } replayInfo ||
                     replayInfo.PlayerID != info.playerID ||
                     replayInfo.SongName != info.songName ||

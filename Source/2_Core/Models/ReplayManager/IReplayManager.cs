@@ -13,11 +13,10 @@ namespace BeatLeader.Models {
         event Action<string[]?>? ReplaysDeletedEvent;
 
         IReplayHeader? CachedReplay { get; }
-        
+
         Task<IList<IReplayHeader>?> LoadReplayHeadersAsync(
             CancellationToken token,
-            Action<IReplayHeader>? loadCallback = null,
-            bool makeArray = true
+            Action<IReplayHeader>? loadCallback = null
         );
 
         Task<IReplayHeader?> SaveReplayAsync(

@@ -180,7 +180,7 @@ namespace BeatLeader.Components {
         
         [UIAction("delete-button-click"), UsedImplicitly]
         private void HandleDeleteButtonClicked() {
-            _header?.DeleteReplayAsync(default);
+            _header?.DeleteReplay();
         }
 
         [UIAction("watch-button-click"), UsedImplicitly]

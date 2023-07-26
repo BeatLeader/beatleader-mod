@@ -84,7 +84,7 @@ namespace BeatLeader.Utils {
                     || replayInfo.SongMode != info.mode
                     || replayInfo.SongHash != info.hash) continue;
                 Plugin.Log.Info("Deleting old replay: " + Path.GetFileName(replayHeader.FilePath));
-                ((IReplayFileManager)this).DeleteReplayAsync(replayHeader, default);
+                ((IReplayFileManager)this).DeleteReplay(replayHeader);
             }
 
             Write: ;
@@ -118,9 +118,9 @@ namespace BeatLeader.Utils {
             return removedPathsArr;
         }
 
-        Task<bool> IReplayFileManager.DeleteReplayAsync(IReplayHeader header, CancellationToken token) {
+        bool IReplayFileManager.DeleteReplay(IReplayHeader header) {
             DeleteReplayInternal(header.FilePath, header);
-            return Task.FromResult(true);
+            return true;
         }
         
         private void DeleteReplayInternal(string filePath, IReplayHeader? header = null) {

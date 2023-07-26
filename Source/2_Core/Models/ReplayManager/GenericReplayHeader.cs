@@ -49,9 +49,8 @@ namespace BeatLeader.Models {
             return _cachedReplay;
         }
 
-        public async Task<bool> DeleteReplayAsync(CancellationToken token) {
-            if (FileStatus is FileStatus.Deleted || !await _replayManager
-                .DeleteReplayAsync(this, token)) return false;
+        public bool DeleteReplay() {
+            if (FileStatus is FileStatus.Deleted || !_replayManager.DeleteReplay(this)) return false;
             ReplayInfo = null;
             FileStatus = FileStatus.Deleted;
             return true;

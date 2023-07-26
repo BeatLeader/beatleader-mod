@@ -80,6 +80,7 @@ namespace BeatLeader.Components {
                 _levelDetailWrapper = ReeUIComponentV2.Instantiate<LevelDetailWrapper>(_levelDetail.parent);
                 _levelDetailWrapper.SelectButtonPressedEvent += HandleSelectButtonPressed;
                 _closeButton = ReeUIComponentV2.Instantiate<CloseButton>(_levelFilteringNavigationController.transform);
+                _closeButton.ManualInit(_closeButton.transform);
                 _closeButton.ButtonPressedEvent += HandleCloseButtonPressed;
             }
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
@@ -122,8 +123,8 @@ namespace BeatLeader.Components {
         #region UI Tweaks
 
         private void SetCloseButtonEnabled(bool buttonEnabled) {
-            _closeButton!.transform.localPosition = new(-81, 5, 0);
-            _closeButton.gameObject.SetActive(buttonEnabled);
+            _closeButton!.GetRootTransform().localPosition = new(-69, 0, 0);
+            _closeButton.SetRootActive(buttonEnabled);
         }
 
         private void SetLevelDetailWrapperEnabled(bool wrapperEnabled) {

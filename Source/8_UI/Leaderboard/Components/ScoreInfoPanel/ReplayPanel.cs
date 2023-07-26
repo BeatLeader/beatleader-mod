@@ -19,6 +19,9 @@ namespace BeatLeader.Components {
 
         [UIComponent("play-button"), UsedImplicitly]
         private Button _playButton = null!;
+        
+        [UIComponent("play-button"), UsedImplicitly]
+        private TMP_Text _playButtonText = null!;
 
         [UIValue("settings-panel"), UsedImplicitly]
         private ReplayerSettingsPanel _settingsPanel = null!;
@@ -85,7 +88,7 @@ namespace BeatLeader.Components {
 
         private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
             if (_blockIncomingEvents) return;
-            _downloadText.text = $"Downloading: {downloadProgress * 100:F0}%";
+            _downloadText.text = $"<alpha=#66>Downloading: {downloadProgress * 100:F0}%";
         }
 
         private void OnDownloadRequestStateChanged(API.RequestState state, Replay result, string failReason) {
@@ -95,7 +98,7 @@ namespace BeatLeader.Components {
             RefreshDownloadState(_isDownloading);
             switch (state) {
                 case API.RequestState.Finished:
-                    _downloadText.text = "Finished!";
+                    _downloadText.text = "<alpha=#66>Finished!";
                     if (PluginConfig.EnableReplayCaching) ReplayerCache.TryWriteReplay(_score!.id, result);
                     SetPlayButtonInteractable(false);
                     StartReplay(result);
@@ -149,7 +152,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshPlayButtonText(bool downloading) {
-            _playButton.SetButtonText(downloading ? "Cancel" : "Watch Replay");
+            _playButtonText.text = downloading ? "Cancel" : "Watch Replay";
         }
 
         private void SetPlayButtonInteractable(bool interactable) {

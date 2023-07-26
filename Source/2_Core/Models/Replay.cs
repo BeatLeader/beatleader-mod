@@ -20,8 +20,19 @@ namespace BeatLeader.Models.Replay {
         public List<AutomaticHeight> heights = new List<AutomaticHeight>();
         public List<Pause> pauses = new List<Pause>();
     }
-    public class ReplayInfo
-    {
+    public class ReplayInfo : IReplayInfo {
+        string IReplayInfo.PlayerID => playerID;
+        string IReplayInfo.PlayerName => playerName;
+        string IReplayInfo.SongName => songName;
+        string IReplayInfo.SongDifficulty => difficulty;
+        string IReplayInfo.SongMode => mode;
+        string IReplayInfo.SongHash => hash;
+        public LevelEndType LevelEndType => levelEndType ?? (failTime > 0 ? LevelEndType.Fail : LevelEndType.Clear);
+        float IReplayInfo.FailTime => failTime;
+        string IReplayInfo.Timestamp => timestamp;
+
+        public LevelEndType? levelEndType;
+        
         public string version;
         public string gameVersion;
         public string timestamp;

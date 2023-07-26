@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Text;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Models;
-using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using UnityEngine.Networking;

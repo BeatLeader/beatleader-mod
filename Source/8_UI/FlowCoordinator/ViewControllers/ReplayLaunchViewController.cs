@@ -6,6 +6,7 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
+using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.ViewControllers {
@@ -72,17 +73,15 @@ namespace BeatLeader.ViewControllers {
                 && string.IsNullOrEmpty(prompt)
                 && string.IsNullOrEmpty(characteristic)
                 && !diff.HasValue;
-            var empty = filters is { overrideBeatmap: true, previewBeatmapLevel: null };
-            _replayPanel.ShowEmptyScreen(empty);
-            if (empty) return;
-            _replayPanel.Filter(hasNoFilters ? null : SearchPredicate);
+            //if (filters is { overrideBeatmap: true, previewBeatmapLevel: null }) return;
+            _replayPanel.SetFilter(hasNoFilters ? null : SearchPredicate);
 
             bool SearchPredicate(IReplayHeader header) {
                 return header.ReplayInfo is not { } info ||
-                    info.playerName.ToLower().Contains(prompt)
-                    && (beatmap is null || beatmap.levelID.Replace("custom_level_", "") == info.hash)
-                    && (!diff.HasValue || info.difficulty == diff.Value.ToString())
-                    && (characteristic is null || info.mode == characteristic);
+                    info.PlayerName.ToLower().Contains(prompt)
+                    && (beatmap is null || beatmap.levelID.Replace("custom_level_", "") == info.SongHash)
+                    && (!diff.HasValue || info.SongDifficulty == diff.Value.ToString())
+                    && (characteristic is null || info.SongMode == characteristic);
             }
         }
 

@@ -3,21 +3,46 @@ using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
+using TMPro;
 
 namespace BeatLeader.Components {
     internal class ScoreOverviewPage1 : ReeUIComponentV2 {
+        #region Config
+
+        [UIValue("font-size")]
+        private const int FontSize = 4;
+
+        #endregion
+        
         #region SetScore
 
         public void SetScore(Score score) {
             TimeSetText = GetTimeSetString(score);
             ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "score");
-            AccText = GetStringWithLabel(FormatUtils.FormatAcc(score.accuracy), "accuracy");
+            _accText.Text1 = GetStringWithLabel(
+                FormatUtils.FormatAcc(score.accuracy),
+                "accuracy " + (!score.fullCombo ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
+            _accText.Text2 = GetStringWithLabel(
+                FormatUtils.FormatAcc(score.fcAccuracy), 
+                $"<color={Good}>fc accuracy</color>");
+            _accText.HoverEnabled = !score.fullCombo;
             PpText = GetStringWithLabel(FormatUtils.FormatPP(score.pp), "pp");
             DetailsText = GetDetailsString(score);
         }
 
         #endregion
 
+        #region Init
+
+        protected override void OnInstantiate() {
+            _accText = Instantiate<HoverText>(transform);
+            _accText.TextObject.alignment = TextAlignmentOptions.Center;
+            _accText.TextObject.fontSize = FontSize;
+            _accText.TextObject.enableWordWrapping = false;
+        }
+
+        #endregion
+        
         #region SetActive
 
         public void SetActive(bool value) {
@@ -126,17 +151,8 @@ namespace BeatLeader.Components {
 
         #region AccText
 
-        private string _accText = "";
-
         [UIValue("acc-text"), UsedImplicitly]
-        public string AccText {
-            get => _accText;
-            set {
-                if (_accText.Equals(value)) return;
-                _accText = value;
-                NotifyPropertyChanged();
-            }
-        }
+        private HoverText _accText = null!;
 
         #endregion
 

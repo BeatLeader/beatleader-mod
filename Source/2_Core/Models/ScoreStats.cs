@@ -1,7 +1,7 @@
 ﻿using BeatLeader.Models.Replay;
 
 namespace BeatLeader.Models {
-    internal class ScoreStats {
+    public class ScoreStats {
         public int id;
         public int scoreId;
 
@@ -11,12 +11,13 @@ namespace BeatLeader.Models {
         public ScoreGraphTracker scoreGraphTracker;
     }
 
-    internal class AccuracyTracker {
+    public class AccuracyTracker {
         public int id;
 
         public float[] gridAcc;
         public float accLeft;
         public float accRight;
+        public float fcAcc;
 
         public float[] leftAverageCut;
         public float leftPreswing;
@@ -29,7 +30,7 @@ namespace BeatLeader.Models {
         public float rightTimeDependence;
     }
 
-    internal class HitTracker {
+   public class HitTracker {
         public int id;
         public int maxCombo;
 
@@ -42,7 +43,7 @@ namespace BeatLeader.Models {
         public int rightMiss;
     }
 
-    internal class WinTracker {
+    public class WinTracker {
         public int id;
 
         public Vector3 averageHeadPosition;
@@ -54,7 +55,7 @@ namespace BeatLeader.Models {
         public bool won;
     }
 
-    internal class ScoreGraphTracker {
+    public class ScoreGraphTracker {
         public float[] graph;
     }
 }

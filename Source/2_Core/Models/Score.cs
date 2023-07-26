@@ -4,6 +4,7 @@
     {
         public int id;
         public float accuracy;
+        public float fcAccuracy;
         public int baseScore;
         public int modifiedScore;
         public string modifiers;

@@ -21,7 +21,7 @@
     </vertical>
   </horizontal>
   <!--LOADING CONTAINER-->
-  <vertical active="false" id="loading-container" bg="round-rect-panel"
+  <vertical active="false" id="loading-container"
             ignore-layout="true" horizontal-fit="Unconstrained"
             child-control-height="false" child-expand-height="false"
             child-align="MiddleCenter" spacing="4">

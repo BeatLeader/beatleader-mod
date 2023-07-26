@@ -1,13 +1,11 @@
 ﻿using System.Threading.Tasks;
 using BeatLeader.Models.BeatSaver;
-using Newtonsoft.Json;
 using static BeatLeader.BeatSaverAPI.BeatSaverConstants;
 
 namespace BeatLeader.Utils {
     internal static class BeatSaverUtils {
         public static async Task<MapDetail?> GetMapByHashAsync(string hash) {
-            return await WebUtils.SendAsync(BEATSAVER_API_URL + MAPS_HASH_ENDPOINT + hash) is { IsSuccessStatusCode: true } res ?
-                JsonConvert.DeserializeObject<MapDetail>(await res.Content.ReadAsStringAsync()) : null;
+            return await WebUtils.SendAndDeserializeAsync<MapDetail>(BEATSAVER_API_URL + MAPS_HASH_ENDPOINT + hash);
         }
 
         public static string CreateDownloadMapUrl(string mapHash) {

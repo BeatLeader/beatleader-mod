@@ -60,13 +60,13 @@ namespace BeatLeader.Utils {
             return replays;
         }
 
-        public Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
+        public async Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
             var isOstLevel = !MapEnhancer.previewBeatmapLevel
                 .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
             CachedReplay = null;
             if (!ValidatePlay(replay, playEndData, isOstLevel)) {
                 Plugin.Log.Info("Validation failed, replay will not be saved!");
-                goto ReturnNull;
+                return null;
             }
 
             var path = FormatFileName(replay, playEndData);
@@ -88,15 +88,14 @@ namespace BeatLeader.Utils {
             }
 
             Write: ;
-            if (!TryWriteReplay(path, replay)) goto ReturnNull;
+            var writeResult = false;
+            await Task.Run(() => writeResult = TryWriteReplay(path, replay), token);
+            if (!writeResult) return null;
             replay.info.levelEndType = playEndData.EndType;
             var header = new GenericReplayHeader(this, path, replay);
             ReplayAddedEvent?.Invoke(header);
             CachedReplay = header;
-            return Task.FromResult<IReplayHeader?>(header);
-
-            ReturnNull:
-            return Task.FromResult<IReplayHeader?>(null);
+            return header;
         }
 
         public async Task<string[]?> DeleteAllReplaysAsync(CancellationToken token) {

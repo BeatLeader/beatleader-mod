@@ -182,20 +182,20 @@ namespace BeatLeader.Components {
                 var yi = y.ReplayInfo;
                 return xi is null || yi is null ? 0 : sorter switch {
                     ReplaysListSettingsPanel.Sorters.Difficulty =>
-                        CompareFloat(
+                        CompareInteger(
                             (int)Enum.Parse(typeof(BeatmapDifficulty), xi.SongDifficulty),
                             (int)Enum.Parse(typeof(BeatmapDifficulty), yi.SongDifficulty)),
                     ReplaysListSettingsPanel.Sorters.Player =>
                         string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
                     ReplaysListSettingsPanel.Sorters.Completion =>
-                        CompareFloat((float)xi.LevelEndType, (float)yi.LevelEndType),
+                        CompareInteger((int)xi.LevelEndType, (int)yi.LevelEndType),
                     ReplaysListSettingsPanel.Sorters.Date =>
-                        -CompareFloat(int.Parse(xi.Timestamp), int.Parse(yi.Timestamp)),
+                        -CompareInteger(int.Parse(xi.Timestamp), int.Parse(yi.Timestamp)),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
 
-            private static int CompareFloat(float x, float y) => x >= y ? Math.Abs(x - y) < 0.01 ? 0 : 1 : -1;
+            private static int CompareInteger(int x, int y) => x >= y ? x == y ? 0 : 1 : -1;
         }
 
         private HeaderComparator? _headerComparator;

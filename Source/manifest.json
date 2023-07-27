@@ -3,9 +3,9 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "",
-  "gameVersion": "1.27.0",
+  "gameVersion": "1.29.1",
   "dependsOn": {
     "LeaderboardCore": "^1.2.2",
     "BeatSaberMarkupLanguage": "^1.6.6",

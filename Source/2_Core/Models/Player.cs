@@ -1,10 +1,9 @@
-﻿namespace BeatLeader.Models
-{
+﻿namespace BeatLeader.Models {
     public class User {
         public Player player;
         public Player[] friends;
     }
-    
+
     public class Player {
         public string id;
         public int rank;
@@ -16,7 +15,7 @@
         public string role;
         public Clan[] clans;
         public ServiceIntegration[] socials;
-        public ProfileSettings profileSettings;
+        public ProfileSettings? profileSettings;
     }
 
     public class Clan {

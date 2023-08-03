@@ -41,7 +41,7 @@ namespace BeatLeader.DataManager {
                         leaderboardInfo.id,
                         leaderboardInfo.difficulty,
                         leaderboardInfo.qualification,
-                        leaderboardInfo.clanRanking,
+                        leaderboardInfo.clan,
                         leaderboardInfo.clanRankingContested
                         );
                 }
@@ -76,7 +76,7 @@ namespace BeatLeader.DataManager {
                         response.id,
                         response.difficulty,
                         response.qualification,
-                        response.clanRanking,
+                        response.clan,
                         response.clanRankingContested
                         );
                 }

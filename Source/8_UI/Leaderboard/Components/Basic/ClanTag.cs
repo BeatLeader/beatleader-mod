@@ -1,4 +1,4 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using TMPro;

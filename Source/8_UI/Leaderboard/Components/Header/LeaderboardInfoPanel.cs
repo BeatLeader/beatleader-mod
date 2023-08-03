@@ -191,7 +191,7 @@ namespace BeatLeader.Components {
         private void UpdateVisuals() {
             _mapStatus.SetActive(_rankedStatus is not RankedStatus.Unknown);
             _mapStatus.SetValues(_rankedStatus, _difficultyInfo);
-            _captorClan.SetActive(_displayCaptorClan && _rankedStatus is RankedStatus.Ranked);
+            _captorClan.SetCaptorClanActive(_displayCaptorClan && _rankedStatus is RankedStatus.Ranked);
 
             QualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
             IsMenuButtonActive = EnvironmentManagerPatch.EnvironmentType is not MenuEnvironmentManager.MenuEnvironmentType.Lobby;

@@ -107,7 +107,7 @@ namespace BeatLeader.API {
                 new MultipartFormDataSection("provider", provider),
                 new MultipartFormDataSection("returnUrl", "/")
             };
-            Plugin.Log.Info("------------------------------------------- STEAM AUTH TOKEN IS:" + authToken);
+
             var request = UnityWebRequest.Post(string.Format(BLConstants.SIGNIN_WITH_TICKET, authToken), form);
             yield return request.SendWebRequest();
 

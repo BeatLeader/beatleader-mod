@@ -1,18 +1,13 @@
-﻿using System;
-using BeatLeader.API.Methods;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class HorizontalMiniProfileContainer : ReeUIComponentV2 {
-        #region Events
-
-        public event Action<Player>? PlayerLoadedEvent; 
-
-        #endregion
-        
         #region UI Components
 
         [UIValue("mini-profile"), UsedImplicitly]
@@ -47,54 +42,77 @@ namespace BeatLeader.Components {
 
         #region SetPlayer
 
+        public Player? Player { get; private set; }
+
+        private CancellationTokenSource _cancellationTokenSource = new();
+        private bool _isWorking;
         private string? _playerId = string.Empty;
-        
-        public void SetPlayer(string? playerId) {
+
+        public async Task SetPlayer(string? playerId) {
             if (_playerId == playerId) return;
+            if (_isWorking) {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource = new();
+            }
             _playerId = playerId;
+            _isWorking = true;
             if (playerId is not null) {
-                PlayerRequest.SendRequest(playerId);
+                await GetPlayerAsync(playerId, _cancellationTokenSource.Token);
                 return;
             }
-            _loadingContainerObject.SetActive(true);
-            _miniProfileContainerObject.SetActive(false);
-            LoadingText = NotSelectedMessage;
+            UpdateVisibility(State.LoadFailed);
+            Player = null;
+        }
+
+        #endregion
+
+        #region UpdateVisibility
+
+        private enum State {
+            Loading,
+            Loaded,
+            LoadFailed
+        }
+
+        private void UpdateVisibility(State state) {
+            switch (state) {
+                case State.LoadFailed:
+                case State.Loading:
+                    _loadingContainerObject.SetActive(true);
+                    _miniProfileContainerObject.SetActive(false);
+                    LoadingText = state is State.Loading ? LoadingMessage : NotSelectedMessage;
+                    break;
+                case State.Loaded:
+                    _loadingContainerObject.SetActive(false);
+                    _miniProfileContainerObject.SetActive(true);
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Web Requests
+
+        private const string PlayerEndpoint = BLConstants.BEATLEADER_API_URL + "/player/";
+
+        private async Task GetPlayerAsync(string playerId, CancellationToken token) {
+            UpdateVisibility(State.Loading);
+            var player = await WebUtils.SendAndDeserializeAsync<Player>(PlayerEndpoint + playerId);
+            if (token.IsCancellationRequested) return;
+            UpdateVisibility(player is null ? State.LoadFailed : State.Loaded);
+            if (player is not null) _horizontalMiniProfile.SetPlayer(player);
+            Player = player;
+            _isWorking = false;
         }
 
         #endregion
 
         #region Init
 
-        private bool _isInitialized;
-        
         protected override void OnInstantiate() {
             _horizontalMiniProfile = Instantiate<HorizontalMiniProfile>(transform);
-            PlayerRequest.AddStateListener(HandlePlayerRequestStateChanged);
         }
-
-        protected override void OnInitialize() {
-            _isInitialized = true;
-        }
-
-        protected override void OnDispose() {
-            PlayerRequest.RemoveStateListener(HandlePlayerRequestStateChanged);
-        }
-
-        #endregion
-
-        #region Callbacks
-
-        private void HandlePlayerRequestStateChanged(API.RequestState state, Player result, string failReason) {
-            if (!_isInitialized || state is API.RequestState.Uninitialized) return;
-            var showLoading = state is API.RequestState.Started;
-            _loadingContainerObject.SetActive(showLoading);
-            _miniProfileContainerObject.SetActive(!showLoading);
-            LoadingText = state is not API.RequestState.Failed ? LoadingMessage : FailedMessage;
-            if (state is not API.RequestState.Finished) return;
-            _horizontalMiniProfile.SetPlayer(result);
-            PlayerLoadedEvent?.Invoke(result);
-        }
-
+        
         #endregion
     }
 }

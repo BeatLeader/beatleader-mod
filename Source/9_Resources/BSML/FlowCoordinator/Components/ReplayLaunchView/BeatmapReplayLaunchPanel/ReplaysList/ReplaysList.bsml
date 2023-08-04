@@ -3,5 +3,5 @@
         word-wrapping="true" size-delta-y="20"
         text="The monkey left you on your own!"/>
   <custom-list id="list" show-scrollbar="true" pref-height="56"
-               visible-cells="7" stick-scrolling="true"/>
+               visible-cells="~visible-cells" stick-scrolling="true"/>
 </horizontal>

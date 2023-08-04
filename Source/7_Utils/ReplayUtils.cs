@@ -103,7 +103,7 @@ namespace BeatLeader.Utils {
             var info = replay.info;
 
             score.id = -1;
-            score.baseScore = info.score;
+            score.baseScore = info.score < 0 ? info.score * -1 : info.score;
             score.modifiers = info.modifiers;
             score.hmd = (int)HMDFromName(info.hmd);
             score.controller = (int)ControllerFromName(info.controller);

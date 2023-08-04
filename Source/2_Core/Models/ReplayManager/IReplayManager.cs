@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Models.Activity;
 using JetBrains.Annotations;
 using RReplay = BeatLeader.Models.Replay.Replay;
 
@@ -13,12 +12,11 @@ namespace BeatLeader.Models {
         event Action<IReplayHeader>? ReplayDeletedEvent;
         event Action<string[]?>? ReplaysDeletedEvent;
 
-        IReplayHeader? LastSavedReplay { get; }
+        IReplayHeader? CachedReplay { get; }
 
-        Task<IEnumerable<IReplayHeader>?> LoadReplayHeadersAsync(
+        Task<IList<IReplayHeader>?> LoadReplayHeadersAsync(
             CancellationToken token,
-            Action<IReplayHeader>? loadCallback = null,
-            bool makeArray = true
+            Action<IReplayHeader>? loadCallback = null
         );
 
         Task<IReplayHeader?> SaveReplayAsync(
@@ -28,9 +26,5 @@ namespace BeatLeader.Models {
         );
 
         Task<string[]?> DeleteAllReplaysAsync(CancellationToken token);
-
-        internal Task<bool> DeleteReplayAsync(IReplayHeader header, CancellationToken token);
-
-        internal Task<RReplay?> LoadReplayAsync(IReplayHeader header, CancellationToken token);
     }
 }

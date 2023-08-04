@@ -14,8 +14,6 @@
 
         public const string BEATLEADER_WEBSITE_URL = "https://www.beatleader.xyz";
 
-        public const string EX_MACHINA_API_URL = "https://bs-replays-ai.azurewebsites.net";
-
         #endregion
 
         #region Signin

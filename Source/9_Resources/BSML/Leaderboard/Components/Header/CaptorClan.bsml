@@ -1,9 +1,8 @@
-﻿<!-- TODO: How do you make the clanTag smaller than the pref-height of the container it's in?-->
-<horizontal active="~captor-clan-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD" apply-on-change="true" hover-hint="~captor-clan-hover">
+﻿<horizontal active="~captor-clan-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD" apply-on-change="true" hover-hint="~captor-clan-hover">
     <horizontal pad-right="1">
         <text text="~captor-clan-text" color="~captor-clan-text-color" align="Midline"/>
     </horizontal>
-    <vertical active="~leaderboard-captured" id="background" vertical-fit="PreferredSize" pref-height="5" bg="round-rect-panel">
-        <text id="text-component" word-wrapping="false" align="Midline"/>
-    </vertical>
+    <macro.as-host host="clan-tag">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
 </horizontal>

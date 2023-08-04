@@ -76,6 +76,7 @@ namespace BeatLeader.Utils {
         private const long DLLGetLoaderInstanceFuncPtr = 0x00038980;
 
         public static XrSystemProperties? SystemProperties { get; private set; }
+        public static string? SystemName { get; private set; }
 
         public static void Init() {
             try {
@@ -104,6 +105,7 @@ namespace BeatLeader.Utils {
                 var getSysPropRes and not XrResult.XR_SUCCESS) return getSysPropRes;
 
             SystemProperties = systemProperties;
+            SystemName = new string(systemProperties.systemName);
             return XrResult.XR_SUCCESS;
         }
 

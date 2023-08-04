@@ -88,7 +88,7 @@ namespace BeatLeader.Components {
 
         #region Set
 
-        public void SetCaptorClanActive(bool value) {
+        public void SetActive(bool value) {
             CaptorClanActive = value;
         }
 

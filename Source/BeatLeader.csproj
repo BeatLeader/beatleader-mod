@@ -3,7 +3,7 @@
         <TargetFramework>net48</TargetFramework>
         <OutputType>Library</OutputType>
         <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
-        <BeatSaberDir>D:\SteamLibrary\steamapps\common\Beat Saber\</BeatSaberDir>
+        <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
         <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>

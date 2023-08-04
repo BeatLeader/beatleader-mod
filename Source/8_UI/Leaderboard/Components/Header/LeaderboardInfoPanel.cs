@@ -129,7 +129,9 @@ namespace BeatLeader.Components {
             _difficultyInfo = data.DifficultyInfo;
             _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
             _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
-            _captorClan.SetValues(data);
+            if (_rankedStatus is RankedStatus.Ranked) {
+                _captorClan.SetValues(data);
+            }
 
             UpdateCheckboxes(data.QualificationInfo);
             UpdateVisuals();

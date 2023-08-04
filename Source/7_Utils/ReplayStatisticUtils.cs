@@ -360,7 +360,7 @@ namespace BeatLeader.Utils {
                 note.accuracy = note.isBlock ? (float)note.totalScore / maxScore : i == 0 ? 0 : allStructs[i - 1].accuracy;
                 currentFcAcc = (float)fcScore / maxScore;
             }
-
+            result.fcAcc = currentFcAcc;
             return (result, allStructs, maxCombo);
         }
 

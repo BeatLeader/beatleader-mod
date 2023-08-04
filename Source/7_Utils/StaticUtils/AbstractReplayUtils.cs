@@ -29,14 +29,14 @@ namespace BeatLeader.Utils {
                 : launchData.MainReplay.ReplayData.PracticeSettings;
             var beatmap = launchData.DifficultyBeatmap;
 
-            transitionData.Init("Solo", beatmap, beatmap!.level, envSettings,
+            transitionData.Init("Solo", beatmap, beatmap.level, envSettings,
                 playerData.colorSchemesSettings.GetSelectedColorScheme(),
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 replay.ReplayData.GameplayModifiers,
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
                 practiceSettings, "Menu");
 
-            return transitionData!;
+            return transitionData;
         }
 
         public static NoteCutInfo SaturateNoteCutInfo(this NoteCutInfo cutInfo, NoteData data) {
@@ -63,7 +63,7 @@ namespace BeatLeader.Utils {
         }
         
         private static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, IReplay replay) {
-            return settings.CopyWith(replay.ReplayData.LeftHanded, automaticPlayerHeight: true);
+            return settings.CopyWith(replay.ReplayData.LeftHanded, replay.ReplayData.FixedHeight, replay.ReplayData.FixedHeight is null);
         }
     }
 }

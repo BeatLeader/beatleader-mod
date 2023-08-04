@@ -1,7 +1,6 @@
 ﻿using System;
 using BeatLeader.API.Methods;
-using BeatLeader.Core.Managers.ReplayEnhancer;
-using BeatLeader.Models.Activity;
+using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 
 namespace BeatLeader.Utils {
@@ -31,20 +30,22 @@ namespace BeatLeader.Utils {
         public static void ProcessReplay(Replay replay, PlayEndData data) {
             if (replay.info.speed != 0) {
                 Plugin.Log.Debug("Practice, replay won't be submitted");
-                goto SaveReplay;
+                SaveReplay(replay, data);
+                return;
             }
 
             if (!ShouldSubmit()) {
                 Plugin.Log.Debug("Score submission was disabled");
-                goto SaveReplay;
+                SaveReplay(replay, data);
+                return;
             }
 
             Plugin.Log.Debug("Uploading replay");
             switch (data.EndType) {
-                case PlayEndData.LevelEndType.Clear:
+                case LevelEndType.Clear:
                     UploadReplay(replay);
                     break;
-                case PlayEndData.LevelEndType.Unknown:
+                case LevelEndType.Unknown:
                     Plugin.Log.Debug("Unknown level end Type");
                     break;
                 default:
@@ -52,16 +53,10 @@ namespace BeatLeader.Utils {
                     break;
             }
 
-            SaveReplay: ;
-            var replayManager = ReplayManager.Instance;
-            var isOstLevel = !MapEnhancer.previewBeatmapLevel
-                .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
-            if (replayManager.ValidatePlay(replay, data, isOstLevel)) {
-                Plugin.Log.Debug("Validation completed, replay will be saved");
-                _ = replayManager.SaveReplayAsync(replay, data, default);
-            } else {
-                Plugin.Log.Warn("Validation failed, replay will not be saved!");
-                replayManager.ResetLastReplay();
+            SaveReplay(replay, data);
+            
+            static void SaveReplay(Replay replay, PlayEndData data) {
+                _ = ReplayManager.Instance.SaveReplayAsync(replay, data, default);
             }
         }
 

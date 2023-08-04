@@ -1,10 +1,9 @@
 ﻿using BeatLeader.Utils;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using JetBrains.Annotations;
 
 namespace BeatLeader.Models {
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal struct MassLeaderboardsInfoResponse {
         public string id;
         public SongInfo song;
@@ -12,22 +11,26 @@ namespace BeatLeader.Models {
         public QualificationInfo qualification;
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal struct HashLeaderboardsInfoResponse {
         public SongInfo song;
         public HashLeaderboardInfo[] leaderboards;
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal struct HashLeaderboardInfo {
         public string id;
         public DiffInfo difficulty;
         public QualificationInfo qualification;
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal struct SongInfo {
         public string id;
         public string hash;
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal struct DiffInfo {
         public int id;
         public int value;
@@ -45,8 +48,28 @@ namespace BeatLeader.Models {
         public int maxScore;
         public int type;
         public ModifiersMap modifierValues;
+        public ModifiersRating? modifiersRating;
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    internal class ModifiersRating {
+        public float fsPassRating;
+        public float fsAccRating;
+        public float fsTechRating;
+        public float fsStars;
+
+        public float ssPassRating;
+        public float ssAccRating;
+        public float ssTechRating;
+        public float ssStars;
+
+        public float sfPassRating;
+        public float sfAccRating;
+        public float sfTechRating;
+        public float sfStars;
+    }
+
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal struct QualificationInfo {
         public int id;
         public int timeset;
@@ -63,6 +86,7 @@ namespace BeatLeader.Models {
         public string approvers;
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public struct ModifiersMap {
         public int modifierId;
         public float da;
@@ -81,7 +105,7 @@ namespace BeatLeader.Models {
         public float GetModifierValueByModifierServerName(string name) {
             return (float)(typeof(ModifiersMap).GetField(name.ToLower(), ReflectionUtils.DefaultFlags)?.GetValue(this) ?? -1f);
         }
-        
+
         public void LoadFromGameModifiersParams(IEnumerable<GameplayModifierParamsSO> modifiersParams) {
             foreach (var item in modifiersParams) {
                 var modifierServerName = ModifiersMapManager

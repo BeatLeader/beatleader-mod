@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.IO.Compression;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BeatLeader.Interop;
-using BeatLeader.Models.Activity;
-using BeatLeader.Models.BeatSaver;
 using BeatLeader.Models.Replay;
 using UnityEngine;
+using BeatLeader.Replayer;
 
 namespace BeatLeader.Utils {
     internal static class FileManager {
@@ -46,13 +45,18 @@ namespace BeatLeader.Utils {
         #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
-            return Directory.EnumerateFiles(ReplaysFolderPath, "*.bsor");
+            return Directory.EnumerateFiles(replaysFolderPath, "*.bsor")
+                .Concat(Directory.EnumerateFiles(ReplayerCache.CacheDirectory, "*.bsor"));
         }
 
+        public static string GetAbsoluteReplayPath(string fileName) {
+            return Path.Combine(replaysFolderPath, fileName);
+        }
+        
         public static bool TryWriteReplay(string fileName, Replay replay) {
             try {
-                EnsureDirectoryExists(fileName);
-                using BinaryWriter file = new(File.Open(fileName, FileMode.OpenOrCreate), Encoding.UTF8);
+                var path = GetAbsoluteReplayPath(fileName);
+                using BinaryWriter file = new(File.Open(path, FileMode.OpenOrCreate), Encoding.UTF8);
                 ReplayEncoder.Encode(replay, file);
                 file.Close();
                 Plugin.Log.Debug("Saved.");
@@ -61,22 +65,6 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Error($"Unable to save replay. Reason: {ex.Message}");
                 return false;
             }
-        }
-
-        public static string ToFileName(Replay replay, PlayEndData? playEndData) {
-            return ToFileName(replay, playEndData, ReplaysFolderPath);
-        }
-        
-        public static string ToFileName(Replay replay, PlayEndData? playEndData, string folder) {
-            var practice = replay.info.speed != 0 ? "-practice" : "";
-            var fail = replay.info.failTime != 0 ? "-fail" : "";
-            var exit = playEndData?.EndType is PlayEndData.LevelEndType
-                .Quit or PlayEndData.LevelEndType.Restart ? "-exit" : "";
-            var info = replay.info;
-            var filename = $"{info.playerID}{practice}{fail}{exit}-{info.songName}-{info.difficulty}-{info.mode}-{info.hash}-{info.timestamp}.bsor";
-            var regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-            var r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
-            return folder + r.Replace(filename, "_");
         }
 
         public static bool TryReadReplay(string path, out Replay? replay) {
@@ -99,12 +87,13 @@ namespace BeatLeader.Utils {
 
         #region Directories
         
-        private static readonly string ReplaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
-        private static readonly string PlaylistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
+        private static readonly string replaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
+        private static readonly string playlistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 
         static FileManager() {
-            EnsureDirectoryExists(ReplaysFolderPath);
-            EnsureDirectoryExists(PlaylistsFolderPath);
+            EnsureDirectoryExists(replaysFolderPath);
+            EnsureDirectoryExists(playlistsFolderPath);
+            EnsureDirectoryExists(ReplayerCache.CacheDirectory);
         }
 
         public static void EnsureDirectoryExists(string directory) {
@@ -117,7 +106,7 @@ namespace BeatLeader.Utils {
 
         #region Playlists
 
-        private static string GetPlaylistFileName(string name, bool json = false) => $"{PlaylistsFolderPath}{name}.{(json ? "json" : "bplist")}";
+        private static string GetPlaylistFileName(string name, bool json = false) => $"{playlistsFolderPath}{name}.{(json ? "json" : "bplist")}";
 
         public static void DeletePlaylist(string fileName) {
             try {

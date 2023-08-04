@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using BeatLeader.API.Methods;
 using BeatLeader.Core.Managers.NoteEnhancer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
-using BeatLeader.Models.Activity;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using HarmonyLib;
@@ -15,7 +12,6 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
-using static BeatLeader.Models.Activity.PlayEndData;
 using Transform = BeatLeader.Models.Replay.Transform;
 
 namespace BeatLeader {

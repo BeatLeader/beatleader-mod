@@ -83,9 +83,8 @@ namespace BeatLeader.Components {
             _miniProfile = Instantiate<HorizontalMiniProfileContainer>(transform);
 
             _replayStatisticsPanel.SetData(null, null, true, true);
-            _miniProfile.SetPlayer(null);
-
-            _miniProfile.PlayerLoadedEvent += HandlePlayerLoaded;
+            _ = _miniProfile.SetPlayer(null);
+            
             _downloadBeatmapPanel.BackButtonClickedEvent += HandleDownloadMenuBackButtonClicked;
             _downloadBeatmapPanel.DownloadAbilityChangedEvent += HandleDownloadAbilityChangedEvent;
 
@@ -108,7 +107,6 @@ namespace BeatLeader.Components {
 
         private CancellationTokenSource _cancellationTokenSource = new();
         private IReplayHeader? _header;
-        private Player? _player;
 
         private bool _beatmapIsMissing;
         private bool _isIntoDownloadMenu;
@@ -131,14 +129,14 @@ namespace BeatLeader.Components {
                 _ = ProcessDataAsync(header!, _cancellationTokenSource.Token);
                 return;
             }
-            _miniProfile.SetPlayer(null);
+            _ = _miniProfile.SetPlayer(null);
             _isWorking = false;
         }
 
         private async Task ProcessDataAsync(IReplayHeader header, CancellationToken token) {
-            _miniProfile.SetPlayer(header.ReplayInfo?.playerID);
+            var playerTask = _miniProfile.SetPlayer(header.ReplayInfo?.PlayerID);
             DeleteButtonInteractable = false;
-            var replay = await header.LoadReplayAsync(default);
+            var replay = await header.LoadReplayAsync(token);
             if (token.IsCancellationRequested) return;
             DeleteButtonInteractable = true;
             var stats = default(ScoreStats?);
@@ -146,32 +144,30 @@ namespace BeatLeader.Components {
             if (replay is not null) {
                 await Task.Run(() => stats = ReplayStatisticUtils.ComputeScoreStats(replay), token);
                 score = ReplayUtils.ComputeScore(replay);
+                score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
             }
             if (token.IsCancellationRequested) return;
             _replayStatisticsPanel.SetData(score, stats, score is null || stats is null);
+            await playerTask;
             await RefreshAvailabilityAsync(header.ReplayInfo!, token);
         }
 
-        private async Task RefreshAvailabilityAsync(ReplayInfo info, CancellationToken token) {
+        private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
             var beatmap = await _menuLoader!.LoadBeatmapAsync(
-                info.hash, info.mode, info.difficulty, token);
+                info.SongHash, info.SongMode, info.SongDifficulty, token);
             if (token.IsCancellationRequested) return;
             var invalid = beatmap is null;
             WatchButtonText = invalid ? DownloadText : WatchText;
             WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
             _beatmapIsMissing = invalid;
-            if (invalid) _downloadBeatmapPanel.SetHash(info.hash);
+            if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
             _isWorking = false;
         }
 
         #endregion
 
         #region Callbacks
-
-        private void HandlePlayerLoaded(Player player) {
-            _player = player;
-        }
-
+        
         private void HandleDownloadAbilityChangedEvent(bool ableToDownload) {
             WatchButtonInteractable = ableToDownload;
         }
@@ -184,7 +180,7 @@ namespace BeatLeader.Components {
         
         [UIAction("delete-button-click"), UsedImplicitly]
         private void HandleDeleteButtonClicked() {
-            _header?.DeleteReplayAsync(default);
+            _header?.DeleteReplay();
         }
 
         [UIAction("watch-button-click"), UsedImplicitly]
@@ -198,7 +194,7 @@ namespace BeatLeader.Components {
                 return;
             }
             if (!_isInitialized || _header is null || _header.FileStatus is Corrupted) return;
-            _ = _menuLoader!.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _player);
+            _ = _menuLoader!.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _miniProfile.Player);
         }
 
         #endregion

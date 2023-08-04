@@ -1,5 +1,4 @@
-
-namespace BeatLeader.Utils {
+﻿namespace BeatLeader.Utils {
     internal static class BLConstants {
         #region HTTP Status codes
 

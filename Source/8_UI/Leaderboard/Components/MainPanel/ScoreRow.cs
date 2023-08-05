@@ -292,8 +292,8 @@ namespace BeatLeader.Components {
             _currentAlpha = Mathf.Lerp(_currentAlpha, _targetAlpha, t);
             _currentOffset = Mathf.Lerp(_currentOffset, _targetOffset, t);
 
-            var offsetSet = Math.Abs(_currentAlpha - _targetAlpha) < 1e-4f;
-            var alphaSet = Math.Abs(_currentOffset - _targetOffset) < 1e-4f;
+            var alphaSet = Math.Abs(_currentAlpha - _targetAlpha) < 1e-4f;
+            var offsetSet = Math.Abs(_currentOffset - _targetOffset) < 1e-4f;
             return offsetSet && alphaSet ? AnimationState.Fix : AnimationState.Lerp;
         }
 

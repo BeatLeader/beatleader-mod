@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using BeatSaberMarkupLanguage.TypeHandlers;
 using BeatSaberMarkupLanguage.Tags;
 using BeatSaberMarkupLanguage;
@@ -34,12 +37,12 @@ namespace BeatLeader.UI.BSML_Addons {
             { "refresh-icon", BundleLoader.RotateRightIcon },
         };
 
-        private static readonly BSMLTag[] addonTags = {
+        private static readonly List<BSMLTag> addonTags = new() {
             new BetterButtonTag(),
             new BetterImageTag()
         };
 
-        private static readonly TypeHandler[] addonHandlers = {
+        private static readonly List<TypeHandler> addonHandlers = new() {
             new BetterButtonHandler(),
             new BetterImageHandler(),
             new GenericSettingExtensionHandler(),
@@ -54,11 +57,29 @@ namespace BeatLeader.UI.BSML_Addons {
         public static void LoadAddons() {
             if (_ready) return;
             foreach (var sprite in spritesToCache)
-                BSMLUtility
-                    .AddSpriteToBSMLCache("bl-" + sprite.Key, sprite.Value);
+                BSMLUtility.AddSpriteToBSMLCache("bl-" + sprite.Key, sprite.Value);
+            LoadReeUIComponentsV3();
             foreach (var tag in addonTags) BSMLParser.instance.RegisterTag(tag);
             foreach (var handler in addonHandlers) BSMLParser.instance.RegisterTypeHandler(handler);
             _ready = true;
+        }
+
+        private static void LoadReeUIComponentsV3() {
+            const string DATA_METHOD_NAME = "GetBSMLData";
+
+            var types = Assembly.GetExecutingAssembly().GetTypes().Where(x =>
+                x.IsSubclassOf(typeof(ReeUIComponentV3Base)) && x != typeof(ReeUIComponentV3<>) && !x.IsAbstract);
+            foreach (var type in types) {
+                try {
+                    var method = type.GetMethod(DATA_METHOD_NAME, ReflectionUtils.StaticFlags | BindingFlags.FlattenHierarchy);
+                    if (method is null) throw new MissingMethodException(type.Name, DATA_METHOD_NAME);
+                    var (tag, handler) = ((BSMLTag, TypeHandler))method.Invoke(null, null);
+                    addonTags.Add(tag);
+                    addonHandlers.Add(handler);
+                } catch (Exception ex) {
+                    Plugin.Log.Error($"Failed to get {type.Name} data: \n{ex}");
+                }
+            }
         }
     }
 }

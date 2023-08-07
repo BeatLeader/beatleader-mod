@@ -30,7 +30,8 @@ namespace BeatLeader.Utils {
         }
         public static PropertyBuilder AddGetOnlyProperty(
             this TypeBuilder typeBuilder,
-            string name, FieldInfo fieldInfo,
+            string name,
+            FieldInfo fieldInfo,
             MethodInfo? overrider = null) {
             var type = fieldInfo.FieldType;
             var getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual;
@@ -53,7 +54,8 @@ namespace BeatLeader.Utils {
 
         #region Attributes
 
-        public static Dictionary<U, T> GetMembersWithAttribute<T, U>(this Type type,
+        public static Dictionary<U, T> GetMembersWithAttribute<T, U>(
+            this Type type,
             BindingFlags flags = DefaultFlags) where T : Attribute where U : MemberInfo {
             var dictionary = new Dictionary<U, T>();
             foreach (var member in type.GetMembers(flags)) {
@@ -91,7 +93,16 @@ namespace BeatLeader.Utils {
 
         #region Casting
 
-        public static bool SetValueImplicitly(this MemberInfo member, object? obj, object? value) {
+        public static bool GetValueImplicitly(this MemberInfo member, object obj, out object? value) {
+            value = member switch {
+                FieldInfo fld => fld.GetValue(obj),
+                PropertyInfo prop => prop.GetValue(obj),
+                _ => null
+            };
+            return value is not null;
+        }
+
+        public static bool SetValueImplicitly(this MemberInfo member, object obj, object? value) {
             switch (member) {
                 case FieldInfo fld:
                     fld.SetValue(obj, value);

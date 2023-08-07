@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BeatLeader.UI.BSML_Addons {
+namespace BeatLeader.Components {
     internal interface IUIComponentDescriptor<T> {
         string ComponentName { get; }
 

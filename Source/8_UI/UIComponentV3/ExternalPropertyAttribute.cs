@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BeatLeader.UI.BSML_Addons {
+namespace BeatLeader.Components {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     internal class ExternalPropertyAttribute : Attribute {
         public ExternalPropertyAttribute(string? name = null) {

@@ -16,7 +16,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Component = UnityEngine.Component;
 
-namespace BeatLeader.UI.BSML_Addons {
+namespace BeatLeader.Components {
     internal class UIComponentDescriptor<T> : IUIComponentDescriptor<T> {
         static UIComponentDescriptor() {
             var properties = typeof(T)

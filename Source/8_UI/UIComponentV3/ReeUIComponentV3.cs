@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.Tags;
@@ -17,7 +16,7 @@ using UnityEngine;
 using Component = UnityEngine.Component;
 
 namespace BeatLeader.Components {
-    internal class UIComponentDescriptor<T> : IUIComponentDescriptor<T> {
+    internal class UIComponentDescriptor<T> : IUIComponentDescriptor<T> where T : class {
         static UIComponentDescriptor() {
             var properties = typeof(T)
                 .GetMembersWithAttribute<ExternalPropertyAttribute, MemberInfo>();
@@ -26,8 +25,7 @@ namespace BeatLeader.Components {
 
             propertySetters = properties.ToDictionary(
                 x => x.Value.Name ?? x.Key.Name,
-                x => new Action<T, object>(
-                    (y, z) => x.Key.SetValueImplicitly(y!, z)));
+                x => new Action<T, object>((y, z) => SetProperty(x.Key, y, z)));
 
             var collection = new Dictionary<Type, Func<T, Component>>();
             foreach (var (member, attribute) in components) {
@@ -38,7 +36,7 @@ namespace BeatLeader.Components {
                     continue;
                 }
                 collection.Add(type, x => {
-                    member.GetValueImplicitly(x!, out var val);
+                    member.GetValueImplicitly(x, out var val);
                     return (val as Component)!;
                 });
             }
@@ -53,6 +51,23 @@ namespace BeatLeader.Components {
 
         private static readonly IDictionary<string, Action<T, object>> propertySetters;
         private static readonly IEnumerable<Func<T, Component>> componentGetters;
+
+        #region Property Setter
+
+        private static void SetProperty(MemberInfo member, T obj, object value) {
+            try {
+                member.GetMemberTypeImplicitly(out var type);
+                if (value is string str && type != typeof(string)) {
+                    var convertedValue = StringConverter.Convert(str, type!);
+                    value = convertedValue ?? throw new InvalidCastException($"Cannot convert {value.GetType().Name} to {type!.Name}");
+                }
+                member.SetValueImplicitly(obj, value);
+            } catch (Exception ex) {
+                Plugin.Log.Error($"Failed to assign \"{member.Name}\" for {typeof(T).Name}: \n{ex}");
+            }
+        }
+
+        #endregion
     }
 
     internal class ReeUIComponentV3<T> : ReeUIComponentV3<T, UIComponentDescriptor<T>> where T : ReeUIComponentV3<T> { }
@@ -73,8 +88,10 @@ namespace BeatLeader.Components {
                 var component = componentGo.AddComponent<T>();
 
                 var constructedObject = component.Construct();
-                constructedObject.transform.SetParent(parent, false);
                 component.Content = constructedObject;
+                component.ContentTransform = constructedObject.transform;
+                component.ContentTransform.SetParent(parent, false);
+                component.OnInitialize();
 
                 var externalComponents = constructedObject.AddComponent<ExternalComponents>();
                 externalComponents.components.Add(component);
@@ -132,61 +149,33 @@ namespace BeatLeader.Components {
 
         #region Markup
 
-        protected virtual string Markup { get; } = ReadBsmlOrFallback(typeof(T));
+        protected virtual string Markup { get; } = _markup ??= BSMLUtility.ReadMarkupOrFallback(typeof(T));
 
         private static string? _markup;
-
-        private static string ReadBsmlOrFallback(Type componentType) {
-            if (_markup != null) return _markup;
-            var targetName = $"{componentType.Name}.bsml";
-
-            var resource = componentType.ReadViewDefinition();
-            if (resource != string.Empty) return resource;
-
-            var strictMatch = true;
-            FindResource: ;
-            foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
-                var actualResourceName = GetResourceName(resourceName);
-                if (strictMatch ? actualResourceName != targetName : !resourceName.EndsWith(targetName)) continue;
-                return _markup = Utilities.GetResourceContent(componentType.Assembly, resourceName);
-            }
-
-            if (!strictMatch) return $"<text text=\"Resource not found: {targetName}\" align=\"Center\"/>";
-            strictMatch = false;
-            goto FindResource;
-        }
-
-        private static string GetResourceName(string path) {
-            var acc = -1;
-            for (var i = path.Length - 1; i >= 0; i--) {
-                if (path[i] is not '.') continue;
-                if (acc != -1) {
-                    acc = i;
-                    break;
-                }
-                acc = i;
-            }
-            return path.Remove(0, acc + 1);
-        }
 
         #endregion
 
         #region Parsing
 
         public GameObject? Content { get; private set; }
+        public Transform? ContentTransform { get; private set; }
+
+        public bool IsInitialized => Content;
 
         protected virtual GameObject Construct() {
             BSMLParser.instance.Parse(Markup, gameObject, this);
             return transform.GetChild(0).gameObject;
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ValidateAndThrow() {
+            if (!IsInitialized) throw new UninitializedComponentException();
+        }
 
         #endregion
 
         #region Events
-
-        [UIAction("#post-parse"), UsedImplicitly]
-        private void OnAfterParse() { OnInitialize(); }
-
+        
         private void Awake() { OnInstantiate(); }
 
         private void OnDestroy() {

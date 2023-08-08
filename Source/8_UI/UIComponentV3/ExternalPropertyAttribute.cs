@@ -3,7 +3,9 @@
 namespace BeatLeader.Components {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     internal class ExternalPropertyAttribute : Attribute {
-        public ExternalPropertyAttribute(string? name = null) {
+        public ExternalPropertyAttribute() { }
+
+        public ExternalPropertyAttribute(string name) {
             Name = name;
         }
 

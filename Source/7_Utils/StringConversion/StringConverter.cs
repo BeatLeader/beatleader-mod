@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Utils;
+using UnityEngine;
 
 namespace BeatLeader {
     public abstract class StringConverter<T> : StringConverter {
         protected sealed override Type Type { get; } = typeof(T);
 
-        protected sealed override object? ConvertTo(string str, Type targetType) => ConvertTyped(str);
+        protected sealed override object? ConvertTo(string str, Type targetType) => ConvertTo(str);
 
-        protected abstract T? ConvertTyped(string str);
+        protected abstract T? ConvertTo(string str);
     }
-    
+
     public abstract class StringConverter {
         #region Abstraction
 
@@ -20,19 +22,39 @@ namespace BeatLeader {
 
         #endregion
 
-        public static readonly List<StringConverter> Converters = new() {
-            new IntToStringConverter(),
-            new FloatToStringConverter(),
-            new DoubleToStringConverter(),
-            new BoolToStringConverter(),
-            new EnumToStringConverter(),
-            new SpriteToStringConverter()
-        };
-        
+        static StringConverter() {
+            var defaultConverters = new List<StringConverter> {
+                new StringToIntConverter(),
+                new StringToFloatConverter(),
+                new StringToDoubleConverter(),
+                new StringToBoolConverter(),
+                new StringToEnumConverter(),
+                new StringToSpriteConverter(),
+                new StringToRectOffsetConverter()
+            };
+            foreach (var converter in defaultConverters) AddConverter(converter);
+        }
+
+        private static readonly Dictionary<Type, StringConverter> converters = new();
+
+        public static bool AddConverter(StringConverter converter) {
+            return converters.TryAdd(converter.Type, converter);
+        }
+
+        public static bool RemoveConverter(StringConverter converter) {
+            return converters.Remove(converter.Type);
+        }
+
         public static object? Convert(string str, Type targetType) {
-            var converter = Converters.FirstOrDefault(x => x.Type == targetType);
-            converter ??= Converters.FirstOrDefault(x => targetType.IsSubclassOf(x.Type));
+            if (!converters.TryGetValue(targetType, out var converter)) {
+                converters.TryGetValue(typeof(Nullable<>).MakeGenericType(targetType), out converter);
+            }
+            converter ??= converters.FirstOrDefault(x => targetType.IsSubclassOf(x.Key)).Value;
             return converter?.ConvertTo(str, targetType);
+        }
+
+        public static T? Convert<T>(string str) {
+            return Convert(str, typeof(T)) is T result ? result : default;
         }
     }
 }

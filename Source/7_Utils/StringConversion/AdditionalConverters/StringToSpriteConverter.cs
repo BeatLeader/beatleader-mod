@@ -3,8 +3,8 @@ using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader {
-    public class SpriteToStringConverter : StringConverter<Sprite> {
-        protected override Sprite? ConvertTyped(string str) {
+    public class StringToSpriteConverter : StringConverter<Sprite> {
+        protected override Sprite? ConvertTo(string str) {
             try {
                 return BSMLUtility.LoadSprite(str);
             } catch (Exception) {

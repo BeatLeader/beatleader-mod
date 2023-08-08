@@ -6,21 +6,6 @@ using System.Reflection;
 
 namespace BeatLeader.Utils {
     public static class BSMLUtility {
-        #region Parser
-
-        private static GameObject Dummy => !_dummy ? _dummy = new GameObject("ParserDummy") : _dummy!;
-
-        private static GameObject? _dummy;
-        public static Transform Parse(string markup, object host) {
-            if (!_dummy) _dummy = new GameObject("BSMLParserDummy");
-            BSMLParser.instance.Parse(markup, _dummy, host);
-            var transform = _dummy!.transform.GetChild(0);
-            transform.SetParent(null, false);
-            return transform;
-        }
-
-        #endregion
-
         #region Sprites
 
         public static void AddSpriteToBSMLCache(string name, Sprite sprite) {

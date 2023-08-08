@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace BeatLeader {
-    public class EnumToStringConverter : StringConverter {
+    public class StringToEnumConverter : StringConverter {
         protected override Type Type { get; } = typeof(Enum);
 
         protected override object? ConvertTo(string str, Type targetType) {

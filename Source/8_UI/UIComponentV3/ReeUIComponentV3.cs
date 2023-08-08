@@ -63,7 +63,7 @@ namespace BeatLeader.Components {
                 }
                 member.SetValueImplicitly(obj, value);
             } catch (Exception ex) {
-                Plugin.Log.Error($"Failed to assign \"{member.Name}\" for {typeof(T).Name}: \n{ex}");
+                Plugin.Log.Error($"Failed to assign \"{member.Name}\" to object of type {typeof(T).Name}: {ex.Message}");
             }
         }
 
@@ -107,7 +107,7 @@ namespace BeatLeader.Components {
 
         #region BSML Handler
 
-        [ComponentHandler(typeof(Component))]
+        [ComponentHandler(typeof(ReeUIComponentV3Base))]
         private class Handler : TypeHandler {
             public override Dictionary<string, string[]> Props { get; } =
                 Descriptor.ExternalProperties?.ToDictionary(

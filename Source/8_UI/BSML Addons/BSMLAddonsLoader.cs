@@ -32,6 +32,7 @@ namespace BeatLeader.UI.BSML_Addons {
             { "anchor-icon", BundleLoader.AnchorIcon },
             { "progress-ring-icon", BundleLoader.ProgressRingIcon },
             { "refresh-icon", BundleLoader.RotateRightIcon },
+            { "battle-royale-icon", BundleLoader.BattleRoyaleIcon },
         };
 
         private static readonly BSMLTag[] addonTags = {

@@ -6,7 +6,7 @@ namespace BeatLeader.Components {
         Direct
     }
 
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Event)]
     internal class ExternalPropertyAttribute : Attribute {
         public ExternalPropertyAttribute() {
             ExportMode = PropertyExportMode.Direct;

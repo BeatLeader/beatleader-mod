@@ -13,7 +13,7 @@ namespace BeatLeader.Components {
             var components = typeof(T)
                 .GetMembersWithAttribute<ExternalComponentAttribute, MemberInfo>();
 
-            var setters = new Dictionary<string, Action<T, object>>();
+            var setters = new Dictionary<string, Action<T, object, object>>();
             HandleExternalPropertySetters(GetProperties(typeof(T)), setters);
             propertySetters = setters;
 
@@ -35,18 +35,18 @@ namespace BeatLeader.Components {
 
         public virtual string ComponentName { get; } = typeof(T).Name;
 
-        public IDictionary<string, Action<T, object>> ExternalProperties => propertySetters;
+        public IDictionary<string, Action<T, object, object>> ExternalProperties => propertySetters;
 
         public IEnumerable<Func<T, Component>> ExternalComponents => componentGetters;
 
-        private static readonly IDictionary<string, Action<T, object>> propertySetters;
+        private static readonly IDictionary<string, Action<T, object, object>> propertySetters;
         private static readonly IEnumerable<Func<T, Component>> componentGetters;
 
         #region Property Assigning
-        
+
         private static void HandleExternalPropertySetters(
             ICollection<(MemberInfo, string, ExternalPropertyAttribute)> properties,
-            IDictionary<string, Action<T, object>> dict,
+            IDictionary<string, Action<T, object, object>> dict,
             string? prefix = null,
             Stack<MemberInfo>? stackMembers = null
         ) {
@@ -64,10 +64,12 @@ namespace BeatLeader.Components {
                         ? props.Where(x => inheritProps.Contains(x.Item2)).ToArray()
                         : props;
                     var valueStack = CloneAndAppendToStack(stackMembers, member);
-                    HandleExternalPropertySetters(props, dict, $"{prefix}{attribute.Prefix}", valueStack);
+                    prefix = $"{prefix}{attribute.Prefix}";
+                    HandleExternalPropertySetters(props, dict, string.IsNullOrEmpty(prefix) ? null : prefix, valueStack);
                     continue;
                 }
-                dict.Add(name, (x, y) => SetProperty(member, AcquireValueByStack(x, stackMembers), y));
+                dict.Add(name, (x, host, val) => SetProperty(
+                    member, AcquireValueByStack(x, stackMembers), host, val));
             }
         }
 
@@ -76,21 +78,27 @@ namespace BeatLeader.Components {
             newStack.Push(memberToAppend);
             return newStack;
         }
-        
+
         private static object? AcquireValueByStack(object obj, IEnumerable<MemberInfo>? members) {
             if (members is null) return obj;
             var value = obj;
             foreach (var member in members) member.GetValueImplicitly(value!, out value);
             return value;
         }
-        
-        private static void SetProperty(MemberInfo member, object? obj, object value) {
+
+        private static void SetProperty(MemberInfo member, object? obj, object host, object value) {
             try {
                 if (obj is null) throw new ArgumentNullException(nameof(obj));
                 member.GetMemberTypeImplicitly(out var type);
                 if (value is string str && type != typeof(string)) {
-                    var convertedValue = StringConverter.Convert(str, type!);
-                    value = convertedValue ?? throw new InvalidCastException($"Cannot convert {value.GetType().Name} to {type!.Name}");
+                    if (member.MemberType == MemberTypes.Event) {
+                        var mtd = host.GetType().GetMethod(str, ReflectionUtils.DefaultFlags);
+                        if (mtd is null) throw new MissingMethodException($"Cannot find a method with name \"{str}\"");
+                        value = mtd.CreateDelegate(type, host);
+                    } else {
+                        var convertedValue = StringConverter.Convert(str, type!);
+                        value = convertedValue ?? throw new InvalidCastException($"Cannot convert {value.GetType().Name} to {type!.Name}");
+                    }
                 }
                 member.SetValueImplicitly(obj, value);
             } catch (Exception ex) {
@@ -104,7 +112,8 @@ namespace BeatLeader.Components {
                     var attr = x.GetCustomAttribute<ExternalPropertyAttribute>();
                     return (x, attr?.Name ?? x.Name, attr);
                 })
-                .Where(static x => x.attr is not null && x.x is PropertyInfo or FieldInfo)
+                .Where(static x => x.attr is not null 
+                    && x.x is PropertyInfo or FieldInfo or EventInfo)
                 .ToArray()!;
         }
 

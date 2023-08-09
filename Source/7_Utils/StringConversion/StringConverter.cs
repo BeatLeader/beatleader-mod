@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Utils;
-using UnityEngine;
 
 namespace BeatLeader {
     public abstract class StringConverter<T> : StringConverter {

@@ -110,6 +110,9 @@ namespace BeatLeader.Utils {
                 case PropertyInfo prop:
                     prop.SetValue(obj, value);
                     break;
+                case EventInfo evt:
+                    evt.AddMethod.Invoke(obj, new[] { value! });
+                    break;
                 default:
                     return false;
             }

@@ -91,7 +91,7 @@ namespace BeatLeader.Components {
                 foreach (var (key, value) in values) {
                     if (!props.TryGetValue(key, out var handler)) continue;
                     try {
-                        handler(comp, value);
+                        handler(comp, parserParams.host, value);
                     } catch (Exception ex) {
                         Plugin.Log.Error($"Failed to assign \"{key}\" to {typeof(T).Name}: \n{ex}");
                     }

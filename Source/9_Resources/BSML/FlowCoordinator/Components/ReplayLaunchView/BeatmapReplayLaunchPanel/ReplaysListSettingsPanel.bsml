@@ -22,10 +22,8 @@
   <text text="List controls" align="Left" font-size="3"/>
   <horizontal child-control-width="false" spacing="1" vertical-fit="Unconstrained"
               child-expand-width="false" child-align="MiddleRight">
-    <AdvancedButton Width="3" Height="3" img.Icon="#bl-settings-icon"/>
-    <clickable-image src="#BL_SettingsIcon" preserve-aspect="true"
-                     click-event="show-settings-modal" size-delta-x="3"/>
-    <clickable-image src="#bl-refresh-icon" preserve-aspect="true"
-                     on-click="reload-replays-list" size-delta-x="3"/>
+    <AdvancedButton Size="3" Icon="#bl-battle-royale-icon" ClickEvent="HandleBattleRoyaleButtonClicked"/>
+    <AdvancedButton Size="3" Icon="#bl-settings-icon" ClickEvent="ShowModal"/>
+    <AdvancedButton Size="3" Icon="#bl-refresh-icon" ClickEvent="HandleReloadButtonClicked"/>
   </horizontal>
 </horizontal>

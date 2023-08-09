@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ReplaysListSettingsPanel : ReeUIComponentV2 {
@@ -112,6 +113,10 @@ namespace BeatLeader.Components {
         [UIComponent("settings-modal")]
         private readonly ModalView _settingsModal = null!;
 
+        private void ShowModal() {
+            _settingsModal.Show(true);
+        }
+
         protected override void OnInitialize() {
             _settingsModal.SetField("_animateParentCanvas", false);
             ShowCorruptedReplays = false;
@@ -129,9 +134,14 @@ namespace BeatLeader.Components {
             RefreshSorters();
         }
 
-        [UIAction("reload-replays-list"), UsedImplicitly]
+        [UsedImplicitly]
         private void HandleReloadButtonClicked() {
             ReloadDataEvent?.Invoke();
+        }
+
+        [UsedImplicitly]
+        private void HandleBattleRoyaleButtonClicked() {
+            Debug.Log("Click");
         }
 
         #endregion

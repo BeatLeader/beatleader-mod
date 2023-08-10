@@ -9,10 +9,22 @@ namespace BeatLeader.Components {
 
         [ExternalProperty, UsedImplicitly]
         public event Action? ClickEvent;
+        
+        [ExternalProperty, UsedImplicitly]
+        public event Action<bool>? ToggleEvent;
 
         #endregion
 
         #region UI Properties
+
+        [ExternalProperty, UsedImplicitly]
+        public bool Sticky {
+            get => _sticky;
+            set {
+                _sticky = value;
+                _isActive = false;
+            }
+        }
 
         [ExternalProperty, UsedImplicitly]
         public bool GrowOnHover {
@@ -45,6 +57,7 @@ namespace BeatLeader.Components {
             }
         }
 
+        private bool _isActive;
         private bool _highlightOnHover = true;
         private bool _growOnHover = true;
         private Color _color = standardColor;
@@ -54,10 +67,11 @@ namespace BeatLeader.Components {
         #region UI Components
 
         [ExternalComponent, UsedImplicitly]
-        [ExternalProperty(prefix: null, 
-            nameof(AdvancedImage.Icon), 
+        [ExternalProperty(prefix: null,
+            nameof(AdvancedImage.Icon),
             nameof(AdvancedImage.PreserveAspect))]
         private AdvancedImage _image = null!;
+        private bool _sticky;
 
         #endregion
 
@@ -67,6 +81,7 @@ namespace BeatLeader.Components {
             _image = AdvancedImage.Instantiate(ContentTransform!);
             _image.InheritSize = true;
             _image.Material = BundleLoader.UIAdditiveGlowMaterial;
+            UpdateColor(0);
             var hoverController = Content!.AddComponent<SmoothHoverController>();
             hoverController.HoverStateChangedEvent += OnHoverStateChanged;
             Content.AddComponent<Button>().onClick.AddListener(OnButtonClick);
@@ -90,11 +105,16 @@ namespace BeatLeader.Components {
         private void OnHoverStateChanged(bool isHovered, float progress) {
             var scale = 1.0f + 0.2f * progress;
             if (_growOnHover) ContentTransform!.localScale = new Vector3(scale, scale, scale);
-            if (_highlightOnHover) UpdateColor(progress);
+            if (_highlightOnHover && !Sticky) UpdateColor(progress);
         }
 
         private void OnButtonClick() {
-            ClickEvent?.Invoke();
+            if (!Sticky) ClickEvent?.Invoke();
+            else {
+                _isActive = !_isActive;
+                UpdateColor(_isActive ? 1 : 0);
+                ToggleEvent?.Invoke(_isActive);
+            }
         }
 
         #endregion

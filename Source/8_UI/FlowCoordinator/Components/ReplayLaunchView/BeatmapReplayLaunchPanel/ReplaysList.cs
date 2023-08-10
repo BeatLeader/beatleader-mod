@@ -14,7 +14,7 @@ using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
 
 namespace BeatLeader.Components {
-    internal class ReplaysList : ReeUIComponentV2, TableView.IDataSource {
+    internal class ReplaysList : ReeUIComponentV3<ReplaysList>, TableView.IDataSource {
         #region Cells
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
@@ -240,7 +240,8 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        public event Action<IReplayHeader?>? ReplaySelectedEvent;
+        [ExternalProperty, UsedImplicitly]
+        public event Action<IReplayHeader[]?>? ReplaysSelectedEvent;
 
         #endregion
 
@@ -263,6 +264,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             _tableView = _replaysList.tableView;
+            _selectedCellIndexes = _tableView.GetField<HashSet<int>, TableView>("_selectedCellIdxs");
             _tableView.SetDataSource(this, true);
             _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
             Refresh();
@@ -280,12 +282,14 @@ namespace BeatLeader.Components {
 
         float TableView.IDataSource.CellSize() => AbstractDataCell.CellHeight;
 
-        int TableView.IDataSource.NumberOfCells() => _replayHeaders?.Count ?? 0;
+        int TableView.IDataSource.NumberOfCells() => replays?.Count ?? 0;
+
+        private HashSet<int> _selectedCellIndexes = null!;
 
         TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) {
             if (tableView.DequeueReusableCellForIdentifier(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
-                cell = AbstractDataCell.Create<ReplayDataCell>(_replayHeaders![idx]);
-            } else cell.Init(_replayHeaders![idx]);
+                cell = AbstractDataCell.Create<ReplayDataCell>(replays[idx]);
+            } else cell.Init(replays[idx]);
             cell.ShowBeatmapName = showBeatmapNameIfCorrect;
             return cell;
         }
@@ -297,24 +301,86 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region Sorting
+
+        public enum Sorter {
+            Difficulty,
+            Player,
+            Completion,
+            Date
+        }
+
+        private class HeaderComparator : IComparer<IReplayHeader> {
+            public Sorter sorter;
+
+            public int Compare(IReplayHeader x, IReplayHeader y) {
+                var xi = x.ReplayInfo;
+                var yi = y.ReplayInfo;
+                return xi is null || yi is null ? 0 : sorter switch {
+                    Sorter.Difficulty =>
+                        -CompareInteger(
+                            (int)StringConverter.Convert<BeatmapDifficulty>(xi.SongDifficulty),
+                            (int)StringConverter.Convert<BeatmapDifficulty>(yi.SongDifficulty)),
+                    Sorter.Player =>
+                        string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
+                    Sorter.Completion =>
+                        CompareInteger((int)xi.LevelEndType, (int)yi.LevelEndType),
+                    Sorter.Date =>
+                        -CompareInteger(int.Parse(xi.Timestamp), int.Parse(yi.Timestamp)),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
+
+            private static int CompareInteger(int x, int y) => x >= y ? x == y ? 0 : 1 : -1;
+        }
+
+        public Sorter SortBy {
+            get => _headerComparator.sorter;
+            set {
+                _headerComparator.sorter = value;
+                RefreshSorting();
+                Refresh();
+            }
+        }
+
+        public SortOrder SortOrder {
+            get => _sortOrder;
+            set {
+                _sortOrder = value;
+                RefreshSorting();
+                Refresh();
+            }
+        }
+
+        private readonly HeaderComparator _headerComparator = new();
+        private SortOrder _sortOrder;
+
+        private void RefreshSorting() {
+            replays.Sort(_headerComparator);
+            if (_sortOrder is SortOrder.Ascending) replays.Reverse();
+        }
+
+        #endregion
+
         #region Data
-        
-        private IList<IReplayHeader>? _replayHeaders;
+
+        public bool AllowMultiselect {
+            get => _tableView.selectionType is TableViewSelectionType.Multiple;
+            set => _tableView.selectionType = value ? TableViewSelectionType.Multiple : TableViewSelectionType.Single;
+        }
+
+        public readonly List<IReplayHeader> replays = new();
 
         public bool showBeatmapNameIfCorrect = true;
-        
-        public void SetData(IList<IReplayHeader> headers) {
-            _replayHeaders = headers;
-            Refresh();
-        }
 
         public void Refresh() {
             _tableView.ClearSelection();
+            RefreshSorting();
             _tableView.ReloadData();
-            var empty = (_replayHeaders?.Count ?? 0) == 0;
+            var empty = replays.Count is 0;
             ShowEmptyScreen(empty);
             if (!empty) return;
-            ReplaySelectedEvent?.Invoke(null);
+            ReplaysSelectedEvent?.Invoke(null);
         }
 
         #endregion
@@ -322,7 +388,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandleCellSelected(TableView view, int cellIdx) {
-            ReplaySelectedEvent?.Invoke(_replayHeaders![cellIdx]);
+            ReplaysSelectedEvent?.Invoke(_selectedCellIndexes.Select(x => replays![x]).ToArray());
         }
 
         #endregion

@@ -14,15 +14,15 @@ namespace BeatLeader.Components {
     internal class BeatmapReplayLaunchPanel : ReeUIComponentV2 {
         #region UI Components
 
-        [UIValue("replays-list"), UsedImplicitly]
+        [UIComponent("replays-list"), UsedImplicitly]
         private ReplaysList _replaysList = null!;
 
-        [UIValue("replays-list-settings-panel"), UsedImplicitly]
+        [UIComponent("replays-list-settings-panel"), UsedImplicitly]
         private ReplaysListSettingsPanel _replaysListSettingsPanel = null!;
 
         [UIValue("replay-panel"), UsedImplicitly]
         private ReplayDetailPanel _replayPanel = null!;
-        
+
         [UIObject("loading-container")]
         private readonly GameObject _loadingContainerObject = null!;
 
@@ -53,25 +53,20 @@ namespace BeatLeader.Components {
             image.sprite = BundleLoader.TransparentPixel;
             image.color = Color.clear;
             _mainContainerCanvasGroup = _mainContainerObject.AddComponent<CanvasGroup>();
-            _replaysList.SetData(_listHeaders);
+            _replaysList.AllowMultiselect = true;
         }
 
         protected override void OnInstantiate() {
-            _replaysList = Instantiate<ReplaysList>(transform);
-            _replaysListSettingsPanel = Instantiate<ReplaysListSettingsPanel>(transform);
             _replayPanel = Instantiate<ReplayDetailPanel>(transform);
-            _replaysList.ReplaySelectedEvent += HandleReplaySelected;
-            _replaysListSettingsPanel.SorterChangedEvent += HandleSorterChanged;
-            _replaysListSettingsPanel.ReloadDataEvent += ReloadDataInternal;
         }
 
         protected override void OnDispose() {
             _replayManager.ReplaysDeletedEvent -= HandleReplaysDeleted;
             _replayManager.ReplayDeletedEvent -= HandleReplayDeleted;
             _replayManager.ReplayAddedEvent -= HandleReplayAdded;
-            _replaysListSettingsPanel.ReloadDataEvent -= ReloadDataInternal;
         }
 
+        [UsedImplicitly]
         private void ReloadDataInternal() {
             ReloadData(_cachedShowBeatmapNameIfCorrect);
         }
@@ -80,7 +75,7 @@ namespace BeatLeader.Components {
 
         #region Data Management
 
-        private readonly List<IReplayHeader> _listHeaders = new();
+        private List<IReplayHeader> ListHeaders => _replaysList.replays;
 
         private IList<IReplayHeader>? _headers;
         private IList<IReplayHeader>? _tempHeaders;
@@ -99,11 +94,11 @@ namespace BeatLeader.Components {
             _showBeatmapNameIfCorrect = showBeatmapNameIfCorrect;
             ShowLoadingScreen(true);
             _tokenSource = new();
-            _listHeaders.Clear();
+            ListHeaders.Clear();
             var token = _tokenSource.Token;
             var context = SynchronizationContext.Current;
             _tempHeaders = await _replayManager.LoadReplayHeadersAsync(token, x => {
-                if (x.FileStatus is FileStatus.Corrupted || _listHeaders.Count > ReplaysList.VisibleCells) return;
+                if (x.FileStatus is FileStatus.Corrupted || ListHeaders.Count > ReplaysList.VisibleCells) return;
                 context.Send(y => AddReplayToList((IReplayHeader)y), x);
             });
             if (token.IsCancellationRequested) return;
@@ -119,8 +114,8 @@ namespace BeatLeader.Components {
         private void FinishReplayLoading(bool isCancelled) {
             if (!isCancelled) _headers = _tempHeaders;
             else {
-                _listHeaders.Clear();
-                if (_headers is not null) _listHeaders.AddRange(_headers);
+                ListHeaders.Clear();
+                if (_headers is not null) ListHeaders.AddRange(_headers);
                 _replaysList.Refresh();
             }
             _cachedShowBeatmapNameIfCorrect = _showBeatmapNameIfCorrect;
@@ -128,20 +123,16 @@ namespace BeatLeader.Components {
             ShowLoadingScreen(false);
             RefreshFilterInternal();
         }
-        
+
         private void RemoveReplayFromList(IReplayHeader header, bool refresh = true) {
-            _listHeaders.Remove(header);
+            ListHeaders.Remove(header);
             if (refresh) _replaysList.Refresh();
         }
 
         private void AddReplayToList(IReplayHeader header) {
-            _listHeaders.Add(header);
+            ListHeaders.Add(header);
             _replaysList.Refresh();
         }
-
-        #endregion
-
-        #region ShowLoadingScreen
 
         private void ShowLoadingScreen(bool show) {
             _loadingContainerObject.SetActive(show);
@@ -154,7 +145,7 @@ namespace BeatLeader.Components {
 
         private Func<IReplayHeader, bool>? _predicate;
 
-        public void SetFilter(Func<IReplayHeader, bool>? predicate) {
+        public void FilterBy(Func<IReplayHeader, bool>? predicate) {
             _predicate = predicate;
             if (_tokenSource is not null) return;
             RefreshFilterInternal();
@@ -162,59 +153,31 @@ namespace BeatLeader.Components {
 
         private void RefreshFilterInternal() {
             if (_headers is null) return;
-            _listHeaders.Clear();
-            _listHeaders.AddRange(_headers.Where(cell =>
+            ListHeaders.Clear();
+            ListHeaders.AddRange(_headers.Where(cell =>
                 cell.FileStatus is not FileStatus.Corrupted
                 && (_predicate?.Invoke(cell) ?? true)));
             _replaysList.Refresh();
-            RefreshSortingInternal();
+            _replayPanel.SetData(null);
         }
 
         #endregion
 
         #region Sorting
 
-        private class HeaderComparator : IComparer<IReplayHeader> {
-            public ReplaysListSettingsPanel.Sorters sorter;
-
-            public int Compare(IReplayHeader x, IReplayHeader y) {
-                var xi = x.ReplayInfo;
-                var yi = y.ReplayInfo;
-                return xi is null || yi is null ? 0 : sorter switch {
-                    ReplaysListSettingsPanel.Sorters.Difficulty =>
-                        CompareInteger(
-                            (int)Enum.Parse(typeof(BeatmapDifficulty), xi.SongDifficulty),
-                            (int)Enum.Parse(typeof(BeatmapDifficulty), yi.SongDifficulty)),
-                    ReplaysListSettingsPanel.Sorters.Player =>
-                        string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
-                    ReplaysListSettingsPanel.Sorters.Completion =>
-                        CompareInteger((int)xi.LevelEndType, (int)yi.LevelEndType),
-                    ReplaysListSettingsPanel.Sorters.Date =>
-                        -CompareInteger(int.Parse(xi.Timestamp), int.Parse(yi.Timestamp)),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-            }
-
-            private static int CompareInteger(int x, int y) => x >= y ? x == y ? 0 : 1 : -1;
-        }
-
-        private HeaderComparator? _headerComparator;
-        private bool _ascendingOrder;
-
-        public void SetSorter(ReplaysListSettingsPanel.Sorters sorter, bool ascending) {
-            _headerComparator ??= new();
-            _headerComparator.sorter = sorter;
-            _ascendingOrder = ascending;
-            if (_tokenSource is not null) return;
-            RefreshSortingInternal();
-        }
-
         private void RefreshSortingInternal() {
             if (_headers is null) return;
-            _listHeaders.Sort(_headerComparator);
-            if (!_ascendingOrder) _listHeaders.Reverse();
             _replaysList.Refresh();
             _replayPanel.SetData(null);
+        }
+
+        #endregion
+
+        #region Battle Royale
+
+        private bool BattleRoyaleEnabled {
+            get;
+            set;
         }
 
         #endregion
@@ -226,7 +189,6 @@ namespace BeatLeader.Components {
         private void HandleReplayAdded(IReplayHeader header) {
             AddReplayToList(header);
             RefreshSortingInternal();
-            _replaysListSettingsPanel.ShowCorrupted = false;
         }
 
         private void HandleReplayDeleted(IReplayHeader header) {
@@ -239,22 +201,25 @@ namespace BeatLeader.Components {
             CancelReplayInfosLoading();
             //convert it to hash set to avoid array enumeration
             var dict = new HashSet<string>(removedPaths);
-            var replaysToKeep = _listHeaders
+            var replaysToKeep = ListHeaders
                 .Where(x => !dict.Contains(x.FilePath));
-            _listHeaders.Clear();
-            _listHeaders.AddRange(replaysToKeep);
+            ListHeaders.Clear();
+            ListHeaders.AddRange(replaysToKeep);
             _replaysList.Refresh();
             _replayPanel.SetData(null);
         }
 
-        private void HandleSorterChanged(ReplaysListSettingsPanel.Sorters sorters, bool ascending) {
-            SetSorter(sorters, ascending);
+        [UsedImplicitly]
+        private void HandleSorterChanged(ReplaysList.Sorter sorter, SortOrder sortOrder) {
+            _replaysList.SortBy = sorter;
+            _replaysList.SortOrder = sortOrder;
         }
 
-        private void HandleReplaySelected(IReplayHeader? header) {
-            if (header is null) return;
-            _selectedHeader = header;
-            _replayPanel.SetData(_selectedHeader);
+        [UsedImplicitly]
+        private void HandleReplaysSelected(IReplayHeader[]? headers) {
+            if (headers is null) return;
+            // _selectedHeader = headers;
+            // _replayPanel.SetData(_selectedHeader);
         }
 
         [UIAction("cancel-loading"), UsedImplicitly]

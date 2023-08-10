@@ -92,7 +92,9 @@ namespace BeatLeader.Components {
                 member.GetMemberTypeImplicitly(out var type);
                 if (value is string str && type != typeof(string)) {
                     if (member.MemberType == MemberTypes.Event) {
-                        var mtd = host.GetType().GetMethod(str, ReflectionUtils.DefaultFlags);
+                        var hostType = host.GetType();
+                        var mtd = hostType.GetMethod(str, ReflectionUtils.DefaultFlags);
+                        mtd ??= hostType.GetMethod($"set_{str}", ReflectionUtils.DefaultFlags);
                         if (mtd is null) throw new MissingMethodException($"Cannot find a method with name \"{str}\"");
                         value = mtd.CreateDelegate(type, host);
                     } else {

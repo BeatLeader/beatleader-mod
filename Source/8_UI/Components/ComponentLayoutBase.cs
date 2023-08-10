@@ -61,7 +61,7 @@ namespace BeatLeader.Components {
         protected LayoutElement _layoutElement = null!;
 
         [UIComponent("root"), UsedImplicitly]
-        protected VerticalLayoutGroup _layoutGroup = null!;
+        protected LayoutGroup _layoutGroup = null!;
 
         [UIComponent("root"), UsedImplicitly]
         protected ContentSizeFitter _sizeFitter = null!;
@@ -70,7 +70,16 @@ namespace BeatLeader.Components {
 
         #region Markup
 
-        protected override string Markup => "<vertical id=\"root\" vertical-fit=\"PreferredSize\"/>";
+        protected enum LayoutGroupType {
+            Vertical,
+            Horizontal
+        }
+        
+        protected override string Markup => $"<{LayoutGroupName} id=\"root\" {LayoutGroupName}-fit=\"PreferredSize\"/>";
+
+        protected virtual LayoutGroupType LayoutGroup => LayoutGroupType.Vertical;
+
+        private string LayoutGroupName => LayoutGroup.ToString().ToLower();
 
         #endregion
     }

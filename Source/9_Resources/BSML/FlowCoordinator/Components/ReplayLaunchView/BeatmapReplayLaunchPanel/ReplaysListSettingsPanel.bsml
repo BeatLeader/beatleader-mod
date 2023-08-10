@@ -8,22 +8,16 @@
       <vertical pref-height="14" vertical-fit="PreferredSize" horizontal-fit="Unconstrained">
         <dropdown-list-setting text="Sort By" value="sorter" choices="sorters"
                                bind-value="true" apply-on-change="true"/>
-        <horizontal pref-height="6">
-          <tab-selector id="tab-selector" tab-tag="sort-order-tab" select-cell="select-order"
-                        child-expand-width="true" child-control-width="true"/>
-        </horizontal>
-        <horizontal active="false">
-          <tab tab-name="Ascending" tags="sort-order-tab"/>
-          <tab tab-name="Descending" tags="sort-order-tab"/>
-        </horizontal>
+        <TabSegmentedControl id="tab-control" Height="6" InheritWidth="true" TabNames="~orders" 
+                             TabSelectedEvent="HandleOrderTabSelected"/>
       </vertical>
     </vertical>
   </modal>
   <text text="List controls" align="Left" font-size="3"/>
   <horizontal child-control-width="false" spacing="1" vertical-fit="Unconstrained"
               child-expand-width="false" child-align="MiddleRight">
-    <AdvancedButton Size="3" Icon="#bl-battle-royale-icon" ClickEvent="HandleBattleRoyaleButtonClicked"/>
+    <AdvancedButton Sticky="True" Size="3" Icon="#bl-battle-royale-icon" ToggleEvent="HandleBattleRoyaleButtonToggled"/>
     <AdvancedButton Size="3" Icon="#bl-settings-icon" ClickEvent="ShowModal"/>
-    <AdvancedButton Size="3" Icon="#bl-refresh-icon" ClickEvent="HandleReloadButtonClicked"/>
+    <AdvancedButton GrowOnHover="False" Size="3" Icon="#bl-refresh-icon" ClickEvent="HandleReloadButtonClicked"/>
   </horizontal>
 </horizontal>

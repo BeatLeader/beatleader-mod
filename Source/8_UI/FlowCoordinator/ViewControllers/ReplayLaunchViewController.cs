@@ -85,7 +85,7 @@ namespace BeatLeader.ViewControllers {
                 && string.IsNullOrEmpty(characteristic)
                 && !diff.HasValue;
             //if (filters is { overrideBeatmap: true, previewBeatmapLevel: null }) return;
-            _replayPanel.SetFilter(hasNoFilters ? null : SearchPredicate);
+            _replayPanel.FilterBy(hasNoFilters ? null : SearchPredicate);
 
             bool SearchPredicate(IReplayHeader header) {
                 return header.ReplayInfo is not { } info ||

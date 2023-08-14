@@ -133,10 +133,12 @@ namespace BeatLeader.Utils {
 
         #endregion
 
-        private static void ValidateReplayInfo(ReplayInfo info, string path) {
-            var mode = info.mode;
-            if (mode.IndexOf('-') is var idx and not -1) info.mode = mode.Remove(idx, mode.Length - idx);
-            if (Path.GetFileName(path).Contains("exit")) info.levelEndType = LevelEndType.Quit;
+        internal static void ValidateReplayInfo(ReplayInfo info, string? path) {
+            if (info.hash.Length > 40) info.hash = info.hash.Substring(0, 40);
+            if (info.mode is var mode && mode.IndexOf('-') is var idx and not -1) {
+                info.mode = mode.Remove(idx, mode.Length - idx);
+            }
+            if (path is not null && Path.GetFileName(path).Contains("exit")) info.levelEndType = LevelEndType.Quit;
         }
 
         [Pure]

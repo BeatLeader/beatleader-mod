@@ -127,7 +127,9 @@ namespace BeatLeader.Utils {
         async Task<Replay?> IReplayFileManager.LoadReplayAsync(IReplayHeader header, CancellationToken token) {
             var replay = default(Replay?);
             await Task.Run(() => TryReadReplay(header.FilePath, out replay), token);
-            if (replay is not null) ValidateReplayInfo(replay.info, header.FilePath);
+            if (replay is null) return replay;
+            ValidateReplayInfo(replay.info, header.FilePath);
+            ReplayHeadersCache.AddInfoByPath(header.FilePath, replay.info);
             return replay;
         }
 

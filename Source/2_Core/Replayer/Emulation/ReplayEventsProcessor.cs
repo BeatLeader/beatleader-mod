@@ -47,7 +47,7 @@ namespace BeatLeader.Replayer.Emulation {
                 var nextNote = hasNextNote ? _notes[_nextNoteIndex] : default;
                 var nextWall = hasNextWall ? _walls[_nextWallIndex] : default;
 
-                var nextNoteTime = hasNextNote ? nextNote.eventTime : float.MaxValue;
+                var nextNoteTime = hasNextNote ? nextNote.CutTime : float.MaxValue;
                 var nextWallTime = hasNextWall ? nextWall.time : float.MaxValue;
 
                 if (hasNextWall && nextWallTime <= nextNoteTime) {

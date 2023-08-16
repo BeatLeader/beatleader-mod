@@ -49,6 +49,7 @@ namespace BeatLeader.Replayer {
             var data = new ReplayLaunchData();
             var info = replay.info;
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
+            ReplayManager.ValidateReplayInfo(info, null);
             await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
             var creplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);

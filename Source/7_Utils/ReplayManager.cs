@@ -37,13 +37,9 @@ namespace BeatLeader.Utils {
             await Task.Run(() => {
                 foreach (var path in paths) {
                     if (token.IsCancellationRequested) return;
-                    var fromCache = ReplayHeadersCache.TryGetInfoByPath(path, out var info);
-                    if (!fromCache) {
-                        TryReadReplayInfo(path, out var info1);
-                        if (info1 is not null && Path.GetFileName(path).Contains("exit")) {
-                            info1.levelEndType = LevelEndType.Quit;
-                        }
-                        info = info1;
+                    if (ReplayHeadersCache.TryGetInfoByPath(path, out var info) is var fromCache && !fromCache) {
+                        if (TryReadReplayInfo(path, out var replayInfo)) ValidateReplayInfo(replayInfo!, path);
+                        info = replayInfo;
                     }
 
                     if (info is null || !cache.Add((info.SongHash, info.Timestamp))) continue;
@@ -131,10 +127,21 @@ namespace BeatLeader.Utils {
         async Task<Replay?> IReplayFileManager.LoadReplayAsync(IReplayHeader header, CancellationToken token) {
             var replay = default(Replay?);
             await Task.Run(() => TryReadReplay(header.FilePath, out replay), token);
+            if (replay is null) return replay;
+            ValidateReplayInfo(replay.info, header.FilePath);
+            ReplayHeadersCache.AddInfoByPath(header.FilePath, replay.info);
             return replay;
         }
 
         #endregion
+
+        internal static void ValidateReplayInfo(ReplayInfo info, string? path) {
+            if (info.hash.Length > 40) info.hash = info.hash.Substring(0, 40);
+            if (info.mode is var mode && mode.IndexOf('-') is var idx and not -1) {
+                info.mode = mode.Remove(idx, mode.Length - idx);
+            }
+            if (path is not null && Path.GetFileName(path).Contains("exit")) info.levelEndType = LevelEndType.Quit;
+        }
 
         [Pure]
         internal static bool ValidatePlay(Replay replay, PlayEndData endData, bool isOstLevel) {

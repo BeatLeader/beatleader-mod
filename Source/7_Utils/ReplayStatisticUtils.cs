@@ -9,14 +9,25 @@ using Vector3 = BeatLeader.Models.Replay.Vector3;
 namespace BeatLeader.Utils {
     internal static class ReplayStatisticUtils {
         //forked from https://github.com/BeatLeader/beatleader-server/blob/master/Utils/ReplayStatisticUtils.cs
-        
+
         #region Models
+
+        public enum ScoringType {
+            Default,
+            Ignore,
+            NoScore,
+            Normal,
+            SliderHead,
+            SliderTail,
+            BurstSliderHead,
+            BurstSliderElement
+        }
 
         private class NoteParams {
             public NoteParams(int noteId) {
                 var id = noteId;
                 if (id < 100000) {
-                    scoringType = (NoteData.ScoringType)(id / 10000);
+                    scoringType = (ScoringType)(id / 10000);
                     id -= (int)scoringType * 10000;
 
                     lineIndex = id / 1000;
@@ -28,7 +39,7 @@ namespace BeatLeader.Utils {
                     colorType = id / 10;
                     cutDirection = id - colorType * 10;
                 } else {
-                    scoringType = (NoteData.ScoringType)(id / 10000000);
+                    scoringType = (ScoringType)(id / 10000000);
                     id -= (int)scoringType * 10000000;
 
                     lineIndex = id / 1000000;
@@ -42,7 +53,7 @@ namespace BeatLeader.Utils {
                 }
             }
 
-            public readonly NoteData.ScoringType scoringType;
+            public readonly ScoringType scoringType;
             public readonly int lineIndex;
             public readonly int noteLineLayer;
             public readonly int colorType;
@@ -55,7 +66,7 @@ namespace BeatLeader.Utils {
             public bool isBlock;
             public float time;
             public float spawnTime;
-            public NoteData.ScoringType scoringType;
+            public ScoringType scoringType;
 
             public float multiplier;
             public int totalScore;
@@ -156,7 +167,7 @@ namespace BeatLeader.Utils {
                 result.hitTracker.maxCombo = maxCombo;
                 result.winTracker.totalScore = structs.Last().totalScore;
                 result.accuracyTracker = accuracy;
-                result.scoreGraphTracker = ScoreGraph(structs, (int)(replay.frames.LastOrDefault()?.time ??  0));
+                result.scoreGraphTracker = ScoreGraph(structs, (int)(replay.frames.LastOrDefault()?.time ?? 0));
 
                 return result;
             } catch (Exception ex) {
@@ -200,49 +211,49 @@ namespace BeatLeader.Utils {
                         index = 0;
                     }
 
-                    if (param.scoringType != NoteData.ScoringType.BurstSliderElement
-                        && param.scoringType != NoteData.ScoringType.BurstSliderHead) {
+                    if (param.scoringType != ScoringType.BurstSliderElement
+                        && param.scoringType != ScoringType.BurstSliderHead) {
                         gridCounts[index]++;
                         result.gridAcc[index] += (float)scoreValue;
                     }
 
                     var (before, after, acc) = CutScoresForNote(note, param.scoringType);
                     if (param.colorType == 0) {
-                        if (param.scoringType != NoteData.ScoringType.SliderTail && param.scoringType != NoteData.ScoringType.BurstSliderElement) {
+                        if (param.scoringType != ScoringType.SliderTail && param.scoringType != ScoringType.BurstSliderElement) {
                             result.leftAverageCut[0] += (float)before;
                             result.leftPreswing += note.noteCutInfo.beforeCutRating;
                             leftCuts[0]++;
                         }
-                        if (param.scoringType != NoteData.ScoringType.BurstSliderElement
-                            && param.scoringType != NoteData.ScoringType.BurstSliderHead) {
+                        if (param.scoringType != ScoringType.BurstSliderElement
+                            && param.scoringType != ScoringType.BurstSliderHead) {
                             result.leftAverageCut[1] += (float)acc;
                             result.accLeft += (float)scoreValue;
                             result.leftTimeDependence += Math.Abs(note.noteCutInfo.cutNormal.z);
                             leftCuts[1]++;
                         }
-                        if (param.scoringType != NoteData.ScoringType.SliderHead
-                            && param.scoringType != NoteData.ScoringType.BurstSliderHead
-                            && param.scoringType != NoteData.ScoringType.BurstSliderElement) {
+                        if (param.scoringType != ScoringType.SliderHead
+                            && param.scoringType != ScoringType.BurstSliderHead
+                            && param.scoringType != ScoringType.BurstSliderElement) {
                             result.leftAverageCut[2] += (float)after;
                             result.leftPostswing += note.noteCutInfo.afterCutRating;
                             leftCuts[2]++;
                         }
                     } else {
-                        if (param.scoringType != NoteData.ScoringType.SliderTail && param.scoringType != NoteData.ScoringType.BurstSliderElement) {
+                        if (param.scoringType != ScoringType.SliderTail && param.scoringType != ScoringType.BurstSliderElement) {
                             result.rightAverageCut[0] += (float)before;
                             result.rightPreswing += note.noteCutInfo.beforeCutRating;
                             rightCuts[0]++;
                         }
-                        if (param.scoringType != NoteData.ScoringType.BurstSliderElement
-                            && param.scoringType != NoteData.ScoringType.BurstSliderHead) {
+                        if (param.scoringType != ScoringType.BurstSliderElement
+                            && param.scoringType != ScoringType.BurstSliderHead) {
                             result.rightAverageCut[1] += (float)acc;
                             result.rightTimeDependence += Math.Abs(note.noteCutInfo.cutNormal.z);
                             result.accRight += (float)scoreValue;
                             rightCuts[1]++;
                         }
-                        if (param.scoringType != NoteData.ScoringType.SliderHead
-                            && param.scoringType != NoteData.ScoringType.BurstSliderHead
-                            && param.scoringType != NoteData.ScoringType.BurstSliderElement) {
+                        if (param.scoringType != ScoringType.SliderHead
+                            && param.scoringType != ScoringType.BurstSliderHead
+                            && param.scoringType != ScoringType.BurstSliderElement) {
                             result.rightAverageCut[2] += (float)after;
                             result.rightPostswing += note.noteCutInfo.afterCutRating;
                             rightCuts[2]++;
@@ -321,9 +332,9 @@ namespace BeatLeader.Utils {
             for (var i = 0; i < allStructs.Count; i++) {
                 var note = allStructs[i];
                 var scoreForMaxScore = 115;
-                if (note.scoringType == NoteData.ScoringType.BurstSliderHead) {
+                if (note.scoringType == ScoringType.BurstSliderHead) {
                     scoreForMaxScore = 85;
-                } else if (note.scoringType == NoteData.ScoringType.BurstSliderElement) {
+                } else if (note.scoringType == ScoringType.BurstSliderElement) {
                     scoreForMaxScore = 20;
                 }
 
@@ -390,7 +401,7 @@ namespace BeatLeader.Utils {
             return scoreGraph;
         }
 
-        private static int ScoreForNote(NoteEvent note, NoteData.ScoringType scoringType) {
+        private static int ScoreForNote(NoteEvent note, ScoringType scoringType) {
             if (note.eventType != NoteEventType.good)
                 return note.eventType switch {
                     NoteEventType.bad => -2,
@@ -403,24 +414,24 @@ namespace BeatLeader.Utils {
             return before + after + acc;
         }
 
-        private static (int, int, int) CutScoresForNote(NoteEvent note, NoteData.ScoringType scoringType) {
+        private static (int, int, int) CutScoresForNote(NoteEvent note, ScoringType scoringType) {
             var cut = note.noteCutInfo;
             double beforeCutRawScore = 0;
-            if (scoringType != NoteData.ScoringType.BurstSliderElement) {
-                beforeCutRawScore = scoringType == NoteData.ScoringType.SliderTail ? 70 : Mathf.Clamp(Mathf.Round(70 * cut.beforeCutRating), 0, 70);
+            if (scoringType != ScoringType.BurstSliderElement) {
+                beforeCutRawScore = scoringType == ScoringType.SliderTail ? 70 : Mathf.Clamp(Mathf.Round(70 * cut.beforeCutRating), 0, 70);
             }
             double afterCutRawScore = 0;
-            if (scoringType != NoteData.ScoringType.BurstSliderElement) {
-                if (scoringType == NoteData.ScoringType.BurstSliderHead) {
+            if (scoringType != ScoringType.BurstSliderElement) {
+                if (scoringType == ScoringType.BurstSliderHead) {
                     afterCutRawScore = 0;
-                } else if (scoringType == NoteData.ScoringType.SliderHead) {
+                } else if (scoringType == ScoringType.SliderHead) {
                     afterCutRawScore = 30;
                 } else {
                     afterCutRawScore = Mathf.Clamp(Mathf.Round(30 * cut.afterCutRating), 0, 30);
                 }
             }
             double cutDistanceRawScore = 0;
-            if (scoringType == NoteData.ScoringType.BurstSliderElement) {
+            if (scoringType == ScoringType.BurstSliderElement) {
                 cutDistanceRawScore = 20;
             } else {
                 double num = 1 - Mathf.Clamp01(cut.cutDistanceToCenter / 0.3f);

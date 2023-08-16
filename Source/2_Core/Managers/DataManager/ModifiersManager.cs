@@ -129,7 +129,7 @@ namespace BeatLeader.DataManager {
                         "SF" => _modifiersRating.sfStars,
                         _ => 0
                     };
-                    multiplierText.text = $"<color=yellow>★ {stars:F1}</color>";
+                    multiplierText.text = $"<color=yellow>★ {stars:F2}</color>";
                     continue;
                 }
                 var multiplierValue = _modifiersAvailable ? _modifiersMap.GetMultiplier(modCode) : 0.0f;

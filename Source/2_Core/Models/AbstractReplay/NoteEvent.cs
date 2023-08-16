@@ -24,6 +24,8 @@
             this.noteCutInfo = noteCutInfo;
         }
 
+        public float CutTime => spawnTime - noteCutInfo.timeDeviation;
+        
         public readonly int noteId;
         public readonly float eventTime;
         public readonly float spawnTime;

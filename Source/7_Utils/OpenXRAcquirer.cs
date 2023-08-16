@@ -18,6 +18,7 @@ namespace BeatLeader.Utils {
             XR_ERROR_OUT_OF_MEMORY = -3,
             XR_ERROR_HANDLE_INVALID = -12,
             XR_ERROR_INSTANCE_LOST = -13,
+            XR_ERROR_SESSION_NOT_RUNNING = -16,
             XR_ERROR_SYSTEM_INVALID = -18,
             XR_ERROR_FORM_FACTOR_UNSUPPORTED = -34,
             XR_ERROR_FORM_FACTOR_UNAVAILABLE = -35,
@@ -80,8 +81,12 @@ namespace BeatLeader.Utils {
 
         public static void Init() {
             try {
-                if (InitInternal() is var res and not XrResult.XR_SUCCESS)
-                    throw new InvalidOperationException($"Failed to acquire OpenXR data: {res}");
+                if (InitInternal() is not (var res and not XrResult.XR_SUCCESS)) return;
+                if (res is XrResult.XR_ERROR_SESSION_NOT_RUNNING) {
+                    Plugin.Log.Warn("OpenXR session is not running, info won't be available!");
+                } else {
+                    Plugin.Log.Error($"Failed to acquire OpenXR data: {res}");
+                }
             } catch (Exception ex) {
                 Plugin.Log.Critical(ex);
             }
@@ -89,6 +94,7 @@ namespace BeatLeader.Utils {
 
         private static XrResult InitInternal() {
             var xrInstance = AcquireXrInstancePtr();
+            if (xrInstance is null) return XrResult.XR_ERROR_SESSION_NOT_RUNNING;
 
             var info = new XrSystemGetInfo {
                 type = XrStructureType.XR_TYPE_SYSTEM_GET_INFO,
@@ -111,7 +117,7 @@ namespace BeatLeader.Utils {
 
         private static XrInstance_T* AcquireXrInstancePtr() {
             var moduleHandlePtr = GetModuleHandle(DLLName);
-            if (moduleHandlePtr == IntPtr.Zero) throw new InvalidPointerException(moduleHandlePtr);
+            if (moduleHandlePtr == IntPtr.Zero) return null;
 
             var funcAddress = ApplyOffset(moduleHandlePtr, DLLGetLoaderInstanceFuncPtr);
             var getLoaderInstanceFunc = Marshal.GetDelegateForFunctionPointer<XrInstanceFuncDelegate>(funcAddress);

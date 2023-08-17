@@ -11,7 +11,7 @@ namespace BeatLeader.API.Methods {
         public static void SendRequest(int scoreId) {
             var url = string.Format(Endpoint, scoreId);
             var requestDescriptor = new JsonGetRequestDescriptor<ScoreStats>(url);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
     }
 }

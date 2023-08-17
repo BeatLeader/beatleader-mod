@@ -10,7 +10,7 @@ namespace BeatLeader.API.Methods {
 
         public static void SendRequest() {
             var requestDescriptor = new JsonGetRequestDescriptor<User>(Endpoint);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
     }
 }

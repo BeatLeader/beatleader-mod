@@ -4,6 +4,7 @@ using Zenject;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Emulation;
+using UnityEngine.SpatialTracking;
 
 namespace BeatLeader.Replayer {
     public class ReplayerCameraController : MonoBehaviour {
@@ -72,13 +73,21 @@ namespace BeatLeader.Replayer {
             if (smoothCamera == null) return null;
 
             var camera = Instantiate(smoothCamera.GetComponent<Camera>(), null, true);
-            camera.gameObject.SetActive(false);
-
+            var cameraGo = camera.gameObject;
+            cameraGo.SetActive(false);
+            
             DestroyImmediate(camera.GetComponent<SmoothCameraController>());
             DestroyImmediate(camera.GetComponent<SmoothCamera>());
-
+            
+            var trackedPoseDriver = cameraGo.AddComponent<TrackedPoseDriver>();
+            trackedPoseDriver.SetPoseSource(
+                TrackedPoseDriver.DeviceType.GenericXRDevice,
+                TrackedPoseDriver.TrackedPose.Center);
+            trackedPoseDriver.updateType = 
+                TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
+            
             camera.nearClipPlane = 0.01f;
-            camera.gameObject.SetActive(true);
+            cameraGo.SetActive(true);
             camera.name = "ReplayerViewCamera";
 
             if (InputUtils.IsInFPFC) {

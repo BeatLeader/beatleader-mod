@@ -40,7 +40,7 @@ namespace BeatLeader {
         #region ScoreController.LateUpdate Patch
 
         private static HarmonyPatchDescriptor LateUpdatePatchDescriptor => new(
-            typeof(ScoreController).GetMethod(nameof(ScoreController.LateUpdate), BindingFlags.Instance | BindingFlags.Public),
+            typeof(ScoreController).GetMethod(nameof(ScoreController.LateUpdate), BindingFlags.Instance | BindingFlags.NonPublic),
             typeof(ReplayRecorder).GetMethod(nameof(ScoreControllerLateUpdatePrefix), BindingFlags.Static | BindingFlags.NonPublic)
         );
 

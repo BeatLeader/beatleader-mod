@@ -6,6 +6,7 @@ using BeatLeader.Models;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.Util;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -129,11 +130,11 @@ namespace BeatLeader.Components {
             [UIComponent("background")]
             protected readonly ImageView background = null!;
 
-            protected override void HighlightDidChange(TransitionType transitionType) {
+            public override void HighlightDidChange(TransitionType transitionType) {
                 RefreshVisuals();
             }
 
-            protected override void SelectionDidChange(TransitionType transitionType) {
+            public override void SelectionDidChange(TransitionType transitionType) {
                 RefreshVisuals();
             }
 

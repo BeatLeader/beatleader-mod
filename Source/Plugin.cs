@@ -7,6 +7,7 @@ using IPA.Config;
 using IPA.Config.Stores;
 using IPA.Loader;
 using JetBrains.Annotations;
+using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
 namespace BeatLeader {
@@ -51,6 +52,7 @@ namespace BeatLeader {
         [OnStart]
         [UsedImplicitly]
         public void OnApplicationStart() {
+            OpenXRAcquirer.Init();
             ObserveEnabled();
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
@@ -78,8 +80,7 @@ namespace BeatLeader {
 
         [OnExit]
         [UsedImplicitly]
-        public void OnApplicationQuit()
-        {
+        public void OnApplicationQuit() {
             SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
             ReplayHeadersCache.SaveCache();

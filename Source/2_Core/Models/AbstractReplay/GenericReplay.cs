@@ -7,13 +7,15 @@ namespace BeatLeader.Models.AbstractReplay {
             IReadOnlyList<PlayerMovementFrame> movementFrames,
             IReadOnlyList<NoteEvent> noteEvents,
             IReadOnlyList<WallEvent> wallEvents,
-            IReadOnlyList<PauseEvent> pauseEvents) 
-            { 
+            IReadOnlyList<PauseEvent> pauseEvents,
+            IReadOnlyList<HeightEvent>? heightEvents
+        ) {
             ReplayData = replayData;
             PlayerMovementFrames = movementFrames;
             NoteEvents = noteEvents;
             WallEvents = wallEvents;
             PauseEvents = pauseEvents;
+            HeightEvents = heightEvents;
         }
 
         public IReplayData ReplayData { get; }
@@ -21,5 +23,7 @@ namespace BeatLeader.Models.AbstractReplay {
         public IReadOnlyList<NoteEvent> NoteEvents { get; }
         public IReadOnlyList<WallEvent> WallEvents { get; }
         public IReadOnlyList<PauseEvent> PauseEvents { get; }
+
+        public IReadOnlyList<HeightEvent>? HeightEvents { get; }
     }
 }

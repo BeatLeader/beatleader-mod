@@ -1,4 +1,4 @@
-﻿using BeatLeader.Models;
+using BeatLeader.Models;
 
 namespace BeatLeader.Utils {
     public static class BLConstants {

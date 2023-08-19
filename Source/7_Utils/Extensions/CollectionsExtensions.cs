@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace BeatLeader.Utils {
-    public static class CollectionsExtension {
+    public static class CollectionsExtensions {
         public static LinkedListNode<T>? FindNode<T>(this LinkedList<T> list, Func<LinkedListNode<T>, bool> predicate) {
             var node = list.First;
             while (node is not null) {

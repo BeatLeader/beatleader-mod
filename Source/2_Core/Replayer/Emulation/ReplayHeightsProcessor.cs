@@ -10,7 +10,7 @@ using Zenject;
 namespace BeatLeader.Replayer.Emulation {
     public class ReplayHeightsProcessor : MonoBehaviour {
         [Inject] private readonly PlayerHeightDetector _heightDetector = null!;
-        [Inject] private readonly VirtualPlayersManager _playersManager = null!;
+        [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
         [Inject] private readonly IBeatmapTimeController _timeController = null!;
 
         private static readonly FieldInfo heightChangeEventInfo =

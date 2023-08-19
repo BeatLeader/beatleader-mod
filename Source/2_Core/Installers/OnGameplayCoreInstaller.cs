@@ -80,6 +80,8 @@ namespace BeatLeader.Installers {
                 .FromComponentInNewPrefab(new GameObject("VirtualPlayerPrefab").AddComponent<VirtualPlayer>());
             Container.BindInterfacesAndSelfTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
+            Container.Bind<ReplayHeightsProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+                
             //Core logic(Notes handling)
             Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle();
             Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -99,6 +101,8 @@ namespace BeatLeader.Installers {
 
             Plugin.Log.Notice("[Installer] Replays system successfully installed!");
         }
+        
+        //TODO: move to tweak without unbinding
         private void PatchSiraFreeView() {
             if (!InputUtils.IsInFPFC) return;
             try {
@@ -106,15 +110,12 @@ namespace BeatLeader.Installers {
                 var assembly = typeof(IFPFCSettings).Assembly;
 
                 var smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
-                var FPFCToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
-                //var simpleCameraControllerType = assembly.GetType("SiraUtil.Tools.FPFC.SimpleCameraController");
+                var fpfcToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
 
-                //Container.Unbind<IFPFCSettings>();
                 Container.UnbindInterfacesTo(smoothCameraListenerType);
-                Container.UnbindInterfacesTo(FPFCToggleType);
-                //GameObject.Destroy((UnityEngine.Object)Container.TryResolve(simpleCameraControllerType));
+                Container.UnbindInterfacesTo(fpfcToggleType);
             } catch (Exception ex) {
-                Plugin.Log.Error($"[Installer] Error during attemping to remove Sira's FPFC system! \r\n {ex}");
+                Plugin.Log.Error($"[Installer] Error during attempting to remove Sira's FPFC system! \r\n {ex}");
             }
         }
 

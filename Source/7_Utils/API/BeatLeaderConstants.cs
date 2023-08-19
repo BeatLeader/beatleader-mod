@@ -1,5 +1,5 @@
 ﻿namespace BeatLeader.Utils {
-    internal static class BLConstants {
+    internal static class BeatLeaderConstants {
         #region HTTP Status codes
 
         public const int MaintenanceStatus = 503;

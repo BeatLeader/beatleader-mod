@@ -11,7 +11,7 @@ namespace BeatLeader.API.Methods {
         #region Page
         
         // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}
-        private const string PageEndpoint = BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
+        private const string PageEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
         
         public static void SendPageRequest(
             string userId,
@@ -23,9 +23,9 @@ namespace BeatLeader.API.Methods {
             int page
         ) {
             var query = new Dictionary<string, object> {
-                { BLConstants.Param.PLAYER, userId },
-                { BLConstants.Param.COUNT, ScoresPerPage },
-                { BLConstants.Param.PAGE, page }
+                { BeatLeaderConstants.Param.PLAYER, userId },
+                { BeatLeaderConstants.Param.COUNT, ScoresPerPage },
+                { BeatLeaderConstants.Param.PAGE, page }
             };
             var url = string.Format(PageEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
             
@@ -38,7 +38,7 @@ namespace BeatLeader.API.Methods {
         #region Seek
 
         // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/around?player={playerId}&count={count}
-        public const string SeekEndpoint = BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
+        public const string SeekEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
         
         public static void SendSeekRequest(
             string userId,
@@ -49,8 +49,8 @@ namespace BeatLeader.API.Methods {
             string scope
         ) {
             var query = new Dictionary<string, object> {
-                { BLConstants.Param.PLAYER, userId },
-                { BLConstants.Param.COUNT, ScoresPerPage }
+                { BeatLeaderConstants.Param.PLAYER, userId },
+                { BeatLeaderConstants.Param.COUNT, ScoresPerPage }
             };
             var url = string.Format(SeekEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
 

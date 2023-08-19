@@ -57,7 +57,7 @@ namespace BeatLeader.API {
         private static bool _signedIn;
 
         public static void ResetLogin() {
-            UnityWebRequest.ClearCookieCache(new Uri(BLConstants.BEATLEADER_API_URL));
+            UnityWebRequest.ClearCookieCache(new Uri(BeatLeaderConstants.BEATLEADER_API_URL));
             _signedIn = false;
         }
 
@@ -107,7 +107,7 @@ namespace BeatLeader.API {
                 new MultipartFormDataSection("provider", provider),
                 new MultipartFormDataSection("returnUrl", "/")
             };
-            var request = UnityWebRequest.Post(string.Format(BLConstants.SIGNIN_WITH_TICKET, authToken), form);
+            var request = UnityWebRequest.Post(string.Format(BeatLeaderConstants.SIGNIN_WITH_TICKET, authToken), form);
             yield return request.SendWebRequest();
 
             switch (request.responseCode) {
@@ -115,7 +115,7 @@ namespace BeatLeader.API {
                     Plugin.Log.Info("Login successful!");
                     onSuccess();
                     break;
-                case BLConstants.MaintenanceStatus:
+                case BeatLeaderConstants.MaintenanceStatus:
                     Plugin.Log.Debug("Login failed! Maintenance");
                     onFail("Maintenance");
                     break;

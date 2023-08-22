@@ -93,7 +93,7 @@ namespace BeatLeader.Components {
 
         #region Web Requests
 
-        private const string PlayerEndpoint = BLConstants.BEATLEADER_API_URL + "/player/";
+        private const string PlayerEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/player/";
 
         private async Task GetPlayerAsync(string playerId, CancellationToken token) {
             UpdateVisibility(State.Loading);

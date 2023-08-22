@@ -111,7 +111,7 @@ namespace BeatLeader.Components {
 
             _difficultyInfo = data.DifficultyInfo;
             _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
-            _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
+            _websiteLink = BeatLeaderConstants.LeaderboardPage(data.LeaderboardId);
 
             UpdateCheckboxes(data.QualificationInfo);
             UpdateVisuals();

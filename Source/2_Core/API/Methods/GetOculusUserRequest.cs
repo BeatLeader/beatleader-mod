@@ -8,7 +8,7 @@ using UnityEngine;
 namespace BeatLeader.API.Methods {
     internal static class GetOculusUserRequest {
         // /oculususer?token={authToken}
-        private const string Endpoint = BLConstants.BEATLEADER_API_URL + "/oculususer?token={0}";
+        private const string Endpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/oculususer?token={0}";
 
         public static IEnumerator SendRequest(Action<OculusUserInfo> onSuccess, Action<string> onFail) {
             var ticketTask = Authentication.OculusTicket();

@@ -73,7 +73,7 @@ namespace BeatLeader.WebRequests {
             get => _requestState;
             protected set {
                 _requestState = value;
-                InvokeProgressEvent();
+                InvokeStateEvent();
             }
         }
 
@@ -96,7 +96,7 @@ namespace BeatLeader.WebRequests {
             }
         }
 
-        public virtual float OverallProgress => UploadProgress;
+        public virtual float OverallProgress => (UploadProgress + DownloadProgress) / 2;
 
         public async Task<IWebRequest> Join() {
             await _processTask;

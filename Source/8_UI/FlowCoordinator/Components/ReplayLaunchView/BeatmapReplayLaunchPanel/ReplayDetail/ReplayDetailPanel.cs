@@ -1,17 +1,17 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatLeader.Models.Replay;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using UnityEngine;
 using static BeatLeader.Models.FileStatus;
 
 namespace BeatLeader.Components {
-    internal class ReplayDetailPanel : ReeUIComponentV2 {
+    internal class ReplayDetailPanel : ReeUIComponentV3<ReplayDetailPanel>, BeatmapReplayLaunchPanel.IDetailPanel {
         #region Configuration
 
         private const string WatchText = "Watch";
@@ -27,7 +27,7 @@ namespace BeatLeader.Components {
         [UIValue("download-beatmap-panel"), UsedImplicitly]
         private DownloadBeatmapPanel _downloadBeatmapPanel = null!;
 
-        [UIValue("player-info-panel"), UsedImplicitly]
+        [UIComponent("mini-profile-panel"), UsedImplicitly]
         private HorizontalMiniProfileContainer _miniProfile = null!;
 
         #endregion
@@ -69,6 +69,8 @@ namespace BeatLeader.Components {
 
         #region Init
 
+        public bool AllowReplayMultiselect => false;
+        
         private ReplayerMenuLoader? _menuLoader;
         private bool _isInitialized;
 
@@ -78,17 +80,20 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInstantiate() {
-            _replayStatisticsPanel = Instantiate<ReplayStatisticsPanel>(transform);
-            _downloadBeatmapPanel = Instantiate<DownloadBeatmapPanel>(transform);
-            _miniProfile = Instantiate<HorizontalMiniProfileContainer>(transform);
+            _replayStatisticsPanel = ReeUIComponentV2.Instantiate<ReplayStatisticsPanel>(transform);
+            _downloadBeatmapPanel = ReeUIComponentV2.Instantiate<DownloadBeatmapPanel>(transform);
+            //_miniProfile = ReeUIComponentV2.Instantiate<HorizontalMiniProfileContainer>(transform);
 
             _replayStatisticsPanel.SetData(null, null, true, true);
-            _ = _miniProfile.SetPlayer(null);
             
             _downloadBeatmapPanel.BackButtonClickedEvent += HandleDownloadMenuBackButtonClicked;
             _downloadBeatmapPanel.DownloadAbilityChangedEvent += HandleDownloadAbilityChangedEvent;
 
             SetDownloadPanelActive(false);
+        }
+
+        protected override void OnInitialize() {
+            _ = _miniProfile.SetPlayer(null);
         }
 
         #endregion
@@ -111,7 +116,14 @@ namespace BeatLeader.Components {
         private bool _beatmapIsMissing;
         private bool _isIntoDownloadMenu;
         private bool _isWorking;
-
+        
+        //unused in this implementation
+        public event Action<IReplayHeader>? NavigateEvent;
+        
+        void BeatmapReplayLaunchPanel.IDetailPanel.SetData(IListComponent<IReplayHeader> list, IReadOnlyList<IReplayHeader> headers) {
+            SetData(headers.Count > 0 ? headers[0] : null);
+        }
+        
         public void SetData(IReplayHeader? header) {
             if (!_isInitialized) return;
             if (_isWorking) {

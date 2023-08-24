@@ -14,17 +14,25 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
+    /// <summary>
+    /// Advanced UI component
+    /// </summary>
+    /// <typeparam name="T">Inherited component</typeparam>
     internal class ReeUIComponentV3<T> : ReeUIComponentV3<T, GenericUIComponentDescriptor<T>> where T : ReeUIComponentV3<T> { }
 
+    /// <summary>
+    /// Base for UI components
+    /// </summary>
     internal abstract class ReeUIComponentV3Base : MonoBehaviour {
         public abstract GameObject? Content { get; }
         public abstract Transform? ContentTransform { get; }
     }
 
-    internal class ReeUIComponentV3InstanceKeeper : MonoBehaviour {
-        public ReeUIComponentV3Base instance = null!;
-    }
-
+    /// <summary>
+    /// Base UI component implementation
+    /// </summary>
+    /// <typeparam name="T">Inherited component</typeparam>
+    /// <typeparam name="TDescriptor">Component descriptor</typeparam>
     internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged
         where T : ReeUIComponentV3<T>
         where TDescriptor : IUIComponentDescriptor<T>, new() {
@@ -32,7 +40,9 @@ namespace BeatLeader.Components {
 
         public static T Instantiate(Transform parent) {
             var obj = bsmlTag.CreateObject(parent);
-            return (T)obj.GetComponent<ExternalComponents>().components.First(x => x is T);
+            return (T)obj.GetComponents<ReeUIComponentV3InstanceKeeper>()
+                .Select(x => x.instance)
+                .First(x => x is T);
         }
 
         #endregion
@@ -91,11 +101,17 @@ namespace BeatLeader.Components {
                 foreach (var (key, value) in values) {
                     if (!props.TryGetValue(key, out var handler)) continue;
                     try {
-                        handler(comp, parserParams.host, value);
+                        handler(comp, parserParams, value);
                     } catch (Exception ex) {
                         Plugin.Log.Error($"Failed to assign \"{key}\" to {typeof(T).Name}: \n{ex}");
                     }
                 }
+
+                if (parserParams.host is ReeUIComponentV3Base host) {
+                    comp.transform.SetParent(host.transform, false);
+                }
+                
+                comp.OnPropertySet();
             }
         }
 
@@ -115,7 +131,7 @@ namespace BeatLeader.Components {
 
         #region Markup
 
-        protected virtual string Markup { get; } = _markup ??= BSMLUtility.ReadMarkupOrFallback(typeof(T));
+        protected virtual string Markup { get; } = BSMLUtility.ReadMarkupOrFallback(typeof(T));
 
         private static string? _markup;
 
@@ -132,7 +148,8 @@ namespace BeatLeader.Components {
         private Transform? _contentTransform;
 
         protected virtual GameObject Construct() {
-            BSMLParser.instance.Parse(Markup, gameObject, this);
+            _markup ??= Markup;
+            BSMLParser.instance.Parse(_markup, gameObject, this);
             return transform.GetChild(0).gameObject;
         }
 
@@ -148,10 +165,12 @@ namespace BeatLeader.Components {
         private void Awake() { OnInstantiate(); }
 
         private void OnDestroy() {
-            DestroyImmediate(Content);
             OnDispose();
+            DestroyImmediate(Content);
         }
 
+        protected virtual void OnPropertySet() { }
+        
         protected virtual void OnInitialize() { }
 
         protected virtual void OnInstantiate() { }
@@ -170,5 +189,9 @@ namespace BeatLeader.Components {
         }
 
         #endregion
+    }
+    
+    internal class ReeUIComponentV3InstanceKeeper : MonoBehaviour {
+        public ReeUIComponentV3Base instance = null!;
     }
 }

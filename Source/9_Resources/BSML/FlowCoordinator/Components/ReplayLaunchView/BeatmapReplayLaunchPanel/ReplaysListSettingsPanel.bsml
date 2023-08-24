@@ -8,16 +8,18 @@
       <vertical pref-height="14" vertical-fit="PreferredSize" horizontal-fit="Unconstrained">
         <dropdown-list-setting text="Sort By" value="sorter" choices="sorters"
                                bind-value="true" apply-on-change="true"/>
-        <TabSegmentedControl id="tab-control" Height="6" InheritWidth="true" TabNames="~orders" 
-                             TabSelectedEvent="HandleOrderTabSelected"/>
+        <TextTabSelector id="tab-control" Height="6" InheritWidth="true" TabNames="~orders"
+                         TabSelectedEvent="order-tab-select"/>
       </vertical>
     </vertical>
   </modal>
   <text text="List controls" align="Left" font-size="3"/>
   <horizontal child-control-width="false" spacing="1" vertical-fit="Unconstrained"
               child-expand-width="false" child-align="MiddleRight">
-    <AdvancedButton Sticky="True" Size="3" Icon="#bl-battle-royale-icon" ToggleEvent="HandleBattleRoyaleButtonToggled"/>
-    <AdvancedButton Size="3" Icon="#bl-settings-icon" ClickEvent="ShowModal"/>
-    <AdvancedButton GrowOnHover="False" Size="3" Icon="#bl-refresh-icon" ClickEvent="HandleReloadButtonClicked"/>
+    <AdvancedButton Sticky="true" ColorizeOnHover="false" Size="3" Icon="#bl-battle-royale-icon"
+                    ToggleEvent="battle-royale-toggle"/>
+    <AdvancedButton Size="3" Icon="#bl-settings-icon" ClickEvent="settings-click"/>
+    <AdvancedButton GrowOnHover="false" Size="3" Icon="#bl-refresh-icon"
+                    ClickEvent="reload-click"/>
   </horizontal>
 </horizontal>

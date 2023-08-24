@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.Models;
+using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
+using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
@@ -32,14 +35,14 @@ namespace BeatLeader.Replayer {
         }
 
         #endregion
-        
+
         #region StartReplay
 
         [Inject] private readonly ReplayerLauncher _launcher = null!;
         [Inject] private readonly GameScenesManager _scenesManager = null!;
         [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
         [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
-        
+
         public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
@@ -57,6 +60,25 @@ namespace BeatLeader.Replayer {
             StartReplay(data);
         }
 
+        public async Task StartReplaysAsync(IReadOnlyDictionary<Replay, Player> replays, ReplayerSettings? settings, CancellationToken token) {
+            if (replays.Count == 0) return;
+            
+            settings ??= ReplayerSettings.UserSettings;
+            var data = new ReplayLaunchData();
+            var abstractReplays = new List<IReplay>(replays.Count);
+            var info = replays.First().Key.info;
+            
+            await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
+            if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
+            foreach (var (replay, player) in replays) {
+                Plugin.Log.Info("Attempting to load replay:\r\n" + replay.info);
+                abstractReplays.Add(ReplayDataUtils.ConvertToAbstractReplay(replay, player));
+            }
+            data.Init(abstractReplays, ReplayDataUtils.BasicReplayComparator,
+                settings, data.DifficultyBeatmap, data.EnvironmentInfo);
+            StartReplay(data);
+        }
+
         public void StartReplay(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
             if (!_launcher.StartReplay(data)) return;
@@ -69,7 +91,7 @@ namespace BeatLeader.Replayer {
             var replay = await header.LoadReplayAsync(default);
             await StartReplayAsync(replay!, ProfileManager.Profile);
         }
-        
+
         private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO transitionData, ReplayLaunchData launchData) {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             _scenesManager.PopScenes(0.3f);

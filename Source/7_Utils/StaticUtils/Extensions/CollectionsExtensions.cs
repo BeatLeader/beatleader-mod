@@ -1,7 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BeatLeader.Utils {
-    public static class CollectionsExtension {
+    public static class CollectionsExtensions {
+        public static T[] TakeIndexes<T>(this IReadOnlyList<T> collection, ICollection<int> indexes) {
+            var arr = new T[indexes.Count];
+            var offset = 0;
+            foreach (var index in indexes) {
+                arr[offset] = collection[index];
+                offset++;
+            }
+            return arr;
+        }
+        
+        public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action) {
+            foreach (var item in enumerable) action(item);
+        }
+        
         public static void AddRange<T>(this IList<T> list, IEnumerable<T> range) {
             foreach (var item in range) list.Add(item);
         }

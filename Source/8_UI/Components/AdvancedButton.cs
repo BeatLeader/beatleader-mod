@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class AdvancedButton : ComponentLayoutBase<AdvancedButton> {
+    internal class AdvancedButton : LayoutComponentBase<AdvancedButton> {
         #region Events
 
         [ExternalProperty, UsedImplicitly]
         public event Action? ClickEvent;
-        
+
         [ExternalProperty, UsedImplicitly]
         public event Action<bool>? ToggleEvent;
 
@@ -37,16 +37,36 @@ namespace BeatLeader.Components {
         }
 
         [ExternalProperty, UsedImplicitly]
-        public bool HighlightOnHover {
-            get => _highlightOnHover;
+        public bool ColorizeOnHover {
+            get => _colorizeOnHover;
             set {
-                _highlightOnHover = value;
+                _colorizeOnHover = value;
+                if (!IsInitialized) return;
                 UpdateColor(0);
+            }
+        }
+        
+        [ExternalProperty, UsedImplicitly]
+        public float HoverLerpMul {
+            get => _hoverController?.lerpCoefficient ?? -1f;
+            set {
+                _lerpMul = value;
+                if (!IsInitialized) return;
+                _hoverController!.lerpCoefficient = _lerpMul;
             }
         }
 
         [ExternalProperty, UsedImplicitly]
-        public Color HoverColor { get; set; } = hoveredColor;
+        public Vector3 HoverScaleSum { get; set; } = new(0.2f, 0.2f, 0.2f);
+
+        [ExternalProperty, UsedImplicitly]
+        public Vector3 BaseScale { get; set; } = Vector3.zero;
+
+        [ExternalProperty, UsedImplicitly]
+        public Color ActiveColor { get; set; } = DefaultHoveredColor;
+
+        [ExternalProperty, UsedImplicitly]
+        public Color HoveredColor { get; set; } = DefaultHoveredColor;
 
         [ExternalProperty, UsedImplicitly]
         public Color Color {
@@ -57,10 +77,12 @@ namespace BeatLeader.Components {
             }
         }
 
+        private bool _sticky;
         private bool _isActive;
-        private bool _highlightOnHover = true;
+        private bool _colorizeOnHover = true;
         private bool _growOnHover = true;
-        private Color _color = standardColor;
+        private Color _color = DefaultColor;
+        private float _lerpMul = 10f;
 
         #endregion
 
@@ -70,20 +92,50 @@ namespace BeatLeader.Components {
         [ExternalProperty(prefix: null,
             nameof(AdvancedImage.Icon),
             nameof(AdvancedImage.PreserveAspect))]
-        private AdvancedImage _image = null!;
-        private bool _sticky;
+        public AdvancedImage Image { get; set; } = null!;
+
+        private SmoothHoverController? _hoverController;
+
+        #endregion
+
+        #region Button
+
+        public void Click(bool notifyListeners = false) {
+            Sticky = false;
+            HandleButtonClick(notifyListeners);
+        }
+
+        public void Toggle(bool state, bool notifyListeners = false) {
+            Sticky = true;
+            if (_isActive == state) return;
+            _isActive = !state;
+            HandleButtonClick(notifyListeners);
+        }
+
+        private void HandleButtonClick(bool notifyListeners) {
+            if (Sticky) {
+                _isActive = !_isActive;
+                UpdateColor(_isActive ? 1 : 0);
+                if (notifyListeners) ToggleEvent?.Invoke(_isActive);
+            } else if (notifyListeners) ClickEvent?.Invoke();
+        }
 
         #endregion
 
         #region Setup
 
+        protected override void OnPropertySet() {
+            if (BaseScale == Vector3.zero) BaseScale = Scale;
+        }
+
         protected override void OnInitialize() {
-            _image = AdvancedImage.Instantiate(ContentTransform!);
-            _image.InheritSize = true;
-            _image.Material = BundleLoader.UIAdditiveGlowMaterial;
+            Image = AdvancedImage.Instantiate(ContentTransform!);
+            Image.InheritSize = true;
+            Image.Material = BundleLoader.UIAdditiveGlowMaterial;
             UpdateColor(0);
-            var hoverController = Content!.AddComponent<SmoothHoverController>();
-            hoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            _hoverController = Content!.AddComponent<SmoothHoverController>();
+            _hoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            _hoverController.lerpCoefficient = _lerpMul;
             Content.AddComponent<Button>().onClick.AddListener(OnButtonClick);
         }
 
@@ -91,11 +143,11 @@ namespace BeatLeader.Components {
 
         #region Colors
 
-        private static readonly Color hoveredColor = new(0.0f, 0.4f, 1.0f, 1.0f);
-        private static readonly Color standardColor = new(0.8f, 0.8f, 0.8f, 0.2f);
+        public static readonly Color DefaultHoveredColor = new(0.0f, 0.4f, 1.0f, 1.0f);
+        public static readonly Color DefaultColor = new(0.8f, 0.8f, 0.8f, 0.2f);
 
         private void UpdateColor(float hoverProgress) {
-            _image.Color = Color.Lerp(standardColor, hoveredColor, hoverProgress);
+            Image.Color = _isActive ? ActiveColor : Color.Lerp(Color, HoveredColor, hoverProgress);
         }
 
         #endregion
@@ -103,18 +155,13 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void OnHoverStateChanged(bool isHovered, float progress) {
-            var scale = 1.0f + 0.2f * progress;
-            if (_growOnHover) ContentTransform!.localScale = new Vector3(scale, scale, scale);
-            if (_highlightOnHover && !Sticky) UpdateColor(progress);
+            var scale = BaseScale + HoverScaleSum * progress;
+            if (_growOnHover) ContentTransform!.localScale = scale;
+            if (_colorizeOnHover) UpdateColor(progress);
         }
 
         private void OnButtonClick() {
-            if (!Sticky) ClickEvent?.Invoke();
-            else {
-                _isActive = !_isActive;
-                UpdateColor(_isActive ? 1 : 0);
-                ToggleEvent?.Invoke(_isActive);
-            }
+            HandleButtonClick(true);
         }
 
         #endregion

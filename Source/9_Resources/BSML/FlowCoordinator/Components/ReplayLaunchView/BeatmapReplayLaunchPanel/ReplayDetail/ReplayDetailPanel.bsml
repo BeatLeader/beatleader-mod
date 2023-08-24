@@ -17,9 +17,7 @@
     </vertical>
   </modal>
   <vertical pref-width="50">
-    <macro.as-host host="player-info-panel">
-      <macro.reparent transform="ui-component"/>
-    </macro.as-host>
+    <HorizontalMiniProfileContainer id="mini-profile-panel"/>
   </vertical>
   <vertical pref-width="50" pad-top="2" pad-bottom="2"
             vertical-fit="PreferredSize">

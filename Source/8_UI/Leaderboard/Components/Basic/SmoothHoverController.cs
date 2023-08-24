@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
     public class SmoothHoverController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
-        public event Action<bool, float> HoverStateChangedEvent;
+        public event Action<bool, float>? HoverStateChangedEvent;
 
         public float lerpCoefficient = 10.0f;
         

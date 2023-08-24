@@ -7,7 +7,7 @@ namespace BeatLeader.Components {
     internal class BeatmapSelectorViewController : DummyViewController {
         #region Events
 
-        public event Action<IPreviewBeatmapLevel>? BeatmapSelectedEvent;
+        public event Action<IDifficultyBeatmap>? BeatmapSelectedEvent;
 
         #endregion
 
@@ -162,7 +162,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleSelectButtonPressed() {
-            BeatmapSelectedEvent?.Invoke(_levelSelectionNavigationController.selectedBeatmapLevel);
+            BeatmapSelectedEvent?.Invoke(_levelSelectionNavigationController.selectedDifficultyBeatmap);
             HandleCloseButtonPressed();
         }
 

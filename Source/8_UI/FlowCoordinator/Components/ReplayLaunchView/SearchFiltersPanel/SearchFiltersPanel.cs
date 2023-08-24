@@ -45,6 +45,11 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Init
+
+        public bool AllowFilters {
+            get => _filterPanel.Interactable;
+            set => _filterPanel.Interactable = value;
+        }
         
         protected override void OnInitialize() {
             _modal.blockerClickedEvent += HandleModalClosed;

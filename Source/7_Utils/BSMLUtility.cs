@@ -65,17 +65,18 @@ namespace BeatLeader.Utils {
         #region Markup
 
         public static string ReadMarkupOrFallback(Type componentType) {
-            var targetName = $"{componentType.Name}.bsml";
-
-            var resource = componentType.ReadViewDefinition();
-            if (resource != string.Empty) return resource;
-
+            return ReadMarkupOrFallback(componentType.Name, componentType.Assembly);
+        }
+        
+        public static string ReadMarkupOrFallback(string typeName, Assembly assembly) {
+            var targetName = $"{typeName}.bsml";
+            
             var strictMatch = true;
             FindResource: ;
             foreach (var resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
                 var actualResourceName = GetResourceName(resourceName);
                 if (strictMatch ? actualResourceName != targetName : !resourceName.EndsWith(targetName)) continue;
-                return Utilities.GetResourceContent(componentType.Assembly, resourceName);
+                return Utilities.GetResourceContent(assembly, resourceName);
             }
 
             if (!strictMatch) return $"<text text=\"Resource not found: {targetName}\" align=\"Center\"/>";

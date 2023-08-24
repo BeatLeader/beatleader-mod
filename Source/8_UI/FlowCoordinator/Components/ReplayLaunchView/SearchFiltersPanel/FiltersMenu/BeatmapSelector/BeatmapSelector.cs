@@ -165,8 +165,8 @@ namespace BeatLeader.Components {
             _currentBeatmapChanged = true;
         }
 
-        private void HandleSelectorBeatmapSelected(IPreviewBeatmapLevel level) {
-            _customPreviewBeatmapLevel = level;
+        private void HandleSelectorBeatmapSelected(IDifficultyBeatmap beatmap) {
+            _customPreviewBeatmapLevel = beatmap.level;
             RefreshBeatmapPreview();
         }
 

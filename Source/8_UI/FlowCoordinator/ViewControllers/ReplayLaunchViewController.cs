@@ -6,7 +6,6 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.ViewControllers {
@@ -27,7 +26,7 @@ namespace BeatLeader.ViewControllers {
         [UIValue("search-filters-panel"), UsedImplicitly]
         private SearchFiltersPanel _searchFiltersPanel = null!;
 
-        [UIValue("replay-launch-panel"), UsedImplicitly]
+        [UIComponent("replay-launch-panel"), UsedImplicitly]
         private BeatmapReplayLaunchPanel _replayPanel = null!;
 
         #endregion
@@ -35,9 +34,7 @@ namespace BeatLeader.ViewControllers {
         #region Init
 
         private void Awake() {
-            _replayPanel = ReeUIComponentV2.Instantiate<BeatmapReplayLaunchPanel>(transform);
             _searchFiltersPanel = ReeUIComponentV2.Instantiate<SearchFiltersPanel>(transform);
-            _replayPanel.Setup(ReplayManager.Instance, _replayerLoader);
             _searchFiltersPanel.Setup(
                 ReplayManager.Instance,
                 this,
@@ -50,10 +47,14 @@ namespace BeatLeader.ViewControllers {
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            if (firstActivation) _replayPanel.ReloadData();
+            if (firstActivation) {
+                _replayPanel.ReplayModeChangedEvent += HandleReplayModeChangedEvent;
+                _replayPanel.Setup(ReplayManager.Instance, _replayerLoader);
+                _replayPanel.ReloadData();
+            }
             _searchFiltersPanel.NotifyContainerStateChanged();
         }
-        
+
         public override void __DismissViewController(Action finishedCallback, AnimationDirection animationDirection = AnimationDirection.Horizontal, bool immediately = false) {
             _childViewController?.__DismissViewController(null, immediately: true);
             base.__DismissViewController(finishedCallback, animationDirection, immediately);
@@ -68,8 +69,8 @@ namespace BeatLeader.ViewControllers {
             var beatmap = filters.previewBeatmapLevel;
             var diff = filters.beatmapDifficulty;
             var characteristic = filters.beatmapCharacteristic?.serializedName;
-            var hasNoFilters = 
-                !filters.overrideBeatmap 
+            var hasNoFilters =
+                !filters.overrideBeatmap
                 && string.IsNullOrEmpty(prompt)
                 && string.IsNullOrEmpty(characteristic)
                 && !diff.HasValue;
@@ -83,6 +84,10 @@ namespace BeatLeader.ViewControllers {
                     && (!diff.HasValue || info.SongDifficulty == diff.Value.ToString())
                     && (characteristic is null || info.SongMode == characteristic);
             }
+        }
+
+        private void HandleReplayModeChangedEvent(BeatmapReplayLaunchPanel.ReplayMode mode) {
+            _searchFiltersPanel.AllowFilters = mode is BeatmapReplayLaunchPanel.ReplayMode.Standard;
         }
 
         #endregion

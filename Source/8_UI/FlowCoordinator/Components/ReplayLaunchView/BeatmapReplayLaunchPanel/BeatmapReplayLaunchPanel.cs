@@ -5,13 +5,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class BeatmapReplayLaunchPanel : ReeUIComponentV2 {
+    internal class BeatmapReplayLaunchPanel : ReeUIComponentV3<BeatmapReplayLaunchPanel> {
+        #region DetailPanel
+
+        public interface IDetailPanel {
+            bool AllowReplayMultiselect { get; }
+            
+            void SetData(IListComponent<IReplayHeader> list, IReadOnlyList<IReplayHeader> headers);
+        }
+
+        #endregion
+
         #region UI Components
 
         [UIComponent("replays-list"), UsedImplicitly]
@@ -20,16 +31,32 @@ namespace BeatLeader.Components {
         [UIComponent("replays-list-settings-panel"), UsedImplicitly]
         private ReplaysListSettingsPanel _replaysListSettingsPanel = null!;
 
-        [UIValue("replay-panel"), UsedImplicitly]
-        private ReplayDetailPanel _replayPanel = null!;
+        [UIComponent("replay-detail"), UsedImplicitly]
+        private ReplayDetailPanel _replayDetail = null!;
 
-        [UIObject("loading-container")]
-        private readonly GameObject _loadingContainerObject = null!;
+        [UIComponent("battle-royale-detail"), UsedImplicitly]
+        private BattleRoyaleDetailPanel _battleRoyaleDetail = null!;
 
-        [UIObject("main-container")]
-        private readonly GameObject _mainContainerObject = null!;
+        [UIComponent("details-container"), UsedImplicitly]
+        private TabsContainer _detailsContainer = null!;
+
+        [UIComponent("replays-list-scrollbar"), UsedImplicitly]
+        private Scrollbar _replaysListScrollbar = null!;
+
+        [UIObject("loading-container"), UsedImplicitly]
+        private GameObject _loadingContainerObject = null!;
+
+        [UIObject("main-container"), UsedImplicitly]
+        private GameObject _mainContainerObject = null!;
 
         private CanvasGroup _mainContainerCanvasGroup = null!;
+
+        #endregion
+
+        #region Events
+
+        [ExternalProperty, UsedImplicitly]
+        public event Action<ReplayMode>? ReplayModeChangedEvent;
 
         #endregion
 
@@ -43,8 +70,8 @@ namespace BeatLeader.Components {
             _replayManager.ReplaysDeletedEvent += HandleReplaysDeleted;
             _replayManager.ReplayDeletedEvent += HandleReplayDeleted;
             _replayManager.ReplayAddedEvent += HandleReplayAdded;
-            _replayPanel.Setup(loader);
-            _replayPanel.SetData(null);
+            _replayDetail.Setup(loader);
+            _replayDetail.SetData(null);
             _isInitialized = true;
         }
 
@@ -53,11 +80,9 @@ namespace BeatLeader.Components {
             image.sprite = BundleLoader.TransparentPixel;
             image.color = Color.clear;
             _mainContainerCanvasGroup = _mainContainerObject.AddComponent<CanvasGroup>();
-            _replaysList.AllowMultiselect = true;
-        }
-
-        protected override void OnInstantiate() {
-            _replayPanel = Instantiate<ReplayDetailPanel>(transform);
+            _replaysList.Scrollbar = _replaysListScrollbar;
+            _replaysList.ItemsWithIndexesSelectedEvent += HandleItemsSelected;
+            CurrentReplayMode = ReplayMode.Standard;
         }
 
         protected override void OnDispose() {
@@ -66,16 +91,11 @@ namespace BeatLeader.Components {
             _replayManager.ReplayAddedEvent -= HandleReplayAdded;
         }
 
-        [UsedImplicitly]
-        private void ReloadDataInternal() {
-            ReloadData(_cachedShowBeatmapNameIfCorrect);
-        }
-
         #endregion
 
         #region Data Management
 
-        private List<IReplayHeader> ListHeaders => _replaysList.replays;
+        private List<IReplayHeader> ListHeaders => _replaysList.items;
 
         private IList<IReplayHeader>? _headers;
         private IList<IReplayHeader>? _tempHeaders;
@@ -98,7 +118,7 @@ namespace BeatLeader.Components {
             var token = _tokenSource.Token;
             var context = SynchronizationContext.Current;
             _tempHeaders = await _replayManager.LoadReplayHeadersAsync(token, x => {
-                if (x.FileStatus is FileStatus.Corrupted || ListHeaders.Count > ReplaysList.VisibleCells) return;
+                if (x.FileStatus is FileStatus.Corrupted || ListHeaders.Count > 10) return;
                 context.Send(y => AddReplayToList((IReplayHeader)y), x);
             });
             if (token.IsCancellationRequested) return;
@@ -141,7 +161,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Filter
+        #region Filtering
 
         private Func<IReplayHeader, bool>? _predicate;
 
@@ -158,7 +178,7 @@ namespace BeatLeader.Components {
                 cell.FileStatus is not FileStatus.Corrupted
                 && (_predicate?.Invoke(cell) ?? true)));
             _replaysList.Refresh();
-            _replayPanel.SetData(null);
+            _replayDetail.SetData(null);
         }
 
         #endregion
@@ -168,23 +188,35 @@ namespace BeatLeader.Components {
         private void RefreshSortingInternal() {
             if (_headers is null) return;
             _replaysList.Refresh();
-            _replayPanel.SetData(null);
+            _replayDetail.SetData(null);
         }
 
         #endregion
 
-        #region Battle Royale
+        #region Replay Mode
 
-        private bool BattleRoyaleEnabled {
-            get;
-            set;
+        public enum ReplayMode {
+            Standard,
+            BattleRoyale
         }
+        
+        private ReplayMode CurrentReplayMode {
+            get => _currentReplayMode;
+            set {
+                _currentReplayMode = value;
+                _detailsContainer.SelectTab(value is ReplayMode.BattleRoyale ? 1 : 0);
+                _detailPanel = value is ReplayMode.BattleRoyale ? _battleRoyaleDetail : _replayDetail;
+                _replaysList.AllowMultiselect = _detailPanel.AllowReplayMultiselect;
+                ReplayModeChangedEvent?.Invoke(value);
+            }
+        }
+
+        private ReplayMode _currentReplayMode;
+        private IDetailPanel _detailPanel = null!;
 
         #endregion
 
         #region Callbacks
-
-        private IReplayHeader? _selectedHeader;
 
         private void HandleReplayAdded(IReplayHeader header) {
             AddReplayToList(header);
@@ -192,7 +224,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleReplayDeleted(IReplayHeader header) {
-            if (_selectedHeader == header) _replayPanel.SetData(null);
+            _replayDetail.SetData(null);
             RemoveReplayFromList(header);
         }
 
@@ -206,20 +238,28 @@ namespace BeatLeader.Components {
             ListHeaders.Clear();
             ListHeaders.AddRange(replaysToKeep);
             _replaysList.Refresh();
-            _replayPanel.SetData(null);
+            _replayDetail.SetData(null);
         }
 
-        [UsedImplicitly]
+        private void HandleItemsSelected(ICollection<int> items) {
+            _detailPanel.SetData(_replaysList, ListHeaders.TakeIndexes(items));
+        }
+
+        [UIAction("replay-mode-change"), UsedImplicitly]
+        private void HandleReplayModeChanged(ReplayMode mode) {
+            CurrentReplayMode = mode;
+        }
+
+        [UIAction("sorter-change"), UsedImplicitly]
         private void HandleSorterChanged(ReplaysList.Sorter sorter, SortOrder sortOrder) {
             _replaysList.SortBy = sorter;
             _replaysList.SortOrder = sortOrder;
+            RefreshSortingInternal();
         }
 
-        [UsedImplicitly]
-        private void HandleReplaysSelected(IReplayHeader[]? headers) {
-            if (headers is null) return;
-            // _selectedHeader = headers;
-            // _replayPanel.SetData(_selectedHeader);
+        [UIAction("reload-data"), UsedImplicitly]
+        private void HandleReloadButtonClicked() {
+            ReloadData(_cachedShowBeatmapNameIfCorrect);
         }
 
         [UIAction("cancel-loading"), UsedImplicitly]

@@ -89,6 +89,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             var characteristicPanel = Instantiate(
                 BeatmapCharacteristicSegmentedControl, _container, true);
+            characteristicPanel.transform.localScale = Vector3.one;
             characteristicPanel
                 .GetComponentInChildren<IconSegmentedControl>(true)
                 .SetField("_container", BeatSaberUI.DiContainer);

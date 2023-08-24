@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class HorizontalMiniProfileContainer : ReeUIComponentV2 {
+    internal class HorizontalMiniProfileContainer : ReeUIComponentV3<HorizontalMiniProfileContainer> {
         #region UI Components
 
         [UIValue("mini-profile"), UsedImplicitly]
@@ -95,6 +95,7 @@ namespace BeatLeader.Components {
 
         private const string PlayerEndpoint = BLConstants.BEATLEADER_API_URL + "/player/";
 
+        //TODO: move to new web requests
         private async Task GetPlayerAsync(string playerId, CancellationToken token) {
             UpdateVisibility(State.Loading);
             var player = await WebUtils.SendAndDeserializeAsync<Player>(PlayerEndpoint + playerId);
@@ -110,7 +111,7 @@ namespace BeatLeader.Components {
         #region Init
 
         protected override void OnInstantiate() {
-            _horizontalMiniProfile = Instantiate<HorizontalMiniProfile>(transform);
+            _horizontalMiniProfile = ReeUIComponentV2.Instantiate<HorizontalMiniProfile>(transform);
         }
         
         #endregion

@@ -5,7 +5,6 @@ using System.Linq;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -14,7 +13,7 @@ using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
 
 namespace BeatLeader.Components {
-    internal class ReplaysList : ReeUIComponentV3<ReplaysList>, TableView.IDataSource {
+    internal class ReplaysList : ListComponentBase<ReplaysList, IReplayHeader> {
         #region Cells
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
@@ -238,65 +237,27 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Events
+        #region Configuration
 
-        [ExternalProperty, UsedImplicitly]
-        public event Action<IReplayHeader[]?>? ReplaysSelectedEvent;
-
-        #endregion
-
-        #region UI Components
-
-        [UIValue("visible-cells")]
-        public const int VisibleCells = 7;
-
-        [UIComponent("list")]
-        private readonly CustomCellListTableData _replaysList = null!;
-
-        [UIObject("empty-text")]
-        private readonly GameObject _emptyTextObject = null!;
-
-        private TableView _tableView = null!;
-
-        #endregion
-
-        #region Init & Dispose
-
-        protected override void OnInitialize() {
-            _tableView = _replaysList.tableView;
-            _selectedCellIndexes = _tableView.GetField<HashSet<int>, TableView>("_selectedCellIdxs");
-            _tableView.SetDataSource(this, true);
-            _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
-            Refresh();
-        }
-
-        protected override void OnDispose() {
-            var cells = _tableView.GetField<Dictionary<string, List<TableCell>>, TableView>("_reusableCells");
-            foreach (var cell in cells.Values.SelectMany(cellList => cellList)) Destroy(cell);
-            foreach (var cell in _tableView.visibleCells) Destroy(cell);
-        }
+        protected override float CellSize => AbstractDataCell.CellHeight;
+        
+        public bool showBeatmapNameIfCorrect = true;
 
         #endregion
 
         #region TableView
 
-        float TableView.IDataSource.CellSize() => AbstractDataCell.CellHeight;
-
-        int TableView.IDataSource.NumberOfCells() => replays?.Count ?? 0;
-
-        private HashSet<int> _selectedCellIndexes = null!;
-
-        TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) {
-            if (tableView.DequeueReusableCellForIdentifier(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
-                cell = AbstractDataCell.Create<ReplayDataCell>(replays[idx]);
-            } else cell.Init(replays[idx]);
+        public bool AllowMultiselect {
+            get => CellSelectionType is TableViewSelectionType.Multiple;
+            set => CellSelectionType = value ? TableViewSelectionType.Multiple : TableViewSelectionType.Single;
+        }
+        
+        protected override TableCell ConstructCell(IReplayHeader data) {
+            if (DequeueReusableCell(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
+                cell = AbstractDataCell.Create<ReplayDataCell>(data);
+            } else cell.Init(data);
             cell.ShowBeatmapName = showBeatmapNameIfCorrect;
             return cell;
-        }
-
-        private void ShowEmptyScreen(bool show) {
-            _replaysList.gameObject.SetActive(!show);
-            _emptyTextObject.SetActive(show);
         }
 
         #endregion
@@ -356,39 +317,8 @@ namespace BeatLeader.Components {
         private SortOrder _sortOrder;
 
         private void RefreshSorting() {
-            replays.Sort(_headerComparator);
-            if (_sortOrder is SortOrder.Ascending) replays.Reverse();
-        }
-
-        #endregion
-
-        #region Data
-
-        public bool AllowMultiselect {
-            get => _tableView.selectionType is TableViewSelectionType.Multiple;
-            set => _tableView.selectionType = value ? TableViewSelectionType.Multiple : TableViewSelectionType.Single;
-        }
-
-        public readonly List<IReplayHeader> replays = new();
-
-        public bool showBeatmapNameIfCorrect = true;
-
-        public void Refresh() {
-            _tableView.ClearSelection();
-            RefreshSorting();
-            _tableView.ReloadData();
-            var empty = replays.Count is 0;
-            ShowEmptyScreen(empty);
-            if (!empty) return;
-            ReplaysSelectedEvent?.Invoke(null);
-        }
-
-        #endregion
-
-        #region Callbacks
-
-        private void HandleCellSelected(TableView view, int cellIdx) {
-            ReplaysSelectedEvent?.Invoke(_selectedCellIndexes.Select(x => replays![x]).ToArray());
+            items.Sort(_headerComparator);
+            if (_sortOrder is SortOrder.Ascending) items.Reverse();
         }
 
         #endregion

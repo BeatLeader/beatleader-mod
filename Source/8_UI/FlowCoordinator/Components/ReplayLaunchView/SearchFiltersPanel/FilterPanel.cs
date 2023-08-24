@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class FilterPanel : ReeUIComponentV2 {
@@ -30,9 +31,10 @@ namespace BeatLeader.Components {
         [UIComponent("container")]
         private readonly Transform _container = null!;
 
-        private TextMeshProUGUI? _filtersText;
-        private GameObject? _placeholderTextObject;
-        private GameObject? _clearButtonObject;
+        private TextMeshProUGUI _filtersText = null!;
+        private Button _button = null!;
+        private GameObject _placeholderTextObject = null!;
+        private GameObject _clearButtonObject = null!;
 
         #endregion
 
@@ -43,7 +45,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             var buttonTransform = Instantiate(FiltersButtonPrefab,
                 _container, false).transform;
-            var button = buttonTransform
+            _button = buttonTransform
                 .GetComponent<NoTransitionsButton>();
             var clearButton = buttonTransform.Find("ClearButton")
                 .GetComponent<NoTransitionsButton>();
@@ -52,7 +54,7 @@ namespace BeatLeader.Components {
             _placeholderTextObject = buttonTransform.Find("PlaceholderText").gameObject;
             _clearButtonObject = buttonTransform.Find("ClearButton").gameObject;
 
-            button.onClick.AddListener(HandleFiltersButtonClicked);
+            _button.onClick.AddListener(HandleFiltersButtonClicked);
             clearButton.onClick.AddListener(HandleClearFiltersButtonClicked);
             _isInitialized = true;
             SetFilters(null);
@@ -60,6 +62,18 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region Interactable
+
+        public bool Interactable {
+            get => _button?.interactable ?? false;
+            set {
+                ValidateAndThrow();
+                _button.interactable = value;
+            }
+        }
+
+        #endregion
+        
         #region SetFilters
 
         public void SetFilters(params string[]? filters) {

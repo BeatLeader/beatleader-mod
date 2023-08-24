@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BeatLeader.Utils;
+using BeatSaberMarkupLanguage.Parser;
 using IPA.Utilities;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace BeatLeader.Components {
             var components = typeof(T)
                 .GetMembersWithAttribute<ExternalComponentAttribute, MemberInfo>();
 
-            var setters = new Dictionary<string, Action<T, object, object>>();
+            var setters = new Dictionary<string, Action<T, BSMLParserParams, object>>();
             HandleExternalPropertySetters(GetProperties(typeof(T)), setters);
             propertySetters = setters;
 
@@ -35,18 +35,18 @@ namespace BeatLeader.Components {
 
         public virtual string ComponentName { get; } = typeof(T).Name;
 
-        public IDictionary<string, Action<T, object, object>> ExternalProperties => propertySetters;
+        public IDictionary<string, Action<T, BSMLParserParams, object>> ExternalProperties => propertySetters;
 
         public IEnumerable<Func<T, Component>> ExternalComponents => componentGetters;
 
-        private static readonly IDictionary<string, Action<T, object, object>> propertySetters;
+        private static readonly IDictionary<string, Action<T, BSMLParserParams, object>> propertySetters;
         private static readonly IEnumerable<Func<T, Component>> componentGetters;
 
         #region Property Assigning
 
         private static void HandleExternalPropertySetters(
             ICollection<(MemberInfo, string, ExternalPropertyAttribute)> properties,
-            IDictionary<string, Action<T, object, object>> dict,
+            IDictionary<string, Action<T, BSMLParserParams, object>> dict,
             string? prefix = null,
             Stack<MemberInfo>? stackMembers = null
         ) {
@@ -55,7 +55,7 @@ namespace BeatLeader.Components {
             foreach (var (member, propName, attribute) in properties) {
                 var name = $"{prefix}{propName}";
                 if (dict.ContainsKey(name)) {
-                    throw new InvalidOperationException($"Cannot bind multiple properties with the same name \"{member.Name}\"!");
+                    throw new InvalidOperationException($"Cannot bind multiple properties with the same name \"{name}\"!");
                 }
                 if (attribute.ExportMode is PropertyExportMode.Inherit) {
                     member.GetMemberTypeImplicitly(out var memberType);
@@ -68,8 +68,8 @@ namespace BeatLeader.Components {
                     HandleExternalPropertySetters(props, dict, string.IsNullOrEmpty(prefix) ? null : prefix, valueStack);
                     continue;
                 }
-                dict.Add(name, (x, host, val) => SetProperty(
-                    member, AcquireValueByStack(x, stackMembers), host, val));
+                dict.Add(name, (x, parserParams, val) => SetProperty(
+                    member, AcquireValueByStack(x, stackMembers), parserParams, val));
             }
         }
 
@@ -86,22 +86,31 @@ namespace BeatLeader.Components {
             return value;
         }
 
-        private static void SetProperty(MemberInfo member, object? obj, object host, object value) {
+        private static void SetProperty(MemberInfo member, object? obj, BSMLParserParams parserParams, object value) {
             try {
                 if (obj is null) throw new ArgumentNullException(nameof(obj));
                 member.GetMemberTypeImplicitly(out var type);
+                //is needed to be converted
                 if (value is string str && type != typeof(string)) {
                     if (member.MemberType == MemberTypes.Event) {
-                        var hostType = host.GetType();
-                        var mtd = hostType.GetMethod(str, ReflectionUtils.DefaultFlags);
-                        mtd ??= hostType.GetMethod($"set_{str}", ReflectionUtils.DefaultFlags);
-                        if (mtd is null) throw new MissingMethodException($"Cannot find a method with name \"{str}\"");
-                        value = mtd.CreateDelegate(type, host);
+                        //if target is event
+                        if (!parserParams.actions.TryGetValue(str, out var bsmlAction)) {
+                            throw new MissingMethodException($"Cannot find a method with name \"{str}\"");
+                        }
+                        value = bsmlAction.GetField<MethodInfo, BSMLAction>("methodInfo").CreateDelegate(type, parserParams.host);
+                    } else if (str.StartsWith("~")) {
+                        //if value should be acquired by id
+                        if (!parserParams.values.TryGetValue(str, out var bsmlValue)) {
+                            throw new MissingMemberException($"Cannot find a value with id \"{str}\"");
+                        }
+                        value = bsmlValue.GetValue();
                     } else {
+                        //if value should be converted directly from string
                         var convertedValue = StringConverter.Convert(str, type!);
                         value = convertedValue ?? throw new InvalidCastException($"Cannot convert {value.GetType().Name} to {type!.Name}");
                     }
                 }
+                //setting value
                 member.SetValueImplicitly(obj, value);
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to assign \"{member.Name}\" to object of type {typeof(T).Name}: \n{ex}");
@@ -114,7 +123,7 @@ namespace BeatLeader.Components {
                     var attr = x.GetCustomAttribute<ExternalPropertyAttribute>();
                     return (x, attr?.Name ?? x.Name, attr);
                 })
-                .Where(static x => x.attr is not null 
+                .Where(static x => x.attr is not null
                     && x.x is PropertyInfo or FieldInfo or EventInfo)
                 .ToArray()!;
         }

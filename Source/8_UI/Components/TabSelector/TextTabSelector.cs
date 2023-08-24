@@ -7,7 +7,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    internal class TabSegmentedControl : ComponentLayoutBase<TabSegmentedControl> {
+    internal class TextTabSelector : LayoutComponentBase<TextTabSelector> {
         #region Prefab
 
         [FirstResource]
@@ -29,9 +29,28 @@ namespace BeatLeader.Components {
             get => _tabNames;
             set {
                 _tabNames = value;
-                RefreshTexts();
+                if (!IsInitialized) return;
+                Refresh();
             }
         }
+        
+        [ExternalProperty, UsedImplicitly]
+        public bool HideBg {
+            get => _hideBg;
+            set {
+                _hideBg = value;
+                if (!IsInitialized) return;
+                Refresh();
+            }
+        }
+
+        [ExternalProperty, UsedImplicitly]
+        public float BgSkew {
+            set => _textSegmentedControl.GetComponentsInChildren<ImageView>().ForEach(x => x.SetField("_skew", value));
+        }
+
+        private IReadOnlyList<string> _tabNames = Array.Empty<string>();
+        private bool _hideBg;
 
         #endregion
 
@@ -41,10 +60,9 @@ namespace BeatLeader.Components {
         
         [ExternalComponent]
         private TextSegmentedControl _textSegmentedControl = null!;
-        
-        private IReadOnlyList<string> _tabNames = Array.Empty<string>();
-        
+
         public bool SelectTab(string tabName) {
+            ValidateAndThrow();
             var cell =_textSegmentedControl.cells
                 .Select(static x => x as TextSegmentedControlCell)
                 .FirstOrDefault(x => x!.text == tabName);
@@ -57,10 +75,11 @@ namespace BeatLeader.Components {
             if (!_textSegmentedControlPrefab) this.LoadResources();
             _textSegmentedControl = _textSegmentedControlPrefab.CopyComponent<TextSegmentedControl>(Content);
             _textSegmentedControl.didSelectCellEvent += HandleCellSelected;
-            RefreshTexts();
+            Refresh();
         }
 
-        private void RefreshTexts() {
+        private void Refresh() {
+            _textSegmentedControl.SetField("_hideCellBackground", _hideBg);
             _textSegmentedControl.SetTexts(TabNames);
         }
 

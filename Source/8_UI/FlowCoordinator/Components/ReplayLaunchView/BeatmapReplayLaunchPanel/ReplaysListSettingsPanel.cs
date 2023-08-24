@@ -6,7 +6,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
-using UnityEngine;
+using static BeatLeader.Components.BeatmapReplayLaunchPanel;
 using static BeatLeader.Components.ReplaysList;
 
 namespace BeatLeader.Components {
@@ -17,7 +17,7 @@ namespace BeatLeader.Components {
         public event Action<Sorter, SortOrder>? SorterChangedEvent;
 
         [ExternalProperty, UsedImplicitly]
-        public event Action<bool>? BattleRoyaleStateChangedEvent;
+        public event Action<ReplayMode>? ReplayModeChangedEvent;
 
         [ExternalProperty, UsedImplicitly]
         public event Action? ReloadDataEvent;
@@ -27,7 +27,7 @@ namespace BeatLeader.Components {
         #region UI Components
 
         [UIComponent("tab-control")]
-        private readonly TabSegmentedControl _tabControl = null!;
+        private readonly TextTabSelector _textTabControl = null!;
 
         #endregion
 
@@ -37,11 +37,11 @@ namespace BeatLeader.Components {
             get => _sortOrder;
             set {
                 _sortOrder = value;
-                _tabControl.SelectTab(_sorter.ToString());
+                _textTabControl.SelectTab(_sorter.ToString());
                 RefreshSorters();
             }
         }
-        
+
         public Sorter Sorter {
             get => _sorter;
             set {
@@ -62,14 +62,14 @@ namespace BeatLeader.Components {
 
         [UIValue("sorters"), UsedImplicitly]
         private readonly List<object> _localSorters = sorters;
-        
+
         [UIValue("orders"), UsedImplicitly]
         private readonly List<string> _localOrders = orders;
-        
+
         private static readonly List<object> sorters = Enum.GetNames(typeof(Sorter)).ToList<object>();
 
         private static readonly List<string> orders = Enum.GetNames(typeof(SortOrder)).ToList();
-        
+
         private SortOrder _sortOrder;
         private Sorter _sorter;
 
@@ -83,8 +83,7 @@ namespace BeatLeader.Components {
 
         [UIComponent("settings-modal")]
         private readonly ModalView _settingsModal = null!;
-
-        [UsedImplicitly]
+        
         private void ShowModal() {
             _settingsModal.Show(true);
         }
@@ -103,20 +102,25 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        [UsedImplicitly]
+        [UIAction("order-tab-select"), UsedImplicitly]
         private void HandleOrderTabSelected(string tabName) {
             _sortOrder = StringConverter.Convert<SortOrder>(tabName);
             RefreshSorters();
         }
 
-        [UsedImplicitly]
+        [UIAction("reload-click"), UsedImplicitly]
         private void HandleReloadButtonClicked() {
             ReloadDataEvent?.Invoke();
         }
 
-        [UsedImplicitly]
+        [UIAction("settings-click"), UsedImplicitly]
+        private void HandleSettingsButtonClicked() {
+            ShowModal();
+        }
+
+        [UIAction("battle-royale-toggle"), UsedImplicitly]
         private void HandleBattleRoyaleButtonToggled(bool state) {
-            BattleRoyaleStateChangedEvent?.Invoke(state);
+            ReplayModeChangedEvent?.Invoke(state ? ReplayMode.BattleRoyale : ReplayMode.Standard);
         }
 
         #endregion

@@ -1,54 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Utils;
+using JetBrains.Annotations;
 
 namespace BeatLeader {
+    [PublicAPI]
     public abstract class StringConverter<T> : StringConverter {
-        protected sealed override Type Type { get; } = typeof(T);
+        private readonly Type _type = typeof(T);
+        
+        protected abstract T? ConvertTo(string str);
+
+        protected sealed override bool CanConvertTo(Type targetType) {
+            return targetType == _type || targetType.IsSubclassOf(_type)
+                || (targetType.IsValueType && _type == typeof(Nullable<>).MakeGenericType(targetType));
+        }
 
         protected sealed override object? ConvertTo(string str, Type targetType) => ConvertTo(str);
-
-        protected abstract T? ConvertTo(string str);
     }
 
+    [PublicAPI]
     public abstract class StringConverter {
         #region Abstraction
 
-        protected abstract Type Type { get; }
+        protected abstract bool CanConvertTo(Type targetType);
 
         protected abstract object? ConvertTo(string str, Type targetType);
 
         #endregion
 
-        static StringConverter() {
-            var defaultConverters = new List<StringConverter> {
-                new StringToIntConverter(),
-                new StringToFloatConverter(),
-                new StringToDoubleConverter(),
-                new StringToBoolConverter(),
-                new StringToEnumConverter(),
-                new StringToSpriteConverter(),
-                new StringToRectOffsetConverter()
-            };
-            foreach (var converter in defaultConverters) AddConverter(converter);
-        }
+        private static readonly Dictionary<Type, StringConverter> cachedConverters = new();
 
-        private static readonly Dictionary<Type, StringConverter> converters = new();
+        private static readonly HashSet<StringConverter> converters = new() {
+            new StringToIntConverter(),
+            new StringToFloatConverter(),
+            new StringToDoubleConverter(),
+            new StringToBoolConverter(),
+            new StringToEnumConverter(),
+            new StringToSpriteConverter(),
+            new StringToRectOffsetConverter(),
+            new StringToColorConverter(),
+            new StringToVector3Converter(),
+            new StringToArrayConverter(),
+            new StringToKeyValuePairConverter()
+        };
 
         public static bool AddConverter(StringConverter converter) {
-            return converters.TryAdd(converter.Type, converter);
+            return converters.Add(converter);
         }
 
         public static bool RemoveConverter(StringConverter converter) {
-            return converters.Remove(converter.Type);
+            foreach (var item in cachedConverters
+                .Where(x => x.Value == converter)) {
+                cachedConverters.Remove(item.Key);
+            }
+            return converters.Remove(converter);
         }
 
         public static object? Convert(string str, Type targetType) {
-            if (!converters.TryGetValue(targetType, out var converter)) {
-                converters.TryGetValue(typeof(Nullable<>).MakeGenericType(targetType), out converter);
+            str = str.Trim();
+            if (targetType == typeof(string) || targetType == typeof(object)) return str;
+            if (!cachedConverters.TryGetValue(targetType, out var converter)) {
+                converter = converters.FirstOrDefault(x => x.CanConvertTo(targetType));
+                cachedConverters[targetType] = converter;
             }
-            converter ??= converters.FirstOrDefault(x => targetType.IsSubclassOf(x.Key)).Value;
             return converter?.ConvertTo(str, targetType);
         }
 

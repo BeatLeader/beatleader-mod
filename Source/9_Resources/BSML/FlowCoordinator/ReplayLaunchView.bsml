@@ -4,7 +4,5 @@
       <macro.reparent transform="ui-component"/>
     </macro.as-host>
   </vertical>
-  <macro.as-host host="replay-launch-panel">
-    <macro.reparent transform="ui-component"/>
-  </macro.as-host>
+  <BeatmapReplayLaunchPanel id="replay-launch-panel"/>
 </vertical>

@@ -1,10 +1,11 @@
-﻿using HMUI;
+﻿using BeatSaberMarkupLanguage;
+using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class AdvancedImage : ComponentLayoutBase<AdvancedImage> {
+    internal class AdvancedImage : LayoutComponentBase<AdvancedImage> {
         #region UI Properties
 
         [ExternalProperty, UsedImplicitly]
@@ -20,7 +21,7 @@ namespace BeatLeader.Components {
         }
 
         [ExternalProperty, UsedImplicitly]
-        public Material Material {
+        public Material? Material {
             get => Image.material;
             set => Image.material = value;
         }
@@ -46,7 +47,7 @@ namespace BeatLeader.Components {
             var imageViewGo = new GameObject("Image");
             imageViewGo.transform.SetParent(ContentTransform, false);
             Image = imageViewGo.AddComponent<ImageView>();
-            Material = BundleLoader.UIAdditiveGlowMaterial;
+            Material = Utilities.ImageResources.NoGlowMat;
             PreserveAspect = true;
         }
 

@@ -3,18 +3,21 @@
               child-expand-height="false" child-control-height="false">
     <vertical spacing="1" vertical-fit="PreferredSize" pref-height="62">
       <vertical pref-width="60" vertical-fit="Unconstrained">
-        <ReplaysList id="replays-list" ReplaysSelectedEvent="HandleReplaysSelected"/>
+        <horizontal>
+          <ReplaysList id="replays-list" Height="56" InheritWidth="true"/>
+          <Scrollbar id="replays-list-scrollbar" Height="56" Width="8" 
+                     IgnoreLayout="true" anchor-pos-x="34"/>
+        </horizontal>
         <ReplaysListSettingsPanel id="replays-list-settings-panel"
-                                  SorterChangedEvent="HandleSorterChanged" 
-                                  ReloadDataEvent="ReloadDataInternal"/>
+                                  SorterChangedEvent="sorter-change"
+                                  ReplayModeChangedEvent="replay-mode-change"
+                                  ReloadDataEvent="reload-data"/>
       </vertical>
     </vertical>
-    <vertical pref-width="50" pref-height="62"
-              vertical-fit="PreferredSize">
-      <macro.as-host host="replay-panel">
-        <macro.reparent transform="ui-component"/>
-      </macro.as-host>
-    </vertical>
+    <TabsContainer id="details-container" Width="50" Height="62">
+      <ReplayDetailPanel id="replay-detail"/>
+      <BattleRoyaleDetailPanel id="battle-royale-detail"/>
+    </TabsContainer>
   </horizontal>
   <!--LOADING CONTAINER-->
   <vertical active="false" id="loading-container"

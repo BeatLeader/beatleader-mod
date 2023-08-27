@@ -82,8 +82,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Callbacks
 
-        private void HandleNoteProcessRequested(NoteEvent noteEvent) {
-            ProcessNote(noteEvent);
+        private void HandleNoteProcessRequested(LinkedListNode<NoteEvent> noteEventNode) {
+            ProcessNote(noteEventNode.Value);
         }
         
         private void HandleNoteWasSpawned(NoteController noteController) {

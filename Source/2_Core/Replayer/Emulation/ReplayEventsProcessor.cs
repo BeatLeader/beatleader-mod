@@ -7,7 +7,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     [UsedImplicitly]
-    public class ReplayEventsProcessor : IInitializable, ILateTickable, IDisposable {
+    public class ReplayEventsProcessor : IInitializable, ITickable, IDisposable {
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
         [Inject] private readonly IVirtualPlayersManager _virtualPlayersManager = null!;
 
@@ -39,7 +39,7 @@ namespace BeatLeader.Replayer.Emulation {
             _virtualPlayersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
 
-        public void LateTick() {
+        public void Tick() {
             if (!_allowProcess) return;
             var songTime = _beatmapTimeController.SongTime;
 

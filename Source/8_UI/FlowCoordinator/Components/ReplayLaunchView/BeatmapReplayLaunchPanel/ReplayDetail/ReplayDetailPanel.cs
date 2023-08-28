@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Interop;
@@ -70,14 +69,8 @@ namespace BeatLeader.Components {
         #region Init
 
         public bool AllowReplayMultiselect => false;
-        
-        private ReplayerMenuLoader? _menuLoader;
-        private bool _isInitialized;
 
-        public void Setup(ReplayerMenuLoader loader) {
-            _menuLoader = loader;
-            _isInitialized = true;
-        }
+        private readonly ReplayerMenuLoader? _menuLoader = ReplayerMenuLoader.Instance;
 
         protected override void OnInstantiate() {
             _replayStatisticsPanel = ReeUIComponentV2.Instantiate<ReplayStatisticsPanel>(transform);
@@ -85,7 +78,7 @@ namespace BeatLeader.Components {
             //_miniProfile = ReeUIComponentV2.Instantiate<HorizontalMiniProfileContainer>(transform);
 
             _replayStatisticsPanel.SetData(null, null, true, true);
-            
+
             _downloadBeatmapPanel.BackButtonClickedEvent += HandleDownloadMenuBackButtonClicked;
             _downloadBeatmapPanel.DownloadAbilityChangedEvent += HandleDownloadAbilityChangedEvent;
 
@@ -116,16 +109,14 @@ namespace BeatLeader.Components {
         private bool _beatmapIsMissing;
         private bool _isIntoDownloadMenu;
         private bool _isWorking;
-        
-        //unused in this implementation
-        public event Action<IReplayHeader>? NavigateEvent;
-        
-        void BeatmapReplayLaunchPanel.IDetailPanel.SetData(IListComponent<IReplayHeader> list, IReadOnlyList<IReplayHeader> headers) {
+
+        void BeatmapReplayLaunchPanel.IDetailPanel.SetData(IBeatmapReplayLaunchPanel launchPanel, IReadOnlyList<IReplayHeader> headers) {
             SetData(headers.Count > 0 ? headers[0] : null);
         }
-        
+
+        public void OnStateChange(bool active) { }
+
         public void SetData(IReplayHeader? header) {
-            if (!_isInitialized) return;
             if (_isWorking) {
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = new();
@@ -179,7 +170,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Callbacks
-        
+
         private void HandleDownloadAbilityChangedEvent(bool ableToDownload) {
             WatchButtonInteractable = ableToDownload;
         }
@@ -189,7 +180,7 @@ namespace BeatLeader.Components {
             _isIntoDownloadMenu = false;
             _ = RefreshAvailabilityAsync(_header!.ReplayInfo!, _cancellationTokenSource.Token);
         }
-        
+
         [UIAction("delete-button-click"), UsedImplicitly]
         private void HandleDeleteButtonClicked() {
             _header?.DeleteReplay();
@@ -205,7 +196,7 @@ namespace BeatLeader.Components {
                 SetDownloadPanelActive(true);
                 return;
             }
-            if (!_isInitialized || _header is null || _header.FileStatus is Corrupted) return;
+            if (_header is null || _header.FileStatus is Corrupted) return;
             _ = _menuLoader!.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _miniProfile.Player);
         }
 

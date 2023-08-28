@@ -60,7 +60,7 @@ namespace BeatLeader.Replayer {
             StartReplay(data);
         }
 
-        public async Task StartReplaysAsync(IReadOnlyDictionary<Replay, Player> replays, ReplayerSettings? settings, CancellationToken token) {
+        public async Task StartReplaysAsync(IReadOnlyDictionary<Replay, Player?> replays, ReplayerSettings? settings, CancellationToken token) {
             if (replays.Count == 0) return;
             
             settings ??= ReplayerSettings.UserSettings;

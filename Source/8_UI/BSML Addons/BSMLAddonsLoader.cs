@@ -70,7 +70,7 @@ namespace BeatLeader.UI.BSML_Addons {
             const string DATA_METHOD_NAME = "GetBSMLData";
 
             var types = Assembly.GetExecutingAssembly().GetTypes().Where(x =>
-                x.IsSubclassOf(typeof(ReeUIComponentV3Base)) && x != typeof(ReeUIComponentV3<>) && !x.IsAbstract);
+                x.IsSubclassOf(typeof(ReeUIComponentV3Base)) && x is { IsGenericType:false, IsAbstract: false });
             foreach (var type in types) {
                 try {
                     var method = type.GetMethod(DATA_METHOD_NAME, ReflectionUtils.StaticFlags | BindingFlags.FlattenHierarchy);
@@ -78,6 +78,7 @@ namespace BeatLeader.UI.BSML_Addons {
                     var (tag, handler) = ((BSMLTag, TypeHandler))method.Invoke(null, null);
                     addonTags.Add(tag);
                     addonHandlers.Add(handler);
+                    Plugin.Log.Debug($"UI Component \"{tag.Aliases[0]}\" registered into BSML");
                 } catch (Exception ex) {
                     Plugin.Log.Error($"Failed to get {type.Name} data: \n{ex}");
                 }

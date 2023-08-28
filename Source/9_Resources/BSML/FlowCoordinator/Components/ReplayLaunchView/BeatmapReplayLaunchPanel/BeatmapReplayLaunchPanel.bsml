@@ -14,10 +14,10 @@
                                   ReloadDataEvent="reload-data"/>
       </vertical>
     </vertical>
-    <TabsContainer id="details-container" Width="50" Height="62">
+    <ObjectSwitcher id="details-container" Width="50" Height="62">
       <ReplayDetailPanel id="replay-detail"/>
       <BattleRoyaleDetailPanel id="battle-royale-detail"/>
-    </TabsContainer>
+    </ObjectSwitcher>
   </horizontal>
   <!--LOADING CONTAINER-->
   <vertical active="false" id="loading-container"

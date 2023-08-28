@@ -100,7 +100,7 @@ namespace BeatLeader.Components {
             _list = list;
         }
 
-        protected override TableCell ConstructCell(IReplayHeader data) {
+        protected override ListComponentBaseCell ConstructCell(IReplayHeader data) {
             var cell = DequeueReusableCell(Cell.CellName) as Cell ?? Cell.InstantiateCell<Cell>();
             cell.Init((data, this, _list));
             return cell;

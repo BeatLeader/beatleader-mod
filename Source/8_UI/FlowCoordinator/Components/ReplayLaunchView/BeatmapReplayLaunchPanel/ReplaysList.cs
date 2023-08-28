@@ -17,7 +17,7 @@ namespace BeatLeader.Components {
         #region Cells
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-        private abstract class AbstractDataCell : TableCell {
+        private abstract class AbstractDataCell : ListComponentBaseCell {
             #region Config
 
             public const int CellHeight = 8;
@@ -237,22 +237,18 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Configuration
-
-        protected override float CellSize => AbstractDataCell.CellHeight;
-        
-        public bool showBeatmapNameIfCorrect = true;
-
-        #endregion
-
         #region TableView
 
         public bool AllowMultiselect {
             get => CellSelectionType is TableViewSelectionType.Multiple;
             set => CellSelectionType = value ? TableViewSelectionType.Multiple : TableViewSelectionType.Single;
         }
-        
-        protected override TableCell ConstructCell(IReplayHeader data) {
+
+        protected override float CellSize => AbstractDataCell.CellHeight;
+
+        public bool showBeatmapNameIfCorrect = true;
+
+        protected override ListComponentBaseCell ConstructCell(IReplayHeader data) {
             if (DequeueReusableCell(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
                 cell = AbstractDataCell.Create<ReplayDataCell>(data);
             } else cell.Init(data);

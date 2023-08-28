@@ -42,7 +42,19 @@ namespace BeatLeader.Components {
     internal interface IModifiableListComponent<TItem> : IListComponent<TItem> {
         IList<TItem> Items { get; }
     }
-
+    
+    /// <summary>
+    /// Cell base for <c>ListComponentBase</c>
+    /// </summary>
+    internal abstract class ListComponentBaseCell : TableCell {
+        public event Action? LateSelectionDidChangeEvent;
+        
+        protected sealed override void InternalToggle() {
+            base.InternalToggle();
+            LateSelectionDidChangeEvent?.Invoke();
+        }
+    }
+    
     /// <summary>
     /// Universal ReeUIComponentV3 base for lists
     /// </summary>
@@ -64,7 +76,13 @@ namespace BeatLeader.Components {
 
         int TableView.IDataSource.NumberOfCells() => items.Count;
 
-        TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) => ConstructCell(items[idx]);
+        TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) {
+            //since TableView does not notify us when cells are unselected, we need to do it in that hacky-wacky way
+            var cell = ConstructCell(items[idx]);
+            cell.LateSelectionDidChangeEvent -= HandleLateSelectionChanged;
+            cell.LateSelectionDidChangeEvent += HandleLateSelectionChanged;
+            return cell;
+        }
 
         #endregion
 
@@ -135,7 +153,7 @@ namespace BeatLeader.Components {
         }
 
         private void ClearSelectionInternal(int idx) {
-            if (CellSelectionType is TableViewSelectionType.None) return;
+            if (items.Count is 0 || CellSelectionType is TableViewSelectionType.None) return;
             if (idx is not -1 && CellSelectionType is TableViewSelectionType.Multiple) _selectedCellIndexes.Remove(idx);
             else _tableView.ClearSelection();
         }
@@ -143,6 +161,7 @@ namespace BeatLeader.Components {
         private void ShowEmptyScreen(bool show) {
             _listObject.SetActive(!show);
             _emptyTextObject.SetActive(show);
+            _scrollbar?.SetActive(!show);
         }
 
         #endregion
@@ -155,7 +174,7 @@ namespace BeatLeader.Components {
 
         protected abstract float CellSize { get; }
 
-        protected abstract TableCell ConstructCell(TItem data);
+        protected abstract ListComponentBaseCell ConstructCell(TItem data);
 
         #endregion
 
@@ -186,13 +205,13 @@ namespace BeatLeader.Components {
             //_scrollbar.Progress = progress;
             //_scrollbar.CanScrollUp = _scrollView._destinationPos > 1f / 1000;
             //_scrollbar.CanScrollDown = _scrollView._destinationPos < _scrollView.contentSize - _scrollView.scrollPageSize - 1f / 1000;
-            
+
             var contentRect = _scrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").rect;
             var viewportRect = _scrollView.GetField<RectTransform, ScrollView>("_viewport").rect;
             _scrollbar.PageHeight = ScrollDirection is ScrollView.ScrollViewDirection.Vertical ?
                 viewportRect.height / contentRect.height :
                 viewportRect.width / contentRect.width;
-            var progress = pos / (_scrollView.GetProperty<float, ScrollView>("contentSize") - 
+            var progress = pos / (_scrollView.GetProperty<float, ScrollView>("contentSize") -
                 _scrollView.GetProperty<float, ScrollView>("scrollPageSize"));
             _scrollbar.Progress = progress;
             _scrollbar.CanScrollUp = _scrollView.GetField<float, ScrollView>("_destinationPos") > 1f / 1000;
@@ -215,9 +234,11 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Setup
-
+        
         // ReSharper disable once StaticMemberInGenericType
         private static readonly CustomListTag customListTag = new();
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly TextTag textTag = new();
 
         private HashSet<int> _selectedCellIndexes = null!;
 
@@ -225,16 +246,21 @@ namespace BeatLeader.Components {
             _listObject = customListTag.CreateObject(ContentTransform);
             var tableData = _listObject.GetComponent<CustomCellListTableData>();
 
-            var textGo = new GameObject("EmptyText");
-            var text = textGo.AddComponent<TextMeshProUGUI>();
+            var textGo = textTag.CreateObject(ContentTransform);
+            var text = textGo.GetComponent<CurvedTextMeshPro>();
             text.fontSize = 3.2f;
             text.text = EmptyText;
+            text.alignment = TextAlignmentOptions.Center;
+            text.fontSizeMin = 1;
+            text.fontSizeMax = 5;
+            text.enableAutoSizing = true;
+            text.enableWordWrapping = false;
             _emptyTextObject = textGo;
 
             _tableView = tableData.tableView;
             _tableView.SetDataSource(this, true);
             Destroy(tableData);
-            
+
             //TODO: asm pub; pub ver:
             //_scrollView = _tableView._scrollView;
             //_scrollView.SetField("_platformHelper", BeatSaberUI.PlatformHelper);
@@ -248,7 +274,7 @@ namespace BeatLeader.Components {
             //_tableView.didSelectCellWithIdxEvent += HandleCellWithIndexSelected;
             //_tableView.gameObject.SetActive(true);
             //ShowEmptyScreen(false);
-            
+
             _scrollView = _tableView.GetField<ScrollView, TableView>("_scrollView");
             _scrollView.SetField("_platformHelper", BeatSaberUI.PlatformHelper);
             _scrollView.SetField("_scrollViewDirection", ScrollDirection);
@@ -259,7 +285,6 @@ namespace BeatLeader.Components {
                 _ => TableView.TableType.Vertical
             });
             _selectedCellIndexes = _tableView.GetField<HashSet<int>, TableView>("_selectedCellIdxs");
-            _tableView.didSelectCellWithIdxEvent += HandleCellWithIndexSelected;
             _tableView.gameObject.SetActive(true);
             ShowEmptyScreen(false);
         }
@@ -268,7 +293,7 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandleCellWithIndexSelected(TableView view, int idx) {
+        private void HandleLateSelectionChanged() {
             ItemsWithIndexesSelectedEvent?.Invoke(_selectedCellIndexes);
         }
 

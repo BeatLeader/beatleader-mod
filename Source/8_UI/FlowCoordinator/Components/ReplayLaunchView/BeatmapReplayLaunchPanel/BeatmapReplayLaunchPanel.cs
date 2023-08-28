@@ -12,18 +12,31 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class BeatmapReplayLaunchPanel : ReeUIComponentV3<BeatmapReplayLaunchPanel> {
+    internal interface IReplayFilter : IBeatmapFilter {
+        string? PlayerName { get; }
+    }
+
+    internal interface IBeatmapReplayLaunchPanel {
+        IListComponent<IReplayHeader> List { get; }
+        IReplayFilter? Filter { get; set; }
+    }
+
+    internal class BeatmapReplayLaunchPanel : ReeUIComponentV3<BeatmapReplayLaunchPanel>, IBeatmapReplayLaunchPanel {
         #region DetailPanel
 
         public interface IDetailPanel {
             bool AllowReplayMultiselect { get; }
-            
-            void SetData(IListComponent<IReplayHeader> list, IReadOnlyList<IReplayHeader> headers);
+
+            void SetData(IBeatmapReplayLaunchPanel launchPanel, IReadOnlyList<IReplayHeader> headers);
+
+            void OnStateChange(bool active);
         }
 
         #endregion
 
         #region UI Components
+
+        IListComponent<IReplayHeader> IBeatmapReplayLaunchPanel.List => _replaysList;
 
         [UIComponent("replays-list"), UsedImplicitly]
         private ReplaysList _replaysList = null!;
@@ -38,7 +51,7 @@ namespace BeatLeader.Components {
         private BattleRoyaleDetailPanel _battleRoyaleDetail = null!;
 
         [UIComponent("details-container"), UsedImplicitly]
-        private TabsContainer _detailsContainer = null!;
+        private ObjectSwitcher _detailsContainer = null!;
 
         [UIComponent("replays-list-scrollbar"), UsedImplicitly]
         private Scrollbar _replaysListScrollbar = null!;
@@ -70,7 +83,6 @@ namespace BeatLeader.Components {
             _replayManager.ReplaysDeletedEvent += HandleReplaysDeleted;
             _replayManager.ReplayDeletedEvent += HandleReplayDeleted;
             _replayManager.ReplayAddedEvent += HandleReplayAdded;
-            _replayDetail.Setup(loader);
             _replayDetail.SetData(null);
             _isInitialized = true;
         }
@@ -82,6 +94,7 @@ namespace BeatLeader.Components {
             _mainContainerCanvasGroup = _mainContainerObject.AddComponent<CanvasGroup>();
             _replaysList.Scrollbar = _replaysListScrollbar;
             _replaysList.ItemsWithIndexesSelectedEvent += HandleItemsSelected;
+            _detailPanel = _replayDetail;
             CurrentReplayMode = ReplayMode.Standard;
         }
 
@@ -141,7 +154,7 @@ namespace BeatLeader.Components {
             _cachedShowBeatmapNameIfCorrect = _showBeatmapNameIfCorrect;
             _tokenSource = null;
             ShowLoadingScreen(false);
-            RefreshFilterInternal();
+            RefreshFilter();
         }
 
         private void RemoveReplayFromList(IReplayHeader header, bool refresh = true) {
@@ -163,22 +176,41 @@ namespace BeatLeader.Components {
 
         #region Filtering
 
-        private Func<IReplayHeader, bool>? _predicate;
-
-        public void FilterBy(Func<IReplayHeader, bool>? predicate) {
-            _predicate = predicate;
-            if (_tokenSource is not null) return;
-            RefreshFilterInternal();
+        public IReplayFilter? Filter {
+            get => _filter;
+            set {
+                if (_filter is not null) _filter.FilterUpdatedEvent -= RefreshFilter;
+                _filter = value;
+                if (_filter is not null) _filter.FilterUpdatedEvent += RefreshFilter;
+                if (_tokenSource is not null) return;
+                RefreshFilter();
+            }
         }
 
-        private void RefreshFilterInternal() {
+        private IReplayFilter? _filter;
+
+        public void RefreshFilter() {
             if (_headers is null) return;
             ListHeaders.Clear();
-            ListHeaders.AddRange(_headers.Where(cell =>
-                cell.FileStatus is not FileStatus.Corrupted
-                && (_predicate?.Invoke(cell) ?? true)));
+            if (_filter is not null) {
+                var filtered = _headers.Where(cell =>
+                    cell.FileStatus is not FileStatus.Corrupted && FilterPredicate(cell));
+                ListHeaders.AddRange(filtered);
+            }
             _replaysList.Refresh();
             _replayDetail.SetData(null);
+        }
+
+        private bool FilterPredicate(IReplayHeader header) {
+            var player = _filter!.PlayerName;
+            var level = _filter.BeatmapLevel?.levelID;
+            var characteristic = _filter.BeatmapCharacteristic?.serializedName;
+            var diff = _filter.BeatmapDifficulty;
+            return header.ReplayInfo is not { } info ||
+                (player is null || info.PlayerName.ToLower().Contains(player))
+                && (!_filter.Enabled || level?.Replace("custom_level_", "") == info.SongHash)
+                && (!diff.HasValue || info.SongDifficulty == diff.Value.ToString())
+                && (characteristic is null || info.SongMode == characteristic);
         }
 
         #endregion
@@ -199,13 +231,16 @@ namespace BeatLeader.Components {
             Standard,
             BattleRoyale
         }
-        
+
         private ReplayMode CurrentReplayMode {
             get => _currentReplayMode;
             set {
                 _currentReplayMode = value;
-                _detailsContainer.SelectTab(value is ReplayMode.BattleRoyale ? 1 : 0);
+                _detailsContainer.ShowObjectWithIndex(value is ReplayMode.BattleRoyale ? 1 : 0);
+                _detailPanel.OnStateChange(false);
                 _detailPanel = value is ReplayMode.BattleRoyale ? _battleRoyaleDetail : _replayDetail;
+                _detailPanel.SetData(this, Array.Empty<IReplayHeader>());
+                _detailPanel.OnStateChange(true);
                 _replaysList.AllowMultiselect = _detailPanel.AllowReplayMultiselect;
                 ReplayModeChangedEvent?.Invoke(value);
             }
@@ -215,7 +250,7 @@ namespace BeatLeader.Components {
         private IDetailPanel _detailPanel = null!;
 
         #endregion
-
+        
         #region Callbacks
 
         private void HandleReplayAdded(IReplayHeader header) {
@@ -242,7 +277,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleItemsSelected(ICollection<int> items) {
-            _detailPanel.SetData(_replaysList, ListHeaders.TakeIndexes(items));
+            _detailPanel.SetData(this, ListHeaders.TakeIndexes(items));
         }
 
         [UIAction("replay-mode-change"), UsedImplicitly]

@@ -4,6 +4,43 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
+    /// <summary>
+    /// Descriptor used for properties sync and export
+    /// </summary>
+    public class AdvancedButtonParamsDescriptor {
+        #region UI Properties
+
+        [ExternalProperty, UsedImplicitly]
+        public bool GrowOnHover { get; set; }
+
+        [ExternalProperty, UsedImplicitly]
+        public bool ColorizeOnHover { get; set; } = true;
+
+        [ExternalProperty, UsedImplicitly]
+        public float HoverLerpMul { get; set; } = 10f;
+
+        [ExternalProperty, UsedImplicitly]
+        public Color ActiveColor { get; set; } = AdvancedButton.DefaultHoveredColor;
+
+        [ExternalProperty, UsedImplicitly]
+        public Color HoveredColor { get; set; } = Color.grey;
+
+        [ExternalProperty, UsedImplicitly]
+        public Color Color { get; set; } = AdvancedButton.DefaultColor;
+
+        [ExternalProperty, UsedImplicitly]
+        public RectOffset Pad { get; set; } = new();
+
+        [ExternalProperty, UsedImplicitly]
+        public Vector3 HoverScaleSum { get; set; } = new(0.2f, 0.2f, 0.2f);
+
+        [ExternalProperty, UsedImplicitly]
+        public Vector3 BaseScale { get; set; } = Vector3.one;
+
+        #endregion
+    }
+
+    //TODO: split into base and implementation
     internal class AdvancedButton : LayoutComponentBase<AdvancedButton> {
         #region Events
 
@@ -22,7 +59,7 @@ namespace BeatLeader.Components {
             get => _sticky;
             set {
                 _sticky = value;
-                _isActive = false;
+                IsActive = false;
             }
         }
 
@@ -45,7 +82,7 @@ namespace BeatLeader.Components {
                 UpdateColor(0);
             }
         }
-        
+
         [ExternalProperty, UsedImplicitly]
         public float HoverLerpMul {
             get => _hoverController?.lerpCoefficient ?? -1f;
@@ -77,8 +114,9 @@ namespace BeatLeader.Components {
             }
         }
 
+        public bool IsActive { get; private set; }
+
         private bool _sticky;
-        private bool _isActive;
         private bool _colorizeOnHover = true;
         private bool _growOnHover = true;
         private Color _color = DefaultColor;
@@ -99,24 +137,22 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Button
-
-        public void Click(bool notifyListeners = false) {
-            Sticky = false;
-            HandleButtonClick(notifyListeners);
-        }
-
-        public void Toggle(bool state, bool notifyListeners = false) {
-            Sticky = true;
-            if (_isActive == state) return;
-            _isActive = !state;
+        
+        /// <summary>
+        /// Emulates UI button click
+        /// </summary>
+        /// <param name="state">Determines the toggle state. Valid only if <c>Sticky</c> is turned on</param>
+        /// <param name="notifyListeners">Determines should event be invoked or not</param>
+        public void Click(bool state = false, bool notifyListeners = false) {
+            if (Sticky) IsActive = !state;
             HandleButtonClick(notifyListeners);
         }
 
         private void HandleButtonClick(bool notifyListeners) {
             if (Sticky) {
-                _isActive = !_isActive;
-                UpdateColor(_isActive ? 1 : 0);
-                if (notifyListeners) ToggleEvent?.Invoke(_isActive);
+                IsActive = !IsActive;
+                UpdateColor(IsActive ? 1 : 0);
+                if (notifyListeners) ToggleEvent?.Invoke(IsActive);
             } else if (notifyListeners) ClickEvent?.Invoke();
         }
 
@@ -147,7 +183,7 @@ namespace BeatLeader.Components {
         public static readonly Color DefaultColor = new(0.8f, 0.8f, 0.8f, 0.2f);
 
         private void UpdateColor(float hoverProgress) {
-            Image.Color = _isActive ? ActiveColor : Color.Lerp(Color, HoveredColor, hoverProgress);
+            Image.Color = IsActive ? ActiveColor : Color.Lerp(Color, HoveredColor, hoverProgress);
         }
 
         #endregion

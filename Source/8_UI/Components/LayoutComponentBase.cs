@@ -116,8 +116,10 @@ namespace BeatLeader.Components {
             Horizontal
         }
         
-        protected override string Markup => $"<{LayoutGroupName} id=\"root\" {LayoutGroupName}-fit=\"PreferredSize\"/>";
+        protected sealed override string Markup => $"<{LayoutGroupName} id=\"root\" {LayoutGroupName}-fit=\"PreferredSize\">{InnerMarkup}</{LayoutGroupName}>";
 
+        protected virtual string? InnerMarkup => null;
+        
         protected virtual LayoutGroupType LayoutGroup => LayoutGroupType.Vertical;
 
         private string LayoutGroupName => LayoutGroup.ToString().ToLower();

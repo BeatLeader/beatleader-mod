@@ -7,7 +7,7 @@ namespace BeatLeader.Components {
     /// </summary>
     /// <typeparam name="TData">Initialization data type</typeparam>
     /// <typeparam name="TComponent">ReeUIComponentV3 to wrap</typeparam>
-    internal abstract class ListCellWithComponent<TData, TComponent> : TableCell
+    internal abstract class ListCellWithComponent<TData, TComponent> : ListComponentBaseCell
         where TComponent : ReeUIComponentV3<TComponent>, ListCellWithComponent<TData, TComponent>.IComponent {
 
         public interface IComponent {

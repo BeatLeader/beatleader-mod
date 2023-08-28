@@ -1,7 +1,7 @@
-﻿<vertical id="container"
+﻿<vertical id="container" horizontal-fit="Unconstrained"
           child-expand-height="false"
           child-control-height="false">
-  <horizontal pref-height="10" pref-width="60">
+  <horizontal pref-height="10">
     <macro.as-host host="beatmap-preview">
       <macro.reparent transform="ui-component"/>
     </macro.as-host>

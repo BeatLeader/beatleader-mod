@@ -7,22 +7,22 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    internal class SearchFiltersPanel : ReeUIComponentV2 {
-        #region Events
+    internal class SearchFiltersPanel : ReeUIComponentV2, IReplayFilter {
+        #region ReplayFilter
 
-        public event Action<string, FiltersMenu.FiltersData>? SearchDataChangedEvent;
+        public IPreviewBeatmapLevel? BeatmapLevel => _beatmapFiltersPanel.BeatmapLevel;
+        public BeatmapCharacteristicSO? BeatmapCharacteristic => _beatmapFiltersPanel.BeatmapCharacteristic;
+        public BeatmapDifficulty? BeatmapDifficulty => _beatmapFiltersPanel.BeatmapDifficulty;
+        public string? PlayerName { get; private set; }
 
-        #endregion
-
-        #region Search & Filters Data
+        public bool Enabled => _beatmapFiltersPanel.Enabled;
         
-        private FiltersMenu.FiltersData _filtersData = new(null, false, null, null);
-        private string _searchPrompt = string.Empty;
+        public event Action? FilterUpdatedEvent;
 
-        private void RefreshSearchData() {
-            SearchDataChangedEvent?.Invoke(_searchPrompt, _filtersData);
+        private void NotifyFilterUpdated() {
+            FilterUpdatedEvent?.Invoke();
         }
-
+        
         #endregion
 
         #region UI Components
@@ -34,7 +34,7 @@ namespace BeatLeader.Components {
         private FilterPanel _filterPanel = null!;
 
         [UIValue("filters-menu"), UsedImplicitly]
-        private FiltersMenu _filtersMenu = null!;
+        private BeatmapFiltersPanel _beatmapFiltersPanel = null!;
 
         [UIValue("settings-button"), UsedImplicitly]
         private ReplayerSettingsButton _replayerSettingsButton = null!;
@@ -46,47 +46,35 @@ namespace BeatLeader.Components {
 
         #region Init
 
-        public bool AllowFilters {
+        public bool FilterPanelInteractable {
             get => _filterPanel.Interactable;
             set => _filterPanel.Interactable = value;
         }
-        
+
         protected override void OnInitialize() {
             _modal.blockerClickedEvent += HandleModalClosed;
             _modal.SetField("_animateParentCanvas", false);
             _searchPanel.Placeholder = "Search Player";
+            _beatmapFiltersPanel.Setup(Content.GetComponentInParent<ViewController>());
         }
 
         protected override void OnInstantiate() {
             _searchPanel = Instantiate<SearchPanel>(transform);
             _filterPanel = Instantiate<FilterPanel>(transform);
-            _filtersMenu = Instantiate<FiltersMenu>(transform);
+            _beatmapFiltersPanel = Instantiate<BeatmapFiltersPanel>(transform);
             _replayerSettingsButton = Instantiate<ReplayerSettingsButton>(transform);
             _searchPanel.TextChangedEvent += HandleSearchPromptChanged;
-            _filtersMenu.FiltersChangedEvent += HandleFiltersChanged;
+            _beatmapFiltersPanel.FilterUpdatedEvent += HandleFilterUpdated;
             _filterPanel.FilterButtonClickedEvent += HandleFilterButtonClicked;
             _filterPanel.ResetFiltersButtonClickEvent += HandleResetFiltersButtonClicked;
         }
 
-        public void Setup(
-            IReplayManager replayManager,
-            ViewController viewController,
-            FlowCoordinator flowCoordinator,
-            LevelSelectionNavigationController levelSelectionNavigationController,
-            LevelCollectionViewController levelCollectionViewController,
-            StandardLevelDetailViewController standardLevelDetailViewController
-        ) {
+        public void Setup(IReplayManager replayManager) {
             _replayerSettingsButton.Setup(replayManager);
-            _filtersMenu.Setup(
-                viewController,
-                flowCoordinator,
-                levelSelectionNavigationController,
-                levelCollectionViewController,
-                standardLevelDetailViewController);
         }
 
         public void NotifyContainerStateChanged() {
-            _filtersMenu.NotifyContainerStateChanged(false);
+            _beatmapFiltersPanel.NotifyContainerStateChanged(false);
         }
 
         #endregion
@@ -94,30 +82,29 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandleModalClosed() {
-            _filtersMenu.NotifyContainerStateChanged(false);
+            _beatmapFiltersPanel.NotifyContainerStateChanged(false);
         }
 
-        private void HandleFiltersChanged(FiltersMenu.FiltersData filters) {
-            _filtersData = filters;
+        private void HandleFilterUpdated() {
             _filterPanel.SetFilters(new[] {
-                filters.overrideBeatmap ? "Beatmap Filter" : null,
-                filters.beatmapCharacteristic is not null ? "Characteristic Filter" : null,
-                filters.beatmapDifficulty is not null ? "Difficulty Filter" : null
+                BeatmapLevel is not null ? "Beatmap Filter" : null,
+                BeatmapCharacteristic is not null ? "Characteristic Filter" : null,
+                BeatmapDifficulty is not null ? "Difficulty Filter" : null
             }.OfType<string>().ToArray());
-            RefreshSearchData();
+            NotifyFilterUpdated();
         }
 
         private void HandleSearchPromptChanged(string text) {
-            _searchPrompt = text;
-            RefreshSearchData();
+            PlayerName = text;
+            NotifyFilterUpdated();
         }
 
         private void HandleResetFiltersButtonClicked() {
-            _filtersMenu.ResetFilters();
+            _beatmapFiltersPanel.ResetFilters();
         }
-        
+
         private void HandleFilterButtonClicked() {
-            _filtersMenu.NotifyContainerStateChanged(true);
+            _beatmapFiltersPanel.NotifyContainerStateChanged(true);
             _modal.Show(true);
         }
 

@@ -93,7 +93,7 @@ namespace BeatLeader.Components {
         #region Init
 
         protected override void OnInitialize() {
-            _cell = Instantiate(LevelTableCellPrefab, _container, false);
+            _cell = Instantiate(LevelTableCellPrefab, _container.parent, false);
             _touchable = _cell.GetComponent<Touchable>();
             _cell.TableViewSetup(new DummyTableCellOwner(), 0);
             _cell.selectionDidChangeEvent += HandleSelectionDidChange;

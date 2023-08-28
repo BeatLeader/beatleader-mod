@@ -16,6 +16,8 @@ namespace BeatLeader.Components {
         bool CanScrollDown { set; }
         
         event Action<ScrollView.ScrollDirection>? ScrollEvent;
+
+        void SetActive(bool active);
     }
 
     /// <summary>
@@ -44,6 +46,10 @@ namespace BeatLeader.Components {
         
         bool IScrollbar.CanScrollDown {
             set => _downButton.interactable = value;
+        }
+
+        public void SetActive(bool active) {
+            Content!.SetActive(active);
         }
 
         #endregion

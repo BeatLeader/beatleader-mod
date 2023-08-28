@@ -4,19 +4,34 @@
     <text text="Battle panel" align="Center"/>
     <AdvancedImage Size="4" Icon="#bl-battle-royale-icon"/>
   </horizontal>
-  <vertical bg="round-rect-panel" horizontal-fit="Unconstrained">
-    <BattleRoyaleOpponentsList id="opponents-list" Height="34" InheritWidth="true" Pad="1"/>
-    <horizontal>
-      <button text="Remove all opponents" on-click="remove-all-opponents-click" skew="0"/>
-    </horizontal>
+  <vertical bg="round-rect-panel" horizontal-fit="Unconstrained"
+            vertical-fit="PreferredSize" pref-height="38">
+    <ObjectSwitcher id="object-switcher" Bindings="Setup - 0, Opponents - 1">
+      <vertical vertical-fit="PreferredSize" pref-width="46">
+        <macro.as-host host="beatmap-filters-panel">
+          <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+      </vertical>
+      <vertical horizontal-fit="Unconstrained">
+        <BattleRoyaleOpponentsList id="opponents-list" Height="38" Width="50" Pad="1"/>
+        <horizontal ignore-layout="true" pref-height="38" child-align="LowerCenter" pad="1"
+                    child-control-width="false" child-expand-width="false"
+                    child-control-height="false" child-expand-height="false">
+          <vertical bg="round-rect-panel" vertical-fit="PreferredSize" pad="1">
+            <AdvancedButton Size="3" Icon="#bl-refresh-icon" ClickEvent="remove-all-opponents-click"/>
+          </vertical>
+        </horizontal>
+      </vertical>
+    </ObjectSwitcher>
   </vertical>
   <horizontal bg="round-rect-panel">
-    <IconTabSelector Tabs="opponents - #bl-play-icon, settings - #bl-settings-icon"
-                     InheritWidth="true" Height="6" tab.Pad="1" tab.GrowOnHover="false" 
-                     tab.HoveredColor="#80808033" tab.HoverLerpMul="100"
-                     tab.BaseScale="0.8" tab.HoverScaleSum="0.2"/>
+    <ImageSegmentedControl Items="Setup - #BL_Overview1Icon, Opponents - #BL_Overview2Icon"
+                           CellWithKeySelectedEvent="cell-select"
+                           InheritWidth="true" Height="6" tab.Pad="1" tab.GrowOnHover="false"
+                           tab.HoveredColor="#80808033" tab.HoverLerpMul="100"
+                           tab.BaseScale="0.8" tab.HoverScaleSum="0.2"/>
   </horizontal>
-  <horizontal pref-height="10" horizontal-fit="Unconstrained">
+  <horizontal pref-height="12" pad-top="2" horizontal-fit="Unconstrained">
     <primary-button text="Start" pref-height="10"
                     on-click="start-button-click"
                     horizontal-fit="Unconstrained"/>

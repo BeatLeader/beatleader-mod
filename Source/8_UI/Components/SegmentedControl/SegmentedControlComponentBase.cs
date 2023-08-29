@@ -92,6 +92,7 @@ namespace BeatLeader.Components {
             _reusableCells.AddRange(_cells);
             _cells.Clear();
             GenerateCells();
+            if (items.Count > 0) SelectItem(0);
         }
 
         public void SelectItem(TKey key) {

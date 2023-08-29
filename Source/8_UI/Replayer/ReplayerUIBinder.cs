@@ -56,7 +56,7 @@ namespace BeatLeader.UI {
             ViewController.Init();
             if (!InputUtils.IsInFPFC) {
                 ViewController.Container.transform
-                    .SetParent(_extraObjects.ReplayerCenterAdjust, false);
+                    .SetParent(_extraObjects.ReplayerCore, false);
             }
             AutoHideUI = _launchData.Settings.AutoHideUI;
         }

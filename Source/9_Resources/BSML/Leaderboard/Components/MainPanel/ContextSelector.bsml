@@ -1,10 +1,5 @@
-<horizontal preferred-height="8">
-    <macro.define name="icon-height" value="4"/>
-
-    <vertical pref-width="8" spacing="1" bg="round-rect-panel" bg-color="#000000AA"
-              pad-left="2" pad-right="2" pad-top="1" pad-bottom="1" >
-        <!--  MODIFIERS BUTTON  -->
-        <clickable-image src="#ModifiersIcon" id="modifiers-component" pref-height="~icon-height" preserve-aspect="true"
-                         on-click="modifiers-on-click" hover-hint="Modifiers"/>
-    </vertical>
-</horizontal>
+﻿<vertical pref-width="45" spacing="1" bg="round-rect-panel" bg-color="#000000AA"
+            pad-left="2" pad-right="2" pad-top="1" pad-bottom="1" >
+    <!--  MODIFIERS BUTTON  -->
+    <list-setting size-delta-x="5" text='' value="selectedContext" choices='contextOptions' bind-value="true" apply-on-change="true"/>
+</vertical>

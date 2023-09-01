@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -24,15 +25,15 @@ namespace BeatLeader.Components {
         #region OnScoresContextChanged
 
         private void OnScoresContextChanged(ScoresContext scoresContext) {
-            switch (scoresContext) {
-                case ScoresContext.Standard:
-                    SetColor(_modifiersComponent, false);
-                    break;
-                case ScoresContext.Modifiers:
-                    SetColor(_modifiersComponent, true);
-                    break;
-                default: throw new ArgumentOutOfRangeException();
-            }
+            //switch (scoresContext) {
+            //    case ScoresContext.Standard:
+            //        SetColor(_modifiersComponent, false);
+            //        break;
+            //    case ScoresContext.Modifiers:
+            //        SetColor(_modifiersComponent, true);
+            //        break;
+            //    default: throw new ArgumentOutOfRangeException();
+            //}
         }
 
         #endregion
@@ -43,30 +44,44 @@ namespace BeatLeader.Components {
         private static readonly Color FadedColor = new(0.8f, 0.8f, 0.8f, 0.2f);
         private static readonly Color FadedHoverColor = new(0.5f, 0.5f, 0.5f, 0.2f);
 
-        [UIComponent("modifiers-component"), UsedImplicitly]
-        private ClickableImage _modifiersComponent;
+        [UIValue("contextOptions")] 
+        public static readonly List<object> contextOptions = new List<object> { 
+            "General", 
+            "No Mods", 
+            "No Pauses",
+            "Golf"
+        };
+
+        [UIValue("selectedContext")] 
+        public string selectedContext {
+            get => PluginConfig.ScoresContext.Name();
+            set => PluginConfig.ScoresContext = ScoresContextExtenstions.FromName(value);
+        }
+
+        //[UIComponent("modifiers-component"), UsedImplicitly]
+        //private ClickableImage _modifiersComponent;
 
         private void SetMaterials() {
-            _modifiersComponent.material = BundleLoader.UIAdditiveGlowMaterial;
+            //_modifiersComponent.material = BundleLoader.UIAdditiveGlowMaterial;
         }
 
         private static void SetColor(ClickableImage image, bool selected) {
-            image.DefaultColor = selected ? SelectedColor : FadedColor;
-            image.HighlightColor = selected ? SelectedColor : FadedHoverColor;
+            //image.DefaultColor = selected ? SelectedColor : FadedColor;
+            //image.HighlightColor = selected ? SelectedColor : FadedHoverColor;
         }
 
         #endregion
 
         #region Callbacks
 
-        [UIAction("modifiers-on-click"), UsedImplicitly]
-        private void NavModifiersOnClick() {
-            PluginConfig.ScoresContext = PluginConfig.ScoresContext switch {
-                ScoresContext.Standard => ScoresContext.Modifiers,
-                ScoresContext.Modifiers => ScoresContext.Standard,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
+        //[UIAction("modifiers-on-click"), UsedImplicitly]
+        //private void NavModifiersOnClick() {
+        //    PluginConfig.ScoresContext = PluginConfig.ScoresContext switch {
+        //        ScoresContext.Standard => ScoresContext.Modifiers,
+        //        ScoresContext.Modifiers => ScoresContext.Standard,
+        //        _ => throw new ArgumentOutOfRangeException()
+        //    };
+        //}
 
         #endregion
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     public class User {
@@ -9,21 +8,13 @@ namespace BeatLeader.Models {
     }
 
     [Flags]
-    public enum LeaderboardContexts
-    {
+    public enum LeaderboardContexts {
         None = 0,
         General = 1 << 1,
         NoMods = 1 << 2,
         NoPause = 1 << 3,
         Golf = 1 << 4,
         SCPM = 1 << 5
-    }
-
-    public interface IPlayer {
-        public string country { get; set; }
-        public float pp { get; set; }
-        public int rank { get; set; }
-        public int countryRank { get; set; }
     }
 
     public class PlayerContextExtension : IPlayer {

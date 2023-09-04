@@ -3,15 +3,16 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "",
-  "gameVersion": "1.31.0",
+  "gameVersion": "1.31.1",
   "dependsOn": {
     "LeaderboardCore": "^1.4.1",
     "BeatSaberMarkupLanguage": "^1.6.6",
     "BSIPA": "^4.2.2",
     "SiraUtil": "^3.1.0",
-    "BS Utils": "^1.12.1"
+    "BS Utils": "^1.12.1",
+    "System.IO.Compression": "^4.6.0"
   },
   "loadAfter": [
     "BetterSongList",

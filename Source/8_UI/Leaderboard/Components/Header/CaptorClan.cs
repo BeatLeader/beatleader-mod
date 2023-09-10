@@ -1,7 +1,6 @@
 ﻿using BeatLeader.DataManager;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using System.Diagnostics.Eventing.Reader;
 
 namespace BeatLeader.Components {
     internal class CaptorClan : ReeUIComponentV2 {

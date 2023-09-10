@@ -1,6 +1,7 @@
 ﻿using BeatLeader.DataManager;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using System.Diagnostics.Eventing.Reader;
 
 namespace BeatLeader.Components {
     internal class CaptorClan : ReeUIComponentV2 {
@@ -93,24 +94,28 @@ namespace BeatLeader.Components {
         }
 
         public void SetValues(LeaderboardsCache.LeaderboardCacheEntry data) {
-            if (data.ClanRankingContested) {
-                // Clan Ranking was contested
-                _captorClanTag.Clear();
-                CaptorClanText = $"⚔ Contested";
-                CaptorClanTextColor = "#C0C0C0FF";
-                CaptorClanHover = "Set a score on this leaderboard to break the tie and capture it for your clan!";
-            } else if (data.Clan.tag == null) {
-                // Map is not captured
-                _captorClanTag.Clear();
-                CaptorClanText = $"👑 Uncaptured";
-                CaptorClanTextColor = "#FFFFFFFF";
-                CaptorClanHover = "Set a score on this leaderboard to capture it for your clan!";
+            if (data.Clan != null) {
+                if (data.ClanRankingContested) {
+                    // Clan Ranking was contested
+                    _captorClanTag.Clear();
+                    CaptorClanText = $"⚔ Contested";
+                    CaptorClanTextColor = "#C0C0C0FF";
+                    CaptorClanHover = "Set a score on this leaderboard to break the tie and capture it for your clan!";
+                } else if (data.Clan?.tag == null) {
+                    // Map is not captured
+                    _captorClanTag.Clear();
+                    CaptorClanText = $"👑 Uncaptured";
+                    CaptorClanTextColor = "#FFFFFFFF";
+                    CaptorClanHover = "Set a score on this leaderboard to capture it for your clan!";
+                } else {
+                    // Map is captured by a clan
+                    CaptorClanText = $"👑 ";
+                    CaptorClanTextColor = "#FFD700FF";
+                    CaptorClanHover = "Clan with the highest weighted PP on this leaderboard!";
+                    _captorClanTag.SetValue(data.Clan);
+                }
             } else {
-                // Map is captured by a clan
-                CaptorClanText = $"👑 ";
-                CaptorClanTextColor = "#FFD700FF";
-                CaptorClanHover = "Clan with the highest weighted PP on this leaderboard!";
-                _captorClanTag.SetValue(data.Clan);
+                Plugin.Log.Error("Leaderboard Clan Captor missing!");
             }
         }
     }

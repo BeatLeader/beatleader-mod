@@ -2,6 +2,7 @@
 using System.Linq;
 using BeatLeader.Models.Replay;
 using BeatLeader.SteamVR;
+using BeatLeader.Utils;
 using JetBrains.Annotations;
 using UnityEngine.XR;
 using Zenject;
@@ -18,9 +19,11 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
             replay.info.trackingSytem = trackingSystem.ToString();
 
             switch (trackingSystem) {
-                case VRPlatformSDK.OpenVR:
-                    ProcessOpenVRDevices(replay);
+                case VRPlatformSDK.OpenXR:
+                    ProcessOpenXRControllers(replay);
+                    ProcessOpenXRHeadsetWithFallback(replay);
                     ProcessOpenVRSettings(replay);
+                    
                     break;
                 case VRPlatformSDK.Oculus:
                     ProcessOculusDevices(replay);
@@ -35,18 +38,26 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
 
         #region ProcessOpenVR
 
-        private static void ProcessOpenVRDevices(Replay replay) {
-            var headDevices = new List<InputDevice>();
-            InputDevices.GetDevicesAtXRNode(XRNode.Head, headDevices);
-            replay.info.hmd = headDevices.Count > 0 ? headDevices.First().name : "Unknown";
-
+        private static void ProcessOpenXRControllers(Replay replay) {
             var handDevices = new List<InputDevice>();
             InputDevices.GetDevicesAtXRNode(XRNode.RightHand, handDevices);
             replay.info.controller = handDevices.Count > 0 ? handDevices.First().name : "Unknown";
         }
 
+        private static void ProcessOpenXRHeadsetWithFallback(Replay replay) {
+            if (SteamVRSettings.GetString("LastKnown.HMDManufacturer") != null) {
+                replay.info.hmd = (SteamVRSettings.GetString("LastKnown.HMDManufacturer") ?? "Unknown") + (SteamVRSettings.GetString("LastKnown.HMDModel") ?? "");
+            } else if (OpenXRAcquirer.SystemName != null) {
+                replay.info.hmd = OpenXRAcquirer.SystemName ?? "Unknown";
+            } else {
+                var headDevices = new List<InputDevice>();
+                InputDevices.GetDevicesAtXRNode(XRNode.Head, headDevices);
+                replay.info.hmd = headDevices.Count > 0 ? headDevices.First().name : "Unknown";
+            }
+        }
+
         private static void ProcessOpenVRSettings(Replay replay) {
-            if (replay.frames.Count == 0) return;
+            if (replay.frames.Count == 0 || !SteamVRSettings.IsAvailable()) return;
             var firstFrame = replay.frames[0];
             firstFrame.head.rotation.x = -1.0f;
             firstFrame.head.rotation.y = SteamVRSettings.GetFloatOrDefault("steam.app.620980.worldScale", -1.0f);
@@ -59,23 +70,8 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
         #region ProcessOculus
 
         private static void ProcessOculusDevices(Replay replay) {
-            switch (OVRPlugin.GetSystemHeadsetType()) {
-                case OVRPlugin.SystemHeadset.None:
-                case OVRPlugin.SystemHeadset.Oculus_Quest:
-                case OVRPlugin.SystemHeadset.Oculus_Link_Quest:
-                case OVRPlugin.SystemHeadset.Oculus_Quest_2:
-                case OVRPlugin.SystemHeadset.Oculus_Link_Quest_2:
-                case OVRPlugin.SystemHeadset.Rift_CV1:
-                case OVRPlugin.SystemHeadset.Rift_S:
-                    replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
-                    break;
-
-                default:
-                    replay.info.hmd = "Unknown";
-                    break;
-            }
-
-            replay.info.controller = "Unknown";
+            replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
+            replay.info.controller = OVRPlugin.GetActiveController().ToString();
         }
 
         #endregion

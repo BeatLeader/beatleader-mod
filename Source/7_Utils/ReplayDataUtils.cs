@@ -57,12 +57,16 @@ namespace BeatLeader.Utils {
             var pauses = replay.pauses.Select(static x =>
                 new PauseEvent(x.time, x.duration));
 
+            var heights = replay.heights.Count is 0 ? null :
+                replay.heights.Select(static x => new HeightEvent(x.time, x.height));
+
             return new GenericReplay(
                 creplayData,
                 frames.ToArray(),
                 notes.ToArray(),
                 walls.ToArray(),
-                pauses.ToArray());
+                pauses.ToArray(),
+                heights?.ToArray());
         }
 
         #endregion
@@ -99,14 +103,14 @@ namespace BeatLeader.Utils {
         }
 
         private static PracticeSettings? GetPracticeSettingsFromInfo(this Models.Replay.ReplayInfo info) {
-            return info.failTime != 0 || info.startTime != 0 || info.speed != 0 ? new(info.startTime, 
+            return info.failTime != 0 || info.startTime != 0 || info.speed != 0 ? new(info.startTime,
                 info.speed is var speed && speed == 0 ? 1 : speed) : null;
         }
 
         #endregion
 
         #region Computing
-        
+
         public static int ComputeObstacleId(this ObstacleData obstacleData) {
             return obstacleData.lineIndex * 100 + (int)obstacleData.type * 10 + obstacleData.width;
         }

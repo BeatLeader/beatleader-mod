@@ -7,22 +7,24 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     [UsedImplicitly]
-    public class ReplayEventsProcessor : IInitializable, ILateTickable, IDisposable {
+    public class ReplayEventsProcessor : IInitializable, ITickable, IDisposable {
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
         [Inject] private readonly IVirtualPlayersManager _virtualPlayersManager = null!;
 
         public bool IsReprocessingEventsNow { get; private set; }
         public bool TimeWasSmallerThanActualTime { get; private set; }
 
-        public event Action<NoteEvent>? NoteProcessRequestedEvent;
-        public event Action<WallEvent>? WallProcessRequestedEvent;
+        public event Action<LinkedListNode<NoteEvent>>? NoteProcessRequestedEvent;
+        public event Action<LinkedListNode<WallEvent>>? WallProcessRequestedEvent;
         public event Action? ReprocessRequestedEvent;
         public event Action? ReprocessDoneEvent;
-
-        private IReadOnlyList<NoteEvent> _notes = null!;
-        private IReadOnlyList<WallEvent> _walls = null!;
-        private int _nextNoteIndex;
-        private int _nextWallIndex;
+        
+        private LinkedList<NoteEvent> _notes = null!;
+        private LinkedList<WallEvent> _walls = null!;
+        
+        private LinkedListNode<NoteEvent>? _lastNoteNode;
+        private LinkedListNode<WallEvent>? _lastWallNode;
+        
         private float _lastTime;
         private bool _allowProcess;
 
@@ -31,39 +33,35 @@ namespace BeatLeader.Replayer.Emulation {
             _virtualPlayersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
             HandlePriorityPlayerChanged(_virtualPlayersManager.PriorityPlayer!);
         }
+
         public void Dispose() {
             _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewound;
             _virtualPlayersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
-        public void LateTick() {
+
+        public void Tick() {
             if (!_allowProcess) return;
             var songTime = _beatmapTimeController.SongTime;
 
             do {
-                var hasNextNote = _nextNoteIndex < _notes.Count;
-                var hasNextWall = _nextWallIndex < _walls.Count;
+                var nextNote = _lastNoteNode?.Value;
+                var nextWall = _lastWallNode?.Value;
+
+                var hasNextNote = nextNote is not null;
+                var hasNextWall = nextWall is not null;
                 if (!hasNextNote && !hasNextWall) break;
-
-                var nextNote = hasNextNote ? _notes[_nextNoteIndex] : default;
-                var nextWall = hasNextWall ? _walls[_nextWallIndex] : default;
-
-                var nextNoteTime = hasNextNote ? nextNote.eventTime : float.MaxValue;
-                var nextWallTime = hasNextWall ? nextWall.time : float.MaxValue;
+                
+                var nextNoteTime = hasNextNote ? nextNote!.Value.CutTime : float.MaxValue;
+                var nextWallTime = hasNextWall ? nextWall!.Value.time : float.MaxValue;
 
                 if (hasNextWall && nextWallTime <= nextNoteTime) {
-                    if (nextWall!.time > songTime) break;
-                    try {
-                        WallProcessRequestedEvent?.Invoke(nextWall);
-                    } finally {
-                        _nextWallIndex += 1;
-                    }
+                    if (nextWallTime > songTime) break;
+                    WallProcessRequestedEvent?.Invoke(_lastWallNode!);
+                    _lastWallNode = _lastWallNode!.Next;
                 } else {
-                    if (nextNote!.eventTime > songTime) break;
-                    try {
-                        NoteProcessRequestedEvent?.Invoke(nextNote);
-                    } finally {
-                        _nextNoteIndex += 1;
-                    }
+                    if (nextNoteTime > songTime) break;
+                    NoteProcessRequestedEvent?.Invoke(_lastNoteNode!);
+                    _lastNoteNode = _lastNoteNode!.Next;
                 }
             } while (true);
 
@@ -80,17 +78,17 @@ namespace BeatLeader.Replayer.Emulation {
                 _allowProcess = false;
                 return;
             }
-            _notes = player.Replay.NoteEvents;
-            _walls = player.Replay.WallEvents;
-            _nextNoteIndex = 0;
-            _nextWallIndex = 0;
+            _notes = new(player.Replay.NoteEvents);
+            _walls = new(player.Replay.WallEvents);
+            _lastNoteNode = _notes.First;
+            _lastWallNode = _walls.First;
             _allowProcess = true;
         }
-        
+
         private void HandleSongWasRewound(float newTime) {
             if (newTime < _lastTime) {
-                _nextNoteIndex = 0;
-                _nextWallIndex = 0;
+                _lastNoteNode = _notes.First;
+                _lastWallNode = _walls.First;
                 _lastTime = 0f;
                 TimeWasSmallerThanActualTime = true;
             }

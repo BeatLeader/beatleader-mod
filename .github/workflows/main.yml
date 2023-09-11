@@ -16,11 +16,11 @@ jobs:
               uses: actions/setup-dotnet@v3
               with:
                   dotnet-version: 7.0.x
-            - name: Acquire SIRA References
-              uses: ProjectSIRA/download-sira-stripped@1.0.0
+            - name: Initialize modding environment
+              uses: beat-forge/init-beatsaber@v1.1.0
               with:
-                  manifest: ${{ github.workspace }}/Source/manifest.json
-                  sira-server-code: ${{ secrets.SIRA_SERVER_CODE }}
+                  token: ${{ github.token }}
+                  version: 1.31.1
             - name: Download Mod Dependencies
               uses: Goobwabber/download-beatmods-deps@1.2
               with:

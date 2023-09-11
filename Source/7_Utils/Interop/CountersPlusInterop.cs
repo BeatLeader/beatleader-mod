@@ -2,16 +2,17 @@
 using BeatLeader.Utils;
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using TMPro;
 
 namespace BeatLeader.Interop {
     [PluginInterop("Counters+")]
     internal class CountersPlusInterop {
-        [PluginType("CountersPlus.Counters.MissedCounter")]
-        private static readonly Type _missedCounterType = null!;
+        [PluginType("CountersPlus.Counters.MissedCounter"), UsedImplicitly]
+        private static Type _missedCounterType = null!;
 
-        [PluginState]
-        private static readonly bool _isInitialized;
+        [PluginState, UsedImplicitly]
+        private static bool _isInitialized;
 
         private static HarmonyPatchDescriptor _missedCounterInitDescriptor = null!;
         private static HarmonyAutoPatch _missedCounterInitPatch = null!;
@@ -23,15 +24,15 @@ namespace BeatLeader.Interop {
         [InteropEntry]
         private static void Init() {
             _missedCounterInitDescriptor = new(_missedCounterType
-                .GetMethod("CounterInit", ReflectionUtils.DefaultFlags), postfix: 
+                    .GetMethod("CounterInit", ReflectionUtils.DefaultFlags)!, postfix:
                 typeof(CountersPlusInterop).GetMethod(nameof(
                     MissedCounterInitPostfix), ReflectionUtils.StaticFlags));
             _missedCounterNotesMissedFld = _missedCounterType
-                .GetField("notesMissed", ReflectionUtils.DefaultFlags);
+                .GetField("notesMissed", ReflectionUtils.DefaultFlags)!;
             _missedCounterNotesMissedTextFld = _missedCounterType
-                .GetField("counter", ReflectionUtils.DefaultFlags);
+                .GetField("counter", ReflectionUtils.DefaultFlags)!;
             _missedCounterNoteCutMtd = _missedCounterType
-                .GetMethod("OnNoteCut", ReflectionUtils.DefaultFlags);
+                .GetMethod("OnNoteCut", ReflectionUtils.DefaultFlags)!;
             _missedCounterInitPatch = new(_missedCounterInitDescriptor);
         }
 
@@ -45,7 +46,7 @@ namespace BeatLeader.Interop {
 
         public static void HandleMissedCounterNoteWasCut(NoteCutInfo cutInfo) {
             InteractMissedCounter(x => {
-                _missedCounterNoteCutMtd.Invoke(x, 
+                _missedCounterNoteCutMtd.Invoke(x,
                     new object[] { cutInfo.noteData, cutInfo });
             });
         }
@@ -53,10 +54,7 @@ namespace BeatLeader.Interop {
         private static void InteractMissedCounter(Action<object> callback) {
             if (!_isInitialized) return;
             try {
-                if (_missedCounterObj == null) {
-                    Plugin.Log.Warn("MissedCounter instance is not captured! Is counter uninitialized?");
-                    return;
-                }
+                if (_missedCounterObj == null) return;
                 callback(_missedCounterObj);
             } catch (Exception ex) {
                 Plugin.Log.Error("Failed to interact missed counter: " + ex);

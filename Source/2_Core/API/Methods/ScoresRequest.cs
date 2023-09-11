@@ -30,7 +30,7 @@ namespace BeatLeader.API.Methods {
             var url = string.Format(PageEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
             
             var requestDescriptor = new JsonGetRequestDescriptor<Paged<Score>>(url);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
 
         #endregion
@@ -55,7 +55,7 @@ namespace BeatLeader.API.Methods {
             var url = string.Format(SeekEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
 
             var requestDescriptor = new JsonGetRequestDescriptor<Paged<Score>>(url);
-            instance.Send(requestDescriptor);
+            Instance.Send(requestDescriptor);
         }
 
         #endregion

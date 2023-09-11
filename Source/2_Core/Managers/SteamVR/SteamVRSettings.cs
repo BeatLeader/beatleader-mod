@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
@@ -14,6 +14,10 @@ namespace BeatLeader.SteamVR {
             NumberDecimalSeparator = "."
         };
 
+        public static bool IsAvailable() {
+            return settings.Count > 0; 
+        }
+
         public static float GetFloatOrDefault(string key, float defaultValue = default) {
             if (!settings.ContainsKey(key)) return defaultValue;
 
@@ -22,6 +26,12 @@ namespace BeatLeader.SteamVR {
             } catch (Exception) {
                 return defaultValue;
             }
+        }
+
+        public static string? GetString(string key) {
+            if (!settings.ContainsKey(key)) return null;
+
+            return settings[key];
         }
 
         #endregion

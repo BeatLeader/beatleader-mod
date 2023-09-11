@@ -1,7 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BeatLeader.Utils {
     public static class CollectionsExtension {
+        public static LinkedListNode<T>? FindNode<T>(this LinkedList<T> list, Func<LinkedListNode<T>, bool> predicate) {
+            var node = list.First;
+            while (node is not null) {
+                if (predicate(node)) return node;
+                node = node.Next;
+            }
+            return null;
+        }
+        
         public static void AddRange<T>(this IList<T> list, IEnumerable<T> range) {
             foreach (var item in range) list.Add(item);
         }

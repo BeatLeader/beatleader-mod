@@ -27,14 +27,14 @@ namespace BeatLeader {
             LeaderboardEvents.MenuButtonWasPressedEvent -= PresentFromLeaderboard;
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (!firstActivation) return;
             showBackButton = true;
             SetTitle(Plugin.PluginId);
             ProvideInitialViewControllers(_replayLaunchViewController);
         }
 
-        protected override void BackButtonWasPressed(ViewController topController) {
+        public override void BackButtonWasPressed(ViewController topController) {
             BackButtonWasPressedEvent?.Invoke();
             Dismiss();
         }

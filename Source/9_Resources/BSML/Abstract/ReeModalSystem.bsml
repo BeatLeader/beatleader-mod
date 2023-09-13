@@ -1,0 +1,7 @@
+<horizontal ignore-layout="true">
+    <modal id="modal-view" click-off-closes="false" size-delta-x="100" size-delta-y="100">
+        <vertical vertical-fit="PreferredSize">
+            <horizontal id="container" horizontal-fit="PreferredSize"/>
+        </vertical>
+    </modal>
+</horizontal>

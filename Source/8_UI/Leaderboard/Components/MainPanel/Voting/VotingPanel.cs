@@ -1,11 +1,10 @@
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    internal class VotingPanel : ReeUIComponentV2 {
+    internal class VotingPanel : AbstractReeModal<object> {
         #region Components
 
         [UIValue("rankability-selector"), UsedImplicitly]
@@ -28,19 +27,12 @@ namespace BeatLeader.Components {
         #region Init / Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.VotingWasPressedEvent += OnVotingWasPressed;
-            LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
-
+            base.OnInitialize();
             _rankabilitySelector.OnStateChangedEvent += OnRankabilitySelectorStateChanged;
             OnRankabilitySelectorStateChanged(_rankabilitySelector.CurrentState);
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.VotingWasPressedEvent -= OnVotingWasPressed;
-            LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
-
             _rankabilitySelector.OnStateChangedEvent -= OnRankabilitySelectorStateChanged;
         }
 
@@ -50,47 +42,19 @@ namespace BeatLeader.Components {
 
         public bool isOnResultsScreen;
 
-        private void OnVotingWasPressed() {
+        protected override void OnResume() {
             if (isOnResultsScreen == LeaderboardState.IsVisible) return;
-            
+
             _rankabilitySelector.Reset();
             _starsSelector.Reset();
             _mapTypeSelector.Reset();
             Page = FirstPage;
-            ShowModal();
         }
 
         private void OnRankabilitySelectorStateChanged(RankabilitySelector.State state) {
             CanSubmit = state != RankabilitySelector.State.Undecided;
             _showOptional = state == RankabilitySelector.State.ForRank;
             UpdatePaginationButtons();
-        }
-
-        private void OnHideModalsEvent(ModalView except) {
-            if (_modal == null || _modal.Equals(except)) return;
-            _modal.Hide(false);
-        }
-
-        private void OnLeaderboardVisibilityChanged(bool isVisible) {
-            if (!isVisible) HideAnimated();
-        }
-
-        #endregion
-
-        #region Modal
-
-        [UIComponent("modal"), UsedImplicitly]
-        private ModalView _modal;
-
-        private void ShowModal() {
-            if (_modal == null) return;
-            LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
-            _modal.Show(true, true);
-        }
-
-        private void HideAnimated() {
-            if (_modal == null) return;
-            _modal.Hide(true);
         }
 
         #endregion
@@ -196,8 +160,8 @@ namespace BeatLeader.Components {
 
         [UIAction("submit-on-click"), UsedImplicitly]
         private void SubmitOnClick() {
-            HideAnimated();
-            
+            Close();
+
             switch (_rankabilitySelector.CurrentState) {
                 case RankabilitySelector.State.ForRank:
                     LeaderboardEvents.SubmitVote(new Vote(_rankabilitySelector.FloatValue, _starsSelector.Value, _mapTypeSelector.CurrentState));

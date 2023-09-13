@@ -1,5 +1,0 @@
-﻿<vertical pref-width="45" spacing="1" bg="round-rect-panel" bg-color="#000000AA"
-            pad-left="2" pad-right="2" pad-top="1" pad-bottom="1" >
-    <!--  MODIFIERS BUTTON  -->
-    <list-setting size-delta-x="5" text='' value="selectedContext" choices='contextOptions' bind-value="true" apply-on-change="true"/>
-</vertical>

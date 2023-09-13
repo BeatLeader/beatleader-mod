@@ -22,7 +22,6 @@ namespace BeatLeader {
             OpenModal<T>(screen, state);
         }
 
-        [PublicAPI]
         public static void OpenModal<T>(Screen screen, object state, bool interruptActiveModals = true) where T : IReeModal {
             ReeModalSystem controller;
             var key = screen.GetHashCode();
@@ -43,7 +42,6 @@ namespace BeatLeader {
             controller.OpenModal<T>(state);
         }
 
-        [PublicAPI]
         public static void ForceUpdateAll() {
             foreach (var activeModal in ActiveModals.Values) {
                 activeModal.ForceUpdate();

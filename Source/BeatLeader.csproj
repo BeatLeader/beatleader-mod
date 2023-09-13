@@ -194,6 +194,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')"/>
+        <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')"/>
+        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="BeatSaberModdingTools.Tasks">
             <Version>1.4.3</Version>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

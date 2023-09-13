@@ -1,34 +1,31 @@
-<modal id="modal" click-off-closes="true" size-delta-x="60" size-delta-y="35">
+<vertical spacing="1" pad="1" vertical-fit="PreferredSize" bg="round-rect-panel">
     <macro.define name="image-width" value="18"/>
-    
-    <vertical spacing="1" vertical-fit="PreferredSize">
-        <horizontal pref-height="20">
-            <vertical spacing="0.5" vertical-fit="PreferredSize">
-                <horizontal pref-height="5" active="~oculus-migration-button-active" spacing="2" horizontal-fit="PreferredSize">
-                    <text text="Sign up to use website" font-color="#FFFF88" align="Center"/>
-                    <button text="Sign up" on-click="oculus-migration-button-on-click"/>
-                </horizontal>
-                <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
-                    <text text="~version-info-text" align="Center"/>
-                    <button text="Update" active="~version-update-button-active" on-click="version-update-button-on-click"/>
-                </horizontal>
-                <horizontal pref-height="4">
-                    <text text="&lt;u&gt;Playlists" font-size="3" font-color="#999999" align="Center"/>
-                </horizontal>
-                <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
-                    <button pref-width="16" id="nominated-playlist-button" text="A"/>
-                    <button pref-width="16" id="qualified-playlist-button" text="B"/>
-                    <button pref-width="16" id="ranked-playlist-button" text="C"/>
-                </horizontal>
-            </vertical>
-        </horizontal>
-        <horizontal pad-top="2" pref-height="4">
-            <text text="&lt;u&gt;BeatLeader community" font-size="3.4" font-color="#999999" align="Center"/>
-        </horizontal>
-        <horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
-            <clickable-image src="#BL_Website" pref-width="~image-width" preserve-aspect="true" on-click="website-on-click"/>
-            <clickable-image src="#BL_Discord" pref-width="~image-width" preserve-aspect="true" on-click="discord-on-click"/>
-            <clickable-image src="#BL_Patreon" pref-width="~image-width" preserve-aspect="true" on-click="patreon-on-click"/>
-        </horizontal>
-    </vertical>
-</modal>
+    <horizontal pref-height="20">
+        <vertical spacing="0.5" vertical-fit="PreferredSize">
+            <horizontal pref-height="5" active="~oculus-migration-button-active" spacing="2" horizontal-fit="PreferredSize">
+                <text text="Sign up to use website" font-color="#FFFF88" align="Center"/>
+                <button text="Sign up" on-click="oculus-migration-button-on-click"/>
+            </horizontal>
+            <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
+                <text text="~version-info-text" align="Center"/>
+                <button text="Update" active="~version-update-button-active" on-click="version-update-button-on-click"/>
+            </horizontal>
+            <horizontal pref-height="4">
+                <text text="&lt;u&gt;Playlists" font-size="3" font-color="#999999" align="Center"/>
+            </horizontal>
+            <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
+                <button pref-width="16" id="nominated-playlist-button" text="A"/>
+                <button pref-width="16" id="qualified-playlist-button" text="B"/>
+                <button pref-width="16" id="ranked-playlist-button" text="C"/>
+            </horizontal>
+        </vertical>
+    </horizontal>
+    <horizontal pad-top="2" pref-height="4">
+        <text text="&lt;u&gt;BeatLeader community" font-size="3.4" font-color="#999999" align="Center"/>
+    </horizontal>
+    <horizontal pref-height="6" spacing="1" horizontal-fit="PreferredSize">
+        <clickable-image src="#BL_Website" pref-width="~image-width" preserve-aspect="true" on-click="website-on-click"/>
+        <clickable-image src="#BL_Discord" pref-width="~image-width" preserve-aspect="true" on-click="discord-on-click"/>
+        <clickable-image src="#BL_Patreon" pref-width="~image-width" preserve-aspect="true" on-click="patreon-on-click"/>
+    </horizontal>
+</vertical>

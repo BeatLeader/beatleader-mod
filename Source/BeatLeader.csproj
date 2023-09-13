@@ -188,17 +188,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle" />
-        <EmbeddedResource Include="9_Resources\BSML\**\*.bsml" />
-        <EmbeddedResource Include="manifest.json" />
-        <None Remove="9_Resources\BSML\FlowCoordinator\ReplayerView.bsml" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="BeatLeader.csproj.user" Condition="Exists('BeatLeader.csproj.user')" />
-        <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
-        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
-        <None Include="README.md" />
+        <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle"/>
+        <EmbeddedResource Include="9_Resources\BSML\**\*.bsml"/>
+        <EmbeddedResource Include="manifest.json"/>
     </ItemGroup>
 
     <ItemGroup>

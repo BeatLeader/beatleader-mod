@@ -79,6 +79,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent += PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent += PresentBeatLeaderInfoModal;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
+            LeaderboardEvents.ContextSelectorWasPressedAction += PresentContextsModal;
             LeaderboardState.IsVisible = true;
         }
 
@@ -87,6 +88,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent -= PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent -= PresentBeatLeaderInfoModal;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
+            LeaderboardEvents.ContextSelectorWasPressedAction -= PresentContextsModal;
             LeaderboardState.IsVisible = false;
         }
 
@@ -108,6 +110,10 @@ namespace BeatLeader.ViewControllers {
 
         private void PresentVotingModal() {
             ReeModalSystem.OpenModal<VotingPanel>(transform, 0);
+        }
+
+        private void PresentContextsModal() {
+            ReeModalSystem.OpenModal<ContextsModal>(transform, 0);
         }
 
         #endregion

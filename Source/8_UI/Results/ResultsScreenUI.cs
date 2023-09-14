@@ -11,16 +11,11 @@ namespace BeatLeader.ViewControllers {
         [UIValue("voting-button"), UsedImplicitly]
         private readonly VotingButton _votingButton = InstantiateOnSceneRoot<VotingButton>(false);
 
-        [UIValue("voting-panel"), UsedImplicitly]
-        private readonly VotingPanel _votingPanel = InstantiateOnSceneRoot<VotingPanel>(false);
-
         [UIValue("replay-button")]
         private readonly ReplayButton _replayButton = InstantiateOnSceneRoot<ReplayButton>(false);
 
         private void Awake() {
             _votingButton.SetParent(transform);
-            _votingPanel.SetParent(transform);
-            _votingPanel.isOnResultsScreen = true;
             _replayButton.SetParent(transform);
             _replayButton.ReplayButtonClickedEvent += HandleReplayButtonClicked;
         }

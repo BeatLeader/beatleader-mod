@@ -10,9 +10,9 @@
 
         #region Basic links
 
-        public const string BEATLEADER_API_URL = "https://stage.api.beatleader.net";
+        public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
         
-        public const string BEATLEADER_WEBSITE_URL = "https://beatleader.net";
+        public const string BEATLEADER_WEBSITE_URL = "https://beatleader.xyz";
 
         #endregion
 

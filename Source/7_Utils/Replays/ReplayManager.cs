@@ -136,7 +136,7 @@ namespace BeatLeader.Utils {
         #endregion
 
         internal static void ValidateReplayInfo(ReplayInfo info, string? path) {
-            if (info.hash.Length > 40) info.hash = info.hash.Substring(0, 40);
+            if (info.hash.Length > 40 && !info.hash.EndsWith("WIP")) info.hash = info.hash.Substring(0, 40);
             if (info.mode is var mode && mode.IndexOf('-') is var idx and not -1) {
                 info.mode = mode.Remove(idx, mode.Length - idx);
             }

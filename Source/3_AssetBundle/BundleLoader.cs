@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Themes;
@@ -94,7 +94,10 @@ namespace BeatLeader {
 
         [UsedImplicitly] public static Sprite FileError;
 
-        [UsedImplicitly] public static Sprite ModifiersIcon;
+        [UsedImplicitly] public static Sprite NoModifiersIcon;
+        [UsedImplicitly] public static Sprite NoPauseIcon;
+        [UsedImplicitly] public static Sprite GolfIcon;
+        [UsedImplicitly] public static Sprite GeneralContextIcon;
 
         [UsedImplicitly] public static Sprite Overview1Icon;
 
@@ -204,7 +207,10 @@ namespace BeatLeader {
             BeatLeaderLogoGradient = assetBundle.LoadAsset<Sprite>("BeatLeaderLogoGradient");
             TransparentPixel = assetBundle.LoadAsset<Sprite>("TransparentPixel");
             FileError = assetBundle.LoadAsset<Sprite>("FileError");
-            ModifiersIcon = assetBundle.LoadAsset<Sprite>("ModifiersIcon");
+            NoModifiersIcon = assetBundle.LoadAsset<Sprite>("BL_ContextNoModifiers");
+            NoPauseIcon = assetBundle.LoadAsset<Sprite>("BL_ContextNoPause");
+            GolfIcon = assetBundle.LoadAsset<Sprite>("BL_ContextGolf");
+            GeneralContextIcon = assetBundle.LoadAsset<Sprite>("BL_ContextGeneral");
             Overview1Icon = assetBundle.LoadAsset<Sprite>("BL_Overview1Icon");
             Overview2Icon = assetBundle.LoadAsset<Sprite>("BL_Overview2Icon");
             DetailsIcon = assetBundle.LoadAsset<Sprite>("BL_DetailsIcon");

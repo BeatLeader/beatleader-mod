@@ -1,4 +1,4 @@
-﻿<vertical pref-width="8" spacing="1" pad="2" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#000000AA">
+﻿<vertical pref-width="8" spacing="1" pad="1" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#000000AA">
     <!--  MAIN BUTTON  -->
-    <clickable-image src="#PlayerIcon" id="main-button" pref-height="4" preserve-aspect="true" on-click="main-button-on-click"/>
+    <clickable-image src="#PlayerIcon" id="main-button" pref-height="6" preserve-aspect="true" on-click="main-button-on-click"/>
 </vertical>

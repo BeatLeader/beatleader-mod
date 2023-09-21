@@ -24,11 +24,11 @@ namespace BeatLeader.Models {
         internal static Sprite Icon(this ScoresContext context) {
             //TODO: Make Icons
             return context switch {
-                ScoresContext.Modifiers => BundleLoader.ModifiersIcon,
-                ScoresContext.Standard => BundleLoader.DefaultAvatar,
-                ScoresContext.Nopause => BundleLoader.PauseIcon,
-                ScoresContext.Golf => BundleLoader.LocationIcon,
-                _ => BundleLoader.ModifiersIcon
+                ScoresContext.Modifiers => BundleLoader.GeneralContextIcon,
+                ScoresContext.Standard => BundleLoader.NoModifiersIcon,
+                ScoresContext.Nopause => BundleLoader.NoPauseIcon,
+                ScoresContext.Golf => BundleLoader.GolfIcon,
+                _ => BundleLoader.GeneralContextIcon
             };
         }
 

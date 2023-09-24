@@ -29,10 +29,10 @@ namespace BeatLeader {
         internal static IPALogger Log { get; private set; }
 
         [Init]
-        public Plugin(IPALogger logger, PluginMetadata metadata, Config config) {
+        public Plugin(IPALogger logger, PluginMetadata metadata) {
             Log = logger;
             Version = metadata.HVersion;
-            InitializeConfig(config);
+            InitializeConfig();
             InitializeAssets();
         }
 
@@ -40,8 +40,8 @@ namespace BeatLeader {
             BundleLoader.Initialize();
         }
 
-        private static void InitializeConfig(Config config) {
-            ConfigFileData.Instance = config.Generated<ConfigFileData>();
+        private static void InitializeConfig() {
+            ConfigFileData.Initialize();
         }
 
         #endregion
@@ -83,6 +83,7 @@ namespace BeatLeader {
             SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
+            ConfigFileData.Save();
         }
 
         #endregion

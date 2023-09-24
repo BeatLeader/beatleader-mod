@@ -1,5 +1,7 @@
-﻿using IPA.Config.Stores.Attributes;
+﻿using System.Collections.Generic;
+using BeatLeader.Components;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     [PublicAPI]
@@ -21,9 +23,11 @@ namespace BeatLeader.Models {
         public bool ShowTimelineMisses { get; set; }
         public bool ShowTimelineBombs { get; set; }
         public bool ShowTimelinePauses { get; set; }
-        
-        [Ignore]
-        public ReplayerCameraSettings? CameraSettings { get; set; }
+
         public ReplayerShortcuts? Shortcuts { get; set; }
+        public Dictionary<string, LayoutData>? LayoutEditorDatas { get; set; }
+        
+        [JsonConverter(typeof(ImplicitTypeConverter<InternalReplayerCameraSettings>))]
+        public ReplayerCameraSettings? CameraSettings { get; set; }
     }
 }

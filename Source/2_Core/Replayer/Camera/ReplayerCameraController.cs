@@ -78,6 +78,7 @@ namespace BeatLeader.Replayer {
             DestroyImmediate(camera.GetComponent<SmoothCamera>());
 
             camera.nearClipPlane = 0.01f;
+            camera.farClipPlane = 5000;
             camera.gameObject.SetActive(true);
             camera.name = "ReplayerViewCamera";
 

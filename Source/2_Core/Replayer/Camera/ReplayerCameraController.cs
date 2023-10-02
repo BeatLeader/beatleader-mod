@@ -89,8 +89,9 @@ namespace BeatLeader.Replayer {
             }
 
             camera.nearClipPlane = 0.01f;
-            cameraGo.SetActive(true);
+            camera.farClipPlane = 5000;
             camera.name = "ReplayerViewCamera";
+            cameraGo.SetActive(true);
 
             if (InputUtils.IsInFPFC) {
                 smoothCamera.gameObject.SetActive(false);

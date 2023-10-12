@@ -12,7 +12,7 @@
 
         public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
         
-        public const string BEATLEADER_WEBSITE_URL = "https://www.beatleader.xyz";
+        public const string BEATLEADER_WEBSITE_URL = "https://beatleader.xyz";
 
         #endregion
 

@@ -4,13 +4,11 @@ using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class ScoreInfoPanel : ReeUIComponentV2 {
+    internal class ScoreInfoPanel : AbstractReeModal<Score> {
         #region Components
 
         [UIValue("mini-profile"), UsedImplicitly]
@@ -43,6 +41,12 @@ namespace BeatLeader.Components {
         [UIObject("accuracy-graph-container"), UsedImplicitly]
         private GameObject _accuracyGraphContainer = null!;
 
+        [UIComponent("middle-panel"), UsedImplicitly]
+        private ImageView _middlePanel = null!;
+
+        [UIComponent("bottom-panel"), UsedImplicitly]
+        private ImageView _bottomPanel = null!;
+
         private void Awake() {
             _miniProfile = Instantiate<MiniProfile>(transform);
             _scoreStatsLoadingScreen = Instantiate<ScoreStatsLoadingScreen>(transform);
@@ -62,21 +66,17 @@ namespace BeatLeader.Components {
         #region Init / Dispose
 
         protected override void OnInitialize() {
-            InitializeModal();
+            base.OnInitialize();
+            _middlePanel.raycastTarget = true;
+            _bottomPanel.raycastTarget = true;
 
             ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
-            LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
             OnTabWasSelected(LeaderboardState.ScoreInfoPanelTab);
         }
 
         protected override void OnDispose() {
             ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
-            LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreInfoButtonWasPressed;
-            LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
         }
 
@@ -84,22 +84,12 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnHideModalsEvent(ModalView except) {
-            if (_modal == null || _modal.Equals(except)) return;
-            _modal.Hide(false);
-        }
-
-        private void OnLeaderboardVisibilityChanged(bool isVisible) {
-            if (!isVisible) HideAnimated();
-        }
-
-        private void OnScoreInfoButtonWasPressed(Score score) {
-            SetScore(score);
-            ShowModal();
+        protected override void OnResume() {
+            SetScore(Context);
         }
 
         private void OnReplayDownloadStateChangedEvent(bool state) {
-            SetModalCanBeHidden(!state);
+            offClickCloses = !state;
         }
 
         private void OnTabWasSelected(ScoreInfoPanelTab tab) {
@@ -115,6 +105,7 @@ namespace BeatLeader.Components {
                     if (_score != null && _scoreStatsUpdateRequired) {
                         LeaderboardEvents.RequestScoreStats(_score.id);
                     }
+
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(tab), tab, null);
             }
@@ -187,45 +178,6 @@ namespace BeatLeader.Components {
             _replayPanel.SetScore(score);
             _controls.Reset();
             UpdateVisibility();
-        }
-
-        #endregion
-
-        #region Modal
-
-        [UIComponent("modal"), UsedImplicitly]
-        private ModalView _modal = null!;
-
-        [UIComponent("middle-panel"), UsedImplicitly]
-        private ImageView _middlePanel = null!;
-
-        [UIComponent("bottom-panel"), UsedImplicitly]
-        private ImageView _bottomPanel = null!;
-
-        private void InitializeModal() {
-            var background = _modal.GetComponentInChildren<ImageView>();
-            if (background != null) background.enabled = false;
-            var touchable = _modal.GetComponentInChildren<Touchable>();
-            if (touchable != null) touchable.enabled = false;
-
-            _middlePanel.raycastTarget = true;
-            _bottomPanel.raycastTarget = true;
-        }
-
-        private void ShowModal() {
-            if (_modal == null) return;
-            LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
-            _modal.Show(true, true);
-        }
-
-        private void HideAnimated() {
-            if (_modal == null) return;
-            _modal.Hide(true);
-        }
-
-        private void SetModalCanBeHidden(bool canBeHidden) {
-            var go = _modal.GetField<GameObject, ModalView>("_blockerGO");
-            if (go) go.GetComponent<Button>().enabled = canBeHidden;
         }
 
         #endregion

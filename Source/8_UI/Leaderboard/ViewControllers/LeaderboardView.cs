@@ -1,4 +1,6 @@
 using BeatLeader.Components;
+using BeatLeader.Manager;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
@@ -14,10 +16,6 @@ namespace BeatLeader.ViewControllers {
         private PreParser _preParser;
 
         public class PreParser : MonoBehaviour {
-            public VotingPanel votingPanel;
-            public BeatLeaderInfo beatLeaderInfo;
-            public LeaderboardSettings leaderboardSettings;
-            public ScoreInfoPanel scoreInfoPanel;
             public ScoresTable scoresTable;
             public VotingButton votingButton;
             public Pagination pagination;
@@ -27,10 +25,6 @@ namespace BeatLeader.ViewControllers {
             public MapDifficultyPanel mapDifficultyPanel;
 
             private void Awake() {
-                votingPanel = ReeUIComponentV2.InstantiateOnSceneRoot<VotingPanel>(false);
-                beatLeaderInfo = ReeUIComponentV2.InstantiateOnSceneRoot<BeatLeaderInfo>(false);
-                leaderboardSettings = ReeUIComponentV2.InstantiateOnSceneRoot<LeaderboardSettings>(false);
-                scoreInfoPanel = ReeUIComponentV2.InstantiateOnSceneRoot<ScoreInfoPanel>(false);
                 scoresTable = ReeUIComponentV2.InstantiateOnSceneRoot<ScoresTable>();
                 votingButton = ReeUIComponentV2.InstantiateOnSceneRoot<VotingButton>(false);
                 pagination = ReeUIComponentV2.InstantiateOnSceneRoot<Pagination>(false);
@@ -44,18 +38,6 @@ namespace BeatLeader.ViewControllers {
         #endregion
 
         #region Components
-
-        [UIValue("voting-panel"), UsedImplicitly]
-        private VotingPanel VotingPanel => _preParser.votingPanel;
-
-        [UIValue("beat-leader-info"), UsedImplicitly]
-        private BeatLeaderInfo BeatLeaderInfo => _preParser.beatLeaderInfo;
-
-        [UIValue("leaderboard-settings"), UsedImplicitly]
-        private LeaderboardSettings LeaderboardSettings => _preParser.leaderboardSettings;
-
-        [UIValue("score-info-panel"), UsedImplicitly]
-        private ScoreInfoPanel ScoreInfoPanel => _preParser.scoreInfoPanel;
 
         [UIValue("scores-table"), UsedImplicitly]
         private ScoresTable ScoresTable => _preParser.scoresTable;
@@ -79,10 +61,6 @@ namespace BeatLeader.ViewControllers {
         private MapDifficultyPanel MapDifficultyPanel => _preParser.mapDifficultyPanel;
 
         private void Awake() {
-            VotingPanel.SetParent(transform);
-            BeatLeaderInfo.SetParent(transform);
-            LeaderboardSettings.SetParent(transform);
-            ScoreInfoPanel.SetParent(transform);
             ScoresTable.SetParent(transform);
             VotingButton.SetParent(transform);
             Pagination.SetParent(transform);
@@ -97,11 +75,45 @@ namespace BeatLeader.ViewControllers {
         #region OnEnable & OnDisable
 
         protected void OnEnable() {
+            LeaderboardEvents.ScoreInfoButtonWasPressed += PresentScoreInfoModal;
+            LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent += PresentSettingsModal;
+            LeaderboardEvents.LogoWasPressedEvent += PresentBeatLeaderInfoModal;
+            LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
+            LeaderboardEvents.ContextSelectorWasPressedAction += PresentContextsModal;
             LeaderboardState.IsVisible = true;
         }
 
         protected void OnDisable() {
+            LeaderboardEvents.ScoreInfoButtonWasPressed -= PresentScoreInfoModal;
+            LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent -= PresentSettingsModal;
+            LeaderboardEvents.LogoWasPressedEvent -= PresentBeatLeaderInfoModal;
+            LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
+            LeaderboardEvents.ContextSelectorWasPressedAction -= PresentContextsModal;
             LeaderboardState.IsVisible = false;
+        }
+
+        #endregion
+
+        #region Events
+
+        private void PresentScoreInfoModal(Score score) {
+            ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, score);
+        }
+
+        private void PresentSettingsModal() {
+            ReeModalSystem.OpenModal<LeaderboardSettings>(transform, 0);
+        }
+
+        private void PresentBeatLeaderInfoModal() {
+            ReeModalSystem.OpenModal<BeatLeaderInfo>(transform, 0);
+        }
+
+        private void PresentVotingModal() {
+            ReeModalSystem.OpenModal<VotingPanel>(transform, 0);
+        }
+
+        private void PresentContextsModal() {
+            ReeModalSystem.OpenModal<ContextsModal>(transform, 0);
         }
 
         #endregion

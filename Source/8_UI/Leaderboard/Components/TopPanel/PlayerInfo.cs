@@ -1,4 +1,4 @@
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -13,6 +13,8 @@ namespace BeatLeader.Components {
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _countryFlag;
 
+        private User user;
+
         private void Awake() {
             _avatar = Instantiate<PlayerAvatar>(transform);
             _countryFlag = Instantiate<CountryFlag>(transform);
@@ -25,11 +27,13 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             UserRequest.AddStateListener(OnProfileRequestStateChanged);
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+            PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
         }
 
         protected override void OnDispose() {
             UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+            PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
         }
 
         #endregion
@@ -39,6 +43,7 @@ namespace BeatLeader.Components {
         private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
             if (state is not API.RequestState.Finished) return;
             OnProfileUpdated(result.player);
+            user.player.contextExtensions = result.player.contextExtensions;
         }
 
         private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
@@ -53,6 +58,7 @@ namespace BeatLeader.Components {
                     OnProfileRequestStarted();
                     break;
                 case API.RequestState.Finished:
+                    user = result;
                     OnProfileUpdated(result.player);
                     break;
                 default: return;
@@ -72,14 +78,20 @@ namespace BeatLeader.Components {
         private void OnProfileUpdated(Player player) {
             _countryFlag.SetCountry(player.country);
             _avatar.SetPlayer(player);
+
+            var contextPlayer = player.ContextPlayer(PluginConfig.ScoresContext.Enum());
             NameText = FormatUtils.FormatUserName(player.name);
-            GlobalRankText = FormatUtils.FormatRank(player.rank, true);
-            CountryRankText = FormatUtils.FormatRank(player.countryRank, true);
-            PpText = FormatUtils.FormatPP(player.pp);
+            GlobalRankText = FormatUtils.FormatRank(contextPlayer.rank, true);
+            CountryRankText = FormatUtils.FormatRank(contextPlayer.countryRank, true);
+            PpText = FormatUtils.FormatPP(contextPlayer.pp);
             StatsActive = true;
         }
 
         #endregion
+
+        private void ChangeScoreContext(ScoresContext context) {
+            OnProfileUpdated(user.player);
+        }
 
         #region StatsActive
 

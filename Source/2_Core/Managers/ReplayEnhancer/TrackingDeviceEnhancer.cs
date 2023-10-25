@@ -60,6 +60,9 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
 
         private static void ProcessOculusDevices(Replay replay) {
             replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
+            if (OVRPlugin.productName.Contains("Quest 3")) {
+                replay.info.hmd = "Meta Quest 3";
+            }
             if (OVRPlugin.GetActiveController() != null) {
                 replay.info.controller = OVRPlugin.GetActiveController().ToString();
             } else {

@@ -33,7 +33,7 @@ namespace BeatLeader.Components {
             Destroy(Container);
         }
 
-        protected sealed override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (firstActivation) OnPreParse();
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
         }

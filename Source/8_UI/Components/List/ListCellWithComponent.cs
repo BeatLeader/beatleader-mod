@@ -1,5 +1,4 @@
-﻿using HMUI;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BeatLeader.Components {
     /// <summary>
@@ -10,9 +9,42 @@ namespace BeatLeader.Components {
     internal abstract class ListCellWithComponent<TData, TComponent> : ListComponentBaseCell
         where TComponent : ReeUIComponentV3<TComponent>, ListCellWithComponent<TData, TComponent>.IComponent {
 
-        public interface IComponent {
-            void Init(TData data);
+        #region Instantiate
+
+        public static T InstantiateCell<T>(
+            Transform? parent = null
+        ) where T : ListCellWithComponent<TData, TComponent> {
+            var go = new GameObject(CellName);
+            go.transform.SetParent(parent);
+            var cell = go.AddComponent<T>();
+            cell.reuseIdentifier = CellName;
+            return cell;
         }
+
+        public static T InstantiateCell<T>(
+            TData data,
+            Transform? parent = null
+        ) where T : ListCellWithComponent<TData, TComponent> {
+            var cell = InstantiateCell<T>(parent);
+            cell.Init(data);
+            return cell;
+        }
+
+        #endregion
+        
+        #region Interfaces
+
+        public interface IComponent {
+            void Init(TData component);
+        }
+
+        public interface IStateHandler {
+            void OnStateChange(bool selected, bool highlighted);
+        }
+
+        #endregion
+
+        #region Setup
 
         public static readonly string CellName = $"{typeof(TComponent).Name}Cell";
         private TComponent _component = null!;
@@ -25,23 +57,18 @@ namespace BeatLeader.Components {
             _component = ReeUIComponentV3<TComponent>.Instantiate(transform);
         }
 
-        public static T InstantiateCell<T>(
-            Transform? parent = null
-        ) where T : ListCellWithComponent<TData, TComponent> {
-            var go = new GameObject(CellName);
-            go.transform.SetParent(parent);
-            var cell = go.AddComponent<T>();
-            cell.reuseIdentifier = CellName;
-            return cell;
+        private void RefreshState() {
+            if (_component is IStateHandler handler) handler.OnStateChange(selected, highlighted);
         }
-        
-        public static T InstantiateCell<T>(
-            TData data,
-            Transform? parent = null
-        ) where T : ListCellWithComponent<TData, TComponent> {
-            var cell = InstantiateCell<T>(parent);
-            cell.Init(data);
-            return cell;
-        }
+
+        #endregion
+
+        #region Events
+
+        protected override void SelectionDidChange(TransitionType transitionType) => RefreshState();
+
+        protected override void HighlightDidChange(TransitionType transitionType) => RefreshState();
+
+        #endregion
     }
 }

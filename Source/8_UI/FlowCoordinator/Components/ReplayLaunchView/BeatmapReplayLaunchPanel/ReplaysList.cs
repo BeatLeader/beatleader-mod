@@ -5,8 +5,6 @@ using System.Linq;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
-using BeatSaberMarkupLanguage.Util;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -15,11 +13,11 @@ using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
 
 namespace BeatLeader.Components {
-    internal class ReplaysList : ReeUIComponentV2, TableView.IDataSource {
+    internal class ReplaysList : ListComponentBase<ReplaysList, IReplayHeader> {
         #region Cells
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-        private abstract class AbstractDataCell : TableCell {
+        private abstract class AbstractDataCell : ListComponentBaseCell {
             #region Config
 
             public const int CellHeight = 8;
@@ -69,7 +67,7 @@ namespace BeatLeader.Components {
             public AbstractDataCell Init(IReplayHeader header) {
                 ReplayHeader = header;
                 if (!_isInitialized) {
-                    BSMLParser.Instance.Parse(markup, gameObject, this);
+                    PersistentSingleton<BSMLParser>.instance.Parse(markup, gameObject, this);
                     ((SelectableCell)this).SetField("_wasPressedSignal", clickSignal);
                     gameObject.AddComponent<Touchable>();
                     name = nameof(AbstractDataCell);
@@ -130,11 +128,11 @@ namespace BeatLeader.Components {
             [UIComponent("background")]
             protected readonly ImageView background = null!;
 
-            public override void HighlightDidChange(TransitionType transitionType) {
+            protected override void HighlightDidChange(TransitionType transitionType) {
                 RefreshVisuals();
             }
 
-            public override void SelectionDidChange(TransitionType transitionType) {
+            protected override void SelectionDidChange(TransitionType transitionType) {
                 RefreshVisuals();
             }
 
@@ -159,6 +157,16 @@ namespace BeatLeader.Components {
 
         [UsedImplicitly]
         private class ReplayDataCell : AbstractDataCell {
+            static ReplayDataCell() {
+                ColorUtility.TryParseHtmlString("#00C0FFFF", out selectColor);
+                highlightSelectedColor = selectColor.ColorWithAlpha(0.75f);
+            }
+
+            private static readonly Color selectColor;
+            private static readonly Color highlightSelectedColor;
+            private static readonly Color highlightColor = Color.white.ColorWithAlpha(0.2f);
+            private static readonly Color idlingColor = Color.clear;
+
             public bool ShowBeatmapName {
                 set {
                     if (ReplayHeader?.ReplayInfo is not { } info) return;
@@ -169,30 +177,13 @@ namespace BeatLeader.Components {
                 }
             }
 
-            private static Color _selectColor;
-            private static Color _highlightSelectedColor;
-            private static Color _highlightColor;
-            private static Color _idlingColor;
-            private static bool _colorsInitialized;
-
-            private void InitColors() {
-                if (_colorsInitialized) return;
-                ColorUtility.TryParseHtmlString("#00C0FFFF", out _selectColor);
-                _highlightSelectedColor = _selectColor.ColorWithAlpha(0.75f);
-                _highlightColor = Color.white.ColorWithAlpha(0.2f);
-                _idlingColor = Color.clear;
-                _colorsInitialized = true;
-            }
-
             protected override void OnConstruct() {
-                InitColors();
                 if (ReplayHeader!.FileStatus is FileStatus.Corrupted
                     || ReplayHeader.ReplayInfo is not { } info) return;
                 ShowBeatmapName = false;
                 TopRightText = info.LevelEndType switch {
                     Clear => "Completed",
                     Quit or Restart => "Unfinished",
-                    Practice => "Practice",
                     Fail => $"Failed at {FormatTime(Mathf.FloorToInt(ReplayHeader.ReplayInfo.FailTime))}",
                     _ => "Unknown"
                 };
@@ -211,10 +202,10 @@ namespace BeatLeader.Components {
 
             #region Colors
 
-            protected override Color HighlightColor => _highlightColor;
-            protected override Color HighlightSelectedColor => _highlightSelectedColor;
-            protected override Color SelectColor => _selectColor;
-            protected override Color IdlingColor => _idlingColor;
+            protected override Color HighlightColor => highlightColor;
+            protected override Color HighlightSelectedColor => highlightSelectedColor;
+            protected override Color SelectColor => selectColor;
+            protected override Color IdlingColor => idlingColor;
 
             #endregion
         }
@@ -246,91 +237,88 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Events
-
-        public event Action<IReplayHeader?>? ReplaySelectedEvent;
-
-        #endregion
-
-        #region UI Components
-
-        [UIValue("visible-cells")]
-        public const int VisibleCells = 7;
-
-        [UIComponent("list")]
-        private readonly CustomCellListTableData _replaysList = null!;
-
-        [UIObject("empty-text")]
-        private readonly GameObject _emptyTextObject = null!;
-
-        private TableView _tableView = null!;
-
-        #endregion
-
-        #region Init & Dispose
-
-        protected override void OnInitialize() {
-            _tableView = _replaysList.TableView;
-            _tableView.SetDataSource(this, true);
-            _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
-            Refresh();
-        }
-
-        protected override void OnDispose() {
-            var cells = _tableView.GetField<Dictionary<string, List<TableCell>>, TableView>("_reusableCells");
-            foreach (var cell in cells.Values.SelectMany(cellList => cellList)) Destroy(cell);
-            foreach (var cell in _tableView.visibleCells) Destroy(cell);
-        }
-
-        #endregion
-
         #region TableView
 
-        float TableView.IDataSource.CellSize(int idx) => AbstractDataCell.CellHeight;
+        public bool AllowMultiselect {
+            get => CellSelectionType is TableViewSelectionType.Multiple;
+            set => CellSelectionType = value ? TableViewSelectionType.Multiple : TableViewSelectionType.Single;
+        }
 
-        int TableView.IDataSource.NumberOfCells() => _replayHeaders?.Count ?? 0;
+        protected override float CellSize => AbstractDataCell.CellHeight;
 
-        TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) {
-            if (tableView.DequeueReusableCellForIdentifier(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
-                cell = AbstractDataCell.Create<ReplayDataCell>(_replayHeaders![idx]);
-            } else cell.Init(_replayHeaders![idx]);
+        public bool showBeatmapNameIfCorrect = true;
+
+        protected override ListComponentBaseCell ConstructCell(IReplayHeader data) {
+            if (DequeueReusableCell(nameof(ReplayDataCell)) is not ReplayDataCell cell) {
+                cell = AbstractDataCell.Create<ReplayDataCell>(data);
+            } else cell.Init(data);
             cell.ShowBeatmapName = showBeatmapNameIfCorrect;
             return cell;
         }
 
-        private void ShowEmptyScreen(bool show) {
-            _replaysList.gameObject.SetActive(!show);
-            _emptyTextObject.SetActive(show);
-        }
-
         #endregion
 
-        #region Data
+        #region Sorting
 
-        private IList<IReplayHeader>? _replayHeaders;
-
-        public bool showBeatmapNameIfCorrect = true;
-
-        public void SetData(IList<IReplayHeader> headers) {
-            _replayHeaders = headers;
-            Refresh();
+        public enum Sorter {
+            Difficulty,
+            Player,
+            Completion,
+            Date
         }
 
-        public void Refresh() {
-            _tableView.ClearSelection();
-            _tableView.ReloadData();
-            var empty = (_replayHeaders?.Count ?? 0) == 0;
-            ShowEmptyScreen(empty);
-            if (!empty) return;
-            ReplaySelectedEvent?.Invoke(null);
+        private class HeaderComparator : IComparer<IReplayHeader> {
+            public Sorter sorter;
+
+            public int Compare(IReplayHeader x, IReplayHeader y) {
+                var xi = x.ReplayInfo;
+                var yi = y.ReplayInfo;
+                return xi is null || yi is null ? 0 : sorter switch {
+                    Sorter.Difficulty =>
+                        -CompareInteger(
+                            (int)StringConverter.Convert<BeatmapDifficulty>(xi.SongDifficulty),
+                            (int)StringConverter.Convert<BeatmapDifficulty>(yi.SongDifficulty)),
+                    Sorter.Player =>
+                        string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
+                    Sorter.Completion =>
+                        CompareInteger((int)xi.LevelEndType, (int)yi.LevelEndType),
+                    Sorter.Date =>
+                        -CompareInteger(int.Parse(xi.Timestamp), int.Parse(yi.Timestamp)),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
+
+            private static int CompareInteger(int x, int y) => Comparer<int>.Default.Compare(x, y);
         }
 
-        #endregion
+        public Sorter SortBy {
+            get => _headerComparator.sorter;
+            set {
+                _headerComparator.sorter = value;
+                RefreshSorting();
+                Refresh();
+            }
+        }
 
-        #region Callbacks
+        public SortOrder SortOrder {
+            get => _sortOrder;
+            set {
+                _sortOrder = value;
+                RefreshSorting();
+                Refresh();
+            }
+        }
 
-        private void HandleCellSelected(TableView view, int cellIdx) {
-            ReplaySelectedEvent?.Invoke(_replayHeaders![cellIdx]);
+        private readonly HeaderComparator _headerComparator = new();
+        private SortOrder _sortOrder;
+
+        private void RefreshSorting() {
+            items.Sort(_headerComparator);
+            if (_sortOrder is SortOrder.Ascending) items.Reverse();
+        }
+
+        protected override void OnEarlyRefresh() {
+            RefreshSorting();
         }
 
         #endregion

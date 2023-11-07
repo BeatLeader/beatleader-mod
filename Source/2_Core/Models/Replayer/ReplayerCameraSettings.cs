@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
-using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace BeatLeader.Models {
@@ -36,7 +36,11 @@ namespace BeatLeader.Models {
         public int MaxCameraFOV { get; set; }
         public int MinCameraFOV { get; set; }
         public int CameraFOV { get; set; }
-        [Ignore] public virtual string? CameraView { get; set; }
-        [Ignore] public virtual IReadOnlyList<ICameraView>? CameraViews { get; set; }
+        
+        [JsonIgnore] 
+        public virtual string? CameraView { get; set; }
+        
+        [JsonIgnore]
+        public virtual IReadOnlyList<ICameraView>? CameraViews { get; set; }
     }
 }

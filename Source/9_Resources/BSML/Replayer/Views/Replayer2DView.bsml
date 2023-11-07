@@ -1,7 +1,5 @@
 ﻿<horizontal vertical-fit="Unconstrained">
 	<vertical horizontal-fit="Unconstrained">
-		<macro.as-host host="main-view">
-			<macro.reparent transform="ui-component"/>
-		</macro.as-host>
+		<ReplayerUIPanel id="replayer-panel"/>
 	</vertical>
 </horizontal>

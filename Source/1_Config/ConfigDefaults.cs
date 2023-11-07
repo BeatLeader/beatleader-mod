@@ -72,8 +72,8 @@ namespace BeatLeader {
             },
 
             //TODO: add other components
-            LayoutEditorDatas = new() {
-                { "Toolbar", new() }
+            LayoutEditorSettings = new() {
+                
             },
 
             Shortcuts = new() {

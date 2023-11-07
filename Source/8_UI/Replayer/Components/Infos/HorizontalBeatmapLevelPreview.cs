@@ -1,63 +1,61 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine.UI;
 using System.Threading;
-using BeatLeader.Models;
+using JetBrains.Annotations;
+using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class HorizontalBeatmapLevelPreview : EditableElement {
+    internal class HorizontalBeatmapLevelPreview : LayoutEditorComponent<HorizontalBeatmapLevelPreview> {
         #region Components
 
-        [UIComponent("song-preview-image")]
-        private readonly Image _songPreviewImage;
+        [UIComponent("song-preview-image"), UsedImplicitly]
+        private Image _songPreviewImage = null!;
 
         #endregion
 
         #region Name, Author
 
         [UIValue("song-name")]
-        public string SongName {
+        public string? SongName {
             get => _songName;
             private set {
                 _songName = value;
-                NotifyPropertyChanged(nameof(SongName));
+                NotifyPropertyChanged();
             }
         }
         [UIValue("song-author")]
-        public string SongAuthor {
+        public string? SongAuthor {
             get => _songAuthor;
             private set {
                 _songAuthor = value;
-                NotifyPropertyChanged(nameof(SongAuthor));
+                NotifyPropertyChanged();
             }
         }
 
         #endregion
 
-        #region Editable
+        #region LayoutComponent
 
-        public override string Name { get; } = "Beatmap Preview";
-
-        public override LayoutMap LayoutMap { get; } = new() {
-            layer = 3,
-            position = new(0f, 1f),
-            anchor = new(0f, 1f)
-        };
+        public override string ComponentName => "Beatmap Preview";
+        protected override Vector2 MinSize { get; } = new(0, 24);
+        protected override Vector2 MaxSize { get; } = new(int.MaxValue, 24);
 
         #endregion
-
+        
         #region Setup
+        
+        private string? _songName;
+        private string? _songAuthor;
 
-        private string _songName;
-        private string _songAuthor;
-
-        public void SetBeatmapLevel(BeatmapLevel level) {
+        public void SetBeatmapLevel(IPreviewBeatmapLevel level) {
             SongName = level.songName;
-            SongAuthor = level.songAuthorName;
+            SongAuthor = level.levelAuthorName;
             LoadAndAssignImage(level);
         }
-        private async void LoadAndAssignImage(BeatmapLevel level) {
+        
+        private async void LoadAndAssignImage(IPreviewBeatmapLevel level) {
             var token = new CancellationTokenSource().Token;
-            _songPreviewImage.sprite = await level.previewMediaData.GetCoverSpriteAsync(token);
+            _songPreviewImage.sprite = await level.GetCoverImageAsync(token);
         }
 
         #endregion

@@ -99,7 +99,7 @@ namespace BeatLeader.Components {
         protected LayoutElement _layoutElement = null!;
 
         [UIComponent("root"), UsedImplicitly]
-        protected LayoutGroup _layoutGroup = null!;
+        protected HorizontalOrVerticalLayoutGroup _layoutGroup = null!;
 
         [UIComponent("root"), UsedImplicitly]
         protected ContentSizeFitter _sizeFitter = null!;

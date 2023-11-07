@@ -15,10 +15,10 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     /// <summary>
-    /// Advanced UI component
+    /// Base UI component implementation with properties handling
     /// </summary>
     /// <typeparam name="T">Inherited component</typeparam>
-    internal class ReeUIComponentV3<T> : ReeUIComponentV3<T, GenericUIComponentDescriptor<T>> where T : ReeUIComponentV3<T> { }
+    internal abstract class ReeUIComponentV3<T> : ReeUIComponentV3<T, GenericUIComponentDescriptor<T>> where T : ReeUIComponentV3<T> { }
 
     /// <summary>
     /// Base for UI components
@@ -33,9 +33,11 @@ namespace BeatLeader.Components {
     /// </summary>
     /// <typeparam name="T">Inherited component</typeparam>
     /// <typeparam name="TDescriptor">Component descriptor</typeparam>
+    //TODO: rework so you wont need to specify T generic (quite annoying and non-effective thing)
     internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged
         where T : ReeUIComponentV3<T>
         where TDescriptor : IUIComponentDescriptor<T>, new() {
+
         #region Instantiate
 
         public static T Instantiate(Transform parent) {
@@ -57,10 +59,10 @@ namespace BeatLeader.Components {
                 componentGo.transform.SetParent(parent, false);
                 var component = componentGo.AddComponent<T>();
 
-                var constructedObject = component.Construct();
+                var constructedObject = component.Construct(parent);
                 component._content = constructedObject;
                 component._contentTransform = constructedObject.transform;
-                component._contentTransform.SetParent(parent, false);
+                //component._contentTransform.SetParent(parent, false);
                 component.OnInitialize();
 
                 var externalComponents = constructedObject.AddComponent<ExternalComponents>();
@@ -107,10 +109,8 @@ namespace BeatLeader.Components {
                     }
                 }
 
-                if (parserParams.host is ReeUIComponentV3Base host) {
-                    comp.transform.SetParent(host.transform, false);
-                }
-                
+                var parent = parserParams.host is ReeUIComponentV3Base host ? host.transform : null;
+                comp.transform.SetParent(parent, false);
                 comp.OnPropertySet();
             }
         }
@@ -133,6 +133,8 @@ namespace BeatLeader.Components {
 
         protected virtual string Markup { get; } = BSMLUtility.ReadMarkupOrFallback(typeof(T));
 
+        protected string CachedMarkup => _markup ??= Markup;
+
         private static string? _markup;
 
         #endregion
@@ -147,16 +149,30 @@ namespace BeatLeader.Components {
         private GameObject? _content;
         private Transform? _contentTransform;
 
-        protected virtual GameObject Construct() {
-            _markup ??= Markup;
-            BSMLParser.instance.Parse(_markup, gameObject, this);
-            return transform.GetChild(0).gameObject;
+        protected virtual GameObject Construct(Transform parent) {
+            BSMLParser.instance.Parse(CachedMarkup, gameObject, this);
+            var parsedObject = transform.GetChild(0);
+            parsedObject.SetParent(parent, false);
+            return parsedObject.gameObject;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        #endregion
+
+        #region Validation
+
+        /// <summary>
+        /// Validates is component initialized or not
+        /// </summary>
+        /// <exception cref="UninitializedComponentException">Thrown if component is not initialized</exception>
         protected void ValidateAndThrow() {
-            if (!IsInitialized) throw new UninitializedComponentException();
+            if (!IsInitialized || !OnValidation()) throw new UninitializedComponentException();
         }
+
+        /// <summary>
+        /// Called with <c>ValidateAndThrow</c>. Used for initialization checks
+        /// </summary>
+        /// <returns>True if validation has completed, False if not</returns>
+        protected virtual bool OnValidation() => true;
 
         #endregion
 
@@ -170,7 +186,7 @@ namespace BeatLeader.Components {
         }
 
         protected virtual void OnPropertySet() { }
-        
+
         protected virtual void OnInitialize() { }
 
         protected virtual void OnInstantiate() { }
@@ -190,7 +206,7 @@ namespace BeatLeader.Components {
 
         #endregion
     }
-    
+
     internal class ReeUIComponentV3InstanceKeeper : MonoBehaviour {
         public ReeUIComponentV3Base instance = null!;
     }

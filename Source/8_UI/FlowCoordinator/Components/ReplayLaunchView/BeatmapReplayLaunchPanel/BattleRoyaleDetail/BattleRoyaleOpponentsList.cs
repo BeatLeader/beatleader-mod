@@ -41,10 +41,10 @@ namespace BeatLeader.Components {
             private IModifiableListComponent<IReplayHeader> _opponentsList = null!;
             private IReplayHeader _header = null!;
 
-            public void Init((IReplayHeader, IModifiableListComponent<IReplayHeader>, IListComponent<IReplayHeader>?) tuple) {
-                _header = tuple.Item1;
-                _opponentsList = tuple.Item2;
-                _replaysList = tuple.Item3;
+            public void Init((IReplayHeader, IModifiableListComponent<IReplayHeader>, IListComponent<IReplayHeader>?) component) {
+                _header = component.Item1;
+                _opponentsList = component.Item2;
+                _replaysList = component.Item3;
                 _ = SetPlayerAsync(_header.ReplayInfo!.PlayerID);
             }
 

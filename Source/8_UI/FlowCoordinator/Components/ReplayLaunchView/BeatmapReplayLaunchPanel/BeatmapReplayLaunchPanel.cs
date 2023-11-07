@@ -236,7 +236,7 @@ namespace BeatLeader.Components {
             get => _currentReplayMode;
             set {
                 _currentReplayMode = value;
-                _detailsContainer.ShowObjectWithIndex(value is ReplayMode.BattleRoyale ? 1 : 0);
+                _detailsContainer.ShowObjectWithKey(value.ToString());
                 _detailPanel.OnStateChange(false);
                 _detailPanel = value is ReplayMode.BattleRoyale ? _battleRoyaleDetail : _replayDetail;
                 _detailPanel.SetData(this, Array.Empty<IReplayHeader>());

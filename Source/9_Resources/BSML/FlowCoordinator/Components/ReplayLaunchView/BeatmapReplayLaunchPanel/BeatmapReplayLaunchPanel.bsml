@@ -14,7 +14,8 @@
                                   ReloadDataEvent="reload-data"/>
       </vertical>
     </vertical>
-    <ObjectSwitcher id="details-container" Width="50" Height="62">
+    <ObjectSwitcher id="details-container" Width="50" Height="62" 
+                    Bindings="Standard - 0, BattleRoyale - 1">
       <ReplayDetailPanel id="replay-detail"/>
       <BattleRoyaleDetailPanel id="battle-royale-detail"/>
     </ObjectSwitcher>

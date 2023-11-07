@@ -185,6 +185,8 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite AnchorBGDots;
 
         [UsedImplicitly] public static Sprite BlackTransparentBGOutline;
+        
+        [UsedImplicitly] public static Sprite WhiteFrame;
 
         [UsedImplicitly] public static Sprite WhiteBG;
 
@@ -256,6 +258,7 @@ namespace BeatLeader {
             DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
             UnknownIcon = assetBundle.LoadAsset<Sprite>("BL_UnknownIcon");
             BattleRoyaleIcon = assetBundle.LoadAsset<Sprite>("BL_BattleRoyaleIcon");
+            WhiteFrame = assetBundle.LoadAsset<Sprite>("BL_WhiteFrame");
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 

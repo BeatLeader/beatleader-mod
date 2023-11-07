@@ -155,7 +155,7 @@ namespace BeatLeader.Replayer {
 
             var beatmapLevel = await GetBeatmapLevelByHashAsync(hash, token);
             if (beatmapLevel == null) return null;
-
+            
             var characteristic = beatmapLevel.beatmapLevelData
                 .difficultyBeatmapSets.Select(static x => x.beatmapCharacteristic)
                 .FirstOrDefault(x => x.serializedName == mode);

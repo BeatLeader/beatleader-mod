@@ -288,7 +288,7 @@ namespace BeatLeader.Components {
                 };
             }
 
-            private static int CompareInteger(int x, int y) => x >= y ? x == y ? 0 : 1 : -1;
+            private static int CompareInteger(int x, int y) => Comparer<int>.Default.Compare(x, y);
         }
 
         public Sorter SortBy {
@@ -315,6 +315,10 @@ namespace BeatLeader.Components {
         private void RefreshSorting() {
             items.Sort(_headerComparator);
             if (_sortOrder is SortOrder.Ascending) items.Reverse();
+        }
+
+        protected override void OnEarlyRefresh() {
+            RefreshSorting();
         }
 
         #endregion

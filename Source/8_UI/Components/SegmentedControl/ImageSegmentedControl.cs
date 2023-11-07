@@ -17,25 +17,25 @@ namespace BeatLeader.Components {
     internal class ImageSegmentedControlCell : SegmentedControlComponentBaseCell {
         #region Setup
 
-        private AdvancedButton _button = null!;
+        private ImageButton _button = null!;
 
-        public void Init(Sprite sprite, AdvancedButtonParamsDescriptor desc) {
+        public void Init(Sprite sprite, ImageButtonParamsDescriptor desc) {
             _button.GrowOnHover = desc.GrowOnHover;
             _button.HoverLerpMul = desc.HoverLerpMul;
             _button.ActiveColor = desc.ActiveColor;
-            _button.HoveredColor = desc.HoveredColor;
+            _button.HoverColor = desc.HoverColor;
             _button.Color = desc.Color;
             _button.Pad = desc.Pad;
             _button.BaseScale = desc.BaseScale;
             _button.HoverScaleSum = desc.HoverScaleSum;
-            _button.Image.Icon = sprite;
+            _button.Image.Sprite = sprite;
         }
 
-        public void Setup(AdvancedButton button) {
+        public void Setup(ImageButton button) {
             _button = button;
             _button.Sticky = true;
             _button.InheritSize = true;
-            _button.ToggleEvent += HandleButtonToggled;
+            _button.ClickEvent += HandleButtonToggled;
         }
         
         #endregion
@@ -67,7 +67,7 @@ namespace BeatLeader.Components {
         }
 
         [ExternalProperty(prefix: "tab"), UsedImplicitly]
-        public readonly AdvancedButtonParamsDescriptor cellParams = new();
+        public readonly ImageButtonParamsDescriptor cellParams = new();
 
         #endregion
 
@@ -75,7 +75,7 @@ namespace BeatLeader.Components {
 
         protected override SegmentedControlComponentBaseCell ConstructCell(Sprite value) {
             if (DequeueReusableCell() is not ImageSegmentedControlCell cell) {
-                var button = AdvancedButton.Instantiate(ContentTransform!);
+                var button = ImageButton.Instantiate(ContentTransform!);
                 cell = button.Content!.AddComponent<ImageSegmentedControlCell>();
                 cell.Setup(button);
             } 

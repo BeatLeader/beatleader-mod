@@ -1,0 +1,38 @@
+<horizontal>
+  <AdvancedImage
+    Sprite="#bl-white-bg" Type="Sliced"
+    PixelsPerUnit="5" Color="#232323"
+    Height="70" Width="48" use-as-mask="true"
+  >
+    <!--WINDOW HANDLE-->
+    <AdvancedImage id="window-handle" Sprite="#bl-white-bg" Height="4" Width="60"
+                   Pad="5, 0, 5, 0" Type="Sliced" PixelsPerUnit="100" Color="cyan">
+      <horizontal pad-left="2" child-expand-width="false" child-align="MiddleLeft">
+        <text text="Layout Editor" color="black" font-size="3"/>
+      </horizontal>
+    </AdvancedImage>
+    <!--COMPONENTS LIST-->
+    <LayoutEditorComponentsList
+      id="components-list" Height="36"
+      Pad="1" InheritWidth="True"
+    />
+    <vertical horizontal-fit="Unconstrained" vertical-fit="PreferredSize" pad="1" pref-height="30">
+      <AdvancedImage Sprite="#bl-white-bg" Type="Sliced" Color="#383838"
+                     PixelsPerUnit="10" Height="18" InheritWidth="true" Pad="1">
+        <horizontal>
+          <text text="TODO: Add per-component grid settings" font-size="4"/>
+          <!--LAYER BUTTONS-->
+          <vertical>
+            <button id="layer-up-button" text="+" on-click="layer-up-button-click" skew="0" pref-height="7"/>
+            <button id="layer-down-button" text="-" on-click="layer-down-button-click" skew="0" pref-height="7"/>
+          </vertical>
+        </horizontal>
+      </AdvancedImage>
+      <!--CANCEL / APPLY BUTTONS-->
+      <horizontal child-control-height="false" child-expand-height="false" child-align="MiddleCenter">
+        <button text="Cancel" on-click="cancel-button-click" skew="0" pref-height="8" pref-width="18"/>
+        <primary-button text="Apply" on-click="apply-button-click" skew="0" pref-height="8" pref-width="18"/>
+      </horizontal>
+    </vertical>
+  </AdvancedImage>
+</horizontal>

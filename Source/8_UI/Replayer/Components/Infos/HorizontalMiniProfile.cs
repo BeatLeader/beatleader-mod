@@ -115,34 +115,108 @@ namespace BeatLeader.Components {
     }
 
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.Replayer.Components.Infos.HorizontalMiniProfile.bsml")]
-    internal class EditableHorizontalMiniProfile : EditableElement {
-        #region Editable
+    internal class HorizontalMiniProfileLayoutComponent : LayoutEditorComponent<HorizontalMiniProfileLayoutComponent> {
+        #region Components
 
-        public override string Name { get; } = "Mini Profile";
+        [UIValue("player-avatar"), UsedImplicitly]
+        private PlayerAvatar _playerAvatar = null!;
 
-        public override LayoutMap LayoutMap { get; } = new() {
-            layer = 2,
-            position = new(0f, 0.885f),
-            anchor = new(0f, 1f)
-        };
+        [UIValue("country-flag"), UsedImplicitly]
+        private CountryFlag _playerCountryFlag = null!;
+
+        [UIObject("flag-name-container"), UsedImplicitly]
+        private readonly GameObject _flagNameContainer = null!;
+
+        #endregion
+        
+        #region Values
+
+        [UIValue("player-name")]
+        public string? PlayerName {
+            get => _playerName;
+            private set {
+                _playerName = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("player-global-rank")]
+        public string? PlayerGlobalRank {
+            get => _playerGlobalRank;
+            private set {
+                _playerGlobalRank = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("player-pp")]
+        public string? PlayerPp {
+            get => _playerPp;
+            private set {
+                _playerPp = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("text-container-size"), UsedImplicitly]
+        private float TextContainerSize => TextBgSize * 2 + 1;
+
+        [UIValue("text-bg-size"), UsedImplicitly]
+        private float TextBgSize => textSize + 2;
+        
+        [UIValue("max-text-width"), UsedImplicitly]
+        private float MaxTextWidth => maxWidth - avatarSize;
+        
+        [UIValue("text-size"), UsedImplicitly]
+        public float textSize = 4;
+        
+        [UIValue("avatar-size"), UsedImplicitly]
+        public float avatarSize = 20;
+
+        [UIValue("ignore-layout"), UsedImplicitly]
+        public bool ignoreLayout = true;
+
+        [UIValue("max-width")]
+        public float maxWidth = -1;
+        
+        #endregion
+        
+        #region LayoutComponent
+
+        public override string ComponentName => "Mini Profile";
+        protected override Vector2 MinSize { get; } = new(0, 24);
+        protected override Vector2 MaxSize { get; } = new(int.MaxValue, 24);
 
         #endregion
 
         #region Setup
 
-        protected override object ParseHost => _host;
-
-        private readonly HorizontalMiniProfileHost _host = new();
-
+        protected override string Markup { get; } = typeof(HorizontalMiniProfileLayoutComponent).ReadViewDefinition();
+        
+        private string? _playerName;
+        private string? _playerGlobalRank;
+        private string? _playerPp;
+        
         public void SetPlayer(Player player) {
-            _host.SetPlayer(player);
+            _playerAvatar.SetPlayer(player);
+            _playerCountryFlag.SetCountry(player.country);
+
+            PlayerName = player.name;
+            PlayerGlobalRank = FormatUtils.FormatRank(player.rank, true);
+            PlayerPp = FormatUtils.FormatPP(player.pp);
         }
 
         protected override void OnInstantiate() {
-            base.OnInstantiate();
-            _host.OnInstantiate(transform);
+            _playerAvatar = ReeUIComponentV2.Instantiate<PlayerAvatar>(transform);
+            _playerCountryFlag = ReeUIComponentV2.Instantiate<CountryFlag>(transform);
         }
 
+        protected override void OnInitialize() {
+            if (maxWidth is -1) return;
+            _flagNameContainer.GetComponent<LayoutElement>().TryDestroy();
+            _flagNameContainer.AddComponent<AdvancedLayoutElement>().maxWidth = 800;
+        }
+        
         #endregion
     }
 

@@ -109,17 +109,17 @@ namespace BeatLeader.Components {
         }
 
         [UIAction("reload-click"), UsedImplicitly]
-        private void HandleReloadButtonClicked() {
+        private void HandleReloadButtonClicked(bool state) {
             ReloadDataEvent?.Invoke();
         }
 
         [UIAction("settings-click"), UsedImplicitly]
-        private void HandleSettingsButtonClicked() {
+        private void HandleSettingsButtonClicked(bool state) {
             ShowModal();
         }
 
-        [UIAction("battle-royale-toggle"), UsedImplicitly]
-        private void HandleBattleRoyaleButtonToggled(bool state) {
+        [UIAction("battle-royale-click"), UsedImplicitly]
+        private void HandleBattleRoyaleButtonClicked(bool state) {
             ReplayModeChangedEvent?.Invoke(state ? ReplayMode.BattleRoyale : ReplayMode.Standard);
         }
 

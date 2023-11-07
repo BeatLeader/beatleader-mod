@@ -35,7 +35,7 @@ namespace BeatLeader.Components {
             ReplayLaunchData launchData,
             IReplayWatermark? watermark = null,
             IReplayTimeline? timeline = null,
-            LayoutEditor? layoutEditor = null) {
+            ILayoutEditor? layoutEditor = null) {
             _speedSetting.Setup(timeController);
             _layoutEditorSetting.Setup(layoutEditor, pauseController);
             _otherContentView.Setup(playersManager, launchData, watermark, timeline);

@@ -8,6 +8,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     /// <summary>
@@ -18,8 +19,10 @@ namespace BeatLeader.Components {
 
         void ScrollTo(int idx, bool animated = true);
 
+        void Select(int idx);
+        
         /// <summary>
-        /// Clears selected cell with specified index
+        /// Clears selected cell with the specified index
         /// </summary>
         /// <param name="idx">Index of the cell. -1 for all cells</param>
         void ClearSelection(int idx = -1);
@@ -32,29 +35,31 @@ namespace BeatLeader.Components {
     internal interface IListComponent<in TItem> : IListComponent {
         void ScrollTo(TItem item, bool animated = true);
 
+        void Select(TItem item);
+        
         void ClearSelection(TItem item);
     }
 
     /// <summary>
-    /// Modifiable abstraction for lists with value
+    /// Abstraction for modifiable lists with value
     /// </summary>
     /// <typeparam name="TItem">Data type</typeparam>
     internal interface IModifiableListComponent<TItem> : IListComponent<TItem> {
         IList<TItem> Items { get; }
     }
-    
+
     /// <summary>
     /// Cell base for <c>ListComponentBase</c>
     /// </summary>
     internal abstract class ListComponentBaseCell : TableCell {
         public event Action? LateSelectionDidChangeEvent;
-        
+
         protected sealed override void InternalToggle() {
             base.InternalToggle();
             LateSelectionDidChangeEvent?.Invoke();
         }
     }
-    
+
     /// <summary>
     /// Universal ReeUIComponentV3 base for lists
     /// </summary>
@@ -89,13 +94,17 @@ namespace BeatLeader.Components {
         #region ModifiableListComponent
 
         IList<TItem> IModifiableListComponent<TItem>.Items => items;
-
+        
         public void ScrollTo(TItem item, bool animated = true) {
             var idx = FindItemIndex(item);
             if (idx is -1) return;
             ScrollTo(idx, animated);
         }
 
+        public void Select(TItem item) {
+            Select(FindItemIndex(item));
+        }
+        
         public void ClearSelection(TItem item) {
             var idx = -1;
             if (CellSelectionType is TableViewSelectionType.Multiple) {
@@ -135,14 +144,21 @@ namespace BeatLeader.Components {
         }
 
         public void Refresh(bool clearSelection = true) {
+            OnEarlyRefresh();
             if (clearSelection) {
                 ClearSelectionInternal(-1);
                 _tableView.ReloadData();
             } else _tableView.ReloadDataKeepingPosition();
             ShowEmptyScreen(items.Count is 0);
+            OnRefresh();
             if (clearSelection) ItemsWithIndexesSelectedEvent?.Invoke(Array.Empty<int>());
         }
 
+        public void Select(int idx) {
+            //TODO: reimplement since it clears other selected cells
+            _tableView.SelectCellWithIdx(idx);
+        }
+        
         public void ClearSelection(int idx = -1) {
             ClearSelectionInternal(idx);
             Refresh(false);
@@ -175,6 +191,10 @@ namespace BeatLeader.Components {
         protected abstract float CellSize { get; }
 
         protected abstract ListComponentBaseCell ConstructCell(TItem data);
+
+        protected virtual void OnRefresh() { }
+
+        protected virtual void OnEarlyRefresh() { }
 
         #endregion
 
@@ -234,7 +254,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Setup
-        
+
         // ReSharper disable once StaticMemberInGenericType
         private static readonly CustomListTag customListTag = new();
         // ReSharper disable once StaticMemberInGenericType
@@ -276,6 +296,7 @@ namespace BeatLeader.Components {
             //ShowEmptyScreen(false);
 
             _scrollView = _tableView.GetField<ScrollView, TableView>("_scrollView");
+            _scrollView.gameObject.AddComponent<GraphicRaycaster>();
             _scrollView.SetField("_platformHelper", BeatSaberUI.PlatformHelper);
             _scrollView.SetField("_scrollViewDirection", ScrollDirection);
             _scrollView.scrollPositionChangedEvent += UpdateScrollbar;

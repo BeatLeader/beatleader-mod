@@ -2,7 +2,7 @@
   <horizontal pref-height="6" spacing="2"
               horizontal-fit="PreferredSize">
     <text text="Battle panel" align="Center"/>
-    <AdvancedImage Size="4" Icon="#bl-battle-royale-icon"/>
+    <AdvancedImage Size="4" Sprite="#bl-battle-royale-icon"/>
   </horizontal>
   <vertical bg="round-rect-panel" horizontal-fit="Unconstrained"
             vertical-fit="PreferredSize" pref-height="38">
@@ -18,7 +18,7 @@
                     child-control-width="false" child-expand-width="false"
                     child-control-height="false" child-expand-height="false">
           <vertical bg="round-rect-panel" vertical-fit="PreferredSize" pad="1">
-            <AdvancedButton Size="3" Icon="#bl-refresh-icon" ClickEvent="remove-all-opponents-click"/>
+            <ImageButton Size="3" Sprite="#bl-refresh-icon" ClickEvent="remove-all-opponents-click"/>
           </vertical>
         </horizontal>
       </vertical>
@@ -28,7 +28,7 @@
     <ImageSegmentedControl Items="Setup - #BL_Overview1Icon, Opponents - #BL_Overview2Icon"
                            CellWithKeySelectedEvent="cell-select"
                            InheritWidth="true" Height="6" tab.Pad="1" tab.GrowOnHover="false"
-                           tab.HoveredColor="#80808033" tab.HoverLerpMul="100"
+                           tab.HoverColor="#80808033" tab.HoverLerpMul="100"
                            tab.BaseScale="0.8" tab.HoverScaleSum="0.2"/>
   </horizontal>
   <horizontal pref-height="12" pad-top="2" horizontal-fit="Unconstrained">

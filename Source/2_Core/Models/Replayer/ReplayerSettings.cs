@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using BeatLeader.Components;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
@@ -24,7 +22,8 @@ namespace BeatLeader.Models {
         public bool ShowTimelinePauses { get; set; }
 
         public ReplayerShortcuts? Shortcuts { get; set; }
-        public Dictionary<string, LayoutData>? LayoutEditorDatas { get; set; }
+        
+        public LayoutEditorSettings? LayoutEditorSettings { get; set; }
         
         [JsonConverter(typeof(ImplicitTypeConverter<InternalReplayerCameraSettings>))]
         public ReplayerCameraSettings? CameraSettings { get; set; }

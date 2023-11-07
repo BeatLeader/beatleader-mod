@@ -1,8 +1,8 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.UI.BSML_Addons.Components;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using System;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 
@@ -27,36 +27,26 @@ namespace BeatLeader.Components {
         #region Setup
 
         private IReplayPauseController _pauseController = null!;
-        private LayoutEditor? _layoutEditor;
+        private ILayoutEditor? _layoutEditor;
 
-        public void Setup(LayoutEditor? editor, IReplayPauseController pauseController) {
+        public void Setup(ILayoutEditor? editor, IReplayPauseController pauseController) {
             base.OnDispose();
             _layoutEditor = editor;
             _pauseController = pauseController;
-            if (_layoutEditor != null) {
-                _layoutEditor.PartialDisplayModeStateWasChangedEvent += HandlePartialDisplayStateChanged;
-            }
         }
 
         protected override void OnInitialize() {
             Content.gameObject.AddComponent<InputDependentObject>().Init(InputUtils.InputType.FPFC);
             HandlePartialDisplayStateChanged(false);
         }
-
-        protected override void OnDispose() {
-            if (_layoutEditor != null) {
-                _layoutEditor.PartialDisplayModeStateWasChangedEvent -= HandlePartialDisplayStateChanged;
-            }
-        }
-
+        
         #endregion
 
         #region Callbacks
 
-        [UIAction("button-clicked")]
+        [UIAction("button-clicked"), UsedImplicitly]
         private void HandleEditorButtonClicked() {
-            if (_layoutEditor == null || _layoutEditor.PartialDisplayEnabled) return;
-            _layoutEditor.SetEnabled(true);
+            _layoutEditor!.SetEditorActive(true);
             _pauseController.Pause();
             EnteredEditModeEvent?.Invoke();
         }

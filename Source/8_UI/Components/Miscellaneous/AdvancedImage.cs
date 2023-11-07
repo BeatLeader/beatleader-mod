@@ -1,5 +1,4 @@
 ﻿using BeatSaberMarkupLanguage;
-using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +8,7 @@ namespace BeatLeader.Components {
         #region UI Properties
 
         [ExternalProperty, UsedImplicitly]
-        public Sprite? Icon {
+        public Sprite? Sprite {
             get => Image.sprite;
             set => Image.sprite = value;
         }
@@ -31,7 +30,22 @@ namespace BeatLeader.Components {
             get => Image.preserveAspect;
             set => Image.preserveAspect = value;
         }
-        
+
+        [ExternalProperty, UsedImplicitly]
+        public Image.Type ImageType {
+            get => Image.type;
+            set => Image.type = value;
+        }
+
+        [ExternalProperty, UsedImplicitly]
+        public float PixelsPerUnit {
+            get => Image.pixelsPerUnitMultiplier;
+            set {
+                ImageType = Image.Type.Sliced;
+                Image.pixelsPerUnitMultiplier = value;
+            }
+        }
+
         #endregion
 
         #region UI Components
@@ -44,9 +58,7 @@ namespace BeatLeader.Components {
         #region Setup
 
         protected override void OnInitialize() {
-            var imageViewGo = new GameObject("Image");
-            imageViewGo.transform.SetParent(ContentTransform, false);
-            Image = imageViewGo.AddComponent<ImageView>();
+            Image = Content!.AddComponent<AdvancedImageView>();
             Material = Utilities.ImageResources.NoGlowMat;
             PreserveAspect = true;
         }

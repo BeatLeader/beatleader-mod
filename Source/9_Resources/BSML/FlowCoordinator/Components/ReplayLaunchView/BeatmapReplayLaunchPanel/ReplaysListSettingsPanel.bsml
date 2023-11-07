@@ -16,10 +16,12 @@
   <text text="List controls" align="Left" font-size="3"/>
   <horizontal child-control-width="false" spacing="1" vertical-fit="Unconstrained"
               child-expand-width="false" child-align="MiddleRight">
-    <AdvancedButton Sticky="true" ColorizeOnHover="false" Size="3" Icon="#bl-battle-royale-icon"
-                    ToggleEvent="battle-royale-toggle"/>
-    <AdvancedButton Size="3" Icon="#bl-settings-icon" ClickEvent="settings-click"/>
-    <AdvancedButton GrowOnHover="false" Size="3" Icon="#bl-refresh-icon"
-                    ClickEvent="reload-click"/>
+    <ImageButton Sticky="true" ColorizeOnHover="false" Size="3" 
+                 Sprite="#bl-battle-royale-icon"
+                 ClickEvent="battle-royale-click"/>
+    <ImageButton Size="3" Sprite="#bl-settings-icon" 
+                 ClickEvent="settings-click"/>
+    <ImageButton GrowOnHover="false" Size="3" Sprite="#bl-refresh-icon"
+                 ClickEvent="reload-click"/>
   </horizontal>
 </horizontal>

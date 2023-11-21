@@ -75,12 +75,15 @@ namespace BeatLeader.DataManager {
             public bool IsRanked;
 
             public void Update(DiffInfo diffInfo) {
-                if (HighestStars < diffInfo.stars) HighestStars = diffInfo.stars;
-                if (HighestTechStars < diffInfo.techRating) HighestTechStars = diffInfo.techRating;
-                if (HighestAccStars < diffInfo.accRating) HighestAccStars = diffInfo.accRating;
-                if (HighestPassStars < diffInfo.passRating) HighestPassStars = diffInfo.passRating;
-
                 var status = FormatUtils.GetRankedStatus(diffInfo);
+
+                if (status is RankedStatus.Event or RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Ranked) {
+                    if (HighestStars < diffInfo.stars) HighestStars = diffInfo.stars;
+                    if (HighestTechStars < diffInfo.techRating) HighestTechStars = diffInfo.techRating;
+                    if (HighestAccStars < diffInfo.accRating) HighestAccStars = diffInfo.accRating;
+                    if (HighestPassStars < diffInfo.passRating) HighestPassStars = diffInfo.passRating;
+                }
+
                 IsNominated |= status is RankedStatus.Nominated;
                 IsQualified |= status is RankedStatus.Qualified;
                 IsRanked |= status is RankedStatus.Ranked;

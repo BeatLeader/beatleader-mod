@@ -1,0 +1,33 @@
+﻿<horizontal vertical-fit="Unconstrained" spacing="1"
+            child-control-width="false">
+  <!--PLAYER AVATAR-->
+  <macro.as-host host="player-avatar">
+    <macro.reparent transform="ui-component"/>
+  </macro.as-host>
+  <vertical id="text-container" vertical-fit="PreferredSize"
+            child-expand-width="false" flexible-width="1">
+    <!-- PLAYER INFO -->
+    <horizontal pref-height="4.4" spacing="1" bg="round-rect-panel"
+                bg-color="#000000EE" pad-left="1" pad-right="1" child-expand-width="false">
+      <macro.as-host host="country-flag">
+        <macro.reparent transform="ui-component"/>
+      </macro.as-host>
+      <text text="~player-name" rich-text="false" align="Left"
+            font-size="2.4" word-wrapping="false" overflow-mode="Ellipsis"/>
+    </horizontal>
+    <!-- TEXTS -->
+    <horizontal child-control-width="false" child-expand-width="false"
+                child-align="MiddleLeft">
+      <!-- GLOBAL RANK -->
+      <horizontal pref-height="4.4" pad="1" horizontal-fit="PreferredSize"
+                  bg="round-rect-panel" bg-color="#000000EE">
+        <text text="~player-global-rank" align="Left" font-size="2.4"/>
+      </horizontal>
+      <!-- PP -->
+      <horizontal pref-height="4.4" pad="1" horizontal-fit="PreferredSize"
+                  bg="round-rect-panel" bg-color="#000000EE">
+        <text text="~player-pp" align="Left" font-size="2.4"/>
+      </horizontal>
+    </horizontal>
+  </vertical>
+</horizontal>

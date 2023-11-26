@@ -75,7 +75,7 @@ namespace BeatLeader.Components {
             ContentTransform!.SetParent(handler?.AreaTransform);
         }
 
-        protected override GameObject Construct(Transform parent) {
+        protected sealed override GameObject Construct(Transform parent) {
             var container = new GameObject("ComponentContainer");
             container.transform.SetParent(parent, false);
             _componentTransform = container.AddComponent<RectTransform>();
@@ -85,8 +85,8 @@ namespace BeatLeader.Components {
             contentContainer.anchorMin = Vector2.zero;
             contentContainer.anchorMax = Vector2.one;
 
-            var content = base.Construct(parent);
-            content.transform.SetParent(contentContainer, false);
+            //creating content
+            _ = ConstructInternal(contentContainer);
 
             var wrapperGo = container.CreateChild("Wrapper");
             _wrapper = wrapperGo.AddComponent<LayoutComponentWrapper>();
@@ -94,6 +94,10 @@ namespace BeatLeader.Components {
             _wrapper.StateChangedEvent += HandleWrapperStateChanged;
 
             return container;
+        }
+
+        protected virtual GameObject ConstructInternal(Transform parent) {
+            return base.Construct(parent);
         }
 
         protected override bool OnValidation() => ComponentHandler is not null;

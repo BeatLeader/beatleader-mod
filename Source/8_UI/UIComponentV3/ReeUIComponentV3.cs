@@ -34,7 +34,7 @@ namespace BeatLeader.Components {
     /// <typeparam name="T">Inherited component</typeparam>
     /// <typeparam name="TDescriptor">Component descriptor</typeparam>
     //TODO: rework so you wont need to specify T generic (quite annoying and non-effective thing)
-    internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged
+    internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged, IReeUIComponentV3EventReceiver
         where T : ReeUIComponentV3<T>
         where TDescriptor : IUIComponentDescriptor<T>, new() {
 
@@ -43,7 +43,7 @@ namespace BeatLeader.Components {
         public static T Instantiate(Transform parent) {
             var obj = bsmlTag.CreateObject(parent);
             return (T)obj.GetComponents<ReeUIComponentV3InstanceKeeper>()
-                .Select(x => x.instance)
+                .Select(x => x.Instance)
                 .First(x => x is T);
         }
 
@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
                 //component of the specified there type, in case when ui component exported from another
                 //ui component we cannot access the main component, so we forced to do such shenanigans
                 var instanceKeeper = constructedObject.AddComponent<ReeUIComponentV3InstanceKeeper>();
-                instanceKeeper.instance = component;
+                instanceKeeper.Instance = component;
                 externalComponents.components.Add(instanceKeeper);
                 if (Descriptor.ExternalComponents is { } components) {
                     externalComponents.components.AddRange(components.Select(x => x(component)));
@@ -93,7 +93,7 @@ namespace BeatLeader.Components {
                 ?? new();
 
             public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
-                if (componentType.component is not ReeUIComponentV3InstanceKeeper { instance: T comp }
+                if (componentType.component is not ReeUIComponentV3InstanceKeeper { Instance: T comp }
                     || Descriptor.ExternalProperties is not { } props) return;
 
                 var values = new Dictionary<string, object>();
@@ -178,7 +178,11 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void Awake() { OnInstantiate(); }
+        void IReeUIComponentV3EventReceiver.OnStart() => OnStart();
+
+        void IReeUIComponentV3EventReceiver.OnStateChange(bool state) => OnStateChange(state);
+        
+        private void Awake() => OnInstantiate();
 
         private void OnDestroy() {
             OnDispose();
@@ -192,6 +196,12 @@ namespace BeatLeader.Components {
         protected virtual void OnInstantiate() { }
 
         protected virtual void OnDispose() { }
+        
+        protected virtual void OnStart() { }
+        
+        protected virtual void OnAwake() { }
+        
+        protected virtual void OnStateChange(bool state) { }
 
         #endregion
 
@@ -207,7 +217,25 @@ namespace BeatLeader.Components {
         #endregion
     }
 
+    internal interface IReeUIComponentV3EventReceiver {
+        void OnStart();
+        void OnStateChange(bool state);
+    }
+    
     internal class ReeUIComponentV3InstanceKeeper : MonoBehaviour {
-        public ReeUIComponentV3Base instance = null!;
+        public ReeUIComponentV3Base Instance {
+            get => _instance;
+            set {
+                _instance = value;
+                _eventReceiver = (IReeUIComponentV3EventReceiver)value;
+            }
+        }
+
+        private IReeUIComponentV3EventReceiver? _eventReceiver;
+        private ReeUIComponentV3Base _instance = null!;
+        
+        private void Start() => _eventReceiver?.OnStart();
+        private void OnEnable() => _eventReceiver?.OnStateChange(true);
+        private void OnDisable() => _eventReceiver?.OnStateChange(false);
     }
 }

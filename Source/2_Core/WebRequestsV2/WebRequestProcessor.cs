@@ -25,6 +25,11 @@ namespace BeatLeader.WebRequests {
         #region WebRequest
 
         public T? Result { get; private set; }
+        
+        public new async Task<IWebRequest<T>> Join() {
+            await base.Join();
+            return this;
+        }
 
         #endregion
 

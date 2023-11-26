@@ -6,8 +6,10 @@ namespace BeatLeader.WebRequests {
 
     public delegate void WebRequestProgressChangedDelegate(IWebRequest instance, float downloadProgress, float uploadProgress, float overallProgress);
 
-    public interface IWebRequest<out TResult> : IWebRequest {
+    public interface IWebRequest<TResult> : IWebRequest {
         TResult? Result { get; }
+        
+        new Task<IWebRequest<TResult>> Join();
     }
 
     public interface IWebRequest {

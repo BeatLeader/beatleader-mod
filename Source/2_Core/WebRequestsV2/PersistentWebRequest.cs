@@ -2,12 +2,11 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace BeatLeader.WebRequests {
     [PublicAPI]
-    public abstract class PersistentWebRequestBase<T, TRequest> : Singleton<T>
+    public abstract class PersistentWebRequestBase<T, TRequest>
         where T : PersistentWebRequestBase<T, TRequest>
         where TRequest : IWebRequest {
 

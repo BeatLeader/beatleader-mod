@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using BeatLeader.Replayer;
@@ -16,13 +17,13 @@ namespace BeatLeader.Components {
         public string? PlayerName { get; private set; }
 
         public bool Enabled => true;
-        
+
         public event Action? FilterUpdatedEvent;
 
         private void NotifyFilterUpdated() {
             FilterUpdatedEvent?.Invoke();
         }
-        
+
         #endregion
 
         #region UI Components
@@ -88,7 +89,7 @@ namespace BeatLeader.Components {
         private void HandleFilterUpdated() {
             NotifyFilterUpdated();
         }
-        
+
         private void HandleOriginalFilterUpdated() {
             PlayerName = _originalReplayFilter!.PlayerName;
             NotifyFilterUpdated();
@@ -110,9 +111,11 @@ namespace BeatLeader.Components {
         private async void HandleStartButtonClicked() {
             var replays = new Dictionary<Replay, Player?>();
             foreach (var header in _opponentsList.items) {
-                var replay = await header.LoadReplayAsync(default);
-                //TODO: load player
-                replays.Add(replay!, null);
+                var replayTask = header.LoadReplayAsync(default);
+                var playerRequest = PlayerRequest.SendRequest(header.ReplayInfo!.PlayerID);
+                var replay = await replayTask;
+                await playerRequest.Join();
+                replays.Add(replay!, playerRequest.Result);
             }
             _ = ReplayerMenuLoader.Instance!.StartReplaysAsync(replays, null, default);
         }

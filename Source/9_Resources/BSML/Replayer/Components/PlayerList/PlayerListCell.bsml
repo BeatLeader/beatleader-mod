@@ -1,0 +1,7 @@
+﻿<vertical horizontal-fit="Unconstrained">
+  <AdvancedImage id="background-image" Sprite="#bl-white-bg" PixelsPerUnit="5"
+                 Width="40" Height="20" child-expand-height="false">
+    <QuickMiniProfile id="mini-profile" flexible-height="1"/>
+    <EventTimeline id="timeline" Height="4" InheritWidth="true"/>
+  </AdvancedImage>
+</vertical>

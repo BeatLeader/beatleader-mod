@@ -111,6 +111,7 @@ namespace BeatLeader.Components {
             var replays = new Dictionary<Replay, Player?>();
             foreach (var header in _opponentsList.items) {
                 var replay = await header.LoadReplayAsync(default);
+                //TODO: load player
                 replays.Add(replay!, null);
             }
             _ = ReplayerMenuLoader.Instance!.StartReplaysAsync(replays, null, default);

@@ -16,6 +16,7 @@ namespace BeatLeader.Components {
 
         private HorizontalBeatmapLevelPreview _songInfo = null!;
         private HorizontalMiniProfileLayoutComponent _playerInfo = null!;
+        private PlayerListEditorComponent _playerList = null!;
         private ToolbarWithSettings _toolbar = null!;
         private LayoutGrid _layoutGrid = null!;
 
@@ -41,10 +42,11 @@ namespace BeatLeader.Components {
                 finishController, playersManager, cameraController,
                 launchData, watermark, _layoutEditor
             );
-            if (!launchData.IsBattleRoyale) {
-                var player = launchData.MainReplay.ReplayData.Player;
-                if (player is not null) _playerInfo.SetPlayer(player);
-            }
+            _playerList.Setup(timeController, launchData.Replays);
+            //if (!launchData.IsBattleRoyale) {
+            //    var player = launchData.MainReplay.ReplayData.Player;
+            //    if (player is not null) 
+            //}
             var settings = launchData.Settings.LayoutEditorSettings ??= new();
             _layoutEditor.Setup(settings);
             _layoutEditor.SetEditorActive(false, false);
@@ -53,7 +55,8 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             _songInfo = HorizontalBeatmapLevelPreview.Instantiate(ContentTransform!);
             _toolbar = ToolbarWithSettings.Instantiate(ContentTransform!);
-            _playerInfo = HorizontalMiniProfileLayoutComponent.Instantiate(ContentTransform!);
+            //_playerInfo = HorizontalMiniProfileLayoutComponent.Instantiate(ContentTransform!);
+            _playerList = PlayerListEditorComponent.Instantiate(ContentTransform!);
             var editorWindow = LayoutEditorWindow.Instantiate(ContentTransform!);
 
             _layoutGrid = _containerRect.gameObject.AddComponent<LayoutGrid>();
@@ -62,15 +65,16 @@ namespace BeatLeader.Components {
             _layoutEditor.AddComponent(editorWindow);
             _layoutEditor.AddComponent(_toolbar);
             _layoutEditor.AddComponent(_songInfo);
-            _layoutEditor.AddComponent(_playerInfo);
-            
+            //_layoutEditor.AddComponent(_playerInfo);
+            _layoutEditor.AddComponent(_playerList);
+
             QueueGridRefresh();
         }
-        
+
         #endregion
 
         #region LayoutGrid
-        
+
         private void QueueGridRefresh() {
             RoutineFactory.StartUnmanagedCoroutine(RefreshGridCoroutine());
         }
@@ -79,9 +83,9 @@ namespace BeatLeader.Components {
             yield return new WaitForEndOfFrame();
             _layoutGrid.Refresh();
         }
-        
+
         #endregion
-        
+
         #region Callbacks
 
         private void HandleLayoutEditorStateChanged(bool active) {

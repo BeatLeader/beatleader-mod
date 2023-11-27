@@ -181,7 +181,9 @@ namespace BeatLeader.Components {
         void IReeUIComponentV3EventReceiver.OnStart() => OnStart();
 
         void IReeUIComponentV3EventReceiver.OnStateChange(bool state) => OnStateChange(state);
-        
+
+        void IReeUIComponentV3EventReceiver.OnRectDimensionsChange() => OnRectDimensionsChange();
+
         private void Awake() => OnInstantiate();
 
         private void OnDestroy() {
@@ -199,9 +201,9 @@ namespace BeatLeader.Components {
         
         protected virtual void OnStart() { }
         
-        protected virtual void OnAwake() { }
-        
         protected virtual void OnStateChange(bool state) { }
+        
+        protected virtual void OnRectDimensionsChange() { }
 
         #endregion
 
@@ -220,6 +222,7 @@ namespace BeatLeader.Components {
     internal interface IReeUIComponentV3EventReceiver {
         void OnStart();
         void OnStateChange(bool state);
+        void OnRectDimensionsChange();
     }
     
     internal class ReeUIComponentV3InstanceKeeper : MonoBehaviour {
@@ -235,7 +238,10 @@ namespace BeatLeader.Components {
         private ReeUIComponentV3Base _instance = null!;
         
         private void Start() => _eventReceiver?.OnStart();
+        
         private void OnEnable() => _eventReceiver?.OnStateChange(true);
         private void OnDisable() => _eventReceiver?.OnStateChange(false);
+        
+        private void OnRectTransformDimensionsChange() => _eventReceiver?.OnRectDimensionsChange();
     }
 }

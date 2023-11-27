@@ -14,9 +14,12 @@ namespace BeatLeader.Components {
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _playerCountryFlag = null!;
 
-        [UIComponent("text-container"), UsedImplicitly]
-        private LayoutElement _textContainerLayoutElement = null!;
-
+        [UIObject("text-container"), UsedImplicitly]
+        private GameObject _textContainer = null!;
+        
+        private RectTransform _avatarRectTransform = null!;
+        private LayoutElement _avatarLayoutElement = null!;
+        
         #endregion
 
         #region Values
@@ -71,13 +74,12 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            var go = _playerAvatar.GetRootTransform().gameObject;
-            var fitter = go.AddComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
-            RecalculateLayout();
+            _avatarRectTransform = (RectTransform)_playerAvatar.GetRootTransform();
+            //i could use AspectRatioFitter, but it does not work properly with flexible values
+            _avatarLayoutElement = _avatarRectTransform.gameObject.GetComponent<LayoutElement>();
         }
 
-        private void Start() {
+        protected override void OnStart() {
             RecalculateLayout();
         }
 
@@ -85,11 +87,15 @@ namespace BeatLeader.Components {
 
         #region Layout
 
+        protected override void OnRectDimensionsChange() {
+            RecalculateLayout();
+        }
+
         private void RecalculateLayout() {
-            if (ContentTransform is not RectTransform rectTransform) return;
-            var rect = rectTransform.rect;
-            //avatar has 1:1 aspect ratio, so if the height is 10, then width is 10 too. So, we can simply subtract the height
-            _textContainerLayoutElement.preferredWidth = rect.width - rect.height;
+            //avatar has 1:1 aspect ratio, so if height is 10, then width is 10 too. So, we can simply subtract the height
+            var rect = _avatarRectTransform.rect;
+            _avatarLayoutElement.preferredWidth = rect.height;
+            _avatarLayoutElement.minWidth = rect.height;
         }
 
         #endregion

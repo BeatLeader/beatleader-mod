@@ -48,7 +48,7 @@ namespace BeatLeader.Components {
             }
 
             public void OnStateChange(bool selected, bool highlighted) {
-                _backgroundImage.Color = selected ? Color.cyan : Color.gray;
+                _backgroundImage.Color = (selected ? Color.cyan : Color.black).ColorWithAlpha(0.5f);
             }
         }
 

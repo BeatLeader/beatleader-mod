@@ -75,7 +75,7 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
+        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
             if (player.Replay is null) {
                 _allowProcess = false;
                 return;

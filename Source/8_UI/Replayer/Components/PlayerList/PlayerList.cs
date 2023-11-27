@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class PlayerList : ListComponentBase<PlayerList, IReplay> {
+    internal class PlayerList : ListComponentBase<PlayerList, IVirtualPlayer> {
         #region Cell
 
         private class Cell : ListCellWithComponent<(IReplay, IBeatmapTimeController), PlayerListCell> { }
@@ -64,9 +64,9 @@ namespace BeatLeader.Components {
             _timeController = timeController;
         }
 
-        protected override ListComponentBaseCell ConstructCell(IReplay data) {
+        protected override ListComponentBaseCell ConstructCell(IVirtualPlayer data) {
             var cell = DequeueReusableCell(Cell.CellName) as Cell ?? Cell.InstantiateCell<Cell>();
-            cell.Init((data, _timeController!));
+            cell.Init((data.Replay, _timeController!));
             return cell;
         }
 

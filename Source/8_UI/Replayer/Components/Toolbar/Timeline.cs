@@ -100,7 +100,7 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandlePriorityPlayerChangedEvent(VirtualPlayer player) {
+        private void HandlePriorityPlayerChangedEvent(IVirtualPlayer player) {
             GenerateDefaultMarkersFromReplay(player.Replay!);
         }
 

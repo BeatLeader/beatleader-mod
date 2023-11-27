@@ -59,7 +59,7 @@ namespace BeatLeader.Replayer {
             _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
 
-        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
+        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
             _cameraController.ControllersProvider = player.ControllersProvider!;
         }
 

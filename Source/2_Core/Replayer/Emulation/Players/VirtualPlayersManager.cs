@@ -3,7 +3,6 @@ using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using BeatLeader.Models.AbstractReplay;
-using BeatLeader.Models.Replay;
 using UnityEngine;
 using Zenject;
 
@@ -14,23 +13,19 @@ namespace BeatLeader.Replayer.Emulation {
         [Inject] private readonly VirtualPlayer.Pool _virtualPlayersPool = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
-        public IReadOnlyList<VirtualPlayer> Players => _virtualPlayers;
-        public VirtualPlayer? PriorityPlayer { get; private set; }
+        public IReadOnlyList<IVirtualPlayer> Players => _virtualPlayers;
+        public IVirtualPlayer PriorityPlayer { get; private set; } = null!;
 
-        public event Action<VirtualPlayer>? PriorityPlayerWasChangedEvent;
+        public event Action<IVirtualPlayer>? PriorityPlayerWasChangedEvent;
 
-        private readonly List<VirtualPlayer> _virtualPlayers = new();
+        private readonly List<IVirtualPlayer> _virtualPlayers = new();
 
         private void Awake() {
-            foreach (var replay in _launchData.Replays) {
-                Spawn(replay);
-            }
-            if (_virtualPlayers.Count != 0) {
-                SetPriorityPlayer(_virtualPlayers[0]);
-            }
+            foreach (var replay in _launchData.Replays) Spawn(replay);
+            if (_virtualPlayers.Count is not 0) SetPriorityPlayer(_virtualPlayers[0]);
         }
 
-        public void Spawn(IReplay replay) {
+        private void Spawn(IReplay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
             var controllers = _controllersInstantiator
                 .CreateInstance(replay.ReplayData.Player?.name + "Controllers");
@@ -38,12 +33,12 @@ namespace BeatLeader.Replayer.Emulation {
             _virtualPlayers.Add(virtualPlayer);
         }
 
-        public void Despawn(VirtualPlayer player) {
+        private void Despawn(VirtualPlayer player) {
             _virtualPlayersPool.Despawn(player);
             _virtualPlayers.Remove(player);
         }
 
-        public void SetPriorityPlayer(VirtualPlayer player) {
+        public void SetPriorityPlayer(IVirtualPlayer player) {
             if (!_virtualPlayers.Contains(player)) return;
             SetPriorityControllers(player.ControllersProvider!);
             PriorityPlayer = player;

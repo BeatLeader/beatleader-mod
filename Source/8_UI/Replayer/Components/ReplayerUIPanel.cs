@@ -15,7 +15,6 @@ namespace BeatLeader.Components {
         private RectTransform _containerRect = null!;
 
         private HorizontalBeatmapLevelPreview _songInfo = null!;
-        private HorizontalMiniProfileLayoutComponent _playerInfo = null!;
         private PlayerListEditorComponent _playerList = null!;
         private ToolbarWithSettings _toolbar = null!;
         private LayoutGrid _layoutGrid = null!;
@@ -42,7 +41,7 @@ namespace BeatLeader.Components {
                 finishController, playersManager, cameraController,
                 launchData, watermark, _layoutEditor
             );
-            _playerList.Setup(timeController, launchData.Replays);
+            _playerList.Setup(playersManager, timeController);
             //if (!launchData.IsBattleRoyale) {
             //    var player = launchData.MainReplay.ReplayData.Player;
             //    if (player is not null) 
@@ -55,7 +54,6 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             _songInfo = HorizontalBeatmapLevelPreview.Instantiate(ContentTransform!);
             _toolbar = ToolbarWithSettings.Instantiate(ContentTransform!);
-            //_playerInfo = HorizontalMiniProfileLayoutComponent.Instantiate(ContentTransform!);
             _playerList = PlayerListEditorComponent.Instantiate(ContentTransform!);
             var editorWindow = LayoutEditorWindow.Instantiate(ContentTransform!);
 
@@ -65,7 +63,6 @@ namespace BeatLeader.Components {
             _layoutEditor.AddComponent(editorWindow);
             _layoutEditor.AddComponent(_toolbar);
             _layoutEditor.AddComponent(_songInfo);
-            //_layoutEditor.AddComponent(_playerInfo);
             _layoutEditor.AddComponent(_playerList);
 
             QueueGridRefresh();

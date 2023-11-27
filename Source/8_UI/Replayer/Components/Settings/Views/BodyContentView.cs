@@ -1,5 +1,4 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
 using BeatSaberMarkupLanguage.Attributes;
 
 namespace BeatLeader.Components {
@@ -45,7 +44,7 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        private IVirtualPlayersManager _playersManager = null!;
+        private IVirtualPlayersManager? _playersManager;
         private ReplayLaunchData _launchData = null!;
 
         public void Setup(IVirtualPlayersManager playersManager, ReplayLaunchData launchData) {
@@ -57,10 +56,8 @@ namespace BeatLeader.Components {
             RefreshToggles();
         }
 
-
         protected override void OnDispose() {
-            if (_playersManager != null)
-                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
+            if (_playersManager != null) _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
         }
 
         private void RefreshToggles() {
@@ -73,7 +70,7 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
+        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
             _controllersProvider = player.ControllersProvider!;
             RefreshVisibility();
         }

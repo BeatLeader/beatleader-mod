@@ -1,6 +1,5 @@
 ﻿using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
 using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking {
@@ -22,8 +21,8 @@ namespace BeatLeader.Replayer.Tweaking {
             _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewound;
         }
 
-        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            Cam2Interop.HeadTransform = player.ControllersProvider!.Head.transform;
+        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
+            Cam2Interop.HeadTransform = player.ControllersProvider.Head.transform;
         }
         
         private void HandleNoteWasDespawned(NoteController controller) {

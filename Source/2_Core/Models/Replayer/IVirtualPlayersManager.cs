@@ -1,16 +1,13 @@
-﻿using BeatLeader.Replayer.Emulation;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using BeatLeader.Models.AbstractReplay;
 
 namespace BeatLeader.Models {
     public interface IVirtualPlayersManager {
-        IReadOnlyList<VirtualPlayer> Players { get; }
-        VirtualPlayer? PriorityPlayer { get; }
+        IReadOnlyList<IVirtualPlayer> Players { get; }
+        IVirtualPlayer PriorityPlayer { get; }
 
-        event Action<VirtualPlayer> PriorityPlayerWasChangedEvent;
+        event Action<IVirtualPlayer> PriorityPlayerWasChangedEvent;
 
-        void Spawn(IReplay replay);
-        void Despawn(VirtualPlayer player);
+        void SetPriorityPlayer(IVirtualPlayer player);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.Models.AbstractReplay;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -10,28 +10,48 @@ namespace BeatLeader.Components {
         private PlayerList _playerList = null!;
 
         #endregion
-        
+
         #region Setup
 
-        public void Setup(IBeatmapTimeController timeController, IEnumerable<IReplay> replays) {
-           _playerList.Setup(timeController);
-           _playerList.items.AddRange(replays);
-           _playerList.Refresh();
+        private IVirtualPlayersManager? _playersManager;
+
+        public void Setup(
+            IVirtualPlayersManager playersManager,
+            IBeatmapTimeController timeController
+        ) {
+            _playersManager = playersManager;
+            _playerList.Setup(timeController);
+            _playerList.items.AddRange(playersManager.Players);
+            _playerList.Refresh();
+        }
+
+        protected override void OnInitialize() {
+            _playerList.ItemsWithIndexesSelectedEvent += HandleItemsWithIndexesSelected;
         }
 
         #endregion
-        
+
         #region LayoutEditorComponent
 
         public override string ComponentName => "Player List";
-        
+
         protected override GameObject ConstructInternal(Transform parent) {
             _playerList = PlayerList.Instantiate(parent);
             _playerList.InheritSize = true;
             _playerList.ContentTransform!.SetParent(parent, false);
             return _playerList.Content!;
         }
-        
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleItemsWithIndexesSelected(ICollection<int> indexes) {
+            if (indexes.Count is 0) return; 
+            var item = _playerList.items[indexes.First()];
+            _playersManager?.SetPriorityPlayer(item);
+        }
+
         #endregion
     }
 }

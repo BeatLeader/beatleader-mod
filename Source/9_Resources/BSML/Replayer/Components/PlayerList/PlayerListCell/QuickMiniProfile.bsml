@@ -1,10 +1,10 @@
-﻿<horizontal vertical-fit="Unconstrained" spacing="1"
-            child-control-width="false">
+﻿<horizontal vertical-fit="Unconstrained" spacing="1" child-expand-width="false">
   <!--PLAYER AVATAR-->
   <macro.as-host host="player-avatar">
     <macro.reparent transform="ui-component"/>
   </macro.as-host>
   <vertical id="text-container" vertical-fit="PreferredSize"
+            horizontal-fit="Unconstrained" 
             child-expand-width="false" flexible-width="1">
     <!-- PLAYER INFO -->
     <horizontal pref-height="4.4" spacing="1" bg="round-rect-panel"

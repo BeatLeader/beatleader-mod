@@ -2,6 +2,6 @@
   <AdvancedImage id="background-image" Sprite="#bl-white-bg" PixelsPerUnit="5" 
                  InheritWidth="true" Height="20" child-expand-height="false" use-as-mask="true">
     <QuickMiniProfile id="mini-profile" flexible-height="1" pad="1"/>
-    <EventTimeline id="timeline" Height="4" InheritWidth="true"/>
+    <EventTimeline id="timeline" Height="2" InheritWidth="true" FillColor="red" flexible-height="0"/>
   </AdvancedImage>
 </vertical>

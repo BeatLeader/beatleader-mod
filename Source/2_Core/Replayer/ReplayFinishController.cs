@@ -2,6 +2,7 @@
 using BeatLeader.Utils;
 using IPA.Utilities;
 using System;
+using BeatLeader.Models.AbstractReplay;
 using UnityEngine;
 using Zenject;
 
@@ -60,7 +61,7 @@ namespace BeatLeader.Replayer {
         }
 
         private void HandleReplayFinished() {
-            if (_launchData.IsBattleRoyale || _launchData.MainReplay.ReplayData.FailTime != 0) return;
+            if (_launchData.IsBattleRoyale || _launchData.MainReplay.ReplayData.FinishType is ReplayFinishType.Failed) return;
             HandleLevelFinished();
         }
         

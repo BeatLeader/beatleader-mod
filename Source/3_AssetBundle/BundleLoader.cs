@@ -97,6 +97,7 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite NoModifiersIcon;
         [UsedImplicitly] public static Sprite NoPauseIcon;
         [UsedImplicitly] public static Sprite GolfIcon;
+        [UsedImplicitly] public static Sprite SCPMIcon;
         [UsedImplicitly] public static Sprite GeneralContextIcon;
 
         [UsedImplicitly] public static Sprite Overview1Icon;
@@ -210,6 +211,7 @@ namespace BeatLeader {
             NoModifiersIcon = assetBundle.LoadAsset<Sprite>("BL_ContextNoModifiers");
             NoPauseIcon = assetBundle.LoadAsset<Sprite>("BL_ContextNoPause");
             GolfIcon = assetBundle.LoadAsset<Sprite>("BL_ContextGolf");
+            SCPMIcon = assetBundle.LoadAsset<Sprite>("BL_ContextSCPM");
             GeneralContextIcon = assetBundle.LoadAsset<Sprite>("BL_ContextGeneral");
             Overview1Icon = assetBundle.LoadAsset<Sprite>("BL_Overview1Icon");
             Overview2Icon = assetBundle.LoadAsset<Sprite>("BL_Overview2Icon");

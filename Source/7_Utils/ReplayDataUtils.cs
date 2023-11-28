@@ -20,8 +20,10 @@ namespace BeatLeader.Utils {
 
         public static IReplay ConvertToAbstractReplay(Replay replay, Player? player) {
             var replayData = replay.info;
+            var failed = replayData.failTime is not 0;
             var creplayData = new GenericReplayData(
-                replayData.failTime,
+                failed ? replayData.failTime : replay.frames.LastOrDefault()?.time ?? 0,
+                failed ? ReplayFinishType.Failed : ReplayFinishType.Cleared,
                 int.Parse(replayData.timestamp),
                 replayData.leftHanded,
                 replayData.jumpDistance,

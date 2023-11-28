@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Utils;
+using IPA.Loader;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -57,6 +58,7 @@ namespace BeatLeader.API {
 
                 var request = requestDescriptor.CreateWebRequest();
                 request.timeout = timeoutSeconds;
+                request.SetRequestHeader("User-Agent", GetUserAgent());
 
                 Plugin.Log.Debug($"Request[{request.GetHashCode()}]: {request.url}");
                 yield return AwaitRequestWithProgress(request, requestHandler);
@@ -173,6 +175,17 @@ namespace BeatLeader.API {
                 PercentDecimalSeparator = "."
             }
         };
+
+        private static string? UserAgent = null;
+        private static string GetUserAgent() {
+            if (UserAgent != null) {
+                return UserAgent;
+            } else {
+                PluginMetadata metaData = PluginManager.GetPluginFromId("BeatLeader");
+                UserAgent = $"PC mod {metaData.HVersion} / {Application.version}";
+                return UserAgent;
+            }
+        }
 
         #endregion
     }

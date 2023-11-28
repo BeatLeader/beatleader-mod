@@ -28,16 +28,10 @@ namespace BeatLeader.Components {
 
             public void Init((IReplay, IBeatmapTimeController) data) {
                 var (replay, timeController) = data;
+                var replayData = replay.ReplayData;
                 _eventTimeline.Range = new(
-                    timeController.SongStartTime,
-                    timeController.SongEndTime
-                );
-                _eventTimeline.AddEvent(
-                    new(
-                        "event",
-                        timeController.SongEndTime / 2,
-                        BundleLoader.CrossIcon
-                    )
+                    replayData.PracticeSettings?.startSongTime ?? 0,
+                    replayData.FinishTime
                 );
                 _miniProfile.SetPlayer(replay.ReplayData.Player!);
                 _timeController = timeController;

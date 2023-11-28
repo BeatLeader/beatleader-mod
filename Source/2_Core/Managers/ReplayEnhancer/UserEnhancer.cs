@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
@@ -68,7 +69,8 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 
         private static async Task<UserInfo> InternalGetUserAsync()
         {
-            UserInfo userInfo = await _platformUserModel.GetUserInfo();
+            CancellationToken cancellationToken = new CancellationToken();
+            UserInfo userInfo = await _platformUserModel.GetUserInfo(cancellationToken);
             if (userInfo != null)
             {
                 Plugin.Log.Debug($"UserInfo found: {userInfo.platformUserId}: {userInfo.userName} on {userInfo.platform}");

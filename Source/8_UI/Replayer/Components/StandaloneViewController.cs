@@ -38,7 +38,7 @@ namespace BeatLeader.Components {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
         }
 
-        public sealed override void OnDestroy() {
+        protected sealed override void OnDestroy() {
             base.OnDestroy();
             OnDispose();
         }

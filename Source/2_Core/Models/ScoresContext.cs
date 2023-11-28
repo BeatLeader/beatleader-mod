@@ -6,7 +6,8 @@ namespace BeatLeader.Models {
         Modifiers,
         Standard,
         Nopause,
-        Golf
+        Golf,
+        SCPM
     }
 
     internal static class ScoresContextExtenstions {
@@ -14,7 +15,8 @@ namespace BeatLeader.Models {
             ScoresContext.Modifiers,
             ScoresContext.Standard,
             ScoresContext.Nopause,
-            ScoresContext.Golf
+            ScoresContext.Golf,
+            ScoresContext.SCPM
         };
 
         internal static IEnumerable<ScoresContext> GetAvailableContexts() {
@@ -28,6 +30,7 @@ namespace BeatLeader.Models {
                 ScoresContext.Standard => BundleLoader.NoModifiersIcon,
                 ScoresContext.Nopause => BundleLoader.NoPauseIcon,
                 ScoresContext.Golf => BundleLoader.GolfIcon,
+                ScoresContext.SCPM => BundleLoader.SCPMIcon,
                 _ => BundleLoader.GeneralContextIcon
             };
         }
@@ -38,6 +41,7 @@ namespace BeatLeader.Models {
                 ScoresContext.Standard => "No Mods",
                 ScoresContext.Nopause => "No Pauses",
                 ScoresContext.Golf => "Golf",
+                ScoresContext.SCPM => "SCPM",
                 _ => "General"
             };
         }
@@ -48,6 +52,7 @@ namespace BeatLeader.Models {
                 ScoresContext.Standard => LeaderboardContexts.NoMods,
                 ScoresContext.Nopause => LeaderboardContexts.NoPause,
                 ScoresContext.Golf => LeaderboardContexts.Golf,
+                ScoresContext.SCPM => LeaderboardContexts.SCPM,
                 _ => LeaderboardContexts.General
             };
         }
@@ -58,6 +63,7 @@ namespace BeatLeader.Models {
                 "No Mods" => ScoresContext.Standard,
                 "No Pauses" => ScoresContext.Nopause,
                 "Golf" => ScoresContext.Golf,
+                "SCPM" => ScoresContext.SCPM,
                 _ => ScoresContext.Modifiers
             };
         }

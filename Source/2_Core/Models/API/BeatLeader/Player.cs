@@ -14,7 +14,8 @@ namespace BeatLeader.Models {
         General = 1 << 1,
         NoMods = 1 << 2,
         NoPause = 1 << 3,
-        Golf = 1 << 4
+        Golf = 1 << 4,
+        SCPM = 1 << 5
     }
 
     public interface IPlayer {

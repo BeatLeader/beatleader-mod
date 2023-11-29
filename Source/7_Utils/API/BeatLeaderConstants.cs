@@ -1,5 +1,5 @@
 ﻿namespace BeatLeader.Utils {
-    internal static class BLConstants {
+    internal static class BeatLeaderConstants {
         #region HTTP Status codes
 
         public const int MaintenanceStatus = 503;
@@ -12,7 +12,7 @@
 
         public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
         
-        public const string BEATLEADER_WEBSITE_URL = "https://www.beatleader.xyz";
+        public const string BEATLEADER_WEBSITE_URL = "https://beatleader.xyz";
 
         #endregion
 

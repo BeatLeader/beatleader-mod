@@ -68,6 +68,13 @@ namespace BeatLeader {
             return Instantiate<T>(sceneRoot, parseImmediately);
         }
 
+        public static ReeUIComponentV2 Instantiate(Type type, Transform parent, bool parseImmediately = true) {
+            var component = (ReeUIComponentV2)new GameObject(type.Name).AddComponent(type);
+            component.OnInstantiate();
+            component.Setup(parent, parseImmediately);
+            return component;
+        }
+
         public static T Instantiate<T>(Transform parent, bool parseImmediately = true) where T : ReeUIComponentV2 {
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
             component.OnInstantiate();

@@ -2,7 +2,16 @@
 using System.Collections.Generic;
 
 namespace BeatLeader.Utils {
-    public static class CollectionsExtensions {
+    public static class CollectionsExtension {
+        public static LinkedListNode<T>? FindNode<T>(this LinkedList<T> list, Func<LinkedListNode<T>, bool> predicate) {
+            var node = list.First;
+            while (node is not null) {
+                if (predicate(node)) return node;
+                node = node.Next;
+            }
+            return null;
+        }
+        
         public static T[] TakeIndexes<T>(this IReadOnlyList<T> collection, ICollection<int> indexes) {
             var arr = new T[indexes.Count];
             var offset = 0;

@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 namespace BeatLeader.API.Methods {
     internal class SendViewReplayRequest : PersistentSingletonRequestHandler<SendViewReplayRequest, object> {
         // /watched/{scoreId}
-        private const string Endpoint = BLConstants.BEATLEADER_API_URL + "/watched/{0}";
+        private const string Endpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/watched/{0}";
 
         protected override bool KeepState => false;
 

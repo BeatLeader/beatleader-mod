@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 
 namespace BeatLeader.API.Methods {
     public class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Score> {
-        private const string WithCookieEndpoint = BLConstants.BEATLEADER_API_URL + "/replayoculus";
+        private const string WithCookieEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/replayoculus";
 
         private const int UploadRetryCount = 3;
         private const int UploadTimeoutSeconds = 120;

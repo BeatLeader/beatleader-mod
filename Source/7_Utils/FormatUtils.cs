@@ -98,6 +98,7 @@ namespace BeatLeader {
                 65 => "Controllable",
                 128 => "Vive Cosmos",
                 256 => "Quest 2",
+                512 => "Quest 3",
                 _ => "Unknown HMD"
             };
         }

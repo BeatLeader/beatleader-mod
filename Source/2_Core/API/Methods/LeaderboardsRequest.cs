@@ -10,7 +10,7 @@ namespace BeatLeader.API.Methods {
         #region Single
 
         // /leaderboards/hash/{hash}
-        private const string SingleEndpoint = BLConstants.BEATLEADER_API_URL + "/leaderboards/hash/{0}";
+        private const string SingleEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/leaderboards/hash/{0}";
 
         public static IEnumerator SendSingleRequest(
             string mapHash,
@@ -27,7 +27,7 @@ namespace BeatLeader.API.Methods {
         #region Ranking
 
         // /leaderboards?page={pageIndex}&count={itemsPerPage}&date_from={unixTime}&type=ranking&sortBy=timestamp
-        private const string RankingEndpoint = BLConstants.BEATLEADER_API_URL + "/leaderboards?page={0}&count={1}&date_from={2}&type=ranking&sortBy=timestamp";
+        private const string RankingEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/leaderboards?page={0}&count={1}&date_from={2}&type=ranking&sortBy=timestamp";
 
         public static IEnumerator SendRankingRequest(
             long unixDateFrom,

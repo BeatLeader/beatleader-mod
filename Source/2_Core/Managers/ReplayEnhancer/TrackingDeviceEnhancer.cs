@@ -59,23 +59,15 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
         #region ProcessOculus
 
         private static void ProcessOculusDevices(Replay replay) {
-            switch (OVRPlugin.GetSystemHeadsetType()) {
-                case OVRPlugin.SystemHeadset.None:
-                case OVRPlugin.SystemHeadset.Oculus_Quest:
-                case OVRPlugin.SystemHeadset.Oculus_Link_Quest:
-                case OVRPlugin.SystemHeadset.Oculus_Quest_2:
-                case OVRPlugin.SystemHeadset.Oculus_Link_Quest_2:
-                case OVRPlugin.SystemHeadset.Rift_CV1:
-                case OVRPlugin.SystemHeadset.Rift_S:
-                    replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
-                    break;
-
-                default:
-                    replay.info.hmd = "Unknown";
-                    break;
+            replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
+            if (OVRPlugin.productName.Contains("Quest 3")) {
+                replay.info.hmd = "Meta Quest 3";
             }
-
-            replay.info.controller = "Unknown";
+            if (OVRPlugin.GetActiveController() != null) {
+                replay.info.controller = OVRPlugin.GetActiveController().ToString();
+            } else {
+                replay.info.controller = "Unknown";
+            }
         }
 
         #endregion

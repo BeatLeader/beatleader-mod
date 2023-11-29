@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 namespace BeatLeader.API.Methods {
     internal class AddFriendRequest : PersistentSingletonRequestHandler<AddFriendRequest, Player> {
         // /user/friend?playerId={playerId}
-        private const string Endpoint = BLConstants.BEATLEADER_API_URL + "/user/friend?playerId={0}";
+        private const string Endpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/user/friend?playerId={0}";
         protected override bool KeepState => false;
 
         public static void SendRequest(Player player) {

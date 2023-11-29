@@ -58,7 +58,7 @@ namespace BeatLeader.Components {
 
             #region SetPlayer
 
-            private const string PlayerEndpoint = BLConstants.BEATLEADER_API_URL + "/player/";
+            private const string PlayerEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/player/";
 
             private async Task SetPlayerAsync(string playerId) {
                 //TODO: move to new web requests

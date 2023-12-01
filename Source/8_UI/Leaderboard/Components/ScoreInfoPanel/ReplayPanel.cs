@@ -72,7 +72,7 @@ namespace BeatLeader.Components {
         #region StartReplay
 
         private void StartReplay(Replay replay) {
-            _ = ReplayerMenuLoader.Instance!.StartReplayAsync(replay, _score!.player);
+            _ = ReplayerMenuLoader.Instance!.StartReplayFromLeaderboardAsync(replay, _score!.player);
         }
 
         #endregion

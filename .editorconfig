@@ -59,6 +59,7 @@ resharper_autodetect_indent_settings = true
 resharper_braces_for_ifelse = not_required
 resharper_csharp_empty_block_style = together_same_line
 resharper_indent_preprocessor_directives = normal
+resharper_keep_existing_attribute_arrangement = true
 resharper_max_attribute_length_for_same_line = 100
 resharper_place_accessorholder_attribute_on_same_line = false
 resharper_place_accessor_attribute_on_same_line = true

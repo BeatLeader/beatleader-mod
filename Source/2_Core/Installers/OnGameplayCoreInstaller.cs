@@ -66,6 +66,7 @@ namespace BeatLeader.Installers {
 
             //Dependencies
             Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData!).AsSingle();
+            Container.BindInterfacesTo<ReplayBeatmapData>().AsSingle();
             Container.Bind<ReplayerExtraObjectsProvider>().FromNewComponentOnNewGameObject().AsSingle();
 
             //Core logic(Playback)
@@ -76,14 +77,15 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<VRControllersInstantiator>().AsSingle();
-            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2)
-                .FromComponentInNewPrefab(new GameObject("VirtualPlayerPrefab").AddComponent<VirtualPlayer>());
-            Container.BindInterfacesAndSelfTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(2);
+            Container.BindMemoryPool<ReplayScoreEventsProcessor, ReplayScoreEventsProcessor.Pool>().WithInitialSize(2);
+            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2);
+            Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
+            Container.BindInterfacesTo<ReplayBeatmapEventsProcessorProxy>().AsSingle();
             Container.Bind<ReplayHeightsProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
                 
             //Core logic(Notes handling)
-            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle();
             Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

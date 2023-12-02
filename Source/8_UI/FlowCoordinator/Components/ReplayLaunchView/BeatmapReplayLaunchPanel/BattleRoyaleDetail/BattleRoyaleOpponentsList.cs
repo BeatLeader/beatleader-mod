@@ -9,16 +9,10 @@ using TMPro;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class BattleRoyaleOpponentsList : ListComponentBase<BattleRoyaleOpponentsList, IReplayHeader> {
+    internal class BattleRoyaleOpponentsList : ReeListComponentBase<BattleRoyaleOpponentsList, IReplayHeader, BattleRoyaleOpponentsList.Cell> {
         #region Cells
 
-        private class Cell : ListCellWithComponent<
-            (IReplayHeader,
-            IModifiableListComponent<IReplayHeader>,
-            IListComponent<IReplayHeader>?
-            ), OpponentInfo> { }
-
-        private class OpponentInfo : ReeUIComponentV3<OpponentInfo>, Cell.IComponent {
+        public class Cell : ReeTableCell<Cell, IReplayHeader> {
             #region UI Components
 
             [UIValue("player-avatar"), UsedImplicitly]
@@ -35,17 +29,24 @@ namespace BeatLeader.Components {
             #region Setup
 
             protected override string Markup { get; } = BSMLUtility.ReadMarkupOrFallback(
-                "BattleRoyaleOpponentsListCell", Assembly.GetExecutingAssembly());
+                "BattleRoyaleOpponentsListCell", Assembly.GetExecutingAssembly()
+            );
 
             private IListComponent<IReplayHeader>? _replaysList;
             private IModifiableListComponent<IReplayHeader> _opponentsList = null!;
             private IReplayHeader _header = null!;
 
-            public void Init((IReplayHeader, IModifiableListComponent<IReplayHeader>, IListComponent<IReplayHeader>?) component) {
-                _header = component.Item1;
-                _opponentsList = component.Item2;
-                _replaysList = component.Item3;
+            public override void Init(IReplayHeader item) {
+                _header = item;
                 _ = SetPlayerAsync(_header.ReplayInfo!.PlayerID);
+            }
+
+            public void Init(
+                IModifiableListComponent<IReplayHeader> opponentsList,
+                IListComponent<IReplayHeader>? replaysList
+            ) {
+                _opponentsList = opponentsList;
+                _replaysList = replaysList;
             }
 
             protected override void OnInstantiate() {
@@ -100,10 +101,8 @@ namespace BeatLeader.Components {
             _list = list;
         }
 
-        protected override ListComponentBaseCell ConstructCell(IReplayHeader data) {
-            var cell = DequeueReusableCell(Cell.CellName) as Cell ?? Cell.InstantiateCell<Cell>();
-            cell.Init((data, this, _list));
-            return cell;
+        protected override void OnCellConstruct(Cell cell) {
+            cell.Init(this, _list);
         }
 
         protected override void OnInitialize() {

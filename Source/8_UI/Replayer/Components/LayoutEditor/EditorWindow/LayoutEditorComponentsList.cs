@@ -1,16 +1,16 @@
 using System.Collections.Generic;
+using System.Reflection;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class LayoutEditorComponentsList : ListComponentBase<LayoutEditorComponentsList, ILayoutComponent> {
+    internal class LayoutEditorComponentsList : ReeListComponentBase<LayoutEditorComponentsList, ILayoutComponent, LayoutEditorComponentsList.Cell> {
         #region Cell
-
-        private class Cell : ListCellWithComponent<ILayoutComponent, LayoutEditorComponentsListCell> { }
-
-        private class LayoutEditorComponentsListCell : ReeUIComponentV3<LayoutEditorComponentsListCell>, Cell.IComponent, Cell.IStateHandler {
+        
+        public class Cell : ReeTableCell<Cell, ILayoutComponent> {
             #region UI Components
 
             [UIComponent("background-image"), UsedImplicitly]
@@ -29,9 +29,13 @@ namespace BeatLeader.Components {
 
             #region Setup
             
+            protected override string Markup { get; } = BSMLUtility.ReadMarkupOrFallback(
+                "LayoutEditorComponentsListCell", Assembly.GetExecutingAssembly()
+            );
+            
             private ILayoutComponent _layoutComponent = null!;
 
-            public void Init(ILayoutComponent component) {
+            public override void Init(ILayoutComponent component) {
                 _layoutComponent = component;
                 _componentNameText.text = component.ComponentName;
                 _componentLayerText.text = component.ComponentController.ComponentLayer.ToString();
@@ -59,7 +63,7 @@ namespace BeatLeader.Components {
 
             #region Callbacks
 
-            public void OnStateChange(bool selected, bool highlighted) {
+            public override void OnStateChange(bool selected, bool highlighted) {
                 RefreshColors(selected);
             }
 
@@ -91,12 +95,6 @@ namespace BeatLeader.Components {
         #region Setup
 
         protected override float CellSize => 9.5f;
-
-        protected override ListComponentBaseCell ConstructCell(ILayoutComponent data) {
-            var cell = DequeueReusableCell(Cell.CellName) as Cell ?? Cell.InstantiateCell<Cell>();
-            cell.Init(data);
-            return cell;
-        }
         
         protected override void OnEarlyRefresh() {
             RefreshSorting();

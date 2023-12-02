@@ -18,7 +18,7 @@ namespace BeatLeader.Components {
     /// Base UI component implementation with properties handling
     /// </summary>
     /// <typeparam name="T">Inherited component</typeparam>
-    internal abstract class ReeUIComponentV3<T> : ReeUIComponentV3<T, GenericUIComponentDescriptor<T>> where T : ReeUIComponentV3<T> { }
+    internal abstract class ReeUIComponentV3<T> : ReeUIComponentV3<T, BasicUIComponentDescriptor<T>> where T : ReeUIComponentV3<T> { }
 
     /// <summary>
     /// Base for UI components
@@ -34,9 +34,9 @@ namespace BeatLeader.Components {
     /// <typeparam name="T">Inherited component</typeparam>
     /// <typeparam name="TDescriptor">Component descriptor</typeparam>
     //TODO: rework so you wont need to specify T generic (quite annoying and non-effective thing)
-    internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged, IReeUIComponentV3EventReceiver
+    internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged, IReeUIComponentEventReceiver
         where T : ReeUIComponentV3<T>
-        where TDescriptor : IUIComponentDescriptor<T>, new() {
+        where TDescriptor : IReeUIComponentDescriptor<T>, new() {
 
         #region Instantiate
 
@@ -178,11 +178,11 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        void IReeUIComponentV3EventReceiver.OnStart() => OnStart();
+        void IReeUIComponentEventReceiver.OnStart() => OnStart();
 
-        void IReeUIComponentV3EventReceiver.OnStateChange(bool state) => OnStateChange(state);
+        void IReeUIComponentEventReceiver.OnStateChange(bool state) => OnStateChange(state);
 
-        void IReeUIComponentV3EventReceiver.OnRectDimensionsChange() => OnRectDimensionsChange();
+        void IReeUIComponentEventReceiver.OnRectDimensionsChange() => OnRectDimensionsChange();
 
         private void Awake() => OnInstantiate();
 
@@ -219,7 +219,7 @@ namespace BeatLeader.Components {
         #endregion
     }
 
-    internal interface IReeUIComponentV3EventReceiver {
+    internal interface IReeUIComponentEventReceiver {
         void OnStart();
         void OnStateChange(bool state);
         void OnRectDimensionsChange();
@@ -230,11 +230,11 @@ namespace BeatLeader.Components {
             get => _instance;
             set {
                 _instance = value;
-                _eventReceiver = (IReeUIComponentV3EventReceiver)value;
+                _eventReceiver = (IReeUIComponentEventReceiver)value;
             }
         }
 
-        private IReeUIComponentV3EventReceiver? _eventReceiver;
+        private IReeUIComponentEventReceiver? _eventReceiver;
         private ReeUIComponentV3Base _instance = null!;
         
         private void Start() => _eventReceiver?.OnStart();

@@ -4,7 +4,7 @@ using BeatSaberMarkupLanguage.Parser;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal interface IUIComponentDescriptor<T> {
+    internal interface IReeUIComponentDescriptor<T> {
         string ComponentName { get; }
 
         IDictionary<string, Action<T, BSMLParserParams, object>>? ExternalProperties { get; }

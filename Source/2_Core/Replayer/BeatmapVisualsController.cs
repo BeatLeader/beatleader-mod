@@ -1,5 +1,5 @@
-﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
+﻿using System.Collections.Generic;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Utilities;
 using UnityEngine.Playables;
@@ -8,6 +8,7 @@ using Zenject;
 using UnityEngine.UI;
 using HMUI;
 using System.Linq;
+using BeatLeader.Models.AbstractReplay;
 using TMPro;
 
 namespace BeatLeader.Replayer {
@@ -16,20 +17,20 @@ namespace BeatLeader.Replayer {
 
         [Inject] private readonly IReplayPauseController _playbackController = null!;
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
+        [Inject] private readonly IReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
         [Inject] private readonly ComboController _comboController = null!;
         [Inject] private readonly GameEnergyCounter _gameEnergyCounter = null!;
-        [Inject] private readonly ReplayEventsProcessor _eventsProcessor = null!;
 
         [FirstResource(requireActiveInHierarchy: true)]
         private readonly ComboUIController _comboUIController = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)] 
+        [FirstResource(requireActiveInHierarchy: true)]
         private readonly GameEnergyUIPanel _gameEnergyUIPanel = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)] 
+        [FirstResource(requireActiveInHierarchy: true)]
         private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)] 
+        [FirstResource(requireActiveInHierarchy: true)]
         private readonly NoteDebrisSpawner _noteDebrisSpawner = null!;
 
         [FirstResource(requireActiveInHierarchy: true)]
@@ -47,9 +48,9 @@ namespace BeatLeader.Replayer {
         private ImageView _energyIconEmpty = null!;
         private ImageView _energyIconFull = null!;
 
-        protected float _debrisCutDirMultiplier;
-        protected float _debrisFromCenterSpeed;
-        protected float _debrisMoveSpeedMultiplier;
+        private float _debrisCutDirMultiplier;
+        private float _debrisFromCenterSpeed;
+        private float _debrisMoveSpeedMultiplier;
         private bool _comboWasBroke;
         private bool _wasInProcess;
 
@@ -58,8 +59,8 @@ namespace BeatLeader.Replayer {
 
             _levelFailedEffectText = _levelFailedTextEffect.transform.Find("Text").GetComponent<TextMeshPro>();
             var images = _gameEnergyUIPanel.GetComponentsInChildren<ImageView>();
-            _energyIconEmpty = images.FirstOrDefault(x => x.name == "EnergyIconEmpty");
-            _energyIconFull = images.FirstOrDefault(x => x.name == "EnergyIconFull");
+            _energyIconEmpty = images.First(x => x.name == "EnergyIconEmpty");
+            _energyIconFull = images.First(x => x.name == "EnergyIconFull");
             _laser = _gameEnergyUIPanel.transform.Find("Laser").gameObject;
 
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
@@ -68,9 +69,9 @@ namespace BeatLeader.Replayer {
 
             _playbackController.PauseStateChangedEvent += HandlePauseStateChanged;
             _beatmapTimeController.SongSpeedWasChangedEvent += HandleSongSpeedChanged;
-            _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
-            _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
+            _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteBeatmapEventDequeued;
+            _beatmapEventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStartedStarted;
         }
 
         private void Start() {
@@ -78,17 +79,27 @@ namespace BeatLeader.Replayer {
         }
 
         private void OnDestroy() {
+            _cutScoreSpawnerSilencer.Dispose();
+
             _playbackController.PauseStateChangedEvent -= HandlePauseStateChanged;
             _beatmapTimeController.SongSpeedWasChangedEvent -= HandleSongSpeedChanged;
-            _eventsProcessor.ReprocessRequestedEvent -= HandleReprocessRequested;
-            _eventsProcessor.ReprocessDoneEvent -= HandleReprocessDone;
             _comboController.comboBreakingEventHappenedEvent -= HandleComboDidBreak;
+            _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteBeatmapEventDequeued;
+            _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleQueueAdjustStartedStarted;
         }
 
         #endregion
 
         #region Visuals Control
- 
+
+        private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
+            typeof(NoteCutScoreSpawner).GetMethod(nameof(NoteCutScoreSpawner.HandleScoringForNoteStarted))!, false
+        );
+
+        public void PauseCutScoreSpawner(bool pause) {
+            _cutScoreSpawnerSilencer.Enabled = pause;
+        }
+
         public void PauseSabersSparkles(bool pause) {
             _saberBurnMarkSparkles.enabled = !pause;
             _sparkleEffectManager.gameObject.SetActive(!pause);
@@ -154,20 +165,28 @@ namespace BeatLeader.Replayer {
             _comboWasBroke = true;
         }
 
-        private void HandleReprocessRequested() {
-            _wasInProcess = _eventsProcessor.TimeWasSmallerThanActualTime;
+        private void HandleQueueAdjustStartedStarted() {
+            _wasInProcess = _beatmapEventsProcessor.CurrentEventHasTimeMismatch;
             _comboWasBroke = false;
+            PauseCutScoreSpawner(true);
         }
 
-        private void HandleReprocessDone() {
+        private void HandleQueueAdjustFinished() {
             if (_wasInProcess) {
-                ModifyComboPanel(_comboController.GetField<int,
-                    ComboController>("_combo"), _comboController.maxCombo, _comboWasBroke);
+                var combo = _comboController.GetField<int, ComboController>("_combo");
+                ModifyComboPanel(combo, _comboController.maxCombo, _comboWasBroke);
                 _wasInProcess = false;
             }
 
-            ModifyEnergyPanel(_gameEnergyCounter.energy, _gameEnergyCounter
-                .GetField<bool, GameEnergyCounter>("_didReach0Energy"));
+            var didReach0Energy = _gameEnergyCounter.GetField<bool, GameEnergyCounter>("_didReach0Energy");
+            ModifyEnergyPanel(_gameEnergyCounter.energy, didReach0Energy);
+            PauseCutScoreSpawner(false);
+        }
+
+        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEventNode) {
+            if (noteEventNode.Next?.Value.eventTime > _beatmapTimeController.SongTime) {
+                HandleQueueAdjustFinished();
+            }
         }
 
         #endregion

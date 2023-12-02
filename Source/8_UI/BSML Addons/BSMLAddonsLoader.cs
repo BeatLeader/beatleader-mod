@@ -58,30 +58,48 @@ namespace BeatLeader.UI.BSML_Addons {
 
         public static void LoadAddons() {
             if (_ready) return;
-            foreach (var sprite in spritesToCache)
+            foreach (var sprite in spritesToCache) {
                 BSMLUtility.AddSpriteToBSMLCache("bl-" + sprite.Key, sprite.Value);
-            LoadReeUIComponentsV3();
+            }
+            LoadBSMLComponents();
             foreach (var tag in addonTags) BSMLParser.instance.RegisterTag(tag);
             foreach (var handler in addonHandlers) BSMLParser.instance.RegisterTypeHandler(handler);
             _ready = true;
         }
 
-        private static void LoadReeUIComponentsV3() {
-            const string DATA_METHOD_NAME = "GetBSMLData";
+        private static void LoadBSMLComponents() {
+            var asm = Assembly.GetExecutingAssembly();
+            var bsmlComponentTypes = asm.GetTypes()
+                .Select(static x => (x, x.GetCustomAttributes<BSMLComponentAttribute>()))
+                .Where(static x => x.Item2.All(static x => !x.Suppress))
+                .Where(static x => x.Item1.IsSubclassOf(typeof(ReeUIComponentV3Base)))
+                .Where(static x => x.Item1 is { IsGenericType: false, IsAbstract: false });
 
-            var types = Assembly.GetExecutingAssembly().GetTypes().Where(x =>
-                x.IsSubclassOf(typeof(ReeUIComponentV3Base)) && x is { IsGenericType:false, IsAbstract: false });
-            foreach (var type in types) {
+            foreach (var pair in bsmlComponentTypes) {
+                var type = pair.Item1;
                 try {
-                    var method = type.GetMethod(DATA_METHOD_NAME, ReflectionUtils.StaticFlags | BindingFlags.FlattenHierarchy);
-                    if (method is null) throw new MissingMethodException(type.Name, DATA_METHOD_NAME);
-                    var (tag, handler) = ((BSMLTag, TypeHandler))method.Invoke(null, null);
+                    var tagMember = GetMemberWithAttributeOrThrow<BSMLTagAttribute>(type);
+                    var handlerMember = GetMemberWithAttributeOrThrow<BSMLHandlerAttribute>(type);
+
+                    tagMember.GetValueImplicitly(null, out var tagObj);
+                    handlerMember.GetValueImplicitly(null, out var handlerObj);
+                    if (tagObj is not BSMLTag tag || handlerObj is not TypeHandler handler) throw new InvalidCastException();
+
                     addonTags.Add(tag);
                     addonHandlers.Add(handler);
-                    Plugin.Log.Debug($"UI Component \"{tag.Aliases[0]}\" registered into BSML");
+
+                    Plugin.Log.Debug($"UI component \"{tag.Aliases[0]}\" registered into BSML");
                 } catch (Exception ex) {
-                    Plugin.Log.Error($"Failed to get {type.Name} data: \n{ex}");
+                    Plugin.Log.Error($"Failed to register UI component \"{type.Name}\" into BSML: \n{ex}");
                 }
+            }
+
+            static MemberInfo GetMemberWithAttributeOrThrow<T>(IReflect type) where T : Attribute {
+                var member = type.GetMembers(ReflectionUtils.StaticFlags | BindingFlags.FlattenHierarchy)
+                    .Where(static x => x.GetCustomAttribute<T>() is not null)
+                    .FirstOrDefault();
+                if (member is null) throw new Exception("Unable to acquire one of the required fields (BSMLTag, BSMLHandler)");
+                return member;
             }
         }
     }

@@ -93,7 +93,7 @@ namespace BeatLeader.Utils {
 
         #region Casting
 
-        public static bool GetValueImplicitly(this MemberInfo member, object obj, out object? value) {
+        public static bool GetValueImplicitly(this MemberInfo member, object? obj, out object? value) {
             value = member switch {
                 FieldInfo fld => fld.GetValue(obj),
                 PropertyInfo prop => prop.GetValue(obj),

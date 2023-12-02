@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using BeatLeader.UI.BSML_Addons;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Components;
@@ -33,7 +34,7 @@ namespace BeatLeader.Components {
     /// </summary>
     /// <typeparam name="T">Inherited component</typeparam>
     /// <typeparam name="TDescriptor">Component descriptor</typeparam>
-    //TODO: rework so you wont need to specify T generic (quite annoying and non-effective thing)
+    [BSMLComponent]
     internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged, IReeUIComponentEventReceiver
         where T : ReeUIComponentV3<T>
         where TDescriptor : IReeUIComponentDescriptor<T>, new() {
@@ -51,7 +52,7 @@ namespace BeatLeader.Components {
 
         #region BSML Tag
 
-        private class Tag : BSMLTag {
+        protected class Tag : BSMLTag {
             public override string[] Aliases { get; } = { Descriptor.ComponentName };
 
             public override GameObject CreateObject(Transform parent) {
@@ -85,7 +86,7 @@ namespace BeatLeader.Components {
         #region BSML Handler
 
         [ComponentHandler(typeof(ReeUIComponentV3InstanceKeeper))]
-        private class Handler : TypeHandler {
+        protected class Handler : TypeHandler {
             public override Dictionary<string, string[]> Props { get; } =
                 Descriptor.ExternalProperties?.ToDictionary(
                     x => x.Key,
@@ -121,12 +122,12 @@ namespace BeatLeader.Components {
 
         protected static readonly TDescriptor Descriptor = new();
 
-        private static readonly Tag bsmlTag = new();
-        private static readonly Handler bsmlHandler = new();
-
-        [UsedImplicitly]
-        public static (BSMLTag, TypeHandler) GetBSMLData() => (bsmlTag, bsmlHandler);
-
+        [BSMLTag, UsedImplicitly]
+        protected static readonly Tag bsmlTag = new();
+        
+        [BSMLHandler, UsedImplicitly]
+        protected static readonly Handler bsmlHandler = new();
+        
         #endregion
 
         #region Markup

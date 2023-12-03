@@ -81,5 +81,13 @@ namespace BeatLeader {
         public const ReplaySaveOption ReplaySavingOptions = ReplaySaveOption.Exit | ReplaySaveOption.Fail | ReplaySaveOption.ZeroScore;
 
         #endregion
+
+        #region Language
+        
+        public const bool OverrideLanguage = false;
+        
+        public const BLLanguage SelectedLanguage = BLLanguage.English;
+
+        #endregion
     }
 }

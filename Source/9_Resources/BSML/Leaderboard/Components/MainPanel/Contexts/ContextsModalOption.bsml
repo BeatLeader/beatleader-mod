@@ -1,1 +1,1 @@
-﻿<button pref-width="30" id="button" font-size="4" all-uppercase="false"/>
+﻿<button pref-width="30" id="button" font-size="4" all-uppercase="false" hover-hint="~hover-hint"/>

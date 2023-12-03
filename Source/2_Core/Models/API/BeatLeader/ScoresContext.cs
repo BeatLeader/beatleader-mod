@@ -46,6 +46,17 @@ namespace BeatLeader.Models {
             };
         }
 
+        internal static string Description(this ScoresContext context) {
+            return context switch {
+                ScoresContext.Modifiers => "Everything allowed",
+                ScoresContext.Standard => "No modifiers, except 1 Live and 4 Lives",
+                ScoresContext.Nopause => "Pauses are forbidden",
+                ScoresContext.Golf => "The worse you play - the higher score",
+                ScoresContext.SCPM => "Only scores with Small Cubes and Pro Mode",
+                _ => "General"
+            };
+        }
+
         internal static LeaderboardContexts Enum(this ScoresContext context) {
             return context switch {
                 ScoresContext.Modifiers => LeaderboardContexts.General,

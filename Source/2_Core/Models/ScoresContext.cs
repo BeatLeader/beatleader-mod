@@ -35,14 +35,14 @@ namespace BeatLeader.Models {
             };
         }
 
-        internal static string Name(this ScoresContext context) {
+        internal static string LocalizedName(this ScoresContext context) {
             return context switch {
-                ScoresContext.Modifiers => "General",
-                ScoresContext.Standard => "No Mods",
-                ScoresContext.Nopause => "No Pauses",
-                ScoresContext.Golf => "Golf",
-                ScoresContext.SCPM => "SCPM",
-                _ => "General"
+                ScoresContext.Modifiers => "<bll>ls-general-context</bll>",
+                ScoresContext.Standard => "<bll>ls-no-mods-context</bll>",
+                ScoresContext.Nopause => "<bll>ls-no-pauses-context</bll>",
+                ScoresContext.Golf => "<bll>ls-golf-context</bll>",
+                ScoresContext.SCPM => "<bll>ls-scpm-context</bll>",
+                _ => "<bll>ls-general-context</bll>"
             };
         }
 

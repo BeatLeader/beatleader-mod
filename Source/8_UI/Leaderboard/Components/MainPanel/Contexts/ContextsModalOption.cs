@@ -46,7 +46,7 @@ namespace BeatLeader.Components {
         private void UpdateVisuals() {
             if (!IsParsed) return;
 
-            _buttonText.text = _context.Name();
+            _buttonText.text = _context.LocalizedName();
             HoverHint = _context.Description();
 
             if (_context == PluginConfig.ScoresContext) {

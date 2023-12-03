@@ -21,7 +21,7 @@
         "Russian": "Аватар",
         "Chinese": "头像",
         "Korean": "아바타",
-        "French": null,
+        "French": "Avatar",
         "German": null,
         "Spanish": null
       }
@@ -34,7 +34,7 @@
         "Russian": "Страна",
         "Chinese": "国家",
         "Korean": "국가",
-        "French": null,
+        "French": "Pays",
         "German": null,
         "Spanish": null
       }
@@ -47,7 +47,7 @@
         "Russian": "Кланы",
         "Chinese": "部族",
         "Korean": "클랜",
-        "French": null,
+        "French": "Clans",
         "German": null,
         "Spanish": null
       }
@@ -60,7 +60,7 @@
         "Russian": "Очки",
         "Chinese": "得分",
         "Korean": "점수",
-        "French": null,
+        "French": "Score",
         "German": null,
         "Spanish": null
       }
@@ -73,7 +73,7 @@
         "Russian": "Точность",
         "Chinese": "准确性",
         "Korean": "정확도",
-        "French": null,
+        "French": "Accuracy",
         "German": null,
         "Spanish": null
       }
@@ -86,7 +86,7 @@
         "Russian": "Время",
         "Chinese": "时间",
         "Korean": "시간",
-        "French": null,
+        "French": "Temps",
         "German": null,
         "Spanish": null
       }
@@ -99,7 +99,7 @@
         "Russian": "Ошибки",
         "Chinese": "错误",
         "Korean": "실수",
-        "French": null,
+        "French": "Fautes",
         "German": null,
         "Spanish": null
       }
@@ -112,7 +112,7 @@
         "Russian": "Паузы",
         "Chinese": "暂停",
         "Korean": "일시 정지",
-        "French": null,
+        "French": "Pauses",
         "German": null,
         "Spanish": null
       }
@@ -125,7 +125,7 @@
         "Russian": "Модификаторы",
         "Chinese": "修改器",
         "Korean": "수정자",
-        "French": null,
+        "French": "Modes",
         "German": null,
         "Spanish": null
       }
@@ -138,7 +138,7 @@
         "Russian": "Промахи",
         "Chinese": "失误",
         "Korean": "미스",
-        "French": null,
+        "French": "Manqués",
         "German": null,
         "Spanish": null
       }
@@ -151,7 +151,7 @@
         "Russian": "Ошибки",
         "Chinese": "坏切口",
         "Korean": "나쁜 컷",
-        "French": null,
+        "French": "Coupes erronées",
         "German": null,
         "Spanish": null
       }
@@ -164,7 +164,7 @@
         "Russian": "Бомбы",
         "Chinese": "炸弹",
         "Korean": "폭탄",
-        "French": null,
+        "French": "Bombes coupées",
         "German": null,
         "Spanish": null
       }
@@ -177,7 +177,7 @@
         "Russian": "Стены",
         "Chinese": "撞墙",
         "Korean": "벽에 부딪힘",
-        "French": null,
+        "French": "Murs touchés",
         "German": null,
         "Spanish": null
       }
@@ -190,7 +190,7 @@
         "Russian": "Обновить",
         "Chinese": "更新",
         "Korean": "업데이트",
-        "French": null,
+        "French": "Mise à jour",
         "German": null,
         "Spanish": null
       }
@@ -203,7 +203,7 @@
         "Russian": "Создать",
         "Chinese": "注册",
         "Korean": "가입하기",
-        "French": null,
+        "French": "S'inscrire",
         "German": null,
         "Spanish": null
       }
@@ -216,7 +216,7 @@
         "Russian": "Необходим аккаунт для вебсайта",
         "Chinese": "注册使用网站",
         "Korean": "웹사이트 사용 등록",
-        "French": null,
+        "French": "Inscrivez-vous pour utiliser le site web",
         "German": null,
         "Spanish": null
       }
@@ -229,7 +229,7 @@
         "Russian": "Версия мода устарела",
         "Chinese": "模块版本已过时",
         "Korean": "모드 버전이 오래되었습니다",
-        "French": null,
+        "French": "Cette version du Mod est désuet",
         "German": null,
         "Spanish": null
       }
@@ -242,7 +242,7 @@
         "Russian": "Версия мода актуальная",
         "Chinese": "模块版本已更新",
         "Korean": "모드 버전이 최신 상태입니다",
-        "French": null,
+        "French": "Cette version du Mod est à jour",
         "German": null,
         "Spanish": null
       }
@@ -255,7 +255,7 @@
         "Russian": "Плейлисты",
         "Chinese": "播放列表",
         "Korean": "재생 목록",
-        "French": null,
+        "French": "Playlists",
         "German": null,
         "Spanish": null
       }
@@ -268,7 +268,7 @@
         "Russian": "Сообщество BeatLeader",
         "Chinese": "BeatLeader 社区",
         "Korean": "BeatLeader 커뮤니티",
-        "French": null,
+        "French": "Communauté BeatLeader",
         "German": null,
         "Spanish": null
       }
@@ -281,7 +281,7 @@
         "Russian": "Подписаться",
         "Chinese": "关注",
         "Korean": "팔로우",
-        "French": null,
+        "French": "Follow",
         "German": null,
         "Spanish": null
       }
@@ -294,7 +294,7 @@
         "Russian": "Отписаться",
         "Chinese": "取消关注",
         "Korean": "언팔로우",
-        "French": null,
+        "French": "Unfollow",
         "German": null,
         "Spanish": null
       }
@@ -307,7 +307,7 @@
         "Russian": "Скрыть игрока",
         "Chinese": "隐藏播放器",
         "Korean": "플레이어 숨기기",
-        "French": null,
+        "French": "Cacher ce joueur",
         "German": null,
         "Spanish": null
       }
@@ -320,7 +320,7 @@
         "Russian": "Показать игрока",
         "Chinese": "显示播放器",
         "Korean": "플레이어 표시",
-        "French": null,
+        "French": "Faire apparaître ce joueur",
         "German": null,
         "Spanish": null
       }
@@ -333,7 +333,7 @@
         "Russian": "Открыть профиль",
         "Chinese": "打开简介",
         "Korean": "프로필 열기",
-        "French": null,
+        "French": "Ouvrir le profile",
         "German": null,
         "Spanish": null
       }
@@ -346,7 +346,7 @@
         "Russian": "Мир",
         "Chinese": "全球",
         "Korean": "글로벌",
-        "French": null,
+        "French": "Mondiale",
         "German": null,
         "Spanish": null
       }
@@ -359,7 +359,7 @@
         "Russian": "Страна",
         "Chinese": "国家",
         "Korean": "국가",
-        "French": null,
+        "French": "Pays",
         "German": null,
         "Spanish": null
       }
@@ -372,7 +372,7 @@
         "Russian": "Подписки",
         "Chinese": "跟随",
         "Korean": "팔로잉",
-        "French": null,
+        "French": "Followed",
         "German": null,
         "Spanish": null
       }
@@ -385,7 +385,7 @@
         "Russian": "Отмена",
         "Chinese": "取消预订",
         "Korean": "취소",
-        "French": null,
+        "French": "Annuler",
         "German": null,
         "Spanish": null
       }
@@ -398,7 +398,7 @@
         "Russian": "Смотреть Запись",
         "Chinese": "观看重播",
         "Korean": "다시보기 보기",
-        "French": null,
+        "French": "Regarder le Replay",
         "German": null,
         "Spanish": null
       }
@@ -411,7 +411,7 @@
         "Russian": "Смотреть",
         "Chinese": "观看",
         "Korean": "시계",
-        "French": null,
+        "French": "Regarder",
         "German": null,
         "Spanish": null
       }
@@ -424,7 +424,7 @@
         "Russian": "Удалить",
         "Chinese": "删除",
         "Korean": "삭제",
-        "French": null,
+        "French": "Effacer",
         "German": null,
         "Spanish": null
       }
@@ -437,7 +437,7 @@
         "Russian": "Скачать карту",
         "Chinese": "下载",
         "Korean": "다운로드",
-        "French": null,
+        "French": "Télécharger la map",
         "German": null,
         "Spanish": null
       }
@@ -450,7 +450,7 @@
         "Russian": "Контекст",
         "Chinese": "背景",
         "Korean": "컨텍스트",
-        "French": null,
+        "French": "Contexte des scores",
         "German": null,
         "Spanish": null
       }
@@ -463,7 +463,7 @@
         "Russian": "Общий",
         "Chinese": "一般",
         "Korean": "일반",
-        "French": null,
+        "French": "Général",
         "German": null,
         "Spanish": null
       }
@@ -476,7 +476,7 @@
         "Russian": "Без Модификаторов",
         "Chinese": "无修饰语",
         "Korean": "수정자 없이",
-        "French": null,
+        "French": "Pas de mode",
         "German": null,
         "Spanish": null
       }
@@ -489,7 +489,7 @@
         "Russian": "Без Пауз",
         "Chinese": "无暂停",
         "Korean": "멈춤 없이",
-        "French": null,
+        "French": "Pas de pause",
         "German": null,
         "Spanish": null
       }
@@ -502,7 +502,7 @@
         "Russian": "Гольф",
         "Chinese": "高尔夫",
         "Korean": "골프",
-        "French": null,
+        "French": "Golf",
         "German": null,
         "Spanish": null
       }
@@ -528,7 +528,7 @@
         "Russian": "Параметры просмотра",
         "Chinese": null,
         "Korean": null,
-        "French": null,
+        "French": "Paramètres du lecteur",
         "German": null,
         "Spanish": null
       }
@@ -541,7 +541,7 @@
         "Russian": "Включить Оверлей",
         "Chinese": null,
         "Korean": null,
-        "French": null,
+        "French": "Active l'UI",
         "German": null,
         "Spanish": null
       }
@@ -554,7 +554,7 @@
         "Russian": "Сменить окружение",
         "Chinese": null,
         "Korean": null,
-        "French": null,
+        "French": "Charger l'environment du joueur",
         "German": null,
         "Spanish": null
       }
@@ -567,7 +567,7 @@
         "Russian": "Сменить JD",
         "Chinese": null,
         "Korean": null,
-        "French": null,
+        "French": "Charger le JD du joueur",
         "German": null,
         "Spanish": null
       }
@@ -580,7 +580,7 @@
         "Russian": "Сохранить на диске",
         "Chinese": null,
         "Korean": null,
-        "French": null,
+        "French": "Enregistrer localement",
         "German": null,
         "Spanish": null
       }

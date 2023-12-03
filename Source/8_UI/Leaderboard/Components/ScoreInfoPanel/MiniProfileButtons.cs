@@ -9,8 +9,6 @@ using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
-using Transform = UnityEngine.Transform;
-using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components {
     internal class MiniProfileButtons : ReeUIComponentV2 {
@@ -120,10 +118,10 @@ namespace BeatLeader.Components {
             _isFriend = ProfileManager.IsFriend(_player);
 
             if (_isFriend) {
-                _friendButton.SetLabel("Remove friend");
+                _friendButton.SetLabel("<bll>ls-remove-from-followed</bll>");
                 _friendButton.SetState(MiniProfileButton.State.InteractableGlowing);
             } else {
-                _friendButton.SetLabel("Add friend");
+                _friendButton.SetLabel("<bll>ls-add-to-followed</bll>");
                 _friendButton.SetState(MiniProfileButton.State.InteractableFaded);
             }
         }
@@ -157,10 +155,10 @@ namespace BeatLeader.Components {
             _isHidden = HiddenPlayersCache.IsHidden(_player);
 
             if (_isHidden) {
-                _hideButton.SetLabel("Reveal player");
+                _hideButton.SetLabel("<bll>ls-reveal-player</bll>");
                 _hideButton.SetState(MiniProfileButton.State.InteractableGlowing);
             } else {
-                _hideButton.SetLabel("Hide player");
+                _hideButton.SetLabel("<bll>ls-hide-player</bll>");
                 _hideButton.SetState(MiniProfileButton.State.InteractableFaded);
             }
         }
@@ -179,7 +177,7 @@ namespace BeatLeader.Components {
 
         private void InitializeProfileButton() {
             _profileButton.Setup(BundleLoader.ProfileIcon, true);
-            _profileButton.SetLabel("Open profile");
+            _profileButton.SetLabel("<bll>ls-open-profile</bll>");
             _profileButton.OnClick += OnProfileButtonClick;
         }
 
@@ -194,7 +192,7 @@ namespace BeatLeader.Components {
         private static Color TwitterColor => new Color(0.1f, 0.6f, 1.0f, 1.0f);
         private static Color TwitchColor => new Color(0.5f, 0.3f, 1.0f, 1.0f);
         private static Color YoutubeColor => new Color(1.0f, 0.0f, 0.0f, 1.0f);
-        
+
 
         private readonly Dictionary<string, SocialsButtonInfo> _socialsButtons = new();
 

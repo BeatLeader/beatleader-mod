@@ -18,13 +18,13 @@ namespace BeatLeader.Components {
 
         public void SetScore(Score score) {
             TimeSetText = GetTimeSetString(score);
-            ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "score");
+            ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "<bll>ls-score</bll>");
             _accText.Text1 = GetStringWithLabel(
                 FormatUtils.FormatAcc(score.accuracy),
-                "accuracy " + (!score.fullCombo ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
+                "<bll>ls-accuracy</bll> " + (!score.fullCombo ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
             _accText.Text2 = GetStringWithLabel(
                 FormatUtils.FormatAcc(score.fcAccuracy), 
-                $"<color={Good}>fc accuracy</color>");
+                $"<color={Good}>FC <bll>ls-accuracy</bll></color>");
             _accText.HoverEnabled = !score.fullCombo;
             PpText = GetStringWithLabel(FormatUtils.FormatPP(score.pp), "pp");
             DetailsText = GetDetailsString(score);
@@ -84,17 +84,17 @@ namespace BeatLeader.Components {
             var sb = new StringBuilder();
 
             sb.Append("<line-height=80%>");
-            sb.Append($"<color={Faded}>Pauses: <color={Neutral}>{score.pauses}    ");
+            sb.Append($"<color={Faded}><bll>ls-pauses</bll>: <color={Neutral}>{score.pauses}    ");
             sb.AppendLine(score.modifiers.IsEmpty()
-                ? $"<color={Faded}>No Modifiers"
-                : $"<color={Faded}>Modifiers: <color={Neutral}>{score.modifiers}"
+                ? $"<color={Faded}><bll>ls-modifiers</bll>: -"
+                : $"<color={Faded}><bll>ls-modifiers</bll>: <color={Neutral}>{score.modifiers}"
             );
 
             if (score.fullCombo) sb.Append($"<color={Good}>Full Combo</color>    ");
-            if (score.missedNotes > 0) sb.Append($"<color={Faded}>Misses: <color={Bad}>{score.missedNotes}</color>    ");
-            if (score.badCuts > 0) sb.Append($"<color={Faded}>Bad cuts: <color={Bad}>{score.badCuts}</color>    ");
-            if (score.bombCuts > 0) sb.Append($"<color={Faded}>Bomb cuts: <color={Bad}>{score.bombCuts}</color>    ");
-            if (score.wallsHit > 0) sb.Append($"<color={Faded}>Walls hit: <color={Bad}>{score.wallsHit}</color>    ");
+            if (score.missedNotes > 0) sb.Append($"<color={Faded}><bll>ls-misses</bll>: <color={Bad}>{score.missedNotes}</color>    ");
+            if (score.badCuts > 0) sb.Append($"<color={Faded}><bll>ls-bad-cuts</bll>: <color={Bad}>{score.badCuts}</color>    ");
+            if (score.bombCuts > 0) sb.Append($"<color={Faded}><bll>ls-bomb-cuts</bll>: <color={Bad}>{score.bombCuts}</color>    ");
+            if (score.wallsHit > 0) sb.Append($"<color={Faded}><bll>ls-walls-hit</bll>: <color={Bad}>{score.wallsHit}</color>    ");
 
             return sb.ToString();
         }

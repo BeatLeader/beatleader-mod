@@ -9,6 +9,7 @@
         French,
         German,
         Spanish,
+        Norwegian,
         MinecraftEnchantment
     }
 }

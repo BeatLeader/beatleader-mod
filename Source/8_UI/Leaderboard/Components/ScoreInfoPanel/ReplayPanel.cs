@@ -152,7 +152,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshPlayButtonText(bool downloading) {
-            _playButtonText.text = downloading ? "Cancel" : "Watch Replay";
+            _playButtonText.text = downloading ? "<bll>ls-cancel</bll>" : "<bll>ls-watch-replay</bll>";
         }
 
         private void SetPlayButtonInteractable(bool interactable) {

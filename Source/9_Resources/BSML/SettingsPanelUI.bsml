@@ -1,8 +1,10 @@
-﻿<vertical preferred-width="100"
-          vertical-fit="PreferredSize"
-          pref-height="60"
-          child-expand-height="false"
-          child-control-height="false">
-  <toggle-setting text="Enabled" value="enabled"/>
-  <toggle-setting text="Menu Button Enabled" value="menu-button-enabled"/>
-</vertical>
+﻿<horizontal pad-left="-30" pad-bottom="30" horizontal-fit="PreferredSize">
+    <vertical preferred-width="80" pad="2" vertical-fit="PreferredSize" bg="round-rect-panel">
+        <toggle-setting text="Enabled" value="enabled"/>
+        <toggle-setting text="Menu Button Enabled" value="menu-button-enabled"/>
+        <text text="Language" underlined="true" color="#AAAAAA" align="Center"/>
+        <toggle-setting text="Use Custom Language" value="override-language" apply-on-change="true"/>
+        <dropdown-list-setting text="Language" interactable="~override-language" apply-on-change="true" value="language-choice"
+                               choices="language-choices" on-change="language-on-change" formatter="language-formatter"/>
+    </vertical>
+</horizontal>

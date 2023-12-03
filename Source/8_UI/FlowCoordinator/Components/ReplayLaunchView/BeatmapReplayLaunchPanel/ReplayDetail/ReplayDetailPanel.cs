@@ -14,8 +14,8 @@ namespace BeatLeader.Components {
     internal class ReplayDetailPanel : ReeUIComponentV2 {
         #region Configuration
 
-        private const string WatchText = "Watch";
-        private const string DownloadText = "Download map";
+        private const string WatchText = "<bll>ls-watch-replay-short</bll>";
+        private const string DownloadText = "<bll>ls-download-map</bll>";
 
         #endregion
 

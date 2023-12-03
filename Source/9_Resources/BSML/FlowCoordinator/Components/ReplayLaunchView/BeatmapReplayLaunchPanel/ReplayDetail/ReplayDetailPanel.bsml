@@ -32,7 +32,7 @@
   </vertical>
   <horizontal pref-height="10" spacing="3">
     <button interactable="~delete-button-interactable"
-            text="Delete" pref-height="10"
+            text="&lt;bll&gt;ls-delete&lt;/bll&gt;" pref-height="10"
             click-event="show-deletion-modal"
             horizontal-fit="Unconstrained"/>
     <primary-button interactable="~watch-button-interactable" 

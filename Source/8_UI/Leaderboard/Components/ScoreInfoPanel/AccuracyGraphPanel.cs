@@ -100,7 +100,7 @@ namespace BeatLeader.Components {
         private static string FormatCursorText(float songTime, float accuracy) {
             var fullMinutes = Mathf.FloorToInt(songTime / 60.0f);
             var remainingSeconds = Mathf.FloorToInt(Mathf.Abs(songTime % 60.0f));
-            return $"<color=#B856FF>time: </color>{fullMinutes}:{remainingSeconds:00}  <color=#B856FF>accuracy: </color>{accuracy * 100.0f:F2}<size=70%>%";
+            return $"<color=#B856FF><bll>ls-time</bll>: </color>{fullMinutes}:{remainingSeconds:00}  <color=#B856FF><bll>ls-accuracy</bll>: </color>{accuracy * 100.0f:F2}<size=70%>%";
         }
 
         private float GetAccuracy(float viewTime) {

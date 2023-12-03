@@ -83,6 +83,15 @@ namespace BeatLeader {
 
         #endregion
 
+        #region Language
+        
+        public bool OverrideLanguage = ConfigDefaults.OverrideLanguage;
+        
+        [UseConverter]
+        public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
+
+        #endregion
+
         #region OnReload
 
         [UsedImplicitly]

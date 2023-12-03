@@ -57,6 +57,7 @@ namespace BeatLeader {
                 BLLanguage.French,
                 BLLanguage.German,
                 BLLanguage.Spanish,
+                BLLanguage.Norwegian,
                 BLLanguage.MinecraftEnchantment
             };
         }
@@ -71,6 +72,7 @@ namespace BeatLeader {
                 BLLanguage.French => "French",
                 BLLanguage.German => "German",
                 BLLanguage.Spanish => "Spanish",
+                BLLanguage.Norwegian => "Norwegian",
                 BLLanguage.MinecraftEnchantment => "Minecraft Enchantment",
                 _ => "Unknown"
             };

@@ -37,12 +37,12 @@ namespace BeatLeader.Components {
 
             var split = rawPlatform.Split(',');
             if (split.Length < 3) {
-                sb.Append($"<color={Faded}>Platform: <color={Neutral}>Unknown ");
+                sb.Append($"<color={Faded}><bll>ls-user-platform</bll>: <color={Neutral}><bll>ls-unknown</bll> ");
             } else {
                 var platformName = FormatUtils.GetFullPlatformName(split[0]);
-                sb.Append($"<color={Faded}>Platform: <color={Neutral}>{platformName}");
-                sb.Append($"\r\n<color={Faded}>Game: <color={Neutral}>{split[1]}    ");
-                sb.Append($"<color={Faded}>Mod: <color={Neutral}>{split[2]}    ");
+                sb.Append($"<color={Faded}><bll>ls-user-platform</bll>: <color={Neutral}>{platformName}");
+                sb.Append($"\r\n<color={Faded}><bll>ls-game</bll>: <color={Neutral}>{split[1]}    ");
+                sb.Append($"<color={Faded}><bll>ls-mod</bll>: <color={Neutral}>{split[2]}    ");
             }
 
             return sb.ToString();
@@ -51,7 +51,7 @@ namespace BeatLeader.Components {
         private static string FormatDetailsString(float jd, float height) {
             var sb = new StringBuilder();
             sb.Append($"<color={Faded}>JD: <color={Neutral}>{jd:F2}    ");
-            sb.Append($"<color={Faded}>Height: <color={Neutral}>{height:F2}<size=70%>m</size>    ");
+            sb.Append($"<color={Faded}><bll>ls-user-height</bll>: <color={Neutral}>{height:F2}<size=70%>m</size>    ");
             return sb.ToString();
         }
 

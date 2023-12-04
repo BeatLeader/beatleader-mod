@@ -36,14 +36,7 @@ namespace BeatLeader {
 
             var token = sourceText.Substring(openIndexB, closeIndexA - openIndexB);
             sourceText = sourceText.Remove(openIndexA, closeIndexB - openIndexA);
-
-            var fontAsset = BLLocalization.GetLanguageFont();
-            if (fontAsset != null) {
-                sourceText = sourceText.Insert(openIndexA, $"<font=\"{fontAsset.name}\">{BLLocalization.FromToken(token)}</font>");
-            } else {
-                sourceText = sourceText.Insert(openIndexA, BLLocalization.FromToken(token));
-            }
-
+            sourceText = sourceText.Insert(openIndexA, BLLocalization.GetTranslationWithFont(token));
             return true;
         }
 
@@ -57,6 +50,7 @@ namespace BeatLeader {
                     matches = false;
                     break;
                 }
+
                 if (!matches) continue;
                 index = i;
                 break;

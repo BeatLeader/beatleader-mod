@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
-using Transform = UnityEngine.Transform;
 
 namespace BeatLeader.Components {
     internal class ScoreRow : ReeUIComponentV2 {
@@ -149,14 +148,14 @@ namespace BeatLeader.Components {
         #region Setup
 
         private void SetupFormatting() {
-            _rankCell.Setup(o => FormatUtils.FormatRank((int) o, false));
-            _usernameCell.Setup(o => FormatUtils.FormatUserName((string) o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis, 3.4f, false);
-            _modifiersCell.Setup(o => FormatUtils.FormatModifiers((string) o), TextAlignmentOptions.Right, TextOverflowModes.Overflow, 2.4f);
-            _accuracyCell.Setup(o => FormatUtils.FormatAcc((float) o));
-            _ppCell.Setup(o => FormatUtils.FormatPP((float) o));
-            _scoreCell.Setup(o => FormatUtils.FormatScore((int) o), TextAlignmentOptions.Right);
-            _timeCell.Setup(o => FormatUtils.FormatTimeset((string) o), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.4f);
-            _pausesCell.Setup(o => FormatUtils.FormatPauses((int) o));
+            _rankCell.Setup(o => FormatUtils.FormatRank((int)o, false));
+            _usernameCell.Setup(o => FormatUtils.FormatUserName((string)o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis, 3.4f, false);
+            _modifiersCell.Setup(o => FormatUtils.FormatModifiers((string)o), TextAlignmentOptions.Right, TextOverflowModes.Overflow, 2.4f);
+            _accuracyCell.Setup(o => FormatUtils.FormatAcc((float)o));
+            _ppCell.Setup(o => FormatUtils.FormatPP((float)o));
+            _scoreCell.Setup(o => FormatUtils.FormatScore((int)o), TextAlignmentOptions.Right);
+            _timeCell.Setup(o => FormatUtils.FormatTimeset((string)o, true), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.4f);
+            _pausesCell.Setup(o => FormatUtils.FormatPauses((int)o));
         }
 
         public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
@@ -171,7 +170,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdatePlayer;
-            
+
             SetupFormatting();
             SetupBackground();
             SetupUnderline();
@@ -183,9 +182,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnEnable() {
-            _currentAlpha = _targetAlpha;
-            _currentOffset = _targetOffset;
-            _updateRequired = true;
+            _state = AnimationState.Fix;
         }
 
         #endregion
@@ -213,9 +210,9 @@ namespace BeatLeader.Components {
         private void UpdatePlayer() {
             if (_score == null) return;
             var player = HiddenPlayersCache.ModifyPlayer(_score.player);
-            
+
             SetHighlight(ProfileManager.IsCurrentPlayer(player?.id));
-            
+
             var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
             ApplyColorScheme(playerRoles);
 
@@ -253,39 +250,58 @@ namespace BeatLeader.Components {
         private float _targetAlpha;
         private float _currentOffset;
         private float _targetOffset;
-        private bool _updateRequired;
+
+        private AnimationState _state = AnimationState.Fix;
+
+        private enum AnimationState {
+            Idle,
+            Lerp,
+            Fix
+        }
 
         public void FadeIn() {
             _targetAlpha = 1.0f;
             _currentOffset = FadeFromOffset;
             _targetOffset = 0.0f;
+            _state = AnimationState.Lerp;
         }
 
         public void FadeOut() {
             _targetAlpha = 0.0f;
             _targetOffset = FadeToOffset;
+            _state = AnimationState.Lerp;
         }
 
         private void LateUpdate() {
+            switch (_state) {
+                case AnimationState.Lerp:
+                    _state = ProgressLerpState();
+                    ApplyVisualChanges();
+                    break;
+                case AnimationState.Fix:
+                    _state = ProgressFixState();
+                    ApplyVisualChanges();
+                    break;
+                case AnimationState.Idle:
+                default: return;
+            }
+        }
+
+        private AnimationState ProgressLerpState() {
             var t = Time.deltaTime * FadeSpeed;
-            if (LerpOffset(t)) _updateRequired = true;
-            if (LerpAlpha(t)) _updateRequired = true;
-            if (!_updateRequired) return;
-
-            ApplyVisualChanges();
-            _updateRequired = false;
-        }
-
-        private bool LerpOffset(float t) {
-            if (Math.Abs(_currentOffset - _targetOffset) < 1e-6f) return false;
-            _currentOffset = Mathf.Lerp(_currentOffset, _targetOffset, t);
-            return true;
-        }
-
-        private bool LerpAlpha(float t) {
-            if (Math.Abs(_currentAlpha - _targetAlpha) < 1e-6f) return false;
             _currentAlpha = Mathf.Lerp(_currentAlpha, _targetAlpha, t);
-            return true;
+            _currentOffset = Mathf.Lerp(_currentOffset, _targetOffset, t);
+
+            var alphaSet = Math.Abs(_currentAlpha - _targetAlpha) < 1e-4f;
+            var offsetSet = Math.Abs(_currentOffset - _targetOffset) < 1e-4f;
+            return offsetSet && alphaSet ? AnimationState.Fix : AnimationState.Lerp;
+        }
+
+        private AnimationState ProgressFixState() {
+            _currentAlpha = _targetAlpha;
+            _currentOffset = _targetOffset;
+            ApplyVisualChanges();
+            return AnimationState.Idle;
         }
 
         private void ApplyVisualChanges() {

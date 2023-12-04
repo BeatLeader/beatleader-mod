@@ -134,7 +134,7 @@
         "Russian": "Модификаторы",
         "Chinese": "修改器",
         "Korean": "수정자",
-        "French": "Modes",
+        "French": "Modificateurs",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -148,7 +148,7 @@
         "Russian": "Промахи",
         "Chinese": "失误",
         "Korean": "미스",
-        "French": "Manqués",
+        "French": "Note manqués",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -162,7 +162,7 @@
         "Russian": "Ошибки",
         "Chinese": "坏切口",
         "Korean": "나쁜 컷",
-        "French": "Coupes erronées",
+        "French": "Mauvaise coupes",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -246,7 +246,7 @@
         "Russian": "Версия мода устарела",
         "Chinese": "模块版本已过时",
         "Korean": "모드 버전이 오래되었습니다",
-        "French": "Cette version du Mod est désuet",
+        "French": "Cette version du Mod n'est pas à jour",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -302,7 +302,7 @@
         "Russian": "Подписаться",
         "Chinese": "关注",
         "Korean": "팔로우",
-        "French": "Follow",
+        "French": "Suivre",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -316,7 +316,7 @@
         "Russian": "Отписаться",
         "Chinese": "取消关注",
         "Korean": "언팔로우",
-        "French": "Unfollow",
+        "French": "Ne plus suivre",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -372,7 +372,7 @@
         "Russian": "Мир",
         "Chinese": "全球",
         "Korean": "글로벌",
-        "French": "Mondiale",
+        "French": "Mondial",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -400,7 +400,7 @@
         "Russian": "Подписки",
         "Chinese": "跟随",
         "Korean": "팔로잉",
-        "French": "Followed",
+        "French": "Suivis",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -456,7 +456,7 @@
         "Russian": "Удалить",
         "Chinese": "删除",
         "Korean": "삭제",
-        "French": "Effacer",
+        "French": "Supprimer",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -512,7 +512,7 @@
         "Russian": "Без Модификаторов",
         "Chinese": "无修饰语",
         "Korean": "수정자 없이",
-        "French": "Pas de mode",
+        "French": "Pas de modificateurs",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -526,7 +526,7 @@
         "Russian": "Без Пауз",
         "Chinese": "无暂停",
         "Korean": "멈춤 없이",
-        "French": "Pas de pause",
+        "French": "Pas de pauses",
         "German": null,
         "Spanish": null,
         "Norwegian": null
@@ -582,7 +582,7 @@
         "Russian": "Включить Оверлей",
         "Chinese": null,
         "Korean": null,
-        "French": "Active l'UI",
+        "French": "Activer l'UI",
         "German": null,
         "Spanish": null,
         "Norwegian": null

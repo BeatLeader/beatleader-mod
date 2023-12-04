@@ -92,7 +92,22 @@
       }
     },
     {
-      "Token": "ls-time",
+      "Token": "ls-relative-date",
+      "Translations": {
+        "English": "Time",
+        "Japanese": "時間",
+        "Russian": "Время",
+        "Chinese": "时间",
+        "Korean": "시간",
+        "French": "Temps",
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": "Czas"
+      }
+    },
+    {
+      "Token": "ls-song-time",
       "Translations": {
         "English": "Time",
         "Japanese": "時間",
@@ -209,6 +224,111 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Uderzenia ścian"
+      }
+    },
+    {
+      "Token": "ls-user-platform",
+      "Translations": {
+        "English": "Platform",
+        "Japanese": "プラットフォーム",
+        "Russian": "Платформа",
+        "Chinese": "平台",
+        "Korean": "플랫폼",
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-unknown",
+      "Translations": {
+        "English": "Unknown",
+        "Japanese": "不明",
+        "Russian": "Неизвестно",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-game",
+      "Translations": {
+        "English": "Game",
+        "Japanese": "ゲーム",
+        "Russian": "Игра",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-mod",
+      "Translations": {
+        "English": "Mod",
+        "Japanese": "MOD",
+        "Russian": "Мод",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-mod",
+      "Translations": {
+        "English": "Mod",
+        "Japanese": "MOD",
+        "Russian": "Мод",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-user-height",
+      "Translations": {
+        "English": "Height",
+        "Japanese": "身長",
+        "Russian": "Рост",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-average-hmd-position",
+      "Translations": {
+        "English": "Average HMD position",
+        "Japanese": "HMDの平均位置",
+        "Russian": "Средняя позиция шлема",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
       }
     },
     {
@@ -437,6 +557,36 @@
       }
     },
     {
+      "Token": "ls-yes",
+      "Translations": {
+        "English": "Yes",
+        "Japanese": "はい",
+        "Russian": "Да",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-no",
+      "Translations": {
+        "English": "No",
+        "Japanese": "いいえ",
+        "Russian": "Нет",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
       "Token": "ls-cancel",
       "Translations": {
         "English": "Cancel",
@@ -449,6 +599,21 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Anuluj"
+      }
+    },
+    {
+      "Token": "ls-delete-replay-prompt",
+      "Translations": {
+        "English": "Do you really want to delete the replay?",
+        "Japanese": null,
+        "Russian": "Вы действительно хотите удалить этот реплей?",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
       }
     },
     {
@@ -602,6 +767,96 @@
       }
     },
     {
+      "Token": "ls-scores-context-hint",
+      "Translations": {
+        "English": "Select Leaderboard Context",
+        "Japanese": null,
+        "Russian": "Выбрать контекст",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-general-context-description",
+      "Translations": {
+        "English": "Everything allowed",
+        "Japanese": null,
+        "Russian": "Все разрешено",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-no-mods-context-description",
+      "Translations": {
+        "English": "No modifiers, except \"1 Life\" and \"4 Lives\"",
+        "Japanese": null,
+        "Russian": "Модификаторы запрещены, кроме \"1 Life\" и \"4 Lives\"",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-no-pauses-context-description",
+      "Translations": {
+        "English": "Pauses between first and last notes are forbidden",
+        "Japanese": null,
+        "Russian": "Паузы между первой и последней нотой запрещены",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-golf-context-description",
+      "Translations": {
+        "English": "The worse you play - the higher score",
+        "Japanese": null,
+        "Russian": "Чем меньше очков - тем лучше",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-scpm-context-description",
+      "Translations": {
+        "English": "Only scores with \"Small Notes\" and \"Pro Mode\"",
+        "Japanese": null,
+        "Russian": "Обязательное использование модификаторов \"Small Notes\" и \"Pro Mode\"",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
       "Token": "ls-replayer-settings",
       "Translations": {
         "English": "Player Settings",
@@ -674,6 +929,36 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zapisz lokalnie"
+      }
+    },
+    {
+      "Token": "ls-hmd-with-controllers",
+      "Translations": {
+        "English": "on <hmd> with <controllers>",
+        "Japanese": "<hmd>と<controllers>で",
+        "Russian": "на <hmd> с <controllers>",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
+      }
+    },
+    {
+      "Token": "ls-hmd-no-controllers",
+      "Translations": {
+        "English": "on <hmd>",
+        "Japanese": "<hmd>で",
+        "Russian": "на <hmd>",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null
       }
     }
   ]

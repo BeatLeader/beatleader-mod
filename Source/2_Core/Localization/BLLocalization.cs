@@ -16,7 +16,7 @@ namespace BeatLeader {
             _baseGameLanguageSO = mainSettingsModel.language;
             _baseGameLanguageSO.didChangeEvent += OnBaseGameLanguageDidChange;
             OnBaseGameLanguageDidChange();
-            _initialized = false;
+            _initialized = true;
         }
 
         #endregion
@@ -43,6 +43,8 @@ namespace BeatLeader {
                 Language.French => BLLanguage.French,
                 Language.German => BLLanguage.German,
                 Language.Spanish => BLLanguage.Spanish,
+                Language.Norwegian => BLLanguage.Norwegian,
+                Language.Polish => BLLanguage.Polish,
                 _ => BLLanguage.English,
             };
         }
@@ -58,6 +60,7 @@ namespace BeatLeader {
                 BLLanguage.German,
                 BLLanguage.Spanish,
                 BLLanguage.Norwegian,
+                BLLanguage.Polish,
                 BLLanguage.MinecraftEnchantment
             };
         }
@@ -73,6 +76,7 @@ namespace BeatLeader {
                 BLLanguage.German => "German",
                 BLLanguage.Spanish => "Spanish",
                 BLLanguage.Norwegian => "Norwegian",
+                BLLanguage.Polish => "Polish",
                 BLLanguage.MinecraftEnchantment => "Minecraft Enchantment",
                 _ => "Unknown"
             };
@@ -109,9 +113,16 @@ namespace BeatLeader {
             return token != null && translations.ContainsKey(token);
         }
 
-        public static string FromToken(string token) {
+        public static string GetTranslation(string token) {
             UpdateTranslationsIfNeeded(GetCurrentLanguage());
             return translations.ContainsKey(token) ? translations[token] : token;
+        }
+
+        public static string GetTranslationWithFont(string token) {
+            UpdateTranslationsIfNeeded(GetCurrentLanguage());
+            if (!translations.ContainsKey(token)) return token;
+            var fontAsset = GetLanguageFont();
+            return fontAsset != null ? $"<font={fontAsset.name}>{translations[token]}</font>" : translations[token];
         }
 
         #endregion
@@ -143,6 +154,7 @@ namespace BeatLeader {
                 BLLanguage.Russian => BundleLoader.NotoSansFontAsset,
                 BLLanguage.Chinese => BundleLoader.NotoSansSCFontAsset,
                 BLLanguage.Korean => BundleLoader.NotoSansKRFontAsset,
+                BLLanguage.Polish => BundleLoader.NotoSansFontAsset,
                 BLLanguage.MinecraftEnchantment => BundleLoader.MinecraftEnchantmentFontAsset,
                 BLLanguage.English => default,
                 _ => default

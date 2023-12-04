@@ -10,6 +10,7 @@
         German,
         Spanish,
         Norwegian,
+        Polish,
         MinecraftEnchantment
     }
 }

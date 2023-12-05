@@ -1,20 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="./BeatLeader.csproj.user"/>
+    
     <PropertyGroup>
         <TargetFramework>net48</TargetFramework>
         <OutputType>Library</OutputType>
-        <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
-        <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
         <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
         <LangVersion>9</LangVersion>
         <Nullable>enable</Nullable>
+        <Configurations>Release 1.29.1;Release 1.33.0</Configurations>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
-
-    <PropertyGroup>
-        <Copyright>Copyright © 2023</Copyright>
+    
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release 1.33.0' ">
+        <BeatSaberDir>$(BeatSaber1330Dir)</BeatSaberDir>
+        <ReferencePath>$(BeatSaber1330RefPath)</ReferencePath>
     </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <WarningLevel>3</WarningLevel>
+    
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release 1.29.1' ">
+        <BeatSaberDir>$(BeatSaber1291Dir)</BeatSaberDir>
+        <ReferencePath>$(BeatSaber1291RefPath)</ReferencePath>
     </PropertyGroup>
 
     <ItemGroup>

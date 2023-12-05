@@ -8,20 +8,20 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C3AB33DA-C704-4DC4-85CF-336A9BD2620B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-	    BeatLeader.csproj = Source/BeatLeader.csproj
+					BeatLeader.csproj = Source/BeatLeader.csproj
 		README.md = README.md
 	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Release 1.33.0|Any CPU = Release 1.33.0|Any CPU
+		Release 1.29.1|Any CPU = Release 1.29.1|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A652D071-E511-4BD2-B49A-992C12385342}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A652D071-E511-4BD2-B49A-992C12385342}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A652D071-E511-4BD2-B49A-992C12385342}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A652D071-E511-4BD2-B49A-992C12385342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A652D071-E511-4BD2-B49A-992C12385342}.Release 1.33.0|Any CPU.ActiveCfg = Release 1.33.0|Any CPU
+		{A652D071-E511-4BD2-B49A-992C12385342}.Release 1.33.0|Any CPU.Build.0 = Release 1.33.0|Any CPU
+		{A652D071-E511-4BD2-B49A-992C12385342}.Release 1.29.1|Any CPU.ActiveCfg = Release 1.29.1|Any CPU
+		{A652D071-E511-4BD2-B49A-992C12385342}.Release 1.29.1|Any CPU.Build.0 = Release 1.29.1|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,3 +19,23 @@ If you experience any issues, have any suggestions or bug reports - you can leav
 
 - BSIPA, BSML, SiraUtil - available in [ModAssistant](https://github.com/Assistant/ModAssistant/releases/latest) and on the [BeatMods website](https://beatmods.com/#/mods)
 - [LeaderboardCore](https://github.com/rithik-b/LeaderboardCore)
+
+
+## Development
+
+- Clone the repository
+- Create the `BeatLeader.csproj.user` file in the `Source` directory with the following content (do not forget to fill variables with your own values):
+```xml
+<Project>
+    <PropertyGroup>
+        <!-- Beat Saber 1.33.0 -->
+        <BeatSaber1330Dir><!--...\Beat Saber--></BeatSaber1330Dir>
+        <BeatSaber1330RefPath><!--...\Beat Saber\Plugins-->;<!--...\Beat Saber\Beat Saber_Data\Managed--></BeatSaber1330RefPath>
+        <!-- Beat Saber 1.29.1 -->
+        <BeatSaber1291Dir><!--...\Beat Saber--></BeatSaber1291Dir>
+        <BeatSaber1291RefPath><!--...\Beat Saber\Plugins-->;<!--...\Beat Saber\Beat Saber_Data\Managed--></BeatSaber1291RefPath>
+    </PropertyGroup>
+</Project>
+```
+- Go to the IDE and select the proper configuration (`Release 1.33.0` for the master branch)
+- Click compile and that's it!

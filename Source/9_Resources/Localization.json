@@ -102,7 +102,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Czas"
+        "Polish": "Data"
       }
     },
     {
@@ -237,7 +237,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Platforma"
       }
     },
     {
@@ -252,7 +252,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Nieznana"
       }
     },
     {
@@ -267,7 +267,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Gra"
       }
     },
     {
@@ -282,7 +282,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Mod"
       }
     },
     {
@@ -297,7 +297,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Wzrost"
       }
     },
     {
@@ -312,7 +312,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Średnia wysokość HMD"
       }
     },
     {
@@ -552,7 +552,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Tak"
       }
     },
     {
@@ -567,7 +567,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Nie"
       }
     },
     {
@@ -597,7 +597,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Czy na pewno chcesz skasować tę powtórkę?"
       }
     },
     {
@@ -762,7 +762,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Wybierz kontekst"
       }
     },
     {
@@ -777,7 +777,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Wszystko dozwolone"
       }
     },
     {
@@ -792,7 +792,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Bez modyfikatorów poza \"1 Life\" i \"4 Lives\""
       }
     },
     {
@@ -807,7 +807,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Zabronione są pauzy pomiędzy pierwszym i ostatnim blokiem"
       }
     },
     {
@@ -822,7 +822,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Im gorzej zagrasz, tym lepiej"
       }
     },
     {
@@ -837,7 +837,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "Tylko wyniki ze \"Small Notes\" i \"Pro Mode\""
       }
     },
     {
@@ -927,7 +927,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "na <hmd> z <controllers>"
       }
     },
     {
@@ -942,7 +942,7 @@
         "German": null,
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": "na <hmd>"
       }
     }
   ]

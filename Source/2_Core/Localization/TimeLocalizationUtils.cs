@@ -139,27 +139,27 @@ namespace BeatLeader {
         #region Japanese
 
         private static string JP_SecondsAgo(int n, bool compact) {
-            return compact ? $"{n}秒" : $"{n}秒前";
+            return $"{n}秒前";
         }
 
         private static string JP_MinutesAgo(int n, bool compact) {
-            return compact ? $"{n}分" : $"{n}分前";
+            return $"{n}分前";
         }
 
         private static string JP_HoursAgo(int n, bool compact) {
-            return compact ? $"{n}時間" : $"{n}時間前";
+            return $"{n}時間前";
         }
 
         private static string JP_DaysAgo(int n, bool compact) {
-            return compact ? $"{n}日" : $"{n}日前";
+            return $"{n}日前";
         }
 
         private static string JP_MonthsAgo(int n, bool compact) {
-            return compact ? $"{n}ヶ月" : $"{n}ヶ月前";
+            return $"{n}ヶ月前";
         }
 
         private static string JP_YearsAgo(int n, bool compact) {
-            return compact ? $"{n}年" : $"{n}年前";
+            return $"{n}年前";
         }
 
         #endregion
@@ -231,27 +231,27 @@ namespace BeatLeader {
         #region Chinese
 
         private static string CN_SecondsAgo(int n, bool compact) {
-            return compact ? $"{n} 秒" : $"{n} 秒前";
+            return $"{n} 秒前";
         }
 
         private static string CN_MinutesAgo(int n, bool compact) {
-            return compact ? $"{n} 分钟" : $"{n} 分钟前";
+            return $"{n} 分钟前";
         }
 
         private static string CN_HoursAgo(int n, bool compact) {
-            return compact ? $"{n} 小时" : $"{n} 小时前";
+            return $"{n} 小时前";
         }
 
         private static string CN_DaysAgo(int n, bool compact) {
-            return compact ? $"{n} 天" : $"{n} 天前";
+            return $"{n} 天前";
         }
 
         private static string CN_MonthsAgo(int n, bool compact) {
-            return compact ? $"{n} 个月" : $"{n} 个月前";
+            return $"{n} 个月前";
         }
 
         private static string CN_YearsAgo(int n, bool compact) {
-            return compact ? $"{n} 年" : $"{n} 年前";
+            return $"{n} 年前";
         }
 
         #endregion
@@ -259,27 +259,27 @@ namespace BeatLeader {
         #region Korean
 
         private static string KR_SecondsAgo(int n, bool compact) {
-            return compact ? $"{n} 초" : $"{n} 초 전";
+            return $"{n} 초 전";
         }
 
         private static string KR_MinutesAgo(int n, bool compact) {
-            return compact ? $"{n} 분" : $"{n} 분 전";
+            return $"{n} 분 전";
         }
 
         private static string KR_HoursAgo(int n, bool compact) {
-            return compact ? $"{n} 시간" : $"{n} 시간 전";
+            return $"{n} 시간 전";
         }
 
         private static string KR_DaysAgo(int n, bool compact) {
-            return compact ? $"{n} 일" : $"{n} 일 전";
+            return $"{n} 일 전";
         }
 
         private static string KR_MonthsAgo(int n, bool compact) {
-            return compact ? $"{n} 개월" : $"{n} 개월 전";
+            return $"{n} 개월 전";
         }
 
         private static string KR_YearsAgo(int n, bool compact) {
-            return compact ? $"{n} 년" : $"{n} 년 전";
+            return $"{n} 년 전";
         }
 
         #endregion

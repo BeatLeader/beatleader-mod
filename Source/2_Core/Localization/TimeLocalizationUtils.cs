@@ -45,6 +45,7 @@ namespace BeatLeader {
                 BLLanguage.English => EN_SecondsAgo(n, compact),
                 BLLanguage.Japanese => JP_SecondsAgo(n, compact),
                 BLLanguage.Russian => RU_SecondsAgo(n, compact),
+                BLLanguage.Polish => PL_SecondsAgo(n, compact),
                 BLLanguage.Chinese => CN_SecondsAgo(n, compact),
                 BLLanguage.Korean => KR_SecondsAgo(n, compact),
                 _ => EN_SecondsAgo(n, compact)
@@ -56,6 +57,7 @@ namespace BeatLeader {
                 BLLanguage.English => EN_MinutesAgo(n, compact),
                 BLLanguage.Japanese => JP_MinutesAgo(n, compact),
                 BLLanguage.Russian => RU_MinutesAgo(n, compact),
+                BLLanguage.Polish => PL_MinutesAgo(n, compact),
                 BLLanguage.Chinese => CN_MinutesAgo(n, compact),
                 BLLanguage.Korean => KR_MinutesAgo(n, compact),
                 _ => EN_MinutesAgo(n, compact)
@@ -67,6 +69,7 @@ namespace BeatLeader {
                 BLLanguage.English => EN_HoursAgo(n, compact),
                 BLLanguage.Japanese => JP_HoursAgo(n, compact),
                 BLLanguage.Russian => RU_HoursAgo(n, compact),
+                BLLanguage.Polish => PL_HoursAgo(n, compact),
                 BLLanguage.Chinese => CN_HoursAgo(n, compact),
                 BLLanguage.Korean => KR_HoursAgo(n, compact),
                 _ => EN_HoursAgo(n, compact)
@@ -78,6 +81,7 @@ namespace BeatLeader {
                 BLLanguage.English => EN_DaysAgo(n, compact),
                 BLLanguage.Japanese => JP_DaysAgo(n, compact),
                 BLLanguage.Russian => RU_DaysAgo(n, compact),
+                BLLanguage.Polish => PL_DaysAgo(n, compact),
                 BLLanguage.Chinese => CN_DaysAgo(n, compact),
                 BLLanguage.Korean => KR_DaysAgo(n, compact),
                 _ => EN_DaysAgo(n, compact)
@@ -89,6 +93,7 @@ namespace BeatLeader {
                 BLLanguage.English => EN_MonthsAgo(n, compact),
                 BLLanguage.Japanese => JP_MonthsAgo(n, compact),
                 BLLanguage.Russian => RU_MonthsAgo(n, compact),
+                BLLanguage.Polish => PL_MonthsAgo(n, compact),
                 BLLanguage.Chinese => CN_MonthsAgo(n, compact),
                 BLLanguage.Korean => KR_MonthsAgo(n, compact),
                 _ => EN_MonthsAgo(n, compact)
@@ -100,6 +105,7 @@ namespace BeatLeader {
                 BLLanguage.English => EN_YearsAgo(n, compact),
                 BLLanguage.Japanese => JP_YearsAgo(n, compact),
                 BLLanguage.Russian => RU_YearsAgo(n, compact),
+                BLLanguage.Polish => PL_YearsAgo(n, compact),
                 BLLanguage.Chinese => CN_YearsAgo(n, compact),
                 BLLanguage.Korean => KR_YearsAgo(n, compact),
                 _ => EN_YearsAgo(n, compact)
@@ -224,6 +230,71 @@ namespace BeatLeader {
             }
 
             return compact ? $"{n} лет" : $"{n} лет назад";
+        }
+
+        #endregion
+
+        #region Polish
+
+        private static string PL_SecondsAgo(int n, bool compact) {
+            if (n is 1) return compact ? $"{n} sekunda" : $"{n} sekunda temu";
+
+            if (n is < 10 or > 20) {
+                var lastDigit = n % 10;
+                if (lastDigit is 2 or 3 or 4) return compact ? $"{n} sekundy" : $"{n} sekundy temu";
+            }
+
+            return compact ? $"{n} sekund" : $"{n} sekund temu";
+        }
+
+        private static string PL_MinutesAgo(int n, bool compact) {
+            if (n is 1) return compact ? $"{n} minuta" : $"{n} minuta temu";
+
+            if (n is < 10 or > 20) {
+                var lastDigit = n % 10;
+                if (lastDigit is 2 or 3 or 4) return compact ? $"{n} minuty" : $"{n} minuty temu";
+            }
+
+            return compact ? $"{n} minut" : $"{n} minut temu";
+        }
+
+        private static string PL_HoursAgo(int n, bool compact) {
+            if (n is 1) return compact ? $"{n} godzina" : $"{n} godzina temu";
+
+            if (n is < 10 or > 20) {
+                var lastDigit = n % 10;
+                if (lastDigit is 2 or 3 or 4) return compact ? $"{n} godziny" : $"{n} godziny temu";
+            }
+
+            return compact ? $"{n} godzin" : $"{n} godzin temu";
+        }
+
+        private static string PL_DaysAgo(int n, bool compact) {
+            if (n is 1) return compact ? $"{n} dzień" : $"{n} dzień temu";
+
+            return compact ? $"{n} dni" : $"{n} dni temu";
+        }
+
+        private static string PL_MonthsAgo(int n, bool compact) {
+            if (n is 1) return compact ? $"{n} miesiąc" : $"{n} miesiąc temu";
+
+            if (n is < 10 or > 20) {
+                var lastDigit = n % 10;
+                if (lastDigit is 2 or 3 or 4) return compact ? $"{n} miesiące" : $"{n} miesiące temu";
+            }
+
+            return compact ? $"{n} miesięcy" : $"{n} miesięcy temu";
+        }
+
+        private static string PL_YearsAgo(int n, bool compact) {
+            if (n is 1) return compact ? $"{n} rok" : $"{n} rok temu";
+
+            if (n is < 10 or > 20) {
+                var lastDigit = n % 10;
+                if (lastDigit is 2 or 3 or 4) return compact ? $"{n} lata" : $"{n} lata temu";
+            }
+
+            return compact ? $"{n} lat" : $"{n} lat temu";
         }
 
         #endregion

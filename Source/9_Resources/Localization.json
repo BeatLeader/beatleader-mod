@@ -91,6 +91,21 @@
       }
     },
     {
+      "Token": "ls-fc-accuracy",
+      "Translations": {
+        "English": "FC Accuracy",
+        "Japanese": "FC 精度",
+        "Russian": "FC Точность",
+        "Chinese": "FC 准确性",
+        "Korean": "FC 정확도",
+        "French": "FC Accuracy",
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": "Celność FC"
+      }
+    },
+    {
       "Token": "ls-relative-date",
       "Translations": {
         "English": "Time",

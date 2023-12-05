@@ -24,7 +24,7 @@ namespace BeatLeader.Components {
                 "<bll>ls-accuracy</bll> " + (!score.fullCombo ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
             _accText.Text2 = GetStringWithLabel(
                 FormatUtils.FormatAcc(score.fcAccuracy),
-                $"<color={Good}>FC <bll>ls-accuracy</bll></color>");
+                $"<color={Good}><bll>ls-fc-accuracy</bll></color>");
             _accText.HoverEnabled = !score.fullCombo;
             PpText = GetStringWithLabel(FormatUtils.FormatPP(score.pp), "pp");
             DetailsText = GetDetailsString(score);

@@ -8,10 +8,11 @@ using Zenject;
 namespace BeatLeader.Replayer.Emulation {
     public class VirtualPlayer : MonoBehaviour {
         public class Pool : MonoMemoryPool<VirtualPlayer> {
-            protected override void OnSpawned(VirtualPlayer item) {
+            public override void OnSpawned(VirtualPlayer item) {
                 item.HandleInstanceSpawned();
             }
-            protected override void OnDespawned(VirtualPlayer item) {
+
+            public override void OnDespawned(VirtualPlayer item) {
                 item.HandleInstanceDespawned();
             }
         }

@@ -10,8 +10,7 @@ namespace BeatLeader {
         // ReSharper disable once InconsistentNaming
         private static void Postfix(MainSettingsMenuViewControllersInstaller __instance) {
             try {
-                var container = __instance.GetContainer();
-                OnMenuInstaller.Install(container);
+                OnMenuInstaller.Install(__instance.Container);
             } catch (Exception ex) {
                 Plugin.Log.Critical($"---\nMenuInstaller exception: {ex.Message}\n{ex.StackTrace}\n---");
             }

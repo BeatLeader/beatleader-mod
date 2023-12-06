@@ -48,6 +48,9 @@ namespace BeatLeader {
                 BLLanguage.Polish => PL_SecondsAgo(n, compact),
                 BLLanguage.Chinese => CN_SecondsAgo(n, compact),
                 BLLanguage.Korean => KR_SecondsAgo(n, compact),
+                BLLanguage.French => FR_SecondsAgo(n, compact),
+                BLLanguage.German => GER_SecondsAgo(n, compact),
+                BLLanguage.Spanish => ES_SecondsAgo(n, compact),
                 _ => EN_SecondsAgo(n, compact)
             };
         }
@@ -60,6 +63,9 @@ namespace BeatLeader {
                 BLLanguage.Polish => PL_MinutesAgo(n, compact),
                 BLLanguage.Chinese => CN_MinutesAgo(n, compact),
                 BLLanguage.Korean => KR_MinutesAgo(n, compact),
+                BLLanguage.French => FR_MinutesAgo(n, compact),
+                BLLanguage.German => GER_MinutesAgo(n, compact),
+                BLLanguage.Spanish => ES_MinutesAgo(n, compact),
                 _ => EN_MinutesAgo(n, compact)
             };
         }
@@ -72,6 +78,9 @@ namespace BeatLeader {
                 BLLanguage.Polish => PL_HoursAgo(n, compact),
                 BLLanguage.Chinese => CN_HoursAgo(n, compact),
                 BLLanguage.Korean => KR_HoursAgo(n, compact),
+                BLLanguage.French => FR_HoursAgo(n, compact),
+                BLLanguage.German => GER_HoursAgo(n, compact),
+                BLLanguage.Spanish => ES_HoursAgo(n, compact),
                 _ => EN_HoursAgo(n, compact)
             };
         }
@@ -84,6 +93,9 @@ namespace BeatLeader {
                 BLLanguage.Polish => PL_DaysAgo(n, compact),
                 BLLanguage.Chinese => CN_DaysAgo(n, compact),
                 BLLanguage.Korean => KR_DaysAgo(n, compact),
+                BLLanguage.French => FR_DaysAgo(n, compact),
+                BLLanguage.German => GER_DaysAgo(n, compact),
+                BLLanguage.Spanish => ES_DaysAgo(n, compact),
                 _ => EN_DaysAgo(n, compact)
             };
         }
@@ -96,6 +108,9 @@ namespace BeatLeader {
                 BLLanguage.Polish => PL_MonthsAgo(n, compact),
                 BLLanguage.Chinese => CN_MonthsAgo(n, compact),
                 BLLanguage.Korean => KR_MonthsAgo(n, compact),
+                BLLanguage.French => FR_MonthsAgo(n, compact),
+                BLLanguage.German => GER_MonthsAgo(n, compact),
+                BLLanguage.Spanish => ES_MonthsAgo(n, compact),
                 _ => EN_MonthsAgo(n, compact)
             };
         }
@@ -108,6 +123,9 @@ namespace BeatLeader {
                 BLLanguage.Polish => PL_YearsAgo(n, compact),
                 BLLanguage.Chinese => CN_YearsAgo(n, compact),
                 BLLanguage.Korean => KR_YearsAgo(n, compact),
+                BLLanguage.French => FR_YearsAgo(n, compact),
+                BLLanguage.German => GER_YearsAgo(n, compact),
+                BLLanguage.Spanish => ES_YearsAgo(n, compact),
                 _ => EN_YearsAgo(n, compact)
             };
         }
@@ -351,6 +369,141 @@ namespace BeatLeader {
 
         private static string KR_YearsAgo(int n, bool compact) {
             return $"{n} 년 전";
+        }
+
+        #endregion
+
+        #region French
+
+        private static string FR_SecondsAgo(int n, bool compact) {
+            return n switch {
+                1 => "il y a 1 seconde",
+                _ => $"il y a {n} secondes"
+            };
+        }
+
+        private static string FR_MinutesAgo(int n, bool compact) {
+            return n switch {
+                1 => "il y a 1 minute",
+                _ => $"il y a {n} minutes"
+            };
+        }
+
+        private static string FR_HoursAgo(int n, bool compact) {
+            return n switch {
+                1 => "il y a 1 heure",
+                _ => $"il y a {n} heures"
+            };
+        }
+
+        private static string FR_DaysAgo(int n, bool compact) {
+            return n switch {
+                1 => "il y a 1 jour",
+                _ => $"il y a {n} jours"
+            };
+        }
+
+        private static string FR_MonthsAgo(int n, bool compact) {
+            return $"il y a {n} mois";
+        }
+
+        private static string FR_YearsAgo(int n, bool compact) {
+            return n switch {
+                1 => "il y a 1 an",
+                _ => $"il y a {n} ans"
+            };
+        }
+
+        #endregion
+
+        #region German
+
+        private static string GER_SecondsAgo(int n, bool compact) {
+            return n switch {
+                1 => "vor 1 Sekunde",
+                _ => $"vor {n} Sekunden"
+            };
+        }
+
+        private static string GER_MinutesAgo(int n, bool compact) {
+            return n switch {
+                1 => "vor 1 Minute",
+                _ => $"vor {n} Minuten"
+            };
+        }
+
+        private static string GER_HoursAgo(int n, bool compact) {
+            return n switch {
+                1 => "vor 1 Stunde",
+                _ => $"vor {n} Stunden"
+            };
+        }
+
+        private static string GER_DaysAgo(int n, bool compact) {
+            return n switch {
+                1 => "vor 1 Tag",
+                _ => $"vor {n} Tagen"
+            };
+        }
+
+        private static string GER_MonthsAgo(int n, bool compact) {
+            return n switch {
+                1 => "vor 1 Monat",
+                _ => $"vor {n} Monaten"
+            };
+        }
+
+        private static string GER_YearsAgo(int n, bool compact) {
+            return n switch {
+                1 => "vor 1 Jahr",
+                _ => $"vor {n} Jahren"
+            };
+        }
+
+        #endregion
+
+        #region Spanish
+
+        private static string ES_SecondsAgo(int n, bool compact) {
+            return n switch {
+                1 => "hace 1 segundo",
+                _ => $"hace {n} segundos"
+            };
+        }
+
+        private static string ES_MinutesAgo(int n, bool compact) {
+            return n switch {
+                1 => "hace 1 minuto",
+                _ => $"hace {n} minutos"
+            };
+        }
+
+        private static string ES_HoursAgo(int n, bool compact) {
+            return n switch {
+                1 => "hace 1 hora",
+                _ => $"hace {n} horas"
+            };
+        }
+
+        private static string ES_DaysAgo(int n, bool compact) {
+            return n switch {
+                1 => "hace 1 día",
+                _ => $"hace {n} días"
+            };
+        }
+
+        private static string ES_MonthsAgo(int n, bool compact) {
+            return n switch {
+                1 => "hace 1 mes",
+                _ => $"hace {n} meses"
+            };
+        }
+
+        private static string ES_YearsAgo(int n, bool compact) {
+            return n switch {
+                1 => "hace 1 año",
+                _ => $"hace {n} años"
+            };
         }
 
         #endregion

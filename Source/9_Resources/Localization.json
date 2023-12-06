@@ -1,4 +1,4 @@
-{
+﻿{
   "Tokens": [
     {
       "Token": "ls-leaderboard-settings",
@@ -9,7 +9,7 @@
         "Chinese": "排行榜设置",
         "Korean": "리더보드 설정",
         "French": "Paramètres du classement",
-        "German": "Leaderboard-Einstellungen",
+        "German": "Ranglisten-Einstellungen",
         "Spanish": "Configuración de la clasificación",
         "Norwegian": "Leaderboard-innstillinger",
         "Polish": "Ustawienia wyników"
@@ -24,7 +24,7 @@
         "Chinese": "头像",
         "Korean": "아바타",
         "French": "Avatar",
-        "German": null,
+        "German": "Avatar",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Awatar"
@@ -39,7 +39,7 @@
         "Chinese": "国家",
         "Korean": "국가",
         "French": "Pays",
-        "German": null,
+        "German": "Land",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Kraj"
@@ -54,7 +54,7 @@
         "Chinese": "部族",
         "Korean": "클랜",
         "French": "Clans",
-        "German": null,
+        "German": "Clans",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Klany"
@@ -69,7 +69,7 @@
         "Chinese": "得分",
         "Korean": "점수",
         "French": "Score",
-        "German": null,
+        "German": "Punkte",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wynik"
@@ -84,7 +84,7 @@
         "Chinese": "准确性",
         "Korean": "정확도",
         "French": "Accuracy",
-        "German": null,
+        "German": "Präzision",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Celność"
@@ -99,7 +99,7 @@
         "Chinese": "时间",
         "Korean": "플레이 날짜",
         "French": "Temps",
-        "German": null,
+        "German": "Zeit",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Data"
@@ -114,7 +114,7 @@
         "Chinese": "时间",
         "Korean": "시간",
         "French": "Temps",
-        "German": null,
+        "German": "Zeitpunkt",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Czas"
@@ -129,7 +129,7 @@
         "Chinese": "错误",
         "Korean": "실수",
         "French": "Fautes",
-        "German": null,
+        "German": "Fehler",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Błędy"
@@ -144,7 +144,7 @@
         "Chinese": "暂停",
         "Korean": "퍼즈",
         "French": "Pauses",
-        "German": null,
+        "German": "Pausen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Pauzy"
@@ -159,7 +159,7 @@
         "Chinese": "修改器",
         "Korean": "모디파이어",
         "French": "Modificateurs",
-        "German": null,
+        "German": "Modifikatoren",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Modyfikatory"
@@ -174,7 +174,7 @@
         "Chinese": "失误",
         "Korean": "미스",
         "French": "Note manqués",
-        "German": null,
+        "German": "Verpasste Noten",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Chybienia"
@@ -189,7 +189,7 @@
         "Chinese": "坏切口",
         "Korean": "배드 컷",
         "French": "Mauvaise coupes",
-        "German": null,
+        "German": "Schlechte Schläge",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Błędne cięcia"
@@ -204,7 +204,7 @@
         "Chinese": "炸弹",
         "Korean": "폭탄",
         "French": "Bombes coupées",
-        "German": null,
+        "German": "Getroffene Bomben",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Uderzenia bomb"
@@ -219,7 +219,7 @@
         "Chinese": "撞墙",
         "Korean": "벽에 부딪힘",
         "French": "Murs touchés",
-        "German": null,
+        "German": "Getroffene Wände",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Uderzenia ścian"
@@ -234,7 +234,7 @@
         "Chinese": "平台",
         "Korean": "플랫폼",
         "French": null,
-        "German": null,
+        "German": "Plattform",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Platforma"
@@ -249,7 +249,7 @@
         "Chinese": null,
         "Korean": "알수없음",
         "French": null,
-        "German": null,
+        "German": "Unbekannt",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Nieznana"
@@ -264,7 +264,7 @@
         "Chinese": null,
         "Korean": "게임",
         "French": null,
-        "German": null,
+        "German": "Spiel",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Gra"
@@ -279,7 +279,7 @@
         "Chinese": null,
         "Korean": "Mod",
         "French": null,
-        "German": null,
+        "German": "Mod",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Mod"
@@ -294,7 +294,7 @@
         "Chinese": null,
         "Korean": "신장",
         "French": null,
-        "German": null,
+        "German": "Höhe",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wzrost"
@@ -309,7 +309,7 @@
         "Chinese": null,
         "Korean": "평균 HMD 위치",
         "French": null,
-        "German": null,
+        "German": "Durchschnittliche HMD Position",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Średnia wysokość HMD"
@@ -324,7 +324,7 @@
         "Chinese": "更新",
         "Korean": "업데이트",
         "French": "Mise à jour",
-        "German": null,
+        "German": "Aktualisieren",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Aktualizuj"
@@ -339,7 +339,7 @@
         "Chinese": "注册",
         "Korean": "회원가입",
         "French": "S'inscrire",
-        "German": null,
+        "German": "Registrieren",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zarejestruj się"
@@ -354,7 +354,7 @@
         "Chinese": "注册使用网站",
         "Korean": "웹사이트를 이용하려면 가입하세요",
         "French": "Inscrivez-vous pour utiliser le site web",
-        "German": null,
+        "German": "Registrieren sie sich, um die Website zu nutzen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zarejestruj się, aby korzystać ze strony"
@@ -369,7 +369,7 @@
         "Chinese": "模块版本已过时",
         "Korean": "새로운 모드 버전이 존재합니다",
         "French": "Cette version du Mod n'est pas à jour",
-        "German": null,
+        "German": "Mod ist nicht aktuell",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Mod jest w przestarzałej wersji"
@@ -384,7 +384,7 @@
         "Chinese": "模块版本已更新",
         "Korean": "모드 버전이 최신 상태입니다",
         "French": "Cette version du Mod est à jour",
-        "German": null,
+        "German": "Mod ist aktuell",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Mod jest aktualny"
@@ -399,7 +399,7 @@
         "Chinese": "播放列表",
         "Korean": "플레이리스트",
         "French": "Playlists",
-        "German": null,
+        "German": "Playlists",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Playlisty"
@@ -414,7 +414,7 @@
         "Chinese": "BeatLeader 社区",
         "Korean": "BeatLeader 커뮤니티",
         "French": "Communauté BeatLeader",
-        "German": null,
+        "German": "BeatLeader Community",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Społeczność BeatLeader"
@@ -429,7 +429,7 @@
         "Chinese": "关注",
         "Korean": "팔로우",
         "French": "Suivre",
-        "German": null,
+        "German": "Folgen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Śledź"
@@ -444,7 +444,7 @@
         "Chinese": "取消关注",
         "Korean": "언팔로우",
         "French": "Ne plus suivre",
-        "German": null,
+        "German": "Entfolgen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Przestań śledzić"
@@ -459,7 +459,7 @@
         "Chinese": "隐藏播放器",
         "Korean": "플레이어 숨기기",
         "French": "Cacher ce joueur",
-        "German": null,
+        "German": "Spieler ausblenden",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Ukryj gracza"
@@ -474,7 +474,7 @@
         "Chinese": "显示播放器",
         "Korean": "플레이어 표시",
         "French": "Faire apparaître ce joueur",
-        "German": null,
+        "German": "Spieler einblenden",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Pokaż gracza"
@@ -489,7 +489,7 @@
         "Chinese": "打开简介",
         "Korean": "프로필 열기",
         "French": "Ouvrir le profile",
-        "German": null,
+        "German": "Profil öffnen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Otwórz profil"
@@ -504,7 +504,7 @@
         "Chinese": "全球",
         "Korean": "글로벌",
         "French": "Mondial",
-        "German": null,
+        "German": "Weltweit",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Świat"
@@ -519,7 +519,7 @@
         "Chinese": "国家",
         "Korean": "국가",
         "French": "Pays",
-        "German": null,
+        "German": "Land",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Kraj"
@@ -534,7 +534,7 @@
         "Chinese": "跟随",
         "Korean": "팔로잉",
         "French": "Suivis",
-        "German": null,
+        "German": "Gefolgt",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Śledzeni"
@@ -549,7 +549,7 @@
         "Chinese": null,
         "Korean": "네",
         "French": null,
-        "German": null,
+        "German": "Ja",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Tak"
@@ -564,7 +564,7 @@
         "Chinese": null,
         "Korean": "아니오",
         "French": null,
-        "German": null,
+        "German": "Nein",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Nie"
@@ -579,7 +579,7 @@
         "Chinese": "取消预订",
         "Korean": "취소",
         "French": "Annuler",
-        "German": null,
+        "German": "Abbrechen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Anuluj"
@@ -594,7 +594,7 @@
         "Chinese": null,
         "Korean": "정말로 리플레이를 삭제하시겠습니까?",
         "French": null,
-        "German": null,
+        "German": "Wollen sie die Aufzeichnung wirklich löschen?",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Czy na pewno chcesz skasować tę powtórkę?"
@@ -609,7 +609,7 @@
         "Chinese": "观看重播",
         "Korean": "리플레이 보기",
         "French": "Regarder le Replay",
-        "German": null,
+        "German": "Aufzeichnung anschauen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Obejrzyj powtórkę"
@@ -624,7 +624,7 @@
         "Chinese": "观看",
         "Korean": "보기",
         "French": "Regarder",
-        "German": null,
+        "German": "Anschauen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Obejrzyj"
@@ -639,7 +639,7 @@
         "Chinese": "删除",
         "Korean": "삭제",
         "French": "Supprimer",
-        "German": null,
+        "German": "Löschen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Usuń"
@@ -654,7 +654,7 @@
         "Chinese": "下载",
         "Korean": "맵 다운로드",
         "French": "Télécharger la map",
-        "German": null,
+        "German": "Map herunterladen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Pobierz mapę"
@@ -669,7 +669,7 @@
         "Chinese": "背景",
         "Korean": "스코어보드 설정",
         "French": "Contexte des scores",
-        "German": null,
+        "German": "Score Kontext",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Kontekst wyników"
@@ -684,7 +684,7 @@
         "Chinese": "一般",
         "Korean": "일반",
         "French": "Général",
-        "German": null,
+        "German": "Allgemein",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Globalny"
@@ -699,7 +699,7 @@
         "Chinese": "无修饰语",
         "Korean": "모디파이어 없음",
         "French": "Pas de modificateurs",
-        "German": null,
+        "German": "Keine Modifikatoren",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Bez modyfikatorów"
@@ -714,7 +714,7 @@
         "Chinese": "无暂停",
         "Korean": "퍼즈 없음",
         "French": "Pas de pauses",
-        "German": null,
+        "German": "Keine Pausen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Bez pauz"
@@ -729,7 +729,7 @@
         "Chinese": "高尔夫",
         "Korean": "골프",
         "French": "Golf",
-        "German": null,
+        "German": "Golf",
         "Spanish": null,
         "Norwegian": null,
         "Polish": null
@@ -744,7 +744,7 @@
         "Chinese": null,
         "Korean": "SCPM",
         "French": null,
-        "German": null,
+        "German": "SCPM",
         "Spanish": null,
         "Norwegian": null,
         "Polish": null
@@ -759,7 +759,7 @@
         "Chinese": null,
         "Korean": "스코어보드를 선택하세요",
         "French": null,
-        "German": null,
+        "German": "Kontext der Rangliste auswählen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wybierz kontekst"
@@ -774,7 +774,7 @@
         "Chinese": null,
         "Korean": "아무런 제한이 없습니다",
         "French": null,
-        "German": null,
+        "German": "Alles erlaubt",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wszystko dozwolone"
@@ -789,7 +789,7 @@
         "Chinese": null,
         "Korean": "\"생명 1개\"와 \"생명 4개\"를 제외하고는 모디파이어가 없습니다",
         "French": null,
-        "German": null,
+        "German": "Keine Modifikatoren, außer \"1 Leben\" und \"4 Leben\"",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Bez modyfikatorów poza \"1 Life\" i \"4 Lives\""
@@ -804,7 +804,7 @@
         "Chinese": null,
         "Korean": "첫 번째 노트와 마지막 노트 사이의 퍼즈를 사용하지 않습니다",
         "French": null,
-        "German": null,
+        "German": "Pausen vor dem ersten und nach dem letzten Block sind verboten",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zabronione są pauzy pomiędzy pierwszym i ostatnim blokiem"
@@ -819,7 +819,7 @@
         "Chinese": null,
         "Korean": "정확도가 낮을수록 점수가 높아집니다",
         "French": null,
-        "German": null,
+        "German": "Je schlechter die Schläge, desto höher die Punktzahl",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Im gorzej zagrasz, tym lepiej"
@@ -834,7 +834,7 @@
         "Chinese": null,
         "Korean": "\"작은 음표\" 및 \"프로 모드\"로만 점수를 매깁니다",
         "French": null,
-        "German": null,
+        "German": "Nur \"Kleine Noten\" und \"Profi-Modus\"",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Tylko wyniki ze \"Small Notes\" i \"Pro Mode\""
@@ -849,7 +849,7 @@
         "Chinese": null,
         "Korean": "플레이어 세팅",
         "French": "Paramètres du lecteur",
-        "German": null,
+        "German": "Wiedergabe Einstellungen",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Ustawienia gracza"
@@ -864,7 +864,7 @@
         "Chinese": null,
         "Korean": "UI 켜기",
         "French": "Activer l'UI",
-        "German": null,
+        "German": "UI aktivieren",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Włącz UI"
@@ -879,7 +879,7 @@
         "Chinese": null,
         "Korean": "플레이어 환경 불러오기",
         "French": "Charger l'environment du joueur",
-        "German": null,
+        "German": "Umgebung des Spielers laden",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wczytaj środowisko gracza"
@@ -894,7 +894,7 @@
         "Chinese": null,
         "Korean": "플레이어 JD 불러오기",
         "French": "Charger le JD du joueur",
-        "German": null,
+        "German": "JD des Spielers laden",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wczytaj JD gracza"
@@ -909,7 +909,7 @@
         "Chinese": null,
         "Korean": "로컬 파일로 저장",
         "French": "Enregistrer localement",
-        "German": null,
+        "German": "Lokal speichern",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zapisz lokalnie"
@@ -924,7 +924,7 @@
         "Chinese": null,
         "Korean": "<hmd> 와 <controllers>",
         "French": null,
-        "German": null,
+        "German": "auf <hmd> mit <controllers>",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "na <hmd> z <controllers>"
@@ -939,7 +939,7 @@
         "Chinese": null,
         "Korean": "<hmd>",
         "French": null,
-        "German": null,
+        "German": "auf <hmd>",
         "Spanish": null,
         "Norwegian": null,
         "Polish": "na <hmd>"

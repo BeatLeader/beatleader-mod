@@ -45,6 +45,8 @@ namespace BeatLeader {
                 Language.Spanish => BLLanguage.Spanish,
                 Language.Norwegian => BLLanguage.Norwegian,
                 Language.Polish => BLLanguage.Polish,
+                Language.Swedish => BLLanguage.Swedish,
+                Language.Italian => BLLanguage.Italian,
                 _ => BLLanguage.English,
             };
         }
@@ -61,6 +63,8 @@ namespace BeatLeader {
                 BLLanguage.Spanish,
                 BLLanguage.Norwegian,
                 BLLanguage.Polish,
+                BLLanguage.Swedish,
+                BLLanguage.Italian,
                 BLLanguage.MinecraftEnchantment
             };
         }
@@ -77,6 +81,8 @@ namespace BeatLeader {
                 BLLanguage.Spanish => "Spanish",
                 BLLanguage.Norwegian => "Norwegian",
                 BLLanguage.Polish => "Polish",
+                BLLanguage.Swedish => "Swedish",
+                BLLanguage.Italian => "Italian",
                 BLLanguage.MinecraftEnchantment => "Minecraft Enchantment",
                 _ => "Unknown"
             };

@@ -12,7 +12,8 @@
         "German": "Ranglisten-Einstellungen",
         "Spanish": "Configuración de la clasificación",
         "Norwegian": "Leaderboard-innstillinger",
-        "Polish": "Ustawienia wyników"
+        "Polish": "Ustawienia wyników",
+        "Italian": "Impostazioni della Leaderboard"
       }
     },
     {
@@ -27,7 +28,8 @@
         "German": "Avatar",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Awatar"
+        "Polish": "Awatar",
+        "Italian": "Avatar"
       }
     },
     {
@@ -42,7 +44,8 @@
         "German": "Land",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Kraj"
+        "Polish": "Kraj",
+        "Italian": "Paese"
       }
     },
     {
@@ -57,7 +60,8 @@
         "German": "Clans",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Klany"
+        "Polish": "Klany",
+        "Italian": "Clan"
       }
     },
     {
@@ -72,7 +76,8 @@
         "German": "Punkte",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Wynik"
+        "Polish": "Wynik",
+        "Italian": "Punteggio"
       }
     },
     {
@@ -87,7 +92,8 @@
         "German": "Präzision",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Celność"
+        "Polish": "Celność",
+        "Italian": "Accuratezza"
       }
     },
     {
@@ -102,7 +108,8 @@
         "German": "Zeit",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Data"
+        "Polish": "Data",
+        "Italian": "Tempo"
       }
     },
     {
@@ -117,7 +124,8 @@
         "German": "Zeitpunkt",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Czas"
+        "Polish": "Czas",
+        "Italian": "Tempo"
       }
     },
     {
@@ -132,7 +140,8 @@
         "German": "Fehler",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Błędy"
+        "Polish": "Błędy",
+        "Italian": "Errori"
       }
     },
     {
@@ -147,7 +156,8 @@
         "German": "Pausen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Pauzy"
+        "Polish": "Pauzy",
+        "Italian": "Pause"
       }
     },
     {
@@ -162,7 +172,8 @@
         "German": "Modifikatoren",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Modyfikatory"
+        "Polish": "Modyfikatory",
+        "Italian": "Modificatori"
       }
     },
     {
@@ -177,7 +188,8 @@
         "German": "Verpasste Noten",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Chybienia"
+        "Polish": "Chybienia",
+        "Italian": "Misses"
       }
     },
     {
@@ -192,7 +204,8 @@
         "German": "Schlechte Schläge",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Błędne cięcia"
+        "Polish": "Błędne cięcia",
+        "Italian": "Bad cuts"
       }
     },
     {
@@ -207,7 +220,8 @@
         "German": "Getroffene Bomben",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Uderzenia bomb"
+        "Polish": "Uderzenia bomb",
+        "Italian": "Bombe colpite"
       }
     },
     {
@@ -222,7 +236,8 @@
         "German": "Getroffene Wände",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Uderzenia ścian"
+        "Polish": "Uderzenia ścian",
+        "Italian": "Muri colpiti"
       }
     },
     {
@@ -237,7 +252,8 @@
         "German": "Plattform",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Platforma"
+        "Polish": "Platforma",
+        "Italian": "Piattaforma"
       }
     },
     {
@@ -252,7 +268,8 @@
         "German": "Unbekannt",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Nieznana"
+        "Polish": "Nieznana",
+        "Italian": "Sconosciuta"
       }
     },
     {
@@ -267,7 +284,8 @@
         "German": "Spiel",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Gra"
+        "Polish": "Gra",
+        "Italian": "Gioco"
       }
     },
     {
@@ -282,7 +300,8 @@
         "German": "Mod",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Mod"
+        "Polish": "Mod",
+        "Italian": "Mod"
       }
     },
     {
@@ -297,7 +316,8 @@
         "German": "Höhe",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Wzrost"
+        "Polish": "Wzrost",
+        "Italian": "Altezza"
       }
     },
     {
@@ -312,7 +332,8 @@
         "German": "Durchschnittliche HMD Position",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Średnia wysokość HMD"
+        "Polish": "Średnia wysokość HMD",
+        "Italian": "Posizione media dell'HMD"
       }
     },
     {
@@ -327,7 +348,8 @@
         "German": "Aktualisieren",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Aktualizuj"
+        "Polish": "Aktualizuj",
+        "Italian": "Aggiorna"
       }
     },
     {
@@ -342,7 +364,8 @@
         "German": "Registrieren",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Zarejestruj się"
+        "Polish": "Zarejestruj się",
+        "Italian": "Iscriviti"
       }
     },
     {
@@ -357,7 +380,8 @@
         "German": "Registrieren sie sich, um die Website zu nutzen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Zarejestruj się, aby korzystać ze strony"
+        "Polish": "Zarejestruj się, aby korzystać ze strony",
+        "Italian": "Iscriviti per utilizzare il sito web"
       }
     },
     {
@@ -372,7 +396,8 @@
         "German": "Mod ist nicht aktuell",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Mod jest w przestarzałej wersji"
+        "Polish": "Mod jest w przestarzałej wersji",
+        "Italian": "La versione della mod è obsoleta"
       }
     },
     {
@@ -387,7 +412,8 @@
         "German": "Mod ist aktuell",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Mod jest aktualny"
+        "Polish": "Mod jest aktualny",
+        "Italian": "La mod è aggiornata"
       }
     },
     {
@@ -402,7 +428,8 @@
         "German": "Playlists",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Playlisty"
+        "Polish": "Playlisty",
+        "Italian": "Playlist"
       }
     },
     {
@@ -417,7 +444,8 @@
         "German": "BeatLeader Community",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Społeczność BeatLeader"
+        "Polish": "Społeczność BeatLeader",
+        "Italian": "Comunità di BeatLeader"
       }
     },
     {
@@ -432,7 +460,8 @@
         "German": "Folgen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Śledź"
+        "Polish": "Śledź",
+        "Italian": "Segui"
       }
     },
     {
@@ -447,7 +476,8 @@
         "German": "Entfolgen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Przestań śledzić"
+        "Polish": "Przestań śledzić",
+        "Italian": "Non seguire"
       }
     },
     {
@@ -462,7 +492,8 @@
         "German": "Spieler ausblenden",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Ukryj gracza"
+        "Polish": "Ukryj gracza",
+        "Italian": "Nascondi giocatore"
       }
     },
     {
@@ -477,7 +508,8 @@
         "German": "Spieler einblenden",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Pokaż gracza"
+        "Polish": "Pokaż gracza",
+        "Italian": "Mostra giocatore"
       }
     },
     {
@@ -492,7 +524,8 @@
         "German": "Profil öffnen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Otwórz profil"
+        "Polish": "Otwórz profil",
+        "Italian": "Apri profilo"
       }
     },
     {
@@ -507,7 +540,8 @@
         "German": "Weltweit",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Świat"
+        "Polish": "Świat",
+        "Italian": "Globale"
       }
     },
     {
@@ -522,7 +556,8 @@
         "German": "Land",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Kraj"
+        "Polish": "Kraj",
+        "Italian": "Paese"
       }
     },
     {
@@ -537,7 +572,8 @@
         "German": "Gefolgt",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Śledzeni"
+        "Polish": "Śledzeni",
+        "Italian": "Seguiti"
       }
     },
     {
@@ -552,7 +588,8 @@
         "German": "Ja",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Tak"
+        "Polish": "Tak",
+        "Italian": "Sì"
       }
     },
     {
@@ -567,7 +604,8 @@
         "German": "Nein",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Nie"
+        "Polish": "Nie",
+        "Italian": "No"
       }
     },
     {
@@ -582,7 +620,8 @@
         "German": "Abbrechen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Anuluj"
+        "Polish": "Anuluj",
+        "Italian": "Annulla"
       }
     },
     {
@@ -597,7 +636,8 @@
         "German": "Wollen sie die Aufzeichnung wirklich löschen?",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Czy na pewno chcesz skasować tę powtórkę?"
+        "Polish": "Czy na pewno chcesz skasować tę powtórkę?",
+        "Italian": "Vuoi davvero eliminare il replay?"
       }
     },
     {
@@ -612,7 +652,8 @@
         "German": "Aufzeichnung anschauen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Obejrzyj powtórkę"
+        "Polish": "Obejrzyj powtórkę",
+        "Italian": "Guarda Replay"
       }
     },
     {
@@ -627,7 +668,8 @@
         "German": "Anschauen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Obejrzyj"
+        "Polish": "Obejrzyj",
+        "Italian": "Guarda"
       }
     },
     {
@@ -642,7 +684,8 @@
         "German": "Löschen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Usuń"
+        "Polish": "Usuń",
+        "Italian": "Elimina"
       }
     },
     {
@@ -657,7 +700,8 @@
         "German": "Map herunterladen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Pobierz mapę"
+        "Polish": "Pobierz mapę",
+        "Italian": "Scarica mappa"
       }
     },
     {
@@ -672,7 +716,8 @@
         "German": "Score Kontext",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Kontekst wyników"
+        "Polish": "Kontekst wyników",
+        "Italian": "Contesto degli Score"
       }
     },
     {
@@ -687,7 +732,8 @@
         "German": "Allgemein",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Globalny"
+        "Polish": "Globalny",
+        "Italian": "Generale"
       }
     },
     {
@@ -702,7 +748,8 @@
         "German": "Keine Modifikatoren",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Bez modyfikatorów"
+        "Polish": "Bez modyfikatorów",
+        "Italian": "No Modificatori"
       }
     },
     {
@@ -717,7 +764,8 @@
         "German": "Keine Pausen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Bez pauz"
+        "Polish": "Bez pauz",
+        "Italian": "No Pause"
       }
     },
     {
@@ -732,7 +780,8 @@
         "German": "Golf",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": null,
+        "Italian": "Golf"
       }
     },
     {
@@ -747,7 +796,8 @@
         "German": "SCPM",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": null
+        "Polish": null,
+        "Italian": "SCPM"
       }
     },
     {
@@ -762,7 +812,8 @@
         "German": "Kontext der Rangliste auswählen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Wybierz kontekst"
+        "Polish": "Wybierz kontekst",
+        "Italian": "Scegli il contesto per la leaderboard"
       }
     },
     {
@@ -777,7 +828,8 @@
         "German": "Alles erlaubt",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Wszystko dozwolone"
+        "Polish": "Wszystko dozwolone",
+        "Italian": "Tutto è consentito"
       }
     },
     {
@@ -792,7 +844,8 @@
         "German": "Keine Modifikatoren, außer \"1 Leben\" und \"4 Leben\"",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Bez modyfikatorów poza \"1 Life\" i \"4 Lives\""
+        "Polish": "Bez modyfikatorów poza \"1 Life\" i \"4 Lives\"",
+        "Italian": "No modificatori, tranne \"1 Life\" e \"4 Lives\""
       }
     },
     {
@@ -807,7 +860,8 @@
         "German": "Pausen vor dem ersten und nach dem letzten Block sind verboten",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Zabronione są pauzy pomiędzy pierwszym i ostatnim blokiem"
+        "Polish": "Zabronione są pauzy pomiędzy pierwszym i ostatnim blokiem",
+        "Italian": "Mettere in pausa tra la prima e l'ultima nota è proibito"
       }
     },
     {
@@ -822,7 +876,8 @@
         "German": "Je schlechter die Schläge, desto höher die Punktzahl",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Im gorzej zagrasz, tym lepiej"
+        "Polish": "Im gorzej zagrasz, tym lepiej",
+        "Italian": "Peggio giochi - più alto è il punteggio"
       }
     },
     {
@@ -837,7 +892,8 @@
         "German": "Nur \"Kleine Noten\" und \"Profi-Modus\"",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Tylko wyniki ze \"Small Notes\" i \"Pro Mode\""
+        "Polish": "Tylko wyniki ze \"Small Notes\" i \"Pro Mode\"",
+        "Italian": "Solo punteggi con \"Small Notes\" e \"Pro Mode\""
       }
     },
     {
@@ -852,7 +908,8 @@
         "German": "Wiedergabe Einstellungen",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Ustawienia gracza"
+        "Polish": "Ustawienia gracza",
+        "Italian": "Impostazioni Giocatore"
       }
     },
     {
@@ -867,7 +924,8 @@
         "German": "UI aktivieren",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Włącz UI"
+        "Polish": "Włącz UI",
+        "Italian": "Abilita la UI"
       }
     },
     {
@@ -882,7 +940,8 @@
         "German": "Umgebung des Spielers laden",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Wczytaj środowisko gracza"
+        "Polish": "Wczytaj środowisko gracza",
+        "Italian": "Carica il player environment"
       }
     },
     {
@@ -897,7 +956,8 @@
         "German": "JD des Spielers laden",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Wczytaj JD gracza"
+        "Polish": "Wczytaj JD gracza",
+        "Italian": "Carica il JD del giocatore"
       }
     },
     {
@@ -912,7 +972,8 @@
         "German": "Lokal speichern",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "Zapisz lokalnie"
+        "Polish": "Zapisz lokalnie",
+        "Italian": "Archivia in locale"
       }
     },
     {
@@ -927,7 +988,8 @@
         "German": "auf <hmd> mit <controllers>",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "na <hmd> z <controllers>"
+        "Polish": "na <hmd> z <controllers>",
+        "Italian": "su <hmd> con <controllers>"
       }
     },
     {
@@ -942,7 +1004,8 @@
         "German": "auf <hmd>",
         "Spanish": null,
         "Norwegian": null,
-        "Polish": "na <hmd>"
+        "Polish": "na <hmd>",
+        "Italian": "su <hmd>"
       }
     }
   ]

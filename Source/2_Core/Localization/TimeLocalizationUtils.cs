@@ -51,6 +51,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_SecondsAgo(n, compact),
                 BLLanguage.German => GER_SecondsAgo(n, compact),
                 BLLanguage.Spanish => ES_SecondsAgo(n, compact),
+                BLLanguage.Italian => IT_SecondsAgo(n, compact),
                 _ => EN_SecondsAgo(n, compact)
             };
         }
@@ -66,6 +67,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_MinutesAgo(n, compact),
                 BLLanguage.German => GER_MinutesAgo(n, compact),
                 BLLanguage.Spanish => ES_MinutesAgo(n, compact),
+                BLLanguage.Italian => IT_MinutesAgo(n, compact),
                 _ => EN_MinutesAgo(n, compact)
             };
         }
@@ -81,6 +83,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_HoursAgo(n, compact),
                 BLLanguage.German => GER_HoursAgo(n, compact),
                 BLLanguage.Spanish => ES_HoursAgo(n, compact),
+                BLLanguage.Italian => IT_HoursAgo(n, compact),
                 _ => EN_HoursAgo(n, compact)
             };
         }
@@ -96,6 +99,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_DaysAgo(n, compact),
                 BLLanguage.German => GER_DaysAgo(n, compact),
                 BLLanguage.Spanish => ES_DaysAgo(n, compact),
+                BLLanguage.Italian => IT_DaysAgo(n, compact),
                 _ => EN_DaysAgo(n, compact)
             };
         }
@@ -111,6 +115,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_MonthsAgo(n, compact),
                 BLLanguage.German => GER_MonthsAgo(n, compact),
                 BLLanguage.Spanish => ES_MonthsAgo(n, compact),
+                BLLanguage.Italian => IT_MonthsAgo(n, compact),
                 _ => EN_MonthsAgo(n, compact)
             };
         }
@@ -126,6 +131,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_YearsAgo(n, compact),
                 BLLanguage.German => GER_YearsAgo(n, compact),
                 BLLanguage.Spanish => ES_YearsAgo(n, compact),
+                BLLanguage.Italian => IT_YearsAgo(n, compact),
                 _ => EN_YearsAgo(n, compact)
             };
         }
@@ -503,6 +509,52 @@ namespace BeatLeader {
             return n switch {
                 1 => "hace 1 año",
                 _ => $"hace {n} años"
+            };
+        }
+
+        #endregion
+
+        #region Italian
+
+        private static string IT_SecondsAgo(int n, bool compact) {
+            return n switch {
+                1 => "1 secondo fa",
+                _ => $"{n} secondi fa"
+            };
+        }
+
+        private static string IT_MinutesAgo(int n, bool compact) {
+            return n switch {
+                1 => "1 minuto fa",
+                _ => $"{n} minuti fa"
+            };
+        }
+
+        private static string IT_HoursAgo(int n, bool compact) {
+            return n switch {
+                1 => "1 ora fa",
+                _ => $"{n} ore fa"
+            };
+        }
+
+        private static string IT_DaysAgo(int n, bool compact) {
+            return n switch {
+                1 => "1 giorno fa",
+                _ => $"{n} giorni fa"
+            };
+        }
+
+        private static string IT_MonthsAgo(int n, bool compact) {
+            return n switch {
+                1 => "1 mese fa",
+                _ => $"{n} mesi fa"
+            };
+        }
+
+        private static string IT_YearsAgo(int n, bool compact) {
+            return n switch {
+                1 => "1 anno fa",
+                _ => $"{n} anni fa"
             };
         }
 

@@ -11,6 +11,8 @@
         Spanish,
         Norwegian,
         Polish,
+        Swedish,
+        Italian,
         MinecraftEnchantment
     }
 }

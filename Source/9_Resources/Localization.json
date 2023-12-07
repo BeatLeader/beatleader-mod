@@ -13,6 +13,7 @@
         "Spanish": "Configuración de la clasificación",
         "Norwegian": "Leaderboard-innstillinger",
         "Polish": "Ustawienia wyników",
+        "Swedish": "Topplistoinställningar",
         "Italian": "Impostazioni della Leaderboard"
       }
     },
@@ -29,6 +30,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Awatar",
+        "Swedish": "Avatar",
         "Italian": "Avatar"
       }
     },
@@ -45,6 +47,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Kraj",
+        "Swedish": "Land",
         "Italian": "Paese"
       }
     },
@@ -61,6 +64,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Klany",
+        "Swedish": "Klaner",
         "Italian": "Clan"
       }
     },
@@ -77,6 +81,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wynik",
+        "Swedish": "Poäng",
         "Italian": "Punteggio"
       }
     },
@@ -93,6 +98,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Celność",
+        "Swedish": "Precision",
         "Italian": "Accuratezza"
       }
     },
@@ -109,6 +115,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Data",
+        "Swedish": "Tid",
         "Italian": "Tempo"
       }
     },
@@ -125,6 +132,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Czas",
+        "Swedish": "Tid",
         "Italian": "Tempo"
       }
     },
@@ -141,6 +149,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Błędy",
+        "Swedish": "Misstag",
         "Italian": "Errori"
       }
     },
@@ -157,6 +166,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Pauzy",
+        "Swedish": "Pauser",
         "Italian": "Pause"
       }
     },
@@ -173,6 +183,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Modyfikatory",
+        "Swedish": "Modifierare",
         "Italian": "Modificatori"
       }
     },
@@ -189,6 +200,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Chybienia",
+        "Swedish": "Missar",
         "Italian": "Misses"
       }
     },
@@ -205,6 +217,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Błędne cięcia",
+        "Swedish": "Bad cuts",
         "Italian": "Bad cuts"
       }
     },
@@ -221,6 +234,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Uderzenia bomb",
+        "Swedish": "Bombträffar",
         "Italian": "Bombe colpite"
       }
     },
@@ -237,6 +251,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Uderzenia ścian",
+        "Swedish": "Väggträffar",
         "Italian": "Muri colpiti"
       }
     },
@@ -253,6 +268,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Platforma",
+        "Swedish": "Platform",
         "Italian": "Piattaforma"
       }
     },
@@ -269,6 +285,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Nieznana",
+        "Swedish": "Okänd",
         "Italian": "Sconosciuta"
       }
     },
@@ -285,6 +302,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Gra",
+        "Swedish": "Spel",
         "Italian": "Gioco"
       }
     },
@@ -301,6 +319,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Mod",
+        "Swedish": "Mod",
         "Italian": "Mod"
       }
     },
@@ -317,6 +336,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wzrost",
+        "Swedish": "Längd",
         "Italian": "Altezza"
       }
     },
@@ -333,6 +353,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Średnia wysokość HMD",
+        "Swedish": "Genomsnittlig HMD position",
         "Italian": "Posizione media dell'HMD"
       }
     },
@@ -349,6 +370,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Aktualizuj",
+        "Swedish": "Updatera",
         "Italian": "Aggiorna"
       }
     },
@@ -365,6 +387,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zarejestruj się",
+        "Swedish": "Registrera",
         "Italian": "Iscriviti"
       }
     },
@@ -381,6 +404,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zarejestruj się, aby korzystać ze strony",
+        "Swedish": "Registrera dig för att använda hemsidan",
         "Italian": "Iscriviti per utilizzare il sito web"
       }
     },
@@ -397,6 +421,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Mod jest w przestarzałej wersji",
+        "Swedish": "Modversion är utdaterad",
         "Italian": "La versione della mod è obsoleta"
       }
     },
@@ -413,6 +438,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Mod jest aktualny",
+        "Swedish": "Modversion är aktuell",
         "Italian": "La mod è aggiornata"
       }
     },
@@ -429,6 +455,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Playlisty",
+        "Swedish": "Spellistor",
         "Italian": "Playlist"
       }
     },
@@ -445,6 +472,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Społeczność BeatLeader",
+        "Swedish": "BeatLeader Community",
         "Italian": "Comunità di BeatLeader"
       }
     },
@@ -461,6 +489,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Śledź",
+        "Swedish": "Följ",
         "Italian": "Segui"
       }
     },
@@ -477,6 +506,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Przestań śledzić",
+        "Swedish": "Sluta följa",
         "Italian": "Non seguire"
       }
     },
@@ -493,6 +523,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Ukryj gracza",
+        "Swedish": "Göm spelare",
         "Italian": "Nascondi giocatore"
       }
     },
@@ -509,6 +540,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Pokaż gracza",
+        "Swedish": "Visa spelare",
         "Italian": "Mostra giocatore"
       }
     },
@@ -525,6 +557,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Otwórz profil",
+        "Swedish": "Öppna profil",
         "Italian": "Apri profilo"
       }
     },
@@ -541,6 +574,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Świat",
+        "Swedish": "Global",
         "Italian": "Globale"
       }
     },
@@ -557,6 +591,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Kraj",
+        "Swedish": "Land",
         "Italian": "Paese"
       }
     },
@@ -573,6 +608,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Śledzeni",
+        "Swedish": "Följer",
         "Italian": "Seguiti"
       }
     },
@@ -589,6 +625,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Tak",
+        "Swedish": "Ja",
         "Italian": "Sì"
       }
     },
@@ -605,6 +642,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Nie",
+        "Swedish": "Nej",
         "Italian": "No"
       }
     },
@@ -621,6 +659,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Anuluj",
+        "Swedish": "Avbryt",
         "Italian": "Annulla"
       }
     },
@@ -637,6 +676,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Czy na pewno chcesz skasować tę powtórkę?",
+        "Swedish": "Vill du verkligen radera denna replay?",
         "Italian": "Vuoi davvero eliminare il replay?"
       }
     },
@@ -653,6 +693,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Obejrzyj powtórkę",
+        "Swedish": "Titta på replay",
         "Italian": "Guarda Replay"
       }
     },
@@ -669,6 +710,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Obejrzyj",
+        "Swedish": "Titta",
         "Italian": "Guarda"
       }
     },
@@ -685,6 +727,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Usuń",
+        "Swedish": "Radera",
         "Italian": "Elimina"
       }
     },
@@ -701,6 +744,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Pobierz mapę",
+        "Swedish": "Ladda ner bana",
         "Italian": "Scarica mappa"
       }
     },
@@ -717,6 +761,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Kontekst wyników",
+        "Swedish": "Score kontext",
         "Italian": "Contesto degli Score"
       }
     },
@@ -733,6 +778,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Globalny",
+        "Swedish": "Vanligt",
         "Italian": "Generale"
       }
     },
@@ -749,6 +795,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Bez modyfikatorów",
+        "Swedish": "Inga modifierare",
         "Italian": "No Modificatori"
       }
     },
@@ -765,6 +812,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Bez pauz",
+        "Swedish": "Inga pauser",
         "Italian": "No Pause"
       }
     },
@@ -781,6 +829,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": null,
+        "Swedish": "Golf",
         "Italian": "Golf"
       }
     },
@@ -797,6 +846,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": null,
+        "Swedish": "SCPM",
         "Italian": "SCPM"
       }
     },
@@ -813,6 +863,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wybierz kontekst",
+        "Swedish": "Välj topplistans kontext",
         "Italian": "Scegli il contesto per la leaderboard"
       }
     },
@@ -829,6 +880,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wszystko dozwolone",
+        "Swedish": "Allt tillåtet",
         "Italian": "Tutto è consentito"
       }
     },
@@ -845,6 +897,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Bez modyfikatorów poza \"1 Life\" i \"4 Lives\"",
+        "Swedish": "Inga modifierare, förutom \"1 Life\" och \"4 Lives\"",
         "Italian": "No modificatori, tranne \"1 Life\" e \"4 Lives\""
       }
     },
@@ -861,6 +914,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zabronione są pauzy pomiędzy pierwszym i ostatnim blokiem",
+        "Swedish": "Pauser mellan den första och sista noten är inte tillåtna",
         "Italian": "Mettere in pausa tra la prima e l'ultima nota è proibito"
       }
     },
@@ -877,6 +931,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Im gorzej zagrasz, tym lepiej",
+        "Swedish": "Ju värre du spelar - desto fler poäng får du",
         "Italian": "Peggio giochi - più alto è il punteggio"
       }
     },
@@ -893,6 +948,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Tylko wyniki ze \"Small Notes\" i \"Pro Mode\"",
+        "Swedish": "Enbart scores med \"Small Notes\" och \"Pro Mode\"",
         "Italian": "Solo punteggi con \"Small Notes\" e \"Pro Mode\""
       }
     },
@@ -909,6 +965,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Ustawienia gracza",
+        "Swedish": "Spelarinställningar",
         "Italian": "Impostazioni Giocatore"
       }
     },
@@ -925,6 +982,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Włącz UI",
+        "Swedish": "Aktivera UI",
         "Italian": "Abilita la UI"
       }
     },
@@ -941,6 +999,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wczytaj środowisko gracza",
+        "Swedish": "Ladda spelarens omgivning",
         "Italian": "Carica il player environment"
       }
     },
@@ -957,6 +1016,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Wczytaj JD gracza",
+        "Swedish": "Ladda spelarens JD",
         "Italian": "Carica il JD del giocatore"
       }
     },
@@ -973,6 +1033,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "Zapisz lokalnie",
+        "Swedish": "Spara lokalt",
         "Italian": "Archivia in locale"
       }
     },
@@ -989,6 +1050,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "na <hmd> z <controllers>",
+        "Swedish": "På <hmd> med <controllers>",
         "Italian": "su <hmd> con <controllers>"
       }
     },
@@ -1005,6 +1067,7 @@
         "Spanish": null,
         "Norwegian": null,
         "Polish": "na <hmd>",
+        "Swedish": "På <hmd>",
         "Italian": "su <hmd>"
       }
     }

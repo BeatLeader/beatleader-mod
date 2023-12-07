@@ -51,6 +51,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_SecondsAgo(n, compact),
                 BLLanguage.German => GER_SecondsAgo(n, compact),
                 BLLanguage.Spanish => ES_SecondsAgo(n, compact),
+                BLLanguage.Swedish => SW_SecondsAgo(n, compact),
                 BLLanguage.Italian => IT_SecondsAgo(n, compact),
                 _ => EN_SecondsAgo(n, compact)
             };
@@ -67,6 +68,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_MinutesAgo(n, compact),
                 BLLanguage.German => GER_MinutesAgo(n, compact),
                 BLLanguage.Spanish => ES_MinutesAgo(n, compact),
+                BLLanguage.Swedish => SW_MinutesAgo(n, compact),
                 BLLanguage.Italian => IT_MinutesAgo(n, compact),
                 _ => EN_MinutesAgo(n, compact)
             };
@@ -83,6 +85,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_HoursAgo(n, compact),
                 BLLanguage.German => GER_HoursAgo(n, compact),
                 BLLanguage.Spanish => ES_HoursAgo(n, compact),
+                BLLanguage.Swedish => SW_HoursAgo(n, compact),
                 BLLanguage.Italian => IT_HoursAgo(n, compact),
                 _ => EN_HoursAgo(n, compact)
             };
@@ -99,6 +102,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_DaysAgo(n, compact),
                 BLLanguage.German => GER_DaysAgo(n, compact),
                 BLLanguage.Spanish => ES_DaysAgo(n, compact),
+                BLLanguage.Swedish => SW_DaysAgo(n, compact),
                 BLLanguage.Italian => IT_DaysAgo(n, compact),
                 _ => EN_DaysAgo(n, compact)
             };
@@ -115,6 +119,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_MonthsAgo(n, compact),
                 BLLanguage.German => GER_MonthsAgo(n, compact),
                 BLLanguage.Spanish => ES_MonthsAgo(n, compact),
+                BLLanguage.Swedish => SW_MonthsAgo(n, compact),
                 BLLanguage.Italian => IT_MonthsAgo(n, compact),
                 _ => EN_MonthsAgo(n, compact)
             };
@@ -131,6 +136,7 @@ namespace BeatLeader {
                 BLLanguage.French => FR_YearsAgo(n, compact),
                 BLLanguage.German => GER_YearsAgo(n, compact),
                 BLLanguage.Spanish => ES_YearsAgo(n, compact),
+                BLLanguage.Swedish => SW_YearsAgo(n, compact),
                 BLLanguage.Italian => IT_YearsAgo(n, compact),
                 _ => EN_YearsAgo(n, compact)
             };
@@ -510,6 +516,49 @@ namespace BeatLeader {
                 1 => "hace 1 año",
                 _ => $"hace {n} años"
             };
+        }
+
+        #endregion
+
+        #region Swedish
+
+        private static string SW_SecondsAgo(int n, bool compact) {
+            return n switch {
+                1 => compact ? "1 sekund" : "1 sekund sedan",
+                _ => compact ? $"{n} sekunder" : $"{n} sekunder sedan"
+            };
+        }
+
+        private static string SW_MinutesAgo(int n, bool compact) {
+            return n switch {
+                1 => compact ? "1 minut" : "1 minut sedan",
+                _ => compact ? $"{n} minuter" : $"{n} minuter sedan"
+            };
+        }
+
+        private static string SW_HoursAgo(int n, bool compact) {
+            return n switch {
+                1 => compact ? "1 timme" : "1 timme sedan",
+                _ => compact ? $"{n} timmar" : $"{n} timmar sedan"
+            };
+        }
+
+        private static string SW_DaysAgo(int n, bool compact) {
+            return n switch {
+                1 => compact ? "1 dag" : "1 dag sedan",
+                _ => compact ? $"{n} dagar" : $"{n} dagar sedan"
+            };
+        }
+
+        private static string SW_MonthsAgo(int n, bool compact) {
+            return n switch {
+                1 => compact ? "1 månad" : "1 månad sedan",
+                _ => compact ? $"{n} månader" : $"{n} månader sedan"
+            };
+        }
+
+        private static string SW_YearsAgo(int n, bool compact) {
+            return compact ? $"{n} år" : $"{n} år sedan";
         }
 
         #endregion

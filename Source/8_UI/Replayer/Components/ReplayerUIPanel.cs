@@ -14,7 +14,7 @@ namespace BeatLeader.Components {
         [UIComponent("container-group"), UsedImplicitly]
         private RectTransform _containerRect = null!;
 
-        private HorizontalBeatmapLevelPreview _songInfo = null!;
+        private BeatmapLevelPreviewEditorComponent _songInfo = null!;
         private PlayerListEditorComponent _playerList = null!;
         private ToolbarWithSettings _toolbar = null!;
         private LayoutGrid _layoutGrid = null!;
@@ -52,7 +52,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _songInfo = HorizontalBeatmapLevelPreview.Instantiate(ContentTransform!);
+            _songInfo = BeatmapLevelPreviewEditorComponent.Instantiate(ContentTransform!);
             _toolbar = ToolbarWithSettings.Instantiate(ContentTransform!);
             _playerList = PlayerListEditorComponent.Instantiate(ContentTransform!);
             var editorWindow = LayoutEditorWindow.Instantiate(ContentTransform!);

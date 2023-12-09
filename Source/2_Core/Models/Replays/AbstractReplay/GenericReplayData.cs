@@ -7,7 +7,7 @@
         float JumpDistance,
         float? FixedHeight,
         GameplayModifiers GameplayModifiers,
-        IPlayer? Player = null,
+        ITablePlayer? Player = null,
         PracticeSettings? PracticeSettings = null
     ) : IReplayData;
 }

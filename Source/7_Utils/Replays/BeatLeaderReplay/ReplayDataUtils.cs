@@ -18,7 +18,7 @@ namespace BeatLeader.Utils {
 
         public static readonly IReplayComparator BasicReplayComparator = new ReplayComparator();
 
-        public static IReplay ConvertToAbstractReplay(Replay replay, Player? player) {
+        public static IReplay ConvertToAbstractReplay(Replay replay, ITablePlayer? player) {
             var replayData = replay.info;
             var failed = replayData.failTime is not 0;
             var creplayData = new GenericReplayData(

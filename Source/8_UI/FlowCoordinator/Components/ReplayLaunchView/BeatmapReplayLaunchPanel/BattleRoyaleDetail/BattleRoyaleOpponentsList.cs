@@ -36,7 +36,7 @@ namespace BeatLeader.Components {
             private IModifiableListComponent<IReplayHeader> _opponentsList = null!;
             private IReplayHeader _header = null!;
 
-            public override void Init(IReplayHeader item) {
+            protected override void Init(IReplayHeader item) {
                 _header = item;
                 _ = SetPlayerAsync(_header.ReplayInfo!.PlayerID);
             }

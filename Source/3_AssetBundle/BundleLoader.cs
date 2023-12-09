@@ -64,6 +64,7 @@ namespace BeatLeader {
         public static Material UIGridMaterial;
         public static Material TextureSplitterMaterial;
         public static Material SkillTriangleMaterial;
+        public static Material OpponentBackgroundMaterial;
 
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
@@ -81,6 +82,7 @@ namespace BeatLeader {
             UIGridMaterial = assetBundle.LoadAsset<Material>("UIGridMaterial");
             TextureSplitterMaterial = assetBundle.LoadAsset<Material>("TextureSplitterMaterial");
             SkillTriangleMaterial = assetBundle.LoadAsset<Material>("UISkillTriangleMaterial");
+            OpponentBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentBackgroundMaterial");
         }
 
         #endregion

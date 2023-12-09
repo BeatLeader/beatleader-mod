@@ -1,4 +1,5 @@
 ﻿using BeatSaberMarkupLanguage;
+using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,40 +10,40 @@ namespace BeatLeader.Components {
 
         [ExternalProperty, UsedImplicitly]
         public Sprite? Sprite {
-            get => Image.sprite;
-            set => Image.sprite = value;
+            get => ImageView.sprite;
+            set => ImageView.sprite = value;
         }
 
         [ExternalProperty, UsedImplicitly]
         public Color Color {
-            get => Image.color;
-            set => Image.color = value;
+            get => ImageView.color;
+            set => ImageView.color = value;
         }
 
         [ExternalProperty, UsedImplicitly]
         public Material? Material {
-            get => Image.material;
-            set => Image.material = value;
+            get => ImageView.material;
+            set => ImageView.material = value;
         }
 
         [ExternalProperty, UsedImplicitly]
         public bool PreserveAspect {
-            get => Image.preserveAspect;
-            set => Image.preserveAspect = value;
+            get => ImageView.preserveAspect;
+            set => ImageView.preserveAspect = value;
         }
 
         [ExternalProperty, UsedImplicitly]
         public Image.Type ImageType {
-            get => Image.type;
-            set => Image.type = value;
+            get => ImageView.type;
+            set => ImageView.type = value;
         }
 
         [ExternalProperty, UsedImplicitly]
         public float PixelsPerUnit {
-            get => Image.pixelsPerUnitMultiplier;
+            get => ImageView.pixelsPerUnitMultiplier;
             set {
                 ImageType = Image.Type.Sliced;
-                Image.pixelsPerUnitMultiplier = value;
+                ImageView.pixelsPerUnitMultiplier = value;
             }
         }
 
@@ -51,14 +52,14 @@ namespace BeatLeader.Components {
         #region UI Components
 
         [ExternalComponent, UsedImplicitly]
-        public Image Image { get; private set; } = null!;
+        public ImageView ImageView { get; private set; } = null!;
 
         #endregion
 
         #region Setup
 
         protected override void OnInitialize() {
-            Image = Content!.AddComponent<AdvancedImageView>();
+            ImageView = Content!.AddComponent<AdvancedImageView>();
             Material = Utilities.ImageResources.NoGlowMat;
             PreserveAspect = true;
         }

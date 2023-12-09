@@ -6,13 +6,22 @@ namespace BeatLeader.Components {
         void OnStateChange(bool selected, bool highlighted);
     }
 
-    internal interface IReeTableCell<in TItem> : IReeTableCell {
-        void Init(TItem item);
+    internal interface IReeTableCell<TItem> : IReeTableCell {
+        void Init(TItem item, IModifiableListComponent<TItem> list);
     }
 
     [BSMLComponent(Suppress = true)]
     internal abstract class ReeTableCell<T, TItem> : ReeUIComponentV3<T>, IReeTableCell<TItem> where T : ReeUIComponentV3<T> {
-        public virtual void Init(TItem item) { }
+        protected IModifiableListComponent<TItem>? List { get; private set; }
+        public TItem? Item { get; private set; }
+
+        public void Init(TItem item, IModifiableListComponent<TItem> list) {
+            Item = item;
+            List = list;
+            Init(item);
+        }
+
+        protected virtual void Init(TItem item) { }
         public virtual void OnStateChange(bool selected, bool highlighted) { }
     }
 
@@ -51,13 +60,13 @@ namespace BeatLeader.Components {
                 cell.reuseIdentifier = "ReeCell";
             }
             var cellComponent = (TCellComponent)cell.cellComponent!;
-            cellComponent.Init(data);
+            cellComponent.Init(data, this);
             OnCellConstruct(cellComponent);
             return cell;
         }
 
         protected virtual void OnCellConstruct(TCellComponent cell) { }
-        
+
         #endregion
     }
 }

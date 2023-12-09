@@ -35,7 +35,7 @@ namespace BeatLeader.Components {
             
             private ILayoutComponent _layoutComponent = null!;
 
-            public override void Init(ILayoutComponent component) {
+            protected override void Init(ILayoutComponent component) {
                 _layoutComponent = component;
                 _componentNameText.text = component.ComponentName;
                 _componentLayerText.text = component.ComponentController.ComponentLayer.ToString();

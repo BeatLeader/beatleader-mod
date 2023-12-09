@@ -47,7 +47,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         public bool CurrentEventHasTimeMismatch => _eventsProcessor?.CurrentEventHasTimeMismatch ?? false;
         public bool QueueIsBeingAdjusted => _eventsProcessor?.QueueIsBeingAdjusted ?? false;
-        public LinkedListNode<ScoreEvent> CurrentScoreEvent { get; private set; } = null!;
+        public LinkedListNode<ScoreEvent>? CurrentScoreEvent { get; private set; }
 
         public event Action<LinkedListNode<ScoreEvent>>? ScoreEventDequeuedEvent;
         public event Action? EventQueueAdjustStartedEvent;

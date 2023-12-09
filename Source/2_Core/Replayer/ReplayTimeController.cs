@@ -6,14 +6,16 @@ using Zenject;
 
 namespace BeatLeader.Replayer {
     internal class ReplayTimeController : BeatmapTimeController, IReplayTimeController {
-        [Inject] private readonly StandardLevelGameplayManager.InitData _gameplayManagerInitData = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public float ReplayEndTime {
             get {
-                _replayEndTime = _replayEndTime is -1 ? _launchData.MainReplay.PlayerMovementFrames.LastOrDefault().time : _replayEndTime;
-                var failTime = !_gameplayManagerInitData.failOn0Energy ? 0 : _replayEndTime;
-                return _launchData.IsBattleRoyale || failTime == 0 ? SongEndTime : failTime;
+                if (_replayEndTime is -1) {
+                    var replays = _launchData.Replays;
+                    var maxReplayFinishTime = replays.Select(x => x.ReplayData.FinishTime).Max();
+                    _replayEndTime = maxReplayFinishTime;
+                }
+                return _replayEndTime;
             }
         }
 

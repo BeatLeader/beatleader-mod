@@ -8,7 +8,6 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace BeatLeader.Components {
     internal class PlayerList : ReeListComponentBase<PlayerList, IVirtualPlayer, PlayerList.Cell> {

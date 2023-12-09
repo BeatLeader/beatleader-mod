@@ -58,9 +58,8 @@ namespace BeatLeader.Replayer.Emulation {
         private ReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
         private bool _allowPlayback;
 
-        public void Init(IReplay replay, IVRControllersProvider provider) {
+        public void Init(IReplay replay) {
             Replay = replay;
-            ControllersProvider = provider;
             //processing
             _scoreEventsProcessor = _scoreProcessorsPool.Spawn();
             _scoreEventsProcessor.Init(Replay);
@@ -70,6 +69,10 @@ namespace BeatLeader.Replayer.Emulation {
             _frames = new(replay.PlayerMovementFrames);
             _lastProcessedNode = _frames.First;
             _allowPlayback = true;
+        }
+
+        public void ApplyControllers(IVRControllersProvider provider) {
+            ControllersProvider = provider;
         }
 
         #endregion

@@ -12,6 +12,9 @@ namespace BeatLeader.Models {
         public BeatmapKey? BeatmapKey { get; protected set; }
         public ReplayerSettings Settings { get; protected set; } = null!;
         public EnvironmentInfoSO? EnvironmentInfo { get; protected set; }
+        
+        public IReplayComparator ReplayComparator { get; protected set; } = null!;
+        public IVRControllersManager? VRControllersManager { get; protected set; }
 
         public IReplay MainReplay => Replays[0];
         public bool IsBattleRoyale => Replays.Count > 1;

@@ -17,8 +17,9 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void Awake() {
-            Head = new GameObject("ReplayerFakeHead").AddComponent<VRControllerEmulator>();
+            Head = new GameObject("ReplayerFakeHead").AddComponent<VRController>();
             Head.node = XRNode.Head;
+            Head.enabled = false;
 
             var monke = Instantiate(BundleLoader.MonkeyPrefab, null, false);
             monke.transform.localEulerAngles = new(0, 180, 0);

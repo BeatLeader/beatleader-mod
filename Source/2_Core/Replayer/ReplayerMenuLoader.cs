@@ -51,13 +51,16 @@ namespace BeatLeader.Replayer {
             settings ??= ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
             var info = replay.info;
+            
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
             ReplayManager.ValidateReplayInfo(info, null);
             await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
-            var creplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
-            data.Init(creplay, ReplayDataUtils.BasicReplayComparator,
-                settings, data.DifficultyBeatmap, data.EnvironmentInfo);
+            
+            var tablePlayer = player is null ? null : TablePlayer.CreateFromPlayer(player, ColorUtils.RandomColor());
+            var creplay = ReplayDataUtils.ConvertToAbstractReplay(replay, tablePlayer);
+            data.Init(creplay, ReplayDataUtils.BasicReplayComparator, settings, data.DifficultyBeatmap, data.EnvironmentInfo);
+            
             StartReplay(data);
         }
 
@@ -73,7 +76,8 @@ namespace BeatLeader.Replayer {
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
             foreach (var (replay, player) in replays) {
                 Plugin.Log.Info("Attempting to load replay:\r\n" + replay.info);
-                abstractReplays.Add(ReplayDataUtils.ConvertToAbstractReplay(replay, player));
+                var tablePlayer = player is null ? null : TablePlayer.CreateFromPlayer(player, ColorUtils.RandomColor());
+                abstractReplays.Add(ReplayDataUtils.ConvertToAbstractReplay(replay, tablePlayer));
             }
             data.Init(abstractReplays, ReplayDataUtils.BasicReplayComparator,
                 settings, data.DifficultyBeatmap, data.EnvironmentInfo);

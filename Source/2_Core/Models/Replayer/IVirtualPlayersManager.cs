@@ -4,10 +4,10 @@ using System.Collections.Generic;
 namespace BeatLeader.Models {
     public interface IVirtualPlayersManager {
         IReadOnlyList<IVirtualPlayer> Players { get; }
-        IVirtualPlayer PriorityPlayer { get; }
+        IVirtualPlayer PrimaryPlayer { get; }
 
-        event Action<IVirtualPlayer> PriorityPlayerWasChangedEvent;
+        event Action<IVirtualPlayer> PrimaryPlayerWasChangedEvent;
 
-        void SetPriorityPlayer(IVirtualPlayer player);
+        void SetPrimaryPlayer(IVirtualPlayer player);
     }
 }

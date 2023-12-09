@@ -42,13 +42,13 @@ namespace BeatLeader.Replayer.Emulation {
                 Destroy(gameObject);
                 return;
             }
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
+            _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
             _timeController.SongWasRewoundEvent += HandleSongWasRewound;
-            HandlePriorityPlayerChanged(_playersManager.PriorityPlayer!);
+            HandlePrimaryPlayerChanged(_playersManager.PrimaryPlayer!);
         }
 
         private void OnDestroy() {
-            _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
+            _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
             _timeController.SongWasRewoundEvent -= HandleSongWasRewound;
             _heightDetectorUpdateSilencer.Dispose();
         }
@@ -71,7 +71,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Callbacks
 
-        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
+        private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
             if (!_cachedEvents.TryGetValue(player, out _heights)) {
                 _heights = player.Replay.HeightEvents is not { } heights ? null : new(heights);
                 _cachedEvents[player] = _heights;

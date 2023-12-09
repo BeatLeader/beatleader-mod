@@ -49,7 +49,7 @@ namespace BeatLeader.Components {
         private void HandleItemsWithIndexesSelected(ICollection<int> indexes) {
             if (indexes.Count is 0) return; 
             var item = _playerList.items[indexes.First()];
-            _playersManager?.SetPriorityPlayer(item);
+            _playersManager?.SetPrimaryPlayer(item);
         }
 
         #endregion

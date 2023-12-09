@@ -52,6 +52,7 @@ namespace BeatLeader.Components {
                 _playerList = (PlayerList)List!;
                 RefreshPlayer();
                 RefreshScore();
+                RefreshBackgroundMaterial();
                 if (_previousVirtualPlayer != null && _previousVirtualPlayer != player) {
                     _playerList.NotifyCellReadyForUpdate();
                 }
@@ -66,16 +67,10 @@ namespace BeatLeader.Components {
             }
 
             protected override void OnInitialize() {
-                //TODO: load color from the replay data
                 enabled = false;
-                var color = new Color(
-                    Random.Range(0, 100) / 100f,
-                    Random.Range(0, 100) / 100f,
-                    Random.Range(0, 100) / 100f
-                );
                 //required to fill the TEXCOORD1 with non-sliced UV
                 _backgroundImage.ImageView.gradient = true;
-                LoadBackgroundMaterial(color);
+                LoadBackgroundMaterial();
             }
 
             protected override void OnDispose() {
@@ -106,11 +101,15 @@ namespace BeatLeader.Components {
                 _backgroundFillMaterial.SetFloat(fillAspectProperty, aspect);
             }
 
-            private void LoadBackgroundMaterial(Color color) {
-                _backgroundFillMaterial = Instantiate(BundleLoader.OpponentBackgroundMaterial);
+            private void RefreshBackgroundMaterial() {
+                var color = Item!.Replay.ReplayData.Player!.AccentColor;
                 _backgroundFillMaterial.SetColor(colorProperty, color);
                 var backgroundColor = color.ColorWithAlpha(0.4f);
                 _backgroundFillMaterial.SetColor(backgroundColorProperty, backgroundColor);
+            }
+
+            private void LoadBackgroundMaterial() {
+                _backgroundFillMaterial = Instantiate(BundleLoader.OpponentBackgroundMaterial);
                 _backgroundImage.Material = _backgroundFillMaterial;
             }
 

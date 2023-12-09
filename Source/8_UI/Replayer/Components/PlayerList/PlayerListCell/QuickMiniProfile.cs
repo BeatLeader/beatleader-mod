@@ -59,13 +59,13 @@ namespace BeatLeader.Components {
         private string? _playerGlobalRank;
         private string? _playerPp;
 
-        public void SetPlayer(Player player) {
+        public void SetPlayer(IPlayer player) {
             _playerAvatar.SetPlayer(player);
-            _playerCountryFlag.SetCountry(player.country);
+            _playerCountryFlag.SetCountry(player.Country);
 
-            PlayerName = player.name;
-            PlayerGlobalRank = FormatUtils.FormatRank(player.rank, true);
-            PlayerPp = FormatUtils.FormatPP(player.pp);
+            PlayerName = player.Name;
+            PlayerGlobalRank = FormatUtils.FormatRank(player.Rank, true);
+            PlayerPp = FormatUtils.FormatPP(player.PerformancePoints);
         }
 
         protected override void OnInstantiate() {

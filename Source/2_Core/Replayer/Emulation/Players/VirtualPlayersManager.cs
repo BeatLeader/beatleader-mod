@@ -28,7 +28,7 @@ namespace BeatLeader.Replayer.Emulation {
         private void Spawn(IReplay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
             var controllers = _controllersInstantiator
-                .CreateInstance(replay.ReplayData.Player?.name + "Controllers");
+                .CreateInstance(replay.ReplayData.Player?.Name + "Controllers");
             virtualPlayer.Init(replay, controllers);
             _virtualPlayers.Add(virtualPlayer);
         }

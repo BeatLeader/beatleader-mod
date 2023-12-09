@@ -8,7 +8,7 @@
         float FinishTime { get; }
         ReplayFinishType FinishType { get; }
 
-        Player? Player { get; }
+        IPlayer? Player { get; }
         PracticeSettings? PracticeSettings { get; }
         GameplayModifiers GameplayModifiers { get; }
     }

@@ -51,13 +51,13 @@ namespace BeatLeader.Components {
             OnDispose();
             _launchData = launchData;
             _playersManager = playersManager;
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
-            HandlePriorityPlayerChanged(playersManager.PriorityPlayer);
+            _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
+            HandlePrimaryPlayerChanged(playersManager.PrimaryPlayer);
             RefreshToggles();
         }
 
         protected override void OnDispose() {
-            if (_playersManager != null) _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
+            if (_playersManager != null) _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
         }
 
         private void RefreshToggles() {
@@ -70,7 +70,7 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
+        private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
             _controllersProvider = player.ControllersProvider!;
             RefreshVisibility();
         }

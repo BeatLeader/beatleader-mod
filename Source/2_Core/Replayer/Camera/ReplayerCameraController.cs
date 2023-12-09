@@ -34,7 +34,7 @@ namespace BeatLeader.Replayer {
             if (_launchData.Settings.CameraSettings.CameraViews is {} views) {
                 _cameraController.Views.AddRange(views);
             }
-            HandlePriorityPlayerChanged(_playersManager.PriorityPlayer!);
+            HandlePrimaryPlayerChanged(_playersManager.PrimaryPlayer!);
             transform.SetParent(_extraObjects.ReplayerCenterAdjust, false);
             _camera.enabled = true;
             _isInitialized = true;
@@ -42,7 +42,7 @@ namespace BeatLeader.Replayer {
 
         private void Start() {
             if (!_isInitialized) return;
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
+            _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
             if (InputUtils.IsInFPFC) {
                 _camera!.fieldOfView = _launchData.Settings.CameraSettings!.CameraFOV;
             }
@@ -56,10 +56,10 @@ namespace BeatLeader.Replayer {
         }
 
         private void OnDestroy() {
-            _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
+            _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
         }
 
-        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
+        private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
             _cameraController.ControllersProvider = player.ControllersProvider!;
         }
 

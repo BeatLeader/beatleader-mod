@@ -14,16 +14,16 @@ namespace BeatLeader.Replayer.Emulation {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public IReadOnlyList<IVirtualPlayer> Players => _virtualPlayers;
-        public IVirtualPlayer PriorityPlayer => _priorityPlayer!;
+        public IVirtualPlayer PrimaryPlayer => _primaryPlayer!;
 
-        public event Action<IVirtualPlayer>? PriorityPlayerWasChangedEvent;
+        public event Action<IVirtualPlayer>? PrimaryPlayerWasChangedEvent;
 
         private readonly List<IVirtualPlayer> _virtualPlayers = new();
-        private IVirtualPlayer? _priorityPlayer;
+        private IVirtualPlayer? _primaryPlayer;
 
         private void Awake() {
             foreach (var replay in _launchData.Replays) Spawn(replay);
-            if (_virtualPlayers.Count is not 0) SetPriorityPlayer(_virtualPlayers[0]);
+            if (_virtualPlayers.Count is not 0) SetPrimaryPlayer(_virtualPlayers[0]);
         }
 
         private void Spawn(IReplay replay) {
@@ -39,15 +39,15 @@ namespace BeatLeader.Replayer.Emulation {
             _virtualPlayers.Remove(player);
         }
 
-        public void SetPriorityPlayer(IVirtualPlayer player) {
+        public void SetPrimaryPlayer(IVirtualPlayer player) {
             if (!_virtualPlayers.Contains(player)) return;
 
-            if (_priorityPlayer is not null) ReloadControllers(PriorityPlayer, false);
+            if (_primaryPlayer is not null) ReloadControllers(PrimaryPlayer, false);
             var primaryControllers = ReloadControllers(player, true)!;
 
-            SetPriorityControllers(primaryControllers);
-            _priorityPlayer = player;
-            PriorityPlayerWasChangedEvent?.Invoke(player);
+            SetPrimaryControllers(primaryControllers);
+            _primaryPlayer = player;
+            PrimaryPlayerWasChangedEvent?.Invoke(player);
         }
 
         private IVRControllersProvider ReloadControllers(IVirtualPlayer targetPlayer, bool primary) {
@@ -58,7 +58,7 @@ namespace BeatLeader.Replayer.Emulation {
             return controllers;
         }
 
-        private void SetPriorityControllers(IVRControllersProvider provider) {
+        private void SetPrimaryControllers(IVRControllersProvider provider) {
             _playerTransforms.SetField("_headTransform", provider.Head.transform);
             _playerTransforms.SetField("_leftHandTransform", provider.LeftSaber.transform);
             _playerTransforms.SetField("_rightHandTransform", provider.RightSaber.transform);

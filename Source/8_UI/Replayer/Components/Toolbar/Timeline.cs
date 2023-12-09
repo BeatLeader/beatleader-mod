@@ -57,20 +57,20 @@ namespace BeatLeader.Components {
             _playersManager = playersManager;
             _pauseController = pauseController;
             _timeController = timeController;
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChangedEvent;
+            _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChangedEvent;
 
             SetupSlider();
             SetupMarkers();
             _timelineAnimator.Setup(_background.rectTransform,
                 _handle.rectTransform, _marksAreaContainer, _fillArea);
 
-            HandlePriorityPlayerChangedEvent(playersManager.PriorityPlayer!);
+            HandlePrimaryPlayerChangedEvent(playersManager.PrimaryPlayer!);
             _allowRewind = true;
         }
 
         protected override void OnDispose() {
             if (_playersManager != null)
-                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChangedEvent;
+                _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChangedEvent;
         }
 
         protected override void OnInitialize() {
@@ -100,7 +100,7 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandlePriorityPlayerChangedEvent(IVirtualPlayer player) {
+        private void HandlePrimaryPlayerChangedEvent(IVirtualPlayer player) {
             GenerateDefaultMarkersFromReplay(player.Replay!);
         }
 

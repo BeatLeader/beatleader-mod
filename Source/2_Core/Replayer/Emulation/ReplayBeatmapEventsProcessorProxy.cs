@@ -65,20 +65,20 @@ namespace BeatLeader.Replayer.Emulation {
         //Zenject calls Initialize too lately, so we forced to do such shenanigans if we want to avoid Behaviour usage
         public void Initialize() {
             if (_isInitialized) return;
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
-            HandlePriorityPlayerChanged(_playersManager.PriorityPlayer);
+            _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
+            HandlePrimaryPlayerChanged(_playersManager.PrimaryPlayer);
             _isInitialized = true;
         }
 
         public void Dispose() {
-            _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
+            _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandlePriorityPlayerChanged(IVirtualPlayer player) {
+        private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
             _beatmapEventsProcessor = player.ReplayBeatmapEventsProcessor;
         }
         

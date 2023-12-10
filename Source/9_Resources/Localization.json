@@ -1,5 +1,5 @@
 {
-  "Tokens": [
+"Tokens": [
     {
         "Token": "ls-leaderboard-settings",
         "Translations": {
@@ -38,7 +38,7 @@
         "Token": "ls-country",
         "Translations": {
             "English": "Country",
-            "Japanese": "国名",
+            "Japanese": "国",
             "Russian": "Страна",
             "Chinese": "国家",
             "Korean": "국가",
@@ -140,7 +140,7 @@
         "Token": "ls-mistakes",
         "Translations": {
             "English": "Mistakes",
-            "Japanese": "間違い",
+            "Japanese": "全体ミス",
             "Russian": "Ошибки",
             "Chinese": "错误",
             "Korean": "실수",
@@ -174,7 +174,7 @@
         "Token": "ls-modifiers",
         "Translations": {
             "English": "Modifiers",
-            "Japanese": "修飾語",
+            "Japanese": "モディファイア",
             "Russian": "Модификаторы",
             "Chinese": "修改器",
             "Korean": "모디파이어",
@@ -225,7 +225,7 @@
         "Token": "ls-bomb-cuts",
         "Translations": {
             "English": "Bomb cuts",
-            "Japanese": "爆弾",
+            "Japanese": "ボムカット",
             "Russian": "Бомбы",
             "Chinese": "炸弹切割",
             "Korean": "폭탄",
@@ -242,7 +242,7 @@
         "Token": "ls-walls-hit",
         "Translations": {
             "English": "Walls hit",
-            "Japanese": "壁のヒット",
+            "Japanese": "壁ヒット",
             "Russian": "Стены",
             "Chinese": "撞墙",
             "Korean": "벽에 부딪힘",
@@ -395,7 +395,7 @@
         "Token": "ls-oculus-signup-hint",
         "Translations": {
             "English": "Sign up to use website",
-            "Japanese": "ウェブサイト利用登録",
+            "Japanese": "ウェブサイト登録",
             "Russian": "Необходим аккаунт для вебсайта",
             "Chinese": "注册以使用网站",
             "Korean": "웹사이트를 이용하려면 가입하세요",
@@ -412,7 +412,7 @@
         "Token": "ls-mod-is-outdated",
         "Translations": {
             "English": "Mod version is outdated",
-            "Japanese": "MODのバージョンが古い",
+            "Japanese": "MODのバージョンが古いです",
             "Russian": "Версия мода устарела",
             "Chinese": "有更新版 Mod",
             "Korean": "새로운 모드 버전이 존재합니다",
@@ -429,7 +429,7 @@
         "Token": "ls-mod-is-up-to-date",
         "Translations": {
             "English": "Mod version is up to date",
-            "Japanese": "MODバージョンは最新",
+            "Japanese": "MODバージョンは最新です",
             "Russian": "Версия мода актуальная",
             "Chinese": "Mod 版本已是最新版",
             "Korean": "모드 버전이 최신 상태입니다",
@@ -514,7 +514,7 @@
         "Token": "ls-hide-player",
         "Translations": {
             "English": "Hide player",
-            "Japanese": "プレーヤーを隠す",
+            "Japanese": "プレーヤーを非表示",
             "Russian": "Скрыть игрока",
             "Chinese": "隐藏玩家",
             "Korean": "플레이어 숨기기",
@@ -548,7 +548,7 @@
         "Token": "ls-open-profile",
         "Translations": {
             "English": "Open profile",
-            "Japanese": "プロフィール",
+            "Japanese": "プロフィールを開く",
             "Russian": "Открыть профиль",
             "Chinese": "打开个人资料",
             "Korean": "프로필 열기",
@@ -582,7 +582,7 @@
         "Token": "ls-country-scope",
         "Translations": {
             "English": "Country",
-            "Japanese": "国名",
+            "Japanese": "国",
             "Russian": "Страна",
             "Chinese": "国家",
             "Korean": "국가",
@@ -667,7 +667,7 @@
         "Token": "ls-delete-replay-prompt",
         "Translations": {
             "English": "Do you really want to delete the replay?",
-            "Japanese": null,
+            "Japanese": "本当にリプレイを削除しても構いませんか？",
             "Russian": "Вы действительно хотите удалить этот реплей?",
             "Chinese": "你确定要删除回放吗?",
             "Korean": "정말로 리플레이를 삭제하시겠습니까?",
@@ -718,7 +718,7 @@
         "Token": "ls-delete",
         "Translations": {
             "English": "Delete",
-            "Japanese": "デリート",
+            "Japanese": "削除",
             "Russian": "Удалить",
             "Chinese": "删除",
             "Korean": "삭제",
@@ -735,7 +735,7 @@
         "Token": "ls-download-map",
         "Translations": {
             "English": "Download map",
-            "Japanese": "ダウンロード",
+            "Japanese": "マップをダウンロード",
             "Russian": "Скачать карту",
             "Chinese": "下载谱面",
             "Korean": "맵 다운로드",
@@ -752,7 +752,7 @@
         "Token": "ls-scores-context",
         "Translations": {
             "English": "Scores Context",
-            "Japanese": "コンテクスト",
+            "Japanese": "スコア条件",
             "Russian": "Контекст",
             "Chinese": "分数详情",
             "Korean": "스코어보드 설정",
@@ -769,7 +769,7 @@
         "Token": "ls-general-context",
         "Translations": {
             "English": "General",
-            "Japanese": "ゼネラル",
+            "Japanese": "総合",
             "Russian": "Общий",
             "Chinese": "常规",
             "Korean": "일반",
@@ -786,7 +786,7 @@
         "Token": "ls-no-mods-context",
         "Translations": {
             "English": "No Modifiers",
-            "Japanese": "修飾語なし",
+            "Japanese": "モディファイアなし",
             "Russian": "Без Модификаторов",
             "Chinese": "无修改器",
             "Korean": "모디파이어 없음",
@@ -837,7 +837,7 @@
         "Token": "ls-scpm-context",
         "Translations": {
             "English": "SCPM",
-            "Japanese": null,
+            "Japanese": "SCPM",
             "Russian": null,
             "Chinese": "SCPM",
             "Korean": "SCPM",
@@ -854,7 +854,7 @@
         "Token": "ls-scores-context-hint",
         "Translations": {
             "English": "Select Leaderboard Context",
-            "Japanese": null,
+            "Japanese": "条件を選んでください",
             "Russian": "Выбрать контекст",
             "Chinese": "选择排行榜上下文",
             "Korean": "스코어보드를 선택하세요",
@@ -871,7 +871,7 @@
         "Token": "ls-general-context-description",
         "Translations": {
             "English": "Everything allowed",
-            "Japanese": null,
+            "Japanese": "すべて許可",
             "Russian": "Все разрешено",
             "Chinese": "允许一切修改器",
             "Korean": "아무런 제한이 없습니다",
@@ -888,7 +888,7 @@
         "Token": "ls-no-mods-context-description",
         "Translations": {
             "English": "No modifiers, except \"1 Life\" and \"4 Lives\"",
-            "Japanese": null,
+            "Japanese": "1 Life と 4 Lives 以外のモディファイア使用禁止",
             "Russian": "Модификаторы запрещены, кроме \"1 Life\" и \"4 Lives\"",
             "Chinese": "除了\"1 生命\"和\"4 生命\"以外，无修改器",
             "Korean": "\"생명 1개\"와 \"생명 4개\"를 제외하고는 모디파이어가 없습니다",
@@ -905,7 +905,7 @@
         "Token": "ls-no-pauses-context-description",
         "Translations": {
             "English": "Pauses between first and last notes are forbidden",
-            "Japanese": null,
+            "Japanese": "始めと最後のノーツ間でのポーズを禁止",
             "Russian": "Паузы между первой и последней нотой запрещены",
             "Chinese": "禁止在第一个和最后一个音符之间暂停",
             "Korean": "첫 번째 노트와 마지막 노트 사이의 퍼즈를 사용하지 않습니다",
@@ -922,7 +922,7 @@
         "Token": "ls-golf-context-description",
         "Translations": {
             "English": "The worse you play - the higher score",
-            "Japanese": null,
+            "Japanese": "下手であればあるほど高スコア",
             "Russian": "Чем меньше очков - тем лучше",
             "Chinese": "你玩得越差，得分越高",
             "Korean": "정확도가 낮을수록 점수가 높아집니다",
@@ -939,7 +939,7 @@
         "Token": "ls-scpm-context-description",
         "Translations": {
             "English": "Only scores with \"Small Notes\" and \"Pro Mode\"",
-            "Japanese": null,
+            "Japanese": "スモールノーツとプロモードを使ったスコアのみ",
             "Russian": "Обязательное использование модификаторов \"Small Notes\" и \"Pro Mode\"",
             "Chinese": "仅带有\"小音符\"和\"专业模式\"的得分",
             "Korean": "\"작은 음표\" 및 \"프로 모드\"로만 점수를 매깁니다",
@@ -956,7 +956,7 @@
         "Token": "ls-replayer-settings",
         "Translations": {
             "English": "Player Settings",
-            "Japanese": null,
+            "Japanese": "プレイヤー設定",
             "Russian": "Параметры просмотра",
             "Chinese": "玩家设置",
             "Korean": "플레이어 세팅",
@@ -973,7 +973,7 @@
         "Token": "ls-replayer-enable-ui",
         "Translations": {
             "English": "Enable UI",
-            "Japanese": null,
+            "Japanese": "UIを有効化",
             "Russian": "Включить Оверлей",
             "Chinese": "启用用户界面",
             "Korean": "UI 켜기",
@@ -990,7 +990,7 @@
         "Token": "ls-replayer-load-environment",
         "Translations": {
             "English": "Load player environment",
-            "Japanese": null,
+            "Japanese": "プレイヤー環境をロード",
             "Russian": "Сменить окружение",
             "Chinese": "使用回放环境",
             "Korean": "플레이어 환경 불러오기",
@@ -1007,7 +1007,7 @@
         "Token": "ls-replayer-load-jd",
         "Translations": {
             "English": "Load player JD",
-            "Japanese": null,
+            "Japanese": "プレイヤー ID をロード",
             "Russian": "Сменить JD",
             "Chinese": "使用回放 JD",
             "Korean": "플레이어 JD 불러오기",
@@ -1024,7 +1024,7 @@
         "Token": "ls-replayer-store-locally",
         "Translations": {
             "English": "Store locally",
-            "Japanese": null,
+            "Japanese": "ローカルに保存",
             "Russian": "Сохранить на диске",
             "Chinese": "本地存储",
             "Korean": "로컬 파일로 저장",

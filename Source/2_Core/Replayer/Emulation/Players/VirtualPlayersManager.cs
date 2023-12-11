@@ -28,8 +28,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         private void Spawn(IReplay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
-            var controllers = _controllersManager.SpawnControllersProvider(false);
             virtualPlayer.Init(replay);
+            var controllers = _controllersManager.SpawnControllers(virtualPlayer, false);
             virtualPlayer.ApplyControllers(controllers);
             _virtualPlayers.Add(virtualPlayer);
         }
@@ -51,8 +51,8 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private IVRControllersProvider ReloadControllers(IVirtualPlayer targetPlayer, bool primary) {
-            _controllersManager.DespawnControllersProvider(targetPlayer.ControllersProvider);
-            var controllers = _controllersManager.SpawnControllersProvider(primary);
+            _controllersManager.DespawnControllers(targetPlayer.ControllersProvider);
+            var controllers = _controllersManager.SpawnControllers(targetPlayer, primary);
 
             ((VirtualPlayer)targetPlayer).ApplyControllers(controllers);
             return controllers;

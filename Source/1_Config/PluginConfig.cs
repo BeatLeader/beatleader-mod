@@ -72,11 +72,6 @@ namespace BeatLeader {
 
         #region Language
 
-        public static bool OverrideLanguage {
-            get => ConfigFileData.Instance.OverrideLanguage;
-            set => ConfigFileData.Instance.OverrideLanguage = value;
-        }
-
         public static BLLanguage SelectedLanguage {
             get => ConfigFileData.Instance.SelectedLanguage;
             set => ConfigFileData.Instance.SelectedLanguage = value;

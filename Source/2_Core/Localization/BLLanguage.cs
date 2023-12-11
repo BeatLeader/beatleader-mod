@@ -1,6 +1,6 @@
 ﻿namespace BeatLeader {
     public enum BLLanguage {
-        None,
+        GameDefault,
         English,
         Japanese,
         Russian,

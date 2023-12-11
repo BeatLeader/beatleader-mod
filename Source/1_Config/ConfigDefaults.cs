@@ -83,10 +83,8 @@ namespace BeatLeader {
         #endregion
 
         #region Language
-        
-        public const bool OverrideLanguage = false;
-        
-        public const BLLanguage SelectedLanguage = BLLanguage.English;
+
+        public const BLLanguage SelectedLanguage = BLLanguage.GameDefault;
 
         #endregion
     }

@@ -100,12 +100,13 @@ namespace BeatLeader.Components {
         private static string GetDetailsString(Score score) {
             var sb = new StringBuilder();
 
-            sb.Append("<line-height=80%>");
             sb.Append($"<color={Faded}><bll>ls-pauses</bll>: <color={Neutral}>{score.pauses}    ");
-            sb.AppendLine(score.modifiers.IsEmpty()
-                ? $"<color={Faded}><bll>ls-modifiers</bll>: -"
-                : $"<color={Faded}><bll>ls-modifiers</bll>: <color={Neutral}>{score.modifiers}"
-            );
+
+            if (score.modifiers.IsEmpty()) {
+                sb.AppendLine();
+            } else {
+                sb.AppendLine($"<color={Faded}><bll>ls-modifiers</bll>: <color={Neutral}>{score.modifiers}");
+            }
 
             if (score.fullCombo) sb.Append($"<color={Good}>Full Combo</color>    ");
             if (score.missedNotes > 0) sb.Append($"<color={Faded}><bll>ls-misses</bll>: <color={Bad}>{score.missedNotes}</color>    ");

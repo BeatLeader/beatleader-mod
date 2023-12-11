@@ -27,7 +27,7 @@ namespace BeatLeader {
         private static BLLanguage _blLanguageAnalog = BLLanguage.English;
 
         public static BLLanguage GetCurrentLanguage() {
-            return PluginConfig.OverrideLanguage ? PluginConfig.SelectedLanguage : _blLanguageAnalog;
+            return PluginConfig.SelectedLanguage == BLLanguage.GameDefault ? _blLanguageAnalog : PluginConfig.SelectedLanguage;
         }
 
         private static void OnBaseGameLanguageDidChange() {
@@ -53,6 +53,7 @@ namespace BeatLeader {
 
         public static List<BLLanguage> SupportedLanguagesSorted() {
             return new List<BLLanguage> {
+                BLLanguage.GameDefault,
                 BLLanguage.English,
                 BLLanguage.Japanese,
                 BLLanguage.Russian,
@@ -60,8 +61,8 @@ namespace BeatLeader {
                 BLLanguage.Korean,
                 BLLanguage.French,
                 BLLanguage.German,
-                BLLanguage.Spanish,
-                BLLanguage.Norwegian,
+                // BLLanguage.Spanish,
+                // BLLanguage.Norwegian,
                 BLLanguage.Polish,
                 BLLanguage.Swedish,
                 BLLanguage.Italian,
@@ -71,6 +72,7 @@ namespace BeatLeader {
 
         public static string GetLanguageName(BLLanguage language) {
             return language switch {
+                BLLanguage.GameDefault => "Game Default",
                 BLLanguage.English => "English",
                 BLLanguage.Japanese => "Japanese",
                 BLLanguage.Russian => "Russian",
@@ -94,7 +96,7 @@ namespace BeatLeader {
 
         private const string LocalizationResourcePath = Plugin.ResourcesPath + ".Localization.json";
         private static readonly Dictionary<string, string> translations = new();
-        private static BLLanguage _lastUsedLanguage = BLLanguage.None;
+        private static BLLanguage _lastUsedLanguage = BLLanguage.GameDefault;
 
         private static void UpdateTranslationsIfNeeded(BLLanguage language) {
             if (_lastUsedLanguage == language) return;

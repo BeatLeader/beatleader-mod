@@ -23,15 +23,6 @@ namespace BeatLeader {
 
         #region Language
 
-        [UIValue("override-language"), UsedImplicitly]
-        private bool OverrideLanguage {
-            get => PluginConfig.OverrideLanguage;
-            set {
-                PluginConfig.OverrideLanguage = value;
-                NotifyPropertyChanged();
-            }
-        }
-
         [UIValue("language-choices"), UsedImplicitly]
         private List<BLLanguage> _languageOptions = BLLocalization.SupportedLanguagesSorted();
 

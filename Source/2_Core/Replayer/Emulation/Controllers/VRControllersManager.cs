@@ -1,74 +1,131 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.Replayer.Emulation {
     internal class VRControllersManager : IVRControllersManager {
+        #region CustomVRController
+
+        private class CustomVRController : VRController {
+            public Material? bladeMaterial;
+            public Material? handleMaterial;
+
+            private void OnDestroy() {
+                Destroy(bladeMaterial);
+                Destroy(handleMaterial);
+            }
+        }
+
+        #endregion
+
+        #region Injection
+
         [Inject] private readonly OriginalVRControllersProvider _originalVRControllersProvider = null!;
         [Inject] private readonly ReplayerExtraObjectsProvider _extraObjectsProvider = null!;
-        [Inject] private readonly DiContainer _container = null!;
+
+        #endregion
+
+        #region Spawn & Despawn
 
         private readonly Stack<IVRControllersProvider> _availableProviders = new();
         private readonly HashSet<IVRControllersProvider> _allProviders = new();
         private bool _primaryControllerUnavailable;
 
-        public IVRControllersProvider SpawnControllersProvider(bool primary) {
+        public IVRControllersProvider SpawnControllers(IVirtualPlayerBase player, bool primary) {
             if (primary) {
                 if (_primaryControllerUnavailable) {
                     throw new InvalidOperationException("Unable to access primary controllers while they are used");
                 }
                 _primaryControllerUnavailable = true;
-                SetProviderActive(_originalVRControllersProvider, true);
+                SetControllersActive(_originalVRControllersProvider, true);
                 return _originalVRControllersProvider;
             }
-            if (_availableProviders.Count is 0) {
-                return SpawnProviderInternal();
-            }
-            var provider = _availableProviders.Pop();
-            SetProviderActive(provider, true);
+            var provider = _availableProviders.Count switch {
+                0 => SpawnProviderInternal(),
+                _ => _availableProviders.Pop()
+            };
+            var color = player.Replay.ReplayData.Player?.AccentColor ?? Color.white;
+            RefreshSabers(provider, color);
+            SetControllersActive(provider, true);
             return provider;
-        }
-
-        public void DespawnControllersProvider(IVRControllersProvider provider) {
-            if (provider == _originalVRControllersProvider) {
-                _primaryControllerUnavailable = false;
-                SetProviderActive(provider, false);
-                return;
-            }
-            if (!_allProviders.Contains(provider)) {
-                throw new InvalidOperationException("Unable to despawn provider which does not belong to the pool");
-            }
-            SetProviderActive(provider, false);
-            _availableProviders.Push(provider);
         }
 
         private IVRControllersProvider SpawnProviderInternal() {
             var transform = new GameObject("VRControllersContainer").transform;
             transform.SetParent(_extraObjectsProvider.VRGameCore, false);
 
-            var left = InstantiateVRController(_originalVRControllersProvider.LeftSaber, transform);
-            var right = InstantiateVRController(_originalVRControllersProvider.RightSaber, transform);
-            var head = InstantiateVRController(_originalVRControllersProvider.Head, transform);
-            
+            var left = InstantiateSaber(transform);
+            var right = InstantiateSaber(transform);
+            var head = Object.Instantiate(_originalVRControllersProvider.Head, transform);
+
             var provider = new GenericVRControllersProvider(left, right, head);
             _allProviders.Add(provider);
             return provider;
         }
 
-        private VRController InstantiateVRController(VRController controller, Transform parent) {
-            var go = Object.Instantiate(controller.gameObject, parent, false);
-            _container.InjectComponentsInChildren(go);
-            return go.GetComponent<VRController>();
+        public void DespawnControllers(IVRControllersProvider provider) {
+            if (provider == _originalVRControllersProvider) {
+                _primaryControllerUnavailable = false;
+                SetControllersActive(provider, false);
+                return;
+            }
+            if (!_allProviders.Contains(provider)) {
+                throw new InvalidOperationException("Unable to despawn provider which does not belong to the pool");
+            }
+            SetControllersActive(provider, false);
+            _availableProviders.Push(provider);
         }
 
-        private static void SetProviderActive(IVRControllersProvider provider, bool active) {
+        private static void SetControllersActive(IVRControllersProvider provider, bool active) {
             provider.LeftSaber.gameObject.SetActive(active);
             provider.RightSaber.gameObject.SetActive(active);
             provider.Head.gameObject.SetActive(active);
         }
+
+        #endregion
+
+        #region Saber Prefab
+
+        private static readonly int colorProperty = Shader.PropertyToID("_CoreColor");
+
+        private static VRController InstantiateSaber(Transform parent) {
+            var saber = Object.Instantiate(BundleLoader.SaberPrefab, parent, false);
+            var meshRenderers = saber.GetComponentsInChildren<MeshRenderer>();
+
+            var blade = meshRenderers.First(static x => x.name == "Blade");
+            var handle = meshRenderers.First(static x => x.name == "Handle");
+            var bladeMaterial = InstantiateAndReplaceMaterial(blade);
+            var handleMaterial = InstantiateAndReplaceMaterial(handle);
+
+            var controller = saber.AddComponent<CustomVRController>();
+            controller.enabled = false;
+            controller.bladeMaterial = bladeMaterial;
+            controller.handleMaterial = handleMaterial;
+            return controller;
+        }
+
+        private static Material InstantiateAndReplaceMaterial(MeshRenderer renderer) {
+            var originalMaterial = renderer.material;
+            var copiedMaterial = Object.Instantiate(originalMaterial);
+            renderer.material = copiedMaterial;
+            return copiedMaterial;
+        }
+
+        private static void RefreshSabers(IVRControllersProvider provider, Color color) {
+            RefreshSaber(provider.LeftSaber, color);
+            RefreshSaber(provider.RightSaber, color);
+        }
+
+        private static void RefreshSaber(VRController controller, Color color) {
+            var customController = (CustomVRController)controller;
+            customController.bladeMaterial!.SetColor(colorProperty, color);
+            customController.handleMaterial!.SetColor(colorProperty, color);
+        }
+
+        #endregion
     }
 }

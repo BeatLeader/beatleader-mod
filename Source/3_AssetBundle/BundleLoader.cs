@@ -5,6 +5,8 @@ using BeatLeader.Themes;
 using JetBrains.Annotations;
 using UnityEngine;
 
+#nullable disable
+
 namespace BeatLeader {
     public static class BundleLoader {
         #region Initialize
@@ -34,16 +36,19 @@ namespace BeatLeader {
 
         #region Prefabs
 
-        public static GameObject MonkeyPrefab;
         public static GameObject AccuracyGraphPrefab;
         public static ThemesCollection ThemesCollection;
+        
         public static GameObject SaberPrefab;
+        public static GameObject HeadPrefab;
+        public static GameObject MonkeyPrefab;
 
         private static void LoadPrefabs(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
             AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
             ThemesCollection = assetBundle.LoadAsset<ThemesCollection>("ThemesCollection");
             SaberPrefab = assetBundle.LoadAsset<GameObject>("SaberPrefab");
+            HeadPrefab = assetBundle.LoadAsset<GameObject>("HeadPrefab");
         }
 
         #endregion

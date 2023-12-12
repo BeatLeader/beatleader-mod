@@ -8,9 +8,17 @@ using Object = UnityEngine.Object;
 
 namespace BeatLeader.Replayer.Emulation {
     internal class VRControllersManager : IVRControllersManager {
-        #region CustomVRController
+        #region VRControllers
 
-        private class CustomVRController : VRController {
+        private class HeadVRController : VRController {
+            public Material? headMaterial;
+
+            private void OnDestroy() {
+                Destroy(headMaterial);
+            }
+        }
+
+        private class SaberVRController : VRController {
             public Material? bladeMaterial;
             public Material? handleMaterial;
 
@@ -45,22 +53,22 @@ namespace BeatLeader.Replayer.Emulation {
                 return _originalVRControllersProvider;
             }
             var provider = _availableProviders.Count switch {
-                0 => SpawnProviderInternal(),
+                0 => SpawnControllersInternal(),
                 _ => _availableProviders.Pop()
             };
             var color = player.Replay.ReplayData.Player?.AccentColor ?? Color.white;
-            RefreshSabers(provider, color);
+            RefreshControllers(provider, color);
             SetControllersActive(provider, true);
             return provider;
         }
 
-        private IVRControllersProvider SpawnProviderInternal() {
+        private IVRControllersProvider SpawnControllersInternal() {
             var transform = new GameObject("VRControllersContainer").transform;
             transform.SetParent(_extraObjectsProvider.VRGameCore, false);
 
             var left = InstantiateSaber(transform);
             var right = InstantiateSaber(transform);
-            var head = Object.Instantiate(_originalVRControllersProvider.Head, transform);
+            var head = InstantiateHead(transform);
 
             var provider = new GenericVRControllersProvider(left, right, head);
             _allProviders.Add(provider);
@@ -68,7 +76,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         public void DespawnControllers(IVRControllersProvider provider) {
-            if (provider == _originalVRControllersProvider) {
+            if (provider.Equals(_originalVRControllersProvider)) {
                 _primaryControllerUnavailable = false;
                 SetControllersActive(provider, false);
                 return;
@@ -80,17 +88,59 @@ namespace BeatLeader.Replayer.Emulation {
             _availableProviders.Push(provider);
         }
 
+        #endregion
+
+        #region Controller Tools
+
         private static void SetControllersActive(IVRControllersProvider provider, bool active) {
             provider.LeftSaber.gameObject.SetActive(active);
             provider.RightSaber.gameObject.SetActive(active);
             provider.Head.gameObject.SetActive(active);
         }
 
+        private static void RefreshControllers(IVRControllersProvider provider, Color color) {
+            RefreshSaber(provider.LeftSaber, color);
+            RefreshSaber(provider.RightSaber, color);
+            RefreshHead(provider.Head, color);
+        }
+
+        #endregion
+
+        #region Prefab Tools
+
+        private static readonly int colorProperty = Shader.PropertyToID("_CoreColor");
+
+        private static Material InstantiateAndReplaceMaterial(MeshRenderer renderer) {
+            var originalMaterial = renderer.material;
+            var copiedMaterial = Object.Instantiate(originalMaterial);
+            renderer.material = copiedMaterial;
+            return copiedMaterial;
+        }
+
+        #endregion
+
+        #region Head Prefab
+
+        private static VRController InstantiateHead(Transform parent) {
+            var head = Object.Instantiate(BundleLoader.HeadPrefab, parent, false);
+            var meshRenderer = head.GetComponent<MeshRenderer>();
+
+            var headMaterial = InstantiateAndReplaceMaterial(meshRenderer);
+
+            var controller = head.AddComponent<HeadVRController>();
+            controller.enabled = false;
+            controller.headMaterial = headMaterial;
+            return controller;
+        }
+
+        private static void RefreshHead(VRController controller, Color color) {
+            var customController = (HeadVRController)controller;
+            customController.headMaterial!.SetColor(colorProperty, color);
+        }
+
         #endregion
 
         #region Saber Prefab
-
-        private static readonly int colorProperty = Shader.PropertyToID("_CoreColor");
 
         private static VRController InstantiateSaber(Transform parent) {
             var saber = Object.Instantiate(BundleLoader.SaberPrefab, parent, false);
@@ -101,27 +151,15 @@ namespace BeatLeader.Replayer.Emulation {
             var bladeMaterial = InstantiateAndReplaceMaterial(blade);
             var handleMaterial = InstantiateAndReplaceMaterial(handle);
 
-            var controller = saber.AddComponent<CustomVRController>();
+            var controller = saber.AddComponent<SaberVRController>();
             controller.enabled = false;
             controller.bladeMaterial = bladeMaterial;
             controller.handleMaterial = handleMaterial;
             return controller;
         }
 
-        private static Material InstantiateAndReplaceMaterial(MeshRenderer renderer) {
-            var originalMaterial = renderer.material;
-            var copiedMaterial = Object.Instantiate(originalMaterial);
-            renderer.material = copiedMaterial;
-            return copiedMaterial;
-        }
-
-        private static void RefreshSabers(IVRControllersProvider provider, Color color) {
-            RefreshSaber(provider.LeftSaber, color);
-            RefreshSaber(provider.RightSaber, color);
-        }
-
         private static void RefreshSaber(VRController controller, Color color) {
-            var customController = (CustomVRController)controller;
+            var customController = (SaberVRController)controller;
             customController.bladeMaterial!.SetColor(colorProperty, color);
             customController.handleMaterial!.SetColor(colorProperty, color);
         }

@@ -34,9 +34,13 @@ namespace BeatLeader.Components {
         }
 
         public override void SetAlpha(float value) {
-            var tmp = (Color)textComponent.faceColor;
-            tmp.a = value;
-            textComponent.faceColor = tmp;
+            if (textComponent.overflowMode == TextOverflowModes.Ellipsis) {
+                var tmp = (Color)textComponent.faceColor;
+                tmp.a = value;
+                textComponent.faceColor = tmp;
+            } else {
+                textComponent.alpha = value;
+            }
         }
 
         protected override float CalculatePreferredWidth() {

@@ -35,25 +35,25 @@ namespace BeatLeader.Models {
             };
         }
 
-        internal static string Name(this ScoresContext context) {
+        internal static string LocalizedName(this ScoresContext context) {
             return context switch {
-                ScoresContext.Modifiers => "General",
-                ScoresContext.Standard => "No Mods",
-                ScoresContext.Nopause => "No Pauses",
-                ScoresContext.Golf => "Golf",
-                ScoresContext.SCPM => "SCPM",
-                _ => "General"
+                ScoresContext.Modifiers => "<bll>ls-general-context</bll>",
+                ScoresContext.Standard => "<bll>ls-no-mods-context</bll>",
+                ScoresContext.Nopause => "<bll>ls-no-pauses-context</bll>",
+                ScoresContext.Golf => "<bll>ls-golf-context</bll>",
+                ScoresContext.SCPM => "<bll>ls-scpm-context</bll>",
+                _ => "<bll>ls-general-context</bll>"
             };
         }
 
-        internal static string Description(this ScoresContext context) {
+        internal static string LocalizedDescription(this ScoresContext context) {
             return context switch {
-                ScoresContext.Modifiers => "Everything allowed",
-                ScoresContext.Standard => "No modifiers, except 1 Live and 4 Lives",
-                ScoresContext.Nopause => "Pauses are forbidden",
-                ScoresContext.Golf => "The worse you play - the higher score",
-                ScoresContext.SCPM => "Only scores with Small Cubes and Pro Mode",
-                _ => "General"
+                ScoresContext.Modifiers => "<bll>ls-general-context-description</bll>",
+                ScoresContext.Standard => "<bll>ls-no-mods-context-description</bll>",
+                ScoresContext.Nopause => "<bll>ls-no-pauses-context-description</bll>",
+                ScoresContext.Golf => "<bll>ls-golf-context-description</bll>",
+                ScoresContext.SCPM => "<bll>ls-scpm-context-description</bll>",
+                _ => ""
             };
         }
 

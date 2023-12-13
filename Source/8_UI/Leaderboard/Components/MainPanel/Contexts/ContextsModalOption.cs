@@ -46,8 +46,8 @@ namespace BeatLeader.Components {
         private void UpdateVisuals() {
             if (!IsParsed) return;
 
-            _buttonText.text = _context.Name();
-            HoverHint = _context.Description();
+            _buttonText.text = _context.LocalizedName();
+            HoverHint = _context.LocalizedDescription();
 
             if (_context == PluginConfig.ScoresContext) {
                 _buttonText.faceColor = Color.cyan;

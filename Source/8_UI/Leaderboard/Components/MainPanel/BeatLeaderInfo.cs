@@ -1,4 +1,3 @@
-using System;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatSaberMarkupLanguage.Attributes;
@@ -77,8 +76,8 @@ namespace BeatLeader.Components {
 
         #region ModVersion
 
-        private const string OutdatedModVersionText = "<color=#FF8888>Mod version is outdated!";
-        private const string UpdatedModVersionText = "<color=#88FF88>Mod version is up to date!";
+        private const string OutdatedModVersionText = "<color=#FF8888><bll>ls-mod-is-outdated</bll>!";
+        private const string UpdatedModVersionText = "<color=#88FF88><bll>ls-mod-is-up-to-date</bll>!";
 
         private string _versionInfoText = "";
 
@@ -151,7 +150,7 @@ namespace BeatLeader.Components {
                 PlaylistsManager.PlaylistState.NotFound => "<color=#FF8888>",
                 PlaylistsManager.PlaylistState.Outdated => "<color=#FFFF88>",
                 PlaylistsManager.PlaylistState.UpToDate => "<color=#88FF88>",
-                _ => throw new ArgumentOutOfRangeException(nameof(playlistState), playlistState, null)
+                _ => ""
             };
 
             button.GetComponentInChildren<TextMeshProUGUI>().text = $"{prefix}{playlistType}";

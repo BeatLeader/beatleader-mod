@@ -7,7 +7,7 @@
             <text id="details-text" word-wrapping="false" align="Center"/>
         </horizontal>
         <horizontal pad-top="1" pref-height="4.5">
-            <text text="&lt;u&gt;Average HMD position" font-size="3" font-color="#888888" word-wrapping="false" align="Center"/>
+            <text text="&lt;bll&gt;ls-average-hmd-position&lt;/bll&gt;" underlined="true" font-size="3" font-color="#888888" word-wrapping="false" align="Center"/>
         </horizontal>
         <horizontal spacing="2" pref-height="5">
             <text id="x-text-component" word-wrapping="false" align="Center"/>

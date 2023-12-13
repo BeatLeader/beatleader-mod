@@ -12,7 +12,7 @@ namespace BeatLeader {
         }
     }
 
-    [HarmonyPatch(typeof(TMP_Text), "PopulateTextBackingArray", typeof(string))]
+    [HarmonyPatch(typeof(TMP_Text), "StringToCharArray")]
     public static class PreProcessTextPatch {
         [UsedImplicitly]
         private static void Prefix(ref string sourceText) {

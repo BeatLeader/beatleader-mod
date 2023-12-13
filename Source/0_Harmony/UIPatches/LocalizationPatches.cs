@@ -6,9 +6,9 @@ namespace BeatLeader {
     [HarmonyPatch(typeof(MaterialReferenceManager), "TryGetFontAssetInternal")]
     public static class TryGetFontAssetPatch {
         [UsedImplicitly]
-        private static void Postfix(int hashCode, ref TMP_FontAsset fontAsset) {
+        private static void Postfix(int hashCode, ref TMP_FontAsset fontAsset, ref bool __result) {
             if (fontAsset != null) return;
-            BundleLoader.TryGetFontAsset(hashCode, ref fontAsset);
+            __result = BundleLoader.TryGetFontAsset(hashCode, ref fontAsset);
         }
     }
 

@@ -1,7 +1,8 @@
 ﻿namespace BeatLeader.Models {
     public interface IVRControllersManager {
-        IVRControllersProvider SpawnControllers(IVirtualPlayerBase player, bool primary);
+        float ControllersIntensity { get; set; }
         
+        IVRControllersProvider SpawnControllers(IVirtualPlayerBase player, bool primary);
         void DespawnControllers(IVRControllersProvider provider);
     }
 }

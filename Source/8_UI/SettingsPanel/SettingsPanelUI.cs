@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Util;
+using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
 
 namespace BeatLeader {
@@ -24,19 +25,19 @@ namespace BeatLeader {
         #region Language
 
         [UIValue("language-choices"), UsedImplicitly]
-        private List<BLLanguage> _languageOptions = BLLocalization.SupportedLanguagesSorted();
+        private List<object> _languageOptions = BLLocalization.SupportedLanguagesSorted().Cast<object>().ToList();
 
         [UIValue("language-choice"), UsedImplicitly]
-        private BLLanguage _languageValue = PluginConfig.SelectedLanguage;
+        private object _languageValue = PluginConfig.SelectedLanguage;
 
         [UIAction("language-on-change"), UsedImplicitly]
-        private void LanguageOnChange(BLLanguage selectedValue) {
-            PluginConfig.SelectedLanguage = selectedValue;
+        private void LanguageOnChange(object selectedValue) {
+            PluginConfig.SelectedLanguage = (BLLanguage)selectedValue;
         }
 
         [UIAction("language-formatter"), UsedImplicitly]
-        private string LanguageFormatter(BLLanguage selectedValue) {
-            return BLLocalization.GetLanguageName(selectedValue);
+        private string LanguageFormatter(object selectedValue) {
+            return BLLocalization.GetLanguageName((BLLanguage)selectedValue);
         }
 
         #endregion

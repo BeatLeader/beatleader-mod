@@ -6,13 +6,13 @@ namespace BeatLeader {
     [HarmonyPatch(typeof(MaterialReferenceManager), "TryGetFontAssetInternal")]
     public static class TryGetFontAssetPatch {
         [UsedImplicitly]
-        private static void Postfix(int hashCode, ref TMP_FontAsset fontAsset) {
+        private static void Postfix(int hashCode, ref TMP_FontAsset fontAsset, ref bool __result) {
             if (fontAsset != null) return;
-            BundleLoader.TryGetFontAsset(hashCode, ref fontAsset);
+            __result = BundleLoader.TryGetFontAsset(hashCode, ref fontAsset);
         }
     }
 
-    [HarmonyPatch(typeof(TMP_Text), "PopulateTextBackingArray", typeof(string))]
+    [HarmonyPatch(typeof(TMP_Text), "StringToCharArray")]
     public static class PreProcessTextPatch {
         [UsedImplicitly]
         private static void Prefix(ref string sourceText) {

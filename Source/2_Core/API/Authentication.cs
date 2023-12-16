@@ -86,7 +86,7 @@ namespace BeatLeader.API {
             }
         }
 
-        private static IEnumerator DoLogin(Action onSuccess, Action<string> onFail) {
+        private static IEnumerator DoLogin(Action onSuccess, Action<string> onFail, int count = 1) {
             if (!TryGetPlatformProvider(Platform, out var provider)) {
                 Plugin.Log.Debug("Login failed! Unknown platform");
                 onFail("Unknown platform");
@@ -120,8 +120,13 @@ namespace BeatLeader.API {
                     onFail("Maintenance");
                     break;
                 default:
-                    Plugin.Log.Debug($"Login failed! status: {request.responseCode} error: {request.error}");
-                    onFail($"NetworkError: {request.responseCode}");
+                    if (count == 4) {
+                        Plugin.Log.Debug($"Login failed! status: {request.responseCode} error: {request.error}");
+                        onFail($"NetworkError: {request.responseCode}");
+                    } else {
+                        Plugin.Log.Debug($"Retrying login #{count}! status: {request.responseCode} error: {request.error}");
+                        yield return DoLogin(onSuccess, onFail, count++);
+                    }
                     break;
             }
         }

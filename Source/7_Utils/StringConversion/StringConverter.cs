@@ -40,6 +40,7 @@ namespace BeatLeader {
             new StringToRectOffsetConverter(),
             new StringToColorConverter(),
             new StringToVector3Converter(),
+            new StringToVector2Converter(),
             new StringToArrayConverter(),
             new StringToKeyValuePairConverter()
         };

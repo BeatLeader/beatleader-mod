@@ -98,7 +98,7 @@ namespace BeatLeader.Components {
         private void OnInitialize() {
             if (maxWidth is -1) return;
             _flagNameContainer.GetComponent<LayoutElement>().TryDestroy();
-            _flagNameContainer.AddComponent<AdvancedLayoutElement>().maxWidth = 800;
+            _flagNameContainer.AddComponent<BoundedLayoutElement>().maxWidth = 800;
         }
 
         #endregion

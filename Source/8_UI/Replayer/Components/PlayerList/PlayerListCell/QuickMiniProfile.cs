@@ -16,10 +16,7 @@ namespace BeatLeader.Components {
 
         [UIObject("text-container"), UsedImplicitly]
         private GameObject _textContainer = null!;
-        
-        private RectTransform _avatarRectTransform = null!;
-        private LayoutElement _avatarLayoutElement = null!;
-        
+
         #endregion
 
         #region Values
@@ -71,31 +68,11 @@ namespace BeatLeader.Components {
         protected override void OnInstantiate() {
             _playerAvatar = ReeUIComponentV2.Instantiate<PlayerAvatar>(transform);
             _playerCountryFlag = ReeUIComponentV2.Instantiate<CountryFlag>(transform);
-        }
 
-        protected override void OnInitialize() {
-            _avatarRectTransform = (RectTransform)_playerAvatar.GetRootTransform();
-            //i could use AspectRatioFitter, but it does not work properly with flexible values
-            _avatarLayoutElement = _avatarRectTransform.gameObject.GetComponent<LayoutElement>();
-        }
-
-        protected override void OnStart() {
-            RecalculateLayout();
-        }
-
-        #endregion
-
-        #region Layout
-
-        protected override void OnRectDimensionsChange() {
-            RecalculateLayout();
-        }
-
-        private void RecalculateLayout() {
-            //avatar has 1:1 aspect ratio, so if height is 10, then width is 10 too. So, we can simply subtract the height
-            var rect = _avatarRectTransform.rect;
-            _avatarLayoutElement.preferredWidth = rect.height;
-            _avatarLayoutElement.minWidth = rect.height;
+            var playerAvatarGo = _playerAvatar.GetRootTransform().gameObject;
+            playerAvatarGo.AddComponent<FlexItem>();
+            var aspectFitter = playerAvatarGo.AddComponent<AspectRatioFitter>();
+            aspectFitter.aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
         }
 
         #endregion

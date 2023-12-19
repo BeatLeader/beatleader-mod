@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using BeatLeader.Models;
@@ -23,13 +24,13 @@ namespace BeatLeader.Components {
 
             [UIComponent("replay-overview"), UsedImplicitly]
             private QuickReplayOverview _replayOverview = null!;
-            
+
             [UIComponent("background-image"), UsedImplicitly]
             private AdvancedImage _backgroundImage = null!;
 
             [UIComponent("score-text"), UsedImplicitly]
             private TMP_Text _scoreText = null!;
-            
+
             [UIComponent("score-background"), UsedImplicitly]
             private ImageView _scoreBackground = null!;
 
@@ -43,6 +44,7 @@ namespace BeatLeader.Components {
 
             private IBeatmapTimeController _timeController = null!;
             private IReplayScoreEventsProcessor? _scoreEventsProcessor;
+            private IReplayBeatmapEventsProcessor? _beatmapEventsProcessor;
             private IVirtualPlayer? _previousVirtualPlayer;
             private PlayerList _playerList = null!;
 
@@ -51,14 +53,26 @@ namespace BeatLeader.Components {
             }
 
             protected override void Init(IVirtualPlayer player) {
+                //score events
                 if (_scoreEventsProcessor is not null) {
                     _scoreEventsProcessor.ScoreEventDequeuedEvent -= HandleScoreEventDequeued;
+                    _scoreEventsProcessor.EventQueueAdjustFinishedEvent -= HandleScoreEventQueueAdjustFinished;
                 }
                 _scoreEventsProcessor = player.ReplayScoreEventsProcessor;
                 _scoreEventsProcessor.ScoreEventDequeuedEvent += HandleScoreEventDequeued;
+                _scoreEventsProcessor.EventQueueAdjustFinishedEvent += HandleScoreEventQueueAdjustFinished;
+                //beatmap events
+                if (_beatmapEventsProcessor is not null) {
+                    _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteEventDequeued;
+                    _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleNoteEventQueueAdjustStarted;
+                }
+                _beatmapEventsProcessor = player.ReplayBeatmapEventsProcessor;
+                _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteEventDequeued;
+                _beatmapEventsProcessor.EventQueueAdjustStartedEvent += HandleNoteEventQueueAdjustStarted;
+                //initialization
                 _playerList = (PlayerList)List!;
                 RefreshPlayer();
-                RefreshScore();
+                RefreshScoreWithoutNotice();
                 RefreshBackgroundMaterial();
                 if (_previousVirtualPlayer != null && _previousVirtualPlayer != player) {
                     _playerList.NotifyCellReadyForUpdate();
@@ -88,10 +102,15 @@ namespace BeatLeader.Components {
                     _scoreEventsProcessor.ScoreEventDequeuedEvent -= HandleScoreEventDequeued;
                 }
                 Destroy(_backgroundFillMaterial);
+                Destroy(_scoreBackgroundMaterial);
             }
 
             private void Update() {
                 UpdateFillAnimation();
+            }
+
+            private void LateUpdate() {
+                RefreshScoreFullComboLines();
             }
 
             #endregion
@@ -131,7 +150,7 @@ namespace BeatLeader.Components {
             private bool _isAnimating;
 
             public Vector2 ReportPosition() {
-                return ContentTransform!.position;
+                return ContentTransform.position;
             }
 
             public void NotifyPositionUpdated(Vector2 oldPosition) {
@@ -148,7 +167,7 @@ namespace BeatLeader.Components {
                 var timePerFrame = time / framerate;
                 var vectorSubtr = destination - origin;
                 var vectorSummand = vectorSubtr / totalFrames;
-                var tr = ContentTransform!;
+                var tr = ContentTransform;
                 tr.position = origin;
                 for (var i = 0f; i < totalFrames; i++) {
                     yield return new WaitForSeconds(timePerFrame);
@@ -162,16 +181,40 @@ namespace BeatLeader.Components {
 
             #endregion
 
-            #region Score
+            #region Score Background
 
-            private void RefreshScore(LinkedListNode<ScoreEvent>? node = null) {
-                node ??= _scoreEventsProcessor!.CurrentScoreEvent;
-                _scoreText.text = $"{node?.Value.score ?? 0}";
+            private static readonly int displayLinesProperty = Shader.PropertyToID("_DisplayLines");
+
+            private Material _scoreBackgroundMaterial = null!;
+
+            private void RefreshScoreFullComboLines() {
+                _scoreBackgroundMaterial.SetInt(displayLinesProperty, _fullCombo ? 1 : 0);
             }
 
             private void LoadScoreBackgroundMaterial() {
-                var mat = BundleLoader.OpponentScoreBackgroundMaterial;
-                _scoreBackground.material = mat;
+                _scoreBackgroundMaterial = Instantiate(BundleLoader.OpponentScoreBackgroundMaterial);
+                _scoreBackground.material = _scoreBackgroundMaterial;
+            }
+
+            #endregion
+
+            #region Score
+
+            private bool _fullCombo = true;
+
+            private void RefreshScore(LinkedListNode<ScoreEvent>? node = null) {
+                if (_scoreEventsProcessor!.QueueIsBeingAdjusted) return;
+                RefreshScoreWithoutNotice(node);
+                if (_isAnimating) {
+                    _receivedEventWhileAnimating = true;
+                } else {
+                    _playerList.NotifyCellReadyForUpdate();
+                }
+            }
+
+            private void RefreshScoreWithoutNotice(LinkedListNode<ScoreEvent>? node = null) {
+                node ??= _scoreEventsProcessor!.CurrentScoreEvent;
+                _scoreText.text = $"{node?.Value.score ?? 0}";
             }
 
             #endregion
@@ -179,13 +222,21 @@ namespace BeatLeader.Components {
             #region Callbacks
 
             private void HandleScoreEventDequeued(LinkedListNode<ScoreEvent> node) {
-                if (_scoreEventsProcessor!.QueueIsBeingAdjusted) return;
                 RefreshScore(node);
-                if (_isAnimating) {
-                    _receivedEventWhileAnimating = true;
-                } else {
-                    _playerList.NotifyCellReadyForUpdate();
+            }
+
+            private void HandleScoreEventQueueAdjustFinished() {
+                RefreshScore(_scoreEventsProcessor!.CurrentScoreEvent);
+            }
+
+            private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node) {
+                if (node.Value.eventType is NoteEvent.NoteEventType.Miss) {
+                    _fullCombo = false;
                 }
+            }
+
+            private void HandleNoteEventQueueAdjustStarted() {
+                _fullCombo = true;
             }
 
             public override void OnStateChange(bool selected, bool highlighted) { }
@@ -243,7 +294,7 @@ namespace BeatLeader.Components {
         #region Cell Animation
 
         private readonly Dictionary<IVirtualPlayer, Vector2> _cellPositions = new();
-        
+
         private void SaveCellsPosition() {
             foreach (var cell in _cells) {
                 if (cell.Item is not { } item) continue;

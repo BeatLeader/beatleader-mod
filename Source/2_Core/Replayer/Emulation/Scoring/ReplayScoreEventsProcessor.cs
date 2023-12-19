@@ -51,6 +51,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         public event Action<LinkedListNode<ScoreEvent>>? ScoreEventDequeuedEvent;
         public event Action? EventQueueAdjustStartedEvent;
+        public event Action? EventQueueAdjustFinishedEvent;
 
         #endregion
 
@@ -64,6 +65,7 @@ namespace BeatLeader.Replayer.Emulation {
             _eventsProcessor = new(scoreEvents, static x => x.time);
             _eventsProcessor.EventDequeuedEvent += HandleScoreEventDequeued;
             _eventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStarted;
+            _eventsProcessor.EventQueueAdjustFinishedEvent += HandleQueueAdjustFinished;
         }
 
         #endregion
@@ -119,7 +121,12 @@ namespace BeatLeader.Replayer.Emulation {
         }
         
         private void HandleQueueAdjustStarted() {
+            CurrentScoreEvent = null;
             EventQueueAdjustStartedEvent?.Invoke();
+        }
+        
+        private void HandleQueueAdjustFinished() {
+            EventQueueAdjustFinishedEvent?.Invoke();
         }
 
         #endregion

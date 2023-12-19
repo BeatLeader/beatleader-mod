@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
@@ -66,6 +65,7 @@ namespace BeatLeader.Replayer.Emulation {
         public event Action<LinkedListNode<NoteEvent>>? NoteEventDequeuedEvent;
         public event Action<LinkedListNode<WallEvent>>? WallEventDequeuedEvent;
         public event Action? EventQueueAdjustStartedEvent;
+        public event Action? EventQueueAdjustFinishedEvent;
 
         #endregion
 
@@ -74,7 +74,8 @@ namespace BeatLeader.Replayer.Emulation {
         private EventsProcessor<NoteEvent>? _noteEventsProcessor;
         private EventsProcessor<WallEvent>? _wallEventsProcessor;
         private bool _allowProcess;
-        private bool _canCallQueueAdjustEvent;
+        private bool _canCallQueueAdjustStartedEvent;
+        private bool _canCallQueueAdjustFinishedEvent;
 
         public void Init(IReplay replay) {
             if (_allowProcess) return;
@@ -82,8 +83,10 @@ namespace BeatLeader.Replayer.Emulation {
             _wallEventsProcessor = new(replay.WallEvents, static x => x.time);
             _noteEventsProcessor.EventDequeuedEvent += HandleNoteEventDequeued;
             _noteEventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStarted;
+            _noteEventsProcessor.EventQueueAdjustFinishedEvent += HandleQueueAdjustFinished;
             _wallEventsProcessor.EventDequeuedEvent += HandleWallEventDequeued;
             _wallEventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStarted;
+            _wallEventsProcessor.EventQueueAdjustFinishedEvent += HandleQueueAdjustFinished;
             _allowProcess = true;
         }
 
@@ -96,7 +99,8 @@ namespace BeatLeader.Replayer.Emulation {
             var time = _beatmapTimeController.SongTime;
             _noteEventsProcessor!.Tick(time);
             _wallEventsProcessor!.Tick(time);
-            _canCallQueueAdjustEvent = true;
+            _canCallQueueAdjustStartedEvent = true;
+            _canCallQueueAdjustFinishedEvent = true;
         }
 
         #endregion
@@ -117,9 +121,15 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void HandleQueueAdjustStarted() {
-            if (!_canCallQueueAdjustEvent) return;
+            if (!_canCallQueueAdjustStartedEvent) return;
             EventQueueAdjustStartedEvent?.Invoke();
-            _canCallQueueAdjustEvent = false;
+            _canCallQueueAdjustStartedEvent = false;
+        }
+        
+        private void HandleQueueAdjustFinished() {
+            if (!_canCallQueueAdjustFinishedEvent) return;
+            EventQueueAdjustFinishedEvent?.Invoke();
+            _canCallQueueAdjustFinishedEvent = false;
         }
 
         #endregion

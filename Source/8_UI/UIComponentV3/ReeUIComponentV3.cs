@@ -25,8 +25,8 @@ namespace BeatLeader.Components {
     /// Base for UI components
     /// </summary>
     internal abstract class ReeUIComponentV3Base : MonoBehaviour {
-        public abstract GameObject? Content { get; }
-        public abstract Transform? ContentTransform { get; }
+        public abstract GameObject Content { get; }
+        public abstract RectTransform ContentTransform { get; }
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ namespace BeatLeader.Components {
         #region Instantiate
 
         public static T Instantiate(Transform parent) {
-            var obj = bsmlTag.CreateObject(parent);
+            var obj = BSMLTag.CreateObject(parent);
             return (T)obj.GetComponents<ReeUIComponentV3InstanceKeeper>()
                 .Select(x => x.Instance)
                 .First(x => x is T);
@@ -62,7 +62,7 @@ namespace BeatLeader.Components {
 
                 var constructedObject = component.Construct(parent);
                 component._content = constructedObject;
-                component._contentTransform = constructedObject.transform;
+                component._contentTransform = constructedObject.transform as RectTransform;
                 //component._contentTransform.SetParent(parent, false);
                 component.OnInitialize();
 
@@ -123,10 +123,10 @@ namespace BeatLeader.Components {
         protected static readonly TDescriptor Descriptor = new();
 
         [BSMLTag, UsedImplicitly]
-        protected static readonly Tag bsmlTag = new();
+        protected static readonly Tag BSMLTag = new();
         
         [BSMLHandler, UsedImplicitly]
-        protected static readonly Handler bsmlHandler = new();
+        protected static readonly Handler BSMLHandler = new();
         
         #endregion
 
@@ -144,17 +144,23 @@ namespace BeatLeader.Components {
 
         public bool IsInitialized => Content;
 
-        public override GameObject? Content => _content;
-        public override Transform? ContentTransform => _contentTransform;
+        public sealed override GameObject Content => _content ?? throw new UninitializedComponentException();
+        public sealed override RectTransform ContentTransform => _contentTransform ?? throw new UninitializedComponentException();
 
         private GameObject? _content;
-        private Transform? _contentTransform;
+        private RectTransform? _contentTransform;
 
         protected virtual GameObject Construct(Transform parent) {
             BSMLParser.instance.Parse(CachedMarkup, gameObject, this);
-            var parsedObject = transform.GetChild(0);
+            //we are forced to do such shenanigans since bsml does not return us constructed object
+            var components = transform.GetChildren();
+            var parsedObject = components.First(Filter).transform;
             parsedObject.SetParent(parent, false);
             return parsedObject.gameObject;
+
+            static bool Filter(Transform x) => x
+                .GetComponents<UnityEngine.Component>()
+                .All(static x => x is not ReeUIComponentV3Base);
         }
 
         #endregion

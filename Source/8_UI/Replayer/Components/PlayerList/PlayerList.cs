@@ -5,9 +5,11 @@ using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class PlayerList : ReeListComponentBase<PlayerList, IVirtualPlayer, PlayerList.Cell> {
@@ -19,11 +21,17 @@ namespace BeatLeader.Components {
             [UIComponent("mini-profile"), UsedImplicitly]
             private QuickMiniProfile _miniProfile = null!;
 
+            [UIComponent("replay-overview"), UsedImplicitly]
+            private QuickReplayOverview _replayOverview = null!;
+            
             [UIComponent("background-image"), UsedImplicitly]
             private AdvancedImage _backgroundImage = null!;
 
             [UIComponent("score-text"), UsedImplicitly]
             private TMP_Text _scoreText = null!;
+            
+            [UIComponent("score-background"), UsedImplicitly]
+            private ImageView _scoreBackground = null!;
 
             #endregion
 
@@ -62,6 +70,7 @@ namespace BeatLeader.Components {
                 var replay = Item!.Replay;
                 var replayData = replay.ReplayData;
                 _miniProfile.SetPlayer(replayData.Player!);
+                _replayOverview.SetReplay(replay);
                 enabled = true;
             }
 
@@ -70,6 +79,8 @@ namespace BeatLeader.Components {
                 //required to fill the TEXCOORD1 with non-sliced UV
                 _backgroundImage.ImageView.gradient = true;
                 LoadBackgroundMaterial();
+                _scoreBackground.type = Image.Type.Simple;
+                LoadScoreBackgroundMaterial();
             }
 
             protected override void OnDispose() {
@@ -155,7 +166,12 @@ namespace BeatLeader.Components {
 
             private void RefreshScore(LinkedListNode<ScoreEvent>? node = null) {
                 node ??= _scoreEventsProcessor!.CurrentScoreEvent;
-                _scoreText.text = $"score: {node?.Value.score ?? 0}";
+                _scoreText.text = $"{node?.Value.score ?? 0}";
+            }
+
+            private void LoadScoreBackgroundMaterial() {
+                var mat = BundleLoader.OpponentScoreBackgroundMaterial;
+                _scoreBackground.material = mat;
             }
 
             #endregion

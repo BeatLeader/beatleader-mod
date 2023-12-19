@@ -38,7 +38,7 @@ namespace BeatLeader {
 
         public static GameObject AccuracyGraphPrefab;
         public static ThemesCollection ThemesCollection;
-        
+
         public static GameObject SaberPrefab;
         public static GameObject HeadPrefab;
         public static GameObject MonkeyPrefab;
@@ -66,10 +66,13 @@ namespace BeatLeader {
         public static Material ClanTagBackgroundMaterial;
         public static Material VotingButtonMaterial;
         public static Material MiniProfileBackgroundMaterial;
+        public static Material SkillTriangleMaterial;
+
         public static Material UIGridMaterial;
         public static Material TextureSplitterMaterial;
-        public static Material SkillTriangleMaterial;
+
         public static Material OpponentBackgroundMaterial;
+        public static Material OpponentScoreBackgroundMaterial;
         public static Material RoundTextureMaterial;
 
         private static void LoadMaterials(AssetBundle assetBundle) {
@@ -88,6 +91,7 @@ namespace BeatLeader {
             TextureSplitterMaterial = assetBundle.LoadAsset<Material>("TextureSplitterMaterial");
             SkillTriangleMaterial = assetBundle.LoadAsset<Material>("UISkillTriangleMaterial");
             OpponentBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentBackgroundMaterial");
+            OpponentScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentScoreBackgroundMaterial");
             RoundTextureMaterial = assetBundle.LoadAsset<Material>("UIRoundTextureMaterial");
         }
 
@@ -106,9 +110,13 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite FileError;
 
         [UsedImplicitly] public static Sprite NoModifiersIcon;
+
         [UsedImplicitly] public static Sprite NoPauseIcon;
+
         [UsedImplicitly] public static Sprite GolfIcon;
+
         [UsedImplicitly] public static Sprite SCPMIcon;
+
         [UsedImplicitly] public static Sprite GeneralContextIcon;
 
         [UsedImplicitly] public static Sprite Overview1Icon;
@@ -186,7 +194,7 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite RotateRightIcon;
 
         [UsedImplicitly] public static Sprite SettingsIcon;
-        
+
         [UsedImplicitly] public static Sprite ReplayerSettingsIcon;
 
         [UsedImplicitly] public static Sprite WarningIcon;
@@ -200,17 +208,29 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite AnchorBGDots;
 
         [UsedImplicitly] public static Sprite BlackTransparentBGOutline;
-        
+
         [UsedImplicitly] public static Sprite WhiteFrame;
 
         [UsedImplicitly] public static Sprite WhiteBG;
 
         [UsedImplicitly] public static Sprite DefaultAvatar;
-        
+
         [UsedImplicitly] public static Sprite UnknownIcon;
-        
+
         [UsedImplicitly] public static Sprite BattleRoyaleIcon;
+
+        [UsedImplicitly] public static Sprite SlowSpeedIcon;
+
+        [UsedImplicitly] public static Sprite MediumSpeedIcon;
+
+        [UsedImplicitly] public static Sprite FastSpeedIcon;
+
+        [UsedImplicitly] public static Sprite CheckIcon;
+
+        [UsedImplicitly] public static Sprite SkullIcon;
         
+        [UsedImplicitly] public static Sprite QuestionIcon;
+
         private static List<Sprite> _loadedSprites = null!;
 
         public static Sprite? GetSpriteFromBundle(string name) {
@@ -278,6 +298,15 @@ namespace BeatLeader {
             UnknownIcon = assetBundle.LoadAsset<Sprite>("BL_UnknownIcon");
             BattleRoyaleIcon = assetBundle.LoadAsset<Sprite>("BL_BattleRoyaleIcon");
             WhiteFrame = assetBundle.LoadAsset<Sprite>("BL_WhiteFrame");
+
+            SlowSpeedIcon = assetBundle.LoadAsset<Sprite>("BL_SlowSpeedIcon");
+            MediumSpeedIcon = assetBundle.LoadAsset<Sprite>("BL_MediumSpeedIcon");
+            FastSpeedIcon = assetBundle.LoadAsset<Sprite>("BL_FastSpeedIcon");
+
+            CheckIcon = assetBundle.LoadAsset<Sprite>("BL_CheckIcon");
+            SkullIcon = assetBundle.LoadAsset<Sprite>("BL_SkullIcon");
+            QuestionIcon = assetBundle.LoadAsset<Sprite>("BL_QuestionIcon");
+
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 

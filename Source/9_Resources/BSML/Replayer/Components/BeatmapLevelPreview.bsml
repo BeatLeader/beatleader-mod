@@ -1,20 +1,35 @@
-﻿<horizontal ignore-layout="true" pref-height="20" horizontal-fit="PreferredSize" spacing="1">
-  <!-- SONG COVER -->
-  <image id="song-preview-image" preserve-aspect="true" pref-height="20" pref-width="20"/>
-  <!-- SONG NAME & AUTHOR -->
-  <vertical child-expand-width="false" child-control-width="false" child-align="MiddleLeft" 
-            pref-height="13" vertical-fit="PreferredSize">
-    <!-- SONG NAME -->
-    <horizontal pref-height="6" pad="1" spacing="1"
-                bg="round-rect-panel" bg-color="#000000EE"
-                horizontal-fit="PreferredSize">
-      <text id="song-name-text" text="~song-name" font-size="5" align="Left"/>
-    </horizontal>
-    <!--SONG AUTHOR -->
-    <horizontal horizontal-fit="PreferredSize">
-      <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
-        <text id="song-author-text" text="~song-author" align="Left"/>
-      </horizontal>
-    </horizontal>
-  </vertical>
-</horizontal>
+﻿<vertical horizontal-fit="Unconstrained">
+  <Flexbox Height="20" InheritWidth="true" FlexDirection="Row" AlignItems="Stretch" Gap="1, 0">
+    <!-- SONG COVER -->
+    <image id="song-preview-image" preserve-aspect="true"/>
+    <!-- SONG NAME & AUTHOR -->
+    <FlexboxItem FlexGrow="1">
+      <Flexbox
+        id="flex-group" FlexDirection="Column"
+        AlignItems="Stretch" JustifyContent="Center"
+        AnchorMin="0" AnchorMax="1" DeltaSize="0"
+      >
+        <!-- SONG NAME -->
+        <FlexboxItem FlexHeight="7">
+          <horizontal
+            AnchorMin="0" AnchorMax="1" MaxWidth="fit-parent" Pivot="0"
+            pref-height="7" horizontal-fit="PreferredSize"
+            bg="round-rect-panel" bg-color="#000000EE" Pad="1,0,1,0"
+          >
+            <text text="~song-name" align="Left" overflow-mode="Ellipsis" word-wrapping="false"/>
+          </horizontal>
+        </FlexboxItem>
+        <!--SONG AUTHOR -->
+        <FlexboxItem FlexHeight="7">
+          <horizontal
+            AnchorMin="0" AnchorMax="1" MaxWidth="fit-parent" Pivot="0"
+            pref-height="7" horizontal-fit="PreferredSize"
+            bg="round-rect-panel" bg-color="#000000EE" Pad="1,0,1,0"
+          >
+            <text text="~song-author" align="Left" overflow-mode="Ellipsis" word-wrapping="false"/>
+          </horizontal>
+        </FlexboxItem>
+      </Flexbox>
+    </FlexboxItem>
+  </Flexbox>
+</vertical>

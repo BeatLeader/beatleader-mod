@@ -51,6 +51,8 @@ namespace BeatLeader.UI.BSML_Addons {
             new GraphicExtensionHandler(),
             new ImageViewExtensionHandler(),
             new LayoutElementExtensionHandler(),
+            new RectExtensionHandler(),
+            new LayoutGroupExtensionHandler(),
             new ModalViewExtensionHandler()
         };
 

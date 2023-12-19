@@ -33,13 +33,14 @@ namespace BeatLeader.Components {
 
         #region LayoutEditorComponent
 
+        protected override Vector2 MinSize { get; } = new(60, 40);
         public override string ComponentName => "Player List";
 
         protected override GameObject ConstructInternal(Transform parent) {
             _playerList = PlayerList.Instantiate(parent);
             _playerList.InheritSize = true;
-            _playerList.ContentTransform!.SetParent(parent, false);
-            return _playerList.Content!;
+            _playerList.ContentTransform.SetParent(parent, false);
+            return _playerList.Content;
         }
 
         #endregion
@@ -47,7 +48,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandleItemsWithIndexesSelected(ICollection<int> indexes) {
-            if (indexes.Count is 0) return; 
+            if (indexes.Count is 0) return;
             var item = _playerList.items[indexes.First()];
             _playersManager?.SetPrimaryPlayer(item);
         }

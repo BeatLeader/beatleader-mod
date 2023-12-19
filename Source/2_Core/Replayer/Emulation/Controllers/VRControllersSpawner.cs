@@ -6,7 +6,7 @@ using Zenject;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.Replayer.Emulation {
-    internal class VRControllersManager : IVRControllersManager {
+    internal class VRControllersSpawner : IVRControllersSpawner {
         #region Injection
 
         [Inject] private readonly OriginalVRControllersProvider _originalVRControllersProvider = null!;

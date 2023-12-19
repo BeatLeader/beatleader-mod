@@ -8,7 +8,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     internal class VirtualPlayersManager : MonoBehaviour, IVirtualPlayersManager {
-        [Inject] private readonly IVRControllersManager _controllersManager = null!;
+        [Inject] private readonly IVRControllersSpawner _controllersSpawner = null!;
         [Inject] private readonly PlayerTransforms _playerTransforms = null!;
         [Inject] private readonly VirtualPlayer.Pool _virtualPlayersPool = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
@@ -29,7 +29,7 @@ namespace BeatLeader.Replayer.Emulation {
         private void Spawn(IReplay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
             virtualPlayer.Init(replay);
-            var controllers = _controllersManager.SpawnControllers(virtualPlayer, false);
+            var controllers = _controllersSpawner.SpawnControllers(virtualPlayer, false);
             virtualPlayer.ApplyControllers(controllers);
             _virtualPlayers.Add(virtualPlayer);
         }
@@ -51,8 +51,8 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private IVRControllersProvider ReloadControllers(IVirtualPlayer targetPlayer, bool primary) {
-            _controllersManager.DespawnControllers(targetPlayer.ControllersProvider);
-            var controllers = _controllersManager.SpawnControllers(targetPlayer, primary);
+            _controllersSpawner.DespawnControllers(targetPlayer.ControllersProvider);
+            var controllers = _controllersSpawner.SpawnControllers(targetPlayer, primary);
 
             ((VirtualPlayer)targetPlayer).ApplyControllers(controllers);
             return controllers;

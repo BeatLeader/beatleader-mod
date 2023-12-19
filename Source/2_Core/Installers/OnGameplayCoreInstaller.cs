@@ -78,10 +78,10 @@ namespace BeatLeader.Installers {
             //VR Controllers
             Container.Bind<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            if (launchData.VRControllersManager is { } controllersManager) {
-                Container.BindInterfacesTo(controllersManager.GetType()).AsSingle();
+            if (launchData.VRControllersSpawner is { } controllersSpawner) {
+                Container.BindInterfacesTo(controllersSpawner.GetType()).AsSingle();
             } else {
-                Container.BindInterfacesTo<VRControllersManager>().AsSingle();
+                Container.BindInterfacesTo<VRControllersSpawner>().AsSingle();
             }
             
             //Event Processing

@@ -6,5 +6,6 @@ namespace BeatLeader.Models {
         bool QueueIsBeingAdjusted { get; }
         
         event Action? EventQueueAdjustStartedEvent;
+        event Action? EventQueueAdjustFinishedEvent;
     }
 }

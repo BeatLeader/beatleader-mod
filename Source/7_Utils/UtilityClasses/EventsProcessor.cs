@@ -17,6 +17,7 @@ namespace BeatLeader {
 
         public event Action<LinkedListNode<T>>? EventDequeuedEvent;
         public event Action? EventQueueAdjustStartedEvent;
+        public event Action? EventQueueAdjustFinishedEvent;
 
         private readonly LinkedList<T> _events;
         private readonly TimeSelectorDelegate _timeSelectorDelegate;
@@ -40,6 +41,7 @@ namespace BeatLeader {
             
             QueueIsBeingAdjusted = false;
             CurrentEventHasTimeMismatch = false;
+            EventQueueAdjustFinishedEvent?.Invoke();
         }
 
         public void AdjustQueue(float newTimeMilestone) {

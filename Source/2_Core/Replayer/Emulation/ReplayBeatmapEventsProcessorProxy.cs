@@ -55,6 +55,14 @@ namespace BeatLeader.Replayer.Emulation {
             remove => _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= value;
         }
 
+        public event Action? EventQueueAdjustFinishedEvent {
+            add {
+                Initialize();
+                _beatmapEventsProcessor.EventQueueAdjustFinishedEvent += value;
+            }
+            remove => _beatmapEventsProcessor.EventQueueAdjustFinishedEvent -= value;
+        }
+
         #endregion
 
         #region Setup

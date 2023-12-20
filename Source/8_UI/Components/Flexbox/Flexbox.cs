@@ -41,19 +41,7 @@ namespace BeatLeader.Components {
             get => _flexContainer.AutoHeight;
             set => _flexContainer.AutoHeight = value;
         }
-        
-        [ExternalProperty, UsedImplicitly]
-        public float Width {
-            get => _layoutElement.preferredWidth;
-            set => _layoutElement.preferredWidth = value;
-        }
-
-        [ExternalProperty, UsedImplicitly]
-        public float Height {
-            get => _layoutElement.preferredHeight;
-            set => _layoutElement.preferredHeight = value;
-        }
-
+ 
         #endregion
         
         #region Construct

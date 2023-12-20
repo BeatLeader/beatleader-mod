@@ -1,6 +1,4 @@
-﻿using System;
-using BeatLeader.Components;
-using BeatLeader.Manager;
+﻿using BeatLeader.Manager;
 using BeatLeader.ViewControllers;
 using BeatSaberMarkupLanguage;
 using HMUI;
@@ -12,8 +10,6 @@ namespace BeatLeader {
         [Inject] private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
         
         [Inject] private readonly ReplayLaunchViewController _replayLaunchViewController = null!;
-
-        public event Action? BackButtonWasPressedEvent;
         
         private FlowCoordinator? _parentCoordinator;
 
@@ -35,7 +31,6 @@ namespace BeatLeader {
         }
 
         protected override void BackButtonWasPressed(ViewController topController) {
-            BackButtonWasPressedEvent?.Invoke();
             Dismiss();
         }
 

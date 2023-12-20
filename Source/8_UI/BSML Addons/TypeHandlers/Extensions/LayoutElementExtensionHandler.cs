@@ -11,27 +11,39 @@ namespace BeatLeader.UI.BSML_Addons.Extensions {
             { "flexibleWidth", new[] { "flexible-width", "FlexibleWidth" } },
             { "maxHeight", new[] { "MaxHeight" } },
             { "maxWidth", new[] { "MaxWidth" } },
+            { "height", new[] { "Height" } },
+            { "width", new[] { "Width" } },
+            { "ignoreLayout", new[] { "IgnoreLayout" } },
         };
 
         public override Dictionary<string, Action<LayoutElement, string>> Setters { get; } = new() {
-            { "flexibleHeight", (el, str) => { el.flexibleHeight = float.Parse(str.Replace('.', ',')); } },
-            { "flexibleWidth", (el, str) => { el.flexibleWidth = float.Parse(str.Replace('.', ',')); } },
-            { "maxHeight", (el, str) => {
-                var bElement = el.gameObject.AddComponent<BoundedLayoutElement>();
-                if (str is "fit-parent") {
-                    bElement.inheritMaxHeight = true;
-                    return;
+            { "flexibleHeight", (el, str) => el.flexibleHeight = ParseFloat(str) },
+            { "flexibleWidth", (el, str) => el.flexibleWidth = ParseFloat(str) }, {
+                "maxHeight", (el, str) => {
+                    var bElement = el.gameObject.AddComponent<BoundedLayoutElement>();
+                    if (str is "fit-parent") {
+                        bElement.inheritMaxHeight = true;
+                        return;
+                    }
+                    bElement.maxHeight = ParseFloat(str);
                 }
-                bElement.maxHeight = float.Parse(str.Replace('.', ','));
-            } },
-            { "maxWidth", (el, str) => {
-                var bElement = el.gameObject.AddComponent<BoundedLayoutElement>();
-                if (str is "fit-parent") {
-                    bElement.inheritMaxWidth = true;
-                    return;
+            }, {
+                "maxWidth", (el, str) => {
+                    var bElement = el.gameObject.AddComponent<BoundedLayoutElement>();
+                    if (str is "fit-parent") {
+                        bElement.inheritMaxWidth = true;
+                        return;
+                    }
+                    bElement.maxWidth = ParseFloat(str);
                 }
-                bElement.maxWidth = float.Parse(str.Replace('.', ','));
-            } },
+            },
+            { "height", (el, str) => el.preferredHeight = ParseFloat(str) },
+            { "width", (el, str) => el.preferredWidth = ParseFloat(str) },
+            { "ignoreLayout", (el, str) => el.ignoreLayout = bool.Parse(str) },
         };
+
+        private static float ParseFloat(string str) {
+            return float.Parse(str.Replace('.', ','));
+        }
     }
 }

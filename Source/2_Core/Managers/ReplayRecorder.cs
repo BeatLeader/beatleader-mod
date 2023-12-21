@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using Transform = BeatLeader.Models.Replay.Transform;
+using Vector3 = BeatLeader.Models.Replay.Vector3;
 
 namespace BeatLeader {
     [UsedImplicitly]
@@ -150,20 +151,25 @@ namespace BeatLeader {
         public void LateTick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
+            var origin = _playerTransforms._originParentTransform;
+            var head = _playerTransforms._headTransform;
+            var leftHand = _playerTransforms._leftHandTransform;
+            var rightHand = _playerTransforms._rightHandTransform;
+
             var frame = new Frame() {
                 time = _timeSyncController.songTime,
                 fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
                 head = new Transform {
-                    rotation = _playerTransforms.headPseudoLocalRot,
-                    position = _playerTransforms.headPseudoLocalPos
+                    rotation = origin.InverseTransformRotation(head.rotation),
+                    position = origin.InverseTransformPoint(head.position)
                 },
                 leftHand = new Transform {
-                    rotation = _playerTransforms.leftHandPseudoLocalRot,
-                    position = _playerTransforms.leftHandPseudoLocalPos
+                    rotation = origin.InverseTransformRotation(leftHand.rotation),
+                    position = origin.InverseTransformPoint(leftHand.position)
                 },
                 rightHand = new Transform {
-                    rotation = _playerTransforms.rightHandPseudoLocalRot,
-                    position = _playerTransforms.rightHandPseudoLocalPos
+                    rotation = origin.InverseTransformRotation(rightHand.rotation),
+                    position = origin.InverseTransformPoint(rightHand.position)
                 }
             };
 

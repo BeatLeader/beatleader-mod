@@ -56,7 +56,7 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        protected override LayoutGroupType LayoutGroup => LayoutGroupType.Horizontal;
+        protected override LayoutGroupType LayoutGroupDirection => LayoutGroupType.Horizontal;
         
         [ExternalComponent]
         private TextSegmentedControl _textSegmentedControl = null!;

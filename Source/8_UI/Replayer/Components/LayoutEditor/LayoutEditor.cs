@@ -55,10 +55,10 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _layoutGroup.childControlHeight = false;
-            _layoutGroup.childControlWidth = false;
-            _layoutGroup.childForceExpandHeight = false;
-            _layoutGroup.childForceExpandWidth = false;
+            LayoutGroup.childControlHeight = false;
+            LayoutGroup.childControlWidth = false;
+            LayoutGroup.childForceExpandHeight = false;
+            LayoutGroup.childForceExpandWidth = false;
             Content!.GetComponent<LayoutGroup>().enabled = false;
         }
 

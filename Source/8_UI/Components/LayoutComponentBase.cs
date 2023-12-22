@@ -1,4 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using System;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,18 +31,18 @@ namespace BeatLeader.Components {
 
         [ExternalProperty, UsedImplicitly]
         public float Width {
-            get => _layoutElement.preferredWidth;
+            get => LayoutElement.preferredWidth;
             set {
-                _layoutElement.preferredWidth = value;
+                LayoutElement.preferredWidth = value;
                 OnLayoutPropertySet();
             }
         }
 
         [ExternalProperty, UsedImplicitly]
         public float Height {
-            get => _layoutElement.preferredHeight;
+            get => LayoutElement.preferredHeight;
             set {
-                _layoutElement.preferredHeight = value;
+                LayoutElement.preferredHeight = value;
                 OnLayoutPropertySet();
             }
         }
@@ -58,71 +58,93 @@ namespace BeatLeader.Components {
 
         [ExternalProperty, UsedImplicitly]
         public bool InheritWidth {
-            get => _sizeFitter.horizontalFit is ContentSizeFitter.FitMode.Unconstrained;
+            get => SizeFitter.horizontalFit is ContentSizeFitter.FitMode.Unconstrained;
             set {
-                _sizeFitter.horizontalFit = value ? ContentSizeFitter.FitMode.Unconstrained : ContentSizeFitter.FitMode.PreferredSize;
+                SizeFitter.horizontalFit = value ? ContentSizeFitter.FitMode.Unconstrained : ContentSizeFitter.FitMode.PreferredSize;
                 OnLayoutPropertySet();
             }
         }
 
         [ExternalProperty, UsedImplicitly]
         public bool InheritHeight {
-            get => _sizeFitter.verticalFit is ContentSizeFitter.FitMode.Unconstrained;
+            get => SizeFitter.verticalFit is ContentSizeFitter.FitMode.Unconstrained;
             set {
-                _sizeFitter.verticalFit = value ? ContentSizeFitter.FitMode.Unconstrained : ContentSizeFitter.FitMode.PreferredSize;
+                SizeFitter.verticalFit = value ? ContentSizeFitter.FitMode.Unconstrained : ContentSizeFitter.FitMode.PreferredSize;
                 OnLayoutPropertySet();
             }
         }
 
         [ExternalProperty, UsedImplicitly]
         public bool IgnoreLayout {
-            get => _layoutElement.ignoreLayout;
-            set => _layoutElement.ignoreLayout = value;
+            get => LayoutElement.ignoreLayout;
+            set => LayoutElement.ignoreLayout = value;
         }
-        
+
         [ExternalProperty, UsedImplicitly]
         public RectOffset Pad {
-            get => _layoutGroup.padding;
+            get => LayoutGroup.padding;
             set {
-                _layoutGroup.padding = value;
+                LayoutGroup.padding = value;
                 OnLayoutPropertySet();
             }
         }
 
-        protected virtual void OnLayoutPropertySet() {}
-        
+        protected virtual void OnLayoutPropertySet() { }
+
         #endregion
 
         #region UI Components
 
-        [UIComponent("root"), UsedImplicitly]
-        protected LayoutElement _layoutElement = null!;
-
-        [UIComponent("root"), UsedImplicitly]
-        protected HorizontalOrVerticalLayoutGroup _layoutGroup = null!;
-
-        [UIComponent("root"), UsedImplicitly]
-        protected ContentSizeFitter _sizeFitter = null!;
-        
         [ExternalComponent, UsedImplicitly]
-        private RectTransform RectTransform => (RectTransform)ContentTransform!;
+        private RectTransform RectTransform => ContentTransform;
+
+        protected LayoutElement LayoutElement => _layoutElement;
+        protected HorizontalOrVerticalLayoutGroup LayoutGroup => _layoutGroup;
+        protected ContentSizeFitter SizeFitter => _sizeFitter;
+
+        private LayoutElement _layoutElement = null!;
+        private HorizontalOrVerticalLayoutGroup _layoutGroup = null!;
+        private ContentSizeFitter _sizeFitter = null!;
 
         #endregion
 
-        #region Markup
+        #region Construction
 
         protected enum LayoutGroupType {
             Vertical,
             Horizontal
         }
-        
-        protected sealed override string Markup => $"<{LayoutGroupName} id=\"root\" {LayoutGroupName}-fit=\"PreferredSize\">{InnerMarkup}</{LayoutGroupName}>";
 
-        protected virtual string? InnerMarkup => null;
-        
-        protected virtual LayoutGroupType LayoutGroup => LayoutGroupType.Vertical;
+        protected sealed override string Markup => throw new InvalidOperationException("Unable to access markup into the manual component");
+        protected virtual LayoutGroupType LayoutGroupDirection => LayoutGroupType.Vertical;
 
-        private string LayoutGroupName => LayoutGroup.ToString().ToLower();
+        protected sealed override GameObject Construct(Transform parent) {
+            var wrapper = new GameObject("BaseWrapper");
+            var wrapperTransform = wrapper.AddComponent<RectTransform>();
+            wrapperTransform.SetParent(parent, false);
+            ProvideLayoutControllers(wrapper, out _layoutElement, out _layoutGroup, out _sizeFitter);
+            wrapperTransform.anchorMin = Vector2.zero;
+            wrapperTransform.anchorMax = Vector2.one;
+            wrapperTransform.sizeDelta = Vector2.zero;
+            return wrapper;
+        }
+
+        protected virtual void ProvideLayoutControllers(
+            GameObject go,
+            out LayoutElement element,
+            out HorizontalOrVerticalLayoutGroup group,
+            out ContentSizeFitter sizeFitter
+        ) {
+            element = go.AddComponent<LayoutElement>();
+            group = LayoutGroupDirection switch {
+                LayoutGroupType.Vertical => go.AddComponent<VerticalLayoutGroup>(),
+                LayoutGroupType.Horizontal => go.AddComponent<HorizontalLayoutGroup>(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            sizeFitter = go.AddComponent<ContentSizeFitter>();
+            sizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            sizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
 
         #endregion
     }

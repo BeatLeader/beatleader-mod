@@ -8,7 +8,7 @@ namespace BeatLeader.Components {
     /// Implementation of <c>ImageSegmentedControlBase</c> with string as key
     /// </summary>
     internal class ImageSegmentedControl : ImageSegmentedControlBase<ImageSegmentedControl, string> {
-        protected override LayoutGroupType LayoutGroup => LayoutGroupType.Horizontal;
+        protected override LayoutGroupType LayoutGroupDirection => LayoutGroupType.Horizontal;
     }
 
     /// <summary>

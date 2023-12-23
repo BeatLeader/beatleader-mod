@@ -12,6 +12,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using Quaternion = BeatLeader.Models.Replay.Quaternion;
 using Transform = BeatLeader.Models.Replay.Transform;
 using Vector3 = BeatLeader.Models.Replay.Vector3;
 
@@ -62,6 +63,8 @@ namespace BeatLeader {
 
         #endregion
         
+        [Inject] [UsedImplicitly] private SaberManager _saberManager;
+        [Inject] [UsedImplicitly] private IVRPlatformHelper _vrPlatformHelper;
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
@@ -182,7 +185,43 @@ namespace BeatLeader {
                     _currentWallEvent = null;
                 }
             }
+
+            LazyRecordSaberOffsets();
         }
+
+        #region Saber Offsets
+
+        private bool _saberOffsetsRecorded;
+        private int _framesSkipped;
+
+        private void LazyRecordSaberOffsets() {
+            if (_framesSkipped++ < 10 || _saberOffsetsRecorded) return;
+            TryGetSaberOffsets(_saberManager._leftSaber, out var leftLocalPos, out var leftLocalRot);
+            TryGetSaberOffsets(_saberManager._rightSaber, out var rightLocalPos, out var rightLocalRot);
+            _replay.saberOffsets = new SaberOffsets() {
+                LeftSaberLocalPosition = leftLocalPos,
+                LeftSaberLocalRotation = leftLocalRot,
+                RightSaberLocalPosition = rightLocalPos,
+                RightSaberLocalRotation = rightLocalRot
+            };
+            _saberOffsetsRecorded = true;
+        }
+
+        private void TryGetSaberOffsets(Saber saber, out Vector3 localPosition, out Quaternion localRotation) {
+            var vrController = saber.gameObject.GetComponentInParent<VRController>();
+            var xrRigOrigin = vrController.transform.parent;
+            var xrRigTransform = new ReeTransform(xrRigOrigin.position, xrRigOrigin.rotation);
+
+            _vrPlatformHelper.GetNodePose(vrController._node, vrController._nodeIdx, out var controllerPos, out var controllerRot);
+            controllerPos = xrRigTransform.LocalToWorldPosition(controllerPos);
+            controllerRot = xrRigTransform.LocalToWorldRotation(controllerRot);
+            var controllerTransform = new ReeTransform(controllerPos, controllerRot);
+
+            localPosition = controllerTransform.WorldToLocalPosition(saber.handlePos);
+            localRotation = controllerTransform.WorldToLocalRotation(saber.handleRot);
+        }
+
+        #endregion
 
         private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
             if (_stopRecording) { return; }

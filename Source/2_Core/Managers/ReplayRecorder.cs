@@ -215,8 +215,8 @@ namespace BeatLeader {
 
         private void LazyInitFrames() {
             if (_framesInitialized) return;
-            _origin = _playerTransforms._originParentTransform;
-            _head = _playerTransforms._headTransform;
+            _origin = _playerTransforms.GetField<UnityEngine.Transform, PlayerTransforms>("_originParentTransform");
+            _head = _playerTransforms.GetField<UnityEngine.Transform, PlayerTransforms>("_headTransform");
             _leftSaber = _saberManager.leftSaber.transform;
             _rightSaber = _saberManager.rightSaber.transform;
             _framesInitialized = true;
@@ -254,8 +254,8 @@ namespace BeatLeader {
 
         private void LazyRecordSaberOffsets() {
             if (_framesSkipped++ < 10 || _saberOffsetsRecorded) return;
-            TryGetSaberOffsets(_saberManager._leftSaber, out var leftLocalPos, out var leftLocalRot);
-            TryGetSaberOffsets(_saberManager._rightSaber, out var rightLocalPos, out var rightLocalRot);
+            TryGetSaberOffsets(_saberManager.leftSaber, out var leftLocalPos, out var leftLocalRot);
+            TryGetSaberOffsets(_saberManager.rightSaber, out var rightLocalPos, out var rightLocalRot);
             _replay.saberOffsets = new SaberOffsets() {
                 LeftSaberLocalPosition = leftLocalPos,
                 LeftSaberLocalRotation = leftLocalRot,
@@ -277,7 +277,7 @@ namespace BeatLeader {
 
             var xrRigTransform = new ReeTransform(xrRigOrigin.position, xrRigOrigin.rotation);
 
-            _vrPlatformHelper.GetNodePose(vrController._node, vrController._nodeIdx, out var controllerPos, out var controllerRot);
+            _vrPlatformHelper.GetNodePose(vrController.node, vrController.nodeIdx, out var controllerPos, out var controllerRot);
             controllerPos = xrRigTransform.LocalToWorldPosition(controllerPos);
             controllerRot = xrRigTransform.LocalToWorldRotation(controllerRot);
             var controllerTransform = new ReeTransform(controllerPos, controllerRot);

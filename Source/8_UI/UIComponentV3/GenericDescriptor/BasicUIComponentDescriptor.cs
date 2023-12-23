@@ -79,8 +79,8 @@ namespace BeatLeader.Components {
                     }
 
                     var valueStack = CloneAndAppendToStack(stackMembers, member);
-                    prefix = $"{prefix}{attribute.Prefix}";
-                    ProcessExternalPropertySetters(props, dict, string.IsNullOrEmpty(prefix) ? null : prefix, valueStack);
+                    var newPrefix = $"{prefix}{attribute.Prefix}";
+                    ProcessExternalPropertySetters(props, dict, string.IsNullOrEmpty(newPrefix) ? null : newPrefix, valueStack);
                     continue;
                 }
 

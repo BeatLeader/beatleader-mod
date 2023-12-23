@@ -154,29 +154,7 @@ namespace BeatLeader {
         public void LateTick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
-            var origin = _playerTransforms._originParentTransform;
-            var head = _playerTransforms._headTransform;
-            var leftHand = _playerTransforms._leftHandTransform;
-            var rightHand = _playerTransforms._rightHandTransform;
-
-            var frame = new Frame() {
-                time = _timeSyncController.songTime,
-                fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
-                head = new Transform {
-                    rotation = origin.InverseTransformRotation(head.rotation),
-                    position = origin.InverseTransformPoint(head.position)
-                },
-                leftHand = new Transform {
-                    rotation = origin.InverseTransformRotation(leftHand.rotation),
-                    position = origin.InverseTransformPoint(leftHand.position)
-                },
-                rightHand = new Transform {
-                    rotation = origin.InverseTransformRotation(rightHand.rotation),
-                    position = origin.InverseTransformPoint(rightHand.position)
-                }
-            };
-
-            _replay.frames.Add(frame);
+            RecordFrame();
 
             if (_currentWallEvent != null) {
                 if (_phaoi != null && !_phaoi.playerHeadIsInObstacle)
@@ -188,6 +166,48 @@ namespace BeatLeader {
 
             LazyRecordSaberOffsets();
         }
+
+        #region Frames
+
+        private UnityEngine.Transform _origin;
+        private UnityEngine.Transform _head;
+        private UnityEngine.Transform _leftSaber;
+        private UnityEngine.Transform _rightSaber;
+        private bool _framesInitialized;
+
+        private void LazyInitFrames() {
+            if (_framesInitialized) return;
+            _origin = _playerTransforms._originParentTransform;
+            _head = _playerTransforms._headTransform;
+            _leftSaber = _saberManager.leftSaber.transform;
+            _rightSaber = _saberManager.rightSaber.transform;
+            _framesInitialized = true;
+        }
+
+        private void RecordFrame() {
+            LazyInitFrames();
+            
+            var frame = new Frame() {
+                time = _timeSyncController.songTime,
+                fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
+                head = new Transform {
+                    rotation = _origin.InverseTransformRotation(_head.rotation),
+                    position = _origin.InverseTransformPoint(_head.position)
+                },
+                leftHand = new Transform {
+                    rotation = _origin.InverseTransformRotation(_leftSaber.rotation),
+                    position = _origin.InverseTransformPoint(_leftSaber.position)
+                },
+                rightHand = new Transform {
+                    rotation = _origin.InverseTransformRotation(_rightSaber.rotation),
+                    position = _origin.InverseTransformPoint(_rightSaber.position)
+                }
+            };
+            
+            _replay.frames.Add(frame);
+        }
+
+        #endregion
 
         #region Saber Offsets
 

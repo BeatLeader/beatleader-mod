@@ -228,8 +228,15 @@ namespace BeatLeader {
         }
 
         private void TryGetSaberOffsets(Saber saber, out Vector3 localPosition, out Quaternion localRotation) {
+            localPosition = new Vector3(0.0f, 0.0f, 0.0f);
+            localRotation = new Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+            
             var vrController = saber.gameObject.GetComponentInParent<VRController>();
+            if (vrController == null) return;
+            
             var xrRigOrigin = vrController.transform.parent;
+            if (xrRigOrigin == null) return;
+            
             var xrRigTransform = new ReeTransform(xrRigOrigin.position, xrRigOrigin.rotation);
 
             _vrPlatformHelper.GetNodePose(vrController._node, vrController._nodeIdx, out var controllerPos, out var controllerRot);

@@ -266,6 +266,13 @@ namespace BeatLeader.Models.Replay {
             z = unityQuaternion.z;
             w = unityQuaternion.w;
         }
+        public Quaternion(float x, float y, float z, float w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+        }
 
         public static implicit operator UQuaternion(Quaternion quaternion) => new UQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
         public static implicit operator Quaternion(UQuaternion quaternion) => new Quaternion(quaternion);

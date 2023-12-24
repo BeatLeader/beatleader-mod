@@ -41,6 +41,14 @@ namespace BeatLeader.Models {
 
         #endregion
 
+        public static readonly Player GuestPlayer = new() {
+            name = "Guest",
+            avatar = null,
+            country = "not set",
+            rank = -1,
+            pp = -1
+        };
+        
         public string id;
         public int rank;
         public string name;

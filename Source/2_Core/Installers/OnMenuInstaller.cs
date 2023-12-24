@@ -1,6 +1,7 @@
 using BeatLeader.DataManager;
 using BeatLeader.ViewControllers;
 using BeatLeader.Replayer;
+using BeatLeader.UI.Hub;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -11,10 +12,10 @@ namespace BeatLeader.Installers {
             Plugin.Log.Debug("OnMenuInstaller");
 
             BindLeaderboard();
+            BindHub();
             Container.Bind<ReplayerLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerMenuLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }
 
         private void BindLeaderboard() {
@@ -26,10 +27,19 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardHeaderManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardInfoManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+        }
 
+        private void BindHub() {
+            //<----------------------------------HUB---------------------------------->
             Container.Bind<BeatLeaderMenuButtonManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<BeatLeaderFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatLeaderHubFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatLeaderHubViewController>().FromNewComponentAsViewController().AsSingle();
+            //<-----------------------------Replay Manager---------------------------->
+            Container.Bind<ReplayManagerFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<ReplayLaunchViewController>().FromNewComponentAsViewController().AsSingle();
+            //<-----------------------------Battle Royale----------------------------->
+            Container.Bind<BattleRoyaleFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<BattleRoyaleOpponentsViewController>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }

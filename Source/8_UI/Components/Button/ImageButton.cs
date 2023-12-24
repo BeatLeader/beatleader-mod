@@ -96,7 +96,7 @@ namespace BeatLeader.Components {
             UpdateColor(progress);
         }
 
-        protected override void OnStateChange(bool state) {
+        protected override void OnButtonStateChange(bool state) {
             UpdateColor(1);
         }
 

@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Zenject;
 
 namespace BeatLeader.ViewControllers {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.ReplayLaunchView.bsml")]
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.ReplayLaunchView.ReplayLaunchView.bsml")]
     internal class ReplayLaunchViewController : BSMLAutomaticViewController {
         #region Injection
 

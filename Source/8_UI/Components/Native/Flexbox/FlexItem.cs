@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal enum AlignSelf {
@@ -17,22 +18,22 @@ namespace BeatLeader.Components {
     internal sealed class FlexItem : UIBehaviour {
         #region Serialized Fields
 
-        [SerializeField] 
+        [SerializeField]
         private float flexGrow;
 
-        [SerializeField] 
+        [SerializeField]
         private float flexShrink = 1;
 
-        [SerializeField] 
+        [SerializeField]
         private Vector2 flexBasis = new(-1f, -1f);
 
-        [SerializeField] 
+        [SerializeField]
         private Vector2 minSize = new(-1f, -1f);
 
-        [SerializeField] 
+        [SerializeField]
         private Vector2 maxSize = new(-1f, -1f);
 
-        [SerializeField] 
+        [SerializeField]
         private AlignSelf alignSelf;
 
         [SerializeField]
@@ -79,12 +80,25 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region Layout Self Controller
+
+        private void RefreshLayoutController() {
+            var controller = gameObject.GetComponent<ILayoutSelfController>();
+            if (controller is null) return;
+            var rectTrans = (RectTransform)transform;
+            var rect = rectTrans.rect;
+            FlexBasis = new(rect.width, rect.height);
+        }
+
+        #endregion
+
         #region UI Rebuild
 
         private DrivenRectTransformTracker _tracker;
 
         private void TryMakeContainerRebuild() {
             if (transform.parent == null || !transform.parent.TryGetComponent<FlexContainer>(out var container)) return;
+            RefreshLayoutController();
 
             _tracker.Clear();
             _tracker.Add(

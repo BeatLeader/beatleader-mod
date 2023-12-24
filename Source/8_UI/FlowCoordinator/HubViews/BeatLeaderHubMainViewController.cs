@@ -8,8 +8,8 @@ using JetBrains.Annotations;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.HubView.HubView.bsml")]
-    internal class BeatLeaderHubViewController : BSMLAutomaticViewController {
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.HubViews.MainHubView.bsml")]
+    internal class BeatLeaderHubMainViewController : BSMLAutomaticViewController {
         [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         [Inject] private readonly BattleRoyaleFlowCoordinator _battleRoyaleFlowCoordinator = null!;

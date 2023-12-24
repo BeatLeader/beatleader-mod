@@ -23,7 +23,7 @@ namespace BeatLeader.Components {
             public const int CellHeight = 8;
 
             private const string MarkupPath = Plugin.ResourcesPath +
-                ".BSML.FlowCoordinator.ReplayLaunchView.Components.ReplayLaunchView.BeatmapReplayLaunchPanel.ReplaysList.ReplaysListCell.bsml";
+                ".BSML.FlowCoordinator.Flows.ReplayManagerFlow.Components.BeatmapReplayLaunchPanel.ReplaysList.ReplaysListCell.bsml";
 
             #endregion
 

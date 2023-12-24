@@ -39,10 +39,10 @@ namespace BeatLeader.Installers {
             //<----------------------------------HUB---------------------------------->
             Container.Bind<BeatLeaderMenuButtonManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatLeaderHubFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<BeatLeaderHubViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<BeatLeaderHubMainViewController>().FromNewComponentAsViewController().AsSingle();
             //<-----------------------------Replay Manager---------------------------->
             Container.Bind<ReplayManagerFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<ReplayLaunchViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<ReplayManagerViewController>().FromNewComponentAsViewController().AsSingle();
             //<-----------------------------Battle Royale----------------------------->
             Container.Bind<BattleRoyaleFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<BattleRoyaleOpponentsViewController>().FromNewComponentAsViewController().AsSingle();

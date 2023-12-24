@@ -91,7 +91,11 @@ namespace BeatLeader.Components {
 
         private string? _url = "";
 
-        public void SetPlayer(IPlayer player) {
+        public void SetPlayer(IPlayer? player) {
+            if (player is null) {
+                ShowSpinner();
+                return;
+            }
             if (_url == player.AvatarUrl) return;
             _url = player.AvatarUrl;
             SelectMaterial(player);

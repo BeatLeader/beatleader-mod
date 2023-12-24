@@ -1,4 +1,5 @@
-﻿using BeatSaberMarkupLanguage;
+﻿using BeatLeader.Utils;
+using BeatSaberMarkupLanguage;
 using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -59,7 +60,8 @@ namespace BeatLeader.Components {
         #region Setup
 
         protected override void OnInitialize() {
-            ImageView = Content!.AddComponent<AdvancedImageView>();
+            var imageGo = Content.CreateChild("Image");
+            ImageView = imageGo.AddComponent<AdvancedImageView>();
             Material = Utilities.ImageResources.NoGlowMat;
             PreserveAspect = true;
         }

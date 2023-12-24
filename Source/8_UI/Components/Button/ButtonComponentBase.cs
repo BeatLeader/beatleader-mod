@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-     internal abstract class ButtonComponentBase<T> : LayoutComponentBase<T> where T : ReeUIComponentV3<T> {
+    internal abstract class ButtonComponentBase<T> : LayoutComponentBase<T> where T : ReeUIComponentV3<T> {
         #region Events
 
         [ExternalProperty, UsedImplicitly]
@@ -54,7 +54,7 @@ namespace BeatLeader.Components {
             get => _isActive;
             private set {
                 if (value == _isActive) return;
-                OnStateChange(_isActive = value);
+                OnButtonStateChange(_isActive = value);
             }
         }
 
@@ -87,7 +87,7 @@ namespace BeatLeader.Components {
 
         protected virtual void OnHoverProgressChange(float progress) { }
 
-        protected virtual void OnStateChange(bool state) { }
+        protected virtual void OnButtonStateChange(bool state) { }
 
         #endregion
 
@@ -102,14 +102,17 @@ namespace BeatLeader.Components {
             if (BaseScale == Vector3.zero) BaseScale = Scale;
         }
 
-        protected override void OnInitialize() {
+        protected sealed override void OnInitialize() {
             OnContentConstruct(ContentTransform!);
             OnHoverProgressChange(0);
             _hoverController = Content!.AddComponent<SmoothHoverController>();
             _hoverController.HoverStateChangedEvent += OnHoverStateChanged;
             _hoverController.lerpCoefficient = _lerpMul;
             Content.AddComponent<Button>().onClick.AddListener(OnButtonClick);
+            OnInitializeInternal();
         }
+
+        protected virtual void OnInitializeInternal() { }
 
         #endregion
 

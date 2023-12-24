@@ -5,7 +5,7 @@ using Zenject;
 
 namespace BeatLeader {
     internal class BeatLeaderMenuButtonManager : MonoBehaviour {
-        [Inject] private readonly BeatLeaderFlowCoordinator _flowCoordinator = null!;
+        [Inject] private readonly BeatLeaderHubFlowCoordinator _hubFlowCoordinator = null!;
         
         #region MenuButton
 
@@ -42,7 +42,7 @@ namespace BeatLeader {
         #region Callbacks
 
         private void HandleMenuButtonClicked() {
-            _flowCoordinator.Present(false);
+            _hubFlowCoordinator.Present(false);
         }
 
         #endregion

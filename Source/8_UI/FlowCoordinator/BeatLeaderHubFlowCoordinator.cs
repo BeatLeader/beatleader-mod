@@ -1,15 +1,15 @@
 ﻿using BeatLeader.Manager;
+using BeatLeader.UI.Hub;
 using BeatLeader.ViewControllers;
 using BeatSaberMarkupLanguage;
 using HMUI;
 using Zenject;
 
 namespace BeatLeader {
-    internal class BeatLeaderFlowCoordinator : FlowCoordinator {
+    internal class BeatLeaderHubFlowCoordinator : FlowCoordinator {
         [Inject] private readonly MainFlowCoordinator _mainFlowCoordinator = null!;
         [Inject] private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
-        
-        [Inject] private readonly ReplayLaunchViewController _replayLaunchViewController = null!;
+        [Inject] private readonly BeatLeaderHubViewController _hubViewController = null!;
         
         private FlowCoordinator? _parentCoordinator;
 
@@ -27,7 +27,7 @@ namespace BeatLeader {
             if (!firstActivation) return;
             showBackButton = true;
             SetTitle(Plugin.PluginId);
-            ProvideInitialViewControllers(_replayLaunchViewController);
+            ProvideInitialViewControllers(_hubViewController);
         }
 
         protected override void BackButtonWasPressed(ViewController topController) {

@@ -237,7 +237,7 @@ namespace BeatLeader {
         #region FormatRank
 
         public static string FormatRank(int rank, bool withPrefix) {
-            return $"{(withPrefix ? "<size=70%>#</size>" : "")}{rank}";
+            return $"{(withPrefix ? "<size=70%>#</size>" : "")}{(rank is -1 ? "?" : rank)}";
         }
 
         #endregion

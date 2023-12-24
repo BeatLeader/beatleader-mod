@@ -38,7 +38,6 @@ namespace BeatLeader.Components {
     internal abstract class ReeUIComponentV3<T, TDescriptor> : ReeUIComponentV3Base, INotifyPropertyChanged, IReeUIComponentEventReceiver
         where T : ReeUIComponentV3<T>
         where TDescriptor : IReeUIComponentDescriptor<T>, new() {
-
         #region Instantiate
 
         public static T Instantiate(Transform parent) {
@@ -60,10 +59,7 @@ namespace BeatLeader.Components {
                 componentGo.transform.SetParent(parent, false);
                 var component = componentGo.AddComponent<T>();
 
-                var constructedObject = component.Construct(parent);
-                component._content = constructedObject;
-                component._contentTransform = constructedObject.transform as RectTransform;
-                //component._contentTransform.SetParent(parent, false);
+                var constructedObject = component.ConstructForBSML(parent);
                 component.OnInitialize();
 
                 var externalComponents = constructedObject.AddComponent<ExternalComponents>();
@@ -90,7 +86,8 @@ namespace BeatLeader.Components {
             public override Dictionary<string, string[]> Props { get; } =
                 Descriptor.ExternalProperties?.ToDictionary(
                     x => x.Key,
-                    x => new[] { x.Key })
+                    x => new[] { x.Key }
+                )
                 ?? new();
 
             public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
@@ -124,10 +121,10 @@ namespace BeatLeader.Components {
 
         [BSMLTag, UsedImplicitly]
         protected static readonly Tag BSMLTag = new();
-        
+
         [BSMLHandler, UsedImplicitly]
         protected static readonly Handler BSMLHandler = new();
-        
+
         #endregion
 
         #region Markup
@@ -140,7 +137,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Parsing
+        #region Construction
 
         public bool IsInitialized => Content;
 
@@ -149,6 +146,26 @@ namespace BeatLeader.Components {
 
         private GameObject? _content;
         private RectTransform? _contentTransform;
+
+        private GameObject? _bsmlRoot;
+
+        /// <summary>
+        /// Used to override default root object given to the bsml. Must be called inside the Construct method
+        /// </summary>
+        protected void ApplyBSMLRoot(GameObject go) {
+            if (_bsmlRoot is not null) {
+                throw new InvalidOperationException("ApplyBSMLRoot must be called only once, inside the Construct method");
+            }
+            _bsmlRoot = go;
+        }
+
+        private GameObject ConstructForBSML(Transform parent) {
+            var go = Construct(parent);
+            _content = go;
+            _contentTransform = (RectTransform)go.transform;
+            _bsmlRoot ??= go;
+            return _bsmlRoot;
+        }
 
         protected virtual GameObject Construct(Transform parent) {
             BSMLParser.instance.Parse(CachedMarkup, gameObject, this);
@@ -205,11 +222,11 @@ namespace BeatLeader.Components {
         protected virtual void OnInstantiate() { }
 
         protected virtual void OnDispose() { }
-        
+
         protected virtual void OnStart() { }
-        
+
         protected virtual void OnStateChange(bool state) { }
-        
+
         protected virtual void OnRectDimensionsChange() { }
 
         #endregion
@@ -231,7 +248,7 @@ namespace BeatLeader.Components {
         void OnStateChange(bool state);
         void OnRectDimensionsChange();
     }
-    
+
     internal class ReeUIComponentV3InstanceKeeper : MonoBehaviour {
         public ReeUIComponentV3Base Instance {
             get => _instance;
@@ -243,12 +260,12 @@ namespace BeatLeader.Components {
 
         private IReeUIComponentEventReceiver? _eventReceiver;
         private ReeUIComponentV3Base _instance = null!;
-        
+
         private void Start() => _eventReceiver?.OnStart();
-        
+
         private void OnEnable() => _eventReceiver?.OnStateChange(true);
         private void OnDisable() => _eventReceiver?.OnStateChange(false);
-        
+
         private void OnRectTransformDimensionsChange() => _eventReceiver?.OnRectDimensionsChange();
     }
 }

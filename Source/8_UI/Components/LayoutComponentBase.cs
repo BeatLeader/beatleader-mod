@@ -122,12 +122,15 @@ namespace BeatLeader.Components {
             var wrapper = new GameObject("BaseWrapper");
             var wrapperTransform = wrapper.AddComponent<RectTransform>();
             wrapperTransform.SetParent(parent, false);
+            OnConstruct(wrapperTransform);
             ProvideLayoutControllers(wrapper, out _layoutElement, out _layoutGroup, out _sizeFitter);
             wrapperTransform.anchorMin = Vector2.zero;
             wrapperTransform.anchorMax = Vector2.one;
             wrapperTransform.sizeDelta = Vector2.zero;
             return wrapper;
         }
+        
+        protected virtual void OnConstruct(Transform parent) { }
 
         protected virtual void ProvideLayoutControllers(
             GameObject go,

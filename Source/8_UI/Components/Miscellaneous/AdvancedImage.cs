@@ -59,13 +59,15 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        protected override void OnInitialize() {
-            var imageGo = Content.CreateChild("Image");
+        protected override void OnConstruct(Transform parent) {
+            var imageGo = parent.gameObject.CreateChild("Image");
             ImageView = imageGo.AddComponent<AdvancedImageView>();
+            imageGo.AddComponent<VerticalLayoutGroup>();
             Material = Utilities.ImageResources.NoGlowMat;
             PreserveAspect = true;
+            ApplyBSMLRoot(imageGo);
         }
-
+        
         #endregion
     }
 }

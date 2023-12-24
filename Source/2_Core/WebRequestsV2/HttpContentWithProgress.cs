@@ -20,6 +20,8 @@ namespace BeatLeader.WebRequests {
 
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context) {
             using var inputStream = await _content.ReadAsStreamAsync();
+            var contentLength = _content.Headers.ContentLength!.Value;
+            _descriptor.ContentSize = contentLength;
             await StreamUtils.CopyToByBufferAsync(inputStream, stream, _descriptor);
         }
 

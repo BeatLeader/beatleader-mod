@@ -14,12 +14,12 @@ namespace BeatLeader.WebRequests {
             string url,
             HttpMethod method,
             HttpContent? content = null,
+            WebRequestParams? requestParams = null,
             Action<HttpRequestHeaders>? headersCallback = null,
-            int bufferSize = 4096,
             CancellationToken token = default
         ) {
             var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
-            return WebRequestFactory.Send(requestMessage, new byte[bufferSize], token);
+            return WebRequestFactory.Send(requestMessage, requestParams, token);
         }
 
         protected static HttpRequestMessage CreateAndValidateRequestMessage(
@@ -38,9 +38,9 @@ namespace BeatLeader.WebRequests {
         }
     }
 
-    public abstract class PersistentWebRequestWithResult<T, TResult, TDescriptor> : PersistentWebRequestBase<T, IWebRequest<TResult>>
-        where T : PersistentWebRequestWithResult<T, TResult, TDescriptor>
-        where TDescriptor : IWebRequestDescriptor<TResult>, new() {
+    public abstract class PersistentWebRequestBaseWithResult<T, TResult, TDescriptor> : PersistentWebRequestBase<T, IWebRequest<TResult>>
+        where T : PersistentWebRequestBaseWithResult<T, TResult, TDescriptor>
+        where TDescriptor : IWebRequestResponseParser<TResult>, new() {
 
         private static readonly TDescriptor descriptor = new();
 
@@ -48,12 +48,12 @@ namespace BeatLeader.WebRequests {
             string url,
             HttpMethod method,
             HttpContent? content = null,
+            WebRequestParams? requestParams = null,
             Action<HttpRequestHeaders>? headersCallback = null,
-            int bufferSize = 4096,
             CancellationToken token = default
         ) {
             var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
-            return WebRequestFactory.Send(requestMessage, descriptor, new byte[bufferSize], token);
+            return WebRequestFactory.Send(requestMessage, descriptor, requestParams, token);
         }
     }
 }

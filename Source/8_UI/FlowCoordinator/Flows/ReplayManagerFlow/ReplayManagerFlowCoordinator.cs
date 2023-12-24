@@ -5,7 +5,7 @@ using Zenject;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplayManagerFlowCoordinator : FlowCoordinator {
-        [Inject] private readonly ReplayLaunchViewController _replayManagerViewController = null!;
+        [Inject] private readonly ReplayManagerViewController _replayManagerViewController = null!;
         [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {

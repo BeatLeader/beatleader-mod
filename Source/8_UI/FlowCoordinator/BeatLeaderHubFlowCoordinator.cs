@@ -9,7 +9,7 @@ namespace BeatLeader {
     internal class BeatLeaderHubFlowCoordinator : FlowCoordinator {
         [Inject] private readonly MainFlowCoordinator _mainFlowCoordinator = null!;
         [Inject] private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
-        [Inject] private readonly BeatLeaderHubViewController _hubViewController = null!;
+        [Inject] private readonly BeatLeaderHubMainViewController _hubMainViewController = null!;
         
         private FlowCoordinator? _parentCoordinator;
 
@@ -27,7 +27,7 @@ namespace BeatLeader {
             if (!firstActivation) return;
             showBackButton = true;
             SetTitle(Plugin.PluginId);
-            ProvideInitialViewControllers(_hubViewController);
+            ProvideInitialViewControllers(_hubMainViewController);
         }
 
         protected override void BackButtonWasPressed(ViewController topController) {

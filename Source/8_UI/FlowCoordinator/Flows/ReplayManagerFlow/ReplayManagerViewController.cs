@@ -8,8 +8,8 @@ using JetBrains.Annotations;
 using Zenject;
 
 namespace BeatLeader.ViewControllers {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.ReplayLaunchView.ReplayLaunchView.bsml")]
-    internal class ReplayLaunchViewController : BSMLAutomaticViewController {
+    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.Flows.ReplayManagerFlow.ReplayManagerView.bsml")]
+    internal class ReplayManagerViewController : BSMLAutomaticViewController {
         #region Injection
 
         [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;

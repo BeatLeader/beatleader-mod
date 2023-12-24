@@ -2,12 +2,15 @@
 using System.Threading.Tasks;
 
 namespace BeatLeader.WebRequests {
-    public delegate void WebRequestStateChangedDelegate(IWebRequest instance, RequestState state, string? failReason);
+    public delegate void WebRequestStateChangedDelegate<in T>(T instance, RequestState state, string? failReason) where T : IWebRequest;
 
-    public delegate void WebRequestProgressChangedDelegate(IWebRequest instance, float downloadProgress, float uploadProgress, float overallProgress);
+    public delegate void WebRequestProgressChangedDelegate<in T>(T instance, float downloadProgress, float uploadProgress, float overallProgress) where T : IWebRequest;
 
     public interface IWebRequest<TResult> : IWebRequest {
         TResult? Result { get; }
+        
+        new event WebRequestStateChangedDelegate<IWebRequest<TResult>>? StateChangedEvent;
+        new event WebRequestProgressChangedDelegate<IWebRequest<TResult>>? ProgressChangedEvent;
         
         new Task<IWebRequest<TResult>> Join();
     }
@@ -21,8 +24,8 @@ namespace BeatLeader.WebRequests {
         float UploadProgress { get; }
         float OverallProgress { get; }
 
-        event WebRequestStateChangedDelegate? StateChangedEvent;
-        event WebRequestProgressChangedDelegate? ProgressChangedEvent;
+        event WebRequestStateChangedDelegate<IWebRequest>? StateChangedEvent;
+        event WebRequestProgressChangedDelegate<IWebRequest>? ProgressChangedEvent;
 
         Task<IWebRequest> Join();
     }

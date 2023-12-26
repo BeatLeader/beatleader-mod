@@ -146,7 +146,7 @@ namespace BeatLeader.Utils {
             var options = ConfigFileData.Instance.ReplaySavingOptions;
             return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
                     LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
-                    LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
+                    LevelEndType.Quit or LevelEndType.Restart or LevelEndType.Practice => options.HasFlag(ReplaySaveOption.Exit),
                     LevelEndType.Clear => true,
                     _ => false
                 } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0);

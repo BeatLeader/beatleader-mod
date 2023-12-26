@@ -185,6 +185,7 @@ namespace BeatLeader.Components {
                 TopRightText = info.LevelEndType switch {
                     Clear => "Completed",
                     Quit or Restart => "Unfinished",
+                    Practice => "Practice",
                     Fail => $"Failed at {FormatTime(Mathf.FloorToInt(ReplayHeader.ReplayInfo.FailTime))}",
                     _ => "Unknown"
                 };

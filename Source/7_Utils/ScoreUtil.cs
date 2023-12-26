@@ -29,9 +29,7 @@ namespace BeatLeader.Utils {
 
         public static void ProcessReplay(Replay replay, PlayEndData data) {
             if (replay.info.speed != 0) {
-                Plugin.Log.Debug("Practice, replay won't be submitted");
-                SaveReplay(replay, data);
-                return;
+                data = new PlayEndData(LevelEndType.Practice, data.Time);
             }
 
             if (!ShouldSubmit()) {

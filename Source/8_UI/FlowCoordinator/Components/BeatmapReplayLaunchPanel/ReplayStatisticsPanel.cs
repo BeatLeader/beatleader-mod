@@ -1,12 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace BeatLeader.Components {
+namespace BeatLeader.UI.Hub {
     internal class ReplayStatisticsPanel : ReeUIComponentV2 {
         #region Components
 

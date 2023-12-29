@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
@@ -10,7 +11,7 @@ using TMPro;
 using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
 
-namespace BeatLeader.Components {
+namespace BeatLeader.UI.Hub {
     internal enum ReplaysListSorter {
         Difficulty,
         Player,

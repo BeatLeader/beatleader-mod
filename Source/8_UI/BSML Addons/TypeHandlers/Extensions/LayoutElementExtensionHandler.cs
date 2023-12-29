@@ -17,8 +17,23 @@ namespace BeatLeader.UI.BSML_Addons.Extensions {
         };
 
         public override Dictionary<string, Action<LayoutElement, string>> Setters { get; } = new() {
-            { "flexibleHeight", (el, str) => el.flexibleHeight = ParseFloat(str) },
-            { "flexibleWidth", (el, str) => el.flexibleWidth = ParseFloat(str) }, {
+            {
+                "flexibleHeight", (el, str) => {
+                    if (str is "max") {
+                        el.flexibleHeight = int.MaxValue;
+                        return;
+                    }
+                    el.flexibleHeight = ParseFloat(str);
+                }
+            }, {
+                "flexibleWidth", (el, str) => {
+                    if (str is "max") {
+                        el.flexibleWidth = int.MaxValue;
+                        return;
+                    }
+                    el.flexibleWidth = ParseFloat(str);
+                }
+            }, {
                 "maxHeight", (el, str) => {
                     var bElement = el.gameObject.AddComponent<BoundedLayoutElement>();
                     if (str is "fit-parent") {

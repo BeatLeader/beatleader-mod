@@ -1,33 +1,24 @@
 ﻿using System;
 using System.Linq;
+using BeatLeader.UI.Hub.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    internal interface IBeatmapFilter {
-        IPreviewBeatmapLevel? BeatmapLevel { get; }
-        BeatmapCharacteristicSO? BeatmapCharacteristic { get; }
-        BeatmapDifficulty? BeatmapDifficulty { get; }
-
-        bool Enabled { get; }
-
-        event Action? FilterUpdatedEvent;
-    }
-
-    internal class BeatmapFiltersPanel : ReeUIComponentV2, IBeatmapFilter {
-        #region BeatmapFilter
-
-        public IPreviewBeatmapLevel? BeatmapLevel => _beatmapFilterEnabled ? _previewBeatmapLevel : null;
+    //TODO: rework
+    internal class BeatmapFiltersPanel : ReeUIComponentV2, IBeatmapReplayFilterData {
+        #region ReplayBeatmapFilterData
+        
+        public IPreviewBeatmapLevel? BeatmapLevel => Enabled ? _previewBeatmapLevel : null;
         public BeatmapCharacteristicSO? BeatmapCharacteristic => _beatmapCharacteristicFilterEnabled ? _beatmapCharacteristic : null;
         public BeatmapDifficulty? BeatmapDifficulty => _beatmapDifficultyFilterEnabled ? _beatmapDifficulty : null;
+        public bool Enabled { get; private set; }
         
-        public bool Enabled => _beatmapFilterEnabled;
-
-        public event Action? FilterUpdatedEvent;
+        public event Action? DataUpdatedEvent;
 
         private void NotifyFilterUpdated() {
-            FilterUpdatedEvent?.Invoke();
+            DataUpdatedEvent?.Invoke();
         }
 
         #endregion
@@ -36,9 +27,9 @@ namespace BeatLeader.Components {
 
         [UIValue("beatmap-filter"), UsedImplicitly]
         private bool BeatmapFilterEnabled {
-            get => _beatmapFilterEnabled;
+            get => Enabled;
             set {
-                _beatmapFilterEnabled = value;
+                Enabled = value;
                 _beatmapSelector.SetActive(value);
                 BeatmapCharacteristicFilterEnabled = value && BeatmapCharacteristicFilterEnabled;
                 BeatmapCharacteristicToggleInteractable = value;
@@ -73,7 +64,6 @@ namespace BeatLeader.Components {
 
         private bool _beatmapDifficultyFilterEnabled;
         private bool _beatmapCharacteristicFilterEnabled;
-        private bool _beatmapFilterEnabled;
 
         private IPreviewBeatmapLevel? _previewBeatmapLevel;
         private BeatmapCharacteristicSO? _beatmapCharacteristic;
@@ -133,7 +123,7 @@ namespace BeatLeader.Components {
                 NotifyPropertyChanged();
             }
         }
-
+        
         public bool DisplayToggles {
             set {
                 BeatmapToggleEnabled = value;

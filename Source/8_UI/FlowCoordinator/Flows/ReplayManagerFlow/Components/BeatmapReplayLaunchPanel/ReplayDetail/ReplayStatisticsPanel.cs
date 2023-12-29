@@ -1,6 +1,7 @@
-﻿using System;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.Models;
-using BeatLeader.Models.Replay;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -33,8 +34,8 @@ namespace BeatLeader.Components {
         [UIValue("panel-controls"), UsedImplicitly]
         private ScoreInfoPanelControls _panelControls = null!;
 
-        [UIObject("panel-controls-container")]
-        private readonly GameObject _panelControlsContainer = null!;
+        [UIObject("panel-controls-container"), UsedImplicitly]
+        private GameObject? _panelControlsContainer;
 
         #endregion
 
@@ -51,7 +52,6 @@ namespace BeatLeader.Components {
             _panelControls = Instantiate<ScoreInfoPanelControls>(transform);
 
             _panelControls.followLeaderboardEvents = false;
-            //_panelControls.TabsMask &= ~ScoreInfoPanelTab.OverviewPage2;
             _panelControls.TabsMask &= ~ScoreInfoPanelTab.Replay;
 
             _panelControls.TabChangedEvent += HandleSelectedTabChanged;
@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region SetScore
+        #region SwitchTab
 
         private bool _scoreStatsUpdateRequired;
 
@@ -81,6 +81,37 @@ namespace BeatLeader.Components {
                 return;
             }
             UpdateVisibility(tab);
+        }
+
+        #endregion
+
+        #region SetScore
+
+        private CancellationTokenSource _cancellationTokenSource = new();
+
+        public Task SetDataByHeaderAsync(IReplayHeader? header) {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource = new();
+            return SetDataByHeaderAsyncInternal(header, _cancellationTokenSource.Token);
+        }
+
+        private async Task SetDataByHeaderAsyncInternal(IReplayHeader? header, CancellationToken token) {
+            if (header is null) {
+                SetData(null, null, true, true);
+                return;
+            }
+            var replay = await header.LoadReplayAsync(default);
+            if (token.IsCancellationRequested) return;
+
+            ScoreStats? stats = null;
+            Score? score = null;
+            if (replay is not null) {
+                stats = await Task.Run(() => ReplayStatisticUtils.ComputeScoreStats(replay), token);
+                score = ReplayUtils.ComputeScore(replay);
+                score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
+            }
+            if (token.IsCancellationRequested) return;
+            SetData(score, stats, score is null || stats is null);
         }
 
         public void SetData(Score? score, ScoreStats? stats, bool invalid, bool notSelected = false) {
@@ -138,6 +169,7 @@ namespace BeatLeader.Components {
             }
 
             _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
+            _panelControlsContainer?.SetActive(true);
             _openedTab = tab;
         }
 

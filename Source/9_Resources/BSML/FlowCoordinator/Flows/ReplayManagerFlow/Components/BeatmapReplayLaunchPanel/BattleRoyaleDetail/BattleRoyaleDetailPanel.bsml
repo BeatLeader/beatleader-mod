@@ -1,39 +1,22 @@
 ﻿<vertical horizontal-fit="Unconstrained">
-  <horizontal pref-height="6" spacing="2"
-              horizontal-fit="PreferredSize">
-    <text text="Battle panel" align="Center"/>
-    <AdvancedImage Size="4" Sprite="#bl-battle-royale-icon"/>
-  </horizontal>
-  <vertical bg="round-rect-panel" horizontal-fit="Unconstrained"
-            vertical-fit="PreferredSize" pref-height="38">
-    <ObjectSwitcher id="object-switcher" Bindings="Setup - 0, Opponents - 1">
-      <vertical vertical-fit="PreferredSize" pref-width="46">
-        <macro.as-host host="beatmap-filters-panel">
-          <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-      </vertical>
-      <vertical horizontal-fit="Unconstrained">
-        <BattleRoyaleOpponentsList id="opponents-list" Height="38" Width="50" Pad="1"/>
-        <horizontal ignore-layout="true" pref-height="38" child-align="LowerCenter" pad="1"
-                    child-control-width="false" child-expand-width="false"
-                    child-control-height="false" child-expand-height="false">
-          <vertical bg="round-rect-panel" vertical-fit="PreferredSize" pad="1">
-            <ImageButton Size="3" Sprite="#bl-refresh-icon" ClickEvent="remove-all-opponents-click"/>
-          </vertical>
-        </horizontal>
-      </vertical>
-    </ObjectSwitcher>
+  <QuickMiniProfile
+    id="mini-profile"
+    Width="50" Height="18"
+    InehritHeight="false"
+    InheritWidth="false"
+    Pad="1"
+  />
+  <!-- REPLAY INFO PANEL -->
+  <vertical Width="50" Pad="0,1,0,1" InheritHeight="false">
+    <macro.as-host host="replay-info-panel">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
   </vertical>
-  <horizontal bg="round-rect-panel">
-    <ImageSegmentedControl Items="Setup - #BL_Overview1Icon, Opponents - #BL_Overview2Icon"
-                           CellWithKeySelectedEvent="cell-select"
-                           InheritWidth="true" Height="6" tab.Pad="1" tab.GrowOnHover="false"
-                           tab.HoverColor="#80808033" tab.HoverLerpMul="100"
-                           tab.BaseScale="0.8" tab.HoverScaleSum="0.2"/>
-  </horizontal>
-  <horizontal pref-height="12" pad-top="2" horizontal-fit="Unconstrained">
-    <primary-button text="Start" pref-height="10"
-                    on-click="start-button-click"
-                    horizontal-fit="Unconstrained"/>
-  </horizontal>
+  <!-- SELECT BUTTON -->
+  <primary-button
+    interactable="~select-button-interactable"
+    text="~select-button-text"
+    on-click="select-button-click"
+    Height="10" InheritWidth="true"
+  />
 </vertical>

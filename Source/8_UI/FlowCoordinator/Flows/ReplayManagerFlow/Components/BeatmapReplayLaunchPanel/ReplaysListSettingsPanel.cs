@@ -2,50 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.UI.Hub.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
-using static BeatLeader.Components.BeatmapReplayLaunchPanel;
-using static BeatLeader.Components.ReplaysList;
 
 namespace BeatLeader.Components {
     internal class ReplaysListSettingsPanel : ReeUIComponentV3<ReplaysListSettingsPanel> {
-        #region Events
-
-        [ExternalProperty, UsedImplicitly]
-        public event Action<Sorter, SortOrder>? SorterChangedEvent;
-
-        [ExternalProperty, UsedImplicitly]
-        public event Action<ReplayMode>? ReplayModeChangedEvent;
-
-        [ExternalProperty, UsedImplicitly]
-        public event Action? ReloadDataEvent;
-
-        #endregion
-
-        #region UI Components
-
-        [UIComponent("tab-control")]
-        private readonly TextTabSelector _textTabControl = null!;
-
-        #endregion
-
         #region Sort & Order
 
-        public SortOrder SortOrder {
-            get => _sortOrder;
+        private ReplaysListSorter ReplaysListSorter {
+            get => _replaysListSorter;
             set {
-                _sortOrder = value;
-                _textTabControl.SelectTab(_sorter.ToString());
-                RefreshSorters();
-            }
-        }
-
-        public Sorter Sorter {
-            get => _sorter;
-            set {
-                _sorter = value;
+                _replaysListSorter = value;
                 NotifyPropertyChanged(nameof(StringSorter));
                 RefreshSorters();
             }
@@ -53,9 +23,9 @@ namespace BeatLeader.Components {
 
         [UIValue("sorter"), UsedImplicitly]
         private string StringSorter {
-            get => _sorter.ToString();
+            get => _replaysListSorter.ToString();
             set {
-                _sorter = StringConverter.Convert<Sorter>(value);
+                _replaysListSorter = StringConverter.Convert<ReplaysListSorter>(value);
                 RefreshSorters();
             }
         }
@@ -66,15 +36,17 @@ namespace BeatLeader.Components {
         [UIValue("orders"), UsedImplicitly]
         private readonly List<string> _localOrders = orders;
 
-        private static readonly List<object> sorters = Enum.GetNames(typeof(Sorter)).ToList<object>();
+        private static readonly List<object> sorters = Enum.GetNames(typeof(ReplaysListSorter)).ToList<object>();
 
         private static readonly List<string> orders = Enum.GetNames(typeof(SortOrder)).ToList();
 
         private SortOrder _sortOrder;
-        private Sorter _sorter;
+        private ReplaysListSorter _replaysListSorter;
 
         private void RefreshSorters() {
-            SorterChangedEvent?.Invoke(_sorter, _sortOrder);
+            ValidateAndThrow();
+            _replaysList!.Sorter = _replaysListSorter;
+            _replaysList.SortOrder = _sortOrder;
         }
 
         #endregion
@@ -92,10 +64,22 @@ namespace BeatLeader.Components {
 
         #region Setup
 
+        private IReplaysList? _replaysList;
+        private IReplaysLoader? _replaysLoader;
+        
+        public void Setup(IReplaysList replaysList, IReplaysLoader replaysLoader) {
+            _replaysList = replaysList;
+            _replaysLoader = replaysLoader;
+            RefreshSorters();
+        }
+
+        protected override bool OnValidation() {
+            return _replaysList is not null && _replaysLoader is not null;
+        }
+
         protected override void OnInitialize() {
             _settingsModal.SetField("_animateParentCanvas", false);
-            Sorter = Sorter.Date;
-            RefreshSorters();
+            _replaysListSorter = ReplaysListSorter.Date;
         }
 
         #endregion
@@ -110,17 +94,13 @@ namespace BeatLeader.Components {
 
         [UIAction("reload-click"), UsedImplicitly]
         private void HandleReloadButtonClicked(bool state) {
-            ReloadDataEvent?.Invoke();
+            ValidateAndThrow();
+            _replaysLoader!.StartReplaysLoad();
         }
 
         [UIAction("settings-click"), UsedImplicitly]
         private void HandleSettingsButtonClicked(bool state) {
             ShowModal();
-        }
-
-        [UIAction("battle-royale-click"), UsedImplicitly]
-        private void HandleBattleRoyaleButtonClicked(bool state) {
-            ReplayModeChangedEvent?.Invoke(state ? ReplayMode.BattleRoyale : ReplayMode.Standard);
         }
 
         #endregion

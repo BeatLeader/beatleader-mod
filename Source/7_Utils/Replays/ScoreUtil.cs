@@ -54,7 +54,7 @@ namespace BeatLeader.Utils {
             SaveReplay(replay, data);
             
             static void SaveReplay(Replay replay, PlayEndData data) {
-                _ = ReplayManager.Instance.SaveReplayAsync(replay, data, default);
+                //_ = ReplayManager.Instance.SaveReplayAsync(replay, data, default);
             }
         }
 

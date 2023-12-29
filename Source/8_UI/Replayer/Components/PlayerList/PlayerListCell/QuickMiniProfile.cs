@@ -52,11 +52,14 @@ namespace BeatLeader.Components {
 
         #region Setup
 
+        public IPlayer? Player { get; private set; }
+
         private string? _playerName;
         private string? _playerGlobalRank;
         private string? _playerPp;
-
+        
         public void SetPlayer(IPlayer? player) {
+            Player = player;
             _playerAvatar.SetPlayer(player);
             _playerCountryFlag.SetCountry(player?.Country ?? "not set");
 

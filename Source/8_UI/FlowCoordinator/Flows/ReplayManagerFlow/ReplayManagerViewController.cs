@@ -2,24 +2,20 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatLeader.Utils;
+using BeatLeader.UI.Hub.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using HMUI;
 using JetBrains.Annotations;
-using UnityEngine;
 using Zenject;
 
-namespace BeatLeader.ViewControllers {
+namespace BeatLeader.UI.Hub {
     [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.Flows.ReplayManagerFlow.ReplayManagerView.bsml")]
     internal class ReplayManagerViewController : BSMLAutomaticViewController {
         #region Injection
 
-        [Inject] private readonly LevelSelectionNavigationController _levelSelectionNavigationController = null!;
-        [Inject] private readonly LevelCollectionViewController _levelCollectionViewController = null!;
-        [Inject] private readonly StandardLevelDetailViewController _standardLevelDetailViewController = null!;
-        [Inject] private readonly BeatLeaderFlowCoordinator _beatLeaderFlowCoordinator = null!;
-        [Inject] private readonly IReplayerViewNavigator _replayerNavigator = null!;
+        [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;
+        [Inject] private readonly IReplayManager _replayManager = null!;
+        [Inject] private readonly IReplaysLoader _replaysLoader = null!;
 
         #endregion
 
@@ -28,78 +24,31 @@ namespace BeatLeader.ViewControllers {
         [UIValue("search-filters-panel"), UsedImplicitly]
         private SearchFiltersPanel _searchFiltersPanel = null!;
 
-        [UIValue("replay-launch-panel"), UsedImplicitly]
+        [UIComponent("replay-launch-panel"), UsedImplicitly]
         private BeatmapReplayLaunchPanel _replayPanel = null!;
 
         #endregion
 
         #region Init
 
-        private readonly HarmonyAutoPatch _dismissViewControllerPatch = new HarmonyPatchDescriptor(
-            typeof(ViewController).GetMethod(nameof(ViewController.__DismissViewController), ReflectionUtils.DefaultFlags)!,
-            typeof(ReplayLaunchViewController).GetMethod(nameof(DismissViewControllerPrefix), ReflectionUtils.StaticFlags));
-        
         private void Awake() {
-            _replayPanel = ReeUIComponentV2.Instantiate<BeatmapReplayLaunchPanel>(transform);
             _searchFiltersPanel = ReeUIComponentV2.Instantiate<SearchFiltersPanel>(transform);
-            var adapter = new ReplayerNavigatingStarter(_beatLeaderFlowCoordinator, false, _replayerNavigator);
-            _replayPanel.Setup(ReplayManager.Instance, adapter);
-            _searchFiltersPanel.Setup(
-                ReplayManager.Instance,
-                this,
-                _beatLeaderFlowCoordinator,
-                _levelSelectionNavigationController,
-                _levelCollectionViewController,
-                _standardLevelDetailViewController);
-            _searchFiltersPanel.SearchDataChangedEvent += HandleSearchDataChanged;
+            _searchFiltersPanel.Setup(_replayManager);
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            if (firstActivation) _replayPanel.ReloadData();
+            if (firstActivation) {
+                _replayPanel.Setup(_replaysLoader);
+                _replayPanel.ReplayFilter = _searchFiltersPanel;
+                _replaysLoader.StartReplaysLoad();
+            }
             _searchFiltersPanel.NotifyContainerStateChanged();
-            _replayPanel.PrepareForDisplay();
         }
-        
-        public void __DismissViewController(
-            Action finishedCallback,
-            AnimationDirection animationDirection,
-            bool immediately)
-        {
+
+        public override void __DismissViewController(Action finishedCallback, AnimationDirection animationDirection = AnimationDirection.Horizontal, bool immediately = false) {
             _childViewController?.__DismissViewController(null, immediately: true);
             base.__DismissViewController(finishedCallback, animationDirection, immediately);
-        }
-
-        #endregion
-
-        #region Callbacks
-
-        private void HandleSearchDataChanged(string searchPrompt, FiltersMenu.FiltersData filters) {
-            var prompt = searchPrompt.ToLower();
-            var beatmap = filters.previewBeatmapLevel;
-            var diff = filters.beatmapDifficulty;
-            var characteristic = filters.beatmapCharacteristic?.serializedName;
-            var hasNoFilters = 
-                !filters.overrideBeatmap 
-                && string.IsNullOrEmpty(prompt)
-                && string.IsNullOrEmpty(characteristic)
-                && !diff.HasValue;
-            //if (filters is { overrideBeatmap: true, previewBeatmapLevel: null }) return;
-            _replayPanel.FilterBy(hasNoFilters ? null : SearchPredicate);
-
-            bool SearchPredicate(IReplayHeader header) {
-                return header.ReplayInfo is not { } info ||
-                    info.PlayerName.ToLower().Contains(prompt)
-                    && (beatmap is null || beatmap.levelID.Replace("custom_level_", "") == info.SongHash)
-                    && (!diff.HasValue || info.SongDifficulty == diff.Value.ToString())
-                    && (characteristic is null || info.SongMode == characteristic);
-            }
-        }
-
-        private static void DismissViewControllerPrefix(object __instance) {
-            if (__instance is not ReplayLaunchViewController { } view) return;
-            ((ReplayLaunchViewController)__instance)._replayPanel.PrepareForDismiss();
-            view._childViewController?.__DismissViewController(null, immediately: true);
         }
 
         #endregion

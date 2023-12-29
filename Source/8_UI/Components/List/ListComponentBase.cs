@@ -307,7 +307,7 @@ namespace BeatLeader.Components {
             });
             _selectedCellIndexes = _tableView.GetField<HashSet<int>, TableView>("_selectedCellIdxs");
             _tableView.gameObject.SetActive(true);
-            ShowEmptyScreen(false);
+            ShowEmptyScreen(true);
         }
 
         #endregion

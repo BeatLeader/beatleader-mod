@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -8,7 +9,7 @@ using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
 
-namespace BeatLeader.Components {
+namespace BeatLeader.UI.Hub {
     internal class ReplaysListSettingsPanel : ReeUIComponentV3<ReplaysListSettingsPanel> {
         #region Sort & Order
 

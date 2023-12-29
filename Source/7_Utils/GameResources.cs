@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace BeatLeader {
     internal static class GameResources {
+        public static readonly Material UINoGlowAdditiveMaterial = Resources
+            .FindObjectsOfTypeAll<Material>()
+            .First(static x => x.name == "UINoGlowAdditive");
+        
         public static readonly Material UINoGlowMaterial = Resources
             .FindObjectsOfTypeAll<Material>()
             .First(static x => x.name == "UINoGlow");
@@ -11,5 +15,13 @@ namespace BeatLeader {
             .FindObjectsOfTypeAll<Material>()
             .Where(static x => x.name == "Teko-Medium SDF Curved Softer")
             .First(static x => x.mainTexture.name == "Teko-Medium SDF Atlas");
+        
+        public static readonly Signal ClickSignal = Resources
+            .FindObjectsOfTypeAll<Signal>()
+            .First(static x => x.name == "TableCellWasPressed");
+
+        public static readonly Sprite RoundRectSprite = Resources
+            .FindObjectsOfTypeAll<Sprite>()
+            .First(static x => x.name == "RoundRect10");
     }
 }

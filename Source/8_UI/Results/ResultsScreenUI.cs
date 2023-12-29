@@ -25,7 +25,8 @@ namespace BeatLeader.ViewControllers {
         }
 
         public void Refresh() {
-            _replayButton.Interactable = ReplayManager.Instance.CachedReplay is not null;
+            //TODO: inject
+            //_replayButton.Interactable = ReplayManager.Instance.CachedReplay is not null;
         }
 
         #endregion

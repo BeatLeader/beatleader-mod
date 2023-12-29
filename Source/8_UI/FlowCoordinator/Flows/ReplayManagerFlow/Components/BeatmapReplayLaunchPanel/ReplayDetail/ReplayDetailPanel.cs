@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Interop;
+using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using UnityEngine;
 using static BeatLeader.Models.FileStatus;
 
-namespace BeatLeader.Components {
+namespace BeatLeader.UI.Hub {
+    //TODO: rewrite beatmap downloading (BEFORE MERGING!)
     internal class ReplayDetailPanel : ReeUIComponentV3<ReplayDetailPanel>, BeatmapReplayLaunchPanel.IDetailPanel {
         #region Configuration
 
@@ -26,8 +26,8 @@ namespace BeatLeader.Components {
         [UIValue("download-beatmap-panel"), UsedImplicitly]
         private DownloadBeatmapPanel _downloadBeatmapPanel = null!;
 
-        [UIComponent("mini-profile-panel"), UsedImplicitly]
-        private HorizontalMiniProfileContainer _miniProfile = null!;
+        [UIComponent("mini-profile"), UsedImplicitly]
+        private QuickMiniProfile _miniProfile = null!;
 
         #endregion
 
@@ -68,10 +68,6 @@ namespace BeatLeader.Components {
 
         #region Init
 
-        public bool AllowReplayMultiselect => false;
-
-        private readonly ReplayerMenuLoader? _menuLoader = ReplayerMenuLoader.Instance;
-
         protected override void OnInstantiate() {
             _replayStatisticsPanel = ReeUIComponentV2.Instantiate<ReplayStatisticsPanel>(transform);
             _downloadBeatmapPanel = ReeUIComponentV2.Instantiate<DownloadBeatmapPanel>(transform);
@@ -86,7 +82,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _ = _miniProfile.SetPlayer(null);
+            _miniProfile.SetPlayer(null);
         }
 
         #endregion
@@ -104,17 +100,18 @@ namespace BeatLeader.Components {
         #region Data
 
         private CancellationTokenSource _cancellationTokenSource = new();
+        private IBeatmapReplayLaunchPanel? _beatmapReplayLaunchPanel;
         private IReplayHeader? _header;
 
         private bool _beatmapIsMissing;
         private bool _isIntoDownloadMenu;
         private bool _isWorking;
 
-        void BeatmapReplayLaunchPanel.IDetailPanel.SetData(IBeatmapReplayLaunchPanel launchPanel, IReadOnlyList<IReplayHeader> headers) {
-            SetData(headers.Count > 0 ? headers[0] : null);
+        public void Setup(IBeatmapReplayLaunchPanel? launchPanel, Transform? parent) {
+            _beatmapReplayLaunchPanel = launchPanel;
+            ContentTransform.SetParent(parent, false);
+            Content.SetActive(parent is not null);
         }
-
-        public void OnStateChange(bool active) { }
 
         public void SetData(IReplayHeader? header) {
             if (_isWorking) {
@@ -132,12 +129,12 @@ namespace BeatLeader.Components {
                 _ = ProcessDataAsync(header!, _cancellationTokenSource.Token);
                 return;
             }
-            _ = _miniProfile.SetPlayer(null);
+            _miniProfile.SetPlayer(null);
             _isWorking = false;
         }
 
         private async Task ProcessDataAsync(IReplayHeader header, CancellationToken token) {
-            var playerTask = _miniProfile.SetPlayer(header.ReplayInfo?.PlayerID);
+            var playerTask = header.LoadPlayerAsync(false, token);
             DeleteButtonInteractable = false;
             var replay = await header.LoadReplayAsync(token);
             if (token.IsCancellationRequested) return;
@@ -152,19 +149,21 @@ namespace BeatLeader.Components {
             if (token.IsCancellationRequested) return;
             _replayStatisticsPanel.SetData(score, stats, score is null || stats is null);
             await playerTask;
+            _miniProfile.SetPlayer(playerTask.Result);
             await RefreshAvailabilityAsync(header.ReplayInfo!, token);
         }
 
         private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
-            var beatmap = await _menuLoader!.LoadBeatmapAsync(
-                info.SongHash, info.SongMode, info.SongDifficulty, token);
-            if (token.IsCancellationRequested) return;
-            var invalid = beatmap is null;
-            WatchButtonText = invalid ? DownloadText : WatchText;
-            WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
-            _beatmapIsMissing = invalid;
-            if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
-            _isWorking = false;
+            //var beatmap = await _menuLoader!.LoadBeatmapAsync(
+            //    info.SongHash, info.SongMode, info.SongDifficulty, token
+            //);
+            //if (token.IsCancellationRequested) return;
+            //var invalid = beatmap is null;
+            //WatchButtonText = invalid ? DownloadText : WatchText;
+            //WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
+            //_beatmapIsMissing = invalid;
+            //if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
+            //_isWorking = false;
         }
 
         #endregion
@@ -197,7 +196,7 @@ namespace BeatLeader.Components {
                 return;
             }
             if (_header is null || _header.FileStatus is Corrupted) return;
-            _ = _menuLoader!.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _miniProfile.Player);
+            //TODO: notify event to launch the replay
         }
 
         #endregion

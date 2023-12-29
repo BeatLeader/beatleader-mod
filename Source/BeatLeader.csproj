@@ -203,8 +203,4 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="9_Resources\BSML\FlowCoordinator\Flows\" />
-    </ItemGroup>
 </Project>

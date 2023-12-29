@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.API;
 
 namespace BeatLeader.Models {
     public class GenericReplayHeader : IReplayHeader {
@@ -24,9 +26,6 @@ namespace BeatLeader.Models {
             _status = FileStatus.Loaded;
         }
 
-        private readonly IReplayFileManager _replayManager;
-        private Replay.Replay? _cachedReplay;
-
         public FileStatus FileStatus {
             get => _status;
             private set {
@@ -34,12 +33,16 @@ namespace BeatLeader.Models {
                 StatusChangedEvent?.Invoke(value);
             }
         }
+
         public string FilePath { get; }
         public IReplayInfo? ReplayInfo { get; private set; }
 
         public event Action<FileStatus>? StatusChangedEvent;
 
+        private readonly IReplayFileManager _replayManager;
         private FileStatus _status;
+        private Replay.Replay? _cachedReplay;
+        private IPlayer? _cachedPlayer;
 
         public async Task<Replay.Replay?> LoadReplayAsync(CancellationToken token) {
             if (_cachedReplay is not null) return _cachedReplay;
@@ -47,6 +50,18 @@ namespace BeatLeader.Models {
             _cachedReplay = await _replayManager.LoadReplayAsync(this, token);
             FileStatus = _cachedReplay is null ? FileStatus.Corrupted : FileStatus.Loaded;
             return _cachedReplay;
+        }
+
+        public async Task<IPlayer> LoadPlayerAsync(bool bypassCache, CancellationToken token) {
+            if (_cachedPlayer is not null && !bypassCache) return _cachedPlayer;
+            var request = PlayerRequest.SendRequest(ReplayInfo!.PlayerID);
+            await request.Join();
+            if (request.RequestStatusCode is not HttpStatusCode.OK) {
+                Plugin.Log.Error($"Failed to load player(id: {ReplayInfo.PlayerID}) from the server!");
+            } else {
+                _cachedPlayer = request.Result;
+            }
+            return _cachedPlayer ?? Player.GuestPlayer;
         }
 
         public bool DeleteReplay() {

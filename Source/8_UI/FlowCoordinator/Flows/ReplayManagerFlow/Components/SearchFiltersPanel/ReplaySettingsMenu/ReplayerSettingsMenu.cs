@@ -226,9 +226,9 @@ namespace BeatLeader.Components {
         private async Task DeleteAllReplaysAsync() {
             if (_replayManager is null) throw new UninitializedComponentException();
             SetupModal(ModalState.ProcessingDeletion);
-            _cancellationTokenSource = new();
-            var removedPaths = await _replayManager.DeleteAllReplaysAsync(_cancellationTokenSource.Token);
-            _deletedReplaysCount = removedPaths?.Length ?? 0;
+            //_cancellationTokenSource = new();
+            //var removedPaths = await _replayManager.DeleteAllReplaysAsync(_cancellationTokenSource.Token);
+            //_deletedReplaysCount = removedPaths?.Length ?? 0;
             SetupModal(ModalState.Finish);
             _cancellationTokenSource = null;
         }

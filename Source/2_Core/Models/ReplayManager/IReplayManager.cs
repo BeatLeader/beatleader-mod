@@ -10,21 +10,11 @@ namespace BeatLeader.Models {
     public interface IReplayManager {
         event Action<IReplayHeader>? ReplayAddedEvent;
         event Action<IReplayHeader>? ReplayDeletedEvent;
-        event Action<string[]?>? ReplaysDeletedEvent;
 
         IReplayHeader? CachedReplay { get; }
+        IReadOnlyList<IReplayHeader> Replays { get; }
 
-        Task<IList<IReplayHeader>?> LoadReplayHeadersAsync(
-            CancellationToken token,
-            Action<IReplayHeader>? loadCallback = null
-        );
-
-        Task<IReplayHeader?> SaveReplayAsync(
-            RReplay replay,
-            PlayEndData playEndData,
-            CancellationToken token
-        );
-
-        Task<string[]?> DeleteAllReplaysAsync(CancellationToken token);
+        Task LoadReplayHeadersAsync(CancellationToken token);
+        Task<IReplayHeader?> SaveReplayAsync(RReplay replay, PlayEndData playEndData, CancellationToken token);
     }
 }

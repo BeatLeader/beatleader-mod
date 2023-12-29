@@ -42,18 +42,19 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly GameScenesManager _scenesManager = null!;
         [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
         [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
+        [Inject] private readonly IReplayManager _replayManager = null!;
 
-        public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
+        public async Task StartReplayAsync(Replay replay, IPlayer? player = null, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
 
-        public async Task StartReplayAsync(Replay replay, Player? player, ReplayerSettings? settings, CancellationToken token) {
+        public async Task StartReplayAsync(Replay replay, IPlayer? player, ReplayerSettings? settings, CancellationToken token) {
             settings ??= ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
             var info = replay.info;
             
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
-            ReplayManager.ValidateReplayInfo(info, null);
+            ReplayManager.SaturateReplayInfo(info, null);
             await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
             
@@ -64,7 +65,7 @@ namespace BeatLeader.Replayer {
             StartReplay(data);
         }
 
-        public async Task StartReplaysAsync(IReadOnlyDictionary<Replay, Player?> replays, ReplayerSettings? settings, CancellationToken token) {
+        public async Task StartReplaysAsync(IReadOnlyDictionary<Replay, IPlayer?> replays, ReplayerSettings? settings, CancellationToken token) {
             if (replays.Count == 0) return;
             
             settings ??= ReplayerSettings.UserSettings;
@@ -92,7 +93,7 @@ namespace BeatLeader.Replayer {
 
         public async Task StartLastReplayAsync() {
             if (Instance is null) return;
-            if (ReplayManager.Instance.CachedReplay is not { } header) return;
+            if (_replayManager.CachedReplay is not { } header) return;
             var replay = await header.LoadReplayAsync(default);
             await StartReplayAsync(replay!, ProfileManager.Profile);
         }

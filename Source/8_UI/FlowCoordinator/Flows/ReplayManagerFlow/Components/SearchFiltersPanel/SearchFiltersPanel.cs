@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.UI.Hub.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
@@ -10,17 +11,30 @@ namespace BeatLeader.Components {
     internal class SearchFiltersPanel : ReeUIComponentV2, IReplayFilter {
         #region ReplayFilter
 
-        public IPreviewBeatmapLevel? BeatmapLevel => _beatmapFiltersPanel.BeatmapLevel;
-        public BeatmapCharacteristicSO? BeatmapCharacteristic => _beatmapFiltersPanel.BeatmapCharacteristic;
-        public BeatmapDifficulty? BeatmapDifficulty => _beatmapFiltersPanel.BeatmapDifficulty;
-        public string? PlayerName { get; private set; }
-
-        public bool Enabled => _beatmapFiltersPanel.Enabled;
+        private IPreviewBeatmapLevel? BeatmapLevel => _beatmapFiltersPanel.BeatmapLevel;
+        private BeatmapCharacteristicSO? BeatmapCharacteristic => _beatmapFiltersPanel.BeatmapCharacteristic;
+        private BeatmapDifficulty? BeatmapDifficulty => _beatmapFiltersPanel.BeatmapDifficulty;
+        private string? PlayerName { get; set; }
         
         public event Action? FilterUpdatedEvent;
 
         private void NotifyFilterUpdated() {
             FilterUpdatedEvent?.Invoke();
+        }
+        
+        public bool MatchesFilter(IReplayInfo? info) {
+            if (_beatmapFiltersPanel.Enabled) return true;
+            
+            if (info is null) return false;
+            var level = BeatmapLevel?.levelID;
+            var characteristic = BeatmapCharacteristic?.serializedName;
+            var diff = BeatmapDifficulty;
+
+            var playerMatches = PlayerName is null || info.PlayerName.ToLower().Contains(PlayerName);
+            var hashMatches = level is null || level.Replace("custom_level_", "") == info.SongHash;
+            var diffMatches = !diff.HasValue || info.SongDifficulty == diff.Value.ToString();
+            var characteristicMatches = characteristic is null || info.SongMode == characteristic;
+            return playerMatches && hashMatches && diffMatches && characteristicMatches;
         }
         
         #endregion
@@ -46,11 +60,6 @@ namespace BeatLeader.Components {
 
         #region Init
 
-        public bool FilterPanelInteractable {
-            get => _filterPanel.Interactable;
-            set => _filterPanel.Interactable = value;
-        }
-
         protected override void OnInitialize() {
             _modal.blockerClickedEvent += HandleModalClosed;
             _modal.SetField("_animateParentCanvas", false);
@@ -64,7 +73,7 @@ namespace BeatLeader.Components {
             _beatmapFiltersPanel = Instantiate<BeatmapFiltersPanel>(transform);
             _replayerSettingsButton = Instantiate<ReplayerSettingsButton>(transform);
             _searchPanel.TextChangedEvent += HandleSearchPromptChanged;
-            _beatmapFiltersPanel.FilterUpdatedEvent += HandleFilterUpdated;
+            //_beatmapFiltersPanel.FilterUpdatedEvent += HandleFilterUpdated;
             _filterPanel.FilterButtonClickedEvent += HandleFilterButtonClicked;
             _filterPanel.ResetFiltersButtonClickEvent += HandleResetFiltersButtonClicked;
         }

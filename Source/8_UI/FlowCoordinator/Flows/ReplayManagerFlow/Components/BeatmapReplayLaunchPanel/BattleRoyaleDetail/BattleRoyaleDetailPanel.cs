@@ -1,123 +1,111 @@
-﻿using System;
-using System.Collections.Generic;
-using BeatLeader.API;
+﻿using System.Linq;
+using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.Models.Replay;
-using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using UnityEngine;
 
-namespace BeatLeader.Components {
-    internal class BattleRoyaleDetailPanel : ReeUIComponentV3<BattleRoyaleDetailPanel>, BeatmapReplayLaunchPanel.IDetailPanel, IReplayFilter {
-        #region ReplayFilter
+namespace BeatLeader.UI.Hub {
+    internal class BattleRoyaleDetailPanel : ReeUIComponentV3<BattleRoyaleDetailPanel>, BeatmapReplayLaunchPanel.IDetailPanel {
+        #region UI Components
 
-        public IPreviewBeatmapLevel? BeatmapLevel => _beatmapFiltersPanel.BeatmapLevel;
-        public BeatmapCharacteristicSO? BeatmapCharacteristic => _beatmapFiltersPanel.BeatmapCharacteristic;
-        public BeatmapDifficulty? BeatmapDifficulty => _beatmapFiltersPanel.BeatmapDifficulty;
-        public string? PlayerName { get; private set; }
+        [UIValue("replay-info-panel"), UsedImplicitly]
+        private ReplayStatisticsPanel _replayStatisticsPanel = null!;
 
-        public bool Enabled => true;
-
-        public event Action? FilterUpdatedEvent;
-
-        private void NotifyFilterUpdated() {
-            FilterUpdatedEvent?.Invoke();
-        }
+        [UIComponent("mini-profile"), UsedImplicitly]
+        private QuickMiniProfile _miniProfile = null!;
 
         #endregion
 
-        #region UI Components
+        #region UI Values
 
-        [UIComponent("opponents-list"), UsedImplicitly]
-        private BattleRoyaleOpponentsList _opponentsList = null!;
+        [UIValue("select-button-text"), UsedImplicitly]
+        private string SelectButtonText {
+            get => _selectButtonText;
+            set {
+                _selectButtonText = value;
+                NotifyPropertyChanged();
+            }
+        }
 
-        [UIComponent("object-switcher"), UsedImplicitly]
-        private ObjectSwitcher _objectSwitcher = null!;
+        [UIValue("select-button-interactable"), UsedImplicitly]
+        private bool SelectButtonInteractable {
+            get => _selectButtonInteractable;
+            set {
+                _selectButtonInteractable = value;
+                NotifyPropertyChanged();
+            }
+        }
 
-        [UIValue("beatmap-filters-panel"), UsedImplicitly]
-        private BeatmapFiltersPanel _beatmapFiltersPanel = null!;
+        private string _selectButtonText = null!;
+        private bool _selectButtonInteractable;
+
+        #endregion
+
+        #region DetailPanel
+        
+        private IBeatmapReplayLaunchPanel? _beatmapReplayLaunchPanel;
+        private IReplayHeader? _header;
+
+        public void Setup(IBeatmapReplayLaunchPanel? launchPanel, Transform? parent) {
+            _beatmapReplayLaunchPanel = launchPanel;
+            UpdateSelectButton();
+            ContentTransform.SetParent(parent, false);
+            Content.SetActive(parent is not null);
+        }
+
+        public void SetData(IReplayHeader? header) {
+            _header = header;
+            UpdateSelectButton();
+            _replayStatisticsPanel.SetDataByHeaderAsync(header);
+            LoadPlayerAsync(header);
+        }
+
+        private async void LoadPlayerAsync(IReplayHeaderBase? header) {
+            var player = header is null ? null : await header.LoadPlayerAsync(false, default);
+            _miniProfile.SetPlayer(player);
+        }
 
         #endregion
 
         #region Setup
 
-        public bool AllowReplayMultiselect => true;
-
-        private IBeatmapReplayLaunchPanel _replayLaunchPanel = null!;
-        private IListComponent<IReplayHeader> _replaysList = null!;
-        private IReplayFilter? _originalReplayFilter;
-
-        public void SetData(IBeatmapReplayLaunchPanel launchPanel, IReadOnlyList<IReplayHeader> headers) {
-            _replayLaunchPanel = launchPanel;
-            _replaysList = launchPanel.List;
-            _opponentsList.items.Clear();
-            _opponentsList.items.AddRange(headers);
-            _opponentsList.Refresh();
-            _opponentsList.Setup(_replaysList);
-        }
-
-        public void OnStateChange(bool active) {
-            if (active) {
-                _originalReplayFilter = _replayLaunchPanel.Filter;
-                if (_originalReplayFilter is not null) {
-                    _originalReplayFilter.FilterUpdatedEvent += HandleOriginalFilterUpdated;
-                    HandleOriginalFilterUpdated();
-                }
-                _replayLaunchPanel.Filter = this;
-            } else {
-                _replayLaunchPanel.Filter = _originalReplayFilter;
-                if (_originalReplayFilter is not null) {
-                    _originalReplayFilter.FilterUpdatedEvent -= HandleOriginalFilterUpdated;
-                }
-            }
-        }
-
-        protected override void OnInitialize() {
-            _objectSwitcher.ShowObjectWithIndex(0);
-            _beatmapFiltersPanel.DisplayToggles = false;
-        }
-
         protected override void OnInstantiate() {
-            _beatmapFiltersPanel = ReeUIComponentV2.Instantiate<BeatmapFiltersPanel>(transform);
-            _beatmapFiltersPanel.FilterUpdatedEvent += HandleFilterUpdated;
+            _replayStatisticsPanel = ReeUIComponentV2.Instantiate<ReplayStatisticsPanel>(transform);
+        }
+
+        protected override bool OnValidation() {
+            return _beatmapReplayLaunchPanel is not null;
+        }
+
+        #endregion
+
+        #region SelectButton
+
+        private bool _replayIsAdded;
+
+        private void UpdateSelectButton() {
+            ValidateAndThrow();
+            var interactable = _header is not null;
+            SelectButtonInteractable = interactable;
+            var containsCurrent = !interactable || _beatmapReplayLaunchPanel!.SelectedReplays.Contains(_header!);
+            SelectButtonText = containsCurrent ? "Remove" : "Select";
+            _replayIsAdded = containsCurrent;
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandleFilterUpdated() {
-            NotifyFilterUpdated();
-        }
-
-        private void HandleOriginalFilterUpdated() {
-            PlayerName = _originalReplayFilter!.PlayerName;
-            NotifyFilterUpdated();
-        }
-
-        [UIAction("remove-all-opponents-click"), UsedImplicitly]
-        private void HandleRemoveAllOpponentsButtonClicked() {
-            _opponentsList.items.Clear();
-            _opponentsList.Refresh();
-            _replaysList.ClearSelection();
-        }
-
-        [UIAction("cell-select"), UsedImplicitly]
-        private void HandleCellWithKeySelected(string key) {
-            _objectSwitcher.ShowObjectWithKey(key);
-        }
-
-        [UIAction("start-button-click"), UsedImplicitly]
-        private async void HandleStartButtonClicked() {
-            var replays = new Dictionary<Replay, Player?>();
-            foreach (var header in _opponentsList.items) {
-                var replayTask = header.LoadReplayAsync(default);
-                var playerRequest = PlayerRequest.SendRequest(header.ReplayInfo!.PlayerID);
-                var replay = await replayTask;
-                await playerRequest.Join();
-                replays.Add(replay!, playerRequest.Result);
+        [UIAction("select-button-click"), UsedImplicitly]
+        private void HandleSelectButtonClicked() {
+            ValidateAndThrow();
+            if (_replayIsAdded) {
+                _beatmapReplayLaunchPanel!.RemoveSelectedReplay(_header!);
+            } else {
+                _beatmapReplayLaunchPanel!.AddSelectedReplay(_header!);
             }
-            _ = ReplayerMenuLoader.Instance!.StartReplaysAsync(replays, null, default);
+            UpdateSelectButton();
         }
 
         #endregion

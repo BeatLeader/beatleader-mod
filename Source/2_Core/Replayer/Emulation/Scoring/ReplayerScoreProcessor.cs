@@ -77,11 +77,10 @@ namespace BeatLeader.Replayer.Emulation {
             var prevNode = _startNodeForLastProcessedTime;
             for (var node = startNode; node != null; node = node.Next) {
                 noteData = node.Value;
-                if (Mathf.Abs(_startNodeForLastProcessedTime?
-                        .Value.time ?? 0 - noteData.time) < 1e-6) {
+                if (Mathf.Abs(_startNodeForLastProcessedTime?.Value.time ?? 0 - noteData.time) < 1e-3) {
                     _startNodeForLastProcessedTime = node;
                 }
-                if (Mathf.Abs(noteEvent.spawnTime - noteData.time) < 1e-6
+                if (Mathf.Abs(noteEvent.spawnTime - noteData.time) < 1e-3
                     && _comparator.Compare(noteEvent, noteData)) {
                     return true;
                 }

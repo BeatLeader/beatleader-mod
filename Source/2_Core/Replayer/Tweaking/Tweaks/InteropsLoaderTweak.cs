@@ -22,7 +22,7 @@ namespace BeatLeader.Replayer.Tweaking {
         }
 
         private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
-            Cam2Interop.HeadTransform = player.ControllersProvider.Head.transform;
+            Cam2Interop.HeadTransform = player.Body.ControllersProvider.Head.transform;
         }
         
         private void HandleNoteWasDespawned(NoteController controller) {

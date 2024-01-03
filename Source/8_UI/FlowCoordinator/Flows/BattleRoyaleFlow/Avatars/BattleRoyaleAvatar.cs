@@ -36,9 +36,8 @@ namespace BeatLeader.UI.Hub {
         private readonly AvatarData _avatarData = new();
 
         public void Init(IReplayHeaderBase header) {
-            var seed = header.ReplayInfo!.PlayerID.GetHashCode();
-            var random = new Random(seed);
-            RandomizeAvatar(random, _avatarData, _avatarPartsModel);
+            var playerId = header.ReplayInfo!.PlayerID;
+            AvatarUtils.RandomizeAvatarByPlayerId(playerId, _avatarData, _avatarPartsModel);
             _avatarVisualController.UpdateAvatarVisual(_avatarData);
         }
 
@@ -78,44 +77,6 @@ namespace BeatLeader.UI.Hub {
 
         private void OnDisable() {
             HideAvatar();
-        }
-
-        #endregion
-
-        #region RandomizeAvatar
-
-        private static void RandomizeAvatar(Random random, AvatarData avatarData, AvatarPartsModel avatarPartsModel) {
-            RandomizeModels(random, avatarData, avatarPartsModel);
-            RandomizeColors(random, avatarData);
-        }
-
-        private static void RandomizeModels(Random random, AvatarData avatarData, AvatarPartsModel avatarPartsModel) {
-            avatarData.headTopId = RandomItem(random, avatarPartsModel.headTopCollection);
-            avatarData.eyesId = RandomItem(random, avatarPartsModel.eyesCollection);
-            avatarData.mouthId = RandomItem(random, avatarPartsModel.mouthCollection);
-            avatarData.glassesId = RandomItem(random, avatarPartsModel.glassesCollection);
-            avatarData.facialHairId = RandomItem(random, avatarPartsModel.facialHairCollection);
-            avatarData.handsId = RandomItem(random, avatarPartsModel.handsCollection);
-            avatarData.clothesId = RandomItem(random, avatarPartsModel.clothesCollection);
-
-            static string RandomItem<T>(Random random, AvatarPartCollection<T> collection) where T : Object, IAvatarPart {
-                return collection.GetByIndex(random.Next(0, collection.count)).id;
-            }
-        }
-
-        private static void RandomizeColors(Random random, AvatarData avatarData) {
-            avatarData.headTopPrimaryColor = RandomColor(random);
-            avatarData.headTopSecondaryColor = RandomColor(random);
-            avatarData.glassesColor = RandomColor(random);
-            avatarData.facialHairColor = RandomColor(random);
-            avatarData.handsColor = RandomColor(random);
-            avatarData.clothesPrimaryColor = RandomColor(random);
-            avatarData.clothesSecondaryColor = RandomColor(random);
-            avatarData.clothesDetailColor = RandomColor(random);
-
-            static Color RandomColor(Random random) {
-                return ColorUtils.RandomColor(rand: random);
-            }
         }
 
         #endregion

@@ -7,10 +7,10 @@ using Zenject;
 namespace BeatLeader.Replayer.Emulation {
     internal class VirtualPlayer : TickablePoolItem, IVirtualPlayer {
         #region Pool
-        
+
         public class Pool : MemoryPool<VirtualPlayer> {
             protected override void OnSpawned(VirtualPlayer item) => item.HandleInstanceSpawned();
-            
+
             protected override void OnDespawned(VirtualPlayer item) => item.HandleInstanceDespawned();
         }
 
@@ -32,24 +32,29 @@ namespace BeatLeader.Replayer.Emulation {
         #endregion
 
         #region Injection
-        
+
         [Inject] private readonly IBeatmapTimeController _beatmapTimeController = null!;
         [Inject] private readonly ReplayBeatmapEventsProcessor.Pool _eventProcessorsPool = null!;
         [Inject] private readonly ReplayScoreEventsProcessor.Pool _scoreProcessorsPool = null!;
-        
+
         #endregion
 
         #region VirtualPlayer
 
+        public IVirtualPlayerBody Body { get; private set; } = null!;
+        public IVirtualPlayerSabers Sabers { get; private set; } = null!;
+        
+        private IVRControllersProvider BodyControllersProvider => Body.ControllersProvider;
+        private IHandVRControllersProvider SaberControllersProvider => Sabers.ControllersProvider;
+
         public IReplay Replay { get; private set; } = null!;
         public IReplayScoreEventsProcessor ReplayScoreEventsProcessor => _scoreEventsProcessor;
         public IReplayBeatmapEventsProcessor ReplayBeatmapEventsProcessor => _beatmapEventsProcessor;
-        public IVRControllersProvider ControllersProvider { get; private set; } = null!;
 
         #endregion
-        
+
         #region Setup
-        
+
         public bool enableInterpolation = true;
 
         private LinkedListNode<PlayerMovementFrame>? _lastProcessedNode;
@@ -71,14 +76,18 @@ namespace BeatLeader.Replayer.Emulation {
             _allowPlayback = true;
         }
 
-        public void ApplyControllers(IVRControllersProvider provider) {
-            ControllersProvider = provider;
+        public void InitBodyAndSabers(
+            IVirtualPlayerBody body,
+            IVirtualPlayerSabers sabers
+        ) {
+            Body = body;
+            Sabers = sabers;
         }
 
         #endregion
 
         #region Playback
-        
+
         public override void Tick() {
             if (!_allowPlayback) return;
             var result = TryGetFrameByTime(
@@ -88,7 +97,7 @@ namespace BeatLeader.Replayer.Emulation {
             );
             if (result) PlayFrame(frame?.Previous);
         }
-        
+
         private void PlayFrame(LinkedListNode<PlayerMovementFrame>? frame) {
             if (frame?.Next == null) return;
             _lastProcessedNode = frame;
@@ -108,11 +117,14 @@ namespace BeatLeader.Replayer.Emulation {
                 headPose = headPose.Lerp(nextFrame.headPose, t);
             }
 
-            ControllersProvider.LeftSaber.transform.SetLocalPose(leftSaberPose);
-            ControllersProvider.RightSaber.transform.SetLocalPose(rightSaberPose);
-            ControllersProvider.Head.transform.SetLocalPose(headPose);
+            BodyControllersProvider.LeftHand.transform.SetLocalPose(leftSaberPose);
+            BodyControllersProvider.RightHand.transform.SetLocalPose(rightSaberPose);
+            BodyControllersProvider.Head.transform.SetLocalPose(headPose);
+            
+            SaberControllersProvider.LeftHand.transform.SetLocalPose(leftSaberPose);
+            SaberControllersProvider.RightHand.transform.SetLocalPose(rightSaberPose);
         }
-        
+
         private static bool TryGetFrameByTime(
             LinkedListNode<PlayerMovementFrame> entryPoint,
             float time, out LinkedListNode<PlayerMovementFrame>? frame

@@ -35,9 +35,9 @@ namespace BeatLeader.Components {
         private IVRControllersProvider _controllersProvider = null!;
 
         private void RefreshVisibility() {
-            _controllersProvider.LeftSaber.gameObject.SetActive(ShowLeftSaber);
-            _controllersProvider.RightSaber.gameObject.SetActive(ShowRightSaber);
-            _controllersProvider.Head.gameObject.SetActive(ShowHead);
+            //_controllersProvider.LeftHand.gameObject.SetActive(ShowLeftSaber);
+            //_controllersProvider.RightHand.gameObject.SetActive(ShowRightSaber);
+            //_controllersProvider.Head.gameObject.SetActive(ShowHead);
         }
 
         #endregion
@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
-            _controllersProvider = player.ControllersProvider!;
+            _controllersProvider = player.Body.ControllersProvider!;
             RefreshVisibility();
         }
 

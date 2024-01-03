@@ -60,7 +60,7 @@ namespace BeatLeader.Replayer {
         }
 
         private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
-            _cameraController.ControllersProvider = player.ControllersProvider!;
+            _cameraController.ControllersProvider = player.Body.ControllersProvider!;
         }
 
         private static Camera? CreateCamera() {

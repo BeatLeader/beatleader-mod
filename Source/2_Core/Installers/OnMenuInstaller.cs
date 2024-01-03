@@ -1,6 +1,7 @@
 using BeatLeader.DataManager;
 using BeatLeader.ViewControllers;
 using BeatLeader.Replayer;
+using BeatLeader.Replayer.Emulation;
 using BeatLeader.UI.Hub;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
@@ -43,6 +44,7 @@ namespace BeatLeader.Installers {
             Container.Bind<ReplayManagerFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<ReplayManagerViewController>().FromNewComponentAsViewController().AsSingle();
             //<-----------------------------Battle Royale----------------------------->
+            Container.Bind<AvatarLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BattleRoyaleAvatarsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindMemoryPool<BattleRoyaleAvatar, BattleRoyaleAvatar.Pool>().FromNewComponentOnNewPrefab(new GameObject("BattleRoyaleAvatar"));
             Container.BindInterfacesAndSelfTo<BattleRoyaleFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();

@@ -1,5 +1,6 @@
 ﻿namespace BeatLeader.Models {
     public interface IVirtualPlayer : IVirtualPlayerBase {
-        IVRControllersProvider ControllersProvider { get; }
+        IVirtualPlayerBody Body { get; }
+        IVirtualPlayerSabers Sabers { get; }
     }
 }

@@ -70,27 +70,29 @@ namespace BeatLeader.Installers {
             Container.Bind<ReplayLaunchData>().FromInstance(launchData).AsSingle();
             Container.BindInterfacesTo<ReplayBeatmapData>().AsSingle();
             Container.Bind<ReplayerExtraObjectsProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<ZenjectMenuResolver>().AsSingle();
 
             //Playback
             Container.BindInterfacesAndSelfTo<ReplayPauseController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayFinishController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            //VR Controllers
+            //Players
             Container.Bind<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            if (launchData.VRControllersSpawner is { } controllersSpawner) {
+            if (launchData.SabersSpawner is { } controllersSpawner) {
                 Container.BindInterfacesTo(controllersSpawner.GetType()).AsSingle();
             } else {
-                Container.BindInterfacesTo<VRControllersSpawner>().AsSingle();
+                Container.BindInterfacesTo<VirtualPlayerSabersSpawner>().AsSingle();
             }
+            Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>().WithInitialSize(2);
+            Container.BindInterfacesTo<VirtualPlayerAvatarBodySpawner>().AsSingle();
+            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2);
+            Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             
             //Event Processing
             Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(2);
             Container.BindMemoryPool<ReplayScoreEventsProcessor, ReplayScoreEventsProcessor.Pool>().WithInitialSize(2);
-            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2);
-            Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
             Container.BindInterfacesTo<ReplayBeatmapEventsProcessorProxy>().AsSingle();
             Container.Bind<ReplayHeightsProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

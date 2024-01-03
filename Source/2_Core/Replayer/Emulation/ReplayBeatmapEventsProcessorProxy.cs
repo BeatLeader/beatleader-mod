@@ -8,7 +8,7 @@ namespace BeatLeader.Replayer.Emulation {
     /// <summary>
     /// The ReplayBeatmapEventsProcessor proxy class. Useful for things that don't need to take additional info from players.
     /// </summary>
-    internal class ReplayBeatmapEventsProcessorProxy : IDisposable, IReplayBeatmapEventsProcessor {
+    internal class ReplayBeatmapEventsProcessorProxy : IInitializable, IDisposable, IReplayBeatmapEventsProcessor {
         #region Injection
 
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
@@ -19,58 +19,31 @@ namespace BeatLeader.Replayer.Emulation {
 
         public bool CurrentEventHasTimeMismatch {
             get {
+                //Zenject calls Initialize too lately, so we forced to do such shenanigans if we want to avoid Behaviour usage
                 Initialize();
-                return _beatmapEventsProcessor.CurrentEventHasTimeMismatch;
+                return _beatmapEventsProcessor!.CurrentEventHasTimeMismatch;
             }
         }
 
         public bool QueueIsBeingAdjusted {
             get {
                 Initialize();
-                return _beatmapEventsProcessor.QueueIsBeingAdjusted;
+                return _beatmapEventsProcessor!.QueueIsBeingAdjusted;
             }
         }
 
-        public event Action<LinkedListNode<NoteEvent>>? NoteEventDequeuedEvent {
-            add {
-                Initialize();
-                _beatmapEventsProcessor.NoteEventDequeuedEvent += value;
-            }
-            remove => _beatmapEventsProcessor.NoteEventDequeuedEvent -= value;
-        }
-
-        public event Action<LinkedListNode<WallEvent>>? WallEventDequeuedEvent {
-            add {
-                Initialize();
-                _beatmapEventsProcessor.WallEventDequeuedEvent += value;
-            }
-            remove => _beatmapEventsProcessor.WallEventDequeuedEvent -= value;
-        }
-
-        public event Action? EventQueueAdjustStartedEvent {
-            add {
-                Initialize();
-                _beatmapEventsProcessor.EventQueueAdjustStartedEvent += value;
-            }
-            remove => _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= value;
-        }
-
-        public event Action? EventQueueAdjustFinishedEvent {
-            add {
-                Initialize();
-                _beatmapEventsProcessor.EventQueueAdjustFinishedEvent += value;
-            }
-            remove => _beatmapEventsProcessor.EventQueueAdjustFinishedEvent -= value;
-        }
-
+        public event Action<LinkedListNode<NoteEvent>>? NoteEventDequeuedEvent;
+        public event Action<LinkedListNode<WallEvent>>? WallEventDequeuedEvent;
+        public event Action? EventQueueAdjustStartedEvent;
+        public event Action? EventQueueAdjustFinishedEvent;
+        
         #endregion
 
         #region Setup
 
-        private IReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
+        private IReplayBeatmapEventsProcessor? _beatmapEventsProcessor;
         private bool _isInitialized;
         
-        //Zenject calls Initialize too lately, so we forced to do such shenanigans if we want to avoid Behaviour usage
         public void Initialize() {
             if (_isInitialized) return;
             _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
@@ -80,14 +53,45 @@ namespace BeatLeader.Replayer.Emulation {
 
         public void Dispose() {
             _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
+            if (_beatmapEventsProcessor is null) return;
+            _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteEventDequeued;
+            _beatmapEventsProcessor.WallEventDequeuedEvent -= HandleWallEventDequeued;
+            _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleEventQueueAdjustStartedEvent;
+            _beatmapEventsProcessor.EventQueueAdjustFinishedEvent -= HandleEventQueueAdjustFinishedEvent;
         }
 
         #endregion
 
         #region Callbacks
 
+        private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node) {
+            NoteEventDequeuedEvent?.Invoke(node);
+        }
+        
+        private void HandleWallEventDequeued(LinkedListNode<WallEvent> node) {
+            WallEventDequeuedEvent?.Invoke(node);
+        }
+
+        private void HandleEventQueueAdjustStartedEvent() {
+            EventQueueAdjustStartedEvent?.Invoke();
+        }
+        
+        private void HandleEventQueueAdjustFinishedEvent() {
+            EventQueueAdjustFinishedEvent?.Invoke();
+        }
+        
         private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
+            if (_beatmapEventsProcessor is not null) {
+                _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteEventDequeued;
+                _beatmapEventsProcessor.WallEventDequeuedEvent -= HandleWallEventDequeued;
+                _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleEventQueueAdjustStartedEvent;
+                _beatmapEventsProcessor.EventQueueAdjustFinishedEvent -= HandleEventQueueAdjustFinishedEvent;
+            }
             _beatmapEventsProcessor = player.ReplayBeatmapEventsProcessor;
+            _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteEventDequeued;
+            _beatmapEventsProcessor.WallEventDequeuedEvent += HandleWallEventDequeued;
+            _beatmapEventsProcessor.EventQueueAdjustStartedEvent += HandleEventQueueAdjustStartedEvent;
+            _beatmapEventsProcessor.EventQueueAdjustFinishedEvent += HandleEventQueueAdjustFinishedEvent;
         }
         
         #endregion

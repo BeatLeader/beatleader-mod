@@ -16,6 +16,18 @@ namespace BeatLeader.Replayer {
 
         public static event Action<ReplayLaunchData>? ReplayWasStartedEvent;
         public static event Action<ReplayLaunchData>? ReplayWasFinishedEvent;
+        
+        public static bool TryGetMainReplayCustomData(string key, out byte[] result) {
+            var dictionary = LaunchData?.MainReplay?.CustomData;
+            
+            if (!IsStartedAsReplay || dictionary == null || !dictionary.ContainsKey(key)) {
+                result = default;
+                return false;
+            }
+
+            result = dictionary[key];
+            return true;
+        }
 
         public bool StartReplay(ReplayLaunchData data, Action? afterTransitionCallback = null) {
             if (data.Replays.Count == 0) return false;

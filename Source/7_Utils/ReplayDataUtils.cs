@@ -66,7 +66,9 @@ namespace BeatLeader.Utils {
                 notes.ToArray(),
                 walls.ToArray(),
                 pauses.ToArray(),
-                heights?.ToArray());
+                heights?.ToArray(),
+                replay.customData
+            );
         }
 
         #endregion

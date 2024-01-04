@@ -27,13 +27,17 @@ namespace BeatLeader.UI.Hub {
         [UIComponent("replay-launch-panel"), UsedImplicitly]
         private BeatmapReplayLaunchPanel _replayPanel = null!;
 
+        private ReplayDetailPanel _replayDetailPanel = null!;
+
         #endregion
 
         #region Init
 
         private void Awake() {
             _searchFiltersPanel = ReeUIComponentV2.Instantiate<SearchFiltersPanel>(transform);
+            _replayDetailPanel = ReplayDetailPanel.Instantiate(transform);
             _searchFiltersPanel.Setup(_replayManager);
+            _replayDetailPanel.Setup(_replayerLoader);
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
@@ -41,6 +45,7 @@ namespace BeatLeader.UI.Hub {
             if (firstActivation) {
                 _replayPanel.Setup(_replaysLoader);
                 _replayPanel.ReplayFilter = _searchFiltersPanel;
+                _replayPanel.DetailPanel = _replayDetailPanel;
                 _replaysLoader.StartReplaysLoad();
             }
             _searchFiltersPanel.NotifyContainerStateChanged();

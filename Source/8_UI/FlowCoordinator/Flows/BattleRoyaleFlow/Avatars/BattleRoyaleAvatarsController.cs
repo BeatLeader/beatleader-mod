@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
 using IPA.Utilities;
@@ -32,26 +33,51 @@ namespace BeatLeader.UI.Hub {
 
         #region Placement
 
-        private readonly Dictionary<IReplayHeaderBase, BattleRoyaleAvatar> _avatars = new();
-        private float _anchorAngle = -90f;
-        private float _avatarMarginAngle = 30f;
-        private float _radiusMultiplier = 3.5f;
+        //these attributes are useless in the game, but sometimes i need to modify them from RUE,
+        //so made them serializable to stop rider from yelling
+        [SerializeField] private float anchorAngle = -90f;
+        [SerializeField] private float avatarMarginAngle = 30f;
+        [SerializeField] private float radiusMultiplier = 3.5f;
+        [SerializeField] private float animationTime = 0.4f;
+        [SerializeField] private float animationFramerate = 120f;
 
-        private void RecalculateAvatarPositions() {
+        private readonly Dictionary<IReplayHeaderBase, BattleRoyaleAvatar> _avatars = new();
+
+        private void RecalculateAvatarPositions(BattleRoyaleAvatar? accentAvatar = null) {
             var index = 0;
+            var totalLength = (_avatars.Count - 1) * avatarMarginAngle;
+            var adjustmentAngle = anchorAngle + totalLength / 2;
             foreach (var (_, avatar) in _avatars) {
-                var angle = Mathf.Deg2Rad * index * _avatarMarginAngle;
-                var x = Mathf.Cos(angle);
-                var z = Mathf.Sin(angle);
+                var deg = index * avatarMarginAngle - adjustmentAngle;
+                var rad = Mathf.Deg2Rad * deg;
+                var x = Mathf.Cos(rad);
+                var z = Mathf.Sin(rad);
                 var pos = new Vector3(x, 0, z);
                 var trans = avatar.transform;
-                trans.localPosition = pos * _radiusMultiplier;
-                trans.LookAt(Vector3.zero);
+                pos *= radiusMultiplier;
+                if (avatar == accentAvatar) {
+                    trans.localPosition = pos;
+                    trans.LookAt(Vector3.zero);
+                } else {
+                    StartCoroutine(AdjustAvatarPositionAnimationCoroutine(trans, pos));
+                }
                 index++;
             }
-            var totalLength = (_avatars.Count - 1) * _avatarMarginAngle;
-            var rot = _anchorAngle + totalLength / 2;
-            transform.localEulerAngles = new(0, rot, 0);
+        }
+
+        private IEnumerator AdjustAvatarPositionAnimationCoroutine(Transform trans, Vector3 targetPosition) {
+            var totalFrames = animationTime * animationFramerate;
+            var timePerFrame = animationTime / animationFramerate;
+            var startPosition = trans.localPosition;
+
+            for (var i = 0; i < totalFrames; i++) {
+                yield return new WaitForSeconds(timePerFrame);
+                var t = Mathf.Sin(i / totalFrames * Mathf.PI * 0.5f);
+                trans.localPosition = Vector3.Lerp(startPosition, targetPosition, t);
+                trans.LookAt(Vector3.zero);
+            }
+
+            trans.localPosition = targetPosition;
         }
 
         #endregion
@@ -69,11 +95,10 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void HandleReplayAdded(IReplayHeaderBase header, object caller) {
-            var avatar = _battleRoyaleAvatarPool.Spawn();
-            avatar.Init(header);
+            var avatar = _battleRoyaleAvatarPool.Spawn(header);
             avatar.transform.SetParent(transform, false);
             _avatars[header] = avatar;
-            RecalculateAvatarPositions();
+            RecalculateAvatarPositions(avatar);
         }
 
         private void HandleReplayRemoved(IReplayHeaderBase header, object caller) {

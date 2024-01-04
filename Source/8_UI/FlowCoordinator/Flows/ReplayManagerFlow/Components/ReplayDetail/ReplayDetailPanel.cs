@@ -1,7 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
+using BeatLeader.Interop;
 using BeatLeader.Models;
+using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -66,12 +68,23 @@ namespace BeatLeader.UI.Hub {
 
         #endregion
 
-        #region Init
+        #region Setup
+
+        private ReplayerMenuLoader? _replayerMenuLoader;
+        
+        public void Setup(ReplayerMenuLoader menuLoader) {
+            _replayerMenuLoader = menuLoader;
+        }
+        
+        void BeatmapReplayLaunchPanel.IDetailPanel.Setup(IBeatmapReplayLaunchPanel? launchPanel, Transform? parent) {
+            _beatmapReplayLaunchPanel = launchPanel;
+            ContentTransform.SetParent(parent, false);
+            Content.SetActive(parent is not null);
+        }
 
         protected override void OnInstantiate() {
             _replayStatisticsPanel = ReeUIComponentV2.Instantiate<ReplayStatisticsPanel>(transform);
             _downloadBeatmapPanel = ReeUIComponentV2.Instantiate<DownloadBeatmapPanel>(transform);
-            //_miniProfile = ReeUIComponentV2.Instantiate<HorizontalMiniProfileContainer>(transform);
 
             _replayStatisticsPanel.SetData(null, null, true, true);
 
@@ -83,6 +96,10 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             _miniProfile.SetPlayer(null);
+        }
+
+        protected override bool OnValidation() {
+            return _replayerMenuLoader is not null;
         }
 
         #endregion
@@ -106,12 +123,6 @@ namespace BeatLeader.UI.Hub {
         private bool _beatmapIsMissing;
         private bool _isIntoDownloadMenu;
         private bool _isWorking;
-
-        public void Setup(IBeatmapReplayLaunchPanel? launchPanel, Transform? parent) {
-            _beatmapReplayLaunchPanel = launchPanel;
-            ContentTransform.SetParent(parent, false);
-            Content.SetActive(parent is not null);
-        }
 
         public void SetData(IReplayHeader? header) {
             if (_isWorking) {
@@ -154,16 +165,16 @@ namespace BeatLeader.UI.Hub {
         }
 
         private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
-            //var beatmap = await _menuLoader!.LoadBeatmapAsync(
-            //    info.SongHash, info.SongMode, info.SongDifficulty, token
-            //);
-            //if (token.IsCancellationRequested) return;
-            //var invalid = beatmap is null;
-            //WatchButtonText = invalid ? DownloadText : WatchText;
-            //WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
-            //_beatmapIsMissing = invalid;
-            //if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
-            //_isWorking = false;
+            var beatmap = await _replayerMenuLoader!.LoadBeatmapAsync(
+                info.SongHash, info.SongMode, info.SongDifficulty, token
+            );
+            if (token.IsCancellationRequested) return;
+            var invalid = beatmap is null;
+            WatchButtonText = invalid ? DownloadText : WatchText;
+            WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
+            _beatmapIsMissing = invalid;
+            if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
+            _isWorking = false;
         }
 
         #endregion
@@ -186,7 +197,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         [UIAction("watch-button-click"), UsedImplicitly]
-        private void HandleWatchButtonClicked() {
+        private async void HandleWatchButtonClicked() {
             if (_isIntoDownloadMenu) {
                 _downloadBeatmapPanel.NotifyDownloadButtonClicked();
                 return;
@@ -196,7 +207,10 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
             if (_header is null || _header.FileStatus is Corrupted) return;
-            //TODO: notify event to launch the replay
+            ValidateAndThrow();
+            var replay = await _header.LoadReplayAsync(default);
+            var player = await _header.LoadPlayerAsync(false, default);
+            await _replayerMenuLoader!.StartReplayAsync(replay!, player);
         }
 
         #endregion

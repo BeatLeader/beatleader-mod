@@ -16,9 +16,13 @@
       </horizontal>
     </vertical>
   </modal>
-  <vertical pref-width="50">
-    <HorizontalMiniProfileContainer id="mini-profile-panel"/>
-  </vertical>
+  <QuickMiniProfile
+    id="mini-profile"
+    Width="50" Height="18"
+    InehritHeight="false"
+    InheritWidth="false"
+    Pad="1"
+  />
   <vertical pref-width="50" pad-top="2" pad-bottom="2"
             vertical-fit="PreferredSize">
     <macro.as-host host="replay-info-panel">
@@ -33,7 +37,7 @@
             text="Delete" pref-height="10"
             click-event="show-deletion-modal"
             horizontal-fit="Unconstrained"/>
-    <primary-button interactable="~watch-button-interactable" 
+    <primary-button interactable="~watch-button-interactable"
                     text="~watch-button-text"
                     on-click="watch-button-click" pref-height="10"
                     horizontal-fit="Unconstrained"/>

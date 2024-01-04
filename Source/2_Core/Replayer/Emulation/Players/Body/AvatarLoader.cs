@@ -6,12 +6,14 @@ namespace BeatLeader.Replayer.Emulation {
     public class AvatarController {
         public AvatarController(
             GameObject container,
+            AvatarTweenController tweenController,
             AvatarVisualController visualController,
             AvatarPoseController poseController,
             Animator animator
         ) {
             containerObject = container;
             containerTransform = container.transform;
+            this.tweenController = tweenController;
             this.visualController = visualController;
             this.poseController = poseController;
             _animator = animator;
@@ -29,6 +31,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         public readonly GameObject containerObject;
         public readonly Transform containerTransform;
+        public readonly AvatarTweenController tweenController;
         public readonly AvatarVisualController visualController;
         public readonly AvatarPoseController poseController;
 
@@ -57,10 +60,11 @@ namespace BeatLeader.Replayer.Emulation {
 
         public AvatarController CreateAvatar(Transform? parent = null) {
             var go = InstantiateAvatar(parent);
+            var tweenController = go.GetComponent<AvatarTweenController>();
             var visualController = go.GetComponentInChildren<AvatarVisualController>();
             var poseController = go.GetComponentInChildren<AvatarPoseController>();
             var animator = go.GetComponent<Animator>();
-            return new(go, visualController, poseController, animator);
+            return new(go, tweenController, visualController, poseController, animator);
         }
 
         #endregion

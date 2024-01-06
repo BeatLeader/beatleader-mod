@@ -8,7 +8,6 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberMarkupLanguage.Tags;
 using BeatSaberMarkupLanguage.TypeHandlers;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -41,40 +40,10 @@ namespace BeatLeader.Components {
         #region Instantiate
 
         public static T Instantiate(Transform parent) {
-            var obj = BSMLTag.CreateObject(parent);
+            var obj = CreateBSMLObject(parent);
             return (T)obj.GetComponents<ReeUIComponentV3InstanceKeeper>()
                 .Select(x => x.Instance)
                 .First(x => x is T);
-        }
-
-        #endregion
-
-        #region BSML Tag
-
-        protected class Tag : BSMLTag {
-            public override string[] Aliases { get; } = { Descriptor.ComponentName };
-
-            public override GameObject CreateObject(Transform parent) {
-                var componentGo = new GameObject(Descriptor.ComponentName);
-                componentGo.transform.SetParent(parent, false);
-                var component = componentGo.AddComponent<T>();
-
-                var constructedObject = component.ConstructForBSML(parent);
-                component.OnInitialize();
-
-                var externalComponents = constructedObject.AddComponent<ExternalComponents>();
-                externalComponents.components.Add(component);
-                //since bsml type handlers look onto the ComponentHandler attribute and provide the first
-                //component of the specified there type, in case when ui component exported from another
-                //ui component we cannot access the main component, so we forced to do such shenanigans
-                var instanceKeeper = constructedObject.AddComponent<ReeUIComponentV3InstanceKeeper>();
-                instanceKeeper.Instance = component;
-                externalComponents.components.Add(instanceKeeper);
-                if (Descriptor.ExternalComponents is { } components) {
-                    externalComponents.components.AddRange(components.Select(x => x(component)));
-                }
-                return constructedObject;
-            }
         }
 
         #endregion
@@ -119,11 +88,31 @@ namespace BeatLeader.Components {
 
         protected static readonly TDescriptor Descriptor = new();
 
-        [BSMLTag, UsedImplicitly]
-        protected static readonly Tag BSMLTag = new();
-
         [BSMLHandler, UsedImplicitly]
         protected static readonly Handler BSMLHandler = new();
+
+        [BSMLConstructor, UsedImplicitly]
+        protected static GameObject CreateBSMLObject(Transform parent) {
+            var componentGo = new GameObject();
+            componentGo.transform.SetParent(parent, false);
+            var component = componentGo.AddComponent<T>();
+
+            var constructedObject = component.ConstructForBSML(parent);
+            component.OnInitialize();
+
+            var externalComponents = constructedObject.AddComponent<ExternalComponents>();
+            externalComponents.components.Add(component);
+            //since bsml type handlers look onto the ComponentHandler attribute and provide the first
+            //component of the specified there type, in case when ui component exported from another
+            //ui component we cannot access the main component, so we forced to do such shenanigans
+            var instanceKeeper = constructedObject.AddComponent<ReeUIComponentV3InstanceKeeper>();
+            instanceKeeper.Instance = component;
+            externalComponents.components.Add(instanceKeeper);
+            if (Descriptor.ExternalComponents is { } components) {
+                externalComponents.components.AddRange(components.Select(x => x(component)));
+            }
+            return constructedObject;
+        }
 
         #endregion
 

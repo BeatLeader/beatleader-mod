@@ -7,5 +7,7 @@ namespace BeatLeader.UI.BSML_Addons {
         /// Usable when you want to suppress BSMLComponent attribute defined by a superclass
         /// </summary>
         public bool Suppress { get; set; }
+        public string? Name { get; set; }
+        public string? Namespace { get; set; }
     }
 }

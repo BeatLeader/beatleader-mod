@@ -14,6 +14,24 @@ using BeatLeader.UI.BSML_Addons.Extensions;
 
 namespace BeatLeader.UI.BSML_Addons {
     internal static class BSMLAddonsLoader {
+        private class DummyBSMLTag : BSMLTag {
+            public DummyBSMLTag(
+                string name,
+                Func<Transform, GameObject> constructor
+            ) {
+                Aliases = new[] { name };
+                _constructor = constructor;
+            }
+
+            public override string[] Aliases { get; }
+
+            private readonly Func<Transform, GameObject> _constructor;
+
+            public override GameObject CreateObject(Transform parent) {
+                return _constructor(parent);
+            }
+        }
+
         private static readonly Dictionary<string, Sprite> spritesToCache = new() {
             { "black-transparent-bg", BundleLoader.BlackTransparentBG },
             { "black-transparent-bg-outline", BundleLoader.BlackTransparentBGOutline },
@@ -73,35 +91,51 @@ namespace BeatLeader.UI.BSML_Addons {
         private static void LoadBSMLComponents() {
             var asm = Assembly.GetExecutingAssembly();
             var bsmlComponentTypes = asm.GetTypes()
-                .Select(static x => (x, x.GetCustomAttributes<BSMLComponentAttribute>()))
-                .Where(static x => x.Item2.All(static x => !x.Suppress))
+                .Select(static x => (x, x.GetCustomAttribute<BSMLComponentAttribute>()))
+                .Where(static x => x.Item2 is { Suppress: false })
                 .Where(static x => x.Item1.IsSubclassOf(typeof(ReeUIComponentV3Base)))
                 .Where(static x => x.Item1 is { IsGenericType: false, IsAbstract: false });
-
-            foreach (var pair in bsmlComponentTypes) {
-                var type = pair.Item1;
+            
+            foreach (var (type, attr) in bsmlComponentTypes) {
                 try {
-                    var tagMember = GetMemberWithAttributeOrThrow<BSMLTagAttribute>(type);
+                    var tagMember = GetMemberWithAttributeOrThrow<BSMLConstructorAttribute>(type);
                     var handlerMember = GetMemberWithAttributeOrThrow<BSMLHandlerAttribute>(type);
 
-                    tagMember.GetValueImplicitly(null, out var tagObj);
                     handlerMember.GetValueImplicitly(null, out var handlerObj);
-                    if (tagObj is not BSMLTag tag || handlerObj is not TypeHandler handler) throw new InvalidCastException();
+                    if (handlerObj is not TypeHandler handler) {
+                        throw new InvalidCastException("The field is not a valid TypeHandler");
+                    }
+                    if (tagMember is not MethodInfo method || !ValidateConstructorSignature(method)) {
+                        throw new InvalidCastException("The constructor method has invalid signature");
+                    }
+                    var constructor = (Func<Transform, GameObject>)method.CreateDelegate(typeof(Func<Transform, GameObject>));
 
+                    var name = attr.Name ?? type.Name;
+                    if (attr.Namespace is not null) {
+                        name = $"{attr.Namespace}.{name}";
+                    }
+
+                    var tag = new DummyBSMLTag(name, constructor);
                     addonTags.Add(tag);
                     addonHandlers.Add(handler);
 
-                    Plugin.Log.Debug($"UI component \"{tag.Aliases[0]}\" registered into BSML");
+                    Plugin.Log.Debug($"UI component \"{name}\" registered into BSML");
                 } catch (Exception ex) {
                     Plugin.Log.Error($"Failed to register UI component \"{type.Name}\" into BSML: \n{ex}");
                 }
+            }
+
+            static bool ValidateConstructorSignature(MethodInfo info) {
+                return info.ReturnType == typeof(GameObject) &&
+                    info.GetParameters() is { Length: 1 } mtdParams &&
+                    mtdParams[0].ParameterType == typeof(Transform);
             }
 
             static MemberInfo GetMemberWithAttributeOrThrow<T>(IReflect type) where T : Attribute {
                 var member = type.GetMembers(ReflectionUtils.StaticFlags | BindingFlags.FlattenHierarchy)
                     .Where(static x => x.GetCustomAttribute<T>() is not null)
                     .FirstOrDefault();
-                if (member is null) throw new Exception("Unable to acquire one of the required fields (BSMLTag, BSMLHandler)");
+                if (member is null) throw new Exception("Unable to acquire one of the required fields (BSMLConstructor, BSMLHandler)");
                 return member;
             }
         }

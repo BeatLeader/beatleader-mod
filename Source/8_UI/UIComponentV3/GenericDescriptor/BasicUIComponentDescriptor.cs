@@ -41,9 +41,7 @@ namespace BeatLeader.Components {
             }
             componentGetters = collection.Select(x => x.Value);
         }
-
-        public string ComponentName { get; } = typeof(T).Name;
-
+        
         public IDictionary<string, Action<T, BSMLParserParams, object>> ExternalProperties => propertySetters;
 
         public IEnumerable<Func<T, Component>> ExternalComponents => componentGetters;

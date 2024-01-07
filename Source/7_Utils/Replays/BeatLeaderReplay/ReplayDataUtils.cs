@@ -119,15 +119,15 @@ namespace BeatLeader.Utils {
 
         public static int ComputeNoteId(this NoteData noteData, bool noScoring = false, bool altBomb = false) {
             // Bombs may have both correct values as well as default.
-            var colorType = altBomb && noteData.colorType == ColorType.None ? 0 : (int)noteData.colorType;
-            var cutDirection = altBomb && noteData.colorType == ColorType.None ? 3 : (int)noteData.cutDirection;
-
+            var colorType = altBomb && noteData.colorType == ColorType.None ? 3 : (int)noteData.colorType;
             // Pre 1.20 replays has no scoring in ID
             var scoringPart = noScoring ? 0 : ((int)noteData.scoringType + 2) * 10000;
 
-            return scoringPart + noteData.lineIndex
-                * 1000 + (int)noteData.noteLineLayer * 100 + colorType
-                * 10 + cutDirection;
+            return scoringPart 
+                + noteData.lineIndex * 1000 
+                + (int)noteData.noteLineLayer * 100 
+                + colorType * 10 
+                + (int)noteData.cutDirection;
         }
 
         public static bool Compare(NoteEvent noteEvent, NoteData noteData) {

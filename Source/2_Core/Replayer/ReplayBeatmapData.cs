@@ -30,13 +30,14 @@ namespace BeatLeader.Replayer {
             for (var i = startIndex; i < _generatedNoteDatas.Count; i++) {
                 var data = _generatedNoteDatas[i];
 
-                var notesDoMatchInTime = Mathf.Abs(lastNoteTime - data.time) < 1e-6;
+                //TODO: current algorithm does not work properly. rework
+                var notesDoMatchInTime = Mathf.Abs(lastNoteTime - data.time) < 1e-3;
                 if (notesDoMatchInTime) {
                     lastNoteTime = data.time;
                     index = i;
                 }
 
-                var timeDoesMatch = Mathf.Abs(noteEvent.spawnTime - data.time) < 1e-6;
+                var timeDoesMatch = Mathf.Abs(noteEvent.spawnTime - data.time) < 1e-3;
                 if (!timeDoesMatch) continue;
 
                 var idDoesMatch = _comparator.Compare(noteEvent, data);

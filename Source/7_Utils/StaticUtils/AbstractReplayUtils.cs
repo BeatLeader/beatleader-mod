@@ -16,12 +16,12 @@ namespace BeatLeader.Utils {
             var playerData = playerModel.playerData;
 
             var overrideEnv = launchData.EnvironmentInfo != null;
-            var envSettings = overrideEnv ? new() {
-                overrideEnvironments = true
-            } : playerData.overrideEnvironmentSettings;
+            var envSettings = playerData.overrideEnvironmentSettings;
             if (overrideEnv) {
+                envSettings = new() { overrideEnvironments = true };
                 envSettings.SetEnvironmentInfoForType(
-                    normalEnvironmentType, launchData.EnvironmentInfo);
+                    normalEnvironmentType, launchData.EnvironmentInfo
+                );
             }
 
             var replay = launchData.MainReplay;
@@ -29,12 +29,18 @@ namespace BeatLeader.Utils {
                 : launchData.MainReplay.ReplayData.PracticeSettings;
             var beatmap = launchData.DifficultyBeatmap;
 
-            transitionData.Init("Solo", beatmap, beatmap.level, envSettings,
-                playerData.colorSchemesSettings.GetSelectedColorScheme(),
+            transitionData.Init(
+                "Solo",
+                beatmap,
+                beatmap!.level,
+                envSettings,
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
+                null,
                 replay.ReplayData.GameplayModifiers,
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
-                practiceSettings, "Menu");
+                practiceSettings,
+                "Menu"
+            );
 
             return transitionData;
         }
@@ -59,9 +65,10 @@ namespace BeatLeader.Utils {
                 cutInfo.inverseWorldRotation,
                 cutInfo.noteRotation,
                 cutInfo.notePosition,
-                cutInfo.saberMovementData);
+                cutInfo.saberMovementData
+            );
         }
-        
+
         private static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, IReplay replay) {
             return settings.CopyWith(replay.ReplayData.LeftHanded, replay.ReplayData.FixedHeight, replay.ReplayData.FixedHeight is null);
         }

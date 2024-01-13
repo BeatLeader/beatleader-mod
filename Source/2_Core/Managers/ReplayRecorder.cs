@@ -444,13 +444,14 @@ namespace BeatLeader {
         #region Custom Data
 
         [PublicAPI]
-        public static bool TryWriteCustomData(string key, byte[] data) {
-            if (_instance == null || _instance._stopRecording) return false;
+        public static bool TryWriteCustomDataStatic(string key, byte[] data) {
+            return _instance != null && _instance.TryWriteCustomData(key, data);
+        }
 
-            var dictionary = _instance._replay.customData;
-            if (dictionary.ContainsKey(key)) return false;
-
-            dictionary[key] = data;
+        [PublicAPI]
+        public bool TryWriteCustomData(string key, byte[] data) {
+            if (_stopRecording || _replay.customData.ContainsKey(key)) return false;
+            _replay.customData[key] = data;
             return true;
         }
 

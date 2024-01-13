@@ -1,12 +1,11 @@
 ﻿using System;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
-using HMUI;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Manager {
     [UsedImplicitly]
-    #nullable disable
+#nullable disable
     internal static class LeaderboardEvents {
         //-- INPUT ------------------
 
@@ -58,6 +57,16 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region ContextSelectorWasPressed
+
+        public static event Action ContextSelectorWasPressedAction;
+
+        public static void NotifyContextSelectorWasPressed() {
+            ContextSelectorWasPressedAction?.Invoke();
+        }
+
+        #endregion
+
         #region OnScoreStatsRequested
 
         public static event Action<int> ScoreStatsRequestedEvent;
@@ -67,7 +76,7 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
-        
+
         #region SubmitVote
 
         public static event Action<Vote> SubmitVoteEvent;
@@ -77,7 +86,7 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
-        
+
         #region PlaylistUpdateButtonWasPressedAction
 
         public static event Action<PlaylistsManager.PlaylistType> PlaylistUpdateButtonWasPressedAction;
@@ -87,7 +96,7 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
-        
+
         #region OculusMigrationButtonWasPressedAction
 
         public static event Action OculusMigrationButtonWasPressedAction;
@@ -119,7 +128,7 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
-        
+
         #region LeaderboardSettingsButtonWasPressed
 
         public static event Action LeaderboardSettingsButtonWasPressedEvent;
@@ -166,16 +175,6 @@ namespace BeatLeader.Manager {
 
         public static void NotifyRemoveFriendWasPressed(Player player) {
             RemoveFriendWasPressedEvent?.Invoke(player);
-        }
-
-        #endregion
-
-        #region HideAllModals
-
-        public static event Action<ModalView> HideAllOtherModalsEvent;
-
-        public static void FireHideAllOtherModalsEvent([CanBeNull] ModalView except) {
-            HideAllOtherModalsEvent?.Invoke(except);
         }
 
         #endregion

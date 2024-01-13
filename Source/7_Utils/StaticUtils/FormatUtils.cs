@@ -98,6 +98,7 @@ namespace BeatLeader {
                 65 => "Controllable",
                 128 => "Vive Cosmos",
                 256 => "Quest 2",
+                512 => "Quest 3",
                 _ => "Unknown HMD"
             };
         }
@@ -178,9 +179,9 @@ namespace BeatLeader {
         private static readonly Color FreshScoreColor = new(1f, 1f, 1f);
         private static readonly Range ScoreLifetimeDaysRange = new(0, 30 * 8);
 
-        public static string FormatTimeset(string timeSet) {
+        public static string FormatTimeset(string timeSet, bool compact) {
             var timeSpan = GetRelativeTime(timeSet);
-            var timeString = GetRelativeTimeString(timeSpan);
+            var timeString = GetRelativeTimeString(timeSpan, compact);
             return $"<color=#{GetTimesetColorString(timeSpan)}>{timeString}</color>";
         }
 
@@ -194,19 +195,13 @@ namespace BeatLeader {
 
         #region GetRelativeTimeString
 
-        private const int Second = 1;
-        private const int Minute = 60 * Second;
-        private const int Hour = 60 * Minute;
-        private const int Day = 24 * Hour;
-        private const int Month = 30 * Day;
-
         public static TimeSpan GetRelativeTime(string timeSet) {
             var dateTime = long.Parse(timeSet).AsUnixTime();
             return DateTime.UtcNow - dateTime;
         }
 
-        public static string GetRelativeTimeString(string timeSet) {
-            return GetRelativeTimeString(GetRelativeTime(timeSet));
+        public static string GetRelativeTimeString(string timeSet, bool compact) {
+            return GetRelativeTimeString(GetRelativeTime(timeSet), compact);
         }
 
         public static string GetDateTimeString(string timeSet) {
@@ -215,25 +210,8 @@ namespace BeatLeader {
             static string Zero(int number) => number > 9 ? "" : "0";
         }
         
-        public static string GetRelativeTimeString(TimeSpan timeSpan) {
-            switch (timeSpan.TotalSeconds) {
-                case < 0: return "-";
-                case < 1 * Minute: return timeSpan.Seconds == 1 ? "1 second ago" : timeSpan.Seconds + " seconds ago";
-                case < 2 * Minute: return "1 minute ago";
-                case < 1 * Hour: return timeSpan.Minutes + " minutes ago";
-                case < 2 * Hour: return "1 hour ago";
-                case < 24 * Hour: return timeSpan.Hours + " hours ago";
-                case < 2 * Day: return "yesterday";
-                case < 30 * Day: return timeSpan.Days + " days ago";
-                case < 12 * Month: {
-                    var months = Convert.ToInt32(Math.Floor((double) timeSpan.Days / 30));
-                    return months <= 1 ? "1 month ago" : months + " months ago";
-                }
-                default: {
-                    var years = Convert.ToInt32(Math.Floor((double) timeSpan.Days / 365));
-                    return years <= 1 ? "1 year ago" : years + " years ago";
-                }
-            }
+        public static string GetRelativeTimeString(TimeSpan timeSpan, bool compact) {
+            return TimeLocalizationUtils.GetRelativeTimeStringLocalizedWithFont(timeSpan, compact);
         }
 
         #endregion

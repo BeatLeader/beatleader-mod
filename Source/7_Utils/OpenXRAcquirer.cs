@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Utils {
@@ -74,7 +75,7 @@ namespace BeatLeader.Utils {
         }
 
         private const string DLLName = "openxr_loader";
-        private const long DLLGetLoaderInstanceFuncPtr = 0x00038980;
+        private const long DLLGetLoaderInstanceFuncPtr = 0x00039480;
 
         public static XrSystemProperties? SystemProperties { get; private set; }
         public static string? SystemName { get; private set; }
@@ -120,6 +121,15 @@ namespace BeatLeader.Utils {
             if (moduleHandlePtr == IntPtr.Zero) return null;
 
             var funcAddress = ApplyOffset(moduleHandlePtr, DLLGetLoaderInstanceFuncPtr);
+            int byteCount = 8;
+            byte[] buffer = new byte[byteCount];
+            for (int i = 0; i < byteCount; i++)
+            {
+                buffer[i] = Marshal.ReadByte(funcAddress, i);
+            }
+            string result = Encoding.ASCII.GetString(buffer);
+            if (result != "H??(eH?") { return null; }
+
             var getLoaderInstanceFunc = Marshal.GetDelegateForFunctionPointer<XrInstanceFuncDelegate>(funcAddress);
             if (getLoaderInstanceFunc == null) throw new InvalidPointerException(funcAddress);
 

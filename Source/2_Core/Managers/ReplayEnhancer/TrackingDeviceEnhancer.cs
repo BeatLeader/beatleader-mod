@@ -25,9 +25,6 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
                     ProcessOpenVRSettings(replay);
                     
                     break;
-                case VRPlatformSDK.Oculus:
-                    ProcessOculusDevices(replay);
-                    break;
                 case VRPlatformSDK.Unknown:
                     ProcessUnknownDevices(replay);
                     break;
@@ -63,15 +60,6 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
             firstFrame.head.rotation.y = SteamVRSettings.GetFloatOrDefault("steam.app.620980.worldScale", -1.0f);
             firstFrame.head.rotation.z = SteamVRSettings.GetFloatOrDefault("steam.app.620980.additionalFramesToPredict", -1.0f);
             firstFrame.head.rotation.w = SteamVRSettings.GetFloatOrDefault("steam.app.620980.framesToThrottle", -1.0f);
-        }
-
-        #endregion
-
-        #region ProcessOculus
-
-        private static void ProcessOculusDevices(Replay replay) {
-            replay.info.hmd = OVRPlugin.GetSystemHeadsetType().ToString();
-            replay.info.controller = OVRPlugin.GetActiveController().ToString();
         }
 
         #endregion

@@ -51,8 +51,8 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             if (gameplayModifiers.noFailOn0Energy && energy == 0) { result.Add("NF"); }
             if (gameplayModifiers.enabledObstacleType == GameplayModifiers.EnabledObstacleType.NoObstacles) { result.Add("NO"); }
             if (gameplayModifiers.strictAngles) { result.Add("SA"); }
-            if (gameplayModifiers.proMode) { result.Add("PM"); }
             if (gameplayModifiers.smallCubes) { result.Add("SC"); }
+            if (gameplayModifiers.proMode) { result.Add("PM"); }
             if (gameplayModifiers.failOnSaberClash) { result.Add("CS"); }
             if (gameplayModifiers.instaFail) { result.Add("IF"); }
             if (gameplayModifiers.energyType == GameplayModifiers.EnergyType.Battery) { result.Add("BE"); }

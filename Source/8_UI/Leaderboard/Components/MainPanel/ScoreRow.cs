@@ -154,7 +154,7 @@ namespace BeatLeader.Components {
             _accuracyCell.Setup(o => FormatUtils.FormatAcc((float)o));
             _ppCell.Setup(o => FormatUtils.FormatPP((float)o));
             _scoreCell.Setup(o => FormatUtils.FormatScore((int)o), TextAlignmentOptions.Right);
-            _timeCell.Setup(o => FormatUtils.FormatTimeset((string)o), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.4f);
+            _timeCell.Setup(o => FormatUtils.FormatTimeset((string)o, true), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.4f);
             _pausesCell.Setup(o => FormatUtils.FormatPauses((int)o));
         }
 

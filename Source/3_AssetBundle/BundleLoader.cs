@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Themes;
 using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -25,6 +26,7 @@ namespace BeatLeader {
             LoadSprites(localAssetBundle);
             LoadMaterials(localAssetBundle);
             LoadPrefabs(localAssetBundle);
+            LoadFonts(localAssetBundle);
 
             localAssetBundle.Unload(false);
             _ready = true;
@@ -94,7 +96,11 @@ namespace BeatLeader {
 
         [UsedImplicitly] public static Sprite FileError;
 
-        [UsedImplicitly] public static Sprite ModifiersIcon;
+        [UsedImplicitly] public static Sprite NoModifiersIcon;
+        [UsedImplicitly] public static Sprite NoPauseIcon;
+        [UsedImplicitly] public static Sprite GolfIcon;
+        [UsedImplicitly] public static Sprite SCPMIcon;
+        [UsedImplicitly] public static Sprite GeneralContextIcon;
 
         [UsedImplicitly] public static Sprite Overview1Icon;
 
@@ -204,7 +210,11 @@ namespace BeatLeader {
             BeatLeaderLogoGradient = assetBundle.LoadAsset<Sprite>("BeatLeaderLogoGradient");
             TransparentPixel = assetBundle.LoadAsset<Sprite>("TransparentPixel");
             FileError = assetBundle.LoadAsset<Sprite>("FileError");
-            ModifiersIcon = assetBundle.LoadAsset<Sprite>("ModifiersIcon");
+            NoModifiersIcon = assetBundle.LoadAsset<Sprite>("BL_ContextNoModifiers");
+            NoPauseIcon = assetBundle.LoadAsset<Sprite>("BL_ContextNoPause");
+            GolfIcon = assetBundle.LoadAsset<Sprite>("BL_ContextGolf");
+            SCPMIcon = assetBundle.LoadAsset<Sprite>("BL_ContextSCPM");
+            GeneralContextIcon = assetBundle.LoadAsset<Sprite>("BL_ContextGeneral");
             Overview1Icon = assetBundle.LoadAsset<Sprite>("BL_Overview1Icon");
             Overview2Icon = assetBundle.LoadAsset<Sprite>("BL_Overview2Icon");
             DetailsIcon = assetBundle.LoadAsset<Sprite>("BL_DetailsIcon");
@@ -254,6 +264,38 @@ namespace BeatLeader {
             DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
             UnknownIcon = assetBundle.LoadAsset<Sprite>("BL_UnknownIcon");
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
+        }
+
+        #endregion
+
+        #region Fonts
+
+        public static TMP_FontAsset NotoSansFontAsset;
+        public static TMP_FontAsset NotoSansJPFontAsset;
+        public static TMP_FontAsset NotoSansSCFontAsset;
+        public static TMP_FontAsset NotoSansKRFontAsset;
+        public static TMP_FontAsset MinecraftEnchantmentFontAsset;
+
+        private static readonly Dictionary<int, TMP_FontAsset> fontAssetsLookup = new();
+
+        public static bool TryGetFontAsset(int hashCode, ref TMP_FontAsset fontAsset) {
+            if (!fontAssetsLookup.ContainsKey(hashCode)) return false;
+            fontAsset = fontAssetsLookup[hashCode];
+            return true;
+        }
+
+        private static TMP_FontAsset LoadFontAsset(this AssetBundle assetBundle, string name) {
+            var asset = assetBundle.LoadAsset<TMP_FontAsset>(name);
+            if (asset != null) fontAssetsLookup[asset.hashCode] = asset;
+            return asset;
+        }
+
+        private static void LoadFonts(AssetBundle assetBundle) {
+            NotoSansFontAsset = assetBundle.LoadFontAsset("NotoSans-SemiBold SDF");
+            NotoSansJPFontAsset = assetBundle.LoadFontAsset("NotoSansJP-SemiBold SDF");
+            NotoSansSCFontAsset = assetBundle.LoadFontAsset("NotoSansSC-SemiBold SDF");
+            NotoSansKRFontAsset = assetBundle.LoadFontAsset("NotoSansKR-SemiBold SDF");
+            MinecraftEnchantmentFontAsset = assetBundle.LoadFontAsset("minecraft-enchantment SDF");
         }
 
         #endregion

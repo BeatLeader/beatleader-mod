@@ -57,21 +57,21 @@ namespace BeatLeader.Components {
         #region OnInitialize
 
         protected override void OnInitialize() {
-            _hintField.Setup("<alpha=#66>Player Settings");
+            _hintField.Setup("<alpha=#66><bll>ls-replayer-settings</bll>");
 
-            _showUIToggle.Setup(BundleLoader.UIIcon, "Enable UI", _hintField);
+            _showUIToggle.Setup(BundleLoader.UIIcon, "<bll>ls-replayer-enable-ui</bll>", _hintField);
             _showUIToggle.Value = !PluginConfig.ReplayerSettings.AutoHideUI;
             _showUIToggle.OnClick += _ => UpdateReplayerSettings();
 
-            _loadEnvironmentToggle.Setup(BundleLoader.SceneIcon, "Load player environment", _hintField);
+            _loadEnvironmentToggle.Setup(BundleLoader.SceneIcon, "<bll>ls-replayer-load-environment</bll>", _hintField);
             _loadEnvironmentToggle.Value = PluginConfig.ReplayerSettings.LoadPlayerEnvironment;
             _loadEnvironmentToggle.OnClick += _ => UpdateReplayerSettings();
 
-            _loadJumpDistanceToggle.Setup(BundleLoader.JumpDistanceIcon, "Load player JD", _hintField);
+            _loadJumpDistanceToggle.Setup(BundleLoader.JumpDistanceIcon, "<bll>ls-replayer-load-jd</bll>", _hintField);
             _loadJumpDistanceToggle.Value = PluginConfig.ReplayerSettings.LoadPlayerJumpDistance;
             _loadJumpDistanceToggle.OnClick += _ => UpdateReplayerSettings();
 
-            _saveToggle.Setup(BundleLoader.SaveIcon, "Save after download", _hintField);
+            _saveToggle.Setup(BundleLoader.SaveIcon, "<bll>ls-replayer-store-locally</bll>", _hintField);
             _saveToggle.Value = PluginConfig.EnableReplayCaching;
             _saveToggle.OnClick += OnSaveToggleValueChanged;
         }

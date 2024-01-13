@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Utils;
 using BS_Utils.Gameplay;
-using Oculus.Platform;
-using Steamworks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -29,24 +29,18 @@ namespace BeatLeader.API {
 
         #region Ticket
 
-        public static Task<string> PlatformTicket() {
+        public static async Task<string> PlatformTicket() {
+            await GetUserInfo.GetUserAsync();
+            var platformUserModel = Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>().Select(l => l._platformUserModel).LastOrDefault(p => p != null);
+
+            UserInfo userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
+            var tokenProvider = new PlatformAuthenticationTokenProvider(platformUserModel, userInfo);
+
             return Platform switch {
-                AuthPlatform.Steam => SteamTicket(),
-                AuthPlatform.OculusPC => OculusTicket(),
+                AuthPlatform.Steam => (await tokenProvider.GetAuthenticationToken()).sessionToken,
+                AuthPlatform.OculusPC => (await tokenProvider.GetXPlatformAccessToken(CancellationToken.None)).token,
                 _ => throw new ArgumentOutOfRangeException()
             };
-        }
-
-        public static async Task<string> SteamTicket() {
-            await GetUserInfo.GetUserAsync();
-            return (await new SteamPlatformUserModel().GetUserAuthToken()).token;
-        }
-
-        public static async Task<string> OculusTicket() {
-            await GetUserInfo.GetUserAsync();
-            TaskCompletionSource<string> tcs = new();
-            Users.GetAccessToken().OnComplete(delegate(Message<string> message) { tcs.TrySetResult(message.IsError ? null : message.Data); });
-            return await tcs.Task;
         }
 
         #endregion
@@ -104,11 +98,13 @@ namespace BeatLeader.API {
             }
 
             var form = new List<IMultipartFormSection> {
+                new MultipartFormDataSection("ticket", authToken),
                 new MultipartFormDataSection("provider", provider),
                 new MultipartFormDataSection("returnUrl", "/")
             };
 
-            var request = UnityWebRequest.Post(string.Format(BLConstants.SIGNIN_WITH_TICKET, authToken), form);
+            var request = UnityWebRequest.Post(BLConstants.SIGNIN_WITH_TICKET, form);
+            
             yield return request.SendWebRequest();
 
             switch (request.responseCode) {

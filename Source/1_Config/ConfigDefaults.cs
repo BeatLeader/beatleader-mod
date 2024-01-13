@@ -90,5 +90,11 @@ namespace BeatLeader {
         public const ReplaySaveOption ReplaySavingOptions = ReplaySaveOption.Exit | ReplaySaveOption.Fail | ReplaySaveOption.ZeroScore;
 
         #endregion
+
+        #region Language
+
+        public const BLLanguage SelectedLanguage = BLLanguage.GameDefault;
+
+        #endregion
     }
 }

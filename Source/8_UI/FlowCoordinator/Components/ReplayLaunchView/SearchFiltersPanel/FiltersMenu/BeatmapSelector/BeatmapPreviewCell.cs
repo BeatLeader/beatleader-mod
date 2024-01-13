@@ -33,6 +33,8 @@ namespace BeatLeader.Components {
             public EnvironmentInfoSO[]? environmentInfos { get; } = null;
             public IReadOnlyList<PreviewDifficultyBeatmapSet>? previewDifficultyBeatmapSets { get; } = null;
 
+            public PlayerSensitivityFlag contentRating { get; } = PlayerSensitivityFlag.Unknown;
+
             public Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken) => Task.FromResult(BundleLoader.UnknownIcon);
         }
 

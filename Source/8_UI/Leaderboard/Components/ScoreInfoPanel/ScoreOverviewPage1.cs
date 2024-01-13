@@ -13,18 +13,18 @@ namespace BeatLeader.Components {
         private const int FontSize = 4;
 
         #endregion
-        
+
         #region SetScore
 
         public void SetScore(Score score) {
             TimeSetText = GetTimeSetString(score);
-            ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "score");
+            ScoreText = GetStringWithLabel(FormatUtils.FormatScore(score.modifiedScore), "<bll>ls-score</bll>");
             _accText.Text1 = GetStringWithLabel(
                 FormatUtils.FormatAcc(score.accuracy),
-                "accuracy " + (!score.fullCombo ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
+                "<bll>ls-accuracy</bll> " + (!score.fullCombo ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
             _accText.Text2 = GetStringWithLabel(
-                FormatUtils.FormatAcc(score.fcAccuracy), 
-                $"<color={Good}>fc accuracy</color>");
+                FormatUtils.FormatAcc(score.fcAccuracy),
+                $"<color={Good}>FC <bll>ls-accuracy</bll></color>");
             _accText.HoverEnabled = !score.fullCombo;
             PpText = GetStringWithLabel(FormatUtils.FormatPP(score.pp), "pp");
             DetailsText = GetDetailsString(score);
@@ -42,7 +42,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region SetActive
 
         public void SetActive(bool value) {
@@ -67,34 +67,52 @@ namespace BeatLeader.Components {
         }
 
         private static string GetTimeSetString(Score score) {
-            var sb = new StringBuilder();
-            sb.Append("<line-height=80%>");
-            sb.Append($"<color={Neutral}>{FormatUtils.GetRelativeTimeString(score.timeSet)}</color>");
-            sb.Append($"<color={Faded}><size=70%>   on   </size></color>");
-            sb.AppendLine($"<color={Neutral}>{FormatUtils.GetHeadsetNameById(score.hmd)}</color>");
+            var absoluteTimeString = $"<size=100%><color={Neutral}>{FormatUtils.GetDateTimeString(score.timeSet)}</color></size>";
+            var relativeTimeString = $"<size=80%><color={Neutral}>   ({FormatUtils.GetRelativeTimeString(score.timeSet, false)})</color></size>";
+            var headsetString = $"<size=100%><color={Neutral}>{FormatUtils.GetHeadsetNameById(score.hmd)}</color></size>";
+            
+            var sb = new StringBuilder(200);
+            
+            var font = BLLocalization.GetLanguageFont();
+            if (font != null) sb.Append($"<font={font.name}>");
+            
+            sb.Append(absoluteTimeString);
+            sb.Append(relativeTimeString);
+            sb.AppendLine($"<color={Faded}><size=75%>");
+
             var controllerName = FormatUtils.GetControllerNameById(score.controller);
             if (!controllerName.Equals("Unknown")) {
-                sb.Append($"<color={Faded}><size=75%>using   </size></color>");
-                sb.AppendLine($"<color={Neutral}><size=80%>{controllerName}</size></color></voffset>");
+                var controllersString = $"<size=90%><color={Neutral}>{controllerName}</color></size>";
+                var localized = BLLocalization.GetTranslation("ls-hmd-with-controllers")
+                    .Replace("<hmd>", headsetString)
+                    .Replace("<controllers>", controllersString);
+                sb.Append(localized);
+            } else {
+                var localized = BLLocalization.GetTranslation("ls-hmd-no-controllers")
+                    .Replace("<hmd>", headsetString);
+                sb.Append(localized);
             }
+
+            sb.Append("</size></color>");
             return sb.ToString();
         }
 
         private static string GetDetailsString(Score score) {
             var sb = new StringBuilder();
 
-            sb.Append("<line-height=80%>");
-            sb.Append($"<color={Faded}>Pauses: <color={Neutral}>{score.pauses}    ");
-            sb.AppendLine(score.modifiers.IsEmpty()
-                ? $"<color={Faded}>No Modifiers"
-                : $"<color={Faded}>Modifiers: <color={Neutral}>{score.modifiers}"
-            );
+            sb.Append($"<color={Faded}><bll>ls-pauses</bll>: <color={Neutral}>{score.pauses}    ");
+
+            if (score.modifiers.IsEmpty()) {
+                sb.AppendLine();
+            } else {
+                sb.AppendLine($"<color={Faded}><bll>ls-modifiers</bll>: <color={Neutral}>{score.modifiers}");
+            }
 
             if (score.fullCombo) sb.Append($"<color={Good}>Full Combo</color>    ");
-            if (score.missedNotes > 0) sb.Append($"<color={Faded}>Misses: <color={Bad}>{score.missedNotes}</color>    ");
-            if (score.badCuts > 0) sb.Append($"<color={Faded}>Bad cuts: <color={Bad}>{score.badCuts}</color>    ");
-            if (score.bombCuts > 0) sb.Append($"<color={Faded}>Bomb cuts: <color={Bad}>{score.bombCuts}</color>    ");
-            if (score.wallsHit > 0) sb.Append($"<color={Faded}>Walls hit: <color={Bad}>{score.wallsHit}</color>    ");
+            if (score.missedNotes > 0) sb.Append($"<color={Faded}><bll>ls-misses</bll>: <color={Bad}>{score.missedNotes}</color>    ");
+            if (score.badCuts > 0) sb.Append($"<color={Faded}><bll>ls-bad-cuts</bll>: <color={Bad}>{score.badCuts}</color>    ");
+            if (score.bombCuts > 0) sb.Append($"<color={Faded}><bll>ls-bomb-cuts</bll>: <color={Bad}>{score.bombCuts}</color>    ");
+            if (score.wallsHit > 0) sb.Append($"<color={Faded}><bll>ls-walls-hit</bll>: <color={Bad}>{score.wallsHit}</color>    ");
 
             return sb.ToString();
         }

@@ -14,9 +14,6 @@ namespace BeatLeader.Components {
         [UIValue("criteria-checkbox"), UsedImplicitly]
         private QualificationCheckbox _criteriaCheckbox = null!;
 
-        [UIValue("mapper-checkbox"), UsedImplicitly]
-        private QualificationCheckbox _mapperCheckbox = null!;
-
         [UIValue("approval-checkbox"), UsedImplicitly]
         private QualificationCheckbox _approvalCheckbox = null!;
 
@@ -37,7 +34,6 @@ namespace BeatLeader.Components {
 
         private void Awake() {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
-            _mapperCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _menuButton = Instantiate<HeaderButton>(transform, false);
             _websiteButton = Instantiate<HeaderButton>(transform, false);
@@ -163,14 +159,6 @@ namespace BeatLeader.Components {
                     _criteriaCheckbox.SetState(QualificationCheckbox.State.Neutral);
                     _criteriaCheckbox.HoverHint = $"Awaiting criteria check{criteriaPostfix}";
                     break;
-            }
-
-            if (qualificationInfo.mapperAllowed) {
-                _mapperCheckbox.SetState(QualificationCheckbox.State.Checked);
-                _mapperCheckbox.HoverHint = "Allowed by mapper";
-            } else {
-                _mapperCheckbox.SetState(QualificationCheckbox.State.Neutral);
-                _mapperCheckbox.HoverHint = "Awaiting mapper's approval";
             }
 
             if (qualificationInfo.approved) {

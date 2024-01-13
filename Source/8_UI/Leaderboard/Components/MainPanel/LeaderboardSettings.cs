@@ -1,58 +1,18 @@
-using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
-using Vector3 = UnityEngine.Vector3;
 
 namespace BeatLeader.Components {
-    internal class LeaderboardSettings : ReeUIComponentV2 {
+    internal class LeaderboardSettings : AbstractReeModal<object> {
         #region Init / Dispose
 
         protected override void OnInitialize() {
-            LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent += ShowModal;
-            LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
+            base.OnInitialize();
             ApplyScale();
         }
 
-        protected override void OnDispose() {
-            LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent -= ShowModal;
-            LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
-        }
-
-        #endregion
-
-        #region Events
-
-        private void OnHideModalsEvent(ModalView except) {
-            if (_modal == null || _modal.Equals(except)) return;
-            _modal.Hide(false);
-        }
-
-        private void OnLeaderboardVisibilityChanged(bool isVisible) {
-            if (!isVisible) HideAnimated();
-        }
-
-        #endregion
-
-        #region Modal
-
-        [UIComponent("modal"), UsedImplicitly]
-        private ModalView _modal;
-
-        private void ShowModal() {
-            if (_modal == null) return;
-            LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
-            _modal.Show(true, true);
-        }
-        
-        private void HideAnimated() {
-            if (_modal == null) return;
-            _modal.Hide(true);
-        }
+        protected override void OnDispose() { }
 
         #endregion
 

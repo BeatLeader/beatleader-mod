@@ -1,5 +1,5 @@
 ﻿<horizontal active="~active" spacing="1" pad="2" pref-height="30" horizontal-fit="PreferredSize">
-    <vertical pref-width="34" vertical-fit="PreferredSize">
+    <vertical min-width="34" vertical-fit="PreferredSize">
         <macro.as-host host="settings-panel">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
@@ -8,7 +8,7 @@
                 font-size="4" overflow-mode="Ellipsis"/>
         </horizontal>
         <horizontal pref-height="5">
-            <button id="play-button" pref-width="30" font-size="4.5"/>
+            <button id="play-button" min-width="30" font-size="4.5"/>
         </horizontal>
     </vertical>
 </horizontal>

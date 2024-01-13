@@ -12,7 +12,9 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using Quaternion = BeatLeader.Models.Replay.Quaternion;
 using Transform = BeatLeader.Models.Replay.Transform;
+using Vector3 = BeatLeader.Models.Replay.Vector3;
 
 namespace BeatLeader {
     [UsedImplicitly]
@@ -61,6 +63,8 @@ namespace BeatLeader {
 
         #endregion
         
+        [Inject] [UsedImplicitly] private SaberManager _saberManager;
+        [Inject] [UsedImplicitly] private IVRPlatformHelper _vrPlatformHelper;
         [Inject] [UsedImplicitly] private PlayerTransforms _playerTransforms;
         [Inject] [UsedImplicitly] private BeatmapObjectManager _beatmapObjectManager;
         [Inject] [UsedImplicitly] private BeatmapObjectSpawnController _beatSpawnController;
@@ -150,24 +154,7 @@ namespace BeatLeader {
         public void LateTick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
-            var frame = new Frame() {
-                time = _timeSyncController.songTime,
-                fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
-                head = new Transform {
-                    rotation = _playerTransforms.headPseudoLocalRot,
-                    position = _playerTransforms.headPseudoLocalPos
-                },
-                leftHand = new Transform {
-                    rotation = _playerTransforms.leftHandPseudoLocalRot,
-                    position = _playerTransforms.leftHandPseudoLocalPos
-                },
-                rightHand = new Transform {
-                    rotation = _playerTransforms.rightHandPseudoLocalRot,
-                    position = _playerTransforms.rightHandPseudoLocalPos
-                }
-            };
-
-            _replay.frames.Add(frame);
+            RecordFrame();
 
             if (_currentWallEvent != null) {
                 if (_phaoi != null && !_phaoi.playerHeadIsInObstacle)
@@ -176,7 +163,92 @@ namespace BeatLeader {
                     _currentWallEvent = null;
                 }
             }
+
+            LazyRecordSaberOffsets();
         }
+
+        #region Frames
+
+        private UnityEngine.Transform _origin;
+        private UnityEngine.Transform _head;
+        private UnityEngine.Transform _leftSaber;
+        private UnityEngine.Transform _rightSaber;
+        private bool _framesInitialized;
+
+        private void LazyInitFrames() {
+            if (_framesInitialized) return;
+            _origin = _playerTransforms._originParentTransform;
+            _head = _playerTransforms._headTransform;
+            _leftSaber = _saberManager.leftSaber.transform;
+            _rightSaber = _saberManager.rightSaber.transform;
+            _framesInitialized = true;
+        }
+
+        private void RecordFrame() {
+            LazyInitFrames();
+            
+            var frame = new Frame() {
+                time = _timeSyncController.songTime,
+                fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
+                head = new Transform {
+                    rotation = _origin.InverseTransformRotation(_head.rotation),
+                    position = _origin.InverseTransformPoint(_head.position)
+                },
+                leftHand = new Transform {
+                    rotation = _origin.InverseTransformRotation(_leftSaber.rotation),
+                    position = _origin.InverseTransformPoint(_leftSaber.position)
+                },
+                rightHand = new Transform {
+                    rotation = _origin.InverseTransformRotation(_rightSaber.rotation),
+                    position = _origin.InverseTransformPoint(_rightSaber.position)
+                }
+            };
+            
+            _replay.frames.Add(frame);
+        }
+
+        #endregion
+
+        #region Saber Offsets
+
+        private bool _saberOffsetsRecorded;
+        private int _framesSkipped;
+
+        private void LazyRecordSaberOffsets() {
+            if (_framesSkipped++ < 10 || _saberOffsetsRecorded) return;
+            TryGetSaberOffsets(_saberManager._leftSaber, out var leftLocalPos, out var leftLocalRot);
+            TryGetSaberOffsets(_saberManager._rightSaber, out var rightLocalPos, out var rightLocalRot);
+            _replay.saberOffsets = new SaberOffsets() {
+                LeftSaberLocalPosition = leftLocalPos,
+                LeftSaberLocalRotation = leftLocalRot,
+                RightSaberLocalPosition = rightLocalPos,
+                RightSaberLocalRotation = rightLocalRot
+            };
+            _saberOffsetsRecorded = true;
+        }
+
+        private void TryGetSaberOffsets(Saber saber, out Vector3 localPosition, out Quaternion localRotation) {
+            localPosition = new Vector3(0.0f, 0.0f, 0.0f);
+            localRotation = new Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+            
+            var vrController = saber.gameObject.GetComponentInParent<VRController>();
+            if (vrController == null) return;
+            
+            var xrRigOrigin = vrController.transform.parent;
+            if (xrRigOrigin == null) return;
+            
+            var xrRigTransform = new ReeTransform(xrRigOrigin.position, xrRigOrigin.rotation);
+
+            _vrPlatformHelper.GetNodePose(vrController._node, vrController._nodeIdx, out var controllerPos, out var controllerRot);
+            controllerPos = xrRigTransform.LocalToWorldPosition(controllerPos);
+            controllerRot = xrRigTransform.LocalToWorldRotation(controllerRot);
+            var controllerTransform = new ReeTransform(controllerPos, controllerRot);
+
+            localPosition = controllerTransform.WorldToLocalPosition(saber.handlePos);
+            localRotation = controllerTransform.WorldToLocalRotation(saber.handleRot);
+        }
+
+        #endregion
 
         private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
             if (_stopRecording) { return; }

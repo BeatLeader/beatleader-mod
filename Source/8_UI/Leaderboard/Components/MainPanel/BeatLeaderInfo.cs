@@ -1,22 +1,18 @@
-using System;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class BeatLeaderInfo : ReeUIComponentV2 {
+    internal class BeatLeaderInfo : AbstractReeModal<object> {
         #region Init / Dispose
 
         protected override void OnInitialize() {
+            base.OnInitialize();
             InitializePlaylistButtons();
 
-            LeaderboardEvents.LogoWasPressedEvent += ShowModal;
-            LeaderboardEvents.HideAllOtherModalsEvent += OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibilityChanged;
             ModVersionChecker.IsUpToDateChangedEvent += OnModIsUpToDateChanged;
             PlaylistsManager.PlaylistStateChangedEvent += OnPlaylistStateChanged;
             PlaylistsManager.PlaylistUpdateStartedEvent += OnPlaylistUpdateStarted;
@@ -41,9 +37,6 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
-            LeaderboardEvents.LogoWasPressedEvent -= ShowModal;
-            LeaderboardEvents.HideAllOtherModalsEvent -= OnHideModalsEvent;
-            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibilityChanged;
             ModVersionChecker.IsUpToDateChangedEvent -= OnModIsUpToDateChanged;
             PlaylistsManager.PlaylistStateChangedEvent -= OnPlaylistStateChanged;
             PlaylistsManager.PlaylistUpdateStartedEvent -= OnPlaylistUpdateStarted;
@@ -79,38 +72,12 @@ namespace BeatLeader.Components {
             OculusMigrationButtonActive = value;
         }
 
-        private void OnHideModalsEvent(ModalView except) {
-            if (_modal == null || _modal.Equals(except)) return;
-            _modal.Hide(false);
-        }
-
-        private void OnLeaderboardVisibilityChanged(bool isVisible) {
-            if (!isVisible) HideAnimated();
-        }
-
-        #endregion
-
-        #region Modal
-
-        [UIComponent("modal"), UsedImplicitly] private ModalView _modal;
-
-        private void ShowModal() {
-            if (_modal == null) return;
-            LeaderboardEvents.FireHideAllOtherModalsEvent(_modal);
-            _modal.Show(true, true);
-        }
-
-        private void HideAnimated() {
-            if (_modal == null) return;
-            _modal.Hide(true);
-        }
-
         #endregion
 
         #region ModVersion
 
-        private const string OutdatedModVersionText = "<color=#FF8888>Mod version is outdated!";
-        private const string UpdatedModVersionText = "<color=#88FF88>Mod version is up to date!";
+        private const string OutdatedModVersionText = "<color=#FF8888><bll>ls-mod-is-outdated</bll>!";
+        private const string UpdatedModVersionText = "<color=#88FF88><bll>ls-mod-is-up-to-date</bll>!";
 
         private string _versionInfoText = "";
 
@@ -146,9 +113,14 @@ namespace BeatLeader.Components {
 
         #region PlaylistButtons
 
-        [UIComponent("nominated-playlist-button"), UsedImplicitly] private Button _nominatedPlaylistButton;
-        [UIComponent("qualified-playlist-button"), UsedImplicitly] private Button _qualifiedPlaylistButton;
-        [UIComponent("ranked-playlist-button"), UsedImplicitly] private Button _rankedPlaylistButton;
+        [UIComponent("nominated-playlist-button"), UsedImplicitly]
+        private Button _nominatedPlaylistButton;
+
+        [UIComponent("qualified-playlist-button"), UsedImplicitly]
+        private Button _qualifiedPlaylistButton;
+
+        [UIComponent("ranked-playlist-button"), UsedImplicitly]
+        private Button _rankedPlaylistButton;
 
         private bool TryGetPlaylistButtonForType(PlaylistsManager.PlaylistType playlistType, out Button button) {
             switch (playlistType) {
@@ -178,7 +150,7 @@ namespace BeatLeader.Components {
                 PlaylistsManager.PlaylistState.NotFound => "<color=#FF8888>",
                 PlaylistsManager.PlaylistState.Outdated => "<color=#FFFF88>",
                 PlaylistsManager.PlaylistState.UpToDate => "<color=#88FF88>",
-                _ => throw new ArgumentOutOfRangeException(nameof(playlistState), playlistState, null)
+                _ => ""
             };
 
             button.GetComponentInChildren<TextMeshProUGUI>().text = $"{prefix}{playlistType}";

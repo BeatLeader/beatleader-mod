@@ -19,6 +19,7 @@ namespace BeatLeader.Models.Replay {
         public List<WallEvent> walls = new List<WallEvent>();
         public List<AutomaticHeight> heights = new List<AutomaticHeight>();
         public List<Pause> pauses = new List<Pause>();
+        public SaberOffsets saberOffsets = new SaberOffsets();
     }
     public class ReplayInfo : IReplayInfo {
         string IReplayInfo.PlayerID => playerID;
@@ -218,6 +219,12 @@ namespace BeatLeader.Models.Replay {
 
         public bool allIsOK => speedOK && directionOK && saberTypeOK && !wasCutTooSoon;
     }
+    public class SaberOffsets {
+        public Vector3 LeftSaberLocalPosition;
+        public Quaternion LeftSaberLocalRotation;
+        public Vector3 RightSaberLocalPosition;
+        public Quaternion RightSaberLocalRotation;
+    }
     public enum StructType
     {
         info = 0,
@@ -225,7 +232,8 @@ namespace BeatLeader.Models.Replay {
         notes = 2,
         walls = 3,
         heights = 4,
-        pauses = 5
+        pauses = 5,
+        saberOffsets = 6
     }
     public struct Vector3
     {
@@ -257,6 +265,13 @@ namespace BeatLeader.Models.Replay {
             y = unityQuaternion.y;
             z = unityQuaternion.z;
             w = unityQuaternion.w;
+        }
+        public Quaternion(float x, float y, float z, float w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
         }
 
         public static implicit operator UQuaternion(Quaternion quaternion) => new UQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
@@ -322,6 +337,9 @@ namespace BeatLeader.Models.Replay {
                         break;
                     case StructType.pauses:
                         EncodePauses(replay.pauses, stream);
+                        break;
+                    case StructType.saberOffsets:
+                        EncodeSaberOffsets(replay.saberOffsets, stream);
                         break;
                 }
             }
@@ -421,6 +439,14 @@ namespace BeatLeader.Models.Replay {
                 stream.Write(pause.duration);
                 stream.Write(pause.time);
             }
+        }
+
+        static void EncodeSaberOffsets(SaberOffsets saberOffsets, BinaryWriter stream)
+        {
+            EncodeVector(saberOffsets.LeftSaberLocalPosition, stream);
+            EncodeQuaternion(saberOffsets.LeftSaberLocalRotation, stream);
+            EncodeVector(saberOffsets.RightSaberLocalPosition, stream);
+            EncodeQuaternion(saberOffsets.RightSaberLocalRotation, stream);
         }
 
         static void EncodeNoteInfo(Models.Replay.NoteCutInfo info, BinaryWriter stream)
@@ -531,6 +557,9 @@ namespace BeatLeader.Models.Replay {
                             break;
                         case StructType.pauses:
                             replay.pauses = DecodePauses(buffer, ref pointer);
+                            break;
+                        case StructType.saberOffsets:
+                            replay.saberOffsets = DecodeSaberOffsets(buffer, ref pointer);
                             break;
                     }
                 }
@@ -657,6 +686,16 @@ namespace BeatLeader.Models.Replay {
                 pause.time = DecodeFloat(buffer, ref pointer);
                 result.Add(pause);
             }
+            return result;
+        }
+
+        private static SaberOffsets DecodeSaberOffsets(byte[] buffer, ref int pointer)
+        {
+            var result = new SaberOffsets();
+            result.LeftSaberLocalPosition = DecodeVector3(buffer, ref pointer);
+            result.LeftSaberLocalRotation = DecodeQuaternion(buffer, ref pointer);
+            result.RightSaberLocalPosition = DecodeVector3(buffer, ref pointer);
+            result.RightSaberLocalRotation = DecodeQuaternion(buffer, ref pointer);
             return result;
         }
 

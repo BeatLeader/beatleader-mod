@@ -70,7 +70,7 @@ namespace BeatLeader.DataManager {
         }
 
         private static IEnumerator OpenSigninPageCoroutine() {
-            var ticketTask = Authentication.OculusTicket();
+            var ticketTask = Authentication.PlatformTicket();
             yield return new WaitUntil(() => ticketTask.IsCompleted);
 
             var authToken = ticketTask.Result;

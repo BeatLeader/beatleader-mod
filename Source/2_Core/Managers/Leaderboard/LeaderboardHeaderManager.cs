@@ -64,13 +64,13 @@ namespace BeatLeader {
                 return false;
             }
 
-            var leaderboardViewController = screen.transform.FindChildRecursive("PlatformLeaderboardViewController");
+            var leaderboardViewController = screen.transform.Find("PlatformLeaderboardViewController");
             if (leaderboardViewController == null) {
                 header = null;
                 return false;
             }
 
-            header = leaderboardViewController.transform.FindChildRecursive("HeaderPanel").gameObject;
+            header = leaderboardViewController.transform.Find("HeaderPanel").gameObject;
             return header != null;
         }
 

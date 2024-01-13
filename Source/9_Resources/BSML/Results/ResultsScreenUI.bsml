@@ -1,8 +1,4 @@
 <horizontal preferred-height="8" >
-	<macro.as-host host="voting-panel">
-		<macro.reparent transform="ui-component"/>
-	</macro.as-host>
-
 	<horizontal ignore-layout="true" anchor-pos-x="-48" anchor-pos-y="5">
 		<macro.as-host host="replay-button">
 			<macro.reparent transform="ui-component"/>

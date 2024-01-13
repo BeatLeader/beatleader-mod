@@ -9,6 +9,8 @@ namespace BeatLeader.Models {
         public SongInfo song;
         public DiffInfo difficulty;
         public QualificationInfo qualification;
+        public Clan clan;
+        public bool clanRankingContested;
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
@@ -22,6 +24,8 @@ namespace BeatLeader.Models {
         public string id;
         public DiffInfo difficulty;
         public QualificationInfo qualification;
+        public Clan clan;
+        public bool clanRankingContested;
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]

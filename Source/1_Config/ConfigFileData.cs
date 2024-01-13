@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using BeatLeader.Models;
 using Hive.Versioning;
 using IPA.Config.Stores;
@@ -51,6 +51,12 @@ namespace BeatLeader {
 
         [UseConverter]
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
+
+        #endregion
+
+        #region LeaderboardDisplaySettings
+
+        public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
 
         #endregion
 

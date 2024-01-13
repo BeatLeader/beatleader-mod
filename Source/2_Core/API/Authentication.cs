@@ -102,7 +102,9 @@ namespace BeatLeader.API {
                 new MultipartFormDataSection("provider", provider),
                 new MultipartFormDataSection("returnUrl", "/")
             };
+
             var request = UnityWebRequest.Post(BLConstants.SIGNIN_WITH_TICKET, form);
+            
             yield return request.SendWebRequest();
 
             switch (request.responseCode) {

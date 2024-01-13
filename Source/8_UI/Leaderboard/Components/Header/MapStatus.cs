@@ -18,20 +18,16 @@ namespace BeatLeader.Components {
 
         #region Init/Dispose
 
-        private SmoothHoverController _smoothHoverController = null!;
-
         protected override void OnInitialize() {
             _background.raycastTarget = true;
-            _smoothHoverController = _background.gameObject.AddComponent<SmoothHoverController>();
-            _smoothHoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            SmoothHoverController.Custom(_background.gameObject, OnHoverStateChanged);
             GameplayModifiersPanelPatch.ModifiersChangedEvent += OnModifiersChanged;
         }
 
         protected override void OnDispose() {
-            _smoothHoverController.HoverStateChangedEvent -= OnHoverStateChanged;
             GameplayModifiersPanelPatch.ModifiersChangedEvent -= OnModifiersChanged;
         }
-        
+
         #endregion
 
         #region SetValues
@@ -39,7 +35,7 @@ namespace BeatLeader.Components {
         private GameplayModifiers? _gameplayModifiers;
         private RankedStatus _rankedStatus;
         private DiffInfo _diffInfo;
-        
+
         public void SetActive(bool value) {
             _background.gameObject.SetActive(value);
             OnHoverStateChanged(false, 0.0f);
@@ -65,6 +61,7 @@ namespace BeatLeader.Components {
                 };
                 modifiersApplied = true;
             }
+
             var text = _rankedStatus.ToString();
             var modifiersIndicator = modifiersApplied ? "<color=green>[M]</color>" : string.Empty;
             if (_diffInfo.stars > 0) text += $": {FormatUtils.FormatStars(stars)} {modifiersIndicator}";
@@ -74,7 +71,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Callbacks
-        
+
         private void OnHoverStateChanged(bool isHovered, float progress) {
             MapDifficultyPanel.NotifyMapStatusHoverStateChanged(_background.transform.position, isHovered, progress);
         }

@@ -1,6 +1,6 @@
-﻿<horizontal active="~captor-clan-active" pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD" apply-on-change="true" hover-hint="~captor-clan-hover">
+﻿<horizontal pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD" hover-hint="~captor-clan-hover">
     <horizontal pad-right="1">
-        <text text="~captor-clan-text" color="~captor-clan-text-color" align="Midline"/>
+        <text id="captor-clan-text" align="Midline"/>
     </horizontal>
     <macro.as-host host="clan-tag">
         <macro.reparent transform="ui-component"/>

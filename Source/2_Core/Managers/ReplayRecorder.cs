@@ -450,7 +450,7 @@ namespace BeatLeader {
 
         [PublicAPI]
         public bool TryWriteCustomData(string key, byte[] data) {
-            if (_stopRecording || _replay.customData.ContainsKey(key)) return false;
+            if (_stopRecording) return false;
             _replay.customData[key] = data;
             return true;
         }

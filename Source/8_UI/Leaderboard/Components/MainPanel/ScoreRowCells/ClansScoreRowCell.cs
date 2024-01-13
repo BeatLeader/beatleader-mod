@@ -1,4 +1,5 @@
-﻿using BeatLeader.Models;
+﻿using System;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
@@ -18,9 +19,14 @@ namespace BeatLeader.Components {
 
         #region SetValues
 
-        public void SetValues(Clan[] clans) {
-            _clanTags.SetClans(clans);
-            isEmpty = clans.IsEmpty();
+        public override void SetValue(object? value) {
+            if (value is Clan[] clans) {
+                _clanTags.SetClans(clans);
+                isEmpty = clans.IsEmpty();
+            } else {
+                _clanTags.SetClans(Array.Empty<Clan>());
+                isEmpty = true;
+            }
         }
 
         public override void SetAlpha(float value) {

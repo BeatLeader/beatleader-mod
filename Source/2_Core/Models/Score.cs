@@ -1,7 +1,7 @@
-﻿namespace BeatLeader.Models
-{
-    public class Score
-    {
+﻿using BeatLeader.Components;
+
+namespace BeatLeader.Models {
+    public class Score : IScoreRowContent {
         public int id;
         public float accuracy;
         public float fcAccuracy;
@@ -22,5 +22,45 @@
         public Player player;
         public string replay;
         public string platform;
+
+        #region IScoreRowContent implementation
+
+        public bool ContainsValue(ScoreRowCellType cellType) {
+            return cellType switch {
+                ScoreRowCellType.Rank => true,
+                ScoreRowCellType.Country => true,
+                ScoreRowCellType.Avatar => true,
+                ScoreRowCellType.Username => true,
+                ScoreRowCellType.Modifiers => true,
+                ScoreRowCellType.Accuracy => true,
+                ScoreRowCellType.PerformancePoints => true,
+                ScoreRowCellType.Score => true,
+                ScoreRowCellType.Mistakes => true,
+                ScoreRowCellType.Clans => true,
+                ScoreRowCellType.Time => true,
+                ScoreRowCellType.Pauses => true,
+                _ => false
+            };
+        }
+
+        public object? GetValue(ScoreRowCellType cellType) {
+            return cellType switch {
+                ScoreRowCellType.Rank => rank,
+                ScoreRowCellType.Country => player.country,
+                ScoreRowCellType.Avatar => new AvatarScoreRowCell.Data(player.avatar, player.profileSettings),
+                ScoreRowCellType.Username => player.name,
+                ScoreRowCellType.Modifiers => modifiers,
+                ScoreRowCellType.Accuracy => accuracy,
+                ScoreRowCellType.PerformancePoints => pp,
+                ScoreRowCellType.Score => modifiedScore,
+                ScoreRowCellType.Mistakes => missedNotes + badCuts + bombCuts + wallsHit,
+                ScoreRowCellType.Clans => player.clans,
+                ScoreRowCellType.Time => timeSet,
+                ScoreRowCellType.Pauses => pauses,
+                _ => default
+            };
+        }
+
+        #endregion
     }
 }

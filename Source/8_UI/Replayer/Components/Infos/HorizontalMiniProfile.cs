@@ -56,13 +56,13 @@ namespace BeatLeader.Components {
 
         [UIValue("text-bg-size"), UsedImplicitly]
         private float TextBgSize => textSize + 2;
-        
+
         [UIValue("max-text-width"), UsedImplicitly]
         private float MaxTextWidth => maxWidth - avatarSize;
-        
+
         [UIValue("text-size"), UsedImplicitly]
         public float textSize = 4;
-        
+
         [UIValue("avatar-size"), UsedImplicitly]
         public float avatarSize = 20;
 
@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
 
         [UIValue("max-width")]
         public float maxWidth = -1;
-        
+
         #endregion
 
         #region Setup
@@ -81,7 +81,7 @@ namespace BeatLeader.Components {
         private string? _playerPp;
 
         public void SetPlayer(Player player) {
-            _playerAvatar.SetPlayer(player);
+            _playerAvatar.SetAvatar(player.avatar, player.profileSettings);
             _playerCountryFlag.SetCountry(player.country);
 
             PlayerName = player.name;
@@ -148,7 +148,7 @@ namespace BeatLeader.Components {
 
     internal class HorizontalMiniProfile : ReeUIComponentV2 {
         #region Setup
-        
+
         protected override object ParseHost => _host;
 
         private readonly HorizontalMiniProfileHost _host = new();

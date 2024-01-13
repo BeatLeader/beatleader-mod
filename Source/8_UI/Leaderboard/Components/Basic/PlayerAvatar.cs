@@ -25,8 +25,8 @@ namespace BeatLeader.Components {
         private Material _materialInstance;
         private bool _materialSet;
 
-        private void SelectMaterial(Player player) {
-            ThemesUtils.GetAvatarParams(player, _useSmallMaterialVersion, out var baseMaterial, out _hueShift, out _saturation);
+        private void SelectMaterial(ProfileSettings? profileSettings) {
+            ThemesUtils.GetAvatarParams(profileSettings, _useSmallMaterialVersion, out var baseMaterial, out _hueShift, out _saturation);
 
             if (!_materialSet || baseMaterial != _baseMaterial) {
                 _baseMaterial = baseMaterial;
@@ -89,12 +89,12 @@ namespace BeatLeader.Components {
 
         #region SetAvatar
 
-        private string _url = "";
+        private string? _url = "";
 
-        public void SetPlayer(Player player) {
-            if (_url == player.avatar) return;
-            _url = player.avatar;
-            SelectMaterial(player);
+        public void SetAvatar(string? url, ProfileSettings? profileSettings) {
+            if (_url == url) return;
+            _url = url;
+            SelectMaterial(profileSettings);
             UpdateAvatar();
         }
 

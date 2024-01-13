@@ -1,4 +1,4 @@
-<horizontal id="root-node" active="~is-active" pref-height="5.2">
+<horizontal pref-height="5.2">
     <!--  STYLE  -->
     <macro.define name="row-height" value="5.2"/>
     <macro.define name="row-width" value="80"/>

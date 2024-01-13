@@ -134,19 +134,19 @@ namespace BeatLeader.Components {
         #region SetScoresValues
 
         private void ClearScoresValues() {
-            _extraRow.ClearScore();
+            _extraRow.ClearContent();
             foreach (var scoreRow in _mainRows) {
-                scoreRow.ClearScore();
+                scoreRow.ClearContent();
             }
         }
 
         private void SetScoresValues(Paged<Score> scoresData) {
-            if (scoresData.selection != null) _extraRow.SetScore(scoresData.selection);
+            if (scoresData.selection != null) _extraRow.SetContent(scoresData.selection);
             _hasPP = false;
             for (var i = 0; i < MainRowsCount; i++) {
                 if (i >= scoresData.data.Count) continue;
                 if (scoresData.data[i].pp > 0) _hasPP = true;
-                _mainRows[i].SetScore(scoresData.data[i]);
+                _mainRows[i].SetContent(scoresData.data[i]);
             }
             UpdateLayout();
         }

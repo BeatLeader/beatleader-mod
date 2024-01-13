@@ -20,6 +20,7 @@ namespace BeatLeader.Models.Replay {
         public List<AutomaticHeight> heights = new List<AutomaticHeight>();
         public List<Pause> pauses = new List<Pause>();
         public SaberOffsets saberOffsets = new SaberOffsets();
+        public Dictionary<string, byte[]> customData = new Dictionary<string, byte[]>();
     }
     public class ReplayInfo : IReplayInfo {
         string IReplayInfo.PlayerID => playerID;
@@ -235,7 +236,8 @@ namespace BeatLeader.Models.Replay {
         walls = 3,
         heights = 4,
         pauses = 5,
-        saberOffsets = 6
+        saberOffsets = 6,
+        customData = 7
     }
     public struct Vector3
     {
@@ -315,7 +317,7 @@ namespace BeatLeader.Models.Replay {
             stream.Write(0x442d3d69);
             stream.Write((byte)1);
 
-            for (int a = 0; a < ((int)StructType.pauses) + 1; a++)
+            for (int a = 0; a <= (int)StructType.customData; a++)
             {
                 StructType type = (StructType)a;
                 stream.Write((byte)a);
@@ -342,6 +344,9 @@ namespace BeatLeader.Models.Replay {
                         break;
                     case StructType.saberOffsets:
                         EncodeSaberOffsets(replay.saberOffsets, stream);
+                        break;
+                    case StructType.customData:
+                        EncodeCustomData(replay.customData, stream);
                         break;
                 }
             }
@@ -451,6 +456,15 @@ namespace BeatLeader.Models.Replay {
             EncodeQuaternion(saberOffsets.RightSaberLocalRotation, stream);
         }
 
+        static void EncodeCustomData(Dictionary<string, byte[]> customData, BinaryWriter stream)
+        {
+            stream.Write(customData.Count);
+            foreach (var pair in customData) {
+                EncodeString(pair.Key, stream);
+                EncodeByteArray(pair.Value, stream);
+            }
+        }
+
         static void EncodeNoteInfo(Models.Replay.NoteCutInfo info, BinaryWriter stream)
         {
             stream.Write(info.speedOK);
@@ -476,6 +490,12 @@ namespace BeatLeader.Models.Replay {
             var bytes = Encoding.UTF8.GetBytes(toEncode);
             stream.Write(bytes.Length);
             stream.Write(bytes);
+        }
+
+        static void EncodeByteArray(byte[] value, BinaryWriter stream)
+        {
+            stream.Write(value.Length);
+            stream.Write(value);
         }
 
         static void EncodeVector(Vector3 vector, BinaryWriter stream)
@@ -536,7 +556,7 @@ namespace BeatLeader.Models.Replay {
             {
                 Models.Replay.Replay replay = new Models.Replay.Replay();
 
-                for (int a = 0; a < ((int)StructType.pauses) + 1 && pointer < arrayLength; a++)
+                for (int a = 0; a <= (int)StructType.customData && pointer < arrayLength; a++)
                 {
                     StructType type = (StructType)buffer[pointer++];
 
@@ -562,6 +582,9 @@ namespace BeatLeader.Models.Replay {
                             break;
                         case StructType.saberOffsets:
                             replay.saberOffsets = DecodeSaberOffsets(buffer, ref pointer);
+                            break;
+                        case StructType.customData:
+                            replay.customData = DecodeCustomData(buffer, ref pointer);
                             break;
                     }
                 }
@@ -700,6 +723,18 @@ namespace BeatLeader.Models.Replay {
             result.RightSaberLocalRotation = DecodeQuaternion(buffer, ref pointer);
             return result;
         }
+        
+        private static Dictionary<string, byte[]> DecodeCustomData(byte[] buffer, ref int pointer)
+        {
+            var result = new Dictionary<string, byte[]>();
+            var count = DecodeInt(buffer, ref pointer);
+            for (var i = 0; i < count; i++) {
+                var key = DecodeString(buffer, ref pointer);
+                var value = DecodeByteArray(buffer, ref pointer);
+                result[key] = value;
+            }
+            return result;
+        }
 
         private static NoteEvent DecodeNote(byte[] buffer, ref int pointer)
         {
@@ -823,6 +858,14 @@ namespace BeatLeader.Models.Replay {
         {
             bool result = BitConverter.ToBoolean(buffer, pointer);
             pointer++;
+            return result;
+        }
+
+        private static byte[] DecodeByteArray(byte[] buffer, ref int pointer) {
+            var count = DecodeInt(buffer, ref pointer);
+            var result = new byte[count];
+            Array.Copy(buffer, pointer, result, 0, count);
+            pointer += count;
             return result;
         }
     }

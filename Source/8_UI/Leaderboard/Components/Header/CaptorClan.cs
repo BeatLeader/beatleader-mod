@@ -57,20 +57,21 @@ namespace BeatLeader.Components {
                 if (data.ClanRankingContested) {
                     // Clan Ranking was contested
                     _captorClanTag.Clear();
-                    _captorClanText.text = "⚔ Contested";
+                    _captorClanText.text = "⚔ <bll>ls-capture-status-contested</bll>";
                     _captorClanText.faceColor = new Color32(192, 192, 192, 255);
-                    CaptorClanHover = "Set a score on this leaderboard to break the tie and capture it for your clan!";
+                    CaptorClanHover = "<bll>ls-capture-status-contested-hint</bll>";
                 } else if (data.Clan?.tag == null) {
                     // Map is not captured
                     _captorClanTag.Clear();
-                    _captorClanText.text = "👑 Uncaptured";
+                    _captorClanText.text = "👑 <bll>ls-capture-status-uncaptured</bll>";
                     _captorClanText.faceColor = new Color32(255, 255, 255, 255);
-                    CaptorClanHover = "Set a score on this leaderboard to capture it for your clan!";
+                    CaptorClanHover = "<bll>ls-capture-status-uncaptured-hint</bll>";
                 } else {
                     // Map is captured by a clan
                     _captorClanText.text = "👑 ";
                     _captorClanText.faceColor = new Color32(255, 215, 0, 255);
-                    CaptorClanHover = "Clan with the highest weighted PP on this leaderboard!";
+                    CaptorClanHover = BLLocalization.GetTranslation("ls-capture-status-captured-hint")
+                        .Replace("<clan>", $"<b>'{data.Clan.name}'</b>");
                     _captorClanTag.SetValue(data.Clan);
                 }
             } else {

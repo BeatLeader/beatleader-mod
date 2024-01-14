@@ -1,4 +1,4 @@
-﻿<horizontal pad-left="2" pad-right="2" bg="round-rect-panel" bg-color="#FFFFFFDD" hover-hint="~captor-clan-hover">
+﻿<horizontal pad-left="1" pad-right="1" bg="round-rect-panel" bg-color="#FFFFFFDD" hover-hint="~captor-clan-hover">
     <horizontal pad-right="1">
         <text id="captor-clan-text" align="Midline"/>
     </horizontal>

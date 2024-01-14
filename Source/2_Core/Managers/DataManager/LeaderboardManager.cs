@@ -36,6 +36,7 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
+            LeaderboardEvents.CaptorClanWasClickedEvent += HandleCaptorClanClick;
             ProfileManager.FriendsUpdatedEvent += OnFriendsUpdated;
 
             _selectedScoreContext = PluginConfig.ScoresContext;
@@ -52,6 +53,7 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
             LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;
             LeaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
+            LeaderboardEvents.CaptorClanWasClickedEvent -= HandleCaptorClanClick;
             ProfileManager.FriendsUpdatedEvent -= OnFriendsUpdated;
         }
 
@@ -78,6 +80,7 @@ namespace BeatLeader.DataManager {
 
         #region TryUpdateScores / OnIsVisibleChanged
 
+        private LeaderboardType _leaderboardType = LeaderboardType.SongDiffPlayerScores;
         private bool _updateRequired;
 
         private void TryUpdateScores() {
@@ -93,13 +96,24 @@ namespace BeatLeader.DataManager {
 
         private void UpdateScores() {
             _updateRequired = false;
-            LoadScores();
+
+            switch (_leaderboardType) {
+                case LeaderboardType.SongDiffPlayerScores: {
+                    LoadPlayerScores();
+                    break;
+                }
+                case LeaderboardType.SongDiffClanScores: {
+                    LoadClanScores();
+                    break;
+                }
+                default: break;
+            }
         }
 
         #endregion
 
         #region OnLeaderboardSet
-        
+
         public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) {
             Plugin.Log.Debug($"Selected beatmap: {difficultyBeatmap.level.songName}, diff: {difficultyBeatmap.difficulty}");
             _lastSelectedBeatmap = difficultyBeatmap;
@@ -127,7 +141,7 @@ namespace BeatLeader.DataManager {
 
         private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
             if (_lastSelectedBeatmap == null) return;
-            
+
             switch (state) {
                 case API.RequestState.Started:
                     _uploadLeaderboardKey = LeaderboardKey.FromBeatmap(_lastSelectedBeatmap);
@@ -143,19 +157,23 @@ namespace BeatLeader.DataManager {
 
         #region Score fetching
 
-        private void LoadScores() {
+        private void LoadPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPageRequest(userId, Hash, Diff, Mode, Context, Scope, _lastSelectedPage);
+            ScoresRequest.SendPlayerScoresPageRequest(userId, Hash, Diff, Mode, Context, Scope, _lastSelectedPage);
         }
 
-        private void SeekScores() {
+        private void SeekPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendSeekRequest(userId, Hash, Diff, Mode, Context, Scope);
+            ScoresRequest.SendPlayerScoresSeekRequest(userId, Hash, Diff, Mode, Context, Scope);
         }
 
-        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
-            _lastSelectedPage = result.metadata.page;
+        private void LoadClanScores() {
+            ScoresRequest.SendClanScoresPageRequest(Hash, Diff, Mode, _lastSelectedPage);
+        }
+
+        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
+            if (state is not API.RequestState.Finished || _leaderboardType is not LeaderboardType.SongDiffPlayerScores) return;
+            _lastSelectedPage = result.CurrentPage;
         }
 
         #endregion
@@ -166,9 +184,10 @@ namespace BeatLeader.DataManager {
             Plugin.Log.Debug($"Attempt to switch score scope from [{_selectedScoreScope}] to [{scope}]");
 
             if (_selectedScoreScope != scope) {
+                _leaderboardType = LeaderboardType.SongDiffPlayerScores;
                 _selectedScoreScope = scope;
                 _lastSelectedPage = 1;
-                
+
                 TryUpdateScores();
             }
         }
@@ -181,6 +200,7 @@ namespace BeatLeader.DataManager {
             Plugin.Log.Debug($"Attempt to switch score context from [{_selectedScoreContext}] to [{context}]");
 
             if (_selectedScoreContext != context) {
+                _leaderboardType = LeaderboardType.SongDiffPlayerScores;
                 _selectedScoreContext = context;
                 _lastSelectedPage = 1;
 
@@ -208,7 +228,16 @@ namespace BeatLeader.DataManager {
         }
 
         private void SeekAroundMePage() {
-            SeekScores();
+            SeekPlayerScores();
+        }
+
+        private void HandleCaptorClanClick() {
+            _leaderboardType = _leaderboardType switch {
+                LeaderboardType.SongDiffPlayerScores => LeaderboardType.SongDiffClanScores,
+                _ => LeaderboardType.SongDiffPlayerScores
+            };
+            _lastSelectedPage = 1;
+            TryUpdateScores();
         }
 
         #endregion

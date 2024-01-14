@@ -203,28 +203,28 @@ namespace BeatLeader.Components {
 
         private void UpdateCells() {
             switch (_score) {
-                case null: {
+                case Score playerScore: {
+                    var player = HiddenPlayersCache.ModifyPlayer(playerScore.player);
+                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
+
+                    Clickable = true;
+                    SetHighlight(ProfileManager.IsCurrentPlayer(player.id));
+                    ApplyColorScheme(playerRoles);
+                    break;
+                }
+                case ClanScore clanScore: {
+                    Clickable = true;
+                    SetHighlight(ProfileManager.IsCurrentPlayerInClan(clanScore.clan));
+                    ApplyColorScheme(Array.Empty<PlayerRole>());
+                    break;
+                }
+                default: {
                     foreach (var cell in _cells.Values) {
                         cell.MarkEmpty();
                     }
 
                     Clickable = false;
                     return;
-                }
-                case Score songScore: {
-                    var player = HiddenPlayersCache.ModifyPlayer(songScore.player);
-                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
-
-                    Clickable = true;
-                    SetHighlight(ProfileManager.IsCurrentPlayer(player?.id));
-                    ApplyColorScheme(playerRoles);
-                    break;
-                }
-                default: {
-                    Clickable = false;
-                    SetHighlight(false);
-                    ApplyColorScheme(Array.Empty<PlayerRole>());
-                    break;
                 }
             }
 

@@ -45,6 +45,10 @@ namespace BeatLeader {
 
         #region RecalculateLayout
 
+        private static bool IsFlexible(ScoreRowCellType cellType) {
+            return cellType is ScoreRowCellType.Clans or ScoreRowCellType.Username or ScoreRowCellType.Modifiers;
+        }
+
         public void RecalculateLayout(ScoreRowCellType mask) {
             UpdateNonFlexibleCells(mask, out var flexibleWidth);
             UpdateFlexibleCells(mask, flexibleWidth);
@@ -56,6 +60,8 @@ namespace BeatLeader {
             var i = 0;
             foreach (var keyValuePair in _cells) {
                 var cellType = keyValuePair.Key;
+                if (IsFlexible(cellType)) continue;
+
                 var list = keyValuePair.Value;
                 var active = mask.HasFlag(cellType);
 
@@ -63,7 +69,7 @@ namespace BeatLeader {
                     cell.SetActive(active);
                 }
 
-                if (!active || cellType is ScoreRowCellType.Clans or ScoreRowCellType.Username or ScoreRowCellType.Modifiers) continue;
+                if (!active) continue;
 
                 var maximalWidth = list.Max(cell => cell.GetPreferredWidth());
 
@@ -84,22 +90,29 @@ namespace BeatLeader {
             for (var i = 0; i < nameCells.Count; i++) {
                 var remainingWidth = flexibleWidth;
 
-                if (mask.HasFlag(ScoreRowCellType.Clans)) {
-                    var clansCell = clansCells[i];
-                    if (!clansCell.isEmpty) {
-                        var clansWidth = clansCell.GetPreferredWidth();
-                        clansCell.SetCellWidth(clansWidth);
-                        remainingWidth -= clansWidth + Spacing;
-                    } else {
-                        clansCell.SetActive(false);
-                    }
+                var clansCell = clansCells[i];
+                if (mask.HasFlag(ScoreRowCellType.Clans) && !clansCell.isEmpty) {
+                    var clansWidth = clansCell.GetPreferredWidth();
+                    clansCell.SetActive(true);
+                    clansCell.SetCellWidth(clansWidth);
+                    remainingWidth -= clansWidth + Spacing;
+                } else {
+                    clansCell.SetActive(false);
                 }
-                
+
                 var modifiersCell = modifiersCells[i];
+                if (!mask.HasFlag(ScoreRowCellType.Modifiers)) {
+                    modifiersCell.SetValue("");
+                }
+
                 var modifiersWidth = modifiersCell.GetPreferredWidth();
                 remainingWidth -= modifiersWidth + Spacing;
-                
+
                 var nameCell = nameCells[i];
+                if (!mask.HasFlag(ScoreRowCellType.Username)) {
+                    nameCell.SetValue("");
+                }
+
                 var nameWidth = Mathf.Min(nameCell.GetPreferredWidth(), remainingWidth);
                 nameCell.SetCellWidth(nameWidth);
                 remainingWidth -= nameWidth;

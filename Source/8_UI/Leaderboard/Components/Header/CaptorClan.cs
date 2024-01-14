@@ -37,6 +37,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             _captorClanTag.CalculatePreferredWidth();
+            _captorClanTag.container.localScale = new Vector3(1.1f, 1.1f, 1.1f);
 
             SimpleClickHandler.Custom(Content.gameObject, LeaderboardEvents.NotifyCaptorClanWasClickedEvent);
             SmoothHoverController.Scale(Content.gameObject, 1.0f, 1.2f);

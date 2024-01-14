@@ -29,6 +29,7 @@ namespace BeatLeader.DataManager {
 
             ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+            UserRequest.AddStateListener(OnUserRequestStateChanged);
 
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
@@ -46,6 +47,7 @@ namespace BeatLeader.DataManager {
         private void OnDestroy() {
             ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+            UserRequest.RemoveStateListener(OnUserRequestStateChanged);
 
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
             LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
@@ -174,6 +176,11 @@ namespace BeatLeader.DataManager {
         private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
             if (state is not API.RequestState.Finished || _leaderboardType is not LeaderboardType.SongDiffPlayerScores) return;
             _lastSelectedPage = result.CurrentPage;
+        }
+
+        private void OnUserRequestStateChanged(API.RequestState state, User result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            TryUpdateScores();
         }
 
         #endregion

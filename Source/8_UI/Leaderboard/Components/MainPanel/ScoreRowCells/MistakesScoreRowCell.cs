@@ -9,8 +9,8 @@ namespace BeatLeader.Components {
         private const string GoodColor = "#88FF88";
         private const string BadColor = "#FF8888";
 
-        public void SetValues(int missedNotes, int badCuts, int bombCuts, int wallsHit) {
-            var totalMistakes = missedNotes + badCuts + bombCuts + wallsHit;
+        public override void SetValue(object? value) {
+            var totalMistakes = (int)(value ?? 0);
             textComponent.text = totalMistakes == 0 ? $"<color={GoodColor}>FC" : $"<color={BadColor}>{totalMistakes}<size=70%>x";
             isEmpty = false;
         }

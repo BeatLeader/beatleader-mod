@@ -169,7 +169,7 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnInitialize() {
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdatePlayer;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateCells;
 
             SetupFormatting();
             SetupBackground();
@@ -178,7 +178,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdatePlayer;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateCells;
         }
 
         private void OnEnable() {
@@ -189,54 +189,57 @@ namespace BeatLeader.Components {
 
         #region Interaction
 
-        private Score _score;
+        private IScoreRowContent? _score;
 
-        public void SetScore(Score score) {
+        public void SetContent(IScoreRowContent score) {
             _score = score;
-
-            _rankCell.SetValue(score.rank);
-            _modifiersCell.SetValue(score.modifiers);
-            _accuracyCell.SetValue(score.accuracy);
-            _ppCell.SetValue(score.pp);
-            _scoreCell.SetValue(score.modifiedScore);
-            _timeCell.SetValue(score.timeSet);
-            _mistakesCell.SetValues(score.missedNotes, score.badCuts, score.bombCuts, score.wallsHit);
-            _pausesCell.SetValue(score.pauses);
-            Clickable = true;
-
-            UpdatePlayer();
+            UpdateCells();
         }
 
-        private void UpdatePlayer() {
-            if (_score == null) return;
-            var player = HiddenPlayersCache.ModifyPlayer(_score.player);
-
-            SetHighlight(ProfileManager.IsCurrentPlayer(player?.id));
-
-            var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
-            ApplyColorScheme(playerRoles);
-
-            _avatarCell.SetPlayer(player);
-            _countryCell.SetValue(player.country);
-            _usernameCell.SetValue(player.name);
-            _clansCell.SetValues(player.clans ?? Array.Empty<Clan>());
-        }
-
-        public void ClearScore() {
+        public void ClearContent() {
             _score = null;
-            foreach (var cell in _cells.Values) {
-                cell.MarkEmpty();
+            UpdateCells();
+        }
+
+        private void UpdateCells() {
+            switch (_score) {
+                case Score playerScore: {
+                    var player = HiddenPlayersCache.ModifyPlayer(playerScore.player);
+                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
+
+                    Clickable = true;
+                    SetHighlight(ProfileManager.IsCurrentPlayer(player.id));
+                    ApplyColorScheme(playerRoles);
+                    break;
+                }
+                case ClanScore clanScore: {
+                    Clickable = true;
+                    SetHighlight(ProfileManager.IsCurrentPlayerInClan(clanScore.clan));
+                    ApplyColorScheme(Array.Empty<PlayerRole>());
+                    break;
+                }
+                default: {
+                    foreach (var cell in _cells.Values) {
+                        cell.MarkEmpty();
+                    }
+
+                    Clickable = false;
+                    return;
+                }
             }
 
-            Clickable = false;
+            foreach (var pair in _cells) {
+                if (_score.ContainsValue(pair.Key)) pair.Value.SetValue(_score.GetValue(pair.Key));
+                else pair.Value.MarkEmpty();
+            }
         }
 
         public void SetActive(bool value) {
-            IsActive = value;
+            Content.gameObject.SetActive(value);
         }
 
         public void SetHierarchyIndex(int value) {
-            _rootNode.SetSiblingIndex(value);
+            Content.SetSiblingIndex(value);
         }
 
         #endregion
@@ -317,13 +320,6 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region RootNode
-
-        [UIComponent("root-node"), UsedImplicitly]
-        private Transform _rootNode;
-
-        #endregion
-
         #region HorizontalOffset
 
         private float _horizontalOffset;
@@ -334,22 +330,6 @@ namespace BeatLeader.Components {
             set {
                 if (_horizontalOffset.Equals(value)) return;
                 _horizontalOffset = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region IsActive
-
-        private bool _isActive = true;
-
-        [UIValue("is-active"), UsedImplicitly]
-        private bool IsActive {
-            get => _isActive;
-            set {
-                if (_isActive.Equals(value)) return;
-                _isActive = value;
                 NotifyPropertyChanged();
             }
         }
@@ -420,8 +400,12 @@ namespace BeatLeader.Components {
 
         [UIAction("info-on-click"), UsedImplicitly]
         private void InfoOnClick() {
-            if (_score == null) return;
-            LeaderboardEvents.NotifyScoreInfoButtonWasPressed(_score);
+            switch (_score) {
+                case Score songScore: {
+                    LeaderboardEvents.NotifyScoreInfoButtonWasPressed(songScore);
+                    break;
+                }
+            }
         }
 
         private bool _clickable;

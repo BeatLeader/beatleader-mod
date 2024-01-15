@@ -178,5 +178,15 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
+
+        #region CaptorClanWasClickedEvent
+
+        public static event Action CaptorClanWasClickedEvent;
+
+        public static void NotifyCaptorClanWasClickedEvent() {
+            CaptorClanWasClickedEvent?.Invoke();
+        }
+
+        #endregion
     }
 }

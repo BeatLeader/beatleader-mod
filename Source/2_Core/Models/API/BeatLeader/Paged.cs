@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace BeatLeader.Models {
 
@@ -12,5 +13,7 @@ namespace BeatLeader.Models {
         public int itemsPerPage;
         public int page;
         public int total;
+
+        public int PagesCount => Mathf.CeilToInt((float)total / itemsPerPage);
     }
 }

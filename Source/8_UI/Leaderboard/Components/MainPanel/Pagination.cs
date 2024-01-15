@@ -1,8 +1,5 @@
-using System.Linq;
 using BeatLeader.API.Methods;
-using BeatLeader.DataManager;
 using BeatLeader.Manager;
-using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
@@ -25,25 +22,19 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnScoreRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+        private void OnScoreRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
             if (state is not API.RequestState.Finished) {
                 DisableAllInteraction();
                 return;
             }
-            
+
             OnScoresFetched(result);
         }
 
-        private void OnScoresFetched(Paged<Score> scoresData) {
-            if (scoresData.metadata == null) {
-                Plugin.Log.Error("scoresData.metadata is null!");
-                DisableAllInteraction();
-                return;
-            }
-
-            UpInteractable = scoresData.metadata.page > 1;
-            AroundInteractable = scoresData.selection != null && !scoresData.data.Any(it => ProfileManager.IsCurrentPlayer(it.player?.id));
-            DownInteractable = scoresData.metadata.page * scoresData.metadata.itemsPerPage < scoresData.metadata.total;
+        private void OnScoresFetched(ScoresTableContent scoresData) {
+            UpInteractable = scoresData.CurrentPage > 1;
+            AroundInteractable = scoresData.SeekAvailable;
+            DownInteractable = scoresData.CurrentPage < scoresData.PagesCount;
         }
 
         private void DisableAllInteraction() {

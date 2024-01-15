@@ -71,8 +71,11 @@ namespace BeatLeader.Models {
     }
 
     public class Clan {
+        public int id;
         public string tag;
         public string color;
+        public string name;
+        public string avatar;
     }
 
     public class ProfileSettings {

@@ -14,7 +14,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnHoverStateChanged(bool isHovered, float progress) {
-            UpdateVisuals();
+            UpdateVisuals(isHovered, progress);
         }
 
         #endregion
@@ -36,13 +36,13 @@ namespace BeatLeader.Components {
         public void SetValues(Type type, float score) {
             _type = type;
             _score = score;
-            UpdateVisuals();
+            UpdateVisuals(_hoverController.IsHovered, _hoverController.Progress);
             SetFillValue(CalculateFillValue(score));
         }
 
-        private void UpdateVisuals() {
-            _backgroundImage.color = GetColor(_type, _hoverController.Progress);
-            _textComponent.text = FormatScore(_score, _hoverController.IsHovered);
+        private void UpdateVisuals(bool isHovered, float progress) {
+            _backgroundImage.color = GetColor(_type, progress);
+            _textComponent.text = FormatScore(_score, isHovered);
         }
 
         #endregion
@@ -67,7 +67,7 @@ namespace BeatLeader.Components {
             var ratio = Mathf.Clamp01((score - 65) / 50.0f);
             return Mathf.Pow(ratio, 0.6f);
         }
-        
+
         private static string FormatScore(float value, bool showAcc) {
             if (!showAcc) return $"{value:F2}";
             var acc = value / 1.15f;
@@ -101,8 +101,7 @@ namespace BeatLeader.Components {
             _materialInstance = Material.Instantiate(BundleLoader.HandAccIndicatorMaterial);
             _backgroundImage.material = _materialInstance;
             _backgroundImage.raycastTarget = true;
-            _hoverController = _backgroundImage.gameObject.AddComponent<SmoothHoverController>();
-            _hoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            _hoverController = SmoothHoverController.Custom(_backgroundImage.gameObject, OnHoverStateChanged);
         }
 
         #endregion

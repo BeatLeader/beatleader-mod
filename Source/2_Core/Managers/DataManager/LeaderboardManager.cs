@@ -31,14 +31,15 @@ namespace BeatLeader.DataManager {
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
             UserRequest.AddStateListener(OnUserRequestStateChanged);
 
-            PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
-            LeaderboardState.ScoresScopeChangedEvent += ChangeScoreProvider;
+            PluginConfig.ScoresContextChangedEvent += OnScoresContextWasChanged;
+            LeaderboardState.ScoresScopeChangedEvent += OnScoresScopeWasSelected;
             LeaderboardState.IsVisibleChangedEvent += OnIsVisibleChanged;
-            LeaderboardEvents.UpButtonWasPressedAction += FetchPreviousPage;
-            LeaderboardEvents.AroundButtonWasPressedAction += SeekAroundMePage;
-            LeaderboardEvents.DownButtonWasPressedAction += FetchNextPage;
-            LeaderboardEvents.CaptorClanWasClickedEvent += HandleCaptorClanClick;
+            LeaderboardEvents.UpButtonWasPressedAction += OnPreviousPageClick;
+            LeaderboardEvents.AroundButtonWasPressedAction += OnAroundMeClick;
+            LeaderboardEvents.DownButtonWasPressedAction += OnNextPageClick;
+            LeaderboardEvents.CaptorClanWasClickedEvent += OnCaptorClanClick;
             ProfileManager.FriendsUpdatedEvent += OnFriendsUpdated;
+            LeaderboardsCache.CacheWasChangedEvent += OnCacheUpdated;
 
             _selectedScoreContext = PluginConfig.ScoresContext;
             _selectedScoreScope = LeaderboardState.ScoresScope;
@@ -49,14 +50,15 @@ namespace BeatLeader.DataManager {
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
             UserRequest.RemoveStateListener(OnUserRequestStateChanged);
 
-            PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
-            LeaderboardState.ScoresScopeChangedEvent -= ChangeScoreProvider;
+            PluginConfig.ScoresContextChangedEvent -= OnScoresContextWasChanged;
+            LeaderboardState.ScoresScopeChangedEvent -= OnScoresScopeWasSelected;
             LeaderboardState.IsVisibleChangedEvent -= OnIsVisibleChanged;
-            LeaderboardEvents.UpButtonWasPressedAction -= FetchPreviousPage;
-            LeaderboardEvents.AroundButtonWasPressedAction -= SeekAroundMePage;
-            LeaderboardEvents.DownButtonWasPressedAction -= FetchNextPage;
-            LeaderboardEvents.CaptorClanWasClickedEvent -= HandleCaptorClanClick;
+            LeaderboardEvents.UpButtonWasPressedAction -= OnPreviousPageClick;
+            LeaderboardEvents.AroundButtonWasPressedAction -= OnAroundMeClick;
+            LeaderboardEvents.DownButtonWasPressedAction -= OnNextPageClick;
+            LeaderboardEvents.CaptorClanWasClickedEvent -= OnCaptorClanClick;
             ProfileManager.FriendsUpdatedEvent -= OnFriendsUpdated;
+            LeaderboardsCache.CacheWasChangedEvent -= OnCacheUpdated;
         }
 
         #endregion
@@ -80,7 +82,7 @@ namespace BeatLeader.DataManager {
 
         #endregion
 
-        #region TryUpdateScores / OnIsVisibleChanged
+        #region Scores Update
 
         private LeaderboardType _leaderboardType = LeaderboardType.SongDiffPlayerScores;
         private bool _updateRequired;
@@ -88,11 +90,6 @@ namespace BeatLeader.DataManager {
         private void TryUpdateScores() {
             _updateRequired = true;
             if (!LeaderboardState.IsVisible) return;
-            UpdateScores();
-        }
-
-        private void OnIsVisibleChanged(bool isVisible) {
-            if (!isVisible || !_updateRequired) return;
             UpdateScores();
         }
 
@@ -112,32 +109,23 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        #endregion
+        private void LoadPlayerScores() {
+            if (!ProfileManager.TryGetUserId(out var userId)) return;
+            ScoresRequest.SendPlayerScoresPageRequest(userId, Hash, Diff, Mode, Context, Scope, _lastSelectedPage);
+        }
 
-        #region OnLeaderboardSet
+        private void SeekPlayerScores() {
+            if (!ProfileManager.TryGetUserId(out var userId)) return;
+            ScoresRequest.SendPlayerScoresSeekRequest(userId, Hash, Diff, Mode, Context, Scope);
+        }
 
-        public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) {
-            Plugin.Log.Debug($"Selected beatmap: {difficultyBeatmap.level.songName}, diff: {difficultyBeatmap.difficulty}");
-            _lastSelectedBeatmap = difficultyBeatmap;
-            _lastSelectedPage = 1;
-
-            TryUpdateScores();
-
-            LeaderboardState.SelectedBeatmap = difficultyBeatmap;
+        private void LoadClanScores() {
+            ScoresRequest.SendClanScoresPageRequest(Hash, Diff, Mode, _lastSelectedPage);
         }
 
         #endregion
 
-        #region OnFriendsUpdated
-
-        private void OnFriendsUpdated() {
-            if (_selectedScoreScope is not ScoresScope.Friends) return;
-            TryUpdateScores();
-        }
-
-        #endregion
-
-        #region OnUploadRequestStateChanged
+        #region Request Events
 
         private LeaderboardKey _uploadLeaderboardKey;
 
@@ -155,24 +143,6 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        #endregion
-
-        #region Score fetching
-
-        private void LoadPlayerScores() {
-            if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPlayerScoresPageRequest(userId, Hash, Diff, Mode, Context, Scope, _lastSelectedPage);
-        }
-
-        private void SeekPlayerScores() {
-            if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPlayerScoresSeekRequest(userId, Hash, Diff, Mode, Context, Scope);
-        }
-
-        private void LoadClanScores() {
-            ScoresRequest.SendClanScoresPageRequest(Hash, Diff, Mode, _lastSelectedPage);
-        }
-
         private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
             if (state is not API.RequestState.Finished || _leaderboardType is not LeaderboardType.SongDiffPlayerScores) return;
             _lastSelectedPage = result.CurrentPage;
@@ -183,11 +153,39 @@ namespace BeatLeader.DataManager {
             TryUpdateScores();
         }
 
+        private void OnFriendsUpdated() {
+            if (_selectedScoreScope is not ScoresScope.Friends) return;
+            TryUpdateScores();
+        }
+
+        private void OnCacheUpdated() {
+            if (_leaderboardType is not LeaderboardType.SongDiffClanScores) return;
+            if (!LeaderboardsCache.TryGetLeaderboardInfo(LeaderboardState.SelectedBeatmapKey, out var cacheEntry)) return;
+            if (FormatUtils.GetRankedStatus(cacheEntry.DifficultyInfo) is RankedStatus.Ranked) return;
+            _leaderboardType = LeaderboardType.SongDiffPlayerScores;
+            TryUpdateScores();
+        }
+
         #endregion
 
-        #region Select score scope
+        #region UI Events
 
-        private void ChangeScoreProvider(ScoresScope scope) {
+        private void OnIsVisibleChanged(bool isVisible) {
+            if (!isVisible || !_updateRequired) return;
+            UpdateScores();
+        }
+
+        public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) {
+            Plugin.Log.Debug($"Selected beatmap: {difficultyBeatmap.level.songName}, diff: {difficultyBeatmap.difficulty}");
+            _lastSelectedBeatmap = difficultyBeatmap;
+            _lastSelectedPage = 1;
+
+            TryUpdateScores();
+
+            LeaderboardState.SelectedBeatmap = difficultyBeatmap;
+        }
+
+        private void OnScoresScopeWasSelected(ScoresScope scope) {
             Plugin.Log.Debug($"Attempt to switch score scope from [{_selectedScoreScope}] to [{scope}]");
 
             if (_selectedScoreScope != scope) {
@@ -199,11 +197,7 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        #endregion
-
-        #region Select score context
-
-        private void ChangeScoreContext(ScoresContext context) {
+        private void OnScoresContextWasChanged(ScoresContext context) {
             Plugin.Log.Debug($"Attempt to switch score context from [{_selectedScoreContext}] to [{context}]");
 
             if (_selectedScoreContext != context) {
@@ -215,11 +209,7 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        #endregion
-
-        #region Pagination
-
-        private void FetchPreviousPage() {
+        private void OnPreviousPageClick() {
             if (_lastSelectedPage <= 1) {
                 _lastSelectedPage = 1;
                 return;
@@ -229,16 +219,16 @@ namespace BeatLeader.DataManager {
             TryUpdateScores();
         }
 
-        private void FetchNextPage() {
+        private void OnNextPageClick() {
             _lastSelectedPage++;
             TryUpdateScores();
         }
 
-        private void SeekAroundMePage() {
+        private void OnAroundMeClick() {
             SeekPlayerScores();
         }
 
-        private void HandleCaptorClanClick() {
+        private void OnCaptorClanClick() {
             _leaderboardType = _leaderboardType switch {
                 LeaderboardType.SongDiffPlayerScores => LeaderboardType.SongDiffClanScores,
                 _ => LeaderboardType.SongDiffPlayerScores

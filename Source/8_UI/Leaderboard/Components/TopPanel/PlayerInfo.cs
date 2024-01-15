@@ -77,7 +77,7 @@ namespace BeatLeader.Components {
 
         private void OnProfileUpdated(Player player) {
             _countryFlag.SetCountry(player.country);
-            _avatar.SetPlayer(player);
+            _avatar.SetAvatar(player.avatar, player.profileSettings);
 
             var contextPlayer = player.ContextPlayer(PluginConfig.ScoresContext.Enum());
             NameText = FormatUtils.FormatUserName(player.name);

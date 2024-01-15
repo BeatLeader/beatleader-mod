@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,6 @@ using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using ModestTree;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -33,7 +33,7 @@ namespace BeatLeader.Components {
             _extraRow = Instantiate<ScoreRow>(transform);
             _topRowDivider = Instantiate<ScoreRowDivider>(transform);
             _bottomRowDivider = Instantiate<ScoreRowDivider>(transform);
-            
+
             for (var i = 0; i < MainRowsCount; i++) {
                 var scoreRow = Instantiate<ScoreRow>(transform);
                 _scoreRowsObj.Add(scoreRow);
@@ -66,49 +66,22 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private Paged<Score> _scoresData;
-
-        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
             if (state is not API.RequestState.Finished) {
-                _scoresData = null;
-                ClearScores();
+                PresentContent(null);
                 return;
             }
-            
-            _scoresData = result;
-            ShowScores(result);
+
+            PresentContent(result);
         }
-        
+
         private void OnLeaderboardVisibleChanged(bool isVisible) {
             if (isVisible) return;
-            if (_scoresData == null) {
-                FadeOutInstant();
-            } else {
-                FadeInInstant(_scoresData);
-            }
+            StartAnimation();
         }
 
         private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {
             UpdateLayout();
-        }
-
-        private void ClearScores() {
-            ClearScoresValues();
-            if (gameObject.activeInHierarchy) {
-                StartCoroutine(FadeOutCoroutine());
-            } else {
-                FadeOutInstant();
-            }
-        }
-
-        private void ShowScores(Paged<Score> scoresData) {
-            if (scoresData.data == null || scoresData.data.IsEmpty()) return;
-            SetScoresValues(scoresData);
-            if (gameObject.activeInHierarchy) {
-                StartCoroutine(FadeInCoroutine(scoresData));
-            } else {
-                FadeInInstant(scoresData);
-            }
         }
 
         #endregion
@@ -116,7 +89,6 @@ namespace BeatLeader.Components {
         #region Layout
 
         private readonly ScoresTableLayoutHelper _layoutHelper = new();
-        private bool _hasPP;
 
         private void SetupLayout() {
             _extraRow.SetupLayout(_layoutHelper);
@@ -126,29 +98,61 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateLayout() {
-            _layoutHelper.RecalculateLayout(PluginConfig.GetLeaderboardTableMask(_hasPP));
+            var mask = PluginConfig.LeaderboardTableMask;
+
+            if (_content != null) {
+                if (_content.ForceClanTags) mask |= ScoreRowCellType.Clans;
+
+                foreach (var item in Enum.GetValues(typeof(ScoreRowCellType))) {
+                    var cellType = (ScoreRowCellType)item;
+                    if (!mask.HasFlag(cellType)) continue;
+
+                    var isCellPresent = false;
+                    Check(_content.ExtraRowContent);
+                    foreach (var rowContent in _content.MainRowContents) {
+                        Check(rowContent);
+                    }
+
+                    if (!isCellPresent) mask &= ~cellType;
+
+                    continue;
+
+                    void Check(IScoreRowContent? rowContent) {
+                        if (isCellPresent || rowContent == null || !rowContent.ContainsValue(cellType)) return;
+                        isCellPresent = true;
+                    }
+                }
+            }
+
+            _layoutHelper.RecalculateLayout(mask);
         }
 
         #endregion
 
-        #region SetScoresValues
+        #region Content
 
-        private void ClearScoresValues() {
-            _extraRow.ClearScore();
-            foreach (var scoreRow in _mainRows) {
-                scoreRow.ClearScore();
-            }
-        }
+        private ScoresTableContent? _content;
 
-        private void SetScoresValues(Paged<Score> scoresData) {
-            if (scoresData.selection != null) _extraRow.SetScore(scoresData.selection);
-            _hasPP = false;
-            for (var i = 0; i < MainRowsCount; i++) {
-                if (i >= scoresData.data.Count) continue;
-                if (scoresData.data[i].pp > 0) _hasPP = true;
-                _mainRows[i].SetScore(scoresData.data[i]);
+        private void PresentContent(ScoresTableContent? content) {
+            _content = content;
+
+            if (content != null) {
+                if (content.ExtraRowContent != null) _extraRow.SetContent(content.ExtraRowContent);
+
+                for (var i = 0; i < MainRowsCount; i++) {
+                    if (i >= content.MainRowContents.Count) continue;
+                    _mainRows[i].SetContent(content.MainRowContents[i]);
+                }
+
+                UpdateLayout();
+            } else {
+                _extraRow.ClearContent();
+                foreach (var scoreRow in _mainRows) {
+                    scoreRow.ClearContent();
+                }
             }
-            UpdateLayout();
+
+            StartAnimation();
         }
 
         #endregion
@@ -157,6 +161,18 @@ namespace BeatLeader.Components {
 
         private ExtraRowState _lastExtraRowState = ExtraRowState.Hidden;
         private const float DelayPerRow = 0.016f;
+
+        private void StartAnimation() {
+            if (gameObject.activeInHierarchy) {
+                StartCoroutine(_content == null ? FadeOutCoroutine() : FadeInCoroutine(_content));
+            } else {
+                if (_content == null) {
+                    FadeOutInstant();
+                } else {
+                    FadeInInstant(_content);
+                }
+            }
+        }
 
         private IEnumerator FadeOutCoroutine() {
             if (_lastExtraRowState == ExtraRowState.Top) {
@@ -170,7 +186,7 @@ namespace BeatLeader.Components {
                 row.FadeOut();
                 yield return new WaitForSeconds(DelayPerRow);
             }
-            
+
             _bottomRowDivider.FadeOut();
 
             if (_lastExtraRowState == ExtraRowState.Bottom) {
@@ -181,34 +197,30 @@ namespace BeatLeader.Components {
             _lastExtraRowState = ExtraRowState.Hidden;
         }
 
-        private IEnumerator FadeInCoroutine(Paged<Score> scoresData) {
-            var extraRowState = UpdateExtraRowState(scoresData);
-            
+        private IEnumerator FadeInCoroutine(ScoresTableContent content) {
+            var extraRowState = UpdateExtraRowState(content);
+
             if (extraRowState == ExtraRowState.Top) {
                 _extraRow.FadeIn();
                 yield return new WaitForSeconds(DelayPerRow);
             }
-            
-            if (scoresData.metadata.page > 1) _topRowDivider.FadeIn();
+
+            if (content.CurrentPage > 1) _topRowDivider.FadeIn();
 
             for (var i = 0; i < MainRowsCount; i++) {
                 var row = _mainRows[i];
-                if (i < scoresData.data.Count) row.FadeIn();
+                if (i < content.MainRowContents.Count) row.FadeIn();
                 yield return new WaitForSeconds(DelayPerRow);
             }
 
-            if (scoresData.metadata.page < (float) scoresData.metadata.total / scoresData.metadata.itemsPerPage) _bottomRowDivider.FadeIn();
-            
+            if (content.CurrentPage < content.PagesCount) _bottomRowDivider.FadeIn();
+
             if (extraRowState == ExtraRowState.Bottom) {
                 _extraRow.FadeIn();
             }
 
             _lastExtraRowState = extraRowState;
         }
-
-        #endregion
-
-        #region Instant
 
         private void FadeOutInstant() {
             _extraRow.FadeOut();
@@ -217,19 +229,20 @@ namespace BeatLeader.Components {
             foreach (var row in _mainRows) {
                 row.FadeOut();
             }
+
             _lastExtraRowState = ExtraRowState.Hidden;
         }
 
-        private void FadeInInstant(Paged<Score> scoresData) {
-            var extraRowState = UpdateExtraRowState(scoresData);
+        private void FadeInInstant(ScoresTableContent content) {
+            var extraRowState = UpdateExtraRowState(content);
 
             _extraRow.FadeIn();
-            if (scoresData.metadata.page > 1) _topRowDivider.FadeIn();
-            if (scoresData.metadata.page < (float) scoresData.metadata.total / scoresData.metadata.itemsPerPage) _bottomRowDivider.FadeIn();
+            if (content.CurrentPage > 1) _topRowDivider.FadeIn();
+            if (content.CurrentPage < content.PagesCount) _bottomRowDivider.FadeIn();
 
             for (var i = 0; i < MainRowsCount; i++) {
                 var row = _mainRows[i];
-                if (i < scoresData.data.Count) row.FadeIn();
+                if (i < content.MainRowContents.Count) row.FadeIn();
             }
 
             _lastExtraRowState = extraRowState;
@@ -242,22 +255,23 @@ namespace BeatLeader.Components {
         private const int BottomSiblingIndex = MainRowsCount + 2;
         private const int TopSiblingIndex = 0;
 
-        private ExtraRowState UpdateExtraRowState(Paged<Score> scoresData) {
-            if (scoresData.selection == null) {
-                _extraRow.SetActive(false);
-                return ExtraRowState.Hidden;
-            }
+        private ExtraRowState UpdateExtraRowState(ScoresTableContent content) {
+            if (content.ExtraRowContent != null && content.ExtraRowContent.ContainsValue(ScoreRowCellType.Rank)) {
+                var extraRowRank = (int)(content.ExtraRowContent.GetValue(ScoreRowCellType.Rank) ?? 0);
 
-            if (scoresData.selection.rank < scoresData.data.First().rank) {
-                _extraRow.SetHierarchyIndex(TopSiblingIndex);
-                _extraRow.SetActive(true);
-                return ExtraRowState.Top;
-            }
+                var firstRowRank = (int)(content.MainRowContents.First()?.GetValue(ScoreRowCellType.Rank) ?? 0);
+                if (extraRowRank < firstRowRank) {
+                    _extraRow.SetHierarchyIndex(TopSiblingIndex);
+                    _extraRow.SetActive(true);
+                    return ExtraRowState.Top;
+                }
 
-            if (scoresData.selection.rank > scoresData.data.Last().rank) {
-                _extraRow.SetHierarchyIndex(BottomSiblingIndex);
-                _extraRow.SetActive(true);
-                return ExtraRowState.Bottom;
+                var lastRowRank = (int)(content.MainRowContents.Last()?.GetValue(ScoreRowCellType.Rank) ?? 0);
+                if (extraRowRank > lastRowRank) {
+                    _extraRow.SetHierarchyIndex(BottomSiblingIndex);
+                    _extraRow.SetActive(true);
+                    return ExtraRowState.Bottom;
+                }
             }
 
             _extraRow.SetActive(false);

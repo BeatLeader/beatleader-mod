@@ -56,6 +56,8 @@ namespace BeatLeader.Components {
 
         #region Abstract
 
+        public abstract void SetValue(object? value);
+        
         public abstract void SetAlpha(float value);
 
         protected abstract float CalculatePreferredWidth();

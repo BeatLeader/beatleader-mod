@@ -1,5 +1,4 @@
 using BeatLeader.API.Methods;
-using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
@@ -27,7 +26,7 @@ namespace BeatLeader.Components {
         private const string BadNewsColor = "#FF8888";
         private const string DefaultErrorMessage = "An unexpected error occured";
 
-        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
             switch (state) {
                 case API.RequestState.Started:
                     FadeOut();
@@ -41,13 +40,8 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnScoresFetched(Paged<Score> scoreData) {
-            if (scoreData.data == null) {
-                ShowError(DefaultErrorMessage);
-                return;
-            }
-
-            if (scoreData.data.IsEmpty()) {
+        private void OnScoresFetched(ScoresTableContent scoreData) {
+            if (scoreData.MainRowContents.IsEmpty()) {
                 ShowEmpty();
                 return;
             }

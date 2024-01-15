@@ -45,8 +45,7 @@ namespace BeatLeader.Components {
 
         private void InitializeImage() {
             _imageComponent.material = BundleLoader.UIAdditiveGlowMaterial;
-            var hoverController = _imageComponent.gameObject.AddComponent<SmoothHoverController>();
-            hoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            SmoothHoverController.Custom(_imageComponent.gameObject, OnHoverStateChanged);
             _imageComponent.OnClickEvent += OnClickEvent;
         }
 

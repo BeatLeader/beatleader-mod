@@ -19,14 +19,15 @@ namespace BeatLeader.Components {
 
         #region SetCountry
 
-        private string _country;
+        private string? _country;
 
-        public void SetCountry(string country) {
+        public void SetCountry(string? country) {
             _country = country;
             if (gameObject.activeInHierarchy) UpdateImage();
         }
 
         private void UpdateImage() {
+            if (_country == null) return;
             SetSprite(BundleLoader.GetSpriteFromBundle(_country.ToLower()) ?? BundleLoader.LocationIcon);
         }
 

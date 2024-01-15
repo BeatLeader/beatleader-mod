@@ -46,7 +46,7 @@ namespace BeatLeader.Components {
 
         private static readonly Color GoodColor = new(0f, 0.2f, 1.0f, 1.0f);
         private static readonly Color BadColor = new(0.0f, 0.1f, 0.3f, 0.1f);
-        
+
         private static readonly Color HoverColor = new(1.0f, 0.2f, 0.5f, 0.8f);
         private static readonly Color EmptyColor = new(0.1f, 0.1f, 0.1f, 0.0f);
 
@@ -74,16 +74,15 @@ namespace BeatLeader.Components {
 
         #region Background
 
-        [UIComponent("background"), UsedImplicitly] private ImageView _backgroundImage;
-        
+        [UIComponent("background"), UsedImplicitly]
+        private ImageView _backgroundImage;
+
         private SmoothHoverController _hoverController;
 
         private void InitializeBackground() {
             _backgroundImage.material = BundleLoader.AccGridBackgroundMaterial;
             _backgroundImage.raycastTarget = true;
-
-            _hoverController = _backgroundImage.gameObject.AddComponent<SmoothHoverController>();
-            _hoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            _hoverController = SmoothHoverController.Custom(_backgroundImage.gameObject, OnHoverStateChanged);
         }
 
         #endregion

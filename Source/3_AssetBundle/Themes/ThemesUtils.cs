@@ -6,19 +6,19 @@ namespace BeatLeader.Themes {
         #region GetAvatarParams
 
         public static void GetAvatarParams(
-            Player player, bool useSmallMaterialVersion,
+            ProfileSettings? profileSettings, bool useSmallMaterialVersion,
             out Material baseMaterial, out float hueShift, out float saturation
         ) {
-            if (player.profileSettings == null) {
+            if (profileSettings == null) {
                 hueShift = 0.0f;
                 saturation = 1.0f;
                 baseMaterial = BundleLoader.DefaultAvatarMaterial;
                 return;
             }
 
-            hueShift = (player.profileSettings.hue / 360.0f) * (Mathf.PI * 2);
-            saturation = player.profileSettings.saturation;
-            baseMaterial = GetAvatarMaterial(player.profileSettings.effectName, useSmallMaterialVersion);
+            hueShift = (profileSettings.hue / 360.0f) * (Mathf.PI * 2);
+            saturation = profileSettings.saturation;
+            baseMaterial = GetAvatarMaterial(profileSettings.effectName, useSmallMaterialVersion);
         }
 
         #endregion

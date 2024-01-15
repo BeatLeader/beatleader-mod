@@ -46,10 +46,6 @@ namespace BeatLeader {
             }
         }
 
-        public static ScoreRowCellType GetLeaderboardTableMask(bool includePP) {
-            return includePP ? LeaderboardTableMask : LeaderboardTableMask & ~ScoreRowCellType.PerformancePoints;
-        }
-
         #endregion
 
         #region LeaderboardDisplaySettings

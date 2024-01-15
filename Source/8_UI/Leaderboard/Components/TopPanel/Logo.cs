@@ -23,7 +23,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region Animation
 
         private static readonly int GlowPropertyId = Shader.PropertyToID("_Glow");
@@ -113,7 +113,7 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             SetMaterial();
-            
+
             UserRequest.AddStateListener(OnProfileRequestStateChanged);
             ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
@@ -128,7 +128,7 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Events
-        
+
         [UIAction("on-click"), UsedImplicitly]
         private void OnClick() {
             LeaderboardEvents.NotifyLogoWasPressed();
@@ -139,7 +139,7 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        private void OnScoresRequestStateChanged(API.RequestState state, Paged<Score> result, string failReason) {
+        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
             _loadingScores = state is API.RequestState.Started;
             UpdateState();
         }

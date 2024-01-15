@@ -18,9 +18,13 @@ namespace BeatLeader.Components {
 
         #region Implementation
 
-        public void SetValue(string value) {
-            _countryFlag.SetCountry(value);
-            isEmpty = false;
+        public override void SetValue(object? value) {
+            if (value is string country) {
+                _countryFlag.SetCountry(country);
+                isEmpty = false;
+            } else {
+                isEmpty = true;
+            }
         }
 
         public override void SetAlpha(float value) {

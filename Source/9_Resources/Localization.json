@@ -1070,5 +1070,90 @@
             "Swedish": "På <hmd>",
             "Italian": "su <hmd>"
         }
+    },
+    {
+        "Token": "ls-capture-status-contested",
+        "Translations": {
+            "English": "Contested",
+            "Japanese": null,
+            "Russian": "Оспаривается",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-uncaptured",
+        "Translations": {
+            "English": "Uncaptured",
+            "Japanese": null,
+            "Russian": "Не захвачена",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-contested-hint",
+        "Translations": {
+            "English": "Several clans claim equal rights to capture this map! Set a score to break the tie",
+            "Japanese": null,
+            "Russian": "Несколько кланов оспаривают захват карты! Поставьте скор, чтобы разбить ничью",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-uncaptured-hint",
+        "Translations": {
+            "English": "Map is not captured! Set a score to capture it for your clan",
+            "Japanese": null,
+            "Russian": "Карта свободна! Поставьте скор, чтобы захватить её для своего клана",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-captured-hint",
+        "Translations": {
+            "English": "Map is captured by \r\n<clan>\r\n They have the highest weighted PP on this leaderboard",
+            "Japanese": null,
+            "Russian": "Карта захвачена кланом \r\n<clan>\r\n Они имеют наибольший показатель PP",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
     }
 ]}

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Utils;
 using JetBrains.Annotations;
 
 namespace BeatLeader {
     [PublicAPI]
     public abstract class StringConverter<T> : StringConverter {
         private readonly Type _type = typeof(T);
-        
+
         protected abstract T? ConvertTo(string str);
 
         protected sealed override bool CanConvertTo(Type targetType) {
@@ -27,6 +28,8 @@ namespace BeatLeader {
         protected abstract object? ConvertTo(string str, Type targetType);
 
         #endregion
+
+        #region Converters
 
         private static readonly Dictionary<Type, StringConverter> cachedConverters = new();
 
@@ -57,18 +60,47 @@ namespace BeatLeader {
             return converters.Remove(converter);
         }
 
+        #endregion
+
+        #region Convert
+
         public static object? Convert(string str, Type targetType) {
             str = str.Trim();
-            if (targetType == typeof(string) || targetType == typeof(object)) return str;
-            if (!cachedConverters.TryGetValue(targetType, out var converter)) {
-                converter = converters.FirstOrDefault(x => x.CanConvertTo(targetType));
-                cachedConverters[targetType] = converter;
+            if (CanSkipConversion(targetType)) {
+                return str;
             }
-            return converter?.ConvertTo(str, targetType);
+            if (!TryConvertWithConverter(str, targetType, out var value)) {
+                //trying to convert using implicit operator if failed
+                TryConvertWithOp(str, targetType, out value);
+            }
+            return value;
         }
 
         public static T? Convert<T>(string str) {
             return Convert(str, typeof(T)) is T result ? result : default;
         }
+
+        #endregion
+
+        #region Convert Tools
+
+        private static bool CanSkipConversion(Type type) {
+            return type == typeof(string) || type == typeof(object);
+        }
+
+        private static bool TryConvertWithConverter(string str, Type targetType, out object? value) {
+            if (!cachedConverters.TryGetValue(targetType, out var converter)) {
+                converter = converters.FirstOrDefault(x => x.CanConvertTo(targetType));
+                cachedConverters[targetType] = converter;
+            }
+            value = converter?.ConvertTo(str, targetType);
+            return value is not null;
+        }
+
+        private static bool TryConvertWithOp(string str, Type targetType, out object? value) {
+            return ReflectionUtils.CastValueOp(targetType, str, out value);
+        }
+
+        #endregion
     }
 }

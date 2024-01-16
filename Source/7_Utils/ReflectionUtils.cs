@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 
 namespace BeatLeader.Utils {
@@ -23,16 +24,19 @@ namespace BeatLeader.Utils {
             ctor0IL.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes)!);
             ctor0IL.Emit(OpCodes.Ret);
         }
+
         public static ModuleBuilder CreateModuleBuilder(string name) {
             var assemblyName = new AssemblyName(name);
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             return assemblyBuilder.DefineDynamicModule(assemblyName.Name);
         }
+
         public static PropertyBuilder AddGetOnlyProperty(
             this TypeBuilder typeBuilder,
             string name,
             FieldInfo fieldInfo,
-            MethodInfo? overrider = null) {
+            MethodInfo? overrider = null
+        ) {
             var type = fieldInfo.FieldType;
             var getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
@@ -56,7 +60,8 @@ namespace BeatLeader.Utils {
 
         public static Dictionary<U, T> GetMembersWithAttribute<T, U>(
             this Type type,
-            BindingFlags flags = DefaultFlags) where T : Attribute where U : MemberInfo {
+            BindingFlags flags = DefaultFlags
+        ) where T : Attribute where U : MemberInfo {
             var dictionary = new Dictionary<U, T>();
             foreach (var member in type.GetMembers(flags)) {
                 var attr = member.GetCustomAttribute<T>();
@@ -85,13 +90,32 @@ namespace BeatLeader.Utils {
             string name,
             BindingFlags bindingAttr = DefaultFlags,
             Type[]? types = null,
-            Binder? binder = null) {
+            Binder? binder = null
+        ) {
             return targetType.GetMethod(name, bindingAttr, binder, types, null);
         }
 
         #endregion
 
         #region Casting
+
+        public static bool CastValueOp(Type type, object obj, out object? castedObj) {
+            var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
+            var sourceType = obj.GetType();
+            var castOp = methods.FirstOrDefault(x => IsValidCastOp(x, sourceType, type));
+            if (castOp is null) {
+                castedObj = null;
+                return false;
+            }
+            castedObj = castOp.Invoke(null, new[] { obj }) ?? obj;
+            return true;
+        }
+
+        private static bool IsValidCastOp(MethodInfo method, Type sourceType, Type targetType) {
+            if (method.Name != "op_Implicit" || method.ReturnType != targetType) return false;
+            var parameters = method.GetParameters();
+            return parameters.Length is 1 && parameters[0].ParameterType == sourceType;
+        }
 
         public static bool GetValueImplicitly(this MemberInfo member, object? obj, out object? value) {
             value = member switch {

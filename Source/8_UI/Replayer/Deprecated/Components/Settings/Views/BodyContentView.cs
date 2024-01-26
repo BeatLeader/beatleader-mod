@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
-            _controllersProvider = player.Body.ControllersProvider!;
+            //_controllersProvider = player.Body.ControllersProvider!;
             RefreshVisibility();
         }
 

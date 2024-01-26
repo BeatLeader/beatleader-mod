@@ -17,7 +17,6 @@ namespace BeatLeader.Models {
 
         public IReadOnlyCollection<VirtualPlayerBodyPartConfig> AvailableBodyParts => _availableBodyParts;
         public IReadOnlyCollection<VirtualPlayerBodyPartConfig> ActiveBodyParts => _activeBodyParts;
-        public float Alpha { get; private set; }
 
         public event Action? ConfigUpdatedEvent;
         
@@ -37,11 +36,6 @@ namespace BeatLeader.Models {
             } else {
                 _activeBodyParts.Remove(partConfig);
             }
-            NotifyConfigUpdated();
-        }
-
-        public void SetAlpha(float alpha) {
-            Alpha = alpha;
             NotifyConfigUpdated();
         }
 

@@ -76,18 +76,29 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayFinishController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            //Players
+            //Controllers
             Container.Bind<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            
+            //Sabers
             if (launchData.SabersSpawner is { } controllersSpawner) {
                 Container.BindInterfacesTo(controllersSpawner.GetType()).AsSingle();
             } else {
                 Container.BindInterfacesTo<VirtualPlayerSabersSpawner>().AsSingle();
             }
-            Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>().WithInitialSize(2);
-            Container.BindInterfacesTo<VirtualPlayerAvatarBodySpawner>().AsSingle();
+            
+            //Avatar
+            if (launchData.AvatarSpawner is { } avatarSpawner) {
+                Container.BindInterfacesTo(avatarSpawner.GetType()).AsSingle();
+            } else {
+                Container.BindInterfacesTo<VirtualPlayerAvatarSpawner>().AsSingle();
+            }
+            Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>();
             Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2);
+            
+            //Players
             Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
             
             //Event Processing
             Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(2);

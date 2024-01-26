@@ -8,7 +8,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     //TODO: avatar opacity support
-    internal class VirtualPlayerAvatarBody : IVirtualPlayerBody, IVRControllersProvider {
+    internal class VirtualPlayerAvatarBody : IVirtualPlayerAvatar {
         #region Pool
 
         public class Pool : MemoryPool<IVirtualPlayerBase, VirtualPlayerAvatarBody> {
@@ -30,6 +30,8 @@ namespace BeatLeader.Replayer.Emulation {
         #endregion
 
         #region Setup
+
+        public bool UsesPrimaryModel => false;
 
         private AvatarLoader _avatarLoader = null!;
         private AvatarPartsModel _avatarPartsModel = null!;
@@ -54,7 +56,13 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region VirtualPlayerBody
 
-        public IVRControllersProvider ControllersProvider => this;
+        public void RefreshVisuals() { }
+
+        public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {
+            _headTransform.SetLocalPose(headPose);
+            _leftHandTransform.SetLocalPose(leftHandPose);
+            _rightHandTransform.SetLocalPose(rightHandPose);
+        }
 
         public void ApplyConfig(VirtualPlayerBodyConfig config) {
             foreach (var part in config.AvailableBodyParts) {
@@ -74,28 +82,18 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region BodyModel
 
-        private record BodyPartModel(string Name, string Id) : IVirtualPlayerBodyPartModel {
-            public IReadOnlyCollection<IVirtualPlayerBodyPartSegmentModel> Segments { get; } = Array.Empty<IVirtualPlayerBodyPartSegmentModel>();
-        }
-
-        private record AvatarBodyModel(IReadOnlyCollection<IVirtualPlayerBodyPartModel> Parts) : IVirtualPlayerBodyModel;
-
         private static readonly List<IVirtualPlayerBodyPartModel> bodyPartModels = new() {
-            new BodyPartModel("Head", "BATTLE_ROYALE_AVATAR_HEAD"),
-            new BodyPartModel("Body", "BATTLE_ROYALE_AVATAR_BODY"),
-            new BodyPartModel("Left Hand", "BATTLE_ROYALE_AVATAR_LEFT_HAND"),
-            new BodyPartModel("Right Hand", "BATTLE_ROYALE_AVATAR_RIGHT_HAND"),
+            new VirtualPlayerBodyPartModel("Head", "BATTLE_ROYALE_AVATAR_HEAD", null, false),
+            new VirtualPlayerBodyPartModel("Body", "BATTLE_ROYALE_AVATAR_BODY", null, false),
+            new VirtualPlayerBodyPartModel("Left Hand", "BATTLE_ROYALE_AVATAR_LEFT_HAND", "Hands", false),
+            new VirtualPlayerBodyPartModel("Right Hand", "BATTLE_ROYALE_AVATAR_RIGHT_HAND", "Hands", false),
         };
 
-        public static IVirtualPlayerBodyModel BodyModel { get; } = new AvatarBodyModel(bodyPartModels);
+        public static readonly IVirtualPlayerBodyModel BodyModel = new VirtualPlayerBodyModel("Avatar", bodyPartModels);
 
         #endregion
 
         #region Body
-
-        public VRController LeftHand { get; private set; } = null!;
-        public VRController RightHand { get; private set; } = null!;
-        public VRController Head { get; private set; } = null!;
 
         private AvatarController _avatarController = null!;
         private Transform _headTransform = null!;
@@ -110,16 +108,6 @@ namespace BeatLeader.Replayer.Emulation {
             _leftHandTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_leftHandTransform");
             _rightHandTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_rightHandTransform");
             _bodyTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_bodyTransform");
-
-            Head = AddVRController(_headTransform);
-            LeftHand = AddVRController(_leftHandTransform);
-            RightHand = AddVRController(_rightHandTransform);
-        }
-
-        private static VRController AddVRController(Transform trans) {
-            var controller = trans.gameObject.AddComponent<VRController>();
-            controller.enabled = false;
-            return controller;
         }
 
         #endregion

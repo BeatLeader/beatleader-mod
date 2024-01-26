@@ -13,6 +13,7 @@ namespace BeatLeader.Models {
         
         public IReplayComparator ReplayComparator { get; protected set; } = null!;
         public IVirtualPlayerSabersSpawner? SabersSpawner { get; protected set; }
+        public IVirtualPlayerAvatarSpawner? AvatarSpawner { get; protected set; }
 
         public IReplay MainReplay => Replays[0];
         public bool IsBattleRoyale => Replays.Count > 1;

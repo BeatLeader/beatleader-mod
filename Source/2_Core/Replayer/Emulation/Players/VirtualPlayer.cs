@@ -2,10 +2,11 @@
 using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Utils;
 using System.Collections.Generic;
+using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
-    internal class VirtualPlayer : TickablePoolItem, IVirtualPlayer {
+    internal class VirtualPlayer : TickablePoolItem, IVirtualPlayer, IVirtualPlayerMovementProcessor {
         #region Pool
 
         public class Pool : MemoryPool<VirtualPlayer> {
@@ -41,13 +42,9 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region VirtualPlayer
 
-        public IVirtualPlayerBody Body { get; private set; } = null!;
-        public IVirtualPlayerSabers Sabers { get; private set; } = null!;
-        
-        private IVRControllersProvider BodyControllersProvider => Body.ControllersProvider;
-        private IHandVRControllersProvider SaberControllersProvider => Sabers.ControllersProvider;
-
         public IReplay Replay { get; private set; } = null!;
+        public IVirtualPlayerMovementProcessor MovementProcessor => this;
+        public IVirtualPlayerBody Body => _controllableBody;
         public IReplayScoreEventsProcessor ReplayScoreEventsProcessor => _scoreEventsProcessor;
         public IReplayBeatmapEventsProcessor ReplayBeatmapEventsProcessor => _beatmapEventsProcessor;
 
@@ -61,6 +58,7 @@ namespace BeatLeader.Replayer.Emulation {
         private LinkedList<PlayerMovementFrame>? _frames;
         private ReplayScoreEventsProcessor _scoreEventsProcessor = null!;
         private ReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
+        private IControllableVirtualPlayerBody _controllableBody = null!;
         private bool _allowPlayback;
 
         public void Init(IReplay replay) {
@@ -76,12 +74,41 @@ namespace BeatLeader.Replayer.Emulation {
             _allowPlayback = true;
         }
 
-        public void InitBodyAndSabers(
-            IVirtualPlayerBody body,
-            IVirtualPlayerSabers sabers
+        public void LateInit(IControllableVirtualPlayerBody body) {
+            _controllableBody = body;
+        }
+
+        #endregion
+
+        #region MovementProcessor
+
+        private readonly List<IVirtualPlayerPoseReceiver> _poseReceivers = new();
+
+        public void AddListener(IVirtualPlayerPoseReceiver poseReceiver) {
+            _poseReceivers.Add(poseReceiver);
+        }
+
+        public void RemoveListener(IVirtualPlayerPoseReceiver poseReceiver) {
+            _poseReceivers.Remove(poseReceiver);
+        }
+
+        private void UpdatePoseReceivers(
+            Pose headPose,
+            Pose leftHandPose,
+            Pose rightHandPose
         ) {
-            Body = body;
-            Sabers = sabers;
+            foreach (var receiver in _poseReceivers) {
+                ApplyPose(receiver, headPose, leftHandPose, rightHandPose);
+            }
+        }
+
+        private static void ApplyPose(
+            IVirtualPlayerPoseReceiver poseReceiver,
+            Pose headPose,
+            Pose leftHandPose,
+            Pose rightHandPose
+        ) {
+            poseReceiver.ApplyPose(headPose, leftHandPose, rightHandPose);
         }
 
         #endregion
@@ -108,21 +135,19 @@ namespace BeatLeader.Replayer.Emulation {
             var headPose = currentFrame.headPose;
 
             if (enableInterpolation) {
-                var t = (_beatmapTimeController.SongTime - frame.Value.time) /
-                    (frame.Next.Value.time - frame.Value.time);
+                var currentTime = frame.Value.time;
+                var nextTime = frame.Next.Value.time;
+                var songTime = _beatmapTimeController.SongTime;
+                var t = (songTime - currentTime) / (nextTime - currentTime);
 
                 var nextFrame = frame.Next.Value;
+                headPose = headPose.Lerp(nextFrame.headPose, t);
                 leftSaberPose = leftSaberPose.Lerp(nextFrame.leftHandPose, t);
                 rightSaberPose = rightSaberPose.Lerp(nextFrame.rightHandPose, t);
-                headPose = headPose.Lerp(nextFrame.headPose, t);
             }
 
-            BodyControllersProvider.LeftHand.transform.SetLocalPose(leftSaberPose);
-            BodyControllersProvider.RightHand.transform.SetLocalPose(rightSaberPose);
-            BodyControllersProvider.Head.transform.SetLocalPose(headPose);
-            
-            SaberControllersProvider.LeftHand.transform.SetLocalPose(leftSaberPose);
-            SaberControllersProvider.RightHand.transform.SetLocalPose(rightSaberPose);
+            ApplyPose(_controllableBody, headPose, leftSaberPose, rightSaberPose);
+            UpdatePoseReceivers(headPose, leftSaberPose, rightSaberPose);
         }
 
         private static bool TryGetFrameByTime(

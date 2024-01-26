@@ -1,8 +1,19 @@
+using System.Collections.Generic;
+
 namespace BeatLeader.Models {
     public interface IVirtualPlayerBodySpawner {
-        IVirtualPlayerBodyModel BodyModel { get; }
+        IReadOnlyList<IVirtualPlayerBodyModel> BodyModels { get; }
 
-        IVirtualPlayerBody SpawnBody(IVirtualPlayerBase player);
+        void ApplyModelConfig(
+            IVirtualPlayerBodyModel model,
+            VirtualPlayerBodyConfig config
+        );
+
+        IControllableVirtualPlayerBody SpawnBody(
+            IVirtualPlayersManager playersManager,
+            IVirtualPlayerBase player
+        );
+
         void DespawnBody(IVirtualPlayerBody body);
     }
 }

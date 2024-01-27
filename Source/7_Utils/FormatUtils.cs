@@ -204,10 +204,14 @@ namespace BeatLeader {
             return GetRelativeTimeString(GetRelativeTime(timeSet), compact);
         }
 
-        public static string GetDateTimeString(string timeSet) {
-            var t = long.Parse(timeSet).AsUnixTime().ToLocalTime();
+        public static string GetDateTimeString(long timestamp) {
+            var t = timestamp.AsUnixTime().ToLocalTime();
             return $"{t.Year}.{Zero(t.Month)}{t.Month}.{Zero(t.Day)}{t.Day} {Zero(t.Hour)}{t.Hour}:{Zero(t.Minute)}{t.Minute}";
             static string Zero(int number) => number > 9 ? "" : "0";
+        }
+        
+        public static string GetDateTimeString(string timeSet) {
+            return GetDateTimeString(long.Parse(timeSet));
         }
         
         public static string GetRelativeTimeString(TimeSpan timeSpan, bool compact) {

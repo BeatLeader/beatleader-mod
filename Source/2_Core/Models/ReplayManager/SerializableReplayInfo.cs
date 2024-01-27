@@ -11,6 +11,6 @@ namespace BeatLeader.Models {
         public string SongHash { get; set; }
         public LevelEndType LevelEndType { get; set; }
         public float FailTime { get; set; }
-        public string Timestamp { get; set; }
+        public long Timestamp { get; set; }
     }
 }

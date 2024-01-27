@@ -33,7 +33,7 @@ namespace BeatLeader.Utils {
         ) {
             var paths = GetAllReplayPaths();
             var replays = new List<IReplayHeader>(PreloadedReplaysCount);
-            var cache = new HashSet<(string, string)>(PreloadedReplaysCount);
+            var cache = new HashSet<(string, long)>(PreloadedReplaysCount);
             await Task.Run(() => {
                 foreach (var path in paths) {
                     if (token.IsCancellationRequested) return;

@@ -190,12 +190,12 @@ namespace BeatLeader.Components {
                     ReplaysListSettingsPanel.Sorters.Completion =>
                         CompareInteger((int)xi.LevelEndType, (int)yi.LevelEndType),
                     ReplaysListSettingsPanel.Sorters.Date =>
-                        -CompareInteger(int.Parse(xi.Timestamp), int.Parse(yi.Timestamp)),
+                        -CompareInteger(xi.Timestamp, yi.Timestamp),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
 
-            private static int CompareInteger(int x, int y) => x >= y ? x == y ? 0 : 1 : -1;
+            private static int CompareInteger(long x, long y) => x >= y ? x == y ? 0 : 1 : -1;
         }
 
         private HeaderComparator? _headerComparator;

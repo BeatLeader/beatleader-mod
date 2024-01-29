@@ -1,46 +1,56 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using BeatLeader.Utils;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     public class VirtualPlayerBodyConfig {
+        #region Serialization
+
+        [JsonConstructor, UsedImplicitly]
+        private VirtualPlayerBodyConfig() { }
+        
+        [OnDeserialized]
+        private void OnDeserialize(StreamingContext context) {
+            BindConfigs();
+        }
+
+        #endregion
+
         public VirtualPlayerBodyConfig(IVirtualPlayerBodyModel model) {
-            _availableBodyParts = model.Parts.Select(static x => new VirtualPlayerBodyPartConfig(x)).ToHashSet();
-            _availableBodyParts.ForEach(x => x.ConfigUpdatedEvent += NotifyConfigUpdated);
-            _activeBodyParts.AddRange(_availableBodyParts);
+            Name = model.Name;
+            _bodyParts.AddRange(model.Parts.Select(static x => new VirtualPlayerBodyPartConfig(x)));
+            BindConfigs();
         }
 
         ~VirtualPlayerBodyConfig() {
-            _availableBodyParts.ForEach(x => x.ConfigUpdatedEvent -= NotifyConfigUpdated);
+            UnbindConfigs();
         }
 
-        public IReadOnlyCollection<VirtualPlayerBodyPartConfig> AvailableBodyParts => _availableBodyParts;
-        public IReadOnlyCollection<VirtualPlayerBodyPartConfig> ActiveBodyParts => _activeBodyParts;
+        [JsonIgnore]
+        public IReadOnlyCollection<VirtualPlayerBodyPartConfig> BodyParts => _bodyParts;
+
+        [JsonProperty]
+        public string Name { get; private set; } = null!;
 
         public event Action? ConfigUpdatedEvent;
         
-        private readonly HashSet<VirtualPlayerBodyPartConfig> _availableBodyParts;
-        private readonly HashSet<VirtualPlayerBodyPartConfig> _activeBodyParts = new();
-
-        public bool IsPartActive(VirtualPlayerBodyPartConfig config) {
-            return _activeBodyParts.Contains(config);
-        } 
-        
-        public void SetBodyPartActive(VirtualPlayerBodyPartConfig partConfig, bool active) {
-            if (!_availableBodyParts.Contains(partConfig)) {
-                throw new InvalidOperationException("Unable to manage the part which does not belong to the model");
-            }
-            if (active) {
-                _activeBodyParts.Add(partConfig);
-            } else {
-                _activeBodyParts.Remove(partConfig);
-            }
-            NotifyConfigUpdated();
-        }
+        [JsonProperty("BodyParts"), UsedImplicitly]
+        private HashSet<VirtualPlayerBodyPartConfig> _bodyParts = new();
 
         private void NotifyConfigUpdated() {
             ConfigUpdatedEvent?.Invoke();
+        }
+
+        private void BindConfigs() {
+            _bodyParts.ForEach(x => x.ConfigUpdatedEvent += NotifyConfigUpdated);
+        }
+
+        private void UnbindConfigs() {
+            _bodyParts.ForEach(x => x.ConfigUpdatedEvent -= NotifyConfigUpdated);
         }
     }
 }

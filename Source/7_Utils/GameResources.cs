@@ -11,6 +11,10 @@ namespace BeatLeader {
             .FindObjectsOfTypeAll<Material>()
             .First(static x => x.name == "UINoGlow");
 
+        public static readonly Material UIFogBackgroundMaterial = Resources
+            .FindObjectsOfTypeAll<Material>()
+            .First(static x => x.name == "UIFogBG");
+        
         public static readonly Material UIFontMaterial = Resources
             .FindObjectsOfTypeAll<Material>()
             .Where(static x => x.name == "Teko-Medium SDF Curved Softer")

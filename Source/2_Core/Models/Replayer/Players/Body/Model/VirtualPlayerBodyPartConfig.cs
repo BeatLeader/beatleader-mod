@@ -1,16 +1,31 @@
 using System;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     public class VirtualPlayerBodyPartConfig {
+        [JsonConstructor, UsedImplicitly]
+        private VirtualPlayerBodyPartConfig() { }
+
         public VirtualPlayerBodyPartConfig(IVirtualPlayerBodyPartModel model) {
             Id = model.Id;
-            _supportsAlpha = model.HasAlphaSupport;
         }
 
-        public string Id { get; }
+        [JsonProperty]
+        public string Id { get; private set; } = null!;
 
+        [JsonProperty]
+        public bool Active {
+            get => _active;
+            set {
+                _active = value;
+                NotifyConfigUpdated();
+            }
+        }
+
+        [JsonProperty]
         public float Alpha {
-            get => _supportsAlpha ? _alpha : throw new InvalidOperationException("The bound model does not support alpha");
+            get => _alpha;
             set {
                 _alpha = value;
                 NotifyConfigUpdated();
@@ -19,7 +34,7 @@ namespace BeatLeader.Models {
 
         public event Action? ConfigUpdatedEvent;
 
-        private readonly bool _supportsAlpha;
+        private bool _active = true;
         private float _alpha;
 
         private void NotifyConfigUpdated() {

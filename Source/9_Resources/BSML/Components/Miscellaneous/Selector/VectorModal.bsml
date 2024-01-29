@@ -1,0 +1,6 @@
+<vertical Width="50" InheritHeight="false" spacing="1" Pad="2,1,2,1">
+  <text id="text" align="Center" Height="10"/>
+  <NormalizedSlider id="x-slider" Text="X" ValueChangedEvent="x-value-change"/>
+  <NormalizedSlider id="y-slider" Text="Y" ValueChangedEvent="y-value-change"/>
+  <NormalizedSlider id="z-slider" Text="Z" ValueChangedEvent="z-value-change"/>
+</vertical>

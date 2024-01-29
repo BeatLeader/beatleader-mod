@@ -9,13 +9,11 @@ namespace BeatLeader.Components {
     /// Abstraction for segmented controls
     /// </summary>
     internal interface ISegmentedControlComponent {
-        void Reload();
-
         void SelectItem(int idx);
     }
 
     /// <summary>
-    /// Abstraction for segmented controls with key
+    /// Abstraction for segmented controls with selection ability
     /// </summary>
     /// <typeparam name="TKey">Item key</typeparam>
     internal interface ISegmentedControlComponent<in TKey> : ISegmentedControlComponent {
@@ -23,12 +21,12 @@ namespace BeatLeader.Components {
     }
 
     /// <summary>
-    /// Modifiable abstraction for segmented controls
+    /// Abstraction for segmented controls with items
     /// </summary>
     /// <typeparam name="TKey">Item key</typeparam>
     /// <typeparam name="TValue">Item value</typeparam>
-    internal interface IModifiableSegmentedControlComponent<TKey, TValue> : ISegmentedControlComponent<TKey> {
-        IDictionary<TKey, TValue> Items { get; }
+    internal interface ISegmentedControlComponent<TKey, TValue> : ISegmentedControlComponent<TKey> {
+        ISegmentedControlDataSource<TKey, TValue>? DataSource { get; }
     }
 
     /// <summary>
@@ -36,11 +34,11 @@ namespace BeatLeader.Components {
     /// </summary>
     //Unity does not support generic components, so cell located not into the segmented control itself
     internal abstract class SegmentedControlComponentBaseCell : MonoBehaviour {
-        public object Key { get; private set; } = default!;
+        public object? Key { get; private set; }
 
         private ISegmentedControlComponent? _segmentedControl;
         private int _idx;
-        
+
         public void Init(ISegmentedControlComponent segmentedControl, object key, int idx) {
             _segmentedControl = segmentedControl;
             Key = key;
@@ -50,12 +48,16 @@ namespace BeatLeader.Components {
         public void SetState(bool state) {
             OnStateChange(state);
         }
-        
-        public abstract void OnStateChange(bool state);
 
-        protected void NotifyControlStateChanged() {
+        public object GetKeyOrThrow() {
+            return Key ?? throw new UninitializedComponentException();
+        }
+
+        protected void SelectSelf() {
             _segmentedControl?.SelectItem(_idx);
         }
+
+        protected abstract void OnStateChange(bool state);
     }
 
     /// <summary>
@@ -64,9 +66,9 @@ namespace BeatLeader.Components {
     /// <typeparam name="T">Inherited component</typeparam>
     /// <typeparam name="TKey">Item key</typeparam>
     /// <typeparam name="TValue">Item value</typeparam>
-    internal abstract class SegmentedControlComponentBase<T, TKey, TValue> : LayoutComponentBase<T>, IModifiableSegmentedControlComponent<TKey, TValue>
+    //TODO: rework to be dependent on the ISource which will be implemented by container
+    internal abstract class SegmentedControlComponentBase<T, TKey, TValue> : LayoutComponentBase<T>, ISegmentedControlComponent<TKey, TValue>
         where T : ReeUIComponentV3<T> {
-
         #region Events
 
         [ExternalProperty, UsedImplicitly]
@@ -74,15 +76,10 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region ModifiableSegmentedControlComponent
-
-        IDictionary<TKey, TValue> IModifiableSegmentedControlComponent<TKey, TValue>.Items => items;
-
-        #endregion
-
         #region SegmentedControl
 
-        public readonly Dictionary<TKey, TValue> items = new();
+        public ISegmentedControlDataSource<TKey, TValue>? DataSource { get; private set; }
+        private IReadOnlyDictionary<TKey, TValue> Items => DataSource?.Items ?? throw new UninitializedComponentException();
 
         private readonly List<SegmentedControlComponentBaseCell> _reusableCells = new();
         private readonly List<SegmentedControlComponentBaseCell> _cells = new();
@@ -92,21 +89,28 @@ namespace BeatLeader.Components {
             _reusableCells.AddRange(_cells);
             _cells.Clear();
             GenerateCells();
-            if (items.Count > 0) SelectItem(0);
+            if (Items.Count > 0) SelectItem(0);
+        }
+
+        public void SetDataSource(ISegmentedControlDataSource<TKey, TValue> source) {
+            DataSource = source;
+            Reload();
         }
 
         public void SelectItem(TKey key) {
-            var idx = _cells.FindIndex(x => x.Key.Equals(key));
+            var idx = _cells.FindIndex(x => x.GetKeyOrThrow().Equals(key));
             if (idx is -1) return;
             SelectItem(idx);
         }
 
         public void SelectItem(int idx) {
-            _cells[_selectedCellIdx].OnStateChange(false);
+            _cells[_selectedCellIdx].SetState(false);
             _selectedCellIdx = idx;
             var newCell = _cells[_selectedCellIdx];
-            newCell.OnStateChange(true);
-            CellWithKeySelectedEvent?.Invoke((TKey)newCell.Key);
+            newCell.SetState(true);
+            var key = (TKey)newCell.GetKeyOrThrow();
+            DataSource?.OnItemSelect(key);
+            CellWithKeySelectedEvent?.Invoke(key);
         }
 
         protected SegmentedControlComponentBaseCell? DequeueReusableCell() {
@@ -118,7 +122,7 @@ namespace BeatLeader.Components {
 
         private void GenerateCells() {
             var idx = 0;
-            foreach (var (key, value) in items) {
+            foreach (var (key, value) in Items) {
                 var cell = ConstructCell(value);
                 cell.Init(this, key!, idx);
                 cell.transform.SetParent(ContentTransform);

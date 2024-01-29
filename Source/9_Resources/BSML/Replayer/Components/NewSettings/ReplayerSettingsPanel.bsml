@@ -1,0 +1,13 @@
+<horizontal>
+  <vertical id="view-selector-container" Width="12">
+    <Import From="~view-selector"/>
+  </vertical>
+  <vertical FlexibleWidth="max" InheritWidth="true" Pad="2">
+    <Import From="~view-container">
+      <Replayer.SettingsCameraView id="camera-view"/>
+      <Replayer.SettingsAvatarView id="avatar-view"/>
+      <Replayer.SettingsUIView/>
+      <Replayer.SettingsOtherView/>
+    </Import>
+  </vertical>
+</horizontal>

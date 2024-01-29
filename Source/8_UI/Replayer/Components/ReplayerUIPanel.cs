@@ -1,10 +1,10 @@
-using System.Collections;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace BeatLeader.Components {
+namespace BeatLeader.UI.Replayer {
     internal class ReplayerUIPanel : ReeUIComponentV3<ReplayerUIPanel> {
         #region UI Components
 
@@ -16,7 +16,7 @@ namespace BeatLeader.Components {
 
         private BeatmapLevelPreviewEditorComponent _songInfo = null!;
         private PlayerListEditorComponent _playerList = null!;
-        private ToolbarWithSettings _toolbar = null!;
+        private ToolbarEditorComponent _toolbar = null!;
         private LayoutGrid _layoutGrid = null!;
 
         #endregion
@@ -31,31 +31,32 @@ namespace BeatLeader.Components {
             IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
             IViewableCameraController cameraController,
+            IVirtualPlayerBodySpawner bodySpawner,
             ReplayLaunchData launchData,
             IReplayWatermark? watermark = null
         ) {
             _pauseController = pauseController;
             _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap.level);
             _toolbar.Setup(
-                timeController, pauseController,
-                finishController, playersManager, cameraController,
-                launchData, watermark, _layoutEditor
+                pauseController,
+                finishController, 
+                timeController,
+                playersManager, 
+                cameraController,
+                bodySpawner,
+                launchData
             );
             _playerList.Setup(playersManager, timeController);
-            //if (!launchData.IsBattleRoyale) {
-            //    var player = launchData.MainReplay.ReplayData.Player;
-            //    if (player is not null) 
-            //}
             var settings = launchData.Settings.LayoutEditorSettings ??= new();
             _layoutEditor.Setup(settings);
             _layoutEditor.SetEditorActive(false, false);
         }
 
         protected override void OnInitialize() {
-            _songInfo = BeatmapLevelPreviewEditorComponent.Instantiate(ContentTransform!);
-            _toolbar = ToolbarWithSettings.Instantiate(ContentTransform!);
-            _playerList = PlayerListEditorComponent.Instantiate(ContentTransform!);
-            var editorWindow = LayoutEditorWindow.Instantiate(ContentTransform!);
+            _songInfo = BeatmapLevelPreviewEditorComponent.Instantiate(ContentTransform);
+            _toolbar = ToolbarEditorComponent.Instantiate(ContentTransform);
+            _playerList = PlayerListEditorComponent.Instantiate(ContentTransform);
+            var editorWindow = LayoutEditorWindow.Instantiate(ContentTransform);
 
             _layoutGrid = _containerRect.gameObject.AddComponent<LayoutGrid>();
             _layoutEditor.AdditionalComponentHandler = _layoutGrid;
@@ -64,21 +65,10 @@ namespace BeatLeader.Components {
             _layoutEditor.AddComponent(_toolbar);
             _layoutEditor.AddComponent(_songInfo);
             _layoutEditor.AddComponent(_playerList);
-
-            QueueGridRefresh();
         }
 
-        #endregion
-
-        #region LayoutGrid
-
-        private void QueueGridRefresh() {
-            RoutineFactory.StartUnmanagedCoroutine(RefreshGridCoroutine());
-        }
-
-        private IEnumerator RefreshGridCoroutine() {
-            yield return new WaitForEndOfFrame();
-            _layoutGrid.Refresh();
+        protected override void OnStart() {
+            _layoutEditor.RefreshComponents();
         }
 
         #endregion
@@ -88,6 +78,7 @@ namespace BeatLeader.Components {
         private void HandleLayoutEditorStateChanged(bool active) {
             _layoutGrid.enabled = active;
             _pauseController.LockUnpause = active;
+            _layoutGrid.Refresh();
         }
 
         #endregion

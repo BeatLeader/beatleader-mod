@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
 
@@ -30,13 +31,13 @@ namespace BeatLeader.Components {
         protected override void OnInstantiate() {
             base.OnInstantiate();
             _settingsModal = ReeUIComponentV2.Instantiate<SettingsModal>(transform);
-            _toolbar = ReeUIComponentV2.Instantiate<Toolbar>(transform);
+            //_toolbar = ReeUIComponentV2.Instantiate<Toolbar>(transform);
             _rootContentView = ReeUIComponentV2.InstantiateOnSceneRoot<RootContentView>();
 
             _rootContentView.ManualInit(null!);
             _settingsModal.Setup(_rootContentView);
 
-            _toolbar.SettingsButtonClickedEvent += _settingsModal.ShowModal;
+            //_toolbar.SettingsButtonClickedEvent += _settingsModal.ShowModal;
         }
 
         public void Setup(
@@ -62,10 +63,10 @@ namespace BeatLeader.Components {
                 pauseController, playersManager, cameraController,
                 launchData, watermark, _toolbar.Timeline, layoutEditor
             );
-            _toolbar.Setup(
-                pauseController, finishController,
-                timeController, playersManager, launchData
-            );
+            //_toolbar.Setup(
+            //    pauseController, finishController,
+            //    timeController, playersManager, launchData
+            //);
         }
 
         private void HandleLayoutEditorStateChanged(bool state) {

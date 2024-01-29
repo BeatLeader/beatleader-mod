@@ -42,6 +42,7 @@ namespace BeatLeader.Components {
         string ComponentName { get; }
 
         void Setup(ILayoutComponentHandler? layoutHandler);
+        void RequestRefresh();
     }
 
     #endregion
@@ -73,6 +74,10 @@ namespace BeatLeader.Components {
         public void Setup(ILayoutComponentHandler? handler) {
             ComponentHandler = handler;
             ContentTransform!.SetParent(handler?.AreaTransform);
+        }
+
+        public void RequestRefresh() {
+            RefreshTransforms();
         }
 
         protected sealed override GameObject Construct(Transform parent) {
@@ -199,11 +204,11 @@ namespace BeatLeader.Components {
 
         private void HandleWrapperStateChanged(bool state) {
             if (_firstActivation) {
-                ComponentSize = (ContentTransform as RectTransform)!.rect.size;
+                ComponentSize = ContentTransform.rect.size;
                 _firstActivation = false;
             }
             RefreshTransforms();
-            Content!.SetActive(ComponentActive || state);
+            Content.SetActive(ComponentActive || state);
         }
 
         void ILayoutComponentWrapperHandler.OnComponentPointerClick() {

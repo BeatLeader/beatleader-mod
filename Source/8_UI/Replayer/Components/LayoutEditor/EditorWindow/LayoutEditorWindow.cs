@@ -60,8 +60,10 @@ namespace BeatLeader.Components {
             _layoutEditor.ComponentSelectedEvent += HandleComponentSelectedExternal;
             _layoutGrid = _layoutEditor.AdditionalComponentHandler as LayoutGrid;
             ComponentHandler = handler;
-            ContentTransform!.SetParent(handler?.AreaTransform);
+            ContentTransform.SetParent(handler?.AreaTransform);
         }
+
+        void ILayoutComponent.RequestRefresh() { }
 
         #endregion
 

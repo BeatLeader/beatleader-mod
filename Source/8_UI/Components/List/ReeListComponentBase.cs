@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     internal interface IReeTableCell {
+        //TODO: rename to OnCellStateChange to match the style
         void OnStateChange(bool selected, bool highlighted);
     }
 

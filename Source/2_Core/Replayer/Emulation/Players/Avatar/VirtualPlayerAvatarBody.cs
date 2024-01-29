@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Utilities;
@@ -31,7 +30,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Setup
 
-        public bool UsesPrimaryModel => false;
+        public bool UsesPrimaryModel => true;
 
         private AvatarLoader _avatarLoader = null!;
         private AvatarPartsModel _avatarPartsModel = null!;
@@ -65,16 +64,15 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         public void ApplyConfig(VirtualPlayerBodyConfig config) {
-            foreach (var part in config.AvailableBodyParts) {
+            foreach (var part in config.BodyParts) {
                 var trans = part.Id switch {
                     "BATTLE_ROYALE_AVATAR_HEAD" => _headTransform,
                     "BATTLE_ROYALE_AVATAR_BODY" => _bodyTransform,
                     "BATTLE_ROYALE_AVATAR_LEFT_HAND" => _leftHandTransform,
                     "BATTLE_ROYALE_AVATAR_RIGHT_HAND" => _rightHandTransform,
-                    _ => throw new ArgumentOutOfRangeException()
+                    _ => default
                 };
-                var isActive = config.IsPartActive(part);
-                trans.gameObject.SetActive(isActive);
+                trans?.gameObject.SetActive(part.Active);
             }
         }
 

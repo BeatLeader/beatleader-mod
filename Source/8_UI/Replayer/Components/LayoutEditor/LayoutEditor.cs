@@ -14,6 +14,7 @@ namespace BeatLeader.Components {
         event Action<ILayoutComponent?>? ComponentSelectedEvent;
 
         void SetEditorActive(bool active, bool saveCurrentState = false);
+        void RefreshComponents();
         void Setup(LayoutEditorSettings settings);
     }
 
@@ -27,27 +28,36 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        public RectTransform? AreaTransform => ContentTransform as RectTransform;
+        public RectTransform AreaTransform => ContentTransform;
         public IReadOnlyCollection<ILayoutComponent> LayoutComponents => _components;
-        private Vector2 AreaSize => AreaTransform!.rect.size;
+        private Vector2 AreaSize => AreaTransform.rect.size;
 
         public ILayoutComponentTransformsHandler? AdditionalComponentHandler { get; set; }
 
         private readonly HashSet<ILayoutComponent> _components = new();
         private LayoutEditorSettings? _settings;
-        private bool _isChangingEditorState;
+        private bool _provideCachedPosition;
         private bool _saveCurrentState;
 
         public void SetEditorActive(bool active, bool saveCurrentState = true) {
             ValidateAndThrow();
-            _isChangingEditorState = true;
+            _provideCachedPosition = true;
             _saveCurrentState = !active && saveCurrentState;
             foreach (var component in _components) {
                 component.WrapperController.SetWrapperActive(active);
             }
-            _isChangingEditorState = false;
+            _provideCachedPosition = false;
             StateChangedEvent?.Invoke(active);
             ComponentSelectedEvent?.Invoke(null);
+        }
+
+        public void RefreshComponents() {
+            ValidateAndThrow();
+            _provideCachedPosition = true;
+            foreach (var component in _components) {
+                component.RequestRefresh();
+            }
+            _provideCachedPosition = false;
         }
 
         public void Setup(LayoutEditorSettings settings) {
@@ -59,21 +69,17 @@ namespace BeatLeader.Components {
             LayoutGroup.childControlWidth = false;
             LayoutGroup.childForceExpandHeight = false;
             LayoutGroup.childForceExpandWidth = false;
-            Content!.GetComponent<LayoutGroup>().enabled = false;
+            Content.GetComponent<LayoutGroup>().enabled = false;
         }
 
         protected override void OnDispose() {
-            var settings = new LayoutEditorSettings {
-                ComponentDatas = _layoutDatas.ToDictionary(
-                    static pair => pair.Key.ComponentName,
-                    static pair => pair.Value
-                )
-            };
-            ConfigFileData.Instance.ReplayerSettings.LayoutEditorSettings = settings;
+            if (_settings is null) return;
+            _settings.ComponentDatas = _layoutDatas.ToDictionary(
+                static pair => pair.Key.ComponentName,
+                static pair => pair.Value
+            );
         }
-
-        protected override bool OnValidation() => AreaTransform is not null;
-
+        
         #endregion
 
         #region Handling Tools
@@ -139,7 +145,7 @@ namespace BeatLeader.Components {
         Vector2 ILayoutComponentHandler.PointerPosition {
             get {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    AreaTransform, Input.mousePosition, null, out var pos
+                    AreaTransform, Input.mousePosition, Canvas?.worldCamera, out var pos
                 );
                 return pos;
             }
@@ -148,7 +154,7 @@ namespace BeatLeader.Components {
         Vector2 ILayoutComponentTransformsHandler.OnMove(
             ILayoutComponent component, Vector2 origin, Vector2 destination
         ) {
-            if (_isChangingEditorState && !_saveCurrentState) {
+            if (_provideCachedPosition && !_saveCurrentState) {
                 //applying position
                 var layoutData = AcquireLayoutData(component);
                 destination = layoutData.position;
@@ -160,7 +166,7 @@ namespace BeatLeader.Components {
             //modifying position
             destination = AdditionalComponentHandler?.OnMove(component, origin, destination) ?? destination;
             destination = ApplyBorders(destination, component.ComponentController.ComponentSize);
-            if (_isChangingEditorState && _saveCurrentState) {
+            if (_provideCachedPosition && _saveCurrentState) {
                 //saving data
                 ModifyLayoutData(
                     component, p => {
@@ -177,14 +183,14 @@ namespace BeatLeader.Components {
         Vector2 ILayoutComponentTransformsHandler.OnResize(
             ILayoutComponent component, Vector2 origin, Vector2 destination
         ) {
-            if (_isChangingEditorState && !_saveCurrentState) {
+            if (_provideCachedPosition && !_saveCurrentState) {
                 //applying size
                 destination = AcquireLayoutData(component).size;
             }
             //modifying size
             destination = AdditionalComponentHandler?.OnResize(component, origin, destination) ?? destination;
             destination = ApplyBorders(destination, component.ComponentController.ComponentSize);
-            if (_isChangingEditorState && _saveCurrentState) {
+            if (_provideCachedPosition && _saveCurrentState) {
                 //saving data
                 ModifyLayoutData(component, p => p.size = destination);
             }

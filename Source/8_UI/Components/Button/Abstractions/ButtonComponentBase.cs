@@ -8,11 +8,24 @@ namespace BeatLeader.Components {
         #region Events
 
         [ExternalProperty, UsedImplicitly]
-        public event Action<bool>? ClickEvent;
+        public event Action? ClickEvent;
+
+        [ExternalProperty, UsedImplicitly]
+        public event Action<bool>? StateChangedEvent;
 
         #endregion
 
         #region UI Properties
+
+        [ExternalProperty, UsedImplicitly]
+        public bool Interactable {
+            get => _button.interactable;
+            set {
+                _button.interactable = value;
+                _hoverController.enabled = value;
+                OnInteractableChange(value);
+            }
+        }
 
         [ExternalProperty, UsedImplicitly]
         public bool Sticky {
@@ -29,17 +42,17 @@ namespace BeatLeader.Components {
             set {
                 _growOnHover = value;
                 if (!IsInitialized) return;
-                ContentTransform!.localScale = Vector3.one;
+                ContentTransform.localScale = Vector3.one;
             }
         }
 
         [ExternalProperty, UsedImplicitly]
         public float HoverLerpMul {
-            get => _hoverController?.lerpCoefficient ?? -1f;
+            get => _hoverController.lerpCoefficient;
             set {
                 _lerpMul = value;
                 if (!IsInitialized) return;
-                _hoverController!.lerpCoefficient = _lerpMul;
+                _hoverController.lerpCoefficient = _lerpMul;
             }
         }
 
@@ -47,7 +60,7 @@ namespace BeatLeader.Components {
         public Vector3 HoverScaleSum { get; set; } = new(0.2f, 0.2f, 0.2f);
 
         [ExternalProperty, UsedImplicitly]
-        public Vector3 BaseScale { get; set; } = Vector3.zero;
+        public Vector3 BaseScale { get; set; } = Vector3.one;
 
         [ExternalProperty, UsedImplicitly]
         public bool IsActive {
@@ -78,7 +91,9 @@ namespace BeatLeader.Components {
 
         private void ProcessButtonClick(bool notifyListeners) {
             if (Sticky) IsActive = !IsActive;
-            if (notifyListeners) ClickEvent?.Invoke(_sticky ? IsActive : default);
+            if (!notifyListeners) return;
+            ClickEvent?.Invoke();
+            StateChangedEvent?.Invoke(_sticky ? IsActive : default);
         }
 
         #endregion
@@ -89,37 +104,35 @@ namespace BeatLeader.Components {
 
         protected virtual void OnButtonStateChange(bool state) { }
 
+        protected virtual void OnInteractableChange(bool interactable) { }
+        
         #endregion
 
         #region Setup
 
-        private SmoothHoverController? _hoverController;
+        private SmoothHoverController _hoverController = null!;
+        private Button _button = null!;
         private bool _isActive;
 
         protected abstract void OnContentConstruct(Transform parent);
 
-        protected override void OnPropertySet() {
-            if (BaseScale == Vector3.zero) BaseScale = Scale;
-        }
-
-        protected sealed override void OnInitialize() {
-            OnContentConstruct(ContentTransform!);
+        protected sealed override void OnConstruct(Transform parent) {
+            var parentGo = parent.gameObject;
+            OnContentConstruct(parent);
             OnHoverProgressChange(0);
-            _hoverController = Content!.AddComponent<SmoothHoverController>();
+            _hoverController = parentGo.AddComponent<SmoothHoverController>();
             _hoverController.HoverStateChangedEvent += OnHoverStateChanged;
             _hoverController.lerpCoefficient = _lerpMul;
-            Content.AddComponent<Button>().onClick.AddListener(OnButtonClick);
-            OnInitializeInternal();
+            _button = parentGo.AddComponent<Button>();
+            _button.onClick.AddListener(OnButtonClick);
         }
-
-        protected virtual void OnInitializeInternal() { }
 
         #endregion
 
         #region Callbacks
 
         private void OnHoverStateChanged(bool isHovered, float progress) {
-            if (_growOnHover) ContentTransform!.localScale = BaseScale + HoverScaleSum * progress;
+            if (_growOnHover) ContentTransform.localScale = BaseScale + HoverScaleSum * progress;
             OnHoverProgressChange(progress);
         }
 

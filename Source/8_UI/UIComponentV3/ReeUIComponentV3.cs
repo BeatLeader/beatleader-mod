@@ -93,7 +93,7 @@ namespace BeatLeader.Components {
 
         [BSMLConstructor, UsedImplicitly]
         protected static GameObject CreateBSMLObject(Transform parent) {
-            var componentGo = new GameObject();
+            var componentGo = new GameObject(typeof(T).Name);
             componentGo.transform.SetParent(parent, false);
             var component = componentGo.AddComponent<T>();
 
@@ -133,6 +133,16 @@ namespace BeatLeader.Components {
         public sealed override GameObject Content => _content ?? throw new UninitializedComponentException();
         public sealed override RectTransform ContentTransform => _contentTransform ?? throw new UninitializedComponentException();
 
+        protected Canvas? Canvas {
+            get {
+                if (!_canvas) {
+                    _canvas = Content.GetComponentInParent<Canvas>();
+                }
+                return _canvas;
+            }
+        }
+
+        private Canvas? _canvas;
         private GameObject? _content;
         private RectTransform? _contentTransform;
 
@@ -189,7 +199,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Events
+        #region Events Handling
 
         void IReeUIComponentEventReceiver.OnStart() => OnStart();
 
@@ -197,12 +207,18 @@ namespace BeatLeader.Components {
 
         void IReeUIComponentEventReceiver.OnRectDimensionsChange() => OnRectDimensionsChange();
 
+        void IReeUIComponentEventReceiver.OnChildrenChange() => OnChildrenChange();
+
         private void Awake() => OnInstantiate();
 
         private void OnDestroy() {
             OnDispose();
             DestroyImmediate(Content);
         }
+
+        #endregion
+
+        #region Events
 
         protected virtual void OnPropertySet() { }
 
@@ -217,6 +233,8 @@ namespace BeatLeader.Components {
         protected virtual void OnStateChange(bool state) { }
 
         protected virtual void OnRectDimensionsChange() { }
+
+        protected virtual void OnChildrenChange() { }
 
         #endregion
 
@@ -236,6 +254,7 @@ namespace BeatLeader.Components {
         void OnStart();
         void OnStateChange(bool state);
         void OnRectDimensionsChange();
+        void OnChildrenChange();
     }
 
     internal class ReeUIComponentV3InstanceKeeper : MonoBehaviour {
@@ -256,5 +275,6 @@ namespace BeatLeader.Components {
         private void OnDisable() => _eventReceiver?.OnStateChange(false);
 
         private void OnRectTransformDimensionsChange() => _eventReceiver?.OnRectDimensionsChange();
+        private void OnTransformChildrenChanged() => _eventReceiver?.OnChildrenChange();
     }
 }

@@ -45,7 +45,8 @@ namespace BeatLeader {
             new StringToVector3Converter(),
             new StringToVector2Converter(),
             new StringToArrayConverter(),
-            new StringToKeyValuePairConverter()
+            new StringToKeyValuePairConverter(),
+            new StringToRangeConverter()
         };
 
         public static bool AddConverter(StringConverter converter) {

@@ -27,7 +27,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         [UIAction("replay-manager-button-click"), UsedImplicitly]
-        private void HandleReplayManagerButtonClicked(bool state) {
+        private void HandleReplayManagerButtonClicked() {
             _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
                 _replayManagerFlowCoordinator,
                 animationDirection: AnimationDirection.Vertical
@@ -35,7 +35,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         [UIAction("battle-royale-button-click"), UsedImplicitly]
-        private void HandleBattleRoyaleButtonClicked(bool state) {
+        private void HandleBattleRoyaleButtonClicked() {
             _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
                 _battleRoyaleFlowCoordinator,
                 animationDirection: AnimationDirection.Vertical

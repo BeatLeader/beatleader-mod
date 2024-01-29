@@ -1,0 +1,29 @@
+<vertical
+  child-expand-height="false"
+  child-control-height="false"
+  InheritWidth="true"
+>
+  <NormalizedSlider
+    Text="Smoothness"
+    ValueStep="0.1"
+    ValueRange="0.1,10"
+    Value="1"
+    ValueChangedEvent="smoothness-change"
+  />
+  <VectorSelector
+    Text="Position Offset"
+    MinVector="-1,-1,-1.5"
+    MaxVector="1,1,0"
+    StepVector="0.1"
+    Vector="0"
+    ValueChangedEvent="position-offset-change"
+  />
+  <VectorSelector
+    Text="Rotation Offset"
+    MinVector="0"
+    MaxVector="360"
+    StepVector="1"
+    Vector="0"
+    ValueChangedEvent="rotation-offset-change"
+  />
+</vertical>

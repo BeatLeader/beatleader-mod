@@ -6,7 +6,7 @@ namespace BeatLeader.Components {
     internal class LayoutGrid : MonoBehaviour, ILayoutComponentTransformsHandler {
         #region Setup
         
-        private Vector2 Size => _rect.sizeDelta;
+        private Vector2 Size => _rect.rect.size;
 
         public int lineThickness = 1;
         public int cellSize = 5;

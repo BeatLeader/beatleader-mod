@@ -128,6 +128,7 @@ namespace BeatLeader.Components {
             handler.PointerUpEvent += HandlePointerUp;
             //image
             var img = go.AddComponent<Image>();
+            img.material = GameResources.UINoGlowMaterial;
             img.sprite = cornerSprite;
             img.color = frameColor;
             img.pixelsPerUnitMultiplier = 3;
@@ -180,6 +181,7 @@ namespace BeatLeader.Components {
                 var image = gameObject.AddComponent<Image>();
                 image.sprite = sprite;
                 image.type = Image.Type.Sliced;
+                image.material = GameResources.UINoGlowMaterial;
                 image.pixelsPerUnitMultiplier = 3.5f;
                 return image;
             }

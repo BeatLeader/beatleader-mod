@@ -94,13 +94,13 @@ namespace BeatLeader.UI.Hub {
         }
 
         [UIAction("reload-click"), UsedImplicitly]
-        private void HandleReloadButtonClicked(bool state) {
+        private void HandleReloadButtonClicked() {
             ValidateAndThrow();
             _replaysLoader!.StartReplaysLoad();
         }
 
         [UIAction("settings-click"), UsedImplicitly]
-        private void HandleSettingsButtonClicked(bool state) {
+        private void HandleSettingsButtonClicked() {
             ShowModal();
         }
 

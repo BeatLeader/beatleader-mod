@@ -7,15 +7,39 @@ namespace BeatLeader.Components {
     /// <summary>
     /// Universal ReeUIComponentV3 base for layout components
     /// </summary>
-    /// <typeparam name="T">Inherited component</typeparam>
+    /// <typeparam name="T">Inherited component</typeparam>s
     internal abstract class LayoutComponentBase<T> : ReeUIComponentV3<T> where T : ReeUIComponentV3<T> {
+        #region Models
+        
+        public struct FlexibleUnit {
+            private float _value;
+
+            public static implicit operator float(FlexibleUnit unit) {
+                return unit._value;
+            }
+
+            public static implicit operator FlexibleUnit(float value) {
+                return new FlexibleUnit {
+                    _value = value
+                };
+            }
+
+            public static implicit operator FlexibleUnit(string str) {
+                return new FlexibleUnit {
+                    _value = str is "max" ? float.MaxValue : float.Parse(str)
+                };
+            }
+        }
+
+        #endregion
+
         #region UI Properties
 
         [ExternalProperty, UsedImplicitly]
         public Vector3 Scale {
-            get => ContentTransform!.localScale;
+            get => ContentTransform.localScale;
             set {
-                ContentTransform!.localScale = value;
+                ContentTransform.localScale = value;
                 OnLayoutPropertySet();
             }
         }
@@ -26,6 +50,26 @@ namespace BeatLeader.Components {
                 Width = value;
                 Height = value;
                 OnLayoutPropertySet();
+            }
+        }
+
+        [ExternalProperty, UsedImplicitly]
+        public FlexibleUnit FlexibleWidth {
+            get => LayoutElement.flexibleWidth;
+            set => LayoutElement.flexibleWidth = value;
+        }
+
+        [ExternalProperty, UsedImplicitly]
+        public FlexibleUnit FlexibleHeight {
+            get => LayoutElement.flexibleHeight;
+            set => LayoutElement.flexibleHeight = value;
+        }
+        
+        [ExternalProperty, UsedImplicitly]
+        public FlexibleUnit FlexibleSize {
+            set {
+                FlexibleWidth = value;
+                FlexibleHeight = value;
             }
         }
 
@@ -95,6 +139,9 @@ namespace BeatLeader.Components {
 
         #region UI Components
 
+        public GameObject? LayoutComponentContent { get; private set; }
+        public RectTransform? LayoutComponentContentTransform { get; private set; }
+        
         [ExternalComponent, UsedImplicitly]
         private RectTransform RectTransform => ContentTransform;
 
@@ -122,14 +169,17 @@ namespace BeatLeader.Components {
             var wrapper = new GameObject("BaseWrapper");
             var wrapperTransform = wrapper.AddComponent<RectTransform>();
             wrapperTransform.SetParent(parent, false);
-            OnConstruct(wrapperTransform);
             ProvideLayoutControllers(wrapper, out _layoutElement, out _layoutGroup, out _sizeFitter);
+            OnConstruct(wrapperTransform);
+            var contentGo = wrapperTransform.childCount is 0 ? null : wrapperTransform.GetChild(0).gameObject;
+            LayoutComponentContent = contentGo;
+            LayoutComponentContentTransform = contentGo?.GetComponent<RectTransform>();
             wrapperTransform.anchorMin = Vector2.zero;
             wrapperTransform.anchorMax = Vector2.one;
             wrapperTransform.sizeDelta = Vector2.zero;
             return wrapper;
         }
-        
+
         protected virtual void OnConstruct(Transform parent) { }
 
         protected virtual void ProvideLayoutControllers(

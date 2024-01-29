@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -39,26 +40,24 @@ namespace BeatLeader.Replayer.Emulation {
             }
 
             public void ApplyConfig(VirtualPlayerBodyConfig config) {
-                foreach (var part in config.AvailableBodyParts) {
-                    GameObject? gameObject;
-                    if (!_usesOriginalSabers) {
-                        var controller = part.Id switch {
-                            "LEFT_SABER" => _leftHand,
-                            "RIGHT_SABER" => _rightHand,
-                            _ => throw new ArgumentOutOfRangeException()
-                        };
-                        controller.CoreIntensity = part.Alpha;
-                        gameObject = controller.gameObject;
-                    } else {
-                        var controller = part.Id switch {
-                            "LEFT_SABER" => _originalControllersProvider!.LeftHand,
-                            "RIGHT_SABER" => _originalControllersProvider!.RightHand,
-                            _ => throw new ArgumentOutOfRangeException()
-                        };
-                        gameObject = controller.gameObject;
-                    }
-                    var active = config.IsPartActive(part);
-                    gameObject.SetActive(active);
+                var leftHandConfig = config.BodyParts.FirstOrDefault(static x => x.Id == "LEFT_SABER");
+                if (leftHandConfig is not null) {
+                    ApplySaberConfig(true, leftHandConfig);
+                }
+                var rightHandConfig = config.BodyParts.FirstOrDefault(static x => x.Id == "RIGHT_SABER");
+                if (rightHandConfig is not null) {
+                    ApplySaberConfig(false, rightHandConfig);
+                }
+            }
+
+            private void ApplySaberConfig(bool left, VirtualPlayerBodyPartConfig config) {
+                if (_usesOriginalSabers) {
+                    var saber = left ? _originalControllers!.LeftHand : _originalControllers!.RightHand;
+                    saber.gameObject.SetActive(config.Active);
+                } else {
+                    var saber = left ? _leftHand : _rightHand;
+                    saber.CoreIntensity = config.Alpha;
+                    saber.gameObject.SetActive(config.Active);
                 }
             }
 
@@ -70,7 +69,7 @@ namespace BeatLeader.Replayer.Emulation {
             private readonly IVirtualPlayersManager _playersManager;
             private readonly VirtualPlayerSabersSpawner _sabersSpawner;
 
-            private IHandVRControllersProvider? _originalControllersProvider;
+            private IHandVRControllersProvider? _originalControllers;
             private bool _usesOriginalSabers;
 
             private readonly BattleRoyaleVRController _leftHand;
@@ -88,11 +87,11 @@ namespace BeatLeader.Replayer.Emulation {
                 SetActive(!useOriginalSabers);
                 if (useOriginalSabers) {
                     if (_usesOriginalSabers) return;
-                    _originalControllersProvider = _sabersSpawner.BorrowOriginalSabers(this);
+                    _originalControllers = _sabersSpawner.BorrowOriginalSabers(this);
                 } else {
                     if (!_usesOriginalSabers) return;
                     _sabersSpawner.ReturnOriginalSabers();
-                    _originalControllersProvider = null;
+                    _originalControllers = null;
                 }
                 _usesOriginalSabers = useOriginalSabers;
             }
@@ -101,8 +100,8 @@ namespace BeatLeader.Replayer.Emulation {
                 Transform leftHandTransform;
                 Transform rightHandTransform;
                 if (_usesOriginalSabers) {
-                    leftHandTransform = _originalControllersProvider!.LeftHand.transform;
-                    rightHandTransform = _originalControllersProvider!.RightHand.transform;
+                    leftHandTransform = _originalControllers!.LeftHand.transform;
+                    rightHandTransform = _originalControllers!.RightHand.transform;
                 } else {
                     leftHandTransform = _leftHandTransform;
                     rightHandTransform = _rightHandTransform;

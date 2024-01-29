@@ -75,6 +75,8 @@ namespace BeatLeader {
         public static Material OpponentScoreBackgroundMaterial;
         public static Material RoundTextureMaterial;
 
+        public static SliderMaterials SliderMaterials;
+
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
             DefaultAvatarMaterial = assetBundle.LoadAsset<Material>("DefaultAvatar");
@@ -93,6 +95,7 @@ namespace BeatLeader {
             OpponentBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentBackgroundMaterial");
             OpponentScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentScoreBackgroundMaterial");
             RoundTextureMaterial = assetBundle.LoadAsset<Material>("UIRoundTextureMaterial");
+            SliderMaterials = assetBundle.LoadAsset<SliderMaterials>("SliderMaterials");
         }
 
         #endregion
@@ -228,8 +231,18 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite CheckIcon;
 
         [UsedImplicitly] public static Sprite SkullIcon;
-        
+
         [UsedImplicitly] public static Sprite QuestionIcon;
+
+        [UsedImplicitly] public static Sprite CameraIcon;
+
+        [UsedImplicitly] public static Sprite OtherIcon;
+
+        [UsedImplicitly] public static Sprite AvatarIcon;
+        
+        [UsedImplicitly] public static Sprite HubIcon;
+        
+        [UsedImplicitly] public static Sprite AlphaIcon;
 
         private static List<Sprite> _loadedSprites = null!;
 
@@ -306,6 +319,13 @@ namespace BeatLeader {
             CheckIcon = assetBundle.LoadAsset<Sprite>("BL_CheckIcon");
             SkullIcon = assetBundle.LoadAsset<Sprite>("BL_SkullIcon");
             QuestionIcon = assetBundle.LoadAsset<Sprite>("BL_QuestionIcon");
+            AlphaIcon = assetBundle.LoadAsset<Sprite>("BL_OpacityIcon");
+            
+            CameraIcon = assetBundle.LoadAsset<Sprite>("BL_CameraIcon");
+            OtherIcon = assetBundle.LoadAsset<Sprite>("BL_OtherSettingsIcon");
+            AvatarIcon = assetBundle.LoadAsset<Sprite>("BL_AvatarIcon");
+            
+            HubIcon = assetBundle.LoadAsset<Sprite>("BL_HubIcon");
 
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }

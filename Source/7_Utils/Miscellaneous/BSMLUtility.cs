@@ -64,8 +64,14 @@ namespace BeatLeader.Utils {
 
         #region Markup
 
+        private static string? ReadMarkupPath(Type type) {
+            return type.GetCustomAttribute<ViewDefinitionAttribute>()?.Definition;
+        }
+        
         public static string ReadMarkupOrFallback(Type componentType) {
-            return ReadMarkupOrFallback(componentType.Name, componentType.Assembly);
+            var pathOrName = ReadMarkupPath(componentType);
+            pathOrName ??= componentType.Name;
+            return ReadMarkupOrFallback(pathOrName, componentType.Assembly);
         }
         
         public static string ReadMarkupOrFallback(string typeName, Assembly assembly) {

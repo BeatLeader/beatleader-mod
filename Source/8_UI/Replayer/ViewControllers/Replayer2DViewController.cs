@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Collections;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
+using BeatLeader.UI.Replayer;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -48,12 +49,12 @@ namespace BeatLeader.ViewControllers {
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            _replayerUIPanel.Setup(
-                _pauseController, _finishController,
-                _timeController, _playersManager,
-                _cameraController.ViewableCamera!,
-                _launchData, _watermark
-            );
+            //_replayerUIPanel.Setup(
+            //    _pauseController, _finishController,
+            //    _timeController, _playersManager,
+            //    _cameraController.ViewableCamera,
+            //    _launchData, _watermark
+            //);
             StartCoroutine(UIAnimationCoroutine());
         }
 

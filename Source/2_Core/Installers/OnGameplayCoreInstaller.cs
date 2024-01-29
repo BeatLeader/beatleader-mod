@@ -15,6 +15,7 @@ using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
 using BeatLeader.UI;
 using BeatLeader.Models;
+using BeatLeader.UI.Replayer.Desktop;
 
 namespace BeatLeader.Installers {
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
@@ -119,9 +120,13 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //UI
-            Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerDesktopScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<ReplayerDesktopViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<ReplayerDesktopUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            
+            //Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
+            //Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
+            //Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Plugin.Log.Notice("[Installer] Replays system successfully installed!");
         }

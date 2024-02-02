@@ -39,13 +39,13 @@
   <macro.as-host host="replayer-settings">
     <macro.reparent transform="ui-component"/>
   </macro.as-host>
-  <vertical id="replay-saving-settings" pref-height="46" horizontal-fit="Unconstrained">
+  <vertical id="replay-saving-settings" pref-height="28" horizontal-fit="Unconstrained">
     <text text="Replay Saving Settings" align="Center" font-size="3.5" color="grey"/>
     <horizontal id="save-replays-container" pref-height="6">
       <toggle-setting text="Save Replays" value="save-replays"
                       bind-value="true" apply-on-change="true" pref-width="-1"/>
     </horizontal>
-    <vertical id="toggles-container" vertical-fit="PreferredSize" pref-height="26"
+    <vertical id="toggles-container" vertical-fit="PreferredSize" pref-height="19"
               horizontal-fit="Unconstrained" pad-left="1" pad-right="1" >
       <horizontal pref-height="8">
         <toggle-setting text="Save On Fail" value="save-after-fail"

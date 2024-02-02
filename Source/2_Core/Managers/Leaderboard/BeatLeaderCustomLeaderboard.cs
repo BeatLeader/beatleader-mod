@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using BeatLeader.ViewControllers;
 using HMUI;
 using JetBrains.Annotations;
@@ -31,6 +31,11 @@ namespace BeatLeader {
 
         protected override ViewController panelViewController => _leaderboardPanel;
         protected override ViewController leaderboardViewController => _leaderboardView;
+
+        public override bool ShowForLevel(IPreviewBeatmapLevel selectedLevel) {
+            return true;
+        }
+        protected override string leaderboardId => "BeatLeader";
 
         #endregion
 

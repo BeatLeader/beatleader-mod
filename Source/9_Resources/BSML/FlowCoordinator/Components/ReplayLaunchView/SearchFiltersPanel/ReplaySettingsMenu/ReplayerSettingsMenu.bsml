@@ -55,14 +55,6 @@
         <toggle-setting text="Save On Exit" value="save-after-exit"
                         bind-value="true" apply-on-change="true" pref-width="-1"/>
       </horizontal>
-      <!--<horizontal pref-height="8">
-        <toggle-setting text="Save With Zero Score" value="save-zero-score"
-                        bind-value="true" apply-on-change="true" pref-width="-1"/>
-      </horizontal>-->
-      <horizontal pref-height="8">
-        <toggle-setting text="Save OST" value="save-ost"
-                        bind-value="true" apply-on-change="true" pref-width="-1"/>
-      </horizontal>
       <horizontal pref-height="8">
         <toggle-setting text="Override Existing" value="override-old"
                         bind-value="true" apply-on-change="true" pref-width="-1"/>

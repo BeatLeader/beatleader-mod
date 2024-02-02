@@ -57,10 +57,8 @@ namespace BeatLeader.Utils {
         }
 
         public async Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
-            var isOstLevel = !MapEnhancer.previewBeatmapLevel
-                .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
             CachedReplay = null;
-            if (!ValidatePlay(replay, playEndData, isOstLevel)) {
+            if (!ValidatePlay(replay, playEndData)) {
                 Plugin.Log.Info("Validation failed, replay will not be saved!");
                 return null;
             }
@@ -144,15 +142,14 @@ namespace BeatLeader.Utils {
         }
 
         [Pure]
-        internal static bool ValidatePlay(Replay replay, PlayEndData endData, bool isOstLevel) {
+        internal static bool ValidatePlay(Replay replay, PlayEndData endData) {
             var options = ConfigFileData.Instance.ReplaySavingOptions;
             return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
                     LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
                     LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
                     LevelEndType.Clear => true,
                     _ => false
-                } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0)
-                && (options.HasFlag(ReplaySaveOption.OST) || !isOstLevel);
+                } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0);
         }
 
         [Pure]

@@ -32,7 +32,7 @@ namespace BeatLeader.API.Methods {
             };
             var url = string.Format(PlayerScoresPageEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
             
-            var requestDescriptor = new JsonGetRequestDescriptor<Paged<Score>>(url);
+            var requestDescriptor = new ScoreRequestDescriptor(url);
             instance.Send(requestDescriptor);
         }
 
@@ -57,7 +57,7 @@ namespace BeatLeader.API.Methods {
             };
             var url = string.Format(PlayerScoresSeekEndpoint, mapHash, mapDiff, mapMode, context, scope, NetworkingUtils.ToHttpParams(query));
 
-            Instance.Send(new ScoreRequestDescriptor(url));
+            instance.Send(new ScoreRequestDescriptor(url));
         }
 
         #endregion
@@ -65,7 +65,7 @@ namespace BeatLeader.API.Methods {
         #region ClanScores/Page
 
         // /v1/clanScores/{hash}/{diff}/{mode}/page?page={page}&count={count}
-        private const string ClanScoresPageEndpoint = BLConstants.BEATLEADER_API_URL + "/v1/clanScores/{0}/{1}/{2}/page?{3}";
+        private const string ClanScoresPageEndpoint = BeatLeaderConstants.BEATLEADER_API_URL + "/v1/clanScores/{0}/{1}/{2}/page?{3}";
 
         public static void SendClanScoresPageRequest(
             string mapHash,
@@ -74,12 +74,12 @@ namespace BeatLeader.API.Methods {
             int page
         ) {
             var query = new Dictionary<string, object> {
-                { BLConstants.Param.COUNT, ScoresPerPage },
-                { BLConstants.Param.PAGE, page }
+                { BeatLeaderConstants.Param.COUNT, ScoresPerPage },
+                { BeatLeaderConstants.Param.PAGE, page }
             };
             var url = string.Format(ClanScoresPageEndpoint, mapHash, mapDiff, mapMode, NetworkingUtils.ToHttpParams(query));
 
-            Instance.Send(new ClanScoreRequestDescriptor(url));
+            instance.Send(new ClanScoreRequestDescriptor(url));
         }
 
         #endregion

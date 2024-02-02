@@ -7,6 +7,7 @@
         Unrankable,
         Outdated,
         Event,
+        OST,
         Unknown,
     }
 }

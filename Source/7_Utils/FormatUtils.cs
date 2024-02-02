@@ -39,6 +39,7 @@ namespace BeatLeader {
                 4 => RankedStatus.Unrankable,
                 5 => RankedStatus.Outdated,
                 6 => RankedStatus.Event,
+                7 => RankedStatus.OST,
                 _ => RankedStatus.Unknown
             };
         }

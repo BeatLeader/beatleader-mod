@@ -513,7 +513,7 @@ namespace BeatLeader.Models.Replay {
             stream.Write(quaternion.w);
         }
     }
-    static class ReplayDecoder
+    public static class ReplayDecoder
     {
         public static bool TryDecodeReplayInfo(byte[] buffer, out ReplayInfo? info) {
             try {

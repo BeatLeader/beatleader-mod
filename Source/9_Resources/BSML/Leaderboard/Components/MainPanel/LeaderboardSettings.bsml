@@ -1,10 +1,14 @@
-<vertical id="container" pref-width="42" pad="2" spacing="0.4" vertical-fit="PreferredSize" bg="round-rect-panel">
-    <text text="&lt;u&gt;Leaderboard Settings" font-size="4.0" font-color="#999999" align="Center"/>
-    <toggle-setting text="Avatar" value="avatar-mask-value" apply-on-change="true"/>
-    <toggle-setting text="Country" value="country-mask-value" apply-on-change="true"/>
-    <toggle-setting text="Clans" value="clans-mask-value" apply-on-change="true"/>
-    <toggle-setting text="Score" value="score-mask-value" apply-on-change="true"/>
-    <toggle-setting text="Time" value="time-mask-value" apply-on-change="true"/>
-    <toggle-setting text="Mistakes" value="mistakes-mask-value" apply-on-change="true"/>
-    <toggle-setting text="Pauses" value="pauses-mask-value" apply-on-change="true"/>
+﻿<vertical id="container" pad="2" spacing="1" vertical-fit="PreferredSize" bg="round-rect-panel">
+    <text text="&lt;bll&gt;ls-leaderboard-settings&lt;/bll&gt;" underlined="true" font-size="4.0" font-color="#999999" align="Center"/>
+    
+    <vertical pref-width="42" spacing="0.4" vertical-fit="PreferredSize">
+        <toggle-setting text="&lt;bll&gt;ls-avatar&lt;/bll&gt;" value="avatar-mask-value" apply-on-change="true"/>
+        <toggle-setting text="&lt;bll&gt;ls-country&lt;/bll&gt;" value="country-mask-value" apply-on-change="true"/>
+        <toggle-setting text="&lt;bll&gt;ls-clans&lt;/bll&gt;" value="clans-mask-value" apply-on-change="true"/>
+        <toggle-setting text="&lt;bll&gt;ls-score&lt;/bll&gt;" value="score-mask-value" apply-on-change="true"/>
+        <toggle-setting text="&lt;bll&gt;ls-relative-date&lt;/bll&gt;" value="time-mask-value" apply-on-change="true"/>
+        <toggle-setting text="&lt;bll&gt;ls-mistakes&lt;/bll&gt;" value="mistakes-mask-value" apply-on-change="true"/>
+        <toggle-setting text="&lt;bll&gt;ls-pauses&lt;/bll&gt;" value="pauses-mask-value" apply-on-change="true"/>
+        <toggle-setting text="Clan Capture" value="clan-capture-value" apply-on-change="true"/>
+    </vertical>
 </vertical>

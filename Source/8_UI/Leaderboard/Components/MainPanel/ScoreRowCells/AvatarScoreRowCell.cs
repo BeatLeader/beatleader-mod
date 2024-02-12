@@ -20,9 +20,24 @@ namespace BeatLeader.Components {
 
         #region Implementation
 
-        public void SetPlayer(Player player) {
-            _playerAvatar.SetPlayer(player);
-            isEmpty = false;
+        public struct Data {
+            public readonly string url;
+            public readonly ProfileSettings? profileSettings;
+
+            public Data(string url, ProfileSettings? profileSettings) {
+                this.url = url;
+                this.profileSettings = profileSettings;
+            }
+        }
+
+        public override void SetValue(object? value) {
+            if (value is Data data) {
+                _playerAvatar.SetAvatar(data.url, data.profileSettings);
+                isEmpty = false;
+            } else {
+                _playerAvatar.SetAvatar(null, null);
+                isEmpty = true;
+            }
         }
 
         public override void SetAlpha(float value) {

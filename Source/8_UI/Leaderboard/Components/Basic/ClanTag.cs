@@ -1,4 +1,4 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using TMPro;
@@ -20,12 +20,12 @@ namespace BeatLeader.Components {
         #region Interaction
 
         public void Clear() {
-            _container.gameObject.SetActive(false);
+            container.gameObject.SetActive(false);
         }
 
         public void SetValue(Clan value) {
             _textComponent.text = FormatUtils.FormatClanTag(value.tag);
-            _container.gameObject.SetActive(true);
+            container.gameObject.SetActive(true);
             SetColor(value.color);
             SetPrefWidth();
         }
@@ -73,7 +73,7 @@ namespace BeatLeader.Components {
         #region Container
 
         [UIComponent("container"), UsedImplicitly]
-        private RectTransform _container;
+        public RectTransform container;
 
         [UIComponent("container"), UsedImplicitly]
         private LayoutElement _containerLayoutElement;

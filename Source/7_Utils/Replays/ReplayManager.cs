@@ -4,7 +4,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using JetBrains.Annotations;
@@ -34,7 +33,7 @@ namespace BeatLeader.Utils {
 
         public IReadOnlyList<IReplayHeader> Replays => _replays;
 
-        private readonly HashSet<(string, string)> _headerValuesCache = new();
+        private readonly HashSet<(string, long)> _headerValuesCache = new();
         private readonly List<IReplayHeader> _temporaryReplays = new();
         private readonly List<IReplayHeader> _replays = new();
         private bool _replaysWereNeverLoaded = true;
@@ -69,7 +68,7 @@ namespace BeatLeader.Utils {
             ReplayHeadersCache.SaveCache();
         }
 
-        private IReplayHeader? LoadReplay(HashSet<(string, string)> cache, string path) {
+        private IReplayHeader? LoadReplay(HashSet<(string, long)> cache, string path) {
             var cacheLoadSucceed = ReplayHeadersCache.TryGetInfoByPath(path, out var info);
             if (!cacheLoadSucceed) {
                 if (TryReadReplayInfo(path, out var replayInfo)) SaturateReplayInfo(replayInfo!, path);
@@ -95,10 +94,8 @@ namespace BeatLeader.Utils {
         public IReplayHeader? CachedReplay { get; private set; }
 
         public async Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
-            var isOstLevel = !MapEnhancer.previewBeatmapLevel
-                .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
             CachedReplay = null;
-            if (!ValidatePlay(replay, playEndData, isOstLevel)) {
+            if (!ValidatePlay(replay, playEndData)) {
                 Plugin.Log.Info("Validation failed, replay will not be saved!");
                 return null;
             }
@@ -146,17 +143,6 @@ namespace BeatLeader.Utils {
             replay.info.levelEndType = data.EndType;
         }
 
-        private static bool ValidatePlay(Replay replay, PlayEndData endData, bool isOstLevel) {
-            var options = ConfigFileData.Instance.ReplaySavingOptions;
-            return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
-                    LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
-                    LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
-                    LevelEndType.Clear => true,
-                    _ => false
-                } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0)
-                && (options.HasFlag(ReplaySaveOption.OST) || !isOstLevel);
-        }
-
         #endregion
 
         #region ReplayFileManager Save & Delete
@@ -194,6 +180,17 @@ namespace BeatLeader.Utils {
                 info.mode = mode.Remove(idx, mode.Length - idx);
             }
             if (path is not null && Path.GetFileName(path).Contains("exit")) info.levelEndType = LevelEndType.Quit;
+        }
+
+        [Pure]
+        internal static bool ValidatePlay(Replay replay, PlayEndData endData) {
+            var options = ConfigFileData.Instance.ReplaySavingOptions;
+            return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
+                    LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
+                    LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
+                    LevelEndType.Clear => true,
+                    _ => false
+                } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0);
         }
 
         [Pure]

@@ -1,9 +1,59 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
     public class SmoothHoverController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+        #region Factory Methods
+
+        public static SmoothHoverController Custom(GameObject gameObject, StateChangedDelegate handler) {
+            var component = gameObject.AddComponent<SmoothHoverController>();
+            component.AddStateListener(handler);
+            return component;
+        }
+
+        public static SmoothHoverController Scale(GameObject gameObject, float defaultScale, float hoverScale) {
+            return Scale(gameObject, gameObject.transform, defaultScale, hoverScale);
+        }
+
+        public static SmoothHoverController Scale(GameObject gameObject, Transform target, float defaultScale, float hoverScale) {
+            var component = gameObject.AddComponent<SmoothHoverController>();
+            component.AddStateListener(((hovered, progress) => {
+                var scale = Mathf.Lerp(defaultScale, hoverScale, progress);
+                target.localScale = new Vector3(scale, scale, scale);
+            }));
+            return component;
+        }
+
+        #endregion
+
+        #region OnStateChanged
+
+        public delegate void StateChangedDelegate(bool hovered, float progress);
+
+        //TODO: rename to StateChangedEvent
+        private event StateChangedDelegate? OnStateChanged;
+
+        public void AddStateListener(StateChangedDelegate handler) {
+            OnStateChanged += handler;
+            handler?.Invoke(IsHovered, Progress);
+        }
+
+        public void RemoveStateListener(StateChangedDelegate handler) {
+            OnStateChanged -= handler;
+        }
+
+        private void NotifyStateChanged() {
+            OnStateChanged?.Invoke(IsHovered, Progress);
+        }
+
+        #endregion
+
+        #region Logic
+
+
+        public bool IsHovered { get; private set; }
+        public float Progress { get; private set; }
+        
         public bool ForceKeepHovered {
             get => _forceKeepHovered;
             set {
@@ -12,14 +62,9 @@ namespace BeatLeader.Components {
                 _set = false;
             }
         }
-
-        public bool IsHovered { get; private set; }
-        public float Progress { get; private set; }
-
-        public event Action<bool, float>? HoverStateChangedEvent;
-
+        
         public float lerpCoefficient = 10.0f;
-
+        
         private bool _forceKeepHovered;
         private float _targetValue;
         private float _alternativeTargetValue;
@@ -29,7 +74,7 @@ namespace BeatLeader.Components {
             IsHovered = false;
             Progress = _targetValue = 0.0f;
             _set = false;
-            HoverStateChangedEvent?.Invoke(IsHovered, Progress);
+            NotifyStateChanged();
         }
 
         private void Update() {
@@ -42,8 +87,12 @@ namespace BeatLeader.Components {
                 Progress = Mathf.Lerp(Progress, _targetValue, Time.deltaTime * lerpCoefficient);
             }
 
-            HoverStateChangedEvent?.Invoke(IsHovered, Progress);
+            NotifyStateChanged();
         }
+
+        #endregion
+
+        #region Events
 
         public void OnPointerEnter(PointerEventData eventData) {
             if (ForceKeepHovered) {
@@ -64,5 +113,7 @@ namespace BeatLeader.Components {
             _targetValue = 0f;
             _set = false;
         }
+
+        #endregion
     }
 }

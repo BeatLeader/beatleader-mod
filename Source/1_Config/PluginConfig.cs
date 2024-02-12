@@ -7,11 +7,9 @@ namespace BeatLeader {
 
         public static event Action<bool> OnEnabledChangedEvent;
 
-        public static bool Enabled
-        {
+        public static bool Enabled {
             get => ConfigFileData.Instance.Enabled;
-            set
-            {
+            set {
                 if (ConfigFileData.Instance.Enabled == value) return;
                 ConfigFileData.Instance.Enabled = value;
                 OnEnabledChangedEvent?.Invoke(value);
@@ -48,8 +46,20 @@ namespace BeatLeader {
             }
         }
 
-        public static ScoreRowCellType GetLeaderboardTableMask(bool includePP) {
-            return includePP ? LeaderboardTableMask : LeaderboardTableMask & ~ScoreRowCellType.PerformancePoints;
+        #endregion
+
+        #region LeaderboardDisplaySettings
+
+        public static event Action<LeaderboardDisplaySettings> LeaderboardDisplaySettingsChangedEvent;
+
+        public static LeaderboardDisplaySettings LeaderboardDisplaySettings
+        {
+            get => ConfigFileData.Instance.LeaderboardDisplaySettings;
+            set
+            {
+                ConfigFileData.Instance.LeaderboardDisplaySettings = value;
+                LeaderboardDisplaySettingsChangedEvent?.Invoke(value);
+            }
         }
 
         #endregion
@@ -60,8 +70,7 @@ namespace BeatLeader {
 
         public static ReplayerSettings ReplayerSettings {
             get => ConfigFileData.Instance.ReplayerSettings;
-            set
-            {
+            set {
                 ConfigFileData.Instance.ReplayerSettings = value;
                 ReplayerSettingsChangedEvent?.Invoke(value);
             }
@@ -69,6 +78,15 @@ namespace BeatLeader {
 
         public static void NotifyReplayerSettingsChanged() {
             ReplayerSettingsChangedEvent?.Invoke(ReplayerSettings);
+        }
+
+        #endregion
+
+        #region Language
+
+        public static BLLanguage SelectedLanguage {
+            get => ConfigFileData.Instance.SelectedLanguage;
+            set => ConfigFileData.Instance.SelectedLanguage = value;
         }
 
         #endregion

@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
-using Transform = UnityEngine.Transform;
 
 namespace BeatLeader.Components {
     internal class ScoreRow : ReeUIComponentV2 {
@@ -149,14 +148,14 @@ namespace BeatLeader.Components {
         #region Setup
 
         private void SetupFormatting() {
-            _rankCell.Setup(o => FormatUtils.FormatRank((int) o, false));
-            _usernameCell.Setup(o => FormatUtils.FormatUserName((string) o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis, 3.4f, false);
-            _modifiersCell.Setup(o => FormatUtils.FormatModifiers((string) o), TextAlignmentOptions.Right, TextOverflowModes.Overflow, 2.4f);
-            _accuracyCell.Setup(o => FormatUtils.FormatAcc((float) o));
-            _ppCell.Setup(o => FormatUtils.FormatPP((float) o));
-            _scoreCell.Setup(o => FormatUtils.FormatScore((int) o), TextAlignmentOptions.Right);
-            _timeCell.Setup(o => FormatUtils.FormatTimeset((string) o), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.4f);
-            _pausesCell.Setup(o => FormatUtils.FormatPauses((int) o));
+            _rankCell.Setup(o => FormatUtils.FormatRank((int)o, false));
+            _usernameCell.Setup(o => FormatUtils.FormatUserName((string)o), TextAlignmentOptions.Left, TextOverflowModes.Ellipsis, 3.4f, false);
+            _modifiersCell.Setup(o => FormatUtils.FormatModifiers((string)o), TextAlignmentOptions.Right, TextOverflowModes.Overflow, 2.4f);
+            _accuracyCell.Setup(o => FormatUtils.FormatAcc((float)o));
+            _ppCell.Setup(o => FormatUtils.FormatPP((float)o));
+            _scoreCell.Setup(o => FormatUtils.FormatScore((int)o), TextAlignmentOptions.Right);
+            _timeCell.Setup(o => FormatUtils.FormatTimeset((string)o, true), TextAlignmentOptions.Center, TextOverflowModes.Overflow, 2.4f);
+            _pausesCell.Setup(o => FormatUtils.FormatPauses((int)o));
         }
 
         public void SetupLayout(ScoresTableLayoutHelper layoutHelper) {
@@ -170,8 +169,8 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnInitialize() {
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdatePlayer;
-            
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateCells;
+
             SetupFormatting();
             SetupBackground();
             SetupUnderline();
@@ -179,67 +178,68 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdatePlayer;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateCells;
         }
 
         private void OnEnable() {
-            _currentAlpha = _targetAlpha;
-            _currentOffset = _targetOffset;
-            _updateRequired = true;
+            _state = AnimationState.Fix;
         }
 
         #endregion
 
         #region Interaction
 
-        private Score _score;
+        private IScoreRowContent? _score;
 
-        public void SetScore(Score score) {
+        public void SetContent(IScoreRowContent score) {
             _score = score;
-
-            _rankCell.SetValue(score.rank);
-            _modifiersCell.SetValue(score.modifiers);
-            _accuracyCell.SetValue(score.accuracy);
-            _ppCell.SetValue(score.pp);
-            _scoreCell.SetValue(score.modifiedScore);
-            _timeCell.SetValue(score.timeSet);
-            _mistakesCell.SetValues(score.missedNotes, score.badCuts, score.bombCuts, score.wallsHit);
-            _pausesCell.SetValue(score.pauses);
-            Clickable = true;
-
-            UpdatePlayer();
+            UpdateCells();
         }
 
-        private void UpdatePlayer() {
-            if (_score == null) return;
-            var player = HiddenPlayersCache.ModifyPlayer(_score.player);
-            
-            SetHighlight(ProfileManager.IsCurrentPlayer(player?.id));
-            
-            var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
-            ApplyColorScheme(playerRoles);
-
-            _avatarCell.SetPlayer(player);
-            _countryCell.SetValue(player.country);
-            _usernameCell.SetValue(player.name);
-            _clansCell.SetValues(player.clans ?? Array.Empty<Clan>());
-        }
-
-        public void ClearScore() {
+        public void ClearContent() {
             _score = null;
-            foreach (var cell in _cells.Values) {
-                cell.MarkEmpty();
+            UpdateCells();
+        }
+
+        private void UpdateCells() {
+            switch (_score) {
+                case Score playerScore: {
+                    var player = HiddenPlayersCache.ModifyPlayer(playerScore.player);
+                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
+
+                    Clickable = true;
+                    SetHighlight(ProfileManager.IsCurrentPlayer(player.id));
+                    ApplyColorScheme(playerRoles);
+                    break;
+                }
+                case ClanScore clanScore: {
+                    Clickable = true;
+                    SetHighlight(ProfileManager.IsCurrentPlayerInClan(clanScore.clan));
+                    ApplyColorScheme(Array.Empty<PlayerRole>());
+                    break;
+                }
+                default: {
+                    foreach (var cell in _cells.Values) {
+                        cell.MarkEmpty();
+                    }
+
+                    Clickable = false;
+                    return;
+                }
             }
 
-            Clickable = false;
+            foreach (var pair in _cells) {
+                if (_score.ContainsValue(pair.Key)) pair.Value.SetValue(_score.GetValue(pair.Key));
+                else pair.Value.MarkEmpty();
+            }
         }
 
         public void SetActive(bool value) {
-            IsActive = value;
+            Content.gameObject.SetActive(value);
         }
 
         public void SetHierarchyIndex(int value) {
-            _rootNode.SetSiblingIndex(value);
+            Content.SetSiblingIndex(value);
         }
 
         #endregion
@@ -253,39 +253,58 @@ namespace BeatLeader.Components {
         private float _targetAlpha;
         private float _currentOffset;
         private float _targetOffset;
-        private bool _updateRequired;
+
+        private AnimationState _state = AnimationState.Fix;
+
+        private enum AnimationState {
+            Idle,
+            Lerp,
+            Fix
+        }
 
         public void FadeIn() {
             _targetAlpha = 1.0f;
             _currentOffset = FadeFromOffset;
             _targetOffset = 0.0f;
+            _state = AnimationState.Lerp;
         }
 
         public void FadeOut() {
             _targetAlpha = 0.0f;
             _targetOffset = FadeToOffset;
+            _state = AnimationState.Lerp;
         }
 
         private void LateUpdate() {
+            switch (_state) {
+                case AnimationState.Lerp:
+                    _state = ProgressLerpState();
+                    ApplyVisualChanges();
+                    break;
+                case AnimationState.Fix:
+                    _state = ProgressFixState();
+                    ApplyVisualChanges();
+                    break;
+                case AnimationState.Idle:
+                default: return;
+            }
+        }
+
+        private AnimationState ProgressLerpState() {
             var t = Time.deltaTime * FadeSpeed;
-            if (LerpOffset(t)) _updateRequired = true;
-            if (LerpAlpha(t)) _updateRequired = true;
-            if (!_updateRequired) return;
-
-            ApplyVisualChanges();
-            _updateRequired = false;
-        }
-
-        private bool LerpOffset(float t) {
-            if (Math.Abs(_currentOffset - _targetOffset) < 1e-6f) return false;
-            _currentOffset = Mathf.Lerp(_currentOffset, _targetOffset, t);
-            return true;
-        }
-
-        private bool LerpAlpha(float t) {
-            if (Math.Abs(_currentAlpha - _targetAlpha) < 1e-6f) return false;
             _currentAlpha = Mathf.Lerp(_currentAlpha, _targetAlpha, t);
-            return true;
+            _currentOffset = Mathf.Lerp(_currentOffset, _targetOffset, t);
+
+            var alphaSet = Math.Abs(_currentAlpha - _targetAlpha) < 1e-4f;
+            var offsetSet = Math.Abs(_currentOffset - _targetOffset) < 1e-4f;
+            return offsetSet && alphaSet ? AnimationState.Fix : AnimationState.Lerp;
+        }
+
+        private AnimationState ProgressFixState() {
+            _currentAlpha = _targetAlpha;
+            _currentOffset = _targetOffset;
+            ApplyVisualChanges();
+            return AnimationState.Idle;
         }
 
         private void ApplyVisualChanges() {
@@ -301,13 +320,6 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region RootNode
-
-        [UIComponent("root-node"), UsedImplicitly]
-        private Transform _rootNode;
-
-        #endregion
-
         #region HorizontalOffset
 
         private float _horizontalOffset;
@@ -318,22 +330,6 @@ namespace BeatLeader.Components {
             set {
                 if (_horizontalOffset.Equals(value)) return;
                 _horizontalOffset = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        #endregion
-
-        #region IsActive
-
-        private bool _isActive = true;
-
-        [UIValue("is-active"), UsedImplicitly]
-        private bool IsActive {
-            get => _isActive;
-            set {
-                if (_isActive.Equals(value)) return;
-                _isActive = value;
                 NotifyPropertyChanged();
             }
         }
@@ -404,8 +400,12 @@ namespace BeatLeader.Components {
 
         [UIAction("info-on-click"), UsedImplicitly]
         private void InfoOnClick() {
-            if (_score == null) return;
-            LeaderboardEvents.NotifyScoreInfoButtonWasPressed(_score);
+            switch (_score) {
+                case Score songScore: {
+                    LeaderboardEvents.NotifyScoreInfoButtonWasPressed(songScore);
+                    break;
+                }
+            }
         }
 
         private bool _clickable;

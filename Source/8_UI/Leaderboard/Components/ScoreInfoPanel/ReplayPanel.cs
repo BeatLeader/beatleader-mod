@@ -72,7 +72,7 @@ namespace BeatLeader.Components {
         #region StartReplay
 
         private void StartReplay(Replay replay) {
-            _ = ReplayerMenuLoader.Instance!.StartReplayAsync(replay, _score!.player);
+            _ = ReplayerMenuLoader.Instance!.StartReplayFromLeaderboardAsync(replay, _score!.player);
         }
 
         #endregion
@@ -152,7 +152,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshPlayButtonText(bool downloading) {
-            _playButtonText.text = downloading ? "Cancel" : "Watch Replay";
+            _playButtonText.text = downloading ? "<bll>ls-cancel</bll>" : "<bll>ls-watch-replay</bll>";
         }
 
         private void SetPlayButtonInteractable(bool interactable) {

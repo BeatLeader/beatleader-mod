@@ -9,8 +9,9 @@ namespace BeatLeader {
     public static class AppInstallerPatch {
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static void Postfix(PCAppInit __instance) {
+        private static void Postfix(PCAppInit __instance, MainSettingsModelSO ____mainSettingsModel) {
             try {
+                BLLocalization.Initialize(____mainSettingsModel);
                 var container = __instance.GetContainer();
                 OnAppInitInstaller.Install(container);
             } catch (Exception ex) {

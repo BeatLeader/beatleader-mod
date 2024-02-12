@@ -36,7 +36,14 @@ namespace BeatLeader.DataManager {
 
             void OnSuccess(HashLeaderboardsInfoResponse result) {
                 foreach (var leaderboardInfo in result.leaderboards) {
-                    LeaderboardsCache.PutLeaderboardInfo(result.song, leaderboardInfo.id, leaderboardInfo.difficulty, leaderboardInfo.qualification);
+                    LeaderboardsCache.PutLeaderboardInfo(
+                        result.song,
+                        leaderboardInfo.id,
+                        leaderboardInfo.difficulty,
+                        leaderboardInfo.qualification,
+                        leaderboardInfo.clan,
+                        leaderboardInfo.clanRankingContested
+                        );
                 }
 
                 LeaderboardsCache.NotifyCacheWasChanged();
@@ -64,7 +71,14 @@ namespace BeatLeader.DataManager {
 
             void OnSuccess(Paged<MassLeaderboardsInfoResponse> result) {
                 foreach (var response in result.data) {
-                    LeaderboardsCache.PutLeaderboardInfo(response.song, response.id, response.difficulty, response.qualification);
+                    LeaderboardsCache.PutLeaderboardInfo(
+                        response.song,
+                        response.id,
+                        response.difficulty,
+                        response.qualification,
+                        response.clan,
+                        response.clanRankingContested
+                        );
                 }
 
                 totalPages = Mathf.CeilToInt((float) result.metadata.total / result.metadata.itemsPerPage);

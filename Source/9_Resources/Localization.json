@@ -1,0 +1,1159 @@
+{
+"Tokens": [
+    {
+        "Token": "ls-leaderboard-settings",
+        "Translations": {
+            "English": "Leaderboard Settings",
+            "Japanese": "リーダーボードの設定",
+            "Russian": "Настройки Лидерборды",
+            "Chinese": "排行榜设置",
+            "Korean": "리더보드 설정",
+            "French": "Paramètres du classement",
+            "German": "Ranglisten-Einstellungen",
+            "Spanish": "Configuración de la clasificación",
+            "Norwegian": "Leaderboard-innstillinger",
+            "Polish": "Ustawienia wyników",
+            "Swedish": "Topplistoinställningar",
+            "Italian": "Impostazioni della Leaderboard"
+        }
+    },
+    {
+        "Token": "ls-avatar",
+        "Translations": {
+            "English": "Avatar",
+            "Japanese": "アバター",
+            "Russian": "Аватар",
+            "Chinese": "头像",
+            "Korean": "아바타",
+            "French": "Avatar",
+            "German": "Avatar",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Awatar",
+            "Swedish": "Avatar",
+            "Italian": "Avatar"
+        }
+    },
+    {
+        "Token": "ls-country",
+        "Translations": {
+            "English": "Country",
+            "Japanese": "国",
+            "Russian": "Страна",
+            "Chinese": "国家",
+            "Korean": "국가",
+            "French": "Pays",
+            "German": "Land",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Kraj",
+            "Swedish": "Land",
+            "Italian": "Paese"
+        }
+    },
+    {
+        "Token": "ls-clans",
+        "Translations": {
+            "English": "Clans",
+            "Japanese": "クラン",
+            "Russian": "Кланы",
+            "Chinese": "公会",
+            "Korean": "클랜",
+            "French": "Clans",
+            "German": "Clans",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Klany",
+            "Swedish": "Klaner",
+            "Italian": "Clan"
+        }
+    },
+    {
+        "Token": "ls-score",
+        "Translations": {
+            "English": "Score",
+            "Japanese": "スコア",
+            "Russian": "Очки",
+            "Chinese": "分数",
+            "Korean": "점수",
+            "French": "Score",
+            "German": "Punkte",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Wynik",
+            "Swedish": "Poäng",
+            "Italian": "Punteggio"
+        }
+    },
+    {
+        "Token": "ls-accuracy",
+        "Translations": {
+            "English": "Accuracy",
+            "Japanese": "精度",
+            "Russian": "Точность",
+            "Chinese": "准确度",
+            "Korean": "정확도",
+            "French": "Précision",
+            "German": "Präzision",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Celność",
+            "Swedish": "Precision",
+            "Italian": "Accuratezza"
+        }
+    },
+    {
+        "Token": "ls-relative-date",
+        "Translations": {
+            "English": "Time",
+            "Japanese": "時間",
+            "Russian": "Время",
+            "Chinese": "时间",
+            "Korean": "플레이 날짜",
+            "French": "Temps",
+            "German": "Zeit",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Data",
+            "Swedish": "Tid",
+            "Italian": "Tempo"
+        }
+    },
+    {
+        "Token": "ls-song-time",
+        "Translations": {
+            "English": "Time",
+            "Japanese": "時間",
+            "Russian": "Время",
+            "Chinese": "时间",
+            "Korean": "시간",
+            "French": "Temps",
+            "German": "Zeitpunkt",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Czas",
+            "Swedish": "Tid",
+            "Italian": "Tempo"
+        }
+    },
+    {
+        "Token": "ls-mistakes",
+        "Translations": {
+            "English": "Mistakes",
+            "Japanese": "全体ミス",
+            "Russian": "Ошибки",
+            "Chinese": "错误",
+            "Korean": "실수",
+            "French": "Fautes",
+            "German": "Fehler",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Błędy",
+            "Swedish": "Misstag",
+            "Italian": "Errori"
+        }
+    },
+    {
+        "Token": "ls-pauses",
+        "Translations": {
+            "English": "Pauses",
+            "Japanese": "ポーズ",
+            "Russian": "Паузы",
+            "Chinese": "暂停",
+            "Korean": "퍼즈",
+            "French": "Pauses",
+            "German": "Pausen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Pauzy",
+            "Swedish": "Pauser",
+            "Italian": "Pause"
+        }
+    },
+    {
+        "Token": "ls-modifiers",
+        "Translations": {
+            "English": "Modifiers",
+            "Japanese": "モディファイア",
+            "Russian": "Модификаторы",
+            "Chinese": "修改器",
+            "Korean": "모디파이어",
+            "French": "Modificateurs",
+            "German": "Modifikatoren",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Modyfikatory",
+            "Swedish": "Modifierare",
+            "Italian": "Modificatori"
+        }
+    },
+    {
+        "Token": "ls-misses",
+        "Translations": {
+            "English": "Misses",
+            "Japanese": "ミス",
+            "Russian": "Промахи",
+            "Chinese": "未命中",
+            "Korean": "미스",
+            "French": "Note manqués",
+            "German": "Verpasste Noten",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Chybienia",
+            "Swedish": "Missar",
+            "Italian": "Misses"
+        }
+    },
+    {
+        "Token": "ls-bad-cuts",
+        "Translations": {
+            "English": "Bad cuts",
+            "Japanese": "バッドカット",
+            "Russian": "Ошибки",
+            "Chinese": "坏切割",
+            "Korean": "배드 컷",
+            "French": "Mauvaise coupes",
+            "German": "Schlechte Schläge",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Błędne cięcia",
+            "Swedish": "Bad cuts",
+            "Italian": "Bad cuts"
+        }
+    },
+    {
+        "Token": "ls-bomb-cuts",
+        "Translations": {
+            "English": "Bomb cuts",
+            "Japanese": "ボムカット",
+            "Russian": "Бомбы",
+            "Chinese": "炸弹切割",
+            "Korean": "폭탄",
+            "French": "Bombes coupées",
+            "German": "Getroffene Bomben",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Uderzenia bomb",
+            "Swedish": "Bombträffar",
+            "Italian": "Bombe colpite"
+        }
+    },
+    {
+        "Token": "ls-walls-hit",
+        "Translations": {
+            "English": "Walls hit",
+            "Japanese": "壁ヒット",
+            "Russian": "Стены",
+            "Chinese": "撞墙",
+            "Korean": "벽에 부딪힘",
+            "French": "Murs touchés",
+            "German": "Getroffene Wände",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Uderzenia ścian",
+            "Swedish": "Väggträffar",
+            "Italian": "Muri colpiti"
+        }
+    },
+    {
+        "Token": "ls-user-platform",
+        "Translations": {
+            "English": "Platform",
+            "Japanese": "プラットフォーム",
+            "Russian": "Платформа",
+            "Chinese": "平台",
+            "Korean": "플랫폼",
+            "French": "Plateforme",
+            "German": "Plattform",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Platforma",
+            "Swedish": "Platform",
+            "Italian": "Piattaforma"
+        }
+    },
+    {
+        "Token": "ls-unknown",
+        "Translations": {
+            "English": "Unknown",
+            "Japanese": "不明",
+            "Russian": "Неизвестно",
+            "Chinese": "未知",
+            "Korean": "알수없음",
+            "French": "Inconnue",
+            "German": "Unbekannt",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Nieznana",
+            "Swedish": "Okänd",
+            "Italian": "Sconosciuta"
+        }
+    },
+    {
+        "Token": "ls-game",
+        "Translations": {
+            "English": "Game",
+            "Japanese": "ゲーム",
+            "Russian": "Игра",
+            "Chinese": "游戏",
+            "Korean": "게임",
+            "French": "Jeu",
+            "German": "Spiel",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Gra",
+            "Swedish": "Spel",
+            "Italian": "Gioco"
+        }
+    },
+    {
+        "Token": "ls-mod",
+        "Translations": {
+            "English": "Mod",
+            "Japanese": "MOD",
+            "Russian": "Мод",
+            "Chinese": "模组",
+            "Korean": "Mod",
+            "French": "Mod",
+            "German": "Mod",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Mod",
+            "Swedish": "Mod",
+            "Italian": "Mod"
+        }
+    },
+    {
+        "Token": "ls-user-height",
+        "Translations": {
+            "English": "Height",
+            "Japanese": "身長",
+            "Russian": "Рост",
+            "Chinese": "身高",
+            "Korean": "신장",
+            "French": "Taille",
+            "German": "Höhe",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Wzrost",
+            "Swedish": "Längd",
+            "Italian": "Altezza"
+        }
+    },
+    {
+        "Token": "ls-average-hmd-position",
+        "Translations": {
+            "English": "Average HMD position",
+            "Japanese": "HMDの平均位置",
+            "Russian": "Средняя позиция шлема",
+            "Chinese": "平均头显位置",
+            "Korean": "평균 HMD 위치",
+            "French": "Position moyenne du casque",
+            "German": "Durchschnittliche HMD Position",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Średnia wysokość HMD",
+            "Swedish": "Genomsnittlig HMD position",
+            "Italian": "Posizione media dell'HMD"
+        }
+    },
+    {
+        "Token": "ls-update-mod-button",
+        "Translations": {
+            "English": "Update",
+            "Japanese": "アップデート",
+            "Russian": "Обновить",
+            "Chinese": "更新",
+            "Korean": "업데이트",
+            "French": "Mettre à jour",
+            "German": "Aktualisieren",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Aktualizuj",
+            "Swedish": "Updatera",
+            "Italian": "Aggiorna"
+        }
+    },
+    {
+        "Token": "ls-oculus-signup-button",
+        "Translations": {
+            "English": "Sign up",
+            "Japanese": "サインアップ",
+            "Russian": "Создать",
+            "Chinese": "注册",
+            "Korean": "회원가입",
+            "French": "S'inscrire",
+            "German": "Registrieren",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Zarejestruj się",
+            "Swedish": "Registrera",
+            "Italian": "Iscriviti"
+        }
+    },
+    {
+        "Token": "ls-oculus-signup-hint",
+        "Translations": {
+            "English": "Sign up to use website",
+            "Japanese": "ウェブサイト登録",
+            "Russian": "Необходим аккаунт для вебсайта",
+            "Chinese": "注册以使用网站",
+            "Korean": "웹사이트를 이용하려면 가입하세요",
+            "French": "Inscrivez-vous pour utiliser le site web",
+            "German": "Registrieren sie sich, um die Website zu nutzen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Zarejestruj się, aby korzystać ze strony",
+            "Swedish": "Registrera dig för att använda hemsidan",
+            "Italian": "Iscriviti per utilizzare il sito web"
+        }
+    },
+    {
+        "Token": "ls-mod-is-outdated",
+        "Translations": {
+            "English": "Mod version is outdated",
+            "Japanese": "MODのバージョンが古いです",
+            "Russian": "Версия мода устарела",
+            "Chinese": "有更新版 Mod",
+            "Korean": "새로운 모드 버전이 존재합니다",
+            "French": "Cette version du Mod n'est pas à jour",
+            "German": "Mod ist nicht aktuell",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Mod jest w przestarzałej wersji",
+            "Swedish": "Modversion är utdaterad",
+            "Italian": "La versione della mod è obsoleta"
+        }
+    },
+    {
+        "Token": "ls-mod-is-up-to-date",
+        "Translations": {
+            "English": "Mod version is up to date",
+            "Japanese": "MODバージョンは最新です",
+            "Russian": "Версия мода актуальная",
+            "Chinese": "Mod 版本已是最新版",
+            "Korean": "모드 버전이 최신 상태입니다",
+            "French": "Cette version du Mod est à jour",
+            "German": "Mod ist aktuell",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Mod jest aktualny",
+            "Swedish": "Modversion är aktuell",
+            "Italian": "La mod è aggiornata"
+        }
+    },
+    {
+        "Token": "ls-playlists",
+        "Translations": {
+            "English": "Playlists",
+            "Japanese": "プレイリスト",
+            "Russian": "Плейлисты",
+            "Chinese": "播放列表",
+            "Korean": "플레이리스트",
+            "French": "Playlists",
+            "German": "Playlists",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Playlisty",
+            "Swedish": "Spellistor",
+            "Italian": "Playlist"
+        }
+    },
+    {
+        "Token": "ls-bl-community",
+        "Translations": {
+            "English": "BeatLeader community",
+            "Japanese": "BeatLeaderコミュニティ",
+            "Russian": "Сообщество BeatLeader",
+            "Chinese": "BeatLeader 社区",
+            "Korean": "BeatLeader 커뮤니티",
+            "French": "Communauté BeatLeader",
+            "German": "BeatLeader Community",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Społeczność BeatLeader",
+            "Swedish": "BeatLeader Community",
+            "Italian": "Comunità di BeatLeader"
+        }
+    },
+    {
+        "Token": "ls-add-to-followed",
+        "Translations": {
+            "English": "Follow",
+            "Japanese": "フォロー",
+            "Russian": "Подписаться",
+            "Chinese": "关注",
+            "Korean": "팔로우",
+            "French": "Suivre",
+            "German": "Folgen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Śledź",
+            "Swedish": "Följ",
+            "Italian": "Segui"
+        }
+    },
+    {
+        "Token": "ls-remove-from-followed",
+        "Translations": {
+            "English": "Unfollow",
+            "Japanese": "アンフォロー",
+            "Russian": "Отписаться",
+            "Chinese": "取关",
+            "Korean": "언팔로우",
+            "French": "Ne plus suivre",
+            "German": "Entfolgen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Przestań śledzić",
+            "Swedish": "Sluta följa",
+            "Italian": "Non seguire"
+        }
+    },
+    {
+        "Token": "ls-hide-player",
+        "Translations": {
+            "English": "Hide player",
+            "Japanese": "プレーヤーを非表示",
+            "Russian": "Скрыть игрока",
+            "Chinese": "隐藏玩家",
+            "Korean": "플레이어 숨기기",
+            "French": "Cacher ce joueur",
+            "German": "Spieler ausblenden",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Ukryj gracza",
+            "Swedish": "Göm spelare",
+            "Italian": "Nascondi giocatore"
+        }
+    },
+    {
+        "Token": "ls-reveal-player",
+        "Translations": {
+            "English": "Reveal player",
+            "Japanese": "プレーヤーを表示",
+            "Russian": "Показать игрока",
+            "Chinese": "查看玩家",
+            "Korean": "플레이어 표시",
+            "French": "Faire apparaître ce joueur",
+            "German": "Spieler einblenden",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Pokaż gracza",
+            "Swedish": "Visa spelare",
+            "Italian": "Mostra giocatore"
+        }
+    },
+    {
+        "Token": "ls-open-profile",
+        "Translations": {
+            "English": "Open profile",
+            "Japanese": "プロフィールを開く",
+            "Russian": "Открыть профиль",
+            "Chinese": "打开个人资料",
+            "Korean": "프로필 열기",
+            "French": "Ouvrir le profile",
+            "German": "Profil öffnen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Otwórz profil",
+            "Swedish": "Öppna profil",
+            "Italian": "Apri profilo"
+        }
+    },
+    {
+        "Token": "ls-global-scope",
+        "Translations": {
+            "English": "Global",
+            "Japanese": "グローバル",
+            "Russian": "Мир",
+            "Chinese": "全球",
+            "Korean": "글로벌",
+            "French": "Mondial",
+            "German": "Weltweit",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Świat",
+            "Swedish": "Global",
+            "Italian": "Globale"
+        }
+    },
+    {
+        "Token": "ls-country-scope",
+        "Translations": {
+            "English": "Country",
+            "Japanese": "国",
+            "Russian": "Страна",
+            "Chinese": "国家",
+            "Korean": "국가",
+            "French": "Pays",
+            "German": "Land",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Kraj",
+            "Swedish": "Land",
+            "Italian": "Paese"
+        }
+    },
+    {
+        "Token": "ls-friends-scope",
+        "Translations": {
+            "English": "Followed",
+            "Japanese": "フォロー",
+            "Russian": "Подписки",
+            "Chinese": "已关注",
+            "Korean": "팔로잉",
+            "French": "Suivis",
+            "German": "Gefolgt",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Śledzeni",
+            "Swedish": "Följer",
+            "Italian": "Seguiti"
+        }
+    },
+    {
+        "Token": "ls-yes",
+        "Translations": {
+            "English": "Yes",
+            "Japanese": "はい",
+            "Russian": "Да",
+            "Chinese": "是",
+            "Korean": "네",
+            "French": "Oui",
+            "German": "Ja",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Tak",
+            "Swedish": "Ja",
+            "Italian": "Sì"
+        }
+    },
+    {
+        "Token": "ls-no",
+        "Translations": {
+            "English": "No",
+            "Japanese": "いいえ",
+            "Russian": "Нет",
+            "Chinese": "否",
+            "Korean": "아니오",
+            "French": "Non",
+            "German": "Nein",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Nie",
+            "Swedish": "Nej",
+            "Italian": "No"
+        }
+    },
+    {
+        "Token": "ls-cancel",
+        "Translations": {
+            "English": "Cancel",
+            "Japanese": "キャンセル",
+            "Russian": "Отмена",
+            "Chinese": "取消",
+            "Korean": "취소",
+            "French": "Annuler",
+            "German": "Abbrechen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Anuluj",
+            "Swedish": "Avbryt",
+            "Italian": "Annulla"
+        }
+    },
+    {
+        "Token": "ls-delete-replay-prompt",
+        "Translations": {
+            "English": "Do you really want to delete the replay?",
+            "Japanese": "本当にリプレイを削除しても構いませんか？",
+            "Russian": "Вы действительно хотите удалить этот реплей?",
+            "Chinese": "你确定要删除回放吗?",
+            "Korean": "정말로 리플레이를 삭제하시겠습니까?",
+            "French": "Voulez-vous vraiment supprimer ce replay ?",
+            "German": "Wollen sie die Aufzeichnung wirklich löschen?",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Czy na pewno chcesz skasować tę powtórkę?",
+            "Swedish": "Vill du verkligen radera denna replay?",
+            "Italian": "Vuoi davvero eliminare il replay?"
+        }
+    },
+    {
+        "Token": "ls-watch-replay",
+        "Translations": {
+            "English": "Watch Replay",
+            "Japanese": "リプレイを見る",
+            "Russian": "Смотреть Запись",
+            "Chinese": "观看回放",
+            "Korean": "리플레이 보기",
+            "French": "Regarder le Replay",
+            "German": "Aufzeichnung anschauen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Obejrzyj powtórkę",
+            "Swedish": "Titta på replay",
+            "Italian": "Guarda Replay"
+        }
+    },
+    {
+        "Token": "ls-watch-replay-short",
+        "Translations": {
+            "English": "Watch",
+            "Japanese": "見る",
+            "Russian": "Смотреть",
+            "Chinese": "观看",
+            "Korean": "보기",
+            "French": "Regarder",
+            "German": "Anschauen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Obejrzyj",
+            "Swedish": "Titta",
+            "Italian": "Guarda"
+        }
+    },
+    {
+        "Token": "ls-delete",
+        "Translations": {
+            "English": "Delete",
+            "Japanese": "削除",
+            "Russian": "Удалить",
+            "Chinese": "删除",
+            "Korean": "삭제",
+            "French": "Supprimer",
+            "German": "Löschen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Usuń",
+            "Swedish": "Radera",
+            "Italian": "Elimina"
+        }
+    },
+    {
+        "Token": "ls-download-map",
+        "Translations": {
+            "English": "Download map",
+            "Japanese": "マップをダウンロード",
+            "Russian": "Скачать карту",
+            "Chinese": "下载谱面",
+            "Korean": "맵 다운로드",
+            "French": "Télécharger la map",
+            "German": "Map herunterladen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Pobierz mapę",
+            "Swedish": "Ladda ner bana",
+            "Italian": "Scarica mappa"
+        }
+    },
+    {
+        "Token": "ls-scores-context",
+        "Translations": {
+            "English": "Scores Context",
+            "Japanese": "スコア条件",
+            "Russian": "Контекст",
+            "Chinese": "分数详情",
+            "Korean": "스코어보드 설정",
+            "French": "Contexte des scores",
+            "German": "Score Kontext",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Kontekst wyników",
+            "Swedish": "Score kontext",
+            "Italian": "Contesto degli Score"
+        }
+    },
+    {
+        "Token": "ls-general-context",
+        "Translations": {
+            "English": "General",
+            "Japanese": "総合",
+            "Russian": "Общий",
+            "Chinese": "常规",
+            "Korean": "일반",
+            "French": "Général",
+            "German": "Allgemein",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Globalny",
+            "Swedish": "Vanligt",
+            "Italian": "Generale"
+        }
+    },
+    {
+        "Token": "ls-no-mods-context",
+        "Translations": {
+            "English": "No Modifiers",
+            "Japanese": "モディファイアなし",
+            "Russian": "Без Модификаторов",
+            "Chinese": "无修改器",
+            "Korean": "모디파이어 없음",
+            "French": "Pas de modificateurs",
+            "German": "Keine Modifikatoren",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Bez modyfikatorów",
+            "Swedish": "Inga modifierare",
+            "Italian": "No Modificatori"
+        }
+    },
+    {
+        "Token": "ls-no-pauses-context",
+        "Translations": {
+            "English": "No Pauses",
+            "Japanese": "ポーズなし",
+            "Russian": "Без Пауз",
+            "Chinese": "无暂停",
+            "Korean": "퍼즈 없음",
+            "French": "Pas de pauses",
+            "German": "Keine Pausen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Bez pauz",
+            "Swedish": "Inga pauser",
+            "Italian": "No Pause"
+        }
+    },
+    {
+        "Token": "ls-golf-context",
+        "Translations": {
+            "English": "Golf",
+            "Japanese": "ゴルフ",
+            "Russian": "Гольф",
+            "Chinese": "Golf",
+            "Korean": "골프",
+            "French": "Golf",
+            "German": "Golf",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": "Golf",
+            "Italian": "Golf"
+        }
+    },
+    {
+        "Token": "ls-scpm-context",
+        "Translations": {
+            "English": "SCPM",
+            "Japanese": "SCPM",
+            "Russian": null,
+            "Chinese": "SCPM",
+            "Korean": "SCPM",
+            "French": "SCPM",
+            "German": "SCPM",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": "SCPM",
+            "Italian": "SCPM"
+        }
+    },
+    {
+        "Token": "ls-scores-context-hint",
+        "Translations": {
+            "English": "Select Leaderboard Context",
+            "Japanese": "条件を選んでください",
+            "Russian": "Выбрать контекст",
+            "Chinese": "选择排行榜上下文",
+            "Korean": "스코어보드를 선택하세요",
+            "French": "Choisissez un contexte de classement",
+            "German": "Kontext der Rangliste auswählen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Wybierz kontekst",
+            "Swedish": "Välj topplistans kontext",
+            "Italian": "Scegli il contesto per la leaderboard"
+        }
+    },
+    {
+        "Token": "ls-general-context-description",
+        "Translations": {
+            "English": "Everything allowed",
+            "Japanese": "すべて許可",
+            "Russian": "Все разрешено",
+            "Chinese": "允许一切修改器",
+            "Korean": "아무런 제한이 없습니다",
+            "French": "Tout est autorisé",
+            "German": "Alles erlaubt",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Wszystko dozwolone",
+            "Swedish": "Allt tillåtet",
+            "Italian": "Tutto è consentito"
+        }
+    },
+    {
+        "Token": "ls-no-mods-context-description",
+        "Translations": {
+            "English": "No modifiers, except \"1 Life\" and \"4 Lives\"",
+            "Japanese": "1 Life と 4 Lives 以外のモディファイア使用禁止",
+            "Russian": "Модификаторы запрещены, кроме \"1 Life\" и \"4 Lives\"",
+            "Chinese": "除了\"1 生命\"和\"4 生命\"以外，无修改器",
+            "Korean": "\"생명 1개\"와 \"생명 4개\"를 제외하고는 모디파이어가 없습니다",
+            "French": "Pas de modificateur, à l'exception de \"1 vie\" et \"4 vie\"",
+            "German": "Keine Modifikatoren, außer \"1 Leben\" und \"4 Leben\"",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Bez modyfikatorów poza \"1 Life\" i \"4 Lives\"",
+            "Swedish": "Inga modifierare, förutom \"1 Life\" och \"4 Lives\"",
+            "Italian": "No modificatori, tranne \"1 Life\" e \"4 Lives\""
+        }
+    },
+    {
+        "Token": "ls-no-pauses-context-description",
+        "Translations": {
+            "English": "Pauses between first and last notes are forbidden",
+            "Japanese": "始めと最後のノーツ間でのポーズを禁止",
+            "Russian": "Паузы между первой и последней нотой запрещены",
+            "Chinese": "禁止在第一个和最后一个音符之间暂停",
+            "Korean": "첫 번째 노트와 마지막 노트 사이의 퍼즈를 사용하지 않습니다",
+            "French": "Les pauses entre la première et la dernière note sont interdites",
+            "German": "Pausen vor dem ersten und nach dem letzten Block sind verboten",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Zabronione są pauzy pomiędzy pierwszym i ostatnim blokiem",
+            "Swedish": "Pauser mellan den första och sista noten är inte tillåtna",
+            "Italian": "Mettere in pausa tra la prima e l'ultima nota è proibito"
+        }
+    },
+    {
+        "Token": "ls-golf-context-description",
+        "Translations": {
+            "English": "The worse you play - the higher score",
+            "Japanese": "下手であればあるほど高スコア",
+            "Russian": "Чем меньше очков - тем лучше",
+            "Chinese": "你玩得越差，得分越高",
+            "Korean": "정확도가 낮을수록 점수가 높아집니다",
+            "French": "Le pire vous jouez - le plus haut le score",
+            "German": "Je schlechter die Schläge, desto höher die Punktzahl",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Im gorzej zagrasz, tym lepiej",
+            "Swedish": "Ju värre du spelar - desto fler poäng får du",
+            "Italian": "Peggio giochi - più alto è il punteggio"
+        }
+    },
+    {
+        "Token": "ls-scpm-context-description",
+        "Translations": {
+            "English": "Only scores with \"Small Notes\" and \"Pro Mode\"",
+            "Japanese": "スモールノーツとプロモードを使ったスコアのみ",
+            "Russian": "Обязательное использование модификаторов \"Small Notes\" и \"Pro Mode\"",
+            "Chinese": "仅带有\"小音符\"和\"专业模式\"的得分",
+            "Korean": "\"작은 음표\" 및 \"프로 모드\"로만 점수를 매깁니다",
+            "French": "Seulement les scores avec \"Petites notes\" et \"Mode pro\"",
+            "German": "Nur \"Kleine Noten\" und \"Profi-Modus\"",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Tylko wyniki ze \"Small Notes\" i \"Pro Mode\"",
+            "Swedish": "Enbart scores med \"Small Notes\" och \"Pro Mode\"",
+            "Italian": "Solo punteggi con \"Small Notes\" e \"Pro Mode\""
+        }
+    },
+    {
+        "Token": "ls-replayer-settings",
+        "Translations": {
+            "English": "Player Settings",
+            "Japanese": "プレイヤー設定",
+            "Russian": "Параметры просмотра",
+            "Chinese": "玩家设置",
+            "Korean": "플레이어 세팅",
+            "French": "Paramètres du lecteur",
+            "German": "Wiedergabe Einstellungen",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Ustawienia gracza",
+            "Swedish": "Spelarinställningar",
+            "Italian": "Impostazioni Giocatore"
+        }
+    },
+    {
+        "Token": "ls-replayer-enable-ui",
+        "Translations": {
+            "English": "Enable UI",
+            "Japanese": "UIを有効化",
+            "Russian": "Включить Оверлей",
+            "Chinese": "启用用户界面",
+            "Korean": "UI 켜기",
+            "French": "Activer l'UI",
+            "German": "UI aktivieren",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Włącz UI",
+            "Swedish": "Aktivera UI",
+            "Italian": "Abilita la UI"
+        }
+    },
+    {
+        "Token": "ls-replayer-load-environment",
+        "Translations": {
+            "English": "Load player environment",
+            "Japanese": "プレイヤー環境をロード",
+            "Russian": "Сменить окружение",
+            "Chinese": "使用回放环境",
+            "Korean": "플레이어 환경 불러오기",
+            "French": "Charger l'environment du joueur",
+            "German": "Umgebung des Spielers laden",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Wczytaj środowisko gracza",
+            "Swedish": "Ladda spelarens omgivning",
+            "Italian": "Carica il player environment"
+        }
+    },
+    {
+        "Token": "ls-replayer-load-jd",
+        "Translations": {
+            "English": "Load player JD",
+            "Japanese": "プレイヤー ID をロード",
+            "Russian": "Сменить JD",
+            "Chinese": "使用回放 JD",
+            "Korean": "플레이어 JD 불러오기",
+            "French": "Charger le JD du joueur",
+            "German": "JD des Spielers laden",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Wczytaj JD gracza",
+            "Swedish": "Ladda spelarens JD",
+            "Italian": "Carica il JD del giocatore"
+        }
+    },
+    {
+        "Token": "ls-replayer-store-locally",
+        "Translations": {
+            "English": "Store locally",
+            "Japanese": "ローカルに保存",
+            "Russian": "Сохранить на диске",
+            "Chinese": "本地存储",
+            "Korean": "로컬 파일로 저장",
+            "French": "Enregistrer localement",
+            "German": "Lokal speichern",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "Zapisz lokalnie",
+            "Swedish": "Spara lokalt",
+            "Italian": "Archivia in locale"
+        }
+    },
+    {
+        "Token": "ls-hmd-with-controllers",
+        "Translations": {
+            "English": "on <hmd> with <controllers>",
+            "Japanese": "<hmd>と<controllers>で",
+            "Russian": "на <hmd> с <controllers>",
+            "Chinese": "使用<hmd>和<controllers>进行游戏",
+            "Korean": "<hmd> 와 <controllers>",
+            "French": "sur <hmd> avec <controllers>",
+            "German": "auf <hmd> mit <controllers>",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "na <hmd> z <controllers>",
+            "Swedish": "På <hmd> med <controllers>",
+            "Italian": "su <hmd> con <controllers>"
+        }
+    },
+    {
+        "Token": "ls-hmd-no-controllers",
+        "Translations": {
+            "English": "on <hmd>",
+            "Japanese": "<hmd>で",
+            "Russian": "на <hmd>",
+            "Chinese": "使用<hmd>",
+            "Korean": "<hmd>",
+            "French": "sur <hmd>",
+            "German": "auf <hmd>",
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": "na <hmd>",
+            "Swedish": "På <hmd>",
+            "Italian": "su <hmd>"
+        }
+    },
+    {
+        "Token": "ls-capture-status-contested",
+        "Translations": {
+            "English": "Contested",
+            "Japanese": null,
+            "Russian": "Оспаривается",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-uncaptured",
+        "Translations": {
+            "English": "Uncaptured",
+            "Japanese": null,
+            "Russian": "Не захвачена",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-contested-hint",
+        "Translations": {
+            "English": "Several clans claim equal rights to capture this map! Set a score to break the tie",
+            "Japanese": null,
+            "Russian": "Несколько кланов оспаривают захват карты! Поставьте скор, чтобы разбить ничью",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-uncaptured-hint",
+        "Translations": {
+            "English": "Map is not captured! Set a score to capture it for your clan",
+            "Japanese": null,
+            "Russian": "Карта свободна! Поставьте скор, чтобы захватить её для своего клана",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    },
+    {
+        "Token": "ls-capture-status-captured-hint",
+        "Translations": {
+            "English": "Map is captured by \r\n<clan>\r\n They have the highest weighted PP on this leaderboard",
+            "Japanese": null,
+            "Russian": "Карта захвачена кланом \r\n<clan>\r\n Они имеют наибольший показатель PP",
+            "Chinese": null,
+            "Korean": null,
+            "French": null,
+            "German": null,
+            "Spanish": null,
+            "Norwegian": null,
+            "Polish": null,
+            "Swedish": null,
+            "Italian": null
+        }
+    }
+]}

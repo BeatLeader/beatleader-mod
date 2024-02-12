@@ -127,6 +127,8 @@ namespace BeatLeader.Replayer {
         }
 
         public void ModifyEnergyPanel(float energy, bool shouldBeLost = false) {
+            if (!_gameEnergyUIPanel.isActiveAndEnabled) return;
+
             var energyBar = _gameEnergyUIPanel.GetField<Image, GameEnergyUIPanel>("_energyBar");
             if (!shouldBeLost && !energyBar.enabled) {
                 var director = _gameEnergyUIPanel.GetField<

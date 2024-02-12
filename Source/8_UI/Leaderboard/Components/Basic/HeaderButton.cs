@@ -18,16 +18,6 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region Animation
-
-        private void OnHoverStateChanged(bool isHovered, float progress) {
-            var scale = 1.0f + 0.2f * progress;
-            _imageComponent.transform.localScale = new Vector3(scale, scale, scale);
-            UpdateColor(progress);
-        }
-
-        #endregion
-
         #region Setup
 
         [UIValue("button-size")]
@@ -39,8 +29,8 @@ namespace BeatLeader.Components {
             }
         }
 
-        private float _buttonSize = 4f; 
-        
+        private float _buttonSize = 4f;
+
         public void Setup(Sprite sprite) {
             _imageComponent.sprite = sprite;
         }
@@ -67,9 +57,9 @@ namespace BeatLeader.Components {
 
         private void InitializeImage() {
             _imageComponent.material = BundleLoader.UIAdditiveGlowMaterial;
-            var hoverController = _imageComponent.gameObject.AddComponent<SmoothHoverController>();
-            hoverController.HoverStateChangedEvent += OnHoverStateChanged;
             _imageComponent.OnClickEvent += OnClickEvent;
+
+            SmoothHoverController.Scale(_imageComponent.gameObject, 1.0f, 1.2f);
         }
 
         private void OnClickEvent(PointerEventData _) {

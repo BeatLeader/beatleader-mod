@@ -1,0 +1,8 @@
+﻿<horizontal pad-left="1" pad-right="1" spacing="1" bg="round-rect-panel" bg-color="#FFFFFFDD" hover-hint="~captor-clan-hover">
+    <horizontal pref-height="6">
+        <text id="captor-clan-text" font-size="4" align="Midline"/>
+    </horizontal>
+    <macro.as-host host="clan-tag">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+</horizontal>

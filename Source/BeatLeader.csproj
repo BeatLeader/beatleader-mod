@@ -187,6 +187,7 @@
     <ItemGroup>
         <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle"/>
         <EmbeddedResource Include="9_Resources\BSML\**\*.bsml"/>
+        <EmbeddedResource Include="9_Resources\Localization.json"/>
         <EmbeddedResource Include="manifest.json"/>
     </ItemGroup>
 

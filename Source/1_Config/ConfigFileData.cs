@@ -83,6 +83,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region LeaderboardDisplaySettings
+
+        public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
+
+        #endregion
+
         #region ReplayerSettings
         
         public ReplayerSettings ReplayerSettings { get; set; } = ConfigDefaults.ReplayerSettings;
@@ -98,6 +104,12 @@ namespace BeatLeader {
         public bool SaveLocalReplays = ConfigDefaults.SaveLocalReplays;
 
         public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
+
+        #endregion
+
+        #region Language
+        
+        public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
 
         #endregion
 

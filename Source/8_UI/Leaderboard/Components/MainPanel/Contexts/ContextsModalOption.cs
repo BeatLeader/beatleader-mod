@@ -46,7 +46,8 @@ namespace BeatLeader.Components {
         private void UpdateVisuals() {
             if (!IsParsed) return;
 
-            _buttonText.text = _context.Name();
+            _buttonText.text = _context.LocalizedName();
+            HoverHint = _context.LocalizedDescription();
 
             if (_context == PluginConfig.ScoresContext) {
                 _buttonText.faceColor = Color.cyan;
@@ -54,6 +55,22 @@ namespace BeatLeader.Components {
             } else {
                 _buttonText.faceColor = Color.white;
                 _buttonText.fontSize = 3.5f;
+            }
+        }
+
+        #endregion
+
+        #region HoverHint
+
+        private string _hoverHint = "";
+
+        [UIValue("hover-hint"), UsedImplicitly]
+        public string HoverHint {
+            get => _hoverHint;
+            set {
+                if (_hoverHint.Equals(value)) return;
+                _hoverHint = value;
+                NotifyPropertyChanged();
             }
         }
 

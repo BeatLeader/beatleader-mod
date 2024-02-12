@@ -5,13 +5,13 @@
          click-off-closes="true"
          size-delta-x="40" size-delta-y="24">
     <vertical pref-width="40" pad="2">
-      <text text="Do you really want to delete the replay?"
+      <text text="&lt;bll&gt;ls-delete-replay-prompt&lt;/bll&gt;"
             word-wrapping="true" align="Center"/>
       <horizontal spacing="6">
-        <primary-button on-click="delete-button-click" text="Yes"
+        <primary-button on-click="delete-button-click" text="&lt;bll&gt;ls-yes&lt;/bll&gt;"
                         click-event="close-deletion-modal"
                         horizontal-fit="Unconstrained"/>
-        <button text="No" horizontal-fit="Unconstrained"
+        <button text="&lt;bll&gt;ls-no&lt;/bll&gt;" horizontal-fit="Unconstrained"
                 click-event="close-deletion-modal"/>
       </horizontal>
     </vertical>
@@ -34,7 +34,7 @@
   </vertical>
   <horizontal pref-height="10" spacing="3">
     <button interactable="~delete-button-interactable"
-            text="Delete" pref-height="10"
+            text="&lt;bll&gt;ls-delete&lt;/bll&gt;" pref-height="10"
             click-event="show-deletion-modal"
             horizontal-fit="Unconstrained"/>
     <primary-button interactable="~watch-button-interactable"

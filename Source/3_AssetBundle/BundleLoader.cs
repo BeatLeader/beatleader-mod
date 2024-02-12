@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Themes;
 using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 
 #nullable disable
@@ -27,6 +28,7 @@ namespace BeatLeader {
             LoadSprites(localAssetBundle);
             LoadMaterials(localAssetBundle);
             LoadPrefabs(localAssetBundle);
+            LoadFonts(localAssetBundle);
 
             localAssetBundle.Unload(false);
             _ready = true;
@@ -328,6 +330,38 @@ namespace BeatLeader {
             HubIcon = assetBundle.LoadAsset<Sprite>("BL_HubIcon");
 
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
+        }
+
+        #endregion
+
+        #region Fonts
+
+        public static TMP_FontAsset NotoSansFontAsset;
+        public static TMP_FontAsset NotoSansJPFontAsset;
+        public static TMP_FontAsset NotoSansSCFontAsset;
+        public static TMP_FontAsset NotoSansKRFontAsset;
+        public static TMP_FontAsset MinecraftEnchantmentFontAsset;
+
+        private static readonly Dictionary<int, TMP_FontAsset> fontAssetsLookup = new();
+
+        public static bool TryGetFontAsset(int hashCode, ref TMP_FontAsset fontAsset) {
+            if (!fontAssetsLookup.ContainsKey(hashCode)) return false;
+            fontAsset = fontAssetsLookup[hashCode];
+            return true;
+        }
+
+        private static TMP_FontAsset LoadFontAsset(this AssetBundle assetBundle, string name) {
+            var asset = assetBundle.LoadAsset<TMP_FontAsset>(name);
+            if (asset != null) fontAssetsLookup[asset.hashCode] = asset;
+            return asset;
+        }
+
+        private static void LoadFonts(AssetBundle assetBundle) {
+            NotoSansFontAsset = assetBundle.LoadFontAsset("NotoSans-SemiBold SDF");
+            NotoSansJPFontAsset = assetBundle.LoadFontAsset("NotoSansJP-SemiBold SDF");
+            NotoSansSCFontAsset = assetBundle.LoadFontAsset("NotoSansSC-SemiBold SDF");
+            NotoSansKRFontAsset = assetBundle.LoadFontAsset("NotoSansKR-SemiBold SDF");
+            MinecraftEnchantmentFontAsset = assetBundle.LoadFontAsset("minecraft-enchantment SDF");
         }
 
         #endregion

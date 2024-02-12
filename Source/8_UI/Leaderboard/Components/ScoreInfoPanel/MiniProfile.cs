@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -25,21 +26,39 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region Initialize / Dispose
+
+        protected override void OnInitialize() {
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdatePlayer;
+        }
+
+        protected override void OnDispose() {
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdatePlayer;
+        }
+
+        #endregion
+
         #region SetPlayer
 
         private Player _player;
 
         public void SetPlayer(Player player) {
             _player = player;
-            _miniProfileButtons.SetPlayer(_player);
-            _playerAvatar.SetAvatar(_player.avatar, _player.profileSettings);
-            _countryFlag.SetCountry(_player.country);
-            SetMessage(_player.profileSettings?.message ?? "");
+            UpdatePlayer();
+        }
 
-            PlayerName = FormatUtils.FormatUserName(_player.name);
-            PlayerGlobalRank = FormatUtils.FormatRank(_player.rank, true);
-            PlayerCountryRank = FormatUtils.FormatRank(_player.countryRank, true);
-            PlayerPp = FormatUtils.FormatPP(_player.pp);
+        private void UpdatePlayer() {
+            var player = HiddenPlayersCache.ModifyPlayer(_player);
+            
+            _miniProfileButtons.SetPlayer(player);
+            _playerAvatar.SetAvatar(player);
+            _countryFlag.SetCountry(player.country);
+            SetMessage(player.profileSettings?.message ?? "");
+
+            PlayerName = FormatUtils.FormatUserName(player.name);
+            PlayerGlobalRank = FormatUtils.FormatRank(player.rank, true);
+            PlayerCountryRank = FormatUtils.FormatRank(player.countryRank, true);
+            PlayerPp = FormatUtils.FormatPP(player.pp);
         }
 
         #endregion

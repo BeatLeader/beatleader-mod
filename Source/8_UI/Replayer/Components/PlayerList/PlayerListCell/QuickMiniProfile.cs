@@ -60,7 +60,7 @@ namespace BeatLeader.Components {
         
         public void SetPlayer(IPlayer? player) {
             Player = player;
-            _playerAvatar.SetPlayer(player);
+            _playerAvatar.SetAvatar(player);
             _playerCountryFlag.SetCountry(player?.Country ?? "not set");
 
             PlayerName = player?.Name ?? "Loading...";

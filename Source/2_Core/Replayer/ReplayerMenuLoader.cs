@@ -55,6 +55,7 @@ namespace BeatLeader.Replayer {
             
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
             ReplayManager.SaturateReplayInfo(info, null);
+            
             await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
             

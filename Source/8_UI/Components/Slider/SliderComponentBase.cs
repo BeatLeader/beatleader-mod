@@ -239,7 +239,7 @@ namespace BeatLeader.Components {
             _pointerEventsHandler.PointerUpdatedEvent += HandlePointerUpdated;
 
             _smoothHoverController = sliderGo.AddComponent<SmoothHoverController>();
-            _smoothHoverController.HoverStateChangedEvent += HandleHoverStateChanged;
+            _smoothHoverController.AddStateListener(HandleHoverStateChanged, false);
 
             _sliderMaterial = Instantiate(GetMaterialPrefab());
             _sliderImage = sliderGo.AddComponent<AdvancedImageView>();

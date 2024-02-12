@@ -121,7 +121,7 @@ namespace BeatLeader.Components {
             OnContentConstruct(parent);
             OnHoverProgressChange(0);
             _hoverController = parentGo.AddComponent<SmoothHoverController>();
-            _hoverController.HoverStateChangedEvent += OnHoverStateChanged;
+            _hoverController.AddStateListener(OnHoverStateChanged, false);
             _hoverController.lerpCoefficient = _lerpMul;
             _button = parentGo.AddComponent<Button>();
             _button.onClick.AddListener(OnButtonClick);

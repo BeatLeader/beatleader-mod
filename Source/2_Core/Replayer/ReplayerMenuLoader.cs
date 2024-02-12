@@ -43,9 +43,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
         [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
         [Inject] private readonly IReplayManager _replayManager = null!;
-
-        public async Task StartReplayAsync(Replay replay, IPlayer? player = null, ReplayerSettings? settings = null) {
-
+        
         internal async Task StartReplayFromLeaderboardAsync(Replay replay, Player player) {
             var settings = ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
@@ -73,13 +71,14 @@ namespace BeatLeader.Replayer {
 
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
 
-            var abstractReplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
+            var tablePlayer = TablePlayer.CreateFromPlayer(player, ColorUtils.RandomColor());
+            var abstractReplay = ReplayDataUtils.ConvertToAbstractReplay(replay, tablePlayer);
             data.Init(abstractReplay, ReplayDataUtils.BasicReplayComparator, settings, data.DifficultyBeatmap, data.EnvironmentInfo);
 
             StartReplay(data);
         }
 
-        public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
+        public async Task StartReplayAsync(Replay replay, IPlayer? player = null, ReplayerSettings? settings = null) {
             await StartReplayAsync(replay, player, settings, CancellationToken.None);
         }
 
@@ -90,13 +89,9 @@ namespace BeatLeader.Replayer {
             
             Plugin.Log.Info("Attempting to load replay:\r\n" + info);
             ReplayManager.SaturateReplayInfo(info, null);
+            
             await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
             if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
-            var creplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
-            data.Init(
-                creplay, ReplayDataUtils.BasicReplayComparator,
-                settings, data.DifficultyBeatmap, data.EnvironmentInfo
-            );
             
             var tablePlayer = player is null ? null : TablePlayer.CreateFromPlayer(player, ColorUtils.RandomColor());
             var creplay = ReplayDataUtils.ConvertToAbstractReplay(replay, tablePlayer);

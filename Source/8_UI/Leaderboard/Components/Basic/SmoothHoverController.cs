@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
@@ -17,10 +18,12 @@ namespace BeatLeader.Components {
 
         public static SmoothHoverController Scale(GameObject gameObject, Transform target, float defaultScale, float hoverScale) {
             var component = gameObject.AddComponent<SmoothHoverController>();
-            component.AddStateListener(((hovered, progress) => {
-                var scale = Mathf.Lerp(defaultScale, hoverScale, progress);
-                target.localScale = new Vector3(scale, scale, scale);
-            }));
+            component.AddStateListener(
+                ((hovered, progress) => {
+                    var scale = Mathf.Lerp(defaultScale, hoverScale, progress);
+                    target.localScale = new Vector3(scale, scale, scale);
+                })
+            );
             return component;
         }
 
@@ -33,9 +36,11 @@ namespace BeatLeader.Components {
         //TODO: rename to StateChangedEvent
         private event StateChangedDelegate? OnStateChanged;
 
-        public void AddStateListener(StateChangedDelegate handler) {
+        public void AddStateListener(StateChangedDelegate handler, bool invokeImmediate = true) {
             OnStateChanged += handler;
-            handler?.Invoke(IsHovered, Progress);
+            if (invokeImmediate) {
+                handler.Invoke(IsHovered, Progress);
+            }
         }
 
         public void RemoveStateListener(StateChangedDelegate handler) {
@@ -50,10 +55,9 @@ namespace BeatLeader.Components {
 
         #region Logic
 
-
         public bool IsHovered { get; private set; }
         public float Progress { get; private set; }
-        
+
         public bool ForceKeepHovered {
             get => _forceKeepHovered;
             set {
@@ -62,9 +66,9 @@ namespace BeatLeader.Components {
                 _set = false;
             }
         }
-        
+
         public float lerpCoefficient = 10.0f;
-        
+
         private bool _forceKeepHovered;
         private float _targetValue;
         private float _alternativeTargetValue;

@@ -25,12 +25,12 @@ namespace BeatLeader.Components {
         private Material? _materialInstance;
         private bool _materialSet;
 
-        private void SelectMaterial(IPlayer player) {
-            ThemesUtils.GetAvatarParams(player.ProfileSettings, _useSmallMaterialVersion, out var baseMaterial, out _hueShift, out _saturation);
+        private void SelectMaterial(IPlayerProfileSettings? profileSettings) {
+            ThemesUtils.GetAvatarParams(profileSettings, _useSmallMaterialVersion, out var baseMaterial, out _hueShift, out _saturation);
 
             if (!_materialSet || baseMaterial != _baseMaterial) {
                 _baseMaterial = baseMaterial;
-                
+
                 if (_materialSet) Destroy(_materialInstance);
                 _materialInstance = Instantiate(baseMaterial);
                 _image.material = _materialInstance;
@@ -91,14 +91,18 @@ namespace BeatLeader.Components {
 
         private string? _url = "";
 
-        public void SetPlayer(IPlayer? player) {
-            if (player is null) {
+        public void SetAvatar(IPlayer? player) {
+            SetAvatar(player?.AvatarUrl, player?.ProfileSettings);
+        }
+
+        public void SetAvatar(string? url, IPlayerProfileSettings? profileSettings) {
+            if (url is null) {
                 ShowSpinner();
                 return;
             }
-            if (_url == player.AvatarUrl) return;
-            _url = player.AvatarUrl;
-            SelectMaterial(player);
+            if (_url == url) return;
+            _url = url;
+            SelectMaterial(profileSettings);
             UpdateAvatar();
         }
 

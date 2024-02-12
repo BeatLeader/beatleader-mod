@@ -153,21 +153,21 @@ namespace BeatLeader.UI.Hub {
                 var yi = y.ReplayInfo;
                 return xi is null || yi is null ? 0 : sorter switch {
                     ReplaysListSorter.Difficulty =>
-                        -CompareInteger(
+                        -CompareLong(
                             (int)StringConverter.Convert<BeatmapDifficulty>(xi.SongDifficulty),
                             (int)StringConverter.Convert<BeatmapDifficulty>(yi.SongDifficulty)
                         ),
                     ReplaysListSorter.Player =>
                         string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
                     ReplaysListSorter.Completion =>
-                        CompareInteger((int)xi.LevelEndType, (int)yi.LevelEndType),
+                        CompareLong((int)xi.LevelEndType, (int)yi.LevelEndType),
                     ReplaysListSorter.Date =>
-                        -CompareInteger(int.Parse(xi.Timestamp), int.Parse(yi.Timestamp)),
+                        -CompareLong(xi.Timestamp, yi.Timestamp),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
 
-            private static int CompareInteger(int x, int y) => Comparer<int>.Default.Compare(x, y);
+            private static int CompareLong(long x, long y) => Comparer<long>.Default.Compare(x, y);
         }
 
         public ReplaysListSorter Sorter {

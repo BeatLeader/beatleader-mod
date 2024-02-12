@@ -7,7 +7,7 @@ namespace BeatLeader.Models {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class ReplayLaunchData {
         public IReadOnlyList<IReplay> Replays { get; protected set; } = null!;
-        public IDifficultyBeatmap DifficultyBeatmap { get; protected set; } = null!;
+        public IDifficultyBeatmap? DifficultyBeatmap { get; protected set; }
         public ReplayerSettings Settings { get; protected set; } = null!;
         public EnvironmentInfoSO? EnvironmentInfo { get; protected set; }
         

@@ -71,7 +71,7 @@ namespace BeatLeader.Components {
 
             private async void RefreshPlayer() {
                 var player = await Item!.LoadPlayerAsync(false, default);
-                _playerAvatar.SetPlayer(player);
+                _playerAvatar.SetAvatar(player);
                 _playerNameText.text = player.Name;
             }
 

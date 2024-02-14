@@ -1,9 +1,7 @@
 ﻿using BeatLeader.Components;
 
-namespace BeatLeader.Models
-{
-    public class Score : IScoreRowContent
-    {
+namespace BeatLeader.Models {
+    public class Score : IScoreRowContent {
         public int id;
         public float accuracy;
         public float fcAccuracy;
@@ -11,7 +9,6 @@ namespace BeatLeader.Models
         public int modifiedScore;
         public string modifiers;
         public float pp;
-        public float fcPp;
         public int rank;
         public int badCuts;
         public int missedNotes;
@@ -28,10 +25,8 @@ namespace BeatLeader.Models
 
         #region IScoreRowContent implementation
 
-        public bool ContainsValue(ScoreRowCellType cellType)
-        {
-            return cellType switch
-            {
+        public bool ContainsValue(ScoreRowCellType cellType) {
+            return cellType switch {
                 ScoreRowCellType.Rank => true,
                 ScoreRowCellType.Country => true,
                 ScoreRowCellType.Avatar => true,
@@ -48,10 +43,8 @@ namespace BeatLeader.Models
             };
         }
 
-        public object? GetValue(ScoreRowCellType cellType)
-        {
-            return cellType switch
-            {
+        public object? GetValue(ScoreRowCellType cellType) {
+            return cellType switch {
                 ScoreRowCellType.Rank => rank,
                 ScoreRowCellType.Country => player.country,
                 ScoreRowCellType.Avatar => new AvatarScoreRowCell.Data(player.avatar, player.profileSettings),

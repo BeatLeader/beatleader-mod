@@ -9,6 +9,7 @@ namespace BeatLeader.Models {
         public int modifiedScore;
         public string modifiers;
         public float pp;
+        public float fcPp;
         public int rank;
         public int badCuts;
         public int missedNotes;

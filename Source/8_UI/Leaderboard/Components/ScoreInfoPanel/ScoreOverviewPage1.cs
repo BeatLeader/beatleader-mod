@@ -26,7 +26,13 @@ namespace BeatLeader.Components {
                 FormatUtils.FormatAcc(score.fcAccuracy),
                 $"<color={Good}>FC <bll>ls-accuracy</bll></color>");
             _accText.HoverEnabled = !score.fullCombo;
-            PpText = GetStringWithLabel(FormatUtils.FormatPP(score.pp), "pp");
+            _ppText.Text1 = GetStringWithLabel(
+                FormatUtils.FormatPP(score.pp),
+                "pp " + (!score.fullCombo && score.fcPp != 0 ? $"<size=60%><color={Good}>[?]</color></size>" : ""));
+            _ppText.Text2 = GetStringWithLabel(
+                FormatUtils.FormatPP(score.fcPp),
+                $"<color={Good}>FC pp</color>");
+            _ppText.HoverEnabled = !score.fullCombo && score.fcPp != 0;
             DetailsText = GetDetailsString(score);
         }
 
@@ -39,6 +45,10 @@ namespace BeatLeader.Components {
             _accText.TextObject.alignment = TextAlignmentOptions.Center;
             _accText.TextObject.fontSize = FontSize;
             _accText.TextObject.enableWordWrapping = false;
+            _ppText = Instantiate<HoverText>(transform);
+            _ppText.TextObject.alignment = TextAlignmentOptions.Center;
+            _ppText.TextObject.fontSize = FontSize;
+            _ppText.TextObject.enableWordWrapping = false;
         }
 
         #endregion
@@ -176,17 +186,8 @@ namespace BeatLeader.Components {
 
         #region PpText
 
-        private string _ppText = "";
-
         [UIValue("pp-text"), UsedImplicitly]
-        public string PpText {
-            get => _ppText;
-            set {
-                if (_ppText.Equals(value)) return;
-                _ppText = value;
-                NotifyPropertyChanged();
-            }
-        }
+        private HoverText _ppText = null!;
 
         #endregion
 

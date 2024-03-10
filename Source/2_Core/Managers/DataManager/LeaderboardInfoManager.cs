@@ -23,7 +23,7 @@ namespace BeatLeader.DataManager {
 
         private string _lastSelectedHash;
 
-        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
+        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey key, BeatmapLevel level) {
             if (!selectedAny || leaderboardKey.Hash.Equals(_lastSelectedHash)) return;
             _lastSelectedHash = leaderboardKey.Hash;
             UpdateLeaderboardsByHash(leaderboardKey.Hash);

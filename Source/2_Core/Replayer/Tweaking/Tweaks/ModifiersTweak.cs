@@ -7,7 +7,7 @@ namespace BeatLeader.Replayer.Tweaking {
             Plugin.Log.Notice("[ModifiersLoader] Loading modifiers...");
 
             var loadingResult = LeaderboardsCache.TryGetLeaderboardInfo(
-                LeaderboardState.SelectedBeatmapKey, out var data);
+                LeaderboardState.SelectedLeaderboardKey, out var data);
             if (!loadingResult) {
                 Plugin.Log.Error("[ModifiersLoader] Failed to load modifiers, scores may be differ!");
                 return;

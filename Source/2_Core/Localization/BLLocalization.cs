@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Polyglot;
+using BGLib.Polyglot;
 using TMPro;
 using UnityEngine;
 

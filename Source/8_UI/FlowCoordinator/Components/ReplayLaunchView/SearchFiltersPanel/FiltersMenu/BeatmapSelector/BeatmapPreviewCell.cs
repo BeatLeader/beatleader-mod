@@ -8,12 +8,17 @@ using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
+using static BeatmapLevelSO;
 
 namespace BeatLeader.Components {
     internal class BeatmapPreviewCell : ReeUIComponentV2 {
         #region Dummies
 
-        private class NotSelectedPreviewBeatmapLevel : IPreviewBeatmapLevel {
+        private class NotSelectedPreviewBeatmapLevel : BeatmapLevel {
+
+            public NotSelectedPreviewBeatmapLevel(bool hasPrecalculatedData, string levelID, string songName, string songSubName, string songAuthorName, string[] allMappers, string[] allLighters, float beatsPerMinute, float integratedLufs, float songTimeOffset, float previewStartTime, float previewDuration, float songDuration, PlayerSensitivityFlag contentRating, IPreviewMediaData previewMediaData, IReadOnlyDictionary<(BeatmapCharacteristicSO, BeatmapDifficulty), BeatmapBasicData> beatmapBasicData) : base(hasPrecalculatedData, levelID, songName, songSubName, songAuthorName, allMappers, allLighters, beatsPerMinute, integratedLufs, songTimeOffset, previewStartTime, previewDuration, songDuration, contentRating, previewMediaData, beatmapBasicData) {
+            }
+
             public string? levelID { get; } = string.Empty;
             public string? songName { get; } = "Click to select";
             public string? songSubName { get; } = null;
@@ -80,7 +85,7 @@ namespace BeatLeader.Components {
         [UIComponent("container"), UsedImplicitly]
         private Transform _container = null!;
 
-        private static readonly NotSelectedPreviewBeatmapLevel defaultPreviewBeatmapLevel = new();
+        private static readonly NotSelectedPreviewBeatmapLevel defaultPreviewBeatmapLevel = new(false, "", "", "", "", new string[]{ }, new string[]{ }, 0, 0, 0, 0, 0, 0, PlayerSensitivityFlag.Unknown, null, null);
         private Touchable _touchable = null!;
         private LevelListTableCell _cell = null!;
 
@@ -100,7 +105,7 @@ namespace BeatLeader.Components {
 
         #region SetData
 
-        public void SetData(IPreviewBeatmapLevel? previewBeatmapLevel) {
+        public void SetData(BeatmapLevel? previewBeatmapLevel) {
             previewBeatmapLevel ??= defaultPreviewBeatmapLevel;
             if (_cell == null) throw new UninitializedComponentException();
             _cell.SetDataFromLevelAsync(previewBeatmapLevel, false, false, false);

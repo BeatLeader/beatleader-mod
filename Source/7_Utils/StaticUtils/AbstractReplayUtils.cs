@@ -5,8 +5,7 @@ using UnityEngine;
 
 namespace BeatLeader.Utils {
     internal static class AbstractReplayUtils {
-        private static readonly EnvironmentTypeSO normalEnvironmentType = Resources.FindObjectsOfTypeAll<EnvironmentTypeSO>()
-            .FirstOrDefault(x => x.typeNameLocalizationKey == "NORMAL_ENVIRONMENT_TYPE")!;
+        private static readonly EnvironmentType normalEnvironmentType = EnvironmentType.Normal;
 
         private static readonly StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSo =
             Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupDataSO>().FirstOrDefault()!;
@@ -27,18 +26,20 @@ namespace BeatLeader.Utils {
             var replay = launchData.MainReplay;
             var practiceSettings = launchData.IsBattleRoyale ? null
                 : launchData.MainReplay.ReplayData.PracticeSettings;
-            var beatmap = launchData.DifficultyBeatmap;
 
             transitionData.Init(
                 "Solo",
-                beatmap,
-                beatmap!.level,
+                (BeatmapKey)launchData.BeatmapKey,
+                launchData.BeatmapLevel,
                 envSettings,
                 playerData.colorSchemesSettings.GetOverrideColorScheme(),
                 null,
                 replay.ReplayData.GameplayModifiers,
                 playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
                 practiceSettings,
+                null,
+                null,
+                null,
                 "Menu"
             );
 

@@ -6,26 +6,26 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 {
     class MapEnhancer
     {
-        public static IDifficultyBeatmap difficultyBeatmap;
-        public static IPreviewBeatmapLevel previewBeatmapLevel;
+        public static BeatmapKey beatmapKey;
+        public static BeatmapLevel beatmapLevel;
         public static GameplayModifiers gameplayModifiers;
         public static PlayerSpecificSettings playerSpecificSettings;
         public static PracticeSettings practiceSettings;
         public static bool useTestNoteCutSoundEffects;
-        public static EnvironmentInfoSO environmentInfo;
+        public static string environmentName;
         public static ColorScheme colorScheme;
         public static float energy;
 
         public static void Enhance(Replay replay)
         {
             var info = replay.info;
-            info.hash = previewBeatmapLevel.levelID.Replace("custom_level_", "");
-            info.songName = difficultyBeatmap.level.songName;
-            info.mapper = difficultyBeatmap.level.levelAuthorName;
-            info.difficulty = difficultyBeatmap.difficulty.ToString();
+            info.hash = beatmapKey.levelId.Replace("custom_level_", "");
+            info.songName = beatmapLevel.songName;
+            info.mapper = string.Join(",", beatmapLevel.allMappers);
+            info.difficulty = beatmapKey.difficulty.ToString();
 
-            info.mode = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
-            info.environment = environmentInfo.environmentName;
+            info.mode = beatmapKey.beatmapCharacteristic.serializedName;
+            info.environment = environmentName;
             info.modifiers = string.Join(",", modifiers());
             info.leftHanded = playerSpecificSettings.leftHanded;
             info.height = playerSpecificSettings.automaticPlayerHeight ? 0 : playerSpecificSettings.playerHeight;

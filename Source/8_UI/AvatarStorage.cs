@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using B83.Image.GIF;
 using BeatLeader.Models;
 using UnityEngine;
@@ -53,37 +54,35 @@ namespace BeatLeader {
                 onFailCallback?.Invoke(request.error);
                 yield break;
             }
-
+            
+            var task = Task.Run(() => {
+                using var reader = new BinaryReader(new MemoryStream(handler.data));
+                return new GIFLoader().Load(reader);
+            });
+            
+            yield return new WaitUntil(() => task.Status is TaskStatus.Faulted or TaskStatus.RanToCompletion);
+            
             AvatarImage avatarImage;
 
-            try {
-                avatarImage = TryLoadGif(handler.data);
+            if (task.Status is TaskStatus.RanToCompletion && task.Result != null) {
+                var gifImage = task.Result;
+
+                var tex = new Texture2D(
+                    gifImage.screen.width,
+                    gifImage.screen.height,
+                    TextureFormat.RGBA32,
+                    false
+                );
+
+                avatarImage = AvatarImage.Animated(tex, gifImage);
                 Cache[url] = avatarImage;
-            } catch {
-                var isUsableTexture = (handler.texture != null) && (handler.texture.width != 8);
+            } else {
+                var isUsableTexture = handler.texture != null && handler.texture.width != 8;
                 avatarImage = AvatarImage.Static(isUsableTexture ? handler.texture : BundleLoader.FileError.texture);
                 if (isUsableTexture) Cache[url] = avatarImage;
             }
 
             onSuccessCallback.Invoke(avatarImage);
-        }
-
-        #endregion
-
-        #region TryLoadGif
-
-        private static AvatarImage TryLoadGif(byte[] data) {
-            var reader = new BinaryReader(new MemoryStream(data));
-            var image = new GIFLoader().Load(reader);
-
-            var tex = new Texture2D(
-                image.screen.width,
-                image.screen.height,
-                TextureFormat.RGBA32,
-                false
-            );
-
-            return AvatarImage.Animated(tex, image);
         }
 
         #endregion

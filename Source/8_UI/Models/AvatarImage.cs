@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using B83.Image.GIF;
 using UnityEngine;
@@ -47,7 +48,16 @@ namespace BeatLeader.Models {
 
             while (true) {
                 foreach (var frame in _gifImage.imageData) {
-                    frame.DrawTo(colors, _originalTexture.width, _originalTexture.height);
+                    try {
+                        frame.DrawTo(colors, _originalTexture.width, _originalTexture.height);
+                    } catch (Exception) {
+                        Plugin.Log.Error("Broken GIF!");
+                        _originalTexture.SetPixels32(colors);
+                        _originalTexture.Apply();
+                        Graphics.Blit(_originalTexture, targetTexture);
+                        yield break;
+                    }
+                    
                     _originalTexture.SetPixels32(colors);
                     _originalTexture.Apply();
                     Graphics.Blit(_originalTexture, targetTexture);

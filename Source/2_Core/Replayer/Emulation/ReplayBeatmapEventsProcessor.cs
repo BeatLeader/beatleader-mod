@@ -5,7 +5,7 @@ using BeatLeader.Models;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
-    internal class ReplayBeatmapEventsProcessor : LateTickablePoolItem, IReplayBeatmapEventsProcessor {
+    internal class ReplayBeatmapEventsProcessor : TickablePoolItem, IReplayBeatmapEventsProcessor {
         #region Pool
 
         public class Pool : MemoryPool<ReplayBeatmapEventsProcessor> {
@@ -94,7 +94,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Event Handling
 
-        public override void LateTick() {
+        public override void Tick() {
             if (!_allowProcess) return;
             var time = _beatmapTimeController.SongTime;
             _noteEventsProcessor!.Tick(time);

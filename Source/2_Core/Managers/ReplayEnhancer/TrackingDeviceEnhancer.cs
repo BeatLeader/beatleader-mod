@@ -46,6 +46,10 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer {
         }
 
         private static void ProcessOpenVRSettings(Replay replay) {
+            if (replay.info.hmd == "Unknown") {
+                replay.info.hmd = (SteamVRSettings.GetString("LastKnown.HMDManufacturer") ?? "Unknown") + (SteamVRSettings.GetString("LastKnown.HMDModel") ?? "");
+            }
+
             if (replay.frames.Count == 0) return;
             var firstFrame = replay.frames[0];
             firstFrame.head.rotation.x = -1.0f;

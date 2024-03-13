@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using BeatLeader.SteamVR;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Utils {
@@ -80,9 +81,15 @@ namespace BeatLeader.Utils {
         public static XrSystemProperties? SystemProperties { get; private set; }
         public static string? SystemName { get; private set; }
 
-        public static void Init() {
+        public static void Init(VRPlatformSDK vRPlatformSDK) {
             try {
-                if (InitInternal() is not (var res and not XrResult.XR_SUCCESS)) return;
+                var res = InitInternal();
+                if (vRPlatformSDK is VRPlatformSDK.OpenXR && SystemName?.ToLower().Contains("pico") != true) {
+                    SteamVRSettings.UpdateAsync();
+                }
+                if (res == XrResult.XR_SUCCESS) {
+                    return;
+                }
                 if (res is XrResult.XR_ERROR_SESSION_NOT_RUNNING) {
                     Plugin.Log.Warn("OpenXR session is not running, info won't be available!");
                 } else {

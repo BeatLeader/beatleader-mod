@@ -84,7 +84,7 @@ namespace BeatLeader.Utils {
         public static void Init(VRPlatformSDK vRPlatformSDK) {
             try {
                 var res = InitInternal();
-                if (vRPlatformSDK is VRPlatformSDK.OpenXR && !SystemName.ToLower().Contains("pico")) {
+                if (vRPlatformSDK is VRPlatformSDK.OpenXR && SystemName?.ToLower().Contains("pico") == true) {
                     SteamVRSettings.UpdateAsync();
                 }
                 if (res == XrResult.XR_SUCCESS) {

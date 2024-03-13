@@ -52,7 +52,6 @@ namespace BeatLeader {
         [OnStart]
         [UsedImplicitly]
         public void OnApplicationStart() {
-            OpenXRAcquirer.Init();
             ObserveEnabled();
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();

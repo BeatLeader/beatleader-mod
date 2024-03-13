@@ -1,6 +1,7 @@
-using BeatLeader.API;
+﻿using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.SteamVR;
+using BeatLeader.Utils;
 using JetBrains.Annotations;
 using Zenject;
 
@@ -23,9 +24,7 @@ namespace BeatLeader.Installers {
                 Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             }
 
-            if (_vrPlatformHelper.vrPlatformSDK is VRPlatformSDK.OpenXR) {
-                SteamVRSettings.UpdateAsync();
-            }
+            OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);
 
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

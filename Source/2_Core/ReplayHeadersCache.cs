@@ -17,8 +17,8 @@ namespace BeatLeader {
                 infosDictionary = JsonConvert.DeserializeObject<Dictionary<string, SerializableReplayInfo>>(content);
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to initialize {nameof(ReplayHeadersCache)}\n{ex}");
-                infosDictionary = new();
             }
+            infosDictionary ??= new();
         }
 
         private static readonly string cacheFile = Path.Combine(UnityGame.UserDataPath, "BeatLeader", "ReplayHeadersCache");

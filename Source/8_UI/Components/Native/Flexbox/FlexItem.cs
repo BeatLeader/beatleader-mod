@@ -15,7 +15,7 @@ namespace BeatLeader.Components {
     //forked and modified from https://github.com/JiangJie/flexbox4unity/blob/main/src/FlexItem.cs
     [RequireComponent(typeof(RectTransform))]
     [ExecuteAlways]
-    internal sealed class FlexItem : UIBehaviour {
+    internal sealed class FlexItem : UIBehaviour, IFlexItem {
         #region Serialized Fields
 
         [SerializeField]

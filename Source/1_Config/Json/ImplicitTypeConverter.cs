@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace BeatLeader {
-    public class ImplicitTypeConverter<T> : JsonConverter {
+    internal class ImplicitTypeConverter<T> : JsonConverter {
         private readonly Type _targetType = typeof(T);
         
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {

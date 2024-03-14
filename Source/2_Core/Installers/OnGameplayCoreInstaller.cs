@@ -113,7 +113,7 @@ namespace BeatLeader.Installers {
 
             //Tweaks and tools
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesTo<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<TweaksHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<HotkeysHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

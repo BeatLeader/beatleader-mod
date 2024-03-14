@@ -22,8 +22,16 @@ namespace BeatLeader.Utils {
             return arr;
         }
 
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) {
+            return dictionary as Dictionary<TKey, TValue> ?? new(dictionary);
+        }
+
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action) {
             foreach (var item in enumerable) action(item);
+        }
+        
+        public static void ForEach<T, K>(this IDictionary<T, K> enumerable, Action<T, K> action) {
+            foreach (var item in enumerable) action(item.Key, item.Value);
         }
 
         public static void AddRange<T>(this ICollection<T> list, IEnumerable<T> range) {

@@ -27,7 +27,7 @@ namespace BeatLeader.Components {
             get => _cameraController?.SelectedView?.Name ?? string.Empty;
             set {
                 if (!_isInitialized) return;
-                _cameraController!.SetView(value);
+                //_cameraController!.SetView(value);
                 _launchData.Settings.CameraSettings!.CameraView = value;
             }
         }
@@ -46,11 +46,11 @@ namespace BeatLeader.Components {
 
         #region Setup
 
-        private IViewableCameraController? _cameraController;
+        private ICameraController? _cameraController;
         private ReplayLaunchData _launchData = null!;
         private bool _isInitialized;
 
-        public void Setup(IViewableCameraController cameraController, ReplayLaunchData launchData) {
+        public void Setup(ICameraController cameraController, ReplayLaunchData launchData) {
             if (_cameraController != null)
                 _cameraController.CameraViewChangedEvent -= HandleViewChanged;
 

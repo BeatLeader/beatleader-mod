@@ -82,6 +82,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region MovementProcessor
 
+        public PlayerMovementFrame CurrentMovementFrame => _lastProcessedNode?.Value ?? new();
+        
         private readonly List<IVirtualPlayerPoseReceiver> _poseReceivers = new();
 
         public void AddListener(IVirtualPlayerPoseReceiver poseReceiver) {

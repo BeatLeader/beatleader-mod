@@ -3,11 +3,7 @@ using System.Collections.Generic;
 namespace BeatLeader.Models {
     public interface IVirtualPlayerBodySpawner {
         IReadOnlyList<IVirtualPlayerBodyModel> BodyModels { get; }
-
-        void ApplyModelConfig(
-            IVirtualPlayerBodyModel model,
-            VirtualPlayerBodyConfig config
-        );
+        IReadOnlyDictionary<IVirtualPlayerBodyModel, IVirtualPlayerBodyConfig> BodyConfigs { get; }
 
         IControllableVirtualPlayerBody SpawnBody(
             IVirtualPlayersManager playersManager,

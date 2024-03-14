@@ -25,13 +25,13 @@ namespace BeatLeader.UI.Replayer {
         #region View
 
         private FlyingCameraView? _cameraView;
-        private float _speed;
+        private int _speed;
         private Vector2 _sensitivity;
 
         private void RefreshView() {
             if (_cameraView is null) return;
-            _cameraView.flySpeed = _speed;
-            _cameraView.mouseSensitivity = _sensitivity;
+            _cameraView.FlySpeed = _speed;
+            _cameraView.MouseSensitivity = _sensitivity;
         }
 
         #endregion
@@ -40,7 +40,7 @@ namespace BeatLeader.UI.Replayer {
 
         [UIAction("speed-change"), UsedImplicitly]
         private void HandleSpeedChanged(float speed) {
-            _speed = speed;
+            _speed = (int)speed;
             RefreshView();
         }
 

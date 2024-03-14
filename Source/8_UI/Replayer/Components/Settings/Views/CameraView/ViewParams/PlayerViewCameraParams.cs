@@ -17,7 +17,7 @@ namespace BeatLeader.UI.Replayer {
             Content.SetActive(trans is not null);
             ContentTransform.SetParent(trans, false);
             _cameraView = cameraView as PlayerViewCameraView;
-            RefreshView();
+            LoadFromView();
         }
 
         #endregion
@@ -29,11 +29,18 @@ namespace BeatLeader.UI.Replayer {
         private Vector3 _positionOffset;
         private Quaternion _rotationOffset;
 
+        private void LoadFromView() {
+            if (_cameraView is null) return;
+            _smoothness = _cameraView.Smoothness;
+            _positionOffset = _cameraView.PositionOffset;
+            _rotationOffset = _cameraView.RotationOffset;
+        }
+        
         private void RefreshView() {
             if (_cameraView is null) return;
-            _cameraView.smoothness = _smoothness;
-            _cameraView.positionOffset = _positionOffset;
-            _cameraView.rotationOffset = _rotationOffset;
+            _cameraView.Smoothness = _smoothness;
+            _cameraView.PositionOffset = _positionOffset;
+            _cameraView.RotationOffset = _rotationOffset;
         }
 
         #endregion

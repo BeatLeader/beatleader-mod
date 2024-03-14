@@ -10,7 +10,44 @@ using JetBrains.Annotations;
 namespace BeatLeader {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal class ConfigFileData {
-        public static ConfigFileData Instance { get; set; } = null!;
+        #region Serialization
+
+        private const string ConfigPath = "UserData\\BeatLeader.json";
+
+        public static void Initialize() {
+            if (File.Exists(ConfigPath)) {
+                var text = File.ReadAllText(ConfigPath);
+                try {
+                    Instance = JsonConvert.DeserializeObject<ConfigFileData>(text);
+                    Plugin.Log.Debug("BeatLeader config initialized");
+                    return;
+                } catch (Exception ex) {
+                    Plugin.Log.Error($"Failed to load config (default will be used):\n{ex}");
+                }
+            }
+            Instance = new();
+        }
+
+        public static void Save() {
+            try {
+                var text = JsonConvert.SerializeObject(
+                    Instance, Formatting.Indented, new JsonSerializerSettings {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                        Converters = {
+                            new StringEnumConverter()
+                        }
+                    }
+                );
+                File.WriteAllText(ConfigPath, text);
+                Plugin.Log.Debug("BeatLeader config saved");
+            } catch (Exception ex) {
+                Plugin.Log.Error($"Failed to save configuration:\n{ex}");
+            }
+        }
+
+        public static ConfigFileData Instance { get; private set; } = null!;
+
+        #endregion
 
         #region ConfigVersion
 
@@ -41,22 +78,19 @@ namespace BeatLeader {
         #endregion
 
         #region BeatLeaderServer
-
-        [UseConverter]
+        
         public BeatLeaderServer MainServer = ConfigDefaults.MainServer;
 
         #endregion
 
         #region ScoresContext
-
-        [UseConverter]
+        
         public ScoresContext ScoresContext = ConfigDefaults.ScoresContext;
 
         #endregion
 
         #region LeaderboardTableMask
-
-        [UseConverter]
+        
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
 
         #endregion
@@ -91,14 +125,12 @@ namespace BeatLeader {
 
         public bool SaveLocalReplays = ConfigDefaults.SaveLocalReplays;
         
-        [UseConverter]
         public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
 
         #endregion
 
         #region Language
-
-        [UseConverter]
+        
         public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
 
         #endregion

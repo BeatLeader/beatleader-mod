@@ -3,6 +3,7 @@ namespace BeatLeader.Models {
         string Name,
         string Id,
         string? Category,
+        BodyNode AnchorNode,
         bool HasAlphaSupport
     ) : IVirtualPlayerBodyPartModel;
 }

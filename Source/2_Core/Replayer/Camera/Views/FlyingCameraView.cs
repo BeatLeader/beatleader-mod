@@ -1,93 +1,83 @@
-﻿using ICameraView = BeatLeader.Models.ICameraView;
+﻿using BeatLeader.Models;
 using UnityEngine;
-using System;
 
 namespace BeatLeader.Replayer {
-    public class FlyingCameraView : ICameraView {
-        public FlyingCameraView(string name = "FlyingCameraView", Vector2 lastPos = default) {
-            Name = name;
-            _lastPos = lastPos;
-        }
+    public sealed class FlyingCameraView : CameraView {
+        public override string Name { get; init; } = "FlyingView";
 
-        public bool Update { get; } = true;
-        public string Name { get; }
-
-        public event Action? ResetEvent;
-
-        public Vector2 mouseSensitivity;
-        public float flySpeed;
-
-        public Vector3 manualPosition;
-        public float manualRotation;
+        public int FlySpeed { get; set; } = 4;
+        public SerializableVector2 MouseSensitivity { get; set; } = new Vector2(0.5f, 0.5f);
+        
+        public SerializableVector3 OriginPosition { get; set; } = new(0, 1.7f, 0);
+        public float OriginRotation { get; set; }
+        
+        public SerializableVector3 ManualPosition { get; set; }
+        public float ManualRotation { get; set; }
+        
         public bool manualMove;
 
-        protected Quaternion _lastRot;
-        protected Vector3 _lastPos;
-        protected bool _returnToTheLastPos;
-        protected bool _resetRequested;
+        private Quaternion _lastRot;
+        private Vector3 _lastPos;
+        private bool _wasActivatedEarlier;
 
         public void Reset() {
-            _resetRequested = true;
+            if (manualMove) {
+                ManualPosition = Vector3.zero;
+                ManualRotation = 0;
+            } else {
+                _lastPos = OriginPosition;
+                _lastRot = Quaternion.Euler(0, OriginRotation, 0);
+            }
         }
 
-        public virtual void ProcessView(Models.ICameraControllerBase cameraController) {
-            var transform = cameraController.CameraContainer;
-            var position = transform.localPosition;
-            var rotatiton = transform.localRotation;
+        public override void OnEnable() {
+            if (!_wasActivatedEarlier) Reset();
+            _wasActivatedEarlier = true;
+        }
+
+        public override Pose ProcessPose(Pose headPose) {
+            var position = _lastPos;
+            var rotation = _lastRot;
 
             if (!manualMove) {
-                var cursorUnlocked = false;
-                if (Cursor.lockState != CursorLockMode.Locked) {
-                    position = _lastPos;
-                    rotatiton = _lastRot;
-                    cursorUnlocked = true;
-                }
-                if (_resetRequested) {
-                    position = new Vector3(0, 1.7f, 0);
-                    rotatiton = Quaternion.identity;
-                    _resetRequested = false;
-                    ResetEvent?.Invoke();
-                } else if (!cursorUnlocked) {
-                    position = GetPosition(position, rotatiton);
-                    rotatiton = GetRotation(rotatiton);
+                if (Cursor.lockState == CursorLockMode.Locked) {
+                    position = GetPosition(position, rotation);
+                    rotation = GetRotation(rotation);
                 }
             } else {
-                if (_resetRequested) {
-                    manualPosition = Vector3.zero;
-                    manualRotation = 0;
-                    _resetRequested = false;
-                    ResetEvent?.Invoke();
-                }
-                position = manualPosition;
-                rotatiton = Quaternion.Euler(0, manualRotation, 0);
+                position = ManualPosition;
+                rotation = Quaternion.Euler(0, ManualRotation, 0);
             }
 
-            transform.localPosition = _lastPos = position;
-            transform.localRotation = _lastRot = rotatiton;
+            _lastPos = position;
+            _lastRot = rotation;
+
+            return new(position, rotation);
         }
 
-        protected virtual Vector3 GetPosition(Vector3 currentPosition, Quaternion currentRotation) {
-            Vector3 vector = currentPosition;
-            Vector3 a = Vector3.zero;
+        private Vector3 GetPosition(Vector3 currentPosition, Quaternion currentRotation) {
+            var vector = currentPosition;
+            var a = Vector3.zero;
             if (Input.GetKey(KeyCode.W)) {
                 a = currentRotation * Vector3.forward;
             }
             if (Input.GetKey(KeyCode.S)) {
                 a = -(currentRotation * Vector3.forward);
             }
-            Vector3 b = Vector3.zero;
+            var b = Vector3.zero;
             if (Input.GetKey(KeyCode.D)) {
                 b = currentRotation * Vector3.right;
             }
             if (Input.GetKey(KeyCode.A)) {
                 b = -(currentRotation * Vector3.right);
             }
-            vector += (a + b) * flySpeed * Time.deltaTime;
+            vector += (a + b) * (FlySpeed * Time.deltaTime);
             return vector;
         }
 
-        protected virtual Quaternion GetRotation(Quaternion currentRotation) {
-            Vector3 rotation = currentRotation.eulerAngles;
+        private Quaternion GetRotation(Quaternion currentRotation) {
+            var rotation = currentRotation.eulerAngles;
+            var mouseSensitivity = MouseSensitivity;
             rotation.x += -Input.GetAxis("MouseY") * mouseSensitivity.y;
             rotation.y += Input.GetAxis("MouseX") * mouseSensitivity.x;
             return Quaternion.Euler(rotation);

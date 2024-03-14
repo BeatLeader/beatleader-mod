@@ -39,18 +39,16 @@ namespace BeatLeader.Replayer.Emulation {
                 _player = player;
             }
 
-            public void ApplyConfig(VirtualPlayerBodyConfig config) {
-                var leftHandConfig = config.BodyParts.FirstOrDefault(static x => x.Id == "LEFT_SABER");
-                if (leftHandConfig is not null) {
+            public void ApplyConfig(IVirtualPlayerBodyConfig config) {
+                if (config.BodyParts.TryGetValue("LEFT_SABER", out var leftHandConfig)) {
                     ApplySaberConfig(true, leftHandConfig);
                 }
-                var rightHandConfig = config.BodyParts.FirstOrDefault(static x => x.Id == "RIGHT_SABER");
-                if (rightHandConfig is not null) {
+                if (config.BodyParts.TryGetValue("RIGHT_SABER", out var rightHandConfig)) {
                     ApplySaberConfig(false, rightHandConfig);
                 }
             }
 
-            private void ApplySaberConfig(bool left, VirtualPlayerBodyPartConfig config) {
+            private void ApplySaberConfig(bool left, IVirtualPlayerBodyPartConfig config) {
                 if (_usesOriginalSabers) {
                     var saber = left ? _originalControllers!.LeftHand : _originalControllers!.RightHand;
                     saber.gameObject.SetActive(config.Active);
@@ -151,16 +149,16 @@ namespace BeatLeader.Replayer.Emulation {
         private static readonly VirtualPlayerBodyModel primaryModel = new(
             "Base Game Sabers",
             new[] {
-                new VirtualPlayerBodyPartModel("Left Saber", "LEFT_SABER", "Sabers", false),
-                new VirtualPlayerBodyPartModel("Right Saber", "RIGHT_SABER", "Sabers", false)
+                new VirtualPlayerBodyPartModel("Left Saber", "LEFT_SABER", "Sabers", BodyNode.LeftHand, false),
+                new VirtualPlayerBodyPartModel("Right Saber", "RIGHT_SABER", "Sabers", BodyNode.RightHand, false)
             }
         );
 
         private static readonly VirtualPlayerBodyModel model = new(
             "Battle Royale Sabers",
             new[] {
-                new VirtualPlayerBodyPartModel("Left Saber", "LEFT_SABER", "Sabers", true),
-                new VirtualPlayerBodyPartModel("Right Saber", "RIGHT_SABER", "Sabers", true)
+                new VirtualPlayerBodyPartModel("Left Saber", "LEFT_SABER", "Sabers", BodyNode.LeftHand, true),
+                new VirtualPlayerBodyPartModel("Right Saber", "RIGHT_SABER", "Sabers", BodyNode.RightHand, true)
             }
         );
 
@@ -170,8 +168,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         protected override IEnumerable<IVirtualPlayerBodyComponent> SpawnedBodyComponents => _spawnedProviders;
 
-        protected override void ApplyPrimaryConfig(VirtualPlayerBodyConfig config) {
-            _sabersKeeper!.ApplyConfig(config);
+        protected override void ApplyPrimaryConfig(IVirtualPlayerBodyConfig config) {
+            _sabersKeeper?.ApplyConfig(config);
         }
 
         #endregion

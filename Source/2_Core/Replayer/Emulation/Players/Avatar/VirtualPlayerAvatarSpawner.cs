@@ -29,7 +29,7 @@ namespace BeatLeader.Replayer.Emulation {
             _avatarPool.Despawn(avatarBody);
         }
 
-        protected override void ApplyConfig(VirtualPlayerBodyConfig config) {
+        protected override void ApplyConfig(IVirtualPlayerBodyConfig config) {
             ApplyPrimaryConfig(config);
         }
     }

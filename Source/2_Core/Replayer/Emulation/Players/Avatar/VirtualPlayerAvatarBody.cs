@@ -63,9 +63,9 @@ namespace BeatLeader.Replayer.Emulation {
             _rightHandTransform.SetLocalPose(rightHandPose);
         }
 
-        public void ApplyConfig(VirtualPlayerBodyConfig config) {
-            foreach (var part in config.BodyParts) {
-                var trans = part.Id switch {
+        public void ApplyConfig(IVirtualPlayerBodyConfig config) {
+            foreach (var (id, part) in config.BodyParts) {
+                var trans = id switch {
                     "BATTLE_ROYALE_AVATAR_HEAD" => _headTransform,
                     "BATTLE_ROYALE_AVATAR_BODY" => _bodyTransform,
                     "BATTLE_ROYALE_AVATAR_LEFT_HAND" => _leftHandTransform,
@@ -81,10 +81,10 @@ namespace BeatLeader.Replayer.Emulation {
         #region BodyModel
 
         private static readonly List<IVirtualPlayerBodyPartModel> bodyPartModels = new() {
-            new VirtualPlayerBodyPartModel("Head", "BATTLE_ROYALE_AVATAR_HEAD", null, false),
-            new VirtualPlayerBodyPartModel("Body", "BATTLE_ROYALE_AVATAR_BODY", null, false),
-            new VirtualPlayerBodyPartModel("Left Hand", "BATTLE_ROYALE_AVATAR_LEFT_HAND", "Hands", false),
-            new VirtualPlayerBodyPartModel("Right Hand", "BATTLE_ROYALE_AVATAR_RIGHT_HAND", "Hands", false),
+            new VirtualPlayerBodyPartModel("Head", "BATTLE_ROYALE_AVATAR_HEAD", null, BodyNode.Head, false),
+            new VirtualPlayerBodyPartModel("Body", "BATTLE_ROYALE_AVATAR_BODY", null, BodyNode.Unknown, false),
+            new VirtualPlayerBodyPartModel("Left Hand", "BATTLE_ROYALE_AVATAR_LEFT_HAND", "Hands", BodyNode.LeftHand, false),
+            new VirtualPlayerBodyPartModel("Right Hand", "BATTLE_ROYALE_AVATAR_RIGHT_HAND", "Hands", BodyNode.RightHand, false),
         };
 
         public static readonly IVirtualPlayerBodyModel BodyModel = new VirtualPlayerBodyModel("Avatar", bodyPartModels);

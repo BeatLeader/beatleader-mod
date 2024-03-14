@@ -1,5 +1,4 @@
 using BeatLeader.Models;
-using BeatLeader.Replayer;
 using HMUI;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,7 +14,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
         [Inject] private readonly IVirtualPlayerBodySpawner _bodySpawner = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
-        [Inject] private readonly ReplayerCameraController _cameraController = null!;
+        [Inject] private readonly ICameraController _cameraController = null!;
         [Inject] private readonly IReplayWatermark _watermark = null!;
 
         #endregion
@@ -37,7 +36,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
                     _finishController,
                     _timeController,
                     _playersManager,
-                    _cameraController.ViewableCamera,
+                    _cameraController,
                     _bodySpawner,
                     _launchData,
                     _watermark

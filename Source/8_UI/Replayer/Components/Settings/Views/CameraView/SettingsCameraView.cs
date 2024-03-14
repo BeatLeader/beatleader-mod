@@ -100,13 +100,13 @@ namespace BeatLeader.UI.Replayer {
 
         #region CameraViews
 
-        private IList<ICameraView> CameraViews => _cameraController!.Views;
+        private IReadOnlyList<ICameraView> CameraViews => _cameraController!.Views;
 
         private ICameraView? SelectedCameraView {
             set {
                 _selectedCameraView = value;
                 if (value is null) return;
-                _cameraController!.SetView(value.Name);
+                _cameraController!.SetView(value);
             }
         }
 
@@ -129,15 +129,15 @@ namespace BeatLeader.UI.Replayer {
 
         #region Setup
 
-        private IViewableCameraController? _cameraController;
+        private ICameraController? _cameraController;
 
         public void Setup(
-            IViewableCameraController cameraController,
+            ICameraController cameraController,
             ReplayerCameraSettings cameraSettings
         ) {
             _cameraController = cameraController;
             _fovSlider.ValueRange = new(cameraSettings.MinCameraFOV, cameraSettings.MaxCameraFOV);
-            _fovSlider.Value = cameraController.Camera!.fieldOfView;
+            _fovSlider.Value = cameraController.Camera.fieldOfView;
             RefreshCameraViews();
         }
 
@@ -158,7 +158,7 @@ namespace BeatLeader.UI.Replayer {
 
         private void SetFOV(float fov) {
             ValidateAndThrow();
-            _cameraController!.Camera!.fieldOfView = fov;
+            _cameraController!.Camera.fieldOfView = fov;
         }
 
         #endregion

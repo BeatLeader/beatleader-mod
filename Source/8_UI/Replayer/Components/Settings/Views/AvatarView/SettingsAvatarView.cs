@@ -67,12 +67,13 @@ namespace BeatLeader.UI.Replayer {
         private static readonly VirtualPlayerBodyModel dummyModel = new("", Array.Empty<VirtualPlayerBodyPartModel>());
 
         private IVirtualPlayerBodyModel? _bodyModel;
-        private VirtualPlayerBodyConfig? _bodyConfig;
+        private IVirtualPlayerBodyConfig? _bodyConfig;
 
         private void ReloadBodyModels() {
             _bodyModels.Clear();
             _bodyModels.AddRange(_bodySpawner!.BodyModels);
             _modelsDropdown.UpdateChoices();
+            _modelsDropdown.interactable = _bodyModels.Count > 1;
             BodyModel = _bodySpawner!.BodyModels.First();
         }
 
@@ -119,44 +120,31 @@ namespace BeatLeader.UI.Replayer {
 
         #region Config
 
-        private record ConfigWithModel(
+        private record PartConfigWithModel(
             IVirtualPlayerBodyPartModel Model,
-            VirtualPlayerBodyPartConfig Config
+            IVirtualPlayerBodyPartConfig Config
         );
 
-        private record ConfigsGroup(
+        private record PartConfigsGroup(
             string? GroupName,
-            IEnumerable<ConfigWithModel> Configs
+            IEnumerable<PartConfigWithModel> Configs
         );
         
-        private readonly Dictionary<IVirtualPlayerBodyModel, IEnumerable<ConfigsGroup>> _configBindings = new();
-        private IEnumerable<ConfigsGroup>? _groupedConfigs;
+        private readonly Dictionary<IVirtualPlayerBodyModel, IEnumerable<PartConfigsGroup>> _configBindings = new();
+        private IEnumerable<PartConfigsGroup>? _groupedConfigs;
 
         private void ReloadBindings() {
-            ReloadConfig();
+            _bodyConfig = _bodySpawner!.BodyConfigs[_bodyModel!];
             if (!_configBindings.TryGetValue(_bodyModel!, out var groupedConfigs)) {
-                Debug.Log("Creating new configs");
                 var modelsDict = _bodyModel!.Parts.ToDictionary(static x => x.Id);
                 groupedConfigs = _bodyConfig!.BodyParts
-                    .Select(x => new ConfigWithModel(modelsDict[x.Id], x))
-                    .GroupBy(x => x.Model.Category ?? "Other")
-                    .Select(x => new ConfigsGroup(x.Key, x))
+                    .Select(x => new PartConfigWithModel(modelsDict[x.Key], x.Value))
+                    .GroupBy(static x => x.Model.Category ?? "Other")
+                    .Select(static x => new PartConfigsGroup(x.Key, x))
                     .ToArray();
                 _configBindings[_bodyModel] = groupedConfigs;
             }
             _groupedConfigs = groupedConfigs;
-        }
-
-        private void ReloadConfig() {
-            var config = _bodySettings.GetConfigByNameOrNull(_bodyModel!.Name);
-            config ??= new VirtualPlayerBodyConfig(_bodyModel);
-            _bodySettings.AddOrUpdateConfig(config);
-            
-            if (_bodyConfig is not null) {
-                _bodyConfig.ConfigUpdatedEvent -= HandleConfigUpdated;
-            }
-            _bodyConfig = config;
-            _bodyConfig.ConfigUpdatedEvent += HandleConfigUpdated;
         }
 
         #endregion
@@ -178,11 +166,11 @@ namespace BeatLeader.UI.Replayer {
             #region Setup
 
             private SettingsAvatarView _settingsAvatarView = null!;
-            private ConfigsGroup _configsGroup = null!;
+            private PartConfigsGroup _configsGroup = null!;
 
             public void Setup(
                 SettingsAvatarView avatarView,
-                ConfigsGroup configsGroup
+                PartConfigsGroup configsGroup
             ) {
                 _text.text = configsGroup.GroupName;
                 _settingsAvatarView = avatarView;
@@ -231,7 +219,7 @@ namespace BeatLeader.UI.Replayer {
             }
         }
 
-        private void AddCategory(ConfigsGroup configsGroup) {
+        private void AddCategory(PartConfigsGroup configsGroup) {
             if (!_reusableCategories.TryPop(out var category)) {
                 category = BodyPartsCategory.Instantiate(_bodyPartsContainer);
             }
@@ -255,7 +243,7 @@ namespace BeatLeader.UI.Replayer {
 
         private BodyPartControl GetBodyPart(
             IVirtualPlayerBodyPartModel model,
-            VirtualPlayerBodyPartConfig partConfig
+            IVirtualPlayerBodyPartConfig partConfig
         ) {
             if (!_reusableParts.TryPop(out var partControl)) {
                 partControl = BodyPartControl.Instantiate(ContentTransform);
@@ -291,7 +279,7 @@ namespace BeatLeader.UI.Replayer {
                 get => _enabled;
                 set {
                     _enabled = value;
-                    _partConfig!.Active = value;
+                    _partConfig!.PotentiallyActive = value;
                 }
             }
 
@@ -301,11 +289,11 @@ namespace BeatLeader.UI.Replayer {
 
             #region Setup
 
-            private VirtualPlayerBodyPartConfig? _partConfig;
+            private IVirtualPlayerBodyPartConfig? _partConfig;
 
             public void Setup(
                 IVirtualPlayerBodyPartModel model,
-                VirtualPlayerBodyPartConfig partConfig
+                IVirtualPlayerBodyPartConfig partConfig
             ) {
                 _partConfig = partConfig;
                 _toggleSetting.Value = partConfig.Active;
@@ -323,14 +311,6 @@ namespace BeatLeader.UI.Replayer {
             }
 
             #endregion
-        }
-
-        #endregion
-
-        #region Callbacks
-
-        private void HandleConfigUpdated() {
-            _bodySpawner!.ApplyModelConfig(_bodyModel!, _bodyConfig!);
         }
 
         #endregion

@@ -45,7 +45,7 @@ namespace BeatLeader.Components {
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
             IVirtualPlayersManager playersManager,
-            IViewableCameraController? cameraController,
+            ICameraController? cameraController,
             ReplayLaunchData launchData,
             IReplayWatermark? watermark = null,
             ILayoutEditor? layoutEditor = null

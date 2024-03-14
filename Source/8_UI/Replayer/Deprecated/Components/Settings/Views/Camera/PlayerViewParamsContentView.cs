@@ -12,7 +12,7 @@ namespace BeatLeader.Components {
             get => PlayerViewConfig.Instance.MovementSmoothness;
             set {
                 if (!IsParsed) return;
-                View!.smoothness = MathUtils.Map(value, 1, 10, 10, 1);
+                //View!.smoothness = MathUtils.Map(value, 1, 10, 10, 1);
                 PlayerViewConfig.Instance.MovementSmoothness = value;
             }
         }
@@ -78,12 +78,12 @@ namespace BeatLeader.Components {
         #region UI Callbacks
 
         private void HandlePositionChanged(Vector3 vector) {
-            View!.positionOffset = vector;
+            //View!.positionOffset = vector;
             PlayerViewConfig.Instance.PositionOffset = vector;
         }
 
         private void HandleRotationChanged(Vector3 vector) {
-            View!.rotationOffset = Quaternion.Euler(vector);
+            //View!.rotationOffset = Quaternion.Euler(vector);
             PlayerViewConfig.Instance.RotationOffset = vector;
         }
 

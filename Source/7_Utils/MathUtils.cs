@@ -3,6 +3,18 @@ using UnityEngine;
 
 namespace BeatLeader.Utils {
     internal static class MathUtils {
+        public static void SwapMaskBit(this ref int mask, int bit) {
+            mask ^= 1 << bit;
+        }
+        
+        public static void SetMaskBit(this ref int mask, int bit, bool state) {
+            if (state) {
+                mask &= ~(1 << bit);
+            } else {
+                mask |= 1 << bit;
+            }
+        }
+        
         public static float RoundStepped(float value, float step, float startValue = 0) {
             if (step is 0) return value;
             var relativeValue = value - startValue;

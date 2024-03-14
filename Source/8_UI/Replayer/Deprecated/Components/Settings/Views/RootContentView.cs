@@ -31,7 +31,7 @@ namespace BeatLeader.Components {
             IBeatmapTimeController timeController,
             IReplayPauseController pauseController,
             IVirtualPlayersManager playersManager,
-            IViewableCameraController? cameraController,
+            ICameraController? cameraController,
             ReplayLaunchData launchData,
             IReplayWatermark? watermark = null,
             IReplayTimeline? timeline = null,
@@ -41,7 +41,7 @@ namespace BeatLeader.Components {
             _otherContentView.Setup(playersManager, launchData, watermark, timeline);
             var useExternalCamera = launchData.Settings
                 .CameraSettings == null || cameraController == null;
-            cameraController?.SetEnabled(!useExternalCamera);
+            //cameraController?.SetEnabled(!useExternalCamera);
             UpdateCameraButton(useExternalCamera);
             if (useExternalCamera) return;
             _cameraContentView.Setup(cameraController!, launchData);

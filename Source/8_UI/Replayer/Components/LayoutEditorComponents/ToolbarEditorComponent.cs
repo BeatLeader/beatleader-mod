@@ -17,7 +17,7 @@ namespace BeatLeader.UI.Replayer {
             IReplayFinishController finishController,
             IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
-            IViewableCameraController cameraController,
+            ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner,
             ReplayLaunchData launchData
         ) {

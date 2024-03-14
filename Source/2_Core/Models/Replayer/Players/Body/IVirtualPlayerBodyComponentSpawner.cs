@@ -5,7 +5,7 @@ namespace BeatLeader.Models {
         
         void ApplyModelConfig(
             bool applyToPrimaryModel,
-            VirtualPlayerBodyConfig config
+            IVirtualPlayerBodyConfig config
         );
     }
 }

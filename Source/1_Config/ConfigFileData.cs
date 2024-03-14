@@ -30,7 +30,12 @@ namespace BeatLeader {
         public static void Save() {
             try {
                 var text = JsonConvert.SerializeObject(
-                    Instance, Formatting.Indented, new StringEnumConverter()
+                    Instance, Formatting.Indented, new JsonSerializerSettings {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                        Converters = {
+                            new StringEnumConverter()
+                        }
+                    }
                 );
                 File.WriteAllText(ConfigPath, text);
                 Plugin.Log.Debug("BeatLeader config saved");

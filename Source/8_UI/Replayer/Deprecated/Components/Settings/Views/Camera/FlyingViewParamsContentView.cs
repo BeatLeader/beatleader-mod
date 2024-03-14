@@ -10,14 +10,14 @@ namespace BeatLeader.Components {
         private bool SetupFPFC => InputUtils.IsInFPFC;
 
         public override void Setup(Models.ICameraView poseProvider) {
-            if (View != null) View.ResetEvent -= HandleViewResetted;
+            //if (View != null) View.ResetEvent -= HandleViewResetted;
             base.Setup(poseProvider);
             View!.manualMove = !SetupFPFC;
-            View.ResetEvent += HandleViewResetted;
-            View.mouseSensitivity = _mouseSensitivity;
-            View.flySpeed = _flySpeed;
-            View.manualPosition = _position;
-            View.manualRotation = _rotation;
+            //View.ResetEvent += HandleViewResetted;
+            //View.mouseSensitivity = _mouseSensitivity;
+            //View.flySpeed = _flySpeed;
+            //View.manualPosition = _position;
+            //View.manualRotation = _rotation;
         }
 
         protected override void OnInstantiate() {
@@ -38,10 +38,10 @@ namespace BeatLeader.Components {
             if (View == null) return;
             var conf = FlyingViewConfig.Instance;
             var view = View!;
-            conf.VRPosition = view.manualPosition;
-            conf.VRRotation = view.manualRotation;
-            conf.FlySpeed = (int)view.flySpeed;
-            conf.Sensitivity = view.mouseSensitivity;
+            //conf.VRPosition = view.manualPosition;
+            //conf.VRRotation = view.manualRotation;
+            //conf.FlySpeed = (int)view.flySpeed;
+            //conf.Sensitivity = view.mouseSensitivity;
         }
 
         [UIAction("reset-position")]
@@ -54,34 +54,34 @@ namespace BeatLeader.Components {
     partial class FlyingViewParamsContentView {
         [UIValue("x-pos")]
         private float XPos {
-            get => View?.manualPosition.x ?? _position.x;
+            //get => View?.manualPosition.x ?? _position.x;
             set {
                 _position.x = value;
                 UpdateLocationText();
                 if (View == null) return;
-                View.manualPosition.x = value;
+                //View.manualPosition.x = value;
             }
         }
 
         [UIValue("y-pos")]
         private float YPos {
-            get => View?.manualPosition.y ?? _position.y;
+           // get => View?.manualPosition.y ?? _position.y;
             set {
                 _position.y = value;
                 UpdateLocationText();
                 if (View == null) return;
-                View.manualPosition.y = value;
+                //View.manualPosition.y = value;
             }
         }
 
         [UIValue("z-pos")]
         private float ZPos {
-            get => View?.manualPosition.z ?? _position.z;
+            //get => View?.manualPosition.z ?? _position.z;
             set {
                 _position.z = value;
                 UpdateLocationText();
                 if (View == null) return;
-                View.manualPosition.z = value;
+               // View.manualPosition.z = value;
             }
         }
 
@@ -92,7 +92,7 @@ namespace BeatLeader.Components {
                 _rotation = value;
                 UpdateLocationText();
                 if (View == null) return;
-                View.manualRotation = value;
+               // View.manualRotation = value;
             }
         }
 
@@ -111,8 +111,8 @@ namespace BeatLeader.Components {
 
         private void HandleViewResetted() {
             if (SetupFPFC) return;
-            _position = View!.manualPosition;
-            _rotation = View.manualRotation;
+            //_position = View!.manualPosition;
+            //_rotation = View.manualRotation;
             NotifyPropertyChanged(nameof(XPos));
             NotifyPropertyChanged(nameof(YPos));
             NotifyPropertyChanged(nameof(ZPos));
@@ -125,11 +125,11 @@ namespace BeatLeader.Components {
     partial class FlyingViewParamsContentView {
         [UIValue("fly-speed")]
         private int FlySpeed {
-            get => (int)(View?.flySpeed ?? _flySpeed);
+           // get => (int)(View?.flySpeed ?? _flySpeed);
             set {
                 _flySpeed = value;
                 if (View == null) return;
-                View.flySpeed = value;
+                //View.flySpeed = value;
             }
         }
 
@@ -160,7 +160,7 @@ namespace BeatLeader.Components {
 
         private void HandleVectorChanged(Vector3 vector) {
             if (View == null) return;
-            View!.mouseSensitivity = vector;
+           // View!.mouseSensitivity = vector;
         }
     }
 }

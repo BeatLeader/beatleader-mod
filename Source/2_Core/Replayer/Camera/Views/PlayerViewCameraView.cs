@@ -1,35 +1,41 @@
-﻿using ICameraView = BeatLeader.Models.ICameraView;
+﻿using BeatLeader.Models;
+using BeatLeader.Utils;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.Replayer {
-    public class PlayerViewCameraView : ICameraView {
-        public PlayerViewCameraView(string name = "PlayerView", float smoothness = 8) {
-            Name = name;
-            this.smoothness = smoothness;
+    public class PlayerViewCameraView : CameraView {
+        [Inject] private readonly IVirtualPlayerBodySpawner _bodySpawner = null!;
+
+        public override string Name { get; init; } = "PlayerView";
+
+        public SerializableVector3 PositionOffset { get; set; } = new(0, 0, -1);
+        public SerializableQuaternion RotationOffset { get; set; } = Quaternion.identity;
+        public float Smoothness { get; set; } = 8;
+        
+        private Vector3 _lastHeadPos;
+        private Quaternion _lastHeadRot = Quaternion.identity;
+
+        public override Pose ProcessPose(Pose headPose) {
+            var position = headPose.position + PositionOffset;
+            var rotation = headPose.rotation * RotationOffset;
+
+            var f = Time.deltaTime * Smoothness;
+            position = Vector3.Lerp(_lastHeadPos, position, f);
+            rotation = Quaternion.Lerp(_lastHeadRot, rotation, f);
+
+            _lastHeadPos = position;
+            _lastHeadRot = rotation;
+
+            return new(position, rotation);
         }
 
-        public bool Update => true;
-        public string Name { get; }
+        public override void OnEnable() {
+            _bodySpawner.BodyConfigs.Values.ForEach(static x => x.AnchorMask &= ~BodyNode.Head);
+        }
 
-        public Vector3 positionOffset;
-        public Quaternion rotationOffset = Quaternion.identity;
-        public float smoothness;
-
-        public void ProcessView(Models.ICameraControllerBase cameraController) {
-            var transform = cameraController.CameraContainer;
-            var position = transform.localPosition;
-            var rotation = transform.localRotation;
-
-            position -= positionOffset;
-            rotation *= Quaternion.Inverse(rotationOffset);
-
-            var slerp = Time.deltaTime * smoothness;
-            var head = cameraController.ControllersProvider.Head.transform;
-            position = Vector3.Lerp(position, head.localPosition, slerp);
-            rotation = Quaternion.Lerp(rotation, head.localRotation, slerp);
-
-            transform.localPosition = position += positionOffset;
-            transform.localRotation = rotation *= rotationOffset;
+        public override void OnDisable() {
+            _bodySpawner.BodyConfigs.Values.ForEach(static x => x.AnchorMask |= BodyNode.Head);
         }
     }
 }

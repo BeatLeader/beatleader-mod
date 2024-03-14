@@ -36,7 +36,7 @@ namespace BeatLeader.UI.Replayer {
 
         public void Setup(
             ReplayerSettings settings,
-            IViewableCameraController cameraController,
+            ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner
         ) {
             _cameraView.Setup(cameraController, settings.CameraSettings!);

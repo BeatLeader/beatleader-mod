@@ -33,15 +33,20 @@ namespace BeatLeader.Replayer.Emulation {
 
         [Inject] private readonly IVirtualPlayerAvatarSpawner _avatarSpawner = null!;
         [Inject] private readonly IVirtualPlayerSabersSpawner _sabersSpawner = null!;
+        [Inject] private readonly ReplayLaunchData _replayLaunchData = null!;
 
         #endregion
 
         #region Models
 
         public IReadOnlyList<IVirtualPlayerBodyModel> BodyModels { get; private set; } = null!;
+        public IReadOnlyDictionary<IVirtualPlayerBodyModel, IVirtualPlayerBodyConfig> BodyConfigs { get; private set; } = null!;
 
         private IVirtualPlayerBodyModel _primaryModel = null!;
         private IVirtualPlayerBodyModel _model = null!;
+
+        private IVirtualPlayerBodyConfig _primaryConfig = null!;
+        private IVirtualPlayerBodyConfig _config = null!;
 
         private void Awake() {
             _model = MergeModels(
@@ -54,7 +59,34 @@ namespace BeatLeader.Replayer.Emulation {
                 _avatarSpawner.PrimaryModel,
                 _sabersSpawner.PrimaryModel
             );
-            BodyModels = new[] { _model, _primaryModel };
+
+            _config = GetConfigByModel(_model);
+            _primaryConfig = GetConfigByModel(_primaryModel);
+
+            _config.ConfigUpdatedEvent += HandleConfigUpdated;
+            _primaryConfig.ConfigUpdatedEvent += HandlePrimaryConfigUpdated;
+            
+            var isBattleRoyale = _replayLaunchData.IsBattleRoyale;
+            BodyModels = isBattleRoyale ?
+                new[] { _model, _primaryModel } :
+                new[] { _primaryModel };
+            BodyConfigs = isBattleRoyale ? new Dictionary<IVirtualPlayerBodyModel, IVirtualPlayerBodyConfig> {
+                { _model, _config },
+                { _primaryModel, _primaryConfig }
+            } : new Dictionary<IVirtualPlayerBodyModel, IVirtualPlayerBodyConfig> {
+                { _primaryModel, _primaryConfig }
+            };
+            
+            HandleConfigUpdated(null);
+            HandlePrimaryConfigUpdated(null);
+        }
+
+        private IVirtualPlayerBodyConfig GetConfigByModel(IVirtualPlayerBodyModel model) {
+            var bodySettings = _replayLaunchData.Settings.BodySettings;
+            var conf = bodySettings.GetConfigByNameOrNull(model.Name);
+            conf ??= new SerializableVirtualPlayerBodyConfig(model);
+            bodySettings.AddOrUpdateConfig(model, conf);
+            return conf;
         }
 
         private static IVirtualPlayerBodyModel MergeModels(
@@ -72,15 +104,6 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Spawn & Despawn
 
-        public void ApplyModelConfig(IVirtualPlayerBodyModel model, VirtualPlayerBodyConfig config) {
-            if (model != _model && model != _primaryModel) {
-                throw new InvalidOperationException("Unable to apply config to a model which does not belong to the spawner");
-            }
-            var primary = model == _primaryModel;
-            _avatarSpawner.ApplyModelConfig(primary, config);
-            _sabersSpawner.ApplyModelConfig(primary, config);
-        }
-
         public IControllableVirtualPlayerBody SpawnBody(IVirtualPlayersManager playersManager, IVirtualPlayerBase player) {
             var avatar = _avatarSpawner.SpawnAvatar(playersManager, player);
             var sabers = _sabersSpawner.SpawnSabers(playersManager, player);
@@ -93,6 +116,23 @@ namespace BeatLeader.Replayer.Emulation {
             }
             _avatarSpawner.DespawnAvatar(castedBody.Avatar);
             _sabersSpawner.DespawnSabers(castedBody.Sabers);
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandlePrimaryConfigUpdated(IVirtualPlayerBodyPartConfig? config) {
+            UpdateConfig(true, _primaryConfig);
+        }
+
+        private void HandleConfigUpdated(IVirtualPlayerBodyPartConfig? config) {
+            UpdateConfig(false, _config);
+        }
+
+        private void UpdateConfig(bool primary, IVirtualPlayerBodyConfig config) {
+            _avatarSpawner.ApplyModelConfig(primary, config);
+            _sabersSpawner.ApplyModelConfig(primary, config);
         }
 
         #endregion

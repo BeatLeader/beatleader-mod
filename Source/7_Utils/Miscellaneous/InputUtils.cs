@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace BeatLeader.Utils
 {
+    [Obsolete("This class is obsolete and will be removed in future updates. Use EnvironmentUtils instead.")]
     public static class InputUtils
     {
         [Flags] public enum InputType

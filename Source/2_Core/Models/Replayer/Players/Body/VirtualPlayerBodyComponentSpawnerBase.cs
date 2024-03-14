@@ -7,10 +7,10 @@ namespace BeatLeader.Models {
 
         protected abstract IEnumerable<IVirtualPlayerBodyComponent> SpawnedBodyComponents { get; }
 
-        private VirtualPlayerBodyConfig? _primaryConfig;
-        private VirtualPlayerBodyConfig? _config;
+        private IVirtualPlayerBodyConfig? _primaryConfig;
+        private IVirtualPlayerBodyConfig? _config;
 
-        public void ApplyModelConfig(bool applyToPrimaryModel, VirtualPlayerBodyConfig config) {
+        public void ApplyModelConfig(bool applyToPrimaryModel, IVirtualPlayerBodyConfig config) {
             if (applyToPrimaryModel) {
                 _primaryConfig = config;
                 ApplyPrimaryConfig(config);
@@ -20,15 +20,15 @@ namespace BeatLeader.Models {
             }
         }
 
-        protected virtual void ApplyPrimaryConfig(VirtualPlayerBodyConfig config) {
+        protected virtual void ApplyPrimaryConfig(IVirtualPlayerBodyConfig config) {
             ApplyConfigToComponents(true, config);
         }
 
-        protected virtual void ApplyConfig(VirtualPlayerBodyConfig config) {
+        protected virtual void ApplyConfig(IVirtualPlayerBodyConfig config) {
             ApplyConfigToComponents(false, config);
         }
 
-        private void ApplyConfigToComponents(bool applyToPrimaryModel, VirtualPlayerBodyConfig config) {
+        private void ApplyConfigToComponents(bool applyToPrimaryModel, IVirtualPlayerBodyConfig config) {
             foreach (var component in SpawnedBodyComponents) {
                 if (applyToPrimaryModel && !component.UsesPrimaryModel) continue;
                 component.ApplyConfig(config);

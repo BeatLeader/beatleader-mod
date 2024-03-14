@@ -37,26 +37,20 @@ namespace BeatLeader.Components {
     //forked and modified from https://github.com/JiangJie/flexbox4unity/blob/main/src/FlexContainer.cs
     [RequireComponent(typeof(RectTransform))]
     [ExecuteAlways]
-    internal sealed class FlexContainer : UIBehaviour, ICanvasElement, ILayoutElement {
+     internal sealed class FlexContainer : UIBehaviour, ICanvasElement, ILayoutElement {
         #region Serialized Fields
 
-        [SerializeField]
-        private FlexDirection flexDirection;
-        
-        [SerializeField]
-        private JustifyContent justifyContent;
+        [SerializeField] private FlexDirection flexDirection;
 
-        [SerializeField]
-        private AlignItems alignItems;
-        
-        [SerializeField]
-        private Vector2 gap;
-        
-        [SerializeField]
-        private bool autoWidth;
-        
-        [SerializeField]
-        private bool autoHeight;
+        [SerializeField] private JustifyContent justifyContent;
+
+        [SerializeField] private AlignItems alignItems;
+
+        [SerializeField] private Vector2 gap;
+
+        [SerializeField] private bool autoWidth;
+
+        [SerializeField] private bool autoHeight;
 
         #endregion
 
@@ -111,7 +105,7 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region ILayoutElement
 
         float ILayoutElement.preferredWidth {
@@ -173,12 +167,16 @@ namespace BeatLeader.Components {
             }
         }
 
-        private readonly List<(RectTransform rect, FlexItem flex)> _children = new();
+        public List<(RectTransform rect, IFlexItem flex)>? Children { get; set; }
+
+        private List<(RectTransform rect, IFlexItem flex)> ChildrenInternal => Children ?? _children;
+
+        private readonly List<(RectTransform rect, IFlexItem flex)> _children = new();
         private bool _isDirty;
 
         private DrivenRectTransformTracker _tracker;
         private RectTransform? _rect;
-        
+
         private readonly List<int> _calculationBuffer = new();
         private readonly List<int> _growableItemBuffer = new();
         private readonly List<int> _shrinkableItemBuffer = new();
@@ -187,7 +185,7 @@ namespace BeatLeader.Components {
 
         private void CalculateLayout() {
             RefreshChildren();
-            if (_children.Count == 0) return;
+            if (ChildrenInternal.Count == 0) return;
 
             var mainAxis = (int)(flexDirection is FlexDirection.Row or FlexDirection.RowReverse ? Axis.X : Axis.Y);
             var crossAxis = 1 - mainAxis;
@@ -201,13 +199,13 @@ namespace BeatLeader.Components {
             _shrinkableItemBuffer.Clear();
             _itemMainSizeBuffer.Clear();
             _itemCrossSizeBuffer.Clear();
-            
+
             var itemMainSizeList = _itemMainSizeBuffer;
 
-            var gapMainSize = gap[mainAxis] * (_children.Count - 1);
+            var gapMainSize = gap[mainAxis] * (ChildrenInternal.Count - 1);
 
-            for (var index = 0; index < _children.Count; index++) {
-                var item = _children[index];
+            for (var index = 0; index < ChildrenInternal.Count; index++) {
+                var item = ChildrenInternal[index];
                 var flex = item.flex;
                 var rect = item.rect;
 
@@ -251,16 +249,15 @@ namespace BeatLeader.Components {
 
                 if (autoMain) restSpace = 0;
             }
-            
+
             switch (restSpace) {
                 case > 0:
-                    var totalGrow = Math.Max(_growableItemBuffer.Sum(i => _children[i].flex.FlexGrow), 1f);
+                    var totalGrow = Math.Max(_growableItemBuffer.Sum(i => ChildrenInternal[i].flex.FlexGrow), 1f);
                     while (_growableItemBuffer.Count > 0 && restSpace > 0) {
                         var hasMoreSpace = false;
 
-                        for (var i = 0; i < _growableItemBuffer.Count; i++) {
-                            var index = _growableItemBuffer[i];
-                            var flex = _children[index].flex;
+                        foreach (var index in _growableItemBuffer) {
+                            var flex = ChildrenInternal[index].flex;
                             var maxMainSize = flex.MaxSize[mainAxis];
 
                             var mainSize = itemMainSizeList[index];
@@ -286,15 +283,14 @@ namespace BeatLeader.Components {
                     }
                     break;
                 case < 0:
-                    var totalShrink = Math.Min(_shrinkableItemBuffer.Sum(i => _children[i].flex.FlexShrink), 1f);
-                    var totalShrinkSize = _shrinkableItemBuffer.Aggregate(0f, (ret, index) => ret + (itemMainSizeList[index] * _children[index].flex.FlexShrink));
-                    
+                    var totalShrink = Math.Min(_shrinkableItemBuffer.Sum(i => ChildrenInternal[i].flex.FlexShrink), 1f);
+                    var totalShrinkSize = _shrinkableItemBuffer.Aggregate(0f, (ret, index) => ret + (itemMainSizeList[index] * ChildrenInternal[index].flex.FlexShrink));
+
                     while (_shrinkableItemBuffer.Count > 0 && restSpace < 0) {
                         var needMoreSpace = false;
 
-                        for (var i = 0; i < _shrinkableItemBuffer.Count; i++) {
-                            var index = _shrinkableItemBuffer[i];
-                            var flex = _children[index].flex;
+                        foreach (var index in _shrinkableItemBuffer) {
+                            var flex = ChildrenInternal[index].flex;
                             var minMainSize = flex.MinSize[mainAxis];
 
                             var mainSize = itemMainSizeList[index];
@@ -325,7 +321,7 @@ namespace BeatLeader.Components {
             }
 
             for (var index = 0; index < itemMainSizeList.Count; index++) {
-                var item = _children[index];
+                var item = ChildrenInternal[index];
                 var rect = item.rect;
                 rect.sizeDelta = CreateVector2AccordingMainAxis(itemMainSizeList[index], _itemCrossSizeBuffer[index]);
             }
@@ -347,16 +343,16 @@ namespace BeatLeader.Components {
                     totalMainDelta = GetRestSpace() / 2;
                     break;
                 case JustifyContent.SpaceBetween:
-                    spacing += GetRestSpace() / Math.Max(_children.Count - 1, 1);
+                    spacing += GetRestSpace() / Math.Max(ChildrenInternal.Count - 1, 1);
                     break;
                 case JustifyContent.SpaceAround: {
-                    var halfSpacing = GetRestSpace() / ((Math.Max(_children.Count - 1, 0) * 2) + 2);
+                    var halfSpacing = GetRestSpace() / ((Math.Max(ChildrenInternal.Count - 1, 0) * 2) + 2);
                     totalMainDelta = halfSpacing;
                     spacing += halfSpacing * 2;
                     break;
                 }
                 case JustifyContent.SpaceEvenly: {
-                    var innerSpacing = GetRestSpace() / (_children.Count + 1);
+                    var innerSpacing = GetRestSpace() / (ChildrenInternal.Count + 1);
                     totalMainDelta = innerSpacing;
                     spacing += innerSpacing;
                     break;
@@ -364,7 +360,7 @@ namespace BeatLeader.Components {
             }
 
             var prevMainDelta = totalMainDelta;
-            foreach (var item in _children) {
+            foreach (var item in ChildrenInternal) {
                 var rect = item.rect;
                 rect.anchoredPosition = CreateVector2AccordingMainAxis((prevMainDelta + (rect.rect.size[mainAxis] / 2)) * mainPositionScale, rect.anchoredPosition[crossAxis]);
                 prevMainDelta += rect.rect.size[mainAxis] + spacing;
@@ -374,7 +370,7 @@ namespace BeatLeader.Components {
 
             #region AlignItems
 
-            foreach (var item in _children) {
+            foreach (var item in ChildrenInternal) {
                 var rect = item.rect;
                 var flex = item.flex;
 
@@ -402,31 +398,32 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshChildren() {
-            _children.Clear();
+            if (Children == null) {
+                _children.Clear();
+                
+                for (var i = 0; i < ContainerRect.childCount; i++) {
+                    if (ContainerRect.GetChild(i) is not RectTransform childRect || !childRect.gameObject.activeSelf) {
+                        continue;
+                    }
 
-            for (var i = 0; i < ContainerRect.childCount; i++) {
-                if (ContainerRect.GetChild(i) is not RectTransform childRect || !childRect.gameObject.activeSelf) {
-                    continue;
+                    var flex = childRect.GetComponent<FlexItem>();
+                    if (flex == null) continue;
+
+                    childRect.anchorMin = Vector2.up;
+                    childRect.anchorMax = Vector2.up;
+
+                    _children.Add((childRect, flex));
                 }
-
-                var flex = childRect.GetComponent<FlexItem>();
-                if (flex == null) continue;
-
-                childRect.anchorMin = Vector2.up;
-                childRect.anchorMax = Vector2.up;
-
-                _children.Add((childRect, flex));
             }
-
-            _children.Sort(static (a, b) => a.flex.Order - b.flex.Order);
-
+            
+            ChildrenInternal.Sort(static (a, b) => a.flex.Order - b.flex.Order);
             if (flexDirection is FlexDirection.RowReverse or FlexDirection.ColumnReverse) {
-                _children.Reverse();
+                ChildrenInternal.Reverse();
             }
         }
 
         private float GetActualSizeByAxis(int index, int axis, float size) {
-            var flex = _children[index].flex;
+            var flex = ChildrenInternal[index].flex;
             var minSize = flex.MinSize[axis];
             var maxSize = flex.MaxSize[axis];
 
@@ -487,6 +484,11 @@ namespace BeatLeader.Components {
 
         protected override void OnRectTransformDimensionsChange() {
             base.OnRectTransformDimensionsChange();
+            MarkDrivenSize();
+            SetDirty();
+        }
+
+        private void OnValidate() {
             MarkDrivenSize();
             SetDirty();
         }

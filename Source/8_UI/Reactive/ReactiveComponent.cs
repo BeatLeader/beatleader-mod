@@ -5,11 +5,12 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using ReactiveUI.Layout;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.UI.Reactive {
-    internal abstract class ReactiveComponent {
+    internal abstract class ReactiveComponent : ILayoutItem {
         #region Factory
 
         protected ReactiveComponent() {
@@ -32,16 +33,22 @@ namespace BeatLeader.UI.Reactive {
         private class ReactiveHost : MonoBehaviour {
             public readonly List<ReactiveComponent> components = new();
 
-            private void Update() => components.ForEach(static x => x.OnUpdate());
-            private void OnDestroy() => components.ForEach(static x => x.PostDestroy());
+            private void Update() {
+                components.ForEach(static x => x.OnUpdate());
+            }
+
+            private void OnDestroy() {
+                components.ForEach(static x => x.DestroyInternal());
+            }
 
             private void OnRectTransformDimensionsChange() {
-                components.ForEach(
-                    static x => {
-                        x.UpdateModifier();
-                        x.OnRectDimensionsChange();
-                    });
+                components.ForEach(static x => x.HandleRectDimensionsChanged());
             }
+        }
+
+        private void HandleRectDimensionsChanged() {
+            RecalculateLayout();
+            OnRectDimensionsChanged();
         }
 
         #endregion
@@ -50,6 +57,13 @@ namespace BeatLeader.UI.Reactive {
 
         public ICollection<ReactiveComponent> Children => _children!;
 
+        public ReactiveComponent? Parent { get; private set; }
+
+        public Vector2 Scale {
+            get => ContentTransform.localScale;
+            set => ContentTransform.localScale = value;
+        }
+
         public bool Active {
             get => Content.activeInHierarchy;
             set => Content.SetActive(value);
@@ -57,35 +71,76 @@ namespace BeatLeader.UI.Reactive {
 
         #endregion
 
-        #region Layout
+        #region Layout Item
 
-        public ILayoutModifier Modifier {
+        ILayoutItem? ILayoutItem.Parent => Parent;
+        IEnumerable<ILayoutItem> ILayoutItem.Children => Children;
+        RectTransform ILayoutItem.RectTransform => ContentTransform;
+
+        #endregion
+
+        #region Layout Controller
+
+        public ILayoutController? LayoutController => _layoutController;
+
+        private IApplicableLayoutController? _layoutController;
+
+        public void SetLayoutController(IApplicableLayoutController controller) {
+            _layoutController = controller;
+            _layoutController!.Setup(this);
+            RefreshLayoutControllerChildren();
+            RecalculateLayout();
+        }
+
+        private void RefreshLayoutControllerChildren() {
+            _layoutController?.RefreshChildren();
+        }
+
+        private void RecalculateLayout() {
+            _layoutController?.Recalculate();
+        }
+
+        #endregion
+
+        #region Layout Modifier
+
+        public Reactive.ILayoutModifier LayoutModifier {
             get => _modifier;
             set {
-                _modifier.ModifierUpdatedEvent -= UpdateModifier;
+                _modifier.ModifierUpdatedEvent -= HandleModifierUpdated;
                 _modifier = value;
-                _modifier.ModifierUpdatedEvent += UpdateModifier;
-                UpdateModifier();
+                _modifier.ModifierUpdatedEvent += HandleModifierUpdated;
+                HandleModifierUpdated();
             }
         }
 
         private event Action? ModifierUpdatedEvent;
 
-        private ILayoutModifier _modifier = new RectModifier();
+        private Reactive.ILayoutModifier _modifier = new RectModifier();
 
-        private void UpdateModifier() {
-            ContentTransform.localScale = Modifier.Scale;
-            if (Modifier.SizeDelta != null) {
-                ContentTransform.sizeDelta = Modifier.SizeDelta.Value;
+        private void RefreshRectModifier() {
+            if (LayoutModifier is not RectModifier rectModifier) return;
+            ContentTransform.anchorMin = rectModifier.AnchorMin;
+            ContentTransform.anchorMax = rectModifier.AnchorMax;
+            if (rectModifier.SizeDelta != null) {
+                ContentTransform.sizeDelta = rectModifier.SizeDelta.Value;
             }
-            ContentTransform.anchorMin = Modifier.AnchorMin;
-            ContentTransform.anchorMax = Modifier.AnchorMax;
-            OnModifierUpdate();
+        }
+        
+        private void HandleModifierUpdated() {
+            ContentTransform.pivot = LayoutModifier.Pivot;
+            RefreshRectModifier();
+            OnModifierUpdated();
             ModifierUpdatedEvent?.Invoke();
         }
 
-        protected IEnumerable<ReactiveComponent> GetChildrenWithModifiers<T>() where T : ILayoutModifier {
-            return Children.Where(static x => x.Modifier is T);
+        private void HandleChildModifierUpdated() {
+            RecalculateLayout();
+            OnChildModifierUpdated();
+        }
+
+        protected IEnumerable<ReactiveComponent> GetChildrenWithModifiers<T>() where T : Reactive.ILayoutModifier {
+            return Children.Where(static x => x.LayoutModifier is T);
         }
 
         #endregion
@@ -109,18 +164,21 @@ namespace BeatLeader.UI.Reactive {
                     ApplyParent(e.NewItems, true);
                     break;
             }
-            OnChildrenUpdate();
+            OnChildrenUpdated();
+            RefreshLayoutControllerChildren();
         }
-        
+
         private void ApplyParent(IEnumerable children, bool append) {
             foreach (var child in children) {
                 if (child is not ReactiveComponent comp) continue;
                 if (append) {
                     AppendChild(comp);
-                    comp.ModifierUpdatedEvent += OnChildModifierUpdate;
+                    comp.Parent = this;
+                    comp.ModifierUpdatedEvent += HandleChildModifierUpdated;
                 } else {
                     TruncateChild(comp);
-                    comp.ModifierUpdatedEvent -= OnChildModifierUpdate;
+                    comp.Parent = null;
+                    comp.ModifierUpdatedEvent -= HandleChildModifierUpdated;
                 }
             }
         }
@@ -167,7 +225,7 @@ namespace BeatLeader.UI.Reactive {
             _contentTransform = root;
             ConstructInternal();
         }
-        
+
         /// <summary>
         /// Constructs the component using the specified object as a root. Must be called only once
         /// </summary>
@@ -194,7 +252,7 @@ namespace BeatLeader.UI.Reactive {
 
             _children.CollectionChanged += HandleChildrenChanged;
             HandleChildrenChanged(this, new(NotifyCollectionChangedAction.Add, _children));
-            
+
             OnInitialize();
         }
 
@@ -213,10 +271,10 @@ namespace BeatLeader.UI.Reactive {
         /// </summary>
         public void Destroy() {
             Object.Destroy(Content);
-            PostDestroy();
+            DestroyInternal();
         }
 
-        private void PostDestroy() {
+        private void DestroyInternal() {
             _children!.CollectionChanged -= HandleChildrenChanged;
             _reactiveHost!.components.Remove(this);
             IsDestroyed = true;
@@ -231,10 +289,10 @@ namespace BeatLeader.UI.Reactive {
         protected virtual void OnInitialize() { }
         protected virtual void OnUpdate() { }
         protected virtual void OnDestroy() { }
-        protected virtual void OnRectDimensionsChange() { }
-        protected virtual void OnChildrenUpdate() { }
-        protected virtual void OnModifierUpdate() { }
-        protected virtual void OnChildModifierUpdate() { }
+        protected virtual void OnRectDimensionsChanged() { }
+        protected virtual void OnChildrenUpdated() { }
+        protected virtual void OnModifierUpdated() { }
+        protected virtual void OnChildModifierUpdated() { }
 
         #endregion
     }

@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
     internal static class ReactiveComponentExtensions {
-        public static T With<T>(this T comp, Action<T> action) {
+        public static T With<T>(this T comp, Action<T> action) where T : ReactiveComponent {
             action(comp);
             return comp;
         }
 
         public static T WithModifier<T>(this T comp, ILayoutModifier modifier) where T : ReactiveComponent {
-            comp.Modifier = modifier;
+            comp.LayoutModifier = modifier;
             return comp;
         }
 

@@ -1,5 +1,6 @@
 ﻿using BeatLeader.DataManager;
 using BeatLeader.UI.BSML_Addons;
+using BeatLeader.UI.Reactive;
 using BeatLeader.Utils;
 using Hive.Versioning;
 using IPA;
@@ -56,6 +57,7 @@ namespace BeatLeader {
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
             InteropLoader.Init();
+            ReactivePlatform.Init();
         }
 
         private static void ObserveEnabled() {

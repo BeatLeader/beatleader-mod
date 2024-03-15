@@ -27,7 +27,7 @@ namespace BeatLeader.UI.Reactive.Components {
             get => _sticky;
             set {
                 _sticky = value;
-                IsActive = false;
+                ButtonActive = false;
             }
         }
 
@@ -53,11 +53,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public Vector3 BaseScale { get; set; } = Vector3.one;
         
-        public bool IsActive {
-            get => _isActive;
+        public bool ButtonActive {
+            get => _buttonActive;
             private set {
-                if (value == _isActive) return;
-                OnButtonStateChange(_isActive = value);
+                if (value == _buttonActive) return;
+                OnButtonStateChange(_buttonActive = value);
             }
         }
 
@@ -75,15 +75,15 @@ namespace BeatLeader.UI.Reactive.Components {
         /// <param name="state">Determines the toggle state. Valid only if <c>Sticky</c> is turned on</param>
         /// <param name="notifyListeners">Determines should event be invoked or not</param>
         public void Click(bool state = false, bool notifyListeners = false) {
-            if (Sticky) _isActive = !state;
+            if (Sticky) _buttonActive = !state;
             ProcessButtonClick(notifyListeners);
         }
 
         private void ProcessButtonClick(bool notifyListeners) {
-            if (Sticky) IsActive = !IsActive;
+            if (Sticky) ButtonActive = !ButtonActive;
             if (!notifyListeners) return;
             ClickEvent?.Invoke();
-            StateChangedEvent?.Invoke(_sticky ? IsActive : default);
+            StateChangedEvent?.Invoke(_sticky ? ButtonActive : default);
         }
 
         #endregion
@@ -102,7 +102,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private SmoothHoverController _hoverController = null!;
         private UnityEngine.UI.Button _button = null!;
-        private bool _isActive;
+        private bool _buttonActive;
         
         protected override void Construct(RectTransform rect) {
             var go = rect.gameObject;

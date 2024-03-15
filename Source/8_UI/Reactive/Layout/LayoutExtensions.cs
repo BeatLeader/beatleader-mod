@@ -1,5 +1,4 @@
 ﻿using BeatLeader.UI.Reactive.Yoga;
-using ReactiveUI.Layout;
 
 namespace BeatLeader.UI.Reactive {
     internal static class LayoutExtensions {

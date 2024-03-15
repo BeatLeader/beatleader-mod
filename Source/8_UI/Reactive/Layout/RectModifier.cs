@@ -1,7 +1,7 @@
 ﻿using BeatLeader.UI.Reactive;
 using UnityEngine;
 
-namespace ReactiveUI.Layout {
+namespace BeatLeader.UI.Reactive {
     internal class RectModifier : ModifierBase<RectModifier> {
         public static RectModifier Expand => new() {
             AnchorMin = Vector2.zero,

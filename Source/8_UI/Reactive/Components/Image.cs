@@ -39,6 +39,7 @@ namespace BeatLeader.UI.Reactive.Components {
         
         protected override void Construct(RectTransform rect) {
             _image = rect.gameObject.AddComponent<FixedImageView>();
+            Material = GameResources.UINoGlowMaterial;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using HMUI;
+using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -16,6 +17,16 @@ namespace BeatLeader.UI.Reactive.Components {
         public float FontSize {
             get => _text.fontSize;
             set => _text.fontSize = value;
+        }
+
+        public TMP_FontAsset Font {
+            get => _text.font;
+            set => _text.font = value;
+        }
+
+        public Material Material {
+            get => _text.material;
+            set => _text.material = value;
         }
 
         public bool WrapText {
@@ -41,7 +52,8 @@ namespace BeatLeader.UI.Reactive.Components {
         private TMP_Text _text = null!;
 
         protected override void Construct(RectTransform rect) {
-            _text = rect.gameObject.AddComponent<TextMeshProUGUI>();
+            _text = rect.gameObject.AddComponent<CurvedTextMeshPro>();
+            _text.fontSharedMaterial = GameResources.UIFontMaterial;
         }
 
         protected override void OnInitialize() {

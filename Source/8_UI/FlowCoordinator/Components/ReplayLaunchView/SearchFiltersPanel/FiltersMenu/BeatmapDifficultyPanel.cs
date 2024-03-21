@@ -93,6 +93,8 @@ namespace BeatLeader.Components {
                 _container,
                 true
             );
+            characteristicPanel.localScale = Vector3.one;
+            characteristicPanel.localPosition = Vector3.zero;
             characteristicPanel
                 .GetComponentInChildren<SegmentedControl>(true)
                 .SetField("_container", BeatSaberUI.DiContainer);

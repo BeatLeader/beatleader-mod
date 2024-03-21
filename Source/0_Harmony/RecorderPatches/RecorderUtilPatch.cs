@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using BeatLeader.Utils;
 using HarmonyLib;
 
@@ -20,7 +20,7 @@ namespace BeatLeader {
     #region User interaction with UI buttons
 
     // Play button from a level selection screen
-    [HarmonyPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), "ActionButtonWasPressed")]
+    [HarmonyPatch(typeof(SinglePlayerLevelSelectionFlowCoordinator), nameof(SinglePlayerLevelSelectionFlowCoordinator.ActionButtonWasPressed))]
     public static class ActionButtonListener {
 
         private static void Prefix() {
@@ -29,7 +29,7 @@ namespace BeatLeader {
     }
 
     // Play button from a practice mode setting screen
-    [HarmonyPatch(typeof(PracticeViewController), "PlayButtonPressed")]
+    [HarmonyPatch(typeof(PracticeViewController), nameof(PracticeViewController.HandlePlayButtonPressed))]
     public static class PracticePlayButtonListener {
 
         private static void Prefix() {
@@ -38,7 +38,7 @@ namespace BeatLeader {
     }
 
     // Restart button from a GameCore paused screen
-    [HarmonyPatch(typeof(PauseController), "HandlePauseMenuManagerDidPressRestartButton")]
+    [HarmonyPatch(typeof(PauseController), nameof(PauseController.HandlePauseMenuManagerDidPressRestartButton))]
     public static class PauseRestartButtonListener {
 
         private static void Prefix() {
@@ -47,7 +47,7 @@ namespace BeatLeader {
     }
 
     // Restart button from a level result screen
-    [HarmonyPatch(typeof(ResultsViewController), "RestartButtonPressed")]
+    [HarmonyPatch(typeof(ResultsViewController), nameof(ResultsViewController.RestartButtonPressed))]
     public static class ResultsRestartButtonListener {
         private static void Prefix() {
             RecorderUtils.OnActionButtonWasPressed();
@@ -58,7 +58,7 @@ namespace BeatLeader {
 
     #region autorestart on fail
 
-    [HarmonyPatch(typeof(StandardLevelFailedController), "LevelFailedCoroutine")]
+    [HarmonyPatch(typeof(StandardLevelFailedController), nameof(StandardLevelFailedController.LevelFailedCoroutine))]
     internal static class AutoRestartOnFailPatch {
         private static void Prefix(StandardLevelFailedController __instance) {
             var initData = (StandardLevelFailedController.InitData)typeof(StandardLevelFailedController)

@@ -2,21 +2,26 @@
 using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using JetBrains.Annotations;
 using LeaderboardCore.Interfaces;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.DataManager {
     internal class LeaderboardManager : MonoBehaviour, INotifyLeaderboardSet {
         #region Properties
 
+        [Inject, UsedImplicitly]
+        private BeatmapLevelsModel _beatmapLevelsModel;
+
         private ScoresScope _selectedScoreScope;
         private ScoresContext _selectedScoreContext;
         private int _lastSelectedPage = 1;
-        private IDifficultyBeatmap _lastSelectedBeatmap;
+        private BeatmapKey _lastSelectedBeatmap;
 
-        private string Hash => _lastSelectedBeatmap.level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
+        private string Hash => _lastSelectedBeatmap.levelId.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
         private string Diff => _lastSelectedBeatmap.difficulty.ToString();
-        private string Mode => _lastSelectedBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+        private string Mode => _lastSelectedBeatmap.beatmapCharacteristic.serializedName;
         private string Scope => _selectedScoreScope.ToString().ToLowerInvariant();
         private string Context => _selectedScoreContext.ToString().ToLower();
 
@@ -160,7 +165,7 @@ namespace BeatLeader.DataManager {
 
         private void OnCacheUpdated() {
             if (_leaderboardType is not LeaderboardType.SongDiffClanScores) return;
-            if (!LeaderboardsCache.TryGetLeaderboardInfo(LeaderboardState.SelectedBeatmapKey, out var cacheEntry)) return;
+            if (!LeaderboardsCache.TryGetLeaderboardInfo(LeaderboardState.SelectedLeaderboardKey, out var cacheEntry)) return;
             if (FormatUtils.GetRankedStatus(cacheEntry.DifficultyInfo) is RankedStatus.Ranked) return;
             _leaderboardType = LeaderboardType.SongDiffPlayerScores;
             TryUpdateScores();
@@ -175,14 +180,18 @@ namespace BeatLeader.DataManager {
             UpdateScores();
         }
 
-        public void OnLeaderboardSet(IDifficultyBeatmap difficultyBeatmap) {
-            Plugin.Log.Debug($"Selected beatmap: {difficultyBeatmap.level.songName}, diff: {difficultyBeatmap.difficulty}");
-            _lastSelectedBeatmap = difficultyBeatmap;
+        public void OnLeaderboardSet(BeatmapKey beatmapKey) {
+            var level = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
+            if (level == null) return;
+
+            Plugin.Log.Debug($"Selected beatmap: {beatmapKey.levelId}, diff: {beatmapKey.difficulty}");
+            _lastSelectedBeatmap = beatmapKey;
             _lastSelectedPage = 1;
 
             TryUpdateScores();
 
-            LeaderboardState.SelectedBeatmap = difficultyBeatmap;
+            LeaderboardState.SelectedBeatmapLevel = level;
+            LeaderboardState.SelectedBeatmapKey = beatmapKey;
         }
 
         private void OnScoresScopeWasSelected(ScoresScope scope) {

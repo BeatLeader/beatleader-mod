@@ -50,14 +50,14 @@ namespace BeatLeader.Components {
         private string _songName;
         private string _songAuthor;
 
-        public void SetBeatmapLevel(IPreviewBeatmapLevel level) {
+        public void SetBeatmapLevel(BeatmapLevel level) {
             SongName = level.songName;
-            SongAuthor = level.levelAuthorName;
+            SongAuthor = level.songAuthorName;
             LoadAndAssignImage(level);
         }
-        private async void LoadAndAssignImage(IPreviewBeatmapLevel level) {
+        private async void LoadAndAssignImage(BeatmapLevel level) {
             var token = new CancellationTokenSource().Token;
-            _songPreviewImage.sprite = await level.GetCoverImageAsync(token);
+            _songPreviewImage.sprite = await level.previewMediaData.GetCoverSpriteAsync(token);
         }
 
         #endregion

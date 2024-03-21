@@ -70,11 +70,11 @@ namespace BeatLeader.Interop {
 
         #region TryGetBeatmapRequirements
 
-        public static bool TryGetBeatmapRequirements(IDifficultyBeatmap beatmap, out string[]? requirements) {
+        public static bool TryGetBeatmapRequirements(BeatmapLevel beatmap, BeatmapKey key, out string[]? requirements) {
             requirements = null;
             if (!isInitialized) return false;
             try {
-                var data = _collectionsRetrieveDataMethod!.Invoke(null, new object[] { beatmap });
+                var data = _collectionsRetrieveDataMethod!.Invoke(null, new object[] { beatmap, key });
                 if (data == null) return false;
                 var reqData = _dataAdditionalDiffField!.GetValue(data);
                 if (reqData == null) return false;
@@ -106,8 +106,8 @@ namespace BeatLeader.Interop {
 
         #region ValidateRequirements
 
-        public static bool ValidateRequirements(IDifficultyBeatmap beatmap) {
-            return !TryGetBeatmapRequirements(beatmap, out var requirements)
+        public static bool ValidateRequirements(BeatmapLevel beatmap, BeatmapKey key) {
+            return !TryGetBeatmapRequirements(beatmap, key, out var requirements)
                 || !TryGetCapabilities(out var capabilities)
                 || (requirements?.All(x => capabilities?.Contains(x) ?? false) ?? true);
         }

@@ -31,7 +31,7 @@ namespace BeatLeader.DataManager {
             UpdateVoteStatus();
         }
 
-        private static void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
+        private static void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey key, BeatmapLevel level) {
             UpdateVoteStatus();
         }
 
@@ -56,7 +56,7 @@ namespace BeatLeader.DataManager {
                 return false;
             }
 
-            key = LeaderboardState.SelectedBeatmapKey;
+            key = LeaderboardState.SelectedLeaderboardKey;
             return true;
         }
 

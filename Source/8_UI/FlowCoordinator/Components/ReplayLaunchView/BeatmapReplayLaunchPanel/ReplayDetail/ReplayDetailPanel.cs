@@ -153,12 +153,12 @@ namespace BeatLeader.Components {
         }
 
         private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
-            var beatmap = await _menuLoader!.LoadBeatmapAsync(
+            (var beatmap, var key) = await _menuLoader!.LoadBeatmapAsync(
                 info.SongHash, info.SongMode, info.SongDifficulty, token);
             if (token.IsCancellationRequested) return;
             var invalid = beatmap is null;
             WatchButtonText = invalid ? DownloadText : WatchText;
-            WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
+            WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap, (BeatmapKey)key);
             _beatmapIsMissing = invalid;
             if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
             _isWorking = false;

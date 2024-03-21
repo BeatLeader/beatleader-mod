@@ -17,7 +17,7 @@ namespace BeatLeader.Installers {
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
 
-            if (_platformUserModel is OculusPlatformUserModel) {
+            if (_platformUserModel.GetType().Name == "OculusPlatformUserModel") {
                 Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
                 Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             } else {

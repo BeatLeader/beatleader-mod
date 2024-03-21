@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.Components {
     internal class BeatmapCharacteristicPanel : ReeUIComponentV2 {
@@ -66,17 +67,17 @@ namespace BeatLeader.Components {
 
         #region SetData
 
-        public void SetData(IReadOnlyList<IDifficultyBeatmapSet>? difficultyBeatmapSets) {
+        public void SetData(IEnumerable<BeatmapCharacteristicSO>? beatmapCharacteristics) {
             if (_segmentedControl is null) throw new UninitializedComponentException();
-            var empty = difficultyBeatmapSets is null;
+            var empty = beatmapCharacteristics is null;
             _text.SetActive(empty);
             _segmentedControl.gameObject.SetActive(!empty);
-            if (!empty) _segmentedControl.SetData(difficultyBeatmapSets, 
-                difficultyBeatmapSets!.First().beatmapCharacteristic);
+            if (!empty) _segmentedControl.SetData(beatmapCharacteristics, 
+                beatmapCharacteristics!.First(), new() { });
             RefreshTouchables();
             RefreshActive();
             if (_beatmapCharacteristics?.Count > 0) {
-                _segmentedControl.HandleDifficultySegmentedControlDidSelectCell(null, 0);
+                _segmentedControl.HandleBeatmapCharacteristicSegmentedControlDidSelectCell(null, 0);
             }
         }
 
@@ -89,17 +90,16 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             var characteristicPanel = Instantiate(
                 BeatmapCharacteristicSegmentedControl, _container, true);
+            characteristicPanel.localScale = Vector3.one;
+            characteristicPanel.localPosition = Vector3.zero;
             characteristicPanel
-                .GetComponentInChildren<IconSegmentedControl>(true)
+                .GetComponentInChildren<SegmentedControl>(true)
                 .SetField("_container", BeatSaberUI.DiContainer);
             _canvasGroup = _container.gameObject.AddComponent<CanvasGroup>();
             _segmentedControl = characteristicPanel.GetComponentInChildren<
                 BeatmapCharacteristicSegmentedControlController>(true);
             _segmentedControl.didSelectBeatmapCharacteristicEvent += HandleBeatmapCharacteristicSelected;
-            _beatmapCharacteristics = _segmentedControl.GetField<
-                List<BeatmapCharacteristicSO>, 
-                BeatmapCharacteristicSegmentedControlController
-            >("_beatmapCharacteristics");
+            _beatmapCharacteristics = _segmentedControl._beatmapCharacteristics;
         }
 
         #endregion

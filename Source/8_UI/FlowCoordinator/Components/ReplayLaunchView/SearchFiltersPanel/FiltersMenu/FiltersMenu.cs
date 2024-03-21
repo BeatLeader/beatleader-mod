@@ -10,7 +10,7 @@ namespace BeatLeader.Components {
 
         public class FiltersData {
             public FiltersData(
-                IPreviewBeatmapLevel? previewBeatmapLevel,
+                BeatmapLevel? previewBeatmapLevel,
                 bool overrideBeatmap,
                 BeatmapDifficulty? beatmapDifficulty,
                 BeatmapCharacteristicSO? beatmapCharacteristic
@@ -21,13 +21,13 @@ namespace BeatLeader.Components {
                 this.beatmapCharacteristic = beatmapCharacteristic;
             }
 
-            public readonly IPreviewBeatmapLevel? previewBeatmapLevel;
+            public readonly BeatmapLevel? previewBeatmapLevel;
             public readonly bool overrideBeatmap;
             public readonly BeatmapDifficulty? beatmapDifficulty;
             public readonly BeatmapCharacteristicSO? beatmapCharacteristic;
         }
 
-        private IPreviewBeatmapLevel? _previewBeatmapLevel;
+        private BeatmapLevel? _previewBeatmapLevel;
         private BeatmapCharacteristicSO? _beatmapCharacteristic;
         private BeatmapDifficulty _beatmapDifficulty;
 
@@ -186,24 +186,14 @@ namespace BeatLeader.Components {
 
         private void HandleCharacteristicSelectedEvent(BeatmapCharacteristicSO characteristic) {
             _beatmapCharacteristic = characteristic;
-            _beatmapDifficultyPanel.SetData(_previewBeatmapLevel?.previewDifficultyBeatmapSets
-                .FirstOrDefault(x => x.beatmapCharacteristic == _beatmapCharacteristic)?
-                .beatmapDifficulties.Select(x => new CustomDifficultyBeatmap(
-                    null, null, x, 0, 0,
-                    0, 0, 0, 0,
-                    null, null))
-                .ToArray());
+            _beatmapDifficultyPanel.SetData(_previewBeatmapLevel?.GetDifficulties(characteristic).ToList());
             RefreshFiltersData();
         }
 
-        private void HandleBeatmapSelectedEvent(IPreviewBeatmapLevel? level) {
+        private void HandleBeatmapSelectedEvent(BeatmapLevel? level) {
             _previewBeatmapLevel = level;
-            _beatmapCharacteristicPanel.SetData(
-                level?.previewDifficultyBeatmapSets
-                    .Select(x => new DifficultyBeatmapSet(
-                        x.beatmapCharacteristic,
-                        Array.Empty<IDifficultyBeatmap>()))
-                    .ToArray());
+            
+            _beatmapCharacteristicPanel.SetData(level?.GetCharacteristics());
             RefreshFiltersData();
         }
 

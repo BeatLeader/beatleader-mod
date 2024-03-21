@@ -85,12 +85,12 @@ namespace BeatLeader.Components {
             UpdateVisuals();
         }
         
-        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
-            SetBeatmap(beatmap);
+        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey key, BeatmapLevel level) {
+            SetBeatmap(key);
         }
 
         private void OnCacheWasChanged() {
-            SetBeatmap(LeaderboardState.SelectedBeatmap);
+            SetBeatmap(LeaderboardState.SelectedBeatmapKey);
         }
 
         #endregion
@@ -102,7 +102,7 @@ namespace BeatLeader.Components {
         private bool _displayCaptorClan = PluginConfig.LeaderboardDisplaySettings.ClanCaptureDisplay;
         private string? _websiteLink;
 
-        private void SetBeatmap(IDifficultyBeatmap? beatmap) {
+        private void SetBeatmap(BeatmapKey beatmap) {
             if (beatmap == null) {
                 _rankedStatus = RankedStatus.Unknown;
                 _websiteLink = null;

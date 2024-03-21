@@ -7,10 +7,8 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class CloseButton : ReeUIComponentV2 {
-        static CloseButton() => ColorUtility.TryParseHtmlString("#00000080", out inactiveColor);
-
-        private static readonly Color inactiveColor;
         private static readonly Color highlightedColor = Color.red.ColorWithAlpha(0.8f);
+        private static Color _inactiveColor;
 
         public event Action? ButtonPressedEvent;
 
@@ -20,6 +18,7 @@ namespace BeatLeader.Components {
         private ImageView _background = null!;
 
         protected override void OnInitialize() {
+            ColorUtility.TryParseHtmlString("#00000080", out _inactiveColor);
             _button.GetComponent<ButtonStaticAnimations>().TryDestroy();
             _button.selectionStateDidChangeEvent += HandleButtonStateChanged;
             var buttonTransform = _button.transform;
@@ -33,7 +32,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleButtonStateChanged(NoTransitionsButton.SelectionState state) {
-            _background.color = state is NoTransitionsButton.SelectionState.Highlighted ? highlightedColor : inactiveColor;
+            _background.color = state is NoTransitionsButton.SelectionState.Highlighted ? highlightedColor : _inactiveColor;
         }
     }
 }

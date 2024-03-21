@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,29 +12,34 @@ namespace BeatLeader.Components {
     internal class BeatmapPreviewCell : ReeUIComponentV2 {
         #region Dummies
 
-        private class NotSelectedPreviewBeatmapLevel : IPreviewBeatmapLevel {
-            public string? levelID { get; } = string.Empty;
-            public string? songName { get; } = "Click to select";
-            public string? songSubName { get; } = null;
-            public string? songAuthorName { get; } = "Unknown";
-            public string? levelAuthorName { get; } = null;
+        private class NotSelectedPreviewBeatmapLevel : BeatmapLevel {
+            private class PreviewMediaData : IPreviewMediaData {
+                public Task<Sprite> GetCoverSpriteAsync(CancellationToken cancellationToken) => Task.FromResult(BundleLoader.UnknownIcon);
 
-            public float beatsPerMinute { get; } = 0;
-            public float songTimeOffset { get; } = -1;
-            public float shuffle { get; } = -1;
-            public float shufflePeriod { get; } = -1;
-            public float previewStartTime { get; } = -1;
-            public float previewDuration { get; } = -1;
-            public float songDuration { get; } = 0;
+                public Task<AudioClip> GetPreviewAudioClip(CancellationToken cancellationToken) => throw new NotImplementedException();
 
-            public EnvironmentInfoSO? environmentInfo { get; } = null;
-            public EnvironmentInfoSO? allDirectionsEnvironmentInfo { get; } = null;
-            public EnvironmentInfoSO[]? environmentInfos { get; } = null;
-            public IReadOnlyList<PreviewDifficultyBeatmapSet>? previewDifficultyBeatmapSets { get; } = null;
+                public void UnloadPreviewAudioClip() { }
+            }
 
-            public PlayerSensitivityFlag contentRating { get; } = PlayerSensitivityFlag.Unknown;
-
-            public Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken) => Task.FromResult(BundleLoader.UnknownIcon);
+            public NotSelectedPreviewBeatmapLevel() :
+                base(
+                    false,
+                    string.Empty,
+                    "Click to select",
+                    string.Empty,
+                    "Unknown",
+                    Array.Empty<string>(),
+                    Array.Empty<string>(),
+                    0,
+                    0,
+                    0,
+                    -1,
+                    -1,
+                    0,
+                    PlayerSensitivityFlag.Safe,
+                    new PreviewMediaData(),
+                    null
+                ) { }
         }
 
         private class DummyTableCellOwner : ITableCellOwner {
@@ -48,10 +52,9 @@ namespace BeatLeader.Components {
 
         #region Prefab
 
-        private static LevelListTableCell LevelTableCellPrefab =>
-            _levelTableCellPrefab ? _levelTableCellPrefab! : _levelTableCellPrefab = Resources
-                .FindObjectsOfTypeAll<LevelCollectionTableView>().First()
-                .GetField<LevelListTableCell, LevelCollectionTableView>("_levelCellPrefab");
+        private static LevelListTableCell LevelTableCellPrefab => _levelTableCellPrefab ? _levelTableCellPrefab! : _levelTableCellPrefab = Resources
+            .FindObjectsOfTypeAll<LevelCollectionTableView>().First()
+            .GetField<LevelListTableCell, LevelCollectionTableView>("_levelCellPrefab");
 
         private static LevelListTableCell? _levelTableCellPrefab;
 
@@ -100,7 +103,7 @@ namespace BeatLeader.Components {
 
         #region SetData
 
-        public void SetData(IPreviewBeatmapLevel? previewBeatmapLevel) {
+        public void SetData(BeatmapLevel? previewBeatmapLevel) {
             previewBeatmapLevel ??= defaultPreviewBeatmapLevel;
             if (_cell == null) throw new UninitializedComponentException();
             _cell.SetDataFromLevelAsync(previewBeatmapLevel, false, false, false);

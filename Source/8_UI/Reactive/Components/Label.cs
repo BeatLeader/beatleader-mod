@@ -18,7 +18,22 @@ namespace BeatLeader.UI.Reactive.Components {
             get => _text.fontSize;
             set => _text.fontSize = value;
         }
+        
+        public float FontSizeMin {
+            get => _text.fontSizeMin;
+            set => _text.fontSizeMin = value;
+        }
 
+        public float FontSizeMax {
+            get => _text.fontSizeMax;
+            set => _text.fontSizeMax = value;
+        }
+
+        public bool EnableAutoSizing {
+            get => _text.enableAutoSizing;
+            set => _text.enableAutoSizing = value;
+        }
+        
         public TMP_FontAsset Font {
             get => _text.font;
             set => _text.font = value;
@@ -29,7 +44,7 @@ namespace BeatLeader.UI.Reactive.Components {
             set => _text.material = value;
         }
 
-        public bool WrapText {
+        public bool EnableWrapping {
             get => _text.enableWordWrapping;
             set => _text.enableWordWrapping = value;
         }
@@ -59,7 +74,7 @@ namespace BeatLeader.UI.Reactive.Components {
         protected override void OnInitialize() {
             Alignment = TextAlignmentOptions.Center;
             Overflow = TextOverflowModes.Ellipsis;
-            WrapText = false;
+            EnableWrapping = false;
         }
     }
 }

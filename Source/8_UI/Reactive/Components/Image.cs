@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using HMUI;
+using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal class Image : ReactiveComponent {
@@ -10,6 +11,26 @@ namespace BeatLeader.UI.Reactive.Components {
         public Color Color {
             get => _image.color;
             set => _image.color = value;
+        }
+
+        public Color GradientColor0 {
+            get => _image.color0;
+            set => _image.color0 = value;
+        }
+        
+        public Color GradientColor1 {
+            get => _image.color1;
+            set => _image.color1 = value;
+        }
+
+        public bool UseGradient {
+            get => _image.gradient;
+            set => _image.gradient = value;
+        }
+
+        public ImageView.GradientDirection GradientDirection {
+            get => _image.GradientDirection;
+            set => _image.GradientDirection = value;
         }
         
         public Material? Material {

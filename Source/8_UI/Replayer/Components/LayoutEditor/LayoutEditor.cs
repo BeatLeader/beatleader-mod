@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal interface ILayoutEditor : ILayoutComponentHandler {
@@ -18,7 +18,7 @@ namespace BeatLeader.Components {
         void Setup(LayoutEditorSettings settings);
     }
 
-    internal class LayoutEditor : LayoutComponentBase<LayoutEditor>, ILayoutEditor {
+    internal class LayoutEditor : ReactiveComponent, ILayoutEditor {
         #region Events
 
         public event Action<bool>? StateChangedEvent;
@@ -64,15 +64,11 @@ namespace BeatLeader.Components {
             _settings = settings;
         }
 
-        protected override void OnInitialize() {
-            LayoutGroup.childControlHeight = false;
-            LayoutGroup.childControlWidth = false;
-            LayoutGroup.childForceExpandHeight = false;
-            LayoutGroup.childForceExpandWidth = false;
-            Content.GetComponent<LayoutGroup>().enabled = false;
+        protected override void Construct(RectTransform rect) {
+            
         }
 
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
             if (_settings is null) return;
             _settings.ComponentDatas = _layoutDatas.ToDictionary(
                 static pair => pair.Key.ComponentName,

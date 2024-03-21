@@ -6,7 +6,7 @@
     <Import From="~view-container">
       <Replayer.SettingsCameraView id="camera-view"/>
       <Replayer.SettingsAvatarView id="avatar-view"/>
-      <Replayer.SettingsUIView/>
+      <Replayer.SettingsUIView id="ui-view"/>
       <Replayer.SettingsOtherView/>
     </Import>
   </vertical>

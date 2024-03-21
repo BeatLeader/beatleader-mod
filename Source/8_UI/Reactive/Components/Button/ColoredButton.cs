@@ -12,11 +12,13 @@ namespace BeatLeader.UI.Reactive.Components {
                 UpdateColor(0);
             }
         }
-        
+
         public Color ActiveColor { get; set; } = DefaultHoveredColor;
-        
+
         public Color HoverColor { get; set; } = DefaultHoveredColor;
-        
+
+        public Color DisabledColor { get; set; } = DefaultColor;
+
         public Color Color {
             get => _color;
             set {
@@ -32,7 +34,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Abstraction
 
-        protected virtual void ApplyColor(Color color, float progress) { } 
+        protected virtual void ApplyColor(Color color, float progress) { }
 
         #endregion
 
@@ -46,9 +48,11 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected Color LerpColor(float t, Color color, Color color2) {
-            return ButtonActive ? ActiveColor : Color.Lerp(color, color2, _colorizeOnHover ? t : 0);
+            return ButtonActive ? ActiveColor :
+                Interactable ? Color.Lerp(color, color2, _colorizeOnHover ? t : 0) :
+                DisabledColor;
         }
-        
+
         protected override void OnHoverProgressChange(float progress) {
             UpdateColor(progress);
         }

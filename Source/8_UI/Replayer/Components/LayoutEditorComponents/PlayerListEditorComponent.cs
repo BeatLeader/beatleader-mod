@@ -4,7 +4,7 @@ using BeatLeader.Models;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class PlayerListEditorComponent : LayoutEditorComponent<PlayerListEditorComponent> {
+    internal class PlayerListEditorComponent : LayoutEditorComponent {
         #region UI Components
 
         private PlayerList _playerList = null!;
@@ -36,11 +36,10 @@ namespace BeatLeader.Components {
         protected override Vector2 MinSize { get; } = new(60, 40);
         public override string ComponentName => "Player List";
 
-        protected override GameObject ConstructInternal(Transform parent) {
+        protected override void ConstructInternal(Transform parent) {
             _playerList = PlayerList.Instantiate(parent);
             _playerList.InheritSize = true;
             _playerList.ContentTransform.SetParent(parent, false);
-            return _playerList.Content;
         }
 
         #endregion

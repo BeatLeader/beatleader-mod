@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.UI.Replayer {
-    internal class ToolbarEditorComponent : LayoutEditorComponent<ToolbarEditorComponent>, Toolbar.ISettingsPanel {
+    internal class ToolbarEditorComponent : LayoutEditorComponent, Toolbar.ISettingsPanel {
         #region Setup
 
         private Toolbar _toolbar = null!;
@@ -19,7 +19,8 @@ namespace BeatLeader.UI.Replayer {
             IVirtualPlayersManager playersManager,
             ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner,
-            ReplayLaunchData launchData
+            ReplayLaunchData launchData,
+            ILayoutEditor layoutEditor
         ) {
             _toolbar.Setup(
                 pauseController,
@@ -31,7 +32,8 @@ namespace BeatLeader.UI.Replayer {
             _settingsPanel.Setup(
                 launchData.Settings,
                 cameraController,
-                bodySpawner
+                bodySpawner,
+                layoutEditor
             );
         }
 
@@ -42,7 +44,7 @@ namespace BeatLeader.UI.Replayer {
         public override string ComponentName => "Toolbar";
         protected override Vector2 MinSize => new(90, 66);
 
-        protected override GameObject ConstructInternal(Transform parent) {
+        protected override void ConstructInternal(Transform parent) {
             var container = parent.gameObject.CreateChild("Container");
             var containerTransform = container.AddComponent<RectTransform>();
             containerTransform.anchorMin = Vector2.zero;
@@ -72,8 +74,6 @@ namespace BeatLeader.UI.Replayer {
             _toolbar = Toolbar.Instantiate(containerTransform);
             var toolbarFlexItem = _toolbar.Content.AddComponent<FlexItem>();
             toolbarFlexItem.FlexBasis = new(-1f, 10f);
-
-            return container;
         }
 
         #endregion

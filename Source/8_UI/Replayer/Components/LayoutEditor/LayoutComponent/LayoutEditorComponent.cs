@@ -1,3 +1,4 @@
+using BeatLeader.UI.Reactive;
 using BeatLeader.Utils;
 using UnityEngine;
 
@@ -48,14 +49,12 @@ namespace BeatLeader.Components {
     #endregion
 
     /// <summary>
-    /// ReeUIComponentV3 component base for LayoutEditor
+    /// Reactive component base for LayoutEditor
     /// </summary>
-    /// <typeparam name="T">Inherited component</typeparam>
-    internal abstract class LayoutEditorComponent<T> : ReeUIComponentV3<T>,
+    internal abstract class LayoutEditorComponent : ReactiveComponent,
         ILayoutComponent,
         ILayoutComponentWrapperHandler,
-        ILayoutComponentController
-        where T : ReeUIComponentV3<T> {
+        ILayoutComponentController {
         #region Setup
 
         public ILayoutComponentHandler? ComponentHandler { get; private set; }
@@ -73,17 +72,16 @@ namespace BeatLeader.Components {
 
         public void Setup(ILayoutComponentHandler? handler) {
             ComponentHandler = handler;
-            ContentTransform!.SetParent(handler?.AreaTransform);
+            ContentTransform.SetParent(handler?.AreaTransform);
         }
 
         public void RequestRefresh() {
             RefreshTransforms();
         }
 
-        protected sealed override GameObject Construct(Transform parent) {
-            var container = new GameObject("ComponentContainer");
-            container.transform.SetParent(parent, false);
-            _componentTransform = container.AddComponent<RectTransform>();
+        protected sealed override void Construct(RectTransform rect) {
+            var container = rect.gameObject;
+            _componentTransform = rect;
 
             var contentContainer = container.CreateChild("Content").AddComponent<RectTransform>();
             contentContainer.sizeDelta = Vector2.zero;
@@ -91,21 +89,17 @@ namespace BeatLeader.Components {
             contentContainer.anchorMax = Vector2.one;
 
             //creating content
-            _ = ConstructInternal(contentContainer);
+            ConstructInternal(contentContainer);
 
             var wrapperGo = container.CreateChild("Wrapper");
             _wrapper = wrapperGo.AddComponent<LayoutComponentWrapper>();
             _wrapper.Setup(this, ComponentName);
             _wrapper.StateChangedEvent += HandleWrapperStateChanged;
-
-            return container;
         }
 
-        protected virtual GameObject ConstructInternal(Transform parent) {
-            return base.Construct(parent);
-        }
+        protected abstract void ConstructInternal(Transform parent);
 
-        protected override bool OnValidation() => ComponentHandler is not null;
+        protected override bool Validate() => ComponentHandler is not null;
 
         #endregion
 
@@ -151,7 +145,7 @@ namespace BeatLeader.Components {
         private Vector2 _originSize;
         private bool _isScaling;
 
-        private void Update() {
+        protected override void OnUpdate() {
             if (_isMoving) UpdateMovement();
             if (_isScaling) UpdateScaling();
         }

@@ -4,7 +4,7 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class ImageButton : ColoredButton {
         #region UI Components
 
-        public Image Image { get; } = Lazy<Image>();
+        public Image Image { get; private set; } = null!;
 
         #endregion
 
@@ -18,9 +18,27 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Setup
 
+        private RectTransform _childrenContainerTransform = null!;
+
         protected override void Construct(RectTransform rect) {
-            Image.Apply(rect);
+            //background
+            Image = new Image {
+                Name = "Background"
+            }.WithRectExpand();
+            Image.Use(rect);
+            //content
+            _childrenContainerTransform = new GameObject("Content").AddComponent<RectTransform>();
+            _childrenContainerTransform.SetParent(rect, false);
+            _childrenContainerTransform.WithRectExpand();
             base.Construct(rect);
+        }
+
+        protected override void AppendChild(ReactiveComponent comp) {
+            comp.Use(_childrenContainerTransform);
+        }
+
+        protected override void OnInitialize() {
+            Image.Material = BundleLoader.UIAdditiveGlowMaterial;
         }
 
         #endregion

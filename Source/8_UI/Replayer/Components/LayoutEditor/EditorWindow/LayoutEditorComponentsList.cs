@@ -1,73 +1,116 @@
 using System.Collections.Generic;
-using System.Reflection;
-using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
+using System.Diagnostics;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class LayoutEditorComponentsList : ReeListComponentBase<LayoutEditorComponentsList, ILayoutComponent, LayoutEditorComponentsList.Cell> {
+    internal class LayoutEditorComponentsList : ReactiveListComponentBase<ILayoutComponent, LayoutEditorComponentsList.Cell> {
         #region Cell
-        
-        public class Cell : ReeTableCell<Cell, ILayoutComponent> {
-            #region UI Components
 
-            [UIComponent("background-image"), UsedImplicitly]
-            private AdvancedImage _backgroundImage = null!;
-            
-            [UIComponent("component-state-button"), UsedImplicitly]
-            private ImageButton _componentStateButton = null!;
-            
-            [UIComponent("component-name"), UsedImplicitly]
-            private TMP_Text _componentNameText = null!;
-            
-            [UIComponent("component-layer"), UsedImplicitly]
-            private TMP_Text _componentLayerText = null!;
-
-            #endregion
-
+        public class Cell : ReactiveTableCell<ILayoutComponent> {
             #region Setup
-            
-            protected override string Markup { get; } = BSMLUtility.ReadMarkupOrFallback(
-                "LayoutEditorComponentsListCell", Assembly.GetExecutingAssembly()
-            );
-            
+
             private ILayoutComponent _layoutComponent = null!;
 
             protected override void Init(ILayoutComponent component) {
                 _layoutComponent = component;
-                _componentNameText.text = component.ComponentName;
-                _componentLayerText.text = component.ComponentController.ComponentLayer.ToString();
+                _componentNameText.Text = component.ComponentName;
+                _componentLayerText.Text = component.ComponentController.ComponentLayer.ToString();
                 _componentStateButton.Click(component.ComponentController.ComponentActive);
             }
 
+            #endregion
+
+            #region Construct
+
+            private UI.Reactive.Components.ImageButton _componentStateButton = null!;
+            private Label _componentNameText = null!;
+            private Label _componentLayerText = null!;
+            private Image _backgroundImage = null!;
+
+            protected override GameObject Construct() {
+                return new BeatLeader.UI.Reactive.Components.Dummy {
+                    Children = {
+                        new Image {
+                            Sprite = BundleLoader.WhiteBG,
+                            PixelsPerUnit = 8f,
+                            Children = {
+                                //
+                                new UI.Reactive.Components.Dummy {
+                                    Children = {
+                                        new Label {
+                                            FontSize = 3.5f,
+                                            Alignment = TextAlignmentOptions.MidlineLeft
+                                        }.AsFlexItem(grow: 1f).Bind(ref _componentNameText),
+                                        new Label {
+                                            FontSize = 2.6f,
+                                            Alignment = TextAlignmentOptions.TopRight
+                                        }.AsFlexItem(
+                                            minSize: new(2, YogaValue.Undefined),
+                                            margin: new() { right = 1f }
+                                        ).Bind(ref _componentLayerText)
+                                    }
+                                }.AsFlexGroup().AsFlexItem(grow: 1f),
+                                //
+                                new Image {
+                                    Sprite = BundleLoader.WhiteBG,
+                                    PixelsPerUnit = 8f,
+                                    Color = new(0.03f, 0.03f, 0.03f),
+                                    Children = {
+                                        new UI.Reactive.Components.ImageButton {
+                                            GrowOnHover = false,
+                                            Sticky = true,
+                                            HoverColor = new(0.3f, 0.3f, 0.3f),
+                                            ActiveColor = Color.white,
+                                            Image = {
+                                                Sprite = BundleLoader.EyeIcon,
+                                                PreserveAspect = true
+                                            }
+                                        }.AsFlexItem(grow: 1f).Bind(
+                                            ref _componentStateButton
+                                        ).WithClickListener(HandleVisibilityButtonClicked)
+                                    }
+                                }.AsFlexGroup(padding: 1f).AsFlexItem(aspectRatio: 1f)
+                                //
+                            }
+                        }.AsFlexGroup(
+                            padding: 1f,
+                            justifyContent: Justify.FlexStart
+                        ).AsFlexItem(grow: 1f).Bind(ref _backgroundImage)
+                    }
+                }.AsFlexGroup(
+                    padding: new() { bottom = 1f }
+                ).WithRectExpand().Use();
+            }
+            
             #endregion
 
             #region Colors
 
             private static readonly Color baseColor = new(0.3f, 0.3f, 0.3f);
             private static readonly Color selectedColor = Color.cyan;
-            
+
             private static readonly Color baseTextColor = Color.white;
             private static readonly Color selectedTextColor = Color.black;
 
             private void RefreshColors(bool selected) {
                 _backgroundImage.Color = selected ? selectedColor : baseColor;
                 var textColor = selected ? selectedTextColor : baseTextColor;
-                _componentNameText.color = textColor;
-                _componentLayerText.color = textColor;
+                _componentNameText.Color = textColor;
+                _componentLayerText.Color = textColor;
             }
 
             #endregion
 
             #region Callbacks
 
-            public override void OnStateChange(bool selected, bool highlighted) {
+            public override void OnCellStateChange(bool selected, bool highlighted) {
                 RefreshColors(selected);
             }
 
-            [UIAction("visibility-button-click"), UsedImplicitly]
             private void HandleVisibilityButtonClicked(bool state) {
                 _layoutComponent.ComponentController.ComponentActive = state;
             }
@@ -87,15 +130,15 @@ namespace BeatLeader.Components {
         private readonly ComponentComparator _componentComparator = new();
 
         private void RefreshSorting() {
-            items.Sort(_componentComparator);
+            Items.Sort(_componentComparator);
         }
-        
+
         #endregion
 
         #region Setup
 
         protected override float CellSize => 9.5f;
-        
+
         protected override void OnEarlyRefresh() {
             RefreshSorting();
         }

@@ -16,6 +16,11 @@ namespace BeatLeader.UI.Reactive.Yoga {
             this.x = x;
             this.y = y;
         }
+        
+        public YogaVector(YogaValue value) {
+            x = value;
+            y = value;
+        }
 
         public YogaValue this[int idx] {
             get {
@@ -29,6 +34,10 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         public YogaValue x;
         public YogaValue y;
+
+        public static implicit operator YogaVector(float value) {
+            return new(value);
+        }
         
         public static bool operator ==(YogaVector left, YogaVector right) {
             return left.x == right.x && left.y == right.y;

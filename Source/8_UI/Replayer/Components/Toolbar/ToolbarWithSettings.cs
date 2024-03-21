@@ -4,7 +4,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class ToolbarWithSettings : LayoutEditorComponent<ToolbarWithSettings> {
+    internal class ToolbarWithSettings : LayoutEditorComponent {
         #region UI Components
 
         [UIValue("settings-modal")]
@@ -28,9 +28,13 @@ namespace BeatLeader.Components {
 
         #region Setup
 
+        protected override void ConstructInternal(Transform parent) {
+            throw new System.NotImplementedException();
+        }
+        
         protected override void OnInstantiate() {
             base.OnInstantiate();
-            _settingsModal = ReeUIComponentV2.Instantiate<SettingsModal>(transform);
+            _settingsModal = ReeUIComponentV2.Instantiate<SettingsModal>(ContentTransform);
             //_toolbar = ReeUIComponentV2.Instantiate<Toolbar>(transform);
             _rootContentView = ReeUIComponentV2.InstantiateOnSceneRoot<RootContentView>();
 

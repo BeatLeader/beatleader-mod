@@ -1,23 +1,18 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {
-    internal class ReplayerUIPanel : ReeUIComponentV3<ReplayerUIPanel> {
+    internal class ReplayerUIPanel : ReactiveComponent {
         #region UI Components
 
-        [UIComponent("layout-editor"), UsedImplicitly]
-        private LayoutEditor _layoutEditor = null!;
-
-        [UIComponent("container-group"), UsedImplicitly]
-        private RectTransform _containerRect = null!;
-
-        private BeatmapLevelPreviewEditorComponent _songInfo = null!;
-        private PlayerListEditorComponent _playerList = null!;
-        private ToolbarEditorComponent _toolbar = null!;
+        private readonly LayoutEditor _layoutEditor = new();
         private LayoutGrid _layoutGrid = null!;
+        
+        private readonly BeatmapLevelPreviewEditorComponent _songInfo = new();
+        private readonly PlayerListEditorComponent _playerList = new();
+        private readonly ToolbarEditorComponent _toolbar = new();
 
         #endregion
 
@@ -44,7 +39,8 @@ namespace BeatLeader.UI.Replayer {
                 playersManager, 
                 cameraController,
                 bodySpawner,
-                launchData
+                launchData,
+                _layoutEditor
             );
             _playerList.Setup(playersManager, timeController);
             var settings = launchData.Settings.LayoutEditorSettings ??= new();
@@ -52,13 +48,15 @@ namespace BeatLeader.UI.Replayer {
             _layoutEditor.SetEditorActive(false, false);
         }
 
-        protected override void OnInitialize() {
-            _songInfo = BeatmapLevelPreviewEditorComponent.Instantiate(ContentTransform);
-            _toolbar = ToolbarEditorComponent.Instantiate(ContentTransform);
-            _playerList = PlayerListEditorComponent.Instantiate(ContentTransform);
-            var editorWindow = LayoutEditorWindow.Instantiate(ContentTransform);
-
-            _layoutGrid = _containerRect.gameObject.AddComponent<LayoutGrid>();
+        protected override void Construct(RectTransform rect) {
+            _songInfo.Use(rect);
+            _toolbar.Use(rect);
+            _playerList.Use(rect);
+            _layoutEditor.WithRectExpand().Use(rect);
+            
+            var editorWindow = new LayoutEditorWindow();
+            editorWindow.Use(rect);
+            _layoutGrid = rect.gameObject.AddComponent<LayoutGrid>();
             _layoutEditor.AdditionalComponentHandler = _layoutGrid;
             _layoutEditor.StateChangedEvent += HandleLayoutEditorStateChanged;
             _layoutEditor.AddComponent(editorWindow);
@@ -66,7 +64,7 @@ namespace BeatLeader.UI.Replayer {
             _layoutEditor.AddComponent(_songInfo);
             _layoutEditor.AddComponent(_playerList);
         }
-
+        
         protected override void OnStart() {
             _layoutEditor.RefreshComponents();
         }

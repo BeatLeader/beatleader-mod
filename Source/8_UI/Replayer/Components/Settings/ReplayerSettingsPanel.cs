@@ -29,7 +29,10 @@ namespace BeatLeader.UI.Replayer {
 
         [UIComponent("avatar-view"), UsedImplicitly]
         private SettingsAvatarView _avatarView = null!;
-
+        
+        [UIComponent("ui-view"), UsedImplicitly]
+        private SettingsUIView _uiView = null!;
+        
         #endregion
 
         #region Setup
@@ -37,11 +40,13 @@ namespace BeatLeader.UI.Replayer {
         public void Setup(
             ReplayerSettings settings,
             ICameraController cameraController,
-            IVirtualPlayerBodySpawner bodySpawner
+            IVirtualPlayerBodySpawner bodySpawner,
+            ILayoutEditor layoutEditor
         ) {
             _cameraView.Setup(cameraController, settings.CameraSettings!);
             _cameraView.ReloadCameraViewParams();
             _avatarView.Setup(bodySpawner, settings.BodySettings);
+            _uiView.Setup(layoutEditor);
         }
 
         protected override void OnInstantiate() {

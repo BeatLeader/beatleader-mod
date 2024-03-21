@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using BeatLeader.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -32,12 +33,24 @@ namespace BeatLeader.UI.Reactive {
         private class ReactiveHost : MonoBehaviour {
             public readonly List<ReactiveComponent> components = new();
 
+            private void Start() {
+                components.ForEach(static x => x.OnStart());
+            }
+
             private void Update() {
                 components.ForEach(static x => x.OnUpdate());
             }
 
             private void OnDestroy() {
                 components.ForEach(static x => x.DestroyInternal());
+            }
+
+            private void OnEnable() {
+                components.ForEach(static x => x.OnEnable());
+            }
+
+            private void OnDisable() {
+                components.ForEach(static x => x.OnDisable());
             }
 
             private void OnRectTransformDimensionsChange() {
@@ -54,18 +67,38 @@ namespace BeatLeader.UI.Reactive {
 
         #region UI Props
 
-        public ICollection<ReactiveComponent> Children => _children!;
+        /// <summary>
+        /// Represents the children of the component.
+        /// </summary>
+        public ICollection<ReactiveComponent> Children => _children;
 
+        /// <summary>
+        /// Represents the parent of the component.
+        /// </summary>
         public ReactiveComponent? Parent { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the local scale of the transform.
+        /// </summary>
         public Vector2 Scale {
             get => ContentTransform.localScale;
             set => ContentTransform.localScale = value;
         }
 
+        /// <summary>
+        /// Gets or sets state of the transform.
+        /// </summary>
         public bool Active {
             get => Content.activeInHierarchy;
             set => Content.SetActive(value);
+        }
+        
+        /// <summary>
+        /// Gets or sets name of the content game object.
+        /// </summary>
+        public string Name {
+            get => Content.name;
+            set => Content.name = value;
         }
 
         #endregion
@@ -103,7 +136,7 @@ namespace BeatLeader.UI.Reactive {
 
         #region Layout Modifier
 
-        public Reactive.ILayoutModifier LayoutModifier {
+        public ILayoutModifier LayoutModifier {
             get => _modifier;
             set {
                 _modifier.ModifierUpdatedEvent -= HandleModifierUpdated;
@@ -115,7 +148,7 @@ namespace BeatLeader.UI.Reactive {
 
         private event Action? ModifierUpdatedEvent;
 
-        private Reactive.ILayoutModifier _modifier = new RectModifier();
+        private ILayoutModifier _modifier = new RectModifier();
 
         private void RefreshRectModifier() {
             if (LayoutModifier is not RectModifier rectModifier) return;
@@ -125,7 +158,7 @@ namespace BeatLeader.UI.Reactive {
                 ContentTransform.sizeDelta = rectModifier.SizeDelta.Value;
             }
         }
-        
+
         private void HandleModifierUpdated() {
             ContentTransform.pivot = LayoutModifier.Pivot;
             RefreshRectModifier();
@@ -138,15 +171,49 @@ namespace BeatLeader.UI.Reactive {
             OnChildModifierUpdated();
         }
 
-        protected IEnumerable<ReactiveComponent> GetChildrenWithModifiers<T>() where T : Reactive.ILayoutModifier {
-            return Children.Where(static x => x.LayoutModifier is T);
+        #endregion
+
+        #region Validation
+
+        /// <summary>
+        /// Validates is component initialized or not
+        /// </summary>
+        /// <exception cref="UninitializedComponentException">Thrown if component is not initialized</exception>
+        protected void ValidateAndThrow() {
+            if (!IsInitialized || !Validate()) throw new UninitializedComponentException();
+        }
+
+        /// <summary>
+        /// Called with <see cref="ValidateAndThrow" />. Used for initialization checks
+        /// </summary>
+        /// <returns>True if validation has completed, False if not</returns>
+        protected virtual bool Validate() => true;
+
+        #endregion
+
+        #region Coroutines
+
+        /// <summary>
+        /// Starts a coroutine on the <see cref="ReactiveHost"/> instance.
+        /// </summary>
+        /// <param name="coroutine">The coroutine to start.</param>
+        protected void StartCoroutine(IEnumerator coroutine) {
+            _reactiveHost!.StartCoroutine(coroutine);
+        }
+
+        /// <summary>
+        /// Stops a coroutine on the <see cref="ReactiveHost"/> instance.
+        /// </summary>
+        /// <param name="coroutine">The coroutine to stop.</param>
+        protected void StopCoroutine(IEnumerator coroutine) {
+            _reactiveHost!.StopCoroutine(coroutine);
         }
 
         #endregion
 
         #region Children
 
-        private ObservableCollection<ReactiveComponent>? _children;
+        private ObservableCollection<ReactiveComponent> _children = new();
 
         private void HandleChildrenChanged(object sender, NotifyCollectionChangedEventArgs e) {
             if (!IsInitialized) return;
@@ -196,9 +263,20 @@ namespace BeatLeader.UI.Reactive {
 
         public RectTransform ContentTransform => _contentTransform ?? throw new UninitializedComponentException();
         public GameObject Content => _content ?? throw new UninitializedComponentException();
+
         public bool IsInitialized { get; private set; }
         public bool IsDestroyed { get; private set; }
 
+        protected Canvas? Canvas {
+            get {
+                if (!_canvas) {
+                    _canvas = Content.GetComponentInParent<Canvas>();
+                }
+                return _canvas;
+            }
+        }
+
+        private Canvas? _canvas;
         private GameObject? _content;
         private RectTransform? _contentTransform;
         private ReactiveHost? _reactiveHost;
@@ -206,46 +284,22 @@ namespace BeatLeader.UI.Reactive {
         /// <summary>
         /// Constructs and reparents the component if needed
         /// </summary>
-        public void Use(Transform? parent = null) {
+        public GameObject Use(Transform? parent = null) {
             ValidateExternalInteraction();
             if (!IsInitialized) ConstructInternal();
             ContentTransform.SetParent(parent, false);
-        }
-
-        /// <summary>
-        /// Constructs the component using the specified object as a root. Must be called only once
-        /// </summary>
-        /// <param name="root">Root object which will be used as a hierarchy base</param>
-        /// <exception cref="InvalidOperationException">Throws when object is already constructed</exception>
-        public void Apply(RectTransform root) {
-            ValidateExternalInteraction();
-            if (IsInitialized) throw new InvalidOperationException();
-            _content = root.gameObject;
-            _contentTransform = root;
-            ConstructInternal();
-        }
-
-        /// <summary>
-        /// Constructs the component using the specified object as a root. Must be called only once
-        /// </summary>
-        /// <param name="component">Root object which will be used as a hierarchy base</param>
-        /// <exception cref="InvalidOperationException">Throws when object is already constructed</exception>
-        public void Apply(ReactiveComponent component) {
-            _children = component._children;
-            _reactiveHost = component.Content.GetComponent<ReactiveHost>();
-            Apply(component.ContentTransform);
+            return Content;
         }
 
         private void ConstructInternal() {
             if (IsInitialized) throw new InvalidOperationException();
             OnInstantiate();
 
-            _content ??= new GameObject(GetType().Name);
-            _contentTransform ??= _content.AddComponent<RectTransform>();
-            _children ??= new();
-            Construct(_contentTransform);
+            _content = Construct();
+            _content.name = GetType().Name;
+            _contentTransform = _content.GetOrAddComponent<RectTransform>();
 
-            _reactiveHost ??= _content.AddComponent<ReactiveHost>();
+            _reactiveHost = _content.AddComponent<ReactiveHost>();
             _reactiveHost.components.Add(this);
             IsInitialized = true;
 
@@ -259,7 +313,14 @@ namespace BeatLeader.UI.Reactive {
             if (IsDestroyed) throw new InvalidOperationException("Unable to manage the object since it's destroyed");
         }
 
-        protected abstract void Construct(RectTransform rect);
+        protected virtual void Construct(RectTransform rect) { }
+
+        protected virtual GameObject Construct() {
+            var go = new GameObject();
+            var rect = go.AddComponent<RectTransform>();
+            Construct(rect);
+            return go;
+        }
 
         #endregion
 
@@ -274,7 +335,7 @@ namespace BeatLeader.UI.Reactive {
         }
 
         private void DestroyInternal() {
-            _children!.CollectionChanged -= HandleChildrenChanged;
+            _children.CollectionChanged -= HandleChildrenChanged;
             _reactiveHost!.components.Remove(this);
             IsDestroyed = true;
             OnDestroy();
@@ -287,7 +348,10 @@ namespace BeatLeader.UI.Reactive {
         protected virtual void OnInstantiate() { }
         protected virtual void OnInitialize() { }
         protected virtual void OnUpdate() { }
+        protected virtual void OnStart() { }
         protected virtual void OnDestroy() { }
+        protected virtual void OnEnable() { }
+        protected virtual void OnDisable() { }
         protected virtual void OnRectDimensionsChanged() { }
         protected virtual void OnChildrenUpdated() { }
         protected virtual void OnModifierUpdated() { }

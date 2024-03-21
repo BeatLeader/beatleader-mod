@@ -1,4 +1,5 @@
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
 using HMUI;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -30,7 +31,8 @@ namespace BeatLeader.UI.Replayer.Desktop {
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (firstActivation) {
-                _replayerUIPanel = ReplayerUIPanel.Instantiate(transform);
+                _replayerUIPanel = new ReplayerUIPanel();
+                _replayerUIPanel.WithRectExpand().Use(transform);
                 _replayerUIPanel.Setup(
                     _pauseController,
                     _finishController,

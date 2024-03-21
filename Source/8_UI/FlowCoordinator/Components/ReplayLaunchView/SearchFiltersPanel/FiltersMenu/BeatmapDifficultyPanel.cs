@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.Components {
     internal class BeatmapDifficultyPanel : ReeUIComponentV2 {
@@ -71,22 +72,30 @@ namespace BeatLeader.Components {
             var empty = difficulties is null;
             _text.SetActive(empty);
             _segmentedControl.gameObject.SetActive(!empty);
-            if (!empty) _segmentedControl.SetData(
-                difficulties, difficulties!.First(), new() { });
+            if (!empty) {
+                _segmentedControl.SetData(
+                    difficulties,
+                    difficulties!.First(),
+                    BeatmapDifficultyMask.All
+                );
+            }
             RefreshTouchables();
             RefreshActive();
         }
 
         #endregion
-        
+
         #region Init
 
         protected override void OnInitialize() {
             var characteristicPanel = Instantiate(
-                BeatmapDifficultySegmentedControl, _container, true);
-            //characteristicPanel
-            //    .GetComponentInChildren<TextSegmentedControl>(true)
-            //    .SetField("_container", BeatSaberUI.DiContainer);
+                BeatmapDifficultySegmentedControl,
+                _container,
+                true
+            );
+            characteristicPanel
+                .GetComponentInChildren<SegmentedControl>(true)
+                .SetField("_container", BeatSaberUI.DiContainer);
             _canvasGroup = _container.gameObject.AddComponent<CanvasGroup>();
             _segmentedControl = characteristicPanel.GetComponentInChildren<BeatmapDifficultySegmentedControlController>(true);
             _segmentedControl.didSelectDifficultyEvent += HandleBeatmapDifficultySelected;

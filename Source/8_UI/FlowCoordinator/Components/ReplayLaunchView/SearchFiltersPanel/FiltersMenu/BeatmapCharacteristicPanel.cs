@@ -6,6 +6,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using IPA.Utilities;
 using UnityEngine;
+using Zenject;
 
 namespace BeatLeader.Components {
     internal class BeatmapCharacteristicPanel : ReeUIComponentV2 {
@@ -89,6 +90,9 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             var characteristicPanel = Instantiate(
                 BeatmapCharacteristicSegmentedControl, _container, true);
+            characteristicPanel
+                .GetComponentInChildren<SegmentedControl>(true)
+                .SetField("_container", BeatSaberUI.DiContainer);
             _canvasGroup = _container.gameObject.AddComponent<CanvasGroup>();
             _segmentedControl = characteristicPanel.GetComponentInChildren<
                 BeatmapCharacteristicSegmentedControlController>(true);

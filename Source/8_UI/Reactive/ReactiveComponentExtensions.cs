@@ -18,16 +18,9 @@ namespace BeatLeader.UI.Reactive {
             variable = comp;
             return comp;
         }
-
-        public static T Apply<T>(this T comp, ReactiveComponent toApply) where T : ReactiveComponent {
-            toApply.Apply(comp.ContentTransform);
-            return comp;
-        }
-
-        public static T Apply<T, U>(this T comp, Action<U> callback) where T : ReactiveComponent where U : ReactiveComponent, new() {
-            var toApply = ReactiveComponent.Lazy<U>();
-            toApply.Apply(comp);
-            callback(toApply);
+        
+        public static T Bind<T>(this T comp, ref RectTransform variable) where T : ReactiveComponent {
+            variable = comp.ContentTransform;
             return comp;
         }
 

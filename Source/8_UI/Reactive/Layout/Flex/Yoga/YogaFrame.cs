@@ -21,6 +21,25 @@
             bottom = YogaValue.Undefined
         };
 
+        public YogaFrame(
+            YogaValue top,
+            YogaValue bottom,
+            YogaValue left,
+            YogaValue right
+        ) {
+            this.top = top;
+            this.bottom = bottom;
+            this.left = left;
+            this.right = right;
+        }
+        
+        public YogaFrame(YogaValue all) {
+            top = all;
+            bottom = all;
+            left = all;
+            right = all;
+        }
+
         public YogaValue top;
         public YogaValue bottom;
         public YogaValue left;

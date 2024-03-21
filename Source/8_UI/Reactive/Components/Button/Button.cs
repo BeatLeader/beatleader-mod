@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatLeader.Components;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal class Button : ReactiveComponent {
@@ -54,7 +55,7 @@ namespace BeatLeader.UI.Reactive.Components {
         public Vector3 BaseScale { get; set; } = Vector3.one;
         
         public bool ButtonActive {
-            get => _buttonActive;
+            get => _buttonActive && Interactable;
             private set {
                 if (value == _buttonActive) return;
                 OnButtonStateChange(_buttonActive = value);
@@ -75,6 +76,7 @@ namespace BeatLeader.UI.Reactive.Components {
         /// <param name="state">Determines the toggle state. Valid only if <c>Sticky</c> is turned on</param>
         /// <param name="notifyListeners">Determines should event be invoked or not</param>
         public void Click(bool state = false, bool notifyListeners = false) {
+            if (!Interactable) return;
             if (Sticky) _buttonActive = !state;
             ProcessButtonClick(notifyListeners);
         }
@@ -106,12 +108,13 @@ namespace BeatLeader.UI.Reactive.Components {
         
         protected override void Construct(RectTransform rect) {
             var go = rect.gameObject;
-            OnHoverProgressChange(0);
             _hoverController = go.AddComponent<SmoothHoverController>();
             _hoverController.AddStateListener(OnHoverStateChanged, false);
             _hoverController.lerpCoefficient = _lerpMul;
             _button = go.AddComponent<UnityEngine.UI.Button>();
+            _button.navigation = new() { mode = Navigation.Mode.None };
             _button.onClick.AddListener(OnButtonClick);
+            OnHoverProgressChange(0);
         }
 
         #endregion

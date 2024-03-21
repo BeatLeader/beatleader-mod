@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class BeatmapLevelPreviewEditorComponent : LayoutEditorComponent<BeatmapLevelPreviewEditorComponent> {
+    internal class BeatmapLevelPreviewEditorComponent : LayoutEditorComponent {
         #region LayoutComponent
 
         public override string ComponentName => "Beatmap Preview";
@@ -13,14 +13,13 @@ namespace BeatLeader.Components {
         #region Setup
 
         private BeatmapLevelPreview _beatmapLevelPreview = null!;
-        
+
         public void SetBeatmapLevel(IPreviewBeatmapLevel level) {
             _beatmapLevelPreview.SetBeatmapLevel(level);
         }
-        
-        protected override GameObject ConstructInternal(Transform parent) {
+
+        protected override void ConstructInternal(Transform parent) {
             _beatmapLevelPreview = BeatmapLevelPreview.Instantiate(parent);
-            return _beatmapLevelPreview.Content!;
         }
 
         #endregion

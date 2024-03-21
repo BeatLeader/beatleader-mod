@@ -1,41 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     /// <summary>
     /// LayoutEditor controller which implemented as LayoutEditor component
     /// </summary>
-    internal class LayoutEditorWindow : ReeUIComponentV3<LayoutEditorWindow>,
+    internal class LayoutEditorWindow : ReactiveComponent,
         ILayoutComponent,
         ILayoutComponentController,
         ILayoutComponentWrapperController {
-        #region UI Components
-
-        [UIComponent("components-list"), UsedImplicitly]
-        private LayoutEditorComponentsList _layoutEditorComponentsList = null!;
-
-        [UIComponent("window-handle"), UsedImplicitly]
-        private Image _windowHandle = null!;
-
-        [UIComponent("layer-up-button"), UsedImplicitly]
-        private Button _layerUpButton = null!;
-
-        [UIComponent("layer-down-button"), UsedImplicitly]
-        private Button _layerDownButton = null!;
-
-        [UIComponent("grid-alignment-button"), UsedImplicitly]
-        private ImageButton _gridAlignmentButton = null!;
-
-        private RectTransform _imageTransform = null!;
-
-        #endregion
-
         #region LayoutComponent
 
         public ILayoutComponentHandler? ComponentHandler { get; private set; }
@@ -85,8 +66,6 @@ namespace BeatLeader.Components {
 
         private Vector2 ComponentSizeInternal => _imageTransform.rect.size;
 
-        public void SetComponentActive(bool active) { }
-
         #endregion
 
         #region WrapperController
@@ -106,7 +85,7 @@ namespace BeatLeader.Components {
         private Vector2 _componentPosOffset;
         private bool _isMoving;
 
-        private void Update() {
+        protected override void OnUpdate() {
             if (_isMoving) UpdateMovement();
         }
 
@@ -114,7 +93,9 @@ namespace BeatLeader.Components {
             var componentDestinationPos = ComponentHandler!.PointerPosition + _componentPosOffset;
             if (componentDestinationPos == _componentOriginPos) return;
             ContentTransform!.localPosition = LayoutTool.ApplyBorders(
-                componentDestinationPos, ComponentSizeInternal, ComponentHandler.AreaTransform!.rect.size
+                componentDestinationPos,
+                ComponentSizeInternal,
+                ComponentHandler.AreaTransform!.rect.size
             );
         }
 
@@ -129,34 +110,126 @@ namespace BeatLeader.Components {
 
         private void RefreshWindowHandleColor(bool? hovered = null) {
             if (hovered.HasValue) _isWindowHandleHovered = hovered.Value;
-            _windowHandle.color = _isWindowHandleHovered || _isMoving ? handleHoverColor : handleBaseColor;
+            _windowHandle.Color = _isWindowHandleHovered || _isMoving ? handleHoverColor : handleBaseColor;
         }
 
         #endregion
 
         #region Setup
 
+        private LayoutEditorComponentsList _layoutEditorComponentsList = null!;
+        private Image _windowHandle = null!;
+        private Button _layerUpButton = null!;
+        private Button _layerDownButton = null!;
+        private RectTransform _imageTransform = null!;
+
+        protected override GameObject Construct() {
+            return new Image {
+                Sprite = BundleLoader.WhiteBG,
+                PixelsPerUnit = 7f,
+                Color = new(0.14f, 0.14f, 0.14f),
+                Children = {
+                    //handle
+                    new Image {
+                        Children = {
+                            new Label {
+                                Text = "Layout Editor",
+                                FontSize = 3f,
+                                Color = Color.black
+                            }.AsFlexItem(margin: new() { left = 2f })
+                        }
+                    }.Bind(ref _windowHandle).AsFlexGroup(
+                        justifyContent: Justify.FlexStart
+                    ).AsFlexItem(basis: 4f),
+                    //list
+                    new UI.Reactive.Components.Dummy {
+                        Children = {
+                            new LayoutEditorComponentsList()
+                                .Bind(ref _layoutEditorComponentsList)
+                                .AsFlexItem(grow: 1f),
+                        }
+                    }.AsFlexGroup(padding: 1f).AsFlexItem(grow: 1f),
+                    //buttons
+                    new UI.Reactive.Components.Dummy {
+                        Children = {
+                            new Image {
+                                Sprite = BundleLoader.WhiteBG,
+                                Color = new(0.22f, 0.22f, 0.22f),
+                                PixelsPerUnit = 10f,
+                                Children = {
+                                    //layer buttons
+                                    new UI.Reactive.Components.Dummy {
+                                        Children = {
+                                            //layer up button
+                                            new BsButton()
+                                                .WithLabel("+")
+                                                .AsFlexItem(basis: 7f)
+                                                .WithAccentColor(Color.red)
+                                                .WithClickListener(HandleLayerUpButtonClicked)
+                                                .Bind(ref _layerUpButton),
+                                            //layer down button
+                                            new BsButton()
+                                                .WithLabel("-")
+                                                .AsFlexItem(basis: 7f)
+                                                .WithAccentColor(Color.blue)
+                                                .WithClickListener(HandleLayerDownButtonClicked)
+                                                .Bind(ref _layerDownButton)
+                                        }
+                                    }.AsFlexGroup(
+                                        direction: UI.Reactive.Yoga.FlexDirection.Column
+                                    ).AsFlexItem(grow: 1f),
+                                    //exit & apply buttons
+                                    new UI.Reactive.Components.Dummy {
+                                        Children = {
+                                            //cancel button
+                                            new BsButton()
+                                                .WithLabel("Cancel")
+                                                .AsFlexItem(basis: 7f)
+                                                .WithClickListener(() => _layoutEditor!.SetEditorActive(false)),
+                                            //apply button
+                                            new BsPrimaryButton()
+                                                .WithLabel("Apply")
+                                                .AsFlexItem(basis: 7f)
+                                                .WithClickListener(() => _layoutEditor!.SetEditorActive(false, true))
+                                        }
+                                    }.AsFlexGroup(
+                                        direction: UI.Reactive.Yoga.FlexDirection.Column,
+                                        padding: new() { left = 2f }
+                                    ).AsFlexItem(grow: 2f)
+                                }
+                            }.AsFlexGroup(
+                                padding: 2f
+                            ).AsFlexItem(
+                                grow: 1f,
+                                size: new() { x = 7f }
+                            )
+                        }
+                    }.AsFlexGroup(padding: 1f).AsFlexItem(basis: 18f)
+                }
+            }.WithRectSize(70f, 48f).AsFlexGroup(
+                direction: UI.Reactive.Yoga.FlexDirection.Column
+            ).WithGraphicMask().Bind(ref _imageTransform).Use();
+        }
+
         protected override void OnInitialize() {
             _layoutEditorComponentsList.ItemsWithIndexesSelectedEvent += HandleComponentsSelected;
-            var eventsHandler = _windowHandle.gameObject.AddComponent<PointerEventsHandler>();
+            var eventsHandler = _windowHandle.Content.AddComponent<PointerEventsHandler>();
             eventsHandler.PointerUpEvent += OnComponentPointerUp;
             eventsHandler.PointerDownEvent += OnComponentPointerDown;
             eventsHandler.PointerEnterEvent += OnComponentPointerEnter;
             eventsHandler.PointerExitEvent += OnComponentPointerExit;
-            Content!.GetComponent<LayoutGroup>().enabled = false;
-            _imageTransform = (RectTransform)ContentTransform!.GetChild(0);
         }
 
-        protected override bool OnValidation() => ComponentHandler is not null;
+        protected override bool Validate() => ComponentHandler is not null;
 
         #endregion
 
         #region ComponentsList
 
         private void RefreshComponents() {
-            _layoutEditorComponentsList.items.Clear();
-            _layoutEditorComponentsList.items.AddRange(_layoutEditor!.LayoutComponents);
-            _layoutEditorComponentsList.items.Remove(this);
+            _layoutEditorComponentsList.Items.Clear();
+            _layoutEditorComponentsList.Items.AddRange(_layoutEditor!.LayoutComponents);
+            _layoutEditorComponentsList.Items.Remove(this);
             _layoutEditorComponentsList.Refresh();
         }
 
@@ -171,11 +244,11 @@ namespace BeatLeader.Components {
             var layer = _selectedComponent?.ComponentController.ComponentLayer;
 
             var selector = new Func<ILayoutComponent, int>(static x => x.ComponentController.ComponentLayer);
-            var minLayer = isComponentAvailable ? 0 : _layoutEditorComponentsList.items.Min(selector);
-            var maxLayer = isComponentAvailable ? 0 : _layoutEditorComponentsList.items.Max(selector);
+            var minLayer = isComponentAvailable ? 0 : _layoutEditorComponentsList.Items.Min(selector);
+            var maxLayer = isComponentAvailable ? 0 : _layoutEditorComponentsList.Items.Max(selector);
 
-            _layerUpButton.interactable = !isComponentAvailable && layer < maxLayer;
-            _layerDownButton.interactable = !isComponentAvailable && layer > minLayer;
+            _layerUpButton.Interactable = !isComponentAvailable && layer < maxLayer;
+            _layerDownButton.Interactable = !isComponentAvailable && layer > minLayer;
         }
 
         private void ModifySelectedComponentLayer(int layer) {
@@ -205,13 +278,11 @@ namespace BeatLeader.Components {
 
         private void HandleComponentsSelected(ICollection<int> indexes) {
             if (indexes.Count is 0) return;
-            HandleComponentSelected(_layoutEditorComponentsList.items[indexes.First()]);
+            HandleComponentSelected(_layoutEditorComponentsList.Items[indexes.First()]);
         }
 
         [UIAction("grid-button-clicked"), UsedImplicitly]
-        private void HandleGridButtonClicked(bool state) {
-            
-        }
+        private void HandleGridButtonClicked(bool state) { }
 
         [UIAction("layer-up-button-click"), UsedImplicitly]
         private void HandleLayerUpButtonClicked() {
@@ -244,7 +315,7 @@ namespace BeatLeader.Components {
 
         private void OnComponentPointerDown(PointerEventsHandler handler, PointerEventData data) {
             ValidateAndThrow();
-            var compPos = (Vector2)ContentTransform!.localPosition;
+            var compPos = (Vector2)ContentTransform.localPosition;
             var pointerPos = ComponentHandler!.PointerPosition;
             _componentPosOffset = compPos - pointerPos;
             _componentOriginPos = compPos;

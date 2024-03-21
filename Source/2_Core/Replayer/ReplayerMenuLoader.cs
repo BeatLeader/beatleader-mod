@@ -145,7 +145,7 @@ namespace BeatLeader.Replayer {
         ) {
             (BeatmapLevel? level, BeatmapKey? key) = await LoadBeatmapAsync(hash, mode, difficulty, token);
             if (level == null || key == null) return false;
-            Reinit(launchData, level);
+            Reinit(launchData, level, key);
             return true;
         }
 

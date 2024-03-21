@@ -89,9 +89,6 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             var characteristicPanel = Instantiate(
                 BeatmapCharacteristicSegmentedControl, _container, true);
-            //characteristicPanel
-            //    .GetComponentInChildren<IconSegmentedControl>(true)
-            //    .SetField("_container", BeatSaberUI.DiContainer);
             _canvasGroup = _container.gameObject.AddComponent<CanvasGroup>();
             _segmentedControl = characteristicPanel.GetComponentInChildren<
                 BeatmapCharacteristicSegmentedControlController>(true);

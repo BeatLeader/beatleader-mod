@@ -43,6 +43,10 @@ namespace BeatLeader.Replayer {
 
             Plugin.Log.Notice("[Launcher] Loading replay data...");
             var transitionData = CreateTransitionData(data);
+            if (transitionData == null) {
+                Plugin.Log.Error("[Launcher] Cannot create transition data");
+                return false;
+            }
             transitionData.didFinishEvent += HandleLevelFinish;
             IsStartedAsReplay = true;
             LaunchData = data;
@@ -60,7 +64,7 @@ namespace BeatLeader.Replayer {
 
         private static readonly EnvironmentType normalEnvironmentType = EnvironmentType.Normal;
 
-        private static StandardLevelScenesTransitionSetupDataSO? _standardLevelScenesTransitionSetupDataSo;
+        private static StandardLevelScenesTransitionSetupDataSO? _standardLevelScenesTransitionSetupDataSo = null;
 
         private void Awake() {
             if (!_standardLevelScenesTransitionSetupDataSo) {
@@ -70,7 +74,7 @@ namespace BeatLeader.Replayer {
             }
         }
 
-        private StandardLevelScenesTransitionSetupDataSO CreateTransitionData(ReplayLaunchData launchData) {
+        private StandardLevelScenesTransitionSetupDataSO? CreateTransitionData(ReplayLaunchData launchData) {
             var transitionData = _standardLevelScenesTransitionSetupDataSo;
             var playerData = _playerDataModel.playerData;
 
@@ -88,22 +92,27 @@ namespace BeatLeader.Replayer {
             var practiceSettings = launchData.IsBattleRoyale ? null
                 : launchData.MainReplay.ReplayData.PracticeSettings;
 
-            transitionData!.Init(
-                "Solo",
-                launchData.BeatmapKey!.Value,
-                launchData.BeatmapLevel,
-                envSettings,
-                playerData.colorSchemesSettings.GetOverrideColorScheme(),
-                null,
-                replay.ReplayData.GameplayModifiers,
-                playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
-                practiceSettings,
-                _environmentsListModel,
-                _audioClipAsyncLoader,
-                _beatmapDataLoader,
-                "Menu",
-                _beatmapLevelsModel
-            );
+            if (transitionData != null) {
+                transitionData.Init(
+                    "Solo",
+                    launchData.BeatmapKey!.Value,
+                    launchData.BeatmapLevel,
+                    envSettings,
+                    playerData.colorSchemesSettings.GetOverrideColorScheme(),
+                    null,
+                    replay.ReplayData.GameplayModifiers,
+                    playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
+                    practiceSettings,
+                    _environmentsListModel,
+                    _audioClipAsyncLoader,
+                    _beatmapDataLoader,
+                    "Menu",
+                    _beatmapLevelsModel,
+                    false,
+                    false,
+                    null
+                );
+            }
 
             return transitionData;
         }

@@ -3,7 +3,7 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "beatleader.xyz | In-game leaderboards for custom and OST maps | Score replays | Clans, events, playlists and much more",
   "gameVersion": "1.35.0",
   "dependsOn": {

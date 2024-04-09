@@ -33,7 +33,7 @@ namespace BeatLeader.UI.Reactive.Components {
             base.Construct(rect);
         }
 
-        protected override void AppendChild(ReactiveComponent comp) {
+        protected override void AppendReactiveChild(ReactiveComponentBase comp) {
             comp.Use(_childrenContainerTransform);
         }
 

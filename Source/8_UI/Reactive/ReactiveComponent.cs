@@ -10,16 +10,168 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.UI.Reactive {
-    internal abstract class ReactiveComponent : ILayoutItem {
+    internal abstract class DrivingReactiveComponent : ReactiveComponentBase, ILayoutDriver {
+        #region Layout Controller
+
+        public ILayoutController? LayoutController {
+            get => _layoutController;
+            set {
+                _layoutController = value;
+                RefreshLayoutControllerChildren();
+                RecalculateLayout();
+            }
+        }
+
+        private ILayoutController? _layoutController;
+
+        private void RefreshLayoutControllerChildren() {
+            _layoutController?.ReloadChildren(_children);
+        }
+
+        private void RecalculateLayout() {
+            _layoutController?.ReloadDimensions(ContentTransform.rect);
+            _layoutController?.Recalculate();
+        }
+
+        #endregion
+
+        #region Children
+
+        /// <summary>
+        /// Represents the children of the component.
+        /// </summary>
+        public ICollection<ILayoutItem> Children => _children;
+
+        IEnumerable<ILayoutItem> ILayoutDriver.Children => Children;
+
+        private readonly ObservableCollection<ILayoutItem> _children = new();
+
+        private void ApplyParent(IEnumerable children, bool append) {
+            foreach (var child in children) {
+                if (child is not ILayoutItem comp) continue;
+                if (append) {
+                    AppendChild(comp);
+                    comp.Driver = this;
+                    comp.ModifierUpdatedEvent += HandleChildModifierUpdated;
+                } else {
+                    TruncateChild(comp);
+                    comp.Driver = null;
+                    comp.ModifierUpdatedEvent -= HandleChildModifierUpdated;
+                }
+            }
+        }
+
+        void ILayoutDriver.AppendChild(ILayoutItem item) => AppendChild(item);
+        void ILayoutDriver.TruncateChild(ILayoutItem item) => TruncateChild(item);
+
+        protected virtual void AppendChild(ILayoutItem item) {
+            if (item is ReactiveComponentBase comp) {
+                AppendReactiveChild(comp);
+            } else {
+                item.RectTransform.SetParent(ContentTransform, false);
+            }
+        }
+
+        protected virtual void TruncateChild(ILayoutItem item) {
+            if (item is ReactiveComponentBase comp) {
+               TruncateReactiveChild(comp);
+            } else {
+                item.RectTransform.SetParent(null, false);
+            }
+        }
+
+        protected virtual void AppendReactiveChild(ReactiveComponentBase comp) {
+            comp.Use(ContentTransform);
+        }
+        
+        protected virtual void TruncateReactiveChild(ReactiveComponentBase comp) {
+            comp.Use();
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleChildModifierUpdated() {
+            RecalculateLayout();
+        }
+
+        private void HandleChildrenChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            if (!IsInitialized) return;
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                    ApplyParent(e.NewItems, true);
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Remove:
+                    ApplyParent(e.OldItems, false);
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    ApplyParent(e.OldItems, false);
+                    ApplyParent(e.NewItems, true);
+                    break;
+            }
+            OnChildrenUpdated();
+            RefreshLayoutControllerChildren();
+        }
+
+        #endregion
+
+        #region Overrides
+
+        protected sealed override void DestroyInternal() {
+            base.DestroyInternal();
+            _children.CollectionChanged -= HandleChildrenChanged;
+        }
+
+        protected sealed override void ConstructInternal() {
+            base.ConstructInternal();
+            _children.CollectionChanged += HandleChildrenChanged;
+            HandleChildrenChanged(this, new(NotifyCollectionChangedAction.Add, _children));
+        }
+
+        protected sealed override void OnRectDimensionsChangedInternal() {
+            RecalculateLayout();
+            base.OnRectDimensionsChangedInternal();
+        }
+
+        #endregion
+
+        #region Events
+
+        protected virtual void OnChildrenUpdated() { }
+
+        #endregion
+    }
+
+    internal abstract class ReactiveComponent : ReactiveComponentBase {
+        #region Overrides
+
+        protected sealed override void DestroyInternal() {
+            base.DestroyInternal();
+        }
+
+        protected sealed override void ConstructInternal() {
+            base.ConstructInternal();
+        }
+
+        protected sealed override void OnRectDimensionsChangedInternal() {
+            base.OnRectDimensionsChangedInternal();
+        }
+
+        #endregion
+    }
+
+    internal abstract class ReactiveComponentBase : ILayoutItem {
         #region Factory
 
-        protected ReactiveComponent() {
+        protected ReactiveComponentBase() {
             //do not want to reimplement constructor each inheritance so use this hacky reflection way
             var trace = new StackTrace();
             var mtd = trace.GetFrames()?
                 .Select(static x => x.GetMethod())
                 .FirstOrDefault(static x => x.Name == "Lazy" && x.DeclaringType == typeof(ReactiveComponent));
-            if (mtd == null) ConstructInternal();
+            if (mtd == null) ConstructAndInit();
         }
 
         public static T Lazy<T>() where T : ReactiveComponent, new() {
@@ -31,7 +183,7 @@ namespace BeatLeader.UI.Reactive {
         #region Host
 
         private class ReactiveHost : MonoBehaviour {
-            public readonly List<ReactiveComponent> components = new();
+            public readonly List<ReactiveComponentBase> components = new();
 
             private void Start() {
                 components.ForEach(static x => x.OnStart());
@@ -54,12 +206,11 @@ namespace BeatLeader.UI.Reactive {
             }
 
             private void OnRectTransformDimensionsChange() {
-                components.ForEach(static x => x.HandleRectDimensionsChanged());
+                components.ForEach(static x => x.OnRectDimensionsChangedInternal());
             }
         }
 
-        private void HandleRectDimensionsChanged() {
-            RecalculateLayout();
+        protected virtual void OnRectDimensionsChangedInternal() {
             OnRectDimensionsChanged();
         }
 
@@ -68,14 +219,16 @@ namespace BeatLeader.UI.Reactive {
         #region UI Props
 
         /// <summary>
-        /// Represents the children of the component.
-        /// </summary>
-        public ICollection<ReactiveComponent> Children => _children;
-
-        /// <summary>
         /// Represents the parent of the component.
         /// </summary>
-        public ReactiveComponent? Parent { get; private set; }
+        public ILayoutDriver? Driver {
+            get => _parent;
+            set {
+                _parent?.TruncateChild(this);
+                _parent = value;
+                _parent?.AppendChild(this);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the local scale of the transform.
@@ -92,7 +245,7 @@ namespace BeatLeader.UI.Reactive {
             get => Content.activeInHierarchy;
             set => Content.SetActive(value);
         }
-        
+
         /// <summary>
         /// Gets or sets name of the content game object.
         /// </summary>
@@ -101,36 +254,7 @@ namespace BeatLeader.UI.Reactive {
             set => Content.name = value;
         }
 
-        #endregion
-
-        #region Layout Item
-
-        ILayoutItem? ILayoutItem.Parent => Parent;
-        IEnumerable<ILayoutItem> ILayoutItem.Children => Children;
-        RectTransform ILayoutItem.RectTransform => ContentTransform;
-
-        #endregion
-
-        #region Layout Controller
-
-        public ILayoutController? LayoutController => _layoutController;
-
-        private IApplicableLayoutController? _layoutController;
-
-        public void SetLayoutController(IApplicableLayoutController controller) {
-            _layoutController = controller;
-            _layoutController!.Setup(this);
-            RefreshLayoutControllerChildren();
-            RecalculateLayout();
-        }
-
-        private void RefreshLayoutControllerChildren() {
-            _layoutController?.RefreshChildren();
-        }
-
-        private void RecalculateLayout() {
-            _layoutController?.Recalculate();
-        }
+        private ILayoutDriver? _parent;
 
         #endregion
 
@@ -146,7 +270,9 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        private event Action? ModifierUpdatedEvent;
+        RectTransform ILayoutItem.RectTransform => ContentTransform;
+
+        public event Action? ModifierUpdatedEvent;
 
         private ILayoutModifier _modifier = new RectModifier();
 
@@ -164,11 +290,6 @@ namespace BeatLeader.UI.Reactive {
             RefreshRectModifier();
             OnModifierUpdated();
             ModifierUpdatedEvent?.Invoke();
-        }
-
-        private void HandleChildModifierUpdated() {
-            RecalculateLayout();
-            OnChildModifierUpdated();
         }
 
         #endregion
@@ -211,54 +332,6 @@ namespace BeatLeader.UI.Reactive {
 
         #endregion
 
-        #region Children
-
-        private ObservableCollection<ReactiveComponent> _children = new();
-
-        private void HandleChildrenChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            if (!IsInitialized) return;
-            switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
-                    ApplyParent(e.NewItems, true);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                case NotifyCollectionChangedAction.Remove:
-                    ApplyParent(e.OldItems, false);
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    ApplyParent(e.OldItems, false);
-                    ApplyParent(e.NewItems, true);
-                    break;
-            }
-            OnChildrenUpdated();
-            RefreshLayoutControllerChildren();
-        }
-
-        private void ApplyParent(IEnumerable children, bool append) {
-            foreach (var child in children) {
-                if (child is not ReactiveComponent comp) continue;
-                if (append) {
-                    AppendChild(comp);
-                    comp.Parent = this;
-                    comp.ModifierUpdatedEvent += HandleChildModifierUpdated;
-                } else {
-                    TruncateChild(comp);
-                    comp.Parent = null;
-                    comp.ModifierUpdatedEvent -= HandleChildModifierUpdated;
-                }
-            }
-        }
-
-        protected virtual void AppendChild(ReactiveComponent comp) {
-            comp.Use(ContentTransform);
-        }
-
-        protected virtual void TruncateChild(ReactiveComponent comp) {
-            comp.Use();
-        }
-
-        #endregion
-
         #region Construct
 
         public RectTransform ContentTransform => _contentTransform ?? throw new UninitializedComponentException();
@@ -286,12 +359,17 @@ namespace BeatLeader.UI.Reactive {
         /// </summary>
         public GameObject Use(Transform? parent = null) {
             ValidateExternalInteraction();
-            if (!IsInitialized) ConstructInternal();
+            if (!IsInitialized) ConstructAndInit();
             ContentTransform.SetParent(parent, false);
             return Content;
         }
 
-        private void ConstructInternal() {
+        private void ConstructAndInit() {
+            ConstructInternal();
+            OnInitialize();
+        }
+
+        protected virtual void ConstructInternal() {
             if (IsInitialized) throw new InvalidOperationException();
             OnInstantiate();
 
@@ -302,11 +380,6 @@ namespace BeatLeader.UI.Reactive {
             _reactiveHost = _content.AddComponent<ReactiveHost>();
             _reactiveHost.components.Add(this);
             IsInitialized = true;
-
-            _children.CollectionChanged += HandleChildrenChanged;
-            HandleChildrenChanged(this, new(NotifyCollectionChangedAction.Add, _children));
-
-            OnInitialize();
         }
 
         private void ValidateExternalInteraction() {
@@ -334,8 +407,7 @@ namespace BeatLeader.UI.Reactive {
             DestroyInternal();
         }
 
-        private void DestroyInternal() {
-            _children.CollectionChanged -= HandleChildrenChanged;
+        protected virtual void DestroyInternal() {
             _reactiveHost!.components.Remove(this);
             IsDestroyed = true;
             OnDestroy();
@@ -353,9 +425,7 @@ namespace BeatLeader.UI.Reactive {
         protected virtual void OnEnable() { }
         protected virtual void OnDisable() { }
         protected virtual void OnRectDimensionsChanged() { }
-        protected virtual void OnChildrenUpdated() { }
         protected virtual void OnModifierUpdated() { }
-        protected virtual void OnChildModifierUpdated() { }
 
         #endregion
     }

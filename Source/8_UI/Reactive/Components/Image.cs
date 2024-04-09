@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Image : ReactiveComponent {
+    internal class Image : DrivingReactiveComponent {
         public Sprite? Sprite {
             get => _image.sprite;
             set => _image.sprite = value;

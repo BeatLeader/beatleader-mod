@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Button : ReactiveComponent {
+    internal class Button : DrivingReactiveComponent {
         #region Events
 
         public event Action? ClickEvent;

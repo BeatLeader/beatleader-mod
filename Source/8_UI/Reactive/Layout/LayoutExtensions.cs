@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Reactive {
             YogaFrame? margin = null,
             YogaValue? aspectRatio = null,
             Align alignSelf = Align.Auto
-        ) where T : ReactiveComponent {
+        ) where T : ReactiveComponentBase {
             if (component.LayoutModifier is not YogaModifier modifier) {
                 modifier = new YogaModifier();
                 component.LayoutModifier = modifier;
@@ -43,16 +43,14 @@ namespace BeatLeader.UI.Reactive {
             Wrap wrap = Wrap.NoWrap,
             YogaFrame? padding = null,
             bool expandUnspecifiedChildren = true
-        ) where T : ReactiveComponent {
-            component.SetLayoutController(
-                new YogaLayoutController {
-                    FlexDirection = direction,
-                    JustifyContent = justifyContent,
-                    AlignItems = alignItems,
-                    FlexWrap = wrap,
-                    Padding = padding ?? YogaFrame.Zero
-                }
-            );
+        ) where T : DrivingReactiveComponent {
+            component.LayoutController = new YogaLayoutController {
+                FlexDirection = direction,
+                JustifyContent = justifyContent,
+                AlignItems = alignItems,
+                FlexWrap = wrap,
+                Padding = padding ?? YogaFrame.Zero
+            };
             if (expandUnspecifiedChildren) {
                 foreach (var comp in component.Children) {
                     ExpandFlexChild(comp);
@@ -61,11 +59,11 @@ namespace BeatLeader.UI.Reactive {
             return component;
         }
 
-        private static bool ExpandFlexChild(ReactiveComponent component) {
+        private static bool ExpandFlexChild(ILayoutItem component) {
             if (component.LayoutModifier is not YogaModifier modifier) return false;
             var sizeIsUndefined = modifier.Size == YogaVector.Auto || modifier.Size == YogaVector.Undefined;
 
-            if (component.Parent?.LayoutController is not YogaLayoutController controller || !sizeIsUndefined) return false;
+            if (component.Driver?.LayoutController is not YogaLayoutController controller || !sizeIsUndefined) return false;
             var row = controller.FlexDirection is FlexDirection.Row or FlexDirection.RowReverse;
             modifier.Size = row ? new(YogaValue.Undefined, "100%") : new("100%", YogaValue.Undefined);
 
@@ -80,7 +78,7 @@ namespace BeatLeader.UI.Reactive {
             this T component,
             float height,
             float width
-        ) where T : ReactiveComponent {
+        ) where T : ReactiveComponentBase {
             return component.AsRectItem(new(width, height));
         }
 
@@ -89,7 +87,7 @@ namespace BeatLeader.UI.Reactive {
             Vector2 sizeDelta = default,
             Vector2 anchorMin = default,
             Vector2 anchorMax = default
-        ) where T : ReactiveComponent {
+        ) where T : ReactiveComponentBase {
             if (component.LayoutModifier is not RectModifier modifier) {
                 modifier = new();
             }
@@ -100,7 +98,7 @@ namespace BeatLeader.UI.Reactive {
             return component;
         }
 
-        public static T WithRectExpand<T>(this T component) where T : ReactiveComponent {
+        public static T WithRectExpand<T>(this T component) where T : ReactiveComponentBase {
             if (component.LayoutModifier is not RectModifier modifier) {
                 modifier = new();
             }
@@ -108,8 +106,8 @@ namespace BeatLeader.UI.Reactive {
             component.LayoutModifier = modifier;
             return component;
         }
-        
-        public static RectTransform WithRectExpand(this RectTransform component)  {
+
+        public static RectTransform WithRectExpand(this RectTransform component) {
             component.anchorMin = Vector2.zero;
             component.anchorMax = Vector2.one;
             component.sizeDelta = Vector2.zero;

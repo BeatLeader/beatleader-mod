@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Reactive {
             if (component.LayoutModifier is not YogaModifier modifier) return false;
             var sizeIsUndefined = modifier.Size == YogaVector.Auto || modifier.Size == YogaVector.Undefined;
 
-            if (component.Driver?.LayoutController is not YogaLayoutController controller || !sizeIsUndefined) return false;
+            if (component.LayoutDriver?.LayoutController is not YogaLayoutController controller || !sizeIsUndefined) return false;
             var row = controller.FlexDirection is FlexDirection.Row or FlexDirection.RowReverse;
             modifier.Size = row ? new(YogaValue.Undefined, "100%") : new("100%", YogaValue.Undefined);
 

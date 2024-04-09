@@ -51,11 +51,11 @@ namespace BeatLeader.UI.Reactive {
                 if (child is not ILayoutItem comp) continue;
                 if (append) {
                     AppendChild(comp);
-                    comp.Driver = this;
+                    comp.LayoutDriver = this;
                     comp.ModifierUpdatedEvent += HandleChildModifierUpdated;
                 } else {
                     TruncateChild(comp);
-                    comp.Driver = null;
+                    comp.LayoutDriver = null;
                     comp.ModifierUpdatedEvent -= HandleChildModifierUpdated;
                 }
             }
@@ -221,7 +221,7 @@ namespace BeatLeader.UI.Reactive {
         /// <summary>
         /// Represents the parent of the component.
         /// </summary>
-        public ILayoutDriver? Driver {
+        public ILayoutDriver? LayoutDriver {
             get => _parent;
             set {
                 _parent?.TruncateChild(this);

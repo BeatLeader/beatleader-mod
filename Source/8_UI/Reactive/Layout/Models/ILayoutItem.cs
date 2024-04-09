@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
     internal interface ILayoutItem {
-        ILayoutDriver? Driver { get; set; }
+        ILayoutDriver? LayoutDriver { get; set; }
         
         ILayoutModifier LayoutModifier { get; }
         RectTransform RectTransform { get; }

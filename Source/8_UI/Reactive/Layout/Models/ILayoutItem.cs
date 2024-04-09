@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
     internal interface ILayoutItem {
-        ILayoutItem? Parent { get; }
-        IEnumerable<ILayoutItem> Children { get; }
-
-        ILayoutController? LayoutController { get; }
+        ILayoutDriver? Driver { get; set; }
+        
         ILayoutModifier LayoutModifier { get; }
         RectTransform RectTransform { get; }
+
+        event Action? ModifierUpdatedEvent;
     }
 }

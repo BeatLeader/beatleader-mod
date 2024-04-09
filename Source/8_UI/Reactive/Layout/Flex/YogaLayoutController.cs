@@ -92,9 +92,7 @@ namespace BeatLeader.UI.Reactive.Yoga {
         private YogaNode _node;
 
         public override void Recalculate() {
-            if (Item is null) return;
-            var rect = Item.RectTransform.rect;
-            _node.CalculateLayout(rect.width, rect.height, _direction);
+            _node.CalculateLayout(Rect.width, Rect.height, _direction);
             foreach (var (child, node) in _nodes) {
                 node.ApplyTo(child.RectTransform);
             }
@@ -117,13 +115,11 @@ namespace BeatLeader.UI.Reactive.Yoga {
             _node.StyleSetPadding(Edge.Right, _padding.right);
         }
 
-
-        protected override void OnChildrenUpdated() {
-            if (Item is null) return;
+        public override void ReloadChildren(IEnumerable<ILayoutItem> children) {
             _node.RemoveAllChildren();
             _nodes.Clear();
             var index = 0;
-            foreach (var child in Item.Children) {
+            foreach (var child in children) {
                 if (child.LayoutModifier is not YogaModifier node) continue;
                 _node.InsertChild(node.YogaNode, index);
                 _nodes[child] = node.YogaNode;

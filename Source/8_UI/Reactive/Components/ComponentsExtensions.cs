@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal static class ComponentsExtensions {
-        public static T WithGraphicMask<T>(this T component) where T : ReactiveComponent {
+        public static T WithGraphicMask<T>(this T component) where T : ReactiveComponentBase {
             component.Content.AddComponent<Mask>();
             return component;
         }

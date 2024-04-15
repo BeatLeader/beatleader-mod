@@ -204,7 +204,7 @@ namespace BeatLeader.Components {
         private void UpdateCells() {
             switch (_score) {
                 case Score playerScore: {
-                    var player = HiddenPlayersCache.ModifyPlayer(playerScore.player);
+                    var player = playerScore.player;
                     var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
 
                     Clickable = true;

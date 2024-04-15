@@ -1,4 +1,6 @@
 ﻿using BeatLeader.Components;
+using BeatLeader.DataManager;
+using System;
 
 namespace BeatLeader.Models {
     public class Score : IScoreRowContent {
@@ -20,7 +22,29 @@ namespace BeatLeader.Models {
         public int hmd;
         public int controller;
         public string timeSet;
-        public Player player;
+
+        private Player _player;
+        public Player player { 
+            get {
+                if (!HiddenPlayersCache.IsHidden(_player)) return _player;
+            
+                return new Player() {
+                    id = _player.id,
+                    rank = 0,
+                    name = "~hidden player~",
+                    country = "not set",
+                    countryRank = 0,
+                    pp = 0f,
+                    role = "",
+                    clans = Array.Empty<Clan>(),
+                    socials = Array.Empty<ServiceIntegration>(),
+                    profileSettings = null
+                };
+            }
+            set { 
+                _player = value;
+            }
+        }
         public string replay;
         public string platform;
 

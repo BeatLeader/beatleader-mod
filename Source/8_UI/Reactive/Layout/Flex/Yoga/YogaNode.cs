@@ -225,15 +225,15 @@ namespace BeatLeader.UI.Reactive.Yoga {
         }
 
         public void InsertChild(YogaNode child, int index) {
-            YogaNative.YGNodeInsertChild(_nodePtr, child._nodePtr, index);
+            YogaNative.YGNodeInsertChildSafe(_nodePtr, child._nodePtr, index);
         }
 
         public void RemoveChild(YogaNode child) {
-            YogaNative.YGNodeRemoveChild(_nodePtr, child._nodePtr);
+            YogaNative.YGNodeRemoveChildSafe(_nodePtr, child._nodePtr);
         }
 
         public void RemoveAllChildren() {
-            YogaNative.YGNodeRemoveAllChildren(_nodePtr);
+            YogaNative.YGNodeRemoveAllChildrenSafe(_nodePtr);
         }
         
         #endregion

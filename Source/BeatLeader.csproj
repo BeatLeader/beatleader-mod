@@ -15,6 +15,11 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <WarningLevel>3</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -188,7 +193,7 @@
         <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle"/>
         <EmbeddedResource Include="9_Resources\BSML\**\*.bsml"/>
         <EmbeddedResource Include="9_Resources\Localization.json"/>
-        <EmbeddedResource Include="9_Resources\yoga.dll" />
+        <EmbeddedResource Include="9_Resources\Libs\*.dll" />
         <EmbeddedResource Include="manifest.json"/>
     </ItemGroup>
 

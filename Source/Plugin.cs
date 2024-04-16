@@ -33,6 +33,9 @@ namespace BeatLeader {
         public Plugin(IPALogger logger, PluginMetadata metadata) {
             Log = logger;
             Version = metadata.HVersion;
+            // important to call on init because p/invoke need some
+            // time to start working after the manual LoadLibrary call
+            DynamicLibLoader.Load();
             InitializeConfig();
             InitializeAssets();
         }
@@ -80,13 +83,14 @@ namespace BeatLeader {
 
         [OnExit]
         [UsedImplicitly]
-        public void OnApplicationQuit()
-        {
+        public void OnApplicationQuit() {
             SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
             ReplayHeadersCache.SaveCache();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
             ConfigFileData.Save();
+            //important to call LAST!!
+            DynamicLibLoader.Unload();
         }
 
         #endregion

@@ -1,13 +1,37 @@
 ﻿using BeatLeader.UI.Reactive.Yoga;
+using IPA.Logging;
+using YGLogLevel = BeatLeader.UI.Reactive.Yoga.YogaNative.YGLogLevel;
 
 namespace BeatLeader.UI.Reactive {
     internal static class ReactivePlatform {
         public static void Init() {
-            if (YogaNative.Load()) {
-                Plugin.Log.Debug("[ReactivePlatform] Yoga engine loaded successfully");
-            } else {
-                Plugin.Log.Error("[ReactivePlatform] Yoga engine failed to load!");
+            InitYoga();
+        }
+
+        #region Yoga
+
+        private static unsafe void InitYoga() {
+            YogaNative.YGBindingsSetLogger(LogYogaMessage);
+        }
+
+        private static unsafe void LogYogaMessage(char* message, YGLogLevel level) {
+            var ipaLogLevel = ConvertYogaLogLevel(level);
+            var str = new string(message);
+            Plugin.Log.Log(ipaLogLevel, str);
+
+            static Logger.Level ConvertYogaLogLevel(YGLogLevel logLevel) {
+                return logLevel switch {
+                    YGLogLevel.YGLogLevelError => Logger.Level.Error,
+                    YGLogLevel.YGLogLevelWarn => Logger.Level.Warning,
+                    YGLogLevel.YGLogLevelInfo => Logger.Level.Info,
+                    YGLogLevel.YGLogLevelDebug => Logger.Level.Debug,
+                    YGLogLevel.YGLogLevelVerbose => Logger.Level.Trace,
+                    YGLogLevel.YGLogLevelFatal => Logger.Level.Critical,
+                    _ => Logger.Level.None
+                };
             }
         }
+
+        #endregion
     }
 }

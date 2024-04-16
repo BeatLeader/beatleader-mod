@@ -1,6 +1,4 @@
 using System;
-using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace BeatLeader.UI.Reactive.Yoga {
@@ -8,66 +6,6 @@ namespace BeatLeader.UI.Reactive.Yoga {
         private const string YogaDllName = "yoga.dll";
         private const string YogaRuntimeDllName = "YogaRuntime.dll";
         private const string YogaDllPath = Plugin.ResourcesPath + ".yoga.dll";
-
-        #region Load & Unload Native
-
-        private static AppDomain? _domain;
-        private static string? _yogaDllPath;
-        private static string? _yogaRuntimeDllPath;
-
-        public static bool Load() {
-            return true;
-            if (_yogaDllPath != null) return true;
-            //AddDllDirectory(Path.Combine(Environment.CurrentDirectory, "LolKek"));
-            //creating asm
-            //var yogaRuntime = ReflectionUtils.CreateImportingAssembly(
-            //    "YogaRuntime",
-            //    "YGNodeNew",
-            //    YogaDllName
-            //);
-            //extracting native asm
-            //_yogaDllPath = Path.Combine(Path.GetTempPath(), YogaDllName);
-            _yogaDllPath = Path.Combine(Environment.CurrentDirectory, YogaDllName);
-            //LoadLibrary(_yogaDllPath);
-            using (var stream = ResourcesUtils.GetEmbeddedResourceStream(YogaDllPath)) {
-                //writing library to the cache
-                using (var fileStream = new FileStream(_yogaDllPath, FileMode.OpenOrCreate, FileAccess.ReadWrite)) {
-                    stream.CopyTo(fileStream);
-                }
-            }
-            return true;
-
-            //saving sharp asm
-            _yogaRuntimeDllPath = Path.Combine(Environment.CurrentDirectory, YogaRuntimeDllName);
-            //yogaRuntime.Write(_yogaRuntimeDllPath);
-            try {
-                var asm = Assembly.LoadFile(_yogaRuntimeDllPath);
-                var type = asm.GetType($"YogaRuntimeImporter");
-                var mtd = type.GetMethod("YGNodeNew", BindingFlags.NonPublic | BindingFlags.Static);
-                Plugin.Log.Error(mtd.ToString());
-                mtd.Invoke(null, null);
-                Plugin.Log.Error("Called");
-                //_domain = AppDomain.CreateDomain("BeatLeaderRuntimeDomain");
-                //_domain.Load(new AssemblyName {
-                //    CodeBase = _yogaRuntimeDllPath
-                //});
-                return true;
-            } catch (Exception ex) {
-                Plugin.Log.Error($"Failed to load runtime bindings: {ex}");
-                return false;
-            }
-        }
-
-        public static bool Unload() {
-            if (_domain == null) return false;
-            AppDomain.Unload(_domain);
-            File.Delete(_yogaDllPath!);
-            File.Delete(_yogaRuntimeDllPath!);
-            _domain = null;
-            return true;
-        }
-
-        #endregion
 
         #region YGBindings
 

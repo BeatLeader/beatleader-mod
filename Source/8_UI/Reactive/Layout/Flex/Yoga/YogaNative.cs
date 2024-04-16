@@ -3,9 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace BeatLeader.UI.Reactive.Yoga {
     internal static class YogaNative {
-        private const string YogaDllName = "yoga.dll";
-        private const string YogaRuntimeDllName = "YogaRuntime.dll";
-        private const string YogaDllPath = Plugin.ResourcesPath + ".yoga.dll";
+        private const string YogaDllName = "yoga";
 
         #region YGBindings
 

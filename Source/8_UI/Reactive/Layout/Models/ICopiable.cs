@@ -1,5 +1,6 @@
 ﻿namespace BeatLeader.UI.Reactive {
-    internal interface ICopiable<in T> {
+    internal interface ICopiable<T> {
         void CopyFrom(T mod);
+        T CreateCopy();
     }
 }

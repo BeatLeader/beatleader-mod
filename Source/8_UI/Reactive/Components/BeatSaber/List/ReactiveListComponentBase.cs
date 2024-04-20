@@ -44,7 +44,7 @@ namespace BeatLeader.UI.Reactive.Components {
     /// <typeparam name="TItem">Data type</typeparam>
     /// <typeparam name="TCellComponent">Cell component type</typeparam>
     internal abstract class ReactiveListComponentBase<TItem, TCellComponent> : ListComponentBase<TItem>
-        where TCellComponent : ReactiveComponent, IReactiveTableCell<TItem>, new() {
+        where TCellComponent : ReactiveComponentBase, IReactiveTableCell<TItem>, new() {
         
         #region ConstructCell
 

@@ -10,7 +10,14 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.UI.Reactive {
-    internal abstract class DrivingReactiveComponent : ReactiveComponentBase, ILayoutDriver {
+    internal abstract class DrivingReactiveComponent : DrivingReactiveComponentBase {
+        /// <summary>
+        /// Represents the children of the component.
+        /// </summary>
+        public new ICollection<ILayoutItem> Children => base.Children;
+    }
+
+    internal abstract class DrivingReactiveComponentBase : ReactiveComponentBase, ILayoutDriver {
         #region Layout Controller
 
         public ILayoutController? LayoutController {
@@ -40,7 +47,7 @@ namespace BeatLeader.UI.Reactive {
         /// <summary>
         /// Represents the children of the component.
         /// </summary>
-        public ICollection<ILayoutItem> Children => _children;
+        protected ICollection<ILayoutItem> Children => _children;
 
         IEnumerable<ILayoutItem> ILayoutDriver.Children => Children;
 
@@ -74,7 +81,7 @@ namespace BeatLeader.UI.Reactive {
 
         protected virtual void TruncateChild(ILayoutItem item) {
             if (item is ReactiveComponentBase comp) {
-               TruncateReactiveChild(comp);
+                TruncateReactiveChild(comp);
             } else {
                 item.RectTransform.SetParent(null, false);
             }
@@ -83,7 +90,7 @@ namespace BeatLeader.UI.Reactive {
         protected virtual void AppendReactiveChild(ReactiveComponentBase comp) {
             comp.Use(ContentTransform);
         }
-        
+
         protected virtual void TruncateReactiveChild(ReactiveComponentBase comp) {
             comp.Use();
         }
@@ -103,6 +110,7 @@ namespace BeatLeader.UI.Reactive {
                     ApplyParent(e.NewItems, true);
                     break;
                 case NotifyCollectionChangedAction.Reset:
+                    break;
                 case NotifyCollectionChangedAction.Remove:
                     ApplyParent(e.OldItems, false);
                     break;
@@ -185,8 +193,12 @@ namespace BeatLeader.UI.Reactive {
         private class ReactiveHost : MonoBehaviour {
             public readonly List<ReactiveComponentBase> components = new();
 
+            public bool IsStarted { get; private set; }
+            public bool IsDestroyed { get; private set; }
+
             private void Start() {
                 components.ForEach(static x => x.OnStart());
+                IsStarted = true;
             }
 
             private void Update() {
@@ -195,6 +207,7 @@ namespace BeatLeader.UI.Reactive {
 
             private void OnDestroy() {
                 components.ForEach(static x => x.DestroyInternal());
+                IsDestroyed = true;
             }
 
             private void OnEnable() {
@@ -353,6 +366,7 @@ namespace BeatLeader.UI.Reactive {
         private GameObject? _content;
         private RectTransform? _contentTransform;
         private ReactiveHost? _reactiveHost;
+        private bool _needToStartManually;
 
         /// <summary>
         /// Constructs and reparents the component if needed
@@ -367,6 +381,7 @@ namespace BeatLeader.UI.Reactive {
         private void ConstructAndInit() {
             ConstructInternal();
             OnInitialize();
+            if (_needToStartManually) OnStart();
         }
 
         protected virtual void ConstructInternal() {
@@ -377,7 +392,17 @@ namespace BeatLeader.UI.Reactive {
             _content.name = GetType().Name;
             _contentTransform = _content.GetOrAddComponent<RectTransform>();
 
-            _reactiveHost = _content.AddComponent<ReactiveHost>();
+            var host = _content.GetComponent<ReactiveHost>();
+            if (host != null && !host.IsDestroyed) {
+                if (host.IsStarted) {
+                    _needToStartManually = true;
+                }
+            } else {
+                if (host != null) Object.Destroy(host);
+                host = _content.AddComponent<ReactiveHost>();
+            }
+
+            _reactiveHost = host;
             _reactiveHost.components.Add(this);
             IsInitialized = true;
         }

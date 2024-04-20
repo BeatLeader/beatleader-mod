@@ -73,7 +73,6 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override void OnInitialize() {
             Alignment = TextAlignmentOptions.Center;
-            Overflow = TextOverflowModes.Ellipsis;
             EnableWrapping = false;
         }
     }

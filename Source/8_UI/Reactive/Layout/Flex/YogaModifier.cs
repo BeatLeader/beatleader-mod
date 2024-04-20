@@ -143,7 +143,24 @@ namespace BeatLeader.UI.Reactive {
             _node.StyleSetPadding(Edge.Left, _position.left);
             _node.StyleSetPadding(Edge.Right, _position.right);
         }
-
+        
         #endregion
+
+        public override void CopyFromSimilar(YogaModifier similar) {
+            SuppressRefresh = true;
+            PositionType = similar.PositionType;
+            AlignSelf = similar.AlignSelf;
+            FlexBasis = similar.FlexBasis;
+            FlexGrow = similar.FlexGrow;
+            FlexShrink = similar.FlexShrink;
+            Position = similar.Position;
+            Size = similar.Size;
+            MinSize = similar.MinSize;
+            MaxSize = similar.MinSize;
+            AspectRatio = similar.AspectRatio;
+            Margin = similar.Margin;
+            SuppressRefresh = false;
+            Refresh();
+        }
     }
 }

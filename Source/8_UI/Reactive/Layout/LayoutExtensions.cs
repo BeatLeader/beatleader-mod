@@ -1,4 +1,5 @@
-﻿using BeatLeader.UI.Reactive.Yoga;
+﻿using System;
+using BeatLeader.UI.Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
@@ -8,7 +9,7 @@ namespace BeatLeader.UI.Reactive {
         public static T AsFlexItem<T>(
             this T component,
             float grow = 0f,
-            float shrink = 1,
+            float shrink = 1f,
             YogaValue? basis = null,
             YogaVector? size = null,
             YogaVector? minSize = null,
@@ -17,9 +18,39 @@ namespace BeatLeader.UI.Reactive {
             YogaValue? aspectRatio = null,
             Align alignSelf = Align.Auto
         ) where T : ReactiveComponentBase {
-            if (component.LayoutModifier is not YogaModifier modifier) {
+            return AsFlexItem(
+                component,
+                component.LayoutModifier,
+                static (comp, mod) => comp.LayoutModifier = mod,
+                grow, 
+                shrink,
+                basis,
+                size,
+                minSize,
+                maxSize,
+                margin,
+                aspectRatio,
+                alignSelf
+            );
+        }
+
+        public static T AsFlexItem<T>(
+            this T component,
+            ILayoutModifier? layoutModifier,
+            Action<T, ILayoutModifier> setModifierCallback,
+            float grow = 0f,
+            float shrink = 1f,
+            YogaValue? basis = null,
+            YogaVector? size = null,
+            YogaVector? minSize = null,
+            YogaVector? maxSize = null,
+            YogaFrame? margin = null,
+            YogaValue? aspectRatio = null,
+            Align alignSelf = Align.Auto
+        ) where T : ReactiveComponentBase {
+            if (layoutModifier is not YogaModifier modifier) {
                 modifier = new YogaModifier();
-                component.LayoutModifier = modifier;
+                setModifierCallback(component, modifier);
             }
             if (size == null && !ExpandFlexChild(component)) {
                 modifier.Size = YogaVector.Undefined;
@@ -43,7 +74,7 @@ namespace BeatLeader.UI.Reactive {
             Wrap wrap = Wrap.NoWrap,
             YogaFrame? padding = null,
             bool expandUnspecifiedChildren = true
-        ) where T : DrivingReactiveComponent {
+        ) where T : ILayoutDriver {
             component.LayoutController = new YogaLayoutController {
                 FlexDirection = direction,
                 JustifyContent = justifyContent,

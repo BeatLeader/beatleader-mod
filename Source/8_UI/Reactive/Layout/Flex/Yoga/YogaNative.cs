@@ -24,6 +24,16 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         #endregion
 
+        #region YGConfig
+
+        [DllImport(YogaDllName, EntryPoint = "YGConfigGetDefault")]
+        public static extern IntPtr YGConfigGetDefault();
+
+        [DllImport(YogaDllName, EntryPoint = "YGConfigSetPointScaleFactor")]
+        public static extern void YGConfigSetPointScaleFactor(IntPtr ptr, float factor);
+        
+        #endregion
+        
         #region YGNode
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeNew")]

@@ -13,7 +13,7 @@ namespace BeatLeader.UI.Reactive {
             n.CopyFrom(this);
             return n;
         }
-        
+
         public virtual void CopyFromSimilar(T similar) { }
     }
 
@@ -21,9 +21,18 @@ namespace BeatLeader.UI.Reactive {
         public Vector2 Pivot { get; set; } = Vector2.one * 0.5f;
 
         protected bool SuppressRefresh { get; set; }
-        
+
+        protected ILayoutItem? LayoutItem { get; private set; }
+
         public event Action? ModifierUpdatedEvent;
 
+        public void ReloadLayoutItem(ILayoutItem? item) {
+            LayoutItem = item;
+            OnLayoutItemUpdate();
+        }
+
+        protected virtual void OnLayoutItemUpdate() { }
+        
         public void Refresh() {
             if (SuppressRefresh) return;
             ModifierUpdatedEvent?.Invoke();

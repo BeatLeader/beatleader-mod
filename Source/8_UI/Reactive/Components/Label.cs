@@ -69,10 +69,14 @@ namespace BeatLeader.UI.Reactive.Components {
             set => _text.color = value;
         }
 
-        private TMP_Text _text = null!;
+        protected override float? DesiredHeight => _text.preferredHeight;
+        protected override float? DesiredWidth => _text.preferredWidth;
+
+        private TextMeshProUGUI _text = null!;
 
         protected override void Construct(RectTransform rect) {
             _text = rect.gameObject.AddComponent<CurvedTextMeshPro>();
+            _text.RegisterDirtyLayoutCallback(RefreshLayout);
             _text.fontSharedMaterial = GameResources.UIFontMaterial;
         }
 

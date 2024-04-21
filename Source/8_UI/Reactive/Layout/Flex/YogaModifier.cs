@@ -70,8 +70,7 @@ namespace BeatLeader.UI.Reactive {
             get => _size;
             set {
                 _size = value;
-                _node.StyleSetWidth(value.x);
-                _node.StyleSetHeight(value.y);
+                RefreshSize();
                 Refresh();
             }
         }
@@ -142,8 +141,26 @@ namespace BeatLeader.UI.Reactive {
             _node.StyleSetPosition(Edge.Left, _position.left);
             _node.StyleSetPosition(Edge.Right, _position.right);
         }
+
+        private void RefreshSize() {
+            if (_size.x.unit is Unit.Auto && (LayoutItem?.DesiredWidth.HasValue ?? false)) {
+                _node.StyleSetWidth(LayoutItem.DesiredWidth!.Value);
+            } else {
+                _node.StyleSetWidth(_size.x);
+            }
+            
+            if (_size.y.unit is Unit.Auto && (LayoutItem?.DesiredHeight.HasValue ?? false)) {
+                _node.StyleSetHeight(LayoutItem.DesiredHeight!.Value);
+            } else {
+                _node.StyleSetHeight(_size.y);
+            }
+        }
         
         #endregion
+
+        protected override void OnLayoutItemUpdate() {
+            RefreshSize();
+        }
 
         public override void CopyFromSimilar(YogaModifier similar) {
             SuppressRefresh = true;

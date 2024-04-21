@@ -11,6 +11,8 @@ namespace BeatLeader.UI.Reactive {
         #region Yoga
 
         private static unsafe void InitYoga() {
+            //0 means that the point values won't be rounded
+            YogaConfig.Default.SetPointScaleFactor(0f);
             YogaNative.YGBindingsSetLogger(LogYogaMessage);
         }
 

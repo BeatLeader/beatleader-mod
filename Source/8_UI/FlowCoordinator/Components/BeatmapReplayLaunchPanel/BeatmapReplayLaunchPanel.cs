@@ -100,7 +100,7 @@ namespace BeatLeader.UI.Hub {
             image.sprite = BundleLoader.TransparentPixel;
             image.color = Color.clear;
             _mainContainerCanvasGroup = _mainContainerObject.AddComponent<CanvasGroup>();
-            ReplaysList.Scrollbar = _replaysListScrollbar;
+            //ReplaysList.Scrollbar = _replaysListScrollbar;
             ReplaysList.ItemsWithIndexesSelectedEvent += HandleItemsSelected;
         }
 
@@ -164,7 +164,7 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
             var index = items.First();
-            _detailPanel?.SetData(_replaysListPanel.ReplaysList.items[index]);
+            _detailPanel?.SetData(_replaysListPanel.ReplaysList.Items[index]);
         }
 
         private void HandleReplaysLoadStarted() {

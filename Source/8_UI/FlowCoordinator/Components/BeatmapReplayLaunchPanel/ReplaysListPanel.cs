@@ -2,25 +2,14 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using UnityEngine;
+using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListPanel : ReeUIComponentV3<ReplaysListPanel> {
-        #region UI Components
-
-        public ReplaysList ReplaysList => _replaysList;
-        
-        [UIComponent("replays-list"), UsedImplicitly]
-        private ReplaysList _replaysList = null!;
-
-        [UIComponent("settings-panel"), UsedImplicitly]
-        private ReplaysListSettingsPanel _settingsPanel = null!;
-
-        #endregion
-
         #region Setup
-        
+
         private IReplaysLoader? _replaysLoader;
 
         public void Setup(IReplaysLoader replaysLoader) {
@@ -36,10 +25,33 @@ namespace BeatLeader.UI.Hub {
             _replaysLoader.AllReplaysRemovedEvent += HandleAllReplaysRemoved;
         }
 
-        protected override void OnInitialize() { }
-
         protected override bool OnValidation() {
             return _replaysLoader is not null;
+        }
+
+        #endregion
+
+        #region Construct
+
+        public ReplaysList ReplaysList => _replaysList;
+
+        private ReplaysList _replaysList = null!;
+        private ReplaysListSettingsPanel _settingsPanel = null!;
+
+        protected override GameObject Construct(Transform parent) {
+            ReactiveComponentBase componentBase = null!;
+            var go = new UI.Reactive.Components.Dummy {
+                Children = {
+                    new ReplaysList()
+                        .AsFlexItem(grow: 1f)
+                        .Bind(ref _replaysList),
+                    new UI.Reactive.Components.Dummy()
+                        .AsFlexItem(basis: 5f)
+                        .Bind(ref componentBase)
+                }
+            }.AsFlexGroup(direction: FlexDirection.Column).Use(parent);
+            _settingsPanel = ReplaysListSettingsPanel.Instantiate(componentBase.ContentTransform);
+            return go;
         }
 
         #endregion
@@ -65,7 +77,7 @@ namespace BeatLeader.UI.Hub {
         private void RefreshFilter() {
             ValidateAndThrow();
             var loadedReplays = _replaysLoader!.LoadedReplays;
-            var items = _replaysList.items;
+            var items = _replaysList.Items;
             items.Clear();
             SetListIsDirty();
             if (_replayFilter is null) {
@@ -78,7 +90,7 @@ namespace BeatLeader.UI.Hub {
         private bool FilterItemOrTrue(IReplayHeaderBase header) {
             return _replayFilter is null || FilterItem(header);
         }
-        
+
         private bool FilterItem(IReplayHeaderBase header) {
             return _replayFilter!.MatchesFilter(header.ReplayInfo);
         }
@@ -109,17 +121,17 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleReplayAdded(IReplayHeader header) {
             if (!FilterItemOrTrue(header)) return;
-            _replaysList.items.Add(header);
+            _replaysList.Items.Add(header);
             SetListIsDirty();
         }
 
         private void HandleReplayRemoved(IReplayHeader header) {
-            _replaysList.items.Remove(header);
+            _replaysList.Items.Remove(header);
             SetListIsDirty();
         }
 
         private void HandleAllReplaysRemoved() {
-            _replaysList.items.Clear();
+            _replaysList.Items.Clear();
             SetListIsDirty();
         }
 

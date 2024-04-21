@@ -16,6 +16,8 @@ namespace BeatLeader.UI.Reactive {
             YogaVector? maxSize = null,
             YogaFrame? margin = null,
             YogaValue? aspectRatio = null,
+            YogaFrame? position = null,         
+            PositionType? positionType = null,
             Align alignSelf = Align.Auto
         ) where T : ReactiveComponentBase {
             return AsFlexItem(
@@ -30,6 +32,8 @@ namespace BeatLeader.UI.Reactive {
                 maxSize,
                 margin,
                 aspectRatio,
+                position,
+                positionType,
                 alignSelf
             );
         }
@@ -46,6 +50,8 @@ namespace BeatLeader.UI.Reactive {
             YogaVector? maxSize = null,
             YogaFrame? margin = null,
             YogaValue? aspectRatio = null,
+            YogaFrame? position = null,
+            PositionType? positionType = null,
             Align alignSelf = Align.Auto
         ) where T : ReactiveComponentBase {
             if (layoutModifier is not YogaModifier modifier) {
@@ -54,6 +60,15 @@ namespace BeatLeader.UI.Reactive {
             }
             if (size == null && !ExpandFlexChild(component)) {
                 modifier.Size = YogaVector.Undefined;
+            } else {
+                modifier.Size = size ?? YogaVector.Undefined;
+            }
+            if (position != null) {
+                modifier.PositionType = PositionType.Absolute;
+                modifier.Position = position.Value;
+            }
+            if (positionType != null) {
+                modifier.PositionType = positionType.Value;
             }
             modifier.FlexShrink = shrink;
             modifier.FlexGrow = grow;

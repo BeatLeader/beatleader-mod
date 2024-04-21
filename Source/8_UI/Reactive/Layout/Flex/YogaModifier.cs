@@ -113,8 +113,7 @@ namespace BeatLeader.UI.Reactive {
                 Refresh();
             }
         }
-
-
+        
         public YogaNode YogaNode => _node;
 
         private float _flexGrow = 0;
@@ -138,10 +137,10 @@ namespace BeatLeader.UI.Reactive {
         }
 
         private void RefreshPosition() {
-            _node.StyleSetPadding(Edge.Top, _position.top);
-            _node.StyleSetPadding(Edge.Bottom, _position.bottom);
-            _node.StyleSetPadding(Edge.Left, _position.left);
-            _node.StyleSetPadding(Edge.Right, _position.right);
+            _node.StyleSetPosition(Edge.Top, _position.top);
+            _node.StyleSetPosition(Edge.Bottom, _position.bottom);
+            _node.StyleSetPosition(Edge.Left, _position.left);
+            _node.StyleSetPosition(Edge.Right, _position.right);
         }
         
         #endregion

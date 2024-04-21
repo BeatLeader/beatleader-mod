@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace BeatLeader.UI.Reactive.Components {
     internal interface IReactiveTableCell {
         void OnCellStateChange(bool selected, bool highlighted);
@@ -50,10 +48,9 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected sealed override ListComponentBaseCell ConstructCell(TItem data) {
             if (DequeueReusableCell("ReeCell") is not ReactiveListComponentBaseCell cell) {
-                var cellGo = new GameObject("Cell");
-                cell = cellGo.AddComponent<ReactiveListComponentBaseCell>();
                 var reactive = new TCellComponent();
-                reactive.Use(cellGo);
+                reactive.Use();
+                cell = reactive.Content.AddComponent<ReactiveListComponentBaseCell>();
                 cell.cellComponent = reactive;
                 cell.reuseIdentifier = "ReeCell";
             }

@@ -7,6 +7,9 @@ namespace BeatLeader.UI.Reactive {
         
         ILayoutModifier LayoutModifier { get; }
         RectTransform RectTransform { get; }
+        
+        float? DesiredHeight { get; }
+        float? DesiredWidth { get; }
 
         event Action? ModifierUpdatedEvent;
     }

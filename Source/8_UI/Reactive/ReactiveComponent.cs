@@ -273,6 +273,10 @@ namespace BeatLeader.UI.Reactive {
 
         #region Layout Modifier
 
+        RectTransform ILayoutItem.RectTransform => ContentTransform;
+        float? ILayoutItem.DesiredHeight => DesiredHeight;
+        float? ILayoutItem.DesiredWidth => DesiredWidth;
+
         public ILayoutModifier LayoutModifier {
             get => _modifier;
             set {
@@ -283,12 +287,17 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        RectTransform ILayoutItem.RectTransform => ContentTransform;
+        protected virtual float? DesiredHeight => null;
+        protected virtual float? DesiredWidth => null;
 
         public event Action? ModifierUpdatedEvent;
 
         private ILayoutModifier _modifier = new RectModifier();
-
+        
+        protected void RefreshLayout() {
+            HandleModifierUpdated();
+        } 
+        
         private void RefreshRectModifier() {
             if (LayoutModifier is not RectModifier rectModifier) return;
             ContentTransform.anchorMin = rectModifier.AnchorMin;
@@ -300,6 +309,7 @@ namespace BeatLeader.UI.Reactive {
 
         private void HandleModifierUpdated() {
             ContentTransform.pivot = LayoutModifier.Pivot;
+            _modifier.ReloadLayoutItem(this);
             RefreshRectModifier();
             OnModifierUpdated();
             ModifierUpdatedEvent?.Invoke();

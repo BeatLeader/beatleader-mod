@@ -4,6 +4,8 @@ using HMUI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Align = BeatLeader.UI.Reactive.Yoga.Align;
 using UImage = UnityEngine.UI.Image;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -70,6 +72,8 @@ namespace BeatLeader.UI.Reactive.Components {
             YogaVector? maxSize = null,
             YogaFrame? margin = null,
             YogaValue? aspectRatio = null,
+            YogaFrame? position = null,
+            PositionType? positionType = null,
             Align alignSelf = Align.Auto
         ) where TComponent : ReactiveComponentBase, IReactiveSegmentedControlCell<TKey>, new() {
             return control.AsFlexItem(
@@ -83,6 +87,8 @@ namespace BeatLeader.UI.Reactive.Components {
                 maxSize,
                 margin,
                 aspectRatio,
+                position,
+                positionType,
                 alignSelf
             );
         }
@@ -98,6 +104,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public static T WithBackground<T>(
             this T component,
+            out FixedImageView image,
             Optional<Sprite> sprite = default,
             Optional<Material> material = default,
             Color? color = null,
@@ -111,22 +118,48 @@ namespace BeatLeader.UI.Reactive.Components {
             sprite.SetValueIfNotSet(BundleLoader.WhiteBG);
             material.SetValueIfNotSet(GameResources.UINoGlowMaterial);
             //adding image
-            var img = component.Content.AddComponent<FixedImageView>();
-            img.sprite = sprite;
-            img.material = material;
-            img.color = color ?? Color.white;
-            img.type = type;
-            img.pixelsPerUnitMultiplier = pixelsPerUnit;
-            img.Skew = skew;
+            image = component.Content.AddComponent<FixedImageView>();
+            image.sprite = sprite;
+            image.material = material;
+            image.color = color ?? Color.white;
+            image.type = type;
+            image.pixelsPerUnitMultiplier = pixelsPerUnit;
+            image.Skew = skew;
             //applying gradient if needed
             if (gradientDirection.HasValue) {
-                img.gradient = true;
-                img.GradientDirection = gradientDirection.Value;
-                img.color0 = gradientColor0;
-                img.color1 = gradientColor1;
+                image.gradient = true;
+                image.GradientDirection = gradientDirection.Value;
+                image.color0 = gradientColor0;
+                image.color1 = gradientColor1;
             }
 
             return component;
+        }
+        
+        public static T WithBackground<T>(
+            this T component,
+            Optional<Sprite> sprite = default,
+            Optional<Material> material = default,
+            Color? color = null,
+            UImage.Type type = UImage.Type.Sliced,
+            float pixelsPerUnit = 10f,
+            float skew = 0f,
+            ImageView.GradientDirection? gradientDirection = null,
+            Color gradientColor0 = default,
+            Color gradientColor1 = default
+        ) where T : ReactiveComponentBase {
+            return component.WithBackground(
+                out _,
+                sprite,
+                material,
+                color,
+                type,
+                pixelsPerUnit,
+                skew,
+                gradientDirection,
+                gradientColor0,
+                gradientColor1
+            );
         }
 
         public static T WithBlurBackground<T>(

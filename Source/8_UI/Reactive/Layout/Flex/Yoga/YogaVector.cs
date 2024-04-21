@@ -35,6 +35,10 @@ namespace BeatLeader.UI.Reactive.Yoga {
         public YogaValue x;
         public YogaValue y;
 
+        public static implicit operator YogaVector(string value) {
+            return new() { x = value, y = value };
+        }
+        
         public static implicit operator YogaVector(float value) {
             return new(value);
         }

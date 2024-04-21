@@ -1,9 +1,0 @@
-﻿<vertical>
-  <ReplaysList
-    id="replays-list"
-    InheritWidth="true" 
-    InheritHeight="true"
-    FlexibleHeight="max"
-  />
-  <ReplaysListSettingsPanel id="settings-panel"/>
-</vertical>

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Attributes;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
 using IPA.Utilities;
 using TMPro;
@@ -24,29 +23,10 @@ namespace BeatLeader.UI.Hub {
         SortOrder SortOrder { get; set; }
     }
 
-    internal class ReplaysList : ReeListComponentBase<ReplaysList, IReplayHeader, ReplaysList.Cell>, IReplaysList {
+    internal class ReplaysList : ReactiveListComponentBase<IReplayHeader, ReplaysList.Cell>, IReplaysList {
         #region Cell
 
-        public class Cell : ReeTableCell<Cell, IReplayHeader> {
-            #region UI Components
-
-            [UIComponent("top-left")]
-            private readonly TMP_Text _topLeftTextComponent = null!;
-
-            [UIComponent("bottom-left")]
-            private readonly TMP_Text _bottomLeftTextComponent = null!;
-
-            [UIComponent("top-right")]
-            private readonly TMP_Text _topRightTextComponent = null!;
-
-            [UIComponent("bottom-right")]
-            private readonly TMP_Text _bottomRightTextComponent = null!;
-
-            [UIComponent("background")]
-            private readonly ImageView _background = null!;
-
-            #endregion
-
+        public class Cell : ReactiveTableCell<IReplayHeader> {
             #region Colors
 
             public bool UseAlternativeColors {
@@ -68,7 +48,7 @@ namespace BeatLeader.UI.Hub {
             private Color _highlightedSelectedColor;
             private Color _idlingColor;
 
-            public override void OnStateChange(bool selected, bool highlighted) {
+            public override void OnCellStateChange(bool selected, bool highlighted) {
                 _background.color1 = selected switch {
                     false => highlighted ? _highlightedColor : _idlingColor,
                     true => highlighted ? _highlightedSelectedColor : _selectedColor
@@ -86,29 +66,106 @@ namespace BeatLeader.UI.Hub {
 
             #region Setup
 
-            protected override string Markup { get; } = BSMLUtility.ReadMarkupOrFallback(
-                "ReplaysListCell", Assembly.GetExecutingAssembly()
-            );
-            
             protected override void Init(IReplayHeader item) {
                 var info = item.ReplayInfo!;
-                _topRightTextComponent.text = FormatLevelEndType(info.LevelEndType, info.FailTime);
-                _topLeftTextComponent.text = info.SongName;
-                _bottomRightTextComponent.text = FormatUtils.GetDateTimeString(info.Timestamp);
-                _bottomLeftTextComponent.text = $"[<color=#89ff89>{info.SongDifficulty}</color>] {info.PlayerName}";
+                _topRightLabel.Text = FormatLevelEndType(info.LevelEndType, info.FailTime);
+                _topLeftLabel.Text = info.SongName;
+                _bottomRightLabel.Text = FormatUtils.GetDateTimeString(info.Timestamp);
+                _bottomLeftLabel.Text = $"[<color=#89ff89>{info.SongDifficulty}</color>] {info.PlayerName}";
+            }
+
+            #endregion
+
+            #region Construct
+
+            private static readonly Color textColor = Color.white;
+            private static readonly Color secondaryTextColor = Color.white.ColorWithAlpha(0.75f);
+
+            private Label _topLeftLabel = null!;
+            private Label _bottomLeftLabel = null!;
+            private Label _topRightLabel = null!;
+            private Label _bottomRightLabel = null!;
+            private FixedImageView _background = null!;
+
+            protected override GameObject Construct() {
+                static Label CellLabel(
+                    TextOverflowModes overflow,
+                    TextAlignmentOptions alignment,
+                    float fontSize,
+                    float size,
+                    YogaFrame frame,
+                    Color color,
+                    ref Label variable
+                ) {
+                    return new Label {
+                        Overflow = overflow,
+                        Alignment = alignment,
+                        FontStyle = FontStyles.Italic,
+                        FontSize = fontSize,
+                        Color = color
+                    }.AsFlexItem(
+                        size: new() { y = "100%", x = $"{size}%" },
+                        position: frame
+                    ).Bind(ref variable);
+                }
+
+                return new Dummy {
+                    Children = {
+                        //top left
+                        CellLabel(
+                            TextOverflowModes.Ellipsis,
+                            TextAlignmentOptions.TopLeft,
+                            4,
+                            60,
+                            new() { top = 0, left = 0.6f },
+                            textColor,
+                            ref _topLeftLabel
+                        ),
+                        //bottom left
+                        CellLabel(
+                            TextOverflowModes.Ellipsis,
+                            TextAlignmentOptions.BottomLeft,
+                            3,
+                            70,
+                            new() { bottom = 0, left = 0 },
+                            secondaryTextColor,
+                            ref _bottomLeftLabel
+                        ),
+                        //top right
+                        CellLabel(
+                            TextOverflowModes.Overflow,
+                            TextAlignmentOptions.TopRight,
+                            3,
+                            40,
+                            new() { top = 0, right = 1.5f },
+                            textColor,
+                            ref _topRightLabel
+                        ),
+                        //bottom right
+                        CellLabel(
+                            TextOverflowModes.Overflow,
+                            TextAlignmentOptions.BottomRight,
+                            3,
+                            30,
+                            new() { bottom = 0, right = 2 },
+                            secondaryTextColor,
+                            ref _bottomRightLabel
+                        )
+                    }
+                }.AsFlexGroup().WithBackground(
+                    image: out _background,
+                    material: GameResources.UINoGlowAdditiveMaterial,
+                    gradientDirection: ImageView.GradientDirection.Horizontal
+                ).Use();
             }
 
             protected override void OnInitialize() {
-                _background.sprite = BundleLoader.WhiteBG;
-                _background.gradient = true;
-                _background.material = GameResources.UINoGlowAdditiveMaterial;
-                _background.SetField("_skew", 0.18f);
-                _background.__Refresh();
-                
-                Content.GetComponentInParent<SelectableCell>().SetField("_wasPressedSignal", GameResources.ClickSignal);
-                Content.AddComponent<Touchable>();
+                _background.Skew = 0.18f;
+
+                //Content.GetComponentInParent<SelectableCell>().SetField("_wasPressedSignal", GameResources.ClickSignal);
+                //Content.AddComponent<Touchable>();
                 ApplyColors(false);
-                
+
                 //when you finish a map it invokes the finish event and executes score sending and replay saving.
                 //cell generation also happens there (on the game scene). as we know unity destroys objects after the scene transition
                 //so we need to use DontDestroyOnLoad to keep this cell alive
@@ -192,8 +249,8 @@ namespace BeatLeader.UI.Hub {
         private SortOrder _sortOrder;
 
         private void RefreshSorting() {
-            items.Sort(_headerComparator);
-            if (_sortOrder is SortOrder.Ascending) items.Reverse();
+            Items.Sort(_headerComparator);
+            if (_sortOrder is SortOrder.Ascending) Items.Reverse();
         }
 
         protected override void OnEarlyRefresh() {

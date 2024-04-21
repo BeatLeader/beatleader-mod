@@ -28,10 +28,15 @@ namespace BeatLeader.UI.Reactive.Components {
             get => _text.fontSizeMax;
             set => _text.fontSizeMax = value;
         }
-
+        
         public bool EnableAutoSizing {
             get => _text.enableAutoSizing;
             set => _text.enableAutoSizing = value;
+        }
+
+        public FontStyles FontStyle {
+            get => _text.fontStyle;
+            set => _text.fontStyle = value;
         }
         
         public TMP_FontAsset Font {

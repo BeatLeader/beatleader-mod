@@ -165,7 +165,7 @@ namespace BeatLeader.UI.Reactive.Components {
         public static T WithBlurBackground<T>(
             this T component,
             Color? color = null,
-            float pixelsPerUnit = 100f,
+            float pixelsPerUnit = 12f,
             float skew = 0f,
             ImageView.GradientDirection? gradientDirection = null,
             Color gradientColor0 = default,

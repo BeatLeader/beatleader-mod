@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Reactive {
             YogaVector? maxSize = null,
             YogaFrame? margin = null,
             YogaValue? aspectRatio = null,
-            YogaFrame? position = null,         
+            YogaFrame? position = null,
             PositionType? positionType = null,
             Align alignSelf = Align.Auto
         ) where T : ReactiveComponentBase {
@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Reactive {
                 component,
                 component.LayoutModifier,
                 static (comp, mod) => comp.LayoutModifier = mod,
-                grow, 
+                grow,
                 shrink,
                 basis,
                 size,
@@ -86,6 +86,7 @@ namespace BeatLeader.UI.Reactive {
             FlexDirection direction = FlexDirection.Row,
             Justify justifyContent = Justify.SpaceAround,
             Align alignItems = Align.Stretch,
+            Align alignContent = Align.Auto,
             Wrap wrap = Wrap.NoWrap,
             YogaFrame? padding = null,
             bool expandUnspecifiedChildren = true
@@ -93,6 +94,7 @@ namespace BeatLeader.UI.Reactive {
             component.LayoutController = new YogaLayoutController {
                 FlexDirection = direction,
                 JustifyContent = justifyContent,
+                AlignContent = alignContent,
                 AlignItems = alignItems,
                 FlexWrap = wrap,
                 Padding = padding ?? YogaFrame.Zero

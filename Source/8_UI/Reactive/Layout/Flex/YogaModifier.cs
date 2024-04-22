@@ -1,22 +1,15 @@
-﻿using BeatLeader.UI.Reactive.Yoga;
+﻿using System;
+using BeatLeader.UI.Reactive.Yoga;
 
 namespace BeatLeader.UI.Reactive {
     internal class YogaModifier : ModifierBase<YogaModifier> {
-        public YogaModifier() {
-            _node.Touch();
-        }
-
-        ~YogaModifier() {
-            _node.Dispose();
-        }
-        
-        #region Item Properties
+        #region Properties
 
         public PositionType PositionType {
             get => _positionType;
             set {
                 _positionType = value;
-                _node.StyleSetPositionType(value);
+                YogaNode.StyleSetPositionType(value);
                 Refresh();
             }
         }
@@ -25,7 +18,7 @@ namespace BeatLeader.UI.Reactive {
             get => _alignSelf;
             set {
                 _alignSelf = value;
-                _node.StyleSetAlignSelf(value);
+                YogaNode.StyleSetAlignSelf(value);
                 Refresh();
             }
         }
@@ -34,7 +27,7 @@ namespace BeatLeader.UI.Reactive {
             get => _flexBasis;
             set {
                 _flexBasis = value;
-                _node.StyleSetFlexBasis(value);
+                YogaNode.StyleSetFlexBasis(value);
                 Refresh();
             }
         }
@@ -43,7 +36,7 @@ namespace BeatLeader.UI.Reactive {
             get => _flexGrow;
             set {
                 _flexGrow = value;
-                _node.StyleSetFlexGrow(value);
+                YogaNode.StyleSetFlexGrow(value);
                 Refresh();
             }
         }
@@ -52,7 +45,7 @@ namespace BeatLeader.UI.Reactive {
             get => _flexShrink;
             set {
                 _flexShrink = value;
-                _node.StyleSetFlexShrink(value);
+                YogaNode.StyleSetFlexShrink(value);
                 Refresh();
             }
         }
@@ -79,8 +72,8 @@ namespace BeatLeader.UI.Reactive {
             get => _minSize;
             set {
                 _minSize = value;
-                _node.StyleSetMinWidth(value.x);
-                _node.StyleSetMinHeight(value.y);
+                YogaNode.StyleSetMinWidth(value.x);
+                YogaNode.StyleSetMinHeight(value.y);
                 Refresh();
             }
         }
@@ -89,8 +82,8 @@ namespace BeatLeader.UI.Reactive {
             get => _maxSize;
             set {
                 _maxSize = value;
-                _node.StyleSetMaxWidth(value.x);
-                _node.StyleSetMaxHeight(value.y);
+                YogaNode.StyleSetMaxWidth(value.x);
+                YogaNode.StyleSetMaxHeight(value.y);
                 Refresh();
             }
         }
@@ -99,7 +92,7 @@ namespace BeatLeader.UI.Reactive {
             get => _aspectRatio;
             set {
                 _aspectRatio = value;
-                _node.StyleSetAspectRatio(value.value);
+                YogaNode.StyleSetAspectRatio(value.value);
                 Refresh();
             }
         }
@@ -112,8 +105,6 @@ namespace BeatLeader.UI.Reactive {
                 Refresh();
             }
         }
-        
-        public YogaNode YogaNode => _node;
 
         private float _flexGrow = 0;
         private float _flexShrink = 1;
@@ -126,37 +117,61 @@ namespace BeatLeader.UI.Reactive {
         private YogaVector _maxSize = YogaVector.Undefined;
         private YogaValue _aspectRatio = YogaValue.Undefined;
         private YogaFrame _margin = YogaFrame.Zero;
-        private YogaNode _node;
 
         private void RefreshMargin() {
-            _node.StyleSetMargin(Edge.Top, _margin.top);
-            _node.StyleSetMargin(Edge.Bottom, _margin.bottom);
-            _node.StyleSetMargin(Edge.Left, _margin.left);
-            _node.StyleSetMargin(Edge.Right, _margin.right);
+            YogaNode.StyleSetMargin(Edge.Top, _margin.top);
+            YogaNode.StyleSetMargin(Edge.Bottom, _margin.bottom);
+            YogaNode.StyleSetMargin(Edge.Left, _margin.left);
+            YogaNode.StyleSetMargin(Edge.Right, _margin.right);
         }
 
         private void RefreshPosition() {
-            _node.StyleSetPosition(Edge.Top, _position.top);
-            _node.StyleSetPosition(Edge.Bottom, _position.bottom);
-            _node.StyleSetPosition(Edge.Left, _position.left);
-            _node.StyleSetPosition(Edge.Right, _position.right);
+            YogaNode.StyleSetPosition(Edge.Top, _position.top);
+            YogaNode.StyleSetPosition(Edge.Bottom, _position.bottom);
+            YogaNode.StyleSetPosition(Edge.Left, _position.left);
+            YogaNode.StyleSetPosition(Edge.Right, _position.right);
         }
 
         private void RefreshSize() {
             if (_size.x.unit is Unit.Auto && (LayoutItem?.DesiredWidth.HasValue ?? false)) {
-                _node.StyleSetWidth(LayoutItem.DesiredWidth!.Value);
+                YogaNode.StyleSetWidth(LayoutItem.DesiredWidth!.Value);
             } else {
-                _node.StyleSetWidth(_size.x);
+                YogaNode.StyleSetWidth(_size.x);
             }
-            
+
             if (_size.y.unit is Unit.Auto && (LayoutItem?.DesiredHeight.HasValue ?? false)) {
-                _node.StyleSetHeight(LayoutItem.DesiredHeight!.Value);
+                YogaNode.StyleSetHeight(LayoutItem.DesiredHeight!.Value);
             } else {
-                _node.StyleSetHeight(_size.y);
+                YogaNode.StyleSetHeight(_size.y);
             }
         }
-        
+
         #endregion
+
+        #region Context
+
+        public override Type ContextType { get; } = typeof(YogaContext);
+
+        public override object CreateContext() => new YogaContext();
+
+        public override void ProvideContext(object context) {
+            _node = ((YogaContext)context).YogaNode;
+        }
+
+        #endregion
+
+        #region Modifier
+
+        public YogaNode YogaNode {
+            get {
+                if (!_node.IsInitialized) {
+                    throw new Exception("Node was not initialized");
+                }
+                return _node;
+            }
+        }
+
+        private YogaNode _node;
 
         protected override void OnLayoutItemUpdate() {
             RefreshSize();
@@ -178,5 +193,7 @@ namespace BeatLeader.UI.Reactive {
             SuppressRefresh = false;
             Refresh();
         }
+
+        #endregion
     }
 }

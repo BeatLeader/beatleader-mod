@@ -3,16 +3,21 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Yoga {
     internal struct YogaNode : IDisposable, IEquatable<YogaNode> {
+        public bool IsInitialized { get; private set; }
+
         private IntPtr _nodePtr;
 
         public void Touch() {
+            if (IsInitialized) return;
             _nodePtr = YogaNative.YGNodeNew();
+            IsInitialized = true;
         }
-        
+
         public void Dispose() {
             if (_nodePtr == IntPtr.Zero) return;
             YogaNative.YGNodeFree(_nodePtr);
             _nodePtr = IntPtr.Zero;
+            IsInitialized = false;
         }
 
         public void ApplyTo(RectTransform rectTransform) {
@@ -235,7 +240,7 @@ namespace BeatLeader.UI.Reactive.Yoga {
         public void RemoveAllChildren() {
             YogaNative.YGNodeRemoveAllChildrenSafe(_nodePtr);
         }
-        
+
         #endregion
 
         #region Layout

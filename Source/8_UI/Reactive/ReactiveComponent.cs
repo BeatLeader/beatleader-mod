@@ -23,7 +23,13 @@ namespace BeatLeader.UI.Reactive {
         public ILayoutController? LayoutController {
             get => _layoutController;
             set {
+                if (_layoutController != null) {
+                    ReleaseContextMember(_layoutController);
+                }
                 _layoutController = value;
+                if (_layoutController != null) {
+                    InsertContextMember(_layoutController);
+                }
                 RefreshLayoutControllerChildren();
                 RecalculateLayout();
             }
@@ -35,9 +41,17 @@ namespace BeatLeader.UI.Reactive {
             _layoutController?.ReloadChildren(_children);
         }
 
-        private void RecalculateLayout() {
-            _layoutController?.ReloadDimensions(ContentTransform.rect);
-            _layoutController?.Recalculate();
+        public void RecalculateLayout() {
+            var isRootNode = LayoutDriver?.LayoutController == null;
+            if (!isRootNode) {
+                LayoutDriver!.RecalculateLayout();
+            }
+            if (_layoutController == null) return;
+            if (isRootNode) {
+                _layoutController?.ReloadDimensions(ContentTransform.rect);
+                _layoutController?.Recalculate();
+            }
+            _layoutController?.Apply();
         }
 
         #endregion
@@ -126,6 +140,9 @@ namespace BeatLeader.UI.Reactive {
         #endregion
 
         #region Overrides
+
+        protected sealed override float? DesiredHeight => base.DesiredHeight;
+        protected sealed override float? DesiredWidth => base.DesiredWidth;
 
         protected sealed override void DestroyInternal() {
             base.DestroyInternal();
@@ -271,6 +288,39 @@ namespace BeatLeader.UI.Reactive {
 
         #endregion
 
+        #region Context
+
+        private readonly Dictionary<Type, (object context, int members)> _contexts = new();
+
+        protected void InsertContextMember(IContextMember member) {
+            var type = member.ContextType;
+            if (type == null) return;
+            object context;
+            var members = 1;
+            if (_contexts.TryGetValue(type, out var tuple)) {
+                context = tuple.context;
+                members += tuple.members;
+            } else {
+                context = member.CreateContext();
+            }
+            member.ProvideContext(context);
+            _contexts[type] = (context, members);
+        }
+
+        protected void ReleaseContextMember(IContextMember member) {
+            var type = member.ContextType;
+            if (type == null || !_contexts.TryGetValue(type, out var tuple)) return;
+            var members = tuple.members - 1;
+            if (members == 0) {
+                _contexts.Remove(type);
+            } else {
+                tuple.members = members;
+                _contexts[type] = tuple;
+            }
+        }
+
+        #endregion
+
         #region Layout Modifier
 
         RectTransform ILayoutItem.RectTransform => ContentTransform;
@@ -280,9 +330,11 @@ namespace BeatLeader.UI.Reactive {
         public ILayoutModifier LayoutModifier {
             get => _modifier;
             set {
+                ReleaseContextMember(_modifier);
                 _modifier.ModifierUpdatedEvent -= HandleModifierUpdated;
                 _modifier = value;
                 _modifier.ModifierUpdatedEvent += HandleModifierUpdated;
+                InsertContextMember(_modifier);
                 HandleModifierUpdated();
             }
         }
@@ -293,11 +345,11 @@ namespace BeatLeader.UI.Reactive {
         public event Action? ModifierUpdatedEvent;
 
         private ILayoutModifier _modifier = new RectModifier();
-        
+
         protected void RefreshLayout() {
             HandleModifierUpdated();
-        } 
-        
+        }
+
         private void RefreshRectModifier() {
             if (LayoutModifier is not RectModifier rectModifier) return;
             ContentTransform.anchorMin = rectModifier.AnchorMin;

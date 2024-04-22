@@ -22,14 +22,13 @@ namespace BeatLeader.Models {
         public int hmd;
         public int controller;
         public string timeSet;
-
-        private Player _player;
+        private Player originalPlayer;
         public Player player { 
             get {
-                if (!HiddenPlayersCache.IsHidden(_player)) return _player;
+                if (!HiddenPlayersCache.IsHidden(originalPlayer)) return originalPlayer;
             
                 return new Player() {
-                    id = _player.id,
+                    id = originalPlayer.id,
                     rank = 0,
                     name = "~hidden player~",
                     country = "not set",
@@ -42,7 +41,7 @@ namespace BeatLeader.Models {
                 };
             }
             set { 
-                _player = value;
+                originalPlayer = value;
             }
         }
         public string replay;

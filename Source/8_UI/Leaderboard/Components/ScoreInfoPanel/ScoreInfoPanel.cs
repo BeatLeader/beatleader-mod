@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using BeatLeader.API.Methods;
+using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -72,11 +73,13 @@ namespace BeatLeader.Components {
 
             ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent += RefreshPlayer;
             OnTabWasSelected(LeaderboardState.ScoreInfoPanelTab);
         }
 
         protected override void OnDispose() {
             ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
+            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= RefreshPlayer;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
         }
 
@@ -173,11 +176,15 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             _score = score;
             _scoreStatsUpdateRequired = true;
-            _miniProfile.SetPlayer(score.player);
+            _miniProfile.SetPlayer(score.Player);
             _scoreOverviewPage1.SetScore(score);
             _replayPanel.SetScore(score);
             _controls.Reset();
             UpdateVisibility();
+        }
+
+        private void RefreshPlayer() {
+            _miniProfile.SetPlayer(_score.Player);
         }
 
         #endregion

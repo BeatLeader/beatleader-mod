@@ -61,26 +61,5 @@ namespace BeatLeader.DataManager {
         }
 
         #endregion
-
-        #region ModifyPlayer
-
-        public static Player ModifyPlayer(Player player) {
-            if (!IsHidden(player)) return player;
-            
-            return new Player() {
-                id = player.id,
-                rank = 0,
-                name = "~hidden player~",
-                country = "not set",
-                countryRank = 0,
-                pp = 0f,
-                role = "",
-                clans = Array.Empty<Clan>(),
-                socials = Array.Empty<ServiceIntegration>(),
-                profileSettings = null
-            };
-        }
-
-        #endregion
     }
 }

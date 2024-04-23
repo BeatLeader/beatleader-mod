@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
@@ -204,7 +204,7 @@ namespace BeatLeader.Components {
         private void UpdateCells() {
             switch (_score) {
                 case Score playerScore: {
-                    var player = HiddenPlayersCache.ModifyPlayer(playerScore.player);
+                    var player = playerScore.Player;
                     var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
 
                     Clickable = true;

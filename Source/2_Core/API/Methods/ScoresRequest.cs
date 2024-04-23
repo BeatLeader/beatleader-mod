@@ -98,7 +98,7 @@ namespace BeatLeader.API.Methods {
 
             public ScoresTableContent ParseResponse(UnityWebRequest request) {
                 var result = JsonConvert.DeserializeObject<Paged<Score>>(request.downloadHandler.text, NetworkingUtils.SerializerSettings);
-                var seekAvailable = result.selection != null && !result.data.Any(it => ProfileManager.IsCurrentPlayer(it.player.id));
+                var seekAvailable = result.selection != null && !result.data.Any(it => ProfileManager.IsCurrentPlayer(it.Player.id));
                 return new ScoresTableContent(result.selection, result.data, result.metadata.page, result.metadata.PagesCount, false, seekAvailable);
             }
         }

@@ -12,10 +12,15 @@ namespace BeatLeader.UI.Reactive {
             Rect = controllerRect;
         }
 
+        protected void Refresh() {
+            Recalculate();
+            Apply();
+        }
+        
+        public virtual void ReloadChildren(IEnumerable<ILayoutItem> children) { }
+
         public abstract void Recalculate();
         public abstract void Apply();
-
-        public virtual void ReloadChildren(IEnumerable<ILayoutItem> children) { }
 
         #endregion
 

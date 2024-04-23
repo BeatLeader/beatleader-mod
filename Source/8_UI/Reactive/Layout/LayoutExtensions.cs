@@ -91,14 +91,14 @@ namespace BeatLeader.UI.Reactive {
             YogaFrame? padding = null,
             bool expandUnspecifiedChildren = true
         ) where T : ILayoutDriver {
-            component.LayoutController = new YogaLayoutController {
-                FlexDirection = direction,
-                JustifyContent = justifyContent,
-                AlignContent = alignContent,
-                AlignItems = alignItems,
-                FlexWrap = wrap,
-                Padding = padding ?? YogaFrame.Zero
-            };
+            var controller = new YogaLayoutController();
+            component.LayoutController = controller;
+            controller.FlexDirection = direction;
+            controller.JustifyContent = justifyContent;
+            controller.AlignContent = alignContent;
+            controller.AlignItems = alignItems;
+            controller.FlexWrap = wrap;
+            controller.Padding = padding ?? YogaFrame.Zero;
             if (expandUnspecifiedChildren) {
                 foreach (var comp in component.Children) {
                     ExpandFlexChild(comp);

@@ -176,7 +176,7 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             _score = score;
             _scoreStatsUpdateRequired = true;
-            _miniProfile.SetPlayer(score.player);
+            _miniProfile.SetPlayer(score.Player);
             _scoreOverviewPage1.SetScore(score);
             _replayPanel.SetScore(score);
             _controls.Reset();
@@ -184,7 +184,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshPlayer() {
-            _miniProfile.SetPlayer(_score.player);
+            _miniProfile.SetPlayer(_score.Player);
         }
 
         #endregion

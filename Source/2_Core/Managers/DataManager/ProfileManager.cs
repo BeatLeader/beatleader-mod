@@ -160,7 +160,7 @@ namespace BeatLeader.DataManager {
 
         private static void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
             if (state is not API.RequestState.Finished) return;
-            Profile = result.player;
+            Profile = result.Player;
         }
 
         #endregion

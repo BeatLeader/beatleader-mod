@@ -1,9 +1,33 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.DataManager;
+using Newtonsoft.Json;
 using System;
 
 namespace BeatLeader.Models {
     public class Score : IScoreRowContent {
+        [JsonProperty("player")]
+        public Player Player { 
+            get {
+                if (!HiddenPlayersCache.IsHidden(_originalPlayer)) return _originalPlayer;
+            
+                return new Player() {
+                    id = _originalPlayer.id,
+                    rank = 0,
+                    name = "~hidden player~",
+                    country = "not set",
+                    countryRank = 0,
+                    pp = 0f,
+                    role = "",
+                    clans = Array.Empty<Clan>(),
+                    socials = Array.Empty<ServiceIntegration>(),
+                    profileSettings = null
+                };
+            }
+            set { 
+                _originalPlayer = value;
+            }
+        }
+
         public int id;
         public float accuracy;
         public float fcAccuracy;
@@ -22,28 +46,7 @@ namespace BeatLeader.Models {
         public int hmd;
         public int controller;
         public string timeSet;
-        private Player originalPlayer;
-        public Player player { 
-            get {
-                if (!HiddenPlayersCache.IsHidden(originalPlayer)) return originalPlayer;
-            
-                return new Player() {
-                    id = originalPlayer.id,
-                    rank = 0,
-                    name = "~hidden player~",
-                    country = "not set",
-                    countryRank = 0,
-                    pp = 0f,
-                    role = "",
-                    clans = Array.Empty<Clan>(),
-                    socials = Array.Empty<ServiceIntegration>(),
-                    profileSettings = null
-                };
-            }
-            set { 
-                originalPlayer = value;
-            }
-        }
+        private Player _originalPlayer;
         public string replay;
         public string platform;
 
@@ -70,15 +73,15 @@ namespace BeatLeader.Models {
         public object? GetValue(ScoreRowCellType cellType) {
             return cellType switch {
                 ScoreRowCellType.Rank => rank,
-                ScoreRowCellType.Country => player.country,
-                ScoreRowCellType.Avatar => new AvatarScoreRowCell.Data(player.avatar, player.profileSettings),
-                ScoreRowCellType.Username => player.name,
+                ScoreRowCellType.Country => Player.country,
+                ScoreRowCellType.Avatar => new AvatarScoreRowCell.Data(Player.avatar, Player.profileSettings),
+                ScoreRowCellType.Username => Player.name,
                 ScoreRowCellType.Modifiers => modifiers,
                 ScoreRowCellType.Accuracy => accuracy,
                 ScoreRowCellType.PerformancePoints => pp,
                 ScoreRowCellType.Score => modifiedScore,
                 ScoreRowCellType.Mistakes => missedNotes + badCuts + bombCuts + wallsHit,
-                ScoreRowCellType.Clans => player.clans,
+                ScoreRowCellType.Clans => Player.clans,
                 ScoreRowCellType.Time => timeSet,
                 ScoreRowCellType.Pauses => pauses,
                 _ => default

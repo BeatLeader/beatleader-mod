@@ -42,8 +42,8 @@ namespace BeatLeader.Components {
 
         private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
             if (state is not API.RequestState.Finished) return;
-            OnProfileUpdated(result.player);
-            user.player.contextExtensions = result.player.contextExtensions;
+            OnProfileUpdated(result.Player);
+            user.player.contextExtensions = result.Player.contextExtensions;
         }
 
         private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {

@@ -57,6 +57,8 @@ namespace BeatLeader.Components {
             _panelControls.TabChangedEvent += HandleSelectedTabChanged;
         }
 
+        #endregion
+
         #region Dismiss
 
         public void PrepareForDismiss() {
@@ -66,8 +68,6 @@ namespace BeatLeader.Components {
         public void PrepareForDisplay() {
             UpdateVisibility(_openedTab);
         }
-
-        #endregion
 
         #endregion
 

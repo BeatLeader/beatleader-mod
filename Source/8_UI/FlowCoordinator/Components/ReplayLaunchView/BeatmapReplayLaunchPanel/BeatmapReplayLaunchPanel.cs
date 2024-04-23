@@ -150,6 +150,18 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region Dismiss
+
+        public void PrepareForDismiss() {
+            _replayPanel.PrepareForDismiss();
+        }
+
+        public void PrepareForDisplay() {
+            _replayPanel.PrepareForDisplay();
+        }
+
+        #endregion
+
         #region Filter
 
         private Func<IReplayHeader, bool>? _predicate;

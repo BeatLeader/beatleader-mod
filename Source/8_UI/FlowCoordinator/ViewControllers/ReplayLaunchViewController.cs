@@ -57,6 +57,7 @@ namespace BeatLeader.ViewControllers {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (firstActivation) _replayPanel.ReloadData();
             _searchFiltersPanel.NotifyContainerStateChanged();
+            _replayPanel.PrepareForDisplay();
         }
         
         public void __DismissViewController(
@@ -96,6 +97,7 @@ namespace BeatLeader.ViewControllers {
 
         private static void DismissViewControllerPrefix(object __instance) {
             if (__instance is not ReplayLaunchViewController { } view) return;
+            ((ReplayLaunchViewController)__instance)._replayPanel.PrepareForDismiss();
             view._childViewController?.__DismissViewController(null, immediately: true);
         }
 

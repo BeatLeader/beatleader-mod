@@ -55,8 +55,19 @@ namespace BeatLeader.Components {
             _panelControls.TabsMask &= ~ScoreInfoPanelTab.Replay;
 
             _panelControls.TabChangedEvent += HandleSelectedTabChanged;
-            UpdateVisibility(ScoreInfoPanelTab.OverviewPage1);
         }
+
+        #region Dismiss
+
+        public void PrepareForDismiss() {
+            HideAllTabs();
+        }
+
+        public void PrepareForDisplay() {
+            UpdateVisibility(_openedTab);
+        }
+
+        #endregion
 
         #endregion
 
@@ -93,9 +104,9 @@ namespace BeatLeader.Components {
 
         #region UpdateVisibility
 
-        private ScoreInfoPanelTab _openedTab;
+        private ScoreInfoPanelTab _openedTab = ScoreInfoPanelTab.OverviewPage1;
 
-        private void UpdateVisibility(ScoreInfoPanelTab tab) {
+        private void HideAllTabs() {
             _scoreStatsLoadingScreen.SetActive(false);
             _scoreOverviewPage1.SetActive(false);
             _scoreOverviewPage2.SetActive(false);
@@ -103,6 +114,10 @@ namespace BeatLeader.Components {
             _accuracyGrid.SetActive(false);
             _accuracyGraphPanel.SetActive(false);
             _replaySettingsPanel.SetActive(false);
+        }
+
+        private void UpdateVisibility(ScoreInfoPanelTab tab) {
+            HideAllTabs();
 
             switch (tab) {
                 case ScoreInfoPanelTab.OverviewPage1:

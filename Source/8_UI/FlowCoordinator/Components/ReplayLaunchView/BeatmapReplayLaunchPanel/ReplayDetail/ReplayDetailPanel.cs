@@ -93,6 +93,18 @@ namespace BeatLeader.Components {
 
         #endregion
 
+        #region Dismiss
+
+        public void PrepareForDismiss() {
+            _replayStatisticsPanel.PrepareForDismiss();
+        }
+
+        public void PrepareForDisplay() {
+            _replayStatisticsPanel.PrepareForDisplay();
+        }
+
+        #endregion
+
         #region Download Panel
 
         private void SetDownloadPanelActive(bool active) {

@@ -10,8 +10,8 @@ namespace BeatLeader.UI.Reactive.Yoga {
             get => _direction;
             set {
                 _direction = value;
+                YogaNode.StyleSetDirection(_direction);
                 Refresh();
-                Recalculate();
             }
         }
 
@@ -19,8 +19,8 @@ namespace BeatLeader.UI.Reactive.Yoga {
             get => _flexDirection;
             set {
                 _flexDirection = value;
+                YogaNode.StyleSetFlexDirection(_flexDirection);
                 Refresh();
-                Recalculate();
             }
         }
 
@@ -28,8 +28,8 @@ namespace BeatLeader.UI.Reactive.Yoga {
             get => _flexWrap;
             set {
                 _flexWrap = value;
+                YogaNode.StyleSetFlexWrap(_flexWrap);
                 Refresh();
-                Recalculate();
             }
         }
 
@@ -37,8 +37,8 @@ namespace BeatLeader.UI.Reactive.Yoga {
             get => _justifyContent;
             set {
                 _justifyContent = value;
+                YogaNode.StyleSetJustifyContent(_justifyContent);
                 Refresh();
-                Recalculate();
             }
         }
 
@@ -46,8 +46,8 @@ namespace BeatLeader.UI.Reactive.Yoga {
             get => _alignItems;
             set {
                 _alignItems = value;
+                YogaNode.StyleSetAlignItems(_alignItems);
                 Refresh();
-                Recalculate();
             }
         }
 
@@ -55,8 +55,8 @@ namespace BeatLeader.UI.Reactive.Yoga {
             get => _alignContent;
             set {
                 _alignContent = value;
+                YogaNode.StyleSetAlignContent(_alignContent);
                 Refresh();
-                Recalculate();
             }
         }
 
@@ -65,10 +65,10 @@ namespace BeatLeader.UI.Reactive.Yoga {
             set {
                 _padding = value;
                 RefreshPadding();
-                Recalculate();
+                Refresh();
             }
         }
-        
+
         private Direction _direction = Direction.Inherit;
         private FlexDirection _flexDirection = FlexDirection.Row;
         private Justify _justifyContent = Justify.FlexStart;
@@ -76,20 +76,8 @@ namespace BeatLeader.UI.Reactive.Yoga {
         private Align _alignContent = Align.Auto;
         private Wrap _flexWrap = Wrap.Wrap;
         private YogaFrame _padding = YogaFrame.Zero;
-
-        private void Refresh() {
-            if (_suppressRecalculation) return;
-            YogaNode.StyleSetDirection(_direction);
-            YogaNode.StyleSetFlexDirection(_flexDirection);
-            YogaNode.StyleSetFlexWrap(_flexWrap);
-            YogaNode.StyleSetJustifyContent(_justifyContent);
-            YogaNode.StyleSetAlignItems(_alignItems);
-            YogaNode.StyleSetAlignContent(_alignContent);
-            RefreshPadding();
-        }
-
+        
         private void RefreshPadding() {
-            if (_suppressRecalculation) return;
             YogaNode.StyleSetPadding(Edge.Top, _padding.top);
             YogaNode.StyleSetPadding(Edge.Bottom, _padding.bottom);
             YogaNode.StyleSetPadding(Edge.Left, _padding.left);
@@ -106,7 +94,6 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         public override void ProvideContext(object context) {
             _node = ((YogaContext)context).YogaNode;
-            _suppressRecalculation = false;
         }
 
         #endregion
@@ -123,11 +110,9 @@ namespace BeatLeader.UI.Reactive.Yoga {
         }
 
         private readonly Dictionary<ILayoutItem, YogaNode> _nodes = new();
-        private bool _suppressRecalculation = true;
         private YogaNode _node;
 
         public override void Recalculate() {
-            if (_suppressRecalculation) return;
             YogaNode.CalculateLayout(Rect.width, Rect.height, _direction);
         }
 

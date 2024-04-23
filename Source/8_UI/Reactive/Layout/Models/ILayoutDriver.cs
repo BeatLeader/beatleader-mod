@@ -7,6 +7,7 @@ namespace BeatLeader.UI.Reactive {
 
         void AppendChild(ILayoutItem comp);
         void TruncateChild(ILayoutItem comp);
+        void RecalculateLayoutTree();
         void RecalculateLayout();
     }
 }

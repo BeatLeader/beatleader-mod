@@ -30,28 +30,34 @@ namespace BeatLeader.UI.Reactive {
                 if (_layoutController != null) {
                     InsertContextMember(_layoutController);
                 }
-                RefreshLayoutControllerChildren();
-                RecalculateLayout();
+                RecalculateLayoutWithChildren();
             }
         }
 
         private ILayoutController? _layoutController;
 
-        private void RefreshLayoutControllerChildren() {
+        private void RecalculateLayoutWithChildren() {
             _layoutController?.ReloadChildren(_children);
+            RecalculateLayoutTree();
+        }
+        
+        public void RecalculateLayoutTree() {
+            if (LayoutDriver?.LayoutController != null) {
+                LayoutDriver!.RecalculateLayoutTree();
+                return;
+            }
+            _layoutController?.ReloadDimensions(ContentTransform.rect);
+            _layoutController?.Recalculate();
+            RecalculateLayout();
         }
 
         public void RecalculateLayout() {
-            var isRootNode = LayoutDriver?.LayoutController == null;
-            if (!isRootNode) {
-                LayoutDriver!.RecalculateLayout();
-            }
             if (_layoutController == null) return;
-            if (isRootNode) {
-                _layoutController?.ReloadDimensions(ContentTransform.rect);
-                _layoutController?.Recalculate();
+            _layoutController.Apply();
+            foreach (var child in Children) {
+                if (child is not ILayoutDriver driver) continue;
+                driver.RecalculateLayout();
             }
-            _layoutController?.Apply();
         }
 
         #endregion
@@ -114,7 +120,7 @@ namespace BeatLeader.UI.Reactive {
         #region Callbacks
 
         private void HandleChildModifierUpdated() {
-            RecalculateLayout();
+            RecalculateLayoutTree();
         }
 
         private void HandleChildrenChanged(object sender, NotifyCollectionChangedEventArgs e) {
@@ -134,7 +140,7 @@ namespace BeatLeader.UI.Reactive {
                     break;
             }
             OnChildrenUpdated();
-            RefreshLayoutControllerChildren();
+            RecalculateLayoutWithChildren();
         }
 
         #endregion
@@ -156,7 +162,7 @@ namespace BeatLeader.UI.Reactive {
         }
 
         protected sealed override void OnRectDimensionsChangedInternal() {
-            RecalculateLayout();
+            RecalculateLayoutTree();
             base.OnRectDimensionsChangedInternal();
         }
 

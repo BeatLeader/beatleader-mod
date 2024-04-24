@@ -8,6 +8,7 @@ namespace BeatLeader.UI.Reactive {
 
         public static T AsFlexItem<T>(
             this T component,
+            out YogaModifier modifier,
             float grow = 0f,
             float shrink = 1f,
             YogaValue? basis = null,
@@ -24,6 +25,7 @@ namespace BeatLeader.UI.Reactive {
                 component,
                 component.LayoutModifier,
                 static (comp, mod) => comp.LayoutModifier = mod,
+                out modifier,
                 grow,
                 shrink,
                 basis,
@@ -37,11 +39,43 @@ namespace BeatLeader.UI.Reactive {
                 alignSelf
             );
         }
-
+        
+        public static T AsFlexItem<T>(
+            this T component,
+            float grow = 0f,
+            float shrink = 1f,
+            YogaValue? basis = null,
+            YogaVector? size = null,
+            YogaVector? minSize = null,
+            YogaVector? maxSize = null,
+            YogaFrame? margin = null,
+            YogaValue? aspectRatio = null,
+            YogaFrame? position = null,
+            PositionType? positionType = null,
+            Align alignSelf = Align.Auto
+        ) where T : ReactiveComponentBase {
+            return AsFlexItem(
+                component,
+                out _,
+                grow,
+                shrink,
+                basis,
+                size,
+                minSize,
+                maxSize,
+                margin,
+                aspectRatio,
+                position,
+                positionType,
+                alignSelf
+            );
+        }
+        
         public static T AsFlexItem<T>(
             this T component,
             ILayoutModifier? layoutModifier,
             Action<T, ILayoutModifier> setModifierCallback,
+            out YogaModifier yogaModifier,
             float grow = 0f,
             float shrink = 1f,
             YogaValue? basis = null,
@@ -78,11 +112,42 @@ namespace BeatLeader.UI.Reactive {
             modifier.Margin = margin ?? modifier.Margin;
             modifier.AspectRatio = aspectRatio ?? modifier.AspectRatio;
             modifier.AlignSelf = alignSelf;
+            yogaModifier = modifier;
             return component;
         }
 
         public static T AsFlexGroup<T>(
             this T component,
+            FlexDirection direction = FlexDirection.Row,
+            Justify justifyContent = Justify.SpaceAround,
+            Align alignItems = Align.Stretch,
+            Align alignContent = Align.Auto,
+            Wrap wrap = Wrap.NoWrap,
+            Overflow overflow = Overflow.Visible,
+            YogaFrame? padding = null,
+            YogaVector? gap = null,
+            bool expandUnspecifiedChildren = true,
+            bool independentLayout = false
+        ) where T : ILayoutDriver {
+            return AsFlexGroup(
+                component,
+                out _,
+                direction,
+                justifyContent,
+                alignItems,
+                alignContent,
+                wrap,
+                overflow,
+                padding,
+                gap,
+                expandUnspecifiedChildren,
+                independentLayout
+            );
+        }
+
+        public static T AsFlexGroup<T>(
+            this T component,
+            out YogaLayoutController layoutController,
             FlexDirection direction = FlexDirection.Row,
             Justify justifyContent = Justify.SpaceAround,
             Align alignItems = Align.Stretch,
@@ -112,6 +177,7 @@ namespace BeatLeader.UI.Reactive {
                     ExpandFlexChild(comp);
                 }
             }
+            layoutController = controller;
             return component;
         }
 

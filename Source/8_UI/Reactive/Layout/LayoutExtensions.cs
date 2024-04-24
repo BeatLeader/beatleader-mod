@@ -39,7 +39,7 @@ namespace BeatLeader.UI.Reactive {
                 alignSelf
             );
         }
-        
+
         public static T AsFlexItem<T>(
             this T component,
             float grow = 0f,
@@ -70,7 +70,7 @@ namespace BeatLeader.UI.Reactive {
                 alignSelf
             );
         }
-        
+
         public static T AsFlexItem<T>(
             this T component,
             ILayoutModifier? layoutModifier,
@@ -92,11 +92,6 @@ namespace BeatLeader.UI.Reactive {
                 modifier = new YogaModifier();
                 setModifierCallback(component, modifier);
             }
-            if (size == null && !ExpandFlexChild(component)) {
-                modifier.Size = YogaVector.Undefined;
-            } else {
-                modifier.Size = size ?? modifier.Size;
-            }
             if (position != null) {
                 modifier.PositionType = PositionType.Absolute;
                 modifier.Position = position.Value;
@@ -104,6 +99,7 @@ namespace BeatLeader.UI.Reactive {
             if (positionType != null) {
                 modifier.PositionType = positionType.Value;
             }
+            modifier.Size = size ?? modifier.Size;
             modifier.FlexShrink = shrink;
             modifier.FlexGrow = grow;
             modifier.FlexBasis = basis ?? modifier.FlexBasis;
@@ -126,7 +122,6 @@ namespace BeatLeader.UI.Reactive {
             Overflow overflow = Overflow.Visible,
             YogaFrame? padding = null,
             YogaVector? gap = null,
-            bool expandUnspecifiedChildren = true,
             bool independentLayout = false
         ) where T : ILayoutDriver {
             return AsFlexGroup(
@@ -140,7 +135,6 @@ namespace BeatLeader.UI.Reactive {
                 overflow,
                 padding,
                 gap,
-                expandUnspecifiedChildren,
                 independentLayout
             );
         }
@@ -156,7 +150,6 @@ namespace BeatLeader.UI.Reactive {
             Overflow overflow = Overflow.Visible,
             YogaFrame? padding = null,
             YogaVector? gap = null,
-            bool expandUnspecifiedChildren = true,
             bool independentLayout = false
         ) where T : ILayoutDriver {
             if (component.LayoutController is not YogaLayoutController controller) {
@@ -172,24 +165,9 @@ namespace BeatLeader.UI.Reactive {
             controller.Padding = padding ?? YogaFrame.Zero;
             controller.Gap = gap ?? YogaVector.Undefined;
             controller.UseIndependentLayout = independentLayout;
-            if (expandUnspecifiedChildren) {
-                foreach (var comp in component.Children) {
-                    ExpandFlexChild(comp);
-                }
-            }
+
             layoutController = controller;
             return component;
-        }
-
-        private static bool ExpandFlexChild(ILayoutItem component) {
-            if (component.LayoutModifier is not YogaModifier modifier) return false;
-            var sizeIsUndefined = modifier.Size == YogaVector.Auto || modifier.Size == YogaVector.Undefined;
-
-            if (component.LayoutDriver?.LayoutController is not YogaLayoutController controller || !sizeIsUndefined) return false;
-            var row = controller.FlexDirection is FlexDirection.Row or FlexDirection.RowReverse;
-            modifier.Size = row ? new(YogaValue.Undefined, "100%") : new("100%", YogaValue.Undefined);
-
-            return true;
         }
 
         #endregion

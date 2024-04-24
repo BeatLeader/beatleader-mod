@@ -87,8 +87,7 @@ namespace BeatLeader.Components {
                 var dummy = new RDummy()
                     .AsFlexGroup(
                         justifyContent: Justify.FlexStart,
-                        gap: new() { x = 0.5f },
-                        expandUnspecifiedChildren: false
+                        gap: new() { x = 0.5f }
                     );
                 dummy.Children.AddRange(children);
                 return dummy;
@@ -140,7 +139,6 @@ namespace BeatLeader.Components {
                         justifyContent: Justify.Center,
                         alignItems: Align.FlexStart,
                         gap: new() { y = 1f },
-                        expandUnspecifiedChildren: false,
                         layoutController: out _railsLayoutController
                     ).AsFlexItem(
                         modifier: out _railsLayoutModifier

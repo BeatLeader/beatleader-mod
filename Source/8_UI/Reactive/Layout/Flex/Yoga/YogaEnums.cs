@@ -79,6 +79,12 @@ namespace BeatLeader.UI.Reactive.Yoga {
         SpaceEvenly,
     }
 
+    internal enum Gutter {
+        Column,
+        Row,
+        All
+    }
+
     internal enum Overflow {
         Visible,
         Hidden,

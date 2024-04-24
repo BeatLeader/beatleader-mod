@@ -40,24 +40,28 @@ namespace BeatLeader.UI.Reactive {
             _layoutController?.ReloadChildren(_children);
             RecalculateLayoutTree();
         }
+
+        private void RecalculateLayoutInternal(bool root) {
+            if (_layoutController == null) return;
+            _layoutController.ReloadDimensions(ContentTransform.rect);
+            _layoutController.Recalculate(root);
+            _layoutController.Apply();
+            foreach (var child in Children) {
+                if (child is not ILayoutDriver driver) continue;
+                driver.RecalculateLayout();
+            }
+        }
         
         public void RecalculateLayoutTree() {
             if (LayoutDriver?.LayoutController != null) {
                 LayoutDriver!.RecalculateLayoutTree();
                 return;
             }
-            _layoutController?.ReloadDimensions(ContentTransform.rect);
-            _layoutController?.Recalculate();
-            RecalculateLayout();
+            RecalculateLayoutInternal(true);
         }
 
         public void RecalculateLayout() {
-            if (_layoutController == null) return;
-            _layoutController.Apply();
-            foreach (var child in Children) {
-                if (child is not ILayoutDriver driver) continue;
-                driver.RecalculateLayout();
-            }
+            RecalculateLayoutInternal(false);
         }
 
         #endregion

@@ -223,6 +223,25 @@ namespace BeatLeader.UI.Reactive.Yoga {
             }
         }
 
+        public void StyleSetGap(Gutter gutter, YogaValue value) {
+            switch (value.unit) {
+                case Unit.Undefined:
+                    StyleSetGap(gutter, float.NaN);
+                    break;
+
+                case Unit.Point:
+                    StyleSetGap(gutter, value.value);
+                    break;
+
+                case Unit.Percent:
+                    StyleSetGapPercent(gutter, value.value);
+                    break;
+
+                case Unit.Auto:
+                    throw new ArgumentOutOfRangeException(nameof(value), "Auto is not supported for gap");
+            }
+        }
+
         #region YGNode
 
         public void CalculateLayout(float availableWidth, float availableHeight, Direction ownerDirection) {
@@ -264,6 +283,10 @@ namespace BeatLeader.UI.Reactive.Yoga {
         #endregion
 
         #region Style
+
+        public void StyleSetOverflow(Overflow overflow) {
+            YogaNative.YGNodeStyleSetOverflow(_nodePtr, overflow);
+        }
 
         public void StyleSetDirection(Direction direction) {
             YogaNative.YGNodeStyleSetDirection(_nodePtr, direction);
@@ -399,6 +422,14 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         public void StyleSetMaxHeightPercent(float maxHeight) {
             YogaNative.YGNodeStyleSetMaxHeightPercent(_nodePtr, maxHeight);
+        }
+
+        public void StyleSetGap(Gutter gutter, float gap) {
+            YogaNative.YGNodeStyleSetGap(_nodePtr, gutter, gap);
+        }
+
+        public void StyleSetGapPercent(Gutter gutter, float gap) {
+            YogaNative.YGNodeStyleSetGapPercent(_nodePtr, gutter, gap);
         }
 
         public void StyleSetAspectRatio(float aspectRatio) {

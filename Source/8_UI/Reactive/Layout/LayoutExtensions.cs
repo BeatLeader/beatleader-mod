@@ -61,7 +61,7 @@ namespace BeatLeader.UI.Reactive {
             if (size == null && !ExpandFlexChild(component)) {
                 modifier.Size = YogaVector.Undefined;
             } else {
-                modifier.Size = size ?? YogaVector.Undefined;
+                modifier.Size = size ?? modifier.Size;
             }
             if (position != null) {
                 modifier.PositionType = PositionType.Absolute;
@@ -72,11 +72,11 @@ namespace BeatLeader.UI.Reactive {
             }
             modifier.FlexShrink = shrink;
             modifier.FlexGrow = grow;
-            modifier.FlexBasis = basis ?? YogaValue.Undefined;
-            modifier.MinSize = minSize ?? YogaVector.Undefined;
-            modifier.MaxSize = maxSize ?? YogaVector.Undefined;
-            modifier.Margin = margin ?? YogaFrame.Zero;
-            modifier.AspectRatio = aspectRatio ?? YogaValue.Undefined;
+            modifier.FlexBasis = basis ?? modifier.FlexBasis;
+            modifier.MinSize = minSize ?? modifier.MinSize;
+            modifier.MaxSize = maxSize ?? modifier.MaxSize;
+            modifier.Margin = margin ?? modifier.Margin;
+            modifier.AspectRatio = aspectRatio ?? modifier.AspectRatio;
             modifier.AlignSelf = alignSelf;
             return component;
         }
@@ -88,17 +88,25 @@ namespace BeatLeader.UI.Reactive {
             Align alignItems = Align.Stretch,
             Align alignContent = Align.Auto,
             Wrap wrap = Wrap.NoWrap,
+            Overflow overflow = Overflow.Visible,
             YogaFrame? padding = null,
-            bool expandUnspecifiedChildren = true
+            YogaVector? gap = null,
+            bool expandUnspecifiedChildren = true,
+            bool independentLayout = false
         ) where T : ILayoutDriver {
-            var controller = new YogaLayoutController();
+            if (component.LayoutController is not YogaLayoutController controller) {
+                controller = new();
+            }
             component.LayoutController = controller;
             controller.FlexDirection = direction;
             controller.JustifyContent = justifyContent;
             controller.AlignContent = alignContent;
             controller.AlignItems = alignItems;
             controller.FlexWrap = wrap;
+            controller.Overflow = overflow;
             controller.Padding = padding ?? YogaFrame.Zero;
+            controller.Gap = gap ?? YogaVector.Undefined;
+            controller.UseIndependentLayout = independentLayout;
             if (expandUnspecifiedChildren) {
                 foreach (var comp in component.Children) {
                     ExpandFlexChild(comp);

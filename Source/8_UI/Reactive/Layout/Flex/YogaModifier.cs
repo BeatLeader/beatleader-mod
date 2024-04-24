@@ -9,6 +9,7 @@ namespace BeatLeader.UI.Reactive {
             get => _positionType;
             set {
                 _positionType = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetPositionType(value);
                 Refresh();
             }
@@ -18,6 +19,7 @@ namespace BeatLeader.UI.Reactive {
             get => _alignSelf;
             set {
                 _alignSelf = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetAlignSelf(value);
                 Refresh();
             }
@@ -27,6 +29,7 @@ namespace BeatLeader.UI.Reactive {
             get => _flexBasis;
             set {
                 _flexBasis = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetFlexBasis(value);
                 Refresh();
             }
@@ -36,6 +39,7 @@ namespace BeatLeader.UI.Reactive {
             get => _flexGrow;
             set {
                 _flexGrow = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetFlexGrow(value);
                 Refresh();
             }
@@ -45,6 +49,7 @@ namespace BeatLeader.UI.Reactive {
             get => _flexShrink;
             set {
                 _flexShrink = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetFlexShrink(value);
                 Refresh();
             }
@@ -54,6 +59,7 @@ namespace BeatLeader.UI.Reactive {
             get => _position;
             set {
                 _position = value;
+                if (!HasValidNode) return;
                 RefreshPosition();
                 Refresh();
             }
@@ -63,6 +69,7 @@ namespace BeatLeader.UI.Reactive {
             get => _size;
             set {
                 _size = value;
+                if (!HasValidNode) return;
                 RefreshSize();
                 Refresh();
             }
@@ -72,6 +79,7 @@ namespace BeatLeader.UI.Reactive {
             get => _minSize;
             set {
                 _minSize = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetMinWidth(value.x);
                 YogaNode.StyleSetMinHeight(value.y);
                 Refresh();
@@ -82,6 +90,7 @@ namespace BeatLeader.UI.Reactive {
             get => _maxSize;
             set {
                 _maxSize = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetMaxWidth(value.x);
                 YogaNode.StyleSetMaxHeight(value.y);
                 Refresh();
@@ -92,6 +101,7 @@ namespace BeatLeader.UI.Reactive {
             get => _aspectRatio;
             set {
                 _aspectRatio = value;
+                if (!HasValidNode) return;
                 YogaNode.StyleSetAspectRatio(value.value);
                 Refresh();
             }
@@ -101,6 +111,7 @@ namespace BeatLeader.UI.Reactive {
             get => _margin;
             set {
                 _margin = value;
+                if (!HasValidNode) return;
                 RefreshMargin();
                 Refresh();
             }
@@ -146,6 +157,22 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
+        private void RefreshAllProperties() {
+            YogaNode.StyleSetPositionType(_positionType);
+            YogaNode.StyleSetAlignSelf(_alignSelf);
+            YogaNode.StyleSetFlexBasis(_flexBasis);
+            YogaNode.StyleSetFlexGrow(_flexGrow);
+            YogaNode.StyleSetFlexShrink(_flexShrink);
+            YogaNode.StyleSetMinWidth(_minSize.x);
+            YogaNode.StyleSetMinHeight(_minSize.y);
+            YogaNode.StyleSetMaxWidth(_maxSize.x);
+            YogaNode.StyleSetMaxHeight(_maxSize.y);
+            YogaNode.StyleSetAspectRatio(_aspectRatio.value);
+            RefreshMargin();
+            RefreshPosition();
+            RefreshSize();
+        }
+
         #endregion
 
         #region Context
@@ -156,6 +183,7 @@ namespace BeatLeader.UI.Reactive {
 
         public override void ProvideContext(object context) {
             _node = ((YogaContext)context).YogaNode;
+            RefreshAllProperties();
         }
 
         #endregion
@@ -170,6 +198,8 @@ namespace BeatLeader.UI.Reactive {
                 return _node;
             }
         }
+
+        private bool HasValidNode => _node.IsInitialized;
 
         private YogaNode _node;
 

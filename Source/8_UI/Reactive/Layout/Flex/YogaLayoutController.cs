@@ -6,6 +6,15 @@ namespace BeatLeader.UI.Reactive.Yoga {
     internal sealed class YogaLayoutController : ReactiveLayoutController {
         #region Properties
 
+        public Overflow Overflow {
+            get => _overflow;
+            set {
+                _overflow = value;
+                YogaNode.StyleSetOverflow(_overflow);
+                Refresh();
+            }
+        }
+
         public Direction Direction {
             get => _direction;
             set {
@@ -69,6 +78,16 @@ namespace BeatLeader.UI.Reactive.Yoga {
             }
         }
 
+        public YogaVector Gap {
+            get => _gap;
+            set {
+                _gap = value;
+                RefreshGap();
+                Refresh();
+            }
+        }
+
+        private Overflow _overflow = Overflow.Visible;
         private Direction _direction = Direction.Inherit;
         private FlexDirection _flexDirection = FlexDirection.Row;
         private Justify _justifyContent = Justify.FlexStart;
@@ -76,12 +95,30 @@ namespace BeatLeader.UI.Reactive.Yoga {
         private Align _alignContent = Align.Auto;
         private Wrap _flexWrap = Wrap.Wrap;
         private YogaFrame _padding = YogaFrame.Zero;
-        
+        private YogaVector _gap = YogaVector.Undefined;
+
+        private void RefreshGap() {
+            YogaNode.StyleSetGap(Gutter.Row, _gap.y);
+            YogaNode.StyleSetGap(Gutter.Column, _gap.x);
+        }
+
         private void RefreshPadding() {
             YogaNode.StyleSetPadding(Edge.Top, _padding.top);
             YogaNode.StyleSetPadding(Edge.Bottom, _padding.bottom);
             YogaNode.StyleSetPadding(Edge.Left, _padding.left);
             YogaNode.StyleSetPadding(Edge.Right, _padding.right);
+        }
+
+        private void RefreshAllProperties() {
+            YogaNode.StyleSetOverflow(_overflow);
+            YogaNode.StyleSetDirection(_direction);
+            YogaNode.StyleSetFlexDirection(_flexDirection);
+            YogaNode.StyleSetFlexWrap(_flexWrap);
+            YogaNode.StyleSetJustifyContent(_justifyContent);
+            YogaNode.StyleSetAlignItems(_alignItems);
+            YogaNode.StyleSetAlignContent(_alignContent);
+            RefreshGap();
+            RefreshPadding();
         }
 
         #endregion
@@ -93,26 +130,50 @@ namespace BeatLeader.UI.Reactive.Yoga {
         public override object CreateContext() => new YogaContext();
 
         public override void ProvideContext(object context) {
-            _node = ((YogaContext)context).YogaNode;
+            var c = (YogaContext)context;
+            _contextNode = c.YogaNode;
+            RefreshAllProperties();
         }
 
         #endregion
 
         #region Calculations
 
+        public bool UseIndependentLayout {
+            get => _useIndependentLayout;
+            set {
+                _useIndependentLayout = value;
+                var oldNode = value ? _contextNode : YogaNode;
+                var newNode = value ? YogaNode : _contextNode;
+                ReloadChildrenInternal(newNode, oldNode);
+                RefreshAllProperties();
+            }
+        }
+
         private YogaNode YogaNode {
             get {
-                if (!_node.IsInitialized) {
+                YogaNode node;
+                if (UseIndependentLayout) {
+                    _layoutNode.Touch();
+                    node = _layoutNode;
+                } else {
+                    node = _contextNode;
+                }
+                if (!node.IsInitialized) {
                     throw new Exception("Node was not initialized");
                 }
-                return _node;
+                return node;
             }
         }
 
         private readonly Dictionary<ILayoutItem, YogaNode> _nodes = new();
-        private YogaNode _node;
+        private YogaNode _layoutNode;
+        private YogaNode _contextNode;
+        private bool _useIndependentLayout;
+        private IEnumerable<ILayoutItem>? _children;
 
-        public override void Recalculate() {
+        public override void Recalculate(bool root) {
+            if (!root && !UseIndependentLayout) return;
             YogaNode.CalculateLayout(Rect.width, Rect.height, _direction);
         }
 
@@ -123,13 +184,20 @@ namespace BeatLeader.UI.Reactive.Yoga {
         }
 
         public override void ReloadChildren(IEnumerable<ILayoutItem> children) {
-            YogaNode.RemoveAllChildren();
+            _children = children;
+            ReloadChildrenInternal(YogaNode, null);
+        }
+
+        private void ReloadChildrenInternal(YogaNode node, YogaNode? fromNode) {
+            if (_children == null) return;
+            fromNode?.RemoveAllChildren();
+            node.RemoveAllChildren();
             _nodes.Clear();
             var index = 0;
-            foreach (var child in children) {
-                if (child.LayoutModifier is not YogaModifier node) continue;
-                YogaNode.InsertChild(node.YogaNode, index);
-                _nodes[child] = node.YogaNode;
+            foreach (var child in _children) {
+                if (child.LayoutModifier is not YogaModifier modifier) continue;
+                node.InsertChild(modifier.YogaNode, index);
+                _nodes[child] = modifier.YogaNode;
                 index++;
             }
         }

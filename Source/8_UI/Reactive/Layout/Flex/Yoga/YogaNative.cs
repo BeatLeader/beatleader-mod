@@ -73,7 +73,10 @@ namespace BeatLeader.UI.Reactive.Yoga {
         #endregion
 
         #region YGNodeStyle
-
+        
+        [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetOverflow")]
+        public static extern void YGNodeStyleSetOverflow(IntPtr node, Overflow overflow);
+        
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetDirection")]
         public static extern void YGNodeStyleSetDirection(IntPtr node, Direction direction);
 
@@ -175,6 +178,12 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetMaxHeightPercent")]
         public static extern void YGNodeStyleSetMaxHeightPercent(IntPtr node, float maxHeight);
+        
+        [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetGap")]
+        public static extern void YGNodeStyleSetGap(IntPtr node, Gutter gutter, float gap);
+        
+        [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetGapPercent")]
+        public static extern void YGNodeStyleSetGapPercent(IntPtr node, Gutter gutter, float gap);
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetAspectRatio")]
         public static extern void YGNodeStyleSetAspectRatio(IntPtr node, float aspectRatio);

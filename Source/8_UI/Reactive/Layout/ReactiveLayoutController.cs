@@ -13,13 +13,13 @@ namespace BeatLeader.UI.Reactive {
         }
 
         protected void Refresh() {
-            Recalculate();
+            Recalculate(true);
             Apply();
         }
         
         public virtual void ReloadChildren(IEnumerable<ILayoutItem> children) { }
 
-        public abstract void Recalculate();
+        public abstract void Recalculate(bool root);
         public abstract void Apply();
 
         #endregion

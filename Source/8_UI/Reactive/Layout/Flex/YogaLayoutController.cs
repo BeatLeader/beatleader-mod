@@ -142,9 +142,9 @@ namespace BeatLeader.UI.Reactive.Yoga {
         public bool UseIndependentLayout {
             get => _useIndependentLayout;
             set {
+                var oldNode = YogaNode;
                 _useIndependentLayout = value;
-                var oldNode = value ? _contextNode : YogaNode;
-                var newNode = value ? YogaNode : _contextNode;
+                var newNode = YogaNode;
                 ReloadChildrenInternal(newNode, oldNode);
                 RefreshAllProperties();
             }

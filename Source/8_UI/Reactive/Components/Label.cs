@@ -84,5 +84,9 @@ namespace BeatLeader.UI.Reactive.Components {
             Alignment = TextAlignmentOptions.Center;
             EnableWrapping = false;
         }
+
+        protected override void OnStart() {
+            RefreshLayout();
+        }
     }
 }

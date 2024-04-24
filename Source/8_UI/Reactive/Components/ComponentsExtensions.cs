@@ -1,10 +1,10 @@
 using System;
+using BeatLeader.Components;
 using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 using Align = BeatLeader.UI.Reactive.Yoga.Align;
 using UImage = UnityEngine.UI.Image;
 
@@ -79,6 +79,7 @@ namespace BeatLeader.UI.Reactive.Components {
             return control.AsFlexItem(
                 null,
                 static (comp, mod) => comp.CellLayoutModifier = mod,
+                out _,
                 grow,
                 shrink,
                 basis,
@@ -91,6 +92,22 @@ namespace BeatLeader.UI.Reactive.Components {
                 positionType,
                 alignSelf
             );
+        }
+
+        #endregion
+
+        #region ReeWrapper
+
+        public static ReeWrapperV2<TRee> BindRee<TRee>(this ReeWrapperV2<TRee> comp, ref TRee variable)
+            where TRee : ReeUIComponentV2 {
+            variable = comp.ReeComponent;
+            return comp;
+        }
+        
+        public static ReeWrapperV3<TRee> BindRee<TRee>(this ReeWrapperV3<TRee> comp, ref TRee variable)
+            where TRee : ReeUIComponentV3<TRee> {
+            variable = comp.ReeComponent;
+            return comp;
         }
 
         #endregion
@@ -135,7 +152,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
             return component;
         }
-        
+
         public static T WithBackground<T>(
             this T component,
             Optional<Sprite> sprite = default,

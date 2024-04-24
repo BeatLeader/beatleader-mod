@@ -1,6 +1,7 @@
 using BeatLeader.Components;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive.Yoga;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
@@ -20,6 +21,7 @@ namespace BeatLeader.UI.Hub {
         [UIAction("#post-parse"), UsedImplicitly]
         private async void OnInitialize() {
             _quickMiniProfile.SetPlayer(null);
+            _quickMiniProfile.JustifyContent = Justify.Center;
             //waiting for the profile load
             await ProfileManager.WaitUntilProfileLoad();
             var profile = ProfileManager.Profile ?? Player.GuestPlayer;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     public class User {
@@ -79,10 +80,24 @@ namespace BeatLeader.Models {
     }
 
     public class ProfileSettings {
+        [JsonProperty("hue")]
+        private int? Hue {
+            set => hue = value ?? 0;
+        }
+        
+        [JsonProperty("saturation")]
+        private float? Saturation {
+            set => saturation = value ?? 0;
+        }
+                
+        [JsonIgnore]
+        public int hue;
+        
+        [JsonIgnore]
+        public float saturation;
+        
         public string message;
         public string effectName;
-        public int hue;
-        public float saturation;
     }
 
     public class ServiceIntegration {

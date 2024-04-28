@@ -51,7 +51,7 @@ namespace BeatLeader.UI.Reactive {
                 driver.RecalculateLayout();
             }
         }
-        
+
         public void RecalculateLayoutTree() {
             if (LayoutDriver?.LayoutController != null) {
                 LayoutDriver!.RecalculateLayoutTree();
@@ -197,7 +197,7 @@ namespace BeatLeader.UI.Reactive {
         #endregion
     }
 
-    internal abstract class ReactiveComponentBase : ILayoutItem {
+    internal abstract class ReactiveComponentBase : ILayoutItem, IObservableHost {
         #region Factory
 
         protected ReactiveComponentBase() {
@@ -295,6 +295,24 @@ namespace BeatLeader.UI.Reactive {
         }
 
         private ILayoutDriver? _parent;
+
+        #endregion
+
+        #region Observable
+
+        private ObservableHost _observableHost = null!;
+
+        public void AddCallback<T>(string propertyName, Action<T> callback) {
+            _observableHost.AddCallback(propertyName, callback);
+        }
+
+        public void RemoveCallback<T>(string propertyName, Action<T> callback) {
+            _observableHost.RemoveCallback(propertyName, callback);
+        }
+
+        public void NotifyPropertyChanged(string? name = null) {
+            _observableHost.NotifyPropertyChanged(name);
+        }
 
         #endregion
 
@@ -451,6 +469,7 @@ namespace BeatLeader.UI.Reactive {
         }
 
         private void ConstructAndInit() {
+            _observableHost = new(this);
             ConstructInternal();
             OnInitialize();
             if (_needToStartManually) OnStart();

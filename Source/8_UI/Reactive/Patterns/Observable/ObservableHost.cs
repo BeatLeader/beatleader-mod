@@ -43,11 +43,6 @@ namespace BeatLeader.UI.Reactive {
 
             try {
                 var value = getter.Invoke(_keeper, Array.Empty<object>());
-                var type = value.GetType();
-                if (type.GetGenericTypeDefinition() == typeof(Observable<>)) {
-                    var targetType = type.GetGenericArguments()[0];
-                    ReflectionUtils.CastValueOp(type, targetType, value, out value);
-                }
                 del.DynamicInvoke(value);
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to invoke callback: \n{ex}");

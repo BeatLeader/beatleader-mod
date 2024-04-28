@@ -1,22 +1,17 @@
 using System;
-using System.Runtime.CompilerServices;
+using System.Linq.Expressions;
 
 namespace BeatLeader.UI.Reactive {
     internal static class ObservableExtensions {
-        public static Observable<T> Observe<T>(this T comp, [CallerMemberName] string name = "") {
-            return new() {
-                value = comp, propertyName = name
-            };
-        }
-
         public static T WithListener<T, TValue>(
             this T host,
-            Func<T, Observable<TValue>> predicate,
+            Expression<Func<T, TValue>> expression,
             Action<TValue> listener
         ) where T : IObservableHost {
-            var observable = predicate(host);
-            var name = observable.propertyName;
-            if (name == null) return host;
+            if (expression.Body is not MemberExpression memberExpression) {
+                throw new ArgumentException("The expression is not a member access expression");
+            }
+            var name = memberExpression.Member.Name;
             host.AddCallback(name, listener);
             return host;
         }

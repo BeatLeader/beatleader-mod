@@ -104,9 +104,13 @@ namespace BeatLeader.Utils {
         #region Casting
 
         public static bool CastValueOp(Type type, object obj, out object? castedObj) {
+            return CastValueOp(type, type, obj, out castedObj);
+        }
+        
+        public static bool CastValueOp(Type type, Type castType, object obj, out object? castedObj) {
             var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public);
             var sourceType = obj.GetType();
-            var castOp = methods.FirstOrDefault(x => IsValidCastOp(x, sourceType, type));
+            var castOp = methods.FirstOrDefault(x => IsValidCastOp(x, sourceType, castType));
             if (castOp is null) {
                 castedObj = null;
                 return false;

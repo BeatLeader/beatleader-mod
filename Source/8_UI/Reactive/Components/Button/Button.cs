@@ -28,7 +28,7 @@ namespace BeatLeader.UI.Reactive.Components {
             get => _sticky;
             set {
                 _sticky = value;
-                ButtonActive = false;
+                Active = false;
             }
         }
 
@@ -54,7 +54,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public Vector3 BaseScale { get; set; } = Vector3.one;
         
-        public bool ButtonActive {
+        public bool Active {
             get => _buttonActive && Interactable;
             private set {
                 if (value == _buttonActive) return;
@@ -82,10 +82,10 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void ProcessButtonClick(bool notifyListeners) {
-            if (Sticky) ButtonActive = !ButtonActive;
+            if (Sticky) Active = !Active;
             if (!notifyListeners) return;
             ClickEvent?.Invoke();
-            StateChangedEvent?.Invoke(_sticky ? ButtonActive : default);
+            StateChangedEvent?.Invoke(_sticky ? Active : default);
         }
 
         #endregion

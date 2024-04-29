@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Button : DrivingReactiveComponent {
+    internal class Button : DrivingReactiveComponent, IAnimationProgressProvider {
         #region Events
 
         public event Action? ClickEvent;
@@ -79,6 +79,8 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
+        float IAnimationProgressProvider.AnimationProgress => _hoverController.Progress;
+
         private bool _sticky;
         private bool _growOnHover = true;
         private float _lerpMul = 10f;
@@ -143,6 +145,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private void OnHoverStateChanged(bool isHovered, float progress) {
             if (_growOnHover) ContentTransform.localScale = BaseScale + HoverScaleSum * progress;
             OnHoverProgressChange(progress);
+            NotifyPropertyChanged("AnimationProgress");
         }
 
         private void OnButtonClick() {

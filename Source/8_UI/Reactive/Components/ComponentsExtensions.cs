@@ -114,6 +114,10 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Other
 
+        public static T WithAnimation<T>(this T component, Action<float> animator) where T : IObservableHost, IAnimationProgressProvider {
+            return component.WithListener(static x => x.AnimationProgress, animator);
+        }
+        
         public static T WithGraphicMask<T>(this T component) where T : ReactiveComponentBase {
             component.Content.AddComponent<Mask>();
             return component;

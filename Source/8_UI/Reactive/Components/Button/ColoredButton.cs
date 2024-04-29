@@ -48,7 +48,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected Color LerpColor(float t, Color color, Color color2) {
-            return ButtonActive ? ActiveColor :
+            return Active ? ActiveColor :
                 Interactable ? Color.Lerp(color, color2, _colorizeOnHover ? t : 0) :
                 DisabledColor;
         }

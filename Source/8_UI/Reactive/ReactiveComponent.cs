@@ -281,7 +281,7 @@ namespace BeatLeader.UI.Reactive {
         /// <summary>
         /// Gets or sets state of the transform.
         /// </summary>
-        public bool Active {
+        public bool Enabled {
             get => Content.activeInHierarchy;
             set => Content.SetActive(value);
         }

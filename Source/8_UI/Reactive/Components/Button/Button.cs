@@ -21,6 +21,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 _button.interactable = value;
                 _hoverController.enabled = value;
                 OnInteractableChange(value);
+                NotifyPropertyChanged();
             }
         }
 
@@ -29,6 +30,7 @@ namespace BeatLeader.UI.Reactive.Components {
             set {
                 _sticky = value;
                 Active = false;
+                NotifyPropertyChanged();
             }
         }
 
@@ -38,6 +40,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 _growOnHover = value;
                 if (!IsInitialized) return;
                 ContentTransform.localScale = Vector3.one;
+                NotifyPropertyChanged();
             }
         }
 
@@ -47,24 +50,40 @@ namespace BeatLeader.UI.Reactive.Components {
                 _lerpMul = value;
                 if (!IsInitialized) return;
                 _hoverController.lerpCoefficient = _lerpMul;
+                NotifyPropertyChanged();
             }
         }
 
-        public Vector3 HoverScaleSum { get; set; } = new(0.2f, 0.2f, 0.2f);
+        public Vector3 HoverScaleSum {
+            get => _hoverScaleSum;
+            set {
+                _hoverScaleSum = value;
+                NotifyPropertyChanged();
+            }
+        }
 
-        public Vector3 BaseScale { get; set; } = Vector3.one;
-        
+        public Vector3 BaseScale {
+            get => _baseScale;
+            set {
+                _baseScale = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         public bool Active {
             get => _buttonActive && Interactable;
             private set {
                 if (value == _buttonActive) return;
                 OnButtonStateChange(_buttonActive = value);
+                NotifyPropertyChanged();
             }
         }
 
         private bool _sticky;
         private bool _growOnHover = true;
         private float _lerpMul = 10f;
+        private Vector3 _hoverScaleSum = new(0.2f, 0.2f, 0.2f);
+        private Vector3 _baseScale = Vector3.one;
 
         #endregion
 
@@ -105,7 +124,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private SmoothHoverController _hoverController = null!;
         private UnityEngine.UI.Button _button = null!;
         private bool _buttonActive;
-        
+
         protected override void Construct(RectTransform rect) {
             var go = rect.gameObject;
             _hoverController = go.AddComponent<SmoothHoverController>();

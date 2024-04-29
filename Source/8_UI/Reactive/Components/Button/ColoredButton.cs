@@ -10,25 +10,48 @@ namespace BeatLeader.UI.Reactive.Components {
                 _colorizeOnHover = value;
                 if (!IsInitialized) return;
                 UpdateColor(0);
+                NotifyPropertyChanged();
             }
         }
 
-        public Color ActiveColor { get; set; } = DefaultHoveredColor;
+        public Color ActiveColor {
+            get => _activeColor;
+            set {
+                _activeColor = value;
+                NotifyPropertyChanged();
+            }
+        }
 
-        public Color HoverColor { get; set; } = DefaultHoveredColor;
+        public Color HoverColor {
+            get => _hoverColor;
+            set {
+                _hoverColor = value;
+                NotifyPropertyChanged();
+            }
+        }
 
-        public Color DisabledColor { get; set; } = DefaultColor;
+        public Color DisabledColor {
+            get => _disabledColor;
+            set {
+                _disabledColor = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         public Color Color {
             get => _color;
             set {
                 _color = value;
                 UpdateColor(0);
+                NotifyPropertyChanged();
             }
         }
 
         private bool _colorizeOnHover = true;
         private Color _color = DefaultColor;
+        private Color _activeColor = DefaultHoveredColor;
+        private Color _hoverColor = DefaultHoveredColor;
+        private Color _disabledColor = DefaultColor;
 
         #endregion
 

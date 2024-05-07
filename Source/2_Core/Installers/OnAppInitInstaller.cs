@@ -3,21 +3,22 @@ using BeatLeader.DataManager;
 using BeatLeader.SteamVR;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
+using System.Linq;
+using System.Reflection;
 using Zenject;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnAppInitInstaller : Installer<OnAppInitInstaller> {
         [Inject, UsedImplicitly]
-        private IPlatformUserModel _platformUserModel;
-
-        [Inject, UsedImplicitly]
         private IVRPlatformHelper _vrPlatformHelper;
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
-
-            if (_platformUserModel.GetType().Name == "OculusPlatformUserModel") {
+            var replayRecalculatorType = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .FirstOrDefault(t => t.FullName.Contains("OculusPlatformUserModel"));
+            if (replayRecalculatorType != null) {
                 Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
                 Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             } else {

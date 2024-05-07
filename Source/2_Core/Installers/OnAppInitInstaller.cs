@@ -15,14 +15,15 @@ namespace BeatLeader.Installers {
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
-            var replayRecalculatorType = Assembly.GetExecutingAssembly()
+            
+            var steamPlatformUserModel = Assembly.GetAssembly(typeof(IPlatformUserModel))
                 .GetTypes()
-                .FirstOrDefault(t => t.FullName.Contains("OculusPlatformUserModel"));
-            if (replayRecalculatorType != null) {
+                .FirstOrDefault(t => t.FullName.Contains("SteamPlatformUserModel"));
+            if (steamPlatformUserModel != null) {
+                Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
+            } else {
                 Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
                 Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            } else {
-                Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             }
 
             OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);

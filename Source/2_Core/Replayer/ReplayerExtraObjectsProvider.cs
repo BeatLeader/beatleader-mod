@@ -1,10 +1,11 @@
 ﻿using BeatLeader.Utils;
+using BeatSaber.GameSettings;
 using UnityEngine;
 
 namespace BeatLeader.Replayer {
     internal class ReplayerExtraObjectsProvider : MonoBehaviour {
         [FirstResource]
-        private readonly MainSettingsModelSO _mainSettingsModel = null!;
+        private readonly MainSystemInit _mainSystemInit = null!;
 
         [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
         private readonly Transform _origin = null!;
@@ -24,8 +25,9 @@ namespace BeatLeader.Replayer {
             ReplayerCenterAdjust = new GameObject("CenterAdjust").transform;
             ReplayerCenterAdjust.SetParent(ReplayerCore, false);
 
-            _posOffset = _mainSettingsModel.roomCenter;
-            _rotOffset = Quaternion.Euler(0, _mainSettingsModel.roomRotation, 0);
+            var settingsModel = _mainSystemInit._mainSettingsHandler.instance;
+            _posOffset = settingsModel.roomCenter;
+            _rotOffset = Quaternion.Euler(0, settingsModel.roomRotation, 0);
         }
 
         private void Start() {

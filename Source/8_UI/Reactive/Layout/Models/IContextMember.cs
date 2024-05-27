@@ -5,6 +5,6 @@ namespace BeatLeader.UI.Reactive {
         Type? ContextType { get; }
         
         object CreateContext();
-        void ProvideContext(object context);
+        void ProvideContext(object? context);
     }
 }

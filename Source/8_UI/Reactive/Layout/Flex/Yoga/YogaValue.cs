@@ -15,7 +15,11 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         public float value;
         public Unit unit;
-        
+
+        public override string ToString() {
+            return $"{value}.{unit}";
+        }
+
         public static YogaValue Percent(float value) {
             return new YogaValue(value, Unit.Percent);
         }

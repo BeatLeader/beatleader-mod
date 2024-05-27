@@ -129,7 +129,14 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         public override object CreateContext() => new YogaContext();
 
-        public override void ProvideContext(object context) {
+        public override void ProvideContext(object? context) {
+            if (context == null) {
+                if (_contextNode.IsInitialized) {
+                    _contextNode.RemoveAllChildren();
+                }
+                _contextNode = default;
+                return;
+            }
             var c = (YogaContext)context;
             _contextNode = c.YogaNode;
             RefreshAllProperties();
@@ -173,13 +180,16 @@ namespace BeatLeader.UI.Reactive.Yoga {
         private IEnumerable<ILayoutItem>? _children;
 
         public override void Recalculate(bool root) {
+            foreach (var (child, node) in _nodes) {
+                node.StyleSetDisplay(child.WithinLayout ? Display.Flex : Display.None);
+            }
             if (!root && !UseIndependentLayout) return;
             YogaNode.CalculateLayout(Rect.width, Rect.height, _direction);
         }
 
         public override void Apply() {
             foreach (var (child, node) in _nodes) {
-                node.ApplyTo(child.RectTransform);
+                child.ApplyTransforms(x => node.ApplyTo(x));
             }
         }
 

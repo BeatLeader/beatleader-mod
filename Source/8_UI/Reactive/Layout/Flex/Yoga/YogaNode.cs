@@ -3,7 +3,15 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Yoga {
     internal struct YogaNode : IDisposable, IEquatable<YogaNode> {
+        #region Create & Dispose
+
         public bool IsInitialized { get; private set; }
+
+        private IntPtr NodePtr {
+            get => _nodePtr == IntPtr.Zero ?
+                throw new UnassignedReferenceException("YogaNode was not initialized") :
+                _nodePtr;
+        }
 
         private IntPtr _nodePtr;
 
@@ -14,20 +22,27 @@ namespace BeatLeader.UI.Reactive.Yoga {
         }
 
         public void Dispose() {
-            if (_nodePtr == IntPtr.Zero) return;
-            YogaNative.YGNodeFree(_nodePtr);
+            if (NodePtr == IntPtr.Zero) return;
+            YogaNative.YGNodeFree(NodePtr);
             _nodePtr = IntPtr.Zero;
             IsInitialized = false;
         }
 
-        public void ApplyTo(RectTransform rectTransform) {
-            rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, LayoutGetTop(), LayoutGetHeight());
-            rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, LayoutGetLeft(), LayoutGetWidth());
-        }
+        #endregion
+
+        #region Impl
 
         public bool Equals(YogaNode other) {
-            return _nodePtr == other._nodePtr;
+            return NodePtr == other.NodePtr;
         }
+
+        public override string ToString() {
+            return $"calc: {{ w: {LayoutGetWidth()}, h: {LayoutGetHeight()} }}, set: {{ w: {StyleGetWidth()}, h: {StyleGetHeight()}, dsp: {StyleGetDisplay()} }}";
+        }
+
+        #endregion
+
+        #region Automatic Style Setters
 
         public void StyleSetPosition(Edge edge, YogaValue value) {
             switch (value.unit) {
@@ -242,22 +257,24 @@ namespace BeatLeader.UI.Reactive.Yoga {
             }
         }
 
+        #endregion
+
         #region YGNode
 
         public void CalculateLayout(float availableWidth, float availableHeight, Direction ownerDirection) {
-            YogaNative.YGNodeCalculateLayout(_nodePtr, availableWidth, availableHeight, ownerDirection);
+            YogaNative.YGNodeCalculateLayout(NodePtr, availableWidth, availableHeight, ownerDirection);
         }
 
         public void InsertChild(YogaNode child, int index) {
-            YogaNative.YGNodeInsertChildSafe(_nodePtr, child._nodePtr, index);
+            YogaNative.YGNodeInsertChildSafe(NodePtr, child.NodePtr, index);
         }
 
         public void RemoveChild(YogaNode child) {
-            YogaNative.YGNodeRemoveChildSafe(_nodePtr, child._nodePtr);
+            YogaNative.YGNodeRemoveChildSafe(NodePtr, child.NodePtr);
         }
 
         public void RemoveAllChildren() {
-            YogaNative.YGNodeRemoveAllChildrenSafe(_nodePtr);
+            YogaNative.YGNodeRemoveAllChildrenSafe(NodePtr);
         }
 
         #endregion
@@ -265,175 +282,196 @@ namespace BeatLeader.UI.Reactive.Yoga {
         #region Layout
 
         public float LayoutGetLeft() {
-            return YogaNative.YGNodeLayoutGetLeft(_nodePtr);
+            return YogaNative.YGNodeLayoutGetLeft(NodePtr);
         }
 
         public float LayoutGetTop() {
-            return YogaNative.YGNodeLayoutGetTop(_nodePtr);
+            return YogaNative.YGNodeLayoutGetTop(NodePtr);
         }
 
         public float LayoutGetWidth() {
-            return YogaNative.YGNodeLayoutGetWidth(_nodePtr);
+            return YogaNative.YGNodeLayoutGetWidth(NodePtr);
         }
 
         public float LayoutGetHeight() {
-            return YogaNative.YGNodeLayoutGetHeight(_nodePtr);
+            return YogaNative.YGNodeLayoutGetHeight(NodePtr);
+        }
+
+        public void ApplyTo(RectTransform rectTransform) {
+            rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, LayoutGetTop(), LayoutGetHeight());
+            rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, LayoutGetLeft(), LayoutGetWidth());
         }
 
         #endregion
 
         #region Style
 
+        public YogaValue StyleGetHeight() {
+            return YogaNative.YGNodeStyleGetHeight(NodePtr);
+        }
+
+        public YogaValue StyleGetWidth() {
+            return YogaNative.YGNodeStyleGetWidth(NodePtr);
+        }
+
         public void StyleSetOverflow(Overflow overflow) {
-            YogaNative.YGNodeStyleSetOverflow(_nodePtr, overflow);
+            YogaNative.YGNodeStyleSetOverflow(NodePtr, overflow);
         }
 
         public void StyleSetDirection(Direction direction) {
-            YogaNative.YGNodeStyleSetDirection(_nodePtr, direction);
+            YogaNative.YGNodeStyleSetDirection(NodePtr, direction);
         }
 
         public void StyleSetFlexDirection(FlexDirection flexDirection) {
-            YogaNative.YGNodeStyleSetFlexDirection(_nodePtr, flexDirection);
+            YogaNative.YGNodeStyleSetFlexDirection(NodePtr, flexDirection);
         }
 
         public void StyleSetJustifyContent(Justify justifyContent) {
-            YogaNative.YGNodeStyleSetJustifyContent(_nodePtr, justifyContent);
+            YogaNative.YGNodeStyleSetJustifyContent(NodePtr, justifyContent);
         }
 
         public void StyleSetAlignContent(Align alignContent) {
-            YogaNative.YGNodeStyleSetAlignContent(_nodePtr, alignContent);
+            YogaNative.YGNodeStyleSetAlignContent(NodePtr, alignContent);
         }
 
         public void StyleSetAlignItems(Align alignItems) {
-            YogaNative.YGNodeStyleSetAlignItems(_nodePtr, alignItems);
+            YogaNative.YGNodeStyleSetAlignItems(NodePtr, alignItems);
         }
 
         public void StyleSetAlignSelf(Align alignSelf) {
-            YogaNative.YGNodeStyleSetAlignSelf(_nodePtr, alignSelf);
+            YogaNative.YGNodeStyleSetAlignSelf(NodePtr, alignSelf);
         }
 
         public void StyleSetPositionType(PositionType positionType) {
-            YogaNative.YGNodeStyleSetPositionType(_nodePtr, positionType);
+            YogaNative.YGNodeStyleSetPositionType(NodePtr, positionType);
         }
 
         public void StyleSetFlexWrap(Wrap flexWrap) {
-            YogaNative.YGNodeStyleSetFlexWrap(_nodePtr, flexWrap);
+            YogaNative.YGNodeStyleSetFlexWrap(NodePtr, flexWrap);
         }
 
         public void StyleSetFlexGrow(float flexGrow) {
-            YogaNative.YGNodeStyleSetFlexGrow(_nodePtr, flexGrow);
+            YogaNative.YGNodeStyleSetFlexGrow(NodePtr, flexGrow);
         }
 
         public void StyleSetFlexShrink(float flexShrink) {
-            YogaNative.YGNodeStyleSetFlexShrink(_nodePtr, flexShrink);
+            YogaNative.YGNodeStyleSetFlexShrink(NodePtr, flexShrink);
         }
 
         public void StyleSetFlexBasis(float flexBasis) {
-            YogaNative.YGNodeStyleSetFlexBasis(_nodePtr, flexBasis);
+            YogaNative.YGNodeStyleSetFlexBasis(NodePtr, flexBasis);
         }
 
         public void StyleSetFlexBasisPercent(float flexBasis) {
-            YogaNative.YGNodeStyleSetFlexBasisPercent(_nodePtr, flexBasis);
+            YogaNative.YGNodeStyleSetFlexBasisPercent(NodePtr, flexBasis);
         }
 
         public void StyleSetFlexBasisAuto() {
-            YogaNative.YGNodeStyleSetFlexBasisAuto(_nodePtr);
+            YogaNative.YGNodeStyleSetFlexBasisAuto(NodePtr);
         }
 
         public void StyleSetPosition(Edge edge, float position) {
-            YogaNative.YGNodeStyleSetPosition(_nodePtr, edge, position);
+            YogaNative.YGNodeStyleSetPosition(NodePtr, edge, position);
         }
 
         public void StyleSetPositionPercent(Edge edge, float position) {
-            YogaNative.YGNodeStyleSetPositionPercent(_nodePtr, edge, position);
+            YogaNative.YGNodeStyleSetPositionPercent(NodePtr, edge, position);
         }
 
         public void StyleSetMargin(Edge edge, float margin) {
-            YogaNative.YGNodeStyleSetMargin(_nodePtr, edge, margin);
+            YogaNative.YGNodeStyleSetMargin(NodePtr, edge, margin);
         }
 
         public void StyleSetMarginPercent(Edge edge, float margin) {
-            YogaNative.YGNodeStyleSetMarginPercent(_nodePtr, edge, margin);
+            YogaNative.YGNodeStyleSetMarginPercent(NodePtr, edge, margin);
         }
 
         public void StyleSetMarginAuto(Edge edge) {
-            YogaNative.YGNodeStyleSetMarginAuto(_nodePtr, edge);
+            YogaNative.YGNodeStyleSetMarginAuto(NodePtr, edge);
         }
 
         public void StyleSetPadding(Edge edge, float padding) {
-            YogaNative.YGNodeStyleSetPadding(_nodePtr, edge, padding);
+            YogaNative.YGNodeStyleSetPadding(NodePtr, edge, padding);
         }
 
         public void StyleSetPaddingPercent(Edge edge, float padding) {
-            YogaNative.YGNodeStyleSetPaddingPercent(_nodePtr, edge, padding);
+            YogaNative.YGNodeStyleSetPaddingPercent(NodePtr, edge, padding);
         }
 
         public void StyleSetWidth(float width) {
-            YogaNative.YGNodeStyleSetWidth(_nodePtr, width);
+            YogaNative.YGNodeStyleSetWidth(NodePtr, width);
         }
 
         public void StyleSetWidthPercent(float width) {
-            YogaNative.YGNodeStyleSetWidthPercent(_nodePtr, width);
+            YogaNative.YGNodeStyleSetWidthPercent(NodePtr, width);
         }
 
         public void StyleSetWidthAuto() {
-            YogaNative.YGNodeStyleSetWidthAuto(_nodePtr);
+            YogaNative.YGNodeStyleSetWidthAuto(NodePtr);
         }
 
         public void StyleSetHeight(float height) {
-            YogaNative.YGNodeStyleSetHeight(_nodePtr, height);
+            YogaNative.YGNodeStyleSetHeight(NodePtr, height);
         }
 
         public void StyleSetHeightPercent(float height) {
-            YogaNative.YGNodeStyleSetHeightPercent(_nodePtr, height);
+            YogaNative.YGNodeStyleSetHeightPercent(NodePtr, height);
         }
 
         public void StyleSetHeightAuto() {
-            YogaNative.YGNodeStyleSetHeightAuto(_nodePtr);
+            YogaNative.YGNodeStyleSetHeightAuto(NodePtr);
         }
 
         public void StyleSetMinWidth(float minWidth) {
-            YogaNative.YGNodeStyleSetMinWidth(_nodePtr, minWidth);
+            YogaNative.YGNodeStyleSetMinWidth(NodePtr, minWidth);
         }
 
         public void StyleSetMinWidthPercent(float minWidth) {
-            YogaNative.YGNodeStyleSetMinWidthPercent(_nodePtr, minWidth);
+            YogaNative.YGNodeStyleSetMinWidthPercent(NodePtr, minWidth);
         }
 
         public void StyleSetMinHeight(float minHeight) {
-            YogaNative.YGNodeStyleSetMinHeight(_nodePtr, minHeight);
+            YogaNative.YGNodeStyleSetMinHeight(NodePtr, minHeight);
         }
 
         public void StyleSetMinHeightPercent(float minHeight) {
-            YogaNative.YGNodeStyleSetMinHeightPercent(_nodePtr, minHeight);
+            YogaNative.YGNodeStyleSetMinHeightPercent(NodePtr, minHeight);
         }
 
         public void StyleSetMaxWidth(float maxWidth) {
-            YogaNative.YGNodeStyleSetMaxWidth(_nodePtr, maxWidth);
+            YogaNative.YGNodeStyleSetMaxWidth(NodePtr, maxWidth);
         }
 
         public void StyleSetMaxWidthPercent(float maxWidth) {
-            YogaNative.YGNodeStyleSetMaxWidthPercent(_nodePtr, maxWidth);
+            YogaNative.YGNodeStyleSetMaxWidthPercent(NodePtr, maxWidth);
         }
 
         public void StyleSetMaxHeight(float maxHeight) {
-            YogaNative.YGNodeStyleSetMaxHeight(_nodePtr, maxHeight);
+            YogaNative.YGNodeStyleSetMaxHeight(NodePtr, maxHeight);
         }
 
         public void StyleSetMaxHeightPercent(float maxHeight) {
-            YogaNative.YGNodeStyleSetMaxHeightPercent(_nodePtr, maxHeight);
+            YogaNative.YGNodeStyleSetMaxHeightPercent(NodePtr, maxHeight);
         }
 
         public void StyleSetGap(Gutter gutter, float gap) {
-            YogaNative.YGNodeStyleSetGap(_nodePtr, gutter, gap);
+            YogaNative.YGNodeStyleSetGap(NodePtr, gutter, gap);
         }
 
         public void StyleSetGapPercent(Gutter gutter, float gap) {
-            YogaNative.YGNodeStyleSetGapPercent(_nodePtr, gutter, gap);
+            YogaNative.YGNodeStyleSetGapPercent(NodePtr, gutter, gap);
         }
 
         public void StyleSetAspectRatio(float aspectRatio) {
-            YogaNative.YGNodeStyleSetAspectRatio(_nodePtr, aspectRatio);
+            YogaNative.YGNodeStyleSetAspectRatio(NodePtr, aspectRatio);
+        }
+
+        public void StyleSetDisplay(Display display) {
+            YogaNative.YGNodeStyleSetDisplay(NodePtr, display);
+        }
+
+        public Display StyleGetDisplay() {
+            return YogaNative.YGNodeStyleGetDisplay(NodePtr);
         }
 
         #endregion

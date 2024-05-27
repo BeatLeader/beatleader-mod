@@ -181,7 +181,11 @@ namespace BeatLeader.UI.Reactive {
 
         public override object CreateContext() => new YogaContext();
 
-        public override void ProvideContext(object context) {
+        public override void ProvideContext(object? context) {
+            if (context == null) {
+                _node = default;
+                return;
+            }
             _node = ((YogaContext)context).YogaNode;
             RefreshAllProperties();
         }

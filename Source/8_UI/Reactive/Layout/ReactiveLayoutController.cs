@@ -7,16 +7,17 @@ namespace BeatLeader.UI.Reactive {
         #region LayoutController
 
         protected Rect Rect { get; private set; }
+        
+        public event Action? LayoutControllerUpdatedEvent;
 
         public void ReloadDimensions(Rect controllerRect) {
             Rect = controllerRect;
         }
 
         protected void Refresh() {
-            Recalculate(true);
-            Apply();
+            LayoutControllerUpdatedEvent?.Invoke();
         }
-        
+
         public virtual void ReloadChildren(IEnumerable<ILayoutItem> children) { }
 
         public abstract void Recalculate(bool root);
@@ -32,7 +33,7 @@ namespace BeatLeader.UI.Reactive {
             throw new NotSupportedException();
         }
 
-        public virtual void ProvideContext(object context) { }
+        public virtual void ProvideContext(object? context) { }
 
         #endregion
     }

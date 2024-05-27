@@ -2,15 +2,16 @@
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
-    internal interface ILayoutItem {
+    internal interface ILayoutItem : IEquatable<ILayoutItem> {
         ILayoutDriver? LayoutDriver { get; set; }
-        
-        ILayoutModifier LayoutModifier { get; }
-        RectTransform RectTransform { get; }
+        ILayoutModifier? LayoutModifier { get; set; }
         
         float? DesiredHeight { get; }
         float? DesiredWidth { get; }
+        bool WithinLayout { get; set; }
 
         event Action? ModifierUpdatedEvent;
+
+        void ApplyTransforms(Action<RectTransform> applicator);
     }
 }

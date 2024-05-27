@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Reactive {
             YogaFrame? position = null,
             PositionType? positionType = null,
             Align alignSelf = Align.Auto
-        ) where T : ReactiveComponentBase {
+        ) where T : ILayoutItem {
             return AsFlexItem(
                 component,
                 component.LayoutModifier,
@@ -53,7 +53,7 @@ namespace BeatLeader.UI.Reactive {
             YogaFrame? position = null,
             PositionType? positionType = null,
             Align alignSelf = Align.Auto
-        ) where T : ReactiveComponentBase {
+        ) where T : ILayoutItem {
             return AsFlexItem(
                 component,
                 out _,
@@ -87,7 +87,7 @@ namespace BeatLeader.UI.Reactive {
             YogaFrame? position = null,
             PositionType? positionType = null,
             Align alignSelf = Align.Auto
-        ) where T : ReactiveComponentBase {
+        ) where T : ILayoutItem {
             if (layoutModifier is not YogaModifier modifier) {
                 modifier = new YogaModifier();
                 setModifierCallback(component, modifier);
@@ -178,32 +178,27 @@ namespace BeatLeader.UI.Reactive {
             this T component,
             float height,
             float width
-        ) where T : ReactiveComponentBase {
+        ) where T : IReactiveComponent {
             return component.AsRectItem(new(width, height));
         }
 
         public static T AsRectItem<T>(
             this T component,
-            Vector2 sizeDelta = default,
-            Vector2 anchorMin = default,
-            Vector2 anchorMax = default
-        ) where T : ReactiveComponentBase {
-            if (component.LayoutModifier is not RectModifier modifier) {
-                modifier = new();
-            }
-            component.LayoutModifier = modifier;
-            modifier.AnchorMin = anchorMin;
-            modifier.AnchorMax = anchorMax;
-            modifier.SizeDelta = sizeDelta;
+            Vector2? sizeDelta = null,
+            Vector2? anchorMin = null,
+            Vector2? anchorMax = null,
+            Vector2? pivot = null
+        ) where T : IReactiveComponent {
+            var transform = component.ContentTransform;
+            transform.anchorMin = anchorMin ?? transform.anchorMin;
+            transform.anchorMax = anchorMax ?? transform.anchorMax;
+            transform.sizeDelta = sizeDelta ?? transform.sizeDelta;
+            transform.pivot = pivot ?? transform.pivot;
             return component;
         }
 
-        public static T WithRectExpand<T>(this T component) where T : ReactiveComponentBase {
-            if (component.LayoutModifier is not RectModifier modifier) {
-                modifier = new();
-            }
-            modifier.With(RectModifier.Expand);
-            component.LayoutModifier = modifier;
+        public static T WithRectExpand<T>(this T component) where T : IReactiveComponent {
+            component.ContentTransform.WithRectExpand();
             return component;
         }
 
@@ -211,6 +206,7 @@ namespace BeatLeader.UI.Reactive {
             component.anchorMin = Vector2.zero;
             component.anchorMax = Vector2.one;
             component.sizeDelta = Vector2.zero;
+            component.anchoredPosition = Vector2.zero;
             return component;
         }
 

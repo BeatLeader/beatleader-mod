@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BeatLeader.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -25,16 +24,19 @@ namespace BeatLeader.UI.Reactive {
             set {
                 if (_layoutController != null) {
                     ReleaseContextMember(_layoutController);
+                    _layoutController.LayoutControllerUpdatedEvent -= RecalculateLayoutTree;
                 }
                 _layoutController = value;
                 if (_layoutController != null) {
                     InsertContextMember(_layoutController);
+                    _layoutController.LayoutControllerUpdatedEvent += RecalculateLayoutTree;
                 }
                 RecalculateLayoutWithChildren();
             }
         }
 
         private ILayoutController? _layoutController;
+        private bool _beingRecalculated;
 
         private void RecalculateLayoutWithChildren() {
             _layoutController?.ReloadChildren(_children);
@@ -42,22 +44,21 @@ namespace BeatLeader.UI.Reactive {
         }
 
         private void RecalculateLayoutInternal(bool root) {
-            if (_layoutController == null) return;
+            if (_layoutController == null || Children.Count == 0) return;
             _layoutController.ReloadDimensions(ContentTransform.rect);
             _layoutController.Recalculate(root);
             _layoutController.Apply();
-            foreach (var child in Children) {
-                if (child is not ILayoutDriver driver) continue;
-                driver.RecalculateLayout();
-            }
         }
 
         public void RecalculateLayoutTree() {
+            _beingRecalculated = true;
             if (LayoutDriver?.LayoutController != null) {
                 LayoutDriver!.RecalculateLayoutTree();
+                _beingRecalculated = false;
                 return;
             }
             RecalculateLayoutInternal(true);
+            _beingRecalculated = false;
         }
 
         public void RecalculateLayout() {
@@ -75,31 +76,65 @@ namespace BeatLeader.UI.Reactive {
 
         IEnumerable<ILayoutItem> ILayoutDriver.Children => Children;
 
-        private readonly ObservableCollection<ILayoutItem> _children = new();
+        private ObservableCollectionAdapter<ILayoutItem> _children = null!;
 
-        private void ApplyParent(IEnumerable children, bool append) {
-            foreach (var child in children) {
-                if (child is not ILayoutItem comp) continue;
-                if (append) {
-                    AppendChild(comp);
-                    comp.LayoutDriver = this;
-                    comp.ModifierUpdatedEvent += HandleChildModifierUpdated;
-                } else {
-                    TruncateChild(comp);
-                    comp.LayoutDriver = null;
-                    comp.ModifierUpdatedEvent -= HandleChildModifierUpdated;
-                }
-            }
+        void ILayoutDriver.AppendChild(ILayoutItem item) {
+            if (ContainsChild(item)) return;
+            _children.collection.Add(item);
+            AppendChildInternal(item);
         }
 
-        void ILayoutDriver.AppendChild(ILayoutItem item) => AppendChild(item);
-        void ILayoutDriver.TruncateChild(ILayoutItem item) => TruncateChild(item);
+        void ILayoutDriver.TruncateChild(ILayoutItem item) {
+            if (!ContainsChild(item)) return;
+            _children.collection.Remove(item);
+            TruncateChildInternal(item);
+        }
+
+        private bool ContainsChild(ILayoutItem item) {
+            return _children.Any(x => x.Equals(item));
+        }
+
+        private void AppendChildInternal(ILayoutItem item) {
+            AppendChild(item);
+            item.LayoutDriver = this;
+            item.ModifierUpdatedEvent += HandleChildModifierUpdated;
+            RecalculateLayoutWithChildren();
+            OnChildrenUpdated();
+        }
+
+        private void TruncateChildInternal(ILayoutItem item) {
+            TruncateChild(item);
+            item.LayoutDriver = null;
+            item.ModifierUpdatedEvent -= HandleChildModifierUpdated;
+            RecalculateLayoutWithChildren();
+            OnChildrenUpdated();
+        }
+
+        private void HandleChildModifierUpdated() {
+            if (_beingRecalculated) return;
+            RecalculateLayoutTree();
+        }
+
+        protected override void OnLayoutRefresh() {
+            if (_beingRecalculated) return;
+            RecalculateLayoutTree();
+        }
+
+        protected override void OnLayoutApply() {
+            RecalculateLayout();
+        }
+
+        #endregion
+
+        #region Handle Children
+
+        protected virtual Transform ChildrenContainer => ContentTransform;
 
         protected virtual void AppendChild(ILayoutItem item) {
             if (item is ReactiveComponentBase comp) {
                 AppendReactiveChild(comp);
             } else {
-                item.RectTransform.SetParent(ContentTransform, false);
+                item.ApplyTransforms(x => x.SetParent(ChildrenContainer, false));
             }
         }
 
@@ -107,12 +142,12 @@ namespace BeatLeader.UI.Reactive {
             if (item is ReactiveComponentBase comp) {
                 TruncateReactiveChild(comp);
             } else {
-                item.RectTransform.SetParent(null, false);
+                item.ApplyTransforms(x => x.SetParent(null, false));
             }
         }
 
         protected virtual void AppendReactiveChild(ReactiveComponentBase comp) {
-            comp.Use(ContentTransform);
+            comp.Use(ChildrenContainer);
         }
 
         protected virtual void TruncateReactiveChild(ReactiveComponentBase comp) {
@@ -121,30 +156,22 @@ namespace BeatLeader.UI.Reactive {
 
         #endregion
 
-        #region Callbacks
+        #region Construct
 
-        private void HandleChildModifierUpdated() {
-            RecalculateLayoutTree();
+        private class LayoutItemComparer : IEqualityComparer<ILayoutItem> {
+            public bool Equals(ILayoutItem x, ILayoutItem y) => x.Equals(y);
+            public int GetHashCode(ILayoutItem obj) => obj.GetHashCode();
         }
 
-        private void HandleChildrenChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            if (!IsInitialized) return;
-            switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
-                    ApplyParent(e.NewItems, true);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    ApplyParent(e.OldItems, false);
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    ApplyParent(e.OldItems, false);
-                    ApplyParent(e.NewItems, true);
-                    break;
-            }
-            OnChildrenUpdated();
-            RecalculateLayoutWithChildren();
+        private static readonly LayoutItemComparer layoutItemComparer = new();
+
+        protected sealed override void ConstructInternal() {
+            base.ConstructInternal();
+            _children = new(
+                new HashSet<ILayoutItem>(layoutItemComparer),
+                AppendChildInternal,
+                TruncateChildInternal
+            );
         }
 
         #endregion
@@ -153,22 +180,6 @@ namespace BeatLeader.UI.Reactive {
 
         protected sealed override float? DesiredHeight => base.DesiredHeight;
         protected sealed override float? DesiredWidth => base.DesiredWidth;
-
-        protected sealed override void DestroyInternal() {
-            base.DestroyInternal();
-            _children.CollectionChanged -= HandleChildrenChanged;
-        }
-
-        protected sealed override void ConstructInternal() {
-            base.ConstructInternal();
-            _children.CollectionChanged += HandleChildrenChanged;
-            HandleChildrenChanged(this, new(NotifyCollectionChangedAction.Add, _children));
-        }
-
-        protected sealed override void OnRectDimensionsChangedInternal() {
-            RecalculateLayoutTree();
-            base.OnRectDimensionsChangedInternal();
-        }
 
         #endregion
 
@@ -182,22 +193,14 @@ namespace BeatLeader.UI.Reactive {
     internal abstract class ReactiveComponent : ReactiveComponentBase {
         #region Overrides
 
-        protected sealed override void DestroyInternal() {
-            base.DestroyInternal();
-        }
-
         protected sealed override void ConstructInternal() {
             base.ConstructInternal();
-        }
-
-        protected sealed override void OnRectDimensionsChangedInternal() {
-            base.OnRectDimensionsChangedInternal();
         }
 
         #endregion
     }
 
-    internal abstract class ReactiveComponentBase : ILayoutItem, IObservableHost {
+    internal abstract partial class ReactiveComponentBase : ILayoutItem, IObservableHost, IReactiveComponent {
         #region Factory
 
         protected ReactiveComponentBase() {
@@ -215,75 +218,14 @@ namespace BeatLeader.UI.Reactive {
 
         #endregion
 
-        #region Host
-
-        private class ReactiveHost : MonoBehaviour {
-            public readonly List<ReactiveComponentBase> components = new();
-
-            public bool IsStarted { get; private set; }
-            public bool IsDestroyed { get; private set; }
-
-            private void Start() {
-                components.ForEach(static x => x.OnStart());
-                IsStarted = true;
-            }
-
-            private void Update() {
-                components.ForEach(static x => x.OnUpdate());
-            }
-
-            private void OnDestroy() {
-                components.ForEach(static x => x.DestroyInternal());
-                IsDestroyed = true;
-            }
-
-            private void OnEnable() {
-                components.ForEach(static x => x.OnEnable());
-            }
-
-            private void OnDisable() {
-                components.ForEach(static x => x.OnDisable());
-            }
-
-            private void OnRectTransformDimensionsChange() {
-                components.ForEach(static x => x.OnRectDimensionsChangedInternal());
-            }
-        }
-
-        protected virtual void OnRectDimensionsChangedInternal() {
-            OnRectDimensionsChanged();
-        }
-
-        #endregion
-
         #region UI Props
-
-        /// <summary>
-        /// Represents the parent of the component.
-        /// </summary>
-        public ILayoutDriver? LayoutDriver {
-            get => _parent;
-            set {
-                _parent?.TruncateChild(this);
-                _parent = value;
-                _parent?.AppendChild(this);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the local scale of the transform.
-        /// </summary>
-        public Vector2 Scale {
-            get => ContentTransform.localScale;
-            set => ContentTransform.localScale = value;
-        }
 
         /// <summary>
         /// Gets or sets state of the transform.
         /// </summary>
         public bool Enabled {
-            get => Content.activeInHierarchy;
-            set => Content.SetActive(value);
+            get => Host.Enabled;
+            set => Host.Enabled = value;
         }
 
         /// <summary>
@@ -293,8 +235,6 @@ namespace BeatLeader.UI.Reactive {
             get => Content.name;
             set => Content.name = value;
         }
-
-        private ILayoutDriver? _parent;
 
         #endregion
 
@@ -310,7 +250,7 @@ namespace BeatLeader.UI.Reactive {
             _observableHost.RemoveCallback(propertyName, callback);
         }
 
-        public void NotifyPropertyChanged(string? name = null) {
+        public void NotifyPropertyChanged([CallerMemberName] string? name = null) {
             _observableHost.NotifyPropertyChanged(name);
         }
 
@@ -318,82 +258,53 @@ namespace BeatLeader.UI.Reactive {
 
         #region Context
 
-        private readonly Dictionary<Type, (object context, int members)> _contexts = new();
+        protected void InsertContextMember(IContextMember member) => Host.InsertContextMember(member);
 
-        protected void InsertContextMember(IContextMember member) {
-            var type = member.ContextType;
-            if (type == null) return;
-            object context;
-            var members = 1;
-            if (_contexts.TryGetValue(type, out var tuple)) {
-                context = tuple.context;
-                members += tuple.members;
-            } else {
-                context = member.CreateContext();
-            }
-            member.ProvideContext(context);
-            _contexts[type] = (context, members);
-        }
-
-        protected void ReleaseContextMember(IContextMember member) {
-            var type = member.ContextType;
-            if (type == null || !_contexts.TryGetValue(type, out var tuple)) return;
-            var members = tuple.members - 1;
-            if (members == 0) {
-                _contexts.Remove(type);
-            } else {
-                tuple.members = members;
-                _contexts[type] = tuple;
-            }
-        }
+        protected void ReleaseContextMember(IContextMember member) => Host.ReleaseContextMember(member);
 
         #endregion
 
-        #region Layout Modifier
+        #region Layout Item
 
-        RectTransform ILayoutItem.RectTransform => ContentTransform;
-        float? ILayoutItem.DesiredHeight => DesiredHeight;
-        float? ILayoutItem.DesiredWidth => DesiredWidth;
+        public ILayoutDriver? LayoutDriver {
+            get => Host.LayoutDriver;
+            set => Host.LayoutDriver = value;
+        }
 
-        public ILayoutModifier LayoutModifier {
-            get => _modifier;
+        public ILayoutModifier? LayoutModifier {
+            get => Host.LayoutModifier;
+            set => Host.LayoutModifier = value;
+        }
+
+        bool ILayoutItem.WithinLayout {
+            get => Enabled || WithinLayoutIfDisabled;
             set {
-                ReleaseContextMember(_modifier);
-                _modifier.ModifierUpdatedEvent -= HandleModifierUpdated;
-                _modifier = value;
-                _modifier.ModifierUpdatedEvent += HandleModifierUpdated;
-                InsertContextMember(_modifier);
-                HandleModifierUpdated();
+                if (WithinLayoutIfDisabled) return;
+                Enabled = value;
             }
+        }
+
+        float? ILayoutItem.DesiredHeight => Host.DesiredHeight;
+        float? ILayoutItem.DesiredWidth => Host.DesiredWidth;
+
+        public bool WithinLayoutIfDisabled {
+            get => _reactiveHost!.WithinLayoutIfDisabled;
+            set => _reactiveHost!.WithinLayoutIfDisabled = value;
         }
 
         protected virtual float? DesiredHeight => null;
         protected virtual float? DesiredWidth => null;
 
-        public event Action? ModifierUpdatedEvent;
-
-        private ILayoutModifier _modifier = new RectModifier();
-
-        protected void RefreshLayout() {
-            HandleModifierUpdated();
+        public event Action? ModifierUpdatedEvent {
+            add => Host.ModifierUpdatedEvent += value;
+            remove => Host.ModifierUpdatedEvent -= value;
         }
 
-        private void RefreshRectModifier() {
-            if (LayoutModifier is not RectModifier rectModifier) return;
-            ContentTransform.anchorMin = rectModifier.AnchorMin;
-            ContentTransform.anchorMax = rectModifier.AnchorMax;
-            if (rectModifier.SizeDelta != null) {
-                ContentTransform.sizeDelta = rectModifier.SizeDelta.Value;
-            }
-        }
+        bool IEquatable<ILayoutItem>.Equals(ILayoutItem other) => ((ILayoutItem)Host).Equals(other);
 
-        private void HandleModifierUpdated() {
-            ContentTransform.pivot = LayoutModifier.Pivot;
-            _modifier.ReloadLayoutItem(this);
-            RefreshRectModifier();
-            OnModifierUpdated();
-            ModifierUpdatedEvent?.Invoke();
-        }
+        void ILayoutItem.ApplyTransforms(Action<RectTransform> applicator) => Host.ApplyTransforms(applicator);
+
+        protected void RefreshLayout() => Host.RefreshLayout();
 
         #endregion
 
@@ -433,6 +344,13 @@ namespace BeatLeader.UI.Reactive {
             _reactiveHost!.StopCoroutine(coroutine);
         }
 
+        /// <summary>
+        /// Stops all coroutines on the <see cref="ReactiveHost"/> instance.
+        /// </summary>
+        protected void StopAllCoroutines() {
+            _reactiveHost!.StopAllCoroutines();
+        }
+
         #endregion
 
         #region Construct
@@ -452,11 +370,12 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
+        private ReactiveHost Host => _reactiveHost ?? throw new UninitializedComponentException();
+
         private Canvas? _canvas;
         private GameObject? _content;
         private RectTransform? _contentTransform;
         private ReactiveHost? _reactiveHost;
-        private bool _needToStartManually;
 
         /// <summary>
         /// Constructs and reparents the component if needed
@@ -465,6 +384,7 @@ namespace BeatLeader.UI.Reactive {
             ValidateExternalInteraction();
             if (!IsInitialized) ConstructAndInit();
             ContentTransform.SetParent(parent, false);
+            if (parent == null) LayoutDriver = null;
             return Content;
         }
 
@@ -472,7 +392,6 @@ namespace BeatLeader.UI.Reactive {
             _observableHost = new(this);
             ConstructInternal();
             OnInitialize();
-            if (_needToStartManually) OnStart();
         }
 
         protected virtual void ConstructInternal() {
@@ -483,19 +402,9 @@ namespace BeatLeader.UI.Reactive {
             _content.name = GetType().Name;
             _contentTransform = _content.GetOrAddComponent<RectTransform>();
 
-            var host = _content.GetComponent<ReactiveHost>();
-            if (host != null && !host.IsDestroyed) {
-                if (host.IsStarted) {
-                    _needToStartManually = true;
-                }
-            } else {
-                if (host != null) Object.Destroy(host);
-                host = _content.AddComponent<ReactiveHost>();
-            }
-
-            _reactiveHost = host;
-            _reactiveHost.components.Add(this);
+            _reactiveHost = _content.GetOrAddComponent<ReactiveHost>();
             IsInitialized = true;
+            _reactiveHost.AddComponent(this);
         }
 
         private void ValidateExternalInteraction() {
@@ -523,8 +432,7 @@ namespace BeatLeader.UI.Reactive {
             DestroyInternal();
         }
 
-        protected virtual void DestroyInternal() {
-            _reactiveHost!.components.Remove(this);
+        private void DestroyInternal() {
             IsDestroyed = true;
             OnDestroy();
         }
@@ -541,7 +449,8 @@ namespace BeatLeader.UI.Reactive {
         protected virtual void OnEnable() { }
         protected virtual void OnDisable() { }
         protected virtual void OnRectDimensionsChanged() { }
-        protected virtual void OnModifierUpdated() { }
+        protected virtual void OnLayoutRefresh() { }
+        protected virtual void OnLayoutApply() { }
 
         #endregion
     }

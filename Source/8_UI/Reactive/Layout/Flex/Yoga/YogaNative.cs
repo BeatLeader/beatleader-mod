@@ -18,7 +18,7 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public unsafe delegate void YGLoggerDelegate(char* message, YGLogLevel logLevel);
-        
+
         [DllImport(YogaDllName, EntryPoint = "YGBindingsSetLogger")]
         public static extern void YGBindingsSetLogger(YGLoggerDelegate callback);
 
@@ -31,9 +31,9 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         [DllImport(YogaDllName, EntryPoint = "YGConfigSetPointScaleFactor")]
         public static extern void YGConfigSetPointScaleFactor(IntPtr ptr, float factor);
-        
+
         #endregion
-        
+
         #region YGNode
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeNew")]
@@ -73,10 +73,10 @@ namespace BeatLeader.UI.Reactive.Yoga {
         #endregion
 
         #region YGNodeStyle
-        
+
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetOverflow")]
         public static extern void YGNodeStyleSetOverflow(IntPtr node, Overflow overflow);
-        
+
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetDirection")]
         public static extern void YGNodeStyleSetDirection(IntPtr node, Direction direction);
 
@@ -137,6 +137,9 @@ namespace BeatLeader.UI.Reactive.Yoga {
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetPaddingPercent")]
         public static extern void YGNodeStyleSetPaddingPercent(IntPtr node, Edge edge, float padding);
 
+        [DllImport(YogaDllName, EntryPoint = "YGNodeStyleGetWidth")]
+        public static extern YogaValue YGNodeStyleGetWidth(IntPtr node);
+
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetWidth")]
         public static extern void YGNodeStyleSetWidth(IntPtr node, float width);
 
@@ -145,6 +148,9 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetWidthAuto")]
         public static extern void YGNodeStyleSetWidthAuto(IntPtr node);
+
+        [DllImport(YogaDllName, EntryPoint = "YGNodeStyleGetHeight")]
+        public static extern YogaValue YGNodeStyleGetHeight(IntPtr node);
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetHeight")]
         public static extern void YGNodeStyleSetHeight(IntPtr node, float height);
@@ -178,15 +184,21 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetMaxHeightPercent")]
         public static extern void YGNodeStyleSetMaxHeightPercent(IntPtr node, float maxHeight);
-        
+
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetGap")]
         public static extern void YGNodeStyleSetGap(IntPtr node, Gutter gutter, float gap);
-        
+
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetGapPercent")]
         public static extern void YGNodeStyleSetGapPercent(IntPtr node, Gutter gutter, float gap);
 
         [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetAspectRatio")]
         public static extern void YGNodeStyleSetAspectRatio(IntPtr node, float aspectRatio);
+
+        [DllImport(YogaDllName, EntryPoint = "YGNodeStyleSetDisplay")]
+        public static extern void YGNodeStyleSetDisplay(IntPtr node, Display display);
+
+        [DllImport(YogaDllName, EntryPoint = "YGNodeStyleGetDisplay")]
+        public static extern Display YGNodeStyleGetDisplay(IntPtr node);
 
         #endregion
     }

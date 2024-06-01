@@ -42,14 +42,14 @@ namespace BeatLeader.UI.Reactive.Components {
     /// <typeparam name="TItem">Data type</typeparam>
     /// <typeparam name="TCellComponent">Cell component type</typeparam>
     internal abstract class ReactiveListComponentBase<TItem, TCellComponent> : ListComponentBase<TItem>
-        where TCellComponent : ReactiveComponentBase, IReactiveTableCell<TItem>, new() {
+        where TCellComponent : IReactiveComponent, IReactiveTableCell<TItem>, new() {
         
         #region ConstructCell
 
         protected sealed override ListComponentBaseCell ConstructCell(TItem data) {
             if (DequeueReusableCell("ReeCell") is not ReactiveListComponentBaseCell cell) {
                 var reactive = new TCellComponent();
-                reactive.Use();
+                reactive.Use(null);
                 cell = reactive.Content.AddComponent<ReactiveListComponentBaseCell>();
                 cell.cellComponent = reactive;
                 cell.reuseIdentifier = "ReeCell";

@@ -1,12 +1,7 @@
 using System;
-using System.Linq;
+using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
-using Object = UnityEngine.Object;
-using UButton = UnityEngine.UI.Button;
-using UImage = UnityEngine.UI.Image;
 
 namespace BeatLeader.UI.Reactive.Components {
     /// <summary>
@@ -37,78 +32,113 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Impl
 
         float IScrollbar.PageHeight {
-            set => _scrollIndicator.normalizedPageHeight = value;
+            set {
+                _normalizedPageHeight = Mathf.Clamp01(value);
+                RefreshHandle();
+            }
         }
 
         float IScrollbar.Progress {
-            set => _scrollIndicator.progress = value;
+            set {
+                _progress = Mathf.Clamp01(value);
+                RefreshHandle();
+            }
         }
 
         bool IScrollbar.CanScrollUp {
-            set => _upButton.interactable = value;
+            set => _upButton.Interactable = value;
         }
 
         bool IScrollbar.CanScrollDown {
-            set => _downButton.interactable = value;
+            set => _downButton.Interactable = value;
         }
 
-        public void SetActive(bool active) {
-            Content!.SetActive(active);
+        void IScrollbar.SetActive(bool active) {
+            Enabled = active;
         }
 
         #endregion
 
-        #region Setup
+        #region Handle
 
-        private static Transform? _prefab;
+        private float _padding = 0.25f;
+        private float _progress;
+        private float _normalizedPageHeight = 1f;
 
-        private RectTransform _scrollbarRect = null!;
-        private VerticalScrollIndicator _scrollIndicator = null!;
-        private UButton _upButton = null!;
-        private UButton _downButton = null!;
+        private void RefreshHandle() {
+            var num = _handleContainerRect.rect.size.y - 2f * _padding;
+            _handleRect.sizeDelta = new Vector2(0f, _normalizedPageHeight * num);
+            _handleRect.anchoredPosition = new Vector2(0f, -_progress * (1f - _normalizedPageHeight) * num - _padding);
+        }
 
-        protected override void OnInitialize() {
-            if (!_prefab) {
-                _prefab = Resources.FindObjectsOfTypeAll<VerticalScrollIndicator>()
-                    .FirstOrDefault(x => x.gameObject.activeSelf)?.transform.parent;
+        #endregion
+
+        #region Construct
+
+        private RectTransform _handleContainerRect = null!;
+        private RectTransform _handleRect = null!;
+        private Button _upButton = null!;
+        private Button _downButton = null!;
+
+        protected override GameObject Construct() {
+            static ImageButton CreateButton(float rotation) {
+                return new ImageButton {
+                    ContentTransform = {
+                        localEulerAngles = new(0f, 0f, rotation),
+                        localScale = Vector3.one * 1.2f
+                    },
+                    Image = {
+                        Sprite = GameResources.Sprites.ArrowIcon,
+                        PreserveAspect = true,
+                        Material = GameResources.UINoGlowMaterial
+                    },
+                    HoverLerpMul = float.MaxValue,
+                    HoverScaleSum = Vector3.one * 0.2f,
+                    Color = Color.white.ColorWithAlpha(0.5f),
+                    HoverColor = Color.white,
+                    DisabledColor = Color.black.ColorWithAlpha(0.5f)
+                }.AsFlexItem(basis: 4f);
             }
             
-            var instance = Object.Instantiate(_prefab, ContentTransform);
-            _scrollbarRect = (RectTransform)instance!;
-            _scrollbarRect.anchorMin = Vector2.zero;
-            _scrollbarRect.anchorMax = Vector2.one;
-            _scrollbarRect.sizeDelta = Vector2.zero;
-            _scrollIndicator = instance!.GetComponentInChildren<VerticalScrollIndicator>();
-            _scrollIndicator.GetComponent<UImage>().enabled = true;
-
-            var buttons = instance.GetComponentsInChildren<UButton>();
-            _upButton = buttons.First(x => x.name == "UpButton");
-            HandleButton(_upButton, HandleUpButtonClicked);
-            _downButton = buttons.First(x => x.name == "DownButton");
-            HandleButton(_downButton, HandleDownButtonClicked);
-
-            static void HandleButton(UButton button, UnityAction action) {
-                button.navigation = new Navigation { mode = Navigation.Mode.None };
-                button.onClick.AddListener(action);
-                EnableAllComponents(button.gameObject);
-                var rect = (RectTransform)button.transform;
-                rect.anchorMin = new(0.5f, 0);
-                
-                var anchorMax = rect.anchorMax;
-                rect.anchorMax = new(0.5f, anchorMax.y);
-                
-                var pos = rect.localPosition;
-                rect.localPosition = new(2f, pos.y);
-                
-                var size = rect.sizeDelta;
-                rect.sizeDelta = new(4f, size.y);
-            }
+            return new Dummy {
+                Children = {
+                    //up button
+                    CreateButton(180f)
+                        .WithClickListener(HandleUpButtonClicked)
+                        .Bind(ref _upButton),
+                    //handle container
+                    new Image {
+                        Sprite = BundleLoader.Sprites.background,
+                        PixelsPerUnit = 20f,
+                        Color = Color.black.ColorWithAlpha(0.5f),
+                        Children = {
+                            //handle
+                            new Image {
+                                ContentTransform = {
+                                    anchorMin = new(0f, 1f),
+                                    anchorMax = new(1f, 1f),
+                                    pivot = new(0.5f, 1f)
+                                },
+                                Sprite = GameResources.Sprites.VerticalRoundRect,
+                                Color = Color.white.ColorWithAlpha(0.5f),
+                                ImageType = UnityEngine.UI.Image.Type.Sliced
+                            }.Bind(ref _handleRect)
+                        }
+                    }.AsFlexItem(
+                        grow: 1f,
+                        margin: new() { left = "15%", right = "15%" }
+                    ).Bind(ref _handleContainerRect),
+                    //down button
+                    CreateButton(0f)
+                        .WithClickListener(HandleDownButtonClicked)
+                        .Bind(ref _downButton)
+                }
+            }.AsFlexGroup(FlexDirection.Column).Use();
         }
-        
-        private static void EnableAllComponents(GameObject go) {
-            foreach (var item in go.GetComponents<Behaviour>()) {
-                item.enabled = true;
-            }
+
+        protected override void OnInitialize() {
+            WithinLayoutIfDisabled = true;
+            RefreshHandle();
         }
 
         #endregion

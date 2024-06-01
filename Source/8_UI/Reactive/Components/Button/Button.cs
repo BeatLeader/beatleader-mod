@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Button : DrivingReactiveComponent, IAnimationProgressProvider {
+    internal class Button : DrivingReactiveComponent, IAnimationProgressProvider, IGraphicComponent {
         #region Events
 
         public event Action? ClickEvent;
@@ -14,6 +14,14 @@ namespace BeatLeader.UI.Reactive.Components {
         #endregion
 
         #region UI Properties
+
+        public bool RaycastTarget {
+            get => _button.enabled;
+            set {
+                _button.enabled = value;
+                _hoverController.enabled = value;
+            }
+        }
 
         public bool Interactable {
             get => _button.interactable;
@@ -79,7 +87,7 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        float IAnimationProgressProvider.AnimationProgress => _hoverController.Progress;
+        public float AnimationProgress => _hoverController.Progress;
 
         private bool _sticky;
         private bool _growOnHover = true;
@@ -98,7 +106,10 @@ namespace BeatLeader.UI.Reactive.Components {
         /// <param name="notifyListeners">Determines should event be invoked or not</param>
         public void Click(bool state = false, bool notifyListeners = false) {
             if (!Interactable) return;
-            if (Sticky) _buttonActive = !state;
+            if (Sticky) {
+                if (state == _buttonActive) return;
+                _buttonActive = !state;
+            }
             ProcessButtonClick(notifyListeners);
         }
 
@@ -145,11 +156,12 @@ namespace BeatLeader.UI.Reactive.Components {
         private void OnHoverStateChanged(bool isHovered, float progress) {
             if (_growOnHover) ContentTransform.localScale = BaseScale + HoverScaleSum * progress;
             OnHoverProgressChange(progress);
-            NotifyPropertyChanged("AnimationProgress");
+            NotifyPropertyChanged(nameof(AnimationProgress));
         }
 
         private void OnButtonClick() {
             ProcessButtonClick(true);
+            GameResources.ClickSignal.Raise();
         }
 
         #endregion

@@ -217,7 +217,7 @@ namespace BeatLeader {
 
         [UsedImplicitly] public static Sprite WhiteFrame;
 
-        [UsedImplicitly] public static Sprite WhiteBG;
+        [UsedImplicitly, Obsolete] public static Sprite WhiteBG;
 
         [UsedImplicitly] public static Sprite DefaultAvatar;
 
@@ -247,6 +247,8 @@ namespace BeatLeader {
         
         [UsedImplicitly] public static Sprite AlphaIcon;
 
+        public static SpriteCollection Sprites;
+        
         private static List<Sprite> _loadedSprites = null!;
 
         public static Sprite? GetSpriteFromBundle(string name) {
@@ -329,6 +331,7 @@ namespace BeatLeader {
             AvatarIcon = assetBundle.LoadAsset<Sprite>("BL_AvatarIcon");
             
             HubIcon = assetBundle.LoadAsset<Sprite>("BL_HubIcon");
+            Sprites = assetBundle.LoadAsset<SpriteCollection>("SpriteCollection");
 
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }

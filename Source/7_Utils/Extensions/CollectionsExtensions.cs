@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BeatLeader.Utils {
     public static class CollectionsExtension {
@@ -11,15 +12,13 @@ namespace BeatLeader.Utils {
             }
             return null;
         }
-        
-        public static T[] TakeIndexes<T>(this IReadOnlyList<T> collection, ICollection<int> indexes) {
-            var arr = new T[indexes.Count];
-            var offset = 0;
-            foreach (var index in indexes) {
-                arr[offset] = collection[index];
-                offset++;
-            }
-            return arr;
+
+        public static void RemoveValue<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TValue value
+        ) {
+            var item = dictionary.First(x => x.Value?.Equals(value) ?? false);
+            dictionary.Remove(item.Key);
         }
 
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) {
@@ -29,7 +28,7 @@ namespace BeatLeader.Utils {
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action) {
             foreach (var item in enumerable) action(item);
         }
-        
+
         public static void ForEach<T, K>(this IDictionary<T, K> enumerable, Action<T, K> action) {
             foreach (var item in enumerable) action(item.Key, item.Value);
         }

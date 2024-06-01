@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Image : DrivingReactiveComponent {
+    internal class Image : DrivingReactiveComponent, ISkewedComponent {
         public Sprite? Sprite {
             get => _image.sprite;
             set {
@@ -82,6 +82,11 @@ namespace BeatLeader.UI.Reactive.Components {
                 _image.pixelsPerUnitMultiplier = value;
                 NotifyPropertyChanged();
             }
+        }
+
+        public float Skew {
+            get => _image.Skew;
+            set => _image.Skew = value;
         }
 
         private FixedImageView _image = null!;

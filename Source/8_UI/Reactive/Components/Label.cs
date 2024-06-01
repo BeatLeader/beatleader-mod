@@ -108,6 +108,14 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
+        public bool RaycastTarget {
+            get => _text.raycastTarget;
+            set {
+                _text.raycastTarget = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         protected override float? DesiredHeight => _text.preferredHeight;
         protected override float? DesiredWidth => _text.preferredWidth;
 
@@ -120,6 +128,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
+            FontSize = 4f;
             Alignment = TextAlignmentOptions.Center;
             EnableWrapping = false;
         }

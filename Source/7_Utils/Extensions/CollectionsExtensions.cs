@@ -13,6 +13,14 @@ namespace BeatLeader.Utils {
             return null;
         }
 
+        public static IEnumerable<T> TakeIndexes<T>(this IList<T> collection, IEnumerable<int> indexes) {
+            return indexes.Select(index => collection[index]);
+        }
+
+        public static IEnumerable<T> TakeIndexes<T>(this IEnumerable<T> collection, IEnumerable<int> indexes) {
+            return indexes.Select(collection.ElementAt);
+        }
+
         public static void RemoveValue<TKey, TValue>(
             this IDictionary<TKey, TValue> dictionary,
             TValue value
@@ -28,7 +36,7 @@ namespace BeatLeader.Utils {
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action) {
             foreach (var item in enumerable) action(item);
         }
-
+        
         public static void ForEach<T, K>(this IDictionary<T, K> enumerable, Action<T, K> action) {
             foreach (var item in enumerable) action(item.Key, item.Value);
         }

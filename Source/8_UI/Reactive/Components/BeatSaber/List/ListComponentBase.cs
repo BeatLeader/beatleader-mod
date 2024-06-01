@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Tags;
@@ -20,7 +21,7 @@ namespace BeatLeader.UI.Reactive.Components {
         void ScrollTo(int idx, bool animated = true);
 
         void Select(int idx);
-        
+
         /// <summary>
         /// Clears selected cell with the specified index
         /// </summary>
@@ -32,11 +33,13 @@ namespace BeatLeader.UI.Reactive.Components {
     /// Abstraction for lists with value
     /// </summary>
     /// <typeparam name="TItem">Data type</typeparam>
-    internal interface IListComponent<in TItem> : IListComponent {
+    internal interface IListComponent<TItem> : IListComponent {
+        IReadOnlyList<TItem> Items { get; }
+
         void ScrollTo(TItem item, bool animated = true);
 
         void Select(TItem item);
-        
+
         void ClearSelection(TItem item);
     }
 
@@ -45,7 +48,7 @@ namespace BeatLeader.UI.Reactive.Components {
     /// </summary>
     /// <typeparam name="TItem">Data type</typeparam>
     internal interface IModifiableListComponent<TItem> : IListComponent<TItem> {
-        IList<TItem> Items { get; }
+        new IList<TItem> Items { get; }
     }
 
     /// <summary>
@@ -53,6 +56,12 @@ namespace BeatLeader.UI.Reactive.Components {
     /// </summary>
     internal abstract class ListComponentBaseCell : TableCell {
         public event Action? LateSelectionDidChangeEvent;
+
+        private new void Start() {
+            if (GetComponent<Graphic>() == null) {
+                gameObject.AddComponent<Touchable>();
+            }
+        }
 
         protected sealed override void InternalToggle() {
             base.InternalToggle();
@@ -64,10 +73,19 @@ namespace BeatLeader.UI.Reactive.Components {
     /// Universal ReactiveComponent base for lists
     /// </summary>
     /// <typeparam name="TItem">Data type</typeparam>
-    internal abstract class ListComponentBase<TItem> : ReactiveComponent, TableView.IDataSource, IModifiableListComponent<TItem> {
+    internal abstract class ListComponentBase<TItem> : ReactiveComponent,
+        TableView.IDataSource,
+        IModifiableListComponent<TItem>,
+        IFilteringListComponent<TItem> {
         #region Events
-        
+
         public event Action<ICollection<int>>? ItemsWithIndexesSelectedEvent;
+
+        private void NotifySelectedItemsChanged(ICollection<int> items) {
+            ItemsWithIndexesSelectedEvent?.Invoke(items);
+            NotifyPropertyChanged(nameof(SelectedItemsIndexes));
+            NotifyPropertyChanged(nameof(SelectedItems));
+        }
 
         #endregion
 
@@ -75,11 +93,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         float TableView.IDataSource.CellSize() => CellSize;
 
-        int TableView.IDataSource.NumberOfCells() => Items.Count;
+        int TableView.IDataSource.NumberOfCells() => VisibleItems.Count;
 
         TableCell TableView.IDataSource.CellForIdx(TableView tableView, int idx) {
             //since TableView does not notify us when cells are unselected, we need to do it in that hacky-wacky way
-            var cell = ConstructCell(Items[idx]);
+            var cell = ConstructCell(VisibleItems[idx]);
             cell.LateSelectionDidChangeEvent -= HandleLateSelectionChanged;
             cell.LateSelectionDidChangeEvent += HandleLateSelectionChanged;
             return cell;
@@ -87,10 +105,53 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #endregion
 
+        #region Filtering
+
+        public IListFilter<TItem>? Filter {
+            get => _filter;
+            set {
+                if (_filter != null) {
+                    _filter.FilterUpdatedEvent -= HandleFilterUpdated;
+                }
+                _filter = value;
+                if (_filter != null) {
+                    _filter.FilterUpdatedEvent += HandleFilterUpdated;
+                }
+            }
+        }
+
+        public IReadOnlyList<TItem> VisibleItems => _visibleItems;
+
+        private readonly List<TItem> _visibleItems = new();
+        private IListFilter<TItem>? _filter;
+
+        private void HandleFilterUpdated() {
+            Refresh();
+        }
+
+        //TODO: optimize using chunked filtering
+        private void RefreshFilter() {
+            _visibleItems.Clear();
+            if (_filter == null) {
+                _visibleItems.AddRange(Items);
+                return;
+            }
+            foreach (var item in Items) {
+                if (!_filter.Matches(item)) continue;
+                _visibleItems.Add(item);
+                OnItemMatched(item);
+            }
+        }
+
+        protected virtual void OnItemMatched(TItem item) { }
+
+        #endregion
+
         #region ModifiableListComponent
 
         IList<TItem> IModifiableListComponent<TItem>.Items => Items;
-        
+        IReadOnlyList<TItem> IListComponent<TItem>.Items => Items;
+
         public void ScrollTo(TItem item, bool animated = true) {
             var idx = FindItemIndex(item);
             if (idx is -1) return;
@@ -100,7 +161,7 @@ namespace BeatLeader.UI.Reactive.Components {
         public void Select(TItem item) {
             Select(FindItemIndex(item));
         }
-        
+
         public void ClearSelection(TItem item) {
             var idx = -1;
             if (CellSelectionType is TableViewSelectionType.Multiple) {
@@ -128,12 +189,9 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region TableView
 
-        protected TableViewSelectionType CellSelectionType {
-            get => _tableView.selectionType;
-            set => _tableView.selectionType = value;
-        }
-
         public List<TItem> Items { get; } = new();
+        public IEnumerable<TItem> SelectedItems => Items.TakeIndexes(SelectedItemsIndexes);
+        public IReadOnlyCollection<int> SelectedItemsIndexes => _selectedCellIndexes;
 
         public void ScrollTo(int idx, bool animated = true) {
             _tableView.ScrollToCellWithIdx(idx, TableView.ScrollPositionType.Center, animated);
@@ -141,23 +199,27 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public void Refresh(bool clearSelection = true) {
             OnEarlyRefresh();
+            RefreshFilter();
             if (clearSelection) {
                 ClearSelectionInternal(-1);
                 _tableView.ReloadData();
             } else _tableView.ReloadDataKeepingPosition();
-            ShowEmptyScreen(Items.Count is 0);
+            ShowEmptyScreen(VisibleItems.Count is 0);
             OnRefresh();
-            if (clearSelection) ItemsWithIndexesSelectedEvent?.Invoke(Array.Empty<int>());
+            if (clearSelection) {
+                NotifySelectedItemsChanged(Array.Empty<int>());
+            }
         }
 
         public void Select(int idx) {
             //TODO: reimplement since it clears other selected cells
-            _tableView.SelectCellWithIdx(idx);
+            _tableView.SelectCellWithIdx(idx, true);
         }
-        
+
         public void ClearSelection(int idx = -1) {
             ClearSelectionInternal(idx);
             Refresh(false);
+            NotifySelectedItemsChanged(Array.Empty<int>());
         }
 
         protected TableCell? DequeueReusableCell(string identifier) {
@@ -165,7 +227,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void ClearSelectionInternal(int idx) {
-            if (Items.Count is 0 || CellSelectionType is TableViewSelectionType.None) return;
+            if (CellSelectionType is TableViewSelectionType.None) return;
             if (idx is not -1 && CellSelectionType is TableViewSelectionType.Multiple) _selectedCellIndexes.Remove(idx);
             else _tableView.ClearSelection();
         }
@@ -179,6 +241,8 @@ namespace BeatLeader.UI.Reactive.Components {
         #endregion
 
         #region Abstraction
+
+        protected virtual TableViewSelectionType CellSelectionType => TableViewSelectionType.Single;
 
         protected virtual ScrollView.ScrollViewDirection ScrollDirection => ScrollView.ScrollViewDirection.Vertical;
 
@@ -195,7 +259,7 @@ namespace BeatLeader.UI.Reactive.Components {
         #endregion
 
         #region Scrollbar
-        
+
         public IScrollbar? Scrollbar {
             get => _scrollbar;
             set {
@@ -265,14 +329,15 @@ namespace BeatLeader.UI.Reactive.Components {
                 FontSize = 3.2f,
                 Text = EmptyText,
                 Alignment = TextAlignmentOptions.Center,
-                FontSizeMin = 1,
-                FontSizeMax = 5,
-                EnableAutoSizing = true,
-                EnableWrapping = false
-            }.Use(rect);
+                FontSizeMin = 2f,
+                FontSizeMax = 5f,
+                EnableWrapping = true,
+                EnableAutoSizing = true
+            }.WithRectExpand().Use(rect);
 
             _tableView = tableData.tableView;
             _tableView.SetDataSource(this, true);
+            _tableView.selectionType = CellSelectionType;
             Object.Destroy(tableData);
 
             //TODO: asm pub; pub ver:
@@ -295,10 +360,13 @@ namespace BeatLeader.UI.Reactive.Components {
             _scrollView.SetField("_scrollViewDirection", ScrollDirection);
             _scrollView.scrollPositionChangedEvent += UpdateScrollbar;
 
-            _tableView.SetField("_tableType", ScrollDirection switch {
-                ScrollView.ScrollViewDirection.Horizontal => TableView.TableType.Horizontal,
-                _ => TableView.TableType.Vertical
-            });
+            _tableView.SetField(
+                "_tableType",
+                ScrollDirection switch {
+                    ScrollView.ScrollViewDirection.Horizontal => TableView.TableType.Horizontal,
+                    _ => TableView.TableType.Vertical
+                }
+            );
             _selectedCellIndexes = _tableView.GetField<HashSet<int>, TableView>("_selectedCellIdxs");
             _tableView.gameObject.SetActive(true);
             ShowEmptyScreen(true);
@@ -309,7 +377,7 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Callbacks
 
         private void HandleLateSelectionChanged() {
-            ItemsWithIndexesSelectedEvent?.Invoke(_selectedCellIndexes);
+            NotifySelectedItemsChanged(_selectedCellIndexes);
         }
 
         #endregion

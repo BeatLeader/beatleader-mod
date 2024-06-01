@@ -15,6 +15,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region BeatLeaderServer
+
+        public const BeatLeaderServer MainServer = BeatLeaderServer.XYZ_DOMAIN;
+
+        #endregion
+
         #region ScoresContext
 
         public static readonly ScoresContext ScoresContext = ScoresContext.Modifiers;

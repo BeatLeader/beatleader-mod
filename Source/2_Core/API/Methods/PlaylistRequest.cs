@@ -6,7 +6,7 @@ using BeatLeader.Utils;
 namespace BeatLeader.API.Methods {
     internal static class PlaylistRequest {
         // /playlist/{playlistId}
-        private const string Endpoint = BLConstants.BEATLEADER_API_URL + "/playlist/{0}";
+        private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/playlist/{0}";
 
         public static IEnumerator SendRequest(string playlistId, Action<byte[]> onSuccess, Action<string> onFail) {
             var url = string.Format(Endpoint, playlistId);

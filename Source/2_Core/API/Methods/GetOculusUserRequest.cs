@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 namespace BeatLeader.API.Methods {
     internal static class GetOculusUserRequest {
         // /oculususer
-        private const string Endpoint = BLConstants.BEATLEADER_API_URL + "/oculususer";
+        private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/oculususer";
 
         public static IEnumerator SendRequest(Action<OculusUserInfo> onSuccess, Action<string> onFail) {
             var ticketTask = Authentication.PlatformTicket();

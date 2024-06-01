@@ -1,5 +1,7 @@
-﻿namespace BeatLeader.Utils {
-    internal static class BLConstants {
+﻿using BeatLeader.Models;
+
+namespace BeatLeader.Utils {
+    public static class BLConstants {
         #region HTTP Status codes
 
         public const int MaintenanceStatus = 503;
@@ -10,18 +12,18 @@
 
         #region Basic links
 
-        public const string BEATLEADER_API_URL = "https://api.beatleader.xyz";
-        
-        public const string BEATLEADER_WEBSITE_URL = "https://beatleader.xyz";
+        public static string BEATLEADER_API_URL => PluginConfig.MainServer.GetAPIUrl();
+
+        public static string BEATLEADER_WEBSITE_URL => PluginConfig.MainServer.GetWebsiteUrl();
 
         #endregion
 
         #region Signin
-        
-        public const string SIGNIN_WITH_TICKET = //  /signin
+
+        internal static string SIGNIN_WITH_TICKET => //  /signin
             BEATLEADER_API_URL + "/signin";
 
-        public const string OCULUS_PC_SIGNIN = // /signin?action=oculuspc&token={user_id}
+        internal static string OCULUS_PC_SIGNIN => // /signin?action=oculuspc&token={user_id}
             BEATLEADER_WEBSITE_URL + "/signin/oculuspc?token={0}";
 
         #endregion
@@ -31,11 +33,11 @@
         public static string LeaderboardPage(string leaderboardId) {
             return $"{BEATLEADER_WEBSITE_URL}/leaderboard/global/{leaderboardId}";
         }
-        
+
         public static string PlayerProfilePage(string playerId) {
             return $"{BEATLEADER_WEBSITE_URL}/u/{playerId}";
         }
-        
+
         #endregion
 
         internal static class Param {

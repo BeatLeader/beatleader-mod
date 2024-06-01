@@ -16,13 +16,20 @@
       </horizontal>
     </vertical>
   </modal>
-  <QuickMiniProfile
-    id="mini-profile"
+  <horizontal
     Width="50" Height="18"
-    InehritHeight="false"
+    InehritHeight="False"
     InheritWidth="false"
-    Pad="1"
-  />
+  >
+    <QuickMiniProfile
+      id="mini-profile"
+      Width="47"
+      InehritHeight="True"
+      InheritWidth="false"
+      Pad="1"
+    />
+    <button id="tags-button" text="T" on-click="tags-button-click"/>
+  </horizontal>
   <vertical pref-width="50" pad-top="2" pad-bottom="2"
             vertical-fit="PreferredSize">
     <macro.as-host host="replay-info-panel">

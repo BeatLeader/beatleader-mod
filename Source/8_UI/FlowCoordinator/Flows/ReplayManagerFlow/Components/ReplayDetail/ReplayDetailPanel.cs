@@ -4,11 +4,14 @@ using BeatLeader.Components;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 using static BeatLeader.Models.FileStatus;
+using ModalSystemHelper = BeatLeader.UI.Reactive.Components.ModalSystemHelper;
 
 namespace BeatLeader.UI.Hub {
     //TODO: rewrite beatmap downloading (BEFORE MERGING!)
@@ -71,11 +74,11 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         private ReplayerMenuLoader? _replayerMenuLoader;
-        
+
         public void Setup(ReplayerMenuLoader menuLoader) {
             _replayerMenuLoader = menuLoader;
         }
-        
+
         void BeatmapReplayLaunchPanel.IDetailPanel.Setup(IBeatmapReplayLaunchPanel? launchPanel, Transform? parent) {
             _beatmapReplayLaunchPanel = launchPanel;
             ContentTransform.SetParent(parent, false);
@@ -90,6 +93,11 @@ namespace BeatLeader.UI.Hub {
 
             _downloadBeatmapPanel.BackButtonClickedEvent += HandleDownloadMenuBackButtonClicked;
             _downloadBeatmapPanel.DownloadAbilityChangedEvent += HandleDownloadAbilityChangedEvent;
+
+            _tagSelector = new();
+            _tagSelector.Component.SelectedTagAddedEvent += x => _header?.ReplayMetadata.Tags.Add(x);
+            _tagSelector.Component.SelectedTagRemovedEvent += x => _header?.ReplayMetadata.Tags.Remove(x);
+            _tagSelector.Component.Setup(ReplayMetadataManager.Instance);
 
             SetDownloadPanelActive(false);
         }
@@ -134,6 +142,11 @@ namespace BeatLeader.UI.Hub {
             var invalid = header is null || header.FileStatus is Corrupted;
             _replayStatisticsPanel.SetData(null, null, invalid, header is null);
             _header = header;
+            if (_header != null) {
+                _tagSelector.Component.SelectFromMetadata(_header.ReplayMetadata);
+            } else {
+                _tagSelector.Component.ClearSelectedTags();
+            }
             DeleteButtonInteractable = header is not null;
             WatchButtonInteractable = false;
             if (!invalid) {
@@ -166,7 +179,10 @@ namespace BeatLeader.UI.Hub {
 
         private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
             var beatmap = await _replayerMenuLoader!.LoadBeatmapAsync(
-                info.SongHash, info.SongMode, info.SongDifficulty, token
+                info.SongHash,
+                info.SongMode,
+                info.SongDifficulty,
+                token
             );
             if (token.IsCancellationRequested) return;
             var invalid = beatmap is null;
@@ -181,6 +197,11 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
+        [UIComponent("tags-button")]
+        private RectTransform _tagsButton = null!;
+
+        private Modal<TagSelector> _tagSelector = null!;
+
         private void HandleDownloadAbilityChangedEvent(bool ableToDownload) {
             WatchButtonInteractable = ableToDownload;
         }
@@ -189,6 +210,18 @@ namespace BeatLeader.UI.Hub {
             SetDownloadPanelActive(false);
             _isIntoDownloadMenu = false;
             _ = RefreshAvailabilityAsync(_header!.ReplayInfo!, _cancellationTokenSource.Token);
+        }
+
+        [UIAction("tags-button-click"), UsedImplicitly]
+        private void HandleTagsButtonClicked() {
+            //TODO: temporary solution until replay detail migration
+            ModalSystemHelper.OpenModalRelatively(
+                _tagSelector,
+                ContentTransform,
+                _tagsButton,
+                ModalSystemHelper.RelativePlacement.BottomRight,
+                shadowSettings: new()
+            );
         }
 
         [UIAction("delete-button-click"), UsedImplicitly]

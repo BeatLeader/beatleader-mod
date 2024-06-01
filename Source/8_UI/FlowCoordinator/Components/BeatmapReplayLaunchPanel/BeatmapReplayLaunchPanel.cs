@@ -56,7 +56,7 @@ namespace BeatLeader.UI.Hub {
 
         IReadOnlyCollection<IReplayHeaderBase> IBeatmapReplayLaunchPanel.SelectedReplays => ReplaysList.highlightedItems;
 
-        private ReplaysList ReplaysList => _replaysListPanel.ReplaysList;
+        public ReplaysList ReplaysList => _replaysListPanel.ReplaysList;
 
         public event Action<IReplayHeaderBase>? ReplaySelectedEvent;
         public event Action<IReplayHeaderBase>? ReplayDeselectedEvent;
@@ -130,8 +130,8 @@ namespace BeatLeader.UI.Hub {
         #region ReplayFilter
 
         public IReplayFilter? ReplayFilter {
-            get => _replaysListPanel.Filter;
-            set => _replaysListPanel.Filter = value;
+            get => null;
+            set { }
         }
 
         #endregion
@@ -164,7 +164,7 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
             var index = items.First();
-            _detailPanel?.SetData(_replaysListPanel.ReplaysList.Items[index]);
+            _detailPanel?.SetData(_replaysListPanel.ReplaysList.VisibleItems[index]);
         }
 
         private void HandleReplaysLoadStarted() {

@@ -1,8 +1,0 @@
-<vertical>
-  <vertical pref-width="80">
-    <macro.as-host host="search-filters-panel">
-      <macro.reparent transform="ui-component"/>
-    </macro.as-host>
-  </vertical>
-  <BeatmapReplayLaunchPanel id="replay-launch-panel"/>
-</vertical>

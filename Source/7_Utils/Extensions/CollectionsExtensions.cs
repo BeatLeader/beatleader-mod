@@ -29,6 +29,26 @@ namespace BeatLeader.Utils {
             dictionary.Remove(item.Key);
         }
 
+        public static void EnsureExistsAndDo<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key, TValue value, Action<TValue> action
+        ) {
+            if (!dictionary.TryGetValue(key, out var oValue)) {
+                dictionary[key] = value;
+                oValue = value;
+            }
+            action(oValue);
+        }
+
+        public static void DoIfExists<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key, Action<TValue> action
+        ) {
+            if (dictionary.TryGetValue(key, out var oValue)) {
+                action(oValue);
+            }
+        }
+
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) {
             return dictionary as Dictionary<TKey, TValue> ?? new(dictionary);
         }
@@ -36,13 +56,17 @@ namespace BeatLeader.Utils {
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action) {
             foreach (var item in enumerable) action(item);
         }
-        
+
         public static void ForEach<T, K>(this IDictionary<T, K> enumerable, Action<T, K> action) {
             foreach (var item in enumerable) action(item.Key, item.Value);
         }
 
         public static void AddRange<T>(this ICollection<T> list, IEnumerable<T> range) {
             foreach (var item in range) list.Add(item);
+        }
+
+        public static void RemoveRange<T>(this ICollection<T> list, IEnumerable<T> range) {
+            foreach (var item in range) list.Remove(item);
         }
 
         public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value) {

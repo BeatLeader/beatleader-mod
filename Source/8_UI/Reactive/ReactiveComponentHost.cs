@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
@@ -38,8 +37,8 @@ namespace BeatLeader.UI.Reactive {
                 }
             }
 
-            public float? DesiredHeight => _components.FirstOrDefault()?.DesiredHeight;
-            public float? DesiredWidth => _components.FirstOrDefault()?.DesiredWidth;
+            public float? DesiredHeight => _components.LastOrDefault()?.DesiredHeight;
+            public float? DesiredWidth => _components.LastOrDefault()?.DesiredWidth;
 
             public bool WithinLayout {
                 get => Enabled || WithinLayoutIfDisabled;

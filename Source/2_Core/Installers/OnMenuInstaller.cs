@@ -1,3 +1,4 @@
+using System;
 using BeatLeader.DataManager;
 using BeatLeader.ViewControllers;
 using BeatLeader.Replayer;
@@ -11,9 +12,14 @@ using Zenject;
 namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnMenuInstaller : Installer<OnMenuInstaller> {
+        internal static new DiContainer Container => _container ?? throw new InvalidOperationException();
+
+        private static DiContainer? _container;
+        
         public override void InstallBindings() {
             Plugin.Log.Debug("OnMenuInstaller");
 
+            _container = base.Container;
             BindLeaderboard();
             BindHub();
             Container.BindInterfacesTo<ReplayManager>().FromInstance(ReplayManager.Instance).AsSingle();

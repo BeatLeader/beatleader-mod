@@ -17,12 +17,13 @@ namespace BeatLeader.UI.Reactive.Components {
             .First(static x => x.name == "RoundRect10Border");
 
         private Image _borderImage = null!;
+        private float _bgAlphaFactor = 1.5f;
 
         protected override void ApplyColor(Color color, float t) {
             Image.GradientColor0 = color;
+            _borderImage.Color = color;
             color.a /= 2f;
             Image.GradientColor1 = color;
-            _borderImage.Color = Color;
         }
 
         protected override void Construct(RectTransform rect) {
@@ -45,8 +46,8 @@ namespace BeatLeader.UI.Reactive.Components {
             HoverLerpMul = 100f;
 
             Image.Material = buttonMaterial;
-            Image.Sprite = BundleLoader.WhiteBG;
-            Image.PixelsPerUnit = 15f;
+            Image.Sprite = GameResources.Sprites.RoundRect;
+            Image.PixelsPerUnit = 0.8f;
             Image.UseGradient = true;
             Image.GradientDirection = ImageView.GradientDirection.Vertical;
         }

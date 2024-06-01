@@ -9,19 +9,22 @@ namespace BeatLeader.Models {
         public GenericReplayHeader(
             IReplayFileManager replayManager,
             string filePath,
-            IReplayInfo? replayInfo
+            IReplayInfo replayInfo,
+            IReplayMetadata metadata
         ) {
             _replayManager = replayManager;
             FilePath = filePath;
             ReplayInfo = replayInfo;
-            _status = replayInfo is null ? FileStatus.Corrupted : FileStatus.Unloaded;
+            ReplayMetadata = metadata;
+            _status = FileStatus.Unloaded;
         }
 
         public GenericReplayHeader(
             IReplayFileManager replayManager,
             string filePath,
-            Replay.Replay replay
-        ) : this(replayManager, filePath, replay.info) {
+            Replay.Replay replay,
+            IReplayMetadata metadata
+        ) : this(replayManager, filePath, replay.info, metadata) {
             _cachedReplay = replay;
             _status = FileStatus.Loaded;
         }
@@ -35,7 +38,8 @@ namespace BeatLeader.Models {
         }
 
         public string FilePath { get; }
-        public IReplayInfo? ReplayInfo { get; private set; }
+        public IReplayInfo ReplayInfo { get; private set; }
+        public IReplayMetadata ReplayMetadata { get; }
 
         public event Action<FileStatus>? StatusChangedEvent;
 

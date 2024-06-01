@@ -64,13 +64,71 @@ namespace BeatLeader.UI.Reactive.Components {
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
         ) where T : Button {
+            return WithLabel(
+                button,
+                out _,
+                text,
+                fontSize,
+                richText,
+                overflow
+            );
+        }
+
+        public static T WithLabel<T>(
+            this T button,
+            out Label label,
+            string text,
+            float fontSize = 4f,
+            bool richText = true,
+            TextOverflowModes overflow = TextOverflowModes.Overflow
+        ) where T : Button {
             button.Children.Add(
                 new Label {
                     Text = text,
                     FontSize = fontSize,
                     RichText = richText,
                     Overflow = overflow
-                }.WithRectExpand()
+                }.WithRectExpand().Export(out label)
+            );
+            return button;
+        }
+
+        public static T WithImage<T>(
+            this T button,
+            Sprite? sprite,
+            Color? color = null,
+            float? pixelsPerUnit = null,
+            UImage.Type type = UImage.Type.Simple,
+            Material? material = null
+        ) where T : Button {
+            return WithImage(
+                button,
+                out _,
+                sprite,
+                color,
+                pixelsPerUnit,
+                type,
+                material
+            );
+        }
+
+        public static T WithImage<T>(
+            this T button,
+            out Image image,
+            Sprite? sprite,
+            Color? color = null,
+            float? pixelsPerUnit = null,
+            UImage.Type type = UImage.Type.Simple,
+            Material? material = null
+        ) where T : Button {
+            button.Children.Add(
+                new Image {
+                    Sprite = sprite,
+                    Material = material,
+                    Color = color ?? Color.white,
+                    PixelsPerUnit = pixelsPerUnit ?? 0f,
+                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced
+                }.WithRectExpand().Export(out image)
             );
             return button;
         }
@@ -120,6 +178,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Color? color = null,
             UImage.Type type = UImage.Type.Sliced,
             float pixelsPerUnit = 10f,
+            float skew = 0f,
             ImageView.GradientDirection? gradientDirection = null,
             Color gradientColor0 = default,
             Color gradientColor1 = default
@@ -132,6 +191,7 @@ namespace BeatLeader.UI.Reactive.Components {
             component.Color = color ?? Color.white;
             component.ImageType = type;
             component.PixelsPerUnit = pixelsPerUnit;
+            component.Skew = skew;
             //applying gradient if needed
             if (gradientDirection.HasValue) {
                 component.UseGradient = true;
@@ -141,6 +201,15 @@ namespace BeatLeader.UI.Reactive.Components {
             }
 
             return component;
+        }
+
+        #endregion
+
+        #region TextArea
+
+        public static T WithItemsText<T>(this T comp, IEnumerable<string> items) where T : TextArea {
+            comp.Text = string.Join(string.Empty, items.Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x}"));
+            return comp;
         }
 
         #endregion

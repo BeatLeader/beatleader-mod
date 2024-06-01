@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 
 namespace BeatLeader.Models {
     public interface IReplayHeaderBase {
-        IReplayInfo? ReplayInfo { get; }
+        IReplayInfo ReplayInfo { get; }
+        IReplayMetadata ReplayMetadata { get; }
         
         //TODO: move to the IReplay abstraction usage
         /// <summary>

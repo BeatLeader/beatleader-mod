@@ -40,6 +40,13 @@ namespace BeatLeader {
 
         #endregion
 
+        #region BeatLeaderServer
+
+        [UseConverter]
+        public BeatLeaderServer MainServer = ConfigDefaults.MainServer;
+
+        #endregion
+
         #region ScoresContext
 
         [UseConverter]

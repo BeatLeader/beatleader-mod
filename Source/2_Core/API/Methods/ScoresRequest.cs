@@ -14,7 +14,7 @@ namespace BeatLeader.API.Methods {
         #region PlayerScores/Page
 
         // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}
-        private const string PlayerScoresPageEndpoint = BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
+        private static string PlayerScoresPageEndpoint => BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
 
         public static void SendPlayerScoresPageRequest(
             string userId,
@@ -40,7 +40,7 @@ namespace BeatLeader.API.Methods {
         #region PlayerScores/Seek
 
         // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/around?player={playerId}&count={count}
-        private const string PlayerScoresSeekEndpoint = BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
+        private static string PlayerScoresSeekEndpoint => BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
 
         public static void SendPlayerScoresSeekRequest(
             string userId,
@@ -64,7 +64,7 @@ namespace BeatLeader.API.Methods {
         #region ClanScores/Page
 
         // /v1/clanScores/{hash}/{diff}/{mode}/page?page={page}&count={count}
-        private const string ClanScoresPageEndpoint = BLConstants.BEATLEADER_API_URL + "/v1/clanScores/{0}/{1}/{2}/page?{3}";
+        private static string ClanScoresPageEndpoint => BLConstants.BEATLEADER_API_URL + "/v1/clanScores/{0}/{1}/{2}/page?{3}";
 
         public static void SendClanScoresPageRequest(
             string mapHash,

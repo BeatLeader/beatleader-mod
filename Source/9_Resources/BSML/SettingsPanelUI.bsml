@@ -4,5 +4,7 @@
         <toggle-setting text="Menu Button Enabled" value="menu-button-enabled"/>
         <dropdown-list-setting text="Language" apply-on-change="true" value="language-choice"
                                choices="language-choices" on-change="language-on-change" formatter="language-formatter"/>
+        <dropdown-list-setting text="Server" apply-on-change="true" value="server-choice"
+                               choices="server-choices" on-change="server-on-change" formatter="server-formatter"/>
     </vertical>
 </horizontal>

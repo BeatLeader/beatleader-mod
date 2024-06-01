@@ -79,7 +79,7 @@ namespace BeatLeader.DataManager {
                 yield break; // auth failed
             }
 
-            EnvironmentUtils.OpenBrowserPage(string.Format(BeatLeaderConstants.OCULUS_PC_SIGNIN, authToken));
+            EnvironmentUtils.OpenBrowserPage(string.Format(BLConstants.OCULUS_PC_SIGNIN, authToken));
             IsMigrationRequired = false;
         }
 

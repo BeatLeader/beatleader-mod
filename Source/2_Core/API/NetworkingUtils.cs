@@ -110,17 +110,17 @@ namespace BeatLeader.API {
 
         private static void GetRequestFailReason(long responseCode, [CanBeNull] string defaultReason, out string failReason, out bool shouldRetry) {
             switch (responseCode) {
-                case BeatLeaderConstants.MaintenanceStatus: {
+                case BLConstants.MaintenanceStatus: {
                     failReason = "Maintenance";
                     shouldRetry = false;
                     break;
                 }
-                case BeatLeaderConstants.OutdatedModStatus: {
+                case BLConstants.OutdatedModStatus: {
                     failReason = "Mod update required";
                     shouldRetry = false;
                     break;
                 }
-                case BeatLeaderConstants.Unauthorized: {
+                case BLConstants.Unauthorized: {
                     Authentication.ResetLogin();
                     failReason = "Auth failed";
                     shouldRetry = true;

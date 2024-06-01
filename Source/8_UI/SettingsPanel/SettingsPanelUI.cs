@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
@@ -38,6 +39,26 @@ namespace BeatLeader {
         [UIAction("language-formatter"), UsedImplicitly]
         private string LanguageFormatter(object selectedValue) {
             return BLLocalization.GetLanguageName((BLLanguage)selectedValue);
+        }
+
+        #endregion
+
+        #region Server
+
+        [UIValue("server-choices"), UsedImplicitly]
+        private List<object> _serverOptions = BeatLeaderServerUtils.ServerOptions.Cast<object>().ToList();
+
+        [UIValue("server-choice"), UsedImplicitly]
+        private object _serverValue = PluginConfig.MainServer;
+
+        [UIAction("server-on-change"), UsedImplicitly]
+        private void ServerOnChange(object selectedValue) {
+            PluginConfig.MainServer = (BeatLeaderServer)selectedValue;
+        }
+
+        [UIAction("server-formatter"), UsedImplicitly]
+        private string ServerFormatter(object selectedValue) {
+            return ((BeatLeaderServer)selectedValue).GetName();
         }
 
         #endregion

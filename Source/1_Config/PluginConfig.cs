@@ -18,6 +18,21 @@ namespace BeatLeader {
 
         #endregion
 
+        #region MainServer
+
+        public static event Action<BeatLeaderServer> MainServerChangedEvent;
+
+        public static BeatLeaderServer MainServer {
+            get => ConfigFileData.Instance.MainServer;
+            set {
+                if (ConfigFileData.Instance.MainServer.Equals(value)) return;
+                ConfigFileData.Instance.MainServer = value;
+                MainServerChangedEvent?.Invoke(value);
+            }
+        }
+
+        #endregion
+
         #region ScoresContext
 
         public static event Action<ScoresContext> ScoresContextChangedEvent;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.API;
 using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -103,6 +104,7 @@ namespace BeatLeader.DataManager {
             RemoveFriendRequest.AddStateListener(OnRemoveFriendRequestStateChanged);
             LeaderboardEvents.AddFriendWasPressedEvent += OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent += OnRemoveFriendWasPressed;
+            PluginConfig.MainServerChangedEvent += OnMainServerChanged;
 
             UserRequest.SendRequest();
         }
@@ -114,11 +116,17 @@ namespace BeatLeader.DataManager {
             RemoveFriendRequest.RemoveStateListener(OnRemoveFriendRequestStateChanged);
             LeaderboardEvents.AddFriendWasPressedEvent -= OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent -= OnRemoveFriendWasPressed;
+            PluginConfig.MainServerChangedEvent -= OnMainServerChanged;
         }
 
         #endregion
 
         #region Events
+        
+        private void OnMainServerChanged(BeatLeaderServer value) {
+            Authentication.ResetLogin();
+            UserRequest.SendRequest();
+        }
 
         private static void OnAddFriendWasPressed(Player player) {
             AddFriendRequest.SendRequest(player);

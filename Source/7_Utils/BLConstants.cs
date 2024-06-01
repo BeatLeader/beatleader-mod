@@ -1,7 +1,7 @@
 ﻿using BeatLeader.Models;
 
 namespace BeatLeader.Utils {
-    internal static class BLConstants {
+    public static class BLConstants {
         #region HTTP Status codes
 
         public const int MaintenanceStatus = 503;
@@ -20,10 +20,10 @@ namespace BeatLeader.Utils {
 
         #region Signin
 
-        public static string SIGNIN_WITH_TICKET => //  /signin
+        internal static string SIGNIN_WITH_TICKET => //  /signin
             BEATLEADER_API_URL + "/signin";
 
-        public static string OCULUS_PC_SIGNIN => // /signin?action=oculuspc&token={user_id}
+        internal static string OCULUS_PC_SIGNIN => // /signin?action=oculuspc&token={user_id}
             BEATLEADER_WEBSITE_URL + "/signin/oculuspc?token={0}";
 
         #endregion

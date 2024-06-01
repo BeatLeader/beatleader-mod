@@ -33,6 +33,7 @@ namespace BeatLeader.Utils {
         #region ReplayManager LoadReplayHeaders
 
         public IReadOnlyList<IReplayHeader> Replays => _replays;
+        public IReplayMetadataManager MetadataManager => ReplayMetadataManager.Instance;
 
         private readonly HashSet<(string, string)> _headerValuesCache = new();
         private readonly List<IReplayHeader> _temporaryReplays = new();
@@ -61,7 +62,8 @@ namespace BeatLeader.Utils {
                         _temporaryReplays.Add(header);
                         NotifyReplayAdded(header);
                     }
-                }, token
+                },
+                token
             );
             _replays.Clear();
             _replays.AddRange(_temporaryReplays);
@@ -69,17 +71,10 @@ namespace BeatLeader.Utils {
             ReplayHeadersCache.SaveCache();
         }
 
-        private IReplayHeader? LoadReplay(HashSet<(string, string)> cache, string path) {
-            var cacheLoadSucceed = ReplayHeadersCache.TryGetInfoByPath(path, out var info);
-            if (!cacheLoadSucceed) {
-                if (TryReadReplayInfo(path, out var replayInfo)) SaturateReplayInfo(replayInfo!, path);
-                info = replayInfo;
-            }
-
-            if (info is null || !cache.Add((info.SongHash, info.Timestamp))) return null;
-            if (!cacheLoadSucceed) ReplayHeadersCache.AddInfoByPath(path, info);
-
-            return new GenericReplayHeader(this, path, info);
+        private IReplayHeader? LoadReplay(HashSet<(string, long)> cache, string path) {
+            var info = GetReplayInfo(path);
+            if (info == null || !cache.Add((info.SongHash, info.Timestamp))) return null;
+            return GetReplayHeader(path, info);
         }
 
         private async Task LoadReplayHeadersIfNeededAsync() {
@@ -95,26 +90,23 @@ namespace BeatLeader.Utils {
         public IReplayHeader? CachedReplay { get; private set; }
 
         public async Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
-            var isOstLevel = !MapEnhancer.previewBeatmapLevel
-                .levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId);
             CachedReplay = null;
-            if (!ValidatePlay(replay, playEndData, isOstLevel)) {
+            if (!ValidatePlay(replay, playEndData)) {
                 Plugin.Log.Info("Validation failed, replay will not be saved!");
                 return null;
             }
-
             if (ConfigFileData.Instance.OverrideOldReplays) {
                 Plugin.Log.Warn("OverrideOldReplays is enabled, old replays will be deleted");
                 await DeleteSimilarReplaysAsync(replay);
             }
-
             SaturateReplay(replay, playEndData);
-            var path = FormatFileName(replay, playEndData);
-            Plugin.Log.Info($"Replay will be saved as: {path}");
-            if (!TryWriteReplay(path, replay)) return null;
+            
+            var name = FormatFileName(replay, playEndData);
+            Plugin.Log.Info($"Replay will be saved as: {name}");
+            if (!TryWriteReplay(name, replay)) return null;
 
-            var absolutePath = GetAbsoluteReplayPath(path);
-            var header = new GenericReplayHeader(this, absolutePath, replay);
+            var absolutePath = GetAbsoluteReplayPath(name);
+            var header = GetReplayHeader(absolutePath, replay);
             CachedReplay = header;
             _replays.Add(header);
             NotifyReplayAdded(header);
@@ -146,17 +138,6 @@ namespace BeatLeader.Utils {
             replay.info.levelEndType = data.EndType;
         }
 
-        private static bool ValidatePlay(Replay replay, PlayEndData endData, bool isOstLevel) {
-            var options = ConfigFileData.Instance.ReplaySavingOptions;
-            return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
-                    LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
-                    LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
-                    LevelEndType.Clear => true,
-                    _ => false
-                } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0)
-                && (options.HasFlag(ReplaySaveOption.OST) || !isOstLevel);
-        }
-
         #endregion
 
         #region ReplayFileManager Save & Delete
@@ -164,6 +145,7 @@ namespace BeatLeader.Utils {
         private void DeleteReplayInternal(string filePath, IReplayHeader? header = null) {
             ReplayHeadersCache.RemoveInfoByPath(filePath);
             ReplayHeadersCache.SaveCache();
+            ReplayMetadataManager.DeleteMetadata(filePath);
             File.Delete(filePath);
             if (header is null) return;
             _replays.Remove(header);
@@ -186,6 +168,43 @@ namespace BeatLeader.Utils {
 
         #endregion
 
+        #region Get ReplayHeader & ReplayInfo
+
+        private static GenericReplayHeader GetReplayHeader(string path, Replay replay) {
+            var meta = ReplayMetadataManager.GetMetadata(path);
+            return new GenericReplayHeader(Instance, path, replay.info, meta);
+        }
+
+        private static GenericReplayHeader GetReplayHeader(string path, IReplayInfo replayInfo) {
+            var meta = ReplayMetadataManager.GetMetadata(path);
+            return new GenericReplayHeader(Instance, path, replayInfo, meta);
+        }
+
+        private static IReplayInfo? GetReplayInfo(string path) {
+            var cacheLoadSucceed = ReplayHeadersCache.TryGetInfoByPath(path, out var info);
+            if (!cacheLoadSucceed && TryReadReplayInfo(path, out var replayInfo)) {
+                SaturateReplayInfo(replayInfo!, path);
+                ReplayHeadersCache.AddInfoByPath(path, replayInfo!);
+                info = replayInfo;
+            }
+            return info;
+        }
+
+        #endregion
+
+        #region Cache
+
+        internal static void LoadCache() {
+            ReplayMetadataManager.LoadSerializedCache();
+        }
+        
+        internal static void SaveCache() {
+            ReplayMetadataManager.SaveSerializedCache();
+            ReplayHeadersCache.SaveCache();
+        }
+
+        #endregion
+
         #region Tools
 
         internal static void SaturateReplayInfo(ReplayInfo info, string? path) {
@@ -194,6 +213,17 @@ namespace BeatLeader.Utils {
                 info.mode = mode.Remove(idx, mode.Length - idx);
             }
             if (path is not null && Path.GetFileName(path).Contains("exit")) info.levelEndType = LevelEndType.Quit;
+        }
+
+        [Pure]
+        internal static bool ValidatePlay(Replay replay, PlayEndData endData) {
+            var options = ConfigFileData.Instance.ReplaySavingOptions;
+            return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
+                LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
+                LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
+                LevelEndType.Clear => true,
+                _ => false
+            } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0);
         }
 
         [Pure]

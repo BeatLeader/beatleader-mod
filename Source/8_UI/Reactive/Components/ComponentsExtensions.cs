@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Vector2 offset = default,
             bool animateBackground = false,
             Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
+        ) where T : Button where TModal : IModal, IReactiveComponent, new() {
             shadowSettings.SetValueIfNotSet(new());
             button.ClickEvent += () => {
                 ModalSystemHelper.OpenModalRelatively(
@@ -36,17 +36,17 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : ButtonBase {
+        public static T WithModal<T>(this T button, Action<Transform> listener) where T : Button {
             button.ClickEvent += () => listener(button.ContentTransform);
             return button;
         }
 
-        public static T WithClickListener<T>(this T button, Action listener) where T : ButtonBase {
+        public static T WithClickListener<T>(this T button, Action listener) where T : Button {
             button.ClickEvent += listener;
             return button;
         }
 
-        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : ButtonBase {
+        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : Button {
             button.StateChangedEvent += listener;
             return button;
         }
@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : Button {
             return WithLabel(
                 button,
                 out _,
@@ -81,7 +81,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : Button {
             button.Children.Add(
                 new Label {
                     Text = text,
@@ -100,7 +100,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float? pixelsPerUnit = null,
             UImage.Type type = UImage.Type.Simple,
             Material? material = null
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : Button {
             return WithImage(
                 button,
                 out _,
@@ -120,7 +120,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float? pixelsPerUnit = null,
             UImage.Type type = UImage.Type.Simple,
             Material? material = null
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : Button {
             button.Children.Add(
                 new Image {
                     Sprite = sprite,
@@ -137,11 +137,9 @@ namespace BeatLeader.UI.Reactive.Components {
             this T button,
             Color color
         ) where T : ColoredButton {
-            button.Colors = new StateColorSet {
-                DisabledColor = color.ColorWithAlpha(0.25f),
-                HoveredColor = color.ColorWithAlpha(0.7f),
-                Color = color.ColorWithAlpha(0.4f),
-            };
+            button.HoverColor = color.ColorWithAlpha(0.7f);
+            button.Color = color.ColorWithAlpha(0.4f);
+            button.DisabledColor = color.ColorWithAlpha(0.25f);
             return button;
         }
 
@@ -203,6 +201,15 @@ namespace BeatLeader.UI.Reactive.Components {
             }
 
             return component;
+        }
+
+        #endregion
+
+        #region TextArea
+
+        public static T WithItemsText<T>(this T comp, IEnumerable<string> items) where T : TextArea {
+            comp.Text = string.Join(string.Empty, items.Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x}"));
+            return comp;
         }
 
         #endregion

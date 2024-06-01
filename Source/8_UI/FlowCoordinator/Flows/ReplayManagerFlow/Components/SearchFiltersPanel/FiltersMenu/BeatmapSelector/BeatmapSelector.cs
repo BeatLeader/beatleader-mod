@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using BeatLeader.Installers;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
-using IPA.Utilities;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace BeatLeader.Components {
     internal class BeatmapSelector : ReeUIComponentV2 {
         #region Events
 
-        public event Action<BeatmapLevel?>? BeatmapSelectedEvent;
+        public event Action<IPreviewBeatmapLevel?>? BeatmapSelectedEvent;
 
         #endregion
 
@@ -28,47 +29,31 @@ namespace BeatLeader.Components {
 
         private CanvasGroup? _canvasGroup;
         private IEnumerable<Touchable>? _touchables;
-        
-        private LevelSelectionNavigationController? _selectionNavigationController;
-        private LevelCollectionViewController? _collectionViewController;
-        private BeatmapSelectorViewController? _beatmapSelectorViewController;
-        private FlowCoordinator? _flowCoordinator;
+
+        private static LevelSelectionNavigationController? _selectionNavigationController;
+        private static LevelCollectionViewController? _collectionViewController;
+        private static BeatmapSelectorViewController? _beatmapSelectorViewController;
         private ViewController? _viewController;
 
         #endregion
 
         #region Init & Dispose
+        
+        private IPreviewBeatmapLevel? _customPreviewBeatmapLevel;
 
-        private bool IsInitialized => _isInitializedComponent && _isInitializedDependencies;
-
-        private BeatmapLevel? _customPreviewBeatmapLevel;
-
-        private bool _isInitializedComponent;
-        private bool _isInitializedDependencies;
-
-        public void Setup(
-            ViewController viewController,
-            FlowCoordinator flowCoordinator,
-            LevelSelectionNavigationController levelSelectionNavigationController,
-            LevelCollectionViewController levelCollectionViewController,
-            StandardLevelDetailViewController standardLevelDetailViewController
-        ) {
+        public void Setup(ViewController viewController) {
             _viewController = viewController;
-            _flowCoordinator = flowCoordinator;
-            _selectionNavigationController = levelSelectionNavigationController;
-            _collectionViewController = levelCollectionViewController;
-            _beatmapSelectorViewController = levelSelectionNavigationController.gameObject.AddComponent<BeatmapSelectorViewController>();
-            _beatmapSelectorViewController.Init(levelSelectionNavigationController, standardLevelDetailViewController);
-            _beatmapSelectorViewController.BeatmapSelectedEvent += HandleSelectorBeatmapSelected;
-            _collectionViewController.didSelectLevelEvent += HandleSelectedBeatmapChanged;
-            _isInitializedDependencies = true;
         }
-
+        
         protected override void OnInitialize() {
             _canvasGroup = _containerObject.AddComponent<CanvasGroup>();
-            _canvasGroup.ignoreParentGroups = true;
+            //_canvasGroup.ignoreParentGroups = true;
             _touchables = _tabSelectorObject.GetComponentsInChildren<Touchable>(true);
-            _isInitializedComponent = true;
+            _viewController = Content.GetComponentInParent<ViewController>();
+
+            InitStaticDependencies();
+            _collectionViewController!.didSelectLevelEvent += HandleSelectedBeatmapChanged;
+            _beatmapSelectorViewController!.BeatmapSelectedEvent += HandleSelectorBeatmapSelected;
         }
 
         protected override void OnInstantiate() {
@@ -77,11 +62,25 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnDispose() {
-            if (_collectionViewController != null) {
-                _collectionViewController.didSelectLevelEvent -= HandleSelectedBeatmapChanged;
+            if (_collectionViewController) {
+                _collectionViewController!.didSelectLevelEvent -= HandleSelectedBeatmapChanged;
             }
-            if (_beatmapSelectorViewController != null) {
-                Destroy(_beatmapSelectorViewController);
+            if (_beatmapSelectorViewController) {
+                _beatmapSelectorViewController!.BeatmapSelectedEvent -= HandleSelectorBeatmapSelected;
+            }
+        }
+
+        private static void InitStaticDependencies() {
+            var container = OnMenuInstaller.Container;
+            if (!_selectionNavigationController) {
+                _selectionNavigationController = container.Resolve<LevelSelectionNavigationController>();
+            }
+            if (!_beatmapSelectorViewController) {
+                _beatmapSelectorViewController = _selectionNavigationController!.gameObject.AddComponent<BeatmapSelectorViewController>();
+                _beatmapSelectorViewController.Init(_selectionNavigationController, container.Resolve<StandardLevelDetailViewController>());
+            }
+            if (!_collectionViewController) {
+                _collectionViewController = container.Resolve<LevelCollectionViewController>();
             }
         }
 
@@ -89,16 +88,15 @@ namespace BeatLeader.Components {
 
         #region CurrentBeatmap
 
-        private BeatmapLevel? _currentPreviewBeatmapLevel;
+        private IPreviewBeatmapLevel? _currentPreviewBeatmapLevel;
         private bool _isFirstLaunch = true;
         private bool _currentTabOpened;
         private bool _isReady;
         private bool _currentBeatmapChanged;
 
         public void NotifyBeatmapSelectorReady(bool isReady) {
-            if (!IsInitialized) throw new UninitializedComponentException();
             if (isReady && _isFirstLaunch) {
-                HandleSelectedBeatmapChanged(null, _selectionNavigationController!.beatmapLevel);
+                HandleSelectedBeatmapChanged(null, _selectionNavigationController!.selectedBeatmapLevel);
                 _isFirstLaunch = false;
             }
             RefreshBeatmapPreview(_currentTabOpened && _currentBeatmapChanged);
@@ -124,32 +122,24 @@ namespace BeatLeader.Components {
         }
 
         private void OpenLevelSelectionDialog() {
-            if (!IsInitialized) throw new UninitializedComponentException();
+            if (_viewController is null) throw new UninitializedComponentException();
             _isSelectorOpened = true;
-            //SetFlowCoordinatorBackButtonEnabled(false);
-            _viewController!.__PresentViewController(_beatmapSelectorViewController,
-                null, ViewController.AnimationDirection.Vertical);
+            _viewController.__PresentViewController(
+                _beatmapSelectorViewController,null,
+                ViewController.AnimationDirection.Vertical);
         }
 
         private void CloseLevelSelectionDialog(bool immediate = false) {
-            if (!IsInitialized) throw new UninitializedComponentException();
             RefreshBeatmapPreview();
             _isSelectorOpened = false;
             _beatmapSelectorViewController!.Dismiss(immediate);
-            //SetFlowCoordinatorBackButtonEnabled(true);
-        }
-
-        private void SetFlowCoordinatorBackButtonEnabled(bool buttonEnabled) {
-            _flowCoordinator!.GetField<ScreenSystem, FlowCoordinator>(
-                "_screenSystem").SetBackButton(buttonEnabled, true);
         }
 
         #endregion
 
         #region SetActive
-        
+
         public void SetActive(bool active) {
-            if (!_isInitializedComponent) return;
             _beatmapPreview.BlockPresses = _currentTabOpened || !active;
             _canvasGroup!.alpha = active ? 1f : 0.25f;
             foreach (var touchable in _touchables!) touchable.enabled = active;
@@ -159,14 +149,14 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandleSelectedBeatmapChanged(LevelCollectionViewController? controller, BeatmapLevel level) {
+        private void HandleSelectedBeatmapChanged(LevelCollectionViewController? controller, IPreviewBeatmapLevel level) {
             if (_isReady || _isSelectorOpened) return;
             _currentPreviewBeatmapLevel = level;
             _currentBeatmapChanged = true;
         }
 
-        private void HandleSelectorBeatmapSelected(BeatmapLevel level) {
-            _customPreviewBeatmapLevel = level;
+        private void HandleSelectorBeatmapSelected(IDifficultyBeatmap beatmap) {
+            _customPreviewBeatmapLevel = beatmap.level;
             RefreshBeatmapPreview();
         }
 

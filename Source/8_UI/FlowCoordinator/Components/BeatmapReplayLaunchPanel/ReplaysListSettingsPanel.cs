@@ -1,64 +1,137 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BeatLeader.Components;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
-using IPA.Utilities;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
+using TMPro;
+using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class ReplaysListSettingsPanel : ReeUIComponentV3<ReplaysListSettingsPanel> {
-        #region Sort & Order
+    internal class ReplaysListSettingsPanel : ReactiveComponent {
+        private class SortOptionsModal : ModalComponentBase {
+            #region Setup
 
-        private ReplaysListSorter ReplaysListSorter {
-            get => _replaysListSorter;
-            set {
-                _replaysListSorter = value;
-                NotifyPropertyChanged(nameof(StringSorter));
-                RefreshSorters();
+            private IReplaysList? _replaysList;
+
+            public void Setup(IReplaysList replaysList) {
+                _replaysList = replaysList;
+                _replaysList.Sorter = _sortersDropdown.SelectedKey;
+                _replaysList.SortOrder = _sortOrderSelector.SelectedKey;
             }
-        }
 
-        [UIValue("sorter"), UsedImplicitly]
-        private string StringSorter {
-            get => _replaysListSorter.ToString();
-            set {
-                _replaysListSorter = StringConverter.Convert<ReplaysListSorter>(value);
-                RefreshSorters();
+            #endregion
+
+            #region Construct
+
+            private TextDropdown<ReplaysListSorter> _sortersDropdown = null!;
+            private IconSegmentedControl<SortOrder> _sortOrderSelector = null!;
+            
+            protected override GameObject Construct() {
+                return new Image {
+                    Children = {
+                        //sorter selector
+                        new NamedRail {
+                            Label = {
+                                Text = "Sort By"
+                            },
+                            Component = new TextDropdown<ReplaysListSorter> {
+                                Skew = 0f,
+                                Items = {
+                                    { ReplaysListSorter.Player, "Player" },
+                                    { ReplaysListSorter.Date, "Date" },
+                                    { ReplaysListSorter.Completion, "Completion" },
+                                    { ReplaysListSorter.Difficulty, "Difficulty" },
+                                }
+                            }.WithListener(
+                                x => x.SelectedKey,
+                                x => {
+                                    if (_replaysList == null) return;
+                                    _replaysList.Sorter = x;
+                                }
+                            ).Bind(ref _sortersDropdown)
+                        }.AsFlexItem(basis: 6f),
+                        //sort order selector
+                        new NamedRail {
+                            Label = {
+                                Text = "Order"
+                            },
+                            Component = new Image {
+                                Children = {
+                                    new IconSegmentedControl<SortOrder> {
+                                        Items = {
+                                            { SortOrder.Ascending, BundleLoader.Sprites.ascendingIcon },
+                                            { SortOrder.Descending, BundleLoader.Sprites.descendingIcon }
+                                        }
+                                    }.WithListener(
+                                        x => x.SelectedKey,
+                                        x => {
+                                            if (_replaysList == null) return;
+                                            _replaysList.SortOrder = x;
+                                        }
+                                    ).AsFlexGroup(padding: 1f).WithRectExpand().Bind(ref _sortOrderSelector)
+                                }
+                            }.AsFlexItem(
+                                size: new() { x = 36f }
+                            ).AsBlurBackground(
+                                color: Color.white.ColorWithAlpha(0.8f)
+                            )
+                        }.AsFlexItem(basis: 6f)
+                        //named rail
+                    }
+                }.AsFlexGroup(
+                    direction: FlexDirection.Column,
+                    padding: 2f
+                ).AsBlurBackground().WithRectSize(20f, 60f).Use();
             }
+
+            #endregion
         }
 
-        [UIValue("sorters"), UsedImplicitly]
-        private readonly List<object> _localSorters = sorters;
+        #region Construct
 
-        [UIValue("orders"), UsedImplicitly]
-        private readonly List<string> _localOrders = orders;
+        private SortOptionsModal _sortOptionsModal = null!;
+        private ImageButton _settingsButton = null!;
 
-        private static readonly List<object> sorters = Enum.GetNames(typeof(ReplaysListSorter)).ToList<object>();
-
-        private static readonly List<string> orders = Enum.GetNames(typeof(SortOrder)).ToList();
-
-        private SortOrder _sortOrder;
-        private ReplaysListSorter _replaysListSorter;
-
-        private void RefreshSorters() {
-            ValidateAndThrow();
-            _replaysList!.Sorter = _replaysListSorter;
-            _replaysList.SortOrder = _sortOrder;
-        }
-
-        #endregion
-
-        #region Modal
-
-        [UIComponent("settings-modal")]
-        private readonly ModalView _settingsModal = null!;
-        
-        private void ShowModal() {
-            _settingsModal.Show(true);
+        protected override GameObject Construct() {
+            return new Image {
+                Children = {
+                    new SortOptionsModal()
+                        .Bind(ref _sortOptionsModal),
+                    //label
+                    new Label {
+                        Text = "List settings",
+                        Alignment = TextAlignmentOptions.MidlineLeft,
+                        FontSize = 3f
+                    }.AsFlexItem(grow: 1f),
+                    //refresh button
+                    new ImageButton {
+                        Image = {
+                            Sprite = BundleLoader.RotateRightIcon
+                        }
+                    }.WithClickListener(
+                        () => {
+                            ValidateAndThrow();
+                            _replaysLoader!.StartReplaysLoad();
+                        }
+                    ).AsFlexItem(aspectRatio: 1f),
+                    //settings button
+                    new ImageButton {
+                        Image = {
+                            Sprite = BundleLoader.SettingsIcon
+                        }
+                    }.AsFlexItem(
+                        aspectRatio: 1f
+                    ).Bind(ref _settingsButton)
+                }
+            }.AsFlexGroup(padding: 0.6f, gap: 0.5f).AsBlurBackground().With(
+                x => {
+                    _settingsButton.WithModal(
+                        _sortOptionsModal,
+                        anchor: x.ContentTransform,
+                        placement: ModalSystemHelper.RelativePlacement.TopRight
+                    );
+                }
+            ).Use();
         }
 
         #endregion
@@ -67,41 +140,15 @@ namespace BeatLeader.UI.Hub {
 
         private IReplaysList? _replaysList;
         private IReplaysLoader? _replaysLoader;
-        
+
         public void Setup(IReplaysList replaysList, IReplaysLoader replaysLoader) {
             _replaysList = replaysList;
             _replaysLoader = replaysLoader;
-            RefreshSorters();
+            _sortOptionsModal.Setup(replaysList);
         }
 
-        protected override bool OnValidation() {
+        protected override bool Validate() {
             return _replaysList is not null && _replaysLoader is not null;
-        }
-
-        protected override void OnInitialize() {
-            _settingsModal.SetField("_animateParentCanvas", false);
-            _replaysListSorter = ReplaysListSorter.Date;
-        }
-
-        #endregion
-
-        #region Callbacks
-
-        [UIAction("order-tab-select"), UsedImplicitly]
-        private void HandleOrderTabSelected(string tabName) {
-            _sortOrder = StringConverter.Convert<SortOrder>(tabName);
-            RefreshSorters();
-        }
-
-        [UIAction("reload-click"), UsedImplicitly]
-        private void HandleReloadButtonClicked() {
-            ValidateAndThrow();
-            _replaysLoader!.StartReplaysLoad();
-        }
-
-        [UIAction("settings-click"), UsedImplicitly]
-        private void HandleSettingsButtonClicked() {
-            ShowModal();
         }
 
         #endregion

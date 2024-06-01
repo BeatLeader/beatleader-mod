@@ -59,6 +59,7 @@ namespace BeatLeader {
             ObserveEnabled();
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
+            ReplayManager.LoadCache();
             InteropLoader.Init();
             ReactivePlatform.Init();
         }
@@ -87,7 +88,7 @@ namespace BeatLeader {
         public void OnApplicationQuit() {
             SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
-            ReplayHeadersCache.SaveCache();
+            ReplayManager.SaveCache();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
             ConfigFileData.Save();
             //important to call LAST!!

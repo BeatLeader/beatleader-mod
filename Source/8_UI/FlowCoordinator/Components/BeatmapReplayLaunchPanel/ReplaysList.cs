@@ -5,7 +5,6 @@ using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
-using IPA.Utilities;
 using TMPro;
 using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
@@ -48,13 +47,6 @@ namespace BeatLeader.UI.Hub {
             private Color _highlightedSelectedColor;
             private Color _idlingColor;
 
-            public override void OnCellStateChange(bool selected, bool highlighted) {
-                _background.color1 = selected switch {
-                    false => highlighted ? _highlightedColor : _idlingColor,
-                    true => highlighted ? _highlightedSelectedColor : _selectedColor
-                };
-            }
-
             private void ApplyColors(bool alternative) {
                 _selectedColor = alternative ? alternativeSelectedColor : selectedColor;
                 _highlightedColor = alternative ? alternativeHighlightedColor : highlightedColor;
@@ -62,16 +54,63 @@ namespace BeatLeader.UI.Hub {
                 _idlingColor = alternative ? alternativeIdlingColor : idlingColor;
             }
 
+            private void RefreshColors(bool selected, bool highlighted) {
+                _background.GradientColor1 = selected switch {
+                    false => highlighted ? _highlightedColor : _idlingColor,
+                    true => highlighted ? _highlightedSelectedColor : _selectedColor
+                };
+            }
+
             #endregion
 
-            #region Setup
+            #region Texts
 
-            protected override void Init(IReplayHeader item) {
-                var info = item.ReplayInfo!;
+            public string? HighlightPhrase {
+                set {
+                    _highlightPhrase = value;
+                    RefreshTexts();
+                }
+            }
+
+            private string? _highlightPhrase;
+
+            private string FormatByPhrase(string text) {
+                return _highlightPhrase == null ? text : FormatUtils.MarkPhrase(text, _highlightPhrase);
+            }
+
+            private void RefreshTexts() {
+                var info = Item!.ReplayInfo;
                 _topRightLabel.Text = FormatLevelEndType(info.LevelEndType, info.FailTime);
                 _topLeftLabel.Text = info.SongName;
                 _bottomRightLabel.Text = FormatUtils.GetDateTimeString(info.Timestamp);
-                _bottomLeftLabel.Text = $"[<color=#89ff89>{info.SongDifficulty}</color>] {info.PlayerName}";
+                _bottomLeftLabel.Text = $"[<color=#89ff89>{FormatByPhrase(info.SongDifficulty)}</color>] ";
+                _bottomLeftLabel.Text += FormatByPhrase(info.PlayerName);
+            }
+
+            protected override void Init(IReplayHeader item) {
+                RefreshTexts();
+            }
+
+            #endregion
+
+            #region Text Formatting
+
+            private static string FormatLevelEndType(LevelEndType levelEndType, float failTime) {
+                return levelEndType switch {
+                    Clear => "Completed",
+                    Quit or Restart => "Unfinished",
+                    Fail => $"Failed at {FormatTime(Mathf.FloorToInt(failTime))}",
+                    _ => "Unknown"
+                };
+            }
+
+            private static string FormatTime(int seconds) {
+                var minutes = seconds / 60;
+                var hours = minutes / 60;
+                var secDiv = seconds % 60;
+                var minDiv = minutes % 60;
+                return $"{(hours is not 0 ? $"{Zero(hours)}{hours}:" : "")}{Zero(minDiv)}{minDiv}:{Zero(secDiv)}{secDiv}";
+                static string Zero(int number) => number > 9 ? "" : "0";
             }
 
             #endregion
@@ -85,7 +124,7 @@ namespace BeatLeader.UI.Hub {
             private Label _bottomLeftLabel = null!;
             private Label _topRightLabel = null!;
             private Label _bottomRightLabel = null!;
-            private FixedImageView _background = null!;
+            private Image _background = null!;
 
             protected override GameObject Construct() {
                 static Label CellLabel(
@@ -109,90 +148,74 @@ namespace BeatLeader.UI.Hub {
                     ).Bind(ref variable);
                 }
 
-                return new Dummy {
+                return new Button {
+                    GrowOnHover = false,
                     Children = {
-                        //top left
-                        CellLabel(
-                            TextOverflowModes.Ellipsis,
-                            TextAlignmentOptions.TopLeft,
-                            4,
-                            60,
-                            new() { top = 0, left = 0.6f },
-                            textColor,
-                            ref _topLeftLabel
-                        ),
-                        //bottom left
-                        CellLabel(
-                            TextOverflowModes.Ellipsis,
-                            TextAlignmentOptions.BottomLeft,
-                            3,
-                            70,
-                            new() { bottom = 0, left = 0 },
-                            secondaryTextColor,
-                            ref _bottomLeftLabel
-                        ),
-                        //top right
-                        CellLabel(
-                            TextOverflowModes.Overflow,
-                            TextAlignmentOptions.TopRight,
-                            3,
-                            40,
-                            new() { top = 0, right = 1.5f },
-                            textColor,
-                            ref _topRightLabel
-                        ),
-                        //bottom right
-                        CellLabel(
-                            TextOverflowModes.Overflow,
-                            TextAlignmentOptions.BottomRight,
-                            3,
-                            30,
-                            new() { bottom = 0, right = 2 },
-                            secondaryTextColor,
-                            ref _bottomRightLabel
-                        )
+                        new Image {
+                            Children = {
+                                //top left
+                                CellLabel(
+                                    TextOverflowModes.Ellipsis,
+                                    TextAlignmentOptions.TopLeft,
+                                    4,
+                                    60,
+                                    new() { top = 0, left = 0.6f },
+                                    textColor,
+                                    ref _topLeftLabel
+                                ),
+                                //bottom left
+                                CellLabel(
+                                    TextOverflowModes.Ellipsis,
+                                    TextAlignmentOptions.BottomLeft,
+                                    3,
+                                    70,
+                                    new() { bottom = 0, left = 0 },
+                                    secondaryTextColor,
+                                    ref _bottomLeftLabel
+                                ),
+                                //top right
+                                CellLabel(
+                                    TextOverflowModes.Overflow,
+                                    TextAlignmentOptions.TopRight,
+                                    3,
+                                    40,
+                                    new() { top = 0, right = 1.5f },
+                                    textColor,
+                                    ref _topRightLabel
+                                ),
+                                //bottom right
+                                CellLabel(
+                                    TextOverflowModes.Overflow,
+                                    TextAlignmentOptions.BottomRight,
+                                    3,
+                                    30,
+                                    new() { bottom = 0, right = 2 },
+                                    secondaryTextColor,
+                                    ref _bottomRightLabel
+                                )
+                            }
+                        }.AsFlexGroup().AsBackground(
+                            material: GameResources.UINoGlowAdditiveMaterial,
+                            gradientDirection: ImageView.GradientDirection.Horizontal
+                        ).AsFlexItem(
+                            grow: 1f,
+                            margin: new() { right = 1f }
+                        ).Bind(ref _background)
                     }
-                }.AsFlexGroup().WithBackground(
-                    image: out _background,
-                    material: GameResources.UINoGlowAdditiveMaterial,
-                    gradientDirection: ImageView.GradientDirection.Horizontal
-                ).Use();
+                }.AsFlexGroup().Use();
             }
 
             protected override void OnInitialize() {
                 _background.Skew = 0.18f;
-
-                //Content.GetComponentInParent<SelectableCell>().SetField("_wasPressedSignal", GameResources.ClickSignal);
-                //Content.AddComponent<Touchable>();
                 ApplyColors(false);
-
-                //when you finish a map it invokes the finish event and executes score sending and replay saving.
-                //cell generation also happens there (on the game scene). as we know unity destroys objects after the scene transition
-                //so we need to use DontDestroyOnLoad to keep this cell alive
-                //DontDestroyOnLoad(Content);
-                //DontDestroyOnLoad(gameObject);
             }
 
             #endregion
 
-            #region Formatting
+            #region Callbacks
 
-            private static string FormatLevelEndType(LevelEndType levelEndType, float failTime) {
-                return levelEndType switch {
-                    Clear => "Completed",
-                    Quit or Restart => "Unfinished",
-                    Fail => $"Failed at {FormatTime(Mathf.FloorToInt(failTime))}",
-                    _ => "Unknown"
-                };
-            }
-
-            private static string FormatTime(int seconds) {
-                var minutes = seconds / 60;
-                var hours = minutes / 60;
-                var secDiv = seconds % 60;
-                var minDiv = minutes % 60;
-                return $"{(hours is not 0 ? $"{Zero(hours)}{hours}:" : "")}{Zero(minDiv)}{minDiv}:{Zero(secDiv)}{secDiv}";
-                static string Zero(int number) => number > 9 ? "" : "0";
+            public override void OnCellStateChange(bool selected, bool highlighted) {
+                RefreshColors(selected, highlighted);
             }
 
             #endregion
@@ -208,11 +231,11 @@ namespace BeatLeader.UI.Hub {
             public int Compare(IReplayHeader x, IReplayHeader y) {
                 var xi = x.ReplayInfo;
                 var yi = y.ReplayInfo;
-                return xi is null || yi is null ? 0 : sorter switch {
+                return sorter switch {
                     ReplaysListSorter.Difficulty =>
                         -CompareLong(
-                            (int)StringConverter.Convert<BeatmapDifficulty>(xi.SongDifficulty),
-                            (int)StringConverter.Convert<BeatmapDifficulty>(yi.SongDifficulty)
+                            (int)Enum.Parse(typeof(BeatmapDifficulty), xi.SongDifficulty),
+                            (int)Enum.Parse(typeof(BeatmapDifficulty), yi.SongDifficulty)
                         ),
                     ReplaysListSorter.Player =>
                         string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
@@ -250,7 +273,7 @@ namespace BeatLeader.UI.Hub {
 
         private void RefreshSorting() {
             Items.Sort(_headerComparator);
-            if (_sortOrder is SortOrder.Ascending) Items.Reverse();
+            if (_sortOrder is SortOrder.Descending) Items.Reverse();
         }
 
         protected override void OnEarlyRefresh() {
@@ -266,6 +289,11 @@ namespace BeatLeader.UI.Hub {
         public readonly HashSet<IReplayHeaderBase> highlightedItems = new();
 
         protected override void OnCellConstruct(Cell cell) {
+            if (Filter is ITextListFilter<IReplayHeader> filter) {
+                cell.HighlightPhrase = filter.GetMatchedPhrase(cell.Item!);
+            } else {
+                cell.HighlightPhrase = null;
+            }
             cell.UseAlternativeColors = highlightedItems.Contains(cell.Item!);
         }
 

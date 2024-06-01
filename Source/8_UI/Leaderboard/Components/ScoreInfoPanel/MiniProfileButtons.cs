@@ -182,7 +182,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnProfileButtonClick() {
-            EnvironmentUtils.OpenBrowserPage(BeatLeaderConstants.PlayerProfilePage(_player.id));
+            EnvironmentUtils.OpenBrowserPage(BLConstants.PlayerProfilePage(_player.id));
         }
 
         #endregion

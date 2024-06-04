@@ -41,7 +41,7 @@ namespace BeatLeader.UI.Reactive.Components {
                         Sprite = BundleLoader.Sprites.rectangle,
                         Material = GameResources.UINoGlowMaterial
                     },
-                    Colors = new StateColorSet {
+                    Colors = new() {
                         HoveredColor = UIStyle.ControlColorSet.HoveredColor,
                         Color = Color.clear
                     },

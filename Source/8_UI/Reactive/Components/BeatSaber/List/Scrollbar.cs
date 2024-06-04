@@ -1,5 +1,6 @@
 using System;
 using BeatLeader.UI.Reactive.Yoga;
+using HMUI;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -13,8 +14,7 @@ namespace BeatLeader.UI.Reactive.Components {
         bool CanScrollUp { set; }
         bool CanScrollDown { set; }
 
-        event Action? ScrollBackwardButtonPressedEvent;
-        event Action? ScrollForwardButtonPressedEvent;
+        event Action<ScrollView.ScrollDirection>? ScrollEvent;
 
         void SetActive(bool active);
     }
@@ -23,6 +23,12 @@ namespace BeatLeader.UI.Reactive.Components {
     /// Scrollbar for ReactiveComponent lists
     /// </summary>
     internal class Scrollbar : ReactiveComponent, IScrollbar {
+        #region Events
+
+        public event Action<ScrollView.ScrollDirection>? ScrollEvent;
+
+        #endregion
+
         #region Impl
 
         float IScrollbar.PageHeight {
@@ -46,9 +52,6 @@ namespace BeatLeader.UI.Reactive.Components {
         bool IScrollbar.CanScrollDown {
             set => _downButton.Interactable = value;
         }
-
-        public event Action? ScrollBackwardButtonPressedEvent;
-        public event Action? ScrollForwardButtonPressedEvent;
 
         void IScrollbar.SetActive(bool active) {
             Enabled = active;
@@ -74,8 +77,8 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private RectTransform _handleContainerRect = null!;
         private RectTransform _handleRect = null!;
-        private ButtonBase _upButton = null!;
-        private ButtonBase _downButton = null!;
+        private Button _upButton = null!;
+        private Button _downButton = null!;
 
         protected override GameObject Construct() {
             static ImageButton CreateButton(float rotation) {
@@ -91,14 +94,14 @@ namespace BeatLeader.UI.Reactive.Components {
                     },
                     HoverLerpMul = float.MaxValue,
                     HoverScaleSum = Vector3.one * 0.2f,
-                    Colors = new StateColorSet {
+                    Colors = new() {
                         Color = Color.white.ColorWithAlpha(0.5f),
                         HoveredColor = Color.white,
                         DisabledColor = Color.black.ColorWithAlpha(0.5f)
                     }
                 }.AsFlexItem(basis: 4f);
             }
-
+            
             return new Dummy {
                 Children = {
                     //up button
@@ -136,7 +139,6 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { x = 2f });
             WithinLayoutIfDisabled = true;
             RefreshHandle();
         }
@@ -146,11 +148,11 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Callbacks
 
         private void HandleUpButtonClicked() {
-            ScrollBackwardButtonPressedEvent?.Invoke();
+            ScrollEvent?.Invoke(ScrollView.ScrollDirection.Up);
         }
 
         private void HandleDownButtonClicked() {
-            ScrollForwardButtonPressedEvent?.Invoke();
+            ScrollEvent?.Invoke(ScrollView.ScrollDirection.Down);
         }
 
         #endregion

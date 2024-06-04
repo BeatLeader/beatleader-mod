@@ -16,13 +16,11 @@ namespace BeatLeader.UI.Reactive.Components {
             Image.ImageType = UnityEngine.UI.Image.Type.Sliced;
             Image.PixelsPerUnit = 12f;
             Image.GradientDirection = ImageView.GradientDirection.Vertical;
-            Image.GradientColor0 = Color.white;
-            Colors = new StateColorSet {
-                HoveredColor = UIStyle.InputColorSet.HoveredColor.ColorWithAlpha(1f),
-                Color = UIStyle.InputColorSet.Color,
-                DisabledColor = UIStyle.InputColorSet.DisabledColor
+            Colors = UIStyle.InputColorSet;
+            GradientColors0 = new() {
+                Color = defaultGradientColor
             };
-            GradientColors1 = new StateColorSet {
+            GradientColors1 = new() {
                 Color = defaultGradientColor,
                 HoveredColor = hoveredGradientColor
             };

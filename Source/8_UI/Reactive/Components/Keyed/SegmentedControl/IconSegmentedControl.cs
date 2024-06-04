@@ -24,7 +24,9 @@ namespace BeatLeader.UI.Reactive.Components {
                 GrowOnHover = false,
                 HoverLerpMul = float.MaxValue,
                 Sticky = true,
-                Colors = UIStyle.ButtonColorSet
+                Colors = new() {
+                    HoveredColor = (Color.white * 0.5f).ColorWithAlpha(0.2f)
+                }
             }.WithStateListener(_ => SelectSelf()).Bind(ref _button).Use();
         }
     }

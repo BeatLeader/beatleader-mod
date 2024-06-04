@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ImageButton : ColoredButton, IChildrenProvider {
+    internal class ImageButton : ColoredButton {
         #region UI Props
 
-        public IColorSet? GradientColors0 {
+        public StateColorSet? GradientColors0 {
             get => _gradientColors0;
             set {
                 _gradientColors0 = value;
@@ -15,7 +14,7 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        public IColorSet? GradientColors1 {
+        public StateColorSet? GradientColors1 {
             get => _gradientColors1;
             set {
                 _gradientColors1 = value;
@@ -25,10 +24,8 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        public new ICollection<ILayoutItem> Children => base.Children;
-        
-        private IColorSet? _gradientColors0;
-        private IColorSet? _gradientColors1;
+        private StateColorSet? _gradientColors0;
+        private StateColorSet? _gradientColors1;
 
         private void RefreshGradientState() {
             Image.UseGradient = GradientColors0 != null || GradientColors1 != null;
@@ -45,15 +42,9 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Color
 
         protected override void ApplyColor(Color color) {
-            if (Colors != null) {
-                Image.Color = color;
-            }
-            if (_gradientColors0 != null) {
-                Image.GradientColor0 = GetColor(_gradientColors0);
-            }
-            if (_gradientColors1 != null) {
-                Image.GradientColor1 = GetColor(_gradientColors1);
-            }
+            Image.Color = color;
+            Image.GradientColor0 = GetColor(_gradientColors0);
+            Image.GradientColor1 = GetColor(_gradientColors1);
         }
 
         protected override void OnInteractableChange(bool interactable) {

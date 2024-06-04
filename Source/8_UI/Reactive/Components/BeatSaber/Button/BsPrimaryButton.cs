@@ -18,11 +18,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private Image _borderImage = null!;
 
-        protected override void ApplyColor(Color color, float t) {
+        protected override void ApplyColor(Color color) {
             Image.GradientColor0 = color;
             color.a /= 2f;
             Image.GradientColor1 = color;
-            _borderImage.Color = Color;
+            _borderImage.Color = Colors?.Color ?? color;
         }
 
         protected override void Construct(RectTransform rect) {
@@ -38,14 +38,15 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
-            Color = new(0, 0.5f, 1f);
-            HoverColor = new(0, 0.75f, 1f);
-            ActiveColor = new(0, 0.75f, 0.75f);
+            Colors = new() {
+                ActiveColor = new(0, 0.75f, 0.75f),
+                HoveredColor = new(0, 0.75f, 1f),
+                Color = UIStyle.ButtonColorSet.Color
+            };
             GrowOnHover = false;
             HoverLerpMul = 100f;
-
             Image.Material = buttonMaterial;
-            Image.Sprite = BundleLoader.WhiteBG;
+            Image.Sprite = BundleLoader.Sprites.background;
             Image.PixelsPerUnit = 15f;
             Image.UseGradient = true;
             Image.GradientDirection = ImageView.GradientDirection.Vertical;

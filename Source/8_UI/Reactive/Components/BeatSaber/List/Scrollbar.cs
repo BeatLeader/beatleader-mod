@@ -94,9 +94,11 @@ namespace BeatLeader.UI.Reactive.Components {
                     },
                     HoverLerpMul = float.MaxValue,
                     HoverScaleSum = Vector3.one * 0.2f,
-                    Color = Color.white.ColorWithAlpha(0.5f),
-                    HoverColor = Color.white,
-                    DisabledColor = Color.black.ColorWithAlpha(0.5f)
+                    Colors = new() {
+                        Color = Color.white.ColorWithAlpha(0.5f),
+                        HoveredColor = Color.white,
+                        DisabledColor = Color.black.ColorWithAlpha(0.5f)
+                    }
                 }.AsFlexItem(basis: 4f);
             }
             

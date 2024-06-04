@@ -41,14 +41,16 @@ namespace BeatLeader.UI.Reactive.Components {
                         Sprite = BundleLoader.Sprites.rectangle,
                         Material = GameResources.UINoGlowMaterial
                     },
-                    HoverColor = Color.white.ColorWithAlpha(0.2f),
-                    Color = Color.clear,
+                    Colors = new() {
+                        HoveredColor = UIStyle.ControlColorSet.HoveredColor,
+                        Color = Color.clear
+                    },
                     GrowOnHover = false,
                     HoverLerpMul = float.MaxValue,
                     Children = {
                         new Label().WithRectExpand().Bind(ref _label)
                     }
-                }.WithClickListener(GameResources.ClickSignal.Raise).Bind(ref _button).Use();
+                }.Bind(ref _button).Use();
             }
 
             #endregion

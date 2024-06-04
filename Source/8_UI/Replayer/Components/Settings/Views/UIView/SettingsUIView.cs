@@ -35,7 +35,7 @@ namespace BeatLeader.UI.Replayer {
             return new Dummy {
                 Children = {
                     new Reactive.Components.ImageButton {
-                        ColorizeOnHover = true,
+                        Colors = null,
                         GrowOnHover = true,
                         Image = {
                             Sprite = BundleLoader.EditLayoutIcon

@@ -194,8 +194,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 },
                 GrowOnHover = false,
                 HoverLerpMul = float.MaxValue,
-                Color = UIStyle.ControlColor,
-                HoverColor = UIStyle.ControlHoveredColor,
+                Colors = UIStyle.ControlColorSet,
                 Children = {
                     new TCell {
                         UsedAsPreview = true

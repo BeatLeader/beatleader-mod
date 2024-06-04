@@ -137,9 +137,11 @@ namespace BeatLeader.UI.Reactive.Components {
             this T button,
             Color color
         ) where T : ColoredButton {
-            button.HoverColor = color.ColorWithAlpha(0.7f);
-            button.Color = color.ColorWithAlpha(0.4f);
-            button.DisabledColor = color.ColorWithAlpha(0.25f);
+            button.Colors = new() {
+                DisabledColor = color.ColorWithAlpha(0.25f),
+                HoveredColor = color.ColorWithAlpha(0.7f),
+                Color = color.ColorWithAlpha(0.4f),
+            };
             return button;
         }
 

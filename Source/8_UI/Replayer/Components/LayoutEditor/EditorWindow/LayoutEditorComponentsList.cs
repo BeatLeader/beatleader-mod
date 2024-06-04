@@ -35,7 +35,7 @@ namespace BeatLeader.Components {
                 return new BeatLeader.UI.Reactive.Components.Dummy {
                     Children = {
                         new Image {
-                            Sprite = BundleLoader.WhiteBG,
+                            Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 8f,
                             Children = {
                                 //
@@ -56,22 +56,24 @@ namespace BeatLeader.Components {
                                 }.AsFlexGroup().AsFlexItem(grow: 1f),
                                 //
                                 new Image {
-                                    Sprite = BundleLoader.WhiteBG,
+                                    Sprite = BundleLoader.Sprites.background,
                                     PixelsPerUnit = 8f,
                                     Color = new(0.03f, 0.03f, 0.03f),
                                     Children = {
                                         new UI.Reactive.Components.ImageButton {
                                             GrowOnHover = false,
                                             Sticky = true,
-                                            HoverColor = new(0.3f, 0.3f, 0.3f),
-                                            ActiveColor = Color.white,
+                                            Colors = new() {
+                                                HoveredColor = new(0.3f, 0.3f, 0.3f),
+                                                ActiveColor = Color.white
+                                            },
                                             Image = {
                                                 Sprite = BundleLoader.EyeIcon,
                                                 PreserveAspect = true
                                             }
                                         }.AsFlexItem(grow: 1f).Bind(
                                             ref _componentStateButton
-                                        ).WithClickListener(HandleVisibilityButtonClicked)
+                                        ).WithStateListener(HandleVisibilityButtonClicked)
                                     }
                                 }.AsFlexGroup(padding: 1f).AsFlexItem(aspectRatio: 1f)
                                 //

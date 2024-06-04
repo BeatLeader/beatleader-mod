@@ -23,6 +23,7 @@ namespace BeatLeader.Components {
 
             public NotSelectedPreviewBeatmapLevel() :
                 base(
+                    0,
                     false,
                     string.Empty,
                     "Click to select",

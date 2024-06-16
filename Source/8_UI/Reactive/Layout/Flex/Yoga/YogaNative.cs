@@ -17,7 +17,7 @@ namespace BeatLeader.UI.Reactive.Yoga {
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public unsafe delegate void YGLoggerDelegate(char* message, YGLogLevel logLevel);
+        public delegate void YGLoggerDelegate(string message, YGLogLevel logLevel);
 
         [DllImport(YogaDllName, EntryPoint = "YGBindingsSetLogger")]
         public static extern void YGBindingsSetLogger(YGLoggerDelegate callback);

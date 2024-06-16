@@ -92,16 +92,28 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private static IEnumerable<NoteData> CreateSortedNoteDataList(IEnumerable<BeatmapDataItem> items) {
-            return items
-                .Select(static x => x switch {
-                    NoteData data => data,
-                    SliderData sliderData => NoteData.CreateBurstSliderNoteData(
-                        sliderData.time, sliderData.headLineIndex, sliderData.headLineLayer,
-                        sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f),
-                    _ => null
-                })
-                .OfType<NoteData>()
-                .OrderBy(static x => x, beatmapItemsComparer);
+            var result = new List<NoteData>();
+
+            foreach (var item in items) {
+                var data = item as NoteData;
+                if (data != null) {
+                    result.Add(data);
+                } else {
+                    var sliderData = item as SliderData;
+                    if (sliderData != null) {
+                        int sliceCount = sliderData.sliceCount;
+                        for (int i = 1; i < sliceCount; ++i) {
+                            int lineIndex = i < sliceCount - 1 ? sliderData.headLineIndex : sliderData.tailLineIndex;
+                            NoteLineLayer noteLineLayer = i < sliceCount - 1 ? sliderData.headLineLayer : sliderData.tailLineLayer;
+                            result.Add(NoteData.CreateBurstSliderNoteData(
+                                Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, (float)i / (float)(sliceCount - 1)), lineIndex, noteLineLayer,
+                                sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f));
+                        }
+                    }
+                }
+            }
+
+            return result.OrderBy(static x => x, beatmapItemsComparer);
         }
 
         #endregion

@@ -15,12 +15,23 @@ namespace BeatLeader.Replayer.Emulation {
     public class ReplayerScoreProcessor : MonoBehaviour {
         #region Injection
 
-        [Inject] private readonly ScoreController _scoreController = null!;
-        [Inject] private readonly ComboController _comboController = null!;
-        [Inject] private readonly GameEnergyCounter _gameEnergyCounter = null!;
-        [Inject] private readonly ReplayEventsProcessor _eventsProcessor = null!;
-        [Inject] private readonly IReadonlyBeatmapData _beatmapData = null!;
-        [Inject] private readonly ReplayLaunchData _launchData = null!;
+        [Inject]
+        private readonly ScoreController _scoreController = null!;
+
+        [Inject]
+        private readonly ComboController _comboController = null!;
+
+        [Inject]
+        private readonly GameEnergyCounter _gameEnergyCounter = null!;
+
+        [Inject]
+        private readonly ReplayEventsProcessor _eventsProcessor = null!;
+
+        [Inject]
+        private readonly IReadonlyBeatmapData _beatmapData = null!;
+
+        [Inject]
+        private readonly ReplayLaunchData _launchData = null!;
 
         #endregion
 
@@ -93,27 +104,37 @@ namespace BeatLeader.Replayer.Emulation {
 
         private static IEnumerable<NoteData> CreateSortedNoteDataList(IEnumerable<BeatmapDataItem> items) {
             var result = new List<NoteData>();
-
             foreach (var item in items) {
-                var data = item as NoteData;
-                if (data != null) {
-                    result.Add(data);
-                } else {
-                    var sliderData = item as SliderData;
-                    if (sliderData != null) {
-                        int sliceCount = sliderData.sliceCount;
-                        for (int i = 1; i < sliceCount; ++i) {
-                            int lineIndex = i < sliceCount - 1 ? sliderData.headLineIndex : sliderData.tailLineIndex;
-                            NoteLineLayer noteLineLayer = i < sliceCount - 1 ? sliderData.headLineLayer : sliderData.tailLineLayer;
-                            result.Add(NoteData.CreateBurstSliderNoteData(
-                                Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, (float)i / (float)(sliceCount - 1)), lineIndex, noteLineLayer,
-                                sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f));
-                        }
-                    }
+                switch (item) {
+                    case NoteData data:
+                        result.Add(data);
+                        break;
+                    case SliderData sliderData: 
+                        ConvertAndAddSliderData(sliderData, result);
+                        break;
                 }
             }
+            result.Sort(beatmapItemsComparer);
+            return result;
 
-            return result.OrderBy(static x => x, beatmapItemsComparer);
+            static void ConvertAndAddSliderData(SliderData sliderData, ICollection<NoteData> list) {
+                var sliceCount = sliderData.sliceCount;
+                for (var i = 1; i < sliceCount; ++i) {
+                    var lineIndex = i < sliceCount - 1 ? sliderData.headLineIndex : sliderData.tailLineIndex;
+                    var noteLineLayer = i < sliceCount - 1 ? sliderData.headLineLayer : sliderData.tailLineLayer;
+                    var time = Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, (float)i / (sliceCount - 1));
+                    var sliderNoteData = NoteData.CreateBurstSliderNoteData(
+                        time,
+                        lineIndex,
+                        noteLineLayer,
+                        sliderData.headBeforeJumpLineLayer,
+                        sliderData.colorType,
+                        NoteCutDirection.Any,
+                        1f
+                    );
+                    list.Add(sliderNoteData);
+                }
+            }
         }
 
         #endregion
@@ -257,26 +278,55 @@ namespace BeatLeader.Replayer.Emulation {
         };
 
         private static readonly HarmonyPatchDescriptor finishSwingRatingCounterPatchDescriptor = new(
-            typeof(GoodCutScoringElement).GetMethod(nameof(
-                GoodCutScoringElement.Init), ReflectionUtils.DefaultFlags)!, postfix:
-            typeof(ReplayerScoreProcessor).GetMethod(nameof(
-                GoodCutScoringInitPostfix), BindingFlags.NonPublic | BindingFlags.Static));
+            typeof(GoodCutScoringElement).GetMethod(
+                nameof(
+                    GoodCutScoringElement.Init),
+                ReflectionUtils.DefaultFlags
+            )!,
+            postfix:
+            typeof(ReplayerScoreProcessor).GetMethod(
+                nameof(
+                    GoodCutScoringInitPostfix),
+                BindingFlags.NonPublic | BindingFlags.Static
+            )
+        );
 
         private static readonly HarmonyPatchDescriptor noteWasCutEnergyCounterPatchDescriptor = new(
-            typeof(GameEnergyCounter).GetMethod(nameof(
-                GameEnergyCounter.HandleNoteWasCut), ReflectionUtils.DefaultFlags)!, postfix:
-            typeof(ReplayerScoreProcessor).GetMethod(nameof(
-                NoteWasProcessedPostfix), ReflectionUtils.StaticFlags));
+            typeof(GameEnergyCounter).GetMethod(
+                nameof(
+                    GameEnergyCounter.HandleNoteWasCut),
+                ReflectionUtils.DefaultFlags
+            )!,
+            postfix:
+            typeof(ReplayerScoreProcessor).GetMethod(
+                nameof(
+                    NoteWasProcessedPostfix),
+                ReflectionUtils.StaticFlags
+            )
+        );
 
         private static readonly HarmonyPatchDescriptor noteWasMissedEnergyCounterPatchDescriptor = new(
-            typeof(GameEnergyCounter).GetMethod(nameof(
-                GameEnergyCounter.HandleNoteWasMissed), ReflectionUtils.DefaultFlags)!, postfix:
-            typeof(ReplayerScoreProcessor).GetMethod(nameof(
-                NoteWasProcessedPostfix), ReflectionUtils.StaticFlags));
+            typeof(GameEnergyCounter).GetMethod(
+                nameof(
+                    GameEnergyCounter.HandleNoteWasMissed),
+                ReflectionUtils.DefaultFlags
+            )!,
+            postfix:
+            typeof(ReplayerScoreProcessor).GetMethod(
+                nameof(
+                    NoteWasProcessedPostfix),
+                ReflectionUtils.StaticFlags
+            )
+        );
 
         private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
-            typeof(NoteCutScoreSpawner).GetMethod(nameof(NoteCutScoreSpawner
-                .HandleScoringForNoteStarted), ReflectionUtils.DefaultFlags)!, false);
+            typeof(NoteCutScoreSpawner).GetMethod(
+                nameof(NoteCutScoreSpawner
+                    .HandleScoringForNoteStarted),
+                ReflectionUtils.DefaultFlags
+            )!,
+            false
+        );
 
         private readonly HarmonyAutoPatch _finishSwingRatingCounterPatch = new(finishSwingRatingCounterPatchDescriptor);
         private readonly HarmonyAutoPatch _noteWasCutEnergyCounterPatch = new(noteWasCutEnergyCounterPatchDescriptor);

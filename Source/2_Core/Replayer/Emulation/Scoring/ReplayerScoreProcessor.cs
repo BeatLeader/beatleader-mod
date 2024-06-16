@@ -15,23 +15,12 @@ namespace BeatLeader.Replayer.Emulation {
     public class ReplayerScoreProcessor : MonoBehaviour {
         #region Injection
 
-        [Inject]
-        private readonly ScoreController _scoreController = null!;
-
-        [Inject]
-        private readonly ComboController _comboController = null!;
-
-        [Inject]
-        private readonly GameEnergyCounter _gameEnergyCounter = null!;
-
-        [Inject]
-        private readonly ReplayEventsProcessor _eventsProcessor = null!;
-
-        [Inject]
-        private readonly IReadonlyBeatmapData _beatmapData = null!;
-
-        [Inject]
-        private readonly ReplayLaunchData _launchData = null!;
+        [Inject] private readonly ScoreController _scoreController = null!;
+        [Inject] private readonly ComboController _comboController = null!;
+        [Inject] private readonly GameEnergyCounter _gameEnergyCounter = null!;
+        [Inject] private readonly ReplayEventsProcessor _eventsProcessor = null!;
+        [Inject] private readonly IReadonlyBeatmapData _beatmapData = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         #endregion
 
@@ -109,7 +98,7 @@ namespace BeatLeader.Replayer.Emulation {
                     case NoteData data:
                         result.Add(data);
                         break;
-                    case SliderData sliderData: 
+                    case SliderData sliderData:
                         ConvertAndAddSliderData(sliderData, result);
                         break;
                 }
@@ -279,50 +268,43 @@ namespace BeatLeader.Replayer.Emulation {
 
         private static readonly HarmonyPatchDescriptor finishSwingRatingCounterPatchDescriptor = new(
             typeof(GoodCutScoringElement).GetMethod(
-                nameof(
-                    GoodCutScoringElement.Init),
+                nameof(GoodCutScoringElement.Init),
                 ReflectionUtils.DefaultFlags
             )!,
             postfix:
             typeof(ReplayerScoreProcessor).GetMethod(
-                nameof(
-                    GoodCutScoringInitPostfix),
+                nameof(GoodCutScoringInitPostfix),
                 BindingFlags.NonPublic | BindingFlags.Static
             )
         );
 
         private static readonly HarmonyPatchDescriptor noteWasCutEnergyCounterPatchDescriptor = new(
             typeof(GameEnergyCounter).GetMethod(
-                nameof(
-                    GameEnergyCounter.HandleNoteWasCut),
+                nameof(GameEnergyCounter.HandleNoteWasCut),
                 ReflectionUtils.DefaultFlags
             )!,
             postfix:
             typeof(ReplayerScoreProcessor).GetMethod(
-                nameof(
-                    NoteWasProcessedPostfix),
+                nameof(NoteWasProcessedPostfix),
                 ReflectionUtils.StaticFlags
             )
         );
 
         private static readonly HarmonyPatchDescriptor noteWasMissedEnergyCounterPatchDescriptor = new(
             typeof(GameEnergyCounter).GetMethod(
-                nameof(
-                    GameEnergyCounter.HandleNoteWasMissed),
+                nameof(GameEnergyCounter.HandleNoteWasMissed),
                 ReflectionUtils.DefaultFlags
             )!,
             postfix:
             typeof(ReplayerScoreProcessor).GetMethod(
-                nameof(
-                    NoteWasProcessedPostfix),
+                nameof(NoteWasProcessedPostfix),
                 ReflectionUtils.StaticFlags
             )
         );
 
         private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
             typeof(NoteCutScoreSpawner).GetMethod(
-                nameof(NoteCutScoreSpawner
-                    .HandleScoringForNoteStarted),
+                nameof(NoteCutScoreSpawner.HandleScoringForNoteStarted),
                 ReflectionUtils.DefaultFlags
             )!,
             false

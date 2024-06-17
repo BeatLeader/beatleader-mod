@@ -77,7 +77,11 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region GetMethod
-
+        
+        public static MethodInfo? GetMethod<TDeclarator>(string name) {
+            return typeof(TDeclarator).GetMethod(name, UniversalFlags);
+        }
+        
         public static MethodInfo GetMethod(
             this Type targetType,
             string name,

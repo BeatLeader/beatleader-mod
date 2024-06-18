@@ -30,6 +30,10 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected Color GetColor(StateColorSet? colorSet) {
+            return GetColor(colorSet, AnimationProgress);
+        }
+        
+        protected Color GetColor(StateColorSet? colorSet, float progress) {
             if (colorSet == null) {
                 return Color.clear;
             }
@@ -39,7 +43,7 @@ namespace BeatLeader.UI.Reactive.Components {
             if (!Interactable) {
                 return colorSet.DisabledColor;
             }
-            return Color.Lerp(colorSet.Color, colorSet.HoveredColor, AnimationProgress);
+            return Color.Lerp(colorSet.Color, colorSet.HoveredColor, progress);
         }
 
         protected override void OnHoverProgressChange(float progress) {

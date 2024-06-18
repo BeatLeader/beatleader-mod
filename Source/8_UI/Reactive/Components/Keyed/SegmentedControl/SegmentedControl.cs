@@ -28,8 +28,9 @@ namespace BeatLeader.UI.Reactive.Components {
         public TKey SelectedKey {
             get => _selectedKey ?? throw new InvalidOperationException("Key cannot be acquired when Items is empty");
             private set {
-                if (value!.Equals(_selectedKey)) return; 
+                if (value!.Equals(_selectedKey)) return;
                 _selectedKey = value;
+                SelectedKeyChangedEvent?.Invoke(value);
                 NotifyPropertyChanged();
             }
         }
@@ -37,6 +38,8 @@ namespace BeatLeader.UI.Reactive.Components {
         public FlexDirection Direction {
             set => this.AsFlexGroup(direction: value);
         }
+
+        public event Action<TKey>? SelectedKeyChangedEvent;
 
         private readonly ReactivePool<TKey, TCell> _cells = new();
         private readonly ObservableDictionary<TKey, TParam> _items = new();

@@ -4,6 +4,39 @@ using System.Linq;
 
 namespace BeatLeader.Utils {
     public static class CollectionsExtension {
+        #region Sorting
+
+        public static void Sort<T>(this IList<T> list, IComparer<T> comparer) {
+            QuickSort(list, 0, list.Count - 1, comparer);
+        }
+
+        private static void QuickSort<T>(IList<T> list, int left, int right, IComparer<T> comparer) {
+            if (left >= right) return;
+            var pivotIndex = Partition(list, left, right, comparer);
+            QuickSort(list, left, pivotIndex - 1, comparer);
+            QuickSort(list, pivotIndex + 1, right, comparer);
+        }
+
+        private static int Partition<T>(IList<T> list, int left, int right, IComparer<T> comparer) {
+            var pivot = list[right];
+            var i = left - 1;
+
+            for (var j = left; j < right; j++) {
+                if (comparer.Compare(list[j], pivot) > 0) continue;
+                i++;
+                Swap(list, i, j);
+            }
+
+            Swap(list, i + 1, right);
+            return i + 1;
+        }
+
+        private static void Swap<T>(IList<T> list, int indexA, int indexB) {
+            (list[indexA], list[indexB]) = (list[indexB], list[indexA]);
+        }
+
+        #endregion
+
         public static LinkedListNode<T>? FindNode<T>(this LinkedList<T> list, Func<LinkedListNode<T>, bool> predicate) {
             var node = list.First;
             while (node is not null) {
@@ -11,6 +44,15 @@ namespace BeatLeader.Utils {
                 node = node.Next;
             }
             return null;
+        }
+
+        public static int FindIndex<T>(this IEnumerable<T> collection, T item) {
+            var index = 0;
+            foreach (var i in collection) {
+                if (i?.Equals(item) ?? false) return index;
+                index++;
+            }
+            return -1;
         }
 
         public static IEnumerable<T> TakeIndexes<T>(this IList<T> collection, IEnumerable<int> indexes) {

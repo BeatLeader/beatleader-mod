@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
@@ -37,8 +38,8 @@ namespace BeatLeader.UI.Reactive {
                 }
             }
 
-            public float? DesiredHeight => _components.LastOrDefault()?.DesiredHeight;
-            public float? DesiredWidth => _components.LastOrDefault()?.DesiredWidth;
+            public float? DesiredHeight => _components.FirstOrDefault()?.DesiredHeight;
+            public float? DesiredWidth => _components.FirstOrDefault()?.DesiredWidth;
 
             public bool WithinLayout {
                 get => Enabled || WithinLayoutIfDisabled;
@@ -50,7 +51,7 @@ namespace BeatLeader.UI.Reactive {
 
             public bool WithinLayoutIfDisabled { get; set; }
 
-            public event Action<ILayoutItem>? ModifierUpdatedEvent;
+            public event Action? ModifierUpdatedEvent;
 
             private ILayoutDriver? _layoutDriver;
             private ILayoutModifier? _modifier;
@@ -80,8 +81,9 @@ namespace BeatLeader.UI.Reactive {
             }
 
             private void HandleModifierUpdated() {
-                _modifier?.ReloadLayoutItem(this);
-                ModifierUpdatedEvent?.Invoke(this);
+                if (_modifier == null) return;
+                _modifier.ReloadLayoutItem(this);
+                ModifierUpdatedEvent?.Invoke();
                 _components.ForEach(static x => x.OnModifierUpdatedInternal());
             }
 

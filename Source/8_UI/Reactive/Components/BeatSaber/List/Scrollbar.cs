@@ -1,6 +1,5 @@
 using System;
 using BeatLeader.UI.Reactive.Yoga;
-using HMUI;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -14,7 +13,8 @@ namespace BeatLeader.UI.Reactive.Components {
         bool CanScrollUp { set; }
         bool CanScrollDown { set; }
 
-        event Action<ScrollView.ScrollDirection>? ScrollEvent;
+        event Action? ScrollBackwardButtonPressedEvent;
+        event Action? ScrollForwardButtonPressedEvent;
 
         void SetActive(bool active);
     }
@@ -23,12 +23,6 @@ namespace BeatLeader.UI.Reactive.Components {
     /// Scrollbar for ReactiveComponent lists
     /// </summary>
     internal class Scrollbar : ReactiveComponent, IScrollbar {
-        #region Events
-
-        public event Action<ScrollView.ScrollDirection>? ScrollEvent;
-
-        #endregion
-
         #region Impl
 
         float IScrollbar.PageHeight {
@@ -52,6 +46,9 @@ namespace BeatLeader.UI.Reactive.Components {
         bool IScrollbar.CanScrollDown {
             set => _downButton.Interactable = value;
         }
+
+        public event Action? ScrollBackwardButtonPressedEvent;
+        public event Action? ScrollForwardButtonPressedEvent;
 
         void IScrollbar.SetActive(bool active) {
             Enabled = active;
@@ -101,7 +98,7 @@ namespace BeatLeader.UI.Reactive.Components {
                     }
                 }.AsFlexItem(basis: 4f);
             }
-            
+
             return new Dummy {
                 Children = {
                     //up button
@@ -139,6 +136,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
+            this.AsFlexItem(size: new() { x = 2f });
             WithinLayoutIfDisabled = true;
             RefreshHandle();
         }
@@ -148,11 +146,11 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Callbacks
 
         private void HandleUpButtonClicked() {
-            ScrollEvent?.Invoke(ScrollView.ScrollDirection.Up);
+            ScrollBackwardButtonPressedEvent?.Invoke();
         }
 
         private void HandleDownButtonClicked() {
-            ScrollEvent?.Invoke(ScrollView.ScrollDirection.Down);
+            ScrollForwardButtonPressedEvent?.Invoke();
         }
 
         #endregion

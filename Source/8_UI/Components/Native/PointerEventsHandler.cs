@@ -11,7 +11,8 @@ namespace BeatLeader.Components {
         IPointerExitHandler,
         IDragHandler,
         IBeginDragHandler,
-        IEndDragHandler {
+        IEndDragHandler,
+        IScrollHandler {
         #region Events
 
         public event Action<PointerEventsHandler, PointerEventData>? PointerUpdatedEvent;
@@ -25,6 +26,8 @@ namespace BeatLeader.Components {
         public event Action<PointerEventsHandler, PointerEventData>? PointerDragEvent;
         public event Action<PointerEventsHandler, PointerEventData>? PointerDragBeginEvent;
         public event Action<PointerEventsHandler, PointerEventData>? PointerDragEndEvent;
+        
+        public event Action<PointerEventsHandler, PointerEventData>? PointerScrollEvent;
 
         #endregion
 
@@ -34,7 +37,7 @@ namespace BeatLeader.Components {
         public bool IsPressed { get; private set; }
         public bool IsHovered { get; private set; }
         public bool IsDragging { get; private set; }
-        
+
         private void NotifyPointerUpdated(PointerEventData data) {
             PointerUpdatedEvent?.Invoke(this, data);
         }
@@ -81,6 +84,11 @@ namespace BeatLeader.Components {
         public void OnEndDrag(PointerEventData eventData) {
             IsDragging = false;
             PointerDragEndEvent?.Invoke(this, eventData);
+            NotifyPointerUpdated(eventData);
+        }
+
+        public void OnScroll(PointerEventData eventData) {
+            PointerScrollEvent?.Invoke(this, eventData);
             NotifyPointerUpdated(eventData);
         }
 

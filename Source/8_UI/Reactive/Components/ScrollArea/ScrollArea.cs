@@ -203,7 +203,6 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
-            Content.AddComponent<VRScrollAdapter>();
             SetDestinationPos(0f, true);
         }
 

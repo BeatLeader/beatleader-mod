@@ -15,13 +15,6 @@ namespace BeatLeader {
         public Sprite backgroundUnderline;
         /* Icons */
         [Space] [Header("Icons")]
-        public Sprite trashIcon;
-        public Sprite editIcon;
-        public Sprite curvatureIcon;
-        public Sprite snapIcon;
-        public Sprite pinIcon;
-        public Sprite crossIcon;
-        public Sprite rightArrowIcon;
         public Sprite plusIcon;
         public Sprite minusIcon;
         public Sprite ascendingIcon;

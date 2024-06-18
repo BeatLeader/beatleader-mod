@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Utils;
 
 namespace BeatLeader.UI.Reactive {
@@ -45,10 +46,11 @@ namespace BeatLeader.UI.Reactive {
     }
 
     internal class ReactivePool<T> where T : IReactiveComponent, new() {
-        public IReadOnlyCollection<T> SpawnedComponents => _spawnedComponents;
+        public IReadOnlyList<T> SpawnedComponents => _spawnedComponents;
+        public bool DetachOnDespawn = true;
 
         private readonly Stack<T> _reservedComponents = new();
-        private readonly HashSet<T> _spawnedComponents = new();
+        private readonly List<T> _spawnedComponents = new();
 
         public T Spawn() {
             if (!_reservedComponents.TryPop(out var comp)) {
@@ -63,9 +65,15 @@ namespace BeatLeader.UI.Reactive {
         }
 
         public void DespawnAll() {
-            foreach (var comp in _spawnedComponents) {
+            foreach (var comp in _spawnedComponents.ToArray()) {
                 DespawnInternal(comp);
             }
+        }
+
+        public void DespawnLast() {
+            if (_spawnedComponents.Count == 0) return;
+            var last = _spawnedComponents.Last();
+            Despawn(last);
         }
 
         public void Despawn(T comp) {
@@ -78,7 +86,7 @@ namespace BeatLeader.UI.Reactive {
         private void DespawnInternal(T comp) {
             if (!comp.IsDestroyed) {
                 comp.Enabled = false;
-                comp.Use(null);
+                if (DetachOnDespawn) comp.Use(null);
                 _reservedComponents.Push(comp);
             }
             _spawnedComponents.Remove(comp);

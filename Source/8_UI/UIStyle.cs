@@ -25,6 +25,12 @@ namespace BeatLeader.UI {
 
         public static ReadOnlyColorSet ButtonColorSet => new() {
             ActiveColor = new(0.0f, 0.4f, 1.0f, 1.0f),
+            HoveredColor = new(0.0f, 0.4f, 1.0f, 1.0f),
+            Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
+        };
+        
+        public static StateColorSet SecondaryButtonColorSet = new() {
+            ActiveColor = new(0.0f, 0.4f, 1.0f, 1.0f),
             HoveredColor = (Color.white * 0.5f).ColorWithAlpha(0.2f),
             Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
         };

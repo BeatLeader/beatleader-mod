@@ -1,128 +1,61 @@
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.BSML_Addons;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components.Settings;
-using JetBrains.Annotations;
-using TMPro;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeatLeader.UI.Replayer {
-    [BSMLComponent(Namespace = "Replayer")]
-    internal class SettingsCameraView : ReeUIComponentV3<SettingsCameraView>, ReplayerSettingsPanel.ISegmentedControlView {
-        #region SegmentedControlView
+    internal class SettingsCameraView : ReactiveComponent {
+        #region Camera Params
 
-        public ReplayerSettingsPanel.SettingsView Key => ReplayerSettingsPanel.SettingsView.CameraView;
-        public (string, Sprite) Value { get; } = ("Camera", BundleLoader.CameraIcon);
-
-        void ISegmentedControlView.SetActive(bool active) {
-            Content.SetActive(active);
-        }
-
-        void ISegmentedControlView.Setup(Transform? trans) {
-            ContentTransform.SetParent(trans, false);
-        }
-
-        #endregion
-
-        #region UI Components
-
-        [UIComponent("fov-slider"), UsedImplicitly]
-        private NormalizedSlider _fovSlider = null!;
-
-        [UIComponent("camera-view-setting"), UsedImplicitly]
-        private ListSetting _cameraViewSetting = null!;
-
-        [UIComponent("camera-view-params-container"), UsedImplicitly]
-        private Transform _cameraViewParamsContainer = null!;
-
-        [UIObject("camera-view-params-empty-text"), UsedImplicitly]
-        private GameObject _cameraViewParamsEmptyTextObject = null!;
-
-        #endregion
-
-        #region UI Values
-
-        [UIValue("camera-view-choices"), UsedImplicitly]
-        private List<object> _cameraViewSettingsOptions = new();
-
-        #endregion
-
-        #region CameraParams
-
-        public interface ICameraViewParams {
+        public interface ICameraViewParams : IReactiveComponent {
             bool SupportsCameraView(ICameraView cameraView);
-            void Setup(Transform? transform, ICameraView? cameraView);
+            void Setup(ICameraView? cameraView);
         }
 
-        public readonly List<ICameraViewParams> cameraViewParams = new();
-        private readonly Dictionary<ICameraView, ICameraViewParams> _cachedCameraParams = new();
+        public ICollection<ICameraViewParams> CameraViewParams => _cameraViewParams;
 
-        private ICameraViewParams? _selectedCameraParams;
+        private readonly List<ICameraViewParams> _cameraViewParams = new();
+        private ICameraViewParams? _selectedViewParams;
 
-        public void ReloadCameraViewParams() {
-            ShowCameraParamsOrText(null, null);
-            _cachedCameraParams.Clear();
-            foreach (var viewParams in cameraViewParams) {
-                viewParams.Setup(null, null);
-                var view = CameraViews.FirstOrDefault(x => viewParams.SupportsCameraView(x));
-                if (view is not null) _cachedCameraParams[view] = viewParams;
-            }
-            RefreshCameraParams();
-        }
-
-        private void RefreshCameraParams() {
-            if (_selectedCameraView is null) {
-                ShowCameraParamsOrText(null, null);
+        private void TryShowCameraParams() {
+            if (_selectedCameraView == null) {
+                _viewContainer.Select(null);
                 return;
             }
-            var view = _selectedCameraView;
-            var viewParams = AcquireCameraParams(view);
-            ShowCameraParamsOrText(viewParams, view);
-        }
-
-        private ICameraViewParams? AcquireCameraParams(ICameraView view) {
-            _cachedCameraParams.TryGetValue(view, out var viewParams);
-            return viewParams;
-        }
-
-        private void ShowCameraParamsOrText(ICameraViewParams? viewParams, ICameraView? cameraView) {
-            _cameraViewParamsEmptyTextObject.SetActive(viewParams is null);
-            _selectedCameraParams?.Setup(null, null);
-            viewParams?.Setup(_cameraViewParamsContainer, cameraView);
-            _selectedCameraParams = viewParams;
+            _selectedViewParams?.Setup(null);
+            if (!_viewContainer.Select(_selectedCameraView)) {
+                var viewParams = _cameraViewParams.FirstOrDefault(x => x.SupportsCameraView(_selectedCameraView));
+                if (viewParams == null) return;
+                _viewContainer.Items.Add(_selectedCameraView, viewParams);
+                _viewContainer.Select(_selectedCameraView);
+                _selectedViewParams = viewParams;
+            } else {
+                _selectedViewParams = (ICameraViewParams)_viewContainer.Items[_selectedCameraView];
+            }
+            _selectedViewParams.Setup(_selectedCameraView);
         }
 
         #endregion
 
-        #region CameraViews
+        #region Camera Views
 
-        private IReadOnlyList<ICameraView> CameraViews => _cameraController!.Views;
-
-        private ICameraView? SelectedCameraView {
-            set {
-                _selectedCameraView = value;
-                if (value is null) return;
-                _cameraController!.SetView(value);
-            }
-        }
+        private IEnumerable<ICameraView> CameraViews => _cameraController!.Views;
 
         private ICameraView? _selectedCameraView;
+        private bool _isInitialized;
 
         private void RefreshCameraViews() {
-            ValidateAndThrow();
-            _cameraViewSettingsOptions.AddRange(CameraViews);
-            _selectedCameraView = CameraViews.FirstOrDefault();
-            _cameraViewSetting.Value = _selectedCameraView;
-            RefreshCameraParams();
-        }
-
-        [UIAction("camera-view-format"), UsedImplicitly]
-        private string FormatCameraView(ICameraView? view) {
-            return view?.Name ?? "None";
+            _viewSelector.Items.Clear();
+            foreach (var view in CameraViews) {
+                _viewSelector.Items.Add(view, view.Name);
+            }
+            _selectedCameraView = _cameraController!.SelectedView;
+            if (_selectedCameraView == null) return;
+            _viewSelector.Select(_selectedCameraView);
+            TryShowCameraParams();
         }
 
         #endregion
@@ -132,48 +65,92 @@ namespace BeatLeader.UI.Replayer {
         private ICameraController? _cameraController;
 
         public void Setup(
-            ICameraController cameraController,
-            ReplayerCameraSettings cameraSettings
+            ICameraController? cameraController,
+            ReplayerCameraSettings? cameraSettings
         ) {
+            if (_cameraController != null) {
+                _cameraController.CameraFovChangedEvent -= HandleCameraFovChanged;
+                _cameraController.CameraViewChangedEvent -= HandleCameraViewChanged;
+            }
             _cameraController = cameraController;
-            _fovSlider.ValueRange = new(cameraSettings.MinCameraFOV, cameraSettings.MaxCameraFOV);
-            _fovSlider.Value = cameraController.Camera.fieldOfView;
-            RefreshCameraViews();
-        }
-
-        protected override void OnInitialize() {
-            _cameraViewSetting.text.fontStyle = FontStyles.Normal;
-            var dummyNavigation = new Navigation { mode = Navigation.Mode.None };
-            _cameraViewSetting.decButton.navigation = dummyNavigation;
-            _cameraViewSetting.incButton.navigation = dummyNavigation;
-        }
-
-        protected override bool OnValidation() {
-            return _cameraController is not null;
+            _isInitialized = false;
+            if (_cameraController != null && cameraSettings != null) {
+                _fovSlider.ValueRange = new(cameraSettings.MinCameraFOV, cameraSettings.MaxCameraFOV);
+                _fovSlider.Value = cameraSettings.CameraFOV;
+                _cameraController.CameraFovChangedEvent += HandleCameraFovChanged;
+                _cameraController.CameraViewChangedEvent += HandleCameraViewChanged;
+                RefreshCameraViews();
+                _isInitialized = true;
+            }
         }
 
         #endregion
 
-        #region Camera Management
+        #region Construct
 
-        private void SetFOV(float fov) {
-            ValidateAndThrow();
-            _cameraController!.Camera.fieldOfView = fov;
+        private Slider _fovSlider = null!;
+        private TextListControl<ICameraView> _viewSelector = null!;
+        private KeyedContainer<ICameraView> _viewContainer = null!;
+
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    new Slider {
+                        ValueStep = 5f
+                    }.WithListener(
+                        x => x.Value,
+                        HandleFOVSliderValueChanged
+                    ).AsFlexItem(
+                        size: new() { x = 40f, y = 6f }
+                    ).Bind(ref _fovSlider).InNamedRail("Camera FOV"),
+                    //
+                    new TextListControl<ICameraView>()
+                        .WithListener(x => x.SelectedKey, HandleViewSelectorViewChanged)
+                        .AsFlexItem(size: new() { x = 40f, y = 6f })
+                        .Bind(ref _viewSelector)
+                        .InNamedRail("Camera View"),
+                    //
+                    new KeyedContainer<ICameraView>()
+                        .AsFlexItem(grow: 1f)
+                        .Bind(ref _viewContainer)
+                        .InBackground(color: (Color.white * 0.1f).ColorWithAlpha(1f))
+                        .AsFlexGroup(padding: 2f)
+                        .AsFlexItem(grow: 1f)
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                gap: 2f
+            ).Use();
         }
 
         #endregion
 
         #region Callbacks
 
-        [UIAction("fov-slider-value-change"), UsedImplicitly]
-        private void HandleFOVSliderValueChanged(float value) {
-            SetFOV(value);
+        private void HandleCameraFovChanged(int fov) {
+            _fovSlider.SetValueSilent(fov);
         }
 
-        [UIAction("camera-view-value-change"), UsedImplicitly]
         private void HandleCameraViewChanged(ICameraView view) {
-            SelectedCameraView = view;
-            RefreshCameraParams();
+            _viewSelector.SelectSilent(view);
+            HandleViewSelectorViewChangedInternal(view);
+        }
+
+        private void HandleFOVSliderValueChanged(float value) {
+            if (!_isInitialized) return;
+            _cameraController?.SetFov((int)value);
+        }
+
+        private void HandleViewSelectorViewChanged(ICameraView view) {
+            if (_isInitialized) {
+                _cameraController?.SetView(view);
+            }
+            HandleViewSelectorViewChangedInternal(view);
+        }
+
+        private void HandleViewSelectorViewChangedInternal(ICameraView view) {
+            _selectedCameraView = view;
+            TryShowCameraParams();
         }
 
         #endregion

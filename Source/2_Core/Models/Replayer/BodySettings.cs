@@ -9,7 +9,8 @@ namespace BeatLeader.Models {
         private Dictionary<string, SerializableVirtualPlayerBodyConfig> BodyModels { get; set; } = new();
 
         public void AddOrUpdateConfig(IVirtualPlayerBodyModel model, IVirtualPlayerBodyConfig config) {
-            BodyModels[model.Name] = new SerializableVirtualPlayerBodyConfig(model, config);
+            var serializable = config as SerializableVirtualPlayerBodyConfig;
+            BodyModels[model.Name] = serializable ?? new SerializableVirtualPlayerBodyConfig(model, config);
         }
 
         public IVirtualPlayerBodyConfig? GetConfigByNameOrNull(string name) {

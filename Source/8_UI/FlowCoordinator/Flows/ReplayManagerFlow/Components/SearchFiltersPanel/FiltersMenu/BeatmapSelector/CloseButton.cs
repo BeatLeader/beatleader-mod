@@ -7,7 +7,9 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class CloseButton : ReeUIComponentV2 {
-        private static readonly Color inactiveColor = Color.black.ColorWithAlpha(0.5f);
+        //static CloseButton() => ColorUtility.TryParseHtmlString("#00000080", out inactiveColor);
+
+        private static readonly Color inactiveColor;
         private static readonly Color highlightedColor = Color.red.ColorWithAlpha(0.8f);
 
         public event Action? ButtonPressedEvent;

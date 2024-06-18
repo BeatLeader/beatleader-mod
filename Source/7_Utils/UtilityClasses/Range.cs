@@ -1,13 +1,14 @@
 namespace BeatLeader {
     public class Range {
-        public readonly float Start;
-        public readonly float End;
-        public readonly float Amplitude;
+        public float Start;
+        public float End;
+        public float Amplitude => End - Start;
 
+        public Range() { }
+        
         public Range(float start, float end) {
             Start = start;
             End = end;
-            Amplitude = end - start;
         }
 
         public float GetRatioClamped(float value) {

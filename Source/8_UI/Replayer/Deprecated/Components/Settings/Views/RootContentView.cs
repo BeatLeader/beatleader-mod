@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Interop;
 using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 

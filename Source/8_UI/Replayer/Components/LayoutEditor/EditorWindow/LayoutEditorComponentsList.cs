@@ -3,19 +3,20 @@ using System.Diagnostics;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
+using BeatLeader.Utils;
 using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class LayoutEditorComponentsList : ReactiveListComponentBase<ILayoutComponent, LayoutEditorComponentsList.Cell> {
+    internal class LayoutEditorComponentsList : Table<ILayoutComponent, LayoutEditorComponentsList.Cell> {
         #region Cell
 
-        public class Cell : ReactiveTableCell<ILayoutComponent> {
+        public class Cell : TableComponentCell<ILayoutComponent> {
             #region Setup
 
             private ILayoutComponent _layoutComponent = null!;
 
-            protected override void Init(ILayoutComponent component) {
+            protected override void OnInit(ILayoutComponent component) {
                 _layoutComponent = component;
                 _componentNameText.Text = component.ComponentName;
                 _componentLayerText.Text = component.ComponentController.ComponentLayer.ToString();
@@ -32,7 +33,8 @@ namespace BeatLeader.Components {
             private Image _backgroundImage = null!;
 
             protected override GameObject Construct() {
-                return new BeatLeader.UI.Reactive.Components.Dummy {
+                return new Button {
+                    GrowOnHover = false,
                     Children = {
                         new Image {
                             Sprite = BundleLoader.Sprites.background,
@@ -83,11 +85,11 @@ namespace BeatLeader.Components {
                             justifyContent: Justify.FlexStart
                         ).AsFlexItem(grow: 1f).Bind(ref _backgroundImage)
                     }
-                }.AsFlexGroup(
+                }.WithClickListener(() => SelectSelf(true)).AsFlexGroup(
                     padding: new() { bottom = 1f }
-                ).WithRectExpand().Use();
+                ).WithSizeDelta(0f, 9.5f).Use();
             }
-            
+
             #endregion
 
             #region Colors
@@ -109,7 +111,7 @@ namespace BeatLeader.Components {
 
             #region Callbacks
 
-            public override void OnCellStateChange(bool selected, bool highlighted) {
+            protected override void OnCellStateChange(bool selected) {
                 RefreshColors(selected);
             }
 
@@ -138,8 +140,6 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Setup
-
-        protected override float CellSize => 9.5f;
 
         protected override void OnEarlyRefresh() {
             RefreshSorting();

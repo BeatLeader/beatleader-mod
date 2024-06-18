@@ -10,7 +10,9 @@ namespace BeatLeader.Models {
         Camera Camera { get; }
 
         event Action<ICameraView>? CameraViewChangedEvent;
+        event Action<int>? CameraFovChangedEvent;
 
+        void SetFov(int fov);
         void SetView(ICameraView view);
     }
 }

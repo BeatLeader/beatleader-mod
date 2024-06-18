@@ -1,9 +1,10 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
-namespace BeatLeader.Models {
+namespace BeatLeader.UI.Replayer {
     internal interface IReplayTimeline {
-        event Action MarkersWereGeneratedEvent;
-
-        void ShowMarkers(string name, bool show = true);
+        IReadOnlyCollection<string> AvailableMarkers { get; }
+         
+        void SetMarkersEnabled(string name, bool enable = true);
+        bool GetMarkersEnabled(string name);
     }
 }

@@ -1,21 +1,19 @@
-using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {
-    internal class PlayerViewCameraParams : ReeUIComponentV3<PlayerViewCameraParams>, SettingsCameraView.ICameraViewParams {
+    internal class PlayerViewCameraParams : ReactiveComponent, SettingsCameraView.ICameraViewParams {
         #region ViewParams
 
         public bool SupportsCameraView(ICameraView cameraView) {
             return cameraView is PlayerViewCameraView;
         }
 
-        public void Setup(Transform? trans, ICameraView? cameraView) {
-            Content.SetActive(trans is not null);
-            ContentTransform.SetParent(trans, false);
+        public void Setup(ICameraView? cameraView) {
             _cameraView = cameraView as PlayerViewCameraView;
             LoadFromView();
         }
@@ -26,42 +24,75 @@ namespace BeatLeader.UI.Replayer {
 
         private PlayerViewCameraView? _cameraView;
         private float _smoothness;
+        private bool _keepUpright;
         private Vector3 _positionOffset;
-        private Quaternion _rotationOffset;
 
         private void LoadFromView() {
-            if (_cameraView is null) return;
+            if (_cameraView == null) return;
+            _smoothnessSlider.SetValueSilent(_cameraView.Smoothness);
+            _keepUprightToggle.SetActive(_cameraView.KeepUpright, false, true);
             _smoothness = _cameraView.Smoothness;
+            _keepUpright = _cameraView.KeepUpright;
             _positionOffset = _cameraView.PositionOffset;
-            _rotationOffset = _cameraView.RotationOffset;
         }
-        
+
         private void RefreshView() {
-            if (_cameraView is null) return;
+            if (_cameraView == null) return;
             _cameraView.Smoothness = _smoothness;
             _cameraView.PositionOffset = _positionOffset;
-            _cameraView.RotationOffset = _rotationOffset;
+            _cameraView.KeepUpright = _keepUpright;
+        }
+
+        #endregion
+
+        #region Construct
+
+        private Slider _smoothnessSlider = null!;
+        private Toggle _keepUprightToggle = null!;
+        
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    new Slider {
+                        ValueRange = {
+                            Start = 0.1f,
+                            End = 10f
+                        },
+                        Value = 1f,
+                        ValueStep = 0.1f
+                    }.WithListener(
+                        x => x.Value,
+                        HandleSmoothnessChanged
+                    ).Bind(ref _smoothnessSlider).InNamedRail("Smoothness"),
+                    //
+                    new Toggle().WithListener(
+                        x => x.Active,
+                        HandleKeepUprightChanged
+                    ).Bind(ref _keepUprightToggle).InNamedRail("Keep Upright")
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                justifyContent: Justify.FlexStart,
+                gap: 2f
+            ).Use();
         }
 
         #endregion
 
         #region Callbacks
 
-        [UIAction("smoothness-change"), UsedImplicitly]
-        private void HandleSmoothnessChange(float value) {
+        private void HandleSmoothnessChanged(float value) {
             _smoothness = value;
             RefreshView();
         }
 
-        [UIAction("position-offset-change"), UsedImplicitly]
-        private void HandlePositionOffsetChanged(Vector3 vector) {
-            _positionOffset = vector;
+        private void HandleKeepUprightChanged(bool value) {
+            _keepUpright = value;
             RefreshView();
         }
-
-        [UIAction("rotation-offset-change"), UsedImplicitly]
-        private void HandleRotationOffsetChanged(Vector3 vector) {
-            _rotationOffset = Quaternion.Euler(vector);
+        
+        private void HandlePositionOffsetChanged(Vector3 vector) {
+            _positionOffset = vector;
             RefreshView();
         }
 

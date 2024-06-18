@@ -1,5 +1,6 @@
 ﻿using BeatLeader.DataManager;
 using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using TMPro;
 using UnityEngine;
 using Zenject;

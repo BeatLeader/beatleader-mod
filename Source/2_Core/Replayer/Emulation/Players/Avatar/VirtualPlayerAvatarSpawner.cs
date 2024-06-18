@@ -28,9 +28,5 @@ namespace BeatLeader.Replayer.Emulation {
             _spawnedAvatars.Remove(avatarBody);
             _avatarPool.Despawn(avatarBody);
         }
-
-        protected override void ApplyConfig(IVirtualPlayerBodyConfig config) {
-            ApplyPrimaryConfig(config);
-        }
     }
 }

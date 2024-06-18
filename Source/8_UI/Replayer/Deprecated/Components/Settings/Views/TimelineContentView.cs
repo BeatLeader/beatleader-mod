@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
 
 namespace BeatLeader.Components {
@@ -37,9 +38,9 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshVisibility() {
-            _timeline.ShowMarkers(TimelineMissName, ShowMisses);
-            _timeline.ShowMarkers(TimelineBombName, ShowBombs);
-            _timeline.ShowMarkers(TimelinePauseName, ShowPauses);
+            _timeline.SetMarkersEnabled(TimelineMissName, ShowMisses);
+            _timeline.SetMarkersEnabled(TimelineBombName, ShowBombs);
+            _timeline.SetMarkersEnabled(TimelinePauseName, ShowPauses);
         }
 
         #endregion

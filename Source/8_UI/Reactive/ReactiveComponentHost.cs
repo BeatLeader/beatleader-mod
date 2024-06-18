@@ -84,6 +84,7 @@ namespace BeatLeader.UI.Reactive {
                 if (_modifier == null) return;
                 _modifier.ReloadLayoutItem(this);
                 ModifierUpdatedEvent?.Invoke();
+                _components.ForEach(static x => x.OnModifierUpdatedInternal());
             }
 
             #endregion
@@ -163,9 +164,11 @@ namespace BeatLeader.UI.Reactive {
             }
 
             private void LateUpdate() {
-                if (!_recalculationScheduled) return;
-                RefreshLayout();
-                _recalculationScheduled = false;
+                if (_recalculationScheduled) {
+                    RefreshLayout();
+                    _recalculationScheduled = false;
+                }
+                _components.ForEach(static x => x.OnLateUpdate());
             }
 
             private void OnDestroy() {

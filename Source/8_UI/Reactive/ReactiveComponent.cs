@@ -47,7 +47,10 @@ namespace BeatLeader.UI.Reactive {
             if (_layoutController == null || Children.Count == 0) return;
             _layoutController.ReloadDimensions(ContentTransform.rect);
             _layoutController.Recalculate(root);
-            _layoutController.Apply();
+            if (root) {
+                _layoutController.ApplySelf(this);
+            }
+            _layoutController.ApplyChildren();
         }
 
         public void RecalculateLayoutTree() {
@@ -110,6 +113,12 @@ namespace BeatLeader.UI.Reactive {
             OnChildrenUpdated();
         }
 
+        private void TruncateChildrenInternal(IEnumerable<ILayoutItem> items) {
+            foreach (var item in items) {
+                TruncateChildInternal(item);
+            }
+        }
+
         private void HandleChildModifierUpdated() {
             if (_beingRecalculated) return;
             RecalculateLayoutTree();
@@ -121,6 +130,7 @@ namespace BeatLeader.UI.Reactive {
         }
 
         protected override void OnLayoutApply() {
+            if (LayoutDriver == null) return;
             RecalculateLayout();
         }
 
@@ -170,7 +180,8 @@ namespace BeatLeader.UI.Reactive {
             _children = new(
                 new HashSet<ILayoutItem>(layoutItemComparer),
                 AppendChildInternal,
-                TruncateChildInternal
+                TruncateChildInternal,
+                TruncateChildrenInternal
             );
         }
 
@@ -180,6 +191,10 @@ namespace BeatLeader.UI.Reactive {
 
         protected sealed override float? DesiredHeight => base.DesiredHeight;
         protected sealed override float? DesiredWidth => base.DesiredWidth;
+
+        protected sealed override void OnModifierUpdatedInternal() {
+            if (LayoutDriver == null) RecalculateLayoutInternal(true);
+        }
 
         #endregion
 
@@ -195,6 +210,10 @@ namespace BeatLeader.UI.Reactive {
 
         protected sealed override void ConstructInternal() {
             base.ConstructInternal();
+        }
+
+        protected sealed override void OnModifierUpdatedInternal() {
+            base.OnModifierUpdatedInternal();
         }
 
         #endregion
@@ -305,6 +324,8 @@ namespace BeatLeader.UI.Reactive {
         void ILayoutItem.ApplyTransforms(Action<RectTransform> applicator) => Host.ApplyTransforms(applicator);
 
         protected void RefreshLayout() => Host.RefreshLayout();
+
+        protected virtual void OnModifierUpdatedInternal() { }
 
         #endregion
 
@@ -444,6 +465,7 @@ namespace BeatLeader.UI.Reactive {
         protected virtual void OnInstantiate() { }
         protected virtual void OnInitialize() { }
         protected virtual void OnUpdate() { }
+        protected virtual void OnLateUpdate() { }
         protected virtual void OnStart() { }
         protected virtual void OnDestroy() { }
         protected virtual void OnEnable() { }

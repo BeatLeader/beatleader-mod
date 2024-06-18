@@ -8,7 +8,20 @@ namespace BeatLeader.UI.Reactive {
         
         void ReloadChildren(IEnumerable<ILayoutItem> children);
         void ReloadDimensions(Rect controllerRect);
+        
+        /// <summary>
+        /// Called every time layout update is queued. 
+        /// </summary>
         void Recalculate(bool root);
-        void Apply();
+        
+        /// <summary>
+        /// Called every time layout update is needed. No matter is controller the root or not.
+        /// </summary>
+        void ApplyChildren();
+        
+        /// <summary>
+        /// Called in case controller is the root of the layout hierarchy, so it can control itself.
+        /// </summary>
+        void ApplySelf(ILayoutItem item);
     }
 }

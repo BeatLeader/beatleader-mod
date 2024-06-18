@@ -10,7 +10,7 @@ namespace BeatLeader {
             ICollection<T> collection,
             Action<T>? addedCallback = null,
             Action<T>? removedCallback = null,
-            Action? allRemovedCallback = null
+            Action<IEnumerable<T>>? allRemovedCallback = null
         ) {
             this.collection = collection;
             ItemAddedEvent += addedCallback;
@@ -18,11 +18,14 @@ namespace BeatLeader {
             AllItemsRemovedEvent += allRemovedCallback;
         }
 
-        public event Action<T>? ItemAddedEvent; 
-        public event Action<T>? ItemRemovedEvent; 
-        public event Action? AllItemsRemovedEvent; 
-        
+        public event Action<T>? ItemAddedEvent;
+        public event Action<T>? ItemRemovedEvent;
+        public event Action<IEnumerable<T>>? AllItemsRemovedEvent;
+
         public readonly ICollection<T> collection;
+
+        //mono does not have spans, so no safe stack array allocations(
+        private readonly List<T> _removalBuffer = new();
 
         #endregion
 
@@ -41,13 +44,17 @@ namespace BeatLeader {
         }
 
         public void Add(T item) {
+            var count = Count;
             collection.Add(item);
+            if (count == Count) return;
             ItemAddedEvent?.Invoke(item);
         }
 
         public void Clear() {
+            _removalBuffer.AddRange(collection);
             collection.Clear();
-            AllItemsRemovedEvent?.Invoke();
+            AllItemsRemovedEvent?.Invoke(_removalBuffer);
+            _removalBuffer.Clear();
         }
 
         public bool Contains(T item) {

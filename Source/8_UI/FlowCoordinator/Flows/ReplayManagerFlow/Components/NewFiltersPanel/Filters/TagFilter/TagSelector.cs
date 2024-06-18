@@ -6,6 +6,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
+using BeatLeader.Utils;
 using TMPro;
 using UnityEngine;
 
@@ -13,18 +14,18 @@ namespace BeatLeader.UI.Hub {
     internal class TagSelector : ReactiveComponent {
         #region Tags
 
-        public IReadOnlyCollection<IReplayTag> SelectedTags => _selectedTagsList.Items;
+        public ICollection<IReplayTag> SelectedTags => _selectedTagsList.Items;
 
         public event Action<IReplayTag>? SelectedTagAddedEvent;
         public event Action<IReplayTag>? SelectedTagRemovedEvent;
-        
+
         public void SelectFromMetadata(IReplayMetadata metadata) {
             _selectedTagsList.Items.Clear();
             _selectedTagsList.Items.AddRange(metadata.Tags);
             _selectedTagsList.Refresh();
             ReloadAllTags(metadata.Tags);
         }
-        
+
         public void ClearSelectedTags() {
             _selectedTagsList.Items.Clear();
             _selectedTagsList.Refresh();
@@ -52,11 +53,12 @@ namespace BeatLeader.UI.Hub {
 
         #region TagsList
 
-        private class TagsListCell : ReactiveTableCell<IReplayTag> {
+        private class TagsListCell : TableComponentCell<IReplayTag> {
             #region Construct
 
             private Label _nameLabel = null!;
             private ImageButton _button = null!;
+            private bool _buttonHighlighted;
 
             protected override GameObject Construct() {
                 return new ImageButton {
@@ -66,35 +68,39 @@ namespace BeatLeader.UI.Hub {
                     },
                     GrowOnHover = false,
                     HoverLerpMul = float.MaxValue,
-                    ColorizeOnHover = false,
+                    Colors = null,
                     Children = {
                         new Label {
                             Alignment = TextAlignmentOptions.Midline
                         }.AsFlexItem(grow: 1f).Bind(ref _nameLabel)
                     }
-                }.WithRectSize(6f, 0f).AsFlexGroup(padding: 1f).Bind(ref _button).Use();
+                }.WithSizeDelta(0f, 6f).WithAnimation(
+                    x => _buttonHighlighted = x > 0f
+                ).AsFlexGroup(padding: 1f).Bind(ref _button).Use();
+            }
+
+            private void RefreshVisuals(bool selected) {
+                _nameLabel.Color = _buttonHighlighted || selected ? UIStyle.TextColor : UIStyle.SecondaryTextColor;
+                _button.Image.Color = Item.Color.ColorWithAlpha(_buttonHighlighted || selected ? 0.5f : 0.3f);
             }
 
             #endregion
 
             #region Cell
 
-            protected override void Init(IReplayTag item) {
+            protected override void OnInit(IReplayTag item) {
                 _nameLabel.Text = item.Name;
-                OnCellStateChange(false, false);
+                OnCellStateChange(false);
             }
 
-            public override void OnCellStateChange(bool selected, bool highlighted) {
-                _nameLabel.Color = highlighted || selected ? UIStyle.TextColor : UIStyle.SecondaryTextColor;
-                _button.Color = Item!.Color.ColorWithAlpha(highlighted || selected ? 0.5f : 0.3f);
+            protected override void OnCellStateChange(bool selected) {
+                RefreshVisuals(selected);
             }
 
             #endregion
         }
 
-        private class TagsList : ReactiveListComponentBase<IReplayTag, TagsListCell> {
-            protected override float CellSize => 6f;
-        }
+        private class TagsList : Table<IReplayTag, TagsListCell> { }
 
         #endregion
 
@@ -166,7 +172,7 @@ namespace BeatLeader.UI.Hub {
                         //list
                         new TagsList()
                             .WithListener(
-                                x => x.SelectedItemsIndexes,
+                                x => x.SelectedIndexes,
                                 x => actionButton().Interactable = x.Count > 0
                             )
                             .AsFlexItem(grow: 1f)
@@ -201,7 +207,8 @@ namespace BeatLeader.UI.Hub {
                         () => {
                             var list = sourceList();
                             var tList = targetList();
-                            foreach (var item in list.SelectedItems.ToArray()) {
+                            foreach (var index in list.SelectedIndexes) {
+                                var item = list.Items[index];
                                 tList.Items.Add(item);
                                 list.Items.Remove(item);
                                 processCallback(item);

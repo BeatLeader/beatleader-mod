@@ -185,8 +185,10 @@ namespace BeatLeader.UI.Reactive.Components {
                             Sprite = BundleLoader.Sprites.background,
                             Material = GameResources.UINoGlowMaterial
                         },
-                        Color = Color.black.ColorWithAlpha(0.5f),
-                        HoverColor = Color.black.ColorWithAlpha(0.8f),
+                        Colors = new() {
+                            Color = Color.black.ColorWithAlpha(0.5f),
+                            HoveredColor = Color.black.ColorWithAlpha(0.8f)
+                        },
                         HoverLerpMul = int.MaxValue,
                         GrowOnHover = false,
                         Children = {

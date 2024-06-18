@@ -42,9 +42,15 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Color
 
         protected override void ApplyColor(Color color) {
-            Image.Color = color;
-            Image.GradientColor0 = GetColor(_gradientColors0);
-            Image.GradientColor1 = GetColor(_gradientColors1);
+            if (Colors != null) {
+                Image.Color = color;
+            }
+            if (_gradientColors0 != null) {
+                Image.GradientColor0 = GetColor(_gradientColors0);
+            }
+            if (_gradientColors1 != null) {
+                Image.GradientColor1 = GetColor(_gradientColors1);
+            }
         }
 
         protected override void OnInteractableChange(bool interactable) {

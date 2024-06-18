@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ColoredButton : ButtonBase {
+    internal class ColoredButton : Button {
         #region UI Properties
 
-        public IColorSet? Colors {
+        public StateColorSet? Colors {
             get => _stateColorSet;
             set {
                 if (_stateColorSet != null) {
@@ -19,7 +19,7 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        private IColorSet? _stateColorSet = UIStyle.ButtonColorSet;
+        private StateColorSet? _stateColorSet = UIStyle.ButtonColorSet;
 
         #endregion
 
@@ -29,27 +29,21 @@ namespace BeatLeader.UI.Reactive.Components {
             ApplyColor(GetColor(Colors));
         }
 
-        protected Color GetColor(IColorSet? colorSet) {
+        protected Color GetColor(StateColorSet? colorSet) {
             return GetColor(colorSet, AnimationProgress);
         }
-
-        protected Color GetColor(IColorSet? colorSet, float progress) {
+        
+        protected Color GetColor(StateColorSet? colorSet, float progress) {
             if (colorSet == null) {
                 return Color.clear;
             }
-            var hovered = progress > 0f;
-            var state = new GraphicElementState {
-                active = Active,
-                interactable = Interactable,
-                hovered = hovered
-            };
-            var color = colorSet.GetColor(state);
-            if (hovered) {
-                state.hovered = false;
-                var standardColor = colorSet.GetColor(state);
-                color = Color.Lerp(standardColor, color, progress);
+            if (Active) {
+                return colorSet.ActiveColor;
             }
-            return color;
+            if (!Interactable) {
+                return colorSet.DisabledColor;
+            }
+            return Color.Lerp(colorSet.Color, colorSet.HoveredColor, progress);
         }
 
         protected override void OnHoverProgressChange(float progress) {
@@ -59,7 +53,7 @@ namespace BeatLeader.UI.Reactive.Components {
         protected override void OnButtonStateChange(bool state) {
             UpdateColor();
         }
-
+        
         protected virtual void ApplyColor(Color color) { }
 
         #endregion

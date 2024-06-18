@@ -21,7 +21,8 @@ namespace BeatLeader.UI.Reactive {
         public virtual void ReloadChildren(IEnumerable<ILayoutItem> children) { }
 
         public abstract void Recalculate(bool root);
-        public abstract void Apply();
+        public abstract void ApplyChildren();
+        public abstract void ApplySelf(ILayoutItem item);
 
         #endregion
 

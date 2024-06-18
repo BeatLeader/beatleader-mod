@@ -141,9 +141,12 @@ namespace BeatLeader.UI.Reactive.Components {
             get => _selectedKey.Value ?? throw new InvalidOperationException("Key cannot be acquired when Items is empty");
             private set {
                 _selectedKey = value;
+                SelectedKeyChangedEvent?.Invoke(value);
                 NotifyPropertyChanged();
             }
         }
+
+        public event Action<TKey>? SelectedKeyChangedEvent;
 
         private readonly ObservableDictionary<TKey, TParam> _items = new();
         private Optional<TKey> _selectedKey;
@@ -152,12 +155,12 @@ namespace BeatLeader.UI.Reactive.Components {
             List.ClearSelection();
             List.Select(new DropdownOption { key = key });
             SelectedKey = key;
+            _modal.RefreshPreviewCell();
         }
 
         private void RefreshSelection() {
             if (_selectedKey.HasValue || Items.Count <= 0) return;
             Select(Items.Keys.First());
-            _modal.RefreshPreviewCell();
         }
 
         #endregion
@@ -221,7 +224,8 @@ namespace BeatLeader.UI.Reactive.Components {
             this.AsFlexItem(size: new() { x = 36f, y = 6f });
             Skew = UIStyle.Skew;
             _items.ItemAddedEvent += HandleItemAdded;
-            _items.ItemRemovedEvent -= HandleItemRemoved;
+            _items.ItemRemovedEvent += HandleItemRemoved;
+            _items.AllItemsRemovedEvent += HandleAllItemsRemoved;
             List.WithListener(
                 x => x.SelectedItems,
                 x => {
@@ -250,6 +254,13 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private void HandleItemRemoved(TKey key) {
             List.Items.Remove(new() { key = key });
+            List.Refresh();
+            RefreshSelection();
+            NotifyPropertyChanged(nameof(Items));
+        }
+
+        private void HandleAllItemsRemoved() {
+            List.Items.Clear();
             List.Refresh();
             RefreshSelection();
             NotifyPropertyChanged(nameof(Items));

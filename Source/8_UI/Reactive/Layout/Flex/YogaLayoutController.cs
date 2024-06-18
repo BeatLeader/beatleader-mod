@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using IPA.Utilities;
 
 namespace BeatLeader.UI.Reactive.Yoga {
-    internal sealed class YogaLayoutController : ReactiveLayoutController {
+    internal class YogaLayoutController : ReactiveLayoutController {
         #region Properties
 
         public Overflow Overflow {
@@ -125,11 +125,11 @@ namespace BeatLeader.UI.Reactive.Yoga {
 
         #region Context
 
-        public override Type ContextType { get; } = typeof(YogaContext);
+        public sealed override Type ContextType { get; } = typeof(YogaContext);
 
-        public override object CreateContext() => new YogaContext();
+        public sealed override object CreateContext() => new YogaContext();
 
-        public override void ProvideContext(object? context) {
+        public sealed override void ProvideContext(object? context) {
             if (context == null) {
                 if (_contextNode.IsInitialized) {
                     _contextNode.RemoveAllChildren();
@@ -157,7 +157,7 @@ namespace BeatLeader.UI.Reactive.Yoga {
             }
         }
 
-        private YogaNode YogaNode {
+        protected YogaNode YogaNode {
             get {
                 YogaNode node;
                 if (UseIndependentLayout) {
@@ -173,32 +173,47 @@ namespace BeatLeader.UI.Reactive.Yoga {
             }
         }
 
-        private readonly Dictionary<ILayoutItem, YogaNode> _nodes = new();
+        private bool _useIndependentLayout;
         private YogaNode _layoutNode;
         private YogaNode _contextNode;
-        private bool _useIndependentLayout;
-        private IEnumerable<ILayoutItem>? _children;
 
-        public override void Recalculate(bool root) {
-            foreach (var (child, node) in _nodes) {
-                node.StyleSetDisplay(child.WithinLayout ? Display.Flex : Display.None);
-            }
+        public sealed override void Recalculate(bool root) {
+            ReloadChildrenVisibility();
             if (!root && !UseIndependentLayout) return;
-            YogaNode.CalculateLayout(Rect.width, Rect.height, _direction);
+            RecalculateInternal();
         }
 
-        public override void Apply() {
+        protected virtual void RecalculateInternal() {
+            YogaNode.CalculateLayout(Rect.width, Rect.height, Direction);
+        }
+
+        public sealed override void ApplyChildren() {
             foreach (var (child, node) in _nodes) {
                 child.ApplyTransforms(x => node.ApplyTo(x));
             }
         }
 
-        public override void ReloadChildren(IEnumerable<ILayoutItem> children) {
+        private void ReloadChildrenVisibility() {
+            foreach (var (child, node) in _nodes) {
+                node.StyleSetDisplay(child.WithinLayout ? Display.Flex : Display.None);
+            }
+        }
+
+        public override void ApplySelf(ILayoutItem item) { }
+
+        #endregion
+
+        #region Children
+
+        private readonly Dictionary<ILayoutItem, YogaNode> _nodes = new();
+        private IEnumerable<ILayoutItem>? _children;
+
+        public sealed override void ReloadChildren(IEnumerable<ILayoutItem> children) {
             _children = children;
             ReloadChildrenInternal(YogaNode, null);
         }
 
-        private void ReloadChildrenInternal(YogaNode node, YogaNode? fromNode) {
+        protected virtual void ReloadChildrenInternal(YogaNode node, YogaNode? fromNode) {
             if (_children == null) return;
             fromNode?.RemoveAllChildren();
             node.RemoveAllChildren();

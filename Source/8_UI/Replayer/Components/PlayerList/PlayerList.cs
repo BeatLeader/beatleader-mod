@@ -1,46 +1,101 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
-using JetBrains.Annotations;
-using TMPro;
+using IPA.Utilities;
 using UnityEngine;
-using UnityEngine.UI;
+using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
+using ImageButton = BeatLeader.UI.Reactive.Components.ImageButton;
 
-namespace BeatLeader.Components {
-    internal class PlayerList : ReeListComponentBase<PlayerList, IVirtualPlayer, PlayerList.Cell> {
+namespace BeatLeader.UI.Replayer {
+    internal class PlayerList : Table<IVirtualPlayer, PlayerList.Cell> {
         #region Cell
 
-        public class Cell : ReeTableCell<Cell, IVirtualPlayer> {
-            #region UI Components
+        public class Cell : TableComponentCell<IVirtualPlayer> {
+            #region Construct
 
-            [UIComponent("mini-profile"), UsedImplicitly]
-            private QuickMiniProfile _miniProfile = null!;
-
-            [UIComponent("replay-overview"), UsedImplicitly]
             private QuickReplayOverview _replayOverview = null!;
+            private QuickMiniProfile _miniProfile = null!;
+            private Image _scoreBackground = null!;
+            private Label _scoreText = null!;
+            private ImageButton _backgroundImage = null!;
+            private RectTransform _actualContent = null!;
 
-            [UIComponent("background-image"), UsedImplicitly]
-            private AdvancedImage _backgroundImage = null!;
-
-            [UIComponent("score-text"), UsedImplicitly]
-            private TMP_Text _scoreText = null!;
-
-            [UIComponent("score-background"), UsedImplicitly]
-            private ImageView _scoreBackground = null!;
+            protected override GameObject Construct() {
+                return new ImageButton {
+                    ContentTransform = {
+                        pivot = new(1f, 0f)
+                    },
+                    Image = {
+                        Sprite = BundleLoader.Sprites.background,
+                        PixelsPerUnit = 5f,
+                        //required to fill the TEXCOORD1 with non-sliced UV
+                        UseGradient = true
+                    },
+                    Colors = null,
+                    GrowOnHover = false,
+                    HoverLerpMul = float.MaxValue,
+                    Children = {
+                        new ReeWrapperV3<QuickMiniProfile>()
+                            .BindRee(ref _miniProfile)
+                            .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
+                        //overview
+                        new Dummy {
+                            Children = {
+                                //score background
+                                new Image {
+                                    Sprite = BundleLoader.Sprites.background,
+                                    Children = {
+                                        //score label
+                                        new Label {
+                                            Text = "Score",
+                                            FontSize = 3f
+                                        }.AsFlexItem(size: "auto"),
+                                        //actual score label
+                                        new Label {
+                                            Text = "0",
+                                            FontSize = 4f
+                                        }.Bind(ref _scoreText).AsFlexItem(size: "auto")
+                                    }
+                                }.AsFlexGroup(
+                                    direction: Reactive.Yoga.FlexDirection.Column,
+                                    alignItems: Align.Center,
+                                    padding: new() {
+                                        left = 2f,
+                                        top = 1f,
+                                        right = 2f,
+                                        bottom = 1f
+                                    }
+                                ).Bind(ref _scoreBackground).AsFlexItem(grow: 1f),
+                                //replay overview
+                                new ReeWrapperV3<QuickReplayOverview>()
+                                    .BindRee(ref _replayOverview)
+                                    .AsFlexItem(size: new() { y = 5f, x = 12f })
+                            }
+                        }.AsFlexGroup(
+                            direction: Reactive.Yoga.FlexDirection.Column,
+                            alignItems: Align.Center,
+                            padding: 1f,
+                            gap: 1f
+                        ).AsFlexItem(minSize: new() { x = 22f })
+                    }
+                }.With(
+                    x => x
+                        .AsFlexGroup()
+                        .WithClickListener(() => SelectSelf(true))
+                        .Bind(ref _backgroundImage)
+                        .Bind(ref _actualContent)
+                        .WithRectExpand()
+                ).In<Dummy>().WithSizeDelta(0f, 20f).Use();
+            }
 
             #endregion
 
             #region Setup
-
-            protected override string Markup { get; } = BSMLUtility.ReadMarkupOrFallback(
-                "PlayerListCell", Assembly.GetExecutingAssembly()
-            );
 
             private IBeatmapTimeController _timeController = null!;
             private IReplayScoreEventsProcessor? _scoreEventsProcessor;
@@ -48,11 +103,16 @@ namespace BeatLeader.Components {
             private IVirtualPlayer? _previousVirtualPlayer;
             private PlayerList _playerList = null!;
 
-            public void Setup(IBeatmapTimeController timeController) {
+            public void Setup(IBeatmapTimeController timeController, PlayerList playerList) {
                 _timeController = timeController;
+                _playerList = playerList;
+                if (_previousVirtualPlayer != null && _previousVirtualPlayer != Item) {
+                    _playerList.NotifyCellForceUpdateRequired();
+                }
+                _previousVirtualPlayer = Item;
             }
 
-            protected override void Init(IVirtualPlayer player) {
+            protected override void OnInit(IVirtualPlayer player) {
                 //score events
                 if (_scoreEventsProcessor is not null) {
                     _scoreEventsProcessor.ScoreEventDequeuedEvent -= HandleScoreEventDequeued;
@@ -70,46 +130,43 @@ namespace BeatLeader.Components {
                 _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteEventDequeued;
                 _beatmapEventsProcessor.EventQueueAdjustStartedEvent += HandleNoteEventQueueAdjustStarted;
                 //initialization
-                _playerList = (PlayerList)List!;
                 RefreshPlayer();
                 RefreshScoreWithoutNotice();
                 RefreshBackgroundMaterial();
                 if (_previousVirtualPlayer != null && _previousVirtualPlayer != player) {
-                    _playerList.NotifyCellReadyForUpdate();
+                    _playerList.NotifyCellForceUpdateRequired();
                 }
                 _previousVirtualPlayer = player;
             }
 
             private void RefreshPlayer() {
-                var replay = Item!.Replay;
+                var replay = Item.Replay;
                 var replayData = replay.ReplayData;
                 _miniProfile.SetPlayer(replayData.Player!);
                 _replayOverview.SetReplay(replay);
-                enabled = true;
+                Enabled = true;
             }
 
             protected override void OnInitialize() {
-                enabled = false;
-                //required to fill the TEXCOORD1 with non-sliced UV
-                _backgroundImage.ImageView.gradient = true;
+                Enabled = false;
                 LoadBackgroundMaterial();
-                _scoreBackground.type = Image.Type.Simple;
                 LoadScoreBackgroundMaterial();
             }
 
-            protected override void OnDispose() {
+            protected override void OnDestroy() {
                 if (_scoreEventsProcessor is not null) {
                     _scoreEventsProcessor.ScoreEventDequeuedEvent -= HandleScoreEventDequeued;
                 }
-                Destroy(_backgroundFillMaterial);
-                Destroy(_scoreBackgroundMaterial);
+                Object.Destroy(_backgroundFillMaterial);
+                Object.Destroy(_scoreBackgroundMaterial);
             }
 
-            private void Update() {
+            protected override void OnUpdate() {
+                UpdateMoveAnimation();
                 UpdateFillAnimation();
             }
 
-            private void LateUpdate() {
+            protected override void OnLateUpdate() {
                 RefreshScoreFullComboLines();
             }
 
@@ -131,52 +188,37 @@ namespace BeatLeader.Components {
             }
 
             private void RefreshBackgroundMaterial() {
-                var color = Item!.Replay.ReplayData.Player!.AccentColor;
+                var color = Item.Replay.ReplayData.Player!.AccentColor;
                 _backgroundFillMaterial.SetColor(colorProperty, color);
                 var backgroundColor = color.ColorWithAlpha(0.4f);
                 _backgroundFillMaterial.SetColor(backgroundColorProperty, backgroundColor);
             }
 
             private void LoadBackgroundMaterial() {
-                _backgroundFillMaterial = Instantiate(BundleLoader.OpponentBackgroundMaterial);
-                _backgroundImage.Material = _backgroundFillMaterial;
+                _backgroundFillMaterial = Object.Instantiate(BundleLoader.OpponentBackgroundMaterial);
+                _backgroundImage.Image.Material = _backgroundFillMaterial;
             }
 
             #endregion
 
             #region Move Animation
 
-            private bool _receivedEventWhileAnimating;
-            private bool _isAnimating;
-
-            public Vector2 ReportPosition() {
-                return ContentTransform.position;
+            public Vector2 GetPosition() {
+                var world = _actualContent.position;
+                return ContentTransform.parent.InverseTransformPoint(world);
             }
 
-            public void NotifyPositionUpdated(Vector2 oldPosition) {
-                if (_isAnimating) return;
-                var destination = ContentTransform!.position;
-                ContentTransform!.position = oldPosition;
-                var coroutine = LinearMoveCoroutine(0.4f, 120f, oldPosition, destination);
-                RoutineFactory.StartUnmanagedCoroutine(coroutine);
+            public void StartAnimatedMove(Vector2 sourcePosition) {
+                var world = ContentTransform.parent.TransformPoint(sourcePosition);
+                _actualContent.position = world;
             }
 
-            private IEnumerator LinearMoveCoroutine(float time, float framerate, Vector3 origin, Vector3 destination) {
-                _isAnimating = true;
-                var totalFrames = time * framerate;
-                var timePerFrame = time / framerate;
-                var vectorSubtr = destination - origin;
-                var vectorSummand = vectorSubtr / totalFrames;
-                var tr = ContentTransform;
-                tr.position = origin;
-                for (var i = 0f; i < totalFrames; i++) {
-                    yield return new WaitForSeconds(timePerFrame);
-                    tr.position += vectorSummand;
-                }
-                _isAnimating = false;
-                if (_receivedEventWhileAnimating) {
-                    _playerList.NotifyCellReadyForUpdate();
-                }
+            private void UpdateMoveAnimation() {
+                _actualContent.localPosition = Vector3.Lerp(
+                    _actualContent.localPosition,
+                    Vector3.zero,
+                    Time.deltaTime * 4f
+                );
             }
 
             #endregion
@@ -192,8 +234,8 @@ namespace BeatLeader.Components {
             }
 
             private void LoadScoreBackgroundMaterial() {
-                _scoreBackgroundMaterial = Instantiate(BundleLoader.OpponentScoreBackgroundMaterial);
-                _scoreBackground.material = _scoreBackgroundMaterial;
+                _scoreBackgroundMaterial = Object.Instantiate(BundleLoader.OpponentScoreBackgroundMaterial);
+                _scoreBackground.Material = _scoreBackgroundMaterial;
             }
 
             #endregion
@@ -205,21 +247,19 @@ namespace BeatLeader.Components {
             private void RefreshScore(LinkedListNode<ScoreEvent>? node = null) {
                 if (_scoreEventsProcessor!.QueueIsBeingAdjusted) return;
                 RefreshScoreWithoutNotice(node);
-                if (_isAnimating) {
-                    _receivedEventWhileAnimating = true;
-                } else {
-                    _playerList.NotifyCellReadyForUpdate();
-                }
+                _playerList.NotifyCellUpdateRequired(Item!, _currentNoteEvent);
             }
 
             private void RefreshScoreWithoutNotice(LinkedListNode<ScoreEvent>? node = null) {
                 node ??= _scoreEventsProcessor!.CurrentScoreEvent;
-                _scoreText.text = $"{node?.Value.score ?? 0}";
+                _scoreText.Text = $"{node?.Value.score ?? 0}";
             }
 
             #endregion
 
             #region Callbacks
+
+            private NoteEvent _currentNoteEvent;
 
             private void HandleScoreEventDequeued(LinkedListNode<ScoreEvent> node) {
                 RefreshScore(node);
@@ -230,6 +270,7 @@ namespace BeatLeader.Components {
             }
 
             private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node) {
+                _currentNoteEvent = node.Value;
                 if (node.Value.eventType is NoteEvent.NoteEventType.Miss) {
                     _fullCombo = false;
                 }
@@ -238,8 +279,6 @@ namespace BeatLeader.Components {
             private void HandleNoteEventQueueAdjustStarted() {
                 _fullCombo = true;
             }
-
-            public override void OnStateChange(bool selected, bool highlighted) { }
 
             #endregion
         }
@@ -263,30 +302,87 @@ namespace BeatLeader.Components {
         private readonly VirtualPlayerComparator _virtualPlayerComparator = new();
 
         private void RefreshSorting() {
-            items.Sort(_virtualPlayerComparator);
+            Items.Sort(_virtualPlayerComparator);
         }
 
         #endregion
 
         #region Setup
 
-        protected override float CellSize => 20f;
-
         private IBeatmapTimeController? _timeController;
-        private readonly HashSet<Cell> _cells = new();
+        private IVirtualPlayersManager? _playersManager;
 
-        public void Setup(IBeatmapTimeController timeController) {
+        public void Setup(IBeatmapTimeController? timeController, IVirtualPlayersManager? playersManager) {
+            if (_playersManager != null) {
+                _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
+            }
             _timeController = timeController;
+            _playersManager = playersManager;
+            if (_playersManager != null) {
+                _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
+                _primaryPlayer = _playersManager.PrimaryPlayer;
+            }
         }
 
         protected override void OnCellConstruct(Cell cell) {
-            ValidateAndThrow();
-            cell.Setup(_timeController!);
-            _cells.Add(cell);
+            if (_timeController == null) throw new UninitializedComponentException();
+            cell.Setup(_timeController, this);
         }
 
-        protected override bool OnValidation() {
-            return _timeController is not null;
+        protected override void OnUpdate() {
+            UpdateHandleAnimation();
+            UpdateCellAnimation();
+        }
+
+        protected override void OnInitialize() {
+            CreateHandle();
+        }
+
+        protected override void OnStart() {
+            Refresh();
+        }
+
+        #endregion
+
+        #region Cell Handling
+
+        private readonly Dictionary<IVirtualPlayer, NoteEvent> _noteEvents = new();
+        private float _lastReportedTime;
+        private bool _cellUpdateRequired;
+        private bool _forceUpdateRequired;
+
+        private void NotifyCellForceUpdateRequired() {
+            _forceUpdateRequired = true;
+            _cellUpdateRequired = true;
+        }
+
+        private void NotifyCellUpdateRequired(IVirtualPlayer player, NoteEvent noteEvent) {
+            _noteEvents[player] = noteEvent;
+            _cellUpdateRequired = true;
+        }
+
+        private bool CompareNoteEvents(NoteEvent x, NoteEvent y) {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            return x.spawnTime == y.spawnTime && x.noteId == y.noteId;
+        }
+
+        private bool CanUpdate() {
+            NoteEvent? previousNoteEvent = null;
+            foreach (var (_, noteEvent) in _noteEvents) {
+                if (previousNoteEvent != null && !CompareNoteEvents(noteEvent, previousNoteEvent.Value)) return false;
+                previousNoteEvent = noteEvent;
+            }
+            return true;
+        }
+
+        private void UpdateCellAnimation() {
+            var time = Time.time;
+            if (_cellUpdateRequired && time - _lastReportedTime > 0.1f && (_forceUpdateRequired || CanUpdate())) {
+                Refresh();
+                _lastReportedTime = time;
+                _cellUpdateRequired = false;
+                _forceUpdateRequired = false;
+            }
         }
 
         #endregion
@@ -296,29 +392,53 @@ namespace BeatLeader.Components {
         private readonly Dictionary<IVirtualPlayer, Vector2> _cellPositions = new();
 
         private void SaveCellsPosition() {
-            foreach (var cell in _cells) {
-                if (cell.Item is not { } item) continue;
-                var position = cell.ReportPosition();
-                _cellPositions[item] = position;
+            foreach (var (cell, item) in SpawnedCells) {
+                _cellPositions[item] = cell.GetPosition();
             }
         }
 
         private void StartCellsAnimation() {
-            foreach (var cell in _cells) {
-                if (!_cellPositions.TryGetValue(cell.Item!, out var oldPosition)) continue;
-                var actualCellPosition = cell.ReportPosition();
+            foreach (var (cell, item) in SpawnedCells) {
+                if (!_cellPositions.TryGetValue(item, out var oldPosition)) continue;
+                var actualCellPosition = cell.GetPosition();
                 if (actualCellPosition == oldPosition) continue;
-                cell.NotifyPositionUpdated(oldPosition);
+                cell.StartAnimatedMove(oldPosition);
             }
         }
 
-        private void NotifyCellReadyForUpdate() {
-            StartCoroutine(RefreshCoroutine());
+        #endregion
+
+        #region Handle Animation
+
+        private IVirtualPlayer _primaryPlayer = null!;
+        private RectTransform _handleTransform = null!;
+
+        private void RefreshHandle() {
+            _handleTransform.gameObject.SetActive(Items.Count > 1);
+            foreach (var (cell, item) in SpawnedCells) {
+                if (item != _primaryPlayer) continue;
+                _handleTransform.SetParent(cell.ContentTransform, true);
+            }
         }
 
-        private IEnumerator RefreshCoroutine() {
-            yield return new WaitForSeconds(0.1f);
-            Refresh();
+        private void CreateHandle() {
+            var handle = new Image {
+                ContentTransform = {
+                    pivot = new(1f, 0.5f)
+                },
+                Sprite = BundleLoader.Sprites.triangleIcon,
+                Material = BundleLoader.Materials.uiNoDepthMaterial,
+                Color = new(0.1f, 0.1f, 0.1f)
+            }.WithSizeDelta(4f, 6f).Bind(ref _handleTransform);
+            handle.Use(ScrollContent);
+        }
+
+        private void UpdateHandleAnimation() {
+            _handleTransform.localPosition = Vector3.Lerp(
+                _handleTransform.localPosition,
+                new(0f, CellSize / 2f, 0f),
+                Time.deltaTime * 4f
+            );
         }
 
         #endregion
@@ -328,11 +448,16 @@ namespace BeatLeader.Components {
         protected override void OnEarlyRefresh() {
             SaveCellsPosition();
             RefreshSorting();
-            _cells.Clear();
         }
 
         protected override void OnRefresh() {
+            RefreshHandle();
             StartCellsAnimation();
+        }
+
+        private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
+            _primaryPlayer = player;
+            RefreshHandle();
         }
 
         #endregion

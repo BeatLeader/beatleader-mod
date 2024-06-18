@@ -25,13 +25,15 @@ namespace BeatLeader.Replayer.Emulation {
         #region Injection
 
         [Inject] private readonly ZenjectMenuResolver _zenjectMenuResolver = null!;
+        [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
 
         #endregion
 
         #region Setup
 
-        public bool UsesPrimaryModel => true;
+        public bool UsesPrimaryModel { get; private set; }
 
+        private IVirtualPlayerBase _player = null!;
         private AvatarLoader _avatarLoader = null!;
         private AvatarPartsModel _avatarPartsModel = null!;
         private readonly AvatarData _avatarData = new();
@@ -46,6 +48,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void RefreshAvatarVisuals(IVirtualPlayerBase player) {
+            _player = player;
             var playerId = player.Replay.ReplayData.Player!.Id;
             AvatarUtils.RandomizeAvatarByPlayerId(playerId, _avatarData, _avatarPartsModel);
             _avatarController.visualController.UpdateAvatarVisual(_avatarData);
@@ -55,7 +58,9 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region VirtualPlayerBody
 
-        public void RefreshVisuals() { }
+        public void RefreshVisuals() {
+            UsesPrimaryModel = _playersManager.PrimaryPlayer == _player;
+        }
 
         public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {
             _headTransform.SetLocalPose(headPose);

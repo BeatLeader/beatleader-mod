@@ -1,89 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
-using BeatLeader.UI.BSML_Addons;
-using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components.Settings;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using Scrollbar = BeatLeader.Components.Scrollbar;
 
 namespace BeatLeader.UI.Replayer {
-    [BSMLComponent(Namespace = "Replayer")]
-    internal class SettingsAvatarView : ReeUIComponentV3<SettingsAvatarView>, ReplayerSettingsPanel.ISegmentedControlView {
-        #region SettingsView
-
-        public ReplayerSettingsPanel.SettingsView Key => ReplayerSettingsPanel.SettingsView.AvatarView;
-        public (string, Sprite) Value { get; } = ("Avatar", BundleLoader.AvatarIcon);
-
-        public void SetActive(bool active) {
-            Content.SetActive(active);
-        }
-
-        public void Setup(Transform? trans) {
-            ContentTransform.SetParent(trans, false);
-        }
-
-        #endregion
-
-        #region UI Components
-
-        [UIComponent("body-parts-container"), UsedImplicitly]
-        private Transform _bodyPartsContainer = null!;
-
-        [UIComponent("models-dropdown"), UsedImplicitly]
-        private DropDownListSetting _modelsDropdown = null!;
-
-        [UIComponent("scrollbar"), UsedImplicitly]
-        private Scrollbar _scrollbar = null!;
-
-        [UIComponent("scrollable"), UsedImplicitly]
-        private ScrollableContainer _scrollable = null!;
-
-        #endregion
-
-        #region UI Values
-
-        [UIValue("body-model"), UsedImplicitly]
-        private IVirtualPlayerBodyModel BodyModel {
-            get => _bodyModel ?? dummyModel;
-            set {
-                _bodyModel = value;
-                if (_bodyModel == dummyModel) return;
-                ReloadBindings();
-                ReloadUIControls();
-            }
-        }
-
-        [UIValue("body-models"), UsedImplicitly]
-        private List<object> _bodyModels = new() { dummyModel };
-
-        private static readonly VirtualPlayerBodyModel dummyModel = new("", Array.Empty<VirtualPlayerBodyPartModel>());
-
-        private IVirtualPlayerBodyModel? _bodyModel;
-        private IVirtualPlayerBodyConfig? _bodyConfig;
-
-        private void ReloadBodyModels() {
-            _bodyModels.Clear();
-            _bodyModels.AddRange(_bodySpawner!.BodyModels);
-            _modelsDropdown.UpdateChoices();
-            _modelsDropdown.interactable = _bodyModels.Count > 1;
-            BodyModel = _bodySpawner!.BodyModels.First();
-        }
-
-        [UIAction("format-body-model"), UsedImplicitly]
-        private string FormatBodyModel(IVirtualPlayerBodyModel model) {
-            return model.Name;
-        }
-
-        #endregion
-
+    internal class SettingsAvatarView : ReactiveComponent {
         #region Setup
 
         private IVirtualPlayerBodySpawner? _bodySpawner;
@@ -98,22 +23,25 @@ namespace BeatLeader.UI.Replayer {
             ReloadBodyModels();
         }
 
-        protected override void OnInitialize() {
-            var dropdown = _modelsDropdown.dropdown.transform;
-            var dropdownParent = dropdown.parent.gameObject;
-            
-            var dropdownFitter = dropdownParent.AddComponent<ContentSizeFitter>();
-            dropdownFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            dropdownFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        #endregion
 
-            var text = dropdownParent.GetComponentInChildren<TMP_Text>();
-            text.fontStyle = FontStyles.Normal;
-            
-            _scrollable.Scrollbar = _scrollbar;
+        #region Models
+
+        private IVirtualPlayerBodyModel? _selectedModel;
+
+        private void SelectModel(IVirtualPlayerBodyModel model) {
+            _selectedModel = model;
+            ReloadConfigGroup(model, _bodySpawner!.BodyConfigs[model]);
+            ReloadCategories();
         }
 
-        protected override bool OnValidation() {
-            return _bodyConfig is not null && _bodySpawner is not null;
+        private void ReloadBodyModels() {
+            _modelsDropdown.Items.Clear();
+            foreach (var model in _bodySpawner!.BodyModels) {
+                _modelsDropdown.Items.Add(model, model.Name);
+            }
+            _selectedModel = _bodySpawner!.BodyModels.FirstOrDefault();
+            if (_selectedModel != null) _modelsDropdown.Select(_selectedModel);
         }
 
         #endregion
@@ -121,196 +49,210 @@ namespace BeatLeader.UI.Replayer {
         #region Config
 
         private record PartConfigWithModel(
-            IVirtualPlayerBodyPartModel Model,
-            IVirtualPlayerBodyPartConfig Config
+            IVirtualPlayerBodyPartModel PartModel,
+            IVirtualPlayerBodyPartConfig PartConfig
         );
 
         private record PartConfigsGroup(
             string? GroupName,
             IEnumerable<PartConfigWithModel> Configs
         );
-        
-        private readonly Dictionary<IVirtualPlayerBodyModel, IEnumerable<PartConfigsGroup>> _configBindings = new();
-        private IEnumerable<PartConfigsGroup>? _groupedConfigs;
 
-        private void ReloadBindings() {
-            _bodyConfig = _bodySpawner!.BodyConfigs[_bodyModel!];
-            if (!_configBindings.TryGetValue(_bodyModel!, out var groupedConfigs)) {
-                var modelsDict = _bodyModel!.Parts.ToDictionary(static x => x.Id);
-                groupedConfigs = _bodyConfig!.BodyParts
-                    .Select(x => new PartConfigWithModel(modelsDict[x.Key], x.Value))
-                    .GroupBy(static x => x.Model.Category ?? "Other")
-                    .Select(static x => new PartConfigsGroup(x.Key, x))
-                    .ToArray();
-                _configBindings[_bodyModel] = groupedConfigs;
-            }
-            _groupedConfigs = groupedConfigs;
+        private readonly Dictionary<IVirtualPlayerBodyModel, IEnumerable<PartConfigsGroup>> _groupedModelConfigs = new();
+
+        private void ReloadConfigGroup(IVirtualPlayerBodyModel model, IVirtualPlayerBodyConfig config) {
+            if (_groupedModelConfigs.TryGetValue(model, out var groupedConfigs)) return;
+            //creating if needed
+            var modelsDict = model.Parts.ToDictionary(static x => x.Id);
+            groupedConfigs = config.BodyParts
+                .Select(x => new PartConfigWithModel(modelsDict[x.Key], x.Value))
+                .GroupBy(static x => x.PartModel.Category ?? "Other")
+                .Select(static x => new PartConfigsGroup(x.Key, x))
+                .ToArray();
+            _groupedModelConfigs[model] = groupedConfigs;
         }
 
         #endregion
 
-        #region BodyPartsCategory
+        #region PartControl
 
-        [BSMLComponent(Suppress = true)]
-        private class BodyPartsCategory : ReeUIComponentV3<BodyPartsCategory> {
-            #region UI Components
-
-            [UIComponent("container"), UsedImplicitly]
-            private Transform _container = null!;
-
-            [UIComponent("text"), UsedImplicitly]
-            private TMP_Text _text = null!;
-
-            #endregion
-
+        private class PartControl : ReactiveComponent {
             #region Setup
 
-            private SettingsAvatarView _settingsAvatarView = null!;
-            private PartConfigsGroup _configsGroup = null!;
+            private PartConfigWithModel? _config;
+            private bool _ignoreUpdates;
 
-            public void Setup(
-                SettingsAvatarView avatarView,
-                PartConfigsGroup configsGroup
-            ) {
-                _text.text = configsGroup.GroupName;
-                _settingsAvatarView = avatarView;
-                _configsGroup = configsGroup;
-                Content.SetActive(true);
-                LoadParts();
-            }
-
-            public void Release() {
-                Content.SetActive(false);
-                ClearParts();
-            }
-
-            #endregion
-
-            #region Parts
-
-            private readonly List<BodyPartControl> _parts = new();
-
-            private void LoadParts() {
-                foreach (var (model, partConfig) in _configsGroup.Configs) {
-                    var part = _settingsAvatarView.GetBodyPart(model, partConfig);
-                    part.ContentTransform.SetParent(_container, false);
-                    _parts.Add(part);
+            public void Setup(PartConfigWithModel config) {
+                if (_config != null) {
+                    _config.PartConfig.ConfigUpdatedEvent -= HandleConfigUpdated;
                 }
-            }
-
-            private void ClearParts() {
-                foreach (var part in _parts) {
-                    _settingsAvatarView.ReleaseBodyPart(part);
-                }
-                _parts.Clear();
+                _config = config;
+                _config.PartConfig.ConfigUpdatedEvent += HandleConfigUpdated;
+                //
+                _namedRail.Label.Text = config.PartModel.Name;
+                HandleConfigUpdated();
             }
 
             #endregion
-        }
 
-        private readonly List<BodyPartsCategory> _categories = new();
-        private readonly Stack<BodyPartsCategory> _reusableCategories = new();
+            #region Construct
 
-        private void ReloadUIControls() {
-            ValidateAndThrow();
-            ClearCategories();
-            foreach (var grouped in _groupedConfigs!) {
-                AddCategory(grouped);
-            }
-        }
+            private Toggle _toggle = null!;
+            private NamedRail _namedRail = null!;
 
-        private void AddCategory(PartConfigsGroup configsGroup) {
-            if (!_reusableCategories.TryPop(out var category)) {
-                category = BodyPartsCategory.Instantiate(_bodyPartsContainer);
-            }
-            category!.Setup(this, configsGroup);
-            _categories.Add(category);
-        }
-
-        private void ClearCategories() {
-            foreach (var category in _categories) {
-                category.Release();
-                _reusableCategories.Push(category);
-            }
-            _categories.Clear();
-        }
-
-        #endregion
-
-        #region BodyPartPool
-
-        private readonly Stack<BodyPartControl> _reusableParts = new();
-
-        private BodyPartControl GetBodyPart(
-            IVirtualPlayerBodyPartModel model,
-            IVirtualPlayerBodyPartConfig partConfig
-        ) {
-            if (!_reusableParts.TryPop(out var partControl)) {
-                partControl = BodyPartControl.Instantiate(ContentTransform);
-            }
-            partControl!.Setup(model, partConfig);
-            return partControl;
-        }
-
-        private void ReleaseBodyPart(BodyPartControl control) {
-            _reusableParts.Push(control);
-        }
-
-        #endregion
-
-        #region BodyPartControl
-
-        [BSMLComponent(Suppress = true)]
-        private class BodyPartControl : ReeUIComponentV3<BodyPartControl> {
-            #region UI Components
-
-            [UIComponent("toggle"), UsedImplicitly]
-            private ToggleSetting _toggleSetting = null!;
-
-            [UIComponent("alpha-selector"), UsedImplicitly]
-            private AlphaSelector _alphaSelector = null!;
-
-            #endregion
-
-            #region UI Values
-
-            [UIValue("toggle-value"), UsedImplicitly]
-            private bool Enabled {
-                get => _enabled;
-                set {
-                    _enabled = value;
-                    _partConfig!.PotentiallyActive = value;
-                }
-            }
-
-            private bool _enabled;
-
-            #endregion
-
-            #region Setup
-
-            private IVirtualPlayerBodyPartConfig? _partConfig;
-
-            public void Setup(
-                IVirtualPlayerBodyPartModel model,
-                IVirtualPlayerBodyPartConfig partConfig
-            ) {
-                _partConfig = partConfig;
-                _toggleSetting.Value = partConfig.Active;
-                _toggleSetting.Text = model.Name;
-                _alphaSelector.Interactable = model.HasAlphaSupport;
+            protected override GameObject Construct() {
+                return new Toggle()
+                    .WithListener(
+                        x => x.Active,
+                        HandleToggleStateChanged
+                    )
+                    .Bind(ref _toggle)
+                    .InNamedRail("")
+                    .Bind(ref _namedRail)
+                    .Use();
             }
 
             #endregion
 
             #region Callbacks
 
-            [UIAction("alpha-change"), UsedImplicitly]
-            private void HandleAlphaChanged(float alpha) {
-                _partConfig!.Alpha = alpha;
+            private void HandleConfigUpdated() {
+                if (_ignoreUpdates) return;
+                _toggle.SetActive(_config!.PartConfig.Active, false, true);
+                _toggle.Interactable = !_config.PartConfig.ControlledByMask;
+            }
+
+            private void HandleToggleStateChanged(bool state) {
+                if (_config == null) return;
+                _ignoreUpdates = true;
+                _config.PartConfig.PotentiallyActive = state;
+                _ignoreUpdates = false;
             }
 
             #endregion
+        }
+
+        private readonly ReactivePool<PartControl> _controlsPool = new() { DetachOnDespawn = false };
+
+        #endregion
+
+        #region PartCategory
+
+        private class PartCategory : ReactiveComponent {
+            #region Setup
+
+            public void Setup(ReactivePool<PartControl> pool, PartConfigsGroup group) {
+                _nameLabel.Text = group.GroupName ?? "Uncategorized";
+                _controlsContainer.Children.Clear();
+                foreach (var model in group.Configs) {
+                    var control = pool.Spawn();
+                    control.Setup(model);
+                    control.AsFlexItem();
+                    _controlsContainer.Children.Add(control);
+                }
+            }
+
+            #endregion
+
+            #region Construct
+
+            private Label _nameLabel = null!;
+            private Dummy _controlsContainer = null!;
+
+            protected override GameObject Construct() {
+                return new Image {
+                    Children = {
+                        //header
+                        new Image {
+                            Sprite = BundleLoader.Sprites.backgroundTop,
+                            PixelsPerUnit = 10f,
+                            Color = new(0.08f, 0.08f, 0.08f, 1f),
+                            Children = {
+                                new Label {
+                                    FontStyle = FontStyles.Bold,
+                                    Alignment = TextAlignmentOptions.Center
+                                }.AsFlexItem(size: new() { y = "auto" }).Bind(ref _nameLabel),
+                            }
+                        }.AsFlexGroup().AsFlexItem(),
+                        //
+                        new Dummy()
+                            .AsFlexGroup(
+                                direction: FlexDirection.Column,
+                                padding: 1f,
+                                gap: 1f
+                            )
+                            .AsFlexItem()
+                            .Bind(ref _controlsContainer)
+                    }
+                }.AsFlexGroup(
+                    direction: FlexDirection.Column
+                ).AsBackground(
+                    color: new(0.1f, 0.1f, 0.1f, 1f)
+                ).Use();
+            }
+
+            #endregion
+        }
+
+        private readonly ReactivePool<PartCategory> _categoriesPool = new() { DetachOnDespawn = false };
+
+        private void ReloadCategories() {
+            _categoriesPool.DespawnAll();
+            _controlsPool.DespawnAll();
+            _scrollContainer.Children.Clear();
+            var configGroups = _groupedModelConfigs[_selectedModel!];
+            foreach (var config in configGroups) {
+                var category = _categoriesPool.Spawn();
+                category.Setup(_controlsPool, config);
+                category.AsFlexItem();
+                _scrollContainer.Children.Add(category);
+            }
+        }
+
+        #endregion
+
+        #region Construct
+
+        private TextDropdown<IVirtualPlayerBodyModel> _modelsDropdown = null!;
+        private Dummy _scrollContainer = null!;
+
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    new TextDropdown<IVirtualPlayerBodyModel> {
+                            Skew = 0f
+                        }
+                        .Bind(ref _modelsDropdown)
+                        .WithListener(
+                            x => x.SelectedKey,
+                            HandleModelSelected
+                        )
+                        .InNamedRail("Model")
+                        .AsFlexItem(),
+                    //
+                    new Dummy {
+                        Children = {
+                            new ScrollArea {
+                                ScrollContent = new Dummy()
+                                    .AsRootFlexGroup(direction: FlexDirection.Column, gap: 1f)
+                                    .AsFlexItem(size: new() { y = "auto" })
+                                    .WithRectExpand()
+                                    .Bind(ref _scrollContainer)
+                            }.AsFlexItem(grow: 1f).Export(out var scrollArea),
+                            //
+                            new Scrollbar().With(x => scrollArea.Scrollbar = x).AsFlexItem()
+                        }
+                    }.AsFlexGroup(gap: 1f).AsFlexItem(grow: 1f)
+                }
+            }.AsFlexGroup(direction: FlexDirection.Column, gap: 2f).Use();
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleModelSelected(IVirtualPlayerBodyModel model) {
+            SelectModel(model);
         }
 
         #endregion

@@ -10,15 +10,19 @@ namespace BeatLeader.Replayer {
         public override string Name { get; init; } = "PlayerView";
 
         public SerializableVector3 PositionOffset { get; set; } = new(0, 0, -1);
-        public SerializableQuaternion RotationOffset { get; set; } = Quaternion.identity;
         public float Smoothness { get; set; } = 8;
+        public bool KeepUpright { get; set; }
         
         private Vector3 _lastHeadPos;
         private Quaternion _lastHeadRot = Quaternion.identity;
 
         public override Pose ProcessPose(Pose headPose) {
             var position = headPose.position + PositionOffset;
-            var rotation = headPose.rotation * RotationOffset;
+            var rotation = headPose.rotation;
+            if (KeepUpright) {
+                rotation.z = 0f;
+                rotation.Normalize();
+            }
 
             var f = Time.deltaTime * Smoothness;
             position = Vector3.Lerp(_lastHeadPos, position, f);

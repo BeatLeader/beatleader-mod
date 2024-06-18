@@ -1,6 +1,7 @@
 using System.Collections;
 using BeatLeader.Components;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
 using BeatLeader.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,7 +21,8 @@ namespace BeatLeader.UI.Replayer {
             ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner,
             ReplayLaunchData launchData,
-            ILayoutEditor layoutEditor
+            ILayoutEditor layoutEditor,
+            IReplayWatermark watermark
         ) {
             _toolbar.Setup(
                 pauseController,
@@ -31,9 +33,12 @@ namespace BeatLeader.UI.Replayer {
             );
             _settingsPanel.Setup(
                 launchData.Settings,
+                timeController,
                 cameraController,
                 bodySpawner,
-                layoutEditor
+                layoutEditor,
+                _toolbar.Timeline,
+                watermark
             );
         }
 
@@ -62,16 +67,14 @@ namespace BeatLeader.UI.Replayer {
             var settingsFlexItem = settingsPanelContainer.AddComponent<FlexItem>();
             settingsFlexItem.FlexGrow = 1;
 
-            _settingsPanel = ReplayerSettingsPanel.Instantiate(settingsPanelContainerTransform);
-            _settingsPanel.Content.GetComponent<ContentSizeFitter>().enabled = false;
+            _settingsPanel = new ReplayerSettingsPanel().WithRectExpand();
+            _settingsPanel.Use(settingsPanelContainerTransform);
             _settingsPanelTransform = _settingsPanel.ContentTransform;
-            _settingsPanelTransform.anchorMin = Vector2.zero;
-            _settingsPanelTransform.anchorMax = Vector2.one;
-            _settingsPanelTransform.sizeDelta = Vector2.zero;
             _settingsPanelCanvasGroup = _settingsPanel.Content.AddComponent<CanvasGroup>();
             ApplyInitialAnimationValues();
 
-            _toolbar = Toolbar.Instantiate(containerTransform);
+            _toolbar = new Toolbar().WithSizeDelta(0f, 10f);
+            _toolbar.Use(containerTransform);
             var toolbarFlexItem = _toolbar.Content.AddComponent<FlexItem>();
             toolbarFlexItem.FlexBasis = new(-1f, 10f);
         }

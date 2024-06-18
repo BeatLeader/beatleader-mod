@@ -20,9 +20,9 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override void ApplyColor(Color color) {
             Image.GradientColor0 = color;
+            _borderImage.Color = color;
             color.a /= 2f;
             Image.GradientColor1 = color;
-            _borderImage.Color = Colors?.Color ?? color;
         }
 
         protected override void Construct(RectTransform rect) {
@@ -41,7 +41,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Colors = new() {
                 ActiveColor = new(0, 0.75f, 0.75f),
                 HoveredColor = new(0, 0.75f, 1f),
-                Color = UIStyle.ButtonColorSet.Color
+                Color = new(0, 0.5f, 1f)
             };
             GrowOnHover = false;
             HoverLerpMul = 100f;

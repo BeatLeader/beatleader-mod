@@ -91,7 +91,7 @@ namespace BeatLeader.UI.Reactive.Components {
                     },
                     HoverLerpMul = float.MaxValue,
                     HoverScaleSum = Vector3.one * 0.2f,
-                    Colors = new() {
+                    Colors = new StateColorSet {
                         Color = Color.white.ColorWithAlpha(0.5f),
                         HoveredColor = Color.white,
                         DisabledColor = Color.black.ColorWithAlpha(0.5f)

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
-    internal class StateColorSet {
+    internal class StateColorSet : IColorSet {
         public Color ActiveColor {
             get => _activeColor;
             set {
@@ -41,5 +41,18 @@ namespace BeatLeader.UI.Reactive {
         private Color _color;
 
         public event Action? SetUpdatedEvent;
+        
+        public Color GetColor(GraphicElementState state) {
+            if (state.active) {
+                return _activeColor;
+            }
+            if (state.hovered) {
+                return _hoveredColor;
+            }
+            if (!state.interactable) {
+                return _disabledColor;
+            }
+            return _color;
+        }
     }
 }

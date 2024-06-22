@@ -17,12 +17,12 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
-            Colors = new() {
+            Colors = new StateColorSet {
                 ActiveColor = Color.white.ColorWithAlpha(0.5f),
                 HoveredColor = Color.white.ColorWithAlpha(0.3f),
                 Color = UIStyle.ControlColorSet.Color
             };
-            GradientColors1 = new() {
+            GradientColors1 = new StateColorSet {
                 HoveredColor = activeColor,
                 Color = inactiveColor
             };

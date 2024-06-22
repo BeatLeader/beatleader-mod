@@ -185,7 +185,7 @@ namespace BeatLeader.UI.Reactive.Components {
                             Sprite = BundleLoader.Sprites.background,
                             Material = GameResources.UINoGlowMaterial
                         },
-                        Colors = new() {
+                        Colors = new StateColorSet {
                             Color = Color.black.ColorWithAlpha(0.5f),
                             HoveredColor = Color.black.ColorWithAlpha(0.8f)
                         },

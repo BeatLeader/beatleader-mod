@@ -4,7 +4,7 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class ImageButton : ColoredButton {
         #region UI Props
 
-        public StateColorSet? GradientColors0 {
+        public IColorSet? GradientColors0 {
             get => _gradientColors0;
             set {
                 _gradientColors0 = value;
@@ -14,7 +14,7 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        public StateColorSet? GradientColors1 {
+        public IColorSet? GradientColors1 {
             get => _gradientColors1;
             set {
                 _gradientColors1 = value;
@@ -24,8 +24,8 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        private StateColorSet? _gradientColors0;
-        private StateColorSet? _gradientColors1;
+        private IColorSet? _gradientColors0;
+        private IColorSet? _gradientColors1;
 
         private void RefreshGradientState() {
             Image.UseGradient = GradientColors0 != null || GradientColors1 != null;

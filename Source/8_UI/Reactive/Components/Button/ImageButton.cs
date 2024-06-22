@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ImageButton : ColoredButton, IChildrenProvider {
+    internal class ImageButton : ColoredButton {
         #region UI Props
 
         public IColorSet? GradientColors0 {
@@ -25,8 +24,6 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        public new ICollection<ILayoutItem> Children => base.Children;
-        
         private IColorSet? _gradientColors0;
         private IColorSet? _gradientColors1;
 

@@ -4,7 +4,7 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class ColoredButton : Button {
         #region UI Properties
 
-        public StateColorSet? Colors {
+        public IColorSet? Colors {
             get => _stateColorSet;
             set {
                 if (_stateColorSet != null) {
@@ -19,7 +19,7 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        private StateColorSet? _stateColorSet = UIStyle.ButtonColorSet;
+        private IColorSet? _stateColorSet = UIStyle.ButtonColorSet;
 
         #endregion
 
@@ -29,21 +29,27 @@ namespace BeatLeader.UI.Reactive.Components {
             ApplyColor(GetColor(Colors));
         }
 
-        protected Color GetColor(StateColorSet? colorSet) {
+        protected Color GetColor(IColorSet? colorSet) {
             return GetColor(colorSet, AnimationProgress);
         }
-        
-        protected Color GetColor(StateColorSet? colorSet, float progress) {
+
+        protected Color GetColor(IColorSet? colorSet, float progress) {
             if (colorSet == null) {
                 return Color.clear;
             }
-            if (Active) {
-                return colorSet.ActiveColor;
+            var hovered = progress > 0f;
+            var state = new GraphicElementState {
+                active = Active,
+                interactable = Interactable,
+                hovered = hovered
+            };
+            var color = colorSet.GetColor(state);
+            if (hovered) {
+                state.hovered = false;
+                var standardColor = colorSet.GetColor(state);
+                color = Color.Lerp(standardColor, color, progress);
             }
-            if (!Interactable) {
-                return colorSet.DisabledColor;
-            }
-            return Color.Lerp(colorSet.Color, colorSet.HoveredColor, progress);
+            return color;
         }
 
         protected override void OnHoverProgressChange(float progress) {
@@ -53,7 +59,7 @@ namespace BeatLeader.UI.Reactive.Components {
         protected override void OnButtonStateChange(bool state) {
             UpdateColor();
         }
-        
+
         protected virtual void ApplyColor(Color color) { }
 
         #endregion

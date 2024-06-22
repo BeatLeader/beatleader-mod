@@ -151,8 +151,9 @@ namespace BeatLeader.UI.Replayer {
             private Image _image2 = null!;
 
             protected override void ApplyColor(Color color) {
-                _image1.Color = Color.Lerp(Colors!.Color, Color.clear, AnimationProgress);
                 _image2.Color = color.ColorWithAlpha(AnimationProgress);
+                color = Colors!.GetColor(new() { interactable = Interactable });
+                _image1.Color = Color.Lerp(color, Color.clear, AnimationProgress);
             }
 
             protected override GameObject Construct() {

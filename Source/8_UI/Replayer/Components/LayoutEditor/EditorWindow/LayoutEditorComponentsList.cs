@@ -63,7 +63,7 @@ namespace BeatLeader.Components {
                                         new UI.Reactive.Components.ImageButton {
                                             GrowOnHover = false,
                                             Sticky = true,
-                                            Colors = new() {
+                                            Colors = new StateColorSet {
                                                 HoveredColor = new(0.3f, 0.3f, 0.3f),
                                                 ActiveColor = Color.white
                                             },

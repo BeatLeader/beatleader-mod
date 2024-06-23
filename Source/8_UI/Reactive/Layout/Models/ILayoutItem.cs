@@ -10,7 +10,7 @@ namespace BeatLeader.UI.Reactive {
         float? DesiredWidth { get; }
         bool WithinLayout { get; set; }
 
-        event Action? ModifierUpdatedEvent;
+        event Action<ILayoutItem>? ModifierUpdatedEvent;
 
         void ApplyTransforms(Action<RectTransform> applicator);
     }

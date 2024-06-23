@@ -183,6 +183,14 @@ namespace BeatLeader.UI.Reactive {
 
         public override void ProvideContext(object? context) {
             if (context == null) {
+                if (!HasValidNode) return;
+                //clearing properties to prevent size lock on this node
+                _minSize = YogaVector.Undefined;
+                _maxSize = YogaVector.Undefined;
+                _size = YogaVector.Undefined;
+                _margin = YogaFrame.Undefined;
+                _aspectRatio = YogaValue.Undefined;
+                RefreshAllProperties();
                 _node = default;
                 return;
             }

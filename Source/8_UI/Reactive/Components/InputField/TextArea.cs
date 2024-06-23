@@ -109,10 +109,10 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        private void RefreshCaretPos() {
+        private void RefreshCaretPos(ILayoutItem item) {
             var transform = _caret.ContentTransform;
             var pos = transform.anchoredPosition;
-            pos.x = Text.Length == 0 ? 0 : Mathf.Max(((ILayoutItem)_label).DesiredWidth.GetValueOrDefault(), 0f);
+            pos.x = Text.Length == 0 ? 0 : Mathf.Max(item.DesiredWidth.GetValueOrDefault(), 0f);
             transform.anchoredPosition = pos;
         }
 

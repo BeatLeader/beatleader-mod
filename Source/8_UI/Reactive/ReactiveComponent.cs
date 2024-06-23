@@ -55,7 +55,8 @@ namespace BeatLeader.UI.Reactive {
 
         public void RecalculateLayoutTree() {
             _beingRecalculated = true;
-            if (LayoutDriver?.LayoutController != null) {
+            //items without modifiers are not supposed to be controlled
+            if (LayoutModifier != null && LayoutDriver?.LayoutController != null) {
                 LayoutDriver!.RecalculateLayoutTree();
                 _beingRecalculated = false;
                 return;
@@ -119,9 +120,14 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        private void HandleChildModifierUpdated() {
+        private void HandleChildModifierUpdated(ILayoutItem item) {
             if (_beingRecalculated) return;
-            RecalculateLayoutTree();
+            //
+            if (item.LayoutModifier == null) {
+                RecalculateLayoutWithChildren();
+            } else {
+                RecalculateLayoutTree();
+            }
         }
 
         protected override void OnLayoutRefresh() {
@@ -314,7 +320,7 @@ namespace BeatLeader.UI.Reactive {
         protected virtual float? DesiredHeight => null;
         protected virtual float? DesiredWidth => null;
 
-        public event Action? ModifierUpdatedEvent {
+        public event Action<ILayoutItem>? ModifierUpdatedEvent {
             add => Host.ModifierUpdatedEvent += value;
             remove => Host.ModifierUpdatedEvent -= value;
         }

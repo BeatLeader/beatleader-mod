@@ -51,7 +51,7 @@ namespace BeatLeader.UI.Reactive {
 
             public bool WithinLayoutIfDisabled { get; set; }
 
-            public event Action? ModifierUpdatedEvent;
+            public event Action<ILayoutItem>? ModifierUpdatedEvent;
 
             private ILayoutDriver? _layoutDriver;
             private ILayoutModifier? _modifier;
@@ -81,9 +81,8 @@ namespace BeatLeader.UI.Reactive {
             }
 
             private void HandleModifierUpdated() {
-                if (_modifier == null) return;
-                _modifier.ReloadLayoutItem(this);
-                ModifierUpdatedEvent?.Invoke();
+                _modifier?.ReloadLayoutItem(this);
+                ModifierUpdatedEvent?.Invoke(this);
                 _components.ForEach(static x => x.OnModifierUpdatedInternal());
             }
 

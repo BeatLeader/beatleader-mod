@@ -1,9 +1,11 @@
 ﻿using BeatSaberMarkupLanguage;
+using HarmonyLib;
 using HMUI;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
+    [HarmonyPatch]
     internal class BeatLeaderMiniScreenSystem : MonoBehaviour {
         #region Injection
 
@@ -14,15 +16,68 @@ namespace BeatLeader.UI.Hub {
 
         #region RootFlowCoordinator
 
+        [HarmonyPatch]
         private class RootFlowCoordinator : FlowCoordinator {
-            protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-                if (!firstActivation) return;
-                var emptyViewController = BeatSaberUI.CreateViewController<ViewController>();
-                ProvideInitialViewControllers(
-                    emptyViewController,
-                    topScreenViewController: null
-                );
+            #region Patch
+
+            [HarmonyPatch(typeof(FlowCoordinator), "PresentFlowCoordinator"), HarmonyPostfix]
+            private static void PresentPostfix(FlowCoordinator __instance) {
+                if (__instance is not RootFlowCoordinator instance) return;
+                UnbindKeyboard(instance._originalScreenSystem!);
+                BindKeyboard(instance._screenSystem!);
             }
+
+            [HarmonyPatch(typeof(FlowCoordinator), "DismissFlowCoordinator"), HarmonyPostfix]
+            private static void DismissPostfix(FlowCoordinator __instance) {
+                if (__instance is not RootFlowCoordinator instance) return;
+                UnbindKeyboard(instance._screenSystem!);
+                BindKeyboard(instance._originalScreenSystem!);
+            }
+
+            #endregion
+
+            #region Keyboard
+
+            private static void BindKeyboard(GameObject go) {
+                var manager = go.GetComponentInChildren<UIKeyboardManager>(true);
+                manager.Start();
+                manager.gameObject.SetActive(true);
+            }
+
+            private static void UnbindKeyboard(GameObject go) {
+                var manager = go.GetComponentInChildren<UIKeyboardManager>(true);
+                manager.OnDestroy();
+                manager.gameObject.SetActive(false);
+            }
+
+            #endregion
+
+            #region Setup
+
+            private GameObject? _originalScreenSystem;
+            private GameObject? _screenSystem;
+
+            public void Setup(GameObject screenSystem, GameObject originalScreenSystem) {
+                _screenSystem = screenSystem;
+                _originalScreenSystem = originalScreenSystem;
+            }
+
+            private void Start() {
+                if (_screenSystem == null) return;
+                UnbindKeyboard(_screenSystem);
+            }
+
+            protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+                if (firstActivation) {
+                    var emptyViewController = BeatSaberUI.CreateViewController<ViewController>();
+                    ProvideInitialViewControllers(
+                        emptyViewController,
+                        topScreenViewController: null
+                    );
+                }
+            }
+
+            #endregion
         }
 
         #endregion
@@ -35,7 +90,9 @@ namespace BeatLeader.UI.Hub {
 
         private void Awake() {
             SetupScreenSystem();
-            FlowCoordinator = BeatSaberUI.CreateFlowCoordinator<RootFlowCoordinator>();
+            var rootCoordinator = BeatSaberUI.CreateFlowCoordinator<RootFlowCoordinator>();
+            rootCoordinator.Setup(gameObject, _originalHierarchyManager.gameObject);
+            FlowCoordinator = rootCoordinator;
         }
 
         private void Start() {

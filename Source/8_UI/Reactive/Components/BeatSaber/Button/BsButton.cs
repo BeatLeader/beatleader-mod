@@ -5,6 +5,13 @@ namespace BeatLeader.UI.Reactive.Components {
         private static readonly Color inactiveColor = Color.white;
         private static readonly Color activeColor = Color.white.ColorWithAlpha(0.5f);
         
+        public bool ShowUnderline {
+            get => _underline.Enabled;
+            set => _underline.Enabled = value;
+        }
+
+        private Image _underline = null!;
+        
         protected override void Construct(RectTransform rect) {
             //underline
             new Image {
@@ -12,7 +19,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 PixelsPerUnit = 12f,
                 ImageType = UnityEngine.UI.Image.Type.Sliced,
                 Color = Color.white.ColorWithAlpha(0.5f)
-            }.WithRectExpand().Use(rect);
+            }.WithRectExpand().Bind(ref _underline).Use(rect);
             base.Construct(rect);
         }
 

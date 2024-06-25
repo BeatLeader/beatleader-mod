@@ -24,6 +24,7 @@ namespace BeatLeader.UI.Reactive {
         }
 
         public void DespawnAll() {
+            _keyedComponents.Clear();
             _reactivePool.DespawnAll();
         }
 

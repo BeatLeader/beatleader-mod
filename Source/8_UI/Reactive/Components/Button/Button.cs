@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Button : DrivingReactiveComponent, IAnimationProgressProvider, IGraphicComponent {
+    internal class Button : DrivingReactiveComponent, IAnimationProgressProvider, IGraphicComponent, IClickableComponent {
         #region Events
 
         public event Action? ClickEvent;

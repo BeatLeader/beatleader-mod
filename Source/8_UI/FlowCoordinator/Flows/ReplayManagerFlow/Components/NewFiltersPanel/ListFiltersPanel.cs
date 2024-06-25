@@ -9,33 +9,12 @@ using IPA.Utilities;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
+    internal interface IPanelListFilter<in T> : IReactiveComponent, ILayoutItem, IListFilter<T> {
+        IEnumerable<IPanelListFilter<T>>? DependsOn { get; }
+        string FilterName { get; }
+    }
+    
     internal class ListFiltersPanel<T> : ReactiveComponent, ITextListFilter<T> {
-        public interface IFilter : IReactiveComponent, ILayoutItem, IListFilter<T> {
-            IEnumerable<IFilter>? DependsOn { get; }
-            string FilterName { get; }
-        }
-
-        #region List
-
-        public IFilteringListComponent<T>? List {
-            get => _list;
-            set {
-                if (_list?.Filter == this) {
-                    _list.Filter = _originalFilter;
-                }
-                _list = value;
-                _originalFilter = _list?.Filter;
-                if (_list != null) {
-                    _list.Filter = this;
-                }
-            }
-        }
-
-        private IListFilter<T>? _originalFilter;
-        private IFilteringListComponent<T>? _list;
-
-        #endregion
-
         #region ListFilter
 
         public Func<T, IEnumerable<string>>? SearchContract { get; set; }
@@ -67,9 +46,9 @@ namespace BeatLeader.UI.Hub {
 
         #region Filters
 
-        public ICollection<IFilter> Filters => _filters;
+        public ICollection<IPanelListFilter<T>> Filters => _filters;
 
-        private ObservableCollectionAdapter<IFilter> _filters = null!;
+        private ObservableCollectionAdapter<IPanelListFilter<T>> _filters = null!;
 
         #endregion
 
@@ -86,11 +65,11 @@ namespace BeatLeader.UI.Hub {
                 }
             }
 
-            public event Action<IFilter, bool>? FilterUpdatedEvent;
+            public event Action<IPanelListFilter<T>, bool>? FilterUpdatedEvent;
 
-            private IFilter? _filter;
+            private IPanelListFilter<T>? _filter;
 
-            public void Setup(IFilter? filter) {
+            public void Setup(IPanelListFilter<T>? filter) {
                 if (_filter != null) {
                     _filterContainer.Children.Remove(_filter);
                     _filter.FilterUpdatedEvent -= HandleFilterUpdated;
@@ -161,9 +140,9 @@ namespace BeatLeader.UI.Hub {
         private class FiltersModal : ModalComponentBase {
             #region Filter Dependencies
 
-            private readonly Dictionary<IFilter, List<IFilter>> _dependencies = new();
+            private readonly Dictionary<IPanelListFilter<T>, List<IPanelListFilter<T>>> _dependencies = new();
 
-            private void AddDependentFilter(IEnumerable<IFilter>? hosts, IFilter dependent) {
+            private void AddDependentFilter(IEnumerable<IPanelListFilter<T>>? hosts, IPanelListFilter<T> dependent) {
                 if (hosts == null) return;
                 foreach (var host in hosts) {
                     _dependencies.EnsureExistsAndDo(
@@ -174,7 +153,7 @@ namespace BeatLeader.UI.Hub {
                 }
             }
 
-            private void RemoveDependentFilter(IEnumerable<IFilter>? hosts, IFilter dependent) {
+            private void RemoveDependentFilter(IEnumerable<IPanelListFilter<T>>? hosts, IPanelListFilter<T> dependent) {
                 if (hosts == null) return;
                 foreach (var host in hosts) {
                     _dependencies.DoIfExists(
@@ -184,7 +163,7 @@ namespace BeatLeader.UI.Hub {
                 }
             }
 
-            private void HandleFilterUpdated(IFilter filter, bool state) {
+            private void HandleFilterUpdated(IPanelListFilter<T> filter, bool state) {
                 FilterUpdatedEvent?.Invoke(filter);
                 if (state) return;
                 _dependencies.DoIfExists(
@@ -202,9 +181,9 @@ namespace BeatLeader.UI.Hub {
 
             #region Filters
 
-            public event Action<IFilter>? FilterUpdatedEvent;
+            public event Action<IPanelListFilter<T>>? FilterUpdatedEvent;
 
-            public void AddFilter(IFilter filter) {
+            public void AddFilter(IPanelListFilter<T> filter) {
                 var comp = _filtersPool.Spawn(filter);
                 comp.AsFlexItem();
                 comp.Setup(filter);
@@ -213,7 +192,7 @@ namespace BeatLeader.UI.Hub {
                 _container.Children.Add(comp);
             }
 
-            public void RemoveFilter(IFilter filter) {
+            public void RemoveFilter(IPanelListFilter<T> filter) {
                 var comp = _filtersPool.SpawnedComponents[filter];
                 comp.Setup(null);
                 comp.Use();
@@ -232,11 +211,11 @@ namespace BeatLeader.UI.Hub {
 
             #region Construct
 
-            public IEnumerable<IFilter> ActiveFilters => _filtersPool.SpawnedComponents
+            public IEnumerable<IPanelListFilter<T>> ActiveFilters => _filtersPool.SpawnedComponents
                 .Where(static x => x.Value.FilterEnabled)
                 .Select(static x => x.Key);
 
-            private readonly ReactivePool<IFilter, FilterContainer> _filtersPool = new();
+            private readonly ReactivePool<IPanelListFilter<T>, FilterContainer> _filtersPool = new();
             private Image _container = null!;
 
             protected override GameObject Construct() {
@@ -283,7 +262,7 @@ namespace BeatLeader.UI.Hub {
             _modal.FilterUpdatedEvent += HandleFilterUpdated;
             _modal.ModalAskedToBeClosedEvent += HandleModalClosed;
             _filters = new(
-                new List<IFilter>(),
+                new List<IPanelListFilter<T>>(),
                 HandleFilterAdded,
                 HandleFilterRemoved
             );
@@ -334,15 +313,15 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleFilterAdded(IFilter filter) {
+        private void HandleFilterAdded(IPanelListFilter<T> filter) {
             _modal.AddFilter(filter);
         }
 
-        private void HandleFilterRemoved(IFilter filter) {
+        private void HandleFilterRemoved(IPanelListFilter<T> filter) {
             _modal.RemoveFilter(filter);
         }
 
-        private void HandleFilterUpdated(IFilter filter) {
+        private void HandleFilterUpdated(IPanelListFilter<T> filter) {
             FilterUpdatedEvent?.Invoke();
             RefreshFiltersCaption();
         }

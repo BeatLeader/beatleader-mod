@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
 using TMPro;
 using UnityEngine;
@@ -36,12 +37,12 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : Button {
+        public static T WithModal<T>(this T button, Action<Transform> listener) where T : IClickableComponent, IReactiveComponent {
             button.ClickEvent += () => listener(button.ContentTransform);
             return button;
         }
 
-        public static T WithClickListener<T>(this T button, Action listener) where T : Button {
+        public static T WithClickListener<T>(this T button, Action listener) where T : IClickableComponent {
             button.ClickEvent += listener;
             return button;
         }
@@ -82,13 +83,22 @@ namespace BeatLeader.UI.Reactive.Components {
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
         ) where T : Button {
+            button.AsFlexGroup(alignItems: Align.Center);
             button.Children.Add(
                 new Label {
                     Text = text,
                     FontSize = fontSize,
                     RichText = richText,
                     Overflow = overflow
-                }.WithRectExpand().Export(out label)
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(
+                    size: "auto",
+                    margin: new() { left = 2f, right = 2f }
+                ).Export(out label)
             );
             return button;
         }
@@ -98,8 +108,9 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
+            Optional<Material>? material = default
         ) where T : Button {
             return WithImage(
                 button,
@@ -107,6 +118,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 sprite,
                 color,
                 pixelsPerUnit,
+                preserveAspect,
                 type,
                 material
             );
@@ -118,17 +130,25 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
+            Optional<Material>? material = default
         ) where T : Button {
+            button.AsFlexGroup();
             button.Children.Add(
                 new Image {
                     Sprite = sprite,
-                    Material = material,
+                    Material = material.GetValueOrDefault(GameResources.UINoGlowMaterial),
                     Color = color ?? Color.white,
                     PixelsPerUnit = pixelsPerUnit ?? 0f,
-                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced
-                }.WithRectExpand().Export(out image)
+                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced,
+                    PreserveAspect = preserveAspect
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(grow: 1f).Export(out image)
             );
             return button;
         }
@@ -215,7 +235,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         #endregion
-        
+
         #region Other
 
         public static T WithAnimation<T>(this T component, Action<float> animator) where T : IObservableHost, IAnimationProgressProvider {

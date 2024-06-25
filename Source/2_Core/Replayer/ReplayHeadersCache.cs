@@ -49,6 +49,7 @@ namespace BeatLeader {
                 SongHash = info.SongHash,
                 SongMode = info.SongMode,
                 SongName = info.SongName,
+                Score = info.Score,
                 Timestamp = info.Timestamp
             };
         }

@@ -8,15 +8,15 @@ using BeatLeader.UI.Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class TagFilter : ReactiveComponent, ListFiltersPanel<IReplayHeader>.IFilter {
+    internal class TagFilter : ReactiveComponent, IPanelListFilter<IReplayHeaderBase> {
         #region Filter
 
-        public IEnumerable<ListFiltersPanel<IReplayHeader>.IFilter>? DependsOn => null;
+        public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn => null;
         public string FilterName => "Tag Filter";
 
         public event Action? FilterUpdatedEvent;
 
-        public bool Matches(IReplayHeader value) {
+        public bool Matches(IReplayHeaderBase value) {
             var i = value.ReplayMetadata.Tags.Count(tag => _tagSelector.SelectedTags.Contains(tag));
             return i == _tagSelector.SelectedTags.Count;
         }

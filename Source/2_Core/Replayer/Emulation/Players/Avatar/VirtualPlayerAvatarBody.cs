@@ -41,14 +41,14 @@ namespace BeatLeader.Replayer.Emulation {
             _avatarPartsModel = _zenjectMenuResolver.Resolve<AvatarPartsModel>();
             _avatarController = _avatarLoader.CreateAvatar();
             _avatarController.PlayAnimation = false;
-            _avatarController.containerTransform.localScale = Vector3.one;
+            _avatarController.transform.localScale = Vector3.one;
             LoadBody();
         }
 
         private void RefreshAvatarVisuals(IVirtualPlayerBase player) {
             var playerId = player.Replay.ReplayData.Player!.Id;
             AvatarUtils.RandomizeAvatarByPlayerId(playerId, _avatarData, _avatarPartsModel);
-            _avatarController.visualController.UpdateAvatarVisual(_avatarData);
+            _avatarController.VisualController.UpdateAvatarVisual(_avatarData);
         }
 
         #endregion
@@ -100,7 +100,7 @@ namespace BeatLeader.Replayer.Emulation {
         private Transform _bodyTransform = null!;
 
         private void LoadBody() {
-            var avatarPoseController = _avatarController.poseController;
+            var avatarPoseController = _avatarController.PoseController;
             //TODO: asm pub
             _headTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_headTransform");
             _leftHandTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_leftHandTransform");

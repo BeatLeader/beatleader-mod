@@ -8,7 +8,7 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
-    internal class SearchFiltersPanel : ReeUIComponentV2, IReplayFilter {
+    internal class SearchFiltersPanel : ReeUIComponentV2 {
         #region ReplayFilter
 
         private IPreviewBeatmapLevel? BeatmapLevel => _beatmapFiltersPanel.BeatmapLevel;

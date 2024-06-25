@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using BeatLeader.Models;
-using BeatLeader.Models.Replay;
 using BeatLeader.Replayer;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
@@ -175,13 +175,11 @@ namespace BeatLeader.UI.Hub {
 
         public async void LaunchBattle() {
             BattleLaunchStartedEvent?.Invoke();
-            var replays = new Dictionary<Replay, IPlayer?>();
-            foreach (var header in _replays.Keys) {
-                var replay = await header.LoadReplayAsync(default);
-                var player = await header.LoadPlayerAsync(false, default);
-                replays.Add(replay!, player);
-            }
-            await _replayerMenuLoader.StartReplaysAsync(replays, null, default);
+            await _replayerMenuLoader.StartBattleRoyaleAsync(
+                PendingReplays,
+                null,
+                CancellationToken.None
+            );
             BattleLaunchFinishedEvent?.Invoke();
         }
 

@@ -249,6 +249,23 @@ namespace BeatLeader {
 
         #endregion
 
+        #region FormatTime
+
+        public static string FormatTime(float seconds) {
+            return FormatTime(Mathf.FloorToInt(seconds));
+        }
+        
+        public static string FormatTime(int seconds) {
+            var minutes = seconds / 60;
+            var hours = minutes / 60;
+            var secDiv = seconds % 60;
+            var minDiv = minutes % 60;
+            return $"{(hours is not 0 ? $"{Zero(hours)}{hours}:" : "")}{Zero(minDiv)}{minDiv}:{Zero(secDiv)}{secDiv}";
+            static string Zero(int number) => number > 9 ? "" : "0";
+        }
+
+        #endregion
+        
         #region FormatSongTime
 
         public static string FormatSongTime(float time, float totalTime) {

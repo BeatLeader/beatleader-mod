@@ -52,6 +52,10 @@ namespace BeatLeader.Installers {
             Container.Bind<BeatLeaderHubMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BeatLeaderMiniScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
             Container.BindInterfacesTo<ReplaysLoader>().AsSingle();
+            
+            var go = Container.Resolve<LevelSelectionNavigationController>().gameObject;
+            Container.Bind<LevelSelectionViewController>().FromNewComponentOn(go).AsSingle();
+            Container.Bind<UI.Hub.LevelSelectionFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             //<-----------------------------Replay Manager---------------------------->
             Container.Bind<ReplayManagerFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<ReplayManagerViewController>().FromNewComponentAsViewController().AsSingle();
@@ -59,10 +63,12 @@ namespace BeatLeader.Installers {
             Container.Bind<AvatarLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BattleRoyaleAvatarsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindMemoryPool<BattleRoyaleAvatar, BattleRoyaleAvatar.Pool>().FromNewComponentOnNewPrefab(new GameObject("BattleRoyaleAvatar"));
+            Container.Bind<BattleRoyaleMenuStuffController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<BattleRoyaleFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<BattleRoyaleOpponentsViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BattleRoyaleReplaySelectionViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BattleRoyaleBattleSetupViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<BattleRoyaleGreetingsViewController>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }

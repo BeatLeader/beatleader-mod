@@ -1,41 +1,69 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.ViewControllers;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
+using HMUI;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.Flows.BattleRoyaleFlow.Views.ReplaysView.BattleRoyaleReplaysView.bsml")]
-    internal class BattleRoyaleReplaySelectionViewController : BSMLAutomaticViewController {
+    internal class BattleRoyaleReplaySelectionViewController : ViewController {
         #region Injection
 
+        [Inject] private readonly IReplayManager _replayManager = null!;
         [Inject] private readonly IReplaysLoader _replaysLoader = null!;
         [Inject] private readonly IBattleRoyaleHost _battleRoyaleHost = null!;
 
         #endregion
 
-        #region UI Components
-
-        [UIComponent("replay-launch-panel"), UsedImplicitly]
-        private BeatmapReplayLaunchPanel _replayLaunchPanel = null!;
-
-        #endregion
-
         #region Setup
 
-        [UIAction("#post-parse"), UsedImplicitly]
-        private void OnInitialize() {
+        private BeatmapReplayLaunchPanel _replayLaunchPanel = null!;
+
+        private void Awake() {
+            new Dummy {
+                Children = {
+                    new ListFiltersPanel<IReplayHeader> {
+                        SearchContract = x => {
+                            var info = x.ReplayInfo;
+                            var str = new[] { info.PlayerName, info.SongName };
+                            return str;
+                        },
+                        Filters = {
+                            new TagFilter().With(
+                                x => x.Setup(_replayManager.MetadataManager.TagManager)
+                            )
+                        }
+                    }.AsFlexItem(basis: 8f).Export(out var filtersPanel),
+                    //
+                    new ReeWrapperV3<BeatmapReplayLaunchPanel>()
+                        .AsFlexItem(basis: 63f)
+                        .BindRee(ref _replayLaunchPanel)
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                justifyContent: Justify.Center,
+                gap: 2f
+            ).Use(transform);
+
             var detailPanel = BattleRoyaleDetailPanel.Instantiate(transform);
             _replayLaunchPanel.Setup(_replaysLoader);
             _replayLaunchPanel.DetailPanel = detailPanel;
-            _replayLaunchPanel.ReplayFilter = _battleRoyaleHost.ReplayFilter;
+            _replayLaunchPanel.ReplaysList.Filter = new FilterProxy<IReplayHeader> {
+                Filters = {
+                    _battleRoyaleHost.ReplayFilter,
+                    filtersPanel
+                }
+            };
+
             _replayLaunchPanel.ReplaySelectedEvent += HandleReplaySelected;
             _replayLaunchPanel.ReplayDeselectedEvent += HandleReplayDeselected;
 
             _battleRoyaleHost.ReplayAddedEvent += HandleReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent += HandleReplayRemoved;
-
+            _battleRoyaleHost.ReplayBeatmapChangedEvent += HandleBeatmapChanged;
+            _battleRoyaleHost.ReplayNavigationRequestedEvent += HandleHostNavigationRequested;
+            
             _replaysLoader.StartReplaysLoad();
         }
 
@@ -43,20 +71,29 @@ namespace BeatLeader.UI.Hub {
             base.OnDestroy();
             _battleRoyaleHost.ReplayAddedEvent -= HandleReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent -= HandleReplayRemoved;
+            _battleRoyaleHost.ReplayBeatmapChangedEvent -= HandleBeatmapChanged;
+            _battleRoyaleHost.ReplayNavigationRequestedEvent -= HandleHostNavigationRequested;
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandleReplayAdded(IReplayHeaderBase header, object caller) {
+        private void HandleHostNavigationRequested(IBattleRoyaleQueuedReplay replay) {
+            var list = _replayLaunchPanel.ReplaysList;
+            var index = list.Items.FindIndex(x => x.Equals(replay.ReplayHeader));
+            list.ScrollTo(index);
+            list.Select(index);
+        }
+        
+        private void HandleReplayAdded(IBattleRoyaleQueuedReplay replay, object caller) {
             if (caller.Equals(this)) return;
-            _replayLaunchPanel.AddSelectedReplay(header, false);
+            _replayLaunchPanel.AddSelectedReplay(replay.ReplayHeader, false);
         }
 
-        private void HandleReplayRemoved(IReplayHeaderBase header, object caller) {
+        private void HandleReplayRemoved(IBattleRoyaleQueuedReplay replay, object caller) {
             if (caller.Equals(this)) return;
-            _replayLaunchPanel.RemoveSelectedReplay(header, false);
+            _replayLaunchPanel.RemoveSelectedReplay(replay.ReplayHeader, false);
         }
 
         private void HandleReplaySelected(IReplayHeaderBase header) {
@@ -65,6 +102,10 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleReplayDeselected(IReplayHeaderBase header) {
             _battleRoyaleHost.RemoveReplay(header, this);
+        }
+
+        private void HandleBeatmapChanged(IDifficultyBeatmap? beatmap) {
+            _replayLaunchPanel.ClearSelectedReplays();
         }
 
         #endregion

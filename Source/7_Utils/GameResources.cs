@@ -23,6 +23,10 @@ namespace BeatLeader {
             public static readonly Sprite Circle = GetResource<Sprite>("FullCircle64");
         }
 
+        public static readonly Material UINoGlowRoundEdgeMaterial = Resources
+            .FindObjectsOfTypeAll<Material>()
+            .First(static x => x.name == "UINoGlowRoundEdge");
+        
         public static readonly Material UINoGlowAdditiveMaterial = Resources
             .FindObjectsOfTypeAll<Material>()
             .First(static x => x.name == "UINoGlowAdditive");

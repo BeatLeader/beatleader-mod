@@ -257,8 +257,8 @@ namespace BeatLeader.UI.Reactive {
             controller.AlignItems = alignItems;
             controller.FlexWrap = wrap;
             controller.Overflow = overflow;
-            controller.Padding = padding ?? YogaFrame.Zero;
-            controller.Gap = gap ?? YogaVector.Undefined;
+            controller.Padding = padding ?? controller.Padding;
+            controller.Gap = gap ?? controller.Gap;
             controller.UseIndependentLayout = independentLayout;
 
             layoutController = controller;

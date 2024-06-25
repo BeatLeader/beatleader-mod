@@ -14,9 +14,13 @@ namespace BeatLeader.UI.Reactive {
             return comp;
         }
 
-        public static T WithModifier<T>(this T comp, ILayoutModifier modifier) where T : ILayoutItem {
+        public static T WithModifier<T>(this T comp, ILayoutModifier? modifier) where T : ILayoutItem {
             comp.LayoutModifier = modifier;
             return comp;
+        }
+
+        public static T WithoutModifier<T>(this T comp) where T : ILayoutItem {
+            return comp.WithModifier(null);
         }
 
         public static T Bind<T>(this T comp, ref T variable) where T : IReactiveComponent {

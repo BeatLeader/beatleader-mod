@@ -3,6 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace BeatLeader {
+    internal class ObservableSet<T> : ObservableCollectionAdapter<T> {
+        public ObservableSet(
+            Action<T>? addedCallback = null,
+            Action<T>? removedCallback = null,
+            Action<IEnumerable<T>>? allRemovedCallback = null
+        ) : base(
+            new HashSet<T>(),
+            addedCallback,
+            removedCallback,
+            allRemovedCallback
+        ) { }
+    }
+
     internal class ObservableCollectionAdapter<T> : ICollection<T>, IReadOnlyCollection<T> {
         #region Adapter
 

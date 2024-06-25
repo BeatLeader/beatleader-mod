@@ -7,12 +7,12 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.Components {
     //TODO: rework
-    internal class BeatmapFiltersPanel : ReeUIComponentV2, IBeatmapReplayFilterData {
+    internal class BeatmapFiltersPanel : ReeUIComponentV2 {
         #region ReplayBeatmapFilterData
         
-        public IPreviewBeatmapLevel? BeatmapLevel => Enabled ? _previewBeatmapLevel : null;
-        public BeatmapCharacteristicSO? BeatmapCharacteristic => _beatmapCharacteristicFilterEnabled ? _beatmapCharacteristic : null;
-        public BeatmapDifficulty? BeatmapDifficulty => _beatmapDifficultyFilterEnabled ? _beatmapDifficulty : null;
+        public IPreviewBeatmapLevel BeatmapLevel => Enabled ? _previewBeatmapLevel : null;
+        public BeatmapCharacteristicSO BeatmapCharacteristic => _beatmapCharacteristicFilterEnabled ? _beatmapCharacteristic : null;
+        public BeatmapDifficulty BeatmapDifficulty => _beatmapDifficultyFilterEnabled ? _beatmapDifficulty : default;
         public bool Enabled { get; private set; }
         
         public event Action? DataUpdatedEvent;

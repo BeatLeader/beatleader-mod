@@ -1,6 +1,4 @@
-﻿using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
-using BeatLeader.Utils;
+﻿using BeatLeader.Replayer.Emulation;
 using UnityEngine;
 using Zenject;
 
@@ -8,7 +6,7 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleAvatar : MonoBehaviour {
         #region Pool
 
-        public class Pool : MonoMemoryPool<IReplayHeaderBase, BattleRoyaleAvatar> {
+        public class Pool : MonoMemoryPool<IBattleRoyaleQueuedReplay, BattleRoyaleAvatar> {
             protected override void OnSpawned(BattleRoyaleAvatar item) {
                 item.PresentAvatar();
             }
@@ -17,36 +15,50 @@ namespace BeatLeader.UI.Hub {
                 item.HideAvatar();
             }
 
-            protected override void Reinitialize(IReplayHeaderBase header, BattleRoyaleAvatar item) {
-                item.Init(header);
+            protected override void Reinitialize(IBattleRoyaleQueuedReplay replay, BattleRoyaleAvatar item) {
+                item.Init(replay);
             }
+
+            protected override void OnCreated(BattleRoyaleAvatar item) { }
         }
 
         #endregion
 
         #region Injection
-        
-        [Inject] private readonly AvatarPartsModel _avatarPartsModel = null!;
+
         [Inject] private readonly AvatarLoader _avatarLoader = null!;
+        [Inject] private readonly MainCamera _mainCamera = null!;
 
         #endregion
 
         #region Setup
 
-        private AvatarTweenController AvatarTweenController => _avatarController.tweenController;
-        private AvatarVisualController AvatarVisualController => _avatarController.visualController;
-        
-        private AvatarController _avatarController = null!;
-        private readonly AvatarData _avatarData = new();
+        private AvatarTweenController AvatarTweenController => _avatarController.TweenController;
+        private AvatarVisualController AvatarVisualController => _avatarController.VisualController;
 
-        private void Init(IReplayHeaderBase header) {
-            var playerId = header.ReplayInfo!.PlayerID;
-            AvatarUtils.RandomizeAvatarByPlayerId(playerId, _avatarData, _avatarPartsModel);
+        private AvatarController _avatarController = null!;
+        private FloatingBattleRoyaleReplayBadge _badge = null!;
+        private AvatarData? _avatarData;
+        private IBattleRoyaleQueuedReplay? _replay;
+
+        public void Refresh() {
+            if (_replay == null) return;
+            _avatarData = _replay.ReplayData.AvatarData;
             AvatarVisualController.UpdateAvatarVisual(_avatarData);
+            _badge.SetData(_replay);
+        }
+
+        private void Init(IBattleRoyaleQueuedReplay replay) {
+            _replay = replay;
+            Refresh();
         }
 
         private void Awake() {
             _avatarController = _avatarLoader.CreateAvatar(transform);
+            _badge = new();
+            _badge.Use(_avatarController.HeadTransform);
+            _badge.Setup(_mainCamera.transform);
+            _badge.ContentTransform.localPosition = new(0f, 0.45f, -0.13f);
         }
 
         #endregion
@@ -54,7 +66,6 @@ namespace BeatLeader.UI.Hub {
         #region Enable & Disable
 
         public void PresentAvatar() {
-            gameObject.SetActive(true);
             AvatarTweenController.gameObject.SetActive(true);
             AvatarTweenController.PresentAvatar();
         }
@@ -65,10 +76,6 @@ namespace BeatLeader.UI.Hub {
 
         private void OnEnable() {
             PresentAvatar();
-        }
-
-        private void OnDisable() {
-            HideAvatar();
         }
 
         #endregion

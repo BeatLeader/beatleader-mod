@@ -31,6 +31,7 @@ namespace BeatLeader.Models.Replay {
         string IReplayInfo.SongHash => hash;
         public LevelEndType LevelEndType => levelEndType ?? (failTime > 0 ? LevelEndType.Fail : LevelEndType.Clear);
         float IReplayInfo.FailTime => failTime;
+        int IReplayInfo.Score => score;
         long IReplayInfo.Timestamp => _timestamp ??= long.Parse(timestamp);
 
         private long? _timestamp;

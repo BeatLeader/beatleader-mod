@@ -4,7 +4,6 @@ using System.Linq;
 using BeatLeader.Components;
 using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
-using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +21,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Vector2 offset = default,
             bool animateBackground = false,
             Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
+        ) where T : Button where TModal : IModal, IReactiveComponent, new() {
             shadowSettings.SetValueIfNotSet(new());
             button.ClickEvent += () => {
                 ModalSystemHelper.OpenModalRelatively(
@@ -38,17 +37,17 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : ButtonBase {
+        public static T WithModal<T>(this T button, Action<Transform> listener) where T : IClickableComponent, IReactiveComponent {
             button.ClickEvent += () => listener(button.ContentTransform);
             return button;
         }
 
-        public static T WithClickListener<T>(this T button, Action listener) where T : ButtonBase {
+        public static T WithClickListener<T>(this T button, Action listener) where T : IClickableComponent {
             button.ClickEvent += listener;
             return button;
         }
 
-        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : ButtonBase {
+        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : Button {
             button.StateChangedEvent += listener;
             return button;
         }
@@ -65,7 +64,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : Button {
             return WithLabel(
                 button,
                 out _,
@@ -83,7 +82,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : Button {
             button.AsFlexGroup(alignItems: Align.Center);
             button.Children.Add(
                 new Label {
@@ -91,7 +90,12 @@ namespace BeatLeader.UI.Reactive.Components {
                     FontSize = fontSize,
                     RichText = richText,
                     Overflow = overflow
-                }.AsFlexItem(
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(
                     size: "auto",
                     margin: new() { left = 2f, right = 2f }
                 ).Export(out label)
@@ -104,15 +108,17 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
-        ) where T : ButtonBase, IChildrenProvider {
+            Optional<Material>? material = default
+        ) where T : Button {
             return WithImage(
                 button,
                 out _,
                 sprite,
                 color,
                 pixelsPerUnit,
+                preserveAspect,
                 type,
                 material
             );
@@ -124,21 +130,29 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
-        ) where T : ButtonBase, IChildrenProvider {
+            Optional<Material>? material = default
+        ) where T : Button {
+            button.AsFlexGroup();
             button.Children.Add(
                 new Image {
                     Sprite = sprite,
-                    Material = material,
+                    Material = material.GetValueOrDefault(GameResources.UINoGlowMaterial),
                     Color = color ?? Color.white,
                     PixelsPerUnit = pixelsPerUnit ?? 0f,
-                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced
-                }.WithRectExpand().Export(out image)
+                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced,
+                    PreserveAspect = preserveAspect
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(grow: 1f).Export(out image)
             );
             return button;
         }
-        
+
         public static T WithAccentColor<T>(
             this T button,
             Color color
@@ -170,44 +184,6 @@ namespace BeatLeader.UI.Reactive.Components {
         #endregion
 
         #region Image
-
-        [Pure]
-        public static Image InBackground(
-            this ILayoutItem comp,
-            Optional<Sprite> sprite = default,
-            Optional<Material> material = default,
-            Color? color = null,
-            UImage.Type type = UImage.Type.Sliced,
-            float pixelsPerUnit = 10f,
-            float skew = 0f,
-            ImageView.GradientDirection? gradientDirection = null,
-            Color gradientColor0 = default,
-            Color gradientColor1 = default
-        ) {
-            return comp.In<Image>().AsBackground(
-                sprite,
-                material,
-                color,
-                type,
-                pixelsPerUnit,
-                skew,
-                gradientDirection,
-                gradientColor0,
-                gradientColor1
-            );
-        }
-
-        [Pure]
-        public static Image InBlurBackground(
-            this ILayoutItem comp,
-            float pixelsPerUnit = 12f,
-            Color? color = null
-        ) {
-            return comp.In<Image>().AsBlurBackground(
-                pixelsPerUnit,
-                color
-            );
-        }
 
         public static T AsBlurBackground<T>(this T comp, float pixelsPerUnit = 12f, Color? color = null) where T : Image {
             comp.Sprite ??= BundleLoader.Sprites.background;
@@ -251,28 +227,16 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #endregion
 
-        #region NamedRail
+        #region TextArea
 
-        [Pure]
-        public static NamedRail InNamedRail(this ILayoutItem comp, string text) {
-            return new NamedRail {
-                Label = {
-                    Text = text
-                },
-                Component = comp
-            };
+        public static T WithItemsText<T>(this T comp, IEnumerable<string> items) where T : TextArea {
+            comp.Text = string.Join(string.Empty, items.Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x}"));
+            return comp;
         }
 
         #endregion
 
         #region Other
-
-        [Pure]
-        public static T In<T>(this ILayoutItem comp) where T : DrivingReactiveComponent, new() {
-            return new T {
-                Children = { comp.WithRectExpand() }
-            };
-        }
 
         public static T WithAnimation<T>(this T component, Action<float> animator) where T : IObservableHost, IAnimationProgressProvider {
             return component.WithListener(static x => x.AnimationProgress, animator);

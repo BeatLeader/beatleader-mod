@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ImageButton : ColoredButton, IChildrenProvider {
+    internal class ImageButton : ColoredButton, ISkewedComponent {
         #region UI Props
 
         public IColorSet? GradientColors0 {
@@ -25,13 +24,24 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        public new ICollection<ILayoutItem> Children => base.Children;
-        
+        public float Skew {
+            get => _skew;
+            set {
+                _skew = value;
+                ApplySkew(value);
+            }
+        }
+
+        private float _skew;
         private IColorSet? _gradientColors0;
         private IColorSet? _gradientColors1;
 
         private void RefreshGradientState() {
             Image.UseGradient = GradientColors0 != null || GradientColors1 != null;
+        }
+
+        protected virtual void ApplySkew(float skew) {
+            Image.Skew = skew;
         }
 
         #endregion

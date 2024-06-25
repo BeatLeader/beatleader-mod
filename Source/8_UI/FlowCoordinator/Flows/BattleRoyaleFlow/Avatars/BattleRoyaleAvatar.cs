@@ -6,7 +6,7 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleAvatar : MonoBehaviour {
         #region Pool
 
-        public class Pool : MonoMemoryPool<IBattleRoyaleQueuedReplay, BattleRoyaleAvatar> {
+        public class Pool : MonoMemoryPool<IBattleRoyaleReplay, BattleRoyaleAvatar> {
             protected override void OnSpawned(BattleRoyaleAvatar item) {
                 item.PresentAvatar();
             }
@@ -15,7 +15,7 @@ namespace BeatLeader.UI.Hub {
                 item.HideAvatar();
             }
 
-            protected override void Reinitialize(IBattleRoyaleQueuedReplay replay, BattleRoyaleAvatar item) {
+            protected override void Reinitialize(IBattleRoyaleReplay replay, BattleRoyaleAvatar item) {
                 item.Init(replay);
             }
 
@@ -39,7 +39,7 @@ namespace BeatLeader.UI.Hub {
         private AvatarController _avatarController = null!;
         private FloatingBattleRoyaleReplayBadge _badge = null!;
         private AvatarData? _avatarData;
-        private IBattleRoyaleQueuedReplay? _replay;
+        private IBattleRoyaleReplay? _replay;
 
         public void Refresh() {
             if (_replay == null) return;
@@ -48,7 +48,7 @@ namespace BeatLeader.UI.Hub {
             _badge.SetData(_replay);
         }
 
-        private void Init(IBattleRoyaleQueuedReplay replay) {
+        private void Init(IBattleRoyaleReplay replay) {
             _replay = replay;
             Refresh();
         }

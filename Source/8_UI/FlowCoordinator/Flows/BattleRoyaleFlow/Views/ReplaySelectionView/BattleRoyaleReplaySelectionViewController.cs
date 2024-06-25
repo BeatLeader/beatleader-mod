@@ -79,19 +79,19 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleHostNavigationRequested(IBattleRoyaleQueuedReplay replay) {
+        private void HandleHostNavigationRequested(IBattleRoyaleReplay replay) {
             var list = _replayLaunchPanel.ReplaysList;
             var index = list.Items.FindIndex(x => x.Equals(replay.ReplayHeader));
             list.ScrollTo(index);
             list.Select(index);
         }
         
-        private void HandleReplayAdded(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
             if (caller.Equals(this)) return;
             _replayLaunchPanel.AddSelectedReplay(replay.ReplayHeader, false);
         }
 
-        private void HandleReplayRemoved(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
             if (caller.Equals(this)) return;
             _replayLaunchPanel.RemoveSelectedReplay(replay.ReplayHeader, false);
         }

@@ -147,7 +147,7 @@ namespace BeatLeader.UI.Hub {
 
         #region BattleRoyaleHost
 
-        public IReadOnlyCollection<IBattleRoyaleQueuedReplay> PendingReplays => _replays.Values;
+        public IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays => _replays.Values;
         public IListFilter<IReplayHeaderBase> ReplayFilter => _replayFilter;
 
         public IDifficultyBeatmap? ReplayBeatmap {
@@ -160,9 +160,9 @@ namespace BeatLeader.UI.Hub {
 
         public bool CanLaunchBattle { get; private set; }
 
-        public event Action<IBattleRoyaleQueuedReplay, object>? ReplayAddedEvent;
-        public event Action<IBattleRoyaleQueuedReplay, object>? ReplayRemovedEvent;
-        public event Action<IBattleRoyaleQueuedReplay>? ReplayNavigationRequestedEvent;
+        public event Action<IBattleRoyaleReplay, object>? ReplayAddedEvent;
+        public event Action<IBattleRoyaleReplay, object>? ReplayRemovedEvent;
+        public event Action<IBattleRoyaleReplay>? ReplayNavigationRequestedEvent;
         public event Action? ReplayRefreshRequestedEvent;
         public event Action<IDifficultyBeatmap?>? ReplayBeatmapChangedEvent;
         public event Action<bool>? HostStateChangedEvent;
@@ -170,7 +170,7 @@ namespace BeatLeader.UI.Hub {
         public event Action? BattleLaunchStartedEvent;
         public event Action? BattleLaunchFinishedEvent;
 
-        private readonly Dictionary<IReplayHeaderBase, BattleRoyaleQueuedReplay> _replays = new();
+        private readonly Dictionary<IReplayHeaderBase, BattleRoyaleReplay> _replays = new();
         private readonly BeatmapReplayFilter _replayFilter = new();
 
         public async void LaunchBattle() {
@@ -189,7 +189,7 @@ namespace BeatLeader.UI.Hub {
             if (_replays.ContainsKey(header)) return;
             //
             var replayData = CreateReplayData(header);
-            var replay = new BattleRoyaleQueuedReplay(header, replayData);
+            var replay = new BattleRoyaleReplay(header, replayData);
             //
             _replays.Add(header, replay);
             ReplayAddedEvent?.Invoke(replay, caller);

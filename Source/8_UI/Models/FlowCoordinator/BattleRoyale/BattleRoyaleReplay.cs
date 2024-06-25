@@ -1,10 +1,10 @@
 ﻿using BeatLeader.Models;
 
 namespace BeatLeader.UI.Hub {
-    internal record BattleRoyaleQueuedReplay(
+    internal record BattleRoyaleReplay(
         IReplayHeaderBase ReplayHeader,
         IOptionalReplayData ReplayData
-    ) : IBattleRoyaleQueuedReplay {
+    ) : IBattleRoyaleReplay {
         public int ReplayRank { get; set; }
     }
 }

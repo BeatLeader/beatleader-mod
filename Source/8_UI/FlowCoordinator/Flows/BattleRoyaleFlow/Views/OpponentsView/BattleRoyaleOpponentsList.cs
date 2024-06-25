@@ -10,10 +10,10 @@ using UnityEngine;
 using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
 
 namespace BeatLeader.UI.Hub {
-    internal class BattleRoyaleOpponentsList : Table<IBattleRoyaleQueuedReplay, BattleRoyaleOpponentsList.Cell> {
+    internal class BattleRoyaleOpponentsList : Table<IBattleRoyaleReplay, BattleRoyaleOpponentsList.Cell> {
         #region Cells
 
-        public class Cell : TableComponentCell<IBattleRoyaleQueuedReplay> {
+        public class Cell : TableComponentCell<IBattleRoyaleReplay> {
             #region Construct
 
             private Image _backgroundImage = null!;
@@ -112,7 +112,7 @@ namespace BeatLeader.UI.Hub {
 
             private IBattleRoyaleHost _battleRoyaleHost = null!;
 
-            protected override void OnInit(IBattleRoyaleQueuedReplay item) {
+            protected override void OnInit(IBattleRoyaleReplay item) {
                 RefreshPlayer();
                 var color = item.ReplayData.AccentColor ?? Color.white;
                 _backgroundImage.Color = color.ColorWithAlpha(0.2f);
@@ -185,8 +185,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Comparison
 
-        private class OpponentComparator : IComparer<IBattleRoyaleQueuedReplay> {
-            public int Compare(IBattleRoyaleQueuedReplay x, IBattleRoyaleQueuedReplay y) {
+        private class OpponentComparator : IComparer<IBattleRoyaleReplay> {
+            public int Compare(IBattleRoyaleReplay x, IBattleRoyaleReplay y) {
                 return x.ReplayRank.CompareTo(y.ReplayRank);
             }
         }
@@ -197,12 +197,12 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleReplayAdded(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
             Items.Add(replay);
             Refresh();
         }
 
-        private void HandleReplayRemoved(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
             Items.Remove(replay);
             Refresh();
         }

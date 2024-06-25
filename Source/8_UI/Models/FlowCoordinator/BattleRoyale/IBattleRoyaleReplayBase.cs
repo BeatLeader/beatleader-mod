@@ -1,9 +1,8 @@
-﻿using BeatLeader.Models;
+using BeatLeader.Models;
 
 namespace BeatLeader.UI.Hub {
-    internal interface IBattleRoyaleQueuedReplay {
+    public interface IBattleRoyaleReplayBase {
         IReplayHeaderBase ReplayHeader { get; }
         IOptionalReplayData ReplayData { get; }
-        int ReplayRank { get; }
     }
 }

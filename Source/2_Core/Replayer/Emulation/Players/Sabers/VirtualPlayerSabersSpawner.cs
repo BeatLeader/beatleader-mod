@@ -33,7 +33,7 @@ namespace BeatLeader.Replayer.Emulation {
             public bool UsesPrimaryModel => _usesOriginalSabers;
 
             public void ApplyPlayer(IVirtualPlayerBase player) {
-                var color = player.Replay.ReplayData.Player?.AccentColor ?? Color.white;
+                var color = player.Replay.OptionalReplayData?.AccentColor ?? Color.clear;
                 _leftHand.CoreColor = color;
                 _rightHand.CoreColor = color;
                 _player = player;

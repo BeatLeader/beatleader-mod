@@ -36,7 +36,7 @@ namespace BeatLeader.Replayer.Emulation {
         private IVirtualPlayerBase _player = null!;
         private AvatarLoader _avatarLoader = null!;
         private AvatarPartsModel _avatarPartsModel = null!;
-        private readonly AvatarData _avatarData = new();
+        private AvatarData? _avatarData;
 
         private void Setup() {
             _avatarLoader = _zenjectMenuResolver.Resolve<AvatarLoader>();
@@ -48,9 +48,14 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void RefreshAvatarVisuals(IVirtualPlayerBase player) {
+            var replay = player.Replay;
             _player = player;
-            var playerId = player.Replay.ReplayData.Player!.Id;
-            AvatarUtils.RandomizeAvatarByPlayerId(playerId, _avatarData, _avatarPartsModel);
+            _avatarData = replay.OptionalReplayData?.AvatarData;
+            if (_avatarData == null) {
+                _avatarData = new();
+                var playerId = replay.ReplayData.Player!.Id;
+                AvatarUtils.RandomizeAvatarByPlayerId(playerId, _avatarData, _avatarPartsModel);
+            }
             _avatarController.VisualController.UpdateAvatarVisual(_avatarData);
         }
 

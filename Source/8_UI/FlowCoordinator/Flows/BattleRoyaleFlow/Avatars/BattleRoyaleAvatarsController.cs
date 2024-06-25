@@ -95,14 +95,14 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        private void HandleReplayAdded(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
             var avatar = _battleRoyaleAvatarPool.Spawn(replay);
             avatar.transform.SetParent(transform, false);
             _avatars[replay.ReplayHeader] = avatar;
             RecalculateAvatarPositions(avatar);
         }
 
-        private void HandleReplayRemoved(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
             var avatar = _avatars[replay.ReplayHeader];
             _avatars.Remove(replay.ReplayHeader);
             _battleRoyaleAvatarPool.Despawn(avatar);

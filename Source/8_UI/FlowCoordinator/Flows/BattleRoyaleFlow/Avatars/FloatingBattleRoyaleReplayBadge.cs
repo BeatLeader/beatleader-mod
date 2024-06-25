@@ -11,7 +11,7 @@ namespace BeatLeader.UI.Hub {
 
         private Transform? _headTransform;
 
-        public async void SetData(IBattleRoyaleQueuedReplay replay) {
+        public async void SetData(IBattleRoyaleReplay replay) {
             await _badge.SetData(replay);
         }
 

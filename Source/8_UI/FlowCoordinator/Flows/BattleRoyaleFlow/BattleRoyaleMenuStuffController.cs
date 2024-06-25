@@ -75,13 +75,13 @@ namespace BeatLeader.UI.Hub {
             RefreshVisibility();
         }
 
-        private void HandleReplayAdded(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
             if (!_hostEnabled) return;
             _replaysCount++;
             RefreshVisibility();
         }
 
-        private void HandleReplayRemoved(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
             if (!_hostEnabled) return;
             _replaysCount--;
             RefreshVisibility();

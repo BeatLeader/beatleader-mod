@@ -208,16 +208,16 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleHostNavigationRequested(IBattleRoyaleQueuedReplay replay) {
+        private void HandleHostNavigationRequested(IBattleRoyaleReplay replay) {
             if (!_isInReplayMenu) PresentReplaySelectionView();
         }
         
-        private void HandleHostReplayAdded(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleHostReplayAdded(IBattleRoyaleReplay replay, object caller) {
             _replaysPreviewPanel.Replays.Add(replay.ReplayHeader);
             RefreshReplaysPanel();
         }
         
-        private void HandleHostReplayRemoved(IBattleRoyaleQueuedReplay replay, object caller) {
+        private void HandleHostReplayRemoved(IBattleRoyaleReplay replay, object caller) {
             _replaysPreviewPanel.Replays.Remove(replay.ReplayHeader);
             RefreshReplaysPanel();
         }

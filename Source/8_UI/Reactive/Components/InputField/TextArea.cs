@@ -130,8 +130,8 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override float? DesiredHeight => 8f;
 
-        private Button _clearButton = null!;
-        private Button _backgroundButton = null!;
+        private ButtonBase _clearButton = null!;
+        private ButtonBase _backgroundButton = null!;
         private Label _label = null!;
         private Image _icon = null!;
         private Image _caret = null!;

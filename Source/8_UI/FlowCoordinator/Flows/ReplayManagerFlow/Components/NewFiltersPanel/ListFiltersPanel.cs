@@ -118,7 +118,7 @@ namespace BeatLeader.UI.Hub {
             #region Construct
 
             private PushContainer _filterContainer = null!;
-            private Button _enableButton = null!;
+            private ButtonBase _enableButton = null!;
 
             protected override GameObject Construct() {
                 return new Dummy {

@@ -120,7 +120,7 @@ namespace BeatLeader.UI.Hub {
         private ReplaysPreviewPanel _replaysPreviewPanel = null!;
         private ClickablePanel<ReplaysPreviewPanel> _replaysPanel = null!;
         private ClickablePanel<BeatmapPreviewPanel> _beatmapPanel = null!;
-        private Button _battleButton = null!;
+        private ButtonBase _battleButton = null!;
 
         private void Construct() {
             new Dummy {

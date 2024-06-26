@@ -77,13 +77,13 @@ namespace BeatLeader.UI.Reactive.Components {
         private RectTransform _slidingArea = null!;
         private RectTransform _handle = null!;
         private ImageButton _background = null!;
-        private Button _incrementButton = null!;
-        private Button _decrementButton = null!;
+        private ButtonBase _incrementButton = null!;
+        private ButtonBase _decrementButton = null!;
         private Label _text = null!;
         private PointerEventsHandler _pointerEventsHandler = null!;
 
         protected override GameObject Construct() {
-            static Button CreateButton(
+            static ButtonBase CreateButton(
                 bool applyColor1,
                 Sprite backgroundSprite,
                 float iconRotation

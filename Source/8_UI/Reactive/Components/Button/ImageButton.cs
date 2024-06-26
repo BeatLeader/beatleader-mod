@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ImageButton : ColoredButton, ISkewedComponent {
+    internal class ImageButton : ColoredButton, ISkewedComponent, IChildrenProvider {
         #region UI Props
 
         public IColorSet? GradientColors0 {
@@ -32,6 +33,8 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
+        public new ICollection<ILayoutItem> Children => base.Children;
+        
         private float _skew;
         private IColorSet? _gradientColors0;
         private IColorSet? _gradientColors1;

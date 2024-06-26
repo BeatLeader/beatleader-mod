@@ -56,6 +56,7 @@
         ContentAlign="Center"
         ContentDirection="Column"
         ExpandIcon="false"
+        ClickEvent="settings-button-click"
         Height="30"
         Width="30"
         Pivot="1,0"

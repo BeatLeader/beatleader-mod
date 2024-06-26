@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,6 +35,26 @@ namespace BeatLeader.UI.Reactive.Components {
                     shadowSettings: shadowSettings
                 );
             };
+            return button;
+        }
+
+        public static T WithCenteredModal<T, TModal>(
+            this T button,
+            TModal modal,
+            bool animateBackground = false,
+            Optional<DynamicShadowSettings> shadowSettings = default
+        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
+            shadowSettings.SetValueIfNotSet(new());
+            button.ClickEvent += () => ModalSystem.OpenModal(
+                modal,
+                button.ContentTransform,
+                settings: new(
+                    Vector2.zero,
+                    Vector2.one * 0.5f,
+                    animateBackground,
+                    ShadowSettings: shadowSettings
+                )
+            );
             return button;
         }
 
@@ -82,13 +104,22 @@ namespace BeatLeader.UI.Reactive.Components {
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
         ) where T : ButtonBase, IChildrenProvider {
+            button.AsFlexGroup(alignItems: Align.Center);
             button.Children.Add(
                 new Label {
                     Text = text,
                     FontSize = fontSize,
                     RichText = richText,
                     Overflow = overflow
-                }.WithRectExpand().Export(out label)
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(
+                    size: "auto",
+                    margin: new() { left = 2f, right = 2f }
+                ).Export(out label)
             );
             return button;
         }
@@ -165,6 +196,45 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Image
 
+        [Pure]
+        public static Image InBackground(
+            this ILayoutItem comp,
+            Optional<Sprite> sprite = default,
+            Optional<Material> material = default,
+            Color? color = null,
+            UImage.Type type = UImage.Type.Sliced,
+            float pixelsPerUnit = 10f,
+            float skew = 0f,
+            ImageView.GradientDirection? gradientDirection = null,
+            Color gradientColor0 = default,
+            Color gradientColor1 = default
+        ) {
+            return comp.In<Image>().AsBackground(
+                sprite,
+                material,
+                color,
+                type,
+                pixelsPerUnit,
+                //skew,
+                skew,
+                gradientDirection,
+                gradientColor0,
+                gradientColor1
+            );
+        }
+
+        [Pure]
+        public static Image InBlurBackground(
+            this ILayoutItem comp,
+            float pixelsPerUnit = 12f,
+            Color? color = null
+        ) {
+            return comp.In<Image>().AsBlurBackground(
+                pixelsPerUnit,
+                color
+            );
+        }
+
         public static T AsBlurBackground<T>(this T comp, float pixelsPerUnit = 12f, Color? color = null) where T : Image {
             comp.Sprite ??= BundleLoader.Sprites.background;
             comp.Material = GameResources.UIFogBackgroundMaterial;
@@ -207,6 +277,25 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #endregion
 
+        #region NamedRail
+
+        [Pure]
+        public static NamedRail InNamedRail(this ILayoutItem comp, string text) {
+            return new NamedRail {
+                Label = {
+                    Text = text
+                },
+                Component = comp
+            }.With(
+                x => {
+                    if (comp is not ISkewedComponent skewed) return;
+                    x.Label.Skew = skewed.Skew;
+                }
+            );
+        }
+
+        #endregion
+
         #region TextArea
 
         public static T WithItemsText<T>(this T comp, IEnumerable<string> items) where T : TextArea {
@@ -215,8 +304,15 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         #endregion
-        
+
         #region Other
+
+        [Pure]
+        public static T In<T>(this ILayoutItem comp) where T : DrivingReactiveComponent, new() {
+            return new T {
+                Children = { comp.WithRectExpand() }
+            };
+        }
 
         public static T WithAnimation<T>(this T component, Action<float> animator) where T : IObservableHost, IAnimationProgressProvider {
             return component.WithListener(static x => x.AnimationProgress, animator);

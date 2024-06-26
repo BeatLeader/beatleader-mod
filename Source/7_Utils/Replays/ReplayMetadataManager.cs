@@ -109,6 +109,10 @@ namespace BeatLeader.Utils {
             cachedMetadatas.Remove(Path.GetFileName(path));
         }
 
+        public static void ClearMetadata() {
+            cachedMetadatas.Clear();
+        }
+
         #endregion
     }
 }

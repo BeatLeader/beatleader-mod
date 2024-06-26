@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Label : ReactiveComponent {
+    internal class Label : ReactiveComponent, ISkewedComponent {
         public string Text {
             get => _text.text;
             set {
@@ -113,6 +113,17 @@ namespace BeatLeader.UI.Reactive.Components {
             set {
                 _text.raycastTarget = value;
                 NotifyPropertyChanged();
+            }
+        }
+
+        public float Skew {
+            get => FontStyle.HasFlag(FontStyles.Italic) ? 1f : 0f;
+            set {
+                if (value > 0f) {
+                    FontStyle |= FontStyles.Italic;
+                } else {
+                    FontStyle &= ~FontStyles.Italic;
+                }
             }
         }
 

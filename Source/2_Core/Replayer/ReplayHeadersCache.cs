@@ -39,6 +39,10 @@ namespace BeatLeader {
             infoCache.Cache.Remove(Path.GetFileName(path));
         }
 
+        public static void ClearInfo() {
+            infoCache.Cache.Clear();
+        }
+
         private static SerializableReplayInfo ToSerializableReplayInfo(IReplayInfo info) {
             return new() {
                 FailTime = info.FailTime,

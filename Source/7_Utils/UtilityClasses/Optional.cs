@@ -9,6 +9,10 @@ namespace BeatLeader {
             HasValue = true;
         }
 
+        public T GetValueOrDefault(T defaultValue) {
+            return HasValue ? Value! : defaultValue;
+        }
+
         public static implicit operator bool(Optional<T> value) {
             return value.HasValue;
         }

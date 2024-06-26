@@ -33,8 +33,8 @@ namespace BeatLeader.UI.Reactive.Components {
         public override bool AllowExternalClose => false;
 
         private DialogHeader _header = null!;
-        private Button _cancelButton = null!;
-        private Button _okButton = null!;
+        private ButtonBase _cancelButton = null!;
+        private ButtonBase _okButton = null!;
 
         protected sealed override GameObject Construct() {
             return new Image {

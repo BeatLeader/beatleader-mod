@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ColoredButton : Button {
+    internal class ColoredButton : ButtonBase {
         #region UI Properties
 
         public IColorSet? Colors {

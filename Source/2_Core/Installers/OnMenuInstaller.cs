@@ -12,7 +12,7 @@ using Zenject;
 namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnMenuInstaller : Installer<OnMenuInstaller> {
-        internal static new DiContainer Container => _container ?? throw new InvalidOperationException();
+        internal new static DiContainer Container => _container ?? throw new InvalidOperationException();
 
         private static DiContainer? _container;
         

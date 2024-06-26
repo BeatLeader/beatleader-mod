@@ -74,8 +74,8 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private RectTransform _handleContainerRect = null!;
         private RectTransform _handleRect = null!;
-        private Button _upButton = null!;
-        private Button _downButton = null!;
+        private ButtonBase _upButton = null!;
+        private ButtonBase _downButton = null!;
 
         protected override GameObject Construct() {
             static ImageButton CreateButton(float rotation) {

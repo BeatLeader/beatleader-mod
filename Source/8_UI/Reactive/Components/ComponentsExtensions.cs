@@ -93,7 +93,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 }.AsFlexItem(
                     size: "auto",
                     margin: new() { left = 2f, right = 2f }
-                )
+                ).Export(out label)
             );
             return button;
         }
@@ -189,7 +189,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 color,
                 type,
                 pixelsPerUnit,
-                //skew,
+                skew,
                 gradientDirection,
                 gradientColor0,
                 gradientColor1

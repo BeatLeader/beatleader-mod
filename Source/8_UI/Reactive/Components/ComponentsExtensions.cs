@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Vector2 offset = default,
             bool animateBackground = false,
             Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : Button where TModal : IModal, IReactiveComponent, new() {
+        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
             shadowSettings.SetValueIfNotSet(new());
             button.ClickEvent += () => {
                 ModalSystemHelper.OpenModalRelatively(
@@ -36,17 +36,17 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : Button {
+        public static T WithModal<T>(this T button, Action<Transform> listener) where T : ButtonBase {
             button.ClickEvent += () => listener(button.ContentTransform);
             return button;
         }
 
-        public static T WithClickListener<T>(this T button, Action listener) where T : Button {
+        public static T WithClickListener<T>(this T button, Action listener) where T : ButtonBase {
             button.ClickEvent += listener;
             return button;
         }
 
-        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : Button {
+        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : ButtonBase {
             button.StateChangedEvent += listener;
             return button;
         }
@@ -63,14 +63,72 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : Button {
+        ) where T : ButtonBase, IChildrenProvider {
+            return WithLabel(
+                button,
+                out _,
+                text,
+                fontSize,
+                richText,
+                overflow
+            );
+        }
+
+        public static T WithLabel<T>(
+            this T button,
+            out Label label,
+            string text,
+            float fontSize = 4f,
+            bool richText = true,
+            TextOverflowModes overflow = TextOverflowModes.Overflow
+        ) where T : ButtonBase, IChildrenProvider {
             button.Children.Add(
                 new Label {
                     Text = text,
                     FontSize = fontSize,
                     RichText = richText,
                     Overflow = overflow
-                }.WithRectExpand()
+                }.WithRectExpand().Export(out label)
+            );
+            return button;
+        }
+
+        public static T WithImage<T>(
+            this T button,
+            Sprite? sprite,
+            Color? color = null,
+            float? pixelsPerUnit = null,
+            UImage.Type type = UImage.Type.Simple,
+            Material? material = null
+        ) where T : ButtonBase, IChildrenProvider {
+            return WithImage(
+                button,
+                out _,
+                sprite,
+                color,
+                pixelsPerUnit,
+                type,
+                material
+            );
+        }
+
+        public static T WithImage<T>(
+            this T button,
+            out Image image,
+            Sprite? sprite,
+            Color? color = null,
+            float? pixelsPerUnit = null,
+            UImage.Type type = UImage.Type.Simple,
+            Material? material = null
+        ) where T : ButtonBase, IChildrenProvider {
+            button.Children.Add(
+                new Image {
+                    Sprite = sprite,
+                    Material = material,
+                    Color = color ?? Color.white,
+                    PixelsPerUnit = pixelsPerUnit ?? 0f,
+                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced
+                }.WithRectExpand().Export(out image)
             );
             return button;
         }
@@ -122,6 +180,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Color? color = null,
             UImage.Type type = UImage.Type.Sliced,
             float pixelsPerUnit = 10f,
+            float skew = 0f,
             ImageView.GradientDirection? gradientDirection = null,
             Color gradientColor0 = default,
             Color gradientColor1 = default
@@ -134,6 +193,7 @@ namespace BeatLeader.UI.Reactive.Components {
             component.Color = color ?? Color.white;
             component.ImageType = type;
             component.PixelsPerUnit = pixelsPerUnit;
+            component.Skew = skew;
             //applying gradient if needed
             if (gradientDirection.HasValue) {
                 component.UseGradient = true;

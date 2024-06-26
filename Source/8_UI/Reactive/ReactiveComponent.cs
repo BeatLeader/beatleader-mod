@@ -9,7 +9,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.UI.Reactive {
-    internal abstract class DrivingReactiveComponent : DrivingReactiveComponentBase {
+    internal abstract class DrivingReactiveComponent : DrivingReactiveComponentBase, IChildrenProvider {
         /// <summary>
         /// Represents the children of the component.
         /// </summary>

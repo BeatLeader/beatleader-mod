@@ -76,7 +76,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override GameObject Construct() {
             //temporary solution
-            static Button CreateButton(
+            static ButtonBase CreateButton(
                 bool applyColor1,
                 float iconRotation,
                 Justify justify,

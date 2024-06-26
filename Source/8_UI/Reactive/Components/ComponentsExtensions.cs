@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Vector2 offset = default,
             bool animateBackground = false,
             Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : Button where TModal : IModal, IReactiveComponent, new() {
+        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
             shadowSettings.SetValueIfNotSet(new());
             button.ClickEvent += () => {
                 ModalSystemHelper.OpenModalRelatively(
@@ -36,17 +36,17 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : Button {
+        public static T WithModal<T>(this T button, Action<Transform> listener) where T : ButtonBase {
             button.ClickEvent += () => listener(button.ContentTransform);
             return button;
         }
 
-        public static T WithClickListener<T>(this T button, Action listener) where T : Button {
+        public static T WithClickListener<T>(this T button, Action listener) where T : ButtonBase {
             button.ClickEvent += listener;
             return button;
         }
 
-        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : Button {
+        public static T WithStateListener<T>(this T button, Action<bool> listener) where T : ButtonBase {
             button.StateChangedEvent += listener;
             return button;
         }
@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : Button {
+        ) where T : ButtonBase, IChildrenProvider {
             return WithLabel(
                 button,
                 out _,
@@ -81,7 +81,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : Button {
+        ) where T : ButtonBase, IChildrenProvider {
             button.Children.Add(
                 new Label {
                     Text = text,
@@ -100,7 +100,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float? pixelsPerUnit = null,
             UImage.Type type = UImage.Type.Simple,
             Material? material = null
-        ) where T : Button {
+        ) where T : ButtonBase, IChildrenProvider {
             return WithImage(
                 button,
                 out _,
@@ -120,7 +120,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float? pixelsPerUnit = null,
             UImage.Type type = UImage.Type.Simple,
             Material? material = null
-        ) where T : Button {
+        ) where T : ButtonBase, IChildrenProvider {
             button.Children.Add(
                 new Image {
                     Sprite = sprite,

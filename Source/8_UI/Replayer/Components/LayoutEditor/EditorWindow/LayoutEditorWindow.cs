@@ -120,8 +120,8 @@ namespace BeatLeader.Components {
 
         private LayoutEditorComponentsList _layoutEditorComponentsList = null!;
         private Image _windowHandle = null!;
-        private Button _layerUpButton = null!;
-        private Button _layerDownButton = null!;
+        private ButtonBase _layerUpButton = null!;
+        private ButtonBase _layerDownButton = null!;
         private RectTransform _imageTransform = null!;
 
         protected override GameObject Construct() {

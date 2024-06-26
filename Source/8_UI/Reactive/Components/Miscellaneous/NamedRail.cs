@@ -34,7 +34,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 justifyContent: Justify.SpaceBetween
             ).Bind(ref _container).Use();
         }
-
+        
         protected override void OnInitialize() {
             this.AsFlexItem();
         }

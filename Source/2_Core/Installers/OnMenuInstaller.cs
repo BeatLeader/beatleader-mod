@@ -69,6 +69,9 @@ namespace BeatLeader.Installers {
             Container.Bind<BattleRoyaleReplaySelectionViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BattleRoyaleBattleSetupViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BattleRoyaleGreetingsViewController>().FromNewComponentAsViewController().AsSingle();
+            //<--------------------------------Settings------------------------------->
+            Container.Bind<BeatLeaderSettingsFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<BeatLeaderSettingsViewController>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }

@@ -52,6 +52,7 @@ namespace BeatLeader.UI.Reactive.Components {
             cell.Init(key, Items[key]);
             cell.CellAskedToBeSelectedEvent += HandleCellAskedToBeSelected;
             Children.Add(cell);
+            CellConstructCallback?.Invoke(cell);
             OnCellConstruct(cell);
             if (_selectedCell == null) {
                 Select(Items.Keys.First());
@@ -89,6 +90,8 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Abstraction
 
+        public Action<TCell>? CellConstructCallback { get; set; }
+        
         protected virtual void OnCellConstruct(TCell cell) { }
 
         #endregion

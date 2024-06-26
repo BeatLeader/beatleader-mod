@@ -160,7 +160,7 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             static ReactiveComponentBase CreateTagsList(
                 string text,
-                Func<Button> actionButton,
+                Func<ButtonBase> actionButton,
                 ref TagsList list
             ) {
                 return new Image {
@@ -181,7 +181,7 @@ namespace BeatLeader.UI.Hub {
                 }.AsBlurBackground().AsFlexGroup(direction: FlexDirection.Column);
             }
 
-            static Button CreateButton(Sprite sprite) {
+            static ButtonBase CreateButton(Sprite sprite) {
                 return new BsButton {
                     Children = {
                         new Image {
@@ -196,7 +196,7 @@ namespace BeatLeader.UI.Hub {
                 );
             }
 
-            static Button CreateActionButton(
+            static ButtonBase CreateActionButton(
                 Sprite sprite,
                 Func<TagsList> sourceList,
                 Func<TagsList> targetList,
@@ -221,8 +221,8 @@ namespace BeatLeader.UI.Hub {
             }
 
             Scrollbar selectedListScrollbar = null!;
-            Button addButton = null!;
-            Button removeButton = null!;
+            ButtonBase addButton = null!;
+            ButtonBase removeButton = null!;
             return new Dummy {
                 Children = {
                     //all tags list

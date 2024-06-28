@@ -40,7 +40,9 @@ namespace BeatLeader.UI.Reactive.Components {
             if (!animated) {
                 _animator.SetProgress(active ? 1f : 0f);
             }
-            if (!silent) NotifyPropertyChanged();
+            if (!silent) {
+                NotifyPropertyChanged(nameof(Active));
+            }
         }
 
         #endregion

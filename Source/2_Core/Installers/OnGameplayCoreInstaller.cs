@@ -15,6 +15,7 @@ using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
 using BeatLeader.UI;
 using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using BeatLeader.UI.Replayer.Desktop;
 using IPA.Loader;
 
@@ -80,14 +81,14 @@ namespace BeatLeader.Installers {
             //Controllers
             Container.Bind<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
+
             //Sabers
             if (launchData.SabersSpawner is { } controllersSpawner) {
                 Container.BindInterfacesTo(controllersSpawner.GetType()).AsSingle();
             } else {
                 Container.BindInterfacesTo<VirtualPlayerSabersSpawner>().AsSingle();
             }
-            
+
             //Avatar
             if (launchData.AvatarSpawner is { } avatarSpawner) {
                 Container.BindInterfacesTo(avatarSpawner.GetType()).AsSingle();
@@ -96,11 +97,11 @@ namespace BeatLeader.Installers {
             }
             Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>();
             Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2);
-            
+
             //Players
             Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
-            
+
             //Event Processing
             Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(2);
             Container.BindMemoryPool<ReplayScoreEventsProcessor, ReplayScoreEventsProcessor.Pool>().WithInitialSize(2);
@@ -119,10 +120,15 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //UI
-            Container.Bind<ReplayerDesktopScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.Bind<ReplayerDesktopViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<ReplayerDesktopUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
+            if (EnvironmentUtils.UsesFPFC) {
+                Container.Bind<ReplayerDesktopScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
+                Container.Bind<ReplayerDesktopViewController>().FromNewComponentAsViewController().AsSingle();
+                Container.Bind<ReplayerDesktopUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            } else {
+                Container.Bind<ReplayerFloatingViewController>().FromNewComponentAsViewController().AsSingle();
+                Container.Bind<ReplayerFloatingUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            }
+
             //Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
             //Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
             //Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

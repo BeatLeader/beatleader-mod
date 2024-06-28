@@ -8,7 +8,7 @@ namespace BeatLeader.UI {
         public static ReadOnlyColorSet InputColorSet => new() {
             HoveredColor = Color.magenta.ColorWithAlpha(0.5f),
             Color = Color.black.ColorWithAlpha(0.5f),
-            DisabledColor = Color.white.ColorWithAlpha(0.2f)
+            DisabledColor = Color.black.ColorWithAlpha(0.2f)
         };
 
         public static ReadOnlyColorSet ControlColorSet => new() {
@@ -29,7 +29,7 @@ namespace BeatLeader.UI {
             Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
         };
         
-        public static StateColorSet SecondaryButtonColorSet = new() {
+        public static StateColorSet SecondaryButtonColorSet => new() {
             ActiveColor = new(0.0f, 0.4f, 1.0f, 1.0f),
             HoveredColor = (Color.white * 0.5f).ColorWithAlpha(0.2f),
             Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)

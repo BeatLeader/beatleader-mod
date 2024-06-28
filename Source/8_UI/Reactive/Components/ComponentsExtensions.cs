@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
 using JetBrains.Annotations;
 using TMPro;
@@ -83,7 +84,7 @@ namespace BeatLeader.UI.Reactive.Components {
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
         ) where T : ButtonBase, IChildrenProvider {
-            button.AsFlexGroup();
+            button.AsFlexGroup(alignItems: Align.Center);
             button.Children.Add(
                 new Label {
                     Text = text,

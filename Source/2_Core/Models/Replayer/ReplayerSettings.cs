@@ -25,8 +25,11 @@ namespace BeatLeader.Models {
         public bool ShowTimelinePauses { get; set; }
 
         public ReplayerShortcuts Shortcuts { get; set; } = new();
+        public ReplayerUISettings UISettings { get; set; } = new();
         public BodySettings BodySettings { get; set; } = new();
-        public LayoutEditorSettings? LayoutEditorSettings { get; set; }
+
+        [Obsolete]
+        public LayoutEditorSettings? LayoutEditorSettings => UISettings.LayoutEditorSettings;
 
         [JsonConverter(typeof(ImplicitTypeConverter<InternalReplayerCameraSettings>))]
         public ReplayerCameraSettings? CameraSettings { get; set; }

@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Image : DrivingReactiveComponent, ISkewedComponent {
+    internal class Image : DrivingReactiveComponent, ISkewedComponent, IGraphicComponent {
         public Sprite? Sprite {
             get => _image.sprite;
             set {
@@ -75,6 +75,22 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
+        public UnityEngine.UI.Image.FillMethod FillMethod {
+            get => _image.fillMethod;
+            set {
+                _image.fillMethod = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public float FillAmount {
+            get => _image.fillAmount;
+            set {
+                _image.fillAmount = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         public float PixelsPerUnit {
             get => _image.pixelsPerUnitMultiplier;
             set {
@@ -89,8 +105,13 @@ namespace BeatLeader.UI.Reactive.Components {
             set => _image.Skew = value;
         }
 
+        public bool RaycastTarget {
+            get => _image.raycastTarget;
+            set => _image.raycastTarget = value;
+        }
+
         private FixedImageView _image = null!;
-        
+
         protected override void Construct(RectTransform rect) {
             _image = rect.gameObject.AddComponent<FixedImageView>();
             Material = GameResources.UINoGlowMaterial;

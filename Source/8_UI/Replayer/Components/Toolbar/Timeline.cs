@@ -164,6 +164,11 @@ namespace BeatLeader.UI.Replayer {
             }
         }
 
+        protected override void OnRectDimensionsChanged() {
+            if (_playersManager == null) return;
+            ReloadMarkers();
+        }
+
         #endregion
 
         #region Animation

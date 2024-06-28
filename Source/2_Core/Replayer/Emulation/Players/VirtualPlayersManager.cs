@@ -45,7 +45,6 @@ namespace BeatLeader.Replayer.Emulation {
         private void Awake() {
             LoadDummyControllers();
             foreach (var replay in _launchData.Replays) Spawn(replay);
-            if (_virtualPlayers.Count is not 0) SetPrimaryPlayer(_virtualPlayers[0]);
         }
 
         private void LoadDummyControllers() {
@@ -69,10 +68,12 @@ namespace BeatLeader.Replayer.Emulation {
         private void Spawn(IReplay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
             virtualPlayer.Init(replay);
-
+            //setting player if not set yet
+            _primaryPlayer ??= virtualPlayer;
+            //initializing body
             var body = _bodySpawner.SpawnBody(this, virtualPlayer);
             virtualPlayer.LateInit(body);
-
+            //adding to the list
             _virtualPlayers.Add(virtualPlayer);
         }
 

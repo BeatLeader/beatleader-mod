@@ -16,15 +16,23 @@ namespace BeatLeader.UI.Replayer {
             IBeatmapTimeController timeController,
             ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner,
-            ILayoutEditor layoutEditor,
+            ILayoutEditor? layoutEditor,
             IReplayTimeline timeline,
-            IReplayWatermark watermark
+            IReplayWatermark watermark,
+            bool useAlternativeBlur
         ) {
             _cameraView.Setup(cameraController, settings.CameraSettings!);
             _avatarView.Setup(bodySpawner, settings.BodySettings);
             _uiView.Setup(timeController, layoutEditor, timeline, watermark);
+            RefreshBackgroundBlur(useAlternativeBlur);
         }
 
+        private void RefreshBackgroundBlur(bool useAlternative) {
+            _backgroundImage.Material = useAlternative ? 
+                BundleLoader.Materials.uiBlurMaterial :
+                GameResources.UIFogBackgroundMaterial;
+        }
+        
         #endregion
 
         #region Construct
@@ -32,6 +40,7 @@ namespace BeatLeader.UI.Replayer {
         private SettingsCameraView _cameraView = null!;
         private SettingsAvatarView _avatarView = null!;
         private SettingsUIView _uiView = null!;
+        private Image _backgroundImage = null!;
 
         protected override GameObject Construct() {
             return new Dummy {
@@ -67,11 +76,14 @@ namespace BeatLeader.UI.Replayer {
                         }
                     }.AsFlexItem(grow: 1f).InBackground(
                         sprite: BundleLoader.Sprites.backgroundRight,
-                        material: BundleLoader.Materials.uiBlurMaterial,
                         pixelsPerUnit: 7f
-                    ).AsFlexGroup(padding: 2f).AsFlexItem(grow: 1f),
+                    ).AsFlexGroup(padding: 2f).AsFlexItem(grow: 1f).Bind(ref _backgroundImage),
                 }
             }.WithRectExpand().AsFlexGroup().Use();
+        }
+
+        protected override void OnInitialize() {
+            RefreshBackgroundBlur(false);
         }
 
         #endregion

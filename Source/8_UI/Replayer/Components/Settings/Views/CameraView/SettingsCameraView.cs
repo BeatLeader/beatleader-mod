@@ -77,6 +77,7 @@ namespace BeatLeader.UI.Replayer {
             if (_cameraController != null && cameraSettings != null) {
                 _fovSlider.ValueRange = new(cameraSettings.MinCameraFOV, cameraSettings.MaxCameraFOV);
                 _fovSlider.Value = cameraSettings.CameraFOV;
+                _fovSlider.Interactable = EnvironmentUtils.UsesFPFC;
                 _cameraController.CameraFovChangedEvent += HandleCameraFovChanged;
                 _cameraController.CameraViewChangedEvent += HandleCameraViewChanged;
                 RefreshCameraViews();

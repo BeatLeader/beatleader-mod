@@ -15,6 +15,9 @@ namespace BeatLeader {
         public Sprite backgroundUnderline;
         /* Icons */
         [Space] [Header("Icons")]
+        public Sprite curvatureIcon;
+        public Sprite snapIcon;
+        public Sprite pinIcon;
         public Sprite plusIcon;
         public Sprite minusIcon;
         public Sprite ascendingIcon;

@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Replayer {
 
         public void Setup(
             IBeatmapTimeController timeController,
-            ILayoutEditor layoutEditor,
+            ILayoutEditor? layoutEditor,
             IReplayTimeline timeline,
             IReplayWatermark watermark
         ) {
@@ -33,7 +33,8 @@ namespace BeatLeader.UI.Replayer {
             _watermark = watermark;
             _watermarkToggle.SetActive(watermark.Enabled, false, true);
             _watermarkToggle.Interactable = watermark.CanBeDisabled;
-            
+            _layoutEditorRail.Enabled = layoutEditor != null;
+
             _timeController.SongSpeedWasChangedEvent += HandleTimeControllerSpeedChanged;
             HandleTimeControllerSpeedChanged(timeController.SongSpeedMultiplier);
             ReloadTimelineMarkerToggles();
@@ -99,6 +100,7 @@ namespace BeatLeader.UI.Replayer {
         private Image _timelineTogglesContainer = null!;
         private Toggle _watermarkToggle = null!;
         private Slider _speedSlider = null!;
+        private NamedRail _layoutEditorRail = null!;
 
         protected override GameObject Construct() {
             static Image CreateContainer(float gap, params ILayoutItem[] children) {
@@ -130,7 +132,7 @@ namespace BeatLeader.UI.Replayer {
                             aspectRatio: 1f,
                             basis: 6f,
                             alignSelf: Align.Center
-                        ).InNamedRail("Open Layout Editor"),
+                        ).InNamedRail("Open Layout Editor").Bind(ref _layoutEditorRail),
                         //watermark
                         new Toggle().WithListener(
                             x => x.Active,
@@ -163,6 +165,10 @@ namespace BeatLeader.UI.Replayer {
                 justifyContent: Justify.FlexStart,
                 gap: 2f
             ).Use();
+        }
+
+        protected override void OnInitialize() {
+            _layoutEditorRail.Enabled = false;
         }
 
         #endregion

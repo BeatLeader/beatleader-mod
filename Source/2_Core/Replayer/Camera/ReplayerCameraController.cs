@@ -56,7 +56,7 @@ namespace BeatLeader.Replayer {
             if (_cameraView == null) return;
             var pose = _primaryPlayer?.MovementProcessor.CurrentMovementFrame.headPose ?? Pose.identity;
             pose = SelectedView.ProcessPose(pose);
-            transform.SetLocalPose(pose);
+            _extraObjects.ReplayerCore.SetLocalPose(pose);
         }
 
         #endregion

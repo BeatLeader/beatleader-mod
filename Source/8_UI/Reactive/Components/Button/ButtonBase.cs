@@ -104,10 +104,11 @@ namespace BeatLeader.UI.Reactive.Components {
         /// </summary>
         /// <param name="state">Determines the toggle state. Valid only if <c>Sticky</c> is turned on</param>
         /// <param name="notifyListeners">Determines should event be invoked or not</param>
-        public void Click(bool state = false, bool notifyListeners = false) {
+        /// <param name="force">Determines should the state be changed or not even if it is the same</param>
+        public void Click(bool state = false, bool notifyListeners = false, bool force = false) {
             if (!Interactable) return;
             if (Sticky) {
-                if (state == _buttonActive) return;
+                if (!force && state == _buttonActive) return;
                 _buttonActive = !state;
             }
             ProcessButtonClick(notifyListeners);

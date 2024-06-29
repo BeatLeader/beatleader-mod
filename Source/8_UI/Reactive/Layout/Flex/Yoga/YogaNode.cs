@@ -302,9 +302,9 @@ namespace BeatLeader.UI.Reactive.Yoga {
             rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, LayoutGetLeft(), LayoutGetWidth());
         }
 
-        public void ApplySizeTo(RectTransform rectTransform) {
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, LayoutGetWidth());
-            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, LayoutGetHeight());
+        public void ApplySizeTo(RectTransform rectTransform, bool applyX, bool applyY) {
+            if (applyX) rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, LayoutGetWidth());
+            if (applyY) rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, LayoutGetHeight());
         }
 
         #endregion

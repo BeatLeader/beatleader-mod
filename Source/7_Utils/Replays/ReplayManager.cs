@@ -18,6 +18,7 @@ namespace BeatLeader.Utils {
 
         public event Action<IReplayHeader>? ReplayAddedEvent;
         public event Action<IReplayHeader>? ReplayDeletedEvent;
+        public event Action? AllReplaysDeletedEvent;
 
         private void NotifyReplayAdded(IReplayHeader header) {
             ReplayAddedEvent?.Invoke(header);
@@ -149,6 +150,27 @@ namespace BeatLeader.Utils {
             if (header is null) return;
             _replays.Remove(header);
             NotifyReplayDeleted(header);
+        }
+
+        int IReplayFileManager.DeleteAllReplays() {
+            //clearing all cache
+            ReplayHeadersCache.ClearInfo();
+            ReplayHeadersCache.SaveCache();
+            ReplayMetadataManager.ClearMetadata();
+            //deleting replays
+            var deletedReplays = 0;
+            foreach (var replay in Replays) {
+                try {
+                    File.Delete(replay.FilePath);
+                } catch (Exception ex) {
+                    Plugin.Log.Error($"Failed to delete a replay:\n{ex}");
+                    continue;
+                }
+                deletedReplays++;
+            }
+            _replays.Clear();
+            AllReplaysDeletedEvent?.Invoke();
+            return deletedReplays;
         }
 
         bool IReplayFileManager.DeleteReplay(IReplayHeader header) {

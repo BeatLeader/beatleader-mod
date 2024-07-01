@@ -17,6 +17,11 @@ namespace BeatLeader.UI.Reactive.Components {
             .First(static x => x.name == "RoundRect10Border");
 
         private Image _borderImage = null!;
+        
+        protected override void ApplySkew(float skew) {
+            base.ApplySkew(skew);
+            _borderImage.Skew = skew;
+        }
 
         protected override void ApplySkew(float skew) {
             base.ApplySkew(skew);
@@ -43,11 +48,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
-            Colors = new StateColorSet {
-                ActiveColor = new(0, 0.75f, 0.75f),
-                HoveredColor = new(0, 0.75f, 1f),
-                Color = new(0, 0.5f, 1f)
-            };
+            Colors = UIStyle.PrimaryButtonColorSet;
             GrowOnHover = false;
             HoverLerpMul = 100f;
             Image.Material = buttonMaterial;

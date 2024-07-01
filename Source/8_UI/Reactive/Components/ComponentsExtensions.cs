@@ -38,6 +38,26 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
+        public static T WithCenteredModal<T, TModal>(
+            this T button,
+            TModal modal,
+            bool animateBackground = false,
+            Optional<DynamicShadowSettings> shadowSettings = default
+        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
+            shadowSettings.SetValueIfNotSet(new());
+            button.ClickEvent += () => ModalSystem.OpenModal(
+                modal,
+                button.ContentTransform,
+                settings: new(
+                    Vector2.zero,
+                    Vector2.one * 0.5f,
+                    animateBackground,
+                    ShadowSettings: shadowSettings
+                )
+            );
+            return button;
+        }
+        
         public static T WithModal<T>(this T button, Action<Transform> listener) where T : IClickableComponent, IReactiveComponent {
             button.ClickEvent += () => listener(button.ContentTransform);
             return button;
@@ -265,6 +285,25 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #endregion
 
+        #region NamedRail
+
+        [Pure]
+        public static NamedRail InNamedRail(this ILayoutItem comp, string text) {
+            return new NamedRail {
+                Label = {
+                    Text = text
+                },
+                Component = comp
+            }.With(
+                x => {
+                    if (comp is not ISkewedComponent skewed) return;
+                    x.Label.Skew = skewed.Skew;
+                }
+            );
+        }
+
+        #endregion
+
         #region TextArea
 
         public static T WithItemsText<T>(this T comp, IEnumerable<string> items, bool silent = false) where T : TextArea {
@@ -275,20 +314,6 @@ namespace BeatLeader.UI.Reactive.Components {
                 comp.Text = text;
             }
             return comp;
-        }
-
-        #endregion
-
-        #region NamedRail
-
-        [Pure]
-        public static NamedRail InNamedRail(this ILayoutItem comp, string text) {
-            return new NamedRail {
-                Label = {
-                    Text = text
-                },
-                Component = comp
-            };
         }
 
         #endregion

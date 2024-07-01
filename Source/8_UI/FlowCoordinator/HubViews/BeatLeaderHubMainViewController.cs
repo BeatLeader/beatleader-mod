@@ -14,6 +14,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         [Inject] private readonly BattleRoyaleFlowCoordinator _battleRoyaleFlowCoordinator = null!;
+        [Inject] private readonly BeatLeaderSettingsFlowCoordinator _settingsFlowCoordinator = null!;
 
         [UIComponent("mini-profile"), UsedImplicitly]
         private QuickMiniProfile _quickMiniProfile = null!;
@@ -40,6 +41,14 @@ namespace BeatLeader.UI.Hub {
         private void HandleBattleRoyaleButtonClicked() {
             _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
                 _battleRoyaleFlowCoordinator,
+                animationDirection: AnimationDirection.Vertical
+            );
+        }
+        
+        [UIAction("settings-button-click"), UsedImplicitly]
+        private void HandleSettingsButtonClicked() {
+            _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
+                _settingsFlowCoordinator,
                 animationDirection: AnimationDirection.Vertical
             );
         }

@@ -2,9 +2,7 @@ using UnityEngine;
 
 namespace BeatLeader.Models {
     public interface IEditableReplayTag : IReplayTag {
-        new Color Color { set; }
-
+        void SetColor(Color color);
         ReplayTagValidationResult SetName(string name);
-        void Delete();
     }
 }

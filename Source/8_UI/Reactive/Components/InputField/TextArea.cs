@@ -10,9 +10,7 @@ namespace BeatLeader.UI.Reactive.Components {
         public string Text {
             get => _text;
             set {
-                _text = value;
-                RefreshText();
-                RefreshClearButton();
+                SetTextSilent(value);
                 NotifyPropertyChanged();
             }
         }
@@ -60,6 +58,12 @@ namespace BeatLeader.UI.Reactive.Components {
         private bool _showClearButton = true;
         private bool _showCaret = false;
 
+        public void SetTextSilent(string text) {
+            _text = text;
+            RefreshText();
+            RefreshClearButton();
+        }
+        
         #endregion
 
         #region Setup

@@ -1,114 +1,26 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
-using BeatLeader.Utils;
-using TMPro;
+using IPA.Utilities;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class TagSelector : ReactiveComponent {
-        #region Tags
+        #region Setup
 
-        public ICollection<IReplayTag> SelectedTags => _selectedTagsList.Items;
+        public IReadOnlyCollection<IReplayTag> SelectedTags => _selectedTags;
 
         public event Action<IReplayTag>? SelectedTagAddedEvent;
         public event Action<IReplayTag>? SelectedTagRemovedEvent;
 
-        public void SelectFromMetadata(IReplayMetadata metadata) {
-            _selectedTagsList.Items.Clear();
-            _selectedTagsList.Items.AddRange(metadata.Tags);
-            _selectedTagsList.Refresh();
-            ReloadAllTags(metadata.Tags);
-        }
-
-        public void ClearSelectedTags() {
-            _selectedTagsList.Items.Clear();
-            _selectedTagsList.Refresh();
-            ReloadAllTags();
-        }
-
-        private void ReloadAllTags(IEnumerable<IReplayTag>? except = null) {
-            var tags = _tagManager!.Tags;
-            _allTagsList.Items.Clear();
-            _allTagsList.Items.AddRange(except != null ? tags.Except(except) : tags);
-            _allTagsList.Refresh();
-        }
-
-        private void AddSelectedTag(IReplayTag tag) {
-            SelectedTagAddedEvent?.Invoke(tag);
-            NotifyPropertyChanged(nameof(SelectedTags));
-        }
-
-        private void RemoveSelectedTag(IReplayTag tag) {
-            SelectedTagRemovedEvent?.Invoke(tag);
-            NotifyPropertyChanged(nameof(SelectedTags));
-        }
-
-        #endregion
-
-        #region TagsList
-
-        private class TagsListCell : TableComponentCell<IReplayTag> {
-            #region Construct
-
-            private Label _nameLabel = null!;
-            private ImageButton _button = null!;
-            private bool _buttonHighlighted;
-
-            protected override GameObject Construct() {
-                return new ImageButton {
-                    Image = {
-                        Sprite = BundleLoader.Sprites.rectangle,
-                        Material = GameResources.UINoGlowMaterial
-                    },
-                    GrowOnHover = false,
-                    HoverLerpMul = float.MaxValue,
-                    Colors = null,
-                    Children = {
-                        new Label {
-                            Alignment = TextAlignmentOptions.Midline
-                        }.AsFlexItem(grow: 1f).Bind(ref _nameLabel)
-                    }
-                }.WithSizeDelta(0f, 6f).WithAnimation(
-                    x => _buttonHighlighted = x > 0f
-                ).AsFlexGroup(padding: 1f).Bind(ref _button).Use();
-            }
-
-            private void RefreshVisuals(bool selected) {
-                _nameLabel.Color = _buttonHighlighted || selected ? UIStyle.TextColor : UIStyle.SecondaryTextColor;
-                _button.Image.Color = Item.Color.ColorWithAlpha(_buttonHighlighted || selected ? 0.5f : 0.3f);
-            }
-
-            #endregion
-
-            #region Cell
-
-            protected override void OnInit(IReplayTag item) {
-                _nameLabel.Text = item.Name;
-                OnCellStateChange(false);
-            }
-
-            protected override void OnCellStateChange(bool selected) {
-                RefreshVisuals(selected);
-            }
-
-            #endregion
-        }
-
-        private class TagsList : Table<IReplayTag, TagsListCell> { }
-
-        #endregion
-
-        #region Setup
-
+        private readonly HashSet<IReplayTag> _selectedTags = new();
         private IReplayTagManager? _tagManager;
 
-        public void Setup(IReplayTagManager? tagManager) {
+        public void Setup(IReplayTagManager tagManager) {
             if (_tagManager == tagManager) return;
             if (_tagManager != null) {
                 _tagManager.TagCreatedEvent -= HandleTagCreated;
@@ -116,37 +28,84 @@ namespace BeatLeader.UI.Hub {
             }
             _tagManager = tagManager;
             _tagCreationDialog.Setup(tagManager);
-            _allTagsList.Items.Clear();
-            _selectedTagsList.Items.Clear();
-            _selectedTagsList.Refresh();
+            _tagDeletionDialog.Setup(tagManager);
+            DespawnAllTags();
             if (_tagManager != null) {
-                _allTagsList.Items.AddRange(_tagManager.Tags);
-                _allTagsList.Refresh();
+                SetTags(_tagManager.Tags);
                 _tagManager.TagCreatedEvent += HandleTagCreated;
                 _tagManager.TagDeletedEvent += HandleTagDeleted;
             }
         }
 
-        private void HandleTagCreated(IReplayTag tag) {
-            SynchronizationContext.Current.Send(
-                _ => {
-                    _allTagsList.Items.Add(tag);
-                    _allTagsList.Refresh();
-                },
-                null
-            );
+        public void SelectTags(IReplayMetadata metadata) {
+            foreach (var tag in metadata.Tags) {
+                if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
+                    panel = _tagsPool.Spawn(tag);
+                }
+                panel.SetTagSelected(true, false);
+            }
+            NotifySelectedTagsChanged();
         }
 
-        private void HandleTagDeleted(IReplayTag tag) {
-            SynchronizationContext.Current.Send(
-                _ => {
-                    _allTagsList.Items.Remove(tag);
-                    _selectedTagsList.Items.Remove(tag);
-                    _allTagsList.Refresh();
-                    _selectedTagsList.Refresh();
-                },
-                null
-            );
+        public void ClearSelectedTags() {
+            foreach (var tag in _selectedTags) {
+                var panel = _tagsPool.SpawnedComponents[tag];
+                panel.SetTagSelected(false, true);
+                SelectedTagRemovedEvent?.Invoke(tag);
+            }
+            _selectedTags.Clear();
+            NotifySelectedTagsChanged();
+        }
+
+        private void NotifySelectedTagsChanged() {
+            NotifyPropertyChanged(nameof(SelectedTags));
+        }
+
+        #endregion
+
+        #region Tags
+
+        private readonly ReactivePool<IReplayTag, TagPanel> _tagsPool = new() { DetachOnDespawn = false };
+
+        private void SetTags(IEnumerable<IReplayTag> tags) {
+            _tagsContainer.Children.Clear();
+            DespawnAllTags();
+            foreach (var tag in tags) {
+                SpawnTag(tag);
+            }
+        }
+
+        private void SpawnTag(IReplayTag tag) {
+            var panel = _tagsPool.Spawn(tag);
+            panel.AsFlexItem();
+            panel.SetTag(tag);
+            panel.TagStateChangedEvent += HandleTagStateChanged;
+            panel.DeleteButtonClickedEvent += HandleTagDeleteButtonClicked;
+            _tagsContainer.Children.Add(panel);
+        }
+
+        private void DespawnTag(IReplayTag tag, bool animated) {
+            if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) return;
+            panel.TagStateChangedEvent -= HandleTagStateChanged;
+            panel.DeleteButtonClickedEvent -= HandleTagDeleteButtonClicked;
+            //starting disappear animation
+            panel.StateAnimationFinishedEvent += HandleTagStateAnimationFinished;
+            panel.SetTagPresented(false, !animated);
+        }
+
+        private void DespawnAllTags() {
+            foreach (var (_, panel) in _tagsPool.SpawnedComponents) {
+                panel.TagStateChangedEvent -= HandleTagStateChanged;
+                panel.DeleteButtonClickedEvent -= HandleTagDeleteButtonClicked;
+            }
+            _tagsPool.DespawnAll();
+        }
+
+        private void SetEditModeEnabled(bool enabled) {
+            _createTagButton.Interactable = !enabled;
+            foreach (var (_, tag) in _tagsPool.SpawnedComponents) {
+                tag.SetEditModeEnabled(enabled, false);
+            }
         }
 
         #endregion
@@ -154,140 +113,113 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private TagCreationDialog _tagCreationDialog = null!;
-        private TagsList _allTagsList = null!;
-        private TagsList _selectedTagsList = null!;
+        private TagDeletionDialog _tagDeletionDialog = null!;
+        private Dummy _tagsContainer = null!;
+        private ImageButton _createTagButton = null!;
 
         protected override GameObject Construct() {
-            static ReactiveComponentBase CreateTagsList(
-                string text,
-                Func<ButtonBase> actionButton,
-                ref TagsList list
-            ) {
-                return new Image {
-                    Children = {
-                        //top panel
-                        new DialogHeader {
-                            Text = text
-                        }.AsFlexItem(basis: 6f),
-                        //list
-                        new TagsList()
-                            .WithListener(
-                                x => x.SelectedIndexes,
-                                x => actionButton().Interactable = x.Count > 0
-                            )
-                            .AsFlexItem(grow: 1f)
-                            .Bind(ref list)
-                    }
-                }.AsBlurBackground().AsFlexGroup(direction: FlexDirection.Column);
-            }
-
-            static ButtonBase CreateButton(Sprite sprite) {
-                return new BsButton {
-                    Children = {
-                        new Image {
-                            Sprite = sprite,
-                            PreserveAspect = true
-                        }.AsFlexItem(grow: 1f)
-                    }
-                }.AsFlexGroup(
-                    padding: 1f
-                ).AsFlexItem(
-                    basis: 4f
-                );
-            }
-
-            static ButtonBase CreateActionButton(
-                Sprite sprite,
-                Func<TagsList> sourceList,
-                Func<TagsList> targetList,
-                Action<IReplayTag> processCallback
-            ) {
-                return CreateButton(sprite)
-                    .WithClickListener(
-                        () => {
-                            var list = sourceList();
-                            var tList = targetList();
-                            foreach (var index in list.SelectedIndexes) {
-                                var item = list.Items[index];
-                                tList.Items.Add(item);
-                                list.Items.Remove(item);
-                                processCallback(item);
-                            }
-                            list.ClearSelection();
-                            list.Refresh();
-                            tList.Refresh();
-                        }
-                    );
-            }
-
-            Scrollbar selectedListScrollbar = null!;
-            ButtonBase addButton = null!;
-            ButtonBase removeButton = null!;
-            return new Dummy {
+            return new Image {
                 Children = {
-                    //all tags list
-                    CreateTagsList(
-                        "All Tags",
-                        () => addButton,
-                        ref _allTagsList
-                    ).AsFlexItem(basis: 30f),
-                    //all tags scrollbar
-                    new Scrollbar()
-                        .AsFlexItem(basis: 2f)
-                        .With(x => _allTagsList.Scrollbar = x),
-
-                    //add & remove buttons
+                    new TagCreationDialog().Bind(ref _tagCreationDialog),
+                    //
+                    new TagDeletionDialog().Bind(ref _tagDeletionDialog),
+                    //
+                    new ScrollArea {
+                        ScrollOrientation = ScrollOrientation.Vertical,
+                        ScrollContent = new Dummy()
+                            .AsRootFlexGroup(
+                                padding: 2f,
+                                wrap: Wrap.Wrap,
+                                overflow: Overflow.Scroll,
+                                alignItems: Align.FlexStart,
+                                gap: new() { x = 1.5f, y = 2f }
+                            )
+                            .AsFlexItem(size: new() { y = "auto" })
+                            .Bind(ref _tagsContainer)
+                    }.AsFlexItem(grow: 1f, margin: new() { top = 1f }),
+                    //action buttons
                     new Image {
+                        Sprite = BundleLoader.Sprites.backgroundBottom,
                         Children = {
-                            //add button
-                            CreateActionButton(
-                                BundleLoader.RightArrowIcon,
-                                () => _allTagsList,
-                                () => _selectedTagsList,
-                                AddSelectedTag
-                            ).Bind(ref addButton),
-                            //remove button
-                            CreateActionButton(
-                                BundleLoader.LeftArrowIcon,
-                                () => _selectedTagsList,
-                                () => _allTagsList,
-                                RemoveSelectedTag
-                            ).Bind(ref removeButton),
-
-                            //creation modal
-                            new TagCreationDialog().Bind(ref _tagCreationDialog),
-                            //creation button
-                            CreateButton(BundleLoader.Sprites.plusIcon)
-                                .WithModal(_tagCreationDialog, offset: new(0f, 10f)),
+                            //delete button
+                            new ImageButton {
+                                Image = {
+                                    Sprite = BundleLoader.Sprites.trashIcon
+                                },
+                                Sticky = true
+                            }.WithStateListener(SetEditModeEnabled).AsFlexItem(size: 4f),
+                            //create button
+                            new ImageButton {
+                                Image = {
+                                    Sprite = BundleLoader.Sprites.plusIcon
+                                }
+                            }.WithClickListener(HandleCreateTagButtonClicked).AsFlexItem(size: 4f).Bind(ref _createTagButton),
                         }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        gap: 2f,
-                        padding: 1f
-                    ).AsFlexItem(
-                        basis: 8f,
-                        alignSelf: Align.Center
-                    ).AsBlurBackground(),
+                    }.AsBlurBackground(
+                        color: Color.white.ColorWithAlpha(0.9f)
+                    ).AsFlexGroup(padding: 1f).AsFlexItem(size: new() { y = 6f })
+                }
+            }.AsBlurBackground().AsRootFlexGroup(
+                direction: FlexDirection.Column,
+                gap: 1f
+            ).WithSizeDelta(50f, 40f).Use();
+        }
 
-                    //added tags scrollbar
-                    new Scrollbar()
-                        .AsFlexItem(basis: 2f)
-                        .Bind(ref selectedListScrollbar),
-                    //added tags list
-                    CreateTagsList(
-                        "Added Tags",
-                        () => removeButton,
-                        ref _selectedTagsList
-                    ).With(
-                        _ => _selectedTagsList.Scrollbar = selectedListScrollbar
-                    ).AsFlexItem(basis: 30f),
-                }
-            }.With(
-                _ => {
-                    _allTagsList.Refresh();
-                    _selectedTagsList.Refresh();
-                }
-            ).AsFlexGroup(gap: 1f).WithRectSize(40f, 61f).Use();
+        #endregion
+
+        #region Callbacks
+
+        private void HandleCreateTagButtonClicked() {
+            ModalSystemHelper.OpenModalRelatively(
+                _tagCreationDialog,
+                ContentTransform,
+                ContentTransform,
+                ModalSystemHelper.RelativePlacement.Center
+            );
+        }
+
+        private void HandleTagDeleteButtonClicked(IReplayTag tag) {
+            _tagDeletionDialog.SetTag((IEditableReplayTag)tag);
+            ModalSystemHelper.OpenModalRelatively(
+                _tagDeletionDialog,
+                ContentTransform,
+                ContentTransform,
+                ModalSystemHelper.RelativePlacement.Center
+            );
+        }
+
+        private void HandleTagStateAnimationFinished(IReplayTag tag) {
+            if (_selectedTags.Contains(tag)) {
+                HandleTagStateChanged(tag, false);
+            }
+            var panel = _tagsPool.SpawnedComponents[tag];
+            panel.StateAnimationFinishedEvent -= HandleTagStateAnimationFinished;
+            _tagsPool.Despawn(panel);
+        }
+
+        private void HandleTagStateChanged(IReplayTag tag, bool state) {
+            if (state) {
+                _selectedTags.Add(tag);
+                SelectedTagAddedEvent?.Invoke(tag);
+            } else {
+                _selectedTags.Remove(tag);
+                SelectedTagRemovedEvent?.Invoke(tag);
+            }
+            NotifySelectedTagsChanged();
+        }
+
+        private void HandleTagCreated(IReplayTag tag) {
+            SynchronizationContext.Current.Send(
+                _ => SpawnTag(tag),
+                null
+            );
+        }
+
+        private void HandleTagDeleted(IReplayTag tag) {
+            SynchronizationContext.Current.Send(
+                _ => DespawnTag(tag, true),
+                null
+            );
         }
 
         #endregion

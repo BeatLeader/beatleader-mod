@@ -55,9 +55,7 @@ namespace BeatLeader.UI.Hub {
                             x => x.Component
                                 .WithListener(
                                     y => y.SelectedTags,
-                                    y => _textArea.WithItemsText(
-                                        y.Select(static x => x.Name)
-                                    )
+                                    HandleSelectedTagsChanged
                                 )
                                 .Bind(ref _tagSelector)
                         )
@@ -72,17 +70,10 @@ namespace BeatLeader.UI.Hub {
                         Icon = GameResources.Sprites.EditIcon
                     }.WithListener(
                         x => x.Text,
-                        x => {
-                            if (x.Length == 0) {
-                                _tagSelector.ClearSelectedTags();
-                            }
-                            FilterUpdatedEvent?.Invoke();
-                        }
+                        HandleTextAreaTextChanged
                     ).WithListener(
                         x => x.Focused,
-                        x => {
-                            if (x) OpenModal();
-                        }
+                        HandleTextAreaFocusChanged
                     ).AsFlexItem(grow: 1f).Bind(ref _textArea)
                 }
             }.AsFlexGroup(
@@ -93,6 +84,25 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             this.AsFlexItem(size: new() { x = 52f, y = 10f });
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleTextAreaFocusChanged(bool focused) {
+            if (!focused) return;
+            OpenModal();
+        }
+
+        private void HandleTextAreaTextChanged(string text) {
+            if (text.Length == 0) _tagSelector.ClearSelectedTags();
+        }
+
+        private void HandleSelectedTagsChanged(IReadOnlyCollection<IReplayTag> tags) {
+            var names = tags.Select(static x => x.Name);
+            _textArea.WithItemsText(names, true);
+            FilterUpdatedEvent?.Invoke();
         }
 
         #endregion

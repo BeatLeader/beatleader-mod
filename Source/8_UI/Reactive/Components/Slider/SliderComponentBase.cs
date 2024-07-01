@@ -1,6 +1,7 @@
 using System;
 using BeatLeader.Components;
 using BeatLeader.Utils;
+using HMUI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -105,7 +106,8 @@ namespace BeatLeader.UI.Reactive.Components {
         private void HandlePointerUpdated(PointerEventsHandler handler, PointerEventData eventData) {
             _canReceiveValues = !handler.IsPressed;
             if (!handler.IsPressed) return;
-            var pos = eventData.TranslateToLocalPoint(SlidingAreaTransform, Canvas!, null).x;
+            var canvasSettings = Content.GetComponentInParent<CurvedCanvasSettings>();
+            var pos = eventData.TranslateToLocalPoint(SlidingAreaTransform, Canvas!, canvasSettings).x;
             pos = Mathf.Clamp(pos, 0f, MaxHandlePosition);
             _value = MathUtils.Map(pos, 0f, MaxHandlePosition, ValueRange.Start, ValueRange.End);
             Refresh(forceRefreshValue: true);

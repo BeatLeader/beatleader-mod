@@ -1,16 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Replayer;
+using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class PlayerListEditorComponent : LayoutEditorComponent {
-        #region UI Components
-
-        private PlayerList _playerList = null!;
-
-        #endregion
-
         #region Setup
 
         private IVirtualPlayersManager? _playersManager;
@@ -20,13 +17,13 @@ namespace BeatLeader.Components {
             IBeatmapTimeController timeController
         ) {
             _playersManager = playersManager;
-            _playerList.Setup(timeController);
-            _playerList.items.AddRange(playersManager.Players);
+            _playerList.Setup(timeController, playersManager);
+            _playerList.Items.AddRange(playersManager.Players);
             _playerList.Refresh();
         }
 
         protected override void OnInitialize() {
-            _playerList.ItemsWithIndexesSelectedEvent += HandleItemsWithIndexesSelected;
+            _playerList.WithListener(x => x.SelectedIndexes, HandleItemsWithIndexesSelected);
         }
 
         #endregion
@@ -35,20 +32,21 @@ namespace BeatLeader.Components {
 
         protected override Vector2 MinSize { get; } = new(60, 40);
         public override string ComponentName => "Player List";
+        
+        private PlayerList _playerList = null!;
 
         protected override void ConstructInternal(Transform parent) {
-            _playerList = PlayerList.Instantiate(parent);
-            _playerList.InheritSize = true;
-            _playerList.ContentTransform.SetParent(parent, false);
+            _playerList = new PlayerList();
+            _playerList.WithRectExpand().Use(parent);
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandleItemsWithIndexesSelected(ICollection<int> indexes) {
+        private void HandleItemsWithIndexesSelected(IReadOnlyCollection<int> indexes) {
             if (indexes.Count is 0) return;
-            var item = _playerList.items[indexes.First()];
+            var item = _playerList.Items[indexes.First()];
             _playersManager?.SetPrimaryPlayer(item);
         }
 

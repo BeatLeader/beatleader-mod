@@ -21,11 +21,13 @@ namespace BeatLeader.Utils {
                     out vector
                 );
             } else {
-                vector = eventData.pointerCurrentRaycast.worldPosition;
-                vector = canvasTransform.InverseTransformPoint(vector);
-                vector = TransformPointFrom3DToCanvas(vector, curvedCanvasSettings?.radius ?? 0);
-                vector = canvasTransform.TransformPoint(vector);
-                vector = rectTransform.InverseTransformPoint(vector);
+                var worldVector = eventData.pointerCurrentRaycast.worldPosition;
+                var canvasVector = canvasTransform.InverseTransformPoint(worldVector);
+                canvasVector = TransformPointFrom3DToCanvas(canvasVector, curvedCanvasSettings?.radius ?? 0);
+                //very important not to loose z coordinate while translating from canvas to rect
+                //spent two evenings to find the issue, please don't be like me :pepega:
+                worldVector = canvasTransform.TransformPoint(canvasVector);
+                vector = rectTransform.InverseTransformPoint(worldVector);
             }
             return vector;
         }

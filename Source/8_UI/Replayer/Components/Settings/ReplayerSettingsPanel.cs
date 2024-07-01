@@ -1,193 +1,192 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.BSML_Addons;
-using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
-using TMPro;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using UnityEngine;
-using UnityEngine.UI;
+using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
+using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Replayer {
-    [BSMLComponent(Namespace = "Replayer")]
-    //TODO: remove attribute after deprecated components deletion
-    [ViewDefinition("NewSettings.ReplayerSettingsPanel")]
-    internal class ReplayerSettingsPanel : ReeUIComponentV3<ReplayerSettingsPanel> {
-        #region UI Components
-
-        [UIObject("view-selector-container"), UsedImplicitly]
-        private GameObject _segmentedControlContainer = null!;
-
-        [UIValue("view-selector"), UsedImplicitly]
-        private ViewSegmentedControl _viewSegmentedControl = null!;
-
-        [UIValue("view-container"), UsedImplicitly]
-        private ViewSegmentedControlContainer _viewSegmentedControlContainer = null!;
-
-        [UIComponent("camera-view"), UsedImplicitly]
-        private SettingsCameraView _cameraView = null!;
-
-        [UIComponent("avatar-view"), UsedImplicitly]
-        private SettingsAvatarView _avatarView = null!;
-        
-        [UIComponent("ui-view"), UsedImplicitly]
-        private SettingsUIView _uiView = null!;
-        
-        #endregion
-
+    internal class ReplayerSettingsPanel : ReactiveComponent {
         #region Setup
 
         public void Setup(
             ReplayerSettings settings,
+            IBeatmapTimeController timeController,
             ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner,
-            ILayoutEditor layoutEditor
+            ILayoutEditor? layoutEditor,
+            IReplayTimeline timeline,
+            IReplayWatermark watermark,
+            bool useAlternativeBlur
         ) {
             _cameraView.Setup(cameraController, settings.CameraSettings!);
-            _cameraView.ReloadCameraViewParams();
             _avatarView.Setup(bodySpawner, settings.BodySettings);
-            _uiView.Setup(layoutEditor);
+            _uiView.Setup(timeController, layoutEditor, timeline, watermark);
+            RefreshBackgroundBlur(useAlternativeBlur);
         }
 
-        protected override void OnInstantiate() {
-            _viewSegmentedControl = ViewSegmentedControl.Instantiate(transform);
-            _viewSegmentedControl.InheritSize = true;
-            _viewSegmentedControl.Pad = new(2, 2, 2, 2);
-            _viewSegmentedControlContainer = ViewSegmentedControlContainer.Instantiate(transform);
-            _viewSegmentedControlContainer.InheritSize = true;
-            _viewSegmentedControl.SetDataSource(_viewSegmentedControlContainer);
+        private void RefreshBackgroundBlur(bool useAlternative) {
+            _backgroundImage.Material = useAlternative ? 
+                BundleLoader.Materials.uiBlurMaterial :
+                GameResources.UIFogBackgroundMaterial;
+        }
+        
+        #endregion
+
+        #region Construct
+
+        private SettingsCameraView _cameraView = null!;
+        private SettingsAvatarView _avatarView = null!;
+        private SettingsUIView _uiView = null!;
+        private Image _backgroundImage = null!;
+
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    //view selector
+                    new SegmentedControl<string, Sprite, ViewSegmentedControlCell> {
+                        Direction = FlexDirection.Column,
+                        Items = {
+                            { "Camera", BundleLoader.CameraIcon },
+                            { "Avatar", BundleLoader.AvatarIcon },
+                            { "Other", BundleLoader.OtherIcon }
+                        }
+                    }.Export(out var segmentedControl).InBackground(
+                        sprite: BundleLoader.Sprites.backgroundLeft,
+                        color: new(0.1f, 0.1f, 0.1f, 1f),
+                        pixelsPerUnit: 7f
+                    ).AsFlexItem(basis: 12f),
+                    //view container
+                    new KeyedContainer<string> {
+                        Control = segmentedControl,
+                        Items = {
+                            {
+                                "Camera",
+                                new SettingsCameraView {
+                                    CameraViewParams = {
+                                        new PlayerViewCameraParams(),
+                                        new FlyingViewCameraParams()
+                                    }
+                                }.Bind(ref _cameraView)
+                            },
+                            { "Avatar", new SettingsAvatarView().Bind(ref _avatarView) },
+                            { "Other", new SettingsUIView().Bind(ref _uiView) }
+                        }
+                    }.AsFlexItem(grow: 1f).InBackground(
+                        sprite: BundleLoader.Sprites.backgroundRight,
+                        pixelsPerUnit: 7f
+                    ).AsFlexGroup(padding: 2f).AsFlexItem(grow: 1f).Bind(ref _backgroundImage),
+                }
+            }.WithRectExpand().AsFlexGroup().Use();
         }
 
         protected override void OnInitialize() {
-            _cameraView.cameraViewParams.AddRange(
-                new SettingsCameraView.ICameraViewParams[] {
-                    PlayerViewCameraParams.Instantiate(transform),
-                    FlyingViewCameraParams.Instantiate(transform)
-                }
-            );
-
-            _viewSegmentedControlContainer.AddViewsFromChildren();
-            _viewSegmentedControl.Reload();
-
-            var img = Content.AddComponent<AdvancedImageView>();
-            img.sprite = BundleLoader.WhiteBG;
-            img.material = GameResources.UIFogBackgroundMaterial;
-            img.type = Image.Type.Sliced;
-            img.pixelsPerUnitMultiplier = 7f;
-            Content.AddComponent<Mask>();
-
-            var selectorImg = _segmentedControlContainer.AddComponent<AdvancedImageView>();
-            selectorImg.sprite = BundleLoader.WhiteBG;
-            selectorImg.material = GameResources.UINoGlowMaterial;
-            selectorImg.type = Image.Type.Sliced;
-            selectorImg.pixelsPerUnitMultiplier = 100f;
-            selectorImg.color = new(0.1f, 0.1f, 0.1f, 1f);
+            RefreshBackgroundBlur(false);
         }
 
         #endregion
 
         #region ViewSegmentedControl
 
-        public enum SettingsView {
-            CameraView,
-            AvatarView,
-            UIView,
-            OtherView
-        }
+        private class ViewSegmentedControlCell : KeyedControlComponentCell<string, Sprite> {
+            #region Setup
 
-        public interface ISegmentedControlView : ISegmentedControlView<SettingsView, (string, Sprite)> { }
+            private SegmentedControlButton _button = null!;
 
-        private class ViewSegmentedControl : ReeSegmentedControlComponentBase<ViewSegmentedControl, ViewSegmentedControl.Cell, SettingsView, (string, Sprite)> {
-            public class Cell : ReeSegmentedControlCell<Cell, SettingsView, (string, Sprite)> {
+            public override void OnInit(string name, Sprite icon) {
+                _button.Icon = icon;
+                _button.Text = name;
+            }
+
+            protected override GameObject Construct() {
+                return new SegmentedControlButton {
+                    Sticky = true
+                }.WithRectExpand().WithStateListener(HandleButtonStateChanged).Bind(ref _button).Use();
+            }
+
+            protected override void OnStart() {
+                ContentTransform.parent.localScale = Vector3.one;
+            }
+
+            #endregion
+
+            #region Button
+
+            private class SegmentedControlButton : ColoredButton {
                 #region Setup
 
-                private Button _button = null!;
-
-                protected override void Init((string, Sprite) value) {
-                    var (placeholder, icon) = value;
-                    _button.Icon.sprite = icon;
-                    _button.Text.text = placeholder;
+                public string Text {
+                    get => _text.Text;
+                    set => _text.Text = value;
                 }
 
-                protected override GameObject Construct(Transform parent) {
-                    _button = Button.Instantiate(parent);
-                    _button.BaseScale = Vector3.one;
-                    _button.InheritSize = true;
-                    _button.Sticky = true;
-                    _button.StateChangedEvent += HandleButtonStateChanged;
-                    return _button.Content;
-                }
-
-                protected override void OnStart() {
-                    ContentTransform.parent.localScale = Vector3.one;
+                public Sprite? Icon {
+                    get => _icon.Sprite;
+                    set => _icon.Sprite = value;
                 }
 
                 #endregion
 
-                #region Button
+                #region Construct
 
-                private class Button : ColoredButtonComponentBase<Button> {
-                    #region Setup
+                private Image _icon = null!;
+                private Label _text = null!;
 
-                    public AdvancedImageView Icon { get; private set; } = null!;
-                    public TMP_Text Text { get; private set; } = null!;
-
-                    protected override LayoutGroupType LayoutGroupDirection => LayoutGroupType.Vertical;
-
-                    protected override void OnContentConstruct(Transform parent) {
-                        LayoutGroup.childControlHeight = false;
-                        LayoutGroup.childForceExpandHeight = false;
-                        LayoutGroup.childAlignment = TextAnchor.MiddleCenter;
-
-                        var iconGo = parent.gameObject.CreateChild("Icon");
-                        var iconFitter = iconGo.AddComponent<AspectRatioFitter>();
-                        iconFitter.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight;
-                        Icon = iconGo.AddComponent<AdvancedImageView>();
-                        Icon.material = BundleLoader.UIAdditiveGlowMaterial;
-                        Icon.preserveAspect = true;
-
-                        var textGo = parent.gameObject.CreateChild("Text");
-                        var textFitter = textGo.AddComponent<ContentSizeFitter>();
-                        textFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-                        Text = textGo.AddComponent<TextMeshProUGUI>();
-                        Text.material = BundleLoader.UIAdditiveGlowMaterial;
-                        Text.alignment = TextAlignmentOptions.Center;
-                        Text.fontSize = 3.6f;
-                        Text.enableWordWrapping = false;
-                    }
-
-                    #endregion
-
-                    #region ApplyColor
-
-                    protected override void ApplyColor(Color color, float t) {
-                        Icon.color = color;
-                        Text.color = color;
-                    }
-
-                    #endregion
+                protected override GameObject Construct() {
+                    var dummy = new Dummy {
+                        Children = {
+                            new Image {
+                                Material = BundleLoader.UIAdditiveGlowMaterial,
+                                PreserveAspect = true
+                            }.AsFlexItem(grow: 1f).Bind(ref _icon).In<Dummy>().AsFlexGroup(
+                                padding: 1f
+                            ).AsFlexItem(aspectRatio: 1f),
+                            //
+                            new Label {
+                                Material = BundleLoader.UIAdditiveGlowMaterial,
+                                FontSize = 3.6f
+                            }.AsFlexItem(basis: 4f).Bind(ref _text)
+                        }
+                    }.AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        justifyContent: Justify.Center,
+                        padding: 1f
+                    );
+                    Construct(dummy.ContentTransform);
+                    return dummy.Use();
                 }
 
                 #endregion
 
-                #region Callbacks
+                #region ApplyColor
 
-                public override void OnCellStateChange(bool selected) {
-                    _button.Click(selected);
-                }
-
-                private void HandleButtonStateChanged(bool state) {
-                    if (!state) {
-                        _button.Click(true);
-                    }
-                    SelectSelf();
+                protected override void ApplyColor(Color color) {
+                    _icon.Color = color;
+                    _text.Color = color;
                 }
 
                 #endregion
             }
-        }
 
-        private class ViewSegmentedControlContainer : SegmentedControlContainerBase<ViewSegmentedControlContainer, SettingsView, (string, Sprite)> { }
+            #endregion
+
+            #region Callbacks
+
+            public override void OnCellStateChange(bool selected) {
+                _button.Click(selected);
+            }
+
+            private void HandleButtonStateChanged(bool state) {
+                if (!state) {
+                    _button.Click(true);
+                }
+                SelectSelf();
+            }
+
+            #endregion
+        }
 
         #endregion
     }

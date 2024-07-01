@@ -38,10 +38,5 @@ namespace BeatLeader.UI.Reactive {
             comp.Use(parent.GetOrAddComponent<RectTransform>());
             return comp.ContentTransform;
         }
-        
-        public static T Use<T>(this T comp, ILayoutDriver parent) where T : ILayoutItem {
-            parent.AppendChild(comp);
-            return comp;
-        }
     }
 }

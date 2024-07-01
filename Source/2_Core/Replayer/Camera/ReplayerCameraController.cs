@@ -27,8 +27,15 @@ namespace BeatLeader.Replayer {
         public Camera Camera { get; private set; } = null!;
 
         public event Action<ICameraView>? CameraViewChangedEvent;
+        public event Action<int>? CameraFovChangedEvent;
 
         private IVirtualPlayer? _primaryPlayer;
+
+        public void SetFov(int fov) {
+            Camera.fieldOfView = fov;
+            _launchData.Settings.CameraSettings!.CameraFOV = fov;
+            CameraFovChangedEvent?.Invoke(fov);
+        }
 
         #endregion
 
@@ -41,6 +48,7 @@ namespace BeatLeader.Replayer {
             _cameraView?.OnDisable();
             _cameraView = view;
             _cameraView.OnEnable();
+            _launchData.Settings.CameraSettings!.CameraView = view.Name;
             CameraViewChangedEvent?.Invoke(view);
         }
 
@@ -48,7 +56,7 @@ namespace BeatLeader.Replayer {
             if (_cameraView == null) return;
             var pose = _primaryPlayer?.MovementProcessor.CurrentMovementFrame.headPose ?? Pose.identity;
             pose = SelectedView.ProcessPose(pose);
-            transform.SetLocalPose(pose);
+            _extraObjects.ReplayerCore.SetLocalPose(pose);
         }
 
         #endregion
@@ -103,13 +111,17 @@ namespace BeatLeader.Replayer {
         #endregion
 
         #region Setup
-        
+
         private void LoadSettings() {
-            var views = _launchData.Settings.CameraSettings!.CameraViews;
+            var cameraSettings = _launchData.Settings.CameraSettings;
+            var views = cameraSettings!.CameraViews;
             if (views == null) return;
             foreach (var view in views) {
                 _diContainer.Inject(view);
                 _views.Add(view);
+            }
+            if (cameraSettings.CameraView != null) {
+                _cameraView = views.FirstOrDefault(x => x.Name == cameraSettings.CameraView);
             }
             if (EnvironmentUtils.UsesFPFC) {
                 Camera.fieldOfView = _launchData.Settings.CameraSettings!.CameraFOV;
@@ -128,7 +140,8 @@ namespace BeatLeader.Replayer {
             Camera.enabled = true;
 
             LoadSettings();
-            _cameraView = _views.FirstOrDefault();
+            _cameraView ??= _views.FirstOrDefault();
+            if (_cameraView != null) SetView(_cameraView);
         }
 
         private void Start() {

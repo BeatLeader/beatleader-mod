@@ -24,6 +24,18 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
+        public bool Interactable {
+            get => _interactable;
+            set {
+                _interactable = value;
+                _decrementButton.Interactable = value;
+                _incrementButton.Interactable = value;
+                _background.Interactable = value;
+                _pointerEventsHandler.enabled = value;
+                RefreshHandleAndTextColors();
+            }
+        }
+
         public Func<float, string>? ValueFormatter {
             get => _valueFormatter;
             set {
@@ -35,6 +47,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private Func<float, string>? _valueFormatter;
         private bool _showButtons = true;
+        private bool _interactable = true;
 
         #endregion
 
@@ -62,8 +75,8 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void RefreshButtons() {
-            _incrementButton.Interactable = CanIncrement;
-            _decrementButton.Interactable = CanDecrement;
+            _incrementButton.Interactable = CanIncrement && _interactable;
+            _decrementButton.Interactable = CanDecrement && _interactable;
         }
 
         #endregion
@@ -76,6 +89,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private RectTransform _slidingArea = null!;
         private RectTransform _handle = null!;
+        private Image _handleImage = null!;
         private ImageButton _background = null!;
         private ButtonBase _incrementButton = null!;
         private ButtonBase _decrementButton = null!;
@@ -170,9 +184,8 @@ namespace BeatLeader.UI.Reactive.Components {
                                             pivot = new(0f, 0.5f)
                                         },
                                         Sprite = BundleLoader.Sprites.background,
-                                        PixelsPerUnit = 30f,
-                                        Color = Color.white.ColorWithAlpha(0.8f)
-                                    }.Bind(ref _handle)
+                                        PixelsPerUnit = 30f
+                                    }.Bind(ref _handle).Bind(ref _handleImage)
                                 }
                             }.AsFlexItem(grow: 1f).Bind(ref _slidingArea),
                         }
@@ -190,6 +203,16 @@ namespace BeatLeader.UI.Reactive.Components {
                     ).WithClickListener(HandleIncrementButtonClicked).Bind(ref _incrementButton)
                 }
             }.AsFlexGroup().Use();
+        }
+
+        protected override void OnInitialize() {
+            base.OnInitialize();
+            RefreshHandleAndTextColors();
+        }
+
+        private void RefreshHandleAndTextColors() {
+            _handleImage.Color = Color.white.ColorWithAlpha(_interactable ? 0.8f : 0.3f);
+            _text.Color = Color.white.ColorWithAlpha(_interactable ? 1f : 0.5f);
         }
 
         #endregion

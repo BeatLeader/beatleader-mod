@@ -4,6 +4,7 @@ using System.Linq;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -125,18 +126,23 @@ namespace BeatLeader.Components {
 
         protected override GameObject Construct() {
             return new Image {
-                Sprite = BundleLoader.WhiteBG,
+                Sprite = BundleLoader.Sprites.background,
                 PixelsPerUnit = 7f,
                 Color = new(0.14f, 0.14f, 0.14f),
                 Children = {
                     //handle
                     new Image {
+                        Sprite = BundleLoader.Sprites.backgroundTop,
+                        PixelsPerUnit = 7f,
                         Children = {
                             new Label {
                                 Text = "Layout Editor",
                                 FontSize = 3f,
                                 Color = Color.black
-                            }.AsFlexItem(margin: new() { left = 2f })
+                            }.AsFlexItem(
+                                size: new() { x = "auto" },
+                                margin: new() { left = 2f }
+                            )
                         }
                     }.Bind(ref _windowHandle).AsFlexGroup(
                         justifyContent: Justify.FlexStart
@@ -153,7 +159,7 @@ namespace BeatLeader.Components {
                     new UI.Reactive.Components.Dummy {
                         Children = {
                             new Image {
-                                Sprite = BundleLoader.WhiteBG,
+                                Sprite = BundleLoader.Sprites.background,
                                 Color = new(0.22f, 0.22f, 0.22f),
                                 PixelsPerUnit = 10f,
                                 Children = {
@@ -206,18 +212,22 @@ namespace BeatLeader.Components {
                         }
                     }.AsFlexGroup(padding: 1f).AsFlexItem(basis: 18f)
                 }
-            }.WithRectSize(70f, 48f).AsFlexGroup(
+            }.WithSizeDelta(48f, 70f).AsFlexGroup(
                 direction: UI.Reactive.Yoga.FlexDirection.Column
-            ).WithGraphicMask().Bind(ref _imageTransform).Use();
+            ).Bind(ref _imageTransform).Use();
         }
 
         protected override void OnInitialize() {
-            _layoutEditorComponentsList.ItemsWithIndexesSelectedEvent += HandleComponentsSelected;
+            _layoutEditorComponentsList.WithListener(
+                x => x.SelectedIndexes,
+                HandleComponentsSelected
+            );
             var eventsHandler = _windowHandle.Content.AddComponent<PointerEventsHandler>();
             eventsHandler.PointerUpEvent += OnComponentPointerUp;
             eventsHandler.PointerDownEvent += OnComponentPointerDown;
             eventsHandler.PointerEnterEvent += OnComponentPointerEnter;
             eventsHandler.PointerExitEvent += OnComponentPointerExit;
+            RefreshWindowHandleColor();
         }
 
         protected override bool Validate() => ComponentHandler is not null;
@@ -276,7 +286,7 @@ namespace BeatLeader.Components {
             else _layoutEditorComponentsList.Select(component);
         }
 
-        private void HandleComponentsSelected(ICollection<int> indexes) {
+        private void HandleComponentsSelected(IReadOnlyCollection<int> indexes) {
             if (indexes.Count is 0) return;
             HandleComponentSelected(_layoutEditorComponentsList.Items[indexes.First()]);
         }

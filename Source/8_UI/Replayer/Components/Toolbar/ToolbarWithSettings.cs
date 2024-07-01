@@ -1,80 +1,113 @@
-﻿using BeatLeader.Models;
-using BeatLeader.UI.Replayer;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatLeader.Components;
+using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
 using UnityEngine;
+using UnityEngine.UI;
+using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
+using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
-namespace BeatLeader.Components {
-    internal class ToolbarWithSettings : LayoutEditorComponent {
-        #region UI Components
+namespace BeatLeader.UI.Replayer {
+    internal class ToolbarWithSettings : ReactiveComponent, Toolbar.ISettingsPanel {
+        #region Animation
 
-        [UIValue("settings-modal")]
-        private SettingsModal _settingsModal = null!;
+        private readonly ValueAnimator _valueAnimator = new() { LerpCoefficient = 15f };
 
-        [UIValue("toolbar")]
-        private Toolbar _toolbar = null!;
+        public void Present() {
+            _settingsTransform.gameObject.SetActive(true);
+            _valueAnimator.Push();
+        }
 
-        private RootContentView _rootContentView = null!;
-        private ILayoutEditor? _layoutEditor;
+        public void Dismiss() {
+            _valueAnimator.Pull();
+        }
 
-        #endregion
+        protected override void OnUpdate() {
+            _valueAnimator.Update();
+            RefreshAnimation(_valueAnimator.Progress);
+        }
 
-        #region LayoutComponent
-
-        public override string ComponentName => "Toolbar";
-        protected override Vector2 MinSize { get; } = new(96, 60);
-        protected override Vector2 MaxSize { get; } = new(96, 60);
+        private void RefreshAnimation(float progress) {
+            var targetPos = _settingsTransform.rect.height;
+            var pos = Mathf.Lerp(-targetPos, 0f, progress);
+            var scale = Mathf.Lerp(0.8f, 1f, progress);
+            _settingsTransform.localPosition = new(0f, pos, 0f);
+            _settingsTransform.localScale = Vector3.one * scale;
+            if (progress <= 0.01f) {
+                _settingsTransform.gameObject.SetActive(false);
+            }
+        }
 
         #endregion
 
         #region Setup
 
-        protected override void ConstructInternal(Transform parent) {
-            throw new System.NotImplementedException();
-        }
-        
-        protected override void OnInstantiate() {
-            base.OnInstantiate();
-            _settingsModal = ReeUIComponentV2.Instantiate<SettingsModal>(ContentTransform);
-            //_toolbar = ReeUIComponentV2.Instantiate<Toolbar>(transform);
-            _rootContentView = ReeUIComponentV2.InstantiateOnSceneRoot<RootContentView>();
-
-            _rootContentView.ManualInit(null!);
-            _settingsModal.Setup(_rootContentView);
-
-            //_toolbar.SettingsButtonClickedEvent += _settingsModal.ShowModal;
-        }
-
         public void Setup(
-            IReplayTimeController timeController,
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
+            IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
-            ICameraController? cameraController,
+            ICameraController cameraController,
+            IVirtualPlayerBodySpawner bodySpawner,
             ReplayLaunchData launchData,
-            IReplayWatermark? watermark = null,
-            ILayoutEditor? layoutEditor = null
+            ILayoutEditor? layoutEditor,
+            IReplayWatermark watermark,
+            bool useAlternativeBlur
         ) {
-            if (_layoutEditor is not null) {
-                _layoutEditor.StateChangedEvent -= HandleLayoutEditorStateChanged;
-            }
-            _layoutEditor = layoutEditor;
-            if (_layoutEditor is not null) {
-                _layoutEditor.StateChangedEvent += HandleLayoutEditorStateChanged;
-            }
-
-            _rootContentView.Setup(
+            _toolbar.Setup(
+                pauseController,
+                finishController,
                 timeController,
-                pauseController, playersManager, cameraController,
-                launchData, watermark, _toolbar.Timeline, layoutEditor
+                playersManager,
+                this
             );
-            //_toolbar.Setup(
-            //    pauseController, finishController,
-            //    timeController, playersManager, launchData
-            //);
+            _settingsPanel.Setup(
+                launchData.Settings,
+                timeController,
+                cameraController,
+                bodySpawner,
+                layoutEditor,
+                _toolbar.Timeline,
+                watermark,
+                useAlternativeBlur
+            );
         }
 
-        private void HandleLayoutEditorStateChanged(bool state) {
-            _settingsModal.HideModalImmediate();
+        #endregion
+
+        #region Construct
+
+        private RectTransform _settingsTransform = null!;
+        private ReplayerSettingsPanel _settingsPanel = null!;
+        private Toolbar _toolbar = null!;
+
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    //settings container
+                    new Dummy {
+                            ContentTransform = {
+                                pivot = new(0.5f, 0f)
+                            },
+                            Children = {
+                                //settings
+                                new ReplayerSettingsPanel {
+                                    ContentTransform = {
+                                        pivot = new(0.5f, 0f)
+                                    }
+                                }.WithRectExpand().Bind(ref _settingsTransform).Bind(ref _settingsPanel)
+                            }
+                        }
+                        .WithNativeComponent(out RectMask2D _)
+                        .AsFlexItem(grow: 1f),
+                    //toolbar
+                    new Toolbar().AsFlexItem(size: new() { y = 10f }).Bind(ref _toolbar)
+                }
+            }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
+        }
+
+        protected override void OnInitialize() {
+            _valueAnimator.SetTarget(0f);
+            _valueAnimator.SetProgress(0f);
         }
 
         #endregion

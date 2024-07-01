@@ -28,7 +28,7 @@ namespace BeatLeader.UI.Replayer {
             ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner,
             ReplayLaunchData launchData,
-            IReplayWatermark? watermark = null
+            IReplayWatermark watermark
         ) {
             _pauseController = pauseController;
             _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap.level);
@@ -40,10 +40,11 @@ namespace BeatLeader.UI.Replayer {
                 cameraController,
                 bodySpawner,
                 launchData,
-                _layoutEditor
+                _layoutEditor,
+                watermark
             );
             _playerList.Setup(playersManager, timeController);
-            var settings = launchData.Settings.LayoutEditorSettings ??= new();
+            var settings = launchData.Settings.UISettings.LayoutEditorSettings ??= new();
             _layoutEditor.Setup(settings);
             _layoutEditor.SetEditorActive(false, false);
         }

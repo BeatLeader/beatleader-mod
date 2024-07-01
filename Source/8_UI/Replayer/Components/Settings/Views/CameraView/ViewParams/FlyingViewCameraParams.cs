@@ -1,23 +1,22 @@
-using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
+using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {
-    internal class FlyingViewCameraParams : ReeUIComponentV3<FlyingViewCameraParams>, SettingsCameraView.ICameraViewParams {
+    internal class FlyingViewCameraParams : ReactiveComponent, SettingsCameraView.ICameraViewParams {
         #region ViewParams
 
         public bool SupportsCameraView(ICameraView cameraView) {
             return cameraView is FlyingCameraView;
         }
 
-        public void Setup(Transform? trans, ICameraView? cameraView) {
-            Content.SetActive(trans is not null);
-            ContentTransform.SetParent(trans, false);
+        public void Setup(ICameraView? cameraView) {
             _cameraView = cameraView as FlyingCameraView;
-            RefreshView();
+            LoadFromView();
         }
 
         #endregion
@@ -28,29 +27,66 @@ namespace BeatLeader.UI.Replayer {
         private int _speed;
         private Vector2 _sensitivity;
 
+        private void LoadFromView() {
+            if (_cameraView == null) return;
+            _speed = _cameraView.FlySpeed;
+            _sensitivity = _cameraView.MouseSensitivity;
+        }
+        
         private void RefreshView() {
-            if (_cameraView is null) return;
+            if (_cameraView == null) return;
             _cameraView.FlySpeed = _speed;
             _cameraView.MouseSensitivity = _sensitivity;
         }
 
         #endregion
 
+        #region Construct
+
+        private Slider _smoothnessSlider = null!;
+    
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    new Slider {
+                        ValueRange = {
+                            Start = 1f,
+                            End = 8f
+                        },
+                        Value = 5f,
+                        ValueStep = 1f
+                    }.WithListener(
+                        x => x.Value,
+                        HandleSpeedChanged
+                    ).Bind(ref _smoothnessSlider).InNamedRail("Speed"),
+                    //
+                    new BsButton()
+                        .WithLabel("Reset")
+                        .WithClickListener(HandlePositionReset)
+                        .AsFlexItem()
+                        .InNamedRail("Reset Position"),
+                    //hint
+                    new Label {
+                        Text = "\u24d8 Notice: Free view starts working only once you press C!",
+                        Alignment = TextAlignmentOptions.Center
+                    }.AsFlexItem(margin: new() { top = 2f })
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                justifyContent: Justify.FlexStart,
+                gap: 2f
+            ).Use();
+        }
+
+        #endregion
+
         #region Callbacks
 
-        [UIAction("speed-change"), UsedImplicitly]
         private void HandleSpeedChanged(float speed) {
             _speed = (int)speed;
             RefreshView();
         }
 
-        [UIAction("sensitivity-change"), UsedImplicitly]
-        private void HandleSensitivityChanged(Vector3 vector) {
-            _sensitivity = vector;
-            RefreshView();
-        }
-
-        [UIAction("position-reset"), UsedImplicitly]
         private void HandlePositionReset() {
             _cameraView?.Reset();
         }

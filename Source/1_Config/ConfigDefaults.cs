@@ -40,8 +40,7 @@ namespace BeatLeader {
 
         #region LeaderboardDisplaySettings
 
-        public static LeaderboardDisplaySettings LeaderboardDisplaySettings = new()
-        {
+        public static LeaderboardDisplaySettings LeaderboardDisplaySettings = new() {
             ClanCaptureDisplay = true
         };
 
@@ -71,9 +70,23 @@ namespace BeatLeader {
                 VRCameraView = "BehindView"
             },
 
-            //TODO: add other components
-            LayoutEditorSettings = new() {
-                
+            UISettings = new() {
+                FloatingSettings = new() {
+                    Pose = new() {
+                        position = new(0f, 1f, 2f),
+                        rotation = Quaternion.Euler(30f, 0f, 0f)
+                    },
+                    InitialPose = new() {
+                        position = new(0f, 1f, 2f),
+                        rotation = Quaternion.Euler(30f, 0f, 0f)
+                    },
+                    Pinned = true,
+                    SnapEnabled = true,
+                    CurvatureRadius = 90f,
+                    CurvatureEnabled = true
+                },
+                //TODO: add other components
+                LayoutEditorSettings = new() { }
             },
 
             Shortcuts = new() {

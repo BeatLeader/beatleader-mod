@@ -78,6 +78,10 @@ namespace BeatLeader {
         public static Material RoundTextureMaterial;
 
         public static SliderMaterials SliderMaterials;
+        [Obsolete]
+        public static Material UIBlurMaterial;
+
+        public static MaterialCollection Materials;
 
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
@@ -98,6 +102,8 @@ namespace BeatLeader {
             OpponentScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentScoreBackgroundMaterial");
             RoundTextureMaterial = assetBundle.LoadAsset<Material>("UIRoundTextureMaterial");
             SliderMaterials = assetBundle.LoadAsset<SliderMaterials>("SliderMaterials");
+            UIBlurMaterial = assetBundle.LoadAsset<Material>("UIBlurMaterial");
+            Materials = assetBundle.LoadAsset<MaterialCollection>("MaterialCollection");
         }
 
         #endregion

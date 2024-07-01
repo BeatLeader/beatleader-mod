@@ -1,36 +1,12 @@
-using BeatLeader.Components;
-using BeatSaberMarkupLanguage.Attributes;
 using UnityEngine;
 using BeatLeader.Models;
-using BeatLeader.Utils;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
 using TMPro;
-using UnityEngine.UI;
 
 namespace BeatLeader.UI.Replayer {
-    internal class Toolbar : ReeUIComponentV3<Toolbar> {
-        #region UI Components
-
-        [UIComponent("play-button"), UsedImplicitly]
-        private ImageButton _playButton = null!;
-
-        [UIComponent("song-time-text"), UsedImplicitly]
-        private TMP_Text _songTimeText = null!;
-
-        [UIValue("timeline"), UsedImplicitly]
-        private Timeline _timeline = null!;
-
-        [UIValue("exit-button"), UsedImplicitly]
-        private ExitButton _exitButton = null!;
-
-        [UIObject("exit-button-container"), UsedImplicitly]
-        private GameObject _exitButtonContainer = null!;
-        
-        [UIObject("toolbar-container"), UsedImplicitly]
-        private GameObject _toolbarContainer = null!;
-
-        #endregion
-        
+    internal class Toolbar : ReactiveComponent {
         #region Setup
 
         public IReplayTimeline Timeline => _timeline;
@@ -47,7 +23,9 @@ namespace BeatLeader.UI.Replayer {
             IVirtualPlayersManager playersManager,
             ISettingsPanel settingsPanel
         ) {
-            OnDispose();
+            if (_pauseController != null) {
+                _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
+            }
             _pauseController = pauseController;
             _finishController = finishController;
             _beatmapTimeController = timeController;
@@ -55,27 +33,18 @@ namespace BeatLeader.UI.Replayer {
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
             _timeline.Setup(playersManager, pauseController, timeController);
-            enabled = true;
+            HandlePauseStateChanged(_pauseController.IsPaused);
         }
 
-        private void Update() {
+        protected override void OnUpdate() {
             UpdateSongTime();
         }
 
-        protected override void OnInstantiate() {
-            _timeline = ReeUIComponentV2.Instantiate<Timeline>(transform);
-            _exitButton = ExitButton.Instantiate(transform);
-            _exitButton.ClickEvent += HandleExitButtonClicked;
-        }
-
         protected override void OnInitialize() {
-            ApplyBackground(_exitButtonContainer);
-            ApplyBackground(_toolbarContainer);
-            enabled = false;
             SetSongTime(0, 0);
         }
 
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
             if (_pauseController != null) {
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
             }
@@ -83,18 +52,74 @@ namespace BeatLeader.UI.Replayer {
 
         #endregion
 
-        #region Tools
+        #region Construct
 
-        private static void ApplyBackground(GameObject gameObject) {
-            var img = gameObject.AddComponent<AdvancedImageView>();
-            img.sprite = BundleLoader.WhiteBG;
-            img.material = GameResources.UIFogBackgroundMaterial;
-            img.type = Image.Type.Sliced;
-            img.pixelsPerUnitMultiplier = 7f;
+        private Timeline _timeline = null!;
+        private Label _timeText = null!;
+        private ImageButton _playButton = null!;
+
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    new ExitButton()
+                        .WithClickListener(HandleExitButtonClicked)
+                        .AsFlexItem(grow: 1f)
+                        .InBackground(
+                            color: new(0.1f, 0.1f, 0.1f, 1f),
+                            pixelsPerUnit: 7f
+                        )
+                        .AsFlexGroup(padding: new() { top = 1.5f, bottom = 1.5f, right = 1f })
+                        .AsFlexItem(basis: 10f),
+                    //toolbar
+                    new Image {
+                        Children = {
+                            //play button
+                            new ImageButton {
+                                Image = {
+                                    PreserveAspect = true
+                                }
+                            }.WithClickListener(HandlePlayButtonClicked).Bind(ref _playButton).AsFlexItem(
+                                basis: 5f,
+                                margin: new() { left = 1f, right = 1f }
+                            ),
+                            //timeline
+                            new Timeline().Bind(ref _timeline).AsFlexItem(
+                                grow: 1f,
+                                alignSelf: Align.Center
+                            ),
+                            //text
+                            new Label {
+                                FontSize = 3.5f,
+                                Alignment = TextAlignmentOptions.Center
+                            }.Bind(ref _timeText).AsFlexItem(
+                                size: "auto",
+                                alignSelf: Align.Center
+                            ),
+                            //settings button
+                            new ImageButton {
+                                Image = {
+                                    Sprite = BundleLoader.SettingsIcon,
+                                    PreserveAspect = true
+                                },
+                                Sticky = true
+                            }.WithStateListener(HandleSettingsButtonStateChanged).AsFlexItem(
+                                basis: 6f,
+                                margin: new() { left = 1f }
+                            )
+                        }
+                    }.AsBackground(
+                        color: new(0.1f, 0.1f, 0.1f, 1f),
+                        pixelsPerUnit: 7f
+                    ).AsFlexGroup(
+                        padding: new() { top = 2f, bottom = 2f, left = 1f, right = 1.5f },
+                        gap: 1f
+                    ).AsFlexItem(grow: 1f)
+                }
+            }.AsFlexGroup(gap: 1f).Use();
         }
 
         #endregion
-        
+
         #region SongTime
 
         private void UpdateSongTime() {
@@ -103,49 +128,49 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void SetSongTime(float time, float totalTime) {
-            _songTimeText.text = FormatUtils.FormatSongTime(time, totalTime);
+            _timeText.Text = FormatUtils.FormatSongTime(time, totalTime);
         }
 
         #endregion
 
-        #region PauseButton
+        #region PlayButton
 
         private static readonly Sprite playSprite = BundleLoader.PlayIcon;
         private static readonly Sprite pauseSprite = BundleLoader.PauseIcon;
 
-        private void RefreshPauseButton(bool paused) {
+        private void RefreshPlayButton(bool paused) {
             _playButton.Image.Sprite = paused ? playSprite : pauseSprite;
         }
 
         #endregion
 
         #region ExitButton
-        
-        private class ExitButton : ButtonComponentBase<ExitButton> {
-            private static readonly Sprite openedDoorSprite = BundleLoader.OpenedDoorIcon;
-            private static readonly Sprite closedDoorSprite = BundleLoader.ClosedDoorIcon;
 
-            private AdvancedImage _image1 = null!;
-            private AdvancedImage _image2 = null!;
+        private class ExitButton : ColoredButton {
+            private Image _image1 = null!;
+            private Image _image2 = null!;
 
-            protected override void OnHoverProgressChange(float progress) {
-                var alternativeProgress = MathUtils.Map(progress, 0f, 1f, 0.2f, 0f);
-                _image1.Color = ImageButton.DefaultColor.ColorWithAlpha(alternativeProgress);
-                _image2.Color = ImageButton.DefaultHoveredColor.ColorWithAlpha(progress);
+            protected override void ApplyColor(Color color) {
+                _image2.Color = color.ColorWithAlpha(AnimationProgress);
+                color = Colors!.GetColor(new() { interactable = Interactable });
+                _image1.Color = Color.Lerp(color, Color.clear, AnimationProgress);
             }
 
-            protected override void OnContentConstruct(Transform parent) {
-                _image1 = AdvancedImage.Instantiate(parent);
-                _image1.InheritSize = true;
-                _image1.Sprite = closedDoorSprite;
-                _image1.Material = BundleLoader.UIAdditiveGlowMaterial;
-                _image2 = AdvancedImage.Instantiate(parent);
-                _image2.InheritSize = true;
-                _image2.Sprite = openedDoorSprite;
-                _image2.Material = BundleLoader.UIAdditiveGlowMaterial;
-                Size = 6;
-                BaseScale = Vector3.one;
-                LayoutGroup.enabled = false;
+            protected override GameObject Construct() {
+                static Image CreateImage(Sprite sprite) {
+                    return new Image {
+                        Sprite = sprite,
+                        Material = BundleLoader.UIAdditiveGlowMaterial,
+                        PreserveAspect = true
+                    }.WithRectExpand();
+                }
+
+                CreateImage(BundleLoader.ClosedDoorIcon).Bind(ref _image1);
+                CreateImage(BundleLoader.OpenedDoorIcon).Bind(ref _image2);
+                var parent = base.Construct();
+                _image1.Use(parent);
+                _image2.Use(parent);
+                return parent;
             }
         }
 
@@ -174,8 +199,7 @@ namespace BeatLeader.UI.Replayer {
 
         #region Callbacks
 
-        [UIAction("pause-button-click"), UsedImplicitly]
-        private void HandlePauseButtonClicked() {
+        private void HandlePlayButtonClicked() {
             if (!_pauseController!.IsPaused) {
                 _pauseController.Pause();
             } else {
@@ -183,17 +207,16 @@ namespace BeatLeader.UI.Replayer {
             }
         }
 
-        [UIAction("settings-button-state-change"), UsedImplicitly]
         private void HandleSettingsButtonStateChanged(bool state) {
             RefreshSettingsPanel(state);
         }
-        
+
         private void HandleExitButtonClicked() {
             _finishController?.Exit();
         }
 
         private void HandlePauseStateChanged(bool paused) {
-            RefreshPauseButton(paused);
+            RefreshPlayButton(paused);
         }
 
         #endregion

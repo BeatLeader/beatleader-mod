@@ -30,7 +30,7 @@ namespace BeatLeader.Models {
 
         private void ApplyConfigToComponents(bool applyToPrimaryModel, IVirtualPlayerBodyConfig config) {
             foreach (var component in SpawnedBodyComponents) {
-                if (applyToPrimaryModel && !component.UsesPrimaryModel) continue;
+                if (applyToPrimaryModel != component.UsesPrimaryModel) continue;
                 component.ApplyConfig(config);
             }
         }

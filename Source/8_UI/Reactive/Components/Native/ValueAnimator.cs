@@ -21,7 +21,7 @@ namespace BeatLeader.UI.Reactive {
 
         public void SetProgress(float progress) {
             _set = false;
-            _progress = progress;
+            _progress = Mathf.Clamp01(progress);
         }
         
         public void SetTarget(float value) {

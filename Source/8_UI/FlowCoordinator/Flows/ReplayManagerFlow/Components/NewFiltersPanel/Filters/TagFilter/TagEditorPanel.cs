@@ -2,7 +2,6 @@ using System;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
 using UnityEngine;
 
@@ -32,50 +31,38 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
-                    new NamedRail {
-                        Label = {
-                            Text = "Name"
+                    new InputField {
+                        Icon = GameResources.Sprites.EditIcon,
+                        Placeholder = "Enter Name",
+                        TextApplicationContract = x => {
+                            _validationResult = ValidationContract?.Invoke(x);
+                            NotifyPropertyChanged(nameof(IsValid));
+                            return _validationResult?.Ok ?? false;
                         },
-                        Component = new InputField {
-                            Icon = GameResources.Sprites.EditIcon,
-                            TextApplicationContract = x => {
-                                _validationResult = ValidationContract?.Invoke(x);
-                                NotifyPropertyChanged(nameof(IsValid));
-                                return _validationResult?.Ok ?? false;
-                            },
-                            Keyboard = new KeyboardModal<Keyboard, InputField> {
-                                ClickOffCloses = false
-                            }
-                        }.WithListener(
-                            x => x.Text,
-                            x => {
-                                TagName = x;
-                                if (x.Length == 0) _validationResult = null;
-                                NotifyPropertyChanged(nameof(TagName));                               
-                                NotifyPropertyChanged(nameof(IsValid));
-                            }
-                        ).AsFlexItem(minSize: new() { x = 25f, y = 8f }).Bind(ref _inputField),
-                    }.AsFlexItem(),
+                        Keyboard = new KeyboardModal<Keyboard, InputField> {
+                            ClickOffCloses = false
+                        }
+                    }.WithListener(
+                        x => x.Text,
+                        x => {
+                            TagName = x;
+                            if (x.Length == 0) _validationResult = null;
+                            NotifyPropertyChanged(nameof(TagName));
+                            NotifyPropertyChanged(nameof(IsValid));
+                        }
+                    ).AsFlexItem(grow: 1f).Bind(ref _inputField),
                     //
-                    new NamedRail {
-                        Label = {
-                            Text = "Color"
-                        },
-                        Component = new ColorPicker {
-                            Color = ColorUtils.RandomColor()
-                        }.WithListener(
-                            x => x.Color,
-                            x => {
-                                TagColor = x;
-                                NotifyPropertyChanged(nameof(TagColor));
-                            }
-                        ).AsFlexItem(size: "auto").Bind(ref _colorPicker)
-                    }.AsFlexItem()
+                    new ColorPicker {
+                        Color = ColorUtils.RandomColor()
+                    }.WithListener(
+                        x => x.Color,
+                        x => {
+                            TagColor = x;
+                            NotifyPropertyChanged(nameof(TagColor));
+                        }
+                    ).AsFlexItem(size: "auto").Bind(ref _colorPicker)
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                gap: 1f
-            ).Use();
+            }.AsFlexGroup(gap: 1f).Use();
         }
 
         #endregion

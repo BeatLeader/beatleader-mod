@@ -18,11 +18,11 @@ namespace BeatLeader.Utils {
         public IReadOnlyCollection<IEditableReplayTag> Tags => cachedTags.Values;
 
         public event Action<IEditableReplayTag>? TagCreatedEvent;
-        public event Action<IEditableReplayTag>? TagDeletedEvent;
+        public event Action<IReplayTag>? TagDeletedEvent;
 
         public ReplayTagValidationResult ValidateTag(string name) {
             return new(
-                name.Length is >= 2 and <= 5,
+                name.Length is >= 2 and <= 10,
                 !cachedTags.ContainsKey(name)
             );
         }
@@ -34,7 +34,7 @@ namespace BeatLeader.Utils {
             return tag;
         }
 
-        private void DeleteTag(IEditableReplayTag tag) {
+        public void DeleteTag(IReplayTag tag) {
             cachedTags.Remove(tag.Name);
             TagDeletedEvent?.Invoke(tag);
         }
@@ -87,9 +87,9 @@ namespace BeatLeader.Utils {
         }
 
         private static GenericReplayTag ToGenericReplayTag(SerializableReplayTag tag) {
-            return new(tag.Name, Instance.ValidateTag, Instance.DeleteTag) {
-                Color = tag.Color
-            };
+            var stag = new GenericReplayTag(tag.Name, Instance.ValidateTag, Instance.DeleteTag);
+            stag.SetColor(tag.Color);
+            return stag;
         }
 
         #endregion

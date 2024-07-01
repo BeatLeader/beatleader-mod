@@ -33,7 +33,7 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.WithRectSize(38f, 40f);
+            this.WithSizeDelta(46f, 24f);
             Title = "Create Tag";
         }
 
@@ -48,7 +48,7 @@ namespace BeatLeader.UI.Hub {
         protected override void OnOkButtonClicked() {
             if (_tagManager == null) return;
             var tag = _tagManager.CreateTag(_tagEditorPanel.TagName);
-            tag.Color = _tagEditorPanel.TagColor;
+            tag.SetColor( _tagEditorPanel.TagColor);
             CloseInternal();
         }
 

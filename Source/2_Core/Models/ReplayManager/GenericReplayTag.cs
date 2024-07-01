@@ -13,14 +13,7 @@ namespace BeatLeader.Models {
             _deleteCallback = deleteCallback;
         }
 
-        public Color Color {
-            get => _isDeleted ? throw new InvalidOperationException() : _color;
-            set {
-                _color = value;
-                TagUpdatedEvent?.Invoke();
-            }
-        }
-
+        public Color Color => _isDeleted ? throw new InvalidOperationException() : _color;
         public string Name => _isDeleted ? throw new InvalidOperationException() : _name;
 
         public event Action? TagUpdatedEvent;
@@ -31,6 +24,11 @@ namespace BeatLeader.Models {
 
         private Color _color;
         private string _name;
+
+        public void SetColor(Color color) {
+            _color = color;
+            TagUpdatedEvent?.Invoke();
+        }
 
         public ReplayTagValidationResult SetName(string name) {
             var result = _validateCallback(name);

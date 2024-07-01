@@ -143,7 +143,7 @@ namespace BeatLeader.UI.Hub {
             _replayStatisticsPanel.SetData(null, null, invalid, header is null);
             _header = header;
             if (_header != null) {
-                _tagSelector.Component.SelectFromMetadata(_header.ReplayMetadata);
+                _tagSelector.Component.SelectTags(_header.ReplayMetadata);
             } else {
                 _tagSelector.Component.ClearSelectedTags();
             }

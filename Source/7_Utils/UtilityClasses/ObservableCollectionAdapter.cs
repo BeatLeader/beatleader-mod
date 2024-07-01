@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace BeatLeader {
-    internal class ObservableCollectionAdapter<T> : ICollection<T> {
+    internal class ObservableCollectionAdapter<T> : ICollection<T>, IReadOnlyCollection<T> {
         #region Adapter
 
         public ObservableCollectionAdapter(

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BeatLeader.Installers;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -70,7 +71,7 @@ namespace BeatLeader.Components {
         }
 
         private static void InitStaticDependencies() {
-            var container = BeatSaberUI.DiContainer;
+            var container = OnMenuInstaller.Container;
             if (!_selectionNavigationController) {
                 _selectionNavigationController = container.Resolve<LevelSelectionNavigationController>();
             }

@@ -1,31 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BeatLeader.Models;
-using IPA.Utilities;
-using Newtonsoft.Json;
 
 namespace BeatLeader {
+    //TODO: create a storage namespace and put it there with configs & caches
     internal static class ReplayHeadersCache {
-        static ReplayHeadersCache() {
-            try {
-                if (!File.Exists(cacheFile)) {
-                    infosDictionary = new();
-                    return;
-                }
-                var content = File.ReadAllText(cacheFile);
-                infosDictionary = JsonConvert.DeserializeObject<Dictionary<string, SerializableReplayInfo>>(content);
-            } catch (Exception ex) {
-                Plugin.Log.Error($"Failed to initialize {nameof(ReplayHeadersCache)}\n{ex}");
-            }
-            infosDictionary ??= new();
+        #region Cache
+
+        private static readonly AppCache<Dictionary<string, SerializableReplayInfo>> infoCache = new("ReplayInfoCache");
+        private static readonly AppCache<Dictionary<string, SerializableReplayMetadata>> metaCache = new("ReplayMetadataCache");
+        private static readonly AppCache<Dictionary<string, SerializableReplayTag>> tagsCache = new("ReplayTagsCache");
+
+        public static void SaveCache() {
+            infoCache.Save();
+            metaCache.Save();
+            tagsCache.Save();
         }
 
-        private static readonly string cacheFile = Path.Combine(UnityGame.UserDataPath, "BeatLeader", "ReplayHeadersCache");
-        private static readonly Dictionary<string, SerializableReplayInfo> infosDictionary;
+        #endregion
+
+        #region Info
 
         public static bool TryGetInfoByPath(string path, out IReplayInfo? info) {
-            if (!infosDictionary.TryGetValue(Path.GetFileName(path), out var serInfo)) {
+            if (!infoCache.Cache.TryGetValue(Path.GetFileName(path), out var serInfo)) {
                 info = null;
                 return false;
             }
@@ -34,20 +32,11 @@ namespace BeatLeader {
         }
 
         public static void AddInfoByPath(string path, IReplayInfo info) {
-            infosDictionary[Path.GetFileName(path)] = ToSerializableReplayInfo(info);
+            infoCache.Cache[Path.GetFileName(path)] = ToSerializableReplayInfo(info);
         }
 
         public static void RemoveInfoByPath(string path) {
-            infosDictionary.Remove(Path.GetFileName(path));
-        }
-
-        public static void SaveCache() {
-            try {
-                var ser = JsonConvert.SerializeObject(infosDictionary);
-                File.WriteAllText(cacheFile, ser);
-            } catch (Exception ex) {
-                Plugin.Log.Error($"Failed to save {nameof(ReplayHeadersCache)}\n{ex}");
-            }
+            infoCache.Cache.Remove(Path.GetFileName(path));
         }
 
         private static SerializableReplayInfo ToSerializableReplayInfo(IReplayInfo info) {
@@ -63,5 +52,39 @@ namespace BeatLeader {
                 Timestamp = info.Timestamp
             };
         }
+
+        #endregion
+
+        #region Tags & Meta
+
+        public static IDictionary<string, SerializableReplayMetadata> Metadata => metaCache.Cache;
+        public static IDictionary<string, SerializableReplayTag> Tags => tagsCache.Cache;
+
+        public static void AddMetadataByPath(string path, IReplayMetadata metadata) {
+            if (!ValidateMetadata(metadata)) return;
+            Metadata[path] = ToSerializableReplayMetadata(metadata);
+        }
+        
+        public static void AddTag(IReplayTag tag) {
+            Tags[tag.Name] = ToSerializableReplayTag(tag);
+        }
+
+        private static bool ValidateMetadata(IReplayMetadata metadata) {
+            return metadata.Tags.Count > 0;
+        }
+        
+        private static SerializableReplayMetadata ToSerializableReplayMetadata(IReplayMetadata metadata) {
+            return new() {
+                Tags = metadata.Tags
+                    .Select(x => x.Name)
+                    .ToHashSet()
+            };
+        }
+
+        private static SerializableReplayTag ToSerializableReplayTag(IReplayTag tag) {
+            return new(tag.Name, tag.Color);
+        }
+
+        #endregion
     }
 }

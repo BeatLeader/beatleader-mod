@@ -206,6 +206,20 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         #endregion
+
+        #region TextArea
+
+        public static T WithItemsText<T>(this T comp, IEnumerable<string> items, bool silent = false) where T : TextArea {
+            var text = string.Join(string.Empty, items.Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x}"));
+            if (silent) {
+                comp.SetTextSilent(text);
+            } else {
+                comp.Text = text;
+            }
+            return comp;
+        }
+
+        #endregion
         
         #region Other
 

@@ -7,6 +7,11 @@ namespace BeatLeader.UI.Reactive {
     internal class ReactivePool<TKey, T> where T : IReactiveComponent, new() {
         public IReadOnlyDictionary<TKey, T> SpawnedComponents => _keyedComponents;
 
+        public bool DetachOnDespawn {
+            get => _reactivePool.DetachOnDespawn;
+            set => _reactivePool.DetachOnDespawn = value;
+        }
+
         private readonly ReactivePool<T> _reactivePool = new();
         private readonly Dictionary<TKey, T> _keyedComponents = new();
 

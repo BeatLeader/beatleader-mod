@@ -15,5 +15,18 @@ namespace BeatLeader.UI.Reactive {
             host.AddCallback(name, listener);
             return host;
         }
+        
+        public static T WithoutListener<T, TValue>(
+            this T host,
+            Expression<Func<T, TValue>> expression,
+            Action<TValue> listener
+        ) where T : IObservableHost {
+            if (expression.Body is not MemberExpression memberExpression) {
+                throw new ArgumentException("The expression is not a member access expression");
+            }
+            var name = memberExpression.Member.Name;
+            host.RemoveCallback(name, listener);
+            return host;
+        }
     }
 }

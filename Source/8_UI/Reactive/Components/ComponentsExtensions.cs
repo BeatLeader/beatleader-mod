@@ -38,12 +38,12 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : ButtonBase {
+        public static T WithModal<T>(this T button, Action<Transform> listener) where T : IClickableComponent, IReactiveComponent {
             button.ClickEvent += () => listener(button.ContentTransform);
             return button;
         }
 
-        public static T WithClickListener<T>(this T button, Action listener) where T : ButtonBase {
+        public static T WithClickListener<T>(this T button, Action listener) where T : IClickableComponent {
             button.ClickEvent += listener;
             return button;
         }
@@ -91,7 +91,12 @@ namespace BeatLeader.UI.Reactive.Components {
                     FontSize = fontSize,
                     RichText = richText,
                     Overflow = overflow
-                }.AsFlexItem(
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(
                     size: "auto",
                     margin: new() { left = 2f, right = 2f }
                 ).Export(out label)
@@ -104,8 +109,9 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
+            Optional<Material>? material = default
         ) where T : ButtonBase, IChildrenProvider {
             return WithImage(
                 button,
@@ -113,6 +119,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 sprite,
                 color,
                 pixelsPerUnit,
+                preserveAspect,
                 type,
                 material
             );
@@ -124,17 +131,24 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
+            Optional<Material>? material = default
         ) where T : ButtonBase, IChildrenProvider {
             button.Children.Add(
                 new Image {
                     Sprite = sprite,
-                    Material = material,
+                    Material = material.GetValueOrDefault(GameResources.UINoGlowMaterial),
                     Color = color ?? Color.white,
                     PixelsPerUnit = pixelsPerUnit ?? 0f,
-                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced
-                }.WithRectExpand().Export(out image)
+                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced,
+                    PreserveAspect = preserveAspect
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(grow: 1f).Export(out image)
             );
             return button;
         }

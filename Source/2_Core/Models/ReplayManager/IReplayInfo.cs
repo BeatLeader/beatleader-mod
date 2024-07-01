@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BeatLeader.Models {
+﻿namespace BeatLeader.Models {
     public interface IReplayInfo {
         string PlayerID { get; }
         string PlayerName { get; }
@@ -12,6 +10,7 @@ namespace BeatLeader.Models {
         LevelEndType LevelEndType { get; }
         
         float FailTime { get; }
+        int Score { get; }
         long Timestamp { get; }
     }
 }

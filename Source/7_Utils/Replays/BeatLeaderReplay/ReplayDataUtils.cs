@@ -18,7 +18,7 @@ namespace BeatLeader.Utils {
 
         public static readonly IReplayComparator BasicReplayComparator = new ReplayComparator();
 
-        public static IReplay ConvertToAbstractReplay(Replay replay, ITablePlayer? player) {
+        public static IReplay ConvertToAbstractReplay(Replay replay, IPlayer? player, IOptionalReplayData? optionalData) {
             var replayData = replay.info;
             var failed = replayData.failTime is not 0;
             var creplayData = new GenericReplayData(
@@ -64,6 +64,7 @@ namespace BeatLeader.Utils {
 
             return new GenericReplay(
                 creplayData,
+                optionalData,
                 frames.ToArray(),
                 notes.ToArray(),
                 walls.ToArray(),

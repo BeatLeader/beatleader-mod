@@ -18,6 +18,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private Image _borderImage = null!;
 
+        protected override void ApplySkew(float skew) {
+            base.ApplySkew(skew);
+            _borderImage.Skew = skew;
+        }
+
         protected override void ApplyColor(Color color) {
             Image.GradientColor0 = color;
             _borderImage.Color = color;

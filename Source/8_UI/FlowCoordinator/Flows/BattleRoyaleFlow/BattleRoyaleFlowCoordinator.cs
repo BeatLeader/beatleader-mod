@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using BeatLeader.Models;
-using BeatLeader.Models.Replay;
 using BeatLeader.Replayer;
-using BeatLeader.UI.Hub.Models;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage;
 using HMUI;
 using Zenject;
@@ -20,6 +22,8 @@ namespace BeatLeader.UI.Hub {
             private FlowCoordinator _parentFlowCoordinator = null!;
             private FlowCoordinator _alternativeParentFlowCoordinator = null!;
             private FlowCoordinator _dummyFlowCoordinator = null!;
+            private Action? _returnAction;
+            private string? _originalTitle;
 
             public void Setup(
                 FlowCoordinator parentFlowCoordinator,
@@ -35,15 +39,23 @@ namespace BeatLeader.UI.Hub {
                 ProvideInitialViewControllers(mainViewController, leftViewController, rightViewController);
             }
 
+            public void PushReturnAction(string header, Action action) {
+                _returnAction = action;
+                _originalTitle = title;
+                SetTitle(header);
+            }
+
             public void Present() {
                 _alternativeParentFlowCoordinator.PresentFlowCoordinator(
-                    this, animationDirection: ViewController.AnimationDirection.Vertical
+                    this,
+                    animationDirection: ViewController.AnimationDirection.Vertical
                 );
             }
 
             public void Dismiss() {
                 _alternativeParentFlowCoordinator.DismissFlowCoordinator(
-                    this, animationDirection: ViewController.AnimationDirection.Vertical
+                    this,
+                    animationDirection: ViewController.AnimationDirection.Vertical
                 );
             }
 
@@ -54,8 +66,15 @@ namespace BeatLeader.UI.Hub {
             }
 
             protected override void BackButtonWasPressed(ViewController viewController) {
+                if (_returnAction != null) {
+                    _returnAction();
+                    _returnAction = null;
+                    SetTitle(_originalTitle);
+                    return;
+                }
                 _parentFlowCoordinator.DismissFlowCoordinator(
-                    _dummyFlowCoordinator, animationDirection: ViewController.AnimationDirection.Vertical
+                    _dummyFlowCoordinator,
+                    animationDirection: ViewController.AnimationDirection.Vertical
                 );
                 Dismiss();
             }
@@ -66,11 +85,28 @@ namespace BeatLeader.UI.Hub {
         #region Injection
 
         [Inject] private readonly BattleRoyaleOpponentsViewController _opponentsViewController = null!;
-        [Inject] private readonly BattleRoyaleReplaySelectionViewController _replaySelectionViewController = null!;
+        [Inject] private readonly BattleRoyaleGreetingsViewController _greetingsViewController = null!;
         [Inject] private readonly BattleRoyaleBattleSetupViewController _battleSetupViewController = null!;
         [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderMiniScreenSystem _alternativeScreenSystem = null!;
         [Inject] private readonly ReplayerMenuLoader _replayerMenuLoader = null!;
+        [Inject] private readonly AvatarPartsModel _avatarPartsModel = null!;
+
+        #endregion
+
+        #region PushReturnAction
+
+        public void PushReturnAction(string header, Action action) {
+            _alternativeFlowCoordinator.PushReturnAction(header, action);
+        }
+
+        #endregion
+
+        #region Present
+
+        public void PresentFlowCoordinator(FlowCoordinator coordinator) {
+            _alternativeFlowCoordinator.PresentFlowCoordinator(coordinator);
+        }
 
         #endregion
 
@@ -86,7 +122,7 @@ namespace BeatLeader.UI.Hub {
                     _beatLeaderHubFlowCoordinator,
                     this,
                     _alternativeScreenSystem.FlowCoordinator,
-                    _replaySelectionViewController,
+                    _greetingsViewController,
                     _battleSetupViewController,
                     _opponentsViewController
                 );
@@ -111,62 +147,94 @@ namespace BeatLeader.UI.Hub {
 
         #region BattleRoyaleHost
 
-        public IReadOnlyCollection<IReplayHeaderBase> PendingReplays => _replays;
-        public IReplayFilter ReplayFilter => _replayFilter;
+        public IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays => _replays.Values;
+        public IListFilter<IReplayHeaderBase> ReplayFilter => _replayFilter;
 
-        public IBeatmapReplayFilterData? FilterData {
-            get => _replayFilter.BeatmapFilterData;
-            set => _replayFilter.BeatmapFilterData = value;
+        public IDifficultyBeatmap? ReplayBeatmap {
+            get => _replayFilter.DifficultyBeatmap;
+            set {
+                _replayFilter.DifficultyBeatmap = value;
+                ReplayBeatmapChangedEvent?.Invoke(value);
+            }
         }
 
         public bool CanLaunchBattle { get; private set; }
 
-        public event Action<IReplayHeaderBase, object>? ReplayAddedEvent;
-        public event Action<IReplayHeaderBase, object>? ReplayRemovedEvent;
-        public event Action<IReplayHeaderBase>? ReplayNavigationRequestedEvent;
+        public event Action<IBattleRoyaleReplay, object>? ReplayAddedEvent;
+        public event Action<IBattleRoyaleReplay, object>? ReplayRemovedEvent;
+        public event Action<IBattleRoyaleReplay>? ReplayNavigationRequestedEvent;
+        public event Action? ReplayRefreshRequestedEvent;
+        public event Action<IDifficultyBeatmap?>? ReplayBeatmapChangedEvent;
         public event Action<bool>? HostStateChangedEvent;
         public event Action<bool>? CanLaunchBattleStateChangedEvent;
         public event Action? BattleLaunchStartedEvent;
         public event Action? BattleLaunchFinishedEvent;
 
-        private readonly HashSet<IReplayHeaderBase> _replays = new();
-
-        private readonly BeatmapReplayFilter _replayFilter = new() {
-            filterOffAllWhenDataNotFull = true
-        };
+        private readonly Dictionary<IReplayHeaderBase, BattleRoyaleReplay> _replays = new();
+        private readonly BeatmapReplayFilter _replayFilter = new();
 
         public async void LaunchBattle() {
             BattleLaunchStartedEvent?.Invoke();
-            var replays = new Dictionary<Replay, IPlayer?>();
-            foreach (var header in _replays) {
-                var replay = await header.LoadReplayAsync(default);
-                var player = await header.LoadPlayerAsync(false, default);
-                replays.Add(replay!, player);
-            }
-            await _replayerMenuLoader.StartReplaysAsync(replays, null, default);
+            await _replayerMenuLoader.StartBattleRoyaleAsync(
+                PendingReplays,
+                null,
+                CancellationToken.None
+            );
             BattleLaunchFinishedEvent?.Invoke();
         }
 
         public void AddReplay(IReplayHeaderBase header, object caller) {
-            if (!_replays.Add(header)) return;
-            ReplayAddedEvent?.Invoke(header, caller);
+            if (_replays.ContainsKey(header)) return;
+            //
+            var replayData = CreateReplayData(header);
+            var replay = new BattleRoyaleReplay(header, replayData);
+            //
+            _replays.Add(header, replay);
+            ReplayAddedEvent?.Invoke(replay, caller);
+            RecalculateReplayRanks();
             RefreshLaunchState();
         }
 
         public void RemoveReplay(IReplayHeaderBase header, object caller) {
-            if (!_replays.Remove(header)) return;
-            ReplayRemovedEvent?.Invoke(header, caller);
+            if (!_replays.TryGetValue(header, out var replay)) return;
+            _replays.Remove(header);
+            ReplayRemovedEvent?.Invoke(replay, caller);
+            RecalculateReplayRanks();
             RefreshLaunchState();
         }
 
         public void NavigateTo(IReplayHeaderBase header) {
-            if (!_replays.Contains(header)) return;
-            ReplayNavigationRequestedEvent?.Invoke(header);
+            if (!_replays.TryGetValue(header, out var replay)) return;
+            ReplayNavigationRequestedEvent?.Invoke(replay);
+        }
+
+        #endregion
+
+        #region Other
+
+        private void RecalculateReplayRanks() {
+            var rank = 0;
+            foreach (var replay in _replays.Values.OrderBy(static x => x.ReplayHeader.ReplayInfo.Score)) {
+                replay.ReplayRank = ++rank;
+            }
+            ReplayRefreshRequestedEvent?.Invoke();
         }
 
         private void RefreshLaunchState() {
             CanLaunchBattle = _replays.Count > 1;
             CanLaunchBattleStateChangedEvent?.Invoke(CanLaunchBattle);
+        }
+
+        private BattleRoyaleOptionalReplayData CreateReplayData(IReplayHeaderBase header) {
+            //color
+            var replayInfo = header.ReplayInfo;
+            var colorSeed = $"{replayInfo.Timestamp}{replayInfo.PlayerID}{replayInfo.SongName}".GetHashCode();
+            var color = ColorUtils.RandomColor(rand: new(colorSeed));
+            //avatar
+            var avatarData = new AvatarData();
+            AvatarUtils.RandomizeAvatarByPlayerId(header.ReplayInfo.PlayerID, avatarData, _avatarPartsModel);
+            //
+            return new BattleRoyaleOptionalReplayData(avatarData, color);
         }
 
         #endregion

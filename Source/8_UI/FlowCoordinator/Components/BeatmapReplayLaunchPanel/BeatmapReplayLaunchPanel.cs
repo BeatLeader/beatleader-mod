@@ -76,6 +76,12 @@ namespace BeatLeader.UI.Hub {
             ReplayDeselectedEvent?.Invoke(header);
         }
 
+        public void ClearSelectedReplays() {
+            foreach (var item in ReplaysList.highlightedItems.ToArray()) {
+                RemoveSelectedReplay(item, true);
+            }
+        }
+
         #endregion
 
         #region Init
@@ -123,15 +129,6 @@ namespace BeatLeader.UI.Hub {
         private void ShowLoadingScreen(bool show) {
             _loadingContainerObject.SetActive(show);
             _mainContainerCanvasGroup.alpha = show ? 0.2f : 1;
-        }
-
-        #endregion
-
-        #region ReplayFilter
-
-        public IReplayFilter? ReplayFilter {
-            get => null;
-            set { }
         }
 
         #endregion

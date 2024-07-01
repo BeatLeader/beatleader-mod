@@ -1,5 +1,5 @@
 namespace BeatLeader.UI.Reactive.Components {
-    internal interface IFilteringListComponent<T> : IListComponent<T> {
+    internal interface IFilteringListComponent<T> {
         IListFilter<T>? Filter { get; set; }
     }
 }

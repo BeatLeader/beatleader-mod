@@ -29,7 +29,6 @@ namespace BeatLeader.UI.Hub {
         #region Init
 
         private void Awake() {
-            ListFiltersPanel<IReplayHeader> filtersPanel = null!;
             new Dummy {
                 Children = {
                     new ListFiltersPanel<IReplayHeader> {
@@ -50,13 +49,13 @@ namespace BeatLeader.UI.Hub {
                             beatmapFilters.Setup(this);
                             x.Filters.AddRange(beatmapFilters.Filters);
                         }
-                    ).AsFlexItem(basis: 8f).Bind(ref filtersPanel),
+                    ).AsFlexItem(basis: 8f).Export(out var filtersPanel),
                     //
                     new ReeWrapperV3<BeatmapReplayLaunchPanel>()
                         .AsFlexItem(basis: 63f)
                         .BindRee(ref _replayPanel).With(
                             x => {
-                                filtersPanel.List = x.ReeComponent.ReplaysList;
+                                x.ReeComponent.ReplaysList.Filter = filtersPanel;
                             }
                         )
                 }

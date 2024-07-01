@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using BeatLeader.Models;
-using BeatLeader.UI.Hub.Models;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
@@ -20,12 +19,14 @@ namespace BeatLeader.UI.Hub {
         private void Awake() {
             _battleRoyaleHost.ReplayAddedEvent += HandleReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent += HandleReplayRemoved;
+            _battleRoyaleHost.ReplayRefreshRequestedEvent += HandleRefreshRequested;
             _battleRoyaleHost.HostStateChangedEvent += HandleHostStateChanged;
         }
 
         private void OnDestroy() {
             _battleRoyaleHost.ReplayAddedEvent -= HandleReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent -= HandleReplayRemoved;
+            _battleRoyaleHost.ReplayRefreshRequestedEvent -= HandleRefreshRequested;
             _battleRoyaleHost.HostStateChangedEvent -= HandleHostStateChanged;
         }
 
@@ -94,18 +95,24 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        private void HandleReplayAdded(IReplayHeaderBase header, object caller) {
-            var avatar = _battleRoyaleAvatarPool.Spawn(header);
+        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
+            var avatar = _battleRoyaleAvatarPool.Spawn(replay);
             avatar.transform.SetParent(transform, false);
-            _avatars[header] = avatar;
+            _avatars[replay.ReplayHeader] = avatar;
             RecalculateAvatarPositions(avatar);
         }
 
-        private void HandleReplayRemoved(IReplayHeaderBase header, object caller) {
-            var avatar = _avatars[header];
-            _avatars.Remove(header);
+        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
+            var avatar = _avatars[replay.ReplayHeader];
+            _avatars.Remove(replay.ReplayHeader);
             _battleRoyaleAvatarPool.Despawn(avatar);
             RecalculateAvatarPositions();
+        }
+
+        private void HandleRefreshRequested() {
+            foreach (var avatar in _avatars.Values) {
+                avatar.Refresh();
+            }
         }
 
         #endregion

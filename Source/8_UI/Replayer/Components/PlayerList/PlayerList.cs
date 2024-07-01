@@ -188,7 +188,7 @@ namespace BeatLeader.UI.Replayer {
             }
 
             private void RefreshBackgroundMaterial() {
-                var color = Item.Replay.ReplayData.Player!.AccentColor;
+                var color = Item.Replay.OptionalReplayData?.AccentColor ?? Color.clear;
                 _backgroundFillMaterial.SetColor(colorProperty, color);
                 var backgroundColor = color.ColorWithAlpha(0.4f);
                 _backgroundFillMaterial.SetColor(backgroundColorProperty, backgroundColor);

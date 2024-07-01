@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using BeatLeader.Models;
 using Hive.Versioning;
 using IPA.Config.Stores;

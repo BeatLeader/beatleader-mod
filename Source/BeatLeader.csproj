@@ -203,4 +203,8 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="8_UI\FlowCoordinator\Components\ReplayLaunchView\BeatmapReplayLaunchPanel\ReplayDetail\" />
+    </ItemGroup>
 </Project>

@@ -73,6 +73,7 @@ namespace BeatLeader.UI.Reactive.Components {
     /// Universal ReactiveComponent base for lists
     /// </summary>
     /// <typeparam name="TItem">Data type</typeparam>
+    /// TODO: migrate all remaining lists to reactive list and remove this BEFORE MERGE!!
     internal abstract class ListComponentBase<TItem> : ReactiveComponent,
         TableView.IDataSource,
         IModifiableListComponent<TItem>,
@@ -263,9 +264,9 @@ namespace BeatLeader.UI.Reactive.Components {
         public IScrollbar? Scrollbar {
             get => _scrollbar;
             set {
-                if (_scrollbar is not null) _scrollbar.ScrollEvent -= HandleScrollbarScroll;
+                //if (_scrollbar is not null) _scrollbar.ScrollEvent -= HandleScrollbarScroll;
                 _scrollbar = value;
-                if (_scrollbar is not null) _scrollbar.ScrollEvent += HandleScrollbarScroll;
+                //if (_scrollbar is not null) _scrollbar.ScrollEvent += HandleScrollbarScroll;
             }
         }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using BeatLeader.Models;
 using JetBrains.Annotations;
@@ -78,7 +78,6 @@ namespace BeatLeader {
 
         #region BeatLeaderServer
 
-        [UseConverter]
         public BeatLeaderServer MainServer = ConfigDefaults.MainServer;
 
         #endregion

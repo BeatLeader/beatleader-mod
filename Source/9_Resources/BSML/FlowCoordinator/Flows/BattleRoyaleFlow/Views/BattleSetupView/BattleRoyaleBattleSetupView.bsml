@@ -1,0 +1,21 @@
+﻿<vertical Width="70">
+  <horizontal Height="8" bg="round-rect-panel" Pad="1">
+    <text text="Battle Setup" align="Center"/>
+  </horizontal>
+  <vertical bg="round-rect-panel" Pad="2" Height="42" InheritHeight="false">
+    <vertical Height="6">
+      <text text="Beatmap Selection" align="Center"/>
+    </vertical>
+    <vertical vertical-fit="PreferredSize" Width="46" Height="36">
+      <macro.as-host host="beatmap-filters-panel">
+        <macro.reparent transform="ui-component"/>
+      </macro.as-host>
+    </vertical>
+  </vertical>
+  <primary-button
+    text="Launch Battle"
+    interactable="~launch-button-interactable"
+    on-click="launch-battle-button-click"
+    Height="10" Width="60"
+  />
+</vertical>

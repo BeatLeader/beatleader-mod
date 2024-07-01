@@ -2,7 +2,6 @@
 using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
@@ -10,42 +9,41 @@ namespace BeatLeader.Replayer.Emulation {
     public class ReplayerNotesCutter : MonoBehaviour {
         #region Injection
 
-        [Inject, UsedImplicitly] protected readonly BeatmapObjectManager beatmapObjectManager = null!;
-        [Inject, UsedImplicitly] protected readonly ReplayEventsProcessor eventsEmitter = null!;
-        [Inject, UsedImplicitly] protected readonly ReplayLaunchData launchData = null!;
+        [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
+        [Inject] private readonly IReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
+        [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         #endregion
 
         #region Setup
-
+        
         private void Awake() {
-            _comparator = launchData.ReplayComparator;
-            eventsEmitter.NoteProcessRequestedEvent += HandleNoteProcessRequested;
-
-            beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
-            beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
+            _comparator = _launchData.ReplayComparator;
+            _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
+            _beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
+            _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteBeatmapEventDequeued;
         }
-        private void OnDestroy() {
-            eventsEmitter.NoteProcessRequestedEvent -= HandleNoteProcessRequested;
 
-            beatmapObjectManager.noteWasSpawnedEvent -= HandleNoteWasSpawned;
-            beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
+        private void OnDestroy() {
+            _beatmapObjectManager.noteWasSpawnedEvent -= HandleNoteWasSpawned;
+            _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
+            _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteBeatmapEventDequeued;
         }
 
         #endregion
 
         #region ProcessNote
 
-        [UsedImplicitly]
-        protected void ProcessNote(NoteEvent noteEvent) {
+        private void ProcessNote(NoteEvent noteEvent) {
             if (!TryFindSpawnedNote(noteEvent, out var noteController)) {
-                if (!eventsEmitter.IsReprocessingEventsNow)
+                if (!_beatmapEventsProcessor.QueueIsBeingAdjusted) {
                     Plugin.Log.Error("[Replayer] Not found NoteController for id " + noteEvent.noteId);
+                }
                 return;
             }
-
+            //no need to cut if event has miss type
             if (noteEvent.eventType == NoteEvent.NoteEventType.Miss) return;
-            
+            //invoking the note cut listeners
             var noteCutInfo = noteEvent.noteCutInfo.SaturateNoteCutInfo(noteController!.noteData);
             var cutEvents = ((LazyCopyHashSet<INoteControllerNoteWasCutEvent>)noteController!.noteWasCutEvent).items;
             cutEvents.ForEach(x => x.HandleNoteControllerNoteWasCut(noteController, noteCutInfo));
@@ -58,20 +56,16 @@ namespace BeatLeader.Replayer.Emulation {
         private readonly HashSet<NoteController> _spawnedNotes = new();
         private IReplayComparator _comparator = null!;
 
-        [UsedImplicitly]
-        protected bool TryFindSpawnedNote(NoteEvent replayNote, out NoteController? noteController, float timeMargin = 0.2f) {
+        private bool TryFindSpawnedNote(NoteEvent replayNote, out NoteController? noteController, float timeMargin = 0.2f) {
             var minTimeDifference = float.MaxValue;
             noteController = null;
-
             foreach (var item in _spawnedNotes) {
                 if (!_comparator.Compare(replayNote, item.noteData)) continue;
-
                 var timeDifference = Mathf.Abs(replayNote.spawnTime - item.noteData.time);
                 if (timeDifference > minTimeDifference) continue;
-
+                
                 minTimeDifference = timeDifference;
                 if (minTimeDifference > timeMargin) continue;
-
                 noteController = item;
             }
 
@@ -81,15 +75,15 @@ namespace BeatLeader.Replayer.Emulation {
         #endregion
 
         #region Callbacks
-
-        private void HandleNoteProcessRequested(LinkedListNode<NoteEvent> noteEventNode) {
-            ProcessNote(noteEventNode.Value);
-        }
         
+        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEvent) {
+            ProcessNote(noteEvent.Value);
+        }
+
         private void HandleNoteWasSpawned(NoteController noteController) {
             _spawnedNotes.Add(noteController);
         }
-        
+
         private void HandleNoteWasDespawned(NoteController noteController) {
             _spawnedNotes.Remove(noteController);
         }

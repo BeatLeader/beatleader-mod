@@ -1,0 +1,23 @@
+﻿<vertical horizontal-fit="Unconstrained">
+  <AdvancedImage id="background-image" Sprite="#bl-white-bg"
+                 PixelsPerUnit="5" InheritWidth="true" Height="20">
+    <Flexbox FlexDirection="Row" AlignItems="Stretch">
+      <FlexboxItem FlexGrow="1" MinWidth="38">
+        <QuickMiniProfile id="mini-profile" AnchorMin="0" AnchorMax="1" DeltaSize="0" Pad="2"/>
+      </FlexboxItem>
+      <FlexboxItem MinWidth="22">
+        <vertical spacing="-2">
+          <vertical
+            id="score-background" bg="round-rect-panel"
+            vertical-fit="PreferredSize" spacing="-1" Pad="2,1,2,1"
+            child-expand-width="false" child-align="MiddleCenter"
+          >
+            <text text="Score" font-size="3"/>
+            <text id="score-text" text="0" font-size="4"/>
+          </vertical>
+          <QuickReplayOverview id="replay-overview"/>
+        </vertical>
+      </FlexboxItem>
+    </Flexbox>
+  </AdvancedImage>
+</vertical>

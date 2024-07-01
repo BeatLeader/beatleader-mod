@@ -11,7 +11,7 @@ namespace BeatLeader.Replayer.Binding {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public override void OnKeyDown() {
-            _viewController?.SwitchLayoutEditorPartialMode();
+            //_viewController?.SwitchLayoutEditorPartialMode();
         }
     }
 }

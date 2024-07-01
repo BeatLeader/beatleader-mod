@@ -1,5 +1,4 @@
 ﻿using BeatLeader.Models;
-using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking {
@@ -18,7 +17,7 @@ namespace BeatLeader.Replayer.Tweaking {
 
         private void HandleReplayFinished() {
             //TODO: add br support
-            if (_launchData.MainReplay.ReplayData.FailTime <= _timeController.SongTime) return;
+            if (_launchData.MainReplay.ReplayData.FinishTime <= _timeController.SongTime) return;
             _energyCounter.ProcessEnergyChange(-1f);
         }
     }

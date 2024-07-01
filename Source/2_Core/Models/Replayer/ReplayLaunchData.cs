@@ -7,10 +7,13 @@ namespace BeatLeader.Models {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class ReplayLaunchData {
         public IReadOnlyList<IReplay> Replays { get; protected set; } = null!;
-        public IReplayComparator ReplayComparator { get; protected set; } = null!;
         public IDifficultyBeatmap? DifficultyBeatmap { get; protected set; }
         public ReplayerSettings Settings { get; protected set; } = null!;
         public EnvironmentInfoSO? EnvironmentInfo { get; protected set; }
+        
+        public IReplayComparator ReplayComparator { get; protected set; } = null!;
+        public IVirtualPlayerSabersSpawner? SabersSpawner { get; protected set; }
+        public IVirtualPlayerAvatarSpawner? AvatarSpawner { get; protected set; }
 
         public IReplay MainReplay => Replays[0];
         public bool IsBattleRoyale => Replays.Count > 1;

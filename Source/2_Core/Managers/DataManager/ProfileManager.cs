@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.API.Methods;
 using BeatLeader.Manager;
@@ -13,84 +14,82 @@ namespace BeatLeader.DataManager {
     internal class ProfileManager : IInitializable, IDisposable {
         #region Roles
 
-        public static event Action<PlayerRole[]> RolesUpdatedEvent;
-
-        private static PlayerRole[] _roles = Array.Empty<PlayerRole>();
-
-        public static PlayerRole[] Roles {
-            get => _roles;
-            private set {
-                _roles = value;
-                RolesUpdatedEvent?.Invoke(value);
-            }
-        }
+        public static PlayerRole[] Roles { get; private set; } = Array.Empty<PlayerRole>();
 
         #endregion
 
         #region Profile
 
-        public static event Action<Player> ProfileUpdatedEvent;
+        public static bool HasProfile { get; private set; }
 
-        private static Player _profile;
-
-        public static bool HasProfile;
-
-        public static Player Profile {
+        public static Player? Profile {
             get => _profile;
             private set {
                 _profile = value;
                 HasProfile = true;
-                ProfileUpdatedEvent?.Invoke(value);
             }
         }
 
+        private static TaskCompletionSource<object?>? _profileLoadTaskCompletionSource;
+        private static Player? _profile;
+
         public static bool IsCurrentPlayer(string otherId) {
-            return HasProfile && string.Equals(Profile.id, otherId, StringComparison.Ordinal);
+            return HasProfile && string.Equals(Profile!.id, otherId, StringComparison.Ordinal);
         }
 
         public static bool IsCurrentPlayerInClan(Clan clan) {
             return HasProfile && Profile.clans.Any(profileClan => profileClan.id == clan.id);
         }
-
-        public static bool TryGetUserId(out string userId) {
+        
+        public static bool TryGetUserId(out string? userId) {
             if (!HasProfile) {
                 userId = null;
                 return false;
             }
 
-            userId = Profile.id;
+            userId = Profile!.id;
             return true;
+        }
+
+        //TODO: rewrite authentication to tasks after the battle royale merge
+        public static Task WaitUntilProfileLoad() {
+            AssignLoadProfileTaskIfNeeded();
+            return _profileLoadTaskCompletionSource!.Task;
+        }
+
+        private static void AssignLoadProfileTaskIfNeeded() {
+            _profileLoadTaskCompletionSource ??= new();
         }
 
         #endregion
 
         #region Friends
 
-        public static event Action FriendsUpdatedEvent;
+        public static event Action? FriendsUpdatedEvent;
 
-        private static readonly Dictionary<string, Player> Friends = new();
+        private static readonly Dictionary<string, Player> friends = new();
 
         private static void SetFriends(Player[] players) {
-            Friends.Clear();
+            friends.Clear();
             foreach (var player in players) {
-                Friends[player.id] = player;
+                friends[player.id] = player;
             }
 
             FriendsUpdatedEvent?.Invoke();
         }
 
         private static void AddFriend(Player player) {
-            Friends[player.id] = player;
+            friends[player.id] = player;
             FriendsUpdatedEvent?.Invoke();
         }
 
         private static void RemoveFriend(Player player) {
-            Friends.Remove(player.id);
+            friends.Remove(player.id);
             FriendsUpdatedEvent?.Invoke();
         }
 
-        public static bool IsFriend(Player player) {
-            return player != null && Friends.ContainsKey(player.id);
+        public static bool IsFriend(Player? player) {
+            return player != null && friends.ContainsKey(player.id);
         }
 
         #endregion
@@ -110,6 +109,7 @@ namespace BeatLeader.DataManager {
         }
 
         public void Dispose() {
+            _profileLoadTaskCompletionSource = null;
             UserRequest.RemoveStateListener(OnUserRequestStateChanged);
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
             AddFriendRequest.RemoveStateListener(OnAddFriendRequestStateChanged);
@@ -159,6 +159,10 @@ namespace BeatLeader.DataManager {
         }
 
         private static void OnUserRequestStateChanged(API.RequestState state, User result, string failReason) {
+            if (state is API.RequestState.Finished or API.RequestState.Failed) {
+                AssignLoadProfileTaskIfNeeded();
+                _profileLoadTaskCompletionSource!.TrySetResult(null);
+            }
             if (state is not API.RequestState.Finished) return;
 
             Profile = result.player;

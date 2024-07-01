@@ -1,0 +1,18 @@
+<vertical horizontal-fit="Unconstrained" pad-bottom="1">
+  <AdvancedImage id="background-image" Sprite="#bl-white-bg" InheritWidth="true"
+                 ImageType="Sliced" Height="8.5" PixelsPerUnit="8">
+    <horizontal pad="1" child-align="MiddleRight" child-expand-width="false">
+      <horizontal flexible-width="1" pad-right="1" horizontal-fit="Unconstrained">
+        <text id="component-name" align="MidlineLeft" font-size="3.5"/>
+        <text id="component-layer" align="TopRight" font-size="2.6"/>
+      </horizontal>
+      <AdvancedImage Sprite="#bl-white-bg" Size="8" Pad="1" flexible-width="0"
+                     Color="#080808" PixelsPerUnit="8" InheritWidth="false">
+        <ImageButton id="component-state-button"
+                     Sprite="#BL_EyeIcon" ClickEvent="visibility-button-click"
+                     InheritSize="true" Sticky="true" GrowOnHover="false"
+                     HoverColor="#4d4d4d" ActiveColor="white"/>
+      </AdvancedImage>
+    </horizontal>
+  </AdvancedImage>
+</vertical>

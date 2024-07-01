@@ -30,10 +30,10 @@ namespace BeatLeader.ViewControllers {
 
         protected override void OnPreParse() {
             _floatingControls = ReeUIComponentV2.Instantiate<FloatingControls>(transform);
-            _toolbar = ReeUIComponentV2.Instantiate<ToolbarWithSettings>(transform);
-            _floatingControls.Setup(Screen, _cameraController.ViewableCamera?.Camera?.transform);
-            _toolbar.Setup(_timeController, _pauseController, _finishController,
-                _playersManager, _cameraController.ViewableCamera, _launchData, _watermark);
+            _toolbar = new ToolbarWithSettings();
+            //_floatingControls.Setup(Screen, _cameraController._camera?.Camera?.transform);
+            //_toolbar.Setup(_timeController, _pauseController, _finishController,
+            //    _playersManager, _cameraController._camera, _launchData, _watermark);
         }
 
         protected override void OnInitialize() {

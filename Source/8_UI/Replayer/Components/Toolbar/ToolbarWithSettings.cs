@@ -1,34 +1,47 @@
 ﻿using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using BeatSaberMarkupLanguage.Attributes;
+using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class ToolbarWithSettings : EditableElement {
-        [UIValue("settings-modal")] 
+    internal class ToolbarWithSettings : LayoutEditorComponent {
+        #region UI Components
+
+        [UIValue("settings-modal")]
         private SettingsModal _settingsModal = null!;
 
-        [UIValue("toolbar")] 
+        [UIValue("toolbar")]
         private Toolbar _toolbar = null!;
 
-        public override string Name { get; } = "Toolbar";
-
-        public override LayoutMap LayoutMap { get; } = new() {
-            layer = 1,
-            position = new(0.375f, 0f)
-        };
-
         private RootContentView _rootContentView = null!;
-        private LayoutEditor? _layoutEditor;
+        private ILayoutEditor? _layoutEditor;
 
-        protected override void OnInstantiate() {   
+        #endregion
+
+        #region LayoutComponent
+
+        public override string ComponentName => "Toolbar";
+        protected override Vector2 MinSize { get; } = new(96, 60);
+        protected override Vector2 MaxSize { get; } = new(96, 60);
+
+        #endregion
+
+        #region Setup
+
+        protected override void ConstructInternal(Transform parent) {
+            throw new System.NotImplementedException();
+        }
+        
+        protected override void OnInstantiate() {
             base.OnInstantiate();
-            _settingsModal = Instantiate<SettingsModal>(transform);
-            _toolbar = Instantiate<Toolbar>(transform);
-            _rootContentView = InstantiateOnSceneRoot<RootContentView>();
+            _settingsModal = ReeUIComponentV2.Instantiate<SettingsModal>(ContentTransform);
+            //_toolbar = ReeUIComponentV2.Instantiate<Toolbar>(transform);
+            _rootContentView = ReeUIComponentV2.InstantiateOnSceneRoot<RootContentView>();
 
             _rootContentView.ManualInit(null!);
             _settingsModal.Setup(_rootContentView);
 
-            _toolbar.SettingsButtonClickedEvent += _settingsModal.ShowModal;
+            //_toolbar.SettingsButtonClickedEvent += _settingsModal.ShowModal;
         }
 
         public void Setup(
@@ -36,25 +49,34 @@ namespace BeatLeader.Components {
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
             IVirtualPlayersManager playersManager,
-            IViewableCameraController? cameraController,
+            ICameraController? cameraController,
             ReplayLaunchData launchData,
             IReplayWatermark? watermark = null,
-            LayoutEditor? layoutEditor = null) {
-            if (_layoutEditor != null)
-                _layoutEditor.EditModeStateWasChangedEvent -= HandleEditModeChanged;
+            ILayoutEditor? layoutEditor = null
+        ) {
+            if (_layoutEditor is not null) {
+                _layoutEditor.StateChangedEvent -= HandleLayoutEditorStateChanged;
+            }
+            _layoutEditor = layoutEditor;
+            if (_layoutEditor is not null) {
+                _layoutEditor.StateChangedEvent += HandleLayoutEditorStateChanged;
+            }
 
-            if ((_layoutEditor = layoutEditor) != null)
-                _layoutEditor.EditModeStateWasChangedEvent += HandleEditModeChanged;
-
-            _rootContentView.Setup(timeController,
+            _rootContentView.Setup(
+                timeController,
                 pauseController, playersManager, cameraController,
-                launchData, watermark, _toolbar.Timeline, layoutEditor);
-            _toolbar.Setup(pauseController, finishController,
-                timeController, playersManager, launchData);
+                launchData, watermark, _toolbar.Timeline, layoutEditor
+            );
+            //_toolbar.Setup(
+            //    pauseController, finishController,
+            //    timeController, playersManager, launchData
+            //);
         }
 
-        private void HandleEditModeChanged(bool state) {
+        private void HandleLayoutEditorStateChanged(bool state) {
             _settingsModal.HideModalImmediate();
         }
+
+        #endregion
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json;
+using BeatLeader.Themes;
+using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     public class User {
@@ -9,8 +11,7 @@ namespace BeatLeader.Models {
     }
 
     [Flags]
-    public enum LeaderboardContexts
-    {
+    public enum LeaderboardContexts {
         None = 0,
         General = 1 << 1,
         NoMods = 1 << 2,
@@ -19,55 +20,65 @@ namespace BeatLeader.Models {
         SCPM = 1 << 5
     }
 
-    public interface IPlayer {
-        public string country { get; set; }
-        public float pp { get; set; }
-        public int rank { get; set; }
-        public int countryRank { get; set; }
-    }
-
-    public class PlayerContextExtension : IPlayer {
-        public LeaderboardContexts context { get; set; }
-        public float pp { get; set; }
-
-        public int rank { get; set; }
-        public string country { get; set; }
-        public int countryRank { get; set; }
+    public class PlayerContextExtension {
+        public LeaderboardContexts context;
+        public float pp;
+        public int rank;
+        public int countryRank;
+        public string country;
     }
 
     public class Player : IPlayer {
+        #region Player Impl
+
+        string IPlayer.Id => id;
+        string IPlayer.Name => name;
+        string? IPlayer.AvatarUrl => avatar;
+        int IPlayer.Rank => rank;
+        int IPlayer.CountryRank => countryRank;
+        string IPlayer.Country => country;
+        float IPlayer.PerformancePoints => pp;
+        IPlayerProfileSettings? IPlayer.ProfileSettings => profileSettings;
+
+        #endregion
+
+        public static readonly Player GuestPlayer = new() {
+            name = "Guest",
+            avatar = null,
+            country = "not set",
+            rank = -1,
+            pp = -1
+        };
+        
         public string id;
-        public int rank { get; set; }
+        public int rank;
         public string name;
         public string? avatar;
-        public string country { get; set; }
-        public int countryRank { get; set; }
-        public float pp { get; set; }
+        public string country;
+        public int countryRank;
+        public float pp;
         public string role;
         public Clan[] clans;
         public ServiceIntegration[] socials;
         public PlayerContextExtension[]? contextExtensions;
         public ProfileSettings? profileSettings;
 
-        public Player ContextPlayer(LeaderboardContexts context) {
-            var contextPlayer = this.contextExtensions?.FirstOrDefault(ce => ce.context == context);
-            if (contextPlayer == null) {
-                return this;
-            } else {
-                return new Player {
-                    id = this.id,
-                    rank = contextPlayer.rank,
-                    name = this.name,
-                    avatar = this.avatar,
-                    country = this.country,
-                    countryRank = contextPlayer.countryRank,
-                    pp = contextPlayer.pp,
-                    role = this.role,
-                    clans = this.clans,
-                    socials = this.socials,
-                    profileSettings = this.profileSettings
-                };
-            }
+        public Player GetContextPlayer(LeaderboardContexts context) {
+            var contextPlayer = contextExtensions?.FirstOrDefault(ce => ce.context == context);
+            if (contextPlayer == null) return this;
+            return new Player {
+                id = id,
+                rank = contextPlayer.rank,
+                name = name,
+                avatar = avatar,
+                country = country,
+                countryRank = contextPlayer.countryRank,
+                pp = contextPlayer.pp,
+                role = role,
+                clans = clans,
+                socials = socials,
+                profileSettings = profileSettings
+            };
         }
     }
 
@@ -79,7 +90,23 @@ namespace BeatLeader.Models {
         public string avatar;
     }
 
-    public class ProfileSettings {
+    public class ProfileSettings : IPlayerProfileSettings {
+        #region PlayerProfileSettings Impl
+
+        string IPlayerProfileSettings.UserMessage => message;
+        int IPlayerProfileSettings.EffectHue => hue;
+        float IPlayerProfileSettings.EffectSaturation => saturation;
+
+        #endregion
+
+        public ThemeType ThemeType { get; private set; }
+        public ThemeTier ThemeTier { get; private set; }
+        
+        [JsonProperty("effectName")]
+        private string EffectName {
+            set => RefreshTheme(value);
+        }
+        
         [JsonProperty("hue")]
         private int? Hue {
             set => hue = value ?? 0;
@@ -97,7 +124,12 @@ namespace BeatLeader.Models {
         public float saturation;
         
         public string message;
-        public string effectName;
+
+        private void RefreshTheme(string effectName) {
+            ThemesUtils.ParseEffectName(effectName, out var themeType, out var themeTier);
+            ThemeType = themeType;
+            ThemeTier = themeTier;
+        }
     }
 
     public class ServiceIntegration {

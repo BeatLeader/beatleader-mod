@@ -18,7 +18,7 @@ namespace BeatLeader {
             _routine = null;
         }
         
-        public void Cancel() => DestroyImmediate(this);
+        public void Cancel() => DestroyImmediate(gameObject);
 
         private IEnumerator Coroutine(IEnumerator mainCoroutine) {
             yield return mainCoroutine;

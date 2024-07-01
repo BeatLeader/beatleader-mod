@@ -1,0 +1,39 @@
+﻿<horizontal>
+  <horizontal
+    id="main-container" spacing="10" Height="63" InheritWidth="false"
+    child-expand-height="false" child-control-height="false"
+  >
+    <horizontal Height="63" Width="60" InheritWidth="false">
+      <ReplaysListPanel
+        id="replays-list-panel"
+        InheritWidth="true" 
+        InheritHeight="false"
+        Height="61"
+      />
+      <Scrollbar
+        id="replays-list-scrollbar" Height="56" Width="8"
+        IgnoreLayout="true" anchor-pos-x="34"
+      />
+    </horizontal>
+    <vertical id="detail-panel-container" InheritHeight="false" Height="63">
+      <text
+        id="detail-missing-text"
+        text="Whaat, there is no details? But don't be upset, monke keep trying to acquire them!"
+      />
+    </vertical>
+  </horizontal>
+  <!--LOADING CONTAINER-->
+  <vertical
+    active="false" id="loading-container"
+    IgnoreLayout="true" InheritWidth="true"
+    child-control-height="false"
+    child-expand-height="false"
+    child-align="MiddleCenter"
+    spacing="4"
+  >
+    <vertical Width="8" Height="8" InheritHeight="false">
+      <loading-indicator/>
+    </vertical>
+    <button text="Cancel" on-click="cancel-loading-button-click"/>
+  </vertical>
+</horizontal>

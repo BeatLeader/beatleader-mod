@@ -3,57 +3,85 @@ using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using BeatLeader.Models.AbstractReplay;
-using BeatLeader.Models.Replay;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     internal class VirtualPlayersManager : MonoBehaviour, IVirtualPlayersManager {
-        [Inject] private readonly VRControllersInstantiator _controllersInstantiator = null!;
+        #region Injection
+
+        [Inject] private readonly IVirtualPlayerBodySpawner _bodySpawner = null!;
         [Inject] private readonly PlayerTransforms _playerTransforms = null!;
         [Inject] private readonly VirtualPlayer.Pool _virtualPlayersPool = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
-        public IReadOnlyList<VirtualPlayer> Players => _virtualPlayers;
-        public VirtualPlayer? PriorityPlayer { get; private set; }
+        #endregion
 
-        public event Action<VirtualPlayer>? PriorityPlayerWasChangedEvent;
+        #region VirtualPlayersManager
 
-        private readonly List<VirtualPlayer> _virtualPlayers = new();
+        public IReadOnlyList<IVirtualPlayer> Players => _virtualPlayers;
+        public IVirtualPlayer PrimaryPlayer => _primaryPlayer!;
 
-        private void Awake() {
-            foreach (var replay in _launchData.Replays) {
-                Spawn(replay);
-            }
-            if (_virtualPlayers.Count != 0) {
-                SetPriorityPlayer(_virtualPlayers[0]);
-            }
+        public event Action<IVirtualPlayer>? PrimaryPlayerWasChangedEvent;
+
+        private IVirtualPlayer? _primaryPlayer;
+
+        public void SetPrimaryPlayer(IVirtualPlayer player) {
+            if (!_virtualPlayers.Contains(player)) return;
+
+            var previousPrimaryPlayer = _primaryPlayer;
+            _primaryPlayer = player;
+            //refreshing previous first to release base-game sabers in case they are used
+            previousPrimaryPlayer?.Body.RefreshVisuals();
+            _primaryPlayer.Body.RefreshVisuals();
+            
+            PrimaryPlayerWasChangedEvent?.Invoke(player);
         }
 
-        public void Spawn(IReplay replay) {
+        #endregion
+
+        #region Setup
+
+        private void Awake() {
+            LoadDummyControllers();
+            foreach (var replay in _launchData.Replays) Spawn(replay);
+            if (_virtualPlayers.Count is not 0) SetPrimaryPlayer(_virtualPlayers[0]);
+        }
+
+        private void LoadDummyControllers() {
+            _playerTransforms.SetField("_headTransform", CreateDummyController());
+            _playerTransforms.SetField("_leftHandTransform", CreateDummyController());
+            _playerTransforms.SetField("_rightHandTransform", CreateDummyController());
+        }
+
+        private static Transform CreateDummyController() {
+            var go = new GameObject("DummyController");
+            go.AddComponent<VRController>().enabled = false;
+            return go.transform;
+        }
+
+        #endregion
+
+        #region Spawn & Despawn
+
+        private readonly List<IVirtualPlayer> _virtualPlayers = new();
+
+        private void Spawn(IReplay replay) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
-            var controllers = _controllersInstantiator
-                .CreateInstance(replay.ReplayData.Player?.name + "Controllers");
-            virtualPlayer.Init(replay, controllers);
+            virtualPlayer.Init(replay);
+
+            var body = _bodySpawner.SpawnBody(this, virtualPlayer);
+            virtualPlayer.LateInit(body);
+
             _virtualPlayers.Add(virtualPlayer);
         }
 
-        public void Despawn(VirtualPlayer player) {
+        private void Despawn(VirtualPlayer player) {
+            _bodySpawner.DespawnBody(player.Body);
             _virtualPlayersPool.Despawn(player);
             _virtualPlayers.Remove(player);
         }
 
-        public void SetPriorityPlayer(VirtualPlayer player) {
-            if (!_virtualPlayers.Contains(player)) return;
-            SetPriorityControllers(player.ControllersProvider!);
-            PriorityPlayer = player;
-            PriorityPlayerWasChangedEvent?.Invoke(player);
-        }
-
-        private void SetPriorityControllers(IVRControllersProvider provider) {
-            _playerTransforms.SetField("_headTransform", provider.Head.transform);
-            _playerTransforms.SetField("_leftHandTransform", provider.LeftSaber.transform);
-            _playerTransforms.SetField("_rightHandTransform", provider.RightSaber.transform);
-        }
+        #endregion
     }
 }

@@ -1,0 +1,21 @@
+﻿<horizontal Pad="1,0,1,0">
+  <horizontal id="background" Height="12" Pad="0,1,0,1" child-expand-width="false" child-align="MiddleLeft">
+    <macro.as-host host="player-avatar">
+      <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <vertical horizontal-fit="Unconstrained" FlexibleWidth="max">
+      <text id="player-name" italics="true" font-size="3"/>
+      <text id="date" text="2023.01.01 18:00" italics="true"
+            font-size="2.5" font-color="#FFFFFFBF"/>
+    </vertical>
+    <vertical pref-width="14">
+      <text id="completion" text="Completed" italics="true"
+            font-size="2.7" align="TopRight" pad-right="1"/>
+      <horizontal horizontal-fit="PreferredSize" child-expand-width="false"
+                  child-control-width="false" child-align="MiddleRight">
+        <button text="×" on-click="remove-button-click" skew="0" Height="6" Width="6"/>
+        <button text="🠖" on-click="navigate-button-click" skew="0" Height="6" Width="6"/>
+      </horizontal>
+    </vertical>
+  </horizontal>
+</horizontal>

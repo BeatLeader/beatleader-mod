@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace BeatLeader.Utils {
     public static class UnityExtensions {
+        public static GameObject CreateChild(this GameObject go, string name) {
+            var child = new GameObject(name);
+            child.transform.SetParent(go.transform, false);
+            return child;
+        }
+        
         public static T GetOrAddComponent<T>(this GameObject go) where T : Component {
             if (!go.TryGetComponent(out T component)) component = go.AddComponent<T>();
             return component;

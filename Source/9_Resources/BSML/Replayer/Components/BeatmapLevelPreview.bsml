@@ -1,0 +1,35 @@
+﻿<vertical horizontal-fit="Unconstrained">
+  <Flexbox Height="20" InheritWidth="true" FlexDirection="Row" AlignItems="Stretch" Gap="1, 0">
+    <!-- SONG COVER -->
+    <image id="song-preview-image" preserve-aspect="true"/>
+    <!-- SONG NAME & AUTHOR -->
+    <FlexboxItem FlexGrow="1">
+      <Flexbox
+        id="flex-group" FlexDirection="Column"
+        AlignItems="Stretch" JustifyContent="Center"
+        AnchorMin="0" AnchorMax="1" DeltaSize="0"
+      >
+        <!-- SONG NAME -->
+        <FlexboxItem FlexHeight="7">
+          <horizontal
+            AnchorMin="0" AnchorMax="1" MaxWidth="fit-parent" Pivot="0"
+            pref-height="7" horizontal-fit="PreferredSize"
+            bg="round-rect-panel" bg-color="#000000EE" Pad="1,0,1,0"
+          >
+            <text text="~song-name" align="Left" overflow-mode="Ellipsis" word-wrapping="false"/>
+          </horizontal>
+        </FlexboxItem>
+        <!--SONG AUTHOR -->
+        <FlexboxItem FlexHeight="7">
+          <horizontal
+            AnchorMin="0" AnchorMax="1" MaxWidth="fit-parent" Pivot="0"
+            pref-height="7" horizontal-fit="PreferredSize"
+            bg="round-rect-panel" bg-color="#000000EE" Pad="1,0,1,0"
+          >
+            <text text="~song-author" align="Left" overflow-mode="Ellipsis" word-wrapping="false"/>
+          </horizontal>
+        </FlexboxItem>
+      </Flexbox>
+    </FlexboxItem>
+  </Flexbox>
+</vertical>

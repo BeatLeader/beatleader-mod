@@ -24,12 +24,12 @@ namespace BeatLeader.UI.Reactive {
             set {
                 if (_layoutController != null) {
                     ReleaseContextMember(_layoutController);
-                    _layoutController.LayoutControllerUpdatedEvent -= RecalculateLayoutTree;
+                    _layoutController.LayoutControllerUpdatedEvent -= ScheduleLayoutRecalculation;
                 }
                 _layoutController = value;
                 if (_layoutController != null) {
                     InsertContextMember(_layoutController);
-                    _layoutController.LayoutControllerUpdatedEvent += RecalculateLayoutTree;
+                    _layoutController.LayoutControllerUpdatedEvent += ScheduleLayoutRecalculation;
                 }
                 RecalculateLayoutWithChildren();
             }
@@ -37,10 +37,11 @@ namespace BeatLeader.UI.Reactive {
 
         private ILayoutController? _layoutController;
         private bool _beingRecalculated;
+        private bool _recalculationScheduled;
 
         private void RecalculateLayoutWithChildren() {
             _layoutController?.ReloadChildren(_children);
-            RecalculateLayoutTree();
+            ScheduleLayoutRecalculation();
         }
 
         private void RecalculateLayoutInternal(bool root) {
@@ -67,6 +68,10 @@ namespace BeatLeader.UI.Reactive {
 
         public void RecalculateLayout() {
             RecalculateLayoutInternal(false);
+        }
+
+        private void ScheduleLayoutRecalculation() {
+            _recalculationScheduled = true;
         }
 
         #endregion
@@ -126,16 +131,18 @@ namespace BeatLeader.UI.Reactive {
             if (item.LayoutModifier == null) {
                 RecalculateLayoutWithChildren();
             } else {
-                RecalculateLayoutTree();
+                ScheduleLayoutRecalculation();
             }
         }
 
         protected override void OnLayoutRefresh() {
+            // called when wants to be recalculated
             if (_beingRecalculated) return;
-            RecalculateLayoutTree();
+            ScheduleLayoutRecalculation();
         }
 
         protected override void OnLayoutApply() {
+            // called when layout driver updated object's dimensions
             if (LayoutDriver == null) return;
             RecalculateLayout();
         }
@@ -202,6 +209,14 @@ namespace BeatLeader.UI.Reactive {
             if (LayoutDriver == null) RecalculateLayoutInternal(true);
         }
 
+        protected sealed override void OnLateUpdateInternal() {
+            if (_recalculationScheduled) {
+                RecalculateLayoutTree();
+                _recalculationScheduled = false;
+            }
+            base.OnLateUpdateInternal();
+        }
+
         #endregion
 
         #region Events
@@ -220,6 +235,10 @@ namespace BeatLeader.UI.Reactive {
 
         protected sealed override void OnModifierUpdatedInternal() {
             base.OnModifierUpdatedInternal();
+        }
+
+        protected sealed override void OnLateUpdateInternal() {
+            base.OnLateUpdateInternal();
         }
 
         #endregion
@@ -467,6 +486,10 @@ namespace BeatLeader.UI.Reactive {
         #endregion
 
         #region Events
+        
+        protected virtual void OnLateUpdateInternal() {
+            OnLateUpdate();
+        }
 
         protected virtual void OnInstantiate() { }
         protected virtual void OnInitialize() { }

@@ -166,7 +166,7 @@ namespace BeatLeader.UI.Reactive {
                     RefreshLayout();
                     _recalculationScheduled = false;
                 }
-                _components.ForEach(static x => x.OnLateUpdate());
+                _components.ForEach(static x => x.OnLateUpdateInternal());
             }
 
             private void OnDestroy() {

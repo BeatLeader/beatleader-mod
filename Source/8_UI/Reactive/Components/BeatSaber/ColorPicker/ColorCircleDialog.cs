@@ -8,7 +8,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.WithRectSize(67f, 54f);
+            this.WithSizeDelta(54f, 67f);
             Title = "Select Color";
             ShowCancelButton = false;
         }

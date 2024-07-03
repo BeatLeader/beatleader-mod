@@ -120,9 +120,13 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             return new Image {
                 Children = {
-                    new TagCreationDialog().Bind(ref _tagCreationDialog),
+                    new TagCreationDialog()
+                        .WithAnchor(this, RelativePlacement.Center)
+                        .Bind(ref _tagCreationDialog),
                     //
-                    new TagDeletionDialog().Bind(ref _tagDeletionDialog),
+                    new TagDeletionDialog()
+                        .WithAnchor(this, RelativePlacement.Center)
+                        .Bind(ref _tagDeletionDialog),
                     //
                     new ScrollArea {
                         ScrollOrientation = ScrollOrientation.Vertical,
@@ -153,39 +157,25 @@ namespace BeatLeader.UI.Hub {
                                 Image = {
                                     Sprite = BundleLoader.Sprites.plusIcon
                                 }
-                            }.WithClickListener(HandleCreateTagButtonClicked).AsFlexItem(size: 4f).Bind(ref _createTagButton),
+                            }.WithModal(_tagCreationDialog).AsFlexItem(size: 4f).Bind(ref _createTagButton),
                         }
                     }.AsBlurBackground(
                         color: Color.white.ColorWithAlpha(0.9f)
                     ).AsFlexGroup(padding: 1f).AsFlexItem(size: new() { y = 6f })
                 }
-            }.AsBlurBackground().AsRootFlexGroup(
+            }.AsBlurBackground().AsFlexGroup(
                 direction: FlexDirection.Column,
                 gap: 1f
-            ).WithSizeDelta(50f, 40f).Use();
+            ).Use();
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandleCreateTagButtonClicked() {
-            ModalSystemHelper.OpenModalRelatively(
-                _tagCreationDialog,
-                ContentTransform,
-                ContentTransform,
-                ModalSystemHelper.RelativePlacement.Center
-            );
-        }
-
         private void HandleTagDeleteButtonClicked(IReplayTag tag) {
             _tagDeletionDialog.SetTag((IEditableReplayTag)tag);
-            ModalSystemHelper.OpenModalRelatively(
-                _tagDeletionDialog,
-                ContentTransform,
-                ContentTransform,
-                ModalSystemHelper.RelativePlacement.Center
-            );
+            _tagDeletionDialog.Present(ContentTransform);
         }
 
         private void HandleTagStateAnimationFinished(IReplayTag tag) {

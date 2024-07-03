@@ -67,52 +67,6 @@ namespace BeatLeader.UI.Reactive.Components {
             ModalSystem.OpenModal(modal, screen, interruptAll, settings);
         }
 
-        public static void OpenPersistentModalRelatively<T, TContext>(
-            TContext context,
-            Transform screenChild,
-            RectTransform anchor,
-            RelativePlacement placement,
-            Vector2? offset = null,
-            bool animateBackground = false,
-            bool interruptAll = false,
-            DynamicShadowSettings? shadowSettings = null
-        ) where T : IPersistentModal<TContext>, IReactiveComponent, new() {
-            var screen = screenChild.GetComponentInParent<ViewController>();
-            OpenPersistentModalRelatively<T, TContext>(
-                context,
-                screen,
-                anchor,
-                placement,
-                offset,
-                animateBackground,
-                interruptAll,
-                shadowSettings
-            );
-        }
-
-        public static void OpenPersistentModalRelatively<T, TContext>(
-            TContext context,
-            ViewController screen,
-            RectTransform anchor,
-            RelativePlacement placement,
-            Vector2? offset = null,
-            bool animateBackground = false,
-            bool interruptAll = false,
-            DynamicShadowSettings? shadowSettings = null
-        ) where T : IPersistentModal<TContext>, IReactiveComponent, new() {
-            offset ??= new(0f, 0.5f);
-            CalculateRelativePlacement(
-                screen.transform,
-                anchor,
-                placement,
-                offset.Value,
-                out var pos,
-                out var pivot
-            );
-            var settings = new ModalSettings(pos, pivot, animateBackground, ShadowSettings: shadowSettings);
-            ModalSystem.OpenPersistentModal<T, TContext>(context, screen, interruptAll, settings);
-        }
-
         private static void CalculateRelativePlacement(
             Transform root,
             RectTransform anchor,

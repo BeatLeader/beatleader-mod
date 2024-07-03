@@ -2,20 +2,9 @@ using System;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class KeyboardModal<T, TInput> : IKeyboardController<IInputFieldController>
+    internal class KeyboardModal<T, TInput> : SharedModal<AnimatedModalWrapper<T>>, IKeyboardController<IInputFieldController>
         where T : IKeyboardController<IInputFieldController>, IReactiveComponent, new()
         where TInput : IInputFieldController, IReactiveComponent {
-        #region Constructor & Destructor
-
-        public KeyboardModal() {
-            KeyboardClosedEventInternal += HandleKeyboardClosedInternal;
-        }
-
-        ~KeyboardModal() {
-            KeyboardClosedEventInternal -= HandleKeyboardClosedInternal;
-        }
-
-        #endregion
 
         #region Keyboard Component
 
@@ -33,10 +22,9 @@ namespace BeatLeader.UI.Reactive.Components {
 
         void IKeyboardController<IInputFieldController>.SetActive(bool active) {
             if (active) {
-                Keyboard.SetActive(true);
-                ActivateModal();
+                this.Present(_inputField!.ContentTransform);
             } else {
-                Modal.Close();
+                BorrowedModal.Close(false);
             }
         }
 
@@ -44,68 +32,46 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region UI Props
 
-        public Action<T>? OpenCallback { get; set; }
-        public Action<T>? CloseCallback { get; set; }
-
-        public bool ClickOffCloses { get; set; } = true;
-        public DynamicShadowSettings? ShadowSettings { get; set; } = new();
-        public Vector2 PositionOffset { get; set; } = new(0f, 10f);
-        public ModalSystemHelper.RelativePlacement Placement { get; set; } = ModalSystemHelper.RelativePlacement.BottomCenter;
-
+        public RelativePlacement Placement { get; set; } = RelativePlacement.BottomCenter;
+        public Vector2? Offset { get; set; }
+       
         #endregion
 
-        #region Modal Management
-
-        private static Modal<T> Modal {
-            get {
-                if (_modal?.IsDestroyed ?? true) {
-                    _modal = new();
-                    _modal.ModalAskedToBeClosedEvent += HandleModalClosed;
-                    _modal.Component.KeyboardClosedEvent += HandleKeyboardClosed;
-                }
-                return _modal;
-            }
-        }
-
-        private static T Keyboard => Modal.Component;
+        #region Modal
         
-        private static event Action? KeyboardClosedEventInternal;
+        private T Keyboard => BorrowedModal.Component;
 
-        private static Modal<T>? _modal;
-
-        private void ActivateModal() {
-            if (_inputField == null) throw new UninitializedComponentException();
-            Keyboard.Setup(_inputField);
-            OpenCallback?.Invoke(Keyboard);
-            RefreshModal();
-            Modal.Open(_inputField!.ContentTransform);
+        public override void Close(bool immediate) {
+            if (_inputField is { CanProceed: false }) return;
+            base.Close(immediate);
         }
 
-        private void RefreshModal() {
-            Modal.ClickOffCloses = ClickOffCloses;
-            Modal.ShadowSettings = ShadowSettings;
-            Modal.PositionOffset = PositionOffset;
-            Modal.Placement = Placement;
-            Modal.AnchorTransform = _inputField!.ContentTransform;
+        protected override void OnCloseInternal(bool finished) {
+            if (!finished) return;
+            Keyboard.SetActive(false);
+        }
+
+        protected override void OnOpenInternal(bool finished) {
+            if (finished) return;
+            Keyboard.SetActive(true);
+            Keyboard.Setup(_inputField);
+            BorrowedModal.WithAnchorImmediate(_inputField!.ContentTransform, Placement, Offset);
+        }
+
+        protected override void OnSpawn() {
+            Keyboard.KeyboardClosedEvent += HandleKeyboardClosed;
+        }
+
+        protected override void OnDespawn() {
+            Keyboard.KeyboardClosedEvent -= HandleKeyboardClosed;
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandleKeyboardClosedInternal() {
-            KeyboardClosedEvent?.Invoke();
-            CloseCallback?.Invoke(Keyboard);
-        }
-
-        private static void HandleModalClosed() {
-            Keyboard.SetActive(false);
-            KeyboardClosedEventInternal?.Invoke();
-        }
-
-        private static void HandleKeyboardClosed() {
-            Modal.Close();
-            KeyboardClosedEventInternal?.Invoke();
+        private void HandleKeyboardClosed() {
+            BorrowedModal.Close(false);
         }
 
         #endregion

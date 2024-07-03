@@ -19,28 +19,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
     internal class ModalSystem : ReactiveComponent {
         #region OpenModal
-
-        public static void OpenPersistentModal<T, TContext>(
-            TContext context,
-            Transform screenChild,
-            bool interruptAll = false,
-            ModalSettings? settings = null
-        ) where T : IPersistentModal<TContext>, IReactiveComponent, new() {
-            var screen = screenChild.GetComponentInParent<ViewController>();
-            OpenPersistentModal<T, TContext>(context, screen, interruptAll, settings);
-        }
-
-        public static void OpenPersistentModal<T, TContext>(
-            TContext context,
-            ViewController screen,
-            bool interruptAll = false,
-            ModalSettings? settings = null
-        ) where T : IPersistentModal<TContext>, IReactiveComponent, new() {
-            var modalSystem = BorrowOrInstantiateModalSystem(screen);
-            var modal = BorrowOrInstantiatePersistentModal<T, TContext>(context);
-            OpenModalInternal(modalSystem, modal, interruptAll, settings);
-        }
-
+        
         public static void OpenModal<T>(
             T modal,
             Transform screenChild,
@@ -109,44 +88,6 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private void OnActiveSceneChanged(Scene from, Scene to) {
             InterruptAll();
-        }
-
-        #endregion
-
-        #region PersistentModal Pool
-
-        private static readonly Dictionary<Type, Stack<IModal>> persistentModalsPool = new();
-
-        private static T BorrowOrInstantiatePersistentModal<T, TContext>(TContext context) where T : IPersistentModal<TContext>, IReactiveComponent, new() {
-            var key = typeof(T);
-            persistentModalsPool.TryGetValue(key, out var modalStack);
-
-            var modal = modalStack?.Count switch {
-                > 0 => modalStack.Pop(),
-                _ => new T()
-            } as IPersistentModal<TContext>;
-
-            if (modal is IReactiveComponent { IsDestroyed: true }) {
-                modal = BorrowOrInstantiatePersistentModal<T, TContext>(context);
-            } else {
-                modal!.Context = context;
-            }
-
-            return (T)modal;
-        }
-
-        private static void ReleasePersistentModal(IModal modal) {
-            var key = modal.GetType();
-            if (!persistentModalsPool.TryGetValue(key, out var modalsStack)) {
-                modalsStack = new();
-                persistentModalsPool[key] = modalsStack;
-            }
-            modalsStack.Push(modal);
-        }
-
-        private static void TryReleasePersistentModal(IModal modal) {
-            if (modal is not IPersistentModal) return;
-            ReleasePersistentModal(modal);
         }
 
         #endregion
@@ -268,7 +209,6 @@ namespace BeatLeader.UI.Reactive.Components {
                 }
             );
             TryUnbindShadow(cachedActiveModal);
-            TryReleasePersistentModal(_activeModal!);
             _activeModal = null;
         }
 

@@ -8,6 +8,22 @@ namespace BeatLeader.UI.Reactive.Components {
     );
 
     internal class DynamicShadow : ReactiveComponent {
+        #region Pool
+
+        private static readonly ReactivePool<DynamicShadow> shadowsPool = new();
+
+        public static DynamicShadow SpawnShadow(RectTransform transform, DynamicShadowSettings settings) {
+            var shadow = shadowsPool.Spawn();
+            shadow.Setup(transform, settings);
+            return shadow;
+        }
+
+        public static void DespawnShadow(DynamicShadow shadow) {
+            shadowsPool.Despawn(shadow);
+        }
+
+        #endregion
+
         #region Setup
 
         public void Setup(RectTransform transform, DynamicShadowSettings settings) {
@@ -20,7 +36,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         #endregion
-        
+
         #region Construct
 
         private Image _image = null!;

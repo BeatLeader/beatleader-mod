@@ -2,7 +2,7 @@ using BeatLeader.UI.Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal abstract class DialogComponentBase : ModalComponentBase {
+    internal abstract class DialogComponentBase : AnimatedModalComponentBase {
         #region UI Props
 
         protected string Title {
@@ -29,8 +29,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Construct
 
-        public override bool OffClickCloses => false;
-        public override bool AllowExternalClose => false;
+        protected override bool AllowExternalClose => false;
 
         private DialogHeader _header = null!;
         private ButtonBase _cancelButton = null!;
@@ -43,7 +42,7 @@ namespace BeatLeader.UI.Reactive.Components {
                         .AsFlexItem(basis: 6f)
                         .Bind(ref _header),
                     //content
-                    ConstructContent(),
+                    ConstructContent().AsFlexItem(grow: 1f),
                     //
                     new Dummy {
                         Children = {

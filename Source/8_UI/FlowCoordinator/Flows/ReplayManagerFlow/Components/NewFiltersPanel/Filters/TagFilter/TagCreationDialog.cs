@@ -41,7 +41,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        protected override void OnOpen() {
+        protected override void OnOpen(bool finished) {
+            if (finished) return;
             _tagEditorPanel.Clear();
         }
 

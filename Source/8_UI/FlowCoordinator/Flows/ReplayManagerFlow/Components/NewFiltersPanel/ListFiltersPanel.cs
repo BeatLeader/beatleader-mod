@@ -282,7 +282,7 @@ namespace BeatLeader.UI.Hub {
                         Placeholder = "Search",
                         Icon = GameResources.Sprites.SearchIcon,
                         Keyboard = new KeyboardModal<Keyboard, InputField> {
-                            PositionOffset = new(0f, 32f)
+                            Offset = new(0f, 32f)
                         }
                     }.AsFlexItem(grow: 1f).WithListener(
                         x => x.Text,

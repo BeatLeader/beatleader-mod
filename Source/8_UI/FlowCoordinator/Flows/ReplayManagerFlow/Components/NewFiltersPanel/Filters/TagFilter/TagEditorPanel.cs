@@ -39,9 +39,7 @@ namespace BeatLeader.UI.Hub {
                             NotifyPropertyChanged(nameof(IsValid));
                             return _validationResult?.Ok ?? false;
                         },
-                        Keyboard = new KeyboardModal<Keyboard, InputField> {
-                            ClickOffCloses = false
-                        }
+                        Keyboard = new KeyboardModal<Keyboard, InputField>()
                     }.WithListener(
                         x => x.Text,
                         x => {

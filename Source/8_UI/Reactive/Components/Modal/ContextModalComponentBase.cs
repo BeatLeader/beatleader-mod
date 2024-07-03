@@ -5,17 +5,16 @@ namespace BeatLeader.UI.Reactive.Components {
         event Action? ContextUpdatedEvent;
     }
 
-    internal interface IPersistentModal : IModal { }
+    internal interface IContextModal : INewModal { }
 
-    internal interface IPersistentModal<in TContext> : IPersistentModal {
+    internal interface IContextModal<in TContext> : IContextModal where TContext : IModalContext {
         TContext? Context { set; }
     }
-
-    internal abstract class PersistentModalComponentBase<TContext> : ModalComponentBase, IPersistentModal<TContext>
-        where TContext : IModalContext {
+    
+    internal class ContextModalComponentBase<TContext> : AnimatedModalComponentBase, IContextModal<TContext> where TContext : IModalContext {
         #region Context
 
-        TContext? IPersistentModal<TContext>.Context {
+        TContext? IContextModal<TContext>.Context {
             set {
                 if (_context is not null) {
                     _context.ContextUpdatedEvent -= HandleContextUpdated;

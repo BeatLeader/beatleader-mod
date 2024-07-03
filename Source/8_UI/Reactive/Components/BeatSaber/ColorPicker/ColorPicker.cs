@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Construct
 
-        public ModalSystemHelper.RelativePlacement CirclePlacement { get; set; } = ModalSystemHelper.RelativePlacement.Center;
+        public RelativePlacement CirclePlacement { get; set; } = RelativePlacement.Center;
 
         protected override float? DesiredHeight => 8f;
         protected override float? DesiredWidth => 13f;
@@ -51,6 +51,7 @@ namespace BeatLeader.UI.Reactive.Components {
                     ).Bind(ref _colorSampleImage),
                     //color circle
                     new ColorCircleDialog()
+                        .WithAnchor(this, () => CirclePlacement)
                         .With(
                             x => x.ColorCircle.WithListener(
                                 y => y.Color,
@@ -66,10 +67,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 justifyContent: Justify.FlexStart,
                 padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f },
                 gap: 1f
-            ).WithModal(
-                _circleModal,
-                placement: CirclePlacement
-            ).Use();
+            ).WithModal(_circleModal).Use();
         }
 
         #endregion

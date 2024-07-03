@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using BeatLeader.Utils;
+using JetBrains.Annotations;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -247,17 +249,24 @@ namespace BeatLeader.UI.Reactive {
     internal abstract partial class ReactiveComponentBase : ILayoutItem, IObservableHost, IReactiveComponent {
         #region Factory
 
+        [UsedImplicitly]
+        private ReactiveComponentBase(bool _) { }
+
         protected ReactiveComponentBase() {
-            //do not want to reimplement constructor each inheritance so use this hacky reflection way
-            var trace = new StackTrace();
-            var mtd = trace.GetFrames()?
-                .Select(static x => x.GetMethod())
-                .FirstOrDefault(static x => x.Name == "Lazy" && x.DeclaringType == typeof(ReactiveComponent));
-            if (mtd == null) ConstructAndInit();
+            ConstructAndInit();
         }
 
+        private static ConstructorInfo? _lazyConstructor;
+        private static readonly object[] dummyParams = { false };
+
         public static T Lazy<T>() where T : ReactiveComponent, new() {
-            return new();
+            _lazyConstructor ??= typeof(ReactiveComponentBase).GetConstructor(
+                ReflectionUtils.DefaultFlags,
+                null,
+                new[] { typeof(bool) },
+                null
+            );
+            return (T)_lazyConstructor!.Invoke(dummyParams);
         }
 
         #endregion
@@ -486,7 +495,7 @@ namespace BeatLeader.UI.Reactive {
         #endregion
 
         #region Events
-        
+
         protected virtual void OnLateUpdateInternal() {
             OnLateUpdate();
         }

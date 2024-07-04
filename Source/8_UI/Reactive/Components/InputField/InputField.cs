@@ -112,6 +112,11 @@ namespace BeatLeader.UI.Reactive.Components {
                 .Use();
         }
 
+        protected override void OnInitialize() {
+            _textArea.ShowCaret = true;
+            _textArea.ShowClearButton = true;
+        }
+
         #endregion
 
         #region Callbacks

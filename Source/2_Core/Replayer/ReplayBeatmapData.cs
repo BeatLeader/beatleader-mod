@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
 using UnityEngine;
@@ -58,7 +57,7 @@ namespace BeatLeader.Replayer {
         #region Setup
 
         private bool _isInitialized;
-        
+
         public void Initialize() {
             if (_isInitialized) return;
             _comparator = _launchData.ReplayComparator;
@@ -81,21 +80,40 @@ namespace BeatLeader.Replayer {
         private static readonly BeatmapDataItemsComparer beatmapItemsComparer = new();
         private readonly List<NoteData> _generatedNoteDatas = new();
         private IReplayComparator _comparator = null!;
-        
+
         private static IEnumerable<NoteData> CreateSortedNoteDataList(IEnumerable<BeatmapDataItem> items) {
-            return items
-                .Select(
-                    static x => x switch {
-                        NoteData data => data,
-                        SliderData sliderData => NoteData.CreateBurstSliderNoteData(
-                            sliderData.time, sliderData.headLineIndex, sliderData.headLineLayer,
-                            sliderData.headBeforeJumpLineLayer, sliderData.colorType, NoteCutDirection.Any, 1f
-                        ),
-                        _ => null
-                    }
-                )
-                .OfType<NoteData>()
-                .OrderBy(static x => x, beatmapItemsComparer);
+            var result = new List<NoteData>();
+            foreach (var item in items) {
+                switch (item) {
+                    case NoteData data:
+                        result.Add(data);
+                        break;
+                    case SliderData sliderData:
+                        ConvertAndAddSliderData(sliderData, result);
+                        break;
+                }
+            }
+            result.Sort(beatmapItemsComparer);
+            return result;
+
+            static void ConvertAndAddSliderData(SliderData sliderData, ICollection<NoteData> list) {
+                var sliceCount = sliderData.sliceCount;
+                for (var i = 1; i < sliceCount; ++i) {
+                    var lineIndex = i < sliceCount - 1 ? sliderData.headLineIndex : sliderData.tailLineIndex;
+                    var noteLineLayer = i < sliceCount - 1 ? sliderData.headLineLayer : sliderData.tailLineLayer;
+                    var time = Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, (float)i / (sliceCount - 1));
+                    var sliderNoteData = NoteData.CreateBurstSliderNoteData(
+                        time,
+                        lineIndex,
+                        noteLineLayer,
+                        sliderData.headBeforeJumpLineLayer,
+                        sliderData.colorType,
+                        NoteCutDirection.Any,
+                        1f
+                    );
+                    list.Add(sliderNoteData);
+                }
+            }
         }
 
         #endregion

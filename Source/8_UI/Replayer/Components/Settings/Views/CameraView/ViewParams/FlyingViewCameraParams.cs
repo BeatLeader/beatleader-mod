@@ -60,7 +60,9 @@ namespace BeatLeader.UI.Replayer {
                         HandleSpeedChanged
                     ).Bind(ref _smoothnessSlider).InNamedRail("Speed"),
                     //
-                    new BsButton()
+                    new BsButton {
+                            Skew = 0f
+                        }
                         .WithLabel("Reset")
                         .WithClickListener(HandlePositionReset)
                         .AsFlexItem()

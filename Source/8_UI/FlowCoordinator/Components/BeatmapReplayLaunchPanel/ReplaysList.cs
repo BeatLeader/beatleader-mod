@@ -4,7 +4,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
-using HMUI;
+using BeatLeader.Utils;
 using TMPro;
 using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
@@ -17,49 +17,40 @@ namespace BeatLeader.UI.Hub {
         Date
     }
 
-    internal interface IReplaysList : IModifiableListComponent<IReplayHeader> {
+    internal interface IReplaysList : IModifiableTableComponent<IReplayHeaderBase> {
         ReplaysListSorter Sorter { get; set; }
         SortOrder SortOrder { get; set; }
     }
 
-    internal class ReplaysList : ReactiveListComponentBase<IReplayHeader, ReplaysList.Cell>, IReplaysList {
+    internal class ReplaysList : Table<IReplayHeaderBase, ReplaysList.Cell>, IReplaysList {
         #region Cell
 
-        public class Cell : ReactiveTableCell<IReplayHeader> {
+        public class Cell : TableComponentCell<IReplayHeaderBase> {
             #region Colors
 
-            public bool UseAlternativeColors {
-                set => ApplyColors(value);
+            private static readonly StateColorSet colorSet = new() {
+                Color = Color.clear,
+                ActiveColor = new(0f, 0.75f, 1f),
+                HoveredColor = Color.white.ColorWithAlpha(0.2f),
+                HoveredActiveColor = new(0f, 0.75f, 1f, 0.75f)
+            };
+
+            private static readonly StateColorSet highlightedColorSet = new() {
+                Color = new(0f, 0.75f, 1f, 0.5f),
+                ActiveColor = new(0f, 0.75f, 1f),
+                HoveredColor = new(0f, 0.75f, 1f, 0.35f),
+                HoveredActiveColor = new(0f, 0.75f, 1f, 0.75f)
+            };
+
+            public bool Highlighted {
+                get => _highlighted;
+                set {
+                    _highlighted = value;
+                    _button.GradientColors1 = value ? highlightedColorSet : colorSet;
+                }
             }
 
-            private static readonly Color selectedColor = new(0f, 0.75f, 1f);
-            private static readonly Color highlightedSelectedColor = selectedColor.ColorWithAlpha(0.75f);
-            private static readonly Color highlightedColor = Color.white.ColorWithAlpha(0.2f);
-            private static readonly Color idlingColor = Color.clear;
-
-            private static readonly Color alternativeSelectedColor = new(1f, 0.63f, 0f);
-            private static readonly Color alternativeHighlightedSelectedColor = alternativeSelectedColor.ColorWithAlpha(0.75f);
-            private static readonly Color alternativeHighlightedColor = alternativeHighlightedSelectedColor;
-            private static readonly Color alternativeIdlingColor = alternativeSelectedColor.ColorWithAlpha(0.5f);
-
-            private Color _selectedColor;
-            private Color _highlightedColor;
-            private Color _highlightedSelectedColor;
-            private Color _idlingColor;
-
-            private void ApplyColors(bool alternative) {
-                _selectedColor = alternative ? alternativeSelectedColor : selectedColor;
-                _highlightedColor = alternative ? alternativeHighlightedColor : highlightedColor;
-                _highlightedSelectedColor = alternative ? alternativeHighlightedSelectedColor : highlightedSelectedColor;
-                _idlingColor = alternative ? alternativeIdlingColor : idlingColor;
-            }
-
-            private void RefreshColors(bool selected, bool highlighted) {
-                _background.GradientColor1 = selected switch {
-                    false => highlighted ? _highlightedColor : _idlingColor,
-                    true => highlighted ? _highlightedSelectedColor : _selectedColor
-                };
-            }
+            private bool _highlighted;
 
             #endregion
 
@@ -79,7 +70,7 @@ namespace BeatLeader.UI.Hub {
             }
 
             private void RefreshTexts() {
-                var info = Item!.ReplayInfo;
+                var info = Item.ReplayInfo;
                 _topRightLabel.Text = FormatLevelEndType(info.LevelEndType, info.FailTime);
                 _topLeftLabel.Text = info.SongName;
                 _bottomRightLabel.Text = FormatUtils.GetDateTimeString(info.Timestamp);
@@ -87,7 +78,7 @@ namespace BeatLeader.UI.Hub {
                 _bottomLeftLabel.Text += FormatByPhrase(info.PlayerName);
             }
 
-            protected override void Init(IReplayHeader item) {
+            protected override void OnInit(IReplayHeaderBase item) {
                 RefreshTexts();
             }
 
@@ -115,7 +106,7 @@ namespace BeatLeader.UI.Hub {
             private Label _bottomLeftLabel = null!;
             private Label _topRightLabel = null!;
             private Label _bottomRightLabel = null!;
-            private Image _background = null!;
+            private ImageButton _button = null!;
 
             protected override GameObject Construct() {
                 static Label CellLabel(
@@ -139,10 +130,21 @@ namespace BeatLeader.UI.Hub {
                     ).Bind(ref variable);
                 }
 
-                return new Button {
-                    GrowOnHover = false,
+                return new Dummy {
                     Children = {
-                        new Image {
+                        new ImageButton {
+                            Image = {
+                                Sprite = BundleLoader.Sprites.background,
+                                PixelsPerUnit = 10f,
+                                Material = GameResources.UINoGlowAdditiveMaterial,
+                                Skew = UIStyle.Skew,
+                                Color = Color.white
+                            },
+                            Colors = null,
+                            GradientColors1 = colorSet,
+                            GrowOnHover = false,
+                            HoverLerpMul = float.MaxValue,
+                            Sticky = true,
                             Children = {
                                 //top left
                                 CellLabel(
@@ -185,28 +187,20 @@ namespace BeatLeader.UI.Hub {
                                     ref _bottomRightLabel
                                 )
                             }
-                        }.AsFlexGroup().AsBackground(
-                            material: GameResources.UINoGlowAdditiveMaterial,
-                            gradientDirection: ImageView.GradientDirection.Horizontal
-                        ).AsFlexItem(
+                        }.WithStateListener(_ => SelectSelf(true)).AsFlexGroup().AsFlexItem(
                             grow: 1f,
                             margin: new() { right = 1f }
-                        ).Bind(ref _background)
+                        ).Bind(ref _button)
                     }
-                }.AsFlexGroup().Use();
-            }
-
-            protected override void OnInitialize() {
-                _background.Skew = 0.18f;
-                ApplyColors(false);
+                }.AsFlexGroup().WithSizeDelta(0f, 8f).Use();
             }
 
             #endregion
 
             #region Callbacks
 
-            public override void OnCellStateChange(bool selected, bool highlighted) {
-                RefreshColors(selected, highlighted);
+            protected override void OnCellStateChange(bool selected) {
+                _button.Click(selected, false);
             }
 
             #endregion
@@ -216,10 +210,10 @@ namespace BeatLeader.UI.Hub {
 
         #region Sorting
 
-        private class HeaderComparator : IComparer<IReplayHeader> {
+        private class HeaderComparator : IComparer<IReplayHeaderBase> {
             public ReplaysListSorter sorter;
 
-            public int Compare(IReplayHeader x, IReplayHeader y) {
+            public int Compare(IReplayHeaderBase x, IReplayHeaderBase y) {
                 var xi = x.ReplayInfo;
                 var yi = y.ReplayInfo;
                 return sorter switch {
@@ -275,17 +269,15 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        protected override float CellSize => 8;
-
-        public readonly HashSet<IReplayHeaderBase> highlightedItems = new();
+        public readonly HashSet<IReplayHeaderBase> HighlightedItems = new();
 
         protected override void OnCellConstruct(Cell cell) {
-            if (Filter is ITextListFilter<IReplayHeader> filter) {
-                cell.HighlightPhrase = filter.GetMatchedPhrase(cell.Item!);
+            if (Filter is ITextListFilter<IReplayHeaderBase> filter) {
+                cell.HighlightPhrase = filter.GetMatchedPhrase(cell.Item);
             } else {
                 cell.HighlightPhrase = null;
             }
-            cell.UseAlternativeColors = highlightedItems.Contains(cell.Item!);
+            cell.Highlighted = HighlightedItems.Contains(cell.Item);
         }
 
         #endregion

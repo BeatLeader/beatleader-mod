@@ -16,65 +16,55 @@ namespace BeatLeader.UI.Hub {
 
         public event Action? FilterUpdatedEvent;
 
+        private readonly HashSet<IReplayTag> _selectedTags = new();
+
         public bool Matches(IReplayHeaderBase value) {
-            var i = value.ReplayMetadata.Tags.Count(tag => _tagSelector.SelectedTags.Contains(tag));
-            return i == _tagSelector.SelectedTags.Count;
+            var i = value.ReplayMetadata.Tags.Count(tag => _selectedTags.Contains(tag));
+            return i == _selectedTags.Count;
         }
 
         #endregion
 
         #region Setup
 
+        private IReplayTagManager? _tagManager;
+
         public void Setup(IReplayTagManager tagManager) {
-            _tagSelector.Setup(tagManager);
+            _tagManager = tagManager;
+        }
+
+        private void RefreshTextArea() {
+            var names = _tagSelectorModal.Component.SelectedTags.Select(static x => x.Name);
+            _textArea.WithItemsText(names, true);
+            FilterUpdatedEvent?.Invoke();
         }
 
         #endregion
 
         #region Construct
 
-        private TagSelector _tagSelector = null!;
         private TextArea _textArea = null!;
-        private Modal<TagSelector> _modal = null!;
-
-        private void OpenModal() {
-            ModalSystemHelper.OpenModalRelatively(
-                _modal,
-                ContentTransform,
-                _textArea.ContentTransform,
-                ModalSystemHelper.RelativePlacement.BottomRight,
-                shadowSettings: new()
-            );
-        }
+        private TagSelectorModal _tagSelectorModal = null!;
+        private bool _tagSelectorModalOpened;
 
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
-                    new Modal<TagSelector>()
-                        .With(
-                            x => x.Component
-                                .WithListener(
-                                    y => y.SelectedTags,
-                                    HandleSelectedTagsChanged
-                                )
-                                .Bind(ref _tagSelector)
-                        )
-                        .With(
-                            x => {
-                                x.ModalAskedToBeClosedEvent += () => _textArea.Focused = false;
-                            }
-                        ).Bind(ref _modal),
+                    new TagSelectorModal()
+                        .WithShadow()
+                        .WithOpenListener(HandleTagSelectorOpened)
+                        .WithCloseListener(HandleTagSelectorClosed)
+                        .WithAnchor(() => _textArea, RelativePlacement.BottomCenter)
+                        .Bind(ref _tagSelectorModal),
                     //text area
                     new TextArea {
-                        Placeholder = "Choose Tags",
-                        Icon = GameResources.Sprites.EditIcon
-                    }.WithListener(
-                        x => x.Text,
-                        HandleTextAreaTextChanged
-                    ).WithListener(
-                        x => x.Focused,
-                        HandleTextAreaFocusChanged
-                    ).AsFlexItem(grow: 1f).Bind(ref _textArea)
+                            Placeholder = "Choose Tags",
+                            Icon = GameResources.Sprites.EditIcon
+                        }
+                        .WithListener(x => x.Text, HandleTextAreaTextChanged)
+                        .WithListener(x => x.Focused, HandleTextAreaFocusChanged)
+                        .AsFlexItem(grow: 1f)
+                        .Bind(ref _textArea)
                 }
             }.AsFlexGroup(
                 padding: 1f,
@@ -90,19 +80,52 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
+        private void HandleTagSelectorOpened(INewModal modal, bool finished) {
+            if (finished) return;
+            _tagSelectorModalOpened = true;
+            var tagSelector = _tagSelectorModal.Component;
+            if (_tagManager == null) {
+                throw new UninitializedComponentException();
+            }
+            tagSelector.WithSizeDelta(50f, 40f);
+            tagSelector.Setup(_tagManager);
+            tagSelector.SelectTags(_selectedTags);
+            tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
+            tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
+        }
+
+        private void HandleTagSelectorClosed(INewModal modal, bool finished) {
+            _textArea.Focused = false;
+            if (finished) return;
+            _tagSelectorModalOpened = false;
+            var tagSelector = _tagSelectorModal.Component;
+            tagSelector.SelectedTagAddedEvent -= HandleSelectedTagAdded;
+            tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;
+        }
+
         private void HandleTextAreaFocusChanged(bool focused) {
             if (!focused) return;
-            OpenModal();
+            _tagSelectorModal.Present(ContentTransform);
         }
 
         private void HandleTextAreaTextChanged(string text) {
-            if (text.Length == 0) _tagSelector.ClearSelectedTags();
+            if (text.Length != 0) return;
+            //
+            if (_tagSelectorModalOpened) {
+                _tagSelectorModal.Component.ClearSelectedTags();
+            }
+            _selectedTags.Clear();
+            FilterUpdatedEvent?.Invoke();
         }
 
-        private void HandleSelectedTagsChanged(IReadOnlyCollection<IReplayTag> tags) {
-            var names = tags.Select(static x => x.Name);
-            _textArea.WithItemsText(names, true);
-            FilterUpdatedEvent?.Invoke();
+        private void HandleSelectedTagAdded(IReplayTag tag) {
+            _selectedTags.Add(tag);
+            RefreshTextArea();
+        }
+
+        private void HandleSelectedTagRemoved(IReplayTag tag) {
+            _selectedTags.Remove(tag);
+            RefreshTextArea();
         }
 
         #endregion

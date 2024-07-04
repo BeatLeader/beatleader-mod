@@ -66,13 +66,13 @@ namespace BeatLeader.UI.Reactive.Components {
             SetDestinationPos(pos, immediately);
         }
 
-        public void ScrollToStart() {
-            SetDestinationPos(0f);
+        public void ScrollToStart(bool immediately = false) {
+            SetDestinationPos(0f, immediately);
         }
 
-        public void ScrollToEnd() {
+        public void ScrollToEnd(bool immediately = false) {
             if (_contentTransform == null) return;
-            SetDestinationPos(_contentTransform.rect.height);
+            SetDestinationPos(_contentTransform.rect.height, immediately);
         }
 
         #endregion
@@ -136,8 +136,8 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void SetDestinationPos(float pos, bool immediately = false) {
-            if (_contentTransform == null || Math.Abs(_destinationPos - pos) < 0.01f || ScrollMaxSize <= 0f) return;
-            _destinationPos = Mathf.Clamp(pos, 0f, ScrollMaxSize);
+            if (_contentTransform == null || Math.Abs(_destinationPos - pos) < 0.01f) return;
+            _destinationPos = ScrollMaxSize <= 0f ? 0f : Mathf.Clamp(pos, 0f, ScrollMaxSize);
             ScrollDestinationPosChangedEvent?.Invoke(_destinationPos);
             //applying immediately if needed
             if (immediately) RefreshContentPos(true);

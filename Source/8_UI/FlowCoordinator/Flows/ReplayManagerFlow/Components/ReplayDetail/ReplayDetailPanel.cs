@@ -1,73 +1,62 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Components;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
 using UnityEngine;
-using static BeatLeader.Models.FileStatus;
-using ModalSystemHelper = BeatLeader.UI.Reactive.Components.ModalSystemHelper;
+using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
 
 namespace BeatLeader.UI.Hub {
-    //TODO: rewrite beatmap downloading (BEFORE MERGING!)
-    internal class ReplayDetailPanel : ReeUIComponentV3<ReplayDetailPanel>, BeatmapReplayLaunchPanel.IDetailPanel {
+    internal class ReplayDetailPanel : BasicReplayDetailPanel {
         #region Configuration
 
-        private const string WatchText = "<bll>ls-watch-replay-short</bll>";
-        private const string DownloadText = "<bll>ls-download-map</bll>";
+        private const string WatchTextToken = "ls-watch-replay-short";
+        private const string DownloadTextToken = "ls-download-map";
 
         #endregion
 
-        #region UI Components
+        #region Construct
 
-        [UIValue("replay-info-panel"), UsedImplicitly]
-        private ReplayStatisticsPanel _replayStatisticsPanel = null!;
+        private ReplayDeletionDialog _replayDeletionDialog = null!;
+        private BeatmapDownloadDialog _beatmapDownloadDialog = null!;
+        private LoadingContainer _watchButtonContainer = null!;
+        private ButtonBase _watchButton = null!;
+        private Label _watchButtonLabel = null!;
 
-        [UIValue("download-beatmap-panel"), UsedImplicitly]
-        private DownloadBeatmapPanel _downloadBeatmapPanel = null!;
-
-        [UIComponent("mini-profile"), UsedImplicitly]
-        private QuickMiniProfile _miniProfile = null!;
-
-        #endregion
-
-        #region Action Buttons
-
-        [UIValue("watch-button-text"), UsedImplicitly]
-        private string? WatchButtonText {
-            get => _watchButtonText;
-            set {
-                _watchButtonText = value;
-                NotifyPropertyChanged();
-            }
+        protected override ILayoutItem ConstructButtons() {
+            return new Dummy {
+                Children = {
+                    new BeatmapDownloadDialog()
+                        .WithCloseListener(HandleDownloadBeatmapDialogClosed)
+                        .WithAnchor(() => (RectTransform)Canvas!.transform, RelativePlacement.Center)
+                        .WithAlphaOnModalOpen(() => Canvas!.gameObject)
+                        .Bind(ref _beatmapDownloadDialog),
+                    //
+                    new ReplayDeletionDialog()
+                        .WithAnchor(() => (RectTransform)Canvas!.transform, RelativePlacement.Center)
+                        .WithAlphaOnModalOpen(() => Canvas!.gameObject)
+                        .Bind(ref _replayDeletionDialog),
+                    //
+                    new BsButton()
+                        .WithClickListener(HandleDeleteButtonClicked)
+                        .WithLocalizedLabel("ls-delete")
+                        .AsFlexItem(grow: 1f),
+                    //
+                    new BsPrimaryButton()
+                        .WithClickListener(HandleWatchButtonClicked)
+                        .WithLocalizedLabel(out _watchButtonLabel, WatchTextToken)
+                        .AsFlexItem(grow: 1f)
+                        .Bind(ref _watchButton)
+                        .InLoadingContainer()
+                        .Bind(ref _watchButtonContainer)
+                }
+            }.AsFlexGroup(gap: 2f).AsFlexItem(size: new() { y = 8f });
         }
 
-        [UIValue("watch-button-interactable"), UsedImplicitly]
-        private bool WatchButtonInteractable {
-            get => _watchButtonInteractable;
-            set {
-                _watchButtonInteractable = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        [UIValue("delete-button-interactable"), UsedImplicitly]
-        private bool DeleteButtonInteractable {
-            get => _deleteButtonInteractable;
-            set {
-                _deleteButtonInteractable = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private bool _deleteButtonInteractable;
-        private bool _watchButtonInteractable;
-        private string? _watchButtonText;
+        protected override bool AllowTagsEdit => true;
+        protected override string EmptyText => "Select a replay to let Monke think on it";
 
         #endregion
 
@@ -75,174 +64,61 @@ namespace BeatLeader.UI.Hub {
 
         private ReplayerMenuLoader? _replayerMenuLoader;
 
-        public void Setup(ReplayerMenuLoader menuLoader) {
+        public void Setup(ReplayerMenuLoader menuLoader, IReplayTagManager tagManager) {
             _replayerMenuLoader = menuLoader;
+            SetupInternal(tagManager);
         }
 
-        void BeatmapReplayLaunchPanel.IDetailPanel.Setup(IBeatmapReplayLaunchPanel? launchPanel, Transform? parent) {
-            _beatmapReplayLaunchPanel = launchPanel;
-            ContentTransform.SetParent(parent, false);
-            Content.SetActive(parent is not null);
-        }
-
-        protected override void OnInstantiate() {
-            _replayStatisticsPanel = ReeUIComponentV2.Instantiate<ReplayStatisticsPanel>(transform);
-            _downloadBeatmapPanel = ReeUIComponentV2.Instantiate<DownloadBeatmapPanel>(transform);
-
-            _replayStatisticsPanel.SetData(null, null, true, true);
-
-            _downloadBeatmapPanel.BackButtonClickedEvent += HandleDownloadMenuBackButtonClicked;
-            _downloadBeatmapPanel.DownloadAbilityChangedEvent += HandleDownloadAbilityChangedEvent;
-
-            _tagSelector = new();
-            _tagSelector.Component.SelectedTagAddedEvent += x => _header?.ReplayMetadata.Tags.Add(x);
-            _tagSelector.Component.SelectedTagRemovedEvent += x => _header?.ReplayMetadata.Tags.Remove(x);
-            _tagSelector.Component.Setup(ReplayMetadataManager.Instance);
-
-            SetDownloadPanelActive(false);
-        }
-
-        protected override void OnInitialize() {
-            _miniProfile.SetPlayer(null);
-        }
-
-        protected override bool OnValidation() {
+        protected override bool Validate() {
             return _replayerMenuLoader is not null;
-        }
-
-        #endregion
-
-        #region Download Panel
-
-        private void SetDownloadPanelActive(bool active) {
-            _downloadBeatmapPanel.SetRootActive(active);
-            _replayStatisticsPanel.SetRootActive(!active);
-            _isIntoDownloadMenu = active;
         }
 
         #endregion
 
         #region Data
 
-        private CancellationTokenSource _cancellationTokenSource = new();
-        private IBeatmapReplayLaunchPanel? _beatmapReplayLaunchPanel;
-        private IReplayHeader? _header;
+        private bool _needToDownloadBeatmap;
 
-        private bool _beatmapIsMissing;
-        private bool _isIntoDownloadMenu;
-        private bool _isWorking;
-
-        public void SetData(IReplayHeader? header) {
-            if (_isWorking) {
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = new();
-            }
-            if (_isIntoDownloadMenu) SetDownloadPanelActive(false);
-            _isWorking = true;
-            var invalid = header is null || header.FileStatus is Corrupted;
-            _replayStatisticsPanel.SetData(null, null, invalid, header is null);
-            _header = header;
-            if (_header != null) {
-                _tagSelector.Component.SelectTags(_header.ReplayMetadata);
-            } else {
-                _tagSelector.Component.ClearSelectedTags();
-            }
-            DeleteButtonInteractable = header is not null;
-            WatchButtonInteractable = false;
-            if (!invalid) {
-                _ = ProcessDataAsync(header!, _cancellationTokenSource.Token);
-                return;
-            }
-            _miniProfile.SetPlayer(null);
-            _isWorking = false;
-        }
-
-        private async Task ProcessDataAsync(IReplayHeader header, CancellationToken token) {
-            var playerTask = header.LoadPlayerAsync(false, token);
-            DeleteButtonInteractable = false;
-            var replay = await header.LoadReplayAsync(token);
-            if (token.IsCancellationRequested) return;
-            DeleteButtonInteractable = true;
-            var stats = default(ScoreStats?);
-            var score = default(Score?);
-            if (replay is not null) {
-                await Task.Run(() => stats = ReplayStatisticUtils.ComputeScoreStats(replay), token);
-                score = ReplayUtils.ComputeScore(replay);
-                score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
-            }
-            if (token.IsCancellationRequested) return;
-            _replayStatisticsPanel.SetData(score, stats, score is null || stats is null);
-            await playerTask;
-            _miniProfile.SetPlayer(playerTask.Result);
-            await RefreshAvailabilityAsync(header.ReplayInfo!, token);
-        }
-
-        private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
+        protected override async Task SetDataInternalAsync(IReplayHeader header, CancellationToken token) {
+            var info = header.ReplayInfo;
+            _watchButtonContainer.Loading = true;
             var beatmap = await _replayerMenuLoader!.LoadBeatmapAsync(
                 info.SongHash,
                 info.SongMode,
                 info.SongDifficulty,
                 token
             );
-            if (token.IsCancellationRequested) return;
-            var invalid = beatmap is null;
-            WatchButtonText = invalid ? DownloadText : WatchText;
-            WatchButtonInteractable = invalid || SongCoreInterop.ValidateRequirements(beatmap!);
-            _beatmapIsMissing = invalid;
-            if (invalid) _downloadBeatmapPanel.SetHash(info.SongHash);
-            _isWorking = false;
+            _needToDownloadBeatmap = beatmap == null;
+            _watchButtonLabel.SetLocalizedText(_needToDownloadBeatmap ? DownloadTextToken : WatchTextToken);
+            _watchButtonContainer.Loading = false;
+            _watchButton.Interactable = _needToDownloadBeatmap || SongCoreInterop.ValidateRequirements(beatmap!);
         }
 
         #endregion
 
         #region Callbacks
 
-        [UIComponent("tags-button")]
-        private RectTransform _tagsButton = null!;
-
-        private Modal<TagSelector> _tagSelector = null!;
-
-        private void HandleDownloadAbilityChangedEvent(bool ableToDownload) {
-            WatchButtonInteractable = ableToDownload;
+        private void HandleDownloadBeatmapDialogClosed(INewModal modal, bool closed) {
+            if (closed) return;
+            SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);
         }
-
-        private void HandleDownloadMenuBackButtonClicked() {
-            SetDownloadPanelActive(false);
-            _isIntoDownloadMenu = false;
-            _ = RefreshAvailabilityAsync(_header!.ReplayInfo!, _cancellationTokenSource.Token);
-        }
-
-        [UIAction("tags-button-click"), UsedImplicitly]
-        private void HandleTagsButtonClicked() {
-            //TODO: temporary solution until replay detail migration
-            ModalSystemHelper.OpenModalRelatively(
-                _tagSelector,
-                ContentTransform,
-                _tagsButton,
-                ModalSystemHelper.RelativePlacement.BottomRight,
-                shadowSettings: new()
-            );
-        }
-
-        [UIAction("delete-button-click"), UsedImplicitly]
+        
         private void HandleDeleteButtonClicked() {
-            _header?.DeleteReplay();
+            _replayDeletionDialog.SetHeader(Header!);
+            _replayDeletionDialog.Present(ContentTransform);
         }
 
-        [UIAction("watch-button-click"), UsedImplicitly]
         private async void HandleWatchButtonClicked() {
-            if (_isIntoDownloadMenu) {
-                _downloadBeatmapPanel.NotifyDownloadButtonClicked();
+            if (Header == null) {
+                throw new UninitializedComponentException("Replay header was null");
+            }
+            if (_needToDownloadBeatmap) {
+                _beatmapDownloadDialog.SetHash(Header.ReplayInfo.SongHash);
+                _beatmapDownloadDialog.Present(ContentTransform);
                 return;
             }
-            if (_beatmapIsMissing) {
-                SetDownloadPanelActive(true);
-                return;
-            }
-            if (_header is null || _header.FileStatus is Corrupted) return;
-            ValidateAndThrow();
-            var replay = await _header.LoadReplayAsync(default);
-            var player = await _header.LoadPlayerAsync(false, default);
+            var replay = await Header.LoadReplayAsync(CancellationToken.None);
+            var player = await Header.LoadPlayerAsync(false, CancellationToken.None);
             await _replayerMenuLoader!.StartReplayAsync(replay!, player);
         }
 

@@ -77,28 +77,21 @@ namespace BeatLeader.UI.Hub {
 
         #region SetScore
 
-        private CancellationTokenSource _cancellationTokenSource = new();
-
-        public Task SetDataByHeaderAsync(IReplayHeader? header) {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource = new();
-            return SetDataByHeaderAsyncInternal(header, _cancellationTokenSource.Token);
-        }
-
-        private async Task SetDataByHeaderAsyncInternal(IReplayHeader? header, CancellationToken token) {
+        public async Task SetDataByHeaderAsync(IReplayHeader? header, CancellationToken token = default) {
             if (header is null) {
                 SetData(null, null, true, true);
                 return;
             }
-            var replay = await header.LoadReplayAsync(default);
-            if (token.IsCancellationRequested) return;
-
-            ScoreStats? stats = null;
-            Score? score = null;
-            if (replay is not null) {
-                stats = await Task.Run(() => ReplayStatisticUtils.ComputeScoreStats(replay), token);
-                score = ReplayUtils.ComputeScore(replay);
-                score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
+            if (!StatsStorage.TryGetStats(header, out var score, out var stats)) {
+                //loading if wasn't represented in the cache
+                var replay = await header.LoadReplayAsync(token);
+                if (token.IsCancellationRequested) return;
+                if (replay is not null) {
+                    stats = await Task.Run(() => ReplayStatisticUtils.ComputeScoreStats(replay), token);
+                    score = ReplayUtils.ComputeScore(replay);
+                    score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
+                }
+                StatsStorage.AddStats(header, score, stats);
             }
             if (token.IsCancellationRequested) return;
             SetData(score, stats, score is null || stats is null);

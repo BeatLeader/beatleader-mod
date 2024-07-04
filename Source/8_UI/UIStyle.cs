@@ -17,6 +17,7 @@ namespace BeatLeader.UI {
         };
 
         public static ReadOnlyColorSet PrimaryButtonColorSet => new() {
+            DisabledColor = Color.black.ColorWithAlpha(0.3f),
             ActiveColor = new(0, 0.75f, 0.75f),
             HoveredColor = new(0, 0.75f, 1f),
             Color = new(0, 0.5f, 1f)

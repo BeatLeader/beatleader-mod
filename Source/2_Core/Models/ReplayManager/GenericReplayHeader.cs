@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Models {
     public class GenericReplayHeader : IReplayHeader {
@@ -57,13 +58,19 @@ namespace BeatLeader.Models {
         }
 
         public async Task<IPlayer> LoadPlayerAsync(bool bypassCache, CancellationToken token) {
-            if (_cachedPlayer is not null && !bypassCache) return _cachedPlayer;
-            var request = PlayerRequest.SendRequest(ReplayInfo!.PlayerID);
+            if (!bypassCache) {
+                _cachedPlayer ??= ReplayManagerCache.GetPlayer(ReplayInfo.PlayerID);
+                if (_cachedPlayer != null) return _cachedPlayer;
+            }
+            //
+            var request = PlayerRequest.SendRequest(ReplayInfo.PlayerID);
             await request.Join();
+            //
             if (request.RequestStatusCode is not HttpStatusCode.OK) {
                 Plugin.Log.Error($"Failed to load player(id: {ReplayInfo.PlayerID}) from the server!");
             } else {
                 _cachedPlayer = request.Result;
+                ReplayManagerCache.AddPlayer(_cachedPlayer!);
             }
             return _cachedPlayer ?? Player.GuestPlayer;
         }

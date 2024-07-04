@@ -3,7 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 
 namespace BeatLeader.UI.Hub {
-    internal class BeatmapReplayFilter : IListFilter<IReplayHeaderBase> {
+    internal class BeatmapReplayFilter : ITableFilter<IReplayHeaderBase> {
         public event Action? FilterUpdatedEvent;
 
         public IDifficultyBeatmap? DifficultyBeatmap {

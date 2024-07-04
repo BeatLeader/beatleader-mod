@@ -110,6 +110,7 @@ namespace BeatLeader.UI.Reactive.Components {
             _activeModal.ModalClosedEvent += HandleModalClosed;
             //showing the modal
             ReactiveActiveModal!.Use(ContentTransform);
+            ReactiveActiveModal.ContentTransform.SetAsLastSibling();
             _activeModal!.Open(!animated);
             RefreshBlocker();
         }

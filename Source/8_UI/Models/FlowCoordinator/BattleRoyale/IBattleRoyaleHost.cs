@@ -6,7 +6,7 @@ using BeatLeader.UI.Reactive.Components;
 namespace BeatLeader.UI.Hub {
     internal interface IBattleRoyaleHost {
         IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays { get; }
-        IListFilter<IReplayHeaderBase> ReplayFilter { get; }
+        ITableFilter<IReplayHeaderBase> ReplayFilter { get; }
         IDifficultyBeatmap? ReplayBeatmap { get; set; }
         bool CanLaunchBattle { get; }
 

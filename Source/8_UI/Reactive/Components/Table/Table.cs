@@ -22,6 +22,30 @@ namespace BeatLeader.UI.Reactive.Components {
             set => _scrollArea.Scrollbar = value;
         }
 
+        public string EmptyText {
+            get => EmptyLabel.Text;
+            set => EmptyLabel.Text = value;
+        }
+
+        public Label EmptyLabel { get; private set; } = null!;
+
+        private void RefreshVisibility() {
+            RefreshScrollbar();
+            RefreshEmptyText();
+        }
+
+        private void RefreshScrollbar() {
+            var averageCellsCount = ViewportSize / CellSize;
+            var cellCount = Mathf.CeilToInt(averageCellsCount);
+            _scrollArea.Scrollbar?.SetActive(_filteredItems.Count > cellCount);
+        }
+
+        private void RefreshEmptyText() {
+            var visible = _filteredItems.Count > 0;
+            _scrollArea.Enabled = visible;
+            EmptyLabel.Enabled = !visible;
+        }
+
         #endregion
 
         #region Filter
@@ -66,12 +90,18 @@ namespace BeatLeader.UI.Reactive.Components {
         /// <summary>
         /// A collection of added items.
         /// </summary>
-        public IList<TItem> Items => _items;
+        public IList<TItem> Items {
+            get {
+                lock (_itemsLocker) {
+                    return _items;
+                }
+            }
+        }
 
         /// <summary>
         /// A collection of items which will be actually displayed in the table.
         /// </summary>
-        public IReadOnlyCollection<TItem> FilteredItems => _filteredItems;
+        public IReadOnlyList<TItem> FilteredItems => _filteredItems;
 
         /// <summary>
         /// A collection of selected indexes.
@@ -89,8 +119,15 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        IReadOnlyList<TItem> ITableComponent<TItem>.Items => _items;
+        IReadOnlyList<TItem> ITableComponent<TItem>.Items {
+            get {
+                lock (_itemsLocker) {
+                    return _items;
+                }
+            }
+        }
 
+        private readonly object _itemsLocker = new();
         private readonly List<TItem> _items = new();
         private readonly HashSet<int> _selectedIndexes = new();
         private SelectionMode _selectionMode = SelectionMode.Single;
@@ -101,6 +138,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RefreshContentSize();
             RefreshVisibleCells(0f);
             ScrollContentIfNeeded();
+            RefreshVisibility();
             if (clearSelection) ClearSelection();
             OnRefresh();
         }
@@ -189,10 +227,10 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private void CalculateVisibleCellsRange(float pos) {
             //start index
-            var start = Mathf.FloorToInt(pos / CellSize) - 1;
+            var start = Mathf.FloorToInt(pos / CellSize);
             start = start < 0 ? 0 : start;
             //end index
-            var end = start + _visibleCellsCount + 1;
+            var end = start + _visibleCellsCount;
             end = end > FilteredItems.Count ? FilteredItems.Count : end;
             //clear cached cells if needed
             if (start != _visibleCellsStartIndex || end != _visibleCellsEndIndex) {
@@ -224,7 +262,9 @@ namespace BeatLeader.UI.Reactive.Components {
             }
             //despawning redundant cells
             for (i -= _visibleCellsStartIndex; i < _cellsPool.SpawnedComponents.Count; i++) {
-                _cellsPool.DespawnLast();
+                var cell = _cellsPool.SpawnedComponents.Last();
+                cell.CellAskedToChangeSelectionEvent -= HandleCellWantsToChangeSelection;
+                _cellsPool.Despawn(cell);
             }
         }
 
@@ -275,12 +315,12 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void ScrollContentIfNeeded() {
-            var needScrollToEnd = _contentPos - ContentSize < ViewportSize && _visibleCellsCount < _filteredItems.Count;
-            var needScrollToStart = _contentPos < 0f;
+            var needScrollToEnd = ContentSize - _contentPos <= ViewportSize;
+            var needScrollToStart = _contentPos < 0f || _filteredItems.Count <= (int)(ViewportSize / CellSize);
             if (needScrollToEnd) {
-                _scrollArea.ScrollToEnd();
+                _scrollArea.ScrollToEnd(true);
             } else if (needScrollToStart) {
-                _scrollArea.ScrollToStart();
+                _scrollArea.ScrollToStart(true);
             }
         }
 
@@ -289,7 +329,8 @@ namespace BeatLeader.UI.Reactive.Components {
             var cellCount = Mathf.CeilToInt(averageCellsCount);
             //adding because we need two more cells to fill the free space when scrolling
             _visibleCellsCount = cellCount + 1;
-            Refresh();
+            CalculateVisibleCellsRange(_contentPos);
+            RefreshVisibleCells(_contentPos);
         }
 
         #endregion
@@ -304,16 +345,35 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected sealed override GameObject Construct() {
             //constructing
-            var area = new ScrollArea {
-                ScrollContent = new Dummy().Bind(ref _scrollContent)
-            }.Bind(ref _viewport).Bind(ref _scrollArea);
+            var content = new Dummy {
+                Children = {
+                    //area
+                    new ScrollArea {
+                            ScrollContent = new Dummy().Bind(ref _scrollContent)
+                        }
+                        .WithRectExpand()
+                        .Bind(ref _viewport)
+                        .Bind(ref _scrollArea),
+                    //empty label
+                    new Label {
+                        Text = "The monkey left you on your own!",
+                        FontSize = 3.2f,
+                        FontSizeMin = 1f,
+                        FontSizeMax = 5f,
+                        EnableAutoSizing = true,
+                        EnableWrapping = true
+                    }.WithRectExpand().Export(out var label)
+                }
+            };
             //initializing here instead of OnInitialize to leave it for inheritors
+            EmptyLabel = label;
+            RefreshEmptyText();
             var cell = _cellsPool.Spawn();
             _cellSize = cell.ContentTransform.rect.size;
             _cellsPool.Despawn(cell);
             _scrollArea.ScrollPosChangedEvent += HandlePosChanged;
             //returning
-            return area.Use();
+            return content.Use();
         }
 
         #endregion

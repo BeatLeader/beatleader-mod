@@ -24,7 +24,8 @@ namespace BeatLeader.UI.Reactive.Components {
             if (active) {
                 this.Present(_inputField!.ContentTransform);
             } else {
-                BorrowedModal.Close(false);
+                Modal.Close(false);
+                KeyboardClosedEvent?.Invoke();
             }
         }
 
@@ -39,7 +40,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Modal
         
-        private T Keyboard => BorrowedModal.Component;
+        private T Keyboard => Modal.Component;
 
         public override void Close(bool immediate) {
             if (_inputField is { CanProceed: false }) return;
@@ -55,7 +56,7 @@ namespace BeatLeader.UI.Reactive.Components {
             if (finished) return;
             Keyboard.SetActive(true);
             Keyboard.Setup(_inputField);
-            BorrowedModal.WithAnchorImmediate(_inputField!.ContentTransform, Placement, Offset);
+            Modal.WithAnchorImmediate(_inputField!.ContentTransform, Placement, Offset);
         }
 
         protected override void OnSpawn() {
@@ -71,7 +72,8 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Callbacks
 
         private void HandleKeyboardClosed() {
-            BorrowedModal.Close(false);
+            Modal.Close(false);
+            KeyboardClosedEvent?.Invoke();
         }
 
         #endregion

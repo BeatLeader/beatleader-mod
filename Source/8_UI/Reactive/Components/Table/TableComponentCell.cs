@@ -25,7 +25,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Abstraction
 
-        protected TItem Item => _item ?? throw new UninitializedComponentException("The cell was not initialized");
+        public TItem Item => _item ?? throw new UninitializedComponentException("The cell was not initialized");
         
         protected virtual void OnInit(TItem item) { }
         

@@ -7,12 +7,12 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override void OnOpenInternal(bool finished) {
             if (!finished) return;
-            BorrowedModal.Context = Context;
+            Modal.Context = Context;
         }
 
         protected override void OnCloseInternal(bool finished) {
             if (!finished) return;
-            BorrowedModal.Context = default;
+            Modal.Context = default;
         }
     }
 }

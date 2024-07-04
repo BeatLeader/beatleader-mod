@@ -47,8 +47,9 @@ namespace BeatLeader.UI.Hub {
             await _refreshAvatarSemaphore.WaitAsync();
             _avatarsPool.DespawnAll();
             _avatarsContainer.Children.Clear();
-            //
-            _avatarSize = _avatarsContainer.ContentTransform.rect.height;
+            //uncomment for adaptivity
+            //_avatarSize = _avatarsContainer.ContentTransform.rect.height;
+            _avatarSize = 6f;
             var lastIndex = Mathf.Min(_replays.Count, _maxAvatarCount);
             _avatarsContainerModifier.Size = new() { x = CalculateIndent(lastIndex) };
             //

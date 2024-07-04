@@ -13,9 +13,9 @@ namespace BeatLeader.UI.Hub {
         IEnumerable<IPanelListFilter<T>>? DependsOn { get; }
         string FilterName { get; }
     }
-    
+
     internal class ListFiltersPanel<T> : ReactiveComponent, ITextListFilter<T> {
-        #region ListFilter
+        #region TableFilter
 
         public Func<T, IEnumerable<string>>? SearchContract { get; set; }
 
@@ -23,7 +23,7 @@ namespace BeatLeader.UI.Hub {
 
         private readonly Dictionary<T, string> _matchedItems = new();
 
-        bool IListFilter<T>.Matches(T value) {
+        bool ITableFilter<T>.Matches(T value) {
             var filterMatches = _modal.ActiveFilters.All(x => x.Matches(value));
             var text = _searchInputField.Text.ToLower();
             if (!filterMatches) return false;
@@ -137,7 +137,7 @@ namespace BeatLeader.UI.Hub {
 
         #region FiltersModal
 
-        private class FiltersModal : ModalComponentBase {
+        private class FiltersModal : AnimatedModalComponentBase {
             #region Filter Dependencies
 
             private readonly Dictionary<IPanelListFilter<T>, List<IPanelListFilter<T>>> _dependencies = new();
@@ -206,7 +206,7 @@ namespace BeatLeader.UI.Hub {
                     filter.FilterEnabled = false;
                 }
             }
-            
+
             #endregion
 
             #region Construct
@@ -228,24 +228,12 @@ namespace BeatLeader.UI.Hub {
                         gap: 1f
                     )
                     .AsBlurBackground()
-                    .WithRectSize(60f, 64f)
+                    .WithSizeDelta(64f, 60f)
                     .Bind(ref _container)
                     .Use();
             }
 
             #endregion
-        }
-
-        private readonly FiltersModal _modal = new();
-
-        private void OpenModal() {
-            ModalSystemHelper.OpenModalRelatively(
-                _modal,
-                ContentTransform,
-                ContentTransform,
-                ModalSystemHelper.RelativePlacement.BottomRight,
-                shadowSettings: new()
-            );
         }
 
         #endregion
@@ -260,7 +248,6 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             _modal.FilterUpdatedEvent += HandleFilterUpdated;
-            _modal.ModalAskedToBeClosedEvent += HandleModalClosed;
             _filters = new(
                 new List<IPanelListFilter<T>>(),
                 HandleFilterAdded,
@@ -272,39 +259,53 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
+        private FiltersModal _modal = null!;
         private InputField _searchInputField = null!;
         private TextArea _filtersTextArea = null!;
 
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
+                    new FiltersModal()
+                        .WithShadow()
+                        .WithCloseListener(() => _filtersTextArea.Focused = false)
+                        .WithAnchor(() => ContentTransform, RelativePlacement.BottomRight)
+                        .Bind(ref _modal),
+                    //
                     new InputField {
-                        Placeholder = "Search",
-                        Icon = GameResources.Sprites.SearchIcon,
-                        Keyboard = new KeyboardModal<Keyboard, InputField> {
-                            Offset = new(0f, 32f)
+                            Placeholder = "Search",
+                            Icon = GameResources.Sprites.SearchIcon,
+                            Keyboard = new KeyboardModal<Keyboard, InputField> {
+                                Offset = new(0f, 32f)
+                            }
                         }
-                    }.AsFlexItem(grow: 1f).WithListener(
-                        x => x.Text,
-                        _ => FilterUpdatedEvent?.Invoke()
-                    ).Bind(ref _searchInputField),
+                        .AsFlexItem(grow: 1f)
+                        .WithListener(
+                            x => x.Text,
+                            _ => FilterUpdatedEvent?.Invoke()
+                        )
+                        .Bind(ref _searchInputField),
                     //filter panel
                     new TextArea {
-                        Placeholder = "Filters",
-                        Icon = GameResources.Sprites.FilterIcon
-                    }.WithListener(
-                        x => x.Focused,
-                        x => {
-                            if (x) OpenModal();
+                            Placeholder = "Filters",
+                            Icon = GameResources.Sprites.FilterIcon
                         }
-                    ).WithListener(
-                        x => x.Text,
-                        x => {
-                            if (!string.IsNullOrEmpty(x)) return;
-                            _modal.DisableAllFilters();
-                            FilterUpdatedEvent?.Invoke();
-                        }
-                    ).AsFlexItem(grow: 1f).Bind(ref _filtersTextArea)
+                        .WithListener(
+                            x => x.Focused,
+                            x => {
+                                if (x) _modal.Present(ContentTransform);
+                            }
+                        )
+                        .WithListener(
+                            x => x.Text,
+                            x => {
+                                if (!string.IsNullOrEmpty(x)) return;
+                                _modal.DisableAllFilters();
+                                FilterUpdatedEvent?.Invoke();
+                            }
+                        )
+                        .AsFlexItem(grow: 1f)
+                        .Bind(ref _filtersTextArea)
                 }
             }.AsFlexGroup(gap: 1f).Use();
         }
@@ -324,10 +325,6 @@ namespace BeatLeader.UI.Hub {
         private void HandleFilterUpdated(IPanelListFilter<T> filter) {
             FilterUpdatedEvent?.Invoke();
             RefreshFiltersCaption();
-        }
-
-        private void HandleModalClosed() {
-            _filtersTextArea.Focused = false;
         }
 
         #endregion

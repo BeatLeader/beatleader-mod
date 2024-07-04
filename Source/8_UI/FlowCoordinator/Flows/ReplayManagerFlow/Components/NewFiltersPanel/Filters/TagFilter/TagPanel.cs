@@ -3,6 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
+using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -18,8 +19,7 @@ namespace BeatLeader.UI.Hub {
             if (!enabled) {
                 SetTagSelected(_tagSelected, true);
             }
-            if (!Enabled || immediate) {
-                _deleteButtonTransform.localScale = enabled ? Vector3.one : Vector3.zero;
+            if (immediate) {
                 _deleteButton.Enabled = enabled;
             } else if (enabled) {
                 _deleteButton.Enabled = true;
@@ -35,8 +35,8 @@ namespace BeatLeader.UI.Hub {
         public void SetTagPresented(bool enabled, bool immediate) {
             _tagPresented = enabled;
             _needToInvokeFinishEvent = !immediate;
-            _button.Interactable = enabled;
-            if (Enabled && !immediate) return;
+            _button.Interactable = enabled && Interactable;
+            if (!immediate) return;
             //setting values if immediate
             _buttonTransform.localScale = Vector3.one;
             if (_replayTag != null) {
@@ -48,28 +48,39 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
+        public bool Interactable {
+            get => _interactable;
+            set {
+                _interactable = value;
+                _button.Interactable = value && _tagPresented;
+            }
+        }
+
         public event Action<IReplayTag>? StateAnimationFinishedEvent;
         public event Action<IReplayTag>? DeleteButtonClickedEvent;
         public event Action<IReplayTag, bool>? TagStateChangedEvent;
 
         private IReplayTag? _replayTag;
         private bool _tagSelected;
+        private bool _interactable = true;
 
         public void SetTagSelected(bool enabled, bool silent) {
             _button.Click(enabled, !silent);
         }
 
-        public void SetTag(IReplayTag? tag) {
+        public void SetTag(IReplayTag? tag, bool animated = false) {
             if (_replayTag != null) {
                 _replayTag.TagUpdatedEvent -= HandleTagUpdated;
+            } else {
+                _setLastFrame = true;
             }
             _replayTag = tag;
             if (_replayTag != null) {
                 _replayTag.TagUpdatedEvent += HandleTagUpdated;
             }
             SetEditModeEnabled(false, true);
-            SetTagPresented(true, true);
             SetTagSelected(false, true);
+            SetTagPresented(true, !animated);
             RefreshVisuals();
         }
 
@@ -82,37 +93,36 @@ namespace BeatLeader.UI.Hub {
         private float _wiggleReturnSpeed = 10f;
         private float _deleteButtonAppearSpeed = 15f;
         private float _buttonAppearSpeed = 15f;
+        private float _slideSpeed = 10f;
 
         private bool _needToDisableDeleteButton = true;
         private bool _needToInvokeFinishEvent;
-        private bool _needToSlide;
+        private bool _setLastFrame;
 
-        private Vector3 _previousContainerPos;
-        private Vector3 _previousButtonPos;
+        private Vector3 _previousWorldContainerPos;
+        private Vector2 _previousContainerPos;
 
         //when another panel disappears this one will go to the pos of the previous panel smoothly
         private void RefreshPanelSlideAnimation() {
-            //if tag container got moved not globally
-            var containerPosition = ContentTransform.localPosition;
-            if (containerPosition != _previousContainerPos) _needToSlide = true;
-            //animating
-            var buttonPosition = _buttonTransform.position;
-            if (_needToSlide) {
-                var targetPos = ContentTransform.position;
-                buttonPosition = Vector3.Lerp(
-                    _previousButtonPos,
-                    targetPos,
-                    _wiggleReturnSpeed * Time.deltaTime
-                );
-                //stopping animation if it got finished
-                if (Mathf.Abs(buttonPosition.x - targetPos.x) < 0.001f) {
-                    _needToSlide = false;
-                    buttonPosition = targetPos;
-                }
-                _buttonTransform.position = buttonPosition;
+            if (_setLastFrame) {
+                _setLastFrame = false;
+                _previousContainerPos = ContentTransform.anchoredPosition;
+                _buttonTransform.localPosition = Vector3.zero;
+                return;
             }
-            _previousButtonPos = buttonPosition;
-            _previousContainerPos = containerPosition;
+            //if tag container got moved not globally
+            var containerPosition = ContentTransform.anchoredPosition;
+            if (containerPosition != _previousContainerPos) {
+                _buttonTransform.position = _previousWorldContainerPos;
+            }
+            //animating
+            _buttonTransform.localPosition = Vector3.Lerp(
+                _buttonTransform.localPosition,
+                Vector3.zero,
+                Time.deltaTime * _slideSpeed
+            );
+            _previousContainerPos = ContentTransform.anchoredPosition;
+            _previousWorldContainerPos = ContentTransform.position;
         }
 
         private void RefreshPanelAppearAnimation() {
@@ -201,60 +211,69 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             //wrapping into container to allow animations
-            return new Dummy {
+            var content = new ImageButton {
+                Image = {
+                    Sprite = BundleLoader.Sprites.background,
+                    PixelsPerUnit = 8f,
+                    Material = GameResources.UINoGlowMaterial
+                },
+                Sticky = true,
+                HoverScaleSum = Vector3.one * 0.1f,
                 Children = {
-                    //actual content
+                    //delete button
                     new ImageButton {
+                        Enabled = false,
+                        ContentTransform = {
+                            localScale = Vector3.zero
+                        },
                         Image = {
                             Sprite = BundleLoader.Sprites.background,
-                            PixelsPerUnit = 7f,
-                            Material = GameResources.UINoGlowMaterial
+                            PixelsPerUnit = 1f
                         },
-                        Sticky = true,
-                        HoverScaleSum = Vector3.one * 0.1f,
+                        GrowOnHover = false,
+                        Colors = new StateColorSet {
+                            Color = Color.red.ColorWithAlpha(0.7f),
+                            HoveredColor = Color.red
+                        },
                         Children = {
-                            //delete button
-                            new ImageButton {
-                                Enabled = false,
-                                ContentTransform = {
-                                    localScale = Vector3.zero
-                                },
-                                Image = {
-                                    Sprite = BundleLoader.Sprites.background,
-                                    PixelsPerUnit = 1f
-                                },
-                                GrowOnHover = false,
-                                Colors = new StateColorSet {
-                                    Color = Color.red.ColorWithAlpha(0.7f),
-                                    HoveredColor = Color.red
-                                },
-                                Children = {
-                                    //minus icon
-                                    new Image {
-                                        Sprite = BundleLoader.Sprites.minusIcon
-                                    }.AsFlexItem(grow: 1f)
-                                }
-                            }.AsFlexGroup(padding: 1f).AsFlexItem(
-                                size: 3.5f,
-                                position: new() { top = -1.5f, right = -1.5f }
-                            ).WithClickListener(HandleDeleteButtonClicked).Bind(ref _deleteButton).Bind(ref _deleteButtonTransform),
-                            //text
-                            new Label {
-                                FontSize = 3f
-                            }.AsFlexItem(size: "auto").Bind(ref _label)
+                            //minus icon
+                            new Image {
+                                Sprite = BundleLoader.Sprites.minusIcon
+                            }.AsFlexItem(grow: 1f)
                         }
-                    }.With(
-                        x => x
-                            .WithClickListener(HandleTagButtonClicked)
-                            .WithStateListener(HandleTagButtonStateChanged)
-                    ).AsFlexGroup(
-                        padding: new() { left = 1f, right = 1f },
-                        alignItems: Align.Center
-                    ).AsFlexItem(
-                        size: new() { y = 6f, x = "auto" }
-                    ).Bind(ref _button).Bind(ref _buttonTransform)
+                    }.AsFlexGroup(padding: 1f).AsFlexItem(
+                        size: 3.5f,
+                        position: new() { top = -1.5f, right = -1.5f }
+                    ).WithClickListener(HandleDeleteButtonClicked).Bind(ref _deleteButton).Bind(ref _deleteButtonTransform),
+                    //text
+                    new Label {
+                        FontSize = 3f
+                    }.AsFlexItem(size: "auto").Bind(ref _label)
                 }
-            }.AsFlexGroup().Use();
+            }.With(
+                x => x
+                    .WithClickListener(HandleTagButtonClicked)
+                    .WithStateListener(HandleTagButtonStateChanged)
+            ).AsFlexGroup(
+                padding: new() { left = 1f, right = 1f },
+                alignItems: Align.Center
+            ).Bind(ref _button).Bind(ref _buttonTransform);
+
+            //creating a wrapper which we will move
+            var container = new GameObject("Wrapper").AddComponent<RectTransform>();
+            container.SetParent(content.ContentTransform, false);
+            container.WithRectExpand();
+            _buttonTransform = container;
+
+            //moving all objects into a wrapper
+            foreach (var child in content.ContentTransform.GetChildren()) {
+                child.SetParent(container, true);
+            }
+            return content.Use();
+        }
+
+        protected override void OnInitialize() {
+            this.AsFlexItem(size: new() { y = 5f });
         }
 
         #endregion

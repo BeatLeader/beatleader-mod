@@ -37,6 +37,13 @@ namespace BeatLeader.Utils {
 
         #endregion
 
+        public static void Reverse<T>(this IList<T> list) {
+            var count = list.Count;
+            for (var i = 0; i < count / 2; i++) {
+                (list[i], list[count - i - 1]) = (list[count - i - 1], list[i]);
+            }
+        }
+
         public static LinkedListNode<T>? FindNode<T>(this LinkedList<T> list, Func<LinkedListNode<T>, bool> predicate) {
             var node = list.First;
             while (node is not null) {

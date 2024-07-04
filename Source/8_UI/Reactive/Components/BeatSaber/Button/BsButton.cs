@@ -11,7 +11,12 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private Image _underline = null!;
-        
+
+        protected override void ApplySkew(float skew) {
+            base.ApplySkew(skew);
+            _underline.Skew = skew;
+        }
+
         protected override void Construct(RectTransform rect) {
             //underline
             new Image {
@@ -39,6 +44,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Image.Sprite = BundleLoader.Sprites.background;
             Image.PixelsPerUnit = 12f;
             Image.UseGradient = true;
+            Skew = UIStyle.Skew;
         }
     }
 }

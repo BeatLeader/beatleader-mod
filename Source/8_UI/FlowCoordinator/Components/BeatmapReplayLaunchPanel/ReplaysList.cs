@@ -72,7 +72,7 @@ namespace BeatLeader.UI.Hub {
             private void RefreshTexts() {
                 var info = Item.ReplayInfo;
                 _topRightLabel.Text = FormatLevelEndType(info.LevelEndType, info.FailTime);
-                _topLeftLabel.Text = info.SongName;
+                _topLeftLabel.Text = FormatByPhrase(info.SongName);
                 _bottomRightLabel.Text = FormatUtils.GetDateTimeString(info.Timestamp);
                 _bottomLeftLabel.Text = $"[<color=#89ff89>{FormatByPhrase(info.SongDifficulty)}</color>] ";
                 _bottomLeftLabel.Text += FormatByPhrase(info.PlayerName);

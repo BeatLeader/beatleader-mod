@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListSettingsPanel : ReactiveComponent {
-        private class SortOptionsModal : ModalComponentBase {
+        private class SortOptionsModal : AnimatedModalComponentBase {
             #region Setup
 
             private IReplaysList? _replaysList;
@@ -81,7 +81,7 @@ namespace BeatLeader.UI.Hub {
                 }.AsFlexGroup(
                     direction: FlexDirection.Column,
                     padding: 2f
-                ).AsBlurBackground().WithRectSize(20f, 60f).Use();
+                ).AsBlurBackground().WithSizeDelta(60f, 20f).Use();
             }
 
             #endregion
@@ -96,6 +96,7 @@ namespace BeatLeader.UI.Hub {
             return new Image {
                 Children = {
                     new SortOptionsModal()
+                        .WithAnchor(() => ContentTransform, RelativePlacement.TopRight)
                         .Bind(ref _sortOptionsModal),
                     //label
                     new Label {
@@ -119,19 +120,11 @@ namespace BeatLeader.UI.Hub {
                         Image = {
                             Sprite = BundleLoader.SettingsIcon
                         }
-                    }.AsFlexItem(
+                    }.WithModal(_sortOptionsModal).AsFlexItem(
                         aspectRatio: 1f
                     ).Bind(ref _settingsButton)
                 }
-            }.AsFlexGroup(padding: 0.6f, gap: 0.5f).AsBlurBackground().With(
-                x => {
-                    _settingsButton.WithModal(
-                        _sortOptionsModal,
-                        anchor: x.ContentTransform,
-                        placement: ModalSystemHelper.RelativePlacement.TopRight
-                    );
-                }
-            ).Use();
+            }.AsFlexGroup(padding: 0.6f, gap: 0.5f).AsBlurBackground().Use();
         }
 
         #endregion

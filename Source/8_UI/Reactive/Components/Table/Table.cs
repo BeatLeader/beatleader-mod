@@ -370,6 +370,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RefreshEmptyText();
             var cell = _cellsPool.Spawn();
             _cellSize = cell.ContentTransform.rect.size;
+            _scrollArea.ScrollSize = CellSize;
             _cellsPool.Despawn(cell);
             _scrollArea.ScrollPosChangedEvent += HandlePosChanged;
             //returning

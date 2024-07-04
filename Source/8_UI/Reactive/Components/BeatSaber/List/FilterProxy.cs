@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class FilterProxy<T> : IListFilter<T> {
+    internal class FilterProxy<T> : ITableFilter<T> {
         #region Proxy
         
         public FilterProxy() {
@@ -14,9 +14,9 @@ namespace BeatLeader.UI.Reactive.Components {
             );
         }
 
-        public ICollection<IListFilter<T>> Filters => _filters;
+        public ICollection<ITableFilter<T>> Filters => _filters;
 
-        private readonly ObservableSet<IListFilter<T>> _filters;
+        private readonly ObservableSet<ITableFilter<T>> _filters;
 
         #endregion
 
@@ -32,15 +32,15 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Callbacks
 
-        private void HandleFilterAdded(IListFilter<T> filter) {
+        private void HandleFilterAdded(ITableFilter<T> filter) {
             filter.FilterUpdatedEvent += HandleFilterUpdated;
         }
 
-        private void HandleFilterRemoved(IListFilter<T> filter) {
+        private void HandleFilterRemoved(ITableFilter<T> filter) {
             filter.FilterUpdatedEvent -= HandleFilterUpdated;
         }
 
-        private void HandleAllFiltersRemoved(IEnumerable<IListFilter<T>> filters) {
+        private void HandleAllFiltersRemoved(IEnumerable<ITableFilter<T>> filters) {
             foreach (var filter in filters) {
                 HandleFilterRemoved(filter);
             }

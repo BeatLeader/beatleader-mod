@@ -77,8 +77,6 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Setup
 
-        private RectTransform _childrenContainerTransform = null!;
-
         protected override void Construct(RectTransform rect) {
             //background
             Image = new Image {
@@ -86,14 +84,7 @@ namespace BeatLeader.UI.Reactive.Components {
             }.WithRectExpand();
             Image.Use(rect);
             //content
-            _childrenContainerTransform = new GameObject("Content").AddComponent<RectTransform>();
-            _childrenContainerTransform.SetParent(rect, false);
-            _childrenContainerTransform.WithRectExpand();
             base.Construct(rect);
-        }
-
-        protected override void AppendReactiveChild(ReactiveComponentBase comp) {
-            comp.Use(_childrenContainerTransform);
         }
 
         protected override void OnInitialize() {

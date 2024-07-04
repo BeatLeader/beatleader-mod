@@ -37,12 +37,10 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        public void SelectTags(IReplayMetadata metadata) {
-            foreach (var tag in metadata.Tags) {
-                if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
-                    panel = _tagsPool.Spawn(tag);
-                }
-                panel.SetTagSelected(true, false);
+        public void SelectTags(ICollection<IReplayTag> tags) {
+            foreach (var (tag, panel) in _tagsPool.SpawnedComponents) {
+                var selected = tags.Contains(tag);
+                panel.SetTagSelected(selected, true);
             }
             NotifySelectedTagsChanged();
         }
@@ -122,10 +120,12 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new TagCreationDialog()
                         .WithAnchor(this, RelativePlacement.Center)
+                        .WithShadow()
                         .Bind(ref _tagCreationDialog),
                     //
                     new TagDeletionDialog()
                         .WithAnchor(this, RelativePlacement.Center)
+                        .WithShadow()
                         .Bind(ref _tagDeletionDialog),
                     //
                     new ScrollArea {

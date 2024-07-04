@@ -23,7 +23,7 @@ namespace BeatLeader.UI.Hub {
         private void Awake() {
             new Dummy {
                 Children = {
-                    new ListFiltersPanel<IReplayHeader> {
+                    new ListFiltersPanel<IReplayHeaderBase> {
                         SearchContract = x => {
                             var info = x.ReplayInfo;
                             var str = new[] { info.PlayerName, info.SongName };
@@ -34,22 +34,25 @@ namespace BeatLeader.UI.Hub {
                                 x => x.Setup(_replayManager.MetadataManager.TagManager)
                             )
                         }
-                    }.AsFlexItem(basis: 8f).Export(out var filtersPanel),
+                    }.AsFlexItem(
+                        size: new() { x = 100f, y = 8f },
+                        alignSelf: Align.Center
+                    ).Export(out var filtersPanel),
                     //
-                    new ReeWrapperV3<BeatmapReplayLaunchPanel>()
-                        .AsFlexItem(basis: 63f)
-                        .BindRee(ref _replayLaunchPanel)
+                    new BeatmapReplayLaunchPanel()
+                        .AsFlexItem(basis: 68f)
+                        .Bind(ref _replayLaunchPanel)
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
                 justifyContent: Justify.Center,
                 gap: 2f
-            ).Use(transform);
+            ).WithRectExpand().Use(transform);
 
-            var detailPanel = BattleRoyaleDetailPanel.Instantiate(transform);
+            var detailPanel = new BattleRoyaleDetailPanel();
             _replayLaunchPanel.Setup(_replaysLoader);
             _replayLaunchPanel.DetailPanel = detailPanel;
-            _replayLaunchPanel.ReplaysList.Filter = new FilterProxy<IReplayHeader> {
+            _replayLaunchPanel.ReplaysList.Filter = new FilterProxy<IReplayHeaderBase> {
                 Filters = {
                     _battleRoyaleHost.ReplayFilter,
                     filtersPanel
@@ -81,9 +84,8 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleHostNavigationRequested(IBattleRoyaleReplay replay) {
             var list = _replayLaunchPanel.ReplaysList;
-            var index = list.Items.FindIndex(x => x.Equals(replay.ReplayHeader));
-            list.ScrollTo(index);
-            list.Select(index);
+            list.ScrollTo(replay.ReplayHeader);
+            list.Select(replay.ReplayHeader);
         }
         
         private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {

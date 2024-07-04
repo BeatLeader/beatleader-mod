@@ -35,19 +35,28 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
+        public Color? HoveredActiveColor {
+            get => _hoveredActiveColor;
+            set {
+                _hoveredActiveColor = value;
+                SetUpdatedEvent?.Invoke();
+            }
+        }
+
         private Color _disabledColor;
         private Color _activeColor;
         private Color _hoveredColor;
         private Color _color;
+        private Color? _hoveredActiveColor;
 
         public event Action? SetUpdatedEvent;
         
         public Color GetColor(GraphicElementState state) {
+            if (state.hovered) {
+                return state.active ? _hoveredActiveColor.GetValueOrDefault(ActiveColor) : _hoveredColor;
+            }
             if (state.active) {
                 return _activeColor;
-            }
-            if (state.hovered) {
-                return _hoveredColor;
             }
             if (!state.interactable) {
                 return _disabledColor;

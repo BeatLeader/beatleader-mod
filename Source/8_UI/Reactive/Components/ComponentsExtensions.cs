@@ -79,6 +79,42 @@ namespace BeatLeader.UI.Reactive.Components {
             return button;
         }
 
+        public static T WithLocalizedLabel<T>(
+            this T button,
+            string token,
+            float fontSize = 4f,
+            bool richText = true,
+            TextOverflowModes overflow = TextOverflowModes.Overflow
+        ) where T : ButtonBase, IChildrenProvider {
+            return WithLocalizedLabel(
+                button,
+                out _,
+                token,
+                fontSize,
+                richText,
+                overflow
+            );
+        }
+        
+        
+        public static T WithLocalizedLabel<T>(
+            this T button,
+            out Label label,
+            string token,
+            float fontSize = 4f,
+            bool richText = true,
+            TextOverflowModes overflow = TextOverflowModes.Overflow
+        ) where T : ButtonBase, IChildrenProvider {
+            return WithLabel(
+                button,
+                out label,
+                BLLocalization.GetTranslation(token),
+                fontSize,
+                richText,
+                overflow
+            );
+        }
+        
         public static T WithLabel<T>(
             this T button,
             string text,
@@ -178,6 +214,15 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #endregion
 
+        #region Label
+
+        public static T SetLocalizedText<T>(this T comp, string token) where T : Label {
+            comp.Text = BLLocalization.GetTranslation(token);
+            return comp;
+        }
+
+        #endregion
+        
         #region ReeWrapper
 
         public static ReeWrapperV2<TRee> BindRee<TRee>(this ReeWrapperV2<TRee> comp, ref TRee variable)
@@ -296,6 +341,17 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #endregion
 
+        #region LoadingContainer
+
+        public static LoadingContainer InLoadingContainer(this ILayoutItem comp) {
+            return new LoadingContainer {
+                LayoutModifier = comp.LayoutModifier?.CreateCopy(),
+                Component = comp
+            };
+        }
+        
+        #endregion
+        
         #region TextArea
 
         public static T WithItemsText<T>(this T comp, IEnumerable<string> items) where T : TextArea {

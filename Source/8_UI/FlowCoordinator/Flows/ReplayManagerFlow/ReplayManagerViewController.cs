@@ -29,18 +29,17 @@ namespace BeatLeader.UI.Hub {
         #region Init
 
         private void Awake() {
+            var tagManager = _replayManager.MetadataManager.TagManager;
             new Dummy {
                 Children = {
-                    new ListFiltersPanel<IReplayHeader> {
+                    new ListFiltersPanel<IReplayHeaderBase> {
                         SearchContract = x => {
                             var info = x.ReplayInfo;
                             var str = new[] { info.PlayerName, info.SongName };
                             return str;
                         },
                         Filters = {
-                            new TagFilter().With(
-                                x => x.Setup(_replayManager.MetadataManager.TagManager)
-                            )
+                            new TagFilter().With(x => x.Setup(tagManager))
                         }
                     }.With(
                         x => {
@@ -49,24 +48,24 @@ namespace BeatLeader.UI.Hub {
                             beatmapFilters.Setup(this);
                             x.Filters.AddRange(beatmapFilters.Filters);
                         }
-                    ).AsFlexItem(basis: 8f).Export(out var filtersPanel),
+                    ).AsFlexItem(
+                        size: new() { x = 100f, y = 8f },
+                        alignSelf: Align.Center
+                    ).Export(out var filtersPanel),
                     //
-                    new ReeWrapperV3<BeatmapReplayLaunchPanel>()
-                        .AsFlexItem(basis: 63f)
-                        .BindRee(ref _replayPanel).With(
-                            x => {
-                                x.ReeComponent.ReplaysList.Filter = filtersPanel;
-                            }
-                        )
+                    new BeatmapReplayLaunchPanel()
+                        .AsFlexItem(basis: 68f)
+                        .Bind(ref _replayPanel)
+                        .With(x => x.ReplaysList.Filter = filtersPanel)
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
                 justifyContent: Justify.Center,
                 gap: 2f
-            ).Use(transform);
+            ).WithRectExpand().Use(transform);
 
-            _replayDetailPanel = ReplayDetailPanel.Instantiate(transform);
-            _replayDetailPanel.Setup(_replayerLoader);
+            _replayDetailPanel = new ReplayDetailPanel();
+            _replayDetailPanel.Setup(_replayerLoader, tagManager);
             _replayPanel.Setup(_replaysLoader);
             _replayPanel.DetailPanel = _replayDetailPanel;
         }

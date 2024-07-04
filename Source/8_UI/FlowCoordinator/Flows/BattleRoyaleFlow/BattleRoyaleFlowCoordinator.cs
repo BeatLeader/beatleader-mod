@@ -148,7 +148,7 @@ namespace BeatLeader.UI.Hub {
         #region BattleRoyaleHost
 
         public IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays => _replays.Values;
-        public IListFilter<IReplayHeaderBase> ReplayFilter => _replayFilter;
+        public ITableFilter<IReplayHeaderBase> ReplayFilter => _replayFilter;
 
         public IDifficultyBeatmap? ReplayBeatmap {
             get => _replayFilter.DifficultyBeatmap;

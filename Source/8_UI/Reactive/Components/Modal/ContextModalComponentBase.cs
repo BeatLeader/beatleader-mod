@@ -27,7 +27,8 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected TContext Context => _context ?? throw new UninitializedComponentException();
-
+        protected bool HasContext => _context != null;
+        
         private bool _ignoreContextUpdates;
         private TContext? _context;
 

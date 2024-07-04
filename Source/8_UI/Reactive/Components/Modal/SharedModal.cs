@@ -2,62 +2,64 @@ using System;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class SharedModal<T> : INewModal, IReactiveComponent where T : class, INewModal, IReactiveComponent, new() {
+    internal interface ISharedModal : INewModal { }
+    
+    internal class SharedModal<T> : ISharedModal, IReactiveComponent, ILayoutItem where T : class, INewModal, IReactiveComponent, new() {
         #region Pool
 
-        protected T BorrowedModal => _borrowedModal ?? throw new InvalidOperationException();
+        public T Modal => _modal ?? throw new InvalidOperationException();
 
         private static readonly ReactivePool<T> modals = new();
-        private T? _borrowedModal;
+        private T? _modal;
 
         private void SpawnModal() {
-            if (_borrowedModal != null) return;
-            _borrowedModal = modals.Spawn();
-            _borrowedModal.ModalClosedEvent += HandleModalClosed;
-            _borrowedModal.ModalOpenedEvent += HandleModalOpened;
-            _borrowedModal.OpenProgressChangedEvent += HandleOpenProgressChanged;
+            if (_modal != null) return;
+            _modal = modals.Spawn();
+            _modal.ModalClosedEvent += HandleModalClosed;
+            _modal.ModalOpenedEvent += HandleModalOpened;
+            _modal.OpenProgressChangedEvent += HandleOpenProgressChanged;
             OnSpawn();
         }
-        
+
         private void DespawnModal() {
-            _borrowedModal!.ModalClosedEvent -= HandleModalClosed;
-            _borrowedModal.ModalOpenedEvent -= HandleModalOpened;
-            _borrowedModal.OpenProgressChangedEvent -= HandleOpenProgressChanged;
+            _modal!.ModalClosedEvent -= HandleModalClosed;
+            _modal.ModalOpenedEvent -= HandleModalOpened;
+            _modal.OpenProgressChangedEvent -= HandleOpenProgressChanged;
             OnDespawn();
-            modals.Despawn(_borrowedModal);
-            _borrowedModal = null;
+            modals.Despawn(_modal);
+            _modal = null;
         }
-        
+
         protected virtual void OnSpawn() { }
         protected virtual void OnDespawn() { }
-        
+
         #endregion
 
         #region Modal Adapter
 
-        public float AnimationProgress => _borrowedModal?.AnimationProgress ?? 0f;
+        public float AnimationProgress => _modal?.AnimationProgress ?? 0f;
 
         public event Action<INewModal, bool>? ModalClosedEvent;
         public event Action<INewModal, bool>? ModalOpenedEvent;
         public event Action<INewModal, float>? OpenProgressChangedEvent;
 
         public void Pause() {
-            BorrowedModal.Pause();
+            Modal.Pause();
         }
 
         public void Resume() {
-            BorrowedModal.Resume();
+            Modal.Resume();
         }
 
         public virtual void Close(bool immediate) {
-            BorrowedModal.Close(immediate);
+            Modal.Close(immediate);
         }
 
         public void Open(bool immediate) {
             SpawnModal();
-            BorrowedModal.Open(immediate);
+            Modal.Open(immediate);
         }
-        
+
         protected virtual void OnOpenInternal(bool finished) { }
         protected virtual void OnCloseInternal(bool finished) { }
 
@@ -65,23 +67,40 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region ReactiveComponent Adapter
 
-        public GameObject Content => BorrowedModal.Content;
+        public GameObject Content => Modal.Content;
 
-        public RectTransform ContentTransform => BorrowedModal.ContentTransform;
+        public RectTransform ContentTransform => Modal.ContentTransform;
 
-        public bool IsDestroyed => BorrowedModal.IsDestroyed;
+        public bool IsDestroyed => Modal.IsDestroyed;
 
-        public bool IsInitialized => BorrowedModal.IsInitialized;
+        public bool IsInitialized => Modal.IsInitialized;
 
         public bool Enabled {
-            get => BorrowedModal.Enabled;
-            set => BorrowedModal.Enabled = value;
+            get => Modal.Enabled;
+            set => Modal.Enabled = value;
         }
 
         public GameObject Use(Transform? parent) {
             SpawnModal();
-            return BorrowedModal.Use(parent);
+            return Modal.Use(parent);
         }
+
+        #endregion
+
+        #region LayoutItem
+
+        public bool Equals(ILayoutItem other) {
+            return other == this;
+        }
+
+        public ILayoutDriver? LayoutDriver { get; set; }
+        public ILayoutModifier? LayoutModifier { get; set; }
+        public float? DesiredHeight => null;
+        public float? DesiredWidth => null;
+        public bool WithinLayout { get; set; }
+        public event Action<ILayoutItem>? ModifierUpdatedEvent;
+
+        public void ApplyTransforms(Action<RectTransform> applicator) { }
 
         #endregion
 

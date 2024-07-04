@@ -15,7 +15,7 @@
         IgnoreLayout="true" anchor-pos-x="34"
       />
     </horizontal>
-    <vertical id="detail-panel-container" InheritHeight="false" Height="63">
+    <vertical id="detail-panel-container" InheritSize="false" Height="63" Width="50">
       <text
         id="detail-missing-text"
         text="Whaat, there is no details? But don't be upset, monke keep trying to acquire them!"

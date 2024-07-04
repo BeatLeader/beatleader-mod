@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using RDummy = BeatLeader.UI.Reactive.Components.Dummy;
 
 namespace BeatLeader.Components {
+    //TODO: migrate to reactive after merge
     internal class QuickMiniProfile : ReeUIComponentV3<QuickMiniProfile> {
         #region Layout
 

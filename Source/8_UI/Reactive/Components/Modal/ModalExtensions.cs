@@ -80,24 +80,31 @@ namespace BeatLeader.UI.Reactive.Components {
         #region WithAlphaOnModalOpen
 
         public static T WithAlphaOnModalOpen<T>(this T comp, INewModal modal, float threshold = 0.2f) where T : IReactiveComponent {
-            var group = comp.Content.GetOrAddComponent<CanvasGroup>();
+            WithAlphaOnModalOpen(modal, () => comp.Content, threshold);
+            return comp;
+        }
+        
+        public static T WithAlphaOnModalOpen<T>(this T modal, Func<GameObject> objectFunc, float threshold = 0.2f) where T : INewModal {
+            CanvasGroup? group = null;
             modal.ModalOpenedEvent += HandleModalOpened;
             modal.ModalClosedEvent += HandleModalClosed;
             modal.OpenProgressChangedEvent += HandleProgressChanged;
-            return comp;
+            return modal;
 
             void HandleProgressChanged(INewModal _, float progress) {
+                if (group == null) return;
                 group.alpha = Mathf.Lerp(1f, threshold, progress);
             }
 
             void HandleModalOpened(INewModal _, bool finished) {
                 if (finished) return;
+                group ??= objectFunc().GetOrAddComponent<CanvasGroup>();
                 group.ignoreParentGroups = true;
             }
 
             void HandleModalClosed(INewModal _, bool finished) {
                 if (!finished) return;
-                group.ignoreParentGroups = false;
+                group!.ignoreParentGroups = false;
             }
         }
 
@@ -269,7 +276,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 );
                 comp.ContentTransform.localPosition = position;
                 comp.ContentTransform.pivot = pivot;
-                if (!immediate && unbindOnceOpened) {
+                if (!immediate && unbindOnceOpened && comp is not ISharedModal) {
                     modal.ModalOpenedEvent -= HandleModalOpened;
                 }
             }
@@ -300,7 +307,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 RelativePlacement.BottomLeft => position - anchorHeightDiv - anchorWidthDiv + new Vector2(offset.x, -offset.y),
                 RelativePlacement.BottomCenter => position - anchorHeightDiv + new Vector2(offset.x, -offset.y),
                 RelativePlacement.BottomRight => position - anchorHeightDiv + anchorWidthDiv - offset,
-                RelativePlacement.Center => position + offset,
+                RelativePlacement.Center => position + offset + rect.size * Vector2.one * 0.5f - rect.size * anchor.pivot,
                 _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, null)
             };
             pivot = placement switch {
@@ -316,7 +323,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 RelativePlacement.BottomLeft => new(0f, 1f),
                 RelativePlacement.BottomCenter => new(0.5f, 1f),
                 RelativePlacement.BottomRight => new(1f, 1f),
-                RelativePlacement.Center => anchor.pivot,
+                RelativePlacement.Center => Vector2.one * 0.5f,
                 _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, null)
             };
         }

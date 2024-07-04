@@ -1,81 +1,48 @@
 ﻿using System.Linq;
-using BeatLeader.Components;
+using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
-using UnityEngine;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
 
 namespace BeatLeader.UI.Hub {
-    internal class BattleRoyaleDetailPanel : ReeUIComponentV3<BattleRoyaleDetailPanel>, BeatmapReplayLaunchPanel.IDetailPanel {
-        #region UI Components
+    internal class BattleRoyaleDetailPanel : BasicReplayDetailPanel {
+        #region Construct
 
-        [UIValue("replay-info-panel"), UsedImplicitly]
-        private ReplayStatisticsPanel _replayStatisticsPanel = null!;
+        private ButtonBase _selectButton = null!;
+        private Label _selectButtonLabel = null!;
 
-        [UIComponent("mini-profile"), UsedImplicitly]
-        private QuickMiniProfile _miniProfile = null!;
-
-        #endregion
-
-        #region UI Values
-
-        [UIValue("select-button-text"), UsedImplicitly]
-        private string SelectButtonText {
-            get => _selectButtonText;
-            set {
-                _selectButtonText = value;
-                NotifyPropertyChanged();
-            }
+        protected override ILayoutItem ConstructButtons() {
+            return new BsPrimaryButton()
+                .WithClickListener(HandleSelectButtonClicked)
+                .WithLocalizedLabel(out _selectButtonLabel, "ls-watch-replay-short")
+                .AsFlexItem(size: new() { y = 8f })
+                .Bind(ref _selectButton);
         }
-
-        [UIValue("select-button-interactable"), UsedImplicitly]
-        private bool SelectButtonInteractable {
-            get => _selectButtonInteractable;
-            set {
-                _selectButtonInteractable = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private string _selectButtonText = null!;
-        private bool _selectButtonInteractable;
 
         #endregion
 
         #region DetailPanel
-        
+
+        protected override bool AllowTagsEdit => false;
+        protected override string EmptyText => "Select a replay to stop Monke from being a thief";
+
         private IBeatmapReplayLaunchPanel? _beatmapReplayLaunchPanel;
-        private IReplayHeader? _header;
 
-        public void Setup(IBeatmapReplayLaunchPanel? launchPanel, Transform? parent) {
+        public override void Setup(IBeatmapReplayLaunchPanel? launchPanel) {
+            if (_beatmapReplayLaunchPanel != null) {
+                _beatmapReplayLaunchPanel.SelectedReplaysUpdatedEvent -= HandleSelectedReplaysUpdated;
+            }
             _beatmapReplayLaunchPanel = launchPanel;
+            if (_beatmapReplayLaunchPanel != null) {
+                _beatmapReplayLaunchPanel.SelectedReplaysUpdatedEvent += HandleSelectedReplaysUpdated;
+            }
             UpdateSelectButton();
-            ContentTransform.SetParent(parent, false);
-            Content.SetActive(parent is not null);
         }
 
-        public void SetData(IReplayHeader? header) {
-            _header = header;
+        protected override Task SetDataInternalAsync(IReplayHeader header, CancellationToken token) {
             UpdateSelectButton();
-            _replayStatisticsPanel.SetDataByHeaderAsync(header);
-            LoadPlayerAsync(header);
-        }
-
-        private async void LoadPlayerAsync(IReplayHeaderBase? header) {
-            var player = header is null ? null : await header.LoadPlayerAsync(false, default);
-            _miniProfile.SetPlayer(player);
-        }
-
-        #endregion
-
-        #region Setup
-
-        protected override void OnInstantiate() {
-            _replayStatisticsPanel = ReeUIComponentV2.Instantiate<ReplayStatisticsPanel>(transform);
-        }
-
-        protected override bool OnValidation() {
-            return _beatmapReplayLaunchPanel is not null;
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -85,11 +52,10 @@ namespace BeatLeader.UI.Hub {
         private bool _replayIsAdded;
 
         private void UpdateSelectButton() {
-            ValidateAndThrow();
-            var interactable = _header is not null;
-            SelectButtonInteractable = interactable;
-            var containsCurrent = !interactable || _beatmapReplayLaunchPanel!.SelectedReplays.Contains(_header!);
-            SelectButtonText = containsCurrent ? "Remove" : "Select";
+            var interactable = Header != null && _beatmapReplayLaunchPanel != null;
+            var containsCurrent = interactable && _beatmapReplayLaunchPanel!.SelectedReplays.Contains(Header);
+            _selectButton.Interactable = interactable;
+            _selectButtonLabel.Text = containsCurrent ? "Remove" : "Select";
             _replayIsAdded = containsCurrent;
         }
 
@@ -97,13 +63,15 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        [UIAction("select-button-click"), UsedImplicitly]
+        private void HandleSelectedReplaysUpdated() {
+            UpdateSelectButton();
+        }
+
         private void HandleSelectButtonClicked() {
-            ValidateAndThrow();
             if (_replayIsAdded) {
-                _beatmapReplayLaunchPanel!.RemoveSelectedReplay(_header!);
+                _beatmapReplayLaunchPanel!.RemoveSelectedReplay(Header!);
             } else {
-                _beatmapReplayLaunchPanel!.AddSelectedReplay(_header!);
+                _beatmapReplayLaunchPanel!.AddSelectedReplay(Header!);
             }
             UpdateSelectButton();
         }

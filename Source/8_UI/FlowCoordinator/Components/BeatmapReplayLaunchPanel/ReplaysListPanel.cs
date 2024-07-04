@@ -1,12 +1,11 @@
-﻿using BeatLeader.Components;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
 using BeatLeader.UI.Reactive;
 using UnityEngine;
 using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Hub {
-    internal class ReplaysListPanel : ReeUIComponentV3<ReplaysListPanel> {
+    internal class ReplaysListPanel : ReactiveComponent {
         #region Setup
 
         private IReplaysLoader? _replaysLoader;
@@ -26,7 +25,7 @@ namespace BeatLeader.UI.Hub {
             _replaysLoader.AllReplaysRemovedEvent += HandleAllReplaysRemoved;
         }
 
-        protected override bool OnValidation() {
+        protected override bool Validate() {
             return _replaysLoader is not null;
         }
 
@@ -45,7 +44,7 @@ namespace BeatLeader.UI.Hub {
         private ReplaysList _replaysList = null!;
         private ReplaysListSettingsPanel _settingsPanel = null!;
 
-        protected override GameObject Construct(Transform parent) {
+        protected override GameObject Construct() {
             var go = new UI.Reactive.Components.Dummy {
                 Children = {
                     new ReplaysList()
@@ -56,7 +55,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(basis: 4f)
                         .Bind(ref _settingsPanel)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).Use(parent);
+            }.AsFlexGroup(direction: FlexDirection.Column).Use();
             return go;
         }
 
@@ -67,7 +66,7 @@ namespace BeatLeader.UI.Hub {
         private readonly object _locker = new();
         private bool _listIsDirty;
 
-        private void LateUpdate() {
+        protected override void OnLateUpdate() {
             if (!_listIsDirty) return;
             lock (_locker) {
                 _replaysList.Refresh();

@@ -8,7 +8,7 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class VRScrollAdapter : MonoBehaviour {
         private PointerEventsHandler _pointerEventsHandler = null!;
         private IVRPlatformHelper _platformHelper = null!;
-        
+
         private void Awake() {
             _pointerEventsHandler = GetComponent<PointerEventsHandler>();
             _platformHelper = OnMenuInstaller.Container.Resolve<IVRPlatformHelper>();
@@ -20,6 +20,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void HandleJoystickWasNotCentered(Vector2 delta) {
+            if (!_pointerEventsHandler.IsHovered) return;
             var pointerEventData = new PointerEventData(EventSystem.current) {
                 scrollDelta = delta
             };

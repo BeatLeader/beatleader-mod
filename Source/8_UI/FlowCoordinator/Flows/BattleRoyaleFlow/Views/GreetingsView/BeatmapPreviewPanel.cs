@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
@@ -18,7 +19,6 @@ namespace BeatLeader.UI.Hub {
                 _songTimeLabel.Skew = value;
                 _songBpmLabel.Skew = value;
                 _songDifficultyLabel.Skew = value;
-                _backgroundButton.Skew = value;
                 _songImage.Skew = value;
                 _songDifficultyImage.Skew = value;
             }
@@ -37,27 +37,26 @@ namespace BeatLeader.UI.Hub {
                 _songBpmLabel.Enabled = !value;
             }
         }
+        
+        public async Task SetBeatmap(IDifficultyBeatmap beatmap) {
+            await SetBeatmapLevel( beatmap.level);
+            _songDifficultyLabel.Text = beatmap.difficulty.ToString();
+            _songDifficultyImage.Sprite = beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.icon;
+        }
 
-        public async void SetData(IDifficultyBeatmap beatmap) {
-            var level = beatmap.level;
-            var spriteTask = level.GetCoverImageAsync(CancellationToken.None);
-            //
+        public async Task SetBeatmapLevel(IPreviewBeatmapLevel level) {
             _songNameLabel.Text = FormatSongNameText(level.songName, level.songSubName);
             _songAuthorLabel.Text = FormatAuthorText(level.songAuthorName, level.levelAuthorName);
             //
             _songTimeLabel.Text = FormatUtils.FormatTime(level.songDuration);
             _songBpmLabel.Text = Mathf.FloorToInt(level.beatsPerMinute).ToString();
-            //
-            _songDifficultyLabel.Text = beatmap.difficulty.ToString();
-            _songDifficultyImage.Sprite = beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.icon;
-            //
-            _songImage.Sprite = await spriteTask;
+            _songImage.Sprite = await level.GetCoverImageAsync(CancellationToken.None);
         }
 
         private static string FormatSongNameText(string name, string subName) {
             return $"{name} <size=80%>{subName}</size>";
         }
-        
+
         private static string FormatAuthorText(string author, string mapper) {
             return $"<size=80%>{author}</size> <size=90%>[<color=#89ff89>{mapper}</color>]</size>";
         }
@@ -75,7 +74,7 @@ namespace BeatLeader.UI.Hub {
         private Label _songTimeLabel = null!;
         private Label _songBpmLabel = null!;
 
-        private ImageButton _backgroundButton = null!;
+        private Dummy _background = null!;
         private Image _songImage = null!;
 
         protected override GameObject Construct() {
@@ -102,20 +101,7 @@ namespace BeatLeader.UI.Hub {
             var primaryColor = Color.white;
             var secondaryColor = Color.white.ColorWithAlpha(0.75f);
 
-            return new ImageButton {
-                Image = {
-                    Color = Color.white.ColorWithAlpha(0.2f),
-                    Sprite = BundleLoader.Sprites.background,
-                    PixelsPerUnit = 12f,
-                },
-                Colors = null,
-                GradientColors1 = new StateColorSet {
-                    Color = Color.clear,
-                    HoveredColor = Color.white
-                },
-                GrowOnHover = false,
-                HoverLerpMul = float.MaxValue,
-                RaycastTarget = false,
+            return new Dummy {
                 Children = {
                     new Image {
                         Sprite = BundleLoader.UnknownIcon,
@@ -217,11 +203,11 @@ namespace BeatLeader.UI.Hub {
                         alignSelf: Align.Center
                     )
                 }
-            }.AsFlexGroup(gap: 0.8f).Bind(ref _backgroundButton).Use();
+            }.AsFlexGroup(gap: 0.8f).Bind(ref _background).Use();
         }
 
         protected override void OnInitialize() {
-            this.AsFlexItem(size: new() { x = 50f, y = 8f });
+            this.AsFlexItem(size: new() { x = 50f, y = 10f });
             ShowDifficultyInsteadOfTime = false;
         }
 

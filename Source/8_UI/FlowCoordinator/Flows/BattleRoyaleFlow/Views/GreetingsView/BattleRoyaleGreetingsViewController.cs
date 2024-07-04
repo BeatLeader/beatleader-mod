@@ -179,7 +179,7 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleLevelSelectionFlowBeatmapSelected(IDifficultyBeatmap beatmap) {
             _battleRoyaleHost.ReplayBeatmap = beatmap;
-            _beatmapPreviewPanel.SetData(beatmap);
+            _beatmapPreviewPanel.SetBeatmap(beatmap);
         }
 
         #endregion

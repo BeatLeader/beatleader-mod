@@ -167,14 +167,18 @@ namespace BeatLeader.Components {
                                     new UI.Reactive.Components.Dummy {
                                         Children = {
                                             //layer up button
-                                            new BsButton()
+                                            new BsButton {
+                                                    Skew = 0f
+                                                }
                                                 .WithLabel("+")
                                                 .AsFlexItem(basis: 7f)
                                                 .WithAccentColor(Color.red)
                                                 .WithClickListener(HandleLayerUpButtonClicked)
                                                 .Bind(ref _layerUpButton),
                                             //layer down button
-                                            new BsButton()
+                                            new BsButton {
+                                                    Skew = 0f
+                                                }
                                                 .WithLabel("-")
                                                 .AsFlexItem(basis: 7f)
                                                 .WithAccentColor(Color.blue)
@@ -182,25 +186,31 @@ namespace BeatLeader.Components {
                                                 .Bind(ref _layerDownButton)
                                         }
                                     }.AsFlexGroup(
-                                        direction: UI.Reactive.Yoga.FlexDirection.Column
+                                        direction: UI.Reactive.Yoga.FlexDirection.Column,
+                                        gap: 0.5f
                                     ).AsFlexItem(grow: 1f),
                                     //exit & apply buttons
                                     new UI.Reactive.Components.Dummy {
                                         Children = {
                                             //cancel button
-                                            new BsButton()
+                                            new BsButton {
+                                                    Skew = 0f
+                                                }
                                                 .WithLabel("Cancel")
                                                 .AsFlexItem(basis: 7f)
                                                 .WithClickListener(() => _layoutEditor!.SetEditorActive(false)),
                                             //apply button
-                                            new BsPrimaryButton()
+                                            new BsPrimaryButton {
+                                                    Skew = 0f
+                                                }
                                                 .WithLabel("Apply")
                                                 .AsFlexItem(basis: 7f)
                                                 .WithClickListener(() => _layoutEditor!.SetEditorActive(false, true))
                                         }
                                     }.AsFlexGroup(
                                         direction: UI.Reactive.Yoga.FlexDirection.Column,
-                                        padding: new() { left = 2f }
+                                        padding: new() { left = 2f },
+                                        gap: 0.5f
                                     ).AsFlexItem(grow: 2f)
                                 }
                             }.AsFlexGroup(

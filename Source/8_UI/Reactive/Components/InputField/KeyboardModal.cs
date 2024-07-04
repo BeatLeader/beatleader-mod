@@ -5,7 +5,6 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class KeyboardModal<T, TInput> : SharedModal<AnimatedModalWrapper<T>>, IKeyboardController<IInputFieldController>
         where T : IKeyboardController<IInputFieldController>, IReactiveComponent, new()
         where TInput : IInputFieldController, IReactiveComponent {
-
         #region Keyboard Component
 
         public event Action? KeyboardClosedEvent;
@@ -24,8 +23,7 @@ namespace BeatLeader.UI.Reactive.Components {
             if (active) {
                 this.Present(_inputField!.ContentTransform);
             } else {
-                Modal.Close(false);
-                KeyboardClosedEvent?.Invoke();
+                Close(false);
             }
         }
 
@@ -35,11 +33,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public RelativePlacement Placement { get; set; } = RelativePlacement.BottomCenter;
         public Vector2? Offset { get; set; }
-       
+
         #endregion
 
         #region Modal
-        
+
         private T Keyboard => Modal.Component;
 
         public override void Close(bool immediate) {
@@ -48,7 +46,10 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnCloseInternal(bool finished) {
-            if (!finished) return;
+            if (!finished) {
+                KeyboardClosedEvent?.Invoke();
+                return;
+            }
             Keyboard.SetActive(false);
         }
 
@@ -72,8 +73,7 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Callbacks
 
         private void HandleKeyboardClosed() {
-            Modal.Close(false);
-            KeyboardClosedEvent?.Invoke();
+            Close(false);
         }
 
         #endregion

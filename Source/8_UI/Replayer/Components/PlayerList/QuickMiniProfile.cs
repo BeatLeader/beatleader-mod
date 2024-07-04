@@ -45,10 +45,20 @@ namespace BeatLeader.Components {
             Player = player;
             _playerAvatar.SetAvatar(player);
             _playerCountryFlag.SetCountry(player?.Country ?? "not set");
-
-            _playerNameLabel.Text = player?.Name ?? "Loading...";
+            _playerCountryFlag.GetRootTransform().gameObject.SetActive(true);
+            
+            _playerNameLabel.Text = player?.Name ?? "Unknown";
             _playerGlobalRankLabel.Text = FormatUtils.FormatRank(player?.Rank ?? -1, true);
             _playerPpLabel.Text = FormatUtils.FormatPP(player?.PerformancePoints ?? -1);
+        }
+
+        public void SetLoading() {
+            _playerAvatar.SetAvatar(null);
+            _playerCountryFlag.GetRootTransform().gameObject.SetActive(false);
+            
+            _playerNameLabel.Text = "Loading...";
+            _playerGlobalRankLabel.Text = FormatUtils.FormatRank(-1, true);
+            _playerPpLabel.Text = FormatUtils.FormatPP(-1);
         }
 
         #endregion

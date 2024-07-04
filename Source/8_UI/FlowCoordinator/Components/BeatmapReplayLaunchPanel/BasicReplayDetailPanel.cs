@@ -100,6 +100,7 @@ namespace BeatLeader.UI.Hub {
         protected CancellationToken CancellationToken => _tokenSource.Token;
         
         private CancellationTokenSource _tokenSource = new();
+        private string? _lastPlayerId;
 
         public void SetData(IReplayHeader? header) {
             if (header == Header) return;
@@ -117,11 +118,11 @@ namespace BeatLeader.UI.Hub {
                 SetDetailsVisible(true);
                 //starting tasks
                 _tagsStrip.SetMetadata(header.ReplayMetadata);
+                var playerTask = RefreshPlayerAsync(header, token);
                 var statsTask = RefreshStatsAsync(header, token);
                 var setDataTask = SetDataInternalAsync(header, token);
-                var player = await header.LoadPlayerAsync(false, token);
-                _miniProfile.SetPlayer(player);
                 //awaiting tasks
+                await playerTask;
                 await statsTask;
                 await setDataTask;
             }
@@ -135,6 +136,14 @@ namespace BeatLeader.UI.Hub {
             _statsContainer.Loading = true;
             await _replayStatisticsPanel.SetDataByHeaderAsync(header, token);
             _statsContainer.Loading = false;
+        }
+
+        private async Task RefreshPlayerAsync(IReplayHeader header, CancellationToken token) {
+            if (_lastPlayerId == header.ReplayInfo.PlayerID) return;
+            _miniProfile.SetLoading();
+            var player = await header.LoadPlayerAsync(false, token);
+            _miniProfile.SetPlayer(player);
+            _lastPlayerId = player.Id;
         }
 
         #endregion

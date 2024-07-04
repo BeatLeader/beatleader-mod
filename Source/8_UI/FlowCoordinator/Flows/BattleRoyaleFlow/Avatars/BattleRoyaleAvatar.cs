@@ -74,10 +74,6 @@ namespace BeatLeader.UI.Hub {
             AvatarTweenController.HideAvatar();
         }
 
-        private void OnEnable() {
-            PresentAvatar();
-        }
-
         #endregion
     }
 }

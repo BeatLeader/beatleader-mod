@@ -16,6 +16,8 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;
         [Inject] private readonly IReplayManager _replayManager = null!;
         [Inject] private readonly IReplaysLoader _replaysLoader = null!;
+        [Inject] private readonly LevelSelectionFlowCoordinator _levelSelectionFlowCoordinator = null!;
+        [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
 
         #endregion
 
@@ -45,7 +47,7 @@ namespace BeatLeader.UI.Hub {
                         x => {
                             //adding beatmap filter items
                             var beatmapFilters = new BeatmapFilterHost();
-                            beatmapFilters.Setup(this);
+                            beatmapFilters.Setup(_replayManagerFlowCoordinator, _levelSelectionFlowCoordinator);
                             x.Filters.AddRange(beatmapFilters.Filters);
                         }
                     ).AsFlexItem(

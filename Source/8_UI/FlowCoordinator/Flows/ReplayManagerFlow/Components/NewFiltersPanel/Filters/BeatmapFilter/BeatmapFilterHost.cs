@@ -22,8 +22,8 @@ namespace BeatLeader.UI.Hub {
         private readonly CharacteristicFilterPanel _characteristicFilter;
         private readonly DifficultyFilterPanel _difficultyFilter;
 
-        public void Setup(ViewController viewController) {
-            _beatmapFilter.Setup(viewController);
+        public void Setup(FlowCoordinator flowCoordinator, LevelSelectionFlowCoordinator selectionFlowCoordinator) {
+            _beatmapFilter.Setup(flowCoordinator, selectionFlowCoordinator);
         }
 
         private void Init() {

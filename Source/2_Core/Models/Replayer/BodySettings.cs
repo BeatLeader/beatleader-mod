@@ -6,16 +6,20 @@ namespace BeatLeader.Models {
     [PublicAPI]
     public class BodySettings {
         [JsonProperty]
-        private Dictionary<string, SerializableVirtualPlayerBodyConfig> BodyModels { get; set; } = new();
+        internal Dictionary<string, SerializableVirtualPlayerBodyConfig> BodyModels { get; set; } = new();
 
         public void AddOrUpdateConfig(IVirtualPlayerBodyModel model, IVirtualPlayerBodyConfig config) {
             var serializable = config as SerializableVirtualPlayerBodyConfig;
-            BodyModels[model.Name] = serializable ?? new SerializableVirtualPlayerBodyConfig(model, config);
+            BodyModels[model.Name] = serializable ?? SerializableVirtualPlayerBodyConfig.Clone(model, config);
         }
 
-        public IVirtualPlayerBodyConfig? GetConfigByNameOrNull(string name) {
-            BodyModels.TryGetValue(name, out var model);
-            return model;
+        public IVirtualPlayerBodyConfig GetConfigByModel(IVirtualPlayerBodyModel bodyModel) {
+            if (!BodyModels.TryGetValue(bodyModel.Name, out var config)) {
+                config = SerializableVirtualPlayerBodyConfig.Create(bodyModel);
+                config.SetBodyModel(bodyModel);
+            }
+            config.SetBodyModel(bodyModel);
+            return config;
         }
     }
 }

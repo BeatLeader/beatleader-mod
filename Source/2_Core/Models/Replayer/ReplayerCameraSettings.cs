@@ -12,7 +12,10 @@ namespace BeatLeader.Models {
             new StaticCameraView("RightView", new(3.70f, 1.70f, 0), new(0, -90, 0)),
             new StaticCameraView("BehindView", new(0f, 1.9f, -2f), Vector3.zero),
             new StaticCameraView("CenterView", new(0f, 1.7f, 0f), Vector3.zero),
-            new PlayerViewCameraView(),
+            new PlayerViewCameraView {
+                KeepUpright = true,
+                Smoothness = 1f
+            },
             new FlyingCameraView {
                 Name = "FreeView",
                 FlySpeed = 4,

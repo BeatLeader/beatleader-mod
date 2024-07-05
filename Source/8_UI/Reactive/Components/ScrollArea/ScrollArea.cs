@@ -210,6 +210,10 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
+            //DevicelessVRHelper does not trigger scroll events
+            if (EnvironmentUtils.UsesFPFC) {
+                Content.AddComponent<VRScrollAdapter>();
+            }
             SetDestinationPos(0f, true);
         }
 

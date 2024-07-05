@@ -1,4 +1,5 @@
-﻿using BeatLeader.Models;
+﻿using System.Collections.Generic;
+using BeatLeader.Models;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -49,20 +50,15 @@ namespace BeatLeader {
         #region ReplayerSettings
 
         public static readonly ReplayerSettings ReplayerSettings = new() {
-            AutoHideUI = false,
             LoadPlayerEnvironment = false,
             ExitReplayAutomatically = true,
 
-            ShowHead = false,
-            ShowLeftSaber = true,
-            ShowRightSaber = true,
             ShowWatermark = true,
-
             ShowTimelineMisses = true,
             ShowTimelineBombs = true,
             ShowTimelinePauses = true,
 
-            CameraSettings = new InternalReplayerCameraSettings() {
+            CameraSettings = new InternalReplayerCameraSettings {
                 MaxCameraFOV = 110,
                 MinCameraFOV = 70,
                 CameraFOV = 90,
@@ -70,7 +66,86 @@ namespace BeatLeader {
                 VRCameraView = "BehindView"
             },
 
-            UISettings = new() {
+            BodySettings = {
+                BodyModels = {
+                    {
+                        "Primary", SerializableVirtualPlayerBodyConfig.CreateManual(
+                            new Dictionary<string, SerializableVirtualPlayerBodyPartConfig> {
+                                {
+                                    "BATTLE_ROYALE_AVATAR_HEAD", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_BODY", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_LEFT_HAND", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_RIGHT_HAND", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "LEFT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "RIGHT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }
+                            }
+                        )
+                    }, {
+                        "Default", SerializableVirtualPlayerBodyConfig.CreateManual(
+                            new Dictionary<string, SerializableVirtualPlayerBodyPartConfig> {
+                                {
+                                    "BATTLE_ROYALE_AVATAR_HEAD", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_BODY", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_LEFT_HAND", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_RIGHT_HAND", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "LEFT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 0.7f
+                                    }
+                                }, {
+                                    "RIGHT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 0.7f
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            },
+
+            UISettings = {
+                AutoHideUI = false,
                 FloatingSettings = new() {
                     Pose = new() {
                         position = new(0f, 1f, 2f),
@@ -85,11 +160,55 @@ namespace BeatLeader {
                     CurvatureRadius = 90f,
                     CurvatureEnabled = true
                 },
-                //TODO: add other components
-                LayoutEditorSettings = new() { }
+                LayoutEditorSettings = new() {
+                    ComponentDatas = new() {
+                        {
+                            "Toolbar", new() {
+                                position = new() {
+                                    x = 3f,
+                                    y = -96f
+                                },
+                                size = new() {
+                                    x = 108f,
+                                    y = 72f
+                                },
+                                layer = 1,
+                                active = true
+                            }
+                        },
+                        {
+                            "Beatmap Preview", new() {
+                                position = new() {
+                                    x = -165f,
+                                    y = 120f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 24f
+                                },
+                                layer = 2,
+                                active = true
+                            }
+                        },
+                        {
+                            "Player List", new() {
+                                position = new() {
+                                    x = -165f,
+                                    y = 78f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 60f
+                                },
+                                layer = 3,
+                                active = true
+                            }
+                        }
+                    }
+                }
             },
 
-            Shortcuts = new() {
+            Shortcuts = {
                 LayoutEditorPartialModeHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,

@@ -88,8 +88,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         private IVirtualPlayerBodyConfig GetConfigByModel(IVirtualPlayerBodyModel model) {
             var bodySettings = _replayLaunchData.Settings.BodySettings;
-            var conf = bodySettings.GetConfigByNameOrNull(model.Name);
-            conf ??= new SerializableVirtualPlayerBodyConfig(model);
+            var conf = bodySettings.GetConfigByModel(model);
             bodySettings.AddOrUpdateConfig(model, conf);
             return conf;
         }

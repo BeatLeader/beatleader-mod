@@ -9,36 +9,40 @@ using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
     internal class SerializableVirtualPlayerBodyConfig : IVirtualPlayerBodyConfig {
-        #region Construction
+        #region Factory
 
-        [JsonConstructor, UsedImplicitly]
-        private SerializableVirtualPlayerBodyConfig() { }
-
-        [OnDeserialized]
-        private void OnDeserialize(StreamingContext context) {
-            LoadSerializedParts();
-            BindConfigs();
-        }
-
-        public SerializableVirtualPlayerBodyConfig(
-            IVirtualPlayerBodyModel model,
-            IVirtualPlayerBodyConfig config
-        ) : this(model) {
-            AnchorMask = config.AnchorMask;
-            foreach (var (id, (_, conf)) in _sourceBodyParts) {
+        public static SerializableVirtualPlayerBodyConfig Clone(IVirtualPlayerBodyModel model, IVirtualPlayerBodyConfig bodyConfig) {
+            var config = Create(model);
+            config.AnchorMask = config.AnchorMask;
+            foreach (var (id, conf) in config.BodyParts) {
                 var part = config.BodyParts[id];
                 conf.Alpha = part.Alpha;
                 conf.PotentiallyActive = part.PotentiallyActive;
             }
+            return config;
         }
-        
-        public SerializableVirtualPlayerBodyConfig(IVirtualPlayerBodyModel model) {
-            _sourceBodyParts = model.Parts.ToDictionary(
-                static x => x.Id,
-                x => (x.AnchorNode, new SerializableVirtualPlayerBodyPartConfig())
-            );
-            LoadSerializedParts();
-            BindConfigs();
+
+        public static SerializableVirtualPlayerBodyConfig Create(IVirtualPlayerBodyModel model) {
+            var config = new SerializableVirtualPlayerBodyConfig {
+                _serializedBodyParts = model.Parts.ToDictionary(
+                    static x => x.Id,
+                    _ => new SerializableVirtualPlayerBodyPartConfig()
+                )
+            };
+            config.LoadSerializedParts();
+            config.BindConfigs();
+            return config;
+        }
+
+        public static SerializableVirtualPlayerBodyConfig CreateManual(
+            Dictionary<string, SerializableVirtualPlayerBodyPartConfig> sourceBodyParts
+        ) {
+            var config = new SerializableVirtualPlayerBodyConfig {
+                _serializedBodyParts = sourceBodyParts
+            };
+            config.LoadSerializedParts();
+            config.BindConfigs();
+            return config;
         }
 
         #endregion
@@ -58,36 +62,57 @@ namespace BeatLeader.Models {
         }
 
         public event Action<IVirtualPlayerBodyPartConfig?>? ConfigUpdatedEvent;
-        
+
         private BodyNode _anchorMask = (BodyNode)int.MaxValue;
 
         #endregion
 
         #region Logic
 
-        [JsonProperty("BodyParts"), UsedImplicitly]
-        private Dictionary<string, (BodyNode, SerializableVirtualPlayerBodyPartConfig)> _sourceBodyParts = new();
+        private readonly Dictionary<string, BodyNode> _bodyNodes = new();
+
+        public void SetBodyModel(IVirtualPlayerBodyModel model) {
+            foreach (var item in model.Parts) {
+                _bodyNodes[item.Id] = item.AnchorNode;
+            }
+        }
+
+        private void RefreshMask() {
+            foreach (var (name, conf) in _serializedBodyParts) {
+                var state = (_anchorMask & _bodyNodes[name]) == 0;
+                conf.SetMaskEnabled(state ? true : null);
+            }
+        }
 
         public void NotifyConfigUpdated(IVirtualPlayerBodyPartConfig? config) {
             ConfigUpdatedEvent?.Invoke(config);
         }
 
+        #endregion
+
+        #region Serialization
+
+        [JsonConstructor, UsedImplicitly]
+        private SerializableVirtualPlayerBodyConfig() { }
+
+        [OnDeserialized]
+        private void OnDeserialize(StreamingContext context) {
+            LoadSerializedParts();
+            BindConfigs();
+        }
+
+        [JsonProperty("BodyParts"), UsedImplicitly]
+        private Dictionary<string, SerializableVirtualPlayerBodyPartConfig> _serializedBodyParts = new();
+
         private void LoadSerializedParts() {
-            BodyParts = _sourceBodyParts.ToDictionary(
+            BodyParts = _serializedBodyParts.ToDictionary(
                 static x => x.Key,
-                static x => (IVirtualPlayerBodyPartConfig)x.Value.Item2
+                static x => (IVirtualPlayerBodyPartConfig)x.Value
             );
         }
 
-        private void RefreshMask() {
-            foreach (var (_, (node, conf)) in _sourceBodyParts) {
-                var state = (_anchorMask & node) == 0;
-                conf.SetMaskEnabled(state ? true : null);
-            }
-        }
-
         private void BindConfigs() {
-            _sourceBodyParts.ForEach((_, y) => y.Item2.SetBodyConfig(this));
+            _serializedBodyParts.ForEach((_, y) => y.SetBodyConfig(this));
         }
 
         #endregion

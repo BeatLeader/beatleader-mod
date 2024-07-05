@@ -4,15 +4,11 @@ using System.Linq;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal interface IDropdownComponentCell<TKey, in TParam> : IKeyedControlComponentCell<TKey, TParam>, ISkewedComponent {
-        bool UsedAsPreview { set; }
-    }
-
     /// <typeparam name="TKey">An item key</typeparam>
     /// <typeparam name="TParam">A param to be passed with key to provide additional info</typeparam>
     /// <typeparam name="TCell">A cell component</typeparam>
     internal class Dropdown<TKey, TParam, TCell> : ReactiveComponent, ISkewedComponent, IInteractableComponent, IKeyedControlComponent<TKey, TParam>
-        where TCell : IReactiveComponent, ILayoutItem, IDropdownComponentCell<TKey, TParam>, new() {
+        where TCell : IReactiveComponent, ILayoutItem, ISkewedComponent, IPreviewableCell, IKeyedControlComponentCell<TKey, TParam>, new() {
         #region OptionsModal
 
         private struct DropdownOption {

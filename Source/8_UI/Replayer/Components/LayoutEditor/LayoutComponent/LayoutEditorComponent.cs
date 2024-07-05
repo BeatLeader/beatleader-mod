@@ -125,12 +125,16 @@ namespace BeatLeader.Components {
         public bool ComponentActive {
             get => _componentActive;
             set {
+                if (!_wrapperActive) {
+                    Content.SetActive(value);
+                }
                 _wrapper.SetComponentActive(value);
                 _componentActive = value;
             }
         }
 
         private bool _componentActive;
+        private bool _wrapperActive;
 
         #endregion
 
@@ -202,6 +206,7 @@ namespace BeatLeader.Components {
                 _firstActivation = false;
             }
             RefreshTransforms();
+            _wrapperActive = state;
             Content.SetActive(ComponentActive || state);
         }
 

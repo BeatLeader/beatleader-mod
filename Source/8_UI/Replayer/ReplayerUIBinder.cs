@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Replayer {
         #region UI Visibility
 
         private void RefreshUIVisibility() {
-            if (!_launchData.Settings.AutoHideUI) return;
+            if (!_launchData.Settings.UISettings.AutoHideUI) return;
             SetUIEnabled(_pauseController.IsPaused);
         }
 
@@ -30,6 +30,10 @@ namespace BeatLeader.UI.Replayer {
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
             transform.SetParent(_extraObjects.ReplayerCore, false);
             SetupUI();
+        }
+
+        private void Start() {
+            RefreshUIVisibility();
         }
 
         private void OnDestroy() {

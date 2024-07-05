@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -198,6 +200,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private bool _selectionRefreshNeeded;
         private Vector2 _cellSize;
         private float _contentPos;
+        private float _destinationPos;
         private int _visibleCellsCount;
         private int _visibleCellsStartIndex;
         private int _visibleCellsEndIndex;
@@ -305,7 +308,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private float ContentSize => ScrollOrientation is ScrollOrientation.Vertical ? _scrollContent.rect.height : _scrollContent.rect.width;
         private float ViewportSize => ScrollOrientation is ScrollOrientation.Vertical ? _viewport.rect.height : _viewport.rect.width;
-
+        
         private void RefreshContentSize() {
             if (ScrollOrientation is ScrollOrientation.Vertical) {
                 _scrollContent.sizeDelta = new(0f, FilteredItems.Count * CellSize);
@@ -373,6 +376,8 @@ namespace BeatLeader.UI.Reactive.Components {
             _scrollArea.ScrollSize = CellSize;
             _cellsPool.Despawn(cell);
             _scrollArea.ScrollPosChangedEvent += HandlePosChanged;
+            _scrollArea.ScrollDestinationPosChangedEvent += HandleDestinationPosChanged;
+            _scrollArea.ScrollWithJoystickFinishedEvent += HandleJoystickScrollFinished;
             //returning
             return content.Use();
         }
@@ -390,6 +395,15 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
+        private void HandleJoystickScrollFinished() {
+            _destinationPos = MathUtils.RoundStepped(_destinationPos, CellSize);
+            _scrollArea.ScrollTo(_destinationPos);
+        }
+
+        private void HandleDestinationPosChanged(float pos) {
+            _destinationPos = pos;
+        }
+        
         private void HandlePosChanged(float pos) {
             _contentPos = pos;
             RefreshVisibleCells();

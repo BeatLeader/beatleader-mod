@@ -118,10 +118,19 @@ namespace BeatLeader.Utils {
         private async Task DeleteSimilarReplaysAsync(Replay replay) {
             await LoadReplayHeadersIfNeededAsync();
             var info = replay.info;
-            foreach (var h in Replays) {
-                if (!CompareReplays(h.ReplayInfo, info)) continue;
-                Plugin.Log.Info("Deleting old replay: " + Path.GetFileName(h.FilePath));
-                h.DeleteReplay();
+            var buffer = new List<IReplayHeader>();
+            //deleting
+            foreach (var header in Replays) {
+                //
+                if (!CompareReplays(header.ReplayInfo, info)) continue;
+                Plugin.Log.Info("Deleting old replay: " + Path.GetFileName(header.FilePath));
+                //
+                DeleteReplayInternal(header.FilePath);
+                buffer.Add(header);
+            }
+            //finalizing deletion
+            foreach (var header in buffer) {
+                FinalizeReplayDeletion(header);
             }
         }
 
@@ -143,14 +152,18 @@ namespace BeatLeader.Utils {
 
         #region ReplayFileManager Save & Delete
 
+        private void FinalizeReplayDeletion(IReplayHeader header) {
+            _replays.Remove(header);
+            NotifyReplayDeleted(header);
+        }
+        
         private void DeleteReplayInternal(string filePath, IReplayHeader? header = null) {
             ReplayHeadersCache.RemoveInfoByPath(filePath);
             ReplayHeadersCache.SaveCache();
             ReplayMetadataManager.DeleteMetadata(filePath);
             File.Delete(filePath);
-            if (header is null) return;
-            _replays.Remove(header);
-            NotifyReplayDeleted(header);
+            if (header == null) return;
+            FinalizeReplayDeletion(header);
         }
 
         int IReplayFileManager.DeleteAllReplays() {

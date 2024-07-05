@@ -15,6 +15,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public event Action<float>? ScrollDestinationPosChangedEvent;
         public event Action<float>? ScrollPosChangedEvent;
+        public event Action? ScrollWithJoystickFinishedEvent;
 
         #endregion
 
@@ -51,9 +52,15 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Setup
 
         private RectTransform? _contentTransform;
-
+        private float _lastScrollDeltaTime;
+        
         protected override void OnUpdate() {
             if (_contentTransform == null) return;
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if ( _lastScrollDeltaTime != -1f && _lastScrollDeltaTime != Time.deltaTime) {
+                ScrollWithJoystickFinishedEvent?.Invoke();
+                _lastScrollDeltaTime = -1f;
+            }
             RefreshContentPos(false);
             RefreshScrollbar();
         }
@@ -203,7 +210,6 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
-            Content.AddComponent<VRScrollAdapter>();
             SetDestinationPos(0f, true);
         }
 
@@ -217,11 +223,13 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private void HandlePointerScroll(PointerEventsHandler handler, PointerEventData eventData) {
             var destinationPos = _destinationPos;
+            var mul = EnvironmentUtils.UsesFPFC ? 1f : -0.1f;
             if (ScrollOrientation is ScrollOrientation.Vertical) {
-                destinationPos -= eventData.scrollDelta.y * ScrollSize;
+                destinationPos -= eventData.scrollDelta.y * ScrollSize * mul;
             } else {
-                destinationPos += eventData.scrollDelta.y * ScrollSize;
+                destinationPos += eventData.scrollDelta.y * ScrollSize * mul;
             }
+            _lastScrollDeltaTime = Time.deltaTime;
             SetDestinationPos(destinationPos);
         }
 

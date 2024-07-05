@@ -93,6 +93,12 @@ namespace BeatLeader.UI.Replayer {
                 HandleConfigUpdated();
             }
 
+            protected override void OnDestroy() {
+                if (_config != null) {
+                    _config.PartConfig.ConfigUpdatedEvent -= HandleConfigUpdated;
+                }
+            }
+
             #endregion
 
             #region Construct

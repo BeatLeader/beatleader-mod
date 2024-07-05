@@ -13,8 +13,8 @@ namespace BeatLeader.Replayer.Emulation {
         #region Adapter
 
         private record VirtualPlayerBodyAdapter(
-            IVirtualPlayerAvatar Avatar,
-            IVirtualPlayerSabers Sabers
+            IControllableVirtualPlayerBody Avatar,
+            IControllableVirtualPlayerBody Sabers
         ) : IControllableVirtualPlayerBody {
             public void RefreshVisuals() {
                 Avatar.RefreshVisuals();
@@ -31,8 +31,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Injection
 
-        [Inject] private readonly IVirtualPlayerAvatarSpawner _avatarSpawner = null!;
-        [Inject] private readonly IVirtualPlayerSabersSpawner _sabersSpawner = null!;
+        [Inject] private readonly VirtualPlayerAvatarSpawnerBase _avatarSpawner = null!;
+        [Inject] private readonly VirtualPlayerSabersSpawnerBase _sabersSpawner = null!;
         [Inject] private readonly ReplayLaunchData _replayLaunchData = null!;
 
         #endregion
@@ -81,6 +81,11 @@ namespace BeatLeader.Replayer.Emulation {
             HandlePrimaryConfigUpdated(null);
         }
 
+        private void OnDestroy() {
+            _config.ConfigUpdatedEvent -= HandleConfigUpdated;
+            _primaryConfig.ConfigUpdatedEvent -= HandlePrimaryConfigUpdated;
+        }
+
         private IVirtualPlayerBodyConfig GetConfigByModel(IVirtualPlayerBodyModel model) {
             var bodySettings = _replayLaunchData.Settings.BodySettings;
             var conf = bodySettings.GetConfigByNameOrNull(model.Name);
@@ -105,8 +110,8 @@ namespace BeatLeader.Replayer.Emulation {
         #region Spawn & Despawn
 
         public IControllableVirtualPlayerBody SpawnBody(IVirtualPlayersManager playersManager, IVirtualPlayerBase player) {
-            var avatar = _avatarSpawner.SpawnAvatar(playersManager, player);
-            var sabers = _sabersSpawner.SpawnSabers(playersManager, player);
+            var avatar = _avatarSpawner.Spawn(playersManager, player);
+            var sabers = _sabersSpawner.Spawn(playersManager, player);
             return new VirtualPlayerBodyAdapter(avatar, sabers);
         }
 
@@ -114,8 +119,8 @@ namespace BeatLeader.Replayer.Emulation {
             if (body is not VirtualPlayerBodyAdapter castedBody) {
                 throw new InvalidOperationException("Unable to despawn a body which does not belong to the pool");
             }
-            _avatarSpawner.DespawnAvatar(castedBody.Avatar);
-            _sabersSpawner.DespawnSabers(castedBody.Sabers);
+            _avatarSpawner.Despawn(castedBody.Avatar);
+            _sabersSpawner.Despawn(castedBody.Sabers);
         }
 
         #endregion

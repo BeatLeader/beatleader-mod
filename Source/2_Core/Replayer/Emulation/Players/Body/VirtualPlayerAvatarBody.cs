@@ -7,7 +7,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     //TODO: avatar opacity support
-    internal class VirtualPlayerAvatarBody : IVirtualPlayerAvatar {
+    internal class VirtualPlayerAvatarBody : IVirtualPlayerBodyComponent {
         #region Pool
 
         public class Pool : MemoryPool<IVirtualPlayerBase, VirtualPlayerAvatarBody> {
@@ -48,6 +48,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private void RefreshAvatarVisuals(IVirtualPlayerBase player) {
+            _player = player;
             var replay = player.Replay;
             _avatarData = replay.OptionalReplayData?.AvatarData;
             if (_avatarData == null) {

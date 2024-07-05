@@ -67,7 +67,8 @@ namespace BeatLeader.UI.Replayer {
                                 new SettingsCameraView {
                                     CameraViewParams = {
                                         new PlayerViewCameraParams(),
-                                        new FlyingViewCameraParams()
+                                        new FlyingViewCameraParams(),
+                                        new ManualViewCameraParams()
                                     }
                                 }.Bind(ref _cameraView)
                             },

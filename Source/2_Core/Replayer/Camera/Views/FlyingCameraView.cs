@@ -7,27 +7,16 @@ namespace BeatLeader.Replayer {
 
         public int FlySpeed { get; set; } = 4;
         public SerializableVector2 MouseSensitivity { get; set; } = new Vector2(0.5f, 0.5f);
-        
         public SerializableVector3 OriginPosition { get; set; } = new(0, 1.7f, 0);
         public float OriginRotation { get; set; }
-        
-        public SerializableVector3 ManualPosition { get; set; }
-        public float ManualRotation { get; set; }
-        
-        public bool manualMove;
 
         private Quaternion _lastRot;
         private Vector3 _lastPos;
         private bool _wasActivatedEarlier;
 
         public void Reset() {
-            if (manualMove) {
-                ManualPosition = Vector3.zero;
-                ManualRotation = 0;
-            } else {
-                _lastPos = OriginPosition;
-                _lastRot = Quaternion.Euler(0, OriginRotation, 0);
-            }
+            _lastPos = OriginPosition;
+            _lastRot = Quaternion.Euler(0, OriginRotation, 0);
         }
 
         public override void OnEnable() {
@@ -39,14 +28,9 @@ namespace BeatLeader.Replayer {
             var position = _lastPos;
             var rotation = _lastRot;
 
-            if (!manualMove) {
-                if (Cursor.lockState == CursorLockMode.Locked) {
-                    position = GetPosition(position, rotation);
-                    rotation = GetRotation(rotation);
-                }
-            } else {
-                position = ManualPosition;
-                rotation = Quaternion.Euler(0, ManualRotation, 0);
+            if (Cursor.lockState == CursorLockMode.Locked) {
+                position = GetPosition(position, rotation);
+                rotation = GetRotation(rotation);
             }
 
             _lastPos = position;

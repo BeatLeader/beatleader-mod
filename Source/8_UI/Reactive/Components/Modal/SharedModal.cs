@@ -7,6 +7,10 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class SharedModal<T> : ISharedModal, IReactiveComponent, ILayoutItem where T : class, INewModal, IReactiveComponent, new() {
         #region Pool
 
+        public bool BuildImmediate {
+            set => modals.Preload(1);
+        }
+        
         public T Modal => _modal ?? throw new InvalidOperationException();
 
         private static readonly ReactivePool<T> modals = new();

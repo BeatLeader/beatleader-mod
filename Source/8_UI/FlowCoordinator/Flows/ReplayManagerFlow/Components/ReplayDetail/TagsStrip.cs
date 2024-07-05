@@ -127,7 +127,9 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
-                    new TagSelectorModal()
+                    new TagSelectorModal {
+                            BuildImmediate = true
+                        }
                         .WithAnchor(this, RelativePlacement.BottomCenter)
                         .WithOpenListener(HandleTagSelectorOpened)
                         .WithCloseListener(HandleTagSelectorClosed)

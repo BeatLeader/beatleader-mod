@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -8,10 +7,10 @@ using Zenject;
 using Object = UnityEngine.Object;
 
 namespace BeatLeader.Replayer.Emulation {
-    internal class VirtualPlayerSabersSpawner : VirtualPlayerBodyComponentSpawnerBase, IVirtualPlayerSabersSpawner {
+    internal class VirtualPlayerSabersSpawner : VirtualPlayerSabersSpawnerBase {
         #region Sabers
 
-        private class Sabers : IVirtualPlayerSabers {
+        private class Sabers : IVirtualPlayerBodyComponent {
             public Sabers(
                 IVirtualPlayersManager playersManager,
                 VirtualPlayerSabersSpawner spawner,
@@ -166,8 +165,6 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Config
 
-        protected override IEnumerable<IVirtualPlayerBodyComponent> SpawnedBodyComponents => _spawnedProviders;
-
         protected override void ApplyPrimaryConfig(IVirtualPlayerBodyConfig config) {
             _sabersKeeper?.ApplyConfig(config);
         }
@@ -177,29 +174,20 @@ namespace BeatLeader.Replayer.Emulation {
         #region Spawn & Despawn
 
         private readonly Stack<Sabers> _availableProviders = new();
-        private readonly HashSet<Sabers> _spawnedProviders = new();
 
-        public IVirtualPlayerSabers SpawnSabers(IVirtualPlayersManager playersManager, IVirtualPlayerBase player) {
-            Sabers sabers;
-            if (_availableProviders.Count is 0) {
-                sabers = SpawnSabersInternal(playersManager);
-                _spawnedProviders.Add(sabers);
-            } else {
-                sabers = _availableProviders.Pop();
-            }
+        protected override IVirtualPlayerBodyComponent SpawnInternal(IVirtualPlayersManager playersManager, IVirtualPlayerBase player) {
+            var sabers = _availableProviders.Count is 0 ?
+                SpawnSabersInternal(playersManager) :
+                _availableProviders.Pop();
             sabers.ApplyPlayer(player);
             sabers.SetActive(true);
-            EnhanceComponent(sabers, playersManager, player);
             return sabers;
         }
 
-        public void DespawnSabers(IVirtualPlayerSabers sabers) {
-            if (sabers is not Sabers castedSabers || !_spawnedProviders.Contains(castedSabers)) {
-                throw new InvalidOperationException("Unable to despawn provider which does not belong to the pool");
-            }
-            castedSabers.SetActive(false);
-            _spawnedProviders.Remove(castedSabers);
-            _availableProviders.Push(castedSabers);
+        protected override void DespawnInternal(IVirtualPlayerBodyComponent body) {
+            var sabers = (Sabers)body;
+            sabers.SetActive(false);
+            _availableProviders.Push(sabers);
         }
 
         private Sabers SpawnSabersInternal(IVirtualPlayersManager playersManager) {

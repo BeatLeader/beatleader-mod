@@ -84,16 +84,16 @@ namespace BeatLeader.Installers {
 
             //Sabers
             if (launchData.SabersSpawner is { } controllersSpawner) {
-                Container.BindInterfacesTo(controllersSpawner.GetType()).AsSingle();
+                Container.Bind<VirtualPlayerSabersSpawnerBase>().To(controllersSpawner.GetType()).AsSingle();
             } else {
-                Container.BindInterfacesTo<VirtualPlayerSabersSpawner>().AsSingle();
+                Container.Bind<VirtualPlayerSabersSpawnerBase>().To<VirtualPlayerSabersSpawner>().AsSingle();
             }
 
             //Avatar
             if (launchData.AvatarSpawner is { } avatarSpawner) {
-                Container.BindInterfacesTo(avatarSpawner.GetType()).AsSingle();
+                Container.Bind<VirtualPlayerAvatarSpawnerBase>().To(avatarSpawner.GetType()).AsSingle();
             } else {
-                Container.BindInterfacesTo<VirtualPlayerAvatarSpawner>().AsSingle();
+                Container.Bind<VirtualPlayerAvatarSpawnerBase>().To<VirtualPlayerAvatarSpawner>().AsSingle();
             }
             Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>();
             Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2);

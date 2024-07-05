@@ -11,7 +11,7 @@ namespace BeatLeader.UI.Reactive.Components {
     /// <typeparam name="TKey">An item key</typeparam>
     /// <typeparam name="TParam">A param to be passed with key to provide additional info</typeparam>
     /// <typeparam name="TCell">A cell component</typeparam>
-    internal class Dropdown<TKey, TParam, TCell> : ReactiveComponent, ISkewedComponent, IKeyedControlComponent<TKey, TParam>
+    internal class Dropdown<TKey, TParam, TCell> : ReactiveComponent, ISkewedComponent, IInteractableComponent, IKeyedControlComponent<TKey, TParam>
         where TCell : IReactiveComponent, ILayoutItem, IDropdownComponentCell<TKey, TParam>, new() {
         #region OptionsModal
 
@@ -176,7 +176,17 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
+        public bool Interactable {
+            get => _interactable;
+            set {
+                _interactable = value;
+                _canvasGroup.alpha = value ? 1f : 0.25f;
+                _button.Interactable = value;
+            }
+        }
+
         private float _skew;
+        private bool _interactable = true;
 
         #endregion
 
@@ -187,6 +197,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private OptionsModal _modal = null!;
         private ImageButton _button = null!;
         private TCell _previewCell = default!;
+        private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
             return new ImageButton {
@@ -215,7 +226,7 @@ namespace BeatLeader.UI.Reactive.Components {
                         .With(x => x.Setup(_previewCell))
                         .Bind(ref _modal)
                 }
-            }.AsFlexGroup(
+            }.WithNativeComponent(out _canvasGroup).AsFlexGroup(
                 padding: new() { left = 2f, right = 2f }
             ).WithModal(_modal).Bind(ref _button).Use();
         }

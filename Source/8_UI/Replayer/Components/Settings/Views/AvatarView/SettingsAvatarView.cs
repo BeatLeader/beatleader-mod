@@ -40,6 +40,7 @@ namespace BeatLeader.UI.Replayer {
             foreach (var model in _bodySpawner!.BodyModels) {
                 _modelsDropdown.Items.Add(model, model.Name);
             }
+            _modelsDropdown.Interactable = _modelsDropdown.Items.Count > 1;
             _selectedModel = _bodySpawner!.BodyModels.FirstOrDefault();
             if (_selectedModel != null) _modelsDropdown.Select(_selectedModel);
         }

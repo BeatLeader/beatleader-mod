@@ -160,28 +160,31 @@ namespace BeatLeader.UI.Hub {
                     new Image {
                         Children = {
                             //fail toggle
-                            new Toggle {
-                                Active = GetReplaySaveFlag(ReplaySaveOption.Fail)
-                            }.WithListener(
-                                x => x.Active,
-                                x => WriteReplaySaveFlag(ReplaySaveOption.Fail, x)
-                            ).InNamedRail("Save On Fail"),
+                            new Toggle()
+                                .With(x => x.SetActive(GetReplaySaveFlag(ReplaySaveOption.Fail), false))
+                                .WithListener(
+                                    x => x.Active,
+                                    x => WriteReplaySaveFlag(ReplaySaveOption.Fail, x)
+                                )
+                                .InNamedRail("Save On Fail"),
 
                             //exit toggle
-                            new Toggle {
-                                Active = GetReplaySaveFlag(ReplaySaveOption.Exit)
-                            }.WithListener(
-                                x => x.Active,
-                                x => WriteReplaySaveFlag(ReplaySaveOption.Exit, x)
-                            ).InNamedRail("Save On Exit"),
+                            new Toggle()
+                                .With(x => x.SetActive(GetReplaySaveFlag(ReplaySaveOption.Exit), false))
+                                .WithListener(
+                                    x => x.Active,
+                                    x => WriteReplaySaveFlag(ReplaySaveOption.Exit, x)
+                                )
+                                .InNamedRail("Save On Exit"),
 
                             //override old toggle
-                            new Toggle {
-                                Active = ConfigFileData.Instance.OverrideOldReplays
-                            }.WithListener(
-                                x => x.Active,
-                                x => ConfigFileData.Instance.OverrideOldReplays = x
-                            ).InNamedRail("Override Existing"),
+                            new Toggle()
+                                .With(x => x.SetActive(ConfigFileData.Instance.OverrideOldReplays, false))
+                                .WithListener(
+                                    x => x.Active,
+                                    x => ConfigFileData.Instance.OverrideOldReplays = x
+                                )
+                                .InNamedRail("Override Existing"),
                         }
                     }.AsBlurBackground().AsFlexGroup(
                         direction: FlexDirection.Column,

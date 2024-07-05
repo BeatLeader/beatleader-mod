@@ -69,24 +69,41 @@ namespace BeatLeader.UI.Replayer {
                     }
                 }
             }
-            
+
             private readonly ReactivePool<Image> _markersPool = new();
+            private readonly List<float> _markerTimes = new();
+            private float _totalTime;
+            private Sprite? _markerSprite;
+            private Color _markerColor;
 
             public void Setup(float totalTime, IEnumerable<float> markerTimes, Sprite markerSprite, Color markerColor) {
-                _markersPool.DespawnAll();
+                _totalTime = totalTime;
+                _markerSprite = markerSprite;
+                _markerColor = markerColor;
+                _markerTimes.Clear();
+                _markerTimes.AddRange(markerTimes);
+                ReloadMarkers();
+            }
+
+            private void ReloadMarkers() {
                 var maxSize = ContentTransform.rect.width;
-                foreach (var time in markerTimes) {
+                _markersPool.DespawnAll();
+                foreach (var time in _markerTimes) {
                     //creating marker
                     var marker = _markersPool.Spawn();
                     marker.Material = GameResources.UINoGlowMaterial;
-                    marker.Sprite = markerSprite;
-                    marker.Color = markerColor;
+                    marker.Sprite = _markerSprite;
+                    marker.Color = _markerColor;
                     marker.Use(ContentTransform);
                     marker.WithSizeDelta(2f, 2f);
                     //placing marker
-                    var pos = MathUtils.Map(time, 0f, totalTime, 0f, maxSize);
+                    var pos = MathUtils.Map(time, 0f, _totalTime, 0f, maxSize);
                     marker.ContentTransform.localPosition = new(pos, 0f, 0f);
                 }
+            }
+
+            protected override void OnRectDimensionsChanged() {
+                ReloadMarkers();
             }
 
             protected override void OnInitialize() {
@@ -162,11 +179,6 @@ namespace BeatLeader.UI.Replayer {
                 //adding to the dict
                 _markerGroups[marker.name] = group;
             }
-        }
-
-        protected override void OnRectDimensionsChanged() {
-            if (_playersManager == null) return;
-            ReloadMarkers();
         }
 
         #endregion

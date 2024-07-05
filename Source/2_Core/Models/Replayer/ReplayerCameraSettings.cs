@@ -29,10 +29,8 @@ namespace BeatLeader.Models {
             new StaticCameraView("RightView", new(3.70f, 0, -1.10f), new(0, -60, 0)),
             new StaticCameraView("BehindView", new(0, 0, -2), Vector3.zero),
             new StaticCameraView("CenterView", Vector3.zero, Vector3.zero),
-            new FlyingCameraView {
-                Name = "CustomView",
-                FlySpeed = 4,
-                MouseSensitivity = new(0.5f, 0.5f)
+            new ManualCameraView {
+                Name = "CustomView"
             }
         };
 

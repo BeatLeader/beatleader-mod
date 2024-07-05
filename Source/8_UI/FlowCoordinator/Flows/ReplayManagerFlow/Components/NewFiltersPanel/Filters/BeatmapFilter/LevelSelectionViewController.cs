@@ -47,15 +47,6 @@ namespace BeatLeader.UI.Hub {
             _selectionDetailView = new() { Enabled = false };
             _selectionDetailView.WithRectExpand().Use(_levelDetailViewController.transform);
             _selectionDetailView.Setup(_levelDetailView);
-            //events
-            _levelCollectionNavigationController.didPressActionButtonEvent += HandleActionButtonPressed;
-            _levelDetailViewController.didChangeContentEvent += HandleContentChanged;
-        }
-
-        protected override void OnDestroy() {
-            base.OnDestroy();
-            _levelCollectionNavigationController.didPressActionButtonEvent -= HandleActionButtonPressed;
-            _levelDetailViewController.didChangeContentEvent -= HandleContentChanged;
         }
 
         private void SetupLevelNavigationController() {
@@ -99,6 +90,9 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            _levelCollectionNavigationController.didPressActionButtonEvent += HandleActionButtonPressed;
+            _levelDetailViewController.didChangeContentEvent += HandleContentChanged;
+            //
             SetupLevelNavigationController();
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             _originalPreviewBeatmapLevel = _levelCollectionNavigationController.selectedBeatmapLevel;
@@ -110,6 +104,9 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+            _levelCollectionNavigationController.didPressActionButtonEvent -= HandleActionButtonPressed;
+            _levelDetailViewController.didChangeContentEvent -= HandleContentChanged;
+            //
             _lastSelectedLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             NavigateToBeatmap(_originalPreviewBeatmapLevel, _originalLevelCategory);
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);

@@ -81,12 +81,17 @@ namespace BeatLeader.Components {
             }
             RefreshTouchables();
             RefreshActive();
+            if (_difficulties.Count > 0) {
+                _segmentedControl.HandleDifficultySegmentedControlDidSelectCell(null, 0);
+            }
         }
 
         #endregion
 
         #region Init
 
+        private List<BeatmapDifficulty> _difficulties = null!;
+        
         protected override void OnInitialize() {
             var characteristicPanel = Instantiate(
                 BeatmapDifficultySegmentedControl,
@@ -100,6 +105,7 @@ namespace BeatLeader.Components {
                 .SetField("_container", BeatSaberUI.DiContainer);
             _canvasGroup = _container.gameObject.AddComponent<CanvasGroup>();
             _segmentedControl = characteristicPanel.GetComponentInChildren<BeatmapDifficultySegmentedControlController>(true);
+            _difficulties = _segmentedControl.GetField<List<BeatmapDifficulty>, BeatmapDifficultySegmentedControlController>("_difficulties");
             _segmentedControl.didSelectDifficultyEvent += HandleBeatmapDifficultySelected;
         }
 

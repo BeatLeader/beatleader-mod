@@ -9,7 +9,7 @@ namespace BeatLeader.UI.Replayer {
 
         private readonly LayoutEditor _layoutEditor = new();
         private LayoutGrid _layoutGrid = null!;
-        
+
         private readonly BeatmapLevelPreviewEditorComponent _songInfo = new();
         private readonly PlayerListEditorComponent _playerList = new();
         private readonly ToolbarEditorComponent _toolbar = new();
@@ -23,7 +23,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         #endregion
-        
+
         #region Setup
 
         private IReplayPauseController _pauseController = null!;
@@ -42,9 +42,9 @@ namespace BeatLeader.UI.Replayer {
             _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap.level);
             _toolbar.Setup(
                 pauseController,
-                finishController, 
+                finishController,
                 timeController,
-                playersManager, 
+                playersManager,
                 cameraController,
                 bodySpawner,
                 launchData,
@@ -62,7 +62,7 @@ namespace BeatLeader.UI.Replayer {
             _toolbar.Use(rect);
             _playerList.Use(rect);
             _layoutEditor.WithRectExpand().Use(rect);
-            
+
             var editorWindow = new LayoutEditorWindow();
             editorWindow.Use(rect);
             _layoutGrid = rect.gameObject.AddComponent<LayoutGrid>();
@@ -73,7 +73,7 @@ namespace BeatLeader.UI.Replayer {
             _layoutEditor.AddComponent(_songInfo);
             _layoutEditor.AddComponent(_playerList);
         }
-        
+
         protected override void OnStart() {
             _layoutEditor.RefreshComponents();
         }
@@ -84,6 +84,7 @@ namespace BeatLeader.UI.Replayer {
 
         private void HandleLayoutEditorStateChanged(bool active) {
             _layoutGrid.enabled = active;
+            if (active) _pauseController.Pause();
             _pauseController.LockUnpause = active;
             _layoutGrid.Refresh();
         }

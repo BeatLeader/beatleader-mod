@@ -7,20 +7,11 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal class ListControl<TKey, TParam, TCell> : ReactiveComponent, IKeyedControlComponent<TKey, TParam>
-        where TCell : IReactiveComponent, ILayoutItem, IKeyedControlComponentCellBase<TKey, TParam>, new() {
+        where TCell : IReactiveComponent, ILayoutItem, IPreviewableCell, IKeyedControlComponentCellBase<TKey, TParam>, new() {
         #region ListControl
 
         public IDictionary<TKey, TParam> Items => _items;
-
-        public TKey SelectedKey {
-            get => _selectedKey ?? throw new InvalidOperationException("Key cannot be acquired when Items is empty");
-            private set {
-                if (value!.Equals(_selectedKey)) return;
-                _selectedKey = value;
-                SelectedKeyChangedEvent?.Invoke(value);
-                NotifyPropertyChanged();
-            }
-        }
+        public TKey SelectedKey => _selectedKey ?? throw new InvalidOperationException("Key cannot be acquired when Items is empty");
 
         private bool CanSelectPrevious => _selectedIndex > 0;
         private bool CanSelectNext => _selectedIndex < _items.Count - 1;
@@ -34,13 +25,18 @@ namespace BeatLeader.UI.Reactive.Components {
         private int _selectedIndex = -1;
 
         public void SelectSilent(TKey key) {
+            _selectedKey = key;
             _cell.Init(key, _items[key]);
             _cell.Enabled = true;
+            ValidateIndex();
+            RefreshButtons();
         }
-        
+
         public void Select(TKey key) {
+            if (key!.Equals(_selectedKey)) return;
             SelectSilent(key);
-            SelectedKey = key;
+            SelectedKeyChangedEvent?.Invoke(_selectedKey!);
+            NotifyPropertyChanged(nameof(SelectedKey));
         }
 
         private void SelectNext() {
@@ -56,12 +52,11 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void ValidateIndex() {
-            if (_selectedIndex == -1) {
-                _selectedIndex = _keys.FindIndex(_selectedKey);
-            }
+            _selectedIndex = _keys.FindIndex(_selectedKey);
         }
 
         private void TrySelect() {
+            RefreshButtons();
             if (_selectedKey != null) return;
             if (_items.Count == 0) {
                 _cell.Enabled = false;
@@ -70,20 +65,32 @@ namespace BeatLeader.UI.Reactive.Components {
             Select(_keys[0]);
         }
 
+        private void RefreshButtons() {
+            _nextButton.Interactable = CanSelectNext;
+            _prevButton.Interactable = CanSelectPrevious;
+        }
+
         #endregion
 
         #region Construct
 
+        private ButtonBase _nextButton = null!;
+        private ButtonBase _prevButton = null!;
+
         protected override GameObject Construct() {
-            //temporary solution
             static ButtonBase CreateButton(
                 bool applyColor1,
                 float iconRotation,
                 Justify justify,
                 YogaFrame position
             ) {
+                var colorSet = new StateColorSet {
+                    HoveredColor = Color.white.ColorWithAlpha(0.3f),
+                    Color = Color.clear
+                };
                 return new ImageButton {
                     Image = {
+                        Color = Color.white,
                         Sprite = BundleLoader.Sprites.background,
                         PixelsPerUnit = 12f,
                         GradientDirection = ImageView.GradientDirection.Horizontal,
@@ -92,6 +99,8 @@ namespace BeatLeader.UI.Reactive.Components {
                     GrowOnHover = false,
                     HoverLerpMul = float.MaxValue,
                     Colors = null,
+                    GradientColors0 = applyColor1 ? null : colorSet,
+                    GradientColors1 = applyColor1 ? colorSet : null,
                     Children = {
                         //icon
                         new Image {
@@ -101,21 +110,13 @@ namespace BeatLeader.UI.Reactive.Components {
                             ContentTransform = {
                                 localEulerAngles = new(0f, 0f, iconRotation)
                             }
-                        }.AsFlexItem(aspectRatio: 1f)
+                        }.AsFlexItem(aspectRatio: 1f).Export(out var icon)
                     }
-                }.With(
-                    x => {
-                        var animatedSet = new StateColorSet {
-                            HoveredColor = Color.white.ColorWithAlpha(0.3f),
-                            Color = Color.clear
-                        };
-                        x.Image.Color = Color.white;
-                        if (!applyColor1) {
-                            x.GradientColors0 = animatedSet;
-                        } else {
-                            x.GradientColors1 = animatedSet;
-                        }
-                    }
+                }.WithListener(
+                    x => x.Interactable,
+                    x => icon.Color = x ?
+                        Color.white.ColorWithAlpha(0.8f) :
+                        (Color.white * 0.9f).ColorWithAlpha(0.25f)
                 ).AsFlexGroup(
                     padding: 1.5f,
                     justifyContent: justify
@@ -127,24 +128,31 @@ namespace BeatLeader.UI.Reactive.Components {
 
             return new Image {
                 Children = {
-                    CreateButton(
-                        false,
-                        270f,
-                        Justify.FlexStart,
-                        new() { top = 0f, left = 0f }
-                    ).WithClickListener(SelectPrev),
                     //
-                    new TCell().AsFlexItem(
+                    new TCell {
+                        UsedAsPreview = true
+                    }.AsFlexItem(
                         grow: 1f,
                         margin: new() { left = 5f, right = 5f }
                     ).Bind(ref _cell),
-                    //
-                    CreateButton(
-                        true,
-                        90f,
-                        Justify.FlexEnd,
-                        new() { top = 0f, right = 0f }
-                    ).WithClickListener(SelectNext)
+                    //buttons
+                    new Dummy {
+                        Children = {
+                            CreateButton(
+                                false,
+                                270f,
+                                Justify.FlexStart,
+                                new() { top = 0f, left = 0f }
+                            ).WithClickListener(SelectPrev).Bind(ref _prevButton),
+                            //
+                            CreateButton(
+                                true,
+                                90f,
+                                Justify.FlexEnd,
+                                new() { top = 0f, right = 0f }
+                            ).WithClickListener(SelectNext).Bind(ref _nextButton)
+                        }
+                    }.AsFlexGroup().WithRectExpand()
                 }
             }.AsFlexGroup().AsBackground(color: UIStyle.InputColorSet.Color).Use();
         }
@@ -154,9 +162,10 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Setup
 
         protected override void OnInitialize() {
+            this.AsFlexItem(size: new() { x = 40f, y = 6f });
             _items.ItemAddedEvent += HandleItemAdded;
             _items.ItemRemovedEvent += HandleItemRemoved;
-            this.AsFlexItem(size: new() { x = 40f, y = 6f });
+            RefreshButtons();
         }
 
         #endregion

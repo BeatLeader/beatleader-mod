@@ -6,7 +6,7 @@ namespace BeatLeader.UI.Reactive.Components {
     internal class TextDropdown<TKey> : Dropdown<TKey, string, TextDropdown<TKey>.ComponentCell> {
         #region Cell
 
-        public class ComponentCell : KeyedControlComponentCell<TKey, string>, IDropdownComponentCell<TKey, string> {
+        public class ComponentCell : KeyedControlComponentCell<TKey, string>, ISkewedComponent, IPreviewableCell {
             #region Setup
 
             public bool UsedAsPreview {

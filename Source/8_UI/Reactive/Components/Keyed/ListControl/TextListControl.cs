@@ -3,7 +3,13 @@ using UnityEngine;
 namespace BeatLeader.UI.Reactive.Components {
     internal class TextListControl<TKey> : ListControl<TKey, string, TextKeyedControlComponentCell<TKey>> { }
 
-    internal class TextKeyedControlComponentCell<TKey> : KeyedControlComponentCell<TKey, string> {
+    internal class TextKeyedControlComponentCell<TKey> : KeyedControlComponentCell<TKey, string>, IPreviewableCell {
+        public bool UsedAsPreview {
+            set {
+                _button.Interactable = !value;
+            }
+        }
+
         public Label Label => _button.Label;
 
         private TextButton _button = null!;
@@ -17,10 +23,12 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override GameObject Construct() {
+            var colorSet = UIStyle.TextColorSet;
+            colorSet.DisabledColor = colorSet.Color;
             return new TextButton {
                 GrowOnHover = false,
                 Sticky = true,
-                Colors = UIStyle.TextColorSet,
+                Colors = colorSet,
                 Label = {
                     FontSizeMin = 2f,
                     FontSizeMax = 5f,

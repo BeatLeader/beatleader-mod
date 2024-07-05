@@ -13,7 +13,7 @@ namespace BeatLeader.Models {
             new StaticCameraView("BehindView", new(0f, 1.9f, -2f), Vector3.zero),
             new StaticCameraView("CenterView", new(0f, 1.7f, 0f), Vector3.zero),
             new PlayerViewCameraView {
-                KeepUpright = true,
+                KeepStraight = true,
                 Smoothness = 1f
             },
             new FlyingCameraView {

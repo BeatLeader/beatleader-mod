@@ -58,6 +58,15 @@ namespace BeatLeader.UI.Reactive {
         private readonly Stack<T> _reservedComponents = new();
         private readonly List<T> _spawnedComponents = new();
 
+        public void Preload(int count) {
+            count -= _spawnedComponents.Count;
+            if (count <= 0) return;
+            for (var i = 0; i < count; i++) {
+                var comp = new T();
+                _reservedComponents.Push(comp);
+            }
+        }
+        
         public T Spawn() {
             if (!_reservedComponents.TryPop(out var comp)) {
                 comp = new();

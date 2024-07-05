@@ -25,14 +25,18 @@ namespace BeatLeader.UI.Replayer {
         private PlayerViewCameraView? _cameraView;
         private float _smoothness;
         private bool _keepUpright;
+        private bool _keepStraight;
         private Vector3 _positionOffset;
 
         private void LoadFromView() {
             if (_cameraView == null) return;
             _smoothnessSlider.SetValueSilent(_cameraView.Smoothness);
+            _offsetSlider.SetValueSilent(-_cameraView.PositionOffset.z);
             _keepUprightToggle.SetActive(_cameraView.KeepUpright, false, true);
+            _keepStraightToggle.SetActive(_cameraView.KeepStraight, false, true);
             _smoothness = _cameraView.Smoothness;
             _keepUpright = _cameraView.KeepUpright;
+            _keepStraight = _cameraView.KeepStraight;
             _positionOffset = _cameraView.PositionOffset;
         }
 
@@ -41,6 +45,7 @@ namespace BeatLeader.UI.Replayer {
             _cameraView.Smoothness = _smoothness;
             _cameraView.PositionOffset = _positionOffset;
             _cameraView.KeepUpright = _keepUpright;
+            _cameraView.KeepStraight = _keepStraight;
         }
 
         #endregion
@@ -48,7 +53,9 @@ namespace BeatLeader.UI.Replayer {
         #region Construct
 
         private Slider _smoothnessSlider = null!;
+        private Slider _offsetSlider = null!;
         private Toggle _keepUprightToggle = null!;
+        private Toggle _keepStraightToggle = null!;
         
         protected override GameObject Construct() {
             return new Dummy {
@@ -65,10 +72,27 @@ namespace BeatLeader.UI.Replayer {
                         HandleSmoothnessChanged
                     ).Bind(ref _smoothnessSlider).InNamedRail("Smoothness"),
                     //
+                    new Slider {
+                        ValueRange = {
+                            Start = 0f,
+                            End = 2f
+                        },
+                        Value = 1f,
+                        ValueStep = 0.1f
+                    }.WithListener(
+                        x => x.Value,
+                        HandleOffsetChanged
+                    ).Bind(ref _offsetSlider).InNamedRail("Z Offset"),
+                    //
                     new Toggle().WithListener(
                         x => x.Active,
                         HandleKeepUprightChanged
-                    ).Bind(ref _keepUprightToggle).InNamedRail("Keep Upright")
+                    ).Bind(ref _keepUprightToggle).InNamedRail("Keep Upright (Lock Z)"),
+                    //
+                    new Toggle().WithListener(
+                        x => x.Active,
+                        HandleKeepStraightChanged
+                    ).Bind(ref _keepStraightToggle).InNamedRail("Keep Straight (Lock X)"),
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
@@ -85,9 +109,19 @@ namespace BeatLeader.UI.Replayer {
             _smoothness = value;
             RefreshView();
         }
+        
+        private void HandleOffsetChanged(float value) {
+            _positionOffset = new(0f, 0f, -value);
+            RefreshView();
+        }
 
         private void HandleKeepUprightChanged(bool value) {
             _keepUpright = value;
+            RefreshView();
+        }
+        
+        private void HandleKeepStraightChanged(bool value) {
+            _keepStraight = value;
             RefreshView();
         }
         

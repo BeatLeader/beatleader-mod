@@ -12,6 +12,7 @@ namespace BeatLeader.Replayer {
         public SerializableVector3 PositionOffset { get; set; } = new(0, 0, -1);
         public float Smoothness { get; set; } = 8;
         public bool KeepUpright { get; set; }
+        public bool KeepStraight { get; set; }
         
         private Vector3 _lastHeadPos;
         private Quaternion _lastHeadRot = Quaternion.identity;
@@ -21,6 +22,10 @@ namespace BeatLeader.Replayer {
             var rotation = headPose.rotation;
             if (KeepUpright) {
                 rotation.z = 0f;
+                rotation.Normalize();
+            }
+            if (KeepStraight) {
+                rotation.x = 0f;
                 rotation.Normalize();
             }
 

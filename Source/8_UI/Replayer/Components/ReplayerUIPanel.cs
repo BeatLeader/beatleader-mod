@@ -16,6 +16,14 @@ namespace BeatLeader.UI.Replayer {
 
         #endregion
 
+        #region LayoutEditor
+
+        public void SwitchPartialDisplayMode() {
+            _layoutEditor.PartialDisplayModeActive = !_layoutEditor.PartialDisplayModeActive;
+        }
+
+        #endregion
+        
         #region Setup
 
         private IReplayPauseController _pauseController = null!;

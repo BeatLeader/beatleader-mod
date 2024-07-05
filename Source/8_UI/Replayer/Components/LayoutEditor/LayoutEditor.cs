@@ -9,6 +9,7 @@ namespace BeatLeader.Components {
     internal interface ILayoutEditor : ILayoutComponentHandler {
         IReadOnlyCollection<ILayoutComponent> LayoutComponents { get; }
         ILayoutComponentTransformsHandler? AdditionalComponentHandler { get; set; }
+        bool PartialDisplayModeActive { get; set; }
 
         event Action<bool>? StateChangedEvent;
         event Action<ILayoutComponent?>? ComponentSelectedEvent;
@@ -20,6 +21,14 @@ namespace BeatLeader.Components {
 
     internal class LayoutEditor : ReactiveComponent, ILayoutEditor {
         #region Events
+
+        public bool PartialDisplayModeActive {
+            get => _partialDisplayActive;
+            set {
+                _partialDisplayActive = value;
+                SetPartialDisplayModeActive(value);
+            }
+        }
 
         public event Action<bool>? StateChangedEvent;
         public event Action<ILayoutComponent?>? ComponentSelectedEvent;
@@ -38,35 +47,53 @@ namespace BeatLeader.Components {
         private LayoutEditorSettings? _settings;
         private bool _provideCachedPosition;
         private bool _saveCurrentState;
+        private bool _editorActive;
+        private bool _partialDisplayActive;
+        private bool _lastPartialDisplayActive;
+
+        private void SetPartialDisplayModeActive(bool active) {
+            if (_editorActive) return;
+            foreach (var component in _components) {
+                if (!_layoutDatas.TryGetValue(component, out var data)) continue;
+                component.ComponentController.ComponentActive = !active || data.active;
+            }
+        }
 
         public void SetEditorActive(bool active, bool saveCurrentState = true) {
-            ValidateAndThrow();
+            _editorActive = active;
+            if (active) {
+                _lastPartialDisplayActive = _partialDisplayActive;
+                SetPartialDisplayModeActive(false);
+            }
+            //loading
             _provideCachedPosition = true;
             _saveCurrentState = !active && saveCurrentState;
             foreach (var component in _components) {
                 component.WrapperController.SetWrapperActive(active);
             }
             _provideCachedPosition = false;
+            //applying partial display back if was enabled
+            if (!active) {
+                SetPartialDisplayModeActive(_lastPartialDisplayActive);
+            }
             StateChangedEvent?.Invoke(active);
             ComponentSelectedEvent?.Invoke(null);
         }
 
         public void RefreshComponents() {
-            ValidateAndThrow();
             _provideCachedPosition = true;
             foreach (var component in _components) {
                 component.RequestRefresh();
             }
             _provideCachedPosition = false;
+            SetPartialDisplayModeActive(false);
         }
 
         public void Setup(LayoutEditorSettings settings) {
             _settings = settings;
         }
 
-        protected override void Construct(RectTransform rect) {
-            
-        }
+        protected override void Construct(RectTransform rect) { }
 
         protected override void OnDestroy() {
             if (_settings is null) return;
@@ -75,7 +102,7 @@ namespace BeatLeader.Components {
                 static pair => pair.Value
             );
         }
-        
+
         #endregion
 
         #region Handling Tools
@@ -141,7 +168,10 @@ namespace BeatLeader.Components {
         Vector2 ILayoutComponentHandler.PointerPosition {
             get {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    AreaTransform, Input.mousePosition, Canvas?.worldCamera, out var pos
+                    AreaTransform,
+                    Input.mousePosition,
+                    Canvas?.worldCamera,
+                    out var pos
                 );
                 return pos;
             }
@@ -165,7 +195,8 @@ namespace BeatLeader.Components {
             if (_provideCachedPosition && _saveCurrentState) {
                 //saving data
                 ModifyLayoutData(
-                    component, p => {
+                    component,
+                    p => {
                         var controller = component.ComponentController;
                         p.layer = controller.ComponentLayer;
                         p.active = controller.ComponentActive;

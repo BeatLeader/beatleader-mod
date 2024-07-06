@@ -3,6 +3,7 @@ using BeatLeader.Components;
 using BeatLeader.UI.Reactive;
 using HMUI;
 using IPA.Utilities;
+using UnityEngine.UI;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
@@ -47,6 +48,9 @@ namespace BeatLeader.UI.Hub {
             _selectionDetailView = new() { Enabled = false };
             _selectionDetailView.WithRectExpand().Use(_levelDetailViewController.transform);
             _selectionDetailView.Setup(_levelDetailView);
+            //
+            _patchedClickedEvent = new();
+            _patchedClickedEvent.AddListener(HandleActionButtonPressed);
         }
 
         private void SetupLevelNavigationController() {
@@ -89,9 +93,13 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
+        private Button.ButtonClickedEvent? _lastClickedEvent;
+        private Button.ButtonClickedEvent? _patchedClickedEvent;
+        
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-            _levelCollectionNavigationController.didPressActionButtonEvent += HandleActionButtonPressed;
             _levelDetailViewController.didChangeContentEvent += HandleContentChanged;
+            _lastClickedEvent = _levelDetailView.actionButton.onClick;
+            _levelDetailView.actionButton.onClick = _patchedClickedEvent;
             //
             SetupLevelNavigationController();
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
@@ -104,8 +112,8 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
-            _levelCollectionNavigationController.didPressActionButtonEvent -= HandleActionButtonPressed;
             _levelDetailViewController.didChangeContentEvent -= HandleContentChanged;
+            _levelDetailView.actionButton.onClick = _lastClickedEvent;
             //
             _lastSelectedLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             NavigateToBeatmap(_originalPreviewBeatmapLevel, _originalLevelCategory);
@@ -149,8 +157,8 @@ namespace BeatLeader.UI.Hub {
             _selectionDetailView.Refresh();
         }
         
-        private void HandleActionButtonPressed(LevelCollectionNavigationController controller) {
-            BeatmapSelectedEvent?.Invoke(controller.selectedDifficultyBeatmap);
+        private void HandleActionButtonPressed() {
+            BeatmapSelectedEvent?.Invoke(_levelCollectionNavigationController.selectedDifficultyBeatmap);
         }
 
         #endregion

@@ -21,7 +21,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly ComboController _comboController = null!;
         [Inject] private readonly GameEnergyCounter _gameEnergyCounter = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)]
+        [FirstResource]
         private readonly ComboUIController _comboUIController = null!;
 
         [FirstResource(requireActiveInHierarchy: true)]
@@ -123,7 +123,7 @@ namespace BeatLeader.Replayer {
             if (shouldBeBroken)
                 _comboUIController.HandleComboBreakingEventHappened();
             else
-                _comboUIController.GetField<Animator, ComboUIController>("_animator").Rebind();
+                _comboUIController.GetField<Animator, ComboUIController>("_animator")?.Rebind();
         }
 
         public void ModifyEnergyPanel(float energy, bool shouldBeLost = false) {

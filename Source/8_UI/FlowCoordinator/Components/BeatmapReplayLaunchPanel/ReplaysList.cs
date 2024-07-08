@@ -272,7 +272,7 @@ namespace BeatLeader.UI.Hub {
         public readonly HashSet<IReplayHeaderBase> HighlightedItems = new();
 
         protected override void OnCellConstruct(Cell cell) {
-            if (Filter is ITextListFilter<IReplayHeaderBase> filter) {
+            if (Filter is ITextTableFilter<IReplayHeaderBase> filter) {
                 cell.HighlightPhrase = filter.GetMatchedPhrase(cell.Item);
             } else {
                 cell.HighlightPhrase = null;

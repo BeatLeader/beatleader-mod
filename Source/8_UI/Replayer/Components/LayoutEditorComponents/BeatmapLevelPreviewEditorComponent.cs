@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using BeatLeader.Components;
+using BeatLeader.UI.Reactive;
+using UnityEngine;
 
-namespace BeatLeader.Components {
+namespace BeatLeader.UI.Replayer {
     internal class BeatmapLevelPreviewEditorComponent : LayoutEditorComponent {
         #region LayoutComponent
 
@@ -19,7 +21,8 @@ namespace BeatLeader.Components {
         }
 
         protected override void ConstructInternal(Transform parent) {
-            _beatmapLevelPreview = BeatmapLevelPreview.Instantiate(parent);
+            _beatmapLevelPreview = new BeatmapLevelPreview();
+            _beatmapLevelPreview.WithRectExpand().Use(parent);
         }
 
         #endregion

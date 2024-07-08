@@ -72,8 +72,8 @@ namespace BeatLeader.UI.Replayer {
                                     }
                                 ).Bind(ref _scoreBackground).AsFlexItem(grow: 1f),
                                 //replay overview
-                                new ReeWrapperV3<QuickReplayOverview>()
-                                    .BindRee(ref _replayOverview)
+                                new QuickReplayOverview()
+                                    .Bind(ref _replayOverview)
                                     .AsFlexItem(size: new() { y = 5f, x = 12f })
                             }
                         }.AsFlexGroup(

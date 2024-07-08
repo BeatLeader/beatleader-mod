@@ -11,9 +11,8 @@ namespace BeatLeader.UI.Reactive.Components {
         void Close(bool immediate);
         void Open(bool immediate);
     }
-
-    //TODO: rename to ModalComponentBase
-    internal abstract class NewModalComponentBase : ReactiveComponent, INewModal {
+    
+    internal abstract class ModalComponentBase : ReactiveComponent, INewModal {
         #region Abstraction
 
         protected virtual bool AllowExternalClose => true;

@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using VRUIControls;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class NewModalSystem : ReactiveComponent {
+    internal class ModalSystem : ReactiveComponent {
         #region OpenModal
 
         public static void PresentModal<T>(
@@ -32,7 +32,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private static void PresentModalInternal<T>(
-            NewModalSystem system,
+            ModalSystem system,
             T modal,
             bool animated,
             bool interruptAll
@@ -47,9 +47,9 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region ModalSystem Pool
 
-        private static readonly ReactivePool<ViewController, NewModalSystem> systemsPool = new() { DetachOnDespawn = false };
+        private static readonly ReactivePool<ViewController, ModalSystem> systemsPool = new() { DetachOnDespawn = false };
 
-        private static NewModalSystem BorrowOrInstantiateModalSystem(ViewController viewController) {
+        private static ModalSystem BorrowOrInstantiateModalSystem(ViewController viewController) {
             var system = systemsPool.Get(viewController);
             system.Use(viewController.transform);
             return system;

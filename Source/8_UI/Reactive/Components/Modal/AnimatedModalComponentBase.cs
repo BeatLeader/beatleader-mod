@@ -4,7 +4,7 @@ using IPA.Utilities;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal abstract class AnimatedModalComponentBase : NewModalComponentBase {
+    internal abstract class AnimatedModalComponentBase : ModalComponentBase {
         #region Panel Animation
 
         private static AnimationCurve? _presentAlphaAnimationCurve;

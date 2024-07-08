@@ -14,67 +14,12 @@ namespace BeatLeader.UI.Reactive.Components {
     internal static class ComponentsExtensions {
         #region Button
 
-        public static T WithModal<T, TModal>(
-            this T button,
-            TModal modal,
-            RectTransform? anchor = null,
-            ModalSystemHelper.RelativePlacement placement = ModalSystemHelper.RelativePlacement.Center,
-            Vector2 offset = default,
-            bool animateBackground = false,
-            Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
-            shadowSettings.SetValueIfNotSet(new());
-            button.ClickEvent += () => {
-                ModalSystemHelper.OpenModalRelatively(
-                    modal,
-                    button.ContentTransform,
-                    anchor ?? button.ContentTransform,
-                    placement,
-                    offset,
-                    animateBackground,
-                    shadowSettings: shadowSettings
-                );
-            };
-            return button;
-        }
-
-        public static T WithCenteredModal<T, TModal>(
-            this T button,
-            TModal modal,
-            bool animateBackground = false,
-            Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
-            shadowSettings.SetValueIfNotSet(new());
-            button.ClickEvent += () => ModalSystem.OpenModal(
-                modal,
-                button.ContentTransform,
-                settings: new(
-                    Vector2.zero,
-                    Vector2.one * 0.5f,
-                    animateBackground,
-                    ShadowSettings: shadowSettings
-                )
-            );
-            return button;
-        }
-
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : ButtonBase {
-            button.ClickEvent += () => listener(button.ContentTransform);
-            return button;
-        }
-
-        public static T WithClickListener<T>(this T button, Action listener) where T : ButtonBase {
+        public static T WithClickListener<T>(this T button, Action listener) where T : IClickableComponent {
             button.ClickEvent += listener;
             return button;
         }
 
         public static T WithStateListener<T>(this T button, Action<bool> listener) where T : ButtonBase {
-            button.StateChangedEvent += listener;
-            return button;
-        }
-
-        [Obsolete]
-        public static T WithClickListener<T>(this T button, Action<bool> listener) where T : Button {
             button.StateChangedEvent += listener;
             return button;
         }
@@ -165,8 +110,9 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
+            Optional<Material>? material = default
         ) where T : ButtonBase, IChildrenProvider {
             return WithImage(
                 button,
@@ -174,6 +120,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 sprite,
                 color,
                 pixelsPerUnit,
+                preserveAspect,
                 type,
                 material
             );
@@ -185,17 +132,24 @@ namespace BeatLeader.UI.Reactive.Components {
             Sprite? sprite,
             Color? color = null,
             float? pixelsPerUnit = null,
+            bool preserveAspect = true,
             UImage.Type type = UImage.Type.Simple,
-            Material? material = null
+            Optional<Material>? material = default
         ) where T : ButtonBase, IChildrenProvider {
             button.Children.Add(
                 new Image {
                     Sprite = sprite,
-                    Material = material,
+                    Material = material.GetValueOrDefault(GameResources.UINoGlowMaterial),
                     Color = color ?? Color.white,
                     PixelsPerUnit = pixelsPerUnit ?? 0f,
-                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced
-                }.WithRectExpand().Export(out image)
+                    ImageType = pixelsPerUnit == null ? type : UImage.Type.Sliced,
+                    PreserveAspect = preserveAspect
+                }.With(
+                    x => {
+                        if (button is not ISkewedComponent skewed) return;
+                        x.Skew = skewed.Skew;
+                    }
+                ).AsFlexItem(grow: 1f).Export(out image)
             );
             return button;
         }
@@ -254,7 +208,6 @@ namespace BeatLeader.UI.Reactive.Components {
                 color,
                 type,
                 pixelsPerUnit,
-                //skew,
                 skew,
                 gradientDirection,
                 gradientColor0,
@@ -348,8 +301,13 @@ namespace BeatLeader.UI.Reactive.Components {
         
         #region TextArea
 
-        public static T WithItemsText<T>(this T comp, IEnumerable<string> items) where T : TextArea {
-            comp.Text = string.Join(string.Empty, items.Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x}"));
+        public static T WithItemsText<T>(this T comp, IEnumerable<string> items, bool silent = false) where T : TextArea {
+            var text = string.Join(string.Empty, items.Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x}"));
+            if (silent) {
+                comp.SetTextSilent(text);
+            } else {
+                comp.Text = text;
+            }
             return comp;
         }
 

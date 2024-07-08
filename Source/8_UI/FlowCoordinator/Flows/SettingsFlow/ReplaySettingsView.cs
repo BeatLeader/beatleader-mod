@@ -3,6 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
+using BeatLeader.Utils;
 using UnityEngine;
 using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
 using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
@@ -11,7 +12,7 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaySettingsView : ReactiveComponent {
         #region DeletionModal
 
-        private class DeletionModal : ModalComponentBase {
+        private class DeletionModal : AnimatedModalComponentBase {
             #region Setup
 
             private IReplayFileManager? _replayFileManager;
@@ -48,7 +49,7 @@ namespace BeatLeader.UI.Hub {
                 _cancelButton.Enabled = stage is not DeletionStage.Finish;
             }
 
-            protected override void OnOpen() {
+            protected override void OnOpen(bool finished) {
                 _deletionStage = DeletionStage.Warning1;
                 RefreshVisuals(DeletionStage.Warning1);
             }
@@ -57,7 +58,7 @@ namespace BeatLeader.UI.Hub {
 
             #region Construct
 
-            public override bool OffClickCloses => false;
+            protected override bool AllowExternalClose => false;
 
             private Label _messageLabel = null!;
             private BsPrimaryButton _okButton = null!;
@@ -82,7 +83,7 @@ namespace BeatLeader.UI.Hub {
                                     .Bind(ref _okButton),
                                 //cancel button
                                 new BsButton()
-                                    .WithClickListener(CloseInternal)
+                                    .WithClickListener(() => CloseInternal())
                                     .WithLabel("Cancel")
                                     .AsFlexItem(grow: 1f)
                                     .Bind(ref _cancelButton)
@@ -93,6 +94,11 @@ namespace BeatLeader.UI.Hub {
                     direction: FlexDirection.Column,
                     padding: 1f
                 ).WithSizeDelta(58f, 24f).Use();
+            }
+
+            protected override void OnInitialize() {
+                base.OnInitialize();
+                Content.GetComponent<CanvasGroup>().ignoreParentGroups = true;
             }
 
             #endregion
@@ -152,6 +158,11 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
+                    new DeletionModal()
+                        .WithAlphaOnModalOpen(() => Canvas!.gameObject)
+                        .WithAnchor(() => ContentTransform, RelativePlacement.Center)
+                        .Bind(ref _deletionModal),
+                    //
                     new ReeWrapperV2<ReplayerSettingsPanel>()
                         .WithRectExpand()
                         .InBlurBackground()
@@ -193,7 +204,7 @@ namespace BeatLeader.UI.Hub {
                     ).AsFlexItem(size: new() { x = 50f }),
                     //delete all button
                     new BsPrimaryButton()
-                        .WithCenteredModal(new DeletionModal().Bind(ref _deletionModal))
+                        .WithModal(_deletionModal)
                         .WithLabel("Delete All Replays")
                         .WithAccentColor(Color.red)
                         .AsFlexItem(

@@ -10,13 +10,13 @@ namespace BeatLeader.Replayer.Emulation {
     internal class VirtualPlayerAvatarBody : IVirtualPlayerBodyComponent {
         #region Pool
 
-        public class Pool : MemoryPool<IVirtualPlayerBase, VirtualPlayerAvatarBody> {
+        public class Pool : MemoryPool<VirtualPlayerAvatarData, VirtualPlayerAvatarBody> {
             protected override void OnCreated(VirtualPlayerAvatarBody item) {
                 item.Setup();
             }
 
-            protected override void Reinitialize(IVirtualPlayerBase playerBase, VirtualPlayerAvatarBody item) {
-                item.RefreshAvatarVisuals(playerBase);
+            protected override void Reinitialize(VirtualPlayerAvatarData avatarData, VirtualPlayerAvatarBody item) {
+                item.RefreshAvatarVisuals(avatarData);
             }
         }
 
@@ -34,6 +34,7 @@ namespace BeatLeader.Replayer.Emulation {
         public bool UsesPrimaryModel { get; private set; }
 
         private IVirtualPlayerBase _player = null!;
+        private VirtualPlayerAvatarData _playerAvatarData;
         private AvatarLoader _avatarLoader = null!;
         private AvatarPartsModel _avatarPartsModel = null!;
         private AvatarData? _avatarData;
@@ -47,9 +48,10 @@ namespace BeatLeader.Replayer.Emulation {
             LoadBody();
         }
 
-        private void RefreshAvatarVisuals(IVirtualPlayerBase player) {
-            _player = player;
-            var replay = player.Replay;
+        private void RefreshAvatarVisuals(VirtualPlayerAvatarData avatarData) {
+            _player = avatarData.Player;
+            _playerAvatarData = avatarData;
+            var replay = _player.Replay;
             _avatarData = replay.OptionalReplayData?.AvatarData;
             if (_avatarData == null) {
                 _avatarData = new();
@@ -65,6 +67,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         public void RefreshVisuals() {
             UsesPrimaryModel = _playersManager.PrimaryPlayer == _player;
+            ApplyConfig(UsesPrimaryModel ? _playerAvatarData.PrimaryConfig : _playerAvatarData.DefaultConfig);
         }
 
         public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {

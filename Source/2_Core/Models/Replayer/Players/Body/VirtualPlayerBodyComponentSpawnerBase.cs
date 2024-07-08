@@ -11,15 +11,15 @@ namespace BeatLeader.Models {
         public abstract IVirtualPlayerBodyModel PrimaryModel { get; }
         public abstract IVirtualPlayerBodyModel Model { get; }
 
-        private IVirtualPlayerBodyConfig? _primaryConfig;
-        private IVirtualPlayerBodyConfig? _config;
+        protected IVirtualPlayerBodyConfig? PrimaryConfig { get; private set; }
+        protected IVirtualPlayerBodyConfig? Config { get; private set; }
 
-        public void ApplyModelConfig(bool applyToPrimaryModel, IVirtualPlayerBodyConfig config) {
+        public virtual void ApplyModelConfig(bool applyToPrimaryModel, IVirtualPlayerBodyConfig config) {
             if (applyToPrimaryModel) {
-                _primaryConfig = config;
+                PrimaryConfig = config;
                 ApplyPrimaryConfig(config);
             } else {
-                _config = config;
+                Config = config;
                 ApplyConfig(config);
             }
         }
@@ -45,7 +45,7 @@ namespace BeatLeader.Models {
             IVirtualPlayerBase player
         ) {
             var primary = manager.PrimaryPlayer == player;
-            var config = primary ? _primaryConfig : _config;
+            var config = primary ? PrimaryConfig : Config;
             if (config != null) component.ApplyConfig(config);
         }
 

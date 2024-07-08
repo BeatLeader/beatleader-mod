@@ -1,3 +1,0 @@
-<horizontal ignore-layout="true">
-  <modal id="modal-view" click-off-closes="false"/>
-</horizontal>

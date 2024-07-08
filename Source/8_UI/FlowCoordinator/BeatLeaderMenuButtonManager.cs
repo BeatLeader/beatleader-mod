@@ -9,7 +9,7 @@ namespace BeatLeader {
         
         #region MenuButton
 
-        private const string Description = "Opens BeatLeader replays panel";
+        private const string Description = "Opens BeatLeader Hub";
 
         public static bool MenuButtonEnabled {
             get => ConfigFileData.Instance.MenuButtonEnabled;
@@ -19,7 +19,7 @@ namespace BeatLeader {
         private static event Action? MenuButtonClickedEvent;
         
         private static readonly MenuButton menuButton = new(
-            Plugin.PluginId, Description, 
+            "BEATLEADER HUB", Description, 
             () => MenuButtonClickedEvent?.Invoke());
 
         #endregion

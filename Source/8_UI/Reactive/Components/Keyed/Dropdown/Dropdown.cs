@@ -24,19 +24,19 @@ namespace BeatLeader.UI.Reactive.Components {
             }
         }
 
-        private class OptionsModal : ModalComponentBase {
+        private class OptionsModal : AnimatedModalComponentBase {
             #region CellWrapper
 
-            private class DropdownCellWrapper : ReactiveTableCell<DropdownOption> {
+            public class DropdownCellWrapper : TableComponentCell<DropdownOption> {
                 #region Setup
 
                 private TCell _cell = default!;
 
-                protected override void Init(DropdownOption item) {
+                protected override void OnInit(DropdownOption item) {
                     _cell.Init(item.key, item.param);
                 }
 
-                public override void OnCellStateChange(bool selected, bool highlighted) {
+                protected override void OnCellStateChange(bool selected) {
                     _cell.OnCellStateChange(selected);
                 }
 
@@ -49,6 +49,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 }
 
                 protected override void OnInitialize() {
+                    this.WithSizeDelta(0f, 6f);
                     _cell.CellAskedToBeSelectedEvent += HandleCellAskedToBeSelected;
                 }
 
@@ -57,7 +58,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 #region Callbacks
 
                 private void HandleCellAskedToBeSelected(TKey key) {
-                    List!.Select(new() { key = key });
+                    SelectSelf(true);
                 }
 
                 #endregion
@@ -75,9 +76,9 @@ namespace BeatLeader.UI.Reactive.Components {
             }
 
             public void RefreshPreviewCell() {
-                var option = List.SelectedItems.FirstOrDefault();
-                if (option.Equals(default)) return;
-                _selectedOption = option;
+                if (Table.SelectedIndexes.Count == 0) return;
+                var index = Table.SelectedIndexes.First();
+                _selectedOption = Table.FilteredItems[index];
                 _previewCell.Init(_selectedOption.key, _selectedOption.param);
             }
 
@@ -88,12 +89,13 @@ namespace BeatLeader.UI.Reactive.Components {
             private const int MaxDisplayedItems = 5;
             private const float ItemSize = 6f;
 
-            public ListComponentBase<DropdownOption> List => _list;
+            public Table<DropdownOption, DropdownCellWrapper> Table => _table;
 
-            private ReactiveList<DropdownOption, DropdownCellWrapper> _list = null!;
+            private Table<DropdownOption, DropdownCellWrapper> _table = null!;
 
-            protected override void OnOpen() {
-                var height = Mathf.Clamp(List.Items.Count, 1, MaxDisplayedItems) * ItemSize + 2;
+            protected override void OnOpen(bool finished) {
+                if (finished) return;
+                var height = Mathf.Clamp(Table.Items.Count, 1, MaxDisplayedItems) * ItemSize + 2;
                 this.WithSizeDelta(40f, height);
             }
 
@@ -102,16 +104,16 @@ namespace BeatLeader.UI.Reactive.Components {
                     Children = {
                         new Image {
                             Children = {
-                                new ReactiveList<DropdownOption, DropdownCellWrapper>(ItemSize)
+                                new Table<DropdownOption, DropdownCellWrapper>()
                                     .WithListener(
-                                        x => x.SelectedItems,
+                                        x => x.SelectedIndexes,
                                         _ => {
                                             RefreshPreviewCell();
                                             CloseInternal();
                                         }
                                     )
                                     .AsFlexItem(grow: 1f)
-                                    .Bind(ref _list)
+                                    .Bind(ref _table)
                             }
                         }.AsBlurBackground().AsFlexGroup(
                             padding: new() { top = 1f, bottom = 1f }
@@ -119,7 +121,7 @@ namespace BeatLeader.UI.Reactive.Components {
                         //scrollbar
                         new Scrollbar()
                             .AsFlexItem(size: new() { x = 2f })
-                            .With(x => List.Scrollbar = x)
+                            .With(x => Table.Scrollbar = x)
                     }
                 }.AsFlexGroup(gap: 2f).Use();
             }
@@ -148,8 +150,8 @@ namespace BeatLeader.UI.Reactive.Components {
         private Optional<TKey> _selectedKey;
 
         public void Select(TKey key) {
-            List.ClearSelection();
-            List.Select(new DropdownOption { key = key });
+            Table.ClearSelection();
+            Table.Select(new DropdownOption { key = key });
             SelectedKey = key;
             _modal.RefreshPreviewCell();
         }
@@ -188,7 +190,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Construct
 
-        private ListComponentBase<DropdownOption> List => _modal.List;
+        private Table<DropdownOption, OptionsModal.DropdownCellWrapper> Table => _modal.Table;
 
         private OptionsModal _modal = null!;
         private ImageButton _button = null!;
@@ -219,6 +221,7 @@ namespace BeatLeader.UI.Reactive.Components {
                     ),
                     //modal
                     new OptionsModal()
+                        .WithAnchor(() => ContentTransform, RelativePlacement.Center, unbindOnceOpened: false)
                         .With(x => x.Setup(_previewCell))
                         .Bind(ref _modal)
                 }
@@ -233,11 +236,12 @@ namespace BeatLeader.UI.Reactive.Components {
             _items.ItemAddedEvent += HandleItemAdded;
             _items.ItemRemovedEvent += HandleItemRemoved;
             _items.AllItemsRemovedEvent += HandleAllItemsRemoved;
-            List.WithListener(
-                x => x.SelectedItems,
+            Table.WithListener(
+                x => x.SelectedIndexes,
                 x => {
-                    var item = x.FirstOrDefault();
-                    if (item.Equals(default)) return;
+                    if (x.Count == 0) return;
+                    var index = x.First();
+                    var item = Table.FilteredItems[index];
                     SelectedKey = item.key;
                 }
             );
@@ -248,27 +252,27 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Callbacks
 
         private void HandleItemAdded(TKey key, TParam param) {
-            List.Items.Add(
+            Table.Items.Add(
                 new() {
                     key = key,
                     param = param
                 }
             );
-            List.Refresh(false);
+            Table.Refresh(false);
             RefreshSelection();
             NotifyPropertyChanged(nameof(Items));
         }
 
         private void HandleItemRemoved(TKey key) {
-            List.Items.Remove(new() { key = key });
-            List.Refresh();
+            Table.Items.Remove(new() { key = key });
+            Table.Refresh();
             RefreshSelection();
             NotifyPropertyChanged(nameof(Items));
         }
 
         private void HandleAllItemsRemoved() {
-            List.Items.Clear();
-            List.Refresh();
+            Table.Items.Clear();
+            Table.Refresh();
             RefreshSelection();
             NotifyPropertyChanged(nameof(Items));
         }

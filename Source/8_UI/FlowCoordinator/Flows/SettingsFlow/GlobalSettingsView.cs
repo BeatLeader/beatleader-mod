@@ -59,7 +59,8 @@ namespace BeatLeader.UI.Hub {
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart
+                justifyContent: Justify.FlexStart,
+                gap: 1f
             ).Use();
         }
 

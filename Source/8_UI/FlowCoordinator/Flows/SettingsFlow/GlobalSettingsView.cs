@@ -1,4 +1,5 @@
-﻿using BeatLeader.UI.Reactive;
+﻿using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private TextDropdown<BLLanguage> _languageDropdown = null!;
+        private TextDropdown<BeatLeaderServer> _serverDropdown = null!;
         private ReloadNotice _reloadNotice = null!;
 
         protected override GameObject Construct() {
@@ -42,6 +44,14 @@ namespace BeatLeader.UI.Hub {
                         )
                         .Bind(ref _languageDropdown)
                         .InNamedRail("Language"),
+                    //
+                    new TextDropdown<BeatLeaderServer>()
+                        .WithListener(
+                            x => x.SelectedKey,
+                            HandleServerChanged
+                        )
+                        .Bind(ref _serverDropdown)
+                        .InNamedRail("Server"),
                     //
                     new ReloadNotice()
                         .AsFlexItem(margin: new() { top = 4f })
@@ -63,6 +73,13 @@ namespace BeatLeader.UI.Hub {
                 _languageDropdown.Items.Add(language, name);
             }
             _languageDropdown.Select(lang);
+            //applying server
+            var server = PluginConfig.MainServer;
+            foreach (var option in BeatLeaderServerUtils.ServerOptions) {
+                var name = option.GetName();
+                _serverDropdown.Items.Add(option, name);
+            }
+            _serverDropdown.Select(server);
         }
 
         #endregion
@@ -73,7 +90,11 @@ namespace BeatLeader.UI.Hub {
             PluginConfig.SelectedLanguage = language;
             RefreshNotice();
         }
-
+        
+        private void HandleServerChanged(BeatLeaderServer server) {
+            PluginConfig.MainServer = server;
+        }
+        
         #endregion
     }
 }

@@ -94,7 +94,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
             protected override void OnOpen() {
                 var height = Mathf.Clamp(List.Items.Count, 1, MaxDisplayedItems) * ItemSize + 2;
-                this.WithRectSize(height, 40f);
+                this.WithSizeDelta(40f, height);
             }
 
             protected override GameObject Construct() {

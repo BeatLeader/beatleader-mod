@@ -1,66 +1,90 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
-using UnityEngine.UI;
-using JetBrains.Annotations;
+﻿using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.UI.Reactive.Yoga;
+using TMPro;
 using UnityEngine;
+using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
+using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
-namespace BeatLeader.Components {
-    internal class BeatmapLevelPreview : ReeUIComponentV3<BeatmapLevelPreview> {
-        #region Components
+namespace BeatLeader.UI.Replayer {
+    internal class BeatmapLevelPreview : ReactiveComponent {
+        #region Construct
 
-        [UIComponent("song-preview-image"), UsedImplicitly]
         private Image _songPreviewImage = null!;
+        private Label _songNameLabel = null!;
+        private Label _songAuthorLabel = null!;
 
-        [UIComponent("flex-group"), UsedImplicitly]
-        private FlexContainer _flexGroup = null!;
-        
-        #endregion
-
-        #region Name, Author
-
-        [UIValue("song-name"), UsedImplicitly]
-        public string? SongName {
-            get => _songName;
-            private set {
-                _songName = value;
-                NotifyPropertyChanged();
+        protected override GameObject Construct() {
+            static ReactiveComponentBase CreateLabel(ref Label label) {
+                return new Image {
+                    Children = {
+                        new Label {
+                            Overflow = TextOverflowModes.Ellipsis,
+                            FontSize = 4f
+                        }.AsFlexItem(size: "auto").Bind(ref label)
+                    }
+                }.AsBlurBackground().AsFlexGroup(
+                    padding: new() { left = 1f, right = 1f },
+                    gap: new() { x = 1f },
+                    overflow: Overflow.Hidden
+                ).AsFlexItem(
+                    size: "auto",
+                    maxSize: "100%"
+                );
             }
-        }
 
-        [UIValue("song-author"), UsedImplicitly]
-        public string? SongAuthor {
-            get => _songAuthor;
-            private set {
-                _songAuthor = value;
-                NotifyPropertyChanged();
+            static ReactiveComponentBase CreateRail(ILayoutItem child) {
+                return new Dummy {
+                    Children = {
+                        child
+                    }
+                }.AsFlexGroup(
+                    justifyContent: Justify.FlexStart,
+                    gap: new() { x = 0.5f }
+                ).AsFlexItem();
             }
+
+            return new Dummy {
+                Children = {
+                    //song image
+                    new Image {
+                        Material = BundleLoader.RoundTextureMaterial
+                    }.AsFlexItem(aspectRatio: 1f).Bind(ref _songPreviewImage),
+                    //labels
+                    new Dummy {
+                        Children = {
+                            //song name
+                            CreateRail(
+                                CreateLabel(ref _songNameLabel)
+                            ),
+                            //song author
+                            CreateRail(
+                                CreateLabel(ref _songAuthorLabel)
+                            )
+                        }
+                    }.AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        justifyContent: Justify.Center,
+                        alignItems: Align.FlexStart,
+                        gap: new() { y = 1f },
+                        independentLayout: true
+                    ).AsFlexItem(grow: 1f)
+                }
+            }.AsFlexGroup(padding: 1f, gap: 2f).Use();
         }
 
         #endregion
 
         #region Setup
 
-        private string? _songName;
-        private string? _songAuthor;
-
         public void SetBeatmapLevel(IPreviewBeatmapLevel level) {
-            SongName = level.songName;
-            SongAuthor = level.levelAuthorName;
+            _songNameLabel.Text = level.songName;
+            _songAuthorLabel.Text = level.levelAuthorName;
             LoadAndAssignImage(level);
         }
 
         private async void LoadAndAssignImage(IPreviewBeatmapLevel level) {
-            _songPreviewImage.sprite = await level.GetCoverImageAsync(default);
-        }
-
-        protected override void OnInitialize() {
-            _songPreviewImage.material = BundleLoader.RoundTextureMaterial;
-            var flexItem = _songPreviewImage.gameObject.AddComponent<FlexItem>();
-            flexItem.MinSize = Vector2.one * 20;
-            flexItem.MaxSize = Vector2.one * 20;
-        }
-
-        protected override void OnRectDimensionsChange() {
-            _flexGroup.SetDirty();
+            _songPreviewImage.Sprite = await level.GetCoverImageAsync(default);
         }
 
         #endregion

@@ -1,19 +1,38 @@
 ﻿using System;
 using BeatLeader.Models.AbstractReplay;
-using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
-using JetBrains.Annotations;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
 using UnityEngine;
 
-namespace BeatLeader.Components {
-    internal class QuickReplayOverview : ReeUIComponentV3<QuickReplayOverview> {
-        #region UI Components
+namespace BeatLeader.UI.Replayer {
+    internal class QuickReplayOverview : ReactiveComponent {
+        #region Construct
+        
+        private Image _finishStatusImage = null!;
+        private Image _speedValueImage = null!;
 
-        [UIComponent("finish-status-image"), UsedImplicitly]
-        private ImageView _finishStatusImage = null!;
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    new Image()
+                        .WithRectExpand()
+                        .Bind(ref _finishStatusImage)
+                        .InBlurBackground(color: Color.black.ColorWithAlpha(0.93f))
+                        .AsFlexItem(size: 5f),
+                    //
+                    new Image()
+                        .WithRectExpand()
+                        .Bind(ref _speedValueImage)
+                        .InBlurBackground(color: Color.black.ColorWithAlpha(0.93f))
+                        .AsFlexItem(size: 5f),
+                }
+            }.AsFlexGroup(gap: 1f).Use();
+        }
 
-        [UIComponent("speed-value-image"), UsedImplicitly]
-        private ImageView _speedValueImage = null!;
+        protected override void OnInitialize() {
+            RefreshFinishStatusImage(ReplayFinishType.Incomplete);
+            RefreshSpeedValueImage(1f);
+        }
 
         #endregion
 
@@ -32,16 +51,16 @@ namespace BeatLeader.Components {
         private void RefreshFinishStatusImage(ReplayFinishType finishType) {
             switch (finishType) {
                 case ReplayFinishType.Failed:
-                    _finishStatusImage.color = Color.red;
-                    _finishStatusImage.sprite = BundleLoader.SkullIcon;
+                    _finishStatusImage.Color = Color.red;
+                    _finishStatusImage.Sprite = BundleLoader.SkullIcon;
                     break;
                 case ReplayFinishType.Cleared:
-                    _finishStatusImage.color = Color.green;
-                    _finishStatusImage.sprite = BundleLoader.CheckIcon;
+                    _finishStatusImage.Color = Color.green;
+                    _finishStatusImage.Sprite = BundleLoader.CheckIcon;
                     break;
                 case ReplayFinishType.Incomplete:
-                    _finishStatusImage.color = Color.yellow;
-                    _finishStatusImage.sprite = BundleLoader.QuestionIcon;
+                    _finishStatusImage.Color = Color.yellow;
+                    _finishStatusImage.Sprite = BundleLoader.QuestionIcon;
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(finishType), finishType, null);
             }
@@ -54,16 +73,16 @@ namespace BeatLeader.Components {
         private void RefreshSpeedValueImage(float speedMultiplier) {
             switch (speedMultiplier) {
                 case < 1:
-                    _speedValueImage.color = Color.yellow;
-                    _speedValueImage.sprite = BundleLoader.SlowSpeedIcon;
+                    _speedValueImage.Color = Color.yellow;
+                    _speedValueImage.Sprite = BundleLoader.SlowSpeedIcon;
                     break;
                 case > 1:
-                    _speedValueImage.color = Color.cyan;
-                    _speedValueImage.sprite = BundleLoader.FastSpeedIcon;
+                    _speedValueImage.Color = Color.cyan;
+                    _speedValueImage.Sprite = BundleLoader.FastSpeedIcon;
                     break;
                 case 1:
-                    _speedValueImage.sprite = BundleLoader.MediumSpeedIcon;
-                    _speedValueImage.color = Color.white;
+                    _speedValueImage.Sprite = BundleLoader.MediumSpeedIcon;
+                    _speedValueImage.Color = Color.white;
                     break;
             }
         }

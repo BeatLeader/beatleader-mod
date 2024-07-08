@@ -14,67 +14,12 @@ namespace BeatLeader.UI.Reactive.Components {
     internal static class ComponentsExtensions {
         #region Button
 
-        public static T WithModal<T, TModal>(
-            this T button,
-            TModal modal,
-            RectTransform? anchor = null,
-            ModalSystemHelper.RelativePlacement placement = ModalSystemHelper.RelativePlacement.Center,
-            Vector2 offset = default,
-            bool animateBackground = false,
-            Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
-            shadowSettings.SetValueIfNotSet(new());
-            button.ClickEvent += () => {
-                ModalSystemHelper.OpenModalRelatively(
-                    modal,
-                    button.ContentTransform,
-                    anchor ?? button.ContentTransform,
-                    placement,
-                    offset,
-                    animateBackground,
-                    shadowSettings: shadowSettings
-                );
-            };
-            return button;
-        }
-
-        public static T WithCenteredModal<T, TModal>(
-            this T button,
-            TModal modal,
-            bool animateBackground = false,
-            Optional<DynamicShadowSettings> shadowSettings = default
-        ) where T : ButtonBase where TModal : IModal, IReactiveComponent, new() {
-            shadowSettings.SetValueIfNotSet(new());
-            button.ClickEvent += () => ModalSystem.OpenModal(
-                modal,
-                button.ContentTransform,
-                settings: new(
-                    Vector2.zero,
-                    Vector2.one * 0.5f,
-                    animateBackground,
-                    ShadowSettings: shadowSettings
-                )
-            );
-            return button;
-        }
-        
-        public static T WithModal<T>(this T button, Action<Transform> listener) where T : IClickableComponent, IReactiveComponent {
-            button.ClickEvent += () => listener(button.ContentTransform);
-            return button;
-        }
-
         public static T WithClickListener<T>(this T button, Action listener) where T : IClickableComponent {
             button.ClickEvent += listener;
             return button;
         }
 
         public static T WithStateListener<T>(this T button, Action<bool> listener) where T : ButtonBase {
-            button.StateChangedEvent += listener;
-            return button;
-        }
-
-        [Obsolete]
-        public static T WithClickListener<T>(this T button, Action<bool> listener) where T : Button {
             button.StateChangedEvent += listener;
             return button;
         }

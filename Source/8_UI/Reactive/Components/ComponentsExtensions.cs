@@ -240,12 +240,6 @@ namespace BeatLeader.UI.Reactive.Components {
             return comp;
         }
 
-        public static ReeWrapperV3<TRee> BindRee<TRee>(this ReeWrapperV3<TRee> comp, ref TRee variable)
-            where TRee : ReeUIComponentV3<TRee> {
-            variable = comp.ReeComponent;
-            return comp;
-        }
-
         #endregion
 
         #region Image

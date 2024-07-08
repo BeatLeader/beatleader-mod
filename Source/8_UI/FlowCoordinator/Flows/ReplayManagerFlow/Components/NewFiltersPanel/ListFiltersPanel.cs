@@ -9,12 +9,12 @@ using IPA.Utilities;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal interface IPanelListFilter<in T> : IReactiveComponent, ILayoutItem, IListFilter<T> {
+    internal interface IPanelListFilter<in T> : IReactiveComponent, ILayoutItem, ITableFilter<T> {
         IEnumerable<IPanelListFilter<T>>? DependsOn { get; }
         string FilterName { get; }
     }
 
-    internal class ListFiltersPanel<T> : ReactiveComponent, ITextListFilter<T> {
+    internal class ListFiltersPanel<T> : ReactiveComponent, ITextTableFilter<T> {
         #region TableFilter
 
         public Func<T, IEnumerable<string>>? SearchContract { get; set; }

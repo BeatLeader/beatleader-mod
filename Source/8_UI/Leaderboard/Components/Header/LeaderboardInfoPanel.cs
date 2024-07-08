@@ -47,7 +47,7 @@ namespace BeatLeader.Components {
         #region Init/Dispose
 
         protected override void OnInitialize() {
-            _menuButton.Setup(BundleLoader.ReplayIcon);
+            _menuButton.Setup(BundleLoader.Sprites.homeIcon);
             _websiteButton.Setup(BundleLoader.ProfileIcon);
             _settingsButton.Setup(BundleLoader.SettingsIcon);
 

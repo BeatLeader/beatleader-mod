@@ -50,7 +50,7 @@ namespace BeatLeader.UI.Reactive.Components {
                     Children = {
                         new Label().WithRectExpand().Bind(ref _label)
                     }
-                }.Bind(ref _button).Use();
+                }.WithClickListener(SelectSelf).Bind(ref _button).Use();
             }
 
             #endregion

@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
@@ -25,9 +24,9 @@ namespace BeatLeader.UI.Hub {
                     //actual content
                     new Dummy {
                         Children = {
-                            new ReeWrapperV3<QuickMiniProfile>()
+                            new QuickMiniProfile()
                                 .AsFlexItem(size: new() { y = 16f })
-                                .BindRee(ref _miniProfile),
+                                .Bind(ref _miniProfile),
                             //
                             new TagsStrip()
                                 .AsFlexItem(size: new() { y = 5f })

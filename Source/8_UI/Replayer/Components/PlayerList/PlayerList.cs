@@ -40,8 +40,8 @@ namespace BeatLeader.UI.Replayer {
                     GrowOnHover = false,
                     HoverLerpMul = float.MaxValue,
                     Children = {
-                        new ReeWrapperV3<QuickMiniProfile>()
-                            .BindRee(ref _miniProfile)
+                        new QuickMiniProfile()
+                            .Bind(ref _miniProfile)
                             .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
                         //overview
                         new Dummy {

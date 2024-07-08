@@ -1,25 +1,138 @@
-using BeatLeader.Components;
+using System;
+using System.Threading.Tasks;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
 using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.ViewControllers;
-using JetBrains.Annotations;
+using HMUI;
+using UnityEngine;
 using Zenject;
+using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
+using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Hub {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.FlowCoordinator.HubViews.MainHubView.bsml")]
-    internal class BeatLeaderHubMainViewController : BSMLAutomaticViewController {
+    internal class BeatLeaderHubMainViewController : ViewController {
         [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         [Inject] private readonly BattleRoyaleFlowCoordinator _battleRoyaleFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderSettingsFlowCoordinator _settingsFlowCoordinator = null!;
 
-        [UIComponent("mini-profile"), UsedImplicitly]
         private QuickMiniProfile _quickMiniProfile = null!;
 
-        [UIAction("#post-parse"), UsedImplicitly]
+        private void Awake() {
+            ButtonBase CreateButton(
+                string text,
+                Sprite icon,
+                Color color,
+                FlowCoordinator flowCoordinator,
+                Vector2 pivot,
+                YogaFrame position,
+                float iconMargin,
+                float gap
+            ) {
+                return new AeroButton {
+                    ContentTransform = {
+                        pivot = pivot
+                    },
+                    Colors = new StateColorSet {
+                        HoveredColor = color,
+                        Color = UIStyle.InputColorSet.Color,
+                        DisabledColor = UIStyle.InputColorSet.DisabledColor
+                    },
+                    Children = {
+                        //icon
+                        new Image {
+                            Sprite = icon,
+                            PreserveAspect = true
+                        }.AsFlexItem(grow: 1f),
+                        //label
+                        new Label {
+                            Text = text
+                        }.AsFlexItem(size: new() { y = "auto" })
+                    }
+                }.WithClickListener(
+                    () => {
+                        _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
+                            flowCoordinator,
+                            animationDirection: AnimationDirection.Vertical
+                        );
+                    }
+                ).AsFlexGroup(
+                    direction: FlexDirection.Column,
+                    padding: new() { left = 2f, right = 2f, top = iconMargin, bottom = 1f },
+                    gap: gap
+                ).AsFlexItem(size: 30f, position: position);
+            }
+
+            var secondaryColor = new Color(1f, 0.65f, 0f);
+            var primaryColor = Color.magenta;
+
+            new Dummy {
+                Children = {
+                    new QuickMiniProfile {
+                            JustifyContent = Justify.Center
+                        }
+                        .AsFlexItem(size: new() { y = 24f, x = 50f })
+                        .Bind(ref _quickMiniProfile),
+                    //welcome label
+                    new Label {
+                            Text = "Welcome to the Beat Leader Hub!",
+                            FontSize = 6f
+                        }
+                        .AsFlexItem(size: "auto")
+                        //background
+                        .InBlurBackground()
+                        .AsFlexGroup(padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f })
+                        .AsFlexItem(),
+                    //buttons (use absolute pos for correct overlap)
+                    new Dummy {
+                        Children = {
+                            //
+                            CreateButton(
+                                "Battle Royale",
+                                BundleLoader.BattleRoyaleIcon,
+                                primaryColor,
+                                _battleRoyaleFlowCoordinator,
+                                new() { x = 0.5f, y = 0f },
+                                YogaFrame.Undefined,
+                                3f,
+                                2f
+                            ),
+                            //
+                            CreateButton(
+                                "Replay Manager",
+                                BundleLoader.ReplayerSettingsIcon,
+                                secondaryColor,
+                                _replayManagerFlowCoordinator,
+                                new() { x = 0f, y = 0f },
+                                new() { bottom = 0f, left = 0f },
+                                1f,
+                                1f
+                            ),
+                            //
+                            CreateButton(
+                                "Settings",
+                                BundleLoader.SettingsIcon,
+                                secondaryColor,
+                                _settingsFlowCoordinator,
+                                new() { x = 1f, y = 0f },
+                                new() { bottom = 0f, right = 0f },
+                                2.7f,
+                                2f
+                            )
+                        }
+                    }.AsFlexGroup().AsFlexItem(size: new() { y = 30f, x = 96f })
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                alignItems: Align.Center
+            ).WithRectExpand().Use(transform);
+
+            OnInitialize();
+        }
+
         private async void OnInitialize() {
             _quickMiniProfile.SetPlayer(null);
             _quickMiniProfile.JustifyContent = Justify.Center;
@@ -27,30 +140,6 @@ namespace BeatLeader.UI.Hub {
             await ProfileManager.WaitUntilProfileLoad();
             var profile = ProfileManager.Profile ?? Player.GuestPlayer;
             _quickMiniProfile.SetPlayer(profile);
-        }
-
-        [UIAction("replay-manager-button-click"), UsedImplicitly]
-        private void HandleReplayManagerButtonClicked() {
-            _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
-                _replayManagerFlowCoordinator,
-                animationDirection: AnimationDirection.Vertical
-            );
-        }
-
-        [UIAction("battle-royale-button-click"), UsedImplicitly]
-        private void HandleBattleRoyaleButtonClicked() {
-            _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
-                _battleRoyaleFlowCoordinator,
-                animationDirection: AnimationDirection.Vertical
-            );
-        }
-        
-        [UIAction("settings-button-click"), UsedImplicitly]
-        private void HandleSettingsButtonClicked() {
-            _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
-                _settingsFlowCoordinator,
-                animationDirection: AnimationDirection.Vertical
-            );
         }
     }
 }

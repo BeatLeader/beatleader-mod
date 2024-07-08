@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
@@ -6,12 +7,10 @@ using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using RDummy = BeatLeader.UI.Reactive.Components.Dummy;
 
-namespace BeatLeader.Components {
-    //TODO: migrate to reactive after merge
-    internal class QuickMiniProfile : ReeUIComponentV3<QuickMiniProfile> {
+namespace BeatLeader.UI {
+    internal class QuickMiniProfile : ReactiveComponent {
         #region Layout
 
         public Justify JustifyContent {
@@ -74,12 +73,12 @@ namespace BeatLeader.Components {
         private YogaLayoutController _railsLayoutController = null!;
         private YogaModifier _railsLayoutModifier = null!;
 
-        protected override GameObject Construct(Transform parent) {
+        protected override GameObject Construct() {
             static ReactiveComponentBase CreateFitter(
                 params ILayoutItem[] children
             ) {
-                var dummy = new RDummy()
-                    .WithBlurBackground()
+                var dummy = new Image()
+                    .AsBlurBackground()
                     .AsFlexGroup(
                         padding: new() { left = 1f, right = 1f },
                         gap: new() { x = 1f },
@@ -159,11 +158,7 @@ namespace BeatLeader.Components {
                 gap: new() { x = 2f },
                 padding: 1f,
                 layoutController: out _layoutController
-            ).With(
-                x => {
-                    x.Content.AddComponent<LayoutElement>().preferredHeight = 18;
-                }
-            ).Use(parent);
+            ).Use();
         }
 
         protected override void OnInitialize() {

@@ -35,7 +35,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected override void OnInitialize() {
-            this.WithRectSize(54f, 54f);
+            this.WithSizeDelta(54f, 54f);
         }
 
         private static HSVPanelController InstantiateColorPicker() {

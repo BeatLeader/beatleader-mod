@@ -73,7 +73,7 @@ namespace BeatLeader.UI.Reactive.Components {
                             }
                         ).AsFlexItem(size: new() { x = 92f, y = 28f })
                 }
-            }.AsFlexGroup(padding: 2f).WithRectSize(32f, 96f).AsBlurBackground().Bind(ref _backgroundImage).Use();
+            }.AsFlexGroup(padding: 2f).WithSizeDelta(96f, 32f).AsBlurBackground().Bind(ref _backgroundImage).Use();
         }
 
         private static HMUI.UIKeyboard InstantiateKeyboard() {

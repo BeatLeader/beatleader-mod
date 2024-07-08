@@ -1,4 +1,0 @@
-<vertical Width="50" InheritHeight="false" spacing="1" Pad="2,1,2,1">
-  <text text="Alpha" align="Center" Height="10"/>
-  <AlphaSlider id="slider" ShowText="false" ValueChangedEvent="value-change"/>
-</vertical>

@@ -57,11 +57,11 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Present
 
         public static void Present<T>(this T comp, ViewController viewController, bool animated = true) where T : INewModal, IReactiveComponent {
-            NewModalSystem.PresentModal(comp, viewController, animated);
+            ModalSystem.PresentModal(comp, viewController, animated);
         }
 
         public static void Present<T>(this T comp, Transform screenChild, bool animated = true) where T : INewModal, IReactiveComponent {
-            NewModalSystem.PresentModal(comp, screenChild, animated);
+            ModalSystem.PresentModal(comp, screenChild, animated);
         }
 
         #endregion

@@ -5,6 +5,7 @@ using BeatLeader.Utils;
 using HMUI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using VRUIControls;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -201,6 +202,7 @@ namespace BeatLeader.UI.Reactive.Components {
             //raycaster
             var raycaster = go.AddComponent<VRGraphicRaycaster>();
             OnMenuInstaller.Container.Inject(raycaster);
+            go.AddComponent<GraphicRaycaster>();
         }
 
         private void HandleBlockerClicked() {

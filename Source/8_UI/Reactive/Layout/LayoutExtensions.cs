@@ -269,15 +269,6 @@ namespace BeatLeader.UI.Reactive {
 
         #region Rect
 
-        [Obsolete]
-        public static T WithRectSize<T>(
-            this T component,
-            float height,
-            float width
-        ) where T : IReactiveComponent {
-            return component.AsRectItem(new(width, height));
-        }
-
         public static T WithSizeDelta<T>(
             this T component,
             float width,

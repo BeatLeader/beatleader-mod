@@ -70,7 +70,7 @@ namespace BeatLeader.UI.Replayer {
                         independentLayout: true
                     ).AsFlexItem(grow: 1f)
                 }
-            }.AsFlexGroup(padding: 1f, gap: 2f).Use();
+            }.AsFlexGroup(padding: new() { top = 2f, bottom = 2f }, gap: 2f).Use();
         }
 
         #endregion

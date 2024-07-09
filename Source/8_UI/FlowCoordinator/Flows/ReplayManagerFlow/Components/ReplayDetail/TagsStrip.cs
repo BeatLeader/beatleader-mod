@@ -184,7 +184,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleTagSelectorOpened(INewModal modal, bool finished) {
+        private void HandleTagSelectorOpened(IModal modal, bool finished) {
             if (finished) return;
             var tagSelector = _tagSelectorModal.Component;
             if (_metadata == null || _tagManager == null) {
@@ -197,7 +197,7 @@ namespace BeatLeader.UI.Hub {
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }
 
-        private void HandleTagSelectorClosed(INewModal modal, bool finished) {
+        private void HandleTagSelectorClosed(IModal modal, bool finished) {
             if (finished) return;
             var tagSelector = _tagSelectorModal.Component;
             tagSelector.SelectedTagAddedEvent -= HandleSelectedTagAdded;

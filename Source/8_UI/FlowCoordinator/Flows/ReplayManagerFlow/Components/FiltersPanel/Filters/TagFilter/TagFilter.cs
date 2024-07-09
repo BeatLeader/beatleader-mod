@@ -80,7 +80,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleTagSelectorOpened(INewModal modal, bool finished) {
+        private void HandleTagSelectorOpened(IModal modal, bool finished) {
             if (finished) return;
             _tagSelectorModalOpened = true;
             var tagSelector = _tagSelectorModal.Component;
@@ -94,7 +94,7 @@ namespace BeatLeader.UI.Hub {
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }
 
-        private void HandleTagSelectorClosed(INewModal modal, bool finished) {
+        private void HandleTagSelectorClosed(IModal modal, bool finished) {
             _textArea.Focused = false;
             if (finished) return;
             _tagSelectorModalOpened = false;

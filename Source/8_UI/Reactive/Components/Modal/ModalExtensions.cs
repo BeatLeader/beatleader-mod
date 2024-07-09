@@ -23,22 +23,22 @@ namespace BeatLeader.UI.Reactive.Components {
     internal static class ModalExtensions {
         #region Events
 
-        public static T WithCloseListener<T>(this T comp, Action callback) where T : INewModal {
+        public static T WithCloseListener<T>(this T comp, Action callback) where T : IModal {
             comp.ModalClosedEvent += (_, _) => callback();
             return comp;
         }
 
-        public static T WithCloseListener<T>(this T comp, Action<INewModal, bool> callback) where T : INewModal {
+        public static T WithCloseListener<T>(this T comp, Action<IModal, bool> callback) where T : IModal {
             comp.ModalClosedEvent += callback;
             return comp;
         }
 
-        public static T WithOpenListener<T>(this T comp, Action callback) where T : INewModal {
+        public static T WithOpenListener<T>(this T comp, Action callback) where T : IModal {
             comp.ModalOpenedEvent += (_, _) => callback();
             return comp;
         }
 
-        public static T WithOpenListener<T>(this T comp, Action<INewModal, bool> callback) where T : INewModal {
+        public static T WithOpenListener<T>(this T comp, Action<IModal, bool> callback) where T : IModal {
             comp.ModalOpenedEvent += callback;
             return comp;
         }
@@ -56,11 +56,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Present
 
-        public static void Present<T>(this T comp, ViewController viewController, bool animated = true) where T : INewModal, IReactiveComponent {
+        public static void Present<T>(this T comp, ViewController viewController, bool animated = true) where T : IModal, IReactiveComponent {
             ModalSystem.PresentModal(comp, viewController, animated);
         }
 
-        public static void Present<T>(this T comp, Transform screenChild, bool animated = true) where T : INewModal, IReactiveComponent {
+        public static void Present<T>(this T comp, Transform screenChild, bool animated = true) where T : IModal, IReactiveComponent {
             ModalSystem.PresentModal(comp, screenChild, animated);
         }
 
@@ -70,7 +70,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public static T WithModal<T, TModal>(this T comp, TModal modal, bool animated = true)
             where T : IClickableComponent, IReactiveComponent
-            where TModal : INewModal, IReactiveComponent {
+            where TModal : IModal, IReactiveComponent {
             comp.ClickEvent += () => modal.Present(comp.ContentTransform, animated);
             return comp;
         }
@@ -79,30 +79,30 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region WithAlphaOnModalOpen
 
-        public static T WithAlphaOnModalOpen<T>(this T comp, INewModal modal, float threshold = 0.2f) where T : IReactiveComponent {
+        public static T WithAlphaOnModalOpen<T>(this T comp, IModal modal, float threshold = 0.2f) where T : IReactiveComponent {
             WithAlphaOnModalOpen(modal, () => comp.Content, threshold);
             return comp;
         }
         
-        public static T WithAlphaOnModalOpen<T>(this T modal, Func<GameObject> objectFunc, float threshold = 0.2f) where T : INewModal {
+        public static T WithAlphaOnModalOpen<T>(this T modal, Func<GameObject> objectFunc, float threshold = 0.2f) where T : IModal {
             CanvasGroup? group = null;
             modal.ModalOpenedEvent += HandleModalOpened;
             modal.ModalClosedEvent += HandleModalClosed;
             modal.OpenProgressChangedEvent += HandleProgressChanged;
             return modal;
 
-            void HandleProgressChanged(INewModal _, float progress) {
+            void HandleProgressChanged(IModal _, float progress) {
                 if (group == null) return;
                 group.alpha = Mathf.Lerp(1f, threshold, progress);
             }
 
-            void HandleModalOpened(INewModal _, bool finished) {
+            void HandleModalOpened(IModal _, bool finished) {
                 if (finished) return;
                 group ??= objectFunc().GetOrAddComponent<CanvasGroup>();
                 group.ignoreParentGroups = true;
             }
 
-            void HandleModalClosed(INewModal _, bool finished) {
+            void HandleModalClosed(IModal _, bool finished) {
                 if (!finished) return;
                 group!.ignoreParentGroups = false;
             }
@@ -112,20 +112,20 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region WithShadow
 
-        public static T WithShadow<T>(this T comp, DynamicShadowSettings? settings = null) where T : IReactiveComponent, INewModal {
+        public static T WithShadow<T>(this T comp, DynamicShadowSettings? settings = null) where T : IReactiveComponent, IModal {
             settings ??= new();
             DynamicShadow? shadow = null;
             comp.ModalOpenedEvent += HandleModalOpened;
             comp.ModalClosedEvent += HandleModalClosed;
             return comp;
 
-            void HandleModalOpened(INewModal _, bool finished) {
+            void HandleModalOpened(IModal _, bool finished) {
                 if (!finished) return;
                 if (shadow != null) DynamicShadow.DespawnShadow(shadow);
                 shadow = DynamicShadow.SpawnShadow(comp.ContentTransform, settings);
             }
 
-            void HandleModalClosed(INewModal _, bool finished) {
+            void HandleModalClosed(IModal _, bool finished) {
                 if (finished || shadow == null) return;
                 DynamicShadow.DespawnShadow(shadow);
                 shadow = null;
@@ -142,7 +142,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RelativePlacement placement,
             Vector2? offset = null,
             bool unbindOnceOpened = true
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             return WithAnchor(
                 comp,
                 () => anchor,
@@ -158,7 +158,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Func<RelativePlacement> placement,
             Vector2? offset = null,
             bool unbindOnceOpened = true
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             return WithAnchor(
                 comp,
                 () => anchor,
@@ -174,7 +174,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RelativePlacement placement,
             Vector2? offset = null,
             bool unbindOnceOpened = true
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             return WithAnchor(
                 comp,
                 () => anchor().ContentTransform,
@@ -190,7 +190,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Func<RelativePlacement> placement,
             Vector2? offset = null,
             bool unbindOnceOpened = true
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             return WithAnchor(
                 comp,
                 () => anchor().ContentTransform,
@@ -206,7 +206,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RelativePlacement placement,
             Vector2? offset = null,
             bool unbindOnceOpened = true
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             return WithAnchor(
                 comp,
                 () => anchor,
@@ -222,7 +222,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RelativePlacement placement,
             Vector2? offset = null,
             bool unbindOnceOpened = true
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             return WithAnchor(
                 comp,
                 anchor,
@@ -237,7 +237,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RectTransform anchor,
             RelativePlacement placement,
             Vector2? offset = null
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             return WithAnchor(
                 comp,
                 () => anchor,
@@ -255,7 +255,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Vector2? offset = null,
             bool unbindOnceOpened = true,
             bool immediate = false
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             if (immediate) {
                 HandleModalOpened(comp, false);
             } else {
@@ -263,7 +263,7 @@ namespace BeatLeader.UI.Reactive.Components {
             }
             return comp;
 
-            void HandleModalOpened(INewModal modal, bool opened) {
+            void HandleModalOpened(IModal modal, bool opened) {
                 var root = comp.ContentTransform.parent;
                 if (root == null) return;
                 CalculateRelativePlacement(

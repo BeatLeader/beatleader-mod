@@ -16,27 +16,18 @@ namespace BeatLeader.UI.Replayer {
         private ILayoutEditor? _layoutEditor;
         private IReplayTimeline? _timeline;
         private IReplayWatermark? _watermark;
-        private IBeatmapTimeController? _timeController;
 
         public void Setup(
-            IBeatmapTimeController timeController,
             ILayoutEditor? layoutEditor,
             IReplayTimeline timeline,
             IReplayWatermark watermark
         ) {
-            if (_timeController != null) {
-                _timeController.SongSpeedWasChangedEvent -= HandleTimeControllerSpeedChanged;
-            }
-            _timeController = timeController;
             _layoutEditor = layoutEditor;
             _timeline = timeline;
             _watermark = watermark;
             _watermarkToggle.SetActive(watermark.Enabled, false, true);
             _watermarkToggle.Interactable = watermark.CanBeDisabled;
             _layoutEditorRail.Enabled = layoutEditor != null;
-
-            _timeController.SongSpeedWasChangedEvent += HandleTimeControllerSpeedChanged;
-            HandleTimeControllerSpeedChanged(timeController.SongSpeedMultiplier);
             ReloadTimelineMarkerToggles();
         }
 
@@ -99,7 +90,6 @@ namespace BeatLeader.UI.Replayer {
 
         private Image _timelineTogglesContainer = null!;
         private Toggle _watermarkToggle = null!;
-        private Slider _speedSlider = null!;
         private NamedRail _layoutEditorRail = null!;
 
         protected override GameObject Construct() {
@@ -144,21 +134,6 @@ namespace BeatLeader.UI.Replayer {
                     ),
                     //timeline toggles
                     CreateContainer(1f).Bind(ref _timelineTogglesContainer),
-                    //speed
-                    CreateContainer(
-                        2f, //speed
-                        new Slider {
-                            ValueRange = new() {
-                                Start = 20f,
-                                End = 200f
-                            },
-                            ValueFormatter = x => $"{x}%",
-                            ValueStep = 5f
-                        }.WithListener(
-                            x => x.Value,
-                            x => _timeController?.SetSpeedMultiplier(x / 100f)
-                        ).Bind(ref _speedSlider).InNamedRail("Playback Speed")
-                    )
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
@@ -174,10 +149,6 @@ namespace BeatLeader.UI.Replayer {
         #endregion
 
         #region Callbacks
-
-        private void HandleTimeControllerSpeedChanged(float speed) {
-            _speedSlider.SetValueSilent(speed * 100f);
-        }
 
         private void HandleLayoutEditorButtonClicked() {
             _layoutEditor!.SetEditorActive(true);

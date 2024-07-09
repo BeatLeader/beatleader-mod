@@ -63,6 +63,7 @@ namespace BeatLeader.UI.Replayer {
             _settingsPanel.Setup(
                 launchData.Settings,
                 timeController,
+                finishController,
                 cameraController,
                 bodySpawner,
                 layoutEditor,

@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal interface ISharedModal : INewModal { }
+    internal interface ISharedModal : IModal { }
     
-    internal class SharedModal<T> : ISharedModal, IReactiveComponent, ILayoutItem where T : class, INewModal, IReactiveComponent, new() {
+    internal class SharedModal<T> : ISharedModal, IReactiveComponent, ILayoutItem where T : class, IModal, IReactiveComponent, new() {
         #region Pool
 
         public bool BuildImmediate {
@@ -43,9 +43,9 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public float AnimationProgress => _modal?.AnimationProgress ?? 0f;
 
-        public event Action<INewModal, bool>? ModalClosedEvent;
-        public event Action<INewModal, bool>? ModalOpenedEvent;
-        public event Action<INewModal, float>? OpenProgressChangedEvent;
+        public event Action<IModal, bool>? ModalClosedEvent;
+        public event Action<IModal, bool>? ModalOpenedEvent;
+        public event Action<IModal, float>? OpenProgressChangedEvent;
 
         public void Pause() {
             Modal.Pause();
@@ -110,18 +110,18 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Callbacks
 
-        private void HandleModalClosed(INewModal modal, bool finished) {
+        private void HandleModalClosed(IModal modal, bool finished) {
             OnCloseInternal(finished);
             if (finished) DespawnModal();
             ModalClosedEvent?.Invoke(this, finished);
         }
 
-        private void HandleModalOpened(INewModal modal, bool finished) {
+        private void HandleModalOpened(IModal modal, bool finished) {
             OnOpenInternal(finished);
             ModalOpenedEvent?.Invoke(this, finished);
         }
 
-        private void HandleOpenProgressChanged(INewModal modal, float progress) {
+        private void HandleOpenProgressChanged(IModal modal, float progress) {
             OpenProgressChangedEvent?.Invoke(this, progress);
         }
 

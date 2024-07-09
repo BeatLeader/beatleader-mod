@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Reactive.Components {
             Transform screenChild,
             bool animated = true,
             bool interruptAll = false
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             var screen = screenChild.GetComponentInParent<ViewController>();
             PresentModal(modal, screen, animated, interruptAll);
         }
@@ -26,7 +26,7 @@ namespace BeatLeader.UI.Reactive.Components {
             ViewController screen,
             bool animated = true,
             bool interruptAll = false
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             var modalSystem = BorrowOrInstantiateModalSystem(screen);
             PresentModalInternal(modalSystem, modal, animated, interruptAll);
         }
@@ -36,7 +36,7 @@ namespace BeatLeader.UI.Reactive.Components {
             T modal,
             bool animated,
             bool interruptAll
-        ) where T : INewModal, IReactiveComponent {
+        ) where T : IModal, IReactiveComponent {
             if (interruptAll) {
                 InterruptAllEvent?.Invoke();
             }
@@ -94,10 +94,10 @@ namespace BeatLeader.UI.Reactive.Components {
         private IReactiveComponent? ReactiveActiveModal => _activeModal as IReactiveComponent;
         private bool HasActiveModal => _activeModal != null;
 
-        private readonly Stack<INewModal> _modalStack = new();
-        private INewModal? _activeModal;
+        private readonly Stack<IModal> _modalStack = new();
+        private IModal? _activeModal;
 
-        private void PresentModal<T>(T modal, bool animated) where T : INewModal, IReactiveComponent {
+        private void PresentModal<T>(T modal, bool animated) where T : IModal, IReactiveComponent {
             //showing modal system if needed
             if (HasActiveModal) {
                 _activeModal!.Pause();
@@ -142,7 +142,7 @@ namespace BeatLeader.UI.Reactive.Components {
             _blocker.SetSiblingIndex(modalIndex + offset);
         }
 
-        private void HandleModalClosed(INewModal modal, bool finished) {
+        private void HandleModalClosed(IModal modal, bool finished) {
             if (_needToHideModalSystem) {
                 if (!finished) return;
                 HideModalSystem();

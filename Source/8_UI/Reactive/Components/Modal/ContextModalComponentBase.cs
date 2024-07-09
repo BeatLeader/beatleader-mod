@@ -5,7 +5,7 @@ namespace BeatLeader.UI.Reactive.Components {
         event Action? ContextUpdatedEvent;
     }
 
-    internal interface IContextModal : INewModal { }
+    internal interface IContextModal : IModal { }
 
     internal interface IContextModal<in TContext> : IContextModal where TContext : IModalContext {
         TContext? Context { set; }

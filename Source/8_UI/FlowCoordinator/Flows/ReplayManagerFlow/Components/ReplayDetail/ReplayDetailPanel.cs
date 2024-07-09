@@ -98,7 +98,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleDownloadBeatmapDialogClosed(INewModal modal, bool closed) {
+        private void HandleDownloadBeatmapDialogClosed(IModal modal, bool closed) {
             if (closed) return;
             SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);
         }

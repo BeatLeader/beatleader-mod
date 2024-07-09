@@ -18,7 +18,10 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
         [Inject] private readonly IReplayTimeController _timeController = null!;
 
-        public bool ExitAutomatically => _launchData.Settings.ExitReplayAutomatically;
+        public bool ExitAutomatically {
+            get => _launchData.Settings.ExitReplayAutomatically;
+            set => _launchData.Settings.ExitReplayAutomatically = value;
+        }
 
         public event Action? ReplayWasLeftEvent;
         public event Action? ReplayWasFinishedEvent;

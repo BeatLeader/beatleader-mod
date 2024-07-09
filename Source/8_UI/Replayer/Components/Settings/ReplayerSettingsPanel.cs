@@ -14,6 +14,7 @@ namespace BeatLeader.UI.Replayer {
         public void Setup(
             ReplayerSettings settings,
             IBeatmapTimeController timeController,
+            IReplayFinishController finishController,
             ICameraController cameraController,
             IVirtualPlayerBodySpawner bodySpawner,
             ILayoutEditor? layoutEditor,
@@ -23,7 +24,8 @@ namespace BeatLeader.UI.Replayer {
         ) {
             _cameraView.Setup(cameraController, settings.CameraSettings!);
             _avatarView.Setup(bodySpawner, settings.BodySettings);
-            _uiView.Setup(timeController, layoutEditor, timeline, watermark);
+            _uiView.Setup(layoutEditor, timeline, watermark);
+            _otherView.Setup(timeController, finishController);
             RefreshBackgroundBlur(useAlternativeBlur);
         }
 
@@ -40,6 +42,7 @@ namespace BeatLeader.UI.Replayer {
         private SettingsCameraView _cameraView = null!;
         private SettingsAvatarView _avatarView = null!;
         private SettingsUIView _uiView = null!;
+        private SettingsOtherView _otherView = null!;
         private Image _backgroundImage = null!;
 
         protected override GameObject Construct() {
@@ -51,6 +54,7 @@ namespace BeatLeader.UI.Replayer {
                         Items = {
                             { "Camera", BundleLoader.CameraIcon },
                             { "Avatar", BundleLoader.AvatarIcon },
+                            { "UI", BundleLoader.UIIcon },
                             { "Other", BundleLoader.OtherIcon }
                         }
                     }.Export(out var segmentedControl).InBackground(
@@ -73,7 +77,8 @@ namespace BeatLeader.UI.Replayer {
                                 }.Bind(ref _cameraView)
                             },
                             { "Avatar", new SettingsAvatarView().Bind(ref _avatarView) },
-                            { "Other", new SettingsUIView().Bind(ref _uiView) }
+                            { "UI", new SettingsUIView().Bind(ref _uiView) },
+                            { "Other", new SettingsOtherView().Bind(ref _otherView) }
                         }
                     }.AsFlexItem(grow: 1f).InBackground(
                         sprite: BundleLoader.Sprites.backgroundRight,

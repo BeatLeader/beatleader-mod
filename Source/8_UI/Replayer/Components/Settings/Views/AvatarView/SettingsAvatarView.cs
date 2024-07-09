@@ -4,7 +4,6 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
-using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {
@@ -49,159 +48,26 @@ namespace BeatLeader.UI.Replayer {
 
         #region Config
 
-        private record PartConfigWithModel(
-            IVirtualPlayerBodyPartModel PartModel,
-            IVirtualPlayerBodyPartConfig PartConfig
-        );
-
-        private record PartConfigsGroup(
-            string? GroupName,
-            IEnumerable<PartConfigWithModel> Configs
-        );
-
-        private readonly Dictionary<IVirtualPlayerBodyModel, IEnumerable<PartConfigsGroup>> _groupedModelConfigs = new();
+        private readonly Dictionary<IVirtualPlayerBodyModel, IEnumerable<AvatarPartConfigsGroup>> _groupedModelConfigs = new();
 
         private void ReloadConfigGroup(IVirtualPlayerBodyModel model, IVirtualPlayerBodyConfig config) {
             if (_groupedModelConfigs.TryGetValue(model, out var groupedConfigs)) return;
             //creating if needed
             var modelsDict = model.Parts.ToDictionary(static x => x.Id);
             groupedConfigs = config.BodyParts
-                .Select(x => new PartConfigWithModel(modelsDict[x.Key], x.Value))
+                .Select(x => new AvatarPartConfigWithModel(modelsDict[x.Key], x.Value))
                 .GroupBy(static x => x.PartModel.Category ?? "Other")
-                .Select(static x => new PartConfigsGroup(x.Key, x))
+                .Select(static x => new AvatarPartConfigsGroup(x.Key, x))
                 .ToArray();
             _groupedModelConfigs[model] = groupedConfigs;
         }
 
         #endregion
+        
+        #region Parts
 
-        #region PartControl
-
-        private class PartControl : ReactiveComponent {
-            #region Setup
-
-            private PartConfigWithModel? _config;
-            private bool _ignoreUpdates;
-
-            public void Setup(PartConfigWithModel config) {
-                if (_config != null) {
-                    _config.PartConfig.ConfigUpdatedEvent -= HandleConfigUpdated;
-                }
-                _config = config;
-                _config.PartConfig.ConfigUpdatedEvent += HandleConfigUpdated;
-                //
-                _namedRail.Label.Text = config.PartModel.Name;
-                HandleConfigUpdated();
-            }
-
-            protected override void OnDestroy() {
-                if (_config != null) {
-                    _config.PartConfig.ConfigUpdatedEvent -= HandleConfigUpdated;
-                }
-            }
-
-            #endregion
-
-            #region Construct
-
-            private Toggle _toggle = null!;
-            private NamedRail _namedRail = null!;
-
-            protected override GameObject Construct() {
-                return new Toggle()
-                    .WithListener(
-                        x => x.Active,
-                        HandleToggleStateChanged
-                    )
-                    .Bind(ref _toggle)
-                    .InNamedRail("")
-                    .Bind(ref _namedRail)
-                    .Use();
-            }
-
-            #endregion
-
-            #region Callbacks
-
-            private void HandleConfigUpdated() {
-                if (_ignoreUpdates) return;
-                _toggle.SetActive(_config!.PartConfig.Active, false, true);
-                _toggle.Interactable = !_config.PartConfig.ControlledByMask;
-            }
-
-            private void HandleToggleStateChanged(bool state) {
-                if (_config == null) return;
-                _ignoreUpdates = true;
-                _config.PartConfig.PotentiallyActive = state;
-                _ignoreUpdates = false;
-            }
-
-            #endregion
-        }
-
-        private readonly ReactivePool<PartControl> _controlsPool = new() { DetachOnDespawn = false };
-
-        #endregion
-
-        #region PartCategory
-
-        private class PartCategory : ReactiveComponent {
-            #region Setup
-
-            public void Setup(ReactivePool<PartControl> pool, PartConfigsGroup group) {
-                _nameLabel.Text = group.GroupName ?? "Uncategorized";
-                _controlsContainer.Children.Clear();
-                foreach (var model in group.Configs) {
-                    var control = pool.Spawn();
-                    control.Setup(model);
-                    control.AsFlexItem();
-                    _controlsContainer.Children.Add(control);
-                }
-            }
-
-            #endregion
-
-            #region Construct
-
-            private Label _nameLabel = null!;
-            private Dummy _controlsContainer = null!;
-
-            protected override GameObject Construct() {
-                return new Image {
-                    Children = {
-                        //header
-                        new Image {
-                            Sprite = BundleLoader.Sprites.backgroundTop,
-                            PixelsPerUnit = 10f,
-                            Color = new(0.08f, 0.08f, 0.08f, 1f),
-                            Children = {
-                                new Label {
-                                    FontStyle = FontStyles.Bold,
-                                    Alignment = TextAlignmentOptions.Center
-                                }.AsFlexItem(size: new() { y = "auto" }).Bind(ref _nameLabel),
-                            }
-                        }.AsFlexGroup().AsFlexItem(),
-                        //
-                        new Dummy()
-                            .AsFlexGroup(
-                                direction: FlexDirection.Column,
-                                padding: 1f,
-                                gap: 1f
-                            )
-                            .AsFlexItem()
-                            .Bind(ref _controlsContainer)
-                    }
-                }.AsFlexGroup(
-                    direction: FlexDirection.Column
-                ).AsBackground(
-                    color: new(0.1f, 0.1f, 0.1f, 1f)
-                ).Use();
-            }
-
-            #endregion
-        }
-
-        private readonly ReactivePool<PartCategory> _categoriesPool = new() { DetachOnDespawn = false };
+        private readonly ReactivePool<AvatarPartCategory> _categoriesPool = new() { DetachOnDespawn = false };
+        private readonly ReactivePool<AvatarPartControl> _controlsPool = new() { DetachOnDespawn = false };
 
         private void ReloadCategories() {
             _categoriesPool.DespawnAll();

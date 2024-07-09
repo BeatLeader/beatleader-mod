@@ -31,7 +31,8 @@ namespace BeatLeader.UI.Reactive.Components {
                     }.AsFlexItem(size: "auto", alignSelf: Align.Center).Bind(ref _label),
                 }
             }.AsFlexGroup(
-                justifyContent: Justify.SpaceBetween
+                justifyContent: Justify.SpaceBetween,
+                gap: 1f
             ).Bind(ref _container).Use();
         }
 

@@ -83,7 +83,6 @@ namespace BeatLeader {
         [OnExit]
         [UsedImplicitly]
         public void OnApplicationQuit() {
-            SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
             ReplayManager.SaveCache();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();

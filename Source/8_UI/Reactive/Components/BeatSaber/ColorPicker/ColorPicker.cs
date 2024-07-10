@@ -9,12 +9,15 @@ namespace BeatLeader.UI.Reactive.Components {
             get => _color;
             set {
                 _color = value;
-                _circleModal.ColorCircle.SetColor(value);
                 _colorSampleImage.Color = value;
+                if (_modalOpened) {
+                    _circleModal.Modal.ColorCircle.SetColor(value);
+                }
             }
         }
 
         private Color _color;
+        private bool _modalOpened;
 
         #endregion
 
@@ -25,7 +28,7 @@ namespace BeatLeader.UI.Reactive.Components {
         protected override float? DesiredHeight => 8f;
         protected override float? DesiredWidth => 13f;
 
-        private ColorCircleDialog _circleModal = null!;
+        private SharedModal<ColorCircleModal> _circleModal = null!;
         private Image _colorSampleImage = null!;
 
         protected override GameObject Construct() {
@@ -50,24 +53,47 @@ namespace BeatLeader.UI.Reactive.Components {
                         size: new() { x = 4f, y = "auto" }
                     ).Bind(ref _colorSampleImage),
                     //color circle
-                    new ColorCircleDialog()
-                        .WithAnchor(this, () => CirclePlacement)
-                        .With(
-                            x => x.ColorCircle.WithListener(
-                                y => y.Color,
-                                y => {
-                                    _colorSampleImage.Color = y;
-                                    _color = y;
-                                    NotifyPropertyChanged(nameof(Color));
-                                }
-                            )
-                        ).Bind(ref _circleModal)
+                    new SharedModal<ColorCircleModal>()
+                        .WithAnchor(this, () => CirclePlacement, unbindOnceOpened: false)
+                        .WithShadow()
+                        .WithOpenListener(HandleModalOpened)
+                        .WithCloseListener(HandleModalClosed)
+                        .Bind(ref _circleModal)
                 }
             }.AsFlexGroup(
                 justifyContent: Justify.FlexStart,
                 padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f },
                 gap: 1f
             ).WithModal(_circleModal).Use();
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleModalOpened(IModal modal, bool finished) {
+            if (finished) return;
+            _modalOpened = true;
+            _circleModal.Modal.ColorCircle.WithListener(
+                x => x.Color,
+                HandleColorChanged
+            );
+            Color = _color;
+        }
+
+        private void HandleModalClosed(IModal modal, bool finished) {
+            if (finished) return;
+            _modalOpened = false;
+            _circleModal.Modal.ColorCircle.WithoutListener(
+                x => x.Color,
+                HandleColorChanged
+            );
+        }
+
+        private void HandleColorChanged(Color color) {
+            _colorSampleImage.Color = color;
+            _color = color;
+            NotifyPropertyChanged(nameof(Color));
         }
 
         #endregion

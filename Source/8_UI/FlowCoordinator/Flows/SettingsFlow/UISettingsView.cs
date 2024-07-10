@@ -1,4 +1,5 @@
-﻿using BeatLeader.UI.Reactive;
+﻿using System;
+using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
@@ -9,12 +10,18 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         private BeatLeaderHubMenuButtonsTheme? _menuButtonsTheme;
+        private ReplayManagerSearchTheme? _replayManagerTheme;
 
-        public void Setup(BeatLeaderHubMenuButtonsTheme menuButtonsTheme) {
-            _menuButtonsTheme = menuButtonsTheme;
-            _replayManagerButtonColorPicker.Color = menuButtonsTheme.ReplayManagerButtonColors.HoveredColor;
-            _battleRoyaleButtonColorPicker.Color = menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor;
-            _settingsButtonColorPicker.Color = menuButtonsTheme.SettingsButtonColors.HoveredColor;
+        public void Setup(BeatLeaderHubTheme theme) {
+            _menuButtonsTheme = theme.MenuButtonsTheme;
+            _replayManagerButtonColorPicker.Color = _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor;
+            _battleRoyaleButtonColorPicker.Color = _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor;
+            _settingsButtonColorPicker.Color = _menuButtonsTheme.SettingsButtonColors.HoveredColor;
+            //
+            _replayManagerTheme = theme.ReplayManagerSearchTheme;
+            _replayManagerSearchColorPicker.Color = _replayManagerTheme.SearchHighlightColor;
+            var bold = _replayManagerTheme.SearchHighlightStyle.HasFlag(FontStyle.Bold);
+            _replayManagerSearchBoldToggle.SetActive(bold, false, true);
         }
 
         #endregion
@@ -24,6 +31,9 @@ namespace BeatLeader.UI.Hub {
         private ColorPicker _replayManagerButtonColorPicker = null!;
         private ColorPicker _battleRoyaleButtonColorPicker = null!;
         private ColorPicker _settingsButtonColorPicker = null!;
+
+        private ColorPicker _replayManagerSearchColorPicker = null!;
+        private Toggle _replayManagerSearchBoldToggle = null!;
 
         protected override GameObject Construct() {
             static ReactiveComponentBase CreateContainer(string name, params ILayoutItem[] children) {
@@ -42,34 +52,53 @@ namespace BeatLeader.UI.Hub {
                 ).AsFlexItem();
             }
 
+            static ReactiveComponentBase CreateColorPicker(string name, Action<Color> callback, ref ColorPicker picker) {
+                return new ColorPicker()
+                    .WithListener(x => x.Color, callback)
+                    .Bind(ref picker)
+                    .InNamedRail(name);
+            }
+
             return new Dummy {
                 Children = {
                     CreateContainer(
                         "Hub Button Colors",
                         //
-                        new ColorPicker()
-                            .WithListener(
-                                x => x.Color,
-                                HandleReplayManagerButtonColorChanged
-                            )
-                            .Bind(ref _replayManagerButtonColorPicker)
-                            .InNamedRail("Replay Manager"),
+                        CreateColorPicker(
+                            "Replay Manager",
+                            HandleReplayManagerButtonColorChanged,
+                            ref _replayManagerButtonColorPicker
+                        ),
                         //
-                        new ColorPicker()
-                            .WithListener(
-                                x => x.Color,
-                                HandleBattleRoyaleButtonColorChanged
-                            )
-                            .Bind(ref _battleRoyaleButtonColorPicker)
-                            .InNamedRail("Battle Royale"),
+                        CreateColorPicker(
+                            "Battle Royale",
+                            HandleBattleRoyaleButtonColorChanged,
+                            ref _battleRoyaleButtonColorPicker
+                        ),
                         //
-                        new ColorPicker()
+                        CreateColorPicker(
+                            "Settings",
+                            HandleSettingsButtonColorChanged,
+                            ref _settingsButtonColorPicker
+                        )
+                    ).AsFlexItem(size: new() { x = 60f }),
+                    //
+                    CreateContainer(
+                        "Replay Manager Search Highlight",
+                        //
+                        CreateColorPicker(
+                            "Color",
+                            HandleReplayManagerSearchColorChanged,
+                            ref _replayManagerSearchColorPicker
+                        ),
+                        //
+                        new Toggle()
                             .WithListener(
-                                x => x.Color,
-                                HandleSettingsButtonColorChanged
+                                x => x.Active,
+                                HandleReplayManagerSearchBoldChanged
                             )
-                            .Bind(ref _settingsButtonColorPicker)
-                            .InNamedRail("Settings")
+                            .Bind(ref _replayManagerSearchBoldToggle)
+                            .InNamedRail("Bold")
                     ).AsFlexItem(size: new() { x = 60f })
                 }
             }.AsFlexGroup(
@@ -83,6 +112,20 @@ namespace BeatLeader.UI.Hub {
         #endregion
 
         #region Callbacks
+
+        private void HandleReplayManagerSearchColorChanged(Color color) {
+            if (_replayManagerTheme == null) return;
+            _replayManagerTheme.SearchHighlightColor = color;
+        }
+
+        private void HandleReplayManagerSearchBoldChanged(bool bold) {
+            if (_replayManagerTheme == null) return;
+            if (bold) {
+                _replayManagerTheme.SearchHighlightStyle |= FontStyle.Bold;
+            } else {
+                _replayManagerTheme.SearchHighlightStyle &= ~FontStyle.Bold;
+            }
+        }
 
         private void HandleReplayManagerButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;

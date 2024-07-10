@@ -45,7 +45,7 @@ namespace BeatLeader.UI.Hub {
                         Control = control,
                         Items = {
                             { "GLOBAL", new GlobalSettingsView().With(x => x.Setup(_menuTransitionsHelper)) },
-                            { "UI", new UISettingsView().With(x => x.Setup(_hubTheme.MenuButtonsTheme)) },
+                            { "UI", new UISettingsView().With(x => x.Setup(_hubTheme)) },
                             { "REPLAYS", new ReplaySettingsView().With(x => x.Setup(_replayFileManager)) },
                         }
                     }.AsFlexItem(grow: 1f, size: new() { x = 90f })

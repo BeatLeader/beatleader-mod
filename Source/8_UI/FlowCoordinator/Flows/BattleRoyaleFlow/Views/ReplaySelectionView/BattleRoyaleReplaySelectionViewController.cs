@@ -13,6 +13,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly IReplayManager _replayManager = null!;
         [Inject] private readonly IReplaysLoader _replaysLoader = null!;
         [Inject] private readonly IBattleRoyaleHost _battleRoyaleHost = null!;
+        [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
 
         #endregion
 
@@ -52,6 +53,7 @@ namespace BeatLeader.UI.Hub {
             var detailPanel = new BattleRoyaleDetailPanel();
             _replayLaunchPanel.Setup(_replaysLoader);
             _replayLaunchPanel.DetailPanel = detailPanel;
+            _replayLaunchPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);
             _replayLaunchPanel.ReplaysList.Filter = new FilterProxy<IReplayHeaderBase> {
                 Filters = {
                     _battleRoyaleHost.ReplayFilter,

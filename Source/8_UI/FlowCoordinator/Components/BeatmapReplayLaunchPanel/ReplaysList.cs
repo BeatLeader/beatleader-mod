@@ -54,6 +54,28 @@ namespace BeatLeader.UI.Hub {
 
             #endregion
 
+            #region Setup
+
+            private ReplayManagerSearchTheme? _theme;
+
+            public void Setup(ReplayManagerSearchTheme? theme) {
+                if (_theme != null) {
+                    _theme.SearchThemeUpdatedEvent -= HandleThemeUpdated;
+                }
+                _theme = theme;
+                if (_theme != null) {
+                    _theme.SearchThemeUpdatedEvent += HandleThemeUpdated;
+                }
+            }
+
+            protected override void OnDestroy() {
+                if (_theme != null) {
+                    _theme.SearchThemeUpdatedEvent += HandleThemeUpdated;
+                }
+            }
+
+            #endregion
+
             #region Texts
 
             public string? HighlightPhrase {
@@ -66,7 +88,11 @@ namespace BeatLeader.UI.Hub {
             private string? _highlightPhrase;
 
             private string FormatByPhrase(string text) {
-                return _highlightPhrase == null ? text : FormatUtils.MarkPhrase(text, _highlightPhrase);
+                if (_highlightPhrase == null) return text;
+                var color = _theme?.SearchHighlightColor ?? Color.magenta;
+                var phrase = _highlightPhrase;
+                var bold = _theme?.SearchHighlightStyle.HasFlag(FontStyle.Bold) ?? false;
+                return FormatUtils.MarkPhrase(text, phrase, color, bold);
             }
 
             private void RefreshTexts() {
@@ -199,6 +225,10 @@ namespace BeatLeader.UI.Hub {
 
             #region Callbacks
 
+            private void HandleThemeUpdated() {
+                RefreshTexts();
+            }
+
             protected override void OnCellStateChange(bool selected) {
                 _button.Click(selected, false);
             }
@@ -269,6 +299,12 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
+        private ReplayManagerSearchTheme? _theme;
+
+        public void Setup(ReplayManagerSearchTheme theme) {
+            _theme = theme;
+        }
+
         public readonly HashSet<IReplayHeaderBase> HighlightedItems = new();
 
         protected override void OnCellConstruct(Cell cell) {
@@ -277,6 +313,7 @@ namespace BeatLeader.UI.Hub {
             } else {
                 cell.HighlightPhrase = null;
             }
+            cell.Setup(_theme);
             cell.Highlighted = HighlightedItems.Contains(cell.Item);
         }
 

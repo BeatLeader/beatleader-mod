@@ -1,9 +1,11 @@
 using System;
+using BeatLeader.Models;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
     internal class StateColorSet : IColorSet {
-        public Color ActiveColor {
+        public SerializableColor ActiveColor {
             get => _activeColor;
             set {
                 _activeColor = value;
@@ -11,7 +13,7 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        public Color HoveredColor {
+        public SerializableColor HoveredColor {
             get => _hoveredColor;
             set {
                 _hoveredColor = value;
@@ -19,7 +21,7 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        public Color DisabledColor {
+        public SerializableColor DisabledColor {
             get => _disabledColor;
             set {
                 _disabledColor = value;
@@ -27,7 +29,7 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        public Color Color {
+        public SerializableColor Color {
             get => _color;
             set {
                 _color = value;
@@ -35,7 +37,7 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        public Color? HoveredActiveColor {
+        public SerializableColor? HoveredActiveColor {
             get => _hoveredActiveColor;
             set {
                 _hoveredActiveColor = value;
@@ -43,14 +45,14 @@ namespace BeatLeader.UI.Reactive {
             }
         }
 
-        private Color _disabledColor;
-        private Color _activeColor;
-        private Color _hoveredColor;
-        private Color _color;
-        private Color? _hoveredActiveColor;
+        private SerializableColor _disabledColor;
+        private SerializableColor _activeColor;
+        private SerializableColor _hoveredColor;
+        private SerializableColor _color;
+        private SerializableColor? _hoveredActiveColor;
 
         public event Action? SetUpdatedEvent;
-        
+
         public Color GetColor(GraphicElementState state) {
             if (state.hovered) {
                 return state.active ? _hoveredActiveColor.GetValueOrDefault(ActiveColor) : _hoveredColor;

@@ -12,6 +12,7 @@ namespace BeatLeader.UI.Hub {
 
         [Inject] private readonly MenuTransitionsHelper _menuTransitionsHelper = null!;
         [Inject] private readonly IReplayFileManager _replayFileManager = null!;
+        [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
 
         #endregion
 
@@ -26,6 +27,7 @@ namespace BeatLeader.UI.Hub {
                             },
                             Items = {
                                 { "GLOBAL", "Global" },
+                                { "UI", "UI" },
                                 { "REPLAYS", "Replays" },
                             },
                         }
@@ -37,12 +39,13 @@ namespace BeatLeader.UI.Hub {
                             skew: UIStyle.Skew
                         )
                         .AsFlexGroup()
-                        .AsFlexItem(size: new() { y = 8f, x = 40f }),
+                        .AsFlexItem(size: new() { y = 8f, x = 50f }),
                     //
                     new KeyedContainer<string> {
                         Control = control,
                         Items = {
                             { "GLOBAL", new GlobalSettingsView().With(x => x.Setup(_menuTransitionsHelper)) },
+                            { "UI", new UISettingsView().With(x => x.Setup(_hubTheme.MenuButtonsTheme)) },
                             { "REPLAYS", new ReplaySettingsView().With(x => x.Setup(_replayFileManager)) },
                         }
                     }.AsFlexItem(grow: 1f, size: new() { x = 90f })

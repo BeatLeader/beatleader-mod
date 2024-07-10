@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using BeatLeader.Models;
+using BeatLeader.UI;
+using BeatLeader.UI.Reactive;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -47,6 +49,30 @@ namespace BeatLeader {
 
         #endregion
 
+        #region HubTheme
+
+        public static readonly BeatLeaderHubTheme HubTheme = new() {
+            MenuButtonsTheme = {
+                ReplayManagerButtonColors = {
+                    HoveredColor = new Color(1f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                },
+                BattleRoyaleButtonColors = {
+                    HoveredColor = Color.magenta,
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                },
+                SettingsButtonColors = {
+                    HoveredColor = new Color(1f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                }
+            }
+        };
+
+        #endregion
+        
         #region ReplayerSettings
 
         public static readonly ReplayerSettings ReplayerSettings = new() {

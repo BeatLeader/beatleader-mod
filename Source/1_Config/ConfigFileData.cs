@@ -89,6 +89,12 @@ namespace BeatLeader {
 
         #endregion
 
+        #region HubTheme
+
+        public BeatLeaderHubTheme HubTheme = ConfigDefaults.HubTheme;
+
+        #endregion
+
         #region LeaderboardTableMask
         
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;

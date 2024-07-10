@@ -18,6 +18,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         [Inject] private readonly BattleRoyaleFlowCoordinator _battleRoyaleFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderSettingsFlowCoordinator _settingsFlowCoordinator = null!;
+        [Inject] private readonly BeatLeaderHubTheme _beatLeaderHubTheme = null!;
 
         private QuickMiniProfile _quickMiniProfile = null!;
 
@@ -25,7 +26,7 @@ namespace BeatLeader.UI.Hub {
             ButtonBase CreateButton(
                 string text,
                 Sprite icon,
-                Color color,
+                IColorSet colorSet,
                 FlowCoordinator flowCoordinator,
                 Vector2 pivot,
                 YogaFrame position,
@@ -36,11 +37,7 @@ namespace BeatLeader.UI.Hub {
                     ContentTransform = {
                         pivot = pivot
                     },
-                    Colors = new StateColorSet {
-                        HoveredColor = color,
-                        Color = UIStyle.InputColorSet.Color,
-                        DisabledColor = UIStyle.InputColorSet.DisabledColor
-                    },
+                    Colors = colorSet,
                     Children = {
                         //icon
                         new Image {
@@ -66,8 +63,7 @@ namespace BeatLeader.UI.Hub {
                 ).AsFlexItem(size: 30f, position: position);
             }
 
-            var secondaryColor = new Color(1f, 0.65f, 0f);
-            var primaryColor = Color.magenta;
+            var menuButtonsTheme = _beatLeaderHubTheme.MenuButtonsTheme;
 
             new Dummy {
                 Children = {
@@ -93,7 +89,7 @@ namespace BeatLeader.UI.Hub {
                             CreateButton(
                                 "Battle Royale",
                                 BundleLoader.BattleRoyaleIcon,
-                                primaryColor,
+                                menuButtonsTheme.BattleRoyaleButtonColors,
                                 _battleRoyaleFlowCoordinator,
                                 new() { x = 0.5f, y = 0f },
                                 YogaFrame.Undefined,
@@ -104,7 +100,7 @@ namespace BeatLeader.UI.Hub {
                             CreateButton(
                                 "Replay Manager",
                                 BundleLoader.ReplayerSettingsIcon,
-                                secondaryColor,
+                                menuButtonsTheme.ReplayManagerButtonColors,
                                 _replayManagerFlowCoordinator,
                                 new() { x = 0f, y = 0f },
                                 new() { bottom = 0f, left = 0f },
@@ -115,7 +111,7 @@ namespace BeatLeader.UI.Hub {
                             CreateButton(
                                 "Settings",
                                 BundleLoader.SettingsIcon,
-                                secondaryColor,
+                                menuButtonsTheme.SettingsButtonColors,
                                 _settingsFlowCoordinator,
                                 new() { x = 1f, y = 0f },
                                 new() { bottom = 0f, right = 0f },

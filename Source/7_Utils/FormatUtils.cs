@@ -223,11 +223,11 @@ namespace BeatLeader {
         #region WrapPhrase
 
         public static string MarkPhrase(string text, string phrase) {
-            return MarkPhrase(text, phrase, new(0.8f, 0f, 1f, 1f));
+            return MarkPhrase(text, phrase, new(0.8f, 0f, 1f, 1f), true);
         }
 
-        public static string MarkPhrase(string text, string phrase, Color color) {
-            return WrapPhrase(text, phrase, $"<b><color=#{ColorUtility.ToHtmlStringRGBA(color)}>", "</color></b>");
+        public static string MarkPhrase(string text, string phrase, Color color, bool bold) {
+            return WrapPhrase(text, phrase, $"{(bold ? "<b>" : "")}<color=#{ColorUtility.ToHtmlStringRGBA(color)}>", $"</color>{(bold ? "</b>" : "")}");
         }
 
         public static string WrapPhrase(string text, string phrase, string before, string after) {

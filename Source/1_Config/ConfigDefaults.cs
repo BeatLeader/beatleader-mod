@@ -68,6 +68,10 @@ namespace BeatLeader {
                     Color = UIStyle.InputColorSet.Color,
                     DisabledColor = UIStyle.InputColorSet.DisabledColor
                 }
+            },
+            ReplayManagerSearchTheme = {
+                SearchHighlightColor = Color.magenta,
+                SearchHighlightStyle = FontStyle.Normal
             }
         };
 

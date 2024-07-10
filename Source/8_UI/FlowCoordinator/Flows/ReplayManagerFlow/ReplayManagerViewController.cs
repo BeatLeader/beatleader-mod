@@ -18,6 +18,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly IReplaysLoader _replaysLoader = null!;
         [Inject] private readonly LevelSelectionFlowCoordinator _levelSelectionFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
+        [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
 
         #endregion
 
@@ -70,6 +71,7 @@ namespace BeatLeader.UI.Hub {
             _replayDetailPanel.Setup(_replayerLoader, tagManager);
             _replayPanel.Setup(_replaysLoader);
             _replayPanel.DetailPanel = _replayDetailPanel;
+            _replayPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {

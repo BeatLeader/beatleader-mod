@@ -288,7 +288,7 @@ namespace BeatLeader {
         private static readonly Color HighAccColor = new Color(1f, 0.39f, 0.28f);
 
         public static string FormatAcc(float value) {
-            return $"<color=#{GetAccColorString(value)}>{value * 100.0f:F2}<size=70%>%</size>";
+            return value == 0f ? "<size=90%>Not Ready" : $"<color=#{GetAccColorString(value)}>{value * 100.0f:F2}<size=70%>%</size>";
         }
 
         private static string GetAccColorString(float acc) {

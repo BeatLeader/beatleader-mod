@@ -201,9 +201,9 @@ namespace BeatLeader.Replayer {
                 hash = fixedHash;
             }
 
-            if (await _levelsModel.CheckBeatmapLevelDataExistsAsync(hash, token)) {
+            if (await _levelsModel.CheckBeatmapLevelDataExistsAsync(hash, BeatmapLevelDataVersion.Original, token)) {
                 return _levelsModel.GetBeatmapLevel(hash);
-            } else if (await _levelsModel.CheckBeatmapLevelDataExistsAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, token)) {
+            } else if (await _levelsModel.CheckBeatmapLevelDataExistsAsync(CustomLevelLoader.kCustomLevelPrefixId + hash, BeatmapLevelDataVersion.Original, token)) {
                 return _levelsModel.GetBeatmapLevel(CustomLevelLoader.kCustomLevelPrefixId + hash);
             }
 

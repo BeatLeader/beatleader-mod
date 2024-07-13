@@ -5,7 +5,7 @@
   "author": "",
   "version": "0.9.18",
   "description": "beatleader.xyz | In-game leaderboards for custom and OST maps | Score replays | Clans, events, playlists and much more",
-  "gameVersion": "1.37.0",
+  "gameVersion": "1.37.1",
   "dependsOn": {
     "SongCore": "^3.14.0",
     "LeaderboardCore": "^1.6.0",

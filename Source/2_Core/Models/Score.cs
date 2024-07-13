@@ -60,7 +60,7 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Username => true,
                 ScoreRowCellType.Modifiers => true,
                 ScoreRowCellType.Accuracy => true,
-                ScoreRowCellType.PerformancePoints => true,
+                ScoreRowCellType.PerformancePoints => pp > 0,
                 ScoreRowCellType.Score => true,
                 ScoreRowCellType.Mistakes => true,
                 ScoreRowCellType.Clans => true,

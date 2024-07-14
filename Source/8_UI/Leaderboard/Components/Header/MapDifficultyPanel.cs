@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -74,7 +76,7 @@ namespace BeatLeader.Components {
 
         private void SetDiffInfo(DiffInfo diffInfo) {
             _diffInfo = diffInfo;
-            ModifyDiffRating(ref diffInfo, _gameplayModifiers, _modifiersRating);
+            ModifyDiffRating(ref diffInfo);
             _hoverEnabled = (diffInfo.techRating + diffInfo.accRating + diffInfo.passRating) > 0.0f;
             _skillTriangle.SetValues(diffInfo.techRating, diffInfo.accRating, diffInfo.passRating);
         }
@@ -97,6 +99,7 @@ namespace BeatLeader.Components {
         private void OnModifiersChanged(GameplayModifiers modifiers) {
             _gameplayModifiers = modifiers;
             _modifiersRating = GameplayModifiersPanelPatch.ModifiersRating;
+            _modifiersMap = GameplayModifiersPanelPatch.ModifiersMap;
             SetDiffInfo(_diffInfo);
         }
 
@@ -106,26 +109,45 @@ namespace BeatLeader.Components {
 
         private GameplayModifiers _gameplayModifiers = new();
         private ModifiersRating? _modifiersRating;
+        private ModifiersMap _modifiersMap;
 
-        private static void ModifyDiffRating(ref DiffInfo diffInfo, GameplayModifiers modifiers, ModifiersRating? modifiersRating) {
-            if (modifiersRating == null) return;
-            switch (modifiers.songSpeed) {
+        private void ModifyDiffRating(ref DiffInfo diffInfo) {
+            if (_modifiersRating == null) return;
+            switch (_gameplayModifiers.songSpeed) {
                 case GameplayModifiers.SongSpeed.Faster:
-                    diffInfo.passRating = modifiersRating.fsPassRating;
-                    diffInfo.accRating = modifiersRating.fsAccRating;
-                    diffInfo.techRating = modifiersRating.fsTechRating;
+                    diffInfo.passRating = _modifiersRating.fsPassRating;
+                    diffInfo.accRating = _modifiersRating.fsAccRating;
+                    diffInfo.techRating = _modifiersRating.fsTechRating;
+                    diffInfo.stars = _modifiersRating.fsStars;
                     break;
-                case GameplayModifiers.SongSpeed.Slower: 
-                    diffInfo.passRating = modifiersRating.ssPassRating;
-                    diffInfo.accRating = modifiersRating.ssAccRating;
-                    diffInfo.techRating = modifiersRating.ssTechRating;
+                case GameplayModifiers.SongSpeed.Slower:
+                    diffInfo.passRating = _modifiersRating.ssPassRating;
+                    diffInfo.accRating = _modifiersRating.ssAccRating;
+                    diffInfo.techRating = _modifiersRating.ssTechRating;
+                    diffInfo.stars = _modifiersRating.ssStars;
                     break;
-                case GameplayModifiers.SongSpeed.SuperFast: 
-                    diffInfo.passRating = modifiersRating.sfPassRating;
-                    diffInfo.accRating = modifiersRating.sfAccRating;
-                    diffInfo.techRating = modifiersRating.sfTechRating;
+                case GameplayModifiers.SongSpeed.SuperFast:
+                    diffInfo.passRating = _modifiersRating.sfPassRating;
+                    diffInfo.accRating = _modifiersRating.sfAccRating;
+                    diffInfo.techRating = _modifiersRating.sfTechRating;
+                    diffInfo.stars = _modifiersRating.sfStars;
                     break;
             }
+            var summand = CalculateModifiersSummand();
+            ApplyMultiplier(ref diffInfo.passRating, summand);
+            ApplyMultiplier(ref diffInfo.accRating, summand);
+            ApplyMultiplier(ref diffInfo.techRating, summand);
+            ApplyMultiplier(ref diffInfo.stars, summand);
+        }
+
+        private static void ApplyMultiplier(ref float baseRating, float summand) {
+            baseRating *= 1 + summand;
+        }
+
+        private float CalculateModifiersSummand() {
+            return ModifiersUtils.ModifierCodes
+                .Where(code => _gameplayModifiers.GetModifierState(code))
+                .Sum(code => _modifiersMap.GetMultiplier(code));
         }
 
         #endregion

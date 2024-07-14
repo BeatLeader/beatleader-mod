@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -26,11 +28,9 @@ namespace BeatLeader.Components {
 
         #region Components
 
-        [UIComponent("root"), UsedImplicitly]
-        private Transform _root;
+        [UIComponent("root"), UsedImplicitly] private Transform _root;
 
-        [UIValue("skill-triangle"), UsedImplicitly]
-        private SkillTriangle _skillTriangle;
+        [UIValue("skill-triangle"), UsedImplicitly] private SkillTriangle _skillTriangle;
 
         private void Awake() {
             _skillTriangle = Instantiate<SkillTriangle>(transform);
@@ -43,11 +43,13 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             OnMapStatusHoverStateChanged += OnHoverStateChanged;
             OnDiffInfoChanged += SetDiffInfo;
+            GameplayModifiersPanelPatch.ModifiersChangedEvent += OnModifiersChanged;
             IsActive = false;
         }
 
         protected override void OnDispose() {
             OnMapStatusHoverStateChanged -= OnHoverStateChanged;
+            GameplayModifiersPanelPatch.ModifiersChangedEvent -= OnModifiersChanged;
         }
 
         #endregion
@@ -70,8 +72,11 @@ namespace BeatLeader.Components {
         #region Events
 
         private bool _hoverEnabled;
+        private DiffInfo _diffInfo;
 
         private void SetDiffInfo(DiffInfo diffInfo) {
+            _diffInfo = diffInfo;
+            ModifyDiffRating(ref diffInfo);
             _hoverEnabled = (diffInfo.techRating + diffInfo.accRating + diffInfo.passRating) > 0.0f;
             _skillTriangle.SetValues(diffInfo.techRating, diffInfo.accRating, diffInfo.passRating);
         }
@@ -89,6 +94,60 @@ namespace BeatLeader.Components {
 
             var p = _root.parent.InverseTransformPoint(worldPos);
             _root.localPosition = new Vector3(p.x, p.y - 5.0f, 0.0f);
+        }
+
+        private void OnModifiersChanged(GameplayModifiers modifiers) {
+            _gameplayModifiers = modifiers;
+            _modifiersRating = GameplayModifiersPanelPatch.ModifiersRating;
+            _modifiersMap = GameplayModifiersPanelPatch.ModifiersMap;
+            SetDiffInfo(_diffInfo);
+        }
+
+        #endregion
+
+        #region Modifiers
+
+        private GameplayModifiers _gameplayModifiers = new();
+        private ModifiersRating? _modifiersRating;
+        private ModifiersMap _modifiersMap;
+
+        private void ModifyDiffRating(ref DiffInfo diffInfo) {
+            if (_modifiersRating == null) return;
+            switch (_gameplayModifiers.songSpeed) {
+                case GameplayModifiers.SongSpeed.Faster:
+                    diffInfo.passRating = _modifiersRating.fsPassRating;
+                    diffInfo.accRating = _modifiersRating.fsAccRating;
+                    diffInfo.techRating = _modifiersRating.fsTechRating;
+                    diffInfo.stars = _modifiersRating.fsStars;
+                    break;
+                case GameplayModifiers.SongSpeed.Slower:
+                    diffInfo.passRating = _modifiersRating.ssPassRating;
+                    diffInfo.accRating = _modifiersRating.ssAccRating;
+                    diffInfo.techRating = _modifiersRating.ssTechRating;
+                    diffInfo.stars = _modifiersRating.ssStars;
+                    break;
+                case GameplayModifiers.SongSpeed.SuperFast:
+                    diffInfo.passRating = _modifiersRating.sfPassRating;
+                    diffInfo.accRating = _modifiersRating.sfAccRating;
+                    diffInfo.techRating = _modifiersRating.sfTechRating;
+                    diffInfo.stars = _modifiersRating.sfStars;
+                    break;
+            }
+            var summand = CalculateModifiersSummand();
+            ApplyMultiplier(ref diffInfo.passRating, summand);
+            ApplyMultiplier(ref diffInfo.accRating, summand);
+            ApplyMultiplier(ref diffInfo.techRating, summand);
+            ApplyMultiplier(ref diffInfo.stars, summand);
+        }
+
+        private static void ApplyMultiplier(ref float baseRating, float summand) {
+            baseRating *= 1 + summand;
+        }
+
+        private float CalculateModifiersSummand() {
+            return ModifiersUtils.ModifierCodes
+                .Where(code => _gameplayModifiers.GetModifierState(code))
+                .Sum(code => _modifiersMap.GetMultiplier(code));
         }
 
         #endregion

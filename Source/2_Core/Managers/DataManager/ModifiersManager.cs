@@ -112,8 +112,8 @@ namespace BeatLeader.DataManager {
             }
 
             GameplayModifiersPanelPatch.ModifiersMap = _modifiersMap = data.DifficultyInfo.modifierValues;
+            GameplayModifiersPanelPatch.ModifiersRating =_modifiersRating = data.DifficultyInfo.modifiersRating;
             GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = true;
-            _modifiersRating = data.DifficultyInfo.modifiersRating;
         }
 
         private void ApplyOverridenState(GameplayModifierToggle[] toggles) {

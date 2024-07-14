@@ -20,7 +20,7 @@ jobs:
               uses: beat-forge/init-beatsaber@v1.1.0
               with:
                   token: ${{ github.token }}
-                  version: 1.35.0
+                  version: 1.37.0
             - name: Download Mod Dependencies
               uses: Goobwabber/download-beatmods-deps@1.2
               with:

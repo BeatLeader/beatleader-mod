@@ -24,6 +24,10 @@ namespace BeatLeader.Components {
             textComponent.richText = richText;
         }
 
+        protected override void OnInitialize() {
+            textComponent.text = string.Empty;
+        }
+
         #endregion
 
         #region Implementation

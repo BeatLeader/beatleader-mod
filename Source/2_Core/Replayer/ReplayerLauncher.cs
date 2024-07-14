@@ -110,7 +110,7 @@ namespace BeatLeader.Replayer {
                     envSettings,
                     playerData.colorSchemesSettings.GetOverrideColorScheme(),
                     null,
-                    replay.ReplayData.GameplayModifiers,
+                    launchData.Settings.IgnoreModifiers ? new(): replay.ReplayData.GameplayModifiers,
                     playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
                     practiceSettings,
                     _environmentsListModel,

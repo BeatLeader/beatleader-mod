@@ -2,7 +2,7 @@
             pref-height="20" pref-width="20">
   <modal id="settings-modal"
          click-off-closes="true"
-         size-delta-y="62" size-delta-x="50">
+         size-delta-y="66" size-delta-x="50">
     <macro.as-host host="settings-menu">
       <macro.reparent transform="ui-component"/>
     </macro.as-host>

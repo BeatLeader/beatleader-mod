@@ -11,6 +11,7 @@ namespace BeatLeader.Models {
         public bool ExitReplayAutomatically { get; set; }
         public bool LoadPlayerEnvironment { get; set; }
         public bool LoadPlayerJumpDistance { get; set; }
+        public bool IgnoreModifiers { get; set; }
 
         public bool ShowHead { get; set; }
         public bool ShowLeftSaber { get; set; }

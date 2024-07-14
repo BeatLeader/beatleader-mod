@@ -1021,6 +1021,23 @@
         }
     },
     {
+      "Token": "ls-replayer-ignore-modifiers",
+      "Translations": {
+        "English": "Ignore Modifiers",
+        "Japanese": null,
+        "Russian": "Игнорировать модификаторы",
+        "Chinese": null,
+        "Korean": null,
+        "French": null,
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null,
+        "Swedish": null,
+        "Italian": null
+      }
+    },
+    {
         "Token": "ls-replayer-store-locally",
         "Translations": {
             "English": "Store locally",

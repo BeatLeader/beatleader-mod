@@ -17,6 +17,9 @@ namespace BeatLeader.Components {
         [UIValue("load-jump-distance-toggle"), UsedImplicitly]
         private ReplayerSettingsToggle _loadJumpDistanceToggle = null!;
 
+        [UIValue("ignore-modifiers-toggle"), UsedImplicitly]
+        private ReplayerSettingsToggle _ignoreModifiersToggle = null!;
+        
         [UIValue("save-toggle"), UsedImplicitly]
         private ReplayerSettingsToggle _saveToggle = null!;
 
@@ -25,6 +28,7 @@ namespace BeatLeader.Components {
             _showUIToggle = Instantiate<ReplayerSettingsToggle>(transform);
             _loadEnvironmentToggle = Instantiate<ReplayerSettingsToggle>(transform);
             _loadJumpDistanceToggle = Instantiate<ReplayerSettingsToggle>(transform);
+            _ignoreModifiersToggle = Instantiate<ReplayerSettingsToggle>(transform);
             _saveToggle = Instantiate<ReplayerSettingsToggle>(transform);
         }
 
@@ -70,6 +74,10 @@ namespace BeatLeader.Components {
             _loadJumpDistanceToggle.Setup(BundleLoader.JumpDistanceIcon, "<bll>ls-replayer-load-jd</bll>", _hintField);
             _loadJumpDistanceToggle.Value = PluginConfig.ReplayerSettings.LoadPlayerJumpDistance;
             _loadJumpDistanceToggle.OnClick += _ => UpdateReplayerSettings();
+            
+            _ignoreModifiersToggle.Setup(BundleLoader.NoModifiersIcon, "<bll>ls-replayer-ignore-modifiers</bll>", _hintField);
+            _ignoreModifiersToggle.Value = PluginConfig.ReplayerSettings.IgnoreModifiers;
+            _ignoreModifiersToggle.OnClick += _ => UpdateReplayerSettings();
 
             _saveToggle.Setup(BundleLoader.SaveIcon, "<bll>ls-replayer-store-locally</bll>", _hintField);
             _saveToggle.Value = PluginConfig.EnableReplayCaching;
@@ -89,6 +97,7 @@ namespace BeatLeader.Components {
             settings.AutoHideUI = !_showUIToggle.Value;
             settings.LoadPlayerEnvironment = _loadEnvironmentToggle.Value;
             settings.LoadPlayerJumpDistance = _loadJumpDistanceToggle.Value;
+            settings.IgnoreModifiers = _ignoreModifiersToggle.Value;
         }
 
         #endregion

@@ -12,14 +12,14 @@ namespace BeatLeader.Replayer {
     [PublicAPI]
     public class ReplayerLauncher : MonoBehaviour {
         #region Injection
-        
+
         [Inject] private readonly GameScenesManager _gameScenesManager = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;
         [Inject] private readonly EnvironmentsListModel _environmentsListModel = null!;
         [Inject] private readonly BeatmapDataLoader _beatmapDataLoader = null!;
         [Inject] private readonly AudioClipAsyncLoader _audioClipAsyncLoader = null!;
         [InjectOptional] private readonly BeatmapLevelsModel _beatmapLevelsModel = null!;
-        
+
         #endregion
 
         #region StartReplay
@@ -65,10 +65,8 @@ namespace BeatLeader.Replayer {
         #region CreateTransitionData
 
         private static readonly EnvironmentType normalEnvironmentType = EnvironmentType.Normal;
-
-        private static StandardLevelScenesTransitionSetupDataSO? _standardLevelScenesTransitionSetupDataSo = null;
-
-        private static GraphicSettingsHandler? _graphicSettingsHandler = null;
+        private static StandardLevelScenesTransitionSetupDataSO? _standardLevelScenesTransitionSetupDataSo;
+        private static GraphicSettingsHandler? _graphicSettingsHandler;
 
         private void Awake() {
             if (!_standardLevelScenesTransitionSetupDataSo) {
@@ -99,8 +97,8 @@ namespace BeatLeader.Replayer {
             }
 
             var replay = launchData.MainReplay;
-            var practiceSettings = launchData.IsBattleRoyale ? null
-                : launchData.MainReplay.ReplayData.PracticeSettings;
+            var practiceSettings = launchData.IsBattleRoyale ? null : replay.ReplayData.PracticeSettings;
+            var replayModifiers = replay.ReplayData.GameplayModifiers;
 
             if (transitionData != null) {
                 transitionData.Init(
@@ -110,7 +108,7 @@ namespace BeatLeader.Replayer {
                     envSettings,
                     playerData.colorSchemesSettings.GetOverrideColorScheme(),
                     null,
-                    replay.ReplayData.GameplayModifiers,
+                    launchData.Settings.IgnoreModifiers ? CreateDisabledModifiers(replayModifiers) : replayModifiers,
                     playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
                     practiceSettings,
                     _environmentsListModel,
@@ -126,6 +124,14 @@ namespace BeatLeader.Replayer {
             }
 
             return transitionData;
+        }
+
+        private static GameplayModifiers CreateDisabledModifiers(GameplayModifiers replayModifiers) {
+            return new GameplayModifiers().CopyWith(
+                instaFail: replayModifiers.instaFail,
+                energyType: replayModifiers.energyType,
+                noFailOn0Energy: replayModifiers.noFailOn0Energy
+            );
         }
 
         #endregion

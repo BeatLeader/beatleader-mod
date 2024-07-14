@@ -16,6 +16,7 @@ namespace BeatLeader {
         public static bool isPatchRequired = false;
         public static bool hasModifiers = false;
         public static ModifiersMap ModifiersMap;
+        public static ModifiersRating? ModifiersRating;
         
         [UsedImplicitly]
         private static void Postfix(

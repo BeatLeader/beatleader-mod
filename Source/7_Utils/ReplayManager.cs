@@ -133,12 +133,24 @@ namespace BeatLeader.Utils {
 
         #endregion
 
+        private static bool IsSHA1Hash(string hash) {
+            return new Regex(@"\b[0-9a-fA-F]{40}\b").IsMatch(hash);
+        }
+        
         internal static void ValidateReplayInfo(ReplayInfo info, string? path) {
-            if (info.hash.Length > 40) info.hash = info.hash.Substring(0, 40);
+            //truncating hash if needed
+            var customLevel = IsSHA1Hash(info.hash);
+            var wipLevel = info.hash.EndsWith("WIP");
+            if (customLevel && !wipLevel && info.hash.Length > 40) {
+                info.hash = info.hash.Substring(0, 40);
+            }
+            //
             if (info.mode is var mode && mode.IndexOf('-') is var idx and not -1) {
                 info.mode = mode.Remove(idx, mode.Length - idx);
             }
-            if (path is not null && Path.GetFileName(path).Contains("exit")) info.levelEndType = LevelEndType.Quit;
+            if (path is not null && Path.GetFileName(path).Contains("exit")) {
+                info.levelEndType = LevelEndType.Quit;
+            }
         }
 
         [Pure]

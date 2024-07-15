@@ -27,6 +27,7 @@ namespace BeatLeader.Replayer {
             this.LoadResources();
 
             var menuHandsTransform = _pauseMenuManager.transform.Find("MenuControllers");
+            menuHandsTransform.gameObject.GetComponent<DeactivateOnInputFocusCapture>().TryDestroy();
             LeftHand = Instantiate(menuHandsTransform.Find("ControllerLeft")).GetComponent<VRController>();
             RightHand = Instantiate(menuHandsTransform.Find("ControllerRight")).GetComponent<VRController>();
             ((VRControllersValueSettingsOffsets)LeftHand._transformOffset)._mainSettingsHandler = _mainSettingsHandler;

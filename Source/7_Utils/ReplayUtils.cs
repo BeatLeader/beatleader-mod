@@ -110,22 +110,7 @@ namespace BeatLeader.Utils {
             score.timeSet = info.timestamp;
             score.platform = info.platform + "," + info.gameVersion + "," + info.version;
 
-            //var status = difficulty?.status;
-            //var modifiers = difficulty?.modifierValues ?? new();
-            //var qualification = status is 2 or 6;
-            //var hasPp = status == 3 || qualification;
-
-            var maxScore = MaxScoreForNote(replay.notes.Count);
-            //var maxScore = difficulty?.maxScore > 0 ? difficulty.Value.maxScore : MaxScoreForNote(replay.notes.Count);
-            //if (hasPp) {
-            //    score.modifiedScore = (int)(score.baseScore * modifiers.GetNegativeMultiplier(info.modifiers));
-            //} else {
-            //    score.modifiedScore = (int)((score.baseScore + (int)((maxScore - score.baseScore) *
-            //        (modifiers.GetPositiveMultiplier(info.modifiers) - 1))) * modifiers.GetNegativeMultiplier(info.modifiers));
-            //}
-
             score.modifiedScore = score.baseScore;
-            score.accuracy = score.baseScore / (float)maxScore;
             score.pp = -1;
             score.wallsHit = replay.walls.Count;
 
@@ -251,21 +236,6 @@ namespace BeatLeader.Utils {
             if (lowerController.Contains("e4")) return ControllerEnum.e4;
 
             return ControllerEnum.unknown;
-        }
-
-        private static int MaxScoreForNote(int count) {
-            const int NOTE_SCORE = 115;
-
-            return count switch {
-                // x1 (+1 note)
-                <= 1 => NOTE_SCORE * (0 + (count - 0) * 1),
-                // x2 (+4 notes)
-                <= 5 => NOTE_SCORE * (1 + (count - 1) * 2),
-                // x4 (+8 notes)
-                <= 13 => NOTE_SCORE * (9 + (count - 5) * 4),
-                // x8
-                _ => NOTE_SCORE * (41 + (count - 13) * 8)
-            };
         }
 
         private static float GetPositiveMultiplier(this ModifiersMap modifiersObject, string modifiers) {

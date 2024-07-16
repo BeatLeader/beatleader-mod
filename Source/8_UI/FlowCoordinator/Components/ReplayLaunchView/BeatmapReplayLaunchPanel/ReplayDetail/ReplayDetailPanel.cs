@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Interop;
 using BeatLeader.Models;
@@ -156,6 +157,7 @@ namespace BeatLeader.Components {
             if (replay is not null) {
                 await Task.Run(() => stats = ReplayStatisticUtils.ComputeScoreStats(replay), token);
                 score = ReplayUtils.ComputeScore(replay);
+                score.accuracy = stats?.scoreGraphTracker?.graph.Last() ?? 0;
                 score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
             }
             if (token.IsCancellationRequested) return;

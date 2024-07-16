@@ -143,7 +143,7 @@ namespace BeatLeader.Replayer {
             LevelCompletionResults completionResults
         ) {
             transitionData.didFinishEvent -= HandleLevelFinish;
-            LaunchData!.FinishReplay(transitionData);
+            LaunchData?.FinishReplay(transitionData);
             ReplayWasFinishedEvent?.Invoke(LaunchData);
 
             LaunchData = null;

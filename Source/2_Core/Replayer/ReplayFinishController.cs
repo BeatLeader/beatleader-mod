@@ -38,16 +38,20 @@ namespace BeatLeader.Replayer {
             _timeController.SongWasRewoundEvent -= HandleSongRewound;
             _gameEnergyCounter.gameEnergyDidReach0Event -= HandleLevelFailed;
             _songController.songDidFinishEvent -= HandleLevelFinished;
-            _pauseMenuManager.didPressMenuButtonEvent += _pauseController.HandlePauseMenuManagerDidPressMenuButton;
-            _pauseButtonTrigger.menuButtonTriggeredEvent += _pauseController.HandleMenuButtonTriggered;
-            _gameEnergyCounter.gameEnergyDidReach0Event += _gameplayManager.HandleGameEnergyDidReach0;
-            _songController.songDidFinishEvent += _gameplayManager.HandleSongDidFinish;
             _timeController.SongReachedReplayEndEvent -= HandleReplayFinished;
+            if (_pauseController != null) {
+                _pauseMenuManager.didPressMenuButtonEvent += _pauseController.HandlePauseMenuManagerDidPressMenuButton;
+                _pauseButtonTrigger.menuButtonTriggeredEvent += _pauseController.HandleMenuButtonTriggered;
+            }
+            if (_gameplayManager != null) {
+                _gameEnergyCounter.gameEnergyDidReach0Event += _gameplayManager.HandleGameEnergyDidReach0;
+                _songController.songDidFinishEvent += _gameplayManager.HandleSongDidFinish;
+            }
         }
 
         public void Exit() {
             ReplayWasLeftEvent?.Invoke();
-            _pauseController.HandlePauseMenuManagerDidPressMenuButton();
+            _pauseController?.HandlePauseMenuManagerDidPressMenuButton();
         }
 
         private void HandleLevelFinished() {

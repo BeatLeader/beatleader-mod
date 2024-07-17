@@ -32,7 +32,7 @@ namespace BeatLeader.Replayer {
             _cameraController = gameObject.AddComponent<ViewableCameraController>();
             _cameraController.SetCamera(_camera);
             _cameraController.CameraContainer = _extraObjects.ReplayerCore;
-            if (_launchData.Settings.CameraSettings.CameraViews is {} views) {
+            if (_launchData.Settings.CameraSettings.CameraViews is { } views) {
                 _cameraController.Views.AddRange(views);
             }
             HandlePriorityPlayerChanged(_playersManager.PriorityPlayer!);
@@ -75,17 +75,19 @@ namespace BeatLeader.Replayer {
             var camera = Instantiate(smoothCamera.GetComponent<Camera>(), null, true);
             var cameraGo = camera.gameObject;
             cameraGo.SetActive(false);
-            
+
             DestroyImmediate(camera.GetComponent<SmoothCameraController>());
             DestroyImmediate(camera.GetComponent<SmoothCamera>());
-            
-            var trackedPoseDriver = cameraGo.AddComponent<TrackedPoseDriver>();
-            trackedPoseDriver.SetPoseSource(
-                TrackedPoseDriver.DeviceType.GenericXRDevice,
-                TrackedPoseDriver.TrackedPose.Center);
-            trackedPoseDriver.updateType = 
-                TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
-            
+
+            if (!InputUtils.IsInFPFC) {
+                var trackedPoseDriver = cameraGo.AddComponent<TrackedPoseDriver>();
+                trackedPoseDriver.SetPoseSource(
+                    TrackedPoseDriver.DeviceType.GenericXRDevice,
+                    TrackedPoseDriver.TrackedPose.Center
+                );
+                trackedPoseDriver.updateType = TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
+            }
+
             camera.nearClipPlane = 0.01f;
             cameraGo.SetActive(true);
             camera.name = "ReplayerViewCamera";

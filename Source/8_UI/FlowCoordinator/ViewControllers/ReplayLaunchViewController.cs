@@ -19,7 +19,7 @@ namespace BeatLeader.ViewControllers {
         [Inject] private readonly LevelCollectionViewController _levelCollectionViewController = null!;
         [Inject] private readonly StandardLevelDetailViewController _standardLevelDetailViewController = null!;
         [Inject] private readonly BeatLeaderFlowCoordinator _beatLeaderFlowCoordinator = null!;
-        [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;
+        [Inject] private readonly IReplayerViewNavigator _replayerNavigator = null!;
 
         #endregion
 
@@ -42,7 +42,8 @@ namespace BeatLeader.ViewControllers {
         private void Awake() {
             _replayPanel = ReeUIComponentV2.Instantiate<BeatmapReplayLaunchPanel>(transform);
             _searchFiltersPanel = ReeUIComponentV2.Instantiate<SearchFiltersPanel>(transform);
-            _replayPanel.Setup(ReplayManager.Instance, _replayerLoader);
+            var adapter = new ReplayerNavigatingStarter(_beatLeaderFlowCoordinator, false, _replayerNavigator);
+            _replayPanel.Setup(ReplayManager.Instance, adapter);
             _searchFiltersPanel.Setup(
                 ReplayManager.Instance,
                 this,

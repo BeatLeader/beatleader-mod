@@ -38,12 +38,12 @@ namespace BeatLeader.Components {
         private IReplayManager _replayManager = null!;
         private bool _isInitialized;
 
-        public void Setup(IReplayManager replayManager, ReplayerMenuLoader loader) {
+        public void Setup(IReplayManager replayManager, IReplayerStarter starter) {
             _replayManager = replayManager;
             _replayManager.ReplaysDeletedEvent += HandleReplaysDeleted;
             _replayManager.ReplayDeletedEvent += HandleReplayDeleted;
             _replayManager.ReplayAddedEvent += HandleReplayAdded;
-            _replayPanel.Setup(loader);
+            _replayPanel.Setup(starter);
             _replayPanel.SetData(null);
             _isInitialized = true;
         }

@@ -56,7 +56,7 @@ namespace BeatLeader.Utils {
                 MethodInfo>(ReflectionUtils.StaticFlags).FirstOrDefault();
             var entry = pair.Key;
             var attr = pair.Value;
-            if (entry == null) return false;
+            if (entry == null) return true;
             if (smthWasNull && !attr.ignoreOnNull) {
                 Plugin.Log.Error($"Ignoring {type.Name} entry because interop was loaded incorrectly!");
                 return false;

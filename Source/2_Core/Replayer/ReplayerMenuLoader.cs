@@ -7,6 +7,7 @@ using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
+using HMUI;
 using JetBrains.Annotations;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
@@ -14,7 +15,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer {
     [PublicAPI]
-    public class ReplayerMenuLoader : MonoBehaviour {
+    public class ReplayerMenuLoader :  MonoBehaviour, IReplayerViewNavigator {
         #region Init
 
         public static ReplayerMenuLoader? Instance { get; private set; }
@@ -43,7 +44,7 @@ namespace BeatLeader.Replayer {
 
         [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
 
-        internal async Task StartReplayFromLeaderboardAsync(Replay replay, Player player) {
+        internal async Task StartReplayFromLeaderboardAsync(Replay replay, Player player, Action? finishCallback = null) {
             var settings = ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
             var info = replay.info;
@@ -73,14 +74,18 @@ namespace BeatLeader.Replayer {
             var abstractReplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
             data.Init(abstractReplay, ReplayDataUtils.BasicReplayComparator, settings, data.BeatmapLevel, data.BeatmapKey, data.EnvironmentInfo);
 
-            StartReplay(data);
+            StartReplay(data, null);
         }
 
-        public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
-            await StartReplayAsync(replay, player, settings, CancellationToken.None);
+        public Task NavigateToReplayAsync(FlowCoordinator flowCoordinator, Replay replay, Player player, bool alternative) {
+            return alternative ? StartReplayFromLeaderboardAsync(replay, player) : StartReplayAsync(replay, player);
+        }
+        
+        public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null, Action? finishCallback = null) {
+            await StartReplayAsync(replay, player, settings, finishCallback, CancellationToken.None);
         }
 
-        public async Task StartReplayAsync(Replay replay, Player? player, ReplayerSettings? settings, CancellationToken token) {
+        public async Task StartReplayAsync(Replay replay, Player? player, ReplayerSettings? settings, Action? finishCallback, CancellationToken token) {
             settings ??= ReplayerSettings.UserSettings;
             var data = new ReplayLaunchData();
             var info = replay.info;
@@ -93,12 +98,12 @@ namespace BeatLeader.Replayer {
                 creplay, ReplayDataUtils.BasicReplayComparator,
                 settings, data.BeatmapLevel, data.BeatmapKey, data.EnvironmentInfo
             );
-            StartReplay(data);
+            StartReplay(data, finishCallback);
         }
 
-        public void StartReplay(ReplayLaunchData data) {
+        public void StartReplay(ReplayLaunchData data, Action? finishCallback) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
-            if (!_launcher.StartReplay(data)) return;
+            if (!_launcher.StartReplay(data, finishCallback)) return;
             InputUtils.forceFPFC = InputUtils.containsFPFCArg && _fpfcSettings.Ignore ? _fpfcSettings.Enabled : null;
         }
 

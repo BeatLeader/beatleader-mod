@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class ScoreInfoPanel : AbstractReeModal<Score> {
+    internal class ScoreInfoPanel : AbstractReeModal<(Score, IReplayerStarter)> {
         #region Components
 
         [UIValue("mini-profile"), UsedImplicitly]
@@ -88,7 +88,8 @@ namespace BeatLeader.Components {
         #region Events
 
         protected override void OnResume() {
-            SetScore(Context);
+            SetScore(Context.Item1);
+            _replayPanel.Setup(Context.Item2);
         }
 
         private void OnReplayDownloadStateChangedEvent(bool state) {

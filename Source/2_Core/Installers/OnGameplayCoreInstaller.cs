@@ -16,6 +16,7 @@ using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
 using BeatLeader.UI;
 using BeatLeader.Models;
+using IPA.Loader;
 
 namespace BeatLeader.Installers {
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
@@ -36,7 +37,7 @@ namespace BeatLeader.Installers {
                 RecorderUtils.shouldRecord = false;
 
                 #region Gates
-                if (ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
+                if (PluginManager.GetPluginFromId("ScoreSaber") != null && ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
                     Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started!");
                     return;
                 }

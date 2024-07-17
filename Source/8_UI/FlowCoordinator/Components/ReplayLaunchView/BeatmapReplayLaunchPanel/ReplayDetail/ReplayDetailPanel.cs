@@ -69,11 +69,11 @@ namespace BeatLeader.Components {
 
         #region Init
 
-        private ReplayerMenuLoader? _menuLoader;
+        private IReplayerStarter? _starter;
         private bool _isInitialized;
 
-        public void Setup(ReplayerMenuLoader loader) {
-            _menuLoader = loader;
+        public void Setup(IReplayerStarter starter) {
+            _starter = starter;
             _isInitialized = true;
         }
 
@@ -165,7 +165,7 @@ namespace BeatLeader.Components {
         }
 
         private async Task RefreshAvailabilityAsync(IReplayInfo info, CancellationToken token) {
-            (var beatmap, var key) = await _menuLoader!.LoadBeatmapAsync(
+            (var beatmap, var key) = await ReplayerMenuLoader.Instance!.LoadBeatmapAsync(
                 info.SongHash, info.SongMode, info.SongDifficulty, token);
             if (token.IsCancellationRequested) return;
             var invalid = beatmap is null;
@@ -206,7 +206,7 @@ namespace BeatLeader.Components {
                 return;
             }
             if (!_isInitialized || _header is null || _header.FileStatus is Corrupted) return;
-            _ = _menuLoader!.StartReplayAsync(_header.LoadReplayAsync(default).Result!, _miniProfile.Player);
+            _starter!.StartReplay( _header.LoadReplayAsync(default).Result!, _miniProfile.Player!);
         }
 
         #endregion

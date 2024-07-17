@@ -40,6 +40,12 @@ namespace BeatLeader.Components {
 
         #region Initialize/Dispose
 
+        private IReplayerStarter? _replayerStarter;
+        
+        public void Setup(IReplayerStarter starter) {
+            _replayerStarter = starter;
+        }
+        
         protected override void OnInstantiate() {
             _settingsPanel = Instantiate<ReplayerSettingsPanel>(transform);
         }
@@ -72,7 +78,7 @@ namespace BeatLeader.Components {
         #region StartReplay
 
         private void StartReplay(Replay replay) {
-            _ = ReplayerMenuLoader.Instance!.StartReplayFromLeaderboardAsync(replay, _score!.Player);
+            _replayerStarter!.StartReplay(replay, _score!.Player);
         }
 
         #endregion

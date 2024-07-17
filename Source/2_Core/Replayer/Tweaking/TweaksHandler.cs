@@ -32,7 +32,8 @@ namespace BeatLeader.Replayer.Tweaking {
             new ReplayFailTweak(),
             new ReplayFinishTweak(),
             new JumpDistanceTweak(),
-            new ScoringTweak()
+            new ScoringTweak(),
+            new SiraFPFCTweak()
         };
 
         #region Installation

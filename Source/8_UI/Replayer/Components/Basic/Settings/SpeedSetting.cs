@@ -7,8 +7,8 @@ namespace BeatLeader.Components {
     internal class SpeedSetting : ReeUIComponentV2 {
         #region Configuration
 
-        private const float MinAvailableSpeedMultiplier = 0.2f;
-        private const float MaxAvailableSpeedMultiplier = 2f;
+        private const float MinAvailableSpeedMultiplier = 1f;
+        private const float MaxAvailableSpeedMultiplier = 200f;
 
         #endregion
 
@@ -32,15 +32,15 @@ namespace BeatLeader.Components {
         public void Setup(IBeatmapTimeController beatmapTimeController) {
             _beatmapTimeController = beatmapTimeController;
             _isInitialized = true;
-            OnSliderDrag(_slider.value = _beatmapTimeController.SongStartSpeedMultiplier * 10);
+            OnSliderDrag(_slider.value = _beatmapTimeController.SongStartSpeedMultiplier * 100f);
         }
 
         protected override void OnInitialize() {
             _slider = _sliderContainer.gameObject.AddComponent<Slider>();
             _slider.targetGraphic = _handle;
             _slider.handleRect = _handle.rectTransform;
-            _slider.minValue = MinAvailableSpeedMultiplier * 10;
-            _slider.maxValue = MaxAvailableSpeedMultiplier * 10;
+            _slider.minValue = MinAvailableSpeedMultiplier;
+            _slider.maxValue = MaxAvailableSpeedMultiplier;
             _slider.wholeNumbers = true;
             _slider.onValueChanged.AddListener(OnSliderDrag);
         }
@@ -68,13 +68,10 @@ namespace BeatLeader.Components {
             if (!_isInitialized 
                 || float.IsInfinity(value) 
                 || float.IsNaN(value)) return;
-
-            var speedMultiplier = value * 0.1f;
-            speedMultiplier = Mathf.Clamp(speedMultiplier, 
-                MinAvailableSpeedMultiplier, MaxAvailableSpeedMultiplier);
-
-            _beatmapTimeController.SetSpeedMultiplier(speedMultiplier);
-            RefreshText(speedMultiplier);
+            
+            value = Mathf.Clamp(value, MinAvailableSpeedMultiplier, MaxAvailableSpeedMultiplier);
+            _beatmapTimeController.SetSpeedMultiplier(value / 100f);
+            RefreshText(value);
         }
 
         #endregion
@@ -87,8 +84,8 @@ namespace BeatLeader.Components {
                 mul.Equals(MinAvailableSpeedMultiplier) ||
                 mul.Equals(MaxAvailableSpeedMultiplier) ? "red" : "#00ffffff" /*cyan*/;
 
-            SpeedMultiplierText = $"<color={currentMulColor}>{mul * 100}%</color>" +
-                $" | <color=yellow>{_beatmapTimeController.SongStartSpeedMultiplier * 100}%</color>";
+            SpeedMultiplierText = $"<color={currentMulColor}>{mul}%</color>" +
+                $" | <color=yellow>{_beatmapTimeController.SongStartSpeedMultiplier * 100f}%</color>";
         }
 
         #endregion

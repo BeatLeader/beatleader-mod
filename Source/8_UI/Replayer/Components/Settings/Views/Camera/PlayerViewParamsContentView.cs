@@ -60,7 +60,7 @@ namespace BeatLeader.Components {
             _posVectorControls.YSlider.min = -100;
             _posVectorControls.YSlider.max = 100;
             _posVectorControls.ZSlider.min = 0;
-            _posVectorControls.ZSlider.max = 150;
+            _posVectorControls.ZSlider.max = 300;
             _posVectorControls.Multiplier = 0.01f;
             _posVectorControls.Increment = 5;
             _posVectorControls.ZSlider.multiplier = -0.01f;

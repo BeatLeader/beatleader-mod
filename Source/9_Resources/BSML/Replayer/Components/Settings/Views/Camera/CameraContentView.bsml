@@ -4,7 +4,7 @@
     <better-image src="#bl-black-transparent-bg" type="Sliced" ppu="5" pref-height="12" pref-width="48">
       <vertical pref-width="46">
         <text text="Camera FOV" font-align="Center"/>
-        <slider-setting value="camera-fov" min="70" max="110" increment="1" apply-on-change="true"
+        <slider-setting value="camera-fov" min="50" max="110" increment="1" apply-on-change="true"
               bind-value="true" show-buttons="true" integer-only="true" hide-text="true" skew="0"/>
       </vertical>
     </better-image>

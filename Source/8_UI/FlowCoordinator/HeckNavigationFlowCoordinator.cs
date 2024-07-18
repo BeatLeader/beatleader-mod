@@ -12,9 +12,15 @@ using Zenject;
 
 namespace BeatLeader {
     internal class HeckNavigationFlowCoordinator : FlowCoordinator, IInitializable, IReplayerViewNavigator {
+        #region Injection
+
         [Inject] private readonly DiContainer _container = null!;
         [Inject] private readonly ReplayerMenuLoader _replayerMenuLoader = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;
+
+        #endregion
+
+        #region Impl
 
         private ViewController _setterViewController = null!;
         private Action? _originalFinishedDelegate;
@@ -60,22 +66,22 @@ namespace BeatLeader {
                 _finishedEventField.SetValue(_setterViewController, (Action)HandleSetterViewControllerFinish);
                 flowCoordinator.PresentFlowCoordinator(this);
             } else {
-                HandleSetterViewControllerFinish();
+                StartReplay(false);
             }
         }
 
-        private void DismissSetterViewController() {
-            _finishedEventField.SetValue(_setterViewController, _originalFinishedDelegate);
-            _parentFlowCoordinator.DismissFlowCoordinator(this, immediately: true);
-        }
-
-        private async void HandleSetterViewControllerFinish() {
+        private async void StartReplay(bool fromFlowCoordinator) {
+            var callback = fromFlowCoordinator ? (Action)DismissSetterViewController : null;
             if (_alternativeLoading) {
-                await _replayerMenuLoader.StartReplayFromLeaderboardAsync(_pendingReplay!, _pendingPlayer!, finishCallback: DismissSetterViewController);
+                await _replayerMenuLoader.StartReplayFromLeaderboardAsync(_pendingReplay!, _pendingPlayer!, finishCallback: callback);
             } else {
-                await _replayerMenuLoader.StartReplayAsync(_pendingReplay!, _pendingPlayer!, finishCallback: DismissSetterViewController);
+                await _replayerMenuLoader.StartReplayAsync(_pendingReplay!, _pendingPlayer!, finishCallback: callback);
             }
         }
+
+        #endregion
+
+        #region FlowCoordinator
 
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (firstActivation) {
@@ -85,8 +91,23 @@ namespace BeatLeader {
             ProvideInitialViewControllers(_setterViewController);
         }
 
-        public override void BackButtonWasPressed(ViewController topViewController) {
+        public override void BackButtonWasPressed(ViewController viewController) {
             _parentFlowCoordinator.DismissFlowCoordinator(this);
         }
+
+        #endregion
+
+        #region Callbacks
+
+        private void DismissSetterViewController() {
+            _finishedEventField.SetValue(_setterViewController, _originalFinishedDelegate);
+            _parentFlowCoordinator.DismissFlowCoordinator(this, immediately: true);
+        }
+
+        private void HandleSetterViewControllerFinish() {
+            StartReplay(true);
+        }
+
+        #endregion
     }
 }

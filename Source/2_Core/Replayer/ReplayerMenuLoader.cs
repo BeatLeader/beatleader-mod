@@ -74,7 +74,7 @@ namespace BeatLeader.Replayer {
             var abstractReplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
             data.Init(abstractReplay, ReplayDataUtils.BasicReplayComparator, settings, data.BeatmapLevel, data.BeatmapKey, data.EnvironmentInfo);
 
-            StartReplay(data, null);
+            StartReplay(data, finishCallback);
         }
 
         public Task NavigateToReplayAsync(FlowCoordinator flowCoordinator, Replay replay, Player player, bool alternative) {

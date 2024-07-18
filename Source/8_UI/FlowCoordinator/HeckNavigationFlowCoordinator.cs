@@ -33,8 +33,6 @@ namespace BeatLeader {
         }
 
         public async Task NavigateToReplayAsync(FlowCoordinator flowCoordinator, Replay replay, Player player, bool alternative) {
-            _originalFinishedDelegate = (Action)_finishedEventField.GetValue(_setterViewController);
-            _finishedEventField.SetValue(_setterViewController, (Action)HandleSetterViewControllerFinish);
             _pendingReplay = replay;
             _pendingPlayer = player;
             _alternativeLoading = alternative;
@@ -55,8 +53,15 @@ namespace BeatLeader {
                 GameplayModifiers.noModifiers,
                 _playerDataModel.playerData.playerSpecificSettings
             );
-            _initMethod.Invoke(_setterViewController, new[] { startData });
-            flowCoordinator.PresentFlowCoordinator(this);
+            //presenting
+            var shouldPresent = (bool)_initMethod.Invoke(_setterViewController, new[] { startData });
+            if (shouldPresent) {
+                _originalFinishedDelegate = (Action)_finishedEventField.GetValue(_setterViewController);
+                _finishedEventField.SetValue(_setterViewController, (Action)HandleSetterViewControllerFinish);
+                flowCoordinator.PresentFlowCoordinator(this);
+            } else {
+                HandleSetterViewControllerFinish();
+            }
         }
 
         private void DismissSetterViewController() {

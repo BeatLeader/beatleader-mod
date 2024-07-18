@@ -17,10 +17,10 @@ jobs:
               with:
                   dotnet-version: 7.0.x
             - name: Initialize modding environment
-              uses: beat-forge/init-beatsaber@v1.1.0
+              uses: beat-forge/init-beatsaber@v1
               with:
                   token: ${{ github.token }}
-                  version: 1.37.0
+                  repo: beat-forge/beatsaber-stripped
             - name: Download Mod Dependencies
               uses: Goobwabber/download-beatmods-deps@1.2
               with:

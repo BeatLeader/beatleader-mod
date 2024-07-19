@@ -142,14 +142,17 @@ namespace BeatLeader.Components {
             _missPrefab = new GameObject("MissMark").AddComponent<Image>();
             _missPrefab.sprite = BundleLoader.CrossIcon;
             _missPrefab.color = Color.red;
+            _missPrefab.material = BundleLoader.UIAdditiveGlowMaterial;
 
             _bombPrefab = new GameObject("BombMark").AddComponent<Image>();
             _bombPrefab.sprite = BundleLoader.CrossIcon;
             _bombPrefab.color = Color.yellow;
+            _bombPrefab.material = BundleLoader.UIAdditiveGlowMaterial;
 
             _pausePrefab = new GameObject("PauseMark").AddComponent<Image>();
             _pausePrefab.sprite = BundleLoader.PauseIcon;
             _pausePrefab.color = Color.blue;
+            _pausePrefab.material = BundleLoader.UIAdditiveGlowMaterial;
         }
 
         private void GenerateDefaultMarkersFromReplay(IReplay replay) {

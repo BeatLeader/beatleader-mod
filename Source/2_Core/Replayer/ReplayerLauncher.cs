@@ -19,7 +19,7 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly BeatmapDataLoader _beatmapDataLoader = null!;
         [Inject] private readonly AudioClipAsyncLoader _audioClipAsyncLoader = null!;
         [InjectOptional] private readonly BeatmapLevelsModel _beatmapLevelsModel = null!;
-
+        [InjectOptional] private readonly BeatmapLevelsEntitlementModel _beatmapLevelsEntitlementModel = null!;
         #endregion
 
         #region StartReplay
@@ -117,6 +117,7 @@ namespace BeatLeader.Replayer {
                     _graphicSettingsHandler.instance.customPreset,
                     "Menu",
                     _beatmapLevelsModel,
+                    _beatmapLevelsEntitlementModel,
                     false,
                     false,
                     null

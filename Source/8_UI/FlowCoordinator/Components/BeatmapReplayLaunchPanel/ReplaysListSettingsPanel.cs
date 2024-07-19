@@ -37,8 +37,8 @@ namespace BeatLeader.UI.Hub {
                             Component = new TextDropdown<ReplaysListSorter> {
                                 Skew = 0f,
                                 Items = {
-                                    { ReplaysListSorter.Player, "Player" },
                                     { ReplaysListSorter.Date, "Date" },
+                                    { ReplaysListSorter.Player, "Player" },
                                     { ReplaysListSorter.Completion, "Completion" },
                                     { ReplaysListSorter.Difficulty, "Difficulty" },
                                 }

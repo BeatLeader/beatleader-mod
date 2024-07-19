@@ -3,7 +3,7 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.9.18",
+  "version": "0.9.19",
   "description": "beatleader.xyz | In-game leaderboards for custom and OST maps | Score replays | Clans, events, playlists and much more",
   "gameVersion": "1.37.0",
   "dependsOn": {
@@ -21,7 +21,6 @@
     "BeatSaviorData",
     "NoodleExtensions",
     "ScoreSaber",
-    "SongCore",
     "Custom Notes"
   ],
   "features": []

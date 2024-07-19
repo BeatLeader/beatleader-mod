@@ -1,4 +1,5 @@
-﻿using IPA.Utilities;
+﻿using BeatLeader.Utils;
+using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
@@ -22,6 +23,10 @@ namespace BeatLeader.Replayer.Emulation {
             //TODO: asm pub
             HeadTransform = PoseController.GetField<Transform, AvatarPoseController>("_headTransform");
             _animator = GetComponent<Animator>();
+            //avatar layer
+            foreach (var item in transform.GetChildren(false)) {
+                item.gameObject.layer = 10;
+            }
         }
 
         public AvatarTweenController TweenController { get; private set; } = null!;

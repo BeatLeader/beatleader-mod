@@ -78,33 +78,41 @@ namespace BeatLeader.UI.Reactive.Components {
         private ButtonBase _downButton = null!;
 
         protected override GameObject Construct() {
-            static ImageButton CreateButton(float rotation) {
+            static ButtonBase CreateButton(float rotation) {
                 return new ImageButton {
-                    ContentTransform = {
-                        localEulerAngles = new(0f, 0f, rotation),
-                        localScale = Vector3.one * 1.2f
-                    },
                     Image = {
-                        Sprite = GameResources.Sprites.ArrowIcon,
-                        PreserveAspect = true,
-                        Material = GameResources.UINoGlowMaterial
+                        Sprite = BundleLoader.Sprites.transparentPixel,
+                        Material = null
                     },
                     HoverLerpMul = float.MaxValue,
-                    HoverScaleSum = Vector3.one * 0.2f,
-                    Colors = new StateColorSet {
-                        Color = Color.white.ColorWithAlpha(0.5f),
-                        HoveredColor = Color.white,
-                        DisabledColor = Color.black.ColorWithAlpha(0.5f)
+                    GrowOnHover = false,
+                    Children = {
+                        new Image {
+                            ContentTransform = {
+                                localEulerAngles = new(0f, 0f, rotation)
+                            },
+                            Sprite = GameResources.Sprites.ArrowIcon,
+                            PreserveAspect = true,
+                            Material = GameResources.UINoGlowMaterial
+                        }.Export(out var image).AsFlexItem(size: 4f)
                     }
-                }.AsFlexItem(basis: 4f);
+                }.AsFlexItem(grow: 1f).Export(out var button).WithListener(
+                    x => x.Interactable,
+                    _ => RefreshImage()
+                ).WithAnimation(_ => RefreshImage());
+
+                //rework after adding reactive animations
+                void RefreshImage() {
+                    var hovered = button.AnimationProgress > 0;
+                    image.ContentTransform.localScale = hovered ? Vector3.one * 1.2f : Vector3.one;
+                    image.Color = button.Interactable ?
+                        hovered ? Color.white : Color.white.ColorWithAlpha(0.5f) : 
+                        Color.black.ColorWithAlpha(0.5f);
+                }
             }
 
             return new Dummy {
                 Children = {
-                    //up button
-                    CreateButton(180f)
-                        .WithClickListener(HandleUpButtonClicked)
-                        .Bind(ref _upButton),
                     //handle container
                     new Image {
                         Sprite = BundleLoader.Sprites.background,
@@ -125,12 +133,23 @@ namespace BeatLeader.UI.Reactive.Components {
                         }
                     }.AsFlexItem(
                         grow: 1f,
-                        margin: new() { left = "15%", right = "15%" }
+                        margin: new() { left = "15%", right = "15%", top = 4f, bottom = 4f }
                     ).Bind(ref _handleContainerRect),
-                    //down button
-                    CreateButton(0f)
-                        .WithClickListener(HandleDownButtonClicked)
-                        .Bind(ref _downButton)
+                    //
+                    new Dummy {
+                        Children = {
+                            //up button
+                            CreateButton(180f)
+                                .WithClickListener(HandleUpButtonClicked)
+                                .AsFlexGroup(alignItems: Align.FlexStart)
+                                .Bind(ref _upButton),
+                            //down button
+                            CreateButton(0f)
+                                .WithClickListener(HandleDownButtonClicked)
+                                .AsFlexGroup(alignItems: Align.FlexEnd)
+                                .Bind(ref _downButton)
+                        }
+                    }.AsFlexGroup(direction: FlexDirection.Column).WithRectExpand()
                 }
             }.AsFlexGroup(FlexDirection.Column).Use();
         }

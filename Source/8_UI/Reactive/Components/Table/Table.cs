@@ -29,6 +29,11 @@ namespace BeatLeader.UI.Reactive.Components {
             set => EmptyLabel.Text = value;
         }
 
+        public int? ScrollbarScrollSize {
+            get => (int?)_scrollArea.ScrollbarScrollSize;
+            set => _scrollArea.ScrollbarScrollSize = value.HasValue ? value * CellSize : null;
+        }
+
         public Label EmptyLabel { get; private set; } = null!;
 
         private void RefreshVisibility() {
@@ -308,7 +313,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private float ContentSize => ScrollOrientation is ScrollOrientation.Vertical ? _scrollContent.rect.height : _scrollContent.rect.width;
         private float ViewportSize => ScrollOrientation is ScrollOrientation.Vertical ? _viewport.rect.height : _viewport.rect.width;
-        
+
         private void RefreshContentSize() {
             if (ScrollOrientation is ScrollOrientation.Vertical) {
                 _scrollContent.sizeDelta = new(0f, FilteredItems.Count * CellSize);
@@ -374,6 +379,7 @@ namespace BeatLeader.UI.Reactive.Components {
             var cell = _cellsPool.Spawn();
             _cellSize = cell.ContentTransform.rect.size;
             _scrollArea.ScrollSize = CellSize;
+            ScrollbarScrollSize = 4;
             _cellsPool.Despawn(cell);
             _scrollArea.ScrollPosChangedEvent += HandlePosChanged;
             _scrollArea.ScrollDestinationPosChangedEvent += HandleDestinationPosChanged;
@@ -403,7 +409,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private void HandleDestinationPosChanged(float pos) {
             _destinationPos = pos;
         }
-        
+
         private void HandlePosChanged(float pos) {
             _contentPos = pos;
             RefreshVisibleCells();

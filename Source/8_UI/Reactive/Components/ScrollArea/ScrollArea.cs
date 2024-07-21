@@ -43,6 +43,7 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         public float ScrollSize { get; set; } = 10f;
+        public float? ScrollbarScrollSize { get; set; }
 
         private ScrollOrientation _scrollOrientation = ScrollOrientation.Vertical;
         private IReactiveComponent? _scrollContent;
@@ -239,13 +240,13 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private void HandleUpButtonClicked() {
             var destinationPos = _destinationPos;
-            destinationPos -= ScrollSize;
+            destinationPos -= ScrollbarScrollSize ?? ScrollSize;
             SetDestinationPos(destinationPos);
         }
 
         private void HandleDownButtonClicked() {
             var destinationPos = _destinationPos;
-            destinationPos += ScrollSize;
+            destinationPos += ScrollbarScrollSize ?? ScrollSize;
             SetDestinationPos(destinationPos);
         }
 

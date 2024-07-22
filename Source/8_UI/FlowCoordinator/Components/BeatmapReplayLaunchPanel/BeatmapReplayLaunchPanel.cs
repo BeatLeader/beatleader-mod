@@ -32,9 +32,9 @@ namespace BeatLeader.UI.Hub {
 
         IReadOnlyCollection<IReplayHeaderBase> IBeatmapReplayLaunchPanel.SelectedReplays => ReplaysList.HighlightedItems;
         public ReplaysList ReplaysList => _replaysListPanel.ReplaysList;
-        
+
         public event Action? SelectedReplaysUpdatedEvent;
-        
+
         public event Action<IReplayHeaderBase>? ReplaySelectedEvent;
         public event Action<IReplayHeaderBase>? ReplayDeselectedEvent;
 
@@ -66,14 +66,16 @@ namespace BeatLeader.UI.Hub {
         #region Init
 
         private IReplaysLoader? _replaysLoader;
+        private IReplayPreviewLoader? _previewLoader;
 
-        public void Setup(IReplaysLoader replaysLoader) {
+        public void Setup(IReplaysLoader replaysLoader, IReplayPreviewLoader? previewLoader = null) {
             if (_replaysLoader is not null) {
                 _replaysLoader.ReplayRemovedEvent -= HandleReplayDeleted;
                 _replaysLoader.ReplaysLoadStartedEvent -= HandleReplaysLoadStarted;
                 _replaysLoader.ReplaysLoadFinishedEvent -= HandleReplaysLoadFinished;
             }
             _replaysLoader = replaysLoader;
+            _previewLoader = previewLoader;
             _replaysListPanel.Setup(replaysLoader);
             _replaysLoader.ReplayRemovedEvent += HandleReplayDeleted;
             _replaysLoader.ReplaysLoadStartedEvent += HandleReplaysLoadStarted;
@@ -82,6 +84,10 @@ namespace BeatLeader.UI.Hub {
 
         protected override bool Validate() {
             return _replaysLoader is not null;
+        }
+
+        protected override void OnDisable() {
+            _previewLoader?.StopPreview();
         }
 
         #endregion
@@ -193,10 +199,13 @@ namespace BeatLeader.UI.Hub {
         private void HandleItemsSelected(IReadOnlyCollection<int> items) {
             if (items.Count is 0) {
                 _detailPanel?.SetData(null);
+                _previewLoader?.StopPreview();
                 return;
             }
             var index = items.First();
-            _detailPanel?.SetData(_replaysListPanel.ReplaysList.FilteredItems[index] as IReplayHeader);
+            var header = (IReplayHeader)_replaysListPanel.ReplaysList.FilteredItems[index];
+            _previewLoader?.LoadPreview(header);
+            _detailPanel?.SetData(header);
         }
 
         private void HandleReplaysLoadStarted() {

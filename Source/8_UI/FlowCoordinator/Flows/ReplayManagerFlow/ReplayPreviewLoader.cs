@@ -1,13 +1,18 @@
 ﻿using System;
 using BeatLeader.Models;
+using HarmonyLib;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
+    [HarmonyPatch]
     internal class ReplayPreviewLoader : IReplayPreviewLoader {
+        #region Loader
+
         [Inject] private readonly SongPreviewPlayer _songPreviewPlayer = null!;
         [Inject] private readonly AudioClipAsyncLoader _audioClipAsyncLoader = null!;
         [Inject] private readonly PerceivedLoudnessPerLevelModel _perceivedLoudnessPerLevelModel = null!;
         [Inject] private readonly BeatmapLevelsModel _beatmapLevelsModel = null!;
+        [Inject] private readonly LevelCollectionViewController _levelCollectionViewController = null!;
 
         private string? _currentPreviewedLevelId;
 
@@ -30,6 +35,7 @@ namespace BeatLeader.UI.Hub {
                     level.previewDuration,
                     () => _audioClipAsyncLoader.UnloadPreview(level)
                 );
+                InvokePatches(level);
             } catch (OperationCanceledException) {
                 _currentPreviewedLevelId = null;
             }
@@ -39,5 +45,24 @@ namespace BeatLeader.UI.Hub {
             _songPreviewPlayer.CrossfadeToDefault();
             _currentPreviewedLevelId = null;
         }
+
+        #endregion
+
+        #region Patches
+
+        private static bool _blockInvocation;
+        
+        private void InvokePatches(IPreviewBeatmapLevel beatmapLevel) {
+            _blockInvocation = true;
+            _levelCollectionViewController.HandleLevelCollectionTableViewDidSelectLevel(null, beatmapLevel);
+            _blockInvocation = false;
+        }
+
+        [HarmonyPatch(typeof(LevelCollectionViewController), nameof(LevelCollectionViewController.HandleLevelCollectionTableViewDidSelectLevel))]
+        private static bool DidSelectLevelPrefix() {
+            return !_blockInvocation;
+        }
+
+        #endregion
     }
 }

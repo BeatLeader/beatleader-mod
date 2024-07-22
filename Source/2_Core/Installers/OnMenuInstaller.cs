@@ -57,6 +57,7 @@ namespace BeatLeader.Installers {
             var go = Container.Resolve<LevelSelectionNavigationController>().gameObject;
             Container.Bind<LevelSelectionViewController>().FromNewComponentOn(go).AsSingle();
             Container.Bind<UI.Hub.LevelSelectionFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.BindInterfacesTo<ReplayPreviewLoader>().AsSingle();
             //<-----------------------------Replay Manager---------------------------->
             Container.Bind<ReplayManagerFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<ReplayManagerViewController>().FromNewComponentAsViewController().AsSingle();

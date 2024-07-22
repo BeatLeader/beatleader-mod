@@ -16,6 +16,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;
         [Inject] private readonly IReplayManager _replayManager = null!;
         [Inject] private readonly IReplaysLoader _replaysLoader = null!;
+        [Inject] private readonly IReplayPreviewLoader _previewLoader = null!;
         [Inject] private readonly LevelSelectionFlowCoordinator _levelSelectionFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
@@ -69,7 +70,7 @@ namespace BeatLeader.UI.Hub {
 
             _replayDetailPanel = new ReplayDetailPanel();
             _replayDetailPanel.Setup(_replayerLoader, tagManager);
-            _replayPanel.Setup(_replaysLoader);
+            _replayPanel.Setup(_replaysLoader, _previewLoader);
             _replayPanel.DetailPanel = _replayDetailPanel;
             _replayPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);
         }

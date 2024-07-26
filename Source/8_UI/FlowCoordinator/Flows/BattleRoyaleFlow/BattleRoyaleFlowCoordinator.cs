@@ -186,9 +186,7 @@ namespace BeatLeader.UI.Hub {
         public void AddReplay(IReplayHeaderBase header, object caller) {
             if (_replays.ContainsKey(header)) return;
             //
-            var replayData = CreateReplayData(header);
-            var replay = new BattleRoyaleReplay(header, replayData);
-            //
+            var replay = new BattleRoyaleReplay(header);
             _replays.Add(header, replay);
             ReplayAddedEvent?.Invoke(replay, caller);
             RecalculateReplayRanks();
@@ -225,17 +223,6 @@ namespace BeatLeader.UI.Hub {
             CanLaunchBattleStateChangedEvent?.Invoke(CanLaunchBattle);
         }
 
-        private BattleRoyaleOptionalReplayData CreateReplayData(IReplayHeaderBase header) {
-            //color
-            var replayInfo = header.ReplayInfo;
-            var colorSeed = $"{replayInfo.Timestamp}{replayInfo.PlayerID}{replayInfo.SongName}".GetHashCode();
-            var color = ColorUtils.RandomColor(rand: new(colorSeed));
-            //avatar
-            var avatarData = new AvatarData();
-            AvatarUtils.RandomizeAvatarByPlayerId(header.ReplayInfo.PlayerID, avatarData, _avatarPartsModel);
-            //
-            return new BattleRoyaleOptionalReplayData(avatarData, color);
-        }
 
         #endregion
     }

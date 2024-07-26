@@ -143,7 +143,7 @@ namespace BeatLeader.Replayer {
             var data = new ReplayData {
                 replay = replay,
                 player = player,
-                optionalData = battleReplay.ReplayData
+                optionalData = await battleReplay.GetReplayDataAsync()
             };
             collection.Add(data);
             return true;

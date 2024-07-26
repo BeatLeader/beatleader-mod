@@ -41,9 +41,10 @@ namespace BeatLeader.UI.Hub {
         private AvatarData? _avatarData;
         private IBattleRoyaleReplay? _replay;
 
-        public void Refresh() {
+        public async void Refresh() {
             if (_replay == null) return;
-            _avatarData = _replay.ReplayData.AvatarData;
+            var replayData = await _replay.GetReplayDataAsync();
+            _avatarData = replayData.AvatarData;
             AvatarVisualController.UpdateAvatarVisual(_avatarData);
             _badge.SetData(_replay);
         }

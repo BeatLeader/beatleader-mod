@@ -6,10 +6,7 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.WebRequests {
     [PublicAPI]
-    public abstract class PersistentWebRequestBase<T, TRequest>
-        where T : PersistentWebRequestBase<T, TRequest>
-        where TRequest : IWebRequest {
-
+    public abstract class PersistentWebRequestBase {
         protected static IWebRequest Send(
             string url,
             HttpMethod method,
@@ -38,7 +35,7 @@ namespace BeatLeader.WebRequests {
         }
     }
 
-    public abstract class PersistentWebRequestBaseWithResult<T, TResult, TDescriptor> : PersistentWebRequestBase<T, IWebRequest<TResult>>
+    public abstract class PersistentWebRequestBaseWithResult<T, TResult, TDescriptor> : PersistentWebRequestBase
         where T : PersistentWebRequestBaseWithResult<T, TResult, TDescriptor>
         where TDescriptor : IWebRequestResponseParser<TResult>, new() {
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+using BeatLeader.API;
 using Newtonsoft.Json;
 using BeatLeader.Themes;
 using Newtonsoft.Json;
@@ -39,6 +41,17 @@ namespace BeatLeader.Models {
         string IPlayer.Country => country;
         float IPlayer.PerformancePoints => pp;
         IPlayerProfileSettings? IPlayer.ProfileSettings => profileSettings;
+
+        private AvatarSettings? _avatarSettings;
+        
+        public async Task<AvatarSettings> GetAvatarAsync() {
+            if (_avatarSettings == null) {
+                var request = await GetAvatarRequest.Send(id).Join();
+                _avatarSettings = request.Result;
+            }
+            //return default avatar instead of throwing
+            return _avatarSettings ?? throw new InvalidOperationException();
+        }
 
         #endregion
 

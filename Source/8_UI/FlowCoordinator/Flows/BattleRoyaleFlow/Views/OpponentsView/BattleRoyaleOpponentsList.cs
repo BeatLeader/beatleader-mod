@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
@@ -114,14 +115,19 @@ namespace BeatLeader.UI.Hub {
 
             protected override void OnInit(IBattleRoyaleReplay item) {
                 RefreshPlayer();
-                var color = item.ReplayData.AccentColor ?? Color.white;
-                _backgroundImage.Color = color.ColorWithAlpha(0.2f);
+                RefreshAccentColor();
             }
 
             public void Init(IBattleRoyaleHost battleRoyaleHost) {
                 _battleRoyaleHost = battleRoyaleHost;
             }
 
+            private async void RefreshAccentColor() {
+                var data = await Item.GetReplayDataAsync();
+                var color = data.AccentColor ?? Color.white;
+                _backgroundImage.Color = color.ColorWithAlpha(0.2f);
+            }
+            
             private async void RefreshPlayer() {
                 var header = Item.ReplayHeader;
                 var player = await header.LoadPlayerAsync(false, default);

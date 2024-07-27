@@ -49,6 +49,7 @@ namespace BeatLeader.Installers {
             //<----------------------------------HUB---------------------------------->
             Container.Bind<BeatLeaderHubTheme>().FromInstance(ConfigFileData.Instance.HubTheme).AsSingle();
             Container.Bind<BeatLeaderMenuButtonManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatLeaderHubAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatLeaderHubFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatLeaderHubMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BeatLeaderMiniScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();

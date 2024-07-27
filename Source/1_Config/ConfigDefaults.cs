@@ -67,6 +67,11 @@ namespace BeatLeader {
                     HoveredColor = new Color(1f, 0.65f, 0f),
                     Color = UIStyle.InputColorSet.Color,
                     DisabledColor = UIStyle.InputColorSet.DisabledColor
+                },
+                EditAvatarButtonColors = {
+                    HoveredColor = new Color(0f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
                 }
             },
             ReplayManagerSearchTheme = {

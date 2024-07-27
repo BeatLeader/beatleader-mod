@@ -43,6 +43,8 @@ namespace BeatLeader.Replayer.Emulation {
             _avatarLoader = _zenjectMenuResolver.Resolve<AvatarLoader>();
             _avatarPartsModel = _zenjectMenuResolver.Resolve<AvatarPartsModel>();
             _avatarController = _avatarLoader.CreateAvatar();
+            _avatarController.MakeMasked();
+            _avatarController.Present(false);
             _avatarController.PlayAnimation = false;
             _avatarController.transform.localScale = Vector3.one;
             LoadBody();
@@ -58,7 +60,7 @@ namespace BeatLeader.Replayer.Emulation {
                 var playerId = replay.ReplayData.Player!.Id;
                 AvatarUtils.RandomizeAvatarByPlayerId(playerId, _avatarData, _avatarPartsModel);
             }
-            _avatarController.VisualController.UpdateAvatarVisual(_avatarData);
+            _avatarController.SetVisuals(_avatarData);
         }
 
         #endregion

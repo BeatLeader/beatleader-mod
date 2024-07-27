@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API;
 using Newtonsoft.Json;
 using BeatLeader.Themes;
+using BeatLeader.Utils;
 using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
@@ -42,15 +45,22 @@ namespace BeatLeader.Models {
         float IPlayer.PerformancePoints => pp;
         IPlayerProfileSettings? IPlayer.ProfileSettings => profileSettings;
 
-        private AvatarSettings? _avatarSettings;
-        
-        public async Task<AvatarSettings> GetAvatarAsync() {
-            if (_avatarSettings == null) {
+        private static readonly Dictionary<string, AvatarSettings?> avatarSettingsCache = new();
+        private static readonly Dictionary<string, SemaphoreSlim?> semaphores = new();
+
+        public async Task<AvatarSettings> GetAvatarAsync(bool bypassCache) {
+            var semaphore = semaphores.GetOrAdd(id, new SemaphoreSlim(1, 1))!;
+            await semaphore.WaitAsync();
+            //fetching if needed
+            if (!avatarSettingsCache.TryGetValue(id, out var avatarSettings) || bypassCache) {
                 var request = await GetAvatarRequest.Send(id).Join();
-                _avatarSettings = request.Result;
+                avatarSettings = request.Result;
+                avatarSettingsCache[id] = avatarSettings;
             }
-            //return default avatar instead of throwing
-            return _avatarSettings ?? throw new InvalidOperationException();
+            //returning
+            semaphore.Release();
+            var settings = AvatarSettings.FromAvatarData(AvatarUtils.DefaultAvatarData);
+            return avatarSettings ?? settings;
         }
 
         #endregion
@@ -62,7 +72,7 @@ namespace BeatLeader.Models {
             rank = -1,
             pp = -1
         };
-        
+
         public string id;
         public int rank;
         public string name;
@@ -114,28 +124,28 @@ namespace BeatLeader.Models {
 
         public ThemeType ThemeType { get; private set; }
         public ThemeTier ThemeTier { get; private set; }
-        
+
         [JsonProperty("effectName")]
         private string EffectName {
             set => RefreshTheme(value);
         }
-        
+
         [JsonProperty("hue")]
         private int? Hue {
             set => hue = value ?? 0;
         }
-        
+
         [JsonProperty("saturation")]
         private float? Saturation {
             set => saturation = value ?? 0;
         }
-                
+
         [JsonIgnore]
         public int hue;
-        
+
         [JsonIgnore]
         public float saturation;
-        
+
         public string message;
         public string effectName;
 

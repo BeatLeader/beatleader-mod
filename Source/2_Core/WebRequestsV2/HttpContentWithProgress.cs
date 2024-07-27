@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using IPA.Utilities;
 
 namespace BeatLeader.WebRequests {
     public class HttpContentWithProgress : HttpContent {
@@ -16,6 +17,9 @@ namespace BeatLeader.WebRequests {
         ) {
             _content = content;
             _descriptor = descriptor;
+            foreach (var (name, headers) in content.Headers) {
+                Headers.Add(name, headers);
+            }
         }
 
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context) {

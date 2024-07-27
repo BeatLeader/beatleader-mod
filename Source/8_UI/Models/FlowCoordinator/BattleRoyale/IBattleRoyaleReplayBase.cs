@@ -5,6 +5,6 @@ namespace BeatLeader.UI.Hub {
     public interface IBattleRoyaleReplayBase {
         IReplayHeaderBase ReplayHeader { get; }
 
-        Task<IOptionalReplayData> GetReplayDataAsync();
+        Task<IOptionalReplayData> GetReplayDataAsync(bool bypassCache = false);
     }
 }

@@ -3,6 +3,13 @@ using Random = System.Random;
 
 namespace BeatLeader.Utils {
     internal static class AvatarUtils {
+        public static readonly AvatarData DefaultAvatarData = new() {
+            clothesId = "Hoodie",
+            clothesPrimaryColor = Color.black,
+            clothesSecondaryColor = Color.white,
+            clothesDetailColor = Color.magenta
+        };
+        
         public static void RandomizeAvatarByPlayerId(string playerId, AvatarData avatarData, AvatarPartsModel avatarPartsModel) {
             var seed = playerId.GetHashCode();
             var random = new Random(seed);

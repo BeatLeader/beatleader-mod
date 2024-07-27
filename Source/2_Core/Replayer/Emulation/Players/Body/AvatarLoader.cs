@@ -1,42 +1,8 @@
-﻿using BeatLeader.Utils;
-using IPA.Utilities;
+﻿using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
-    public class AvatarController : MonoBehaviour {
-        public bool PlayAnimation {
-            get => _animator.enabled;
-            set {
-                _animator.enabled = value;
-                if (value) return;
-                var trans = transform;
-                trans.localPosition = Vector3.zero;
-                trans.localEulerAngles = Vector3.zero;
-            }
-        }
-
-        private void Awake() {
-            TweenController = GetComponent<AvatarTweenController>();
-            VisualController = GetComponentInChildren<AvatarVisualController>();
-            PoseController = GetComponentInChildren<AvatarPoseController>();
-            //TODO: asm pub
-            HeadTransform = PoseController.GetField<Transform, AvatarPoseController>("_headTransform");
-            _animator = GetComponent<Animator>();
-            //avatar layer
-            foreach (var item in transform.GetChildren(false)) {
-                item.gameObject.layer = 10;
-            }
-        }
-
-        public AvatarTweenController TweenController { get; private set; } = null!;
-        public AvatarVisualController VisualController { get; private set; } = null!;
-        public AvatarPoseController PoseController { get; private set; } = null!;
-        public Transform HeadTransform { get; private set; } = null!;
-
-        private Animator _animator = null!;
-    }
-
     public class AvatarLoader : MonoBehaviour {
         #region Injection
 
@@ -51,6 +17,8 @@ namespace BeatLeader.Replayer.Emulation {
             //TODO: asm pub
             var tweenController = _editAvatarFlowCoordinator.GetField<AvatarTweenController, EditAvatarFlowCoordinator>("_avatarTweenController");
             _prefab = tweenController.gameObject;
+            _prefab = InstantiateAvatar(null);
+            _prefab.gameObject.SetActive(false);
         }
 
         #endregion
@@ -75,6 +43,7 @@ namespace BeatLeader.Replayer.Emulation {
             var trans = instance.transform;
             trans.localPosition = Vector3.zero;
             trans.localEulerAngles = Vector3.zero;
+            trans.localScale = Vector3.one * 1.35f;
             return instance;
         }
 

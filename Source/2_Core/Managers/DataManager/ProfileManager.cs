@@ -61,6 +61,11 @@ namespace BeatLeader.DataManager {
             _profileLoadTaskCompletionSource ??= new();
         }
 
+        private static void FinishTask() {
+            AssignLoadProfileTaskIfNeeded();
+            _profileLoadTaskCompletionSource!.SetResult(null);
+        }
+        
         #endregion
 
         #region Friends
@@ -159,15 +164,13 @@ namespace BeatLeader.DataManager {
         }
 
         private static void OnUserRequestStateChanged(API.RequestState state, User result, string failReason) {
-            if (state is API.RequestState.Finished or API.RequestState.Failed) {
-                AssignLoadProfileTaskIfNeeded();
-                _profileLoadTaskCompletionSource!.TrySetResult(null);
-            }
+            if (state is API.RequestState.Failed) FinishTask();
             if (state is not API.RequestState.Finished) return;
 
             Profile = result.player;
             Roles = FormatUtils.ParsePlayerRoles(result.player.role);
             SetFriends(result.friends);
+            FinishTask();
         }
 
         private static void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {

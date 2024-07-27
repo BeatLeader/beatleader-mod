@@ -9,16 +9,19 @@ namespace BeatLeader.UI.Hub {
         public int ReplayRank { get; set; }
 
         private IOptionalReplayData? _replayData;
+        private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 
-        public async Task<IOptionalReplayData> GetReplayDataAsync() {
-            if (_replayData == null) {
-                var player = await ReplayHeader.LoadPlayerAsync(false, CancellationToken.None);
+        public async Task<IOptionalReplayData> GetReplayDataAsync(bool bypassCache) {
+            if (_replayData == null || bypassCache) {
+                await _semaphoreSlim.WaitAsync();
+                var player = await ReplayHeader.LoadPlayerAsync(bypassCache, CancellationToken.None);
                 var avatarSettings = await player.GetAvatarAsync();
                 //
                 _replayData = new BattleRoyaleOptionalReplayData(
                     avatarSettings.ToAvatarData(),
                     GetReplayColor(ReplayHeader.ReplayInfo)
                 );
+                _semaphoreSlim.Release();
             }
             return _replayData;
         }

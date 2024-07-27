@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.UI.Reactive;
@@ -109,28 +110,91 @@ namespace BeatLeader.UI.Hub {
 
             #endregion
 
+            #region Animation
+
+            private readonly ValueAnimator _valueAnimator = new();
+            private Color _targetColor;
+            private bool _colorShouldBeSet;
+            private bool _colorSet;
+
+            protected override void OnUpdate() {
+                if (_colorSet) return;
+                //
+                _valueAnimator.Update();
+                if (!_colorShouldBeSet) {
+                    if (_valueAnimator.Progress > 0.8f) {
+                        _valueAnimator.SetTarget(0f);
+                    } else if (_valueAnimator.Progress < 0.2f) {
+                        _valueAnimator.SetTarget(1f);
+                    }
+                }
+                //
+                var targetColor = _colorShouldBeSet ? _targetColor : Color.white.ColorWithAlpha(0.3f);
+                var color = Color.Lerp(
+                    Color.white.ColorWithAlpha(0.1f),
+                    targetColor,
+                    _valueAnimator.Progress
+                );
+                _backgroundImage.Color = color;
+                if (_colorShouldBeSet && color == _targetColor) {
+                    _colorSet = true;
+                }
+            }
+
+            private void ResetColor() {
+                _colorSet = false;
+                _colorShouldBeSet = false;
+                OnUpdate();
+            }
+
+            private void SetColor(Color color) {
+                _targetColor = color.ColorWithAlpha(0.2f);
+                _colorShouldBeSet = true;
+                _valueAnimator.SetTarget(1f);
+            }
+
+            #endregion
+
             #region Setup
 
+            private IBattleRoyaleReplay? _prevReplay;
             private IBattleRoyaleHost _battleRoyaleHost = null!;
+            private CancellationTokenSource _tokenSource = new();
+            private Task? _refreshColorTask;
+            private Task? _refreshPlayerTask;
 
             protected override void OnInit(IBattleRoyaleReplay item) {
-                RefreshPlayer();
-                RefreshAccentColor();
+                if (item == _prevReplay) return;
+                //
+                if (_refreshColorTask != null || _refreshPlayerTask != null) {
+                    _tokenSource.Cancel();
+                    _tokenSource = new();
+                }
+                ResetColor();
+                _refreshPlayerTask = RefreshPlayer(_tokenSource.Token).RunCatching();
+                _refreshColorTask = RefreshAccentColor(_tokenSource.Token).RunCatching();
+                _prevReplay = item;
             }
 
             public void Init(IBattleRoyaleHost battleRoyaleHost) {
                 _battleRoyaleHost = battleRoyaleHost;
             }
 
-            private async void RefreshAccentColor() {
+            private async Task RefreshAccentColor(CancellationToken token) {
                 var data = await Item.GetReplayDataAsync();
+                if (token.IsCancellationRequested) return;
+                _refreshColorTask = null;
+                //applying
                 var color = data.AccentColor ?? Color.white;
-                _backgroundImage.Color = color.ColorWithAlpha(0.2f);
+                SetColor(color);
             }
-            
-            private async void RefreshPlayer() {
+
+            private async Task RefreshPlayer(CancellationToken token) {
                 var header = Item.ReplayHeader;
-                var player = await header.LoadPlayerAsync(false, default);
+                var player = await header.LoadPlayerAsync(false, token);
+                if (token.IsCancellationRequested) return;
+                _refreshPlayerTask = null;
+                //applying
                 _playerAvatar.SetAvatar(player);
                 _playerNameText.Text = player.Name;
                 _rankText.Text = $"#{Item.ReplayRank}";

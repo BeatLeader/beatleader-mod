@@ -10,11 +10,9 @@ namespace BeatLeader.Models {
         public AvatarPartSettings hands;
         public AvatarPartSettings clothes;
         public string skinColorId;
-
-        private AvatarData? _avatarData;
         
         public AvatarData ToAvatarData() {
-            _avatarData ??= new AvatarData {
+            return new AvatarData {
                 headTopId = headTop.modelId,
                 headTopPrimaryColor = headTop.primaryColor,
                 headTopSecondaryColor = headTop.secondaryColor,
@@ -32,7 +30,41 @@ namespace BeatLeader.Models {
                 clothesDetailColor = clothes.detailColor,
                 skinColorId = skinColorId
             };
-            return _avatarData;
+        }
+
+        public static AvatarSettings FromAvatarData(AvatarData data) {
+            return new AvatarSettings {
+                headTop = new() {
+                    modelId = data.headTopId,
+                    primaryColor = data.headTopPrimaryColor,
+                    secondaryColor = data.headTopSecondaryColor
+                },
+                glasses = new() {
+                    modelId = data.glassesId,
+                    primaryColor = data.glassesColor
+                },
+                eyes = new() {
+                    modelId = data.eyesId
+                },
+                facialHair = new() {
+                    modelId = data.facialHairId,
+                    primaryColor = data.facialHairColor
+                },
+                mouth = new() {
+                    modelId = data.mouthId
+                },
+                hands = new() {
+                    modelId = data.handsId,
+                    primaryColor = data.handsColor
+                },
+                clothes = new() {
+                    modelId = data.clothesId,
+                    primaryColor = data.clothesPrimaryColor,
+                    secondaryColor = data.clothesSecondaryColor,
+                    detailColor = data.clothesDetailColor
+                },
+                skinColorId = data.skinColorId
+            };
         }
     }
 }

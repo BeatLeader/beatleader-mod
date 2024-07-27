@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 using BS_Utils.Gameplay;
+using IPA.Utilities;
 using Oculus.Platform;
 using Steamworks;
 using UnityEngine;
@@ -77,10 +80,13 @@ namespace BeatLeader.API {
                     yield break;
                 }
 
-                yield return DoLogin(() => {
-                    _signedIn = true;
-                    onSuccess();
-                }, onFail);
+                yield return DoLogin(
+                    () => {
+                        _signedIn = true;
+                        onSuccess();
+                    },
+                    onFail
+                );
             } finally {
                 _locked = false;
             }
@@ -92,7 +98,7 @@ namespace BeatLeader.API {
                 onFail("Unknown platform");
                 yield break;
             }
-            
+
             var ticketTask = PlatformTicket();
             yield return new WaitUntil(() => ticketTask.IsCompleted);
 
@@ -114,6 +120,8 @@ namespace BeatLeader.API {
                 case 200:
                     Plugin.Log.Info("Login successful!");
                     onSuccess();
+                    var cookies = request.GetResponseHeader("Set-Cookie");
+                    SetAuthCookie(cookies);
                     break;
                 case BLConstants.MaintenanceStatus:
                     Plugin.Log.Debug("Login failed! Maintenance");
@@ -128,6 +136,24 @@ namespace BeatLeader.API {
                         yield return DoLogin(onSuccess, onFail, count++);
                     }
                     break;
+            }
+        }
+
+        private static void SetAuthCookie(string cookies) {
+            var cookieName = ".AspNetCore.Cookies";
+            var value = ParseValue(cookies, cookieName);
+            var domain = ParseValue(cookies, "domain");
+            var cookie = new Cookie(cookieName, value, "/", domain);
+            WebRequestFactory.CookieContainer.Add(cookie);
+            return;
+
+            static string ParseValue(string cookie, string param) {
+                param += "=";
+                var entry = cookie.IndexOf(param, StringComparison.Ordinal);
+                cookie = cookie.Remove(0, entry + param.Length);
+                //
+                var exit = cookie.IndexOf(";", StringComparison.Ordinal);
+                return cookie.Remove(exit, cookie.Length - exit);
             }
         }
 

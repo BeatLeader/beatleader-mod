@@ -33,23 +33,27 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        private AvatarTweenController AvatarTweenController => _avatarController.TweenController;
-        private AvatarVisualController AvatarVisualController => _avatarController.VisualController;
-
         private AvatarController _avatarController = null!;
         private FloatingBattleRoyaleReplayBadge _badge = null!;
         private AvatarData? _avatarData;
         private IBattleRoyaleReplay? _replay;
 
-        public async void Refresh() {
+        public async void Refresh(bool force = false) {
             if (_replay == null) return;
-            var replayData = await _replay.GetReplayDataAsync();
-            _avatarData = replayData.AvatarData;
-            AvatarVisualController.UpdateAvatarVisual(_avatarData);
             _badge.SetData(_replay);
+            if (_avatarData == null || force) {
+                _avatarController.SetVisuals(null);
+                _avatarController.SetLoading(true);
+                var replayData = await _replay.GetReplayDataAsync(force);
+                _avatarData = replayData.AvatarData;
+                _avatarController.SetVisuals(_avatarData!, true);
+                _avatarController.SetLoading(false);
+            }
         }
 
         private void Init(IBattleRoyaleReplay replay) {
+            if (_replay == replay) return;
+            _avatarData = null;
             _replay = replay;
             Refresh();
         }
@@ -67,12 +71,13 @@ namespace BeatLeader.UI.Hub {
         #region Enable & Disable
 
         public void PresentAvatar() {
-            AvatarTweenController.gameObject.SetActive(true);
-            AvatarTweenController.PresentAvatar();
+            _avatarController.gameObject.SetActive(true);
+            _avatarController.Present();
+            Refresh(true);
         }
 
         public void HideAvatar() {
-            AvatarTweenController.HideAvatar();
+            _avatarController.Hide();
         }
 
         #endregion

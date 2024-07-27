@@ -78,6 +78,8 @@ namespace BeatLeader.Replayer {
 
             camera.nearClipPlane = 0.01f;
             camera.farClipPlane = 5000;
+            //appending avatar layer
+            camera.cullingMask |= 1 << 10;
             camera.gameObject.SetActive(true);
             camera.name = "ReplayerViewCamera";
 

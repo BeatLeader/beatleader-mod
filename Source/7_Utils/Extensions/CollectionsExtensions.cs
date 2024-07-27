@@ -78,6 +78,14 @@ namespace BeatLeader.Utils {
             dictionary.Remove(item.Key);
         }
 
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value) {
+            if (!dictionary.TryGetValue(key, out var oValue)) {
+                dictionary[key] = value;
+                oValue = value;
+            }
+            return oValue;
+        }
+        
         public static void EnsureExistsAndDo<TKey, TValue>(
             this IDictionary<TKey, TValue> dictionary,
             TKey key, TValue value, Action<TValue> action

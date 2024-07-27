@@ -1,4 +1,5 @@
-﻿using BeatLeader.Manager;
+﻿using System;
+using BeatLeader.Manager;
 using BeatLeader.UI.Hub;
 using BeatLeader.ViewControllers;
 using BeatSaberMarkupLanguage;
@@ -24,10 +25,15 @@ namespace BeatLeader {
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            FlowCoordinatorPresentedEvent?.Invoke();
             if (!firstActivation) return;
             showBackButton = true;
             SetTitle(Plugin.PluginId);
             ProvideInitialViewControllers(_hubMainViewController);
+        }
+
+        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+            FlowCoordinatorDismissedEvent?.Invoke();
         }
 
         protected override void BackButtonWasPressed(ViewController topController) {
@@ -38,6 +44,9 @@ namespace BeatLeader {
 
         #region Present & Dismiss
 
+        public event Action? FlowCoordinatorPresentedEvent;
+        public event Action? FlowCoordinatorDismissedEvent;
+        
         private void PresentFromLeaderboard() {
             Present(true);
         }

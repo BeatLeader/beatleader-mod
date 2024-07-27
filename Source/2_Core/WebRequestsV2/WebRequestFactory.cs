@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace BeatLeader.WebRequests {
     public static class WebRequestFactory {
-        private static readonly CookieContainer cookieContainer = new();
-        private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = cookieContainer };
+        internal static readonly CookieContainer CookieContainer = new();
+        private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer };
         private static readonly HttpClient httpClient = new(httpClientHandler);
 
         public static IWebRequest Send(
@@ -15,7 +15,6 @@ namespace BeatLeader.WebRequests {
             WebRequestParams? requestParams = null,
             CancellationToken token = default
         ) {
-            ApplyDefaultHeaders(requestMessage);
             requestParams ??= new();
             return new WebRequestProcessor(SendInternal, requestMessage, requestParams, token);
         }
@@ -26,7 +25,6 @@ namespace BeatLeader.WebRequests {
             WebRequestParams? requestParams = null,
             CancellationToken token = default
         ) {
-            ApplyDefaultHeaders(requestMessage);
             requestParams ??= new();
             return new WebRequestProcessor<T>(SendInternal, requestMessage, requestParams, responseParser, token);
         }

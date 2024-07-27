@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal record BattleRoyaleOptionalReplayData(
+    internal record OptionalReplayData(
         AvatarData? AvatarData,
         Color? AccentColor
     ) : IOptionalReplayData;

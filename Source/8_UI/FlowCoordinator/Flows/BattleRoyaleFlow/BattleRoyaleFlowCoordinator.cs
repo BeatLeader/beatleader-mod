@@ -22,6 +22,7 @@ namespace BeatLeader.UI.Hub {
             private FlowCoordinator _parentFlowCoordinator = null!;
             private FlowCoordinator _alternativeParentFlowCoordinator = null!;
             private FlowCoordinator _dummyFlowCoordinator = null!;
+            private ViewController _mainViewController = null!;
             private Action? _returnAction;
             private string? _originalTitle;
 
@@ -36,6 +37,7 @@ namespace BeatLeader.UI.Hub {
                 _parentFlowCoordinator = parentFlowCoordinator;
                 _alternativeParentFlowCoordinator = alternativeParentFlowCoordinator;
                 _dummyFlowCoordinator = dummyFlowCoordinator;
+                _mainViewController = mainViewController;
                 ProvideInitialViewControllers(mainViewController, leftViewController, rightViewController);
             }
 
@@ -72,6 +74,7 @@ namespace BeatLeader.UI.Hub {
                     SetTitle(_originalTitle);
                     return;
                 }
+                if (_mainViewController.isInTransition) return;
                 _parentFlowCoordinator.DismissFlowCoordinator(
                     _dummyFlowCoordinator,
                     animationDirection: ViewController.AnimationDirection.Vertical

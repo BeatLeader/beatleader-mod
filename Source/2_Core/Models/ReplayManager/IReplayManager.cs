@@ -3,28 +3,19 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using RReplay = BeatLeader.Models.Replay.Replay;
 
 namespace BeatLeader.Models {
     [PublicAPI]
+    //TODO: split into replay loader and metadata manager, keep cached replay here
     public interface IReplayManager {
         event Action<IReplayHeader>? ReplayAddedEvent;
         event Action<IReplayHeader>? ReplayDeletedEvent;
-        event Action<string[]?>? ReplaysDeletedEvent;
+        event Action? AllReplaysDeletedEvent;
 
         IReplayHeader? CachedReplay { get; }
+        IReadOnlyList<IReplayHeader> Replays { get; }
+        IReplayMetadataManager MetadataManager { get; }
 
-        Task<IList<IReplayHeader>?> LoadReplayHeadersAsync(
-            CancellationToken token,
-            Action<IReplayHeader>? loadCallback = null
-        );
-
-        Task<IReplayHeader?> SaveReplayAsync(
-            RReplay replay,
-            PlayEndData playEndData,
-            CancellationToken token
-        );
-
-        Task<string[]?> DeleteAllReplaysAsync(CancellationToken token);
+        Task LoadReplayHeadersAsync(CancellationToken token);
     }
 }

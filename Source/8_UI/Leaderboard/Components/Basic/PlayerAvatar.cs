@@ -16,21 +16,21 @@ namespace BeatLeader.Components {
         private static readonly int SaturationPropertyId = Shader.PropertyToID("_Saturation");
         private static readonly int ScalePropertyId = Shader.PropertyToID("_Scale");
 
-        private Texture _texture;
+        private Texture? _texture;
         private float _fadeValue;
         private float _hueShift;
         private float _saturation;
 
-        private Material _baseMaterial;
-        private Material _materialInstance;
+        private Material? _baseMaterial;
+        private Material? _materialInstance;
         private bool _materialSet;
 
-        private void SelectMaterial(ProfileSettings? profileSettings) {
+        private void SelectMaterial(IPlayerProfileSettings? profileSettings) {
             ThemesUtils.GetAvatarParams(profileSettings, _useSmallMaterialVersion, out var baseMaterial, out _hueShift, out _saturation);
 
             if (!_materialSet || baseMaterial != _baseMaterial) {
                 _baseMaterial = baseMaterial;
-                
+
                 if (_materialSet) Destroy(_materialInstance);
                 _materialInstance = Instantiate(baseMaterial);
                 _image.material = _materialInstance;
@@ -44,7 +44,7 @@ namespace BeatLeader.Components {
 
         private void UpdateMaterialProperties() {
             if (!_materialSet) return;
-            _materialInstance.SetTexture(AvatarTexturePropertyId, _texture);
+            _materialInstance!.SetTexture(AvatarTexturePropertyId, _texture);
             _materialInstance.SetFloat(FadeValuePropertyId, _fadeValue);
             _materialInstance.SetFloat(HueShiftPropertyId, _hueShift);
             _materialInstance.SetFloat(SaturationPropertyId, _saturation);
@@ -57,7 +57,7 @@ namespace BeatLeader.Components {
         private const int Width = 200;
         private const int Height = 200;
 
-        private RenderTexture _bufferTexture;
+        private RenderTexture _bufferTexture = null!;
         private bool _useSmallMaterialVersion;
 
         protected override void OnInitialize() {
@@ -91,7 +91,15 @@ namespace BeatLeader.Components {
 
         private string? _url = "";
 
-        public void SetAvatar(string? url, ProfileSettings? profileSettings) {
+        public void SetAvatar(IPlayer? player) {
+            SetAvatar(player?.AvatarUrl, player?.ProfileSettings);
+        }
+
+        public void SetAvatar(string? url, IPlayerProfileSettings? profileSettings) {
+            if (url is null) {
+                ShowSpinner();
+                return;
+            }
             if (_url == url) return;
             _url = url;
             SelectMaterial(profileSettings);
@@ -124,7 +132,7 @@ namespace BeatLeader.Components {
         #region Image
 
         [UIComponent("image-component"), UsedImplicitly]
-        private ImageView _image;
+        private ImageView _image = null!;
 
         public void SetAlpha(float value) {
             _image.color = new Color(1, 1, 1, value);

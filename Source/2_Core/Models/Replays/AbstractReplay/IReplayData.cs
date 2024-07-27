@@ -3,11 +3,12 @@
         bool LeftHanded { get; }
         float? FixedHeight { get; }
         float JumpDistance { get; }
-        
-        float FailTime { get; }
         int Timestamp { get; }
-        
-        Player? Player { get; }
+
+        float FinishTime { get; }
+        ReplayFinishType FinishType { get; }
+
+        IPlayer? Player { get; }
         PracticeSettings? PracticeSettings { get; }
         GameplayModifiers GameplayModifiers { get; }
     }

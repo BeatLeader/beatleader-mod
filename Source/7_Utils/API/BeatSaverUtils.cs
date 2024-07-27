@@ -8,6 +8,10 @@ namespace BeatLeader.Utils {
             return await WebUtils.SendAndDeserializeAsync<MapDetail>(BEATSAVER_API_URL + MAPS_HASH_ENDPOINT + hash);
         }
 
+        public static string CreateMapUrl(string mapHash) {
+            return BEATSAVER_API_URL + MAPS_HASH_ENDPOINT + mapHash;
+        }
+        
         public static string CreateDownloadMapUrl(string mapHash) {
             return $"{BEATSAVER_CDN_URL}{mapHash.ToLower()}.zip";
         }

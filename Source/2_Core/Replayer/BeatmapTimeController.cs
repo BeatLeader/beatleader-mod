@@ -68,6 +68,7 @@ namespace BeatLeader.Replayer {
                 .GetField<List<IBeatmapObjectController>, BeatmapObjectManager>("_allBeatmapObjects");
             _callbacksInTimes = _beatmapCallbacksController
                 .GetField<Dictionary<float, CallbacksInTime>, BeatmapCallbacksController>("_callbacksInTimes");
+            _audioTimeSyncController.Start();
         }
 
         private void OnDestroy() {

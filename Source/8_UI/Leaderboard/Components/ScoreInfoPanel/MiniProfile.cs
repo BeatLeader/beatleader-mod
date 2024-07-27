@@ -51,7 +51,7 @@ namespace BeatLeader.Components {
             var player = HiddenPlayersCache.ModifyPlayer(_player);
             
             _miniProfileButtons.SetPlayer(player);
-            _playerAvatar.SetAvatar(player.avatar, player.profileSettings);
+            _playerAvatar.SetAvatar(player);
             _countryFlag.SetCountry(player.country);
             SetMessage(player.profileSettings?.message ?? "");
 

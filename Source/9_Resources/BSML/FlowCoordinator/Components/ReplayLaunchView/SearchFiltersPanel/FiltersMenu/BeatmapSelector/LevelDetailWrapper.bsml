@@ -1,8 +1,0 @@
-﻿<vertical id="container"
-          horizontal-fit="Unconstrained"
-          child-expand-height="false"
-          child-control-height="false"
-          child-align="MiddleCenter">
-    <primary-button text="Select" on-click="on-click" 
-                    pref-height="10" pref-width="24"/>
-</vertical>

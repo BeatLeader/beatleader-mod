@@ -1,5 +1,6 @@
 ﻿using BeatLeader.DataManager;
 using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -43,8 +44,8 @@ namespace BeatLeader.Components {
                 text += "<color=\"yellow\">BATTLE ROYALE</color>";
             } else {
                 var player = _launchData.MainReplay.ReplayData.Player;
-                CanBeDisabled = player != null && ProfileManager.IsCurrentPlayer(player.id);
-                text += $"Player:  {player?.name ?? "Unknown"}";
+                CanBeDisabled = player != null && ProfileManager.IsCurrentPlayer(player.Id);
+                text += $"Player:  {player?.Name ?? "Unknown"}";
             }
             text += "</i>";
             _text.text = text;

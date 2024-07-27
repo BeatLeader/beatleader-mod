@@ -1,13 +1,16 @@
 ﻿using BeatLeader.Replayer;
 using System;
 using System.Reflection;
-using UnityEngine;
 using BeatLeader.Attributes;
+using BeatLeader.Models;
 using BeatLeader.Utils;
+using UnityEngine;
 
 namespace BeatLeader.Interop {
     [PluginInterop("Camera2")]
     internal static class Cam2Interop {
+        #region Setup
+
         [PluginAssembly]
         private static readonly Assembly pluginAssembly = null!;
 
@@ -16,19 +19,8 @@ namespace BeatLeader.Interop {
 
         [PluginState]
         public static bool IsInitialized { get; private set; }
-        public static Transform? HeadTransform { set => _headTransform = value; }
-        private static bool ReplayState {
-            set {
-                _cachedArgs[0] = value;
-                _setActiveMethod?.Invoke(_genericSourceInstance, _cachedArgs);
-            }
-        }
-
-        private static HarmonyAutoPatch? _headPositionPropertyPatch;
-        private static HarmonyAutoPatch? _headRotationPropertyPatch;
 
         private static object[] _cachedArgs = null!;
-        private static Transform? _headTransform;
         private static PropertyInfo? _headPosProp;
         private static PropertyInfo? _headRotProp;
         private static MethodInfo? _setActiveMethod;
@@ -42,44 +34,110 @@ namespace BeatLeader.Interop {
 
             _genericSourceInstance = Activator.CreateInstance(genericSourceType, "BeatLeaderReplayer");
             registerMethod?.Invoke(null, new[] { _genericSourceInstance });
-
             _cachedArgs = new object[1];
 
             _headPosProp = genericSourceType.GetProperty(
-                "localHeadPosition", ReflectionUtils.DefaultFlags);
-
+                "localHeadPosition",
+                ReflectionUtils.DefaultFlags
+            );
             _headRotProp = genericSourceType.GetProperty(
-                "localHeadRotation", ReflectionUtils.DefaultFlags);
-            
-            _headPositionPropertyPatch = new(new(
-                _headPosProp!.GetGetMethod(), typeof(Cam2Interop)
-                    .GetMethod(nameof(LocalHeadPositionPrefix), ReflectionUtils.StaticFlags)));
+                "localHeadRotation",
+                ReflectionUtils.DefaultFlags
+            );
 
-            _headRotationPropertyPatch = new(new(
-                _headRotProp!.GetGetMethod(), typeof(Cam2Interop)
-                    .GetMethod(nameof(LocalHeadRotationPrefix), ReflectionUtils.StaticFlags)));
-
+            InitHarmonyPatches();
             ReplayerLauncher.ReplayWasStartedEvent += HandleReplayWasStarted;
             ReplayerLauncher.ReplayWasFinishedEvent += HandleReplayWasFinished;
         }
 
-        // ReSharper disable once InconsistentNaming
+        private static void SetReplayState(bool state) {
+            _cachedArgs[0] = state;
+            _setActiveMethod?.Invoke(_genericSourceInstance, _cachedArgs);
+        }
+
+        #endregion
+
+        #region Movement
+
+        private class PoseReceiver : IVirtualPlayerPoseReceiver {
+            public Vector3 Position { get; private set; }
+            public Quaternion Rotation { get; private set; }
+
+            public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {
+                Position = headPose.position;
+                Rotation = headPose.rotation;
+            }
+        }
+
+        private static readonly PoseReceiver poseReceiver = new();
+        private static IVirtualPlayerMovementProcessor? _movementProcessor;
+        private static bool _hasBoundProcessor;
+
+        public static void BindMovementProcessor(IVirtualPlayerMovementProcessor processor) {
+            processor.AddListener(poseReceiver);
+            _movementProcessor = processor;
+            _hasBoundProcessor = true;
+        }
+
+        public static void UnbindMovementProcessor() {
+            if (!_hasBoundProcessor) return;
+            _movementProcessor!.RemoveListener(poseReceiver);
+            _hasBoundProcessor = false;
+        }
+
+        #endregion
+
+        #region Harmony Patches
+
+        private static HarmonyAutoPatch? _headPositionPropertyPatch;
+        private static HarmonyAutoPatch? _headRotationPropertyPatch;
+
         private static void LocalHeadPositionPrefix(object __instance) {
-            if (_genericSourceInstance != __instance || _headTransform == null) return;
-            _headPosProp?.SetValue(__instance, _headTransform.localPosition);
+            if (!_hasBoundProcessor || _genericSourceInstance != __instance) return;
+            _headPosProp?.SetValue(__instance, poseReceiver.Position);
         }
 
-        // ReSharper disable once InconsistentNaming
         private static void LocalHeadRotationPrefix(object __instance) {
-            if (_genericSourceInstance != __instance || _headTransform == null) return;
-            _headRotProp?.SetValue(__instance, _headTransform.localRotation);
-        }
-        
-        private static void HandleReplayWasStarted(Models.ReplayLaunchData data) {
-            if (InputUtils.IsInFPFC) ReplayerLauncher.LaunchData!.Settings.CameraSettings = null; //disabling base camera
-            ReplayState = true;
+            if (!_hasBoundProcessor || _genericSourceInstance != __instance) return;
+            _headRotProp?.SetValue(__instance, poseReceiver.Rotation);
         }
 
-        private static void HandleReplayWasFinished(Models.ReplayLaunchData data) => ReplayState = false;
+        private static void InitHarmonyPatches() {
+            _headPositionPropertyPatch = new(
+                new(
+                    _headPosProp!.GetGetMethod(),
+                    typeof(Cam2Interop).GetMethod(
+                        nameof(LocalHeadPositionPrefix),
+                        ReflectionUtils.StaticFlags
+                    )
+                )
+            );
+            _headRotationPropertyPatch = new(
+                new(
+                    _headRotProp!.GetGetMethod(),
+                    typeof(Cam2Interop).GetMethod(
+                        nameof(LocalHeadRotationPrefix),
+                        ReflectionUtils.StaticFlags
+                    )
+                )
+            );
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private static void HandleReplayWasStarted(ReplayLaunchData data) {
+            if (InputUtils.IsInFPFC) {
+                ReplayerLauncher.LaunchData!.Settings.CameraSettings = null; //disabling base camera
+            }
+            SetReplayState(true);
+        }
+
+        private static void HandleReplayWasFinished(ReplayLaunchData data) {
+            SetReplayState(false);
+        }
+
+        #endregion
     }
 }

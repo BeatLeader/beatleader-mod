@@ -21,7 +21,6 @@ namespace BeatLeader.Replayer.Tweaking {
 
         private readonly ObservableCollection<GameTweak> _tweaks = new() {
             new AudioTimeSyncControllerTweak(),
-            new SmoothCameraTweak(),
             new InputSystemTweak(),
             new GarbageDisablerTweak(),
             new InteropsLoaderTweak(),

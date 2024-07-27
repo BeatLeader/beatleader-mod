@@ -1,4 +1,7 @@
-﻿using BeatLeader.Models;
+﻿using System.Collections.Generic;
+using BeatLeader.Models;
+using BeatLeader.UI;
+using BeatLeader.UI.Reactive;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -40,46 +43,212 @@ namespace BeatLeader {
 
         #region LeaderboardDisplaySettings
 
-        public static LeaderboardDisplaySettings LeaderboardDisplaySettings = new()
-        {
+        public static LeaderboardDisplaySettings LeaderboardDisplaySettings = new() {
             ClanCaptureDisplay = true
         };
 
         #endregion
 
-        #region ReplayerSettings
+        #region HubTheme
 
-        public static readonly InternalReplayerCameraSettings InternalReplayerCameraSettings = new() {
-            MaxCameraFOV = 110,
-            MinCameraFOV = 70,
-            CameraFOV = 90,
-            FpfcCameraView = "PlayerView",
-            VRCameraView = "BehindView"
+        public static readonly BeatLeaderHubTheme HubTheme = new() {
+            MenuButtonsTheme = {
+                ReplayManagerButtonColors = {
+                    HoveredColor = new Color(1f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                },
+                BattleRoyaleButtonColors = {
+                    HoveredColor = Color.magenta,
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                },
+                SettingsButtonColors = {
+                    HoveredColor = new Color(1f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                },
+                EditAvatarButtonColors = {
+                    HoveredColor = new Color(0f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                }
+            },
+            ReplayManagerSearchTheme = {
+                SearchHighlightColor = Color.magenta,
+                SearchHighlightStyle = FontStyle.Normal
+            }
         };
 
+        #endregion
+        
+        #region ReplayerSettings
+
         public static readonly ReplayerSettings ReplayerSettings = new() {
-            AutoHideUI = false,
             LoadPlayerEnvironment = false,
             ExitReplayAutomatically = true,
 
-            ShowHead = false,
-            ShowLeftSaber = true,
-            ShowRightSaber = true,
             ShowWatermark = true,
-
             ShowTimelineMisses = true,
             ShowTimelineBombs = true,
             ShowTimelinePauses = true,
 
-            CameraSettings = InternalReplayerCameraSettings,
+            CameraSettings = new InternalReplayerCameraSettings {
+                MaxCameraFOV = 110,
+                MinCameraFOV = 70,
+                CameraFOV = 90,
+                FpfcCameraView = "PlayerView",
+                VRCameraView = "BehindView"
+            },
 
-            Shortcuts = new() {
+            BodySettings = {
+                BodyModels = {
+                    {
+                        "Primary", SerializableVirtualPlayerBodyConfig.CreateManual(
+                            new Dictionary<string, SerializableVirtualPlayerBodyPartConfig> {
+                                {
+                                    "BATTLE_ROYALE_AVATAR_HEAD", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_BODY", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_LEFT_HAND", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_RIGHT_HAND", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "LEFT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "RIGHT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 1f
+                                    }
+                                }
+                            }
+                        )
+                    }, {
+                        "Default", SerializableVirtualPlayerBodyConfig.CreateManual(
+                            new Dictionary<string, SerializableVirtualPlayerBodyPartConfig> {
+                                {
+                                    "BATTLE_ROYALE_AVATAR_HEAD", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_BODY", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_LEFT_HAND", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "BATTLE_ROYALE_AVATAR_RIGHT_HAND", new() {
+                                        PotentiallyActive = false,
+                                        Alpha = 1f
+                                    }
+                                }, {
+                                    "LEFT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 0.7f
+                                    }
+                                }, {
+                                    "RIGHT_SABER", new() {
+                                        PotentiallyActive = true,
+                                        Alpha = 0.7f
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            },
+
+            UISettings = {
+                AutoHideUI = false,
+                FloatingSettings = new() {
+                    Pose = new() {
+                        position = new(0f, 1f, 2f),
+                        rotation = Quaternion.Euler(30f, 0f, 0f)
+                    },
+                    InitialPose = new() {
+                        position = new(0f, 1f, 2f),
+                        rotation = Quaternion.Euler(30f, 0f, 0f)
+                    },
+                    Pinned = true,
+                    SnapEnabled = true,
+                    CurvatureRadius = 90f,
+                    CurvatureEnabled = true
+                },
+                LayoutEditorSettings = new() {
+                    ComponentDatas = new() {
+                        {
+                            "Toolbar", new() {
+                                position = new() {
+                                    x = 3f,
+                                    y = -96f
+                                },
+                                size = new() {
+                                    x = 108f,
+                                    y = 72f
+                                },
+                                layer = 1,
+                                active = true
+                            }
+                        },
+                        {
+                            "Beatmap Preview", new() {
+                                position = new() {
+                                    x = -165f,
+                                    y = 120f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 24f
+                                },
+                                layer = 2,
+                                active = true
+                            }
+                        },
+                        {
+                            "Player List", new() {
+                                position = new() {
+                                    x = -165f,
+                                    y = 78f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 60f
+                                },
+                                layer = 3,
+                                active = true
+                            }
+                        }
+                    }
+                }
+            },
+
+            Shortcuts = {
                 LayoutEditorPartialModeHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,
                 RewindForwardHotkey = KeyCode.RightArrow,
                 RewindBackwardHotkey = KeyCode.LeftArrow,
-                LayoutEditorAntiSnapHotkey = KeyCode.LeftShift,
             }
         };
 

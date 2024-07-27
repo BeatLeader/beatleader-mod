@@ -1,31 +1,34 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.API;
+using BeatLeader.Utils;
 
 namespace BeatLeader.Models {
     public class GenericReplayHeader : IReplayHeader {
         public GenericReplayHeader(
             IReplayFileManager replayManager,
             string filePath,
-            IReplayInfo? replayInfo
+            IReplayInfo replayInfo,
+            IReplayMetadata metadata
         ) {
             _replayManager = replayManager;
             FilePath = filePath;
             ReplayInfo = replayInfo;
-            _status = replayInfo is null ? FileStatus.Corrupted : FileStatus.Unloaded;
+            ReplayMetadata = metadata;
+            _status = FileStatus.Unloaded;
         }
 
         public GenericReplayHeader(
             IReplayFileManager replayManager,
             string filePath,
-            Replay.Replay replay
-        ) : this(replayManager, filePath, replay.info) {
+            Replay.Replay replay,
+            IReplayMetadata metadata
+        ) : this(replayManager, filePath, replay.info, metadata) {
             _cachedReplay = replay;
             _status = FileStatus.Loaded;
         }
-
-        private readonly IReplayFileManager _replayManager;
-        private Replay.Replay? _cachedReplay;
 
         public FileStatus FileStatus {
             get => _status;
@@ -34,12 +37,17 @@ namespace BeatLeader.Models {
                 StatusChangedEvent?.Invoke(value);
             }
         }
+
         public string FilePath { get; }
-        public IReplayInfo? ReplayInfo { get; private set; }
+        public IReplayInfo ReplayInfo { get; private set; }
+        public IReplayMetadata ReplayMetadata { get; }
 
         public event Action<FileStatus>? StatusChangedEvent;
 
+        private readonly IReplayFileManager _replayManager;
         private FileStatus _status;
+        private Replay.Replay? _cachedReplay;
+        private IPlayer? _cachedPlayer;
 
         public async Task<Replay.Replay?> LoadReplayAsync(CancellationToken token) {
             if (_cachedReplay is not null) return _cachedReplay;
@@ -47,6 +55,24 @@ namespace BeatLeader.Models {
             _cachedReplay = await _replayManager.LoadReplayAsync(this, token);
             FileStatus = _cachedReplay is null ? FileStatus.Corrupted : FileStatus.Loaded;
             return _cachedReplay;
+        }
+
+        public async Task<IPlayer> LoadPlayerAsync(bool bypassCache, CancellationToken token) {
+            if (!bypassCache) {
+                _cachedPlayer ??= ReplayManagerCache.GetPlayer(ReplayInfo.PlayerID);
+                if (_cachedPlayer != null) return _cachedPlayer;
+            }
+            //
+            var request = PlayerRequest.SendRequest(ReplayInfo.PlayerID);
+            await request.Join();
+            //
+            if (request.RequestStatusCode is not HttpStatusCode.OK) {
+                Plugin.Log.Error($"Failed to load player(id: {ReplayInfo.PlayerID}) from the server!");
+            } else {
+                _cachedPlayer = request.Result;
+                ReplayManagerCache.AddPlayer(_cachedPlayer!);
+            }
+            return _cachedPlayer ?? Player.GuestPlayer;
         }
 
         public bool DeleteReplay() {

@@ -3,13 +3,17 @@ using JetBrains.Annotations;
 
 namespace BeatLeader {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property), MeansImplicitUse]
-    public class FirstResourceAttribute : Attribute {
+    internal class FirstResourceAttribute : Attribute {
+        public FirstResourceAttribute() {}
+        
+        [Obsolete]
         public FirstResourceAttribute(string? name = null, bool requireActiveInHierarchy = false) {
-            this.name = name;
-            this.requireActiveInHierarchy = requireActiveInHierarchy;
+            Name = name;
+            RequireActiveInHierarchy = requireActiveInHierarchy;
         }
 
-        public readonly bool requireActiveInHierarchy;
-        public readonly string? name = null;
+        public bool RequireActiveInHierarchy { get; set; }
+        public string? Name { get; set; }
+        public string? ParentName { get; set; }
     }
 }

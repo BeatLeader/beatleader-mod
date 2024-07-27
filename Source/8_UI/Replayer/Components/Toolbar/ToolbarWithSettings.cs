@@ -1,60 +1,116 @@
-﻿using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatLeader.Components;
+using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
+using UnityEngine;
+using UnityEngine.UI;
+using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
+using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
-namespace BeatLeader.Components {
-    internal class ToolbarWithSettings : EditableElement {
-        [UIValue("settings-modal")] 
-        private SettingsModal _settingsModal = null!;
+namespace BeatLeader.UI.Replayer {
+    internal class ToolbarWithSettings : ReactiveComponent, Toolbar.ISettingsPanel {
+        #region Animation
 
-        [UIValue("toolbar")] 
-        private Toolbar _toolbar = null!;
+        private readonly ValueAnimator _valueAnimator = new() { LerpCoefficient = 15f };
 
-        public override string Name { get; } = "Toolbar";
-
-        public override LayoutMap LayoutMap { get; } = new() {
-            layer = 1,
-            position = new(0.375f, 0f)
-        };
-
-        private RootContentView _rootContentView = null!;
-        private LayoutEditor? _layoutEditor;
-
-        protected override void OnInstantiate() {   
-            base.OnInstantiate();
-            _settingsModal = Instantiate<SettingsModal>(transform);
-            _toolbar = Instantiate<Toolbar>(transform);
-            _rootContentView = InstantiateOnSceneRoot<RootContentView>();
-
-            _rootContentView.ManualInit(null!);
-            _settingsModal.Setup(_rootContentView);
-
-            _toolbar.SettingsButtonClickedEvent += _settingsModal.ShowModal;
+        public void Present() {
+            _settingsTransform.gameObject.SetActive(true);
+            _valueAnimator.Push();
         }
+
+        public void Dismiss() {
+            _valueAnimator.Pull();
+        }
+
+        protected override void OnUpdate() {
+            _valueAnimator.Update();
+            RefreshAnimation(_valueAnimator.Progress);
+        }
+
+        private void RefreshAnimation(float progress) {
+            var targetPos = _settingsTransform.rect.height;
+            var pos = Mathf.Lerp(-targetPos, 0f, progress);
+            var scale = Mathf.Lerp(0.8f, 1f, progress);
+            _settingsTransform.localPosition = new(0f, pos, 0f);
+            _settingsTransform.localScale = Vector3.one * scale;
+            if (progress <= 0.01f) {
+                _settingsTransform.gameObject.SetActive(false);
+            }
+        }
+
+        #endregion
+
+        #region Setup
 
         public void Setup(
-            IReplayTimeController timeController,
             IReplayPauseController pauseController,
             IReplayFinishController finishController,
+            IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
-            IViewableCameraController? cameraController,
+            ICameraController cameraController,
+            IVirtualPlayerBodySpawner bodySpawner,
             ReplayLaunchData launchData,
-            IReplayWatermark? watermark = null,
-            LayoutEditor? layoutEditor = null) {
-            if (_layoutEditor != null)
-                _layoutEditor.EditModeStateWasChangedEvent -= HandleEditModeChanged;
-
-            if ((_layoutEditor = layoutEditor) != null)
-                _layoutEditor.EditModeStateWasChangedEvent += HandleEditModeChanged;
-
-            _rootContentView.Setup(timeController,
-                pauseController, playersManager, cameraController,
-                launchData, watermark, _toolbar.Timeline, layoutEditor);
-            _toolbar.Setup(pauseController, finishController,
-                timeController, playersManager, launchData);
+            ILayoutEditor? layoutEditor,
+            IReplayWatermark watermark,
+            bool useAlternativeBlur
+        ) {
+            _toolbar.Setup(
+                pauseController,
+                finishController,
+                timeController,
+                playersManager,
+                this
+            );
+            _settingsPanel.Setup(
+                launchData.Settings,
+                timeController,
+                finishController,
+                cameraController,
+                bodySpawner,
+                layoutEditor,
+                _toolbar.Timeline,
+                watermark,
+                useAlternativeBlur
+            );
         }
 
-        private void HandleEditModeChanged(bool state) {
-            _settingsModal.HideModalImmediate();
+        #endregion
+
+        #region Construct
+
+        private RectTransform _settingsTransform = null!;
+        private ReplayerSettingsPanel _settingsPanel = null!;
+        private Toolbar _toolbar = null!;
+
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    //settings container
+                    new Dummy {
+                            ContentTransform = {
+                                pivot = new(0.5f, 0f)
+                            },
+                            Children = {
+                                //settings
+                                new ReplayerSettingsPanel {
+                                    ContentTransform = {
+                                        pivot = new(0.5f, 0f)
+                                    }
+                                }.WithRectExpand().Bind(ref _settingsTransform).Bind(ref _settingsPanel)
+                            }
+                        }
+                        .WithNativeComponent(out RectMask2D _)
+                        .AsFlexItem(grow: 1f),
+                    //toolbar
+                    new Toolbar().AsFlexItem(size: new() { y = 10f }).Bind(ref _toolbar)
+                }
+            }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
         }
+
+        protected override void OnInitialize() {
+            _valueAnimator.SetTarget(0f);
+            _valueAnimator.SetProgress(0f);
+        }
+
+        #endregion
     }
 }

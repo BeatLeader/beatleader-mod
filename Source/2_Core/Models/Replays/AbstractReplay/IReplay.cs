@@ -3,6 +3,7 @@
 namespace BeatLeader.Models.AbstractReplay {
     public interface IReplay {
         IReplayData ReplayData { get; }
+        IOptionalReplayData? OptionalReplayData { get; }
 
         IReadOnlyList<PlayerMovementFrame> PlayerMovementFrames { get; }
         IReadOnlyList<NoteEvent> NoteEvents { get; }

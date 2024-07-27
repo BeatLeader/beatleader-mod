@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.Models;
+using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Models.Replay;
+using BeatLeader.UI.Hub;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
+using ModestTree;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
@@ -15,6 +19,16 @@ using Zenject;
 namespace BeatLeader.Replayer {
     [PublicAPI]
     public class ReplayerMenuLoader : MonoBehaviour {
+        #region Injection
+
+        [Inject] private readonly ReplayerLauncher _launcher = null!;
+        [Inject] private readonly GameScenesManager _scenesManager = null!;
+        [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
+        [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
+        [Inject] private readonly IReplayManager _replayManager = null!;
+
+        #endregion
+
         #region Init
 
         public static ReplayerMenuLoader? Instance { get; private set; }
@@ -33,70 +47,183 @@ namespace BeatLeader.Replayer {
 
         #endregion
 
-        #region StartReplay
-
-        [Inject] private readonly ReplayerLauncher _launcher = null!;
-
-        [Inject] private readonly GameScenesManager _scenesManager = null!;
-
-        [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
-
-        [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
+        #region StartReplayFromLeaderboard
 
         internal async Task StartReplayFromLeaderboardAsync(Replay replay, Player player) {
-            var settings = ReplayerSettings.UserSettings;
-            var data = new ReplayLaunchData();
             var info = replay.info;
-
-            Plugin.Log.Info("Attempting to load replay:\r\n" + info);
-            ReplayManager.ValidateReplayInfo(info, null);
-
             var beatmapHash = info.hash;
-            var isSecondAttempt = false;
-            do {
-                var result = await LoadBeatmapAsync(data, beatmapHash, info.mode, info.difficulty, CancellationToken.None);
-                if (!result) {
-                    Plugin.Log.Warn("Failed to load the map by hash; attempting to use leaderboard hash...");
-                    beatmapHash = LeaderboardState.SelectedBeatmapKey.Hash;
-                    isSecondAttempt = true;
-                }
-                if (result || isSecondAttempt) break;
-            } while (true);
-
-            if (data.DifficultyBeatmap is null) {
+            //try to load the beatmap, first attempt with replay hash, then with leaderboard hash if it fails
+            var beatmap = await LoadBeatmapForLeaderboardAsync(beatmapHash, info.mode, info.difficulty);
+            //if the beatmap still fails to load, force load the selected beatmap
+            if (beatmap == null) {
                 Plugin.Log.Warn("Beatmap load failed after two attempts; forcing selected beatmap load...");
-                Reinit(data, LeaderboardState.SelectedBeatmap);
+                beatmap = LeaderboardState.SelectedBeatmap;
             }
-
-            if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
-
-            var abstractReplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
-            data.Init(abstractReplay, ReplayDataUtils.BasicReplayComparator, settings, data.DifficultyBeatmap, data.EnvironmentInfo);
-
-            StartReplay(data);
-        }
-
-        public async Task StartReplayAsync(Replay replay, Player? player = null, ReplayerSettings? settings = null) {
-            await StartReplayAsync(replay, player, settings, CancellationToken.None);
-        }
-
-        public async Task StartReplayAsync(Replay replay, Player? player, ReplayerSettings? settings, CancellationToken token) {
-            settings ??= ReplayerSettings.UserSettings;
-            var data = new ReplayLaunchData();
-            var info = replay.info;
-            Plugin.Log.Info("Attempting to load replay:\r\n" + info);
-            ReplayManager.ValidateReplayInfo(info, null);
-            await LoadBeatmapAsync(data, info.hash, info.mode, info.difficulty, token);
-            if (settings.LoadPlayerEnvironment) LoadEnvironment(data, info.environment);
-            var creplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
-            data.Init(
-                creplay, ReplayDataUtils.BasicReplayComparator,
-                settings, data.DifficultyBeatmap, data.EnvironmentInfo
+            var optionalData = await LoadOptionalDataAsync(replay.info, player);
+            //start the replay
+            StartReplayer(
+                beatmap,
+                replay,
+                player,
+                optionalData,
+                ReplayerSettings.UserSettings,
+                CancellationToken.None
             );
-            StartReplay(data);
         }
 
-        public void StartReplay(ReplayLaunchData data) {
+        private async Task<IDifficultyBeatmap?> LoadBeatmapForLeaderboardAsync(string beatmapHash, string mode, string difficulty) {
+            var beatmap = await LoadBeatmapAsync(beatmapHash, mode, difficulty, CancellationToken.None);
+            //if fails try to load with selected beatmap hash
+            if (beatmap == null) {
+                Plugin.Log.Warn("Failed to load the map by hash; attempting to use leaderboard hash...");
+                beatmapHash = LeaderboardState.SelectedBeatmapKey.Hash;
+                beatmap = await LoadBeatmapAsync(beatmapHash, mode, difficulty, CancellationToken.None);
+            }
+            //
+            return beatmap;
+        }
+
+        #endregion
+
+        #region StartReplay
+
+        public async Task<bool> StartReplayAsync(
+            Replay replay,
+            IPlayer? player = null,
+            Optional<IOptionalReplayData?> optionalData = default,
+            ReplayerSettings? settings = null,
+            CancellationToken token = default
+        ) {
+            settings ??= ReplayerSettings.UserSettings;
+            //loading beatmap
+            var info = replay.info;
+            var beatmap = await LoadBeatmapAsync(info.hash, info.mode, info.difficulty, token);
+            if (beatmap == null) return false;
+            //loading data
+            if (!optionalData.HasValue) {
+                var data = await LoadOptionalDataAsync(replay.info, player);
+                optionalData.SetValueIfNotSet(data);
+            }
+            //starting
+            StartReplayer(
+                beatmap,
+                replay,
+                player,
+                optionalData.Value,
+                settings,
+                token
+            );
+            return true;
+        }
+
+        public async Task<bool> StartBattleRoyaleAsync(
+            IReadOnlyCollection<IBattleRoyaleReplayBase> replays,
+            ReplayerSettings? settings,
+            CancellationToken token
+        ) {
+            if (replays.Count == 0) return false;
+            settings ??= ReplayerSettings.UserSettings;
+            //loading beatmap
+            var info = replays.First().ReplayHeader.ReplayInfo;
+            var beatmap = await LoadBeatmapAsync(info.SongHash, info.SongMode, info.SongDifficulty, token);
+            if (beatmap == null) return false;
+            //loading replays
+            var replayDatas = new List<ReplayData>();
+            var tasks = replays.Select(x => LoadAndAppendReplay(x, replayDatas)).ToArray();
+            await Task.WhenAll(tasks);
+            //checking is everything okay
+            if (tasks.Any(static x => !x.Result)) return false;
+            //starting
+            StartReplayer(beatmap, replayDatas, settings, token);
+            return true;
+        }
+
+        private static async Task<bool> LoadAndAppendReplay(IBattleRoyaleReplayBase battleReplay, ICollection<ReplayData> collection) {
+            var header = battleReplay.ReplayHeader;
+            //loading replay
+            var replay = await header.LoadReplayAsync(CancellationToken.None);
+            if (replay == null) return false;
+            //loading player
+            var player = await header.LoadPlayerAsync(false, CancellationToken.None);
+            //creating data
+            var data = new ReplayData {
+                replay = replay,
+                player = player,
+                optionalData = await battleReplay.GetReplayDataAsync()
+            };
+            collection.Add(data);
+            return true;
+        }
+
+        #endregion
+
+        #region StartReplayer
+
+        private struct ReplayData {
+            public Replay replay;
+            public IPlayer? player;
+            public IOptionalReplayData? optionalData;
+        }
+
+        private void StartReplayer(
+            IDifficultyBeatmap beatmap,
+            Replay replay,
+            IPlayer? player,
+            IOptionalReplayData? optionalData,
+            ReplayerSettings settings,
+            CancellationToken token
+        ) {
+            StartReplayer(
+                beatmap,
+                new ReplayData {
+                    replay = replay,
+                    player = player,
+                    optionalData = optionalData
+                }.Yield(),
+                settings,
+                token
+            );
+        }
+
+        private void StartReplayer(
+            IDifficultyBeatmap beatmap,
+            IEnumerable<ReplayData> replays,
+            ReplayerSettings settings,
+            CancellationToken token
+        ) {
+            var data = new ReplayLaunchData();
+            var list = new List<IReplay>();
+            //loading replays
+            foreach (var replayData in replays) {
+                //adding extra info
+                var info = replayData.replay.info;
+                Plugin.Log.Info("Attempting to load replay:\r\n" + info);
+                ReplayManager.SaturateReplayInfo(info, null);
+                //loading environment
+                if (settings.LoadPlayerEnvironment) {
+                    LoadEnvironment(data, info.environment);
+                }
+                //converting
+                var creplay = ReplayDataUtils.ConvertToAbstractReplay(
+                    replayData.replay,
+                    replayData.player,
+                    replayData.optionalData
+                );
+                list.Add(creplay);
+            }
+            //initializing data
+            data.Init(
+                list,
+                ReplayDataUtils.BasicReplayComparator,
+                settings,
+                beatmap,
+                data.EnvironmentInfo
+            );
+            //starting
+            StartReplayer(data);
+        }
+
+        public void StartReplayer(ReplayLaunchData data) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
             if (!_launcher.StartReplay(data)) return;
             InputUtils.forceFPFC = InputUtils.containsFPFCArg && _fpfcSettings.Ignore ? _fpfcSettings.Enabled : null;
@@ -104,7 +231,7 @@ namespace BeatLeader.Replayer {
 
         public async Task StartLastReplayAsync() {
             if (Instance is null) return;
-            if (ReplayManager.Instance.CachedReplay is not { } header) return;
+            if (_replayManager.CachedReplay is not { } header) return;
             var replay = await header.LoadReplayAsync(default);
             await StartReplayAsync(replay!, ProfileManager.Profile);
         }
@@ -128,7 +255,9 @@ namespace BeatLeader.Replayer {
 
         public async Task<bool> CanLaunchReplay(ReplayInfo info) {
             return await LoadBeatmapAsync(
-                info.hash, info.mode, info.difficulty,
+                info.hash,
+                info.mode,
+                info.difficulty,
                 default
             ) is { } beatmap && SongCoreInterop.ValidateRequirements(beatmap);
         }
@@ -201,6 +330,24 @@ namespace BeatLeader.Replayer {
 
         private static void Reinit(ReplayLaunchData data, IDifficultyBeatmap? beatmap = null, EnvironmentInfoSO? environment = null) {
             data.Init(data.Replays, data.ReplayComparator, data.Settings, beatmap ?? data.DifficultyBeatmap, environment ?? data.EnvironmentInfo);
+        }
+
+        #endregion
+
+        #region Static Tools
+
+        public static async Task<IOptionalReplayData> LoadOptionalDataAsync(IReplayInfo? replayInfo, IPlayer? player) {
+            Color? accentColor = null;
+            AvatarData? avatarData = null;
+            if (player != null) {
+                var avatar = await player.GetAvatarAsync();
+                avatarData = avatar.ToAvatarData();
+            }
+            if (replayInfo != null) {
+                var colorSeed = $"{replayInfo.Timestamp}{replayInfo.PlayerID}{replayInfo.SongName}".GetHashCode();
+                accentColor = ColorUtils.RandomColor(rand: new(colorSeed));
+            }
+            return new OptionalReplayData(avatarData, accentColor);
         }
 
         #endregion

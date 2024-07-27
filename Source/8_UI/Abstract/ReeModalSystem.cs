@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 using Screen = HMUI.Screen;
 
 namespace BeatLeader {
+    [Obsolete("Use ModalSystem instead")]
     internal class ReeModalSystem : ReeUIComponentV2 {
         #region ActiveModals
 

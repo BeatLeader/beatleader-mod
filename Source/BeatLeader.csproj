@@ -15,6 +15,11 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <WarningLevel>3</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -93,6 +98,9 @@
         <Reference Include="UnityEngine.DirectorModule">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.DirectorModule.dll</HintPath>
             <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.ImageConversionModule">
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.InputLegacyModule">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
@@ -188,6 +196,7 @@
         <EmbeddedResource Include="9_Resources\AssetBundles\asset_bundle"/>
         <EmbeddedResource Include="9_Resources\BSML\**\*.bsml"/>
         <EmbeddedResource Include="9_Resources\Localization.json"/>
+        <EmbeddedResource Include="9_Resources\Libs\*.dll" />
         <EmbeddedResource Include="manifest.json"/>
     </ItemGroup>
 

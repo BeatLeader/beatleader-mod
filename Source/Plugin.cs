@@ -1,5 +1,5 @@
 ﻿using BeatLeader.DataManager;
-using BeatLeader.UI.BSML_Addons;
+using BeatLeader.UI.Reactive;
 using BeatLeader.Utils;
 using Hive.Versioning;
 using IPA;
@@ -29,10 +29,13 @@ namespace BeatLeader {
         internal static IPALogger Log { get; private set; }
 
         [Init]
-        public Plugin(IPALogger logger, PluginMetadata metadata, Config config) {
+        public Plugin(IPALogger logger, PluginMetadata metadata) {
             Log = logger;
             Version = metadata.HVersion;
-            InitializeConfig(config);
+            // important to call on init because p/invoke need some
+            // time to start working after the manual LoadLibrary call
+            DynamicLibLoader.Load();
+            InitializeConfig();
             InitializeAssets();
         }
 
@@ -40,8 +43,8 @@ namespace BeatLeader {
             BundleLoader.Initialize();
         }
 
-        private static void InitializeConfig(Config config) {
-            ConfigFileData.Instance = config.Generated<ConfigFileData>();
+        private static void InitializeConfig() {
+            ConfigFileData.Initialize();
         }
 
         #endregion
@@ -53,8 +56,9 @@ namespace BeatLeader {
         public void OnApplicationStart() {
             ObserveEnabled();
             SettingsPanelUI.AddTab();
-            BSMLAddonsLoader.LoadAddons();
+            ReplayManager.LoadCache();
             InteropLoader.Init();
+            ReactivePlatform.Init();
         }
 
         private static void ObserveEnabled() {
@@ -78,12 +82,13 @@ namespace BeatLeader {
 
         [OnExit]
         [UsedImplicitly]
-        public void OnApplicationQuit()
-        {
-            SerializableSingletons.SaveAll();
+        public void OnApplicationQuit() {
             LeaderboardsCache.Save();
-            ReplayHeadersCache.SaveCache();
+            ReplayManager.SaveCache();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
+            ConfigFileData.Save();
+            //important to call LAST!!
+            DynamicLibLoader.Unload();
         }
 
         #endregion

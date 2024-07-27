@@ -1,8 +1,14 @@
-﻿namespace BeatLeader.Models {
-    public interface ICameraView {
-        bool Update { get; }
-        string Name { get; }
+﻿using Newtonsoft.Json;
+using UnityEngine;
 
-        void ProcessView(ICameraControllerBase cameraController);
+namespace BeatLeader.Models {
+    [JsonConverter(typeof(TypeHandlingConverter))]
+    public interface ICameraView {
+        string Name { get; }
+        
+        Pose ProcessPose(Pose headPose);
+        
+        void OnEnable();
+        void OnDisable();
     }
 }

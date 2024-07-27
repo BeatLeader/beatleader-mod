@@ -59,12 +59,13 @@ namespace BeatLeader.Replayer {
                 Plugin.Log.Warn("Beatmap load failed after two attempts; forcing selected beatmap load...");
                 beatmap = LeaderboardState.SelectedBeatmap;
             }
+            var optionalData = await LoadOptionalDataAsync(replay.info, player);
             //start the replay
             StartReplayer(
                 beatmap,
                 replay,
                 player,
-                null,
+                optionalData,
                 ReplayerSettings.UserSettings,
                 CancellationToken.None
             );
@@ -89,7 +90,7 @@ namespace BeatLeader.Replayer {
         public async Task<bool> StartReplayAsync(
             Replay replay,
             IPlayer? player = null,
-            IOptionalReplayData? optionalData = null,
+            Optional<IOptionalReplayData?> optionalData = default,
             ReplayerSettings? settings = null,
             CancellationToken token = default
         ) {
@@ -98,12 +99,17 @@ namespace BeatLeader.Replayer {
             var info = replay.info;
             var beatmap = await LoadBeatmapAsync(info.hash, info.mode, info.difficulty, token);
             if (beatmap == null) return false;
+            //loading data
+            if (!optionalData.HasValue) {
+                var data = await LoadOptionalDataAsync(replay.info, player);
+                optionalData.SetValueIfNotSet(data);
+            }
             //starting
             StartReplayer(
                 beatmap,
                 replay,
                 player,
-                optionalData,
+                optionalData.Value,
                 settings,
                 token
             );
@@ -324,6 +330,24 @@ namespace BeatLeader.Replayer {
 
         private static void Reinit(ReplayLaunchData data, IDifficultyBeatmap? beatmap = null, EnvironmentInfoSO? environment = null) {
             data.Init(data.Replays, data.ReplayComparator, data.Settings, beatmap ?? data.DifficultyBeatmap, environment ?? data.EnvironmentInfo);
+        }
+
+        #endregion
+
+        #region Static Tools
+
+        public static async Task<IOptionalReplayData> LoadOptionalDataAsync(IReplayInfo? replayInfo, IPlayer? player) {
+            Color? accentColor = null;
+            AvatarData? avatarData = null;
+            if (player != null) {
+                var avatar = await player.GetAvatarAsync();
+                avatarData = avatar.ToAvatarData();
+            }
+            if (replayInfo != null) {
+                var colorSeed = $"{replayInfo.Timestamp}{replayInfo.PlayerID}{replayInfo.SongName}".GetHashCode();
+                accentColor = ColorUtils.RandomColor(rand: new(colorSeed));
+            }
+            return new OptionalReplayData(avatarData, accentColor);
         }
 
         #endregion

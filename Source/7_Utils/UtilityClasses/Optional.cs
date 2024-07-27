@@ -1,5 +1,5 @@
 namespace BeatLeader {
-    internal struct Optional<T> {
+    public struct Optional<T> {
         public T? Value { get; private set; }
         public bool HasValue { get; private set; }
 

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
+using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using UnityEngine;
 
@@ -15,12 +16,7 @@ namespace BeatLeader.UI.Hub {
             if (_replayData == null || bypassCache) {
                 await _semaphoreSlim.WaitAsync();
                 var player = await ReplayHeader.LoadPlayerAsync(false, CancellationToken.None);
-                var avatarSettings = await player.GetAvatarAsync();
-                //
-                _replayData = new BattleRoyaleOptionalReplayData(
-                    avatarSettings.ToAvatarData(),
-                    GetReplayColor(ReplayHeader.ReplayInfo)
-                );
+                _replayData = await ReplayerMenuLoader.LoadOptionalDataAsync(ReplayHeader.ReplayInfo, player);
                 _semaphoreSlim.Release();
             }
             return _replayData;

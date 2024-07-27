@@ -1,4 +1,8 @@
-﻿using BeatLeader.Replayer.Emulation;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using BeatLeader.DataManager;
+using BeatLeader.Replayer.Emulation;
+using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
@@ -37,18 +41,33 @@ namespace BeatLeader.UI.Hub {
         private FloatingBattleRoyaleReplayBadge _badge = null!;
         private AvatarData? _avatarData;
         private IBattleRoyaleReplay? _replay;
+        private CancellationTokenSource _tokenSource = new();
+        private Task? _refreshTask;
 
-        public async void Refresh(bool force = false) {
-            if (_replay == null) return;
+        public void Refresh(bool force = false) {
+            if (_refreshTask != null) {
+                _tokenSource.Cancel();
+                _tokenSource = new();
+            }
+            _refreshTask = RefreshInternal(force, _tokenSource.Token).RunCatching();
+        }
+
+        private async Task RefreshInternal(bool force, CancellationToken token) {
+            if (_replay == null) {
+                _refreshTask = null;
+                return;
+            }
             _badge.SetData(_replay);
             if (_avatarData == null || force) {
                 _avatarController.SetVisuals(null);
                 _avatarController.SetLoading(true);
                 var replayData = await _replay.GetReplayDataAsync(force);
                 _avatarData = replayData.AvatarData;
-                _avatarController.SetVisuals(_avatarData!, true);
+                if (token.IsCancellationRequested) return;
                 _avatarController.SetLoading(false);
+                _avatarController.SetVisuals(_avatarData!, true);
             }
+            _refreshTask = null;
         }
 
         private void Init(IBattleRoyaleReplay replay) {

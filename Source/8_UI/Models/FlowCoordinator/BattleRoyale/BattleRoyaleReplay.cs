@@ -14,7 +14,7 @@ namespace BeatLeader.UI.Hub {
         public async Task<IOptionalReplayData> GetReplayDataAsync(bool bypassCache) {
             if (_replayData == null || bypassCache) {
                 await _semaphoreSlim.WaitAsync();
-                var player = await ReplayHeader.LoadPlayerAsync(bypassCache, CancellationToken.None);
+                var player = await ReplayHeader.LoadPlayerAsync(false, CancellationToken.None);
                 var avatarSettings = await player.GetAvatarAsync();
                 //
                 _replayData = new BattleRoyaleOptionalReplayData(

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
@@ -28,7 +29,25 @@ namespace BeatLeader.UI.Hub {
 
         #region Avatars
 
-        private class Avatar : ReeWrapperV2<BeatLeader.Components.PlayerAvatar> { }
+        private class Avatar : ReeWrapperV2<Components.PlayerAvatar> {
+            private CancellationTokenSource _tokenSource = new();
+            private Task? _setAvatarTask;
+
+            public void SetAvatar(IReplayHeaderBase replay) {
+                if (_setAvatarTask != null) {
+                    _tokenSource.Cancel();
+                    _tokenSource = new();
+                }
+                _setAvatarTask = SetAvatarInternal(replay, _tokenSource.Token);
+            }
+
+            private async Task SetAvatarInternal(IReplayHeaderBase replay, CancellationToken token) {
+                var player = await replay.LoadPlayerAsync(false, token);
+                if (token.IsCancellationRequested) return;
+                ReeComponent.SetAvatar(player.AvatarUrl, null);
+                _setAvatarTask = null;
+            }
+        }
 
         public int MaxAvatarCount {
             get => _maxAvatarCount;
@@ -39,12 +58,10 @@ namespace BeatLeader.UI.Hub {
         }
 
         private readonly ReactivePool<IReplayHeaderBase, Avatar> _avatarsPool = new();
-        private readonly SemaphoreSlim _refreshAvatarSemaphore = new(1, 1);
         private int _maxAvatarCount = 5;
         private float _avatarSize;
 
-        private async void RefreshAvatarPlacement() {
-            await _refreshAvatarSemaphore.WaitAsync();
+        private void RefreshAvatarPlacement() {
             _avatarsPool.DespawnAll();
             _avatarsContainer.Children.Clear();
             //uncomment for adaptivity
@@ -57,7 +74,6 @@ namespace BeatLeader.UI.Hub {
             foreach (var replay in _replays) {
                 if (index >= _maxAvatarCount) return;
                 //
-                var playerTask = replay.LoadPlayerAsync(false, CancellationToken.None);
                 var wrapper = _avatarsPool.Spawn(replay);
                 wrapper.AsFlexItem(
                     aspectRatio: 1f,
@@ -68,12 +84,10 @@ namespace BeatLeader.UI.Hub {
                 //
                 var avatar = wrapper.ReeComponent;
                 avatar.Setup(true);
-                avatar.SetAvatar((await playerTask).AvatarUrl, null);
+                wrapper.SetAvatar(replay);
                 //
                 index++;
             }
-            //
-            _refreshAvatarSemaphore.Release();
         }
 
         protected override void OnLayoutApply() {

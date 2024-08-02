@@ -26,6 +26,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         [Inject] private readonly ZenjectMenuResolver _zenjectMenuResolver = null!;
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
+        [Inject] private readonly ReplayerExtraObjectsProvider _extraObjectsProvider = null!;
 
         #endregion
 
@@ -43,6 +44,7 @@ namespace BeatLeader.Replayer.Emulation {
             _avatarLoader = _zenjectMenuResolver.Resolve<AvatarLoader>();
             _avatarPartsModel = _zenjectMenuResolver.Resolve<AvatarPartsModel>();
             _avatarController = _avatarLoader.CreateAvatar();
+            _avatarController.transform.SetParent(_extraObjectsProvider.VRGameCore, false);
             _avatarController.MakeMasked();
             _avatarController.Present(false);
             _avatarController.PlayAnimation = false;

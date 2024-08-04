@@ -1,0 +1,10 @@
+﻿<horizontal vertical-fit="Unconstrained">
+    <scroll-view id="scrollable">
+        <vertical pref-width="60" vertical-fit="PreferredSize">
+            <text id="empty-text" text="Monke has nothing to tell you about"/>
+            <macro.as-host host="post">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+        </vertical>
+    </scroll-view>
+</horizontal>

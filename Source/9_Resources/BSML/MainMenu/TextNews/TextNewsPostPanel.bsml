@@ -1,0 +1,9 @@
+﻿<vertical spacing="2" horizontal-fit="Unconstrained">
+    <macro.as-host host="header">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <horizontal>
+        <text id="body" font-size="3" word-wrapping="true"/>
+    </horizontal>
+    <image id="image" pref-height="24"/>
+</vertical>

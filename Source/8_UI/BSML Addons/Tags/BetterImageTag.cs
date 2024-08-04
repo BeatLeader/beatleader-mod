@@ -14,7 +14,7 @@ namespace BeatLeader.UI.BSML_Addons.Tags
         {
             GameObject gameObject = new GameObject("BeatLeaderBetterImage");
 
-            Image image = gameObject.AddComponent<Image>();
+            var image = gameObject.AddComponent<FixedImageView>();
             image.material = Utilities.ImageResources.NoGlowMat;
             image.rectTransform.sizeDelta = new Vector2(20f, 20f);
             image.sprite = Utilities.ImageResources.BlankSprite;

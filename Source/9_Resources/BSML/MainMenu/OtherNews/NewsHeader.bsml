@@ -1,0 +1,4 @@
+<better-image id="image" src="#BL_WhiteBG" image-color="#00000080" ppu="10" type="Sliced" 
+              pref-height="6" vertical-fit="PreferredSize">
+    <text id="text" font-size="5" italics="true" align="Center"/>
+</better-image>

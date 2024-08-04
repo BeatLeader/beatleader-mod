@@ -20,11 +20,10 @@ namespace BeatLeader {
         }
 
         #endregion
-        
+
         #region RankedStatus
 
-        public static readonly IReadOnlyList<RankedStatus> NegativeModifiersAppliers = new RankedStatus[]
-        {
+        public static readonly IReadOnlyList<RankedStatus> NegativeModifiersAppliers = new RankedStatus[] {
             RankedStatus.Nominated,
             RankedStatus.Qualified,
             RankedStatus.Ranked
@@ -113,15 +112,15 @@ namespace BeatLeader {
                 0 => "Unknown",
                 1 => "Oculus Touch",
                 16 => "Oculus Touch 2",
-                256 => "Oculus Touch", //Quest 2
-                2 => "Vive Wands", //Vive
-                4 => "Vive Pro Wands", //Vive Pro
-                8 => "WMR Controllers", //WMR
+                256 => "Oculus Touch",      //Quest 2
+                2 => "Vive Wands",          //Vive
+                4 => "Vive Pro Wands",      //Vive Pro
+                8 => "WMR Controllers",     //WMR
                 9 => "Odyssey Controllers", //Odyssey
                 10 => "HP Motion",
                 33 => "Pico Neo 3 Controllers", //Pico Neo 3
                 34 => "Pico Neo 2 Controllers", //Pico Neo 2
-                35 => "Vive Pro 2 Wands", //Vive Pro 2
+                35 => "Vive Pro 2 Wands",       //Vive Pro 2
                 37 => "Miramar",
                 44 => "Disco",
                 61 => "Touch Pro", //Quest Pro
@@ -197,8 +196,16 @@ namespace BeatLeader {
         #region GetRelativeTimeString
 
         public static TimeSpan GetRelativeTime(string timeSet) {
-            var dateTime = long.Parse(timeSet).AsUnixTime();
-            return DateTime.UtcNow - dateTime;
+            var dateTime = long.Parse(timeSet);
+            return GetRelativeTime(dateTime);
+        }
+
+        public static TimeSpan GetRelativeTime(long timeSet) {
+            return DateTime.UtcNow - timeSet.AsUnixTime();
+        }
+
+        public static string GetRelativeTimeString(long timeSet, bool compact) {
+            return GetRelativeTimeString(GetRelativeTime(timeSet), compact);
         }
 
         public static string GetRelativeTimeString(string timeSet, bool compact) {
@@ -210,11 +217,11 @@ namespace BeatLeader {
             return $"{t.Year}.{Zero(t.Month)}{t.Month}.{Zero(t.Day)}{t.Day} {Zero(t.Hour)}{t.Hour}:{Zero(t.Minute)}{t.Minute}";
             static string Zero(int number) => number > 9 ? "" : "0";
         }
-        
+
         public static string GetDateTimeString(string timeSet) {
             return GetDateTimeString(long.Parse(timeSet));
         }
-        
+
         public static string GetRelativeTimeString(TimeSpan timeSpan, bool compact) {
             return TimeLocalizationUtils.GetRelativeTimeStringLocalizedWithFont(timeSpan, compact);
         }
@@ -223,8 +230,7 @@ namespace BeatLeader {
 
         #region FormatSongTime
 
-        public static string FormatSongTime(float time, float totalTime)
-        {
+        public static string FormatSongTime(float time, float totalTime) {
             var minutes = Mathf.FloorToInt(time / 60);
             var seconds = Mathf.FloorToInt(time % 60);
             var totalMinutes = Mathf.FloorToInt(totalTime / 60);

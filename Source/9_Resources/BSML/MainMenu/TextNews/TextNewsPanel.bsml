@@ -1,4 +1,4 @@
-﻿<horizontal vertical-fit="Unconstrained">
+﻿<vertical horizontal-fit="Unconstrained">
     <scroll-view id="scrollable">
         <vertical pref-width="60" vertical-fit="PreferredSize">
             <text id="empty-text" text="Monke has nothing to tell you about"/>
@@ -7,4 +7,4 @@
             </macro.as-host>
         </vertical>
     </scroll-view>
-</horizontal>
+</vertical>

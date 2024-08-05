@@ -16,6 +16,9 @@ namespace BeatLeader.UI.MainMenu {
         [UIValue("map2"), UsedImplicitly]
         private MapPreviewPanel _map2Preview = null!;
 
+        [UIValue("map3"), UsedImplicitly]
+        private MapPreviewPanel _map3Preview = null!;
+
         #endregion
 
         #region Setup
@@ -40,9 +43,11 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnInstantiate() {
             _header = Instantiate<NewsHeader>(transform);
+            _header.Setup("Trending Maps");
             _map1Preview = Instantiate<MapPreviewPanel>(transform);
             _map2Preview = Instantiate<MapPreviewPanel>(transform);
-            _header.Setup("Maps");
+            _map3Preview = Instantiate<MapPreviewPanel>(transform);
+            
             TrendingMapsRequest.AddStateListener(OnRequestStateChanged);
         }
 
@@ -59,14 +64,17 @@ namespace BeatLeader.UI.MainMenu {
                 case API.RequestState.Started:
                     _map1Preview.Setup(loadingMapData);
                     _map2Preview.Setup(loadingMapData);
+                    _map3Preview.Setup(loadingMapData);
                     break;
                 case API.RequestState.Failed:
                     _map1Preview.Setup(failedMapData);
                     _map2Preview.Setup(failedMapData);
+                    _map3Preview.Setup(failedMapData);
                     break;
                 case API.RequestState.Finished: {
                     _map1Preview.Setup(result.data[0]);
                     _map2Preview.Setup(result.data[1]);
+                    _map3Preview.Setup(result.data[2]);
                     break;
                 }
             }

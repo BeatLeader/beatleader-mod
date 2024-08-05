@@ -15,13 +15,7 @@ namespace BeatLeader.UI.MainMenu {
         #region UI Components
 
         [UIValue("preview"), UsedImplicitly]
-        private EventPreviewPanel _previewPanel = null!;
-
-        [UIValue("download-button"), UsedImplicitly]
-        private HeaderButton _downloadButton = null!;
-
-        [UIValue("website-button"), UsedImplicitly]
-        private HeaderButton _websiteButton = null!;
+        private FeaturedPreviewPanel _previewPanel = null!;
 
         [UIComponent("loading-modal"), UsedImplicitly]
         private ModalView _modal = null!;
@@ -34,6 +28,19 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIObject("loading-container"), UsedImplicitly]
         private GameObject _loadingContainer = null!;
+
+        private bool _downloadInteractable = false;
+
+        [UIValue("downloadInteractable")]
+        public bool DownloadInteractable
+        {
+            get => _downloadInteractable;
+            set
+            {
+                _downloadInteractable = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         #endregion
 
@@ -54,8 +61,7 @@ namespace BeatLeader.UI.MainMenu {
                 );
                 hasMap = map != null;
             }
-            _downloadButton.GetRootTransform().gameObject.SetActive(!hasMap && !_mapDownloaded && _downloadUrl != null);
-            _websiteButton.GetRootTransform().gameObject.SetActive(_websiteUrl != null);
+            DownloadInteractable = !hasMap && !_mapDownloaded && _downloadUrl != null;
         }
 
         public async void Setup(MapData mapData) {
@@ -68,13 +74,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         protected override async void OnInstantiate() {
-            _previewPanel = Instantiate<EventPreviewPanel>(transform);
-            _downloadButton = Instantiate<HeaderButton>(transform);
-            _websiteButton = Instantiate<HeaderButton>(transform);
-            _downloadButton.Setup(BundleLoader.SaveIcon);
-            _downloadButton.OnClick += HandleDownloadButtonClicked;
-            _websiteButton.Setup(BundleLoader.ProfileIcon);
-            _websiteButton.OnClick += HandleWebsiteButtonClicked;
+            _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
             await RefreshButtons();
         }
 
@@ -82,10 +82,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Callbacks
 
-        private void HandleWebsiteButtonClicked() {
-            EnvironmentUtils.OpenBrowserPage(_websiteUrl!);
-        }
-
+        [UIAction("downloadPressed"), UsedImplicitly]
         private async void HandleDownloadButtonClicked() {
             _loadingContainer.SetActive(true);
             _finishedContainer.SetActive(false);

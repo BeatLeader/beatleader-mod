@@ -9,11 +9,6 @@ namespace BeatLeader.UI.MainMenu {
     internal class BeatLeaderNewsViewController : BSMLAutomaticViewController {
         #region UI Components
 
-        [UIComponent("header"), UsedImplicitly]
-        private ImageView _headerImage = null!;
-        
-        [UIComponent("header-text"), UsedImplicitly]
-        private RectTransform _headerTextRect = null!;
         
         [UIValue("text-news-panel"), UsedImplicitly]
         private TextNewsPanel _textNewsPanel = null!;
@@ -36,12 +31,6 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIAction("#post-parse"), UsedImplicitly]
         private void OnInitialize() {
-            _headerImage._skew = 0.18f;
-            _headerImage.__Refresh();
-            //
-            _headerTextRect.anchorMin = Vector2.zero;
-            _headerTextRect.anchorMax = Vector2.one;
-            _headerTextRect.sizeDelta = Vector2.zero;
             //
             _textNewsPanel.Reload();
             _mapNewsPanel.Reload();

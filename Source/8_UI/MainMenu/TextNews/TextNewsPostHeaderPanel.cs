@@ -17,6 +17,9 @@ namespace BeatLeader.UI.MainMenu {
         [UIComponent("date"), UsedImplicitly]
         private TMP_Text _dateText = null!;
 
+        [UIComponent("image"), UsedImplicitly]
+        private ImageView _image = null!;
+
         #endregion
 
         #region Setup
@@ -33,6 +36,9 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnInitialize() {
             _avatarImage.material = BundleLoader.RoundTexture10Material;
+
+            _image._skew = 0.18f;
+            _image.__Refresh();
         }
 
         #endregion

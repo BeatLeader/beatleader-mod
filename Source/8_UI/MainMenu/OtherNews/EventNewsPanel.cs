@@ -13,10 +13,23 @@ namespace BeatLeader.UI.MainMenu {
         private NewsHeader _header = null!;
 
         [UIValue("event"), UsedImplicitly]
-        private EventPreviewPanel _previewPanel = null!;
+        private FeaturedPreviewPanel _previewPanel = null!;
 
         [UIObject("empty-text"), UsedImplicitly]
         private GameObject _emptyText = null!;
+
+        private bool _downloadInteractable = true;
+
+        [UIValue("downloadInteractable")]
+        public bool DownloadInteractable
+        {
+            get => _downloadInteractable;
+            set
+            {
+                _downloadInteractable = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         #endregion
 
@@ -28,7 +41,7 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnInstantiate() {
             _header = Instantiate<NewsHeader>(transform);
-            _previewPanel = Instantiate<EventPreviewPanel>(transform);
+            _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
             _header.Setup("Events");
             PlatformEventsRequest.AddStateListener(OnRequestStateChanged);
         }
@@ -70,5 +83,9 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         #endregion
+
+        [UIAction("downloadPressed"), UsedImplicitly]
+        private async void HandleDownloadButtonClicked() {
+        }
     }
 }

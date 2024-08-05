@@ -1,4 +1,4 @@
-<horizontal id="container" spacing="1" vertical-fit="Unconstrained">
+﻿<horizontal id="container" spacing="1" vertical-fit="Unconstrained">
     <bg id="image-container">
         <image id="image"/>
     </bg>

@@ -1,4 +1,4 @@
-<vertical pref-height="20" horizontal-fit="Unconstrained">
+﻿<vertical pref-height="20" horizontal-fit="Unconstrained">
     <macro.as-host host="header">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
@@ -7,5 +7,8 @@
         <macro.as-host host="event">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
+        <vertical pref-width="4" child-align="MiddleCenter">
+            <button id="eventDownloadButton" interactable="~downloadInteractable" on-click="downloadPressed" text="Join" pad="0" pref-height="8"></button>
+        </vertical>
     </horizontal>
 </vertical>

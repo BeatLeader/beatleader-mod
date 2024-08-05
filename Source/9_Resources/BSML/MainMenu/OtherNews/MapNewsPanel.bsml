@@ -1,4 +1,4 @@
-<vertical horizontal-fit="Unconstrained">
+﻿<vertical horizontal-fit="Unconstrained">
     <macro.as-host host="header">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
@@ -6,6 +6,9 @@
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
     <macro.as-host host="map2">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <macro.as-host host="map3">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
 </vertical>

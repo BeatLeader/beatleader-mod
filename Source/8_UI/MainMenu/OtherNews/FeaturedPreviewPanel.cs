@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class EventPreviewPanel : ReeUIComponentV2 {
+    internal class FeaturedPreviewPanel : ReeUIComponentV2 {
         #region UI Components
 
         [UIComponent("image"), UsedImplicitly]

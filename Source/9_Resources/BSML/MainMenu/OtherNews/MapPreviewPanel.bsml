@@ -1,4 +1,4 @@
-<horizontal pref-height="10">
+﻿<horizontal pref-height="10">
     <modal id="loading-modal" size-delta-x="40" size-delta-y="20" click-off-closes="false">
         <vertical id="loading-container" spacing="2" child-expand-height="false" child-control-height="false" child-align="MiddleCenter">
             <loading-indicator preserve-aspect="true" pref-height="8" pref-width="8"/>
@@ -12,12 +12,7 @@
     <macro.as-host host="preview">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
-    <vertical pref-width="4">
-        <macro.as-host host="website-button">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-        <macro.as-host host="download-button">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
+    <vertical pref-width="4" child-align="MiddleCenter">
+        <button id="mapDownloadButton" interactable="~downloadInteractable"  on-click="downloadPressed" text="Play" pad="0" pref-height="8"></button>
     </vertical>
 </horizontal>

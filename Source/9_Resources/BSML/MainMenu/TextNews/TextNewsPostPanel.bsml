@@ -5,5 +5,5 @@
     <horizontal>
         <text id="body" font-size="3" word-wrapping="true"/>
     </horizontal>
-    <image id="image" pref-height="24"/>
+    <img id="image" preserve-aspect="true" pref-height="44"/>
 </vertical>

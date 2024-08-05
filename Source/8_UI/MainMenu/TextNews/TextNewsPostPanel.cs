@@ -3,7 +3,9 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using System.Linq;
 using TMPro;
+using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
     internal class TextNewsPostPanel : ReeUIComponentV2 {
@@ -28,7 +30,13 @@ namespace BeatLeader.UI.MainMenu {
             var hasImage = !string.IsNullOrEmpty(post.image);
             _image.gameObject.SetActive(hasImage);
             if (hasImage) {
-                await _image.SetImageAsync(post.image);
+                var options = new BeatSaberUI.ScaleOptions
+                {
+                    ShouldScale = true,
+                    MaintainRatio = true,
+                    Width = 512
+                };
+                await _image.SetImageAsync(post.image, false, options);
             }
         }
 
@@ -37,7 +45,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         protected override void OnInitialize() {
-            _image.material = BundleLoader.RoundTexture2Material;
+            _image.material = Instantiate(new Material(Resources.FindObjectsOfTypeAll<Material>().Last(x => x.name == "UINoGlow")));
         }
 
         #endregion

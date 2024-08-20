@@ -3,9 +3,9 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.9.19",
+  "version": "0.9.21",
   "description": "beatleader.xyz | In-game leaderboards for custom and OST maps | Score replays | Clans, events, playlists and much more",
-  "gameVersion": "1.37.1",
+  "gameVersion": "1.37.3",
   "dependsOn": {
     "SongCore": "^3.14.11",
     "LeaderboardCore": "^1.6.0",

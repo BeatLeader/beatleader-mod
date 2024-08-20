@@ -10,7 +10,7 @@ namespace BeatLeader {
         // ReSharper disable once InconsistentNaming
         private static void Postfix(MainSystemInit __instance) {
             try {
-                BLLocalization.Initialize(__instance._mainSettingsHandler);
+                BLLocalization.Initialize(__instance._settingsManager);
             } catch (Exception ex) {
                 Plugin.Log.Critical($"---\nMainSystemInit patch exception: {ex.Message}\n{ex.StackTrace}\n---");
             }

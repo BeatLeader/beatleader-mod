@@ -1,5 +1,4 @@
 ﻿using BeatLeader.Utils;
-using BeatSaber.GameSettings;
 using UnityEngine;
 
 namespace BeatLeader.Replayer {
@@ -25,9 +24,9 @@ namespace BeatLeader.Replayer {
             ReplayerCenterAdjust = new GameObject("CenterAdjust").transform;
             ReplayerCenterAdjust.SetParent(ReplayerCore, false);
 
-            var settingsModel = _mainSystemInit._mainSettingsHandler.instance;
-            _posOffset = settingsModel.roomCenter;
-            _rotOffset = Quaternion.Euler(0, settingsModel.roomRotation, 0);
+            var settingsModel = _mainSystemInit._settingsManager.settings;
+            _posOffset = settingsModel.room.center;
+            _rotOffset = Quaternion.Euler(0, settingsModel.room.rotation, 0);
         }
 
         private void Start() {

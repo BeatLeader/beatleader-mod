@@ -2,7 +2,6 @@
 using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
-using BeatSaber.GameSettings;
 using JetBrains.Annotations;
 using LeaderboardCore.Interfaces;
 using UnityEngine;
@@ -78,7 +77,7 @@ namespace BeatLeader.DataManager {
 
             try {
                 var mainSystemInit = Resources.FindObjectsOfTypeAll<MainSystemInit>()[0];
-                enableFakeBloom = (mainSystemInit._graphicSettingsHandler.instance.customPreset?.mainEffectGraphics ?? 0) == 0;
+                enableFakeBloom = mainSystemInit._settingsManager.settings.quality.mainEffect == BeatSaber.Settings.QualitySettings.MainEffectOption.Off;
             } catch (Exception) {
                 enableFakeBloom = false;
             }

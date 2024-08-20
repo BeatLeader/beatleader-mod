@@ -1,10 +1,5 @@
 ﻿using BeatLeader.Core.Managers.ReplayEnhancer;
-using BeatLeader.Installers;
-using BeatSaber.PerformancePresets;
 using HarmonyLib;
-using IPA.Utilities;
-using JetBrains.Annotations;
-using System;
 using System.Linq;
 using System.Reflection;
 

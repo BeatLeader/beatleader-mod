@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using BGLib.Polyglot;
 using TMPro;
 using UnityEngine;
-using BeatSaber.GameSettings;
+using System.Linq;
 
 namespace BeatLeader {
     public static class BLLocalization {
@@ -11,8 +11,8 @@ namespace BeatLeader {
 
         private static Language _baseGameLanguage = Language.English;
 
-        internal static void Initialize(MainSettingsHandler mainSettingsModel) {
-            _baseGameLanguage = mainSettingsModel.instance.language;
+        internal static void Initialize(SettingsManager settingsmanager) {
+            _baseGameLanguage = Localization.Instance.SupportedLanguages.FirstOrDefault(l => l.ToSerializedName() == settingsmanager.settings.misc.language);
             OnBaseGameLanguageDidChange();
         }
 

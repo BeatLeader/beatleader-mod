@@ -5,8 +5,6 @@ using BeatLeader.Utils;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
-using BeatSaber.PerformancePresets;
-using BeatSaber.GameSettings;
 
 namespace BeatLeader.Replayer {
     [PublicAPI]
@@ -66,7 +64,7 @@ namespace BeatLeader.Replayer {
 
         private static readonly EnvironmentType normalEnvironmentType = EnvironmentType.Normal;
         private static StandardLevelScenesTransitionSetupDataSO? _standardLevelScenesTransitionSetupDataSo;
-        private static GraphicSettingsHandler? _graphicSettingsHandler;
+        private static SettingsManager? _settingsManager;
 
         private void Awake() {
             if (!_standardLevelScenesTransitionSetupDataSo) {
@@ -75,10 +73,10 @@ namespace BeatLeader.Replayer {
                     .First();
             }
 
-            if (_graphicSettingsHandler == null) {
-                _graphicSettingsHandler = Resources
+            if (_settingsManager == null) {
+                _settingsManager = Resources
                     .FindObjectsOfTypeAll<MainSystemInit>()
-                    .First()._graphicSettingsHandler;
+                    .First()._settingsManager;
             }
         }
 
@@ -114,7 +112,7 @@ namespace BeatLeader.Replayer {
                     _environmentsListModel,
                     _audioClipAsyncLoader,
                     _beatmapDataLoader,
-                    _graphicSettingsHandler.instance.customPreset,
+                    _settingsManager,
                     "Menu",
                     _beatmapLevelsModel,
                     _beatmapLevelsEntitlementModel,

@@ -1,5 +1,4 @@
 ﻿using BeatLeader.Utils;
-using BeatSaber.GameSettings;
 using UnityEngine;
 using Zenject;
 
@@ -16,9 +15,9 @@ namespace BeatLeader.Replayer.Tweaking {
         }
         public override void Dispose() {
             if (_centerAdjust == null) return;
-            var settingsModel = _mainSystemInit._mainSettingsHandler.instance;
-            _centerAdjust.transform.localPosition = settingsModel.roomCenter;
-            _centerAdjust.transform.localEulerAngles = new Vector3(0, settingsModel.roomRotation, 0);
+            var settingsManager = _mainSystemInit._settingsManager;
+            _centerAdjust.transform.localPosition = settingsManager.settings.room.center;
+            _centerAdjust.transform.localEulerAngles = new Vector3(0, settingsManager.settings.room.rotation, 0);
             _centerAdjust.enabled = true;
         }
     }

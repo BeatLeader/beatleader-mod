@@ -135,7 +135,7 @@ namespace BeatLeader.Replayer.Emulation {
         private static bool _lastCutIsGood;
         private static float _lastCutBeforeCutRating;
         private static float _lastCutAfterCutRating;
-        private static LinkedListNode<NoteEvent> _lastNoteEvent = null!;
+        private static LinkedListNode<NoteEvent>? _lastNoteEvent;
 
         private void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut) {
             if (!SetupEmulator(noteEvent)) return;
@@ -326,6 +326,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         private static void NoteWasProcessedPostfix(GameEnergyCounter __instance) {
+            if (_lastNoteEvent == null) return;
             var currentTime = _lastNoteEvent.Value.eventTime;
             var prevTime = _lastNoteEvent.Previous?.Value.eventTime ?? 0;
             var nextTime = _lastNoteEvent.Next?.Value.eventTime ?? 0;

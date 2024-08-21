@@ -15,7 +15,6 @@ namespace BeatLeader
         OverrideEnvironmentSettings? overrideEnvironmentSettings,
         ColorScheme? playerOverrideColorScheme,
         bool playerOverrideLightshowColors,
-        GameplayModifiers gameplayModifiers,
         PlayerSpecificSettings playerSpecificSettings,
         PracticeSettings? practiceSettings,
         EnvironmentsListModel environmentsListModel) {
@@ -34,7 +33,6 @@ namespace BeatLeader
 
             MapEnhancer.beatmapKey = beatmapKey;
             MapEnhancer.beatmapLevel = beatmapLevel;
-            MapEnhancer.gameplayModifiers = gameplayModifiers;
             MapEnhancer.playerSpecificSettings = playerSpecificSettings;
             MapEnhancer.practiceSettings = practiceSettings;
             MapEnhancer.environmentName = environmentName;

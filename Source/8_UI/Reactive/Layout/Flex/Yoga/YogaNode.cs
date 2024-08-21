@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Yoga {
-    internal struct YogaNode : IDisposable, IEquatable<YogaNode> {
+    internal struct YogaNode : IEquatable<YogaNode> {
         #region Create & Dispose
 
         public bool IsInitialized { get; private set; }
@@ -21,7 +21,7 @@ namespace BeatLeader.UI.Reactive.Yoga {
             IsInitialized = true;
         }
 
-        public void Dispose() {
+        public void Free() {
             if (NodePtr == IntPtr.Zero) return;
             YogaNative.YGNodeFree(NodePtr);
             _nodePtr = IntPtr.Zero;

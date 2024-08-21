@@ -199,7 +199,7 @@ namespace BeatLeader.UI.Hub {
         private Label _label = null!;
 
         private void RefreshVisuals() {
-            _label.Text = _replayTag?.Name ?? "NAN";
+            _label.Text = _replayTag?.Name ?? "Tag";
             var color = _replayTag?.Color ?? Color.red;
             _button.Colors = new StateColorSet {
                 Color = color.ColorWithAlpha(0.3f),

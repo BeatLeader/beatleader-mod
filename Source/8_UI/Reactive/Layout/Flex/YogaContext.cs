@@ -1,7 +1,8 @@
-﻿using BeatLeader.UI.Reactive.Yoga;
+﻿using System;
+using BeatLeader.UI.Reactive.Yoga;
 
 namespace BeatLeader.UI.Reactive {
-    internal class YogaContext {
+    internal class YogaContext : IDisposable {
         public YogaNode YogaNode {
             get {
                 _yogaNode.Touch();
@@ -10,5 +11,9 @@ namespace BeatLeader.UI.Reactive {
         }
 
         private YogaNode _yogaNode;
+        
+        public void Dispose() {
+            _yogaNode.Free();
+        }
     }
 }

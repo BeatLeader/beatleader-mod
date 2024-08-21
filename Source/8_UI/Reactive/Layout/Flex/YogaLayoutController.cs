@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using IPA.Utilities;
 
 namespace BeatLeader.UI.Reactive.Yoga {
-    internal class YogaLayoutController : ReactiveLayoutController {
+    internal class YogaLayoutController : ReactiveLayoutController, IDisposable {
         #region Properties
 
         public Overflow Overflow {
@@ -200,6 +200,10 @@ namespace BeatLeader.UI.Reactive.Yoga {
         }
 
         public override void ApplySelf(ILayoutItem item) { }
+
+        public void Dispose() {
+            _layoutNode.Free();
+        }
 
         #endregion
 

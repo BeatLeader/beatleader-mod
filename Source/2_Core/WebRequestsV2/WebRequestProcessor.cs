@@ -133,7 +133,7 @@ namespace BeatLeader.WebRequests {
             ValidateHttpMessage(requestMessage);
             _requestMessage = requestMessage;
             RequestParams = requestParams;
-            _requestTask = sendCallback(requestMessage, token);
+            _requestTask = SendWebRequest(sendCallback, token);
             _processTask = ProcessWebRequest(token);
         }
 
@@ -197,6 +197,30 @@ namespace BeatLeader.WebRequests {
 
         private void InvokeProgressEvent() {
             ProgressChangedEvent?.Invoke(this, DownloadProgress, UploadProgress, OverallProgress);
+        }
+
+        #endregion
+
+        #region SendWebRequest
+
+        private async Task<HttpResponseMessage?> SendWebRequest(SendRequestDelegate sendCallback, CancellationToken token) {
+            var timeout = RequestParams.Timeout;
+            var timeoutTokenSource = GetTimeoutTokenSource(RequestParams.Timeout, token);
+            //
+            try {
+                return await sendCallback(_requestMessage, timeoutTokenSource?.Token ?? token);
+                //
+            } catch (OperationCanceledException) when (!token.IsCancellationRequested) {
+                //
+                throw new TimeoutException($"The request has failed after {timeout.TotalSeconds}s");
+            }
+        }
+
+        private static CancellationTokenSource? GetTimeoutTokenSource(TimeSpan timeout, CancellationToken cancellationToken) {
+            if (timeout == Timeout.InfiniteTimeSpan) return null;
+            var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(timeout);
+            return cts;
         }
 
         #endregion

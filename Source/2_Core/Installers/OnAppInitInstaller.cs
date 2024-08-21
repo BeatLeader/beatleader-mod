@@ -28,6 +28,9 @@ namespace BeatLeader.Installers {
 
             OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);
 
+            ModifiersCore.ModifiersManager.AddModifier(SpeedModifiers.BFS);
+            ModifiersCore.ModifiersManager.AddModifier(SpeedModifiers.BSF);
+
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

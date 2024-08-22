@@ -4,6 +4,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using ModifiersCore;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -113,26 +114,38 @@ namespace BeatLeader.Components {
 
         private void ModifyDiffRating(ref DiffInfo diffInfo) {
             if (_modifiersRating == null) return;
-            switch (_gameplayModifiers.songSpeed) {
-                case GameplayModifiers.SongSpeed.Faster:
-                    diffInfo.passRating = _modifiersRating.fsPassRating;
-                    diffInfo.accRating = _modifiersRating.fsAccRating;
-                    diffInfo.techRating = _modifiersRating.fsTechRating;
-                    diffInfo.stars = _modifiersRating.fsStars;
-                    break;
-                case GameplayModifiers.SongSpeed.Slower:
-                    diffInfo.passRating = _modifiersRating.ssPassRating;
-                    diffInfo.accRating = _modifiersRating.ssAccRating;
-                    diffInfo.techRating = _modifiersRating.ssTechRating;
-                    diffInfo.stars = _modifiersRating.ssStars;
-                    break;
-                case GameplayModifiers.SongSpeed.SuperFast:
-                    diffInfo.passRating = _modifiersRating.sfPassRating;
-                    diffInfo.accRating = _modifiersRating.sfAccRating;
-                    diffInfo.techRating = _modifiersRating.sfTechRating;
-                    diffInfo.stars = _modifiersRating.sfStars;
-                    break;
+
+            if (ModifiersManager.GetModifierState("SS")) {
+                diffInfo.passRating = _modifiersRating.ssPassRating;
+                diffInfo.accRating = _modifiersRating.ssAccRating;
+                diffInfo.techRating = _modifiersRating.ssTechRating;
+                diffInfo.stars = _modifiersRating.ssStars;
             }
+            if (ModifiersManager.GetModifierState("FS")) {
+                diffInfo.passRating = _modifiersRating.fsPassRating;
+                diffInfo.accRating = _modifiersRating.fsAccRating;
+                diffInfo.techRating = _modifiersRating.fsTechRating;
+                diffInfo.stars = _modifiersRating.fsStars;
+            }
+            if (ModifiersManager.GetModifierState("SF")) {
+                diffInfo.passRating = _modifiersRating.sfPassRating;
+                diffInfo.accRating = _modifiersRating.sfAccRating;
+                diffInfo.techRating = _modifiersRating.sfTechRating;
+                diffInfo.stars = _modifiersRating.sfStars;
+            }
+            if (ModifiersManager.GetModifierState("BFS")) {
+                diffInfo.passRating = _modifiersRating.bfsPassRating;
+                diffInfo.accRating = _modifiersRating.bfsAccRating;
+                diffInfo.techRating = _modifiersRating.bfsTechRating;
+                diffInfo.stars = _modifiersRating.bfsStars;
+            }
+            if (ModifiersManager.GetModifierState("BSF")) {
+                diffInfo.passRating = _modifiersRating.bsfPassRating;
+                diffInfo.accRating = _modifiersRating.bsfAccRating;
+                diffInfo.techRating = _modifiersRating.bsfTechRating;
+                diffInfo.stars = _modifiersRating.bsfStars;
+            }
+
             var summand = CalculateModifiersSummand();
             ApplyMultiplier(ref diffInfo.passRating, summand);
             ApplyMultiplier(ref diffInfo.accRating, summand);

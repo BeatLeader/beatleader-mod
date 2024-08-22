@@ -2,6 +2,8 @@
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using ModifiersCore;
+using System.Collections.Generic;
 using TMPro;
 
 namespace BeatLeader.Components {
@@ -51,15 +53,23 @@ namespace BeatLeader.Components {
             MapDifficultyPanel.NotifyDiffInfoChanged(_diffInfo);
             var stars = _diffInfo.stars;
             var modifiersApplied = false;
-            if (_diffInfo.modifiersRating is { } rating &&
-                _gameplayModifiers is { songSpeed: not GameplayModifiers.SongSpeed.Normal } modifiers) {
-                stars = modifiers.songSpeed switch {
-                    GameplayModifiers.SongSpeed.Slower => rating.ssStars,
-                    GameplayModifiers.SongSpeed.Faster => rating.fsStars,
-                    GameplayModifiers.SongSpeed.SuperFast => rating.sfStars,
-                    _ => stars,
+
+            var rating = _diffInfo.modifiersRating;
+            if (rating != null) {
+                var starMap = new Dictionary<string, float> { 
+                    { "SS", rating.ssStars },
+                    { "FS", rating.fsStars },
+                    { "SF", rating.sfStars },
+                    { "BFS", rating.bfsStars },
+                    { "BSF", rating.bsfStars },
                 };
-                modifiersApplied = true;
+                foreach (var pair in starMap) {
+                    if (ModifiersManager.GetModifierState(pair.Key)) {
+                        stars = pair.Value;
+                        modifiersApplied = true;
+                        break;
+                    }
+                }
             }
 
             var text = _rankedStatus.ToString();

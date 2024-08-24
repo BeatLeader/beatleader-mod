@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Polyglot;
 using TMPro;
 using UnityEngine;
+using ModifiersCore;
 
 namespace BeatLeader {
     [HarmonyPatch(typeof(GameplayModifiersPanelController), "RefreshTotalMultiplierAndRankUI")]
@@ -15,8 +16,8 @@ namespace BeatLeader {
 
         public static bool isPatchRequired = false;
         public static bool hasModifiers = false;
-        public static ModifiersMap ModifiersMap;
-        public static ModifiersRating? ModifiersRating;
+        public static Dictionary<string, float> ModifiersMap;
+        public static Dictionary<string, float>? ModifiersRating;
         
         [UsedImplicitly]
         private static void Postfix(
@@ -36,8 +37,11 @@ namespace BeatLeader {
             foreach (var param in modifierParams) {
                 if (param.multiplierConditionallyValid) continue; // for now only NoFail being ignored
 
-                var key = ModifiersUtils.ToNameCode(param.modifierNameLocalizationKey);
-                totalMultiplier += ModifiersMap.GetMultiplier(key);
+                var key = ModifiersManager.defaultModifierIds.ContainsKey(param.modifierNameLocalizationKey) ? ModifiersManager.defaultModifierIds[param.modifierNameLocalizationKey] : param.modifierNameLocalizationKey;
+                
+                if (ModifiersMap.ContainsKey(key.ToLower())) {
+                    totalMultiplier += ModifiersMap[key.ToLower()];
+                }
             }
 
             if (totalMultiplier < 0) totalMultiplier = 0; // thanks Beat Games for Zen mode -1000%

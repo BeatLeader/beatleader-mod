@@ -37,8 +37,10 @@ namespace BeatLeader {
             foreach (var param in modifierParams) {
                 if (param.multiplierConditionallyValid) continue; // for now only NoFail being ignored
 
-                var key = ModifiersManager.defaultModifierIds.ContainsKey(param.modifierNameLocalizationKey) ? ModifiersManager.defaultModifierIds[param.modifierNameLocalizationKey] : param.modifierNameLocalizationKey;
-                
+                if (!ModifierUtils.TryGetBaseModifierIdBySerializedName(param.modifierNameLocalizationKey, out var key)) {
+                    key = param.modifierNameLocalizationKey;
+                }
+    
                 if (ModifiersMap.ContainsKey(key.ToLower())) {
                     totalMultiplier += ModifiersMap[key.ToLower()];
                 }

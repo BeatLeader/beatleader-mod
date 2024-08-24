@@ -238,18 +238,6 @@ namespace BeatLeader.Utils {
             return ControllerEnum.unknown;
         }
 
-        private static float GetPositiveMultiplier(this ModifiersMap modifiersObject, string modifiers) {
-            var modifiersMap = modifiersObject.ToDictionary<float>();
-            return 1 + modifiersMap.Keys.Where(modifier => modifiers.Contains(modifier) 
-                && modifiersMap[modifier] > 0).Sum(modifier => modifiersMap[modifier]);
-        }
-
-        private static float GetNegativeMultiplier(this ModifiersMap modifiersObject, string modifiers) {
-            var modifiersMap = modifiersObject.ToDictionary<float>();
-            return 1 + modifiersMap.Keys.Where(modifier => modifiers.Contains(modifier)
-                && modifiersMap[modifier] < 0).Sum(modifier => modifiersMap[modifier]);
-        }
-
         #endregion
 
         #region Extensions

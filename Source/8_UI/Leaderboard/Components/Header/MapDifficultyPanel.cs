@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -109,41 +110,22 @@ namespace BeatLeader.Components {
         #region Modifiers
 
         private GameplayModifiers _gameplayModifiers = new();
-        private ModifiersRating? _modifiersRating;
-        private ModifiersMap _modifiersMap;
+        private Dictionary<string, float>? _modifiersRating;
+        private Dictionary<string, float> _modifiersMap;
 
         private void ModifyDiffRating(ref DiffInfo diffInfo) {
             if (_modifiersRating == null) return;
 
-            if (ModifiersManager.GetModifierState("SS")) {
-                diffInfo.passRating = _modifiersRating.ssPassRating;
-                diffInfo.accRating = _modifiersRating.ssAccRating;
-                diffInfo.techRating = _modifiersRating.ssTechRating;
-                diffInfo.stars = _modifiersRating.ssStars;
-            }
-            if (ModifiersManager.GetModifierState("FS")) {
-                diffInfo.passRating = _modifiersRating.fsPassRating;
-                diffInfo.accRating = _modifiersRating.fsAccRating;
-                diffInfo.techRating = _modifiersRating.fsTechRating;
-                diffInfo.stars = _modifiersRating.fsStars;
-            }
-            if (ModifiersManager.GetModifierState("SF")) {
-                diffInfo.passRating = _modifiersRating.sfPassRating;
-                diffInfo.accRating = _modifiersRating.sfAccRating;
-                diffInfo.techRating = _modifiersRating.sfTechRating;
-                diffInfo.stars = _modifiersRating.sfStars;
-            }
-            if (ModifiersManager.GetModifierState("BFS")) {
-                diffInfo.passRating = _modifiersRating.bfsPassRating;
-                diffInfo.accRating = _modifiersRating.bfsAccRating;
-                diffInfo.techRating = _modifiersRating.bfsTechRating;
-                diffInfo.stars = _modifiersRating.bfsStars;
-            }
-            if (ModifiersManager.GetModifierState("BSF")) {
-                diffInfo.passRating = _modifiersRating.bsfPassRating;
-                diffInfo.accRating = _modifiersRating.bsfAccRating;
-                diffInfo.techRating = _modifiersRating.bsfTechRating;
-                diffInfo.stars = _modifiersRating.bsfStars;
+            foreach (var modifier in ModifiersManager.Modifiers) {
+                var lowerId = modifier.Id.ToLower();
+                if (_modifiersRating.ContainsKey(lowerId + "Stars") &&
+                    ModifiersManager.GetModifierState(modifier.Id)) {
+                    diffInfo.passRating = _modifiersRating[lowerId + "PassRating"];
+                    diffInfo.accRating = _modifiersRating[lowerId + "AccRating"];
+                    diffInfo.techRating = _modifiersRating[lowerId + "TechRating"];
+                    diffInfo.stars = _modifiersRating[lowerId + "Stars"];
+                    break;
+                }
             }
 
             var summand = CalculateModifiersSummand();
@@ -158,9 +140,10 @@ namespace BeatLeader.Components {
         }
 
         private float CalculateModifiersSummand() {
-            return ModifiersUtils.ModifierCodes
-                .Where(code => _gameplayModifiers.GetModifierState(code))
-                .Sum(code => _modifiersMap.GetMultiplier(code));
+            return ModifiersManager
+                    .Modifiers
+                    .Where(m => ModifiersManager.GetModifierState(m.Id))
+                    .Sum(m => _modifiersMap.ContainsKey(m.Id.ToLower()) ? _modifiersMap[m.Id.ToLower()] : m.Multiplier);
         }
 
         #endregion

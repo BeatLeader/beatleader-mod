@@ -56,16 +56,11 @@ namespace BeatLeader.Components {
 
             var rating = _diffInfo.modifiersRating;
             if (rating != null) {
-                var starMap = new Dictionary<string, float> { 
-                    { "SS", rating.ssStars },
-                    { "FS", rating.fsStars },
-                    { "SF", rating.sfStars },
-                    { "BFS", rating.bfsStars },
-                    { "BSF", rating.bsfStars },
-                };
-                foreach (var pair in starMap) {
-                    if (ModifiersManager.GetModifierState(pair.Key)) {
-                        stars = pair.Value;
+                foreach (var modifier in ModifiersManager.Modifiers) {
+                    var lowerId = modifier.Id.ToLower();
+                    if (rating.ContainsKey(lowerId + "Stars") &&
+                        ModifiersManager.GetModifierState(modifier.Id)) {
+                        stars = rating[lowerId + "Stars"];
                         modifiersApplied = true;
                         break;
                     }

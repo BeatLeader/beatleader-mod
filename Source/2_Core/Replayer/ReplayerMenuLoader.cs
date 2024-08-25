@@ -15,9 +15,11 @@ using BeatSaber.BeatAvatarSDK;
 using BeatSaber.BeatAvatarSDK;
 using JetBrains.Annotations;
 using ModestTree;
+using ModifiersCore;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
+using ModifiersManager = ModifiersCore.ModifiersManager;
 
 namespace BeatLeader.Replayer {
     [PublicAPI]
@@ -250,6 +252,7 @@ namespace BeatLeader.Replayer {
                 beatmap,
                 data.EnvironmentInfo
             );
+            PatchModifiers(replays.First().replay.info.modifiers);
             //starting
             StartReplayer(data, finishCallback);
         }
@@ -277,8 +280,34 @@ namespace BeatLeader.Replayer {
             _fpfcSettings.Enabled = InputUtils.OverrideUsesFPFC ?? InputUtils.HasFpfcArg;
             InputUtils.OverrideUsesFPFC = null;
             InputUtils.EnableCursor(!InputUtils.HasFpfcArg);
+            UnpatchModifiers();
         }
 
+        #endregion
+
+        #region Modifiers
+
+        private static readonly Dictionary<string, bool> modifierStates = new();
+
+        private static void PatchModifiers(string modifiers) {
+            var modifierList = modifiers.Split(',');
+            foreach (var modifier in modifierList) {
+                //skipping base-game
+                if (ModifierUtils.IsValidBaseGameModifier(modifier)) continue;
+                var state = ModifiersManager.GetModifierState(modifier);
+                modifierStates.Add(modifier, state);
+                //spoofing the modifier
+                ModifiersManager.SetModifierState(modifier, true);
+            }
+        }
+
+        private static void UnpatchModifiers() {
+            foreach (var (id, state) in modifierStates) {
+                ModifiersManager.SetModifierState(id, state);
+            }
+            modifierStates.Clear();
+        }
+        
         #endregion
 
         #region ReplayTools

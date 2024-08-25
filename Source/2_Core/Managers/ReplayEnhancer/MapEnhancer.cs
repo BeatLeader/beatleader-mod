@@ -1,6 +1,8 @@
 ﻿using BeatLeader.Models;
 using System.Collections.Generic;
 using BeatLeader.Models.Replay;
+using ModifiersCore;
+using System.Linq;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer
 {

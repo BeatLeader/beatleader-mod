@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -8,7 +9,8 @@ namespace BeatLeader {
         [UsedImplicitly]
         private static void Prefix(GameplayCoreInstaller __instance) {
             var speed = SpeedModifiers.GetSongSpeed();
-            __instance._sceneSetupData.gameplayModifiers._songSpeed = speed;
+            var modifiers = __instance._sceneSetupData.gameplayModifiers.CopyWith(songSpeed: speed);
+            __instance._sceneSetupData.SetField("gameplayModifiers", modifiers);
         }
     }
 

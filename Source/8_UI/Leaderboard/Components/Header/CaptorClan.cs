@@ -76,7 +76,7 @@ namespace BeatLeader.Components {
                     _captorClanTag.SetValue(data.Clan);
                 }
             } else {
-                Plugin.Log.Error("Leaderboard Clan Captor missing!");
+                Plugin.Log.Info("Leaderboard Clan Captor missing!");
             }
         }
     }

@@ -1,4 +1,4 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.Themes;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -100,7 +100,7 @@ namespace BeatLeader.Components {
 
         private void UpdateAvatar() {
             if (!gameObject.activeInHierarchy) return;
-            if (_url == null) {
+            if (_url == null || _url.Length == 0) {
                 ShowTexture(BundleLoader.DefaultAvatar.texture);
                 return;
             }

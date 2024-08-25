@@ -91,7 +91,6 @@ namespace BeatLeader.Models {
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public struct ModifiersMap {
-        public int modifierId;
         public float da;
         public float fs;
         public float ss;

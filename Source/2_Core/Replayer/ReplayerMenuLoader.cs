@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,14 +9,17 @@ using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using HMUI;
+using IPA.Utilities;
 using JetBrains.Annotations;
+using ModifiersCore;
 using SiraUtil.Tools.FPFC;
 using UnityEngine;
 using Zenject;
+using ModifiersManager = ModifiersCore.ModifiersManager;
 
 namespace BeatLeader.Replayer {
     [PublicAPI]
-    public class ReplayerMenuLoader :  MonoBehaviour, IReplayerViewNavigator {
+    public class ReplayerMenuLoader : MonoBehaviour, IReplayerViewNavigator {
         #region Init
 
         public static ReplayerMenuLoader? Instance { get; private set; }
@@ -74,6 +78,7 @@ namespace BeatLeader.Replayer {
             var abstractReplay = ReplayDataUtils.ConvertToAbstractReplay(replay, player);
             data.Init(abstractReplay, ReplayDataUtils.BasicReplayComparator, settings, data.BeatmapLevel, data.BeatmapKey, data.EnvironmentInfo);
 
+            PatchModifiers(info.modifiers);
             StartReplay(data, finishCallback);
         }
 
@@ -98,6 +103,7 @@ namespace BeatLeader.Replayer {
                 creplay, ReplayDataUtils.BasicReplayComparator,
                 settings, data.BeatmapLevel, data.BeatmapKey, data.EnvironmentInfo
             );
+            PatchModifiers(info.modifiers);
             StartReplay(data, finishCallback);
         }
 
@@ -121,8 +127,34 @@ namespace BeatLeader.Replayer {
             _fpfcSettings.Enabled = InputUtils.forceFPFC ?? InputUtils.containsFPFCArg;
             InputUtils.forceFPFC = null;
             InputUtils.EnableCursor(!InputUtils.containsFPFCArg);
+            UnpatchModifiers();
         }
 
+        #endregion
+
+        #region Modifiers
+
+        private static readonly Dictionary<string, bool> modifierStates = new();
+
+        private static void PatchModifiers(string modifiers) {
+            var modifierList = modifiers.Split(',');
+            foreach (var modifier in modifierList) {
+                //skipping base-game
+                if (ModifierUtils.IsValidBaseGameModifier(modifier)) continue;
+                var state = ModifiersManager.GetModifierState(modifier);
+                modifierStates.Add(modifier, state);
+                //spoofing the modifier
+                ModifiersManager.SetModifierState(modifier, true);
+            }
+        }
+
+        private static void UnpatchModifiers() {
+            foreach (var (id, state) in modifierStates) {
+                ModifiersManager.SetModifierState(id, state);
+            }
+            modifierStates.Clear();
+        }
+        
         #endregion
 
         #region ReplayTools

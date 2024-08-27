@@ -10,7 +10,6 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
         [Inject] private readonly DiContainer _diContainer = null!; 
         [Inject] private readonly VRInputModule _vrInputModule = null!;
-        [Inject] private readonly SettingsManager _settingsManager = null!;
 
         public Transform HandsContainer { get; private set; } = null!;
         public VRController LeftHand { get; private set; } = null!;
@@ -29,8 +28,6 @@ namespace BeatLeader.Replayer {
             menuHandsTransform.gameObject.GetComponent<DeactivateOnInputFocusCapture>().TryDestroy();
             LeftHand = Instantiate(menuHandsTransform.Find("ControllerLeft")).GetComponent<VRController>();
             RightHand = Instantiate(menuHandsTransform.Find("ControllerRight")).GetComponent<VRController>();
-            ((VRControllersValueSettingsOffsets)LeftHand._transformOffset).SetField("_settingsManager", _settingsManager);
-            ((VRControllersValueSettingsOffsets)RightHand._transformOffset).SetField("_settingsManager", _settingsManager);
 
             _diContainer.InjectComponentsInChildren(LeftHand.gameObject);
             _diContainer.InjectComponentsInChildren(RightHand.gameObject);

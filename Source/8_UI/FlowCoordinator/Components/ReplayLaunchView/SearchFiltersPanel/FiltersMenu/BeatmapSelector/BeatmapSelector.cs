@@ -11,7 +11,7 @@ namespace BeatLeader.Components {
     internal class BeatmapSelector : ReeUIComponentV2 {
         #region Events
 
-        public event Action<BeatmapLevel?>? BeatmapSelectedEvent;
+        public event Action<IPreviewBeatmapLevel?>? BeatmapSelectedEvent;
 
         #endregion
 
@@ -41,7 +41,7 @@ namespace BeatLeader.Components {
 
         private bool IsInitialized => _isInitializedComponent && _isInitializedDependencies;
 
-        private BeatmapLevel? _customPreviewBeatmapLevel;
+        private IPreviewBeatmapLevel? _customPreviewBeatmapLevel;
 
         private bool _isInitializedComponent;
         private bool _isInitializedDependencies;
@@ -89,7 +89,7 @@ namespace BeatLeader.Components {
 
         #region CurrentBeatmap
 
-        private BeatmapLevel? _currentPreviewBeatmapLevel;
+        private IPreviewBeatmapLevel? _currentPreviewBeatmapLevel;
         private bool _isFirstLaunch = true;
         private bool _currentTabOpened;
         private bool _isReady;
@@ -98,7 +98,7 @@ namespace BeatLeader.Components {
         public void NotifyBeatmapSelectorReady(bool isReady) {
             if (!IsInitialized) throw new UninitializedComponentException();
             if (isReady && _isFirstLaunch) {
-                HandleSelectedBeatmapChanged(null, _selectionNavigationController!.beatmapLevel);
+                HandleSelectedBeatmapChanged(null, _selectionNavigationController!.selectedBeatmapLevel);
                 _isFirstLaunch = false;
             }
             RefreshBeatmapPreview(_currentTabOpened && _currentBeatmapChanged);
@@ -159,13 +159,13 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandleSelectedBeatmapChanged(LevelCollectionViewController? controller, BeatmapLevel level) {
+        private void HandleSelectedBeatmapChanged(LevelCollectionViewController? controller, IPreviewBeatmapLevel level) {
             if (_isReady || _isSelectorOpened) return;
             _currentPreviewBeatmapLevel = level;
             _currentBeatmapChanged = true;
         }
 
-        private void HandleSelectorBeatmapSelected(BeatmapLevel level) {
+        private void HandleSelectorBeatmapSelected(IPreviewBeatmapLevel level) {
             _customPreviewBeatmapLevel = level;
             RefreshBeatmapPreview();
         }

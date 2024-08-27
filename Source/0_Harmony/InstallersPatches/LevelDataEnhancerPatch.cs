@@ -1,40 +1,31 @@
 ﻿using BeatLeader.Core.Managers.ReplayEnhancer;
+using BeatLeader.Installers;
 using HarmonyLib;
-using System.Linq;
-using System.Reflection;
+using IPA.Utilities;
+using JetBrains.Annotations;
 
 namespace BeatLeader
 {
-    [HarmonyPatch]
-    class LevelDataEnhancerPatch {
-        static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(StandardLevelScenesTransitionSetupDataSO),
-            m => m.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init) &&
-                 m.GetParameters().All(p => p.ParameterType != typeof(IBeatmapLevelData)));
-        public static void Postfix(in BeatmapKey beatmapKey, BeatmapLevel beatmapLevel, OverrideEnvironmentSettings overrideEnvironmentSettings, ColorScheme overrideColorScheme, GameplayModifiers gameplayModifiers, PlayerSpecificSettings playerSpecificSettings, PracticeSettings practiceSettings, EnvironmentsListModel environmentsListModel) {
-            Plugin.Log.Debug($"LevelDataEnhancerPatch.postfix {beatmapKey.levelId} {beatmapLevel.songName}");
-            string environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
-            EnvironmentInfoSO? environmentInfoSO = environmentsListModel.GetEnvironmentInfoBySerializedName(environmentName);
-            if (environmentInfoSO != null && overrideEnvironmentSettings is { overrideEnvironments: true }) {
-                environmentName = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environmentInfoSO.environmentType).environmentName;
+    [HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init))]
+    class LevelDataEnhancerPatch
+    {
+        static void Postfix(StandardLevelScenesTransitionSetupDataSO __instance, string gameMode, IDifficultyBeatmap difficultyBeatmap, IPreviewBeatmapLevel previewBeatmapLevel, OverrideEnvironmentSettings overrideEnvironmentSettings,
+            GameplayModifiers gameplayModifiers, ColorScheme overrideColorScheme, PlayerSpecificSettings playerSpecificSettings, ref PracticeSettings practiceSettings, string backButtonText, bool useTestNoteCutSoundEffects)
+        {
+            Plugin.Log.Debug("LevelDataEnhancerPatch.postfix");
+            EnvironmentInfoSO environmentInfoSO = difficultyBeatmap.GetEnvironmentInfo();
+            if (overrideEnvironmentSettings is { overrideEnvironments: true })
+            {
+                environmentInfoSO = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environmentInfoSO.environmentType);
             }
-            MapEnhancer.beatmapKey = beatmapKey;
-            MapEnhancer.beatmapLevel = beatmapLevel;
+            MapEnhancer.difficultyBeatmap = difficultyBeatmap;
+            MapEnhancer.previewBeatmapLevel = previewBeatmapLevel;
             MapEnhancer.gameplayModifiers = gameplayModifiers;
             MapEnhancer.playerSpecificSettings = playerSpecificSettings;
             MapEnhancer.practiceSettings = practiceSettings;
-            MapEnhancer.environmentName = environmentName;
+            MapEnhancer.useTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
+            MapEnhancer.environmentInfo = environmentInfoSO;
             MapEnhancer.colorScheme = overrideColorScheme;
-        }
-    }
-
-    [HarmonyPatch]
-    class LevelDataEnhancerPatch2 {
-
-        static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(StandardLevelScenesTransitionSetupDataSO),
-            m => m.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init) &&
-                 m.GetParameters().Any(p => p.ParameterType == typeof(IBeatmapLevelData)));
-        static void Postfix(in BeatmapKey beatmapKey, BeatmapLevel beatmapLevel, OverrideEnvironmentSettings overrideEnvironmentSettings, ColorScheme overrideColorScheme, GameplayModifiers gameplayModifiers, PlayerSpecificSettings playerSpecificSettings, PracticeSettings practiceSettings, EnvironmentsListModel environmentsListModel) {
-            LevelDataEnhancerPatch.Postfix(beatmapKey, beatmapLevel, overrideEnvironmentSettings, overrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, environmentsListModel);
         }
     }
 }

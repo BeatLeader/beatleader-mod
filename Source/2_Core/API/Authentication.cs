@@ -33,12 +33,12 @@ namespace BeatLeader.API {
             await GetUserInfo.GetUserAsync();
             var platformUserModel = Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>().Select(l => l._platformUserModel).LastOrDefault(p => p != null);
 
-            UserInfo userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
+            UserInfo userInfo = await platformUserModel.GetUserInfo();
             var tokenProvider = new PlatformAuthenticationTokenProvider(platformUserModel, userInfo);
 
             return Platform switch {
                 AuthPlatform.Steam => (await tokenProvider.GetAuthenticationToken()).sessionToken,
-                AuthPlatform.OculusPC => (await tokenProvider.GetXPlatformAccessToken(CancellationToken.None)).token,
+                AuthPlatform.OculusPC => (await tokenProvider.GetAuthenticationToken()).sessionToken,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

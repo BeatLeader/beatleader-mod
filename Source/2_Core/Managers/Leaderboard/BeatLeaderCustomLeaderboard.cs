@@ -32,7 +32,7 @@ namespace BeatLeader {
         protected override ViewController panelViewController => _leaderboardPanel;
         protected override ViewController leaderboardViewController => _leaderboardView;
 
-        public override bool ShowForLevel(BeatmapKey? selectedLevel) {
+        public override bool ShowForLevel(IPreviewBeatmapLevel selectedLevel) {
             return true;
         }
         protected override string leaderboardId => "BeatLeader";

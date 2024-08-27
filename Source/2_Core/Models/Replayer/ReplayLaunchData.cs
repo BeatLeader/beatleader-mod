@@ -8,8 +8,7 @@ namespace BeatLeader.Models {
     public class ReplayLaunchData {
         public IReadOnlyList<IReplay> Replays { get; protected set; } = null!;
         public IReplayComparator ReplayComparator { get; protected set; } = null!;
-        public BeatmapLevel? BeatmapLevel { get; protected set; }
-        public BeatmapKey? BeatmapKey { get; protected set; }
+        public IDifficultyBeatmap? DifficultyBeatmap { get; protected set; }
         public ReplayerSettings Settings { get; protected set; } = null!;
         public EnvironmentInfoSO? EnvironmentInfo { get; protected set; }
 
@@ -19,16 +18,15 @@ namespace BeatLeader.Models {
         public event Action<StandardLevelScenesTransitionSetupDataSO, ReplayLaunchData>? ReplayWasFinishedEvent;
 
         public void Init(IReplay replay, IReplayComparator comparator, ReplayerSettings settings,
-            BeatmapLevel? beatmapLevel = null, BeatmapKey? beatmapKey = null, EnvironmentInfoSO? environmentInfo = null) {
-            Init(new[] { replay }, comparator, settings, beatmapLevel, beatmapKey, environmentInfo);
+            IDifficultyBeatmap? difficultyBeatmap = null, EnvironmentInfoSO? environmentInfo = null) {
+            Init(new[] { replay }, comparator, settings, difficultyBeatmap, environmentInfo);
         }
 
         public void Init(IReadOnlyList<IReplay> replays, IReplayComparator comparator, ReplayerSettings settings,
-            BeatmapLevel? beatmapLevel = null, BeatmapKey? beatmapKey = null, EnvironmentInfoSO? environmentInfo = null) {
+            IDifficultyBeatmap? difficultyBeatmap = null, EnvironmentInfoSO? environmentInfo = null) {
             Replays = replays;
             ReplayComparator = comparator;
-            BeatmapLevel = beatmapLevel;
-            BeatmapKey = beatmapKey;
+            DifficultyBeatmap = difficultyBeatmap!;
             EnvironmentInfo = environmentInfo;
             Settings = settings;
         }

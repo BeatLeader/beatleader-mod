@@ -6,46 +6,31 @@ namespace BeatLeader {
     internal static class LeaderboardState {
         #region SelectedBeatmap
 
-        public delegate void SelectedBeatmapWasChangedDelegate(
-            bool selectedAny, 
-            LeaderboardKey leaderboardKey, 
-            [CanBeNull] BeatmapKey beatmapKey,
-            [CanBeNull] BeatmapLevel beatmapLevel);
+        public delegate void SelectedBeatmapWasChangedDelegate(bool selectedAny, LeaderboardKey leaderboardKey, [CanBeNull] IDifficultyBeatmap beatmap);
 
         private static event SelectedBeatmapWasChangedDelegate SelectedBeatmapWasChangedEvent;
 
         [CanBeNull]
-        private static BeatmapKey _selectedBeatmapKey;
-        [CanBeNull]
-        private static BeatmapLevel _selectedBeatmapLevel;
+        private static IDifficultyBeatmap _selectedBeatmap;
 
-        public static LeaderboardKey SelectedLeaderboardKey { get; private set; }
+        public static LeaderboardKey SelectedBeatmapKey { get; private set; }
         public static bool IsAnyBeatmapSelected;
 
         [CanBeNull]
-        public static BeatmapKey SelectedBeatmapKey {
-            get => _selectedBeatmapKey;
+        public static IDifficultyBeatmap SelectedBeatmap {
+            get => _selectedBeatmap;
             set {
-                if (_selectedBeatmapKey == value) return;
-                _selectedBeatmapKey = value;
+                if (_selectedBeatmap == value) return;
+                _selectedBeatmap = value;
                 IsAnyBeatmapSelected = value != null;
-                SelectedLeaderboardKey = LeaderboardKey.FromBeatmap(value);
-                SelectedBeatmapWasChangedEvent?.Invoke(IsAnyBeatmapSelected, SelectedLeaderboardKey, value, _selectedBeatmapLevel);
-            }
-        }
-
-        [CanBeNull]
-        public static BeatmapLevel SelectedBeatmapLevel {
-            get => _selectedBeatmapLevel;
-            set {
-                if (_selectedBeatmapLevel == value) return;
-                _selectedBeatmapLevel = value;
+                SelectedBeatmapKey = LeaderboardKey.FromBeatmap(value);
+                SelectedBeatmapWasChangedEvent?.Invoke(IsAnyBeatmapSelected, SelectedBeatmapKey, value);
             }
         }
 
         public static void AddSelectedBeatmapListener(SelectedBeatmapWasChangedDelegate handler) {
             SelectedBeatmapWasChangedEvent += handler;
-            handler?.Invoke(IsAnyBeatmapSelected, SelectedLeaderboardKey, SelectedBeatmapKey, SelectedBeatmapLevel);
+            handler?.Invoke(IsAnyBeatmapSelected, SelectedBeatmapKey, SelectedBeatmap);
         }
 
         public static void RemoveSelectedBeatmapListener(SelectedBeatmapWasChangedDelegate handler) {

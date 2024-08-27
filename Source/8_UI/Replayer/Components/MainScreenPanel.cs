@@ -46,7 +46,7 @@ namespace BeatLeader.Components {
             IReplayWatermark? watermark = null) {
             OnDispose();
             _pauseController = pauseController;
-            _songInfo.SetBeatmapLevel(launchData.BeatmapLevel);
+            _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap!.level);
             _toolbar.Setup(timeController, pauseController,
                 finishController, playersManager, cameraController,
                 launchData, watermark, LayoutEditor);

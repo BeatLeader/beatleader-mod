@@ -4,7 +4,7 @@ using UnityEngine;
 namespace BeatLeader.Replayer {
     internal class ReplayerExtraObjectsProvider : MonoBehaviour {
         [FirstResource]
-        private readonly MainSystemInit _mainSystemInit = null!;
+        private readonly MainSettingsModelSO _mainSettingsModel = null!;
 
         [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
         private readonly Transform _origin = null!;
@@ -24,9 +24,8 @@ namespace BeatLeader.Replayer {
             ReplayerCenterAdjust = new GameObject("CenterAdjust").transform;
             ReplayerCenterAdjust.SetParent(ReplayerCore, false);
 
-            var settingsModel = _mainSystemInit._settingsManager.settings;
-            _posOffset = settingsModel.room.center;
-            _rotOffset = Quaternion.Euler(0, settingsModel.room.rotation, 0);
+            _posOffset = _mainSettingsModel.roomCenter;
+            _rotOffset = Quaternion.Euler(0, _mainSettingsModel.roomRotation, 0);
         }
 
         private void Start() {

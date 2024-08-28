@@ -1,4 +1,4 @@
-{
+﻿{
 "Tokens": [
     {
         "Token": "ls-leaderboard-settings",
@@ -27,8 +27,8 @@
             "Korean": "아바타",
             "French": "Avatar",
             "German": "Avatar",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Avatar",
+            "Norwegian": "Avatar",
             "Polish": "Awatar",
             "Swedish": "Avatar",
             "Italian": "Avatar"
@@ -44,8 +44,8 @@
             "Korean": "국가",
             "French": "Pays",
             "German": "Land",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "País",
+            "Norwegian": "Land",
             "Polish": "Kraj",
             "Swedish": "Land",
             "Italian": "Paese"
@@ -61,8 +61,8 @@
             "Korean": "클랜",
             "French": "Clans",
             "German": "Clans",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Clanes",
+            "Norwegian": "Klaner",
             "Polish": "Klany",
             "Swedish": "Klaner",
             "Italian": "Clan"
@@ -78,8 +78,8 @@
             "Korean": "점수",
             "French": "Score",
             "German": "Punkte",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Puntaje",
+            "Norwegian": "Poengsum",
             "Polish": "Wynik",
             "Swedish": "Poäng",
             "Italian": "Punteggio"
@@ -95,8 +95,8 @@
             "Korean": "정확도",
             "French": "Précision",
             "German": "Präzision",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Precisión",
+            "Norwegian": "Nøyaktighet",
             "Polish": "Celność",
             "Swedish": "Precision",
             "Italian": "Accuratezza"
@@ -112,8 +112,8 @@
             "Korean": "플레이 날짜",
             "French": "Temps",
             "German": "Zeit",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Hora",
+            "Norwegian": "Tid",
             "Polish": "Data",
             "Swedish": "Tid",
             "Italian": "Tempo"
@@ -129,8 +129,8 @@
             "Korean": "시간",
             "French": "Temps",
             "German": "Zeitpunkt",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Compás",
+            "Norwegian": "Tid",
             "Polish": "Czas",
             "Swedish": "Tid",
             "Italian": "Tempo"
@@ -146,8 +146,8 @@
             "Korean": "실수",
             "French": "Fautes",
             "German": "Fehler",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Error",
+            "Norwegian": "Feil",
             "Polish": "Błędy",
             "Swedish": "Misstag",
             "Italian": "Errori"
@@ -163,8 +163,8 @@
             "Korean": "퍼즈",
             "French": "Pauses",
             "German": "Pausen",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Pausas",
+            "Norwegian": "Pauser",
             "Polish": "Pauzy",
             "Swedish": "Pauser",
             "Italian": "Pause"

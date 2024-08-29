@@ -724,8 +724,8 @@
             "Korean": "삭제",
             "French": "Supprimer",
             "German": "Löschen",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "Borrar",
+            "Norwegian": "Slette",
             "Polish": "Usuń",
             "Swedish": "Radera",
             "Italian": "Elimina"
@@ -838,13 +838,13 @@
         "Translations": {
             "English": "SCPM",
             "Japanese": "SCPM",
-            "Russian": null,
+            "Russian": "СЦПМ",
             "Chinese": "SCPM",
             "Korean": "SCPM",
             "French": "SCPM",
             "German": "SCPM",
-            "Spanish": null,
-            "Norwegian": null,
+            "Spanish": "SCPM",
+            "Norwegian": "SCPM",
             "Polish": null,
             "Swedish": "SCPM",
             "Italian": "SCPM"

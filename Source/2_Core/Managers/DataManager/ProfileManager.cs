@@ -62,6 +62,7 @@ namespace BeatLeader.DataManager {
         }
 
         private static void FinishTask() {
+            if (!_initialized) return;
             AssignLoadProfileTaskIfNeeded();
             _profileLoadTaskCompletionSource!.SetResult(null);
         }
@@ -101,6 +102,8 @@ namespace BeatLeader.DataManager {
 
         #region Initialize / Dispose
 
+        private static bool _initialized;
+        
         public void Initialize() {
             UserRequest.AddStateListener(OnUserRequestStateChanged);
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
@@ -110,11 +113,13 @@ namespace BeatLeader.DataManager {
             LeaderboardEvents.RemoveFriendWasPressedEvent += OnRemoveFriendWasPressed;
             PluginConfig.MainServerChangedEvent += OnMainServerChanged;
 
+            _initialized = true;
             UserRequest.SendRequest();
         }
 
         public void Dispose() {
             _profileLoadTaskCompletionSource = null;
+            _initialized = false;
             UserRequest.RemoveStateListener(OnUserRequestStateChanged);
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
             AddFriendRequest.RemoveStateListener(OnAddFriendRequestStateChanged);

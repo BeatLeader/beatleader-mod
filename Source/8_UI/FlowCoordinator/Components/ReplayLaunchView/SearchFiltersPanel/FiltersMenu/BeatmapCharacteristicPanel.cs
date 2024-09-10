@@ -99,7 +99,7 @@ namespace BeatLeader.Components {
             _segmentedControl = characteristicPanel.GetComponentInChildren<
                 BeatmapCharacteristicSegmentedControlController>(true);
             _segmentedControl.didSelectBeatmapCharacteristicEvent += HandleBeatmapCharacteristicSelected;
-            _beatmapCharacteristics = _segmentedControl._beatmapCharacteristics;
+            _beatmapCharacteristics = _segmentedControl._currentlyAvailableBeatmapCharacteristics;
         }
 
         #endregion

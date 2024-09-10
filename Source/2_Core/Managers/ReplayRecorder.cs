@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using BeatLeader.Core.Managers.NoteEnhancer;
@@ -283,7 +283,8 @@ namespace BeatLeader {
             var controllerTransform = new ReeTransform(controllerPos, controllerRot);
 
             localPosition = controllerTransform.WorldToLocalPosition(saber.handlePos);
-            localRotation = controllerTransform.WorldToLocalRotation(saber.handleRot);
+            // saber.handleRot is gone :(
+            // localRotation = controllerTransform.WorldToLocalRotation(saber.handleRot);
         }
 
         #endregion

@@ -1,4 +1,4 @@
-using BeatSaberMarkupLanguage.Util;
+﻿using BeatSaberMarkupLanguage.Util;
 
 namespace BeatLeader {
     internal partial class ModPanelUI {
@@ -9,7 +9,7 @@ namespace BeatLeader {
 
         public static void AddTab() {
             if (_tabActive) return;
-            PersistentSingleton<BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup>.instance.AddTab(
+            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.Instance.AddTab(
                 TabName,
                 ResourcePath,
                 instance
@@ -19,7 +19,7 @@ namespace BeatLeader {
 
         public static void RemoveTab() {
             if (!_tabActive) return;
-            PersistentSingleton<BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup>.instance.RemoveTab(TabName);
+            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.Instance.RemoveTab(TabName);
             _tabActive = false;
         }
     }

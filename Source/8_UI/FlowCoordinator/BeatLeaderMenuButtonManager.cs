@@ -28,12 +28,12 @@ namespace BeatLeader {
 
         private void Start() {
             if (!MenuButtonEnabled) return;
-            MenuButtons.instance.RegisterButton(menuButton);
+            MenuButtons.Instance.RegisterButton(menuButton);
             MenuButtonClickedEvent += HandleMenuButtonClicked;
         }
 
         private void OnDestroy() {
-            MenuButtons.instance.UnregisterButton(menuButton);
+            MenuButtons.Instance.UnregisterButton(menuButton);
             MenuButtonClickedEvent -= HandleMenuButtonClicked;  
         }
 

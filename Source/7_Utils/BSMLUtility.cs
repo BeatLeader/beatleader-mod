@@ -7,7 +7,7 @@ using System.Reflection;
 namespace BeatLeader.Utils {
     public static class BSMLUtility {
         public static void AddSpriteToBSMLCache(string name, Sprite sprite) {
-            Utilities.spriteCache.Add(name, sprite);
+            Utilities.SpriteCache.Add(name, sprite);
         }
         public static Sprite LoadSprite(string location) {
             Sprite sprite = null;
@@ -25,15 +25,15 @@ namespace BeatLeader.Utils {
             return sprite;
         }
         public static Sprite FindSpriteCached(string name) {
-            if (Utilities.spriteCache.TryGetValue(name, out var value) && value != null) {
+            if (Utilities.SpriteCache.TryGetValue(name, out var value) && value != null) {
                 return value;
             }
 
             Sprite[] array = Resources.FindObjectsOfTypeAll<Sprite>();
             foreach (Sprite sprite in array) {
                 if (sprite.name.Length != 0) {
-                    if (!Utilities.spriteCache.TryGetValue(sprite.name, out var value2) || value2 == null) {
-                        Utilities.spriteCache[sprite.name] = sprite;
+                    if (!Utilities.SpriteCache.TryGetValue(sprite.name, out var value2) || value2 == null) {
+                        Utilities.SpriteCache[sprite.name] = sprite;
                     }
 
                     if (sprite.name == name) {
@@ -48,7 +48,7 @@ namespace BeatLeader.Utils {
             content ??= ReadViewDefinition(host?.GetType() ?? typeof(T));
             if (string.IsNullOrEmpty(content)) return false;
             try {
-                BSMLParser.instance.Parse(content, obj.gameObject, host ?? obj);
+                BSMLParser.Instance.Parse(content, obj.gameObject, host ?? obj);
             } catch (Exception ex) {
                 Debug.LogException(ex);
                 return false;

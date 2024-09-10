@@ -77,7 +77,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInitialize() {
-            _tableView = _customList.tableView;
+            _tableView = _customList.TableView;
             _tableView.SetDataSource(this, false);
             _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
             var list = Content.Find("BSMLCustomList").gameObject;
@@ -99,7 +99,7 @@ namespace BeatLeader.Components {
 
         private const float kCellSize = 9.5f;
 
-        public float CellSize() {
+        public float CellSize(int idx) {
             return kCellSize;
         }
 

@@ -56,8 +56,8 @@ namespace BeatLeader.UI.BSML_Addons {
             foreach (var sprite in spritesToCache)
                 BSMLUtility
                     .AddSpriteToBSMLCache("bl-" + sprite.Key, sprite.Value);
-            foreach (var tag in addonTags) BSMLParser.instance.RegisterTag(tag);
-            foreach (var handler in addonHandlers) BSMLParser.instance.RegisterTypeHandler(handler);
+            foreach (var tag in addonTags) BSMLParser.Instance.RegisterTag(tag);
+            foreach (var handler in addonHandlers) BSMLParser.Instance.RegisterTypeHandler(handler);
             _ready = true;
         }
     }

@@ -1,9 +1,10 @@
 using System;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.Utils;
+using Reactive;
+using Reactive.Components;
 using UnityEngine;
+using ColorUtils = BeatLeader.Utils.ColorUtils;
 
 namespace BeatLeader.UI.Hub {
     internal class TagEditorPanel : ReactiveComponent {

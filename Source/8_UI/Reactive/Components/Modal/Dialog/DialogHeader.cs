@@ -1,3 +1,5 @@
+using Reactive;
+using Reactive.BeatSaber.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {

@@ -1,8 +1,9 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
@@ -108,13 +109,9 @@ namespace BeatLeader.UI.Hub {
                     new ImageButton {
                         Image = {
                             Sprite = BundleLoader.RotateRightIcon
-                        }
-                    }.WithClickListener(
-                        () => {
-                            ValidateAndThrow();
-                            _replaysLoader!.StartReplaysLoad();
-                        }
-                    ).AsFlexItem(aspectRatio: 1f),
+                        },
+                        OnClick = () => _replaysLoader!.StartReplaysLoad()
+                    }.AsFlexItem(aspectRatio: 1f),
                     //settings button
                     new ImageButton {
                         Image = {
@@ -131,17 +128,11 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        private IReplaysList? _replaysList;
         private IReplaysLoader? _replaysLoader;
 
         public void Setup(IReplaysList replaysList, IReplaysLoader replaysLoader) {
-            _replaysList = replaysList;
             _replaysLoader = replaysLoader;
             _sortOptionsModal.Setup(replaysList);
-        }
-
-        protected override bool Validate() {
-            return _replaysList is not null && _replaysLoader is not null;
         }
 
         #endregion

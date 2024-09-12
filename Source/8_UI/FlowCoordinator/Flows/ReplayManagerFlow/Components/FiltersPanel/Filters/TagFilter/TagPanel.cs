@@ -1,9 +1,10 @@
 using System;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -14,7 +15,7 @@ namespace BeatLeader.UI.Hub {
 
         public void SetEditModeEnabled(bool enabled, bool immediate) {
             _editModeEnabled = enabled;
-            _button.Sticky = !enabled;
+            _button.Latching = !enabled;
             _needToDisableDeleteButton = !enabled;
             if (!enabled) {
                 SetTagSelected(_tagSelected, true);
@@ -201,9 +202,9 @@ namespace BeatLeader.UI.Hub {
         private void RefreshVisuals() {
             _label.Text = _replayTag?.Name ?? "Tag";
             var color = _replayTag?.Color ?? Color.red;
-            _button.Colors = new StateColorSet {
+            _button.Colors = new SimpleColorSet {
                 Color = color.ColorWithAlpha(0.3f),
-                DisabledColor = color.ColorWithAlpha(0.3f),
+                NotInteractableColor = color.ColorWithAlpha(0.3f),
                 HoveredColor = color.ColorWithAlpha(0.7f),
                 ActiveColor = color.ColorWithAlpha(1f)
             };
@@ -217,12 +218,14 @@ namespace BeatLeader.UI.Hub {
                     PixelsPerUnit = 8f,
                     Material = GameResources.UINoGlowMaterial
                 },
-                Sticky = true,
-                HoverScaleSum = Vector3.one * 0.1f,
+                Latching = true,
+                OnClick = HandleTagButtonClicked,
+                OnStateChanged = HandleTagButtonStateChanged,
                 Children = {
                     //delete button
                     new ImageButton {
                         Enabled = false,
+                        OnClick = HandleDeleteButtonClicked,
                         ContentTransform = {
                             localScale = Vector3.zero
                         },
@@ -230,8 +233,7 @@ namespace BeatLeader.UI.Hub {
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 1f
                         },
-                        GrowOnHover = false,
-                        Colors = new StateColorSet {
+                        Colors = new SimpleColorSet {
                             Color = Color.red.ColorWithAlpha(0.7f),
                             HoveredColor = Color.red
                         },
@@ -244,17 +246,13 @@ namespace BeatLeader.UI.Hub {
                     }.AsFlexGroup(padding: 1f).AsFlexItem(
                         size: 3.5f,
                         position: new() { top = -1.5f, right = -1.5f }
-                    ).WithClickListener(HandleDeleteButtonClicked).Bind(ref _deleteButton).Bind(ref _deleteButtonTransform),
+                    ).Bind(ref _deleteButton).Bind(ref _deleteButtonTransform),
                     //text
                     new Label {
                         FontSize = 3f
                     }.AsFlexItem(size: "auto").Bind(ref _label)
                 }
-            }.With(
-                x => x
-                    .WithClickListener(HandleTagButtonClicked)
-                    .WithStateListener(HandleTagButtonStateChanged)
-            ).AsFlexGroup(
+            }.WithScaleAnimation(1f, 1.1f).AsFlexGroup(
                 padding: new() { left = 1f, right = 1f },
                 alignItems: Align.Center
             ).Bind(ref _button).Bind(ref _buttonTransform);

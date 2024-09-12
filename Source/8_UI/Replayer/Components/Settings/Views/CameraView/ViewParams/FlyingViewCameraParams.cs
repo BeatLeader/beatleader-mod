@@ -1,8 +1,10 @@
 using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
@@ -61,10 +63,10 @@ namespace BeatLeader.UI.Replayer {
                     ).Bind(ref _smoothnessSlider).InNamedRail("Speed"),
                     //
                     new BsButton {
-                            Skew = 0f
+                            Skew = 0f,
+                            OnClick = HandlePositionReset
                         }
                         .WithLabel("Reset")
-                        .WithClickListener(HandlePositionReset)
                         .AsFlexItem()
                         .InNamedRail("Reset Position"),
                     //hint

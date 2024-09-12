@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using BeatLeader.Components;
+﻿
+
+using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
-using IPA.Utilities;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using ImageButton = BeatLeader.UI.Reactive.Components.ImageButton;
 
 namespace BeatLeader.UI.Replayer {
     internal class PlayerList : Table<IVirtualPlayer, PlayerList.Cell> {
@@ -30,6 +29,7 @@ namespace BeatLeader.UI.Replayer {
                     ContentTransform = {
                         pivot = new(1f, 0f)
                     },
+                    OnClick = () => SelectSelf(true),
                     Image = {
                         Sprite = BundleLoader.Sprites.background,
                         PixelsPerUnit = 5f,
@@ -37,8 +37,6 @@ namespace BeatLeader.UI.Replayer {
                         UseGradient = true
                     },
                     Colors = null,
-                    GrowOnHover = false,
-                    HoverLerpMul = float.MaxValue,
                     Children = {
                         new QuickMiniProfile()
                             .Bind(ref _miniProfile)
@@ -62,7 +60,7 @@ namespace BeatLeader.UI.Replayer {
                                         }.Bind(ref _scoreText).AsFlexItem(size: "auto")
                                     }
                                 }.AsFlexGroup(
-                                    direction: Reactive.Yoga.FlexDirection.Column,
+                                    direction: FlexDirection.Column,
                                     alignItems: Align.Center,
                                     padding: new() {
                                         left = 2f,
@@ -77,7 +75,7 @@ namespace BeatLeader.UI.Replayer {
                                     .AsFlexItem(size: new() { y = 5f, x = 12f })
                             }
                         }.AsFlexGroup(
-                            direction: Reactive.Yoga.FlexDirection.Column,
+                            direction: FlexDirection.Column,
                             alignItems: Align.Center,
                             padding: 1f,
                             gap: 1f
@@ -86,7 +84,6 @@ namespace BeatLeader.UI.Replayer {
                 }.With(
                     x => x
                         .AsFlexGroup()
-                        .WithClickListener(() => SelectSelf(true))
                         .Bind(ref _backgroundImage)
                         .Bind(ref _actualContent)
                         .WithRectExpand()

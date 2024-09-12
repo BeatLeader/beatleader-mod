@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Replayer;
-using BeatLeader.Utils;
+using Reactive;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -32,7 +31,7 @@ namespace BeatLeader.Components {
 
         protected override Vector2 MinSize { get; } = new(60, 40);
         public override string ComponentName => "Player List";
-        
+
         private PlayerList _playerList = null!;
 
         protected override void ConstructInternal(Transform parent) {

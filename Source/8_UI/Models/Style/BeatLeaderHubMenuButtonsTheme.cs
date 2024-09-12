@@ -1,11 +1,13 @@
 ﻿using BeatLeader.UI;
 using BeatLeader.UI.Reactive;
+using Reactive.Components;
 
 namespace BeatLeader {
     internal class BeatLeaderHubMenuButtonsTheme {
-        public StateColorSet ReplayManagerButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
-        public StateColorSet BattleRoyaleButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
-        public StateColorSet SettingsButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
-        public StateColorSet EditAvatarButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        //TODO: make serializable
+        public SimpleColorSet ReplayManagerButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        public SimpleColorSet BattleRoyaleButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        public SimpleColorSet SettingsButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        public SimpleColorSet EditAvatarButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
     }
 }

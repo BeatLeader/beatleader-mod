@@ -1,3 +1,5 @@
+using Reactive;
+
 namespace BeatLeader.UI.Reactive.Components {
     internal class ContextModal<T, TContext> : SharedModal<T>
         where T : class, IContextModal<TContext>, IReactiveComponent, new()

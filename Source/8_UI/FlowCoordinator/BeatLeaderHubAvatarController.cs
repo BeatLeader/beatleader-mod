@@ -48,8 +48,9 @@ namespace BeatLeader.UI.Hub {
                     localEulerAngles = new(0f, 180f, 0f)
                 },
                 Interactable = false,
-                Enabled = false
-            }.WithClickListener(PresentEditFlowCoordinator);
+                Enabled = false,
+                OnClick = PresentEditFlowCoordinator
+            };
             _editAvatarButton.Setup(_hubTheme.MenuButtonsTheme);
             _editAvatarButton.Use(transform);
             //

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
+using Reactive;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -150,13 +151,11 @@ namespace BeatLeader.Components {
         #region Component Handling
 
         public void AddComponent(ILayoutComponent component) {
-            ValidateAndThrow();
             if (!_components.Add(component)) return;
             component.Setup(this);
         }
 
         public void RemoveComponent(ILayoutComponent component) {
-            ValidateAndThrow();
             component.Setup(null);
             _components.Remove(component);
         }

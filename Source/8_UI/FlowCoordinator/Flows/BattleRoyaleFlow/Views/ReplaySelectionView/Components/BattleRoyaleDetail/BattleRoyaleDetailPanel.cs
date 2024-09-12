@@ -2,8 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 
 namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleDetailPanel : BasicReplayDetailPanel {
@@ -13,8 +15,9 @@ namespace BeatLeader.UI.Hub {
         private Label _selectButtonLabel = null!;
 
         protected override ILayoutItem ConstructButtons() {
-            return new BsPrimaryButton()
-                .WithClickListener(HandleSelectButtonClicked)
+            return new BsPrimaryButton {
+                    OnClick = HandleSelectButtonClicked
+                }
                 .WithLocalizedLabel(out _selectButtonLabel, "ls-watch-replay-short")
                 .AsFlexItem(size: new() { y = 8f })
                 .Bind(ref _selectButton);

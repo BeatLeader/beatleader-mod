@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
 using HMUI;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -82,9 +85,10 @@ namespace BeatLeader.UI.Reactive.Components {
                 bool applyColor1,
                 float iconRotation,
                 Justify justify,
-                YogaFrame position
+                YogaFrame position,
+                Action callback
             ) {
-                var colorSet = new StateColorSet {
+                var colorSet = new SimpleColorSet {
                     HoveredColor = Color.white.ColorWithAlpha(0.3f),
                     Color = Color.clear
                 };
@@ -96,11 +100,10 @@ namespace BeatLeader.UI.Reactive.Components {
                         GradientDirection = ImageView.GradientDirection.Horizontal,
                         Material = GameResources.UINoGlowMaterial
                     },
-                    GrowOnHover = false,
-                    HoverLerpMul = float.MaxValue,
                     Colors = null,
                     GradientColors0 = applyColor1 ? null : colorSet,
                     GradientColors1 = applyColor1 ? colorSet : null,
+                    OnClick = callback,
                     Children = {
                         //icon
                         new Image {
@@ -142,15 +145,17 @@ namespace BeatLeader.UI.Reactive.Components {
                                 false,
                                 270f,
                                 Justify.FlexStart,
-                                new() { top = 0f, left = 0f }
-                            ).WithClickListener(SelectPrev).Bind(ref _prevButton),
+                                new() { top = 0f, left = 0f },
+                                SelectPrev
+                            ).Bind(ref _prevButton),
                             //
                             CreateButton(
                                 true,
                                 90f,
                                 Justify.FlexEnd,
-                                new() { top = 0f, right = 0f }
-                            ).WithClickListener(SelectNext).Bind(ref _nextButton)
+                                new() { top = 0f, right = 0f },
+                                SelectNext
+                            ).Bind(ref _nextButton)
                         }
                     }.AsFlexGroup().WithRectExpand()
                 }

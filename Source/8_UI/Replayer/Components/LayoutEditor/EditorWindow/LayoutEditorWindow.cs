@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -148,7 +149,7 @@ namespace BeatLeader.Components {
                         justifyContent: Justify.FlexStart
                     ).AsFlexItem(basis: 4f),
                     //list
-                    new UI.Reactive.Components.Dummy {
+                    new Dummy {
                         Children = {
                             new LayoutEditorComponentsList()
                                 .Bind(ref _layoutEditorComponentsList)
@@ -156,7 +157,7 @@ namespace BeatLeader.Components {
                         }
                     }.AsFlexGroup(padding: 1f).AsFlexItem(grow: 1f),
                     //buttons
-                    new UI.Reactive.Components.Dummy {
+                    new Dummy {
                         Children = {
                             new Image {
                                 Sprite = BundleLoader.Sprites.background,
@@ -164,51 +165,52 @@ namespace BeatLeader.Components {
                                 PixelsPerUnit = 10f,
                                 Children = {
                                     //layer buttons
-                                    new UI.Reactive.Components.Dummy {
+                                    new Dummy {
                                         Children = {
                                             //layer up button
                                             new BsButton {
-                                                    Skew = 0f
+                                                    Skew = 0f,
+                                                    OnClick = HandleLayerUpButtonClicked
                                                 }
                                                 .WithLabel("+")
                                                 .AsFlexItem(basis: 7f)
                                                 .WithAccentColor(Color.red)
-                                                .WithClickListener(HandleLayerUpButtonClicked)
                                                 .Bind(ref _layerUpButton),
                                             //layer down button
+
                                             new BsButton {
-                                                    Skew = 0f
+                                                    Skew = 0f,
+                                                    OnClick = HandleLayerDownButtonClicked
                                                 }
                                                 .WithLabel("-")
                                                 .AsFlexItem(basis: 7f)
                                                 .WithAccentColor(Color.blue)
-                                                .WithClickListener(HandleLayerDownButtonClicked)
-                                                .Bind(ref _layerDownButton)
+                                                .Bind(ref _layerDownButton),
                                         }
                                     }.AsFlexGroup(
-                                        direction: UI.Reactive.Yoga.FlexDirection.Column,
+                                        direction: FlexDirection.Column,
                                         gap: 0.5f
                                     ).AsFlexItem(grow: 1f),
                                     //exit & apply buttons
-                                    new UI.Reactive.Components.Dummy {
+                                    new Dummy {
                                         Children = {
                                             //cancel button
                                             new BsButton {
-                                                    Skew = 0f
+                                                    Skew = 0f,
+                                                    OnClick = () => _layoutEditor!.SetEditorActive(false)
                                                 }
                                                 .WithLabel("Cancel")
-                                                .AsFlexItem(basis: 7f)
-                                                .WithClickListener(() => _layoutEditor!.SetEditorActive(false)),
+                                                .AsFlexItem(basis: 7f),
                                             //apply button
                                             new BsPrimaryButton {
-                                                    Skew = 0f
+                                                    Skew = 0f,
+                                                    OnClick = () => _layoutEditor!.SetEditorActive(false, true)
                                                 }
                                                 .WithLabel("Apply")
                                                 .AsFlexItem(basis: 7f)
-                                                .WithClickListener(() => _layoutEditor!.SetEditorActive(false, true))
                                         }
                                     }.AsFlexGroup(
-                                        direction: UI.Reactive.Yoga.FlexDirection.Column,
+                                        direction: FlexDirection.Column,
                                         padding: new() { left = 2f },
                                         gap: 0.5f
                                     ).AsFlexItem(grow: 2f)
@@ -223,7 +225,7 @@ namespace BeatLeader.Components {
                     }.AsFlexGroup(padding: 1f).AsFlexItem(basis: 18f)
                 }
             }.WithSizeDelta(48f, 70f).AsFlexGroup(
-                direction: UI.Reactive.Yoga.FlexDirection.Column
+                direction: FlexDirection.Column
             ).Bind(ref _imageTransform).Use();
         }
 
@@ -239,8 +241,6 @@ namespace BeatLeader.Components {
             eventsHandler.PointerExitEvent += OnComponentPointerExit;
             RefreshWindowHandleColor();
         }
-
-        protected override bool Validate() => ComponentHandler is not null;
 
         #endregion
 
@@ -334,7 +334,6 @@ namespace BeatLeader.Components {
         }
 
         private void OnComponentPointerDown(PointerEventsHandler handler, PointerEventData data) {
-            ValidateAndThrow();
             var compPos = (Vector2)ContentTransform.localPosition;
             var pointerPos = ComponentHandler!.PointerPosition;
             _componentPosOffset = compPos - pointerPos;

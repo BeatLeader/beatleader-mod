@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
 using BeatSaberMarkupLanguage;
 using HMUI;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -95,12 +96,11 @@ namespace BeatLeader.UI.Hub {
                             Material = GameResources.UINoGlowMaterial
                         },
                         Colors = null,
-                        GradientColors1 = new StateColorSet {
+                        OnClick = Present,
+                        GradientColors1 = new SimpleColorSet {
                             Color = Color.clear,
                             HoveredColor = Color.white.ColorWithAlpha(0.2f)
                         },
-                        GrowOnHover = false,
-                        HoverLerpMul = float.MaxValue,
                         Skew = UIStyle.Skew,
                         Children = {
                             new BeatmapPreviewPanel {
@@ -109,7 +109,7 @@ namespace BeatLeader.UI.Hub {
                                 .AsFlexItem(grow: 1f, margin: new() { right = 1f })
                                 .Bind(ref _beatmapPreviewPanel)
                         }
-                    }.WithClickListener(Present).AsFlexGroup().AsFlexItem(
+                    }.AsFlexGroup().AsFlexItem(
                         grow: 1f,
                         margin: new() { left = 1f, right = 1f }
                     )

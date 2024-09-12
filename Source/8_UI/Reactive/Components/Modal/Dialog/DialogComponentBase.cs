@@ -1,4 +1,7 @@
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -34,7 +37,7 @@ namespace BeatLeader.UI.Reactive.Components {
             get => _okButton.Interactable;
             set => _okButton.Interactable = value;
         }
-        
+
         protected bool ShowOkButton {
             get => _okButton.Enabled;
             set => _okButton.Enabled = value;
@@ -64,18 +67,18 @@ namespace BeatLeader.UI.Reactive.Components {
                     new Dummy {
                         Children = {
                             new BsButton {
-                                    Skew = 0f
+                                    Skew = 0f,
+                                    OnClick = OnCancelButtonClicked
                                 }
                                 .WithLabel(out _cancelButtonLabel, "Cancel")
-                                .WithClickListener(OnCancelButtonClicked)
                                 .AsFlexItem(grow: 1f)
                                 .Bind(ref _cancelButton),
                             //
                             new BsPrimaryButton {
-                                    Skew = 0f
+                                    Skew = 0f,
+                                    OnClick = OnOkButtonClicked
                                 }
                                 .WithLabel(out _okButtonLabel, "Ok")
-                                .WithClickListener(OnOkButtonClicked)
                                 .AsFlexItem(grow: 1f)
                                 .Bind(ref _okButton)
                         }

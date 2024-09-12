@@ -1,5 +1,6 @@
 using BeatLeader.UI.Reactive;
 using BeatLeader.Utils;
+using Reactive;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -99,8 +100,6 @@ namespace BeatLeader.Components {
 
         protected abstract void ConstructInternal(Transform parent);
 
-        protected override bool Validate() => ComponentHandler is not null;
-
         #endregion
 
         #region ComponentController
@@ -175,7 +174,6 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshTransforms() {
-            ValidateAndThrow();
             ComponentSize = ComponentHandler!.OnResize(this, ComponentSize, ComponentSize);
             ComponentPosition = ComponentHandler.OnMove(this, ComponentPosition, ComponentPosition);
         }
@@ -211,7 +209,6 @@ namespace BeatLeader.Components {
         }
 
         void ILayoutComponentWrapperHandler.OnComponentPointerClick() {
-            ValidateAndThrow();
             ComponentHandler!.OnSelect(this);
         }
 
@@ -220,7 +217,6 @@ namespace BeatLeader.Components {
         }
 
         void ILayoutComponentWrapperHandler.OnComponentPointerDown() {
-            ValidateAndThrow();
             var compPos = (Vector2)_componentTransform.localPosition;
             var pointerPos = ComponentHandler!.PointerPosition;
             _componentPosOffset = compPos - pointerPos;
@@ -234,7 +230,6 @@ namespace BeatLeader.Components {
         }
 
         void ILayoutComponentWrapperHandler.OnCornerPointerDown(Vector2 corner) {
-            ValidateAndThrow();
             _lastSelectedCorner = corner;
             SetPivot(_componentTransform, InverseVector01(_lastSelectedCorner));
             _cornerOriginPos = ComponentHandler!.PointerPosition;

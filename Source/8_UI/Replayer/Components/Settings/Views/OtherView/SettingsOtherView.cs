@@ -1,8 +1,8 @@
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
-using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {
@@ -35,20 +35,6 @@ namespace BeatLeader.UI.Replayer {
         private Toggle _exitToggle = null!;
 
         protected override GameObject Construct() {
-            static Image CreateContainer(float gap, params ILayoutItem[] children) {
-                return new Image()
-                    .With(x => x.Children.AddRange(children))
-                    .AsBackground(
-                        color: new(0.1f, 0.1f, 0.1f, 1f),
-                        pixelsPerUnit: 7f
-                    ).AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        padding: 2f,
-                        justifyContent: Justify.FlexStart,
-                        gap: gap
-                    ).AsFlexItem();
-            }
-
             return new Image {
                 Children = {
                     //speed

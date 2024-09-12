@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -82,10 +84,6 @@ namespace BeatLeader.UI.Hub {
             _replaysLoader.ReplaysLoadFinishedEvent += HandleReplaysLoadFinished;
         }
 
-        protected override bool Validate() {
-            return _replaysLoader is not null;
-        }
-
         protected override void OnDisable() {
             _previewLoader?.StopPreview();
         }
@@ -147,10 +145,9 @@ namespace BeatLeader.UI.Hub {
                         Children = {
                             new Spinner().AsFlexItem(size: 8f),
                             //
-                            new BsButton()
-                                .WithClickListener(HandleCancelLoadingButtonClicked)
-                                .WithLabel("Cancel")
-                                .AsFlexItem()
+                            new BsButton {
+                                OnClick = HandleCancelLoadingButtonClicked
+                            }.WithLabel("Cancel").AsFlexItem()
                         }
                     }.AsFlexGroup(
                         direction: FlexDirection.Column,

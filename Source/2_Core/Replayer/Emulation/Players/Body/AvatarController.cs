@@ -1,7 +1,7 @@
-﻿using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.Utils;
+﻿using BeatLeader.Utils;
 using IPA.Utilities;
+using Reactive;
+using Reactive.BeatSaber.Components;
 using UnityEngine;
 
 namespace BeatLeader.Replayer.Emulation {

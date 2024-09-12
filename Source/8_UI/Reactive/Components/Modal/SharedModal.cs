@@ -1,4 +1,5 @@
 using System;
+using Reactive;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -8,6 +9,7 @@ namespace BeatLeader.UI.Reactive.Components {
         #region Pool
 
         public bool BuildImmediate {
+            // ReSharper disable once ValueParameterNotUsed
             set => modals.Preload(1);
         }
         
@@ -40,8 +42,6 @@ namespace BeatLeader.UI.Reactive.Components {
         #endregion
 
         #region Modal Adapter
-
-        public float AnimationProgress => _modal?.AnimationProgress ?? 0f;
 
         public event Action<IModal, bool>? ModalClosedEvent;
         public event Action<IModal, bool>? ModalOpenedEvent;

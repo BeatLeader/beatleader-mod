@@ -1,4 +1,6 @@
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -33,8 +35,6 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override GameObject Construct() {
             return new AeroButton {
-                GrowOnHover = false,
-                HoverLerpMul = float.MaxValue,
                 Children = {
                     //icon
                     new Image {

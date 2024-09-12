@@ -1,11 +1,10 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Replayer {
     internal class ReplayerSettingsPanel : ReactiveComponent {
@@ -108,8 +107,9 @@ namespace BeatLeader.UI.Replayer {
 
             protected override GameObject Construct() {
                 return new SegmentedControlButton {
-                    Sticky = true
-                }.WithRectExpand().WithStateListener(HandleButtonStateChanged).Bind(ref _button).Use();
+                    Latching = true, 
+                    OnStateChanged = HandleButtonStateChanged
+                }.WithRectExpand().Bind(ref _button).Use();
             }
 
             protected override void OnStart() {

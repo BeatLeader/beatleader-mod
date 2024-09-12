@@ -1,6 +1,6 @@
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
+using Reactive;
 
 namespace BeatLeader.UI.Hub {
     internal class TagCreationDialog : DialogComponentBase {

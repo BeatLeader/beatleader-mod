@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {

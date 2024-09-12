@@ -1,8 +1,10 @@
 ﻿using System;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using HMUI;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -43,7 +45,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Panel
 
-        private class ClickablePanel<T> : ReactiveComponent, IClickableComponent where T : ILayoutItem, IReactiveComponent {
+        private class ClickablePanel<T> : ReactiveComponent where T : ILayoutItem, IReactiveComponent {
             public T? Component {
                 get => _component;
                 set {
@@ -79,7 +81,7 @@ namespace BeatLeader.UI.Hub {
                 set => _backgroundButton.Interactable = value;
             }
 
-            public event Action? ClickEvent;
+            public Action? OnClick;
 
             private T? _component;
             private bool _showComponent;
@@ -96,8 +98,7 @@ namespace BeatLeader.UI.Hub {
                             Skew = UIStyle.Skew
                         },
                         Colors = UIStyle.ControlColorSet,
-                        GrowOnHover = false,
-                        HoverLerpMul = float.MaxValue,
+                        OnClick = () => OnClick?.Invoke(),
                         Children = {
                             new Label {
                                 FontStyle = FontStyles.Italic,
@@ -105,7 +106,6 @@ namespace BeatLeader.UI.Hub {
                             }.AsFlexItem(size: "auto").Bind(ref _emptyLabel),
                         }
                     }
-                    .WithClickListener(() => ClickEvent?.Invoke())
                     .AsFlexGroup(alignItems: Align.Center)
                     .Bind(ref _backgroundButton)
                     .Use();
@@ -127,30 +127,30 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new ClickablePanel<BeatmapPreviewPanel> {
                             EmptyText = "NO LEVEL SELECTED",
+                            OnClick = PresentLevelSelectionFlow,
                             Component = new BeatmapPreviewPanel {
                                 ShowDifficultyInsteadOfTime = true,
                                 Skew = UIStyle.Skew
                             }.Bind(ref _beatmapPreviewPanel)
                         }
-                        .WithClickListener(PresentLevelSelectionFlow)
                         .AsFlexItem(size: new() { x = 88f, y = 16f })
                         .Bind(ref _beatmapPanel),
                     //
                     new ClickablePanel<ReplaysPreviewPanel> {
                             EmptyText = "NO REPLAYS",
                             Interactable = false,
+                            OnClick = PresentReplaySelectionView,
                             Component = new ReplaysPreviewPanel().Bind(ref _replaysPreviewPanel)
                         }
-                        .WithClickListener(PresentReplaySelectionView)
                         .AsFlexItem(size: new() { x = 80f, y = 10f })
                         .Bind(ref _replaysPanel),
                     //
                     new BsPrimaryButton {
                             Skew = UIStyle.Skew,
-                            Interactable = false
+                            Interactable = false,
+                            OnClick = () => _battleRoyaleHost.LaunchBattle()
                         }
                         .WithLabel("BATTLE")
-                        .WithClickListener(() => _battleRoyaleHost.LaunchBattle())
                         .AsFlexItem(size: new() { x = 30f, y = 8f })
                         .Bind(ref _battleButton)
                 }
@@ -165,7 +165,7 @@ namespace BeatLeader.UI.Hub {
         private void RefreshReplaysPanel() {
             _replaysPanel.ShowComponent = _replaysPreviewPanel.Replays.Count > 0;
         }
-        
+
         #endregion
 
         #region LevelSelectionFlow
@@ -187,7 +187,7 @@ namespace BeatLeader.UI.Hub {
         #region ReplaySelectionView
 
         private bool _isInReplayMenu;
-        
+
         private void PresentReplaySelectionView() {
             _battleRoyaleFlowCoordinator.PushReturnAction("SELECT REPLAY", DismissReplaySelectionView);
             __PresentViewController(_replaySelectionViewController, null);
@@ -211,17 +211,17 @@ namespace BeatLeader.UI.Hub {
         private void HandleHostNavigationRequested(IBattleRoyaleReplay replay) {
             if (!_isInReplayMenu) PresentReplaySelectionView();
         }
-        
+
         private void HandleHostReplayAdded(IBattleRoyaleReplay replay, object caller) {
             _replaysPreviewPanel.Replays.Add(replay.ReplayHeader);
             RefreshReplaysPanel();
         }
-        
+
         private void HandleHostReplayRemoved(IBattleRoyaleReplay replay, object caller) {
             _replaysPreviewPanel.Replays.Remove(replay.ReplayHeader);
             RefreshReplaysPanel();
         }
-        
+
         private void HandleHostBeatmapChanged(IDifficultyBeatmap? beatmap) {
             _replaysPanel.Interactable = beatmap != null;
             _beatmapPanel.ShowComponent = beatmap != null;

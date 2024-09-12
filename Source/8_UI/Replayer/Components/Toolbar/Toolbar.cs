@@ -1,9 +1,15 @@
+using System;
 using UnityEngine;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Components.Basic;
+using Reactive.Yoga;
 using TMPro;
+using Image = Reactive.BeatSaber.Components.Image;
+using ImageButton = Reactive.BeatSaber.Components.ImageButton;
+using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.UI.Replayer {
     internal class Toolbar : ReactiveComponent {
@@ -61,8 +67,9 @@ namespace BeatLeader.UI.Replayer {
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
-                    new ExitButton()
-                        .WithClickListener(HandleExitButtonClicked)
+                    new ExitButton {
+                            OnClick = HandleExitButtonClicked
+                        }
                         .AsFlexItem(grow: 1f)
                         .InBackground(
                             color: new(0.1f, 0.1f, 0.1f, 1f),
@@ -75,10 +82,11 @@ namespace BeatLeader.UI.Replayer {
                         Children = {
                             //play button
                             new ImageButton {
+                                OnClick = HandlePlayButtonClicked,
                                 Image = {
                                     PreserveAspect = true
                                 }
-                            }.WithClickListener(HandlePlayButtonClicked).Bind(ref _playButton).AsFlexItem(
+                            }.Bind(ref _playButton).AsFlexItem(
                                 basis: 5f,
                                 margin: new() { left = 1f, right = 1f }
                             ),
@@ -101,8 +109,9 @@ namespace BeatLeader.UI.Replayer {
                                     Sprite = BundleLoader.SettingsIcon,
                                     PreserveAspect = true
                                 },
-                                Sticky = true
-                            }.WithStateListener(HandleSettingsButtonStateChanged).AsFlexItem(
+                                OnStateChanged = HandleSettingsButtonStateChanged,
+                                Latching = true
+                            }.AsFlexItem(
                                 basis: 6f,
                                 margin: new() { left = 1f }
                             )
@@ -146,15 +155,8 @@ namespace BeatLeader.UI.Replayer {
 
         #region ExitButton
 
-        private class ExitButton : ColoredButton {
-            private Image _image1 = null!;
-            private Image _image2 = null!;
-
-            protected override void ApplyColor(Color color) {
-                _image2.Color = color.ColorWithAlpha(AnimationProgress);
-                color = Colors!.GetColor(new() { interactable = Interactable });
-                _image1.Color = Color.Lerp(color, Color.clear, AnimationProgress);
-            }
+        private class ExitButton : ReactiveComponent {
+            public Action? OnClick;
 
             protected override GameObject Construct() {
                 static Image CreateImage(Sprite sprite) {
@@ -165,12 +167,23 @@ namespace BeatLeader.UI.Replayer {
                     }.WithRectExpand();
                 }
 
-                CreateImage(BundleLoader.ClosedDoorIcon).Bind(ref _image1);
-                CreateImage(BundleLoader.OpenedDoorIcon).Bind(ref _image2);
-                var parent = base.Construct();
-                _image1.Use(parent);
-                _image2.Use(parent);
-                return parent;
+                var color = UIStyle.ButtonColorSet.Color;
+                var activeColor = UIStyle.ButtonColorSet.ActiveColor;
+                var progress = RememberAnimated(0f, "200ms");
+
+                return new Button {
+                    OnClick = () => OnClick?.Invoke(),
+                    Children = {
+                        CreateImage(BundleLoader.ClosedDoorIcon)
+                            .WithEffect(progress, (x, y) => x.Color = Color.Lerp(color, Color.clear, y)),
+
+                        CreateImage(BundleLoader.OpenedDoorIcon)
+                            .WithEffect(progress, (x, y) => x.Color = Color.Lerp(Color.clear, activeColor, y))
+                    }
+                }.WithListener(
+                    x => x.IsHovered,
+                    x => progress.Value = x ? 1f : 0f
+                ).WithScaleAnimation(1f, 1.2f).Use();
             }
         }
 

@@ -1,13 +1,15 @@
 ﻿using System;
 using BeatLeader.Installers;
 using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 using VRUIControls;
 
 namespace BeatLeader.UI.Hub {
-    internal class EditAvatarFloatingButton : ReactiveComponent, IClickableComponent {
+    internal class EditAvatarFloatingButton : ReactiveComponent {
         #region Setup
 
         public bool Interactable {
@@ -15,7 +17,7 @@ namespace BeatLeader.UI.Hub {
             set => _button.Interactable = value;
         }
 
-        public event Action? ClickEvent;
+        public Action? OnClick;
 
         public void Setup(BeatLeaderHubMenuButtonsTheme theme) {
             _button.Colors = theme.EditAvatarButtonColors;
@@ -30,6 +32,7 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new AeroButton {
+                OnClick = () => OnClick?.Invoke(),
                 Children = {
                     new Image {
                         Sprite = BundleLoader.Sprites.editIcon
@@ -39,10 +42,8 @@ namespace BeatLeader.UI.Hub {
                         Text = "Edit Avatar",
                         FontSize = 6f
                     }.AsFlexItem(size: new() { x = "auto" })
-                },
-                BaseScale = 0.02f * Vector3.one,
-                HoverScaleSum = 0.004f * Vector3.one
-            }.WithNativeComponent(out _canvasGroup).WithClickListener(() => ClickEvent?.Invoke()).AsFlexGroup(
+                }
+            }.WithScaleAnimation(0.02f, 0.024f).WithNativeComponent(out _canvasGroup).AsFlexGroup(
                 justifyContent: Justify.Center,
                 padding: 2f,
                 gap: 2f

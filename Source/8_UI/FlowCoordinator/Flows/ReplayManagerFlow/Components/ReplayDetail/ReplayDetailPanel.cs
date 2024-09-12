@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplayDetailPanel : BasicReplayDetailPanel {
@@ -39,13 +40,15 @@ namespace BeatLeader.UI.Hub {
                         .WithAlphaOnModalOpen(() => Canvas!.gameObject)
                         .Bind(ref _replayDeletionDialog),
                     //
-                    new BsButton()
-                        .WithClickListener(HandleDeleteButtonClicked)
+                    new BsButton {
+                            OnClick = HandleDeleteButtonClicked
+                        }
                         .WithLocalizedLabel("ls-delete")
                         .AsFlexItem(grow: 1f),
                     //
-                    new BsPrimaryButton()
-                        .WithClickListener(HandleWatchButtonClicked)
+                    new BsPrimaryButton {
+                            OnClick = HandleWatchButtonClicked
+                        }
                         .WithLocalizedLabel(out _watchButtonLabel, WatchTextToken)
                         .AsFlexItem(grow: 1f)
                         .Bind(ref _watchButton)
@@ -67,10 +70,6 @@ namespace BeatLeader.UI.Hub {
         public void Setup(ReplayerMenuLoader menuLoader, IReplayTagManager tagManager) {
             _replayerMenuLoader = menuLoader;
             SetupInternal(tagManager);
-        }
-
-        protected override bool Validate() {
-            return _replayerMenuLoader is not null;
         }
 
         #endregion
@@ -102,7 +101,7 @@ namespace BeatLeader.UI.Hub {
             if (closed) return;
             SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);
         }
-        
+
         private void HandleDeleteButtonClicked() {
             _replayDeletionDialog.SetHeader(Header!);
             _replayDeletionDialog.Present(ContentTransform);

@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Hub {
     internal abstract class BasicReplayDetailPanel : ReactiveComponent, BeatmapReplayLaunchPanel.IDetailPanel {

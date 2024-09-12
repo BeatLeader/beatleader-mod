@@ -2,11 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
-using IPA.Utilities;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Components.Basic;
+using Reactive.Yoga;
 using UnityEngine;
+using Image = Reactive.BeatSaber.Components.Image;
+using ImageButton = Reactive.BeatSaber.Components.ImageButton;
+using ScrollArea = Reactive.BeatSaber.Components.ScrollArea;
 
 namespace BeatLeader.UI.Hub {
     internal class TagSelector : ReactiveComponent {
@@ -150,8 +155,9 @@ namespace BeatLeader.UI.Hub {
                                 Image = {
                                     Sprite = BundleLoader.Sprites.trashIcon
                                 },
-                                Sticky = true
-                            }.WithStateListener(SetEditModeEnabled).AsFlexItem(size: 4f),
+                                Latching = true,
+                                OnStateChanged = SetEditModeEnabled,
+                            }.AsFlexItem(size: 4f),
                             //create button
                             new ImageButton {
                                 Image = {

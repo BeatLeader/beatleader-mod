@@ -1,6 +1,6 @@
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using HMUI;
+using Reactive;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;

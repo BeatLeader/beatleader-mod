@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
-using IPA.Utilities;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -115,10 +116,9 @@ namespace BeatLeader.UI.Hub {
                                     Image = {
                                         Sprite = BundleLoader.ProgressRingIcon
                                     },
-                                    Sticky = true
-                                }.WithStateListener(
-                                    _ => HandleButtonClicked(false)
-                                ).AsFlexItem(size: 3f).Bind(ref _enableButton)
+                                    Latching = true,
+                                    OnStateChanged = _ => HandleButtonClicked(false)
+                                }.AsFlexItem(size: 3f).Bind(ref _enableButton)
                             }
                         }.AsFlexGroup(
                             alignItems: Align.Center,

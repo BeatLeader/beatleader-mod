@@ -1,12 +1,11 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
-using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaySettingsView : ReactiveComponent {
@@ -76,14 +75,16 @@ namespace BeatLeader.UI.Hub {
                         new Dummy {
                             Children = {
                                 //ok button
-                                new BsPrimaryButton()
+                                new BsPrimaryButton {
+                                        OnClick = HandleOkButtonClicked
+                                    }
                                     .WithLabel("OK")
-                                    .WithClickListener(HandleOkButtonClicked)
                                     .AsFlexItem(grow: 1f)
                                     .Bind(ref _okButton),
                                 //cancel button
-                                new BsButton()
-                                    .WithClickListener(() => CloseInternal())
+                                new BsButton {
+                                        OnClick = () => CloseInternal()
+                                    }
                                     .WithLabel("Cancel")
                                     .AsFlexItem(grow: 1f)
                                     .Bind(ref _cancelButton)

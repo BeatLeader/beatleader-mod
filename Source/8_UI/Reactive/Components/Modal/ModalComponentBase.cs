@@ -1,7 +1,8 @@
 using System;
+using Reactive;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal interface IModal : IAnimationProgressProvider {
+    internal interface IModal {
         event Action<IModal, bool>? ModalClosedEvent;
         event Action<IModal, bool>? ModalOpenedEvent;
         event Action<IModal, float>? OpenProgressChangedEvent;
@@ -11,7 +12,7 @@ namespace BeatLeader.UI.Reactive.Components {
         void Close(bool immediate);
         void Open(bool immediate);
     }
-    
+
     internal abstract class ModalComponentBase : ReactiveComponent, IModal {
         #region Abstraction
 
@@ -25,14 +26,14 @@ namespace BeatLeader.UI.Reactive.Components {
         #endregion
 
         #region Modal
-        
+
         protected bool IsOpened { get; private set; }
         protected bool IsPaused { get; private set; }
-        
+
         public event Action<IModal, bool>? ModalClosedEvent;
         public event Action<IModal, bool>? ModalOpenedEvent;
         public event Action<IModal, float>? OpenProgressChangedEvent;
-        
+
         public void Pause() {
             if (IsPaused) return;
             IsPaused = true;
@@ -82,8 +83,6 @@ namespace BeatLeader.UI.Reactive.Components {
         #endregion
 
         #region Open Animation
-
-        float IAnimationProgressProvider.AnimationProgress => OpenProgress;
 
         protected virtual float OpenProgress => _openValueAnimator.Progress;
 

@@ -2,9 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 

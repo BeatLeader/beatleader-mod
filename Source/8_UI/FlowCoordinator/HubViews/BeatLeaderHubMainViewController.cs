@@ -1,16 +1,13 @@
-using System;
-using System.Threading.Tasks;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatSaberMarkupLanguage;
 using HMUI;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 using Zenject;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Hub {
     internal class BeatLeaderHubMainViewController : ViewController {
@@ -38,6 +35,12 @@ namespace BeatLeader.UI.Hub {
                         pivot = pivot
                     },
                     Colors = colorSet,
+                    OnClick = () => {
+                        _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
+                            flowCoordinator,
+                            animationDirection: AnimationDirection.Vertical
+                        );
+                    },
                     Children = {
                         //icon
                         new Image {
@@ -49,14 +52,7 @@ namespace BeatLeader.UI.Hub {
                             Text = text
                         }.AsFlexItem(size: new() { y = "auto" })
                     }
-                }.WithClickListener(
-                    () => {
-                        _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
-                            flowCoordinator,
-                            animationDirection: AnimationDirection.Vertical
-                        );
-                    }
-                ).AsFlexGroup(
+                }.AsFlexGroup(
                     direction: FlexDirection.Column,
                     padding: new() { left = 2f, right = 2f, top = iconMargin, bottom = 1f },
                     gap: gap

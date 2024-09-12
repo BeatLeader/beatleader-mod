@@ -1,4 +1,4 @@
-﻿using BeatLeader.UI.Reactive;
+﻿using Reactive;
 using UnityEngine;
 using Zenject;
 

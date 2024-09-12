@@ -1,15 +1,17 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
 
 namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleOpponentsList : Table<IBattleRoyaleReplay, BattleRoyaleOpponentsList.Cell> {
@@ -75,26 +77,26 @@ namespace BeatLeader.UI.Hub {
                                 //remove button
                                 new BsButton {
                                         ShowUnderline = false,
-                                        Skew = UIStyle.Skew
+                                        Skew = UIStyle.Skew,
+                                        OnClick = HandleRemoveButtonClicked
                                     }
                                     .AsFlexGroup(padding: 1f)
                                     .WithImage(
                                         sprite: BundleLoader.Sprites.crossIcon,
                                         color: UIStyle.SecondaryTextColor
                                     )
-                                    .WithClickListener(HandleRemoveButtonClicked)
                                     .AsFlexItem(basis: 6f),
                                 //navigate button
                                 new BsButton {
                                         ShowUnderline = false,
-                                        Skew = UIStyle.Skew
+                                        Skew = UIStyle.Skew,
+                                        OnClick = HandleNavigateButtonClicked
                                     }
                                     .AsFlexGroup(padding: 0.5f)
                                     .WithImage(
                                         sprite: BundleLoader.Sprites.rightArrowIcon,
                                         color: UIStyle.SecondaryTextColor
                                     )
-                                    .WithClickListener(HandleNavigateButtonClicked)
                                     .AsFlexItem(basis: 6f)
                             }
                         }.AsFlexGroup(
@@ -238,17 +240,12 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnCellConstruct(Cell cell) {
-            ValidateAndThrow();
             cell.Init(_battleRoyaleHost!);
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            SelectionMode = SelectionMode.None;
-        }
-
-        protected override bool Validate() {
-            return _battleRoyaleHost is not null;
+            SelectionMode = global::Reactive.Components.Basic.SelectionMode.None;
         }
 
         #endregion

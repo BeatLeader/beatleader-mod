@@ -2,7 +2,10 @@
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {
@@ -89,9 +92,9 @@ namespace BeatLeader.UI.Replayer {
                                 size: new() { x = 36f, y = 6f }
                             ).Bind(ref _radiusSlider).InNamedRail("Radius"),
                             //ok button
-                            new BsPrimaryButton().WithClickListener(
-                                () => CloseButtonClicked?.Invoke()
-                            ).WithLabel("OK").AsFlexItem()
+                            new BsPrimaryButton {
+                                OnClick = () => CloseButtonClicked?.Invoke()
+                            }.WithLabel("OK").AsFlexItem()
                         }
                     }.AsBackground(
                         color: new(0.1f, 0.1f, 0.1f, 1f),

@@ -1,6 +1,8 @@
 ﻿using System;
 using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 using UnityEngine.XR;
 

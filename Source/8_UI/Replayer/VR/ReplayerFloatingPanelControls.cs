@@ -1,8 +1,9 @@
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {
@@ -51,21 +52,24 @@ namespace BeatLeader.UI.Replayer {
                                 Image = {
                                     Sprite = BundleLoader.Sprites.pinIcon
                                 },
-                                Sticky = true,
-                            }.WithStateListener(HandlePinStateChanged).AsFlexItem(size: 4f).Bind(ref _pinButton),
+                                Latching = true,
+                                OnStateChanged = HandlePinStateChanged
+                            }.AsFlexItem(size: 4f).Bind(ref _pinButton),
                             //snap button
                             new ImageButton {
                                 Image = {
                                     Sprite = BundleLoader.Sprites.snapIcon
                                 },
-                                Sticky = true
-                            }.WithStateListener(HandleSnapStateChanged).AsFlexItem(size: 4f).Bind(ref _snapButton),
+                                Latching = true,
+                                OnStateChanged = HandleSnapStateChanged
+                            }.AsFlexItem(size: 4f).Bind(ref _snapButton),
                             //curvature button
                             new ImageButton {
                                 Image = {
                                     Sprite = BundleLoader.Sprites.curvatureIcon
-                                }
-                            }.WithClickListener(HandleCurvatureButtonClicked).AsFlexItem(size: 4f),
+                                },
+                                OnClick = HandleCurvatureButtonClicked
+                            }.AsFlexItem(size: 4f),
                         }
                     }.AsFlexGroup(
                         gap: 2f,

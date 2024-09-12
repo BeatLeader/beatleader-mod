@@ -3,11 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.Models.BeatSaver;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
+using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Hub {
     internal class BeatmapDownloadDialog : DialogComponentBase {
@@ -149,7 +152,7 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             base.OnInitialize();
             this.WithSizeDelta(64f, 34f);
-            Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
+            UnityExtensions.GetOrAddComponent<CanvasGroup>(Content).ignoreParentGroups = true;
             Title = "Download Beatmap";
         }
 

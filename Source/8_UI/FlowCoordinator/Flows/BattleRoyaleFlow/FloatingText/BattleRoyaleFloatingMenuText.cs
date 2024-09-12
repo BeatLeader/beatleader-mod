@@ -1,6 +1,9 @@
 ﻿using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using HMUI;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {

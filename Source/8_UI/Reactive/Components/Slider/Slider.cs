@@ -1,6 +1,8 @@
 using System;
-using BeatLeader.Components;
 using HMUI;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -100,7 +102,8 @@ namespace BeatLeader.UI.Reactive.Components {
             static ButtonBase CreateButton(
                 bool applyColor1,
                 Sprite backgroundSprite,
-                float iconRotation
+                float iconRotation,
+                Action callback
             ) {
                 return new ImageButton {
                     Image = {
@@ -109,9 +112,7 @@ namespace BeatLeader.UI.Reactive.Components {
                         GradientDirection = ImageView.GradientDirection.Horizontal,
                         Material = GameResources.UINoGlowMaterial
                     },
-                    GrowOnHover = false,
-                    HoverLerpMul = float.MaxValue,
-                    Colors = null,
+                    OnClick = callback,
                     Children = {
                         //icon
                         new Image {
@@ -125,7 +126,7 @@ namespace BeatLeader.UI.Reactive.Components {
                     }
                 }.With(
                     x => {
-                        var animatedSet = new StateColorSet {
+                        var animatedSet = new SimpleColorSet {
                             HoveredColor = Color.white.ColorWithAlpha(0.3f),
                             Color = UIStyle.InputColorSet.Color
                         };
@@ -148,8 +149,9 @@ namespace BeatLeader.UI.Reactive.Components {
                     CreateButton(
                         false,
                         BundleLoader.Sprites.backgroundLeft,
-                        270f
-                    ).WithClickListener(HandleDecrementButtonClicked).Bind(ref _decrementButton),
+                        270f,
+                        HandleDecrementButtonClicked
+                    ).Bind(ref _decrementButton),
                     //sliding area bg
                     new ImageButton {
                         Image = {
@@ -157,8 +159,6 @@ namespace BeatLeader.UI.Reactive.Components {
                             PixelsPerUnit = 12f,
                             Material = GameResources.UINoGlowMaterial
                         },
-                        GrowOnHover = false,
-                        HoverLerpMul = float.MaxValue,
                         Colors = UIStyle.InputColorSet,
                         Children = {
                             //sliding area
@@ -199,8 +199,9 @@ namespace BeatLeader.UI.Reactive.Components {
                     CreateButton(
                         true,
                         BundleLoader.Sprites.backgroundRight,
-                        90f
-                    ).WithClickListener(HandleIncrementButtonClicked).Bind(ref _incrementButton)
+                        90f,
+                        HandleIncrementButtonClicked
+                    ).Bind(ref _incrementButton)
                 }
             }.AsFlexGroup().Use();
         }

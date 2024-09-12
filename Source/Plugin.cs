@@ -33,9 +33,6 @@ namespace BeatLeader {
         public Plugin(IPALogger logger, PluginMetadata metadata) {
             Log = logger;
             Version = metadata.HVersion;
-            // important to call on init because p/invoke need some
-            // time to start working after the manual LoadLibrary call
-            DynamicLibLoader.Load();
             InitializeConfig();
             InitializeAssets();
         }
@@ -59,7 +56,6 @@ namespace BeatLeader {
             SettingsPanelUI.AddTab();
             ReplayManager.LoadCache();
             InteropLoader.Init();
-            ReactivePlatform.Init();
         }
 
         private static void ObserveEnabled() {
@@ -88,8 +84,6 @@ namespace BeatLeader {
             ReplayManager.SaveCache();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
             ConfigFileData.Save();
-            //important to call LAST!!
-            DynamicLibLoader.Unload();
         }
 
         #endregion

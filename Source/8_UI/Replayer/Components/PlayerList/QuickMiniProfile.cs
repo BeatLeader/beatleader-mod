@@ -1,13 +1,13 @@
 ﻿using System;
 using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
-using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
-using RDummy = BeatLeader.UI.Reactive.Components.Dummy;
 
 namespace BeatLeader.UI {
     internal class QuickMiniProfile : ReactiveComponent {
@@ -94,7 +94,7 @@ namespace BeatLeader.UI {
             static ReactiveComponentBase CreateRail(
                 params ILayoutItem[] children
             ) {
-                var dummy = new RDummy()
+                var dummy = new Dummy()
                     .AsFlexGroup(
                         justifyContent: Justify.FlexStart,
                         gap: new() { x = 0.5f }
@@ -103,14 +103,14 @@ namespace BeatLeader.UI {
                 return dummy;
             }
 
-            return new RDummy {
+            return new Dummy {
                 Children = {
                     //avatar
                     new ReeWrapperV2<PlayerAvatar>()
                         .AsFlexItem(aspectRatio: 1f)
                         .BindRee(ref _playerAvatar),
                     //infos
-                    new RDummy {
+                    new Dummy {
                         Children = {
                             //player & country
                             CreateRail(
@@ -145,7 +145,7 @@ namespace BeatLeader.UI {
                             ).AsFlexItem(size: new() { y = "auto" })
                         }
                     }.AsFlexGroup(
-                        direction: UI.Reactive.Yoga.FlexDirection.Column,
+                        direction: FlexDirection.Column,
                         justifyContent: Justify.Center,
                         alignItems: Align.FlexStart,
                         gap: new() { y = 1f },

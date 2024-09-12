@@ -1,6 +1,7 @@
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
 
 namespace BeatLeader.UI.Hub {
     internal class TagDeletionDialog : DialogComponentBase {

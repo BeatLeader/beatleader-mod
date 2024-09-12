@@ -1,8 +1,8 @@
-﻿using BeatLeader.UI.Hub.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
-using HMUI;
+﻿using HMUI;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {

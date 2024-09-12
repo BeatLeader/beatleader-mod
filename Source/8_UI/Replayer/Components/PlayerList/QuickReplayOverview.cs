@@ -1,7 +1,8 @@
 ﻿using System;
 using BeatLeader.Models.AbstractReplay;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Replayer {

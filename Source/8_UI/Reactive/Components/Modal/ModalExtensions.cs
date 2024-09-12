@@ -1,7 +1,9 @@
 using System;
-using BeatLeader.Utils;
 using HMUI;
+using Reactive;
+using Reactive.Components;
 using UnityEngine;
+using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal enum RelativePlacement {
@@ -69,9 +71,9 @@ namespace BeatLeader.UI.Reactive.Components {
         #region WithModal
 
         public static T WithModal<T, TModal>(this T comp, TModal modal, bool animated = true)
-            where T : IClickableComponent, IReactiveComponent
+            where T : ButtonBase, IReactiveComponent
             where TModal : IModal, IReactiveComponent {
-            comp.ClickEvent += () => modal.Present(comp.ContentTransform, animated);
+            comp.OnClick = () => modal.Present(comp.ContentTransform, animated);
             return comp;
         }
 
@@ -98,7 +100,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
             void HandleModalOpened(IModal _, bool finished) {
                 if (finished) return;
-                group ??= objectFunc().GetOrAddComponent<CanvasGroup>();
+                group ??= UnityExtensions.GetOrAddComponent<CanvasGroup>(objectFunc());
                 group.ignoreParentGroups = true;
             }
 

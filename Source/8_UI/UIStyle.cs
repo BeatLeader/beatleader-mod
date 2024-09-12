@@ -1,4 +1,4 @@
-using BeatLeader.UI.Reactive;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI {
@@ -8,17 +8,17 @@ namespace BeatLeader.UI {
         public static ReadOnlyColorSet InputColorSet => new() {
             HoveredColor = Color.magenta.ColorWithAlpha(0.5f),
             Color = Color.black.ColorWithAlpha(0.5f),
-            DisabledColor = Color.black.ColorWithAlpha(0.2f)
+            NotInteractableColor = Color.black.ColorWithAlpha(0.2f)
         };
 
         public static ReadOnlyColorSet ControlColorSet => new() {
             HoveredColor = Color.white.ColorWithAlpha(0.2f),
             Color = Color.black.ColorWithAlpha(0.5f),
-            DisabledColor = Color.clear
+            NotInteractableColor = Color.clear
         };
 
         public static ReadOnlyColorSet PrimaryButtonColorSet => new() {
-            DisabledColor = Color.black.ColorWithAlpha(0.3f),
+            NotInteractableColor = Color.black.ColorWithAlpha(0.3f),
             ActiveColor = new(0, 0.75f, 0.75f),
             HoveredColor = new(0, 0.75f, 1f),
             Color = new(0, 0.5f, 1f)
@@ -28,7 +28,7 @@ namespace BeatLeader.UI {
             ActiveColor = new(0f, 0.75f, 1f, 1f),
             HoveredColor = Color.white.ColorWithAlpha(0.2f),
             Color = Color.black.ColorWithAlpha(0.5f),
-            DisabledColor = Color.black.ColorWithAlpha(0.2f)
+            NotInteractableColor = Color.black.ColorWithAlpha(0.2f)
         };
 
         public static ReadOnlyColorSet ButtonColorSet => new() {
@@ -37,7 +37,7 @@ namespace BeatLeader.UI {
             Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
         };
         
-        public static StateColorSet SecondaryButtonColorSet => new() {
+        public static SimpleColorSet SecondaryButtonColorSet => new() {
             ActiveColor = new(0.0f, 0.4f, 1.0f, 1.0f),
             HoveredColor = (Color.white * 0.5f).ColorWithAlpha(0.2f),
             Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
@@ -45,7 +45,7 @@ namespace BeatLeader.UI {
 
         public static ReadOnlyColorSet TextColorSet => new() {
             ActiveColor = new(0f, 0.75f, 1f, 1f),
-            DisabledColor = Color.white.ColorWithAlpha(0.2f),
+            NotInteractableColor = Color.white.ColorWithAlpha(0.2f),
             HoveredColor = Color.white * 0.9f,
             Color = Color.white
         };

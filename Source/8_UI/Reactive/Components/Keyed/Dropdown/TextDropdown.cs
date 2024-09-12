@@ -1,4 +1,7 @@
 using System;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using TMPro;
 using UnityEngine;
 
@@ -11,7 +14,8 @@ namespace BeatLeader.UI.Reactive.Components {
 
             public bool UsedAsPreview {
                 set {
-                    _button.RaycastTarget = !value;
+                    //TODO: replace with RaycastTarget
+                    _button.Interactable = !value;
                     _label.RaycastTarget = !value;
                 }
             }
@@ -41,16 +45,15 @@ namespace BeatLeader.UI.Reactive.Components {
                         Sprite = BundleLoader.Sprites.rectangle,
                         Material = GameResources.UINoGlowMaterial
                     },
-                    Colors = new StateColorSet {
+                    Colors = new SimpleColorSet {
                         HoveredColor = UIStyle.ControlColorSet.HoveredColor,
                         Color = Color.clear
                     },
-                    GrowOnHover = false,
-                    HoverLerpMul = float.MaxValue,
+                    OnClick = SelectSelf,
                     Children = {
                         new Label().WithRectExpand().Bind(ref _label)
                     }
-                }.WithClickListener(SelectSelf).Bind(ref _button).Use();
+                }.Bind(ref _button).Use();
             }
 
             #endregion

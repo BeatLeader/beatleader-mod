@@ -1,9 +1,9 @@
 ﻿using System;
 using BeatLeader.Components;
-using BeatLeader.UI.Reactive;
 using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
+using Reactive;
 using UnityEngine.UI;
 using Zenject;
 

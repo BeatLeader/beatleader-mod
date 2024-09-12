@@ -1,8 +1,9 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
-using BeatLeader.UI.Reactive;
+using Reactive;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
-using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListPanel : ReactiveComponent {
@@ -25,10 +26,6 @@ namespace BeatLeader.UI.Hub {
             _replaysLoader.AllReplaysRemovedEvent += HandleAllReplaysRemoved;
         }
 
-        protected override bool Validate() {
-            return _replaysLoader is not null;
-        }
-
         #endregion
 
         #region Construct
@@ -45,7 +42,7 @@ namespace BeatLeader.UI.Hub {
         private ReplaysListSettingsPanel _settingsPanel = null!;
 
         protected override GameObject Construct() {
-            var go = new UI.Reactive.Components.Dummy {
+            var go = new Dummy {
                 Children = {
                     new ReplaysList()
                         .AsFlexItem(grow: 1f)

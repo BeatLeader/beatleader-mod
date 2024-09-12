@@ -1,4 +1,5 @@
 using System;
+using Reactive;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal class Dialog<T> : DialogComponentBase where T : IReactiveComponent, ILayoutItem, new() {

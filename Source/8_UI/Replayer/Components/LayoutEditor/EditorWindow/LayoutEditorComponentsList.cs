@@ -1,14 +1,17 @@
 using System.Collections.Generic;
-using System.Diagnostics;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
+using Reactive;
+using Reactive.Components;
+using Reactive.Components.Basic;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
+using Image = Reactive.BeatSaber.Components.Image;
+using ImageButton = Reactive.BeatSaber.Components.ImageButton;
+using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.Components {
-    internal class LayoutEditorComponentsList : Table<ILayoutComponent, LayoutEditorComponentsList.Cell> {
+    internal class LayoutEditorComponentsList : Reactive.BeatSaber.Components.Table<ILayoutComponent, LayoutEditorComponentsList.Cell> {
         #region Cell
 
         public class Cell : TableComponentCell<ILayoutComponent> {
@@ -27,21 +30,21 @@ namespace BeatLeader.Components {
 
             #region Construct
 
-            private UI.Reactive.Components.ImageButton _componentStateButton = null!;
+            private ImageButton _componentStateButton = null!;
             private Label _componentNameText = null!;
             private Label _componentLayerText = null!;
             private Image _backgroundImage = null!;
 
             protected override GameObject Construct() {
                 return new Button {
-                    GrowOnHover = false,
+                    OnClick = () => SelectSelf(true),
                     Children = {
                         new Image {
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 8f,
                             Children = {
                                 //
-                                new UI.Reactive.Components.Dummy {
+                                new Dummy {
                                     Children = {
                                         new Label {
                                             FontSize = 3.5f,
@@ -62,20 +65,20 @@ namespace BeatLeader.Components {
                                     PixelsPerUnit = 8f,
                                     Color = new(0.03f, 0.03f, 0.03f),
                                     Children = {
-                                        new UI.Reactive.Components.ImageButton {
-                                            GrowOnHover = false,
-                                            Sticky = true,
-                                            Colors = new StateColorSet {
+                                        new ImageButton {
+                                            Latching = true,
+                                            Colors = new SimpleColorSet {
                                                 HoveredColor = new(0.3f, 0.3f, 0.3f),
                                                 ActiveColor = Color.white
                                             },
+                                            OnStateChanged = HandleVisibilityButtonClicked,
                                             Image = {
                                                 Sprite = BundleLoader.EyeIcon,
                                                 PreserveAspect = true
                                             }
                                         }.AsFlexItem(grow: 1f).Bind(
                                             ref _componentStateButton
-                                        ).WithStateListener(HandleVisibilityButtonClicked)
+                                        )
                                     }
                                 }.AsFlexGroup(padding: 1f).AsFlexItem(aspectRatio: 1f)
                                 //
@@ -85,9 +88,7 @@ namespace BeatLeader.Components {
                             justifyContent: Justify.FlexStart
                         ).AsFlexItem(grow: 1f).Bind(ref _backgroundImage)
                     }
-                }.WithClickListener(() => SelectSelf(true)).AsFlexGroup(
-                    padding: new() { bottom = 1f }
-                ).WithSizeDelta(0f, 9.5f).Use();
+                }.AsFlexGroup(padding: new() { bottom = 1f }).WithSizeDelta(0f, 9.5f).Use();
             }
 
             #endregion

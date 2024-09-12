@@ -1,13 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
+using Image = Reactive.BeatSaber.Components.Image;
+using Scrollbar = Reactive.BeatSaber.Components.Scrollbar;
 
 namespace BeatLeader.UI.Reactive.Components {
     /// <typeparam name="TKey">An item key</typeparam>
     /// <typeparam name="TParam">A param to be passed with key to provide additional info</typeparam>
     /// <typeparam name="TCell">A cell component</typeparam>
-    internal class Dropdown<TKey, TParam, TCell> : ReactiveComponent, ISkewedComponent, IInteractableComponent, IKeyedControlComponent<TKey, TParam>
+    internal class Dropdown<TKey, TParam, TCell> : ReactiveComponent, ISkewedComponent, IKeyedControlComponent<TKey, TParam>
         where TCell : IReactiveComponent, ILayoutItem, ISkewedComponent, IPreviewableCell, IKeyedControlComponentCell<TKey, TParam>, new() {
         #region OptionsModal
 
@@ -204,8 +209,6 @@ namespace BeatLeader.UI.Reactive.Components {
                     PixelsPerUnit = 12f,
                     Material = GameResources.UINoGlowMaterial
                 },
-                GrowOnHover = false,
-                HoverLerpMul = float.MaxValue,
                 Colors = UIStyle.ControlColorSet,
                 Children = {
                     new TCell {

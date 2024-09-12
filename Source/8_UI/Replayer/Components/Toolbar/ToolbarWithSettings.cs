@@ -1,10 +1,11 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
+using Reactive;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 using UnityEngine.UI;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
 
 namespace BeatLeader.UI.Replayer {
     internal class ToolbarWithSettings : ReactiveComponent, Toolbar.ISettingsPanel {

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 using static BeatLeader.Models.LevelEndType;
@@ -29,17 +30,21 @@ namespace BeatLeader.UI.Hub {
             #region Colors
 
             private static readonly StateColorSet colorSet = new() {
-                Color = Color.clear,
-                ActiveColor = new(0f, 0.75f, 1f),
-                HoveredColor = Color.white.ColorWithAlpha(0.2f),
-                HoveredActiveColor = new(0f, 0.75f, 1f, 0.75f)
+                States = {
+                    GraphicState.None.WithColor(Color.clear),
+                    GraphicState.Active.WithColor(new(0f, 0.75f, 1f)),
+                    GraphicState.Hovered.WithColor(Color.white.ColorWithAlpha(0.2f)),
+                    GraphicState.Hovered.And(GraphicState.Active).WithColor(new(0f, 0.75f, 1f, 0.75f))
+                }
             };
 
             private static readonly StateColorSet highlightedColorSet = new() {
-                Color = new(0f, 0.75f, 1f, 0.5f),
-                ActiveColor = new(0f, 0.75f, 1f),
-                HoveredColor = new(0f, 0.75f, 1f, 0.35f),
-                HoveredActiveColor = new(0f, 0.75f, 1f, 0.75f)
+                States = {
+                    GraphicState.None.WithColor(new(0f, 0.75f, 1f, 0.5f)),
+                    GraphicState.Active.WithColor(new(0f, 0.75f, 1f)),
+                    GraphicState.Hovered.WithColor(new(0f, 0.75f, 1f, 0.35f)),
+                    GraphicState.Hovered.And(GraphicState.Active).WithColor(new(0f, 0.75f, 1f, 0.75f))
+                }
             };
 
             public bool Highlighted {
@@ -166,11 +171,9 @@ namespace BeatLeader.UI.Hub {
                                 Skew = UIStyle.Skew,
                                 Color = Color.white
                             },
-                            Colors = null,
                             GradientColors1 = colorSet,
-                            GrowOnHover = false,
-                            HoverLerpMul = float.MaxValue,
-                            Sticky = true,
+                            Latching = true,
+                            OnStateChanged = _ => SelectSelf(true),
                             Children = {
                                 //top left
                                 CellLabel(
@@ -213,7 +216,7 @@ namespace BeatLeader.UI.Hub {
                                     ref _bottomRightLabel
                                 )
                             }
-                        }.WithStateListener(_ => SelectSelf(true)).AsFlexGroup().AsFlexItem(
+                        }.AsFlexGroup().AsFlexItem(
                             grow: 1f,
                             margin: new() { right = 1f }
                         ).Bind(ref _button)

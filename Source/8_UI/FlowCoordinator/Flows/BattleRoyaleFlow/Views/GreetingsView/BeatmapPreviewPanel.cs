@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
@@ -14,11 +15,12 @@ namespace BeatLeader.UI.Hub {
             get => _skew;
             set {
                 _skew = value;
-                _songNameLabel.Skew = value;
-                _songAuthorLabel.Skew = value;
-                _songTimeLabel.Skew = value;
-                _songBpmLabel.Skew = value;
-                _songDifficultyLabel.Skew = value;
+                var style = value > 0 ? FontStyles.Italic : FontStyles.Normal;
+                _songNameLabel.FontStyle = style;
+                _songAuthorLabel.FontStyle = style;
+                _songTimeLabel.FontStyle = style;
+                _songBpmLabel.FontStyle = style;
+                _songDifficultyLabel.FontStyle = style;
                 _songImage.Skew = value;
                 _songDifficultyImage.Skew = value;
             }

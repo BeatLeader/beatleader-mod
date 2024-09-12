@@ -1,3 +1,6 @@
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -21,11 +24,10 @@ namespace BeatLeader.UI.Reactive.Components {
                 Image = {
                     PreserveAspect = true
                 },
-                GrowOnHover = false,
-                HoverLerpMul = float.MaxValue,
-                Sticky = true,
-                Colors = UIStyle.ButtonColorSet
-            }.WithStateListener(_ => SelectSelf()).Bind(ref _button).Use();
+                Latching = true,
+                Colors = UIStyle.ButtonColorSet,
+                OnStateChanged = _ => SelectSelf()
+            }.Bind(ref _button).Use();
         }
     }
 }

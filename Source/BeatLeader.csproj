@@ -18,6 +18,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Reference Include="Reactive.BeatSaber.Components">
+          <HintPath>$(BeatSaberDir)\Libs\Reactive.BeatSaber.Components.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Reactive.Components">
+          <HintPath>$(BeatSaberDir)\Libs\Reactive.Components.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Reactive">
+          <HintPath>$(BeatSaberDir)\Libs\Reactive.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
         <Reference Include="BeatmapCore">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
             <Private>False</Private>

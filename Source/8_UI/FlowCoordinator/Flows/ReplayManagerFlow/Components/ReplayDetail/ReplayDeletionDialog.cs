@@ -1,8 +1,9 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
 using UnityEngine;
+using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplayDeletionDialog : DialogComponentBase {
@@ -27,7 +28,7 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             base.OnInitialize();
             this.WithSizeDelta(60f, 28f);
-            Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
+            UnityExtensions.GetOrAddComponent<CanvasGroup>(Content).ignoreParentGroups = true;
             Title = "Delete Replay";
         }
 

@@ -1,5 +1,6 @@
-﻿using BeatLeader.UI.Reactive;
-using BeatLeader.UI.Reactive.Components;
+﻿using BeatLeader.UI.Reactive.Components;
+using Reactive;
+using Reactive.BeatSaber.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -18,9 +19,9 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new BsPrimaryButton {
-                    Skew = UIStyle.Skew
+                    Skew = UIStyle.Skew,
+                    OnClick = () => _transitionsHelper?.RestartGame()
                 }
-                .WithClickListener(() => _transitionsHelper?.RestartGame())
                 .AsFlexItem(size: new() { x = 20f })
                 .WithLabel("Reload Now")
                 .InNamedRail("These changes will be applied after game reload ")

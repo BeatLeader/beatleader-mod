@@ -3,16 +3,16 @@ using BeatLeader.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.Components;
 using BeatLeader.Models.AbstractReplay;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
 using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine.EventSystems;
 using static BeatLeader.Models.AbstractReplay.NoteEvent.NoteEventType;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using ImageButton = BeatLeader.UI.Reactive.Components.ImageButton;
 
 namespace BeatLeader.UI.Replayer {
     internal class Timeline : SliderComponentBase, IReplayTimeline {
@@ -222,7 +222,6 @@ namespace BeatLeader.UI.Replayer {
                     PixelsPerUnit = 12f,
                     Material = GameResources.UINoGlowMaterial
                 },
-                GrowOnHover = false,
                 Colors = null,
                 Children = {
                     //sliding area

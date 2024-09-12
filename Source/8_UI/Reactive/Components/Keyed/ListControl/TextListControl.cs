@@ -1,3 +1,6 @@
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
@@ -12,7 +15,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public Label Label => _button.Label;
 
-        private TextButton _button = null!;
+        private LabelButton _button = null!;
 
         public override void OnInit(TKey key, string param) {
             Label.Text = param;
@@ -24,17 +27,17 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override GameObject Construct() {
             var colorSet = UIStyle.TextColorSet;
-            colorSet.DisabledColor = colorSet.Color;
-            return new TextButton {
-                GrowOnHover = false,
-                Sticky = true,
+            colorSet.NotInteractableColor = colorSet.Color;
+            return new LabelButton {
+                Latching = true,
                 Colors = colorSet,
+                OnStateChanged = _ => SelectSelf(),
                 Label = {
                     FontSizeMin = 2f,
                     FontSizeMax = 5f,
                     EnableAutoSizing = true
                 }
-            }.WithStateListener(_ => SelectSelf()).Bind(ref _button).Use();
+            }.Bind(ref _button).Use();
         }
     }
 }

@@ -56,22 +56,22 @@ namespace BeatLeader {
                 ReplayManagerButtonColors = {
                     HoveredColor = new Color(1f, 0.65f, 0f),
                     Color = UIStyle.InputColorSet.Color,
-                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
                 },
                 BattleRoyaleButtonColors = {
                     HoveredColor = Color.magenta,
                     Color = UIStyle.InputColorSet.Color,
-                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
                 },
                 SettingsButtonColors = {
                     HoveredColor = new Color(1f, 0.65f, 0f),
                     Color = UIStyle.InputColorSet.Color,
-                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
                 },
                 EditAvatarButtonColors = {
                     HoveredColor = new Color(0f, 0.65f, 0f),
                     Color = UIStyle.InputColorSet.Color,
-                    DisabledColor = UIStyle.InputColorSet.DisabledColor
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
                 }
             },
             ReplayManagerSearchTheme = {

@@ -1,13 +1,10 @@
 using BeatLeader.Components;
-using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
-using BeatLeader.UI.Reactive.Yoga;
-using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
-using Dummy = BeatLeader.UI.Reactive.Components.Dummy;
-using FlexDirection = BeatLeader.UI.Reactive.Yoga.FlexDirection;
-using ImageButton = BeatLeader.UI.Reactive.Components.ImageButton;
 
 namespace BeatLeader.UI.Replayer {
     internal class SettingsUIView : ReactiveComponent {
@@ -114,11 +111,11 @@ namespace BeatLeader.UI.Replayer {
                         //layout editor
                         new ImageButton {
                             Colors = UIStyle.SecondaryButtonColorSet,
-                            GrowOnHover = true,
+                            OnClick = HandleLayoutEditorButtonClicked,
                             Image = {
                                 Sprite = BundleLoader.EditLayoutIcon
                             }
-                        }.WithClickListener(HandleLayoutEditorButtonClicked).AsFlexItem(
+                        }.WithScaleAnimation(1f, 1.2f).AsFlexItem(
                             aspectRatio: 1f,
                             basis: 6f,
                             alignSelf: Align.Center

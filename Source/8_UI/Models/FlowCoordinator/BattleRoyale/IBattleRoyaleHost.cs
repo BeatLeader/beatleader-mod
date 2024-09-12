@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using Reactive.Components;
 
 namespace BeatLeader.UI.Hub {
     internal interface IBattleRoyaleHost {

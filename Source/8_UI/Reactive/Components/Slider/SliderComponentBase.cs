@@ -1,7 +1,8 @@
 using System;
-using BeatLeader.Components;
 using BeatLeader.Utils;
 using HMUI;
+using Reactive;
+using Reactive.Components;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

@@ -1,10 +1,13 @@
 using System.Collections;
-using BeatLeader.UI.Reactive.Yoga;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class TextArea : ReactiveComponent, IGraphicComponent {
+    internal class TextArea : ReactiveComponent {
         #region UI Props
 
         public string Text {
@@ -63,7 +66,7 @@ namespace BeatLeader.UI.Reactive.Components {
             RefreshText();
             RefreshClearButton();
         }
-        
+
         #endregion
 
         #region Setup
@@ -141,9 +144,10 @@ namespace BeatLeader.UI.Reactive.Components {
         private Image _caret = null!;
 
         protected override GameObject Construct() {
+            var labelColor = RememberAnimated(placeholderColor, "200ms");
+
             return new AeroButton {
-                GrowOnHover = false,
-                HoverLerpMul = float.MaxValue,
+                OnClick = () => SetInputEnabled(true),
                 Children = {
                     //icon
                     new Image {
@@ -189,12 +193,11 @@ namespace BeatLeader.UI.Reactive.Components {
                             Sprite = BundleLoader.Sprites.background,
                             Material = GameResources.UINoGlowMaterial
                         },
-                        Colors = new StateColorSet {
+                        Colors = new SimpleColorSet {
                             Color = Color.black.ColorWithAlpha(0.5f),
                             HoveredColor = Color.black.ColorWithAlpha(0.8f)
                         },
-                        HoverLerpMul = int.MaxValue,
-                        GrowOnHover = false,
+                        OnClick = HandleClearButtonClicked,
                         Children = {
                             new Image {
                                 Sprite = BundleLoader.CrossIcon
@@ -207,15 +210,15 @@ namespace BeatLeader.UI.Reactive.Components {
                         margin: new() { right = 1f }
                     ).AsFlexGroup(
                         padding: 1f
-                    ).WithClickListener(HandleClearButtonClicked).Bind(ref _clearButton),
+                    ).Bind(ref _clearButton),
                 }
-            }.AsFlexGroup(padding: 1f, gap: 1f).WithAnimation(
-                x => _label.Color = Text.Length > 0 ? textColor : Color.Lerp(
-                    placeholderColor,
-                    placeholderColor.ColorWithAlpha(0.5f),
-                    x
-                )
-            ).WithClickListener(() => SetInputEnabled(true)).Bind(ref _backgroundButton).Use();
+            }.AsFlexGroup(padding: 1f, gap: 1f).WithListener(
+                x => x.IsHovered,
+                x => labelColor.Value = x ? placeholderColor : placeholderColor.ColorWithAlpha(0.5f)
+            ).WithEffect(
+                labelColor,
+                (_, y) => _label.Color = Text.Length > 0 ? textColor : y
+            ).Bind(ref _backgroundButton).Use();
         }
 
         #endregion

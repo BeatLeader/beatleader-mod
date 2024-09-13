@@ -1,9 +1,13 @@
+using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using BeatLeader.Models;
-using Hive.Versioning;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Version = Hive.Versioning.Version;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 
@@ -109,17 +113,7 @@ namespace BeatLeader {
 
         #region ReplayerSettings
 
-        public InternalReplayerCameraSettings InternalReplayerCameraSettings { get; set; } = ConfigDefaults.InternalReplayerCameraSettings;
-
-        public ReplayerSettings ReplayerSettings {
-            get {
-                _replayerSettings.CameraSettings = InternalReplayerCameraSettings;
-                return _replayerSettings;
-            }
-            set => _replayerSettings = value;
-        }
-        
-        private ReplayerSettings _replayerSettings = ConfigDefaults.ReplayerSettings;
+        public ReplayerSettings ReplayerSettings { get; set; } = ConfigDefaults.ReplayerSettings;
 
         #endregion
 

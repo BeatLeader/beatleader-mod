@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Utils;
-using UnityEngine;
 using Zenject;
-using static NoteData;
 using static ScoreMultiplierCounter;
 using static BeatLeader.Utils.AbstractReplayUtils;
 
@@ -14,9 +12,9 @@ namespace BeatLeader.Replayer.Emulation {
         #region Pool
 
         public class Pool : MemoryPool<ReplayScoreEventsProcessor> {
-            protected override void OnSpawned(ReplayScoreEventsProcessor item) => item.HandleInstanceSpawned();
+            public override void OnSpawned(ReplayScoreEventsProcessor item) => item.HandleInstanceSpawned();
 
-            protected override void OnDespawned(ReplayScoreEventsProcessor item) => item.HandleInstanceDespawned();
+            public override void OnDespawned(ReplayScoreEventsProcessor item) => item.HandleInstanceDespawned();
         }
 
         private void HandleInstanceSpawned() {

@@ -1,68 +1,98 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BeatLeader.Components {
     public class SmoothHoverController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
-        public bool ForceKeepHovered {
-            get => _forceKeepHovered;
-            set {
-                _forceKeepHovered = value;
-                _targetValue = value ? 1f : _alternativeTargetValue;
-                _set = false;
-            }
+        #region Factory Methods
+
+        public static SmoothHoverController Custom(GameObject gameObject, StateChangedDelegate handler) {
+            var component = gameObject.AddComponent<SmoothHoverController>();
+            component.AddStateListener(handler);
+            return component;
         }
+
+        public static SmoothHoverController Scale(GameObject gameObject, float defaultScale, float hoverScale) {
+            return Scale(gameObject, gameObject.transform, defaultScale, hoverScale);
+        }
+
+        public static SmoothHoverController Scale(GameObject gameObject, Transform target, float defaultScale, float hoverScale) {
+            var component = gameObject.AddComponent<SmoothHoverController>();
+            component.AddStateListener(((hovered, progress) => {
+                var scale = Mathf.Lerp(defaultScale, hoverScale, progress);
+                target.localScale = new Vector3(scale, scale, scale);
+            }));
+            return component;
+        }
+
+        #endregion
+
+        #region OnStateChanged
+
+        public delegate void StateChangedDelegate(bool hovered, float progress);
+
+        private event StateChangedDelegate OnStateChanged;
+
+        public void AddStateListener(StateChangedDelegate handler) {
+            OnStateChanged += handler;
+            handler?.Invoke(IsHovered, Progress);
+        }
+
+        public void RemoveStateListener(StateChangedDelegate handler) {
+            OnStateChanged -= handler;
+        }
+
+        private void NotifyStateChanged() {
+            OnStateChanged?.Invoke(IsHovered, Progress);
+        }
+
+        #endregion
+
+        #region Logic
+
+        public float lerpCoefficient = 10.0f;
 
         public bool IsHovered { get; private set; }
         public float Progress { get; private set; }
 
-        public event Action<bool, float>? HoverStateChangedEvent;
-
-        public float lerpCoefficient = 10.0f;
-
-        private bool _forceKeepHovered;
         private float _targetValue;
-        private float _alternativeTargetValue;
         private bool _set;
 
         private void OnDisable() {
             IsHovered = false;
             Progress = _targetValue = 0.0f;
             _set = false;
-            HoverStateChangedEvent?.Invoke(IsHovered, Progress);
+            NotifyStateChanged();
         }
 
         private void Update() {
             if (_set) return;
 
-            if (Math.Abs(_targetValue - Progress) < 1e-6) {
+            if (Mathf.Abs(_targetValue - Progress) < 1e-6) {
                 Progress = _targetValue;
                 _set = true;
             } else {
                 Progress = Mathf.Lerp(Progress, _targetValue, Time.deltaTime * lerpCoefficient);
             }
 
-            HoverStateChangedEvent?.Invoke(IsHovered, Progress);
+            NotifyStateChanged();
         }
 
+        #endregion
+
+        #region Events
+
         public void OnPointerEnter(PointerEventData eventData) {
-            if (ForceKeepHovered) {
-                _alternativeTargetValue = 1f;
-                return;
-            }
             IsHovered = true;
-            _targetValue = 1f;
+            _targetValue = 1.0f;
             _set = false;
         }
 
         public void OnPointerExit(PointerEventData eventData) {
-            if (ForceKeepHovered) {
-                _alternativeTargetValue = 0f;
-                return;
-            }
             IsHovered = false;
-            _targetValue = 0f;
+            _targetValue = 0.0f;
             _set = false;
         }
+
+        #endregion
     }
 }

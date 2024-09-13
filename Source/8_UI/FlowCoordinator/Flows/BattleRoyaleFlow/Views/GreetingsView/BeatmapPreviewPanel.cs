@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -39,20 +41,21 @@ namespace BeatLeader.UI.Hub {
                 _songBpmLabel.Enabled = !value;
             }
         }
-        
-        public async Task SetBeatmap(IDifficultyBeatmap beatmap) {
-            await SetBeatmapLevel( beatmap.level);
-            _songDifficultyLabel.Text = beatmap.difficulty.ToString();
-            _songDifficultyImage.Sprite = beatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.icon;
+
+        public async Task SetBeatmap(BeatmapLevelWithKey beatmap) {
+            await SetBeatmapLevel(beatmap.Level);
+            _songDifficultyLabel.Text = beatmap.Key.difficulty.ToString();
+            _songDifficultyImage.Sprite = beatmap.Key.beatmapCharacteristic.icon;
         }
 
-        public async Task SetBeatmapLevel(IPreviewBeatmapLevel level) {
+        public async Task SetBeatmapLevel(BeatmapLevel level) {
             _songNameLabel.Text = FormatSongNameText(level.songName, level.songSubName);
-            _songAuthorLabel.Text = FormatAuthorText(level.songAuthorName, level.levelAuthorName);
+            var mappers = level.allMappers.Aggregate((x, y) => y.Length > 0 ? $", {y}" : "");
+            _songAuthorLabel.Text = FormatAuthorText(level.songAuthorName, mappers);
             //
             _songTimeLabel.Text = FormatUtils.FormatTime(level.songDuration);
             _songBpmLabel.Text = Mathf.FloorToInt(level.beatsPerMinute).ToString();
-            _songImage.Sprite = await level.GetCoverImageAsync(CancellationToken.None);
+            _songImage.Sprite = await level.previewMediaData.GetCoverSpriteAsync(CancellationToken.None);
         }
 
         private static string FormatSongNameText(string name, string subName) {

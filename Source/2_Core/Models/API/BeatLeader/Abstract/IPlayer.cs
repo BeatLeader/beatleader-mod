@@ -11,6 +11,6 @@ namespace BeatLeader.Models {
         float PerformancePoints { get; }
         IPlayerProfileSettings? ProfileSettings { get; }
 
-        Task<AvatarSettings> GetAvatarAsync(bool bypassCache = false);
+        Task<AvatarSettings> GetBeatAvatarAsync(bool bypassCache = false);
     }
 }

@@ -72,7 +72,7 @@ namespace BeatLeader.UI {
         private void LateUpdate() {
             if (!_isInitialized || _grabbingController == null) return;
             //distance
-            _grabDistance -= _grabbingController.verticalAxisValue * Time.deltaTime;
+            _grabDistance -= _grabbingController.thumbstick.y * Time.deltaTime;
             //position
             var controllerTransform = _grabbingController.transform;
             var newPos = controllerTransform.position + controllerTransform.forward * _grabDistance + _grabPointDelta;

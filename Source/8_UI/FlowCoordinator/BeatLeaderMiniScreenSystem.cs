@@ -67,7 +67,7 @@ namespace BeatLeader.UI.Hub {
                 UnbindKeyboard(_screenSystem);
             }
 
-            protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
                 if (firstActivation) {
                     var emptyViewController = BeatSaberUI.CreateViewController<ViewController>();
                     ProvideInitialViewControllers(

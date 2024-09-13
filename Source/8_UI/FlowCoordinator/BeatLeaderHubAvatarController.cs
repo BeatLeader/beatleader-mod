@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Emulation;
-using BeatLeader.UI.Reactive.Components;
-using BeatSaberMarkupLanguage;
+using BeatSaber.AvatarCore;
+using BeatSaber.BeatAvatarAdapter.AvatarEditor;
+using BeatSaber.BeatAvatarSDK;
 using HMUI;
 using IPA.Utilities;
 using UnityEngine;
@@ -18,27 +17,20 @@ namespace BeatLeader.UI.Hub {
 
         [Inject] private readonly HierarchyManager _hierarchyManager = null!;
         [Inject] private readonly BeatLeaderHubFlowCoordinator _hubFlowCoordinator = null!;
-        [Inject] private readonly AvatarLoader _avatarLoader = null!;
+        [Inject] private readonly BeatAvatarLoader _beatAvatarLoader = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
-        [Inject] private readonly EditAvatarFlowCoordinator _editAvatarFlowCoordinator = null!;
-        [Inject] private readonly EditAvatarViewController _editAvatarViewController = null!;
-        [Inject] private readonly DiContainer _container = null!;
 
         #endregion
 
         #region Setup
 
-        private class CustomAvatarDataModel : AvatarDataModel {
-            public override void Save() { }
-            public override void Load() { }
-        }
+        private BeatAvatarEditorFlowCoordinator _editAvatarFlowCoordinator = null!;
+        private BeatAvatarEditorViewController _editAvatarViewController = null!;
 
         private EditAvatarFloatingButton _editAvatarButton = null!;
-        private AvatarController _avatarController = null!;
+        private BeatAvatarController _avatarController = null!;
         private Transform _screenTransform = null!;
 
-        private readonly PlayerDataModel _playerDataModel = new();
-        private readonly AvatarDataModel _avatarDataModel = new CustomAvatarDataModel();
         private AvatarData? _avatarData;
 
         private void Awake() {
@@ -53,18 +45,15 @@ namespace BeatLeader.UI.Hub {
             };
             _editAvatarButton.Setup(_hubTheme.MenuButtonsTheme);
             _editAvatarButton.Use(transform);
+            _hubFlowCoordinator.FlowCoordinatorPresentedEvent += Present;
+            _hubFlowCoordinator.FlowCoordinatorDismissedEvent += Dismiss;
             //
-            var playerDataManager = Resources.FindObjectsOfTypeAll<PlayerDataFileManagerSO>().First();
-            _playerDataModel.SetField("_playerDataFileManager", playerDataManager);
-            _playerDataModel.ResetData();
-            _playerDataModel.playerData.MarkAvatarCreated();
-            _container.Inject(_avatarDataModel);
+            _editAvatarFlowCoordinator = _beatAvatarLoader.CreateEditorFlowCoordinator();
+            _avatarController = _beatAvatarLoader.CreateAvatar(AvatarDisplayContext.UI, transform);
+            SetupEditAvatarFlowCoordinator();
             //
             var screenSystem = _hierarchyManager.GetComponent<ScreenSystem>();
             _screenTransform = screenSystem.mainScreen.transform;
-            _avatarController = _avatarLoader.CreateAvatar(transform);
-            _hubFlowCoordinator.FlowCoordinatorPresentedEvent += Present;
-            _hubFlowCoordinator.FlowCoordinatorDismissedEvent += Dismiss;
             LoadAvatar();
         }
 
@@ -84,7 +73,7 @@ namespace BeatLeader.UI.Hub {
                 await LoadAvatarFromPlayerAsync(player, true);
             }
             //forcing player to update avatar
-            await player.GetAvatarAsync(true);
+            await player.GetBeatAvatarAsync(true);
             _avatarController.SetLoading(false);
         }
 
@@ -100,9 +89,8 @@ namespace BeatLeader.UI.Hub {
         }
 
         private async Task LoadAvatarFromPlayerAsync(IPlayer player, bool bypassCache) {
-            var settings = await player.GetAvatarAsync(bypassCache);
+            var settings = await player.GetBeatAvatarAsync(bypassCache);
             _avatarData = settings.ToAvatarData();
-            _avatarDataModel.avatarData = _avatarData;
             _avatarController.SetVisuals(_avatarData, true);
         }
 
@@ -127,42 +115,27 @@ namespace BeatLeader.UI.Hub {
 
         #region EditAvatarFlowCoordinator
 
-        private PlayerDataModel? _originalPlayerDataModel;
-        private AvatarDataModel? _originalAvatarDataModel;
-        private Action<EditAvatarFlowCoordinator, EditAvatarFlowCoordinator.EditAvatarType>? _originalDidFinishDelegate;
+        private readonly AvatarDataModel _customAvatarDataModel = new();
 
         private void PresentEditFlowCoordinator() {
-            //caching original values
-            _originalPlayerDataModel = _editAvatarViewController.GetField<PlayerDataModel, EditAvatarViewController>("_playerDataModel");
-            _originalAvatarDataModel = _editAvatarViewController.GetField<AvatarDataModel, EditAvatarViewController>("_avatarDataModel");
-            _originalDidFinishDelegate = _editAvatarFlowCoordinator.GetField<Action<EditAvatarFlowCoordinator, EditAvatarFlowCoordinator.EditAvatarType>, EditAvatarFlowCoordinator>("didFinishEvent");
-            //applying custom values
-            _editAvatarViewController.SetField("_playerDataModel", _playerDataModel);
-            _editAvatarViewController.SetField("_avatarDataModel", _avatarDataModel);
-            _editAvatarFlowCoordinator.SetField("didFinishEvent", (Action<EditAvatarFlowCoordinator, EditAvatarFlowCoordinator.EditAvatarType>)HandleFlowCoordinatorEditFinished);
-            _editAvatarFlowCoordinator.SetField("_avatarDataModel", _avatarDataModel);
-            _editAvatarViewController.didFinishEvent += HandleEditFinished;
-            _editAvatarFlowCoordinator.Setup(EditAvatarFlowCoordinator.EditAvatarType.Edit);
+            _customAvatarDataModel._avatarData = _avatarData;
+            _editAvatarFlowCoordinator.Setup(AvatarEditorFlowCoordinator.EditMode.Edit);
             _hubFlowCoordinator.PresentFlowCoordinator(_editAvatarFlowCoordinator);
         }
 
-        private void HandleEditFinished(EditAvatarViewController.FinishAction action) {
-            _editAvatarViewController.didFinishEvent -= HandleEditFinished;
-            if (action is EditAvatarViewController.FinishAction.Apply) {
-                UploadAvatar();
-            }
-            //restoring original values
-            _editAvatarViewController.SetField("_playerDataModel", _originalPlayerDataModel);
-            _editAvatarViewController.SetField("_avatarDataModel", _originalAvatarDataModel);
+        private void SetupEditAvatarFlowCoordinator() {
+            _editAvatarViewController = _editAvatarFlowCoordinator._beatAvatarEditorViewController;
+            _editAvatarViewController.SetField("_avatarDataModel", _customAvatarDataModel);
+            _editAvatarFlowCoordinator.didFinishEvent += HandleFlowCoordinatorEditFinished;
         }
 
-        private void HandleFlowCoordinatorEditFinished(EditAvatarFlowCoordinator _, EditAvatarFlowCoordinator.EditAvatarType _1) {
-            _editAvatarFlowCoordinator.SetField("didFinishEvent", _originalDidFinishDelegate);
-            _editAvatarFlowCoordinator.SetField("_avatarDataModel", _originalAvatarDataModel);
+        private void HandleFlowCoordinatorEditFinished(AvatarEditorFlowCoordinator _, IAvatarSystemMetadata _1, AvatarEditorFlowCoordinator.FinishAction finishAction) {
+            if (finishAction is AvatarEditorFlowCoordinator.FinishAction.Apply) {
+                UploadAvatar();
+            }
             _editAvatarFlowCoordinator.DismissSelf();
-            
         }
-        
+
         #endregion
     }
 }

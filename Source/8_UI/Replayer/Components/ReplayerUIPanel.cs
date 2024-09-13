@@ -40,7 +40,7 @@ namespace BeatLeader.UI.Replayer {
             IReplayWatermark watermark
         ) {
             _pauseController = pauseController;
-            _songInfo.SetBeatmapLevel(launchData.DifficultyBeatmap.level);
+            _songInfo.SetBeatmapLevel(launchData.BeatmapLevel.Level);
             _toolbar.Setup(
                 pauseController,
                 finishController,

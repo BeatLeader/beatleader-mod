@@ -87,7 +87,7 @@ namespace BeatLeader.UI.Hub {
                 info.SongDifficulty,
                 token
             );
-            _needToDownloadBeatmap = beatmap == null;
+            _needToDownloadBeatmap = !beatmap.HasValue;
             _watchButtonLabel.SetLocalizedText(_needToDownloadBeatmap ? DownloadTextToken : WatchTextToken);
             _watchButtonContainer.Loading = false;
             _watchButton.Interactable = _needToDownloadBeatmap || SongCoreInterop.ValidateRequirements(beatmap!);

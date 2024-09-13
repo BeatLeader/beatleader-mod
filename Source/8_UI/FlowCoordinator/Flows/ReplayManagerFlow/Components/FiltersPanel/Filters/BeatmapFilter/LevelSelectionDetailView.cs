@@ -15,18 +15,15 @@ namespace BeatLeader.UI.Hub {
         private bool _isInitialized;
 
         public void Refresh() {
-            if (!_isInitialized) return;
-            var level = _detailView!.selectedDifficultyBeatmap?.level;
-            if (level == null) return;
-            _levelBar!.Setup(level);
+            if (!_isInitialized || _detailView!._beatmapLevel == null) return;
+            _levelBar!.Setup(_detailView.beatmapKey);
             _detailView.RefreshContent();
         }
 
         public void Setup(StandardLevelDetailView levelDetailView) {
             if (_isInitialized) return;
-            //TODO: asm pub
             _detailView = levelDetailView;
-            _levelBar = levelDetailView.GetField<LevelBar, StandardLevelDetailView>("_levelBar");
+            _levelBar = levelDetailView._levelBar;
             _levelBar = Object.Instantiate(_levelBar, _levelBarContainer.ContentTransform, false);
             _isInitialized = true;
         }

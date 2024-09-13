@@ -13,8 +13,6 @@ namespace BeatLeader.UI.Hub {
             DependsOn = dependsOn;
         }
 
-        public CharacteristicFilterPanel() { }
-
         #region Filter
 
         public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn { get; }
@@ -37,16 +35,9 @@ namespace BeatLeader.UI.Hub {
             remove => _characteristicPanel.CharacteristicSelectedEvent -= value;
         }
 
-        public void SetBeatmapLevel(IPreviewBeatmapLevel? level) {
-            var sets = level?.previewDifficultyBeatmapSets
-                .Select(
-                    static x => new DifficultyBeatmapSet(
-                        x.beatmapCharacteristic,
-                        Array.Empty<IDifficultyBeatmap>()
-                    )
-                )
-                .ToArray();
-            _characteristicPanel.SetData(sets);
+        public void SetBeatmapLevel(BeatmapLevel? level) {
+            var characteristics = level?.GetCharacteristics();
+            _characteristicPanel.SetData(characteristics);
         }
 
         protected override void OnInitialize() {

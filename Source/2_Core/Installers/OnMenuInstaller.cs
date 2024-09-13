@@ -63,7 +63,7 @@ namespace BeatLeader.Installers {
             Container.Bind<ReplayManagerFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<ReplayManagerViewController>().FromNewComponentAsViewController().AsSingle();
             //<-----------------------------Battle Royale----------------------------->
-            Container.Bind<AvatarLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatAvatarLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BattleRoyaleAvatarsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindMemoryPool<BattleRoyaleAvatar, BattleRoyaleAvatar.Pool>().FromNewComponentOnNewPrefab(new GameObject("BattleRoyaleAvatar"));
             Container.Bind<BattleRoyaleMenuStuffController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

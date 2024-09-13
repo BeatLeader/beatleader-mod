@@ -1,5 +1,6 @@
 ﻿using System;
 using BeatLeader.Components;
+using BeatLeader.Models;
 using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
@@ -13,7 +14,7 @@ namespace BeatLeader.UI.Hub {
         #region Patch
 
         [HarmonyPatch(typeof(LevelCollectionTableView), "SelectLevel"), HarmonyPrefix]
-        private static bool LevelCollectionTablePrefix(IPreviewBeatmapLevel? beatmapLevel) {
+        private static bool LevelCollectionTablePrefix(BeatmapLevel? beatmapLevel) {
             return beatmapLevel != null;
         }
 
@@ -31,7 +32,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Events
 
-        public event Action<IDifficultyBeatmap>? BeatmapSelectedEvent;
+        public event Action<BeatmapLevelWithKey>? BeatmapSelectedEvent;
 
         #endregion
 
@@ -43,14 +44,12 @@ namespace BeatLeader.UI.Hub {
         private void Awake() {
             //init
             Init(_levelSelectionNavigationController);
-            //TODO: asm pub
             _levelFilteringNavigationController.SetupBeatmapLevelPacks();
-            var levelCategories = _levelFilteringNavigationController.GetField<
-                SelectLevelCategoryViewController.LevelCategory[], LevelFilteringNavigationController>("_enabledLevelCategories");
+            var levelCategories = _levelFilteringNavigationController._enabledLevelCategories;
             //
             _levelCategoryViewController.Setup(levelCategories[0], levelCategories);
             _levelCategorySegmentedControl = _levelCategoryViewController.GetComponentInChildren<IconSegmentedControl>(true);
-            _levelDetailView = _levelDetailViewController.GetField<StandardLevelDetailView, StandardLevelDetailViewController>("_standardLevelDetailView");
+            _levelDetailView = _levelDetailViewController._standardLevelDetailView;
             //construct selection detail view
             _selectionDetailView = new() { Enabled = false };
             _selectionDetailView.WithRectExpand().Use(_levelDetailViewController.transform);
@@ -65,13 +64,12 @@ namespace BeatLeader.UI.Hub {
         #region LevelNavigationController
 
         private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
-        private IBeatmapLevelPack? _lastSelectedBeatmapLevelPack;
+        private BeatmapLevelPack? _lastSelectedBeatmapLevelPack;
 
         private SelectLevelCategoryViewController.LevelCategory _originalLevelCategory;
-        private IPreviewBeatmapLevel? _originalPreviewBeatmapLevel;
-        private IBeatmapLevelPack? _originalBeatmapLevelPack;
+        private BeatmapLevel? _originalBeatmapLevel;
+        private BeatmapLevelPack? _originalBeatmapLevelPack;
         private BeatmapDifficultyMask _originalAllowedBeatmapDifficultyMask;
-        private BeatmapCharacteristicSO[] _originalNotAllowedCharacteristics = Array.Empty<BeatmapCharacteristicSO>();
         private bool _originalHidePacksIfOneOrNone;
         private bool _originalHidePracticeButton;
         private string _originalActionButtonText = string.Empty;
@@ -79,14 +77,12 @@ namespace BeatLeader.UI.Hub {
         private void PatchLevelNavigationController() {
             //saving initial values
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
-            _originalPreviewBeatmapLevel = _levelCollectionNavigationController.selectedBeatmapLevel;
+            _originalBeatmapLevel = _levelCollectionNavigationController.beatmapLevel;
             _originalBeatmapLevelPack = _levelSelectionNavigationController.selectedBeatmapLevelPack;
-            //TODO: asm pub
-            _originalAllowedBeatmapDifficultyMask = _levelSelectionNavigationController.GetField<BeatmapDifficultyMask, LevelSelectionNavigationController>("_allowedBeatmapDifficultyMask");
-            _originalNotAllowedCharacteristics = _levelSelectionNavigationController.GetField<BeatmapCharacteristicSO[], LevelSelectionNavigationController>("_notAllowedCharacteristics");
-            _originalHidePacksIfOneOrNone = _levelSelectionNavigationController.GetField<bool, LevelSelectionNavigationController>("_hidePacksIfOneOrNone");
-            _originalHidePracticeButton = _levelSelectionNavigationController.GetField<bool, LevelSelectionNavigationController>("_hidePracticeButton");
-            _originalActionButtonText = _levelSelectionNavigationController.GetField<string, LevelSelectionNavigationController>("_actionButtonText");
+            _originalAllowedBeatmapDifficultyMask = _levelSelectionNavigationController._allowedBeatmapDifficultyMask;
+            _originalHidePacksIfOneOrNone = _levelSelectionNavigationController._hidePacksIfOneOrNone;
+            _originalHidePracticeButton = _levelSelectionNavigationController._hidePracticeButton;
+            _originalActionButtonText = _levelSelectionNavigationController._actionButtonText;
             //presenting
             _levelSelectionNavigationController.ClearSelected();
             _levelSelectionNavigationController.Setup(
@@ -98,7 +94,7 @@ namespace BeatLeader.UI.Hub {
                 "SELECT",
                 _lastSelectedBeatmapLevelPack,
                 _lastSelectedLevelCategory,
-                _originalPreviewBeatmapLevel,
+                _originalBeatmapLevel,
                 true
             );
             NavigateToBeatmap(null, _lastSelectedLevelCategory);
@@ -116,12 +112,12 @@ namespace BeatLeader.UI.Hub {
                 _originalActionButtonText,
                 _originalBeatmapLevelPack,
                 _originalLevelCategory,
-                _originalPreviewBeatmapLevel,
+                _originalBeatmapLevel,
                 true
             );
-            NavigateToBeatmap(_originalPreviewBeatmapLevel, _originalLevelCategory);
+            NavigateToBeatmap(_originalBeatmapLevel, _originalLevelCategory);
         }
-        
+
         #endregion
 
         #region LevelDetail
@@ -150,7 +146,7 @@ namespace BeatLeader.UI.Hub {
         private Button.ButtonClickedEvent? _lastClickedEvent;
         private Button.ButtonClickedEvent? _patchedClickedEvent;
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             _levelDetailViewController.didChangeContentEvent += HandleContentChanged;
             _lastClickedEvent = _levelDetailView.actionButton.onClick;
             _levelDetailView.actionButton.onClick = _patchedClickedEvent;
@@ -160,7 +156,7 @@ namespace BeatLeader.UI.Hub {
             PatchLevelNavigationController();
         }
 
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             _levelDetailViewController.didChangeContentEvent -= HandleContentChanged;
             _levelDetailView.actionButton.onClick = _lastClickedEvent;
             //
@@ -184,7 +180,7 @@ namespace BeatLeader.UI.Hub {
             __DismissViewController(null, AnimationDirection.Vertical, immediate);
         }
 
-        private void NavigateToBeatmap(IPreviewBeatmapLevel? level, SelectLevelCategoryViewController.LevelCategory category) {
+        private void NavigateToBeatmap(BeatmapLevel? level, SelectLevelCategoryViewController.LevelCategory category) {
             if (category is SelectLevelCategoryViewController.LevelCategory.None) return;
             //
             var cell = _levelCategorySegmentedControl.cells[(int)category - 1];
@@ -215,7 +211,11 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void HandleActionButtonPressed() {
-            BeatmapSelectedEvent?.Invoke(_levelCollectionNavigationController.selectedDifficultyBeatmap);
+            var level = new BeatmapLevelWithKey(
+                _levelCollectionNavigationController.beatmapLevel,
+                _levelCollectionNavigationController.beatmapKey
+            );
+            BeatmapSelectedEvent?.Invoke(level);
         }
 
         #endregion

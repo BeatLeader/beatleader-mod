@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BeatLeader.Attributes;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 
 namespace BeatLeader.Interop {
@@ -106,8 +107,8 @@ namespace BeatLeader.Interop {
 
         #region ValidateRequirements
 
-        public static bool ValidateRequirements(BeatmapLevel beatmap, BeatmapKey key) {
-            return !TryGetBeatmapRequirements(beatmap, key, out var requirements)
+        public static bool ValidateRequirements(BeatmapLevelWithKey beatmap) {
+            return !TryGetBeatmapRequirements(beatmap.Level, beatmap.Key, out var requirements)
                 || !TryGetCapabilities(out var capabilities)
                 || (requirements?.All(x => capabilities?.Contains(x) ?? false) ?? true);
         }

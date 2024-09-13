@@ -27,9 +27,13 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void Init() {
-            _beatmapFilter.BeatmapSelectedEvent += _characteristicFilter.SetBeatmapLevel;
-            _beatmapFilter.BeatmapSelectedEvent += _difficultyFilter.SetBeatmapLevel;
-            _characteristicFilter.CharacteristicSelectedEvent += _difficultyFilter.SetCharacteristicCharacteristic;
+            _beatmapFilter.BeatmapSelectedEvent += HandleBeatmapSelected;
+            _characteristicFilter.CharacteristicSelectedEvent += _difficultyFilter.SetCharacteristic;
+        }
+
+        private void HandleBeatmapSelected(BeatmapLevelWithKey beatmap) {
+            _characteristicFilter.SetBeatmapLevel(beatmap.Level);
+            _difficultyFilter.SetBeatmapLevel(beatmap.Level);
         }
     }
 }

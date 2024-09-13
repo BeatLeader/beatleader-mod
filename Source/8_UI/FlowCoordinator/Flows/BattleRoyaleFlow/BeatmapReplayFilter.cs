@@ -6,24 +6,24 @@ namespace BeatLeader.UI.Hub {
     internal class BeatmapReplayFilter : ITableFilter<IReplayHeaderBase> {
         public event Action? FilterUpdatedEvent;
 
-        public IDifficultyBeatmap? DifficultyBeatmap {
-            get => _difficultyBeatmap;
+        public BeatmapLevelWithKey DifficultyBeatmap {
+            get => _beatmap;
             set {
-                _difficultyBeatmap = value;
+                _beatmap = value;
                 FilterUpdatedEvent?.Invoke();
             }
         }
 
-        private IDifficultyBeatmap? _difficultyBeatmap;
+        private BeatmapLevelWithKey _beatmap;
         
         public bool Matches(IReplayHeaderBase header) {
             var info = header.ReplayInfo;
             //in case beatmap is not selected showing no replays
-            if (_difficultyBeatmap == null) return false;
+            if (!_beatmap.HasValue) return false;
 
-            var level = _difficultyBeatmap.level.levelID;
-            var characteristic = _difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
-            var diff = _difficultyBeatmap.difficulty;
+            var level = _beatmap.Level.levelID;
+            var characteristic = _beatmap.Key.beatmapCharacteristic.serializedName;
+            var diff = _beatmap.Key.difficulty;
 
             var hashMatches = level is null || level.Replace("custom_level_", "") == info.SongHash;
             var diffMatches = info.SongDifficulty == diff.ToString();

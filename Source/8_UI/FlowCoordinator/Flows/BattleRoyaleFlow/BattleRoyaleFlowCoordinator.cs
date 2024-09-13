@@ -18,7 +18,7 @@ namespace BeatLeader.UI.Hub {
         /// BattleRoyaleFlowCoordinator behaves just like an adapter between two screen systems
         /// </summary>
         private class AlternativeFlowCoordinator : FlowCoordinator {
-            private FlowCoordinator _parentFlowCoordinator = null!;
+            private new FlowCoordinator _parentFlowCoordinator = null!;
             private FlowCoordinator _alternativeParentFlowCoordinator = null!;
             private FlowCoordinator _dummyFlowCoordinator = null!;
             private ViewController _mainViewController = null!;
@@ -60,13 +60,13 @@ namespace BeatLeader.UI.Hub {
                 );
             }
 
-            protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
                 if (!firstActivation) return;
                 showBackButton = true;
                 SetTitle("Battle Royale");
             }
 
-            protected override void BackButtonWasPressed(ViewController viewController) {
+            public override void BackButtonWasPressed(ViewController viewController) {
                 if (_returnAction != null) {
                     _returnAction();
                     _returnAction = null;
@@ -92,7 +92,6 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderMiniScreenSystem _alternativeScreenSystem = null!;
         [Inject] private readonly ReplayerMenuLoader _replayerMenuLoader = null!;
-        [Inject] private readonly AvatarPartsModel _avatarPartsModel = null!;
 
         #endregion
 
@@ -117,7 +116,7 @@ namespace BeatLeader.UI.Hub {
         private AlternativeFlowCoordinator _alternativeFlowCoordinator = null!;
         private ViewController _emptyViewController = null!;
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (firstActivation) {
                 _alternativeFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<AlternativeFlowCoordinator>();
                 _alternativeFlowCoordinator.Setup(
@@ -140,7 +139,7 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
             HostStateChangedEvent?.Invoke(false);
         }
@@ -152,7 +151,7 @@ namespace BeatLeader.UI.Hub {
         public IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays => _replays.Values;
         public ITableFilter<IReplayHeaderBase> ReplayFilter => _replayFilter;
 
-        public IDifficultyBeatmap? ReplayBeatmap {
+        public BeatmapLevelWithKey ReplayBeatmap {
             get => _replayFilter.DifficultyBeatmap;
             set {
                 _replayFilter.DifficultyBeatmap = value;
@@ -166,7 +165,7 @@ namespace BeatLeader.UI.Hub {
         public event Action<IBattleRoyaleReplay, object>? ReplayRemovedEvent;
         public event Action<IBattleRoyaleReplay>? ReplayNavigationRequestedEvent;
         public event Action? ReplayRefreshRequestedEvent;
-        public event Action<IDifficultyBeatmap?>? ReplayBeatmapChangedEvent;
+        public event Action<BeatmapLevelWithKey>? ReplayBeatmapChangedEvent;
         public event Action<bool>? HostStateChangedEvent;
         public event Action<bool>? CanLaunchBattleStateChangedEvent;
         public event Action? BattleLaunchStartedEvent;
@@ -179,6 +178,7 @@ namespace BeatLeader.UI.Hub {
             BattleLaunchStartedEvent?.Invoke();
             await _replayerMenuLoader.StartBattleRoyaleAsync(
                 PendingReplays,
+                null,
                 null,
                 CancellationToken.None
             );

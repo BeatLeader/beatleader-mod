@@ -37,7 +37,7 @@ namespace BeatLeader.Components {
 
         public void RefreshText() {
             var text = $"<i><b><color=\"red\">REPLAY</color></b>   ";
-            var level = _launchData.BeatmapLevel;
+            var level = _launchData.BeatmapLevel.Level;
             text += $"{level.songName} - {level.songAuthorName}   ";
             if (_launchData.IsBattleRoyale) {
                 CanBeDisabled = true;

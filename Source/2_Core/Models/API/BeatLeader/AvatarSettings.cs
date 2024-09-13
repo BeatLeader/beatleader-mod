@@ -1,5 +1,7 @@
 #nullable disable
 
+using BeatSaber.BeatAvatarSDK;
+
 namespace BeatLeader.Models {
     public class AvatarSettings {
         public AvatarPartSettings headTop;

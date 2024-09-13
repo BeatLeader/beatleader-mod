@@ -38,16 +38,6 @@ namespace BeatLeader.Replayer {
             return dictionary[key];
         }
 
-        public static byte[]? GetMainReplayCustomData(string key) {
-            var dictionary = LaunchData?.MainReplay?.CustomData;
-
-            if (!IsStartedAsReplay || dictionary == null || !dictionary.ContainsKey(key)) {
-                return default;
-            }
-
-            return dictionary[key];
-        }
-
         public bool StartReplay(ReplayLaunchData data, Action? afterTransitionCallback = null) {
             if (data.Replays.Count == 0) return false;
 
@@ -111,8 +101,8 @@ namespace BeatLeader.Replayer {
             if (transitionData != null) {
                 transitionData.Init(
                     "Solo",
-                    launchData.BeatmapKey!.Value,
-                    launchData.BeatmapLevel,
+                    launchData.BeatmapLevel.Key,
+                    launchData.BeatmapLevel.Level,
                     envSettings,
                     playerData.colorSchemesSettings.GetOverrideColorScheme(),
                     null,
@@ -153,7 +143,7 @@ namespace BeatLeader.Replayer {
         ) {
             transitionData.didFinishEvent -= HandleLevelFinish;
             LaunchData?.FinishReplay(transitionData);
-            ReplayWasFinishedEvent?.Invoke(LaunchData);
+            ReplayWasFinishedEvent?.Invoke(LaunchData!);
 
             LaunchData = null;
             IsStartedAsReplay = false;

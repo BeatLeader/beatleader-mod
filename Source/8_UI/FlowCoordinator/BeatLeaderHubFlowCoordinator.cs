@@ -24,7 +24,7 @@ namespace BeatLeader {
             LeaderboardEvents.MenuButtonWasPressedEvent -= PresentFromLeaderboard;
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             FlowCoordinatorPresentedEvent?.Invoke();
             if (!firstActivation) return;
             showBackButton = true;
@@ -32,11 +32,11 @@ namespace BeatLeader {
             ProvideInitialViewControllers(_hubMainViewController);
         }
 
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             FlowCoordinatorDismissedEvent?.Invoke();
         }
 
-        protected override void BackButtonWasPressed(ViewController topController) {
+        public override void BackButtonWasPressed(ViewController topController) {
             Dismiss();
         }
 

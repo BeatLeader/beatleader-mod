@@ -33,7 +33,7 @@ namespace BeatLeader.UI {
         #region Handling
 
         private void Update() {
-            var controller = _pointer.vrController;
+            var controller = _pointer.lastSelectedVrController;
             var hovered = Physics.Raycast(
                 controller.position,
                 controller.forward,

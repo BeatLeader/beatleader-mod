@@ -1,4 +1,5 @@
-﻿using Reactive;
+﻿using System.Linq;
+using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -76,14 +77,14 @@ namespace BeatLeader.UI.Replayer {
 
         #region Setup
 
-        public void SetBeatmapLevel(IPreviewBeatmapLevel level) {
+        public void SetBeatmapLevel(BeatmapLevel level) {
             _songNameLabel.Text = level.songName;
-            _songAuthorLabel.Text = level.levelAuthorName;
+            _songAuthorLabel.Text = level.allMappers.Aggregate((x, y) => y.Length > 0 ? $", {y}" : "");
             LoadAndAssignImage(level);
         }
 
-        private async void LoadAndAssignImage(IPreviewBeatmapLevel level) {
-            _songPreviewImage.Sprite = await level.GetCoverImageAsync(default);
+        private async void LoadAndAssignImage(BeatmapLevel level) {
+            _songPreviewImage.Sprite = await level.previewMediaData.GetCoverSpriteAsync(default);
         }
 
         #endregion

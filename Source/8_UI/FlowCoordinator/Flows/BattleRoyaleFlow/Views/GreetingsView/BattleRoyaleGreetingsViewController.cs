@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using HMUI;
 using Reactive;
@@ -32,7 +33,7 @@ namespace BeatLeader.UI.Hub {
             HandleHostCanLaunchStateChanged(_battleRoyaleHost.CanLaunchBattle);
         }
 
-        protected override void OnDestroy() {
+        public override void OnDestroy() {
             base.OnDestroy();
             _battleRoyaleHost.ReplayBeatmapChangedEvent -= HandleHostBeatmapChanged;
             _battleRoyaleHost.CanLaunchBattleStateChangedEvent -= HandleHostCanLaunchStateChanged;
@@ -177,7 +178,7 @@ namespace BeatLeader.UI.Hub {
             _battleRoyaleFlowCoordinator.PresentFlowCoordinator(_levelSelectionFlowCoordinator);
         }
 
-        private void HandleLevelSelectionFlowBeatmapSelected(IDifficultyBeatmap beatmap) {
+        private void HandleLevelSelectionFlowBeatmapSelected(BeatmapLevelWithKey beatmap) {
             _battleRoyaleHost.ReplayBeatmap = beatmap;
             _beatmapPreviewPanel.SetBeatmap(beatmap);
         }
@@ -222,9 +223,9 @@ namespace BeatLeader.UI.Hub {
             RefreshReplaysPanel();
         }
 
-        private void HandleHostBeatmapChanged(IDifficultyBeatmap? beatmap) {
-            _replaysPanel.Interactable = beatmap != null;
-            _beatmapPanel.ShowComponent = beatmap != null;
+        private void HandleHostBeatmapChanged(BeatmapLevelWithKey beatmap) {
+            _replaysPanel.Interactable = beatmap.HasValue;
+            _beatmapPanel.ShowComponent = beatmap.HasValue;
         }
 
         private void HandleHostCanLaunchStateChanged(bool canLaunch) {

@@ -44,7 +44,7 @@ namespace BeatLeader {
             _alternativeLoading = alternative;
             //loading beatmap data
             var info = replay.info;
-            var (level, key) = await _replayerMenuLoader.LoadBeatmapAsync(
+            var level = await _replayerMenuLoader.LoadBeatmapAsync(
                 info.hash,
                 info.mode,
                 info.difficulty,
@@ -53,8 +53,8 @@ namespace BeatLeader {
             //initializing
             var startData = HeckInterop.CreateStartData(
                 info.mode,
-                key!.Value,
-                level!,
+                level.Key,
+                level.Level,
                 null,
                 GameplayModifiers.noModifiers,
                 _playerDataModel.playerData.playerSpecificSettings

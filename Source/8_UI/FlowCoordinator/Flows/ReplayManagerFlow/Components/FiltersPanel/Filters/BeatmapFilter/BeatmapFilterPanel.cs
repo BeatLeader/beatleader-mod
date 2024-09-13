@@ -14,27 +14,37 @@ namespace BeatLeader.UI.Hub {
     internal class BeatmapFilterPanel : ReactiveComponent, IPanelListFilter<IReplayHeaderBase> {
         #region Dummies
 
-        private class NotSelectedPreviewBeatmapLevel : IPreviewBeatmapLevel {
-            public string? levelID { get; } = string.Empty;
-            public string? songName { get; } = "Click to select";
-            public string? songSubName { get; } = null;
-            public string? songAuthorName { get; } = "Unknown";
-            public string? levelAuthorName { get; } = null;
+        private class NotSelectedPreviewMediaData : IPreviewMediaData {
+            public Task<Sprite> GetCoverSpriteAsync(CancellationToken cancellationToken) {
+                return Task.FromResult(BundleLoader.UnknownIcon);
+            }
 
-            public float beatsPerMinute { get; } = 0;
-            public float songTimeOffset { get; } = -1;
-            public float shuffle { get; } = -1;
-            public float shufflePeriod { get; } = -1;
-            public float previewStartTime { get; } = -1;
-            public float previewDuration { get; } = -1;
-            public float songDuration { get; } = 0;
+            public Task<AudioClip?> GetPreviewAudioClip(CancellationToken cancellationToken) {
+                return Task.FromResult<AudioClip?>(null);
+            }
 
-            public EnvironmentInfoSO? environmentInfo { get; } = null;
-            public EnvironmentInfoSO? allDirectionsEnvironmentInfo { get; } = null;
-            public IReadOnlyList<PreviewDifficultyBeatmapSet>? previewDifficultyBeatmapSets { get; } = null;
-
-            public Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken) => Task.FromResult(BundleLoader.UnknownIcon);
+            public void UnloadPreviewAudioClip() { }
         }
+        
+        private static readonly BeatmapLevel previewBeatmapLevel = new(
+            0,
+            false,
+            "",
+            "Click to select",
+            null,
+            null,
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            0f,
+            0f,
+            0f,
+            0f, 
+            0f,
+            0f, 
+            PlayerSensitivityFlag.Safe,
+            new NotSelectedPreviewMediaData(),
+            null
+        );
 
         #endregion
 
@@ -42,20 +52,21 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn => null;
         public string FilterName => "Beatmap Filter";
-        public IPreviewBeatmapLevel? BeatmapLevel { get; private set; }
+        public BeatmapLevelWithKey BeatmapLevel { get; private set; }
 
         public event Action? FilterUpdatedEvent;
 
         public bool Matches(IReplayHeaderBase value) {
-            var levelId = BeatmapLevel?.levelID;
-            return levelId == null || levelId.Replace("custom_level_", "") == value.ReplayInfo.SongHash;
+            if (!BeatmapLevel.HasValue) return false;
+            var levelId = BeatmapLevel.Level.levelID;
+            return levelId.Replace("custom_level_", "") == value.ReplayInfo.SongHash;
         }
 
         #endregion
 
         #region Setup
 
-        public event Action<IPreviewBeatmapLevel?>? BeatmapSelectedEvent;
+        public event Action<BeatmapLevelWithKey>? BeatmapSelectedEvent;
 
         private FlowCoordinator? _flowCoordinator;
         private LevelSelectionFlowCoordinator? _selectionFlowCoordinator;
@@ -81,7 +92,7 @@ namespace BeatLeader.UI.Hub {
 
         private BeatmapPreviewPanel _beatmapPreviewPanel = null!;
 
-        private void SetBeatmapLevelPreview(IPreviewBeatmapLevel level) {
+        private void SetBeatmapLevel(BeatmapLevel level) {
             _beatmapPreviewPanel.SetBeatmapLevel(level).ConfigureAwait(true);
         }
 
@@ -118,7 +129,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            SetBeatmapLevelPreview(new NotSelectedPreviewBeatmapLevel());
+            SetBeatmapLevel(previewBeatmapLevel);
             this.AsFlexItem(size: new() { x = 52f, y = 12f });
         }
 
@@ -131,9 +142,9 @@ namespace BeatLeader.UI.Hub {
             _selectionFlowCoordinator.BeatmapSelectedEvent -= HandleBeatmapSelected;
         }
 
-        private void HandleBeatmapSelected(IDifficultyBeatmap beatmap) {
-            BeatmapLevel = beatmap.level;
-            SetBeatmapLevelPreview(beatmap.level);
+        private void HandleBeatmapSelected(BeatmapLevelWithKey beatmap) {
+            BeatmapLevel = beatmap;
+            SetBeatmapLevel(beatmap.Level);
             BeatmapSelectedEvent?.Invoke(BeatmapLevel);
             FilterUpdatedEvent?.Invoke();
         }

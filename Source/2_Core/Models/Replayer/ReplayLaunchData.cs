@@ -7,12 +7,10 @@ namespace BeatLeader.Models {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class ReplayLaunchData {
         public IReadOnlyList<IReplay> Replays { get; protected set; } = null!;
-        public IReplayComparator ReplayComparator { get; protected set; } = null!;
-        public BeatmapLevel? BeatmapLevel { get; protected set; }
-        public BeatmapKey? BeatmapKey { get; protected set; }
+        public BeatmapLevelWithKey BeatmapLevel { get; protected set; }
         public ReplayerSettings Settings { get; protected set; } = null!;
         public EnvironmentInfoSO? EnvironmentInfo { get; protected set; }
-        
+
         public IReplayComparator ReplayComparator { get; protected set; } = null!;
         public VirtualPlayerSabersSpawnerBase? SabersSpawner { get; protected set; }
         public VirtualPlayerAvatarSpawnerBase? AvatarSpawner { get; protected set; }
@@ -22,17 +20,26 @@ namespace BeatLeader.Models {
 
         public event Action<StandardLevelScenesTransitionSetupDataSO, ReplayLaunchData>? ReplayWasFinishedEvent;
 
-        public void Init(IReplay replay, IReplayComparator comparator, ReplayerSettings settings,
-            BeatmapLevel? beatmapLevel = null, BeatmapKey? beatmapKey = null, EnvironmentInfoSO? environmentInfo = null) {
-            Init(new[] { replay }, comparator, settings, beatmapLevel, beatmapKey, environmentInfo);
+        public void Init(
+            IReplay replay,
+            IReplayComparator comparator,
+            ReplayerSettings settings,
+            BeatmapLevelWithKey beatmapLevel = default,
+            EnvironmentInfoSO? environmentInfo = null
+        ) {
+            Init(new[] { replay }, comparator, settings, beatmapLevel, environmentInfo);
         }
 
-        public void Init(IReadOnlyList<IReplay> replays, IReplayComparator comparator, ReplayerSettings settings,
-            BeatmapLevel? beatmapLevel = null, BeatmapKey? beatmapKey = null, EnvironmentInfoSO? environmentInfo = null) {
+        public void Init(
+            IReadOnlyList<IReplay> replays,
+            IReplayComparator comparator,
+            ReplayerSettings settings,
+            BeatmapLevelWithKey beatmapLevel = default,
+            EnvironmentInfoSO? environmentInfo = null
+        ) {
             Replays = replays;
             ReplayComparator = comparator;
             BeatmapLevel = beatmapLevel;
-            BeatmapKey = beatmapKey;
             EnvironmentInfo = environmentInfo;
             Settings = settings;
         }

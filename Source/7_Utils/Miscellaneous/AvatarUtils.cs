@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using BeatSaber.BeatAvatarSDK;
+using UnityEngine;
 using Random = System.Random;
 
 namespace BeatLeader.Utils {

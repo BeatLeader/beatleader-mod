@@ -20,8 +20,8 @@ namespace BeatLeader.UI.Hub {
             var hash = header.ReplayInfo.SongHash;
             if (_currentPreviewedLevelId == hash) return;
             //attempting to load
-            var level = _beatmapLevelsModel.GetLevelPreviewForLevelId(hash);
-            level ??= _beatmapLevelsModel.GetLevelPreviewForLevelId(CustomLevelLoader.kCustomLevelPrefixId + hash);
+            var level = _beatmapLevelsModel.GetBeatmapLevel(hash);
+            level ??= _beatmapLevelsModel.GetBeatmapLevel(CustomLevelLoader.kCustomLevelPrefixId + hash);
             //returning if failed
             if (level == null) return;
             _currentPreviewedLevelId = hash;
@@ -52,7 +52,7 @@ namespace BeatLeader.UI.Hub {
 
         private static bool _blockInvocation;
         
-        private void InvokePatches(IPreviewBeatmapLevel beatmapLevel) {
+        private void InvokePatches(BeatmapLevel beatmapLevel) {
             _blockInvocation = true;
             _levelCollectionViewController.HandleLevelCollectionTableViewDidSelectLevel(null, beatmapLevel);
             _blockInvocation = false;

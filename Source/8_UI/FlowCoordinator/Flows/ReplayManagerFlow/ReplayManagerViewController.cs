@@ -1,7 +1,7 @@
-﻿using System;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.UI.Hub.Models;
+using HarmonyLib;
 using HMUI;
 using Reactive;
 using Reactive.Components;
@@ -9,6 +9,7 @@ using Reactive.Yoga;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
+    [HarmonyPatch]
     internal class ReplayManagerViewController : ViewController {
         #region Injection
 
@@ -74,15 +75,16 @@ namespace BeatLeader.UI.Hub {
             _replayPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (!firstActivation) return;
             _replaysLoader.StartReplaysLoad();
         }
 
-        public override void __DismissViewController(Action finishedCallback, AnimationDirection animationDirection = AnimationDirection.Horizontal, bool immediately = false) {
-            _childViewController?.__DismissViewController(null, immediately: true);
-            base.__DismissViewController(finishedCallback, animationDirection, immediately);
+        [HarmonyPatch(typeof(ViewController), "__DismissViewController"), HarmonyPrefix]
+        private static void DismissViewControllerPrefix(ViewController __instance) {
+            if (__instance is not ReplayManagerViewController viewController) return;
+            viewController._childViewController?.__DismissViewController(null, immediately: true);
         }
 
         #endregion

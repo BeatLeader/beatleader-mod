@@ -48,7 +48,7 @@ namespace BeatLeader.Models {
         private static readonly Dictionary<string, AvatarSettings?> avatarSettingsCache = new();
         private static readonly Dictionary<string, SemaphoreSlim?> semaphores = new();
 
-        public async Task<AvatarSettings> GetAvatarAsync(bool bypassCache) {
+        public async Task<AvatarSettings> GetBeatAvatarAsync(bool bypassCache) {
             var semaphore = semaphores.GetOrAdd(id, new SemaphoreSlim(1, 1))!;
             await semaphore.WaitAsync();
             //fetching if needed

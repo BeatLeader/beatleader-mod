@@ -1,11 +1,12 @@
 ﻿using BeatLeader.Utils;
-using IPA.Utilities;
+using BeatSaber.BeatAvatarAdapter.AvatarEditor;
+using BeatSaber.BeatAvatarSDK;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using UnityEngine;
 
 namespace BeatLeader.Replayer.Emulation {
-    public class AvatarController : MonoBehaviour {
+    public class BeatAvatarController : MonoBehaviour {
         #region Setup
 
         public bool PlayAnimation {
@@ -19,20 +20,17 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        public AvatarPoseController PoseController { get; private set; } = null!;
-        public Transform HeadTransform { get; private set; } = null!;
+        public BeatAvatarPoseController PoseController { get; private set; } = null!;
 
         private AvatarTweenController _tweenController = null!;
-        private AvatarVisualController _visualController = null!;
+        private BeatAvatarVisualController _visualController = null!;
         private Animator _animator = null!;
         private Spinner _spinner = null!;
 
         private void Awake() {
             _tweenController = GetComponent<AvatarTweenController>();
-            _visualController = GetComponentInChildren<AvatarVisualController>();
-            PoseController = GetComponentInChildren<AvatarPoseController>();
-            //TODO: asm pub
-            HeadTransform = PoseController.GetField<Transform, AvatarPoseController>("_headTransform");
+            _visualController = GetComponentInChildren<BeatAvatarVisualController>();
+            PoseController = GetComponentInChildren<BeatAvatarPoseController>();
             _animator = GetComponent<Animator>();
             //spinner
             _spinner = new Spinner {

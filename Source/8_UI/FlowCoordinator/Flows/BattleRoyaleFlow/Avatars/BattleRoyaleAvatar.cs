@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.DataManager;
 using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
+using BeatSaber.AvatarCore;
+using BeatSaber.BeatAvatarSDK;
 using UnityEngine;
 using Zenject;
 
@@ -11,33 +12,33 @@ namespace BeatLeader.UI.Hub {
         #region Pool
 
         public class Pool : MonoMemoryPool<IBattleRoyaleReplay, BattleRoyaleAvatar> {
-            protected override void OnSpawned(BattleRoyaleAvatar item) {
+            public override void OnSpawned(BattleRoyaleAvatar item) {
                 item.PresentAvatar();
             }
 
-            protected override void OnDespawned(BattleRoyaleAvatar item) {
+            public override void OnDespawned(BattleRoyaleAvatar item) {
                 item.HideAvatar();
             }
 
-            protected override void Reinitialize(IBattleRoyaleReplay replay, BattleRoyaleAvatar item) {
+            public override void Reinitialize(IBattleRoyaleReplay replay, BattleRoyaleAvatar item) {
                 item.Init(replay);
             }
 
-            protected override void OnCreated(BattleRoyaleAvatar item) { }
+            public override void OnCreated(BattleRoyaleAvatar item) { }
         }
 
         #endregion
 
         #region Injection
 
-        [Inject] private readonly AvatarLoader _avatarLoader = null!;
+        [Inject] private readonly BeatAvatarLoader _beatAvatarLoader = null!;
         [Inject] private readonly MainCamera _mainCamera = null!;
 
         #endregion
 
         #region Setup
 
-        private AvatarController _avatarController = null!;
+        private BeatAvatarController _avatarController = null!;
         private FloatingBattleRoyaleReplayBadge _badge = null!;
         private AvatarData? _avatarData;
         private IBattleRoyaleReplay? _replay;
@@ -78,9 +79,9 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void Awake() {
-            _avatarController = _avatarLoader.CreateAvatar(transform);
+            _avatarController = _beatAvatarLoader.CreateAvatar(AvatarDisplayContext.MultiplayerLobby, transform);
             _badge = new();
-            _badge.Use(_avatarController.HeadTransform);
+            _badge.Use(_avatarController.PoseController._headTransform);
             _badge.Setup(_mainCamera.transform);
             _badge.ContentTransform.localPosition = new(0f, 0.45f, -0.13f);
         }

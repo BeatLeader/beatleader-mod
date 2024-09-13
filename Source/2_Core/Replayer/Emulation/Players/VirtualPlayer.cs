@@ -10,9 +10,9 @@ namespace BeatLeader.Replayer.Emulation {
         #region Pool
 
         public class Pool : MemoryPool<VirtualPlayer> {
-            protected override void OnSpawned(VirtualPlayer item) => item.HandleInstanceSpawned();
+            public override void OnSpawned(VirtualPlayer item) => item.HandleInstanceSpawned();
 
-            protected override void OnDespawned(VirtualPlayer item) => item.HandleInstanceDespawned();
+            public override void OnDespawned(VirtualPlayer item) => item.HandleInstanceDespawned();
         }
 
         private void HandleInstanceSpawned() {

@@ -13,8 +13,6 @@ namespace BeatLeader.UI.Hub {
             DependsOn = dependsOn;
         }
         
-        public DifficultyFilterPanel() { }
-
         #region Filter
 
         public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn { get; }
@@ -32,35 +30,21 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        private IPreviewBeatmapLevel? _beatmapLevel;
+        private BeatmapLevel? _beatmapLevel;
         private BeatmapCharacteristicSO? _characteristic;
 
-        public void SetBeatmapLevel(IPreviewBeatmapLevel? level) {
+        public void SetBeatmapLevel(BeatmapLevel? level) {
             _beatmapLevel = level;
             if (_characteristic != null) {
-                SetCharacteristicCharacteristic(_characteristic);
+                SetCharacteristic(_characteristic);
             }
         }
 
-        public void SetCharacteristicCharacteristic(
-            BeatmapCharacteristicSO characteristic
-        ) {
+        public void SetCharacteristic(BeatmapCharacteristicSO characteristic) {
             _characteristic = characteristic;
-            var sets = _beatmapLevel?.previewDifficultyBeatmapSets
-                .FirstOrDefault(x => x.beatmapCharacteristic == characteristic)?
-                .beatmapDifficulties.Select(
-                    x => new CustomDifficultyBeatmap(
-                        null,
-                        null,
-                        x,
-                        0,
-                        0,
-                        0,
-                        0,
-                        null,
-                        null
-                    )
-                ).ToArray();
+            var sets = _beatmapLevel?.GetCharacteristics()
+                .SelectMany(x => _beatmapLevel.GetDifficulties(x))
+                .ToArray();
             _difficultyPanel.SetData(sets);
         }
 

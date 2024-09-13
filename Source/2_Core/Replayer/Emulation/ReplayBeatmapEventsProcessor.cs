@@ -9,11 +9,11 @@ namespace BeatLeader.Replayer.Emulation {
         #region Pool
 
         public class Pool : MemoryPool<ReplayBeatmapEventsProcessor> {
-            protected override void OnSpawned(ReplayBeatmapEventsProcessor item) {
+            public override void OnSpawned(ReplayBeatmapEventsProcessor item) {
                 item.HandleInstanceSpawned();
             }
 
-            protected override void OnDespawned(ReplayBeatmapEventsProcessor item) {
+            public override void OnDespawned(ReplayBeatmapEventsProcessor item) {
                 item.HandleInstanceDespawned();
             }
         }

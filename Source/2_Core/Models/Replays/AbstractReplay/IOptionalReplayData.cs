@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using BeatSaber.BeatAvatarSDK;
+using UnityEngine;
 
 namespace BeatLeader.Models {
     public interface IOptionalReplayData {

@@ -17,7 +17,7 @@ namespace BeatLeader.UI.Replayer {
 
         private BeatmapLevelPreview _beatmapLevelPreview = null!;
 
-        public void SetBeatmapLevel(IPreviewBeatmapLevel level) {
+        public void SetBeatmapLevel(BeatmapLevel level) {
             _beatmapLevelPreview.SetBeatmapLevel(level);
         }
 

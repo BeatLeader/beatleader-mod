@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using BeatSaber.AvatarCore;
+using BeatSaber.BeatAvatarSDK;
 using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
-    //TODO: avatar opacity support
     internal class VirtualPlayerAvatarBody : IVirtualPlayerBodyComponent {
         #region Pool
 
         public class Pool : MemoryPool<VirtualPlayerAvatarData, VirtualPlayerAvatarBody> {
-            protected override void OnCreated(VirtualPlayerAvatarBody item) {
+            public override void OnCreated(VirtualPlayerAvatarBody item) {
                 item.Setup();
             }
 
-            protected override void Reinitialize(VirtualPlayerAvatarData avatarData, VirtualPlayerAvatarBody item) {
+            public override void Reinitialize(VirtualPlayerAvatarData avatarData, VirtualPlayerAvatarBody item) {
                 item.RefreshAvatarVisuals(avatarData);
             }
         }
@@ -35,20 +36,21 @@ namespace BeatLeader.Replayer.Emulation {
         public bool UsesPrimaryModel { get; private set; }
 
         private IVirtualPlayerBase _player = null!;
-        private VirtualPlayerAvatarData _playerAvatarData;
-        private AvatarLoader _avatarLoader = null!;
+        private VirtualPlayerAvatarData _playerAvatarData = null!;
+        private BeatAvatarLoader _beatAvatarLoader = null!;
         private AvatarPartsModel _avatarPartsModel = null!;
         private AvatarData? _avatarData;
 
         private void Setup() {
-            _avatarLoader = _zenjectMenuResolver.Resolve<AvatarLoader>();
+            _beatAvatarLoader = _zenjectMenuResolver.Resolve<BeatAvatarLoader>();
             _avatarPartsModel = _zenjectMenuResolver.Resolve<AvatarPartsModel>();
-            _avatarController = _avatarLoader.CreateAvatar();
-            _avatarController.transform.SetParent(_extraObjectsProvider.VRGameCore, false);
+            _avatarController = _beatAvatarLoader.CreateAvatar(
+                AvatarDisplayContext.MultiplayerGameplay,
+                _extraObjectsProvider.VRGameCore
+            );
             _avatarController.MakeMasked();
             _avatarController.Present(false);
             _avatarController.PlayAnimation = false;
-            _avatarController.transform.localScale = Vector3.one;
             LoadBody();
         }
 
@@ -110,7 +112,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Body
 
-        private AvatarController _avatarController = null!;
+        private BeatAvatarController _avatarController = null!;
         private Transform _headTransform = null!;
         private Transform _leftHandTransform = null!;
         private Transform _rightHandTransform = null!;
@@ -118,11 +120,10 @@ namespace BeatLeader.Replayer.Emulation {
 
         private void LoadBody() {
             var avatarPoseController = _avatarController.PoseController;
-            //TODO: asm pub
-            _headTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_headTransform");
-            _leftHandTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_leftHandTransform");
-            _rightHandTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_rightHandTransform");
-            _bodyTransform = avatarPoseController.GetField<Transform, AvatarPoseController>("_bodyTransform");
+            _headTransform = avatarPoseController._headTransform;
+            _leftHandTransform = avatarPoseController._leftHandTransform;
+            _rightHandTransform = avatarPoseController._rightHandTransform;
+            _bodyTransform = avatarPoseController._bodyTransform;
         }
 
         #endregion

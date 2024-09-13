@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatLeader.Models;
 using HMUI;
 using Zenject;
 
@@ -17,10 +18,10 @@ namespace BeatLeader.UI.Hub {
             set => _levelSelectionViewController.allowDifficultySelection = value;
         }
 
-        public event Action<IDifficultyBeatmap>? BeatmapSelectedEvent;
+        public event Action<BeatmapLevelWithKey>? BeatmapSelectedEvent;
         public event Action? FlowCoordinatorDismissedEvent;
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             _levelSelectionViewController.BeatmapSelectedEvent += HandleBeatmapSelected;
             if (!firstActivation) return;
             showBackButton = true;
@@ -28,7 +29,7 @@ namespace BeatLeader.UI.Hub {
             ProvideInitialViewControllers(_levelSelectionViewController);
         }
 
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             //to avoid changes while not in this menu
             _levelSelectionViewController.BeatmapSelectedEvent -= HandleBeatmapSelected;
         }
@@ -42,11 +43,11 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        protected override void BackButtonWasPressed(ViewController viewController) {
+        public override void BackButtonWasPressed(ViewController viewController) {
             Dismiss();
         }
 
-        private void HandleBeatmapSelected(IDifficultyBeatmap beatmap) {
+        private void HandleBeatmapSelected(BeatmapLevelWithKey beatmap) {
             BeatmapSelectedEvent?.Invoke(beatmap);
             Dismiss();
         }

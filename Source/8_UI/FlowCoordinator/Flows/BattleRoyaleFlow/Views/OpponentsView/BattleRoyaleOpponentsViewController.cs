@@ -41,7 +41,7 @@ namespace BeatLeader.UI.Hub {
             _alphaAnimator.SetTarget(0f);
         }
 
-        protected override void OnDestroy() {
+        public override void OnDestroy() {
             base.OnDestroy();
             _opponentsList.Setup(null);
             _battleRoyaleHost.ReplayAddedEvent -= HandleReplayAdded;

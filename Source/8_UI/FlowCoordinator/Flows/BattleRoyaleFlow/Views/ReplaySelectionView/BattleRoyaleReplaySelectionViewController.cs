@@ -72,7 +72,7 @@ namespace BeatLeader.UI.Hub {
             _replaysLoader.StartReplaysLoad();
         }
 
-        protected override void OnDestroy() {
+        public override void OnDestroy() {
             base.OnDestroy();
             _battleRoyaleHost.ReplayAddedEvent -= HandleReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent -= HandleReplayRemoved;
@@ -108,7 +108,7 @@ namespace BeatLeader.UI.Hub {
             _battleRoyaleHost.RemoveReplay(header, this);
         }
 
-        private void HandleBeatmapChanged(IDifficultyBeatmap? beatmap) {
+        private void HandleBeatmapChanged(BeatmapLevelWithKey beatmap) {
             _replayLaunchPanel.ClearSelectedReplays();
         }
 

@@ -29,7 +29,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
             Destroy(gameObject.GetComponent<BaseRaycaster>());
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (firstActivation) {
                 _replayerUIPanel = new ReplayerUIPanel();
                 _replayerUIPanel.WithRectExpand().Use(transform);

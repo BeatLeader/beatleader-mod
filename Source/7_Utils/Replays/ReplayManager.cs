@@ -4,7 +4,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Core.Managers.ReplayEnhancer;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using JetBrains.Annotations;
@@ -36,7 +35,7 @@ namespace BeatLeader.Utils {
         public IReadOnlyList<IReplayHeader> Replays => _replays;
         public IReplayMetadataManager MetadataManager => ReplayMetadataManager.Instance;
 
-        private readonly HashSet<(string, string)> _headerValuesCache = new();
+        private readonly HashSet<(string, long)> _headerValuesCache = new();
         private readonly List<IReplayHeader> _temporaryReplays = new();
         private readonly List<IReplayHeader> _replays = new();
         private bool _replaysWereNeverLoaded = true;

@@ -1,4 +1,5 @@
 ﻿using BeatLeader.Models;
+using BeatSaber.BeatAvatarSDK;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {

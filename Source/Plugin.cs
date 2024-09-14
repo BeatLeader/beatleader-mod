@@ -1,13 +1,11 @@
 ﻿using BeatLeader.DataManager;
-using BeatLeader.UI.Reactive;
 using BeatLeader.Utils;
+using BeatSaberMarkupLanguage.Util;
 using Hive.Versioning;
 using IPA;
 using IPA.Config;
-using IPA.Config.Stores;
 using IPA.Loader;
 using JetBrains.Annotations;
-using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
 namespace BeatLeader {
@@ -30,10 +28,10 @@ namespace BeatLeader {
         internal static IPALogger Log { get; private set; }
 
         [Init]
-        public Plugin(IPALogger logger, PluginMetadata metadata) {
+        public Plugin(IPALogger logger, PluginMetadata metadata, Config config) {
             Log = logger;
             Version = metadata.HVersion;
-            InitializeConfig();
+            InitializeConfig(config);
             InitializeAssets();
         }
 
@@ -41,7 +39,7 @@ namespace BeatLeader {
             BundleLoader.Initialize();
         }
 
-        private static void InitializeConfig() {
+        private static void InitializeConfig(Config config) {
             ConfigFileData.Initialize();
         }
 
@@ -53,11 +51,15 @@ namespace BeatLeader {
         [UsedImplicitly]
         public void OnApplicationStart() {
             ObserveEnabled();
-            SettingsPanelUI.AddTab();
-            ReplayManager.LoadCache();
+            MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             InteropLoader.Init();
         }
 
+        public static void MainMenuInit() {
+            SettingsPanelUI.AddTab();
+            ReplayManager.LoadCache();
+        }
+        
         private static void ObserveEnabled() {
             PluginConfig.OnEnabledChangedEvent += OnEnabledChanged;
             OnEnabledChanged(PluginConfig.Enabled);

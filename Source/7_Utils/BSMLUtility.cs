@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage;
 using UnityEngine;
 using BeatSaberMarkupLanguage.Attributes;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace BeatLeader.Utils {
     public static class BSMLUtility {
@@ -14,10 +15,11 @@ namespace BeatLeader.Utils {
             if (location.Length > 1 && location.StartsWith("#")) {
                 string text = location.Substring(1);
                 sprite = FindSpriteCached(text);
-            } else Utilities.GetData(location, (byte[] data) => {
-                sprite = Utilities.LoadSpriteRaw(data);
+            } else {
+                var task = Task.Run(async () => await Utilities.LoadSpriteFromAssemblyAsync(location));
+                sprite = task.GetAwaiter().GetResult();
                 sprite.texture.wrapMode = TextureWrapMode.Clamp;
-            });
+            }
 
             if (sprite == null) {
                 throw new Exception($"Can not find sprite located at [{location}]!");

@@ -71,6 +71,16 @@ namespace BeatLeader.Models {
         public float sfAccRating;
         public float sfTechRating;
         public float sfStars;
+
+        public float bfsPassRating;
+        public float bfsAccRating;
+        public float bfsTechRating;
+        public float bfsStars;
+
+        public float bsfPassRating;
+        public float bsfAccRating;
+        public float bsfTechRating;
+        public float bsfStars;
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]

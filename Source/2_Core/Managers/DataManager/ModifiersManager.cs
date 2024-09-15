@@ -122,11 +122,13 @@ namespace BeatLeader.DataManager {
             foreach (var toggle in toggles) {
                 var multiplierText = (TextMeshProUGUI)AccessTools.Field(toggle.GetType(), "_multiplierText").GetValue(toggle);
                 var modCode = ModifiersUtils.ToNameCode(toggle.gameplayModifier.modifierNameLocalizationKey);
-                if (_modifiersRating is not null && modCode is "SS" or "FS" or "SF") {
+                if (_modifiersRating is not null && modCode is "SS" or "FS" or "SF" or "BSF" or "BFS") {
                     var stars = modCode switch {
                         "SS" => _modifiersRating.ssStars,
                         "FS" => _modifiersRating.fsStars,
                         "SF" => _modifiersRating.sfStars,
+                        "BFS" => _modifiersRating.bfsStars,
+                        "BSF" => _modifiersRating.bsfStars,
                         _ => 0
                     };
                     multiplierText.text = $"<color=yellow>★ {stars:F2}</color>";

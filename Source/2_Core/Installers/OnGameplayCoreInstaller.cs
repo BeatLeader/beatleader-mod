@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using BeatLeader.Replayer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
@@ -17,13 +17,19 @@ using BeatLeader.Replayer.Binding;
 using BeatLeader.UI;
 using BeatLeader.Models;
 using IPA.Loader;
+using ModifiersCore;
 
 namespace BeatLeader.Installers {
     public class OnGameplayCoreInstaller : Installer<OnGameplayCoreInstaller> {
+        private static Ticket _testSubmissionTicket;
         public override void InstallBindings() {
             Plugin.Log.Debug("OnGameplayCoreInstaller");
             if (ReplayerLauncher.IsStartedAsReplay) InitReplayer();
             else InitRecorder();
+
+            if (ModifiersManager.GetModifierState(SpeedModifiers.BSF.Id) || ModifiersManager.GetModifierState(SpeedModifiers.BFS.Id)) {
+                _testSubmissionTicket = Container.Resolve<Submission>()?.DisableScoreSubmission("BeatLeader", "Better modifiers test");
+            }
         }
 
         #region Recorder
@@ -117,6 +123,10 @@ namespace BeatLeader.Installers {
             if (_submissionTicket != null) {
                 Container.Resolve<Submission>()?.Remove(_submissionTicket);
                 _submissionTicket = null;
+            }
+            if (_testSubmissionTicket != null) {
+                Container.Resolve<Submission>()?.Remove(_testSubmissionTicket);
+                _testSubmissionTicket = null;
             }
         }
 

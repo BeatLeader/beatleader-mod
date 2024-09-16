@@ -97,13 +97,13 @@ namespace BeatLeader.DataManager {
 
         #region OverridenState
 
-        private Dictionary<string, float> _modifiersMap;
+        private Dictionary<string, float>? _modifiersMap;
         private Dictionary<string, float>? _modifiersRating;
         private bool _modifiersAvailable;
 
         private void UpdateModifiersMap(bool isAnyBeatmapSelected, LeaderboardKey leaderboardKey) {
             if (!isAnyBeatmapSelected || !LeaderboardsCache.TryGetLeaderboardInfo(leaderboardKey, out var data)) {
-                GameplayModifiersPanelPatch.ModifiersMap = _modifiersMap = default;
+                GameplayModifiersPanelPatch.ModifiersMap = _modifiersMap = null;
                 GameplayModifiersPanelPatch.hasModifiers = _modifiersAvailable = false;
                 _modifiersRating = default;
                 return;
@@ -120,7 +120,6 @@ namespace BeatLeader.DataManager {
             foreach (var toggle in toggles) {
                 var multiplierText = toggle.Item1._multiplierText;
                 var key = toggle.Item2.Id;
-                Plugin.Log.Error("ApplyOverridenState " +  key);
                 var starsKey = key.ToLower() + "Stars";
 
                 if (_modifiersRating != null && _modifiersRating.ContainsKey(starsKey)) {
@@ -128,8 +127,10 @@ namespace BeatLeader.DataManager {
                     multiplierText.text = $"<color=yellow>★ {stars:F2}</color>";
                     continue;
                 }
-                var multiplierValue = _modifiersAvailable && _modifiersMap.ContainsKey(key.ToLower()) ? _modifiersMap[key.ToLower()] : 0.0f;
-                multiplierText.text = multiplierValue != 0.0f ? FormatToggleText(multiplierValue, toggle.Item2.Id == "NF") : "";
+                if (_modifiersMap != null) {
+                    var multiplierValue = _modifiersAvailable && _modifiersMap.ContainsKey(key.ToLower()) ? _modifiersMap[key.ToLower()] : 0.0f;
+                    multiplierText.text = multiplierValue != 0.0f ? FormatToggleText(multiplierValue, toggle.Item2.Id == "NF") : "";
+                }
             }
 
             GameplayModifiersPanelPatch.isPatchRequired = true;

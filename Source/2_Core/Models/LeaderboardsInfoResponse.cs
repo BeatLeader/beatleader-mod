@@ -51,7 +51,7 @@ namespace BeatLeader.Models {
         public float techRating;
         public int maxScore;
         public int type;
-        public Dictionary<string, float> modifierValues;
+        public Dictionary<string, float>? modifierValues;
         public Dictionary<string, float>? modifiersRating;
     }
 

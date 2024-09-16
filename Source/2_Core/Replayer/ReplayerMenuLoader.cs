@@ -139,6 +139,7 @@ namespace BeatLeader.Replayer {
         private static void PatchModifiers(string modifiers) {
             var modifierList = modifiers.Split(',');
             foreach (var modifier in modifierList) {
+                if (modifier.Length == 0) continue;
                 //skipping base-game
                 if (ModifierUtils.IsValidBaseGameModifier(modifier)) continue;
                 var state = ModifiersManager.GetModifierState(modifier);

@@ -111,7 +111,7 @@ namespace BeatLeader.Components {
 
         private GameplayModifiers _gameplayModifiers = new();
         private Dictionary<string, float>? _modifiersRating;
-        private Dictionary<string, float> _modifiersMap;
+        private Dictionary<string, float>? _modifiersMap;
 
         private void ModifyDiffRating(ref DiffInfo diffInfo) {
             if (_modifiersRating == null) return;
@@ -143,7 +143,7 @@ namespace BeatLeader.Components {
             return ModifiersManager
                     .Modifiers
                     .Where(m => ModifiersManager.GetModifierState(m.Id))
-                    .Sum(m => _modifiersMap.ContainsKey(m.Id.ToLower()) ? _modifiersMap[m.Id.ToLower()] : m.Multiplier);
+                    .Sum(m => _modifiersMap != null && _modifiersMap.ContainsKey(m.Id.ToLower()) ? _modifiersMap[m.Id.ToLower()] : m.Multiplier);
         }
 
         #endregion

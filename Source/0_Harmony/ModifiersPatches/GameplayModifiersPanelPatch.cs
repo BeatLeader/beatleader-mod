@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -16,7 +16,7 @@ namespace BeatLeader {
 
         public static bool isPatchRequired = false;
         public static bool hasModifiers = false;
-        public static Dictionary<string, float> ModifiersMap;
+        public static Dictionary<string, float>? ModifiersMap;
         public static Dictionary<string, float>? ModifiersRating;
         
         [UsedImplicitly]
@@ -41,7 +41,7 @@ namespace BeatLeader {
                     key = param.modifierNameLocalizationKey;
                 }
     
-                if (ModifiersMap.ContainsKey(key.ToLower())) {
+                if (ModifiersMap != null && ModifiersMap.ContainsKey(key.ToLower())) {
                     totalMultiplier += ModifiersMap[key.ToLower()];
                 }
             }

@@ -28,7 +28,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 
             info.mode = difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             info.environment = environmentInfo.environmentName;
-            info.modifiers = string.Join(",", ModifiersManager.Modifiers.Where(m => ModifiersManager.GetModifierState(m.Id)).Select(m => m.Id));
+            info.modifiers = string.Join(",", modifiers());
             info.leftHanded = playerSpecificSettings.leftHanded;
             info.height = playerSpecificSettings.automaticPlayerHeight ? 0 : playerSpecificSettings.playerHeight;
 
@@ -37,6 +37,11 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                 info.startTime = practiceSettings.startSongTime;
                 info.speed = practiceSettings.songSpeedMul;
             }
+        }
+
+        private static List<string> modifiers()
+        {
+            return ModifiersManager.Modifiers.Where(m => ModifiersManager.GetModifierState(m.Id)).Select(m => m.Id).ToList();
         }
     }
 }

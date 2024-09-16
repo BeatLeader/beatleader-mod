@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Models.Replay;
 using ModifiersCore;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer
@@ -25,7 +26,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 
             info.mode = beatmapKey.beatmapCharacteristic.serializedName;
             info.environment = environmentName;
-            info.modifiers = string.Join(",", ModifiersManager.Modifiers.Where(m => ModifiersManager.GetModifierState(m.Id)).Select(m => m.Id));
+            info.modifiers = string.Join(",", modifiers());
             info.leftHanded = playerSpecificSettings.leftHanded;
             info.height = playerSpecificSettings.automaticPlayerHeight ? 0 : playerSpecificSettings.playerHeight;
 
@@ -34,6 +35,11 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                 info.startTime = practiceSettings.startSongTime;
                 info.speed = practiceSettings.songSpeedMul;
             }
+        }
+
+        private static List<string> modifiers()
+        {
+            return ModifiersManager.Modifiers.Where(m => ModifiersManager.GetModifierState(m.Id)).Select(m => m.Id).ToList();
         }
     }
 }

@@ -28,21 +28,10 @@ namespace BeatLeader {
             new string[] { ModifierCategories.Speed }
         );
 
-        public static GameplayModifiers.SongSpeed GetSongSpeed() {
-            if (ModifiersManager.GetModifierState(BFS.Id)) {
-                return GameplayModifiers.SongSpeed.Faster;
-            }
-            if (ModifiersManager.GetModifierState(BSF.Id)) {
-                return GameplayModifiers.SongSpeed.SuperFast;
-            }
-            return GameplayModifiers.SongSpeed.Normal;
-        }
-        
-        public static float GetSongSpeedMultiplier() {
+        public static float SongSpeed() {
             if (ModifiersManager.GetModifierState(BFS.Id)) {
                 return 1.2f;
-            }
-            if (ModifiersManager.GetModifierState(BSF.Id)) {
+            } else if (ModifiersManager.GetModifierState(BSF.Id)) {
                 return 1.5f;
             }
             return 1f;

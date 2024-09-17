@@ -60,6 +60,8 @@ namespace BeatLeader.Utils {
             CachedReplay = null;
             if (!ValidatePlay(replay, playEndData)) {
                 Plugin.Log.Info("Validation failed, replay will not be saved!");
+                var tempheader = new GenericReplayHeader(this, "", replay);
+                CachedReplay = tempheader;
                 return null;
             }
 

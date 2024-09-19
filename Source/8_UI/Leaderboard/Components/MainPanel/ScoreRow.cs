@@ -214,7 +214,7 @@ namespace BeatLeader.Components {
                 }
                 case ClanScore clanScore: {
                     Clickable = true;
-                    SetHighlight(ProfileManager.IsCurrentPlayerInClan(clanScore.clan));
+                    SetHighlight(ProfileManager.IsCurrentPlayerTopClan(clanScore.clan));
                     ApplyColorScheme(Array.Empty<PlayerRole>());
                     break;
                 }

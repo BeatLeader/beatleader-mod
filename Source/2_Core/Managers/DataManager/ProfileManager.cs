@@ -52,6 +52,10 @@ namespace BeatLeader.DataManager {
             return HasProfile && Profile.clans.Any(profileClan => profileClan.id == clan.id);
         }
 
+        public static bool IsCurrentPlayerTopClan(Clan clan) {
+            return HasProfile && Profile.clans.Length > 0 && Profile.clans[0].id == clan.id;
+        }
+
         public static bool TryGetUserId(out string userId) {
             if (!HasProfile) {
                 userId = null;

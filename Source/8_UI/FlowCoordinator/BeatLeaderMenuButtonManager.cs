@@ -32,11 +32,6 @@ namespace BeatLeader {
             MenuButtonClickedEvent += HandleMenuButtonClicked;
         }
 
-        private void OnDestroy() {
-            MenuButtons.Instance.UnregisterButton(menuButton);
-            MenuButtonClickedEvent -= HandleMenuButtonClicked;  
-        }
-
         #endregion
 
         #region Callbacks

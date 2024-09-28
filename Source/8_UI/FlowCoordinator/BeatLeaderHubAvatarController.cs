@@ -28,16 +28,17 @@ namespace BeatLeader.UI.Hub {
         private BeatAvatarEditorViewController _editAvatarViewController = null!;
 
         private EditAvatarFloatingButton _editAvatarButton = null!;
-        private BeatAvatarController _avatarController = null!;
+        private MenuBeatAvatarController _avatarController = null!;
         private Transform _screenTransform = null!;
 
         private AvatarData? _avatarData;
 
-        private void Awake() {
+        private async void Awake() {
             _editAvatarButton = new EditAvatarFloatingButton {
                 ContentTransform = {
                     localPosition = new(0f, 1f, 0.15f),
-                    localEulerAngles = new(0f, 180f, 0f)
+                    localEulerAngles = new(0f, 180f, 0f),
+                    localScale = 0.02f * Vector3.one
                 },
                 Interactable = false,
                 Enabled = false,
@@ -48,8 +49,8 @@ namespace BeatLeader.UI.Hub {
             _hubFlowCoordinator.FlowCoordinatorPresentedEvent += Present;
             _hubFlowCoordinator.FlowCoordinatorDismissedEvent += Dismiss;
             //
-            _editAvatarFlowCoordinator = _beatAvatarLoader.CreateEditorFlowCoordinator();
-            _avatarController = _beatAvatarLoader.CreateAvatar(AvatarDisplayContext.UI, transform);
+            _avatarController = _beatAvatarLoader.CreateMenuAvatar(transform);
+            _editAvatarFlowCoordinator = await _beatAvatarLoader.CreateEditorFlowCoordinator();
             SetupEditAvatarFlowCoordinator();
             //
             var screenSystem = _hierarchyManager.GetComponent<ScreenSystem>();
@@ -63,7 +64,7 @@ namespace BeatLeader.UI.Hub {
 
         private async void UploadAvatar() {
             _avatarController.SetVisuals(_avatarData);
-            _avatarController.SetLoading(true);
+            //_avatarController.SetLoading(true);
             var player = ProfileManager.Profile!;
             var settings = AvatarSettings.FromAvatarData(_avatarData);
             //request
@@ -74,18 +75,18 @@ namespace BeatLeader.UI.Hub {
             }
             //forcing player to update avatar
             await player.GetBeatAvatarAsync(true);
-            _avatarController.SetLoading(false);
+            //_avatarController.SetLoading(false);
         }
 
         private async void LoadAvatar() {
-            _avatarController.SetLoading(true);
+            //_avatarController.SetLoading(true);
             await ProfileManager.WaitUntilProfileLoad();
             var player = ProfileManager.Profile;
             if (player != null) {
                 await LoadAvatarFromPlayerAsync(player, false);
                 _editAvatarButton.Interactable = true;
             }
-            _avatarController.SetLoading(false);
+            //_avatarController.SetLoading(false);
         }
 
         private async Task LoadAvatarFromPlayerAsync(IPlayer player, bool bypassCache) {

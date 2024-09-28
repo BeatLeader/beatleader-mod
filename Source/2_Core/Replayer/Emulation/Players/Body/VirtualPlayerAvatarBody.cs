@@ -44,13 +44,7 @@ namespace BeatLeader.Replayer.Emulation {
         private void Setup() {
             _beatAvatarLoader = _zenjectMenuResolver.Resolve<BeatAvatarLoader>();
             _avatarPartsModel = _zenjectMenuResolver.Resolve<AvatarPartsModel>();
-            _avatarController = _beatAvatarLoader.CreateAvatar(
-                AvatarDisplayContext.MultiplayerGameplay,
-                _extraObjectsProvider.VRGameCore
-            );
-            _avatarController.MakeMasked();
-            _avatarController.Present(false);
-            _avatarController.PlayAnimation = false;
+            _avatarController = _beatAvatarLoader.CreateGameplayAvatar(_extraObjectsProvider.VRGameCore);
             LoadBody();
         }
 

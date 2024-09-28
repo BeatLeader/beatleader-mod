@@ -1,12 +1,11 @@
-﻿using BeatLeader.Utils;
-using BeatSaber.BeatAvatarAdapter.AvatarEditor;
+﻿using BeatSaber.BeatAvatarAdapter.AvatarEditor;
 using BeatSaber.BeatAvatarSDK;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using UnityEngine;
 
 namespace BeatLeader.Replayer.Emulation {
-    public class BeatAvatarController : MonoBehaviour {
+    public class MenuBeatAvatarController : BeatAvatarController {
         #region Setup
 
         public bool PlayAnimation {
@@ -20,17 +19,12 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        public BeatAvatarPoseController PoseController { get; private set; } = null!;
-
         private AvatarTweenController _tweenController = null!;
-        private BeatAvatarVisualController _visualController = null!;
-        private Animator _animator = null!;
         private Spinner _spinner = null!;
+        private Animator _animator = null!;
 
-        private void Awake() {
+        protected override void Awake() {
             _tweenController = GetComponent<AvatarTweenController>();
-            _visualController = GetComponentInChildren<BeatAvatarVisualController>();
-            PoseController = GetComponentInChildren<BeatAvatarPoseController>();
             _animator = GetComponent<Animator>();
             //spinner
             _spinner = new Spinner {
@@ -42,21 +36,28 @@ namespace BeatLeader.Replayer.Emulation {
             }.WithSizeDelta(13f, 13f);
             ReactiveUtils.AddCanvas(_spinner);
             _spinner.Use(transform);
-            //avatar layer
-            SetVisuals(null);
-            gameObject.SetActive(false);
-        }
-
-        public void MakeMasked() {
-            foreach (var item in transform.GetChildren(false)) {
-                item.gameObject.layer = 10;
-            }
+            base.Awake();
         }
 
         #endregion
 
-        #region Present & Dismiss
+        #region Visuals
 
+        public override void SetVisuals(AvatarData? data, bool animated = false) {
+            if (isActiveAndEnabled && animated) {
+                _tweenController.PopAll();
+            }
+            base.SetVisuals(data, animated);
+        }
+
+        public void SetLoading(bool loading) {
+            _spinner.Enabled = loading;
+        }
+
+        #endregion
+
+        #region Present & Hide 
+        
         public void Present(bool animated = true) {
             gameObject.SetActive(true);
             if (animated) _tweenController.PresentAvatar();
@@ -65,22 +66,7 @@ namespace BeatLeader.Replayer.Emulation {
         public void Hide() {
             _tweenController.HideAvatar();
         }
-
-        #endregion
-
-        #region Visuals
-
-        public void SetVisuals(AvatarData? data, bool animated = false) {
-            if (isActiveAndEnabled && animated) {
-                _tweenController.PopAll();
-            }
-            _visualController.UpdateAvatarVisual(data ?? AvatarUtils.DefaultAvatarData);
-        }
-
-        public void SetLoading(bool loading) {
-            _spinner.Enabled = loading;
-        }
-
+        
         #endregion
     }
 }

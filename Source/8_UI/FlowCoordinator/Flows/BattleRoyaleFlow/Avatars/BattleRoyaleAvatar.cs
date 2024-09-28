@@ -38,7 +38,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        private BeatAvatarController _avatarController = null!;
+        private MenuBeatAvatarController _avatarController = null!;
         private FloatingBattleRoyaleReplayBadge _badge = null!;
         private AvatarData? _avatarData;
         private IBattleRoyaleReplay? _replay;
@@ -79,7 +79,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void Awake() {
-            _avatarController = _beatAvatarLoader.CreateAvatar(AvatarDisplayContext.MultiplayerLobby, transform);
+            _avatarController = _beatAvatarLoader.CreateMenuAvatar(transform);
             _badge = new();
             _badge.Use(_avatarController.PoseController._headTransform);
             _badge.Setup(_mainCamera.transform);

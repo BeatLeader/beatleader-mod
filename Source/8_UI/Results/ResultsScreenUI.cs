@@ -22,7 +22,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
         }
         
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
             _replayButton.ReplayButtonClickedEvent -= HandleReplayButtonClicked;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
         }

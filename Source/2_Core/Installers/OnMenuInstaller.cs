@@ -1,9 +1,10 @@
-using BeatLeader.DataManager;
+﻿using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.ViewControllers;
 using BeatLeader.Replayer;
 using JetBrains.Annotations;
 using Zenject;
+using BeatLeader.Components;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]
@@ -36,6 +37,9 @@ namespace BeatLeader.Installers {
             Container.Bind<BeatLeaderMenuButtonManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatLeaderFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayLaunchViewController>().FromNewComponentAsViewController().AsSingle();
+
+            _ = BeatmapDifficultyPanel.BeatmapDifficultySegmentedControl;
+            _ = BeatmapCharacteristicPanel.BeatmapCharacteristicSegmentedControl;
         }
     }
 }

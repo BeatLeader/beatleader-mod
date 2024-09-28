@@ -32,6 +32,10 @@ namespace BeatLeader {
             MenuButtonClickedEvent += HandleMenuButtonClicked;
         }
 
+        private void OnDestroy() {
+            MenuButtonClickedEvent -= HandleMenuButtonClicked;  
+        }
+
         #endregion
 
         #region Callbacks

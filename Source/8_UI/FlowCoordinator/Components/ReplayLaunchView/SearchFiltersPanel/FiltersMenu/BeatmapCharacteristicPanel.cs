@@ -12,9 +12,9 @@ namespace BeatLeader.Components {
     internal class BeatmapCharacteristicPanel : ReeUIComponentV2 {
         #region Prefab
 
-        private static Transform BeatmapCharacteristicSegmentedControl => _beatmapCharacteristicSegmentedControl ?
-            _beatmapCharacteristicSegmentedControl! : _beatmapCharacteristicSegmentedControl = Resources
-                .FindObjectsOfTypeAll<BeatmapCharacteristicSegmentedControlController>().First().transform.parent;
+        public static Transform BeatmapCharacteristicSegmentedControl => _beatmapCharacteristicSegmentedControl ?
+            _beatmapCharacteristicSegmentedControl! : _beatmapCharacteristicSegmentedControl = Instantiate(Resources
+                .FindObjectsOfTypeAll<BeatmapCharacteristicSegmentedControlController>().First().transform.parent);
 
         private static Transform? _beatmapCharacteristicSegmentedControl;
 
@@ -88,8 +88,8 @@ namespace BeatLeader.Components {
         private List<BeatmapCharacteristicSO>? _beatmapCharacteristics;
         
         protected override void OnInitialize() {
-            var characteristicPanel = Instantiate(
-                BeatmapCharacteristicSegmentedControl, _container, true);
+            var characteristicPanel = BeatmapCharacteristicSegmentedControl;
+            characteristicPanel.SetParent(_container, true);
             characteristicPanel.localScale = Vector3.one;
             characteristicPanel.localPosition = Vector3.zero;
             characteristicPanel
@@ -99,7 +99,7 @@ namespace BeatLeader.Components {
             _segmentedControl = characteristicPanel.GetComponentInChildren<
                 BeatmapCharacteristicSegmentedControlController>(true);
             _segmentedControl.didSelectBeatmapCharacteristicEvent += HandleBeatmapCharacteristicSelected;
-            _beatmapCharacteristics = _segmentedControl._beatmapCharacteristics;
+            _beatmapCharacteristics = _segmentedControl._currentlyAvailableBeatmapCharacteristics;
         }
 
         #endregion

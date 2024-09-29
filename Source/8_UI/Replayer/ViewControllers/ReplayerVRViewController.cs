@@ -57,7 +57,7 @@ namespace BeatLeader.ViewControllers {
             screen.HandleSide = FloatingScreen.Side.Bottom;
             screen.HighlightHandle = true;
 
-            var screenHandle = screen.handle;
+            var screenHandle = screen.Handle;
             screenHandle.transform.localPosition = new(11, -29, 0);
             screenHandle.transform.localScale = new(20, 3.67f, 3.67f);
 

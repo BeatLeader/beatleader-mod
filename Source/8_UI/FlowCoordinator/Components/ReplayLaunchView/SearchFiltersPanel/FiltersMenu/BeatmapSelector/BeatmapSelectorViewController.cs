@@ -1,4 +1,5 @@
 ﻿using System;
+using BGLib.Polyglot;
 using HMUI;
 using IPA.Utilities;
 using UnityEngine;
@@ -34,6 +35,9 @@ namespace BeatLeader.Components {
         private BeatmapLevel? _originalPreviewBeatmapLevel;
         private bool _isInitialized;
 
+        private string _defaultPlayButtonText = Localization.Get("BUTTON_PLAY");
+        private static string CUSTOM_PLAY_BUTTON = "SELECT";
+
         public void Init(
             LevelSelectionNavigationController levelSelectionNavigationController,
             StandardLevelDetailViewController levelDetailViewController
@@ -66,23 +70,27 @@ namespace BeatLeader.Components {
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (!_isInitialized) throw new UninitializedComponentException();
             if (firstActivation) {
-                _levelSelectionNavigationController.Setup(
-                    SongPackMask.all,
-                    BeatmapDifficultyMask.All,
-                    Array.Empty<BeatmapCharacteristicSO>(),
-                    false,
-                    false,
-                    "SELECT",
-                    null,
-                    SelectLevelCategoryViewController.LevelCategory.None,
-                    null,
-                    true);
+                if (_levelSelectionNavigationController._actionButtonText == null) {
+                    _levelSelectionNavigationController.Setup(
+                        SongPackMask.all,
+                        BeatmapDifficultyMask.All,
+                        Array.Empty<BeatmapCharacteristicSO>(),
+                        false,
+                        false,
+                        CUSTOM_PLAY_BUTTON,
+                        null,
+                        SelectLevelCategoryViewController.LevelCategory.None,
+                        null,
+                        true);
+                }
                 _levelDetailWrapper = ReeUIComponentV2.Instantiate<LevelDetailWrapper>(_levelDetail.parent);
                 _levelDetailWrapper.SelectButtonPressedEvent += HandleSelectButtonPressed;
                 _closeButton = ReeUIComponentV2.Instantiate<CloseButton>(_levelFilteringNavigationController.transform);
                 _closeButton.ManualInit(_closeButton.transform);
                 _closeButton.ButtonPressedEvent += HandleCloseButtonPressed;
             }
+            _levelSelectionNavigationController._actionButtonText = CUSTOM_PLAY_BUTTON;
+
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             _originalPreviewBeatmapLevel = _levelCollectionNavigationController.beatmapLevel;
             SetLevelDetailWrapperEnabled(true);
@@ -93,6 +101,7 @@ namespace BeatLeader.Components {
         }
 
         public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+            _levelSelectionNavigationController._actionButtonText = _defaultPlayButtonText;
             SetLevelDetailWrapperEnabled(false);
             SetCloseButtonEnabled(false);
             _lastSelectedLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;

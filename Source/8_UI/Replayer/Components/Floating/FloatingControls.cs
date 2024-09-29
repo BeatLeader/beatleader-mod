@@ -92,7 +92,7 @@ namespace BeatLeader.Components {
             if (_viewFloating == null) return;
 
             FloatingConfig.Instance.IsPinned = pin;
-            _viewFloating.handle.gameObject.SetActive(!pin);
+            _viewFloating.Handle.gameObject.SetActive(!pin);
             _spacerOne.SetActive(!pin);
             _spacerTwo.SetActive(!pin);
         }

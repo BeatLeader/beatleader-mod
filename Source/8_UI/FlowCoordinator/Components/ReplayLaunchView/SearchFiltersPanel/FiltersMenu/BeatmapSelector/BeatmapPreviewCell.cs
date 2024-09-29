@@ -107,7 +107,7 @@ namespace BeatLeader.Components {
         public void SetData(BeatmapLevel? previewBeatmapLevel) {
             previewBeatmapLevel ??= defaultPreviewBeatmapLevel;
             if (_cell == null) throw new UninitializedComponentException();
-            _cell.SetDataFromLevelAsync(previewBeatmapLevel, false, false, false);
+            _cell.SetDataFromLevelAsync(previewBeatmapLevel, false, false, false, true);
         }
 
         #endregion

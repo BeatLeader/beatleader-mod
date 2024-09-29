@@ -116,9 +116,9 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
         public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams)
         {
             BetterImage image;
-            if ((image = componentType.component as BetterImage) != null)
+            if ((image = componentType.Component as BetterImage) != null)
             {
-                HandleImage(componentType.data, image.Image);
+                HandleImage(componentType.Data, image.Image);
             }
         }
     }

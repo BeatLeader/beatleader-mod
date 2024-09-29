@@ -131,9 +131,9 @@ namespace BeatLeader.Components {
         private int _dimensions = 3;
 
         protected override void OnInitialize() {
-            XSlider = new(_xSlider.slider);
-            YSlider = new(_ySlider.slider);
-            ZSlider = new(_zSlider.slider);
+            XSlider = new(_xSlider.Slider);
+            YSlider = new(_ySlider.Slider);
+            ZSlider = new(_zSlider.Slider);
             UpdateVectorText();
         }
 

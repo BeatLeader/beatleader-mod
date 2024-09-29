@@ -9,7 +9,7 @@ namespace BeatLeader {
 
         public static void AddTab() {
             if (_tabActive) return;
-            PersistentSingleton<BeatSaberMarkupLanguage.Settings.BSMLSettings>.instance.AddSettingsMenu(
+            BeatSaberMarkupLanguage.Settings.BSMLSettings.Instance.AddSettingsMenu(
                 TabName,
                 ResourcePath,
                 instance
@@ -19,7 +19,7 @@ namespace BeatLeader {
 
         public static void RemoveTab() {
             if (!_tabActive) return;
-            PersistentSingleton<BeatSaberMarkupLanguage.Settings.BSMLSettings>.instance.RemoveSettingsMenu(TabName);
+            BeatSaberMarkupLanguage.Settings.BSMLSettings.Instance.RemoveSettingsMenu(TabName);
             _tabActive = false;
         }
     }

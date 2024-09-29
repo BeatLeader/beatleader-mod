@@ -200,10 +200,11 @@ namespace BeatLeader {
             _state = State.Uninitialized;
         }
 
-        private void ParseSelfIfNeeded() {
+        private async void ParseSelfIfNeeded() {
             if (_state != State.Uninitialized) return;
+            await MainMenuAwaiter.WaitForMainMenuAsync();
             _state = State.Parsing;
-            PersistentSingleton<BSMLParser>.instance.Parse(GetBsmlForType(GetType()), gameObject, ParseHost);
+            BSMLParser.Instance.Parse(GetBsmlForType(GetType()), gameObject, ParseHost);
             Content = Transform.GetChild(0);
             Content.gameObject.AddComponent<ContentStateListener>().StateChangedEvent += OnRootStateChange;
             _state = State.Parsed;

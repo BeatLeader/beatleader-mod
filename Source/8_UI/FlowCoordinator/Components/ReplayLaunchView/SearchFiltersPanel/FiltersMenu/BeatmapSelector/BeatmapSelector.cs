@@ -160,7 +160,6 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandleSelectedBeatmapChanged(LevelCollectionViewController? controller, BeatmapLevel level) {
-            if (_isReady || _isSelectorOpened) return;
             _currentPreviewBeatmapLevel = level;
             _currentBeatmapChanged = true;
         }

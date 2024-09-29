@@ -1,4 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Util;
+using BeatSaberMarkupLanguage.Util;
 
 namespace BeatLeader {
     internal partial class SettingsPanelUI {

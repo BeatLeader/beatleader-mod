@@ -34,7 +34,9 @@ namespace BeatLeader.Components {
         private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
         private BeatmapLevel? _originalPreviewBeatmapLevel;
         private bool _isInitialized;
+
         private string _defaultPlayButtonText = Localization.Get("BUTTON_PLAY");
+        private static string CUSTOM_PLAY_BUTTON = "SELECT";
 
         public void Init(
             LevelSelectionNavigationController levelSelectionNavigationController,
@@ -75,7 +77,7 @@ namespace BeatLeader.Components {
                         Array.Empty<BeatmapCharacteristicSO>(),
                         false,
                         false,
-                        "SELECT",
+                        CUSTOM_PLAY_BUTTON,
                         null,
                         SelectLevelCategoryViewController.LevelCategory.None,
                         null,
@@ -87,7 +89,7 @@ namespace BeatLeader.Components {
                 _closeButton.ManualInit(_closeButton.transform);
                 _closeButton.ButtonPressedEvent += HandleCloseButtonPressed;
             }
-            _levelSelectionNavigationController._actionButtonText = "SELECT";
+            _levelSelectionNavigationController._actionButtonText = CUSTOM_PLAY_BUTTON;
 
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             _originalPreviewBeatmapLevel = _levelCollectionNavigationController.beatmapLevel;

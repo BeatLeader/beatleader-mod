@@ -16,8 +16,7 @@ namespace BeatLeader.Utils {
                 string text = location.Substring(1);
                 sprite = FindSpriteCached(text);
             } else {
-                var task = Task.Run(async () => await Utilities.LoadSpriteFromAssemblyAsync(location));
-                sprite = task.GetAwaiter().GetResult();
+                sprite = Utilities.LoadSpriteFromAssemblyAsync(location).GetAwaiter().GetResult();
                 sprite.texture.wrapMode = TextureWrapMode.Clamp;
             }
 

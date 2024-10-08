@@ -14,9 +14,11 @@ namespace BeatLeader.Components {
 
         private class NotSelectedPreviewBeatmapLevel : BeatmapLevel {
             private class PreviewMediaData : IPreviewMediaData {
-                public Task<Sprite> GetCoverSpriteAsync(CancellationToken cancellationToken) => Task.FromResult(BundleLoader.UnknownIcon);
+                public Task<Sprite> GetCoverSpriteAsync() => Task.FromResult(BundleLoader.UnknownIcon);
 
-                public Task<AudioClip> GetPreviewAudioClip(CancellationToken cancellationToken) => throw new NotImplementedException();
+                public Task<AudioClip> GetPreviewAudioClip() => throw new NotImplementedException();
+
+                public void UnloadCoverSprite() {}
 
                 public void UnloadPreviewAudioClip() { }
             }

@@ -5,7 +5,7 @@ using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal abstract class DialogComponentBase : AnimatedModalComponentBase {
+    internal abstract class DialogComponentBase : ModalComponentBase {
         #region UI Props
 
         protected string Title {

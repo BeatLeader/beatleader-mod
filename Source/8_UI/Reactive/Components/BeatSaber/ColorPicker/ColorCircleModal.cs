@@ -1,10 +1,11 @@
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ColorCircleModal : AnimatedModalComponentBase {
+    internal class ColorCircleModal : ModalComponentBase {
         public ColorCircle ColorCircle { get; } = new();
 
         protected override GameObject Construct() {

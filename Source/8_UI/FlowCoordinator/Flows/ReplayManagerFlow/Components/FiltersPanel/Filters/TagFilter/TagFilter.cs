@@ -4,6 +4,7 @@ using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;

@@ -11,7 +11,7 @@ namespace BeatLeader.UI.Replayer {
     internal class AvatarPartControl : ReactiveComponent {
         #region Modal
 
-        private class AlphaModal : AnimatedModalComponentBase {
+        private class AlphaModal : ModalComponentBase {
             #region Setup
 
             private AvatarPartConfigWithModel? _config;

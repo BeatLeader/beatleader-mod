@@ -1,15 +1,15 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.UI.Hub.Models;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListSettingsPanel : ReactiveComponent {
-        private class SortOptionsModal : AnimatedModalComponentBase {
+        private class SortOptionsModal : ModalComponentBase {
             #region Setup
 
             private IReplaysList? _replaysList;
@@ -97,6 +97,7 @@ namespace BeatLeader.UI.Hub {
             return new Image {
                 Children = {
                     new SortOptionsModal()
+                        .WithScaleAnimation()
                         .WithAnchor(() => ContentTransform, RelativePlacement.TopRight)
                         .Bind(ref _sortOptionsModal),
                     //label
@@ -108,18 +109,20 @@ namespace BeatLeader.UI.Hub {
                     //refresh button
                     new ImageButton {
                         Image = {
-                            Sprite = BundleLoader.RotateRightIcon
+                            Sprite = BundleLoader.RotateRightIcon,
+                            Material = BundleLoader.UIAdditiveGlowMaterial
                         },
+                        Colors = UIStyle.ButtonColorSet,
                         OnClick = () => _replaysLoader!.StartReplaysLoad()
                     }.AsFlexItem(aspectRatio: 1f),
                     //settings button
                     new ImageButton {
                         Image = {
-                            Sprite = BundleLoader.SettingsIcon
-                        }
-                    }.WithModal(_sortOptionsModal).AsFlexItem(
-                        aspectRatio: 1f
-                    ).Bind(ref _settingsButton)
+                            Sprite = BundleLoader.SettingsIcon,
+                            Material = BundleLoader.UIAdditiveGlowMaterial
+                        },
+                        Colors = UIStyle.ButtonColorSet
+                    }.WithModal(_sortOptionsModal).AsFlexItem(aspectRatio: 1f).Bind(ref _settingsButton)
                 }
             }.AsFlexGroup(padding: 0.6f, gap: 0.5f).AsBlurBackground().Use();
         }

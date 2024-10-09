@@ -11,7 +11,7 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaySettingsView : ReactiveComponent {
         #region DeletionModal
 
-        private class DeletionModal : AnimatedModalComponentBase {
+        private class DeletionModal : ModalComponentBase {
             #region Setup
 
             private IReplayFileManager? _replayFileManager;
@@ -99,7 +99,7 @@ namespace BeatLeader.UI.Hub {
 
             protected override void OnInitialize() {
                 base.OnInitialize();
-                Content.GetComponent<CanvasGroup>().ignoreParentGroups = true;
+                Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
             }
 
             #endregion

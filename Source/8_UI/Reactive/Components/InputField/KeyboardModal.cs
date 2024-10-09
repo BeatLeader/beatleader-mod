@@ -1,9 +1,11 @@
 using System;
 using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class KeyboardModal<T, TInput> : SharedModal<AnimatedModalWrapper<T>>, IKeyboardController<IInputFieldController>
+    internal class KeyboardModal<T, TInput> : SharedModal<ModalWrapper<T>>, IKeyboardController<IInputFieldController>
         where T : IKeyboardController<IInputFieldController>, IReactiveComponent, new()
         where TInput : IInputFieldController, IReactiveComponent {
         #region Keyboard Component

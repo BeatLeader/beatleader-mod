@@ -36,7 +36,7 @@ namespace BeatLeader.UI.Hub {
 
         public void Setup(IReplayTagManager tagManager, IReactiveComponent? background) {
             _tagManager = tagManager;
-            background?.WithAlphaOnModalOpen(_tagSelectorModal);
+            //background?.WithAlphaOnModalOpen(_tagSelectorModal);
         }
 
         #endregion

@@ -137,7 +137,7 @@ namespace BeatLeader.UI.Hub {
 
         #region FiltersModal
 
-        private class FiltersModal : AnimatedModalComponentBase {
+        private class FiltersModal : ModalComponentBase {
             #region Filter Dependencies
 
             private readonly Dictionary<IPanelListFilter<T>, List<IPanelListFilter<T>>> _dependencies = new();
@@ -268,6 +268,7 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new FiltersModal()
                         .WithShadow()
+                        .WithScaleAnimation()
                         .WithCloseListener(() => _filtersTextArea.Focused = false)
                         .WithAnchor(() => ContentTransform, RelativePlacement.BottomRight)
                         .Bind(ref _modal),

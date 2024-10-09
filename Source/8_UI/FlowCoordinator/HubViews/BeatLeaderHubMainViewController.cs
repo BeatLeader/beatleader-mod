@@ -52,7 +52,7 @@ namespace BeatLeader.UI.Hub {
                             Text = text
                         }.AsFlexItem(size: new() { y = "auto" })
                     }
-                }.AsFlexGroup(
+                }.WithScaleAnimation(1f, 1.2f).AsFlexGroup(
                     direction: FlexDirection.Column,
                     padding: new() { left = 2f, right = 2f, top = iconMargin, bottom = 1f },
                     gap: gap

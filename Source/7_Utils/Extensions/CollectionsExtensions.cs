@@ -53,15 +53,6 @@ namespace BeatLeader.Utils {
             return null;
         }
 
-        public static int FindIndex<T>(this IEnumerable<T> collection, T item) {
-            var index = 0;
-            foreach (var i in collection) {
-                if (i?.Equals(item) ?? false) return index;
-                index++;
-            }
-            return -1;
-        }
-
         public static IEnumerable<T> TakeIndexes<T>(this IList<T> collection, IEnumerable<int> indexes) {
             return indexes.Select(index => collection[index]);
         }

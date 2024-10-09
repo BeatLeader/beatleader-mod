@@ -16,7 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Reactive.BeatSaber.Components">
-      <HintPath>$(BeatSaberDir)\Libs\Reactive.BeatSaber.Components.dll</HintPath>
+      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.Components.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Reactive.Components">

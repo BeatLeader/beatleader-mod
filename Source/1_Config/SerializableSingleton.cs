@@ -72,6 +72,9 @@ namespace BeatLeader {
         }
         private static void SaveInternal(string path, object instance) {
             try {
+                if (!Directory.Exists(ConfigsPath)) {
+                    Directory.CreateDirectory(ConfigsPath);
+                }
                 File.WriteAllText(path, JsonConvert.SerializeObject(instance, Formatting.Indented));
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to save {typeof(T).Name}! \r\n{ex.Message}");

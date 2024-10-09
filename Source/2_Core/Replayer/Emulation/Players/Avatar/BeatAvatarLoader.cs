@@ -15,16 +15,24 @@ namespace BeatLeader.Replayer.Emulation {
         [Inject] private readonly BeatAvatarSystemSettings _beatAvatarSettings = null!;
         [Inject] private readonly DiContainer _container = null!;
 
+        private GameObject AvatarPrefab {
+            get {
+                if (!_avatarPrefab) {
+                    _avatarPrefab = Resources
+                        .FindObjectsOfTypeAll<AvatarTweenController>()
+                        .First(static x => x.name == "AnimatedAvatar")
+                        .gameObject;
+                }
+                return _avatarPrefab;
+            }
+        }
+        
         private IAvatarSystem _avatarSystem = null!;
         private GameObject _avatarPrefab = null!;
 
         private void Awake() {
             var meta = _avatarSystemCollection.availableAvatarSystems[0];
             _avatarSystem = _avatarSystemCollection.GetAvatarSystem(meta);
-            _avatarPrefab = Resources
-                .FindObjectsOfTypeAll<AvatarTweenController>()
-                .First(static x => x.name == "AnimatedAvatar")
-                .gameObject;
         }
 
         #endregion
@@ -42,7 +50,7 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         public MenuBeatAvatarController CreateMenuAvatar(Transform? parent = null, float size = 1.2f) {
-            var avatar = CreateAvatar(_avatarPrefab, parent, size);
+            var avatar = CreateAvatar(AvatarPrefab, parent, size);
             return avatar.AddComponent<MenuBeatAvatarController>();
         }
 

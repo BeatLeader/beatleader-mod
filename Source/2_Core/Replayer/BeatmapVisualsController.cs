@@ -93,7 +93,7 @@ namespace BeatLeader.Replayer {
         #region Visuals Control
 
         private readonly HarmonySilencer _cutScoreSpawnerSilencer = new(
-            typeof(NoteCutScoreSpawner).GetMethod(nameof(NoteCutScoreSpawner.HandleScoringForNoteStarted))!, false
+            ReflectionUtils.GetMethod<NoteCutScoreSpawner>(nameof(NoteCutScoreSpawner.HandleScoringForNoteStarted))!, false
         );
 
         public void PauseCutScoreSpawner(bool pause) {

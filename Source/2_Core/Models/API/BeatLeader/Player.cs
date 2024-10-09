@@ -147,7 +147,6 @@ namespace BeatLeader.Models {
         public float saturation;
 
         public string message;
-        public string effectName;
 
         private void RefreshTheme(string effectName) {
             ThemesUtils.ParseEffectName(effectName, out var themeType, out var themeTier);

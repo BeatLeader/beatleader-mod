@@ -199,7 +199,7 @@ namespace BeatLeader.Replayer {
             return (beatmapLevel, beatmapKey);
         }
 
-        private async Task<BeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {
+        public async Task<BeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {
             string fixedHash = _levelsModel._allLoadedBeatmapLevelsRepository._idToBeatmapLevel.Keys.FirstOrDefault(k => k.StartsWith(hash));
 
             if (fixedHash != null) {

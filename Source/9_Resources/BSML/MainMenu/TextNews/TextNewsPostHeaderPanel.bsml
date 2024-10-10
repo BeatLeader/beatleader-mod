@@ -1,0 +1,9 @@
+﻿<horizontal spacing="2" pref-height="6">
+    <image id="avatar" pref-width="6"/>
+    <vertical flexible-width="1000" horizontal-fit="Unconstrained">
+        <text id="name" overflow="Ellipsis"/>
+    </vertical>
+    <vertical>
+        <text id="date" font-size="3" font-color="#888888"/>
+    </vertical>
+</horizontal>

@@ -1,0 +1,23 @@
+<horizontal pref-height="10">
+    <modal id="loading-modal" size-delta-x="40" size-delta-y="20" click-off-closes="false">
+        <vertical id="loading-container" spacing="2" child-expand-height="false" child-control-height="false" child-align="MiddleCenter">
+            <loading-indicator preserve-aspect="true" pref-height="8" pref-width="8"/>
+            <text text="Loading..."/>
+        </vertical>
+        <vertical id="finished-container">
+            <text id="finished-text" text="" align="Bottom"/>
+            <button text="Ok" on-click="ok-button-click"/>
+        </vertical>
+    </modal>
+    <macro.as-host host="preview">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <vertical pref-width="4">
+        <macro.as-host host="website-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <macro.as-host host="download-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+    </vertical>
+</horizontal>

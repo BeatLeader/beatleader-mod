@@ -12,7 +12,6 @@ namespace BeatLeader.Replayer.Emulation {
         #region Setup
 
         [Inject] private readonly AvatarSystemCollection _avatarSystemCollection = null!;
-        [Inject] private readonly BeatAvatarSystemSettings _beatAvatarSettings = null!;
         [Inject] private readonly DiContainer _container = null!;
 
         private GameObject AvatarPrefab {
@@ -40,22 +39,23 @@ namespace BeatLeader.Replayer.Emulation {
         #region CreateAvatar
 
         public BeatAvatarController CreateGameplayAvatar(Transform? parent = null) {
-            var prefab = _beatAvatarSettings.avatarSelectionViewPrefab.Asset;
-            var avatar = CreateAvatar(prefab, parent, 1f);
+            var avatar = CreateAvatar(parent, 1f);
             // For camera2 support
-            foreach (var item in transform.GetChildren(false)) {
+            foreach (var item in avatar.transform.GetChildren(false)) {
                 item.gameObject.layer = 10;
             }
+            // Forcibly enable to initiate Awake
+            avatar.gameObject.SetActive(true);
             return avatar.AddComponent<BeatAvatarController>();
         }
 
         public MenuBeatAvatarController CreateMenuAvatar(Transform? parent = null, float size = 1.2f) {
-            var avatar = CreateAvatar(AvatarPrefab, parent, size);
+            var avatar = CreateAvatar(parent, size);
             return avatar.AddComponent<MenuBeatAvatarController>();
         }
 
-        private GameObject CreateAvatar(Object prefab, Transform? parent, float size) {
-            var avatar = (GameObject)Instantiate(prefab, parent, false);
+        private GameObject CreateAvatar(Transform? parent, float size) {
+            var avatar = Instantiate(AvatarPrefab, parent, false);
             var trans = avatar.transform;
             trans.localPosition = Vector3.zero;
             trans.localScale = size * Vector3.one;

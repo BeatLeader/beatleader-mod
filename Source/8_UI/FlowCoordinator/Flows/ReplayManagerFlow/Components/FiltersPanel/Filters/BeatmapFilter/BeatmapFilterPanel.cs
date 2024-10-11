@@ -15,17 +15,19 @@ namespace BeatLeader.UI.Hub {
         #region Dummies
 
         private class NotSelectedPreviewMediaData : IPreviewMediaData {
-            public Task<Sprite> GetCoverSpriteAsync(CancellationToken cancellationToken) {
+            public Task<Sprite> GetCoverSpriteAsync() {
                 return Task.FromResult(BundleLoader.UnknownIcon);
             }
 
-            public Task<AudioClip?> GetPreviewAudioClip(CancellationToken cancellationToken) {
+            public Task<AudioClip?> GetPreviewAudioClip() {
                 return Task.FromResult<AudioClip?>(null);
             }
 
             public void UnloadPreviewAudioClip() { }
+
+            public void UnloadCoverSprite() { }
         }
-        
+
         private static readonly BeatmapLevel previewBeatmapLevel = new(
             0,
             false,
@@ -38,9 +40,9 @@ namespace BeatLeader.UI.Hub {
             0f,
             0f,
             0f,
-            0f, 
             0f,
-            0f, 
+            0f,
+            0f,
             PlayerSensitivityFlag.Safe,
             new NotSelectedPreviewMediaData(),
             null

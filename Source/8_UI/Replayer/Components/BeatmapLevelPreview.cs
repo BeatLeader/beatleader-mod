@@ -84,7 +84,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private async void LoadAndAssignImage(BeatmapLevel level) {
-            _songPreviewImage.Sprite = await level.previewMediaData.GetCoverSpriteAsync(default);
+            _songPreviewImage.Sprite = await level.previewMediaData.GetCoverSpriteAsync();
         }
 
         #endregion

@@ -55,7 +55,7 @@ namespace BeatLeader.UI.Hub {
             //
             _songTimeLabel.Text = FormatUtils.FormatTime(level.songDuration);
             _songBpmLabel.Text = Mathf.FloorToInt(level.beatsPerMinute).ToString();
-            _songImage.Sprite = await level.previewMediaData.GetCoverSpriteAsync(CancellationToken.None);
+            _songImage.Sprite = await level.previewMediaData.GetCoverSpriteAsync();
         }
 
         private static string FormatSongNameText(string name, string subName) {

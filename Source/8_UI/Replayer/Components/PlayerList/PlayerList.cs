@@ -1,6 +1,4 @@
-﻿
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Utils;
@@ -9,6 +7,7 @@ using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
+using MathUtils = Reactive.MathUtils;
 
 namespace BeatLeader.UI.Replayer {
     internal class PlayerList : Table<IVirtualPlayer, PlayerList.Cell> {

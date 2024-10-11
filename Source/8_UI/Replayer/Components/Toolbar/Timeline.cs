@@ -13,6 +13,7 @@ using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine.EventSystems;
 using static BeatLeader.Models.AbstractReplay.NoteEvent.NoteEventType;
+using MathUtils = Reactive.MathUtils;
 
 namespace BeatLeader.UI.Replayer {
     internal class Timeline : SliderComponentBase, IReplayTimeline {

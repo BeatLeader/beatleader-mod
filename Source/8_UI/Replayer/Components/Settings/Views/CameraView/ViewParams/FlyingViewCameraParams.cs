@@ -34,7 +34,7 @@ namespace BeatLeader.UI.Replayer {
             _speed = _cameraView.FlySpeed;
             _sensitivity = _cameraView.MouseSensitivity;
         }
-        
+
         private void RefreshView() {
             if (_cameraView == null) return;
             _cameraView.FlySpeed = _speed;
@@ -46,12 +46,12 @@ namespace BeatLeader.UI.Replayer {
         #region Construct
 
         private Slider _smoothnessSlider = null!;
-    
+
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
                     new Slider {
-                        ValueRange = {
+                        ValueRange = new() {
                             Start = 1f,
                             End = 8f
                         },

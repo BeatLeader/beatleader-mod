@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Replayer {
             return new Dummy {
                 Children = {
                     new Slider {
-                        ValueRange = {
+                        ValueRange = new() {
                             Start = 0.1f,
                             End = 10f
                         },
@@ -75,7 +75,7 @@ namespace BeatLeader.UI.Replayer {
                     ).Bind(ref _smoothnessSlider).InNamedRail("Smoothness"),
                     //
                     new Slider {
-                        ValueRange = {
+                        ValueRange = new() {
                             Start = 0f,
                             End = 2f
                         },

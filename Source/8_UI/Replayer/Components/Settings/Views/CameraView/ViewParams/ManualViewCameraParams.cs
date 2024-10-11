@@ -57,7 +57,7 @@ namespace BeatLeader.UI.Replayer {
         protected override GameObject Construct() {
             static NamedRail CreateAxisSlider(string name, Action<float> callback, ref Slider slider) {
                 return new Slider {
-                        ValueRange = {
+                        ValueRange = new() {
                             Start = -10f,
                             End = 10f
                         },
@@ -80,7 +80,7 @@ namespace BeatLeader.UI.Replayer {
                     CreateAxisSlider("Z", HandleZChanged, ref _zSlider),
                     //
                     new Slider {
-                        ValueRange = {
+                        ValueRange = new() {
                             Start = -180f,
                             End = 180f
                         },

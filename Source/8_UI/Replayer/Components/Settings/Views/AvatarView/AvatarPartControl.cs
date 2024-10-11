@@ -54,7 +54,7 @@ namespace BeatLeader.UI.Replayer {
                             .InNamedRail("Transparent"),
                         //
                         new Slider {
-                            ValueRange = {
+                            ValueRange = new() {
                                 Start = 0f,
                                 End = 1f
                             },

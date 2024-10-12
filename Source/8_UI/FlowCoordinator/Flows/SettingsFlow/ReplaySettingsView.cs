@@ -167,7 +167,7 @@ namespace BeatLeader.UI.Hub {
                     new ReeWrapperV2<ReplayerSettingsPanel>()
                         .WithRectExpand()
                         .InBlurBackground()
-                        .AsFlexItem(size: new() { x = 37f, y = 14f }),
+                        .AsFlexItem(size: new() { x = 45f, y = 14f }),
                     //toggles
                     new Image {
                         Children = {

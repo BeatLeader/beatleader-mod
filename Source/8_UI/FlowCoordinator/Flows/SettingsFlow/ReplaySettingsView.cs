@@ -196,7 +196,7 @@ namespace BeatLeader.UI.Hub {
                                     x => x.Active,
                                     x => ConfigFileData.Instance.OverrideOldReplays = x
                                 )
-                                .InNamedRail("Override Existing"),
+                                .InNamedRail("Keep Latest Only"),
                         }
                     }.AsBlurBackground().AsFlexGroup(
                         direction: FlexDirection.Column,

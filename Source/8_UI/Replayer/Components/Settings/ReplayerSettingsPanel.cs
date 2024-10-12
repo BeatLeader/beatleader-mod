@@ -107,6 +107,7 @@ namespace BeatLeader.UI.Replayer {
 
             protected override GameObject Construct() {
                 return new SegmentedControlButton {
+                    Colors = UIStyle.ButtonColorSet,
                     Latching = true, 
                     OnStateChanged = HandleButtonStateChanged
                 }.WithRectExpand().Bind(ref _button).Use();

@@ -83,8 +83,10 @@ namespace BeatLeader.UI.Replayer {
                             //play button
                             new ImageButton {
                                 OnClick = HandlePlayButtonClicked,
+                                Colors = UIStyle.ButtonColorSet,
                                 Image = {
-                                    PreserveAspect = true
+                                    PreserveAspect = true,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 }
                             }.Bind(ref _playButton).AsFlexItem(
                                 basis: 5f,
@@ -107,8 +109,10 @@ namespace BeatLeader.UI.Replayer {
                             new ImageButton {
                                 Image = {
                                     Sprite = BundleLoader.SettingsIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
                                     PreserveAspect = true
                                 },
+                                Colors = UIStyle.ButtonColorSet,
                                 OnStateChanged = HandleSettingsButtonStateChanged,
                                 Latching = true
                             }.AsFlexItem(

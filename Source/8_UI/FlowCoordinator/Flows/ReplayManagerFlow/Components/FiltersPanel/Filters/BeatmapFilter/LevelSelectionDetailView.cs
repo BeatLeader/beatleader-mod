@@ -25,6 +25,7 @@ namespace BeatLeader.UI.Hub {
             _detailView = levelDetailView;
             _levelBar = levelDetailView._levelBar;
             _levelBar = Object.Instantiate(_levelBar, _levelBarContainer.ContentTransform, false);
+            _levelBar.SetField("_beatmapLevelsModel", _detailView._beatmapLevelsModel);
             _isInitialized = true;
         }
 

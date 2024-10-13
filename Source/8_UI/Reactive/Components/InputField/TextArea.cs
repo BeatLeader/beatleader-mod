@@ -214,7 +214,7 @@ namespace BeatLeader.UI.Reactive.Components {
                 }
             }.AsFlexGroup(padding: 1f, gap: 1f).WithListener(
                 x => x.IsHovered,
-                x => labelColor.Value = x ? placeholderColor : placeholderColor.ColorWithAlpha(0.5f)
+                x => labelColor.Value = !x ? placeholderColor : placeholderColor.ColorWithAlpha(0.5f)
             ).WithEffect(
                 labelColor,
                 (_, y) => _label.Color = Text.Length > 0 ? textColor : y

@@ -81,8 +81,7 @@ namespace BeatLeader.UI {
                     .AsBlurBackground()
                     .AsFlexGroup(
                         padding: new() { left = 1f, right = 1f },
-                        gap: new() { x = 1f },
-                        overflow: Overflow.Hidden
+                        gap: new() { x = 1f }
                     ).AsFlexItem(
                         size: "auto",
                         maxSize: "100%"

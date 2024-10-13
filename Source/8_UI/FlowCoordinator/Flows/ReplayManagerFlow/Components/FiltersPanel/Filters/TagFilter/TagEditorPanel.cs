@@ -2,6 +2,7 @@ using System;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using UnityEngine;
 using ColorUtils = BeatLeader.Utils.ColorUtils;

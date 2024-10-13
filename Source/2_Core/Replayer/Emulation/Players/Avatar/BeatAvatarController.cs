@@ -13,7 +13,6 @@ namespace BeatLeader.Replayer.Emulation {
             PoseController = GetComponentInChildren<BeatAvatarPoseController>();
             //avatar layer
             SetVisuals(null);
-            gameObject.SetActive(false);
         }
 
         public virtual void SetVisuals(AvatarData? data, bool animated = false) {

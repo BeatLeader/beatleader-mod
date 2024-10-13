@@ -7,25 +7,12 @@ using UnityEngine;
 namespace BeatLeader.Replayer.Emulation {
     public class MenuBeatAvatarController : BeatAvatarController {
         #region Setup
-
-        public bool PlayAnimation {
-            get => _animator.enabled;
-            set {
-                _animator.enabled = value;
-                if (value) return;
-                var trans = transform;
-                trans.localPosition = Vector3.zero;
-                trans.localEulerAngles = Vector3.zero;
-            }
-        }
-
+        
         private AvatarTweenController _tweenController = null!;
         private Spinner _spinner = null!;
-        private Animator _animator = null!;
 
         protected override void Awake() {
             _tweenController = GetComponent<AvatarTweenController>();
-            _animator = GetComponent<Animator>();
             //spinner
             _spinner = new Spinner {
                 ContentTransform = {
@@ -36,6 +23,7 @@ namespace BeatLeader.Replayer.Emulation {
             }.WithSizeDelta(13f, 13f);
             ReactiveUtils.AddCanvas(_spinner);
             _spinner.Use(transform);
+            gameObject.SetActive(false);
             base.Awake();
         }
 

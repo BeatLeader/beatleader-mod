@@ -25,7 +25,7 @@ namespace BeatLeader.Replayer.Emulation {
                 return _avatarPrefab;
             }
         }
-        
+
         private IAvatarSystem _avatarSystem = null!;
         private GameObject _avatarPrefab = null!;
 
@@ -46,6 +46,7 @@ namespace BeatLeader.Replayer.Emulation {
             }
             // Forcibly enable to initiate Awake
             avatar.gameObject.SetActive(true);
+            avatar.GetComponent<Animator>().enabled = false;
             return avatar.AddComponent<BeatAvatarController>();
         }
 

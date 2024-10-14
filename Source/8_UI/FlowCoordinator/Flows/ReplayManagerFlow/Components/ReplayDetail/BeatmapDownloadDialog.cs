@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API;
@@ -181,7 +182,7 @@ namespace BeatLeader.UI.Hub {
             var mapVersion = _mapDetail.versions?.FirstOrDefault(x => x.hash == _beatmapHash!.ToLower());
             var downloadUrl = mapVersion?.downloadURL;
             //downloading
-            byte[]? bytes;
+            byte[]? bytes = null;
             if (downloadUrl == null) {
                 RefreshVisuals(State.ForceDownloading);
                 Plugin.Log.Warn("BeatSaver response has no valid version! Sending force request.");
@@ -189,7 +190,11 @@ namespace BeatLeader.UI.Hub {
                 var request = await DownloadMapRequest.SendRequest(_beatmapHash!).Join();
                 bytes = request.Result;
             } else {
-                bytes = await WebUtils.SendRawDataRequestAsync(downloadUrl);
+                var request = RawDataRequest.SendRequest(downloadUrl);
+                await request.Join();
+                if (request.RequestStatusCode is HttpStatusCode.OK) {
+                    bytes = request.Result;
+                }
             }
             //checking is everything ok
             if (token.IsCancellationRequested) return;

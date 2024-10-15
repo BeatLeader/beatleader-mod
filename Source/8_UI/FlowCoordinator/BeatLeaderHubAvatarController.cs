@@ -19,6 +19,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly BeatLeaderHubFlowCoordinator _hubFlowCoordinator = null!;
         [Inject] private readonly BeatAvatarLoader _beatAvatarLoader = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
+        [Inject] private readonly DiContainer _container = null!;
 
         #endregion
 
@@ -64,7 +65,7 @@ namespace BeatLeader.UI.Hub {
 
         private async void UploadAvatar() {
             _avatarController.SetVisuals(_avatarData);
-            //_avatarController.SetLoading(true);
+            _avatarController.SetLoading(true);
             var player = ProfileManager.Profile!;
             var settings = AvatarSettings.FromAvatarData(_avatarData);
             //request
@@ -75,18 +76,18 @@ namespace BeatLeader.UI.Hub {
             }
             //forcing player to update avatar
             await player.GetBeatAvatarAsync(true);
-            //_avatarController.SetLoading(false);
+            _avatarController.SetLoading(false);
         }
 
         private async void LoadAvatar() {
-            //_avatarController.SetLoading(true);
+            _avatarController.SetLoading(true);
             await ProfileManager.WaitUntilProfileLoad();
             var player = ProfileManager.Profile;
             if (player != null) {
                 await LoadAvatarFromPlayerAsync(player, false);
                 _editAvatarButton.Interactable = true;
             }
-            //_avatarController.SetLoading(false);
+            _avatarController.SetLoading(false);
         }
 
         private async Task LoadAvatarFromPlayerAsync(IPlayer player, bool bypassCache) {
@@ -125,8 +126,10 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void SetupEditAvatarFlowCoordinator() {
+            _container.Inject(_customAvatarDataModel);
             _editAvatarViewController = _editAvatarFlowCoordinator._beatAvatarEditorViewController;
             _editAvatarViewController.SetField("_avatarDataModel", _customAvatarDataModel);
+            _editAvatarFlowCoordinator.SetField("_avatarDataModel", _customAvatarDataModel);
             _editAvatarFlowCoordinator.didFinishEvent += HandleFlowCoordinatorEditFinished;
         }
 

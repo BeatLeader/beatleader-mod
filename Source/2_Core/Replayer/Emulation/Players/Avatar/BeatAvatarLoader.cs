@@ -44,8 +44,6 @@ namespace BeatLeader.Replayer.Emulation {
             foreach (var item in avatar.transform.GetChildren(false)) {
                 item.gameObject.layer = 10;
             }
-            // Forcibly enable to initiate Awake
-            avatar.gameObject.SetActive(true);
             avatar.GetComponent<Animator>().enabled = false;
             return avatar.AddComponent<BeatAvatarController>();
         }
@@ -62,6 +60,8 @@ namespace BeatLeader.Replayer.Emulation {
             trans.localScale = size * Vector3.one;
             trans.localRotation = Quaternion.identity;
             _container.InjectGameObject(avatar);
+            // Forcibly enable to initiate Awake
+            avatar.SetActive(true);
             return avatar;
         }
 

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
@@ -9,21 +8,21 @@ namespace BeatLeader.UI.Rendering {
     /// A post-process renderer for a camera space canvas.
     /// </summary>
     [RequireComponent(typeof(Camera))]
-    internal class PostProcessCanvasRenderer : MonoBehaviour {
-        private static readonly int BlurredTexPropertyId = Shader.PropertyToID("_BlurredTex");
-        private static readonly int BlurTempRTPropertyId = Shader.PropertyToID("_BlurTempRT");
-
-        public readonly List<PostProcessModule> modules = new List<PostProcessModule>();
+    internal class BlurPostProcessCanvasRenderer : MonoBehaviour {
         public int lodFactor = 1;
-        private RenderTexture _blurredTexture = null!;
-        private CommandBuffer _commandBuffer = null!;
+
+        private static readonly int blurredTexPropertyId = Shader.PropertyToID("_BlurredTex");
+        private static readonly int blurTempRTPropertyId = Shader.PropertyToID("_BlurTempRT");
+
+        private RenderTexture? _blurredTexture;
+        private CommandBuffer? _commandBuffer;
         private Camera _camera = null!;
 
         private void Start() {
             _camera = GetComponent<Camera>();
             _blurredTexture = CreateTexture(lodFactor);
             _commandBuffer = BuildCommandBuffer(_blurredTexture, BundleLoader.Materials.blurMaterial);
-            _camera.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, _commandBuffer); //TODO: add only when UI is visible
+            _camera.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, _commandBuffer);
             StartCoroutine(RenderAfterEverything());
         }
 
@@ -41,17 +40,17 @@ namespace BeatLeader.UI.Rendering {
 
         private static CommandBuffer BuildCommandBuffer(RenderTexture blurredTexture, Material blurBlitMaterial) {
             //not a part of a CommandBuffer but whatever, has to be called once somewhere :D
-            Shader.SetGlobalTexture(BlurredTexPropertyId, blurredTexture);
+            Shader.SetGlobalTexture(blurredTexPropertyId, blurredTexture);
 
-            var commandBuffer = new CommandBuffer() { name = "BeatLeader.OverlayCanvas" };
+            var commandBuffer = new CommandBuffer { name = "BeatLeader.OverlayCanvas" };
             //create temporary RT
-            commandBuffer.GetTemporaryRT(BlurTempRTPropertyId, blurredTexture.width, blurredTexture.height, 0, FilterMode.Bilinear, GraphicsFormat.R32G32B32A32_SFloat);
+            commandBuffer.GetTemporaryRT(blurTempRTPropertyId, blurredTexture.width, blurredTexture.height, 0, FilterMode.Bilinear, GraphicsFormat.R32G32B32A32_SFloat);
             //downscale to temporary RT
-            commandBuffer.Blit(BuiltinRenderTextureType.CameraTarget, BlurTempRTPropertyId);
+            commandBuffer.Blit(BuiltinRenderTextureType.CameraTarget, blurTempRTPropertyId);
             //apply blur
-            commandBuffer.Blit(BlurTempRTPropertyId, blurredTexture, blurBlitMaterial);
+            commandBuffer.Blit(blurTempRTPropertyId, blurredTexture, blurBlitMaterial);
             //release temporary RT
-            commandBuffer.ReleaseTemporaryRT(BlurTempRTPropertyId);
+            commandBuffer.ReleaseTemporaryRT(blurTempRTPropertyId);
             return commandBuffer;
         }
 

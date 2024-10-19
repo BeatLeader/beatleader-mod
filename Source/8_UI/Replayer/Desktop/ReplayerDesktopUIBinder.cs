@@ -14,7 +14,6 @@ namespace BeatLeader.UI.Replayer.Desktop {
         protected override void SetupUI() {
             _screenSystem.Screen.SetRootViewController(_viewController, ViewController.AnimationType.None);
             _screenSystem.SetRenderCamera(_renderer.RenderCamera);
-            _renderer.ReloadEffects(_viewController.gameObject);
         }
     }
 }

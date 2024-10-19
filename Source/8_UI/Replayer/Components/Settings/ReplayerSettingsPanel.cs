@@ -1,5 +1,6 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
+using BeatLeader.UI.Rendering;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -29,11 +30,34 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void RefreshBackgroundBlur(bool useAlternative) {
-            _backgroundImage.Material = useAlternative ? 
-                BundleLoader.Materials.uiBlurMaterial :
-                GameResources.UIFogBackgroundMaterial;
+            if (!useAlternative) {
+                _backgroundImage.Material = GameResources.UIFogBackgroundMaterial;
+                return;
+            }
+            ApplyAlternativeBlur();
         }
-        
+
+        #endregion
+
+        #region Rendering
+
+        private Material? _applicatorMaterial;
+
+        private void ApplyAlternativeBlur() {
+            var material = Object.Instantiate(BundleLoader.Materials.applicatorMaterial);
+            var blurProcessor = _backgroundImage.Content.AddComponent<BlurPostProcessor>();
+            blurProcessor.Init(material, "_OverlayTex");
+            blurProcessor.lodFactor = 2;
+            _applicatorMaterial = material;
+            _backgroundImage.Material = material;
+        }
+
+        protected override void OnDestroy() {
+            if (_applicatorMaterial != null) {
+                Object.Destroy(_applicatorMaterial);
+            }
+        }
+
         #endregion
 
         #region Construct
@@ -108,7 +132,7 @@ namespace BeatLeader.UI.Replayer {
             protected override GameObject Construct() {
                 return new SegmentedControlButton {
                     Colors = UIStyle.ButtonColorSet,
-                    Latching = true, 
+                    Latching = true,
                     OnStateChanged = HandleButtonStateChanged
                 }.WithRectExpand().Bind(ref _button).Use();
             }

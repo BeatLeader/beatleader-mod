@@ -1,10 +1,13 @@
 using UnityEngine;
 
+#nullable disable
+
 namespace BeatLeader {
     [CreateAssetMenu(fileName = "MaterialCollection", menuName = "MaterialCollection")]
     public class MaterialCollection : ScriptableObject {
-        public Material uiBlurMaterial;
-        public Material uiNoGlowMaterial;
+        public Material blurMaterial;
+        public Material plotterMaterial;
+        public Material applicatorMaterial;
         public Material uiAdditiveGlowMaterial;
         public Material uiNoDepthMaterial;
     }

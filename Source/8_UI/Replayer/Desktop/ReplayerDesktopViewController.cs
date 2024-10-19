@@ -25,6 +25,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
         private ReplayerUIPanel _replayerUIPanel = null!;
 
         private void Awake() {
+            gameObject.layer = 5;
             gameObject.AddComponent<GraphicRaycaster>();
             Destroy(gameObject.GetComponent<BaseRaycaster>());
         }

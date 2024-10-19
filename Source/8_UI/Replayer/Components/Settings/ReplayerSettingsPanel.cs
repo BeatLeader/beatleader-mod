@@ -30,32 +30,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void RefreshBackgroundBlur(bool useAlternative) {
-            if (!useAlternative) {
-                _backgroundImage.Material = GameResources.UIFogBackgroundMaterial;
-                return;
-            }
-            ApplyAlternativeBlur();
-        }
-
-        #endregion
-
-        #region Rendering
-
-        private Material? _applicatorMaterial;
-
-        private void ApplyAlternativeBlur() {
-            var material = Object.Instantiate(BundleLoader.Materials.applicatorMaterial);
-            var blurProcessor = _backgroundImage.Content.AddComponent<BlurPostProcessor>();
-            blurProcessor.Init(material, "_OverlayTex");
-            blurProcessor.lodFactor = 2;
-            _applicatorMaterial = material;
-            _backgroundImage.Material = material;
-        }
-
-        protected override void OnDestroy() {
-            if (_applicatorMaterial != null) {
-                Object.Destroy(_applicatorMaterial);
-            }
+            _backgroundImage.Material = useAlternative ? BundleLoader.Materials.blurredBackgroundMaterial : GameResources.UIFogBackgroundMaterial;
         }
 
         #endregion

@@ -23,7 +23,10 @@ namespace BeatLeader.UI.Replayer {
                             FontSize = 4f
                         }.AsFlexItem(size: "auto").Bind(ref label)
                     }
-                }.AsBlurBackground().AsFlexGroup(
+                }.AsBackground(
+                    material: BundleLoader.Materials.blurredBackgroundMaterial,
+                    pixelsPerUnit: 12f
+                ).AsFlexGroup(
                     padding: new() { left = 1f, right = 1f },
                     gap: new() { x = 1f },
                     overflow: Overflow.Hidden

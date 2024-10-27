@@ -1,6 +1,5 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using Reactive;
 using UnityEngine;
 
@@ -9,7 +8,6 @@ namespace BeatLeader.UI.Replayer {
         #region UI Components
 
         private readonly LayoutEditor _layoutEditor = new();
-        private LayoutGrid _layoutGrid = null!;
 
         private readonly BeatmapLevelPreviewEditorComponent _songInfo = new();
         private readonly PlayerListEditorComponent _playerList = new();
@@ -19,8 +17,13 @@ namespace BeatLeader.UI.Replayer {
 
         #region LayoutEditor
 
-        public void SwitchPartialDisplayMode() {
-            _layoutEditor.PartialDisplayModeActive = !_layoutEditor.PartialDisplayModeActive;
+        public void SwitchViewMode() {
+            var mode = _layoutEditor.Mode;
+            _layoutEditor.Mode = mode switch {
+                LayoutEditorMode.View => LayoutEditorMode.ViewAll,
+                LayoutEditorMode.ViewAll => LayoutEditorMode.View,
+                _ => mode
+            };
         }
 
         #endregion
@@ -28,6 +31,7 @@ namespace BeatLeader.UI.Replayer {
         #region Setup
 
         private IReplayPauseController _pauseController = null!;
+        private bool _started;
 
         public void Setup(
             IReplayPauseController pauseController,
@@ -55,7 +59,10 @@ namespace BeatLeader.UI.Replayer {
             _playerList.Setup(playersManager, timeController);
             var settings = launchData.Settings.UISettings.LayoutEditorSettings ??= new();
             _layoutEditor.Setup(settings);
-            _layoutEditor.SetEditorActive(false, false);
+            // Applying immediately only if the ui is loaded
+            if (_started) {
+                _layoutEditor.LoadLayoutFromSettings();
+            }
         }
 
         protected override void Construct(RectTransform rect) {
@@ -66,28 +73,26 @@ namespace BeatLeader.UI.Replayer {
 
             var editorWindow = new LayoutEditorWindow();
             editorWindow.Use(rect);
-            _layoutGrid = rect.gameObject.AddComponent<LayoutGrid>();
-            _layoutEditor.AdditionalComponentHandler = _layoutGrid;
-            _layoutEditor.StateChangedEvent += HandleLayoutEditorStateChanged;
-            _layoutEditor.AddComponent(editorWindow);
+            _layoutEditor.ModeChangedEvent += HandleLayoutEditorModeChanged;
             _layoutEditor.AddComponent(_toolbar);
             _layoutEditor.AddComponent(_songInfo);
             _layoutEditor.AddComponent(_playerList);
+            _layoutEditor.AddComponent(editorWindow);
         }
 
         protected override void OnStart() {
-            _layoutEditor.RefreshComponents();
+            _started = true;
+            _layoutEditor.LoadLayoutFromSettings();
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandleLayoutEditorStateChanged(bool active) {
-            _layoutGrid.enabled = active;
-            if (active) _pauseController.Pause();
-            _pauseController.LockUnpause = active;
-            _layoutGrid.Refresh();
+        private void HandleLayoutEditorModeChanged(LayoutEditorMode mode) {
+            var edit = mode is LayoutEditorMode.Edit;
+            if (edit) _pauseController.Pause();
+            _pauseController.LockUnpause = edit;
         }
 
         #endregion

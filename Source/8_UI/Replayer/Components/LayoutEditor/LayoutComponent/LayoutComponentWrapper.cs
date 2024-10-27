@@ -24,14 +24,7 @@ namespace BeatLeader.Components {
     internal class LayoutComponentWrapper : MonoBehaviour,
         IPointerDownHandler,
         IPointerUpHandler,
-        IPointerClickHandler,
-        ILayoutComponentWrapperController {
-        #region Events
-
-        public event Action<bool>? StateChangedEvent;
-
-        #endregion
-
+        IPointerClickHandler {
         #region Setup
 
         private ILayoutComponentWrapperHandler? _handler;
@@ -54,6 +47,7 @@ namespace BeatLeader.Components {
 
         private void CreateWrapperIfNeeded() {
             if (_isGenerated) return;
+
             CreateBackground();
             CreateCorners();
             CreateText();
@@ -67,21 +61,14 @@ namespace BeatLeader.Components {
 
         private bool _isWrapperComponentSelected;
         private bool _isWrapperComponentEnabled;
-
-        void ILayoutComponentWrapperController.SetWrapperActive(bool active) {
-            SetComponentSelected(false);
-            SetActive(active);
-        }
-
-        void ILayoutComponentWrapperController.SetWrapperSelected(bool selected) => SetComponentSelected(selected);
-
-        public void SetActive(bool active) {
+        
+        public void SetWrapperActive(bool active) {
             CreateWrapperIfNeeded();
+            SetWrapperSelected(false);
             gameObject.SetActive(active);
-            StateChangedEvent?.Invoke(active);
         }
 
-        public void SetComponentSelected(bool selected) {
+        public void SetWrapperSelected(bool selected) {
             CreateWrapperIfNeeded();
             _isWrapperComponentSelected = selected;
             RefreshWrapperColor();
@@ -109,7 +96,7 @@ namespace BeatLeader.Components {
             new(1, 1)
         };
 
-        private static readonly Sprite cornerSprite = BundleLoader.WhiteBG;
+        private static readonly Sprite cornerSprite = BundleLoader.Sprites.background;
         private static readonly Vector2 cornerSize = new(5, 5);
 
         private readonly Dictionary<PointerEventsHandler, Vector2> _corners = new();
@@ -159,7 +146,7 @@ namespace BeatLeader.Components {
         private static readonly float enabledAlpha = 0.8f;
         private static readonly float disabledAlpha = 0.6f;
 
-        private static readonly Sprite backgroundSprite = BundleLoader.WhiteBG;
+        private static readonly Sprite backgroundSprite = BundleLoader.Sprites.background;
         private static readonly Sprite frameSprite = BundleLoader.WhiteFrame;
 
         private Image? _backgroundImage;

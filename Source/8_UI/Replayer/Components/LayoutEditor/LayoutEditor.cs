@@ -1,163 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive;
 using Reactive;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal interface ILayoutEditor : ILayoutComponentHandler {
-        IReadOnlyCollection<ILayoutComponent> LayoutComponents { get; }
-        ILayoutComponentTransformsHandler? AdditionalComponentHandler { get; set; }
-        bool PartialDisplayModeActive { get; set; }
+    internal class LayoutEditor : ReactiveComponent, ILayoutEditor, ILayoutComponentHandler {
+        #region Impl
 
-        event Action<bool>? StateChangedEvent;
-        event Action<ILayoutComponent?>? ComponentSelectedEvent;
-
-        void SetEditorActive(bool active, bool saveCurrentState = false);
-        void RefreshComponents();
-        void Setup(LayoutEditorSettings settings);
-    }
-
-    internal class LayoutEditor : ReactiveComponent, ILayoutEditor {
-        #region Events
-
-        public bool PartialDisplayModeActive {
-            get => _partialDisplayActive;
-            set {
-                _partialDisplayActive = value;
-                SetPartialDisplayModeActive(value);
-            }
-        }
-
-        public event Action<bool>? StateChangedEvent;
-        public event Action<ILayoutComponent?>? ComponentSelectedEvent;
-
-        #endregion
-
-        #region Setup
-
-        public RectTransform AreaTransform => ContentTransform;
         public IReadOnlyCollection<ILayoutComponent> LayoutComponents => _components;
-        private Vector2 AreaSize => AreaTransform.rect.size;
+        public RectTransform AreaTransform => ContentTransform;
 
-        public ILayoutComponentTransformsHandler? AdditionalComponentHandler { get; set; }
+        private Vector2 AreaSize => AreaTransform.rect.size;
+        public event Action<LayoutEditorMode>? ModeChangedEvent;
 
         private readonly HashSet<ILayoutComponent> _components = new();
+        private readonly Dictionary<ILayoutComponent, LayoutData> _cachedLayoutData = new();
+
+        private LayoutGrid _layoutGrid = null!;
         private LayoutEditorSettings? _settings;
-        private bool _provideCachedPosition;
-        private bool _saveCurrentState;
-        private bool _editorActive;
-        private bool _partialDisplayActive;
-        private bool _lastPartialDisplayActive;
+        private LayoutEditorMode _mode;
 
-        private void SetPartialDisplayModeActive(bool active) {
-            if (_editorActive) return;
-            foreach (var component in _components) {
-                if (!_layoutDatas.TryGetValue(component, out var data)) continue;
-                component.ComponentController.ComponentActive = !active || data.active;
+        public LayoutEditorMode Mode {
+            get => _mode;
+            set {
+                _mode = value;
+                if (value is LayoutEditorMode.Edit) {
+                    foreach (var component in _components) {
+                        _cachedLayoutData.Add(component, component.LayoutData);
+                    }
+                } else {
+                    _cachedLayoutData.Clear();
+                }
+                _layoutGrid.enabled = _mode is LayoutEditorMode.Edit;
+                foreach (var comp in _components) {
+                    comp.OnEditorModeChanged(value);
+                }
+                ModeChangedEvent?.Invoke(value);
             }
         }
 
-        public void SetEditorActive(bool active, bool saveCurrentState = true) {
-            _editorActive = active;
-            if (active) {
-                _lastPartialDisplayActive = _partialDisplayActive;
-                SetPartialDisplayModeActive(false);
+        public void CancelChanges() {
+            // Applying changes that was saved before entering the edit mode
+            foreach (var (comp, data) in _cachedLayoutData) {
+                comp.LayoutData = data;
+                comp.ApplyLayoutData();
             }
-            //loading
-            _provideCachedPosition = true;
-            _saveCurrentState = !active && saveCurrentState;
-            foreach (var component in _components) {
-                component.WrapperController.SetWrapperActive(active);
-            }
-            _provideCachedPosition = false;
-            //applying partial display back if was enabled
-            if (!active) {
-                SetPartialDisplayModeActive(_lastPartialDisplayActive);
-            }
-            StateChangedEvent?.Invoke(active);
-            ComponentSelectedEvent?.Invoke(null);
         }
 
-        public void RefreshComponents() {
-            _provideCachedPosition = true;
-            foreach (var component in _components) {
-                component.RequestRefresh();
+        public void LoadLayoutFromSettings() {
+            if (_settings == null) {
+                return;
             }
-            _provideCachedPosition = false;
-            SetPartialDisplayModeActive(false);
+            var dict = _settings!.ComponentData;
+            foreach (var component in _components) {
+                if (dict.TryGetValue(component.ComponentName, out var data)) {
+                    component.LayoutData = data;
+                    component.ApplyLayoutData();
+                }
+            }
         }
 
         public void Setup(LayoutEditorSettings settings) {
             _settings = settings;
         }
 
-        protected override void Construct(RectTransform rect) { }
-
-        protected override void OnDestroy() {
-            if (_settings is null) return;
-            _settings.ComponentDatas = _layoutDatas.ToDictionary(
-                static pair => pair.Key.ComponentName,
-                static pair => pair.Value
-            );
-        }
-
-        #endregion
-
-        #region Handling Tools
-
-        private static void AddDefaultOrLoad<T>(
-            IDictionary<string, T>? configDict,
-            IDictionary<ILayoutComponent, T> localDict,
-            ILayoutComponent component,
-            Func<T> activator
-        ) {
-            if (!(configDict?.TryGetValue(component.ComponentName, out var data) ?? false)) data = activator();
-            localDict[component] = data;
-        }
-
-        #endregion
-
-        #region LayoutData Handling
-
-        private readonly Dictionary<ILayoutComponent, LayoutData> _layoutDatas = new();
-
-        private void AddDefaultOrLoadLayoutData(ILayoutComponent component) {
-            AddDefaultOrLoad(
-                _settings?.ComponentDatas,
-                _layoutDatas,
-                component,
-                () => new() {
-                    active = true
-                }
-            );
-        }
-
-        private void ModifyLayoutData(ILayoutComponent component, Action<LayoutData> predicate) {
-            var data = _layoutDatas[component];
-            predicate(data);
-            _layoutDatas[component] = data;
-        }
-
-        private LayoutData AcquireLayoutData(ILayoutComponent component) {
-            if (!_layoutDatas.ContainsKey(component)) AddDefaultOrLoadLayoutData(component);
-            return _layoutDatas[component];
-        }
-
-        #endregion
-
-        #region Component Handling
-
         public void AddComponent(ILayoutComponent component) {
             if (!_components.Add(component)) return;
             component.Setup(this);
+            component.OnEditorModeChanged(_mode);
         }
 
         public void RemoveComponent(ILayoutComponent component) {
             component.Setup(null);
             _components.Remove(component);
+        }
+
+        #endregion
+
+        #region Construct & Destroy
+
+        protected override void Construct(RectTransform rect) {
+            _layoutGrid = rect.gameObject.AddComponent<LayoutGrid>();
+            _layoutGrid.enabled = false;
+            _mode = LayoutEditorMode.View;
+        }
+
+        protected override void OnDestroy() {
+            if (_settings == null) {
+                return;
+            }
+            foreach (var component in _components) {
+                var name = component.ComponentName;
+                var data = component.LayoutData;
+                _settings.ComponentData[name] = data;
+            }
         }
 
         #endregion
@@ -176,55 +113,24 @@ namespace BeatLeader.Components {
             }
         }
 
-        Vector2 ILayoutComponentTransformsHandler.OnMove(
-            ILayoutComponent component, Vector2 origin, Vector2 destination
-        ) {
-            if (_provideCachedPosition && !_saveCurrentState) {
-                //applying position
-                var layoutData = AcquireLayoutData(component);
-                destination = layoutData.position;
-                //applying other properties
-                var controller = component.ComponentController;
-                controller.ComponentLayer = layoutData.layer;
-                controller.ComponentActive = layoutData.active;
-            }
+        Vector2 ILayoutComponentHandler.OnMove(ILayoutComponent component, Vector2 destination) {
             //modifying position
-            destination = AdditionalComponentHandler?.OnMove(component, origin, destination) ?? destination;
-            destination = ApplyBorders(destination, component.ComponentController.ComponentSize);
-            if (_provideCachedPosition && _saveCurrentState) {
-                //saving data
-                ModifyLayoutData(
-                    component,
-                    p => {
-                        var controller = component.ComponentController;
-                        p.layer = controller.ComponentLayer;
-                        p.active = controller.ComponentActive;
-                        p.position = destination;
-                    }
-                );
-            }
+            destination = _layoutGrid.OnMove(component, destination);
+            destination = ApplyBorders(destination, component.LayoutData.size);
             return destination;
         }
 
-        Vector2 ILayoutComponentTransformsHandler.OnResize(
-            ILayoutComponent component, Vector2 origin, Vector2 destination
-        ) {
-            if (_provideCachedPosition && !_saveCurrentState) {
-                //applying size
-                destination = AcquireLayoutData(component).size;
-            }
+        Vector2 ILayoutComponentHandler.OnResize(ILayoutComponent component, Vector2 destination) {
             //modifying size
-            destination = AdditionalComponentHandler?.OnResize(component, origin, destination) ?? destination;
-            destination = ApplyBorders(destination, component.ComponentController.ComponentSize);
-            if (_provideCachedPosition && _saveCurrentState) {
-                //saving data
-                ModifyLayoutData(component, p => p.size = destination);
-            }
+            destination = _layoutGrid.OnResize(component, destination);
+            destination = ApplyBorders(destination, component.LayoutData.size);
             return destination;
         }
 
         void ILayoutComponentHandler.OnSelect(ILayoutComponent component) {
-            ComponentSelectedEvent?.Invoke(component);
+            foreach (var comp in _components) {
+                comp.OnSelectedComponentChanged(component);
+            }
         }
 
         private Vector2 ApplyBorders(Vector2 pos, Vector2 size) {

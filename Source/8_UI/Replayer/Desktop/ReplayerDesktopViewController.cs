@@ -51,8 +51,8 @@ namespace BeatLeader.UI.Replayer.Desktop {
 
         #region LayoutEditor
 
-        public void SwitchPartialDisplayMode() {
-            _replayerUIPanel.SwitchPartialDisplayMode();
+        public void SwitchViewMode() {
+            _replayerUIPanel.SwitchViewMode();
         }
 
         #endregion

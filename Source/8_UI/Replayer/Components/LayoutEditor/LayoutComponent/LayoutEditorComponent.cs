@@ -1,84 +1,30 @@
-using BeatLeader.UI.Reactive;
 using BeatLeader.Utils;
 using Reactive;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    #region Handler
-
-    internal interface ILayoutComponentTransformsHandler {
-        Vector2 OnMove(ILayoutComponent component, Vector2 origin, Vector2 destination);
-
-        Vector2 OnResize(ILayoutComponent component, Vector2 origin, Vector2 destination);
-    }
-
-    internal interface ILayoutComponentHandler : ILayoutComponentTransformsHandler {
-        RectTransform? AreaTransform { get; }
-        Vector2 PointerPosition { get; }
-
-        void OnSelect(ILayoutComponent component);
-    }
-
-    #endregion
-
-    #region Component
-
-    internal interface ILayoutComponentWrapperController {
-        void SetWrapperActive(bool active);
-
-        void SetWrapperSelected(bool selected);
-    }
-
-    internal interface ILayoutComponentController {
-        Vector2 ComponentSize { get; }
-        Vector2 ComponentPosition { get; }
-        Vector2 ComponentAnchor { get; }
-        bool ComponentActive { get; set; }
-        int ComponentLayer { get; set; }
-    }
-
-    internal interface ILayoutComponent {
-        ILayoutComponentHandler? ComponentHandler { get; }
-        ILayoutComponentWrapperController WrapperController { get; }
-        ILayoutComponentController ComponentController { get; }
-        string ComponentName { get; }
-
-        void Setup(ILayoutComponentHandler? layoutHandler);
-        void RequestRefresh();
-    }
-
-    #endregion
-
     /// <summary>
-    /// Reactive component base for LayoutEditor
+    /// Reactive component base for LayoutEditor.
     /// </summary>
-    internal abstract class LayoutEditorComponent : ReactiveComponent,
-        ILayoutComponent,
-        ILayoutComponentWrapperHandler,
-        ILayoutComponentController {
+    internal abstract class LayoutEditorComponent : ReactiveComponent, ILayoutComponent, ILayoutComponentWrapperHandler {
         #region Setup
 
-        public ILayoutComponentHandler? ComponentHandler { get; private set; }
-        public ILayoutComponentWrapperController WrapperController => _wrapper;
+        private LayoutComponentWrapper _wrapper = null!;
+        private RectTransform _componentTransform = null!;
+        private ILayoutComponentHandler? _handler;
 
-        ILayoutComponentController ILayoutComponent.ComponentController => this;
+        public void Setup(ILayoutComponentHandler? editor) {
+            _handler = editor;
+            ContentTransform.SetParent(editor?.AreaTransform);
+        }
+
+        #endregion
+
+        #region Abstraction
 
         public abstract string ComponentName { get; }
         protected virtual Vector2 MinSize { get; } = Vector2.zero;
         protected virtual Vector2 MaxSize { get; } = new(int.MaxValue, int.MaxValue);
-
-        private LayoutComponentWrapper _wrapper = null!;
-        private RectTransform _componentTransform = null!;
-        private bool _firstActivation = true;
-
-        public void Setup(ILayoutComponentHandler? handler) {
-            ComponentHandler = handler;
-            ContentTransform.SetParent(handler?.AreaTransform);
-        }
-
-        public void RequestRefresh() {
-            RefreshTransforms();
-        }
 
         protected sealed override void Construct(RectTransform rect) {
             var container = rect.gameObject;
@@ -95,45 +41,30 @@ namespace BeatLeader.Components {
             var wrapperGo = container.CreateChild("Wrapper");
             _wrapper = wrapperGo.AddComponent<LayoutComponentWrapper>();
             _wrapper.Setup(this, ComponentName);
-            _wrapper.StateChangedEvent += HandleWrapperStateChanged;
         }
 
         protected abstract void ConstructInternal(Transform parent);
 
         #endregion
 
-        #region ComponentController
+        #region LayoutData
 
-        public Vector2 ComponentSize {
-            get => _componentTransform.rect.size;
-            private set => _componentTransform.sizeDelta = value;
-        }
+        public ref LayoutData LayoutData => ref _layoutData;
 
-        public Vector2 ComponentPosition {
-            get => _componentTransform.localPosition;
-            private set => _componentTransform.localPosition = value;
-        }
+        private LayoutData _layoutData;
+        private bool _wrapperActive;
 
-        public Vector2 ComponentAnchor { get; } = Vector2.zero;
-
-        public int ComponentLayer {
-            get => _componentTransform.GetSiblingIndex();
-            set => _componentTransform.SetSiblingIndex(value);
-        }
-
-        public bool ComponentActive {
-            get => _componentActive;
-            set {
-                if (!_wrapperActive) {
-                    Content.SetActive(value);
-                }
-                _wrapper.SetComponentActive(value);
-                _componentActive = value;
+        public void ApplyLayoutData() {
+            // Applying values
+            _wrapper.SetComponentActive(_layoutData.visible);
+            _componentTransform.sizeDelta = _layoutData.size;
+            _componentTransform.localPosition = _layoutData.position;
+            _componentTransform.SetSiblingIndex(_layoutData.layer);
+            // Applying state immediately only if outside the Edit mode
+            if (!_wrapperActive) {
+                Content.SetActive(_layoutData.visible);
             }
         }
-
-        private bool _componentActive;
-        private bool _wrapperActive;
 
         #endregion
 
@@ -154,33 +85,34 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateMovement() {
-            var componentDestinationPos = ComponentHandler!.PointerPosition + _componentPosOffset;
-            if (componentDestinationPos == _componentOriginPos) return;
-            ComponentPosition = ComponentHandler.OnMove(this, _componentOriginPos, componentDestinationPos);
+            var pos = _handler!.PointerPosition + _componentPosOffset;
+            if (pos == _componentOriginPos) return;
+            
+            pos = _handler.OnMove(this, pos);
+            _componentTransform.localPosition = pos;
+            _layoutData.position = pos;
         }
 
         private void UpdateScaling() {
-            var pointerPos = ComponentHandler!.PointerPosition;
+            var pointerPos = _handler!.PointerPosition;
             if (pointerPos == _cornerOriginPos) return;
             var delta = pointerPos - _cornerOriginPos;
-            var destSize = default(Vector2);
+            Vector2 destSize = default;
             for (var i = 0; i < 2; i++) {
-                if (_lastSelectedCorner[i] is 0) delta[i] *= -1;
+                if (_lastSelectedCorner[i] is 0) {
+                    delta[i] *= -1;
+                }
                 destSize[i] = _originSize[i] + delta[i];
             }
             destSize = destSize.Clamp(MinSize, MaxSize);
-            destSize = ComponentHandler.OnResize(this, _originSize, destSize);
-            ComponentSize = destSize;
-        }
-
-        private void RefreshTransforms() {
-            ComponentSize = ComponentHandler!.OnResize(this, ComponentSize, ComponentSize);
-            ComponentPosition = ComponentHandler.OnMove(this, ComponentPosition, ComponentPosition);
+            destSize = _handler.OnResize(this, destSize);
+            _componentTransform.sizeDelta = destSize;
+            _layoutData.size = destSize;
         }
 
         #endregion
 
-        #region Tools (Move Into Extension)
+        #region Tools
 
         private static void SetPivot(RectTransform rectTransform, Vector2 pivot) {
             var size = rectTransform.rect.size;
@@ -198,27 +130,31 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private void HandleWrapperStateChanged(bool state) {
-            if (_firstActivation) {
-                ComponentSize = ContentTransform.rect.size;
-                _firstActivation = false;
-            }
-            RefreshTransforms();
-            _wrapperActive = state;
-            Content.SetActive(ComponentActive || state);
+        public void OnEditorModeChanged(LayoutEditorMode mode) {
+            _wrapperActive = mode is LayoutEditorMode.Edit;
+            _wrapper.SetWrapperActive(_wrapperActive);
+            Content.SetActive(
+                mode is LayoutEditorMode.ViewAll or LayoutEditorMode.Edit ||
+                (mode is LayoutEditorMode.View && _layoutData.visible)
+            );
+        }
+
+        public void OnSelectedComponentChanged(ILayoutComponent? component) {
+            _wrapper.SetWrapperSelected(component == this);
         }
 
         void ILayoutComponentWrapperHandler.OnComponentPointerClick() {
-            ComponentHandler!.OnSelect(this);
+            _handler!.OnSelect(this);
         }
 
         void ILayoutComponentWrapperHandler.OnComponentPointerUp() {
             _isMoving = false;
+            _layoutData.position = (Vector2)_componentTransform.localPosition;
         }
 
         void ILayoutComponentWrapperHandler.OnComponentPointerDown() {
             var compPos = (Vector2)_componentTransform.localPosition;
-            var pointerPos = ComponentHandler!.PointerPosition;
+            var pointerPos = _handler!.PointerPosition;
             _componentPosOffset = compPos - pointerPos;
             _componentOriginPos = compPos;
             _isMoving = true;
@@ -232,7 +168,7 @@ namespace BeatLeader.Components {
         void ILayoutComponentWrapperHandler.OnCornerPointerDown(Vector2 corner) {
             _lastSelectedCorner = corner;
             SetPivot(_componentTransform, InverseVector01(_lastSelectedCorner));
-            _cornerOriginPos = ComponentHandler!.PointerPosition;
+            _cornerOriginPos = _handler!.PointerPosition;
             _originSize = _componentTransform.rect.size;
             _isScaling = true;
         }

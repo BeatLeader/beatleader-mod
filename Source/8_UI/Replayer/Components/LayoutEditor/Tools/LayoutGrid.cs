@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     [RequireComponent(typeof(Image))]
-    internal class LayoutGrid : MonoBehaviour, ILayoutComponentTransformsHandler {
+    internal class LayoutGrid : MonoBehaviour {
         #region Setup
 
         private Vector2 Size => _rect.rect.size;
@@ -24,6 +24,9 @@ namespace BeatLeader.Components {
             _rect = GetComponent<RectTransform>();
             _gridMaterial = Instantiate(BundleLoader.UIGridMaterial);
             _image.material = _gridMaterial;
+        }
+
+        private void Start() {
             Refresh();
         }
 
@@ -58,31 +61,42 @@ namespace BeatLeader.Components {
             _gridMaterial.SetFloat(sizeShaderProp, cellSize);
             _gridMaterial.SetFloat(widthShaderProp, Size.x);
             _gridMaterial.SetFloat(heightShaderProp, Size.y);
+            _cellPseudoSize = cellSize + lineThickness;
+            _areaCells = Size / _cellPseudoSize;
         }
 
         #endregion
 
         #region TransformsHandler
 
-        private static float AlignByGrid(float value, float cellPseudoSize, int elementCells, bool odd) {
-            value = MathUtils.RoundStepped(value, cellPseudoSize);
-            if (elementCells % 2 == (odd ? 0 : 1)) {
-                value += cellPseudoSize / 2f;
+        private Vector2 _areaCells;
+        private float _cellPseudoSize;
+        
+        private float AlignByGrid(float value, float areaCells, float compCells) {
+            value = MathUtils.RoundStepped(value, _cellPseudoSize);
+            if (Odd(areaCells) ^ Odd(compCells)) {
+                value += _cellPseudoSize / 2f;
             }
             return value;
+
+            static bool Odd(float value) {
+                return (int)value % 2 == 1;
+            }
         }
 
-        public Vector2 OnMove(ILayoutComponent component, Vector2 origin, Vector2 destination) {
-            var cellPseudoSize = cellSize + lineThickness;
-            var elementCells = component.ComponentController.ComponentSize / cellPseudoSize;
-            destination.x = AlignByGrid(destination.x, cellPseudoSize, (int)elementCells.x, true);
-            destination.y = AlignByGrid(destination.y, cellPseudoSize, (int)elementCells.y, false);
+        public Vector2 OnMove(ILayoutComponent component, Vector2 destination) {
+            var compCells = (Vector2)component.LayoutData.size / _cellPseudoSize;
+            //
+            destination.x = AlignByGrid(destination.x, _areaCells.x, compCells.x);
+            destination.y = AlignByGrid(destination.y, _areaCells.y, compCells.y);
             return destination;
         }
 
-        public Vector2 OnResize(ILayoutComponent component, Vector2 origin, Vector2 destination) {
+        public Vector2 OnResize(ILayoutComponent component, Vector2 destination) {
             var cellPseudoSize = cellSize + lineThickness;
-            for (var i = 0; i < 2; i++) destination[i] -= destination[i] % cellPseudoSize;
+            for (var i = 0; i < 2; i++) {
+                destination[i] -= destination[i] % cellPseudoSize;
+            }
             return destination;
         }
 

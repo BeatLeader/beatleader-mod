@@ -196,7 +196,7 @@ namespace BeatLeader {
                     CurvatureEnabled = true
                 },
                 LayoutEditorSettings = new() {
-                    ComponentDatas = new() {
+                    ComponentData = new() {
                         {
                             "Toolbar", new() {
                                 position = new() {
@@ -208,7 +208,7 @@ namespace BeatLeader {
                                     y = 72f
                                 },
                                 layer = 1,
-                                active = true
+                                visible = true
                             }
                         },
                         {
@@ -222,7 +222,7 @@ namespace BeatLeader {
                                     y = 24f
                                 },
                                 layer = 2,
-                                active = true
+                                visible = true
                             }
                         },
                         {
@@ -236,7 +236,7 @@ namespace BeatLeader {
                                     y = 60f
                                 },
                                 layer = 3,
-                                active = true
+                                visible = true
                             }
                         }
                     }

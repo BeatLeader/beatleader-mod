@@ -22,8 +22,8 @@ namespace BeatLeader.Components {
             protected override void OnInit(ILayoutComponent component) {
                 _layoutComponent = component;
                 _componentNameText.Text = component.ComponentName;
-                _componentLayerText.Text = component.ComponentController.ComponentLayer.ToString();
-                _componentStateButton.Click(component.ComponentController.ComponentActive);
+                _componentLayerText.Text = component.LayoutData.layer.ToString();
+                _componentStateButton.Click(component.LayoutData.visible);
             }
 
             #endregion
@@ -117,7 +117,8 @@ namespace BeatLeader.Components {
             }
 
             private void HandleVisibilityButtonClicked(bool state) {
-                _layoutComponent.ComponentController.ComponentActive = state;
+                _layoutComponent.LayoutData.visible = state;
+                _layoutComponent.ApplyLayoutData();
             }
 
             #endregion
@@ -128,8 +129,9 @@ namespace BeatLeader.Components {
         #region Sorting
 
         private class ComponentComparator : IComparer<ILayoutComponent> {
-            public int Compare(ILayoutComponent x, ILayoutComponent y) => Comparer<int>.Default
-                .Compare(y.ComponentController.ComponentLayer, x.ComponentController.ComponentLayer);
+            public int Compare(ILayoutComponent x, ILayoutComponent y) {
+                return Comparer<int>.Default.Compare(y.LayoutData.layer, x.LayoutData.layer);
+            }
         }
 
         private readonly ComponentComparator _componentComparator = new();

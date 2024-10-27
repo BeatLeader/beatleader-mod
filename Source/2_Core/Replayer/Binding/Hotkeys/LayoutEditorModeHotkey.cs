@@ -5,15 +5,15 @@ using UnityEngine;
 using Zenject;
 
 namespace BeatLeader.Replayer.Binding {
-    internal class PartialDisplayModeHotkey : GameHotkey {
+    internal class LayoutEditorModeHotkey : GameHotkey {
         public override KeyCode Key => _launchData.Settings.Shortcuts.LayoutEditorPartialModeHotkey;
 
-        [InjectOptional, UsedImplicitly] private readonly ReplayerDesktopViewController? _viewController;
+        [InjectOptional] private readonly ReplayerDesktopViewController? _viewController;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public override void OnKeyDown() {
             if (_launchData.Settings.UISettings.AutoHideUI) return;
-            _viewController?.SwitchPartialDisplayMode();
+            _viewController?.SwitchViewMode();
         }
     }
 }

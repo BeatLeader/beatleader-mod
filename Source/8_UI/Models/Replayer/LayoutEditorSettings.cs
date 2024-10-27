@@ -5,6 +5,6 @@ using JetBrains.Annotations;
 namespace BeatLeader.Models {
     [PublicAPI]
     public class LayoutEditorSettings {
-        public Dictionary<string, LayoutData>? ComponentDatas { get; set; }
+        public Dictionary<string, LayoutData> ComponentData { get; set; } = new();
     }
 }

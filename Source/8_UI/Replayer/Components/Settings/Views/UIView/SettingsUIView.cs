@@ -1,5 +1,4 @@
 using BeatLeader.Components;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -148,7 +147,7 @@ namespace BeatLeader.UI.Replayer {
         #region Callbacks
 
         private void HandleLayoutEditorButtonClicked() {
-            _layoutEditor!.SetEditorActive(true);
+            _layoutEditor!.Mode = LayoutEditorMode.Edit;
         }
 
         #endregion

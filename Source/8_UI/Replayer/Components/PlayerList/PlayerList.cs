@@ -37,7 +37,9 @@ namespace BeatLeader.UI.Replayer {
                     },
                     Colors = null,
                     Children = {
-                        new QuickMiniProfile()
+                        new QuickMiniProfile {
+                                UseAlternativeBlur = true
+                            }
                             .Bind(ref _miniProfile)
                             .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
                         //overview

@@ -34,6 +34,20 @@ namespace BeatLeader.UI {
             }
         }
 
+        public bool UseAlternativeBlur {
+            get => _useAlternativeBlur;
+            set {
+                var mat = value ? 
+                    BundleLoader.Materials.blurredBackgroundMaterial :
+                    GameResources.UIFogBackgroundMaterial;
+                _nameFitterBackground.Material = mat;
+                _rankFitterBackground.Material = mat;
+                _ppFitterBackground.Material = mat;
+            }
+        }
+
+        private bool _useAlternativeBlur;
+
         #endregion
 
         #region Setup
@@ -45,7 +59,7 @@ namespace BeatLeader.UI {
             _playerAvatar.SetAvatar(player);
             _playerCountryFlag.SetCountry(player?.Country ?? "not set");
             _playerCountryFlag.GetRootTransform().gameObject.SetActive(true);
-            
+
             _playerNameLabel.Text = player?.Name ?? "Unknown";
             _playerGlobalRankLabel.Text = FormatUtils.FormatRank(player?.Rank ?? -1, true);
             _playerPpLabel.Text = FormatUtils.FormatPP(player?.PerformancePoints ?? -1);
@@ -54,7 +68,7 @@ namespace BeatLeader.UI {
         public void SetLoading() {
             _playerAvatar.SetAvatar(null);
             _playerCountryFlag.GetRootTransform().gameObject.SetActive(false);
-            
+
             _playerNameLabel.Text = "Loading...";
             _playerGlobalRankLabel.Text = FormatUtils.FormatRank(-1, true);
             _playerPpLabel.Text = FormatUtils.FormatPP(-1);
@@ -72,13 +86,18 @@ namespace BeatLeader.UI {
         private YogaLayoutController _layoutController = null!;
         private YogaLayoutController _railsLayoutController = null!;
         private YogaModifier _railsLayoutModifier = null!;
+        private Image _nameFitterBackground = null!;
+        private Image _rankFitterBackground = null!;
+        private Image _ppFitterBackground = null!;
 
         protected override GameObject Construct() {
             static ReactiveComponentBase CreateFitter(
+                out Image background,
                 params ILayoutItem[] children
             ) {
                 var dummy = new Image()
-                    .AsBlurBackground()
+                    .Export(out background)
+                    .AsBackground(pixelsPerUnit: 12f)
                     .AsFlexGroup(
                         padding: new() { left = 1f, right = 1f },
                         gap: new() { x = 1f }
@@ -114,6 +133,7 @@ namespace BeatLeader.UI {
                             //player & country
                             CreateRail(
                                 CreateFitter(
+                                    out _nameFitterBackground,
                                     //flag
                                     new ReeWrapperV2<CountryFlag>()
                                         .AsFlexItem(minSize: new() { x = 4f })
@@ -129,6 +149,7 @@ namespace BeatLeader.UI {
                             CreateRail(
                                 //rank container
                                 CreateFitter(
+                                    out _rankFitterBackground,
                                     //rank text
                                     new Label {
                                         FontSize = 3
@@ -136,6 +157,7 @@ namespace BeatLeader.UI {
                                 ),
                                 //pp container
                                 CreateFitter(
+                                    out _ppFitterBackground,
                                     //pp text
                                     new Label {
                                         FontSize = 3
@@ -162,6 +184,7 @@ namespace BeatLeader.UI {
 
         protected override void OnInitialize() {
             JustifyContent = Justify.FlexStart;
+            UseAlternativeBlur = false;
         }
 
         #endregion

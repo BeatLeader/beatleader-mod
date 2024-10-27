@@ -30,6 +30,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
 
         private void Awake() {
             CreateViewController();
+            gameObject.layer = 5;
             _canvasGroup.alpha = 0;
         }
 
@@ -39,6 +40,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
 
         private void CreateViewController() {
             var go = gameObject.CreateChild("Screen");
+            go.layer = 5;
             
             _screenCanvas = go.AddComponent<Canvas>();
             _screenCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -49,13 +51,13 @@ namespace BeatLeader.UI.Replayer.Desktop {
             scaler.dynamicPixelsPerUnit = 3.44f;
             scaler.referencePixelsPerUnit = 10;
             go.AddComponent<GraphicRaycaster>();
-            
+
             var rect = go.GetComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.sizeDelta = Vector2.zero;
             rect.anchoredPosition = Vector2.zero;
-            
+
             Screen = go.AddComponent<Screen>();
         }
 
@@ -65,7 +67,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
 
         [SerializeField] private float animationTime = 0.4f;
         [SerializeField] private float animationFramerate = 120f;
-        
+
         private IEnumerator FadeAnimationCoroutine(float startValue, float endValue) {
             var totalFrames = animationTime * animationFramerate;
             var timePerFrame = animationTime / animationFramerate;
@@ -76,7 +78,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
                 yield return new WaitForSeconds(timePerFrame);
                 _canvasGroup.alpha += sum;
             }
-            
+
             _canvasGroup.alpha = endValue;
         }
 

@@ -123,6 +123,7 @@ namespace BeatLeader.Installers {
             if (EnvironmentUtils.UsesFPFC) {
                 Container.Bind<ReplayerDesktopScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
                 Container.Bind<ReplayerDesktopViewController>().FromNewComponentAsViewController().AsSingle();
+                Container.Bind<ReplayerDesktopUIRenderer>().FromNewComponentOnNewGameObject().AsSingle().Lazy();
                 Container.Bind<ReplayerDesktopUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             } else {
                 Container.Bind<ReplayerFloatingViewController>().FromNewComponentAsViewController().AsSingle();

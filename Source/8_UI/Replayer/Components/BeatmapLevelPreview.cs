@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Replayer {
                         }.AsFlexItem(size: "auto").Bind(ref label)
                     }
                 }.AsBackground(
-                    material: BundleLoader.Materials.blurredBackgroundMaterial,
+                    material: BundleLoader.Materials.tintedBlurredBackgroundMaterial,
                     pixelsPerUnit: 12f
                 ).AsFlexGroup(
                     padding: new() { left = 1f, right = 1f },

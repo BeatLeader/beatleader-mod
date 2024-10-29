@@ -38,7 +38,7 @@ namespace BeatLeader.UI {
             get => _useAlternativeBlur;
             set {
                 var mat = value ? 
-                    BundleLoader.Materials.blurredBackgroundMaterial :
+                    BundleLoader.Materials.tintedBlurredBackgroundMaterial :
                     GameResources.UIFogBackgroundMaterial;
                 _nameFitterBackground.Material = mat;
                 _rankFitterBackground.Material = mat;

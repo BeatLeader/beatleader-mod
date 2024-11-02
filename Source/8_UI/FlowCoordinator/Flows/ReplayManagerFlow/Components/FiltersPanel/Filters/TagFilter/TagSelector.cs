@@ -124,11 +124,13 @@ namespace BeatLeader.UI.Hub {
             return new Image {
                 Children = {
                     new TagCreationDialog()
+                        .WithJumpAnimation()
                         .WithAnchor(this, RelativePlacement.Center, unbindOnceOpened: false)
                         .WithShadow()
                         .Bind(ref _tagCreationDialog),
                     //
                     new TagDeletionDialog()
+                        .WithJumpAnimation()
                         .WithAnchor(this, RelativePlacement.Center, unbindOnceOpened: false)
                         .WithShadow()
                         .Bind(ref _tagDeletionDialog),

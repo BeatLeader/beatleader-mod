@@ -268,7 +268,7 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new FiltersModal()
                         .WithShadow()
-                        .WithScaleAnimation()
+                        .WithJumpAnimation()
                         .WithCloseListener(() => _filtersTextArea.Focused = false)
                         .WithAnchor(() => ContentTransform, RelativePlacement.BottomRight)
                         .Bind(ref _modal),

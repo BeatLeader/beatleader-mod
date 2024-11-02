@@ -173,7 +173,7 @@ namespace BeatLeader.UI.Replayer {
 
                 var color = UIStyle.ButtonColorSet.Color;
                 var activeColor = UIStyle.ButtonColorSet.ActiveColor;
-                var progress = RememberAnimated(0f, "200ms");
+                var progress = RememberAnimated(0f, 10.fact());
 
                 return new Button {
                     OnClick = () => OnClick?.Invoke(),

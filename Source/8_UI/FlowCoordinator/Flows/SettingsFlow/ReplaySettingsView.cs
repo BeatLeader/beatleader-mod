@@ -160,7 +160,8 @@ namespace BeatLeader.UI.Hub {
             return new Dummy {
                 Children = {
                     new DeletionModal()
-                        .WithAlphaOnModalOpen(() => Canvas!.gameObject)
+                        .WithAlphaAnimation(() => Canvas!.gameObject)
+                        .WithJumpAnimation()
                         .WithAnchor(() => ContentTransform, RelativePlacement.Center)
                         .Bind(ref _deletionModal),
                     //

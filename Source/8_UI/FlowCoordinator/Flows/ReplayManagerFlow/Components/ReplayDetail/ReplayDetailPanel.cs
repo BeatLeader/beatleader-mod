@@ -32,12 +32,14 @@ namespace BeatLeader.UI.Hub {
                     new BeatmapDownloadDialog()
                         .WithCloseListener(HandleDownloadBeatmapDialogClosed)
                         .WithAnchor(() => (RectTransform)Canvas!.transform, RelativePlacement.Center)
-                        .WithAlphaOnModalOpen(() => Canvas!.gameObject)
+                        .WithAlphaAnimation(() => Canvas!.gameObject)
+                        .WithJumpAnimation()
                         .Bind(ref _beatmapDownloadDialog),
                     //
                     new ReplayDeletionDialog()
                         .WithAnchor(() => (RectTransform)Canvas!.transform, RelativePlacement.Center)
-                        .WithAlphaOnModalOpen(() => Canvas!.gameObject)
+                        .WithAlphaAnimation(() => Canvas!.gameObject)
+                        .WithJumpAnimation()
                         .Bind(ref _replayDeletionDialog),
                     //
                     new BsButton {

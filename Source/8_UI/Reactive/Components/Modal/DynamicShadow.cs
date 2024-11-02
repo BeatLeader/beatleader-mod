@@ -46,6 +46,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override GameObject Construct() {
             return new Image {
+                RaycastTarget = false,
                 Sprite = BundleLoader.Sprites.glare,
                 Color = Color.black.ColorWithAlpha(0.7f),
                 ImageType = UnityEngine.UI.Image.Type.Sliced

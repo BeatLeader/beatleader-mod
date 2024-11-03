@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +37,9 @@ namespace BeatLeader {
             var type = HeckInterop.SetterViewControllerType!;
             _initMethod = type.GetMethod("Init", ReflectionUtils.DefaultFlags)!;
             _finishedEventField = type.GetField("Finished", ReflectionUtils.DefaultFlags)!;
-            _setterViewController = (ViewController)_container.Resolve(HeckInterop.PlayViewControllerType);
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var controllers = (IList<object>)_container.ResolveAll(HeckInterop.PlayViewControllerType);
+            _setterViewController = (ViewController)controllers.First(static x => x.GetType() == HeckInterop.SetterViewControllerType);
         }
 
         public async Task NavigateToReplayAsync(FlowCoordinator flowCoordinator, Replay replay, Player player, bool alternative) {

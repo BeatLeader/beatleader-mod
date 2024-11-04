@@ -74,6 +74,7 @@ namespace BeatLeader.Replayer.Emulation {
             _headTransform.SetLocalPose(headPose);
             _leftHandTransform.SetLocalPose(leftHandPose);
             _rightHandTransform.SetLocalPose(rightHandPose);
+            _avatarController.PoseController.UpdateBodyPosition();
         }
 
         public void ApplyConfig(IVirtualPlayerBodyConfig config) {

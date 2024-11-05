@@ -43,8 +43,12 @@ namespace BeatLeader.Components {
 
         private LayoutData _layoutData;
 
-        public void ApplyLayoutData() {
+        public void ApplyLayoutData(bool notify) {
             // do nothing because why would we
+        }
+
+        public void LoadLayoutData() {
+            // same as ApplyLayoutData
         }
 
         #endregion

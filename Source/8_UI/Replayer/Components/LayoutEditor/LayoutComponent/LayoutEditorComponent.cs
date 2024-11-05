@@ -54,7 +54,7 @@ namespace BeatLeader.Components {
         private LayoutData _layoutData;
         private bool _wrapperActive;
 
-        public void ApplyLayoutData() {
+        public void ApplyLayoutData(bool notify) {
             // Applying values
             _wrapper.SetComponentActive(_layoutData.visible);
             _componentTransform.sizeDelta = _layoutData.size;
@@ -64,6 +64,13 @@ namespace BeatLeader.Components {
             if (!_wrapperActive) {
                 Content.SetActive(_layoutData.visible);
             }
+            if (notify) {
+                _handler!.OnLayoutDataUpdate(this);
+            }
+        }
+
+        public void LoadLayoutData() {
+            _layoutData.layer = ContentTransform.GetSiblingIndex();
         }
 
         #endregion
@@ -87,7 +94,7 @@ namespace BeatLeader.Components {
         private void UpdateMovement() {
             var pos = _handler!.PointerPosition + _componentPosOffset;
             if (pos == _componentOriginPos) return;
-            
+
             pos = _handler.OnMove(this, pos);
             _componentTransform.localPosition = pos;
             _layoutData.position = pos;

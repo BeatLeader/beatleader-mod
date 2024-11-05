@@ -6,6 +6,7 @@ namespace BeatLeader.Components {
         RectTransform? AreaTransform { get; }
 
         void OnSelect(ILayoutComponent component);
+        void OnLayoutDataUpdate(ILayoutComponent component);
         Vector2 OnMove(ILayoutComponent component, Vector2 destination);
         Vector2 OnResize(ILayoutComponent component, Vector2 destination);
     }

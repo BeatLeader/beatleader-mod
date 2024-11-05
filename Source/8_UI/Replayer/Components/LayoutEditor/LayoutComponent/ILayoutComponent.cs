@@ -4,7 +4,8 @@
         ref LayoutData LayoutData { get; }
 
         void Setup(ILayoutComponentHandler? handler);
-        void ApplyLayoutData();
+        void ApplyLayoutData(bool notify = true);
+        void LoadLayoutData();
         
         void OnEditorModeChanged(LayoutEditorMode mode);
         void OnSelectedComponentChanged(ILayoutComponent? component);

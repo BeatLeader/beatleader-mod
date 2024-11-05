@@ -113,6 +113,14 @@ namespace BeatLeader.Components {
             }
         }
 
+        public void OnLayoutDataUpdate(ILayoutComponent component) {
+            foreach (var comp in _components) {
+                if (comp == component) continue;
+                comp.LoadLayoutData();
+                comp.ApplyLayoutData(false);
+            }
+        }
+
         Vector2 ILayoutComponentHandler.OnMove(ILayoutComponent component, Vector2 destination) {
             //modifying position
             destination = _layoutGrid.OnMove(component, destination);

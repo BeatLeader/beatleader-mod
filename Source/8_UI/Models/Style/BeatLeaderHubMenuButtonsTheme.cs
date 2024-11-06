@@ -4,10 +4,9 @@ using Reactive.Components;
 
 namespace BeatLeader {
     internal class BeatLeaderHubMenuButtonsTheme {
-        //TODO: make serializable
-        public SimpleColorSet ReplayManagerButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
-        public SimpleColorSet BattleRoyaleButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
-        public SimpleColorSet SettingsButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
-        public SimpleColorSet EditAvatarButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        public SerializableColorSet ReplayManagerButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        public SerializableColorSet BattleRoyaleButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        public SerializableColorSet SettingsButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
+        public SerializableColorSet EditAvatarButtonColors { get; set; } = UIStyle.SecondaryButtonColorSet;
     }
 }

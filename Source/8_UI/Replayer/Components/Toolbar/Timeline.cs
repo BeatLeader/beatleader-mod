@@ -22,6 +22,7 @@ namespace BeatLeader.UI.Replayer {
         private IReplayPauseController? _pauseController;
         private IReplayTimeController? _timeController;
         private IVirtualPlayersManager? _playersManager;
+        private ReplayerUISettings? _uiSettings;
 
         private bool _allowTimeUpdate;
         private bool _wasPausedBeforeRewind;
@@ -29,7 +30,8 @@ namespace BeatLeader.UI.Replayer {
         public void Setup(
             IVirtualPlayersManager playersManager,
             IReplayPauseController pauseController,
-            IReplayTimeController timeController
+            IReplayTimeController timeController,
+            ReplayerUISettings replayerSettings
         ) {
             if (_playersManager != null) {
                 _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChangedEvent;
@@ -37,6 +39,7 @@ namespace BeatLeader.UI.Replayer {
             _playersManager = playersManager;
             _pauseController = pauseController;
             _timeController = timeController;
+            _uiSettings = replayerSettings;
             _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChangedEvent;
 
             ValueRange = new(_timeController.SongStartTime, _timeController.ReplayEndTime);
@@ -156,10 +159,23 @@ namespace BeatLeader.UI.Replayer {
         public void SetMarkersEnabled(string name, bool enable = true) {
             if (!_markerGroups.TryGetValue(name, out var group)) return;
             group.Enabled = enable;
+            var mask = _uiSettings!.MarkersMask;
+            _uiSettings!.MarkersMask = name switch {
+                "Miss" => mask | TimelineMarkersMask.Miss,
+                "Bomb" => mask | TimelineMarkersMask.Bomb,
+                "Pause" => mask | TimelineMarkersMask.Pause,
+                _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
+            };
         }
 
         public bool GetMarkersEnabled(string name) {
-            return _markerGroups[name].Enabled;
+            var mask = _uiSettings!.MarkersMask;
+            return name switch {
+                "Miss" => (TimelineMarkersMask.Miss & mask) != 0,
+                "Bomb" => (TimelineMarkersMask.Bomb & mask) != 0,
+                "Pause" => (TimelineMarkersMask.Pause & mask) != 0,
+                _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
+            };
         }
 
         private void ReloadMarkers() {
@@ -177,6 +193,7 @@ namespace BeatLeader.UI.Replayer {
                     marker.sprite,
                     marker.color
                 );
+                group.Enabled = GetMarkersEnabled(marker.name);
                 //adding to the dict
                 _markerGroups[marker.name] = group;
             }

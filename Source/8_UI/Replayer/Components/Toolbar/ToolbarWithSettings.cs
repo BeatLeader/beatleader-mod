@@ -59,7 +59,8 @@ namespace BeatLeader.UI.Replayer {
                 finishController,
                 timeController,
                 playersManager,
-                this
+                this,
+                launchData.Settings.UISettings
             );
             _settingsPanel.Setup(
                 launchData.Settings,

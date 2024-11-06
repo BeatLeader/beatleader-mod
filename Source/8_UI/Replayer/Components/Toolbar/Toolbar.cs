@@ -27,7 +27,8 @@ namespace BeatLeader.UI.Replayer {
             IReplayFinishController finishController,
             IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
-            ISettingsPanel settingsPanel
+            ISettingsPanel settingsPanel,
+            ReplayerUISettings uiSettings
         ) {
             if (_pauseController != null) {
                 _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
@@ -38,7 +39,7 @@ namespace BeatLeader.UI.Replayer {
             _settingsPanel = settingsPanel;
 
             _pauseController.PauseStateChangedEvent += HandlePauseStateChanged;
-            _timeline.Setup(playersManager, pauseController, timeController);
+            _timeline.Setup(playersManager, pauseController, timeController, uiSettings);
             HandlePauseStateChanged(_pauseController.IsPaused);
         }
 

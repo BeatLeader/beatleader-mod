@@ -24,10 +24,6 @@ namespace BeatLeader.Models {
 
         public bool ShowWatermark { get; set; }
 
-        public bool ShowTimelineMisses { get; set; }
-        public bool ShowTimelineBombs { get; set; }
-        public bool ShowTimelinePauses { get; set; }
-
         public ReplayerShortcuts Shortcuts { get; set; } = new();
         public ReplayerUISettings UISettings { get; set; } = new();
         public BodySettings BodySettings { get; set; } = new();

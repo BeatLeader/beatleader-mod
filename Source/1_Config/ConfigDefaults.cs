@@ -89,9 +89,6 @@ namespace BeatLeader {
             ExitReplayAutomatically = true,
 
             ShowWatermark = true,
-            ShowTimelineMisses = true,
-            ShowTimelineBombs = true,
-            ShowTimelinePauses = true,
 
             CameraSettings = new InternalReplayerCameraSettings {
                 MaxCameraFOV = 110,
@@ -181,6 +178,7 @@ namespace BeatLeader {
 
             UISettings = {
                 AutoHideUI = false,
+                MarkersMask = TimelineMarkersMask.Miss | TimelineMarkersMask.Bomb,
                 FloatingSettings = new() {
                     Pose = new() {
                         position = new(0f, 1f, 2f),

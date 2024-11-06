@@ -42,7 +42,8 @@ namespace BeatLeader.UI.Replayer {
                 _markerName = markerName;
                 if (_timeline != null && _markerName != null) {
                     _namedRail.Label.Text = $"Show {markerName} Markers";
-                    _toggle.SetActive(_timeline.GetMarkersEnabled(_markerName), false, true);
+                    var active = _timeline.GetMarkersEnabled(_markerName);
+                    _toggle.SetActive(active, false, true);
                 }
             }
 

@@ -99,6 +99,10 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
+        private void HandleReplayLoadingFinished() {
+            _watchButton.Interactable = true;
+        }
+        
         private void HandleDownloadBeatmapDialogClosed(IModal modal, bool closed) {
             if (closed) return;
             SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);
@@ -118,9 +122,10 @@ namespace BeatLeader.UI.Hub {
                 _beatmapDownloadDialog.Present(ContentTransform);
                 return;
             }
+            _watchButton.Interactable = false;
             var replay = await Header.LoadReplayAsync(CancellationToken.None);
             var player = await Header.LoadPlayerAsync(false, CancellationToken.None);
-            await _replayerMenuLoader!.StartReplayAsync(replay!, player);
+            await _replayerMenuLoader!.StartReplayAsync(replay!, player, finishCallback: HandleReplayLoadingFinished);
         }
 
         #endregion

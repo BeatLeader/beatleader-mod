@@ -169,8 +169,10 @@ namespace BeatLeader.UI.Hub {
                             Children = {
                                 new ImageButton {
                                     Image = {
-                                        Sprite = BundleLoader.Sprites.editIcon
-                                    }
+                                        Sprite = BundleLoader.Sprites.editIcon,
+                                        Material = BundleLoader.Materials.uiAdditiveGlowMaterial
+                                    },
+                                    Colors = UIStyle.ButtonColorSet
                                 }.WithModal(_tagSelectorModal).AsFlexItem(size: 3f)
                             }
                         }

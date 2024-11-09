@@ -155,16 +155,20 @@ namespace BeatLeader.UI.Hub {
                             //delete button
                             new ImageButton {
                                 Image = {
-                                    Sprite = BundleLoader.Sprites.trashIcon
+                                    Sprite = BundleLoader.Sprites.trashIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
+                                Colors = UIStyle.ButtonColorSet,
                                 Latching = true,
                                 OnStateChanged = SetEditModeEnabled,
                             }.AsFlexItem(size: 4f),
                             //create button
                             new ImageButton {
                                 Image = {
-                                    Sprite = BundleLoader.Sprites.plusIcon
-                                }
+                                    Sprite = BundleLoader.Sprites.plusIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
+                                },
+                                Colors = UIStyle.ButtonColorSet
                             }.WithModal(_tagCreationDialog).AsFlexItem(size: 4f).Bind(ref _createTagButton),
                         }
                     }.AsBlurBackground(

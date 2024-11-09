@@ -114,8 +114,10 @@ namespace BeatLeader.UI.Hub {
                             Children = {
                                 new ImageButton {
                                     Image = {
-                                        Sprite = BundleLoader.ProgressRingIcon
+                                        Sprite = BundleLoader.ProgressRingIcon,
+                                        Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                     },
+                                    Colors = UIStyle.ButtonColorSet,
                                     Latching = true,
                                     OnStateChanged = _ => HandleButtonClicked(false)
                                 }.AsFlexItem(size: 3f).Bind(ref _enableButton)

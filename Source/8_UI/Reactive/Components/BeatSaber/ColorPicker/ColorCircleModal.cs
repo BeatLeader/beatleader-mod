@@ -21,5 +21,10 @@ namespace BeatLeader.UI.Reactive.Components {
                 direction: FlexDirection.Column
             ).WithSizeDelta(54f, 59f).Use();
         }
+
+        protected override void OnInitialize() {
+            base.OnInitialize();
+            this.WithJumpAnimation();
+        }
     }
 }

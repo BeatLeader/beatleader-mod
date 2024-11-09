@@ -66,7 +66,7 @@ namespace BeatLeader.UI {
         }
 
         public void SetLoading() {
-            _playerAvatar.SetAvatar(null);
+            _playerAvatar.SetLoading();
             _playerCountryFlag.GetRootTransform().gameObject.SetActive(false);
 
             _playerNameLabel.Text = "Loading...";

@@ -91,15 +91,17 @@ namespace BeatLeader.Components {
 
         private string? _url = "";
 
+        public void SetLoading() {
+            if (_url == null) return;
+            _url = null;
+            ShowSpinner();
+        }
+        
         public void SetAvatar(IPlayer? player) {
             SetAvatar(player?.AvatarUrl, player?.ProfileSettings);
         }
 
         public void SetAvatar(string? url, IPlayerProfileSettings? profileSettings) {
-            if (url is null) {
-                ShowSpinner();
-                return;
-            }
             if (_url == url) return;
             _url = url;
             SelectMaterial(profileSettings);

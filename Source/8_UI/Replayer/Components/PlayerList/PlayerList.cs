@@ -31,9 +31,7 @@ namespace BeatLeader.UI.Replayer {
                     OnClick = () => SelectSelf(true),
                     Image = {
                         Sprite = BundleLoader.Sprites.background,
-                        PixelsPerUnit = 5f,
-                        //required to fill the TEXCOORD1 with non-sliced UV
-                        UseGradient = true
+                        PixelsPerUnit = 5f
                     },
                     Colors = null,
                     Children = {

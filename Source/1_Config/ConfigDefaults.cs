@@ -206,7 +206,7 @@ namespace BeatLeader {
                                     y = 72f
                                 },
                                 layer = 1,
-                                visible = true
+                                visible = false
                             }
                         },
                         {
@@ -220,7 +220,7 @@ namespace BeatLeader {
                                     y = 24f
                                 },
                                 layer = 2,
-                                visible = true
+                                visible = false
                             }
                         },
                         {
@@ -234,7 +234,7 @@ namespace BeatLeader {
                                     y = 60f
                                 },
                                 layer = 3,
-                                visible = true
+                                visible = false
                             }
                         }
                     }

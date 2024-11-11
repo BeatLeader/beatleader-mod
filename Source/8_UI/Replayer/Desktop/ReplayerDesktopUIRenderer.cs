@@ -13,7 +13,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
             RenderCamera.farClipPlane = 1f;
             RenderCamera.enabled = false;
             var postProcessRenderer = gameObject.AddComponent<BlurPostProcessCanvasRenderer>();
-            postProcessRenderer.lodFactor = 5;
+            postProcessRenderer.lodFactor = 2;
         }
     }
 }

@@ -30,6 +30,12 @@ namespace BeatLeader.UI.Hub {
             _battleRoyaleHost.HostStateChangedEvent -= HandleHostStateChanged;
         }
 
+        private void OnEnable() {
+            foreach (var (_, avatar) in _avatars) {
+                avatar.PresentAvatar(false);
+            }
+        }
+
         #endregion
 
         #region Placement

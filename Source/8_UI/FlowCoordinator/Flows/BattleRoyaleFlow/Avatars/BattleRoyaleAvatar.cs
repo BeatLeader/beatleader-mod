@@ -86,17 +86,13 @@ namespace BeatLeader.UI.Hub {
             _badge.ContentTransform.localPosition = new(0f, 0.45f, -0.13f);
         }
 
-        private void OnEnable() {
-            PresentAvatar();
-        }
-
         #endregion
 
         #region Enable & Disable
 
-        public void PresentAvatar() {
+        public void PresentAvatar(bool animated = true) {
             _avatarController.gameObject.SetActive(true);
-            _avatarController.Present();
+            _avatarController.Present(animated);
             Refresh(true);
         }
 

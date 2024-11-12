@@ -6,5 +6,6 @@ namespace BeatLeader.Components {
         public SerializableVector2 size;
         public int layer;
         public bool visible;
+        public LayoutMigrationRules migrationRules;
     }
 }

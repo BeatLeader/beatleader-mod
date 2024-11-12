@@ -52,6 +52,10 @@ namespace BeatLeader.Components {
             if (_settings == null) {
                 return;
             }
+            var resolution = new Vector2(Screen.width, Screen.height);
+            var scaleFactor = Canvas!.scaleFactor;
+            _settings.Migrate(resolution, scaleFactor);
+            //
             var dict = _settings!.ComponentData;
             foreach (var component in _components) {
                 if (dict.TryGetValue(component.ComponentName, out var data)) {

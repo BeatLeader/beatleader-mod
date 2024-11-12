@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI;
 using BeatLeader.UI.Reactive;
@@ -194,6 +195,7 @@ namespace BeatLeader {
                     CurvatureEnabled = true
                 },
                 LayoutEditorSettings = new() {
+                    ReferenceResolution = new(1800f, 1125f),
                     ComponentData = new() {
                         {
                             "Toolbar", new() {
@@ -206,7 +208,8 @@ namespace BeatLeader {
                                     y = 72f
                                 },
                                 layer = 1,
-                                visible = false
+                                visible = false,
+                                migrationRules = LayoutMigrationRules.None
                             }
                         },
                         {
@@ -220,7 +223,8 @@ namespace BeatLeader {
                                     y = 24f
                                 },
                                 layer = 2,
-                                visible = false
+                                visible = false,
+                                migrationRules = LayoutMigrationRules.All
                             }
                         },
                         {
@@ -234,7 +238,8 @@ namespace BeatLeader {
                                     y = 60f
                                 },
                                 layer = 3,
-                                visible = false
+                                visible = false,
+                                migrationRules = LayoutMigrationRules.All
                             }
                         }
                     }

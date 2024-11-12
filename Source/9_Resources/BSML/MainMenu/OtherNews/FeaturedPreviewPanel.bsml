@@ -1,8 +1,8 @@
 ﻿<horizontal id="container" spacing="1" vertical-fit="Unconstrained">
     <bg id="image-container">
-        <image id="image"/>
+        <image id="image" pref-width="3"/>
     </bg>
-    <vertical horizontal-fit="Unconstrained" flexible-width="1000">
+    <vertical horizontal-fit="Unconstrained" max-width="10">
         <text id="top-text" font-size="4" italics="true" overflow="Ellipsis" align="MidlineLeft"/>
         <text id="bottom-text" font-size="3" italics="true" overflow="Ellipsis" font-color="#888888"/>
     </vertical>

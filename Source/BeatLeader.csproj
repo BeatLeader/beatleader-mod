@@ -94,7 +94,7 @@
     </Reference>
     <Reference Include="GameInit">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameInit.dll</HintPath>
-        <Publicize>True</Publicize>
+      <Publicize>True</Publicize>
     </Reference>
     <Reference Include="GameplayCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
@@ -122,7 +122,7 @@
     </Reference>
     <Reference Include="MenuSystem">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\MenuSystem.dll</HintPath>
-        <Publicize>True</Publicize>
+      <Publicize>True</Publicize>
     </Reference>
     <Reference Include="Networking">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Networking.dll</HintPath>
@@ -145,6 +145,11 @@
     </Reference>
     <Reference Include="SegmentedControl">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\SegmentedControl.dll</HintPath>
+    </Reference>
+    <Reference Include="SongCore">
+      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Unity.Mathematics">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.Mathematics.dll</HintPath>

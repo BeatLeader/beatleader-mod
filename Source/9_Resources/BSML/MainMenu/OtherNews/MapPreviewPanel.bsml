@@ -9,10 +9,10 @@
             <button text="Ok" on-click="ok-button-click"/>
         </vertical>
     </modal>
+    <vertical pref-width="8" child-align="MiddleCenter">
+        <button id="mapDownloadButton" interactable="~downloadInteractable"  on-click="downloadPressed" text="Play" pad="0" pref-height="8"></button>
+    </vertical>
     <macro.as-host host="preview">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
-    <vertical pref-width="4" child-align="MiddleCenter">
-        <button id="mapDownloadButton" interactable="~downloadInteractable"  on-click="downloadPressed" text="Play" pad="0" pref-height="8"></button>
-    </vertical>
 </horizontal>

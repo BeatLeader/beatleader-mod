@@ -9,6 +9,7 @@ namespace BeatLeader {
         private static BeatLeaderNewsViewController? _viewController;
 
         [HarmonyPatch(typeof(MainFlowCoordinator), "DidActivate"), HarmonyPostfix]
+        [HarmonyAfter(new string[] { "com.monkeymanboy.BeatSaberMarkupLanguage" })]
         private static void DidActivatePostfix(MainFlowCoordinator __instance, bool addedToHierarchy) {
             if (!addedToHierarchy) return;
             //

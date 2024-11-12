@@ -4,11 +4,11 @@
     </macro.as-host>
     <horizontal pref-height="14">
         <text id="empty-text" text="Monke is not hosting any events yet"/>
+        <vertical pref-width="8" child-align="MiddleCenter">
+            <button id="eventDownloadButton" interactable="~downloadInteractable" on-click="downloadPressed" text="Join" pad="0" pref-height="8"></button>
+        </vertical>
         <macro.as-host host="event">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
-        <vertical pref-width="4" child-align="MiddleCenter">
-            <button id="eventDownloadButton" interactable="~downloadInteractable" on-click="downloadPressed" text="Join" pad="0" pref-height="8"></button>
-        </vertical>
     </horizontal>
 </vertical>

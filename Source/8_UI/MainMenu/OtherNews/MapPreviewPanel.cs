@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.Models;
@@ -9,6 +10,7 @@ using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using static SelectLevelCategoryViewController;
 
 namespace BeatLeader.UI.MainMenu {
     internal class MapPreviewPanel : ReeUIComponentV2 {
@@ -29,7 +31,7 @@ namespace BeatLeader.UI.MainMenu {
         [UIObject("loading-container"), UsedImplicitly]
         private GameObject _loadingContainer = null!;
 
-        private bool _downloadInteractable = false;
+        private bool _downloadInteractable = true;
 
         [UIValue("downloadInteractable")]
         public bool DownloadInteractable
@@ -50,18 +52,16 @@ namespace BeatLeader.UI.MainMenu {
         private string? _websiteUrl;
         private string? _downloadUrl;
         private bool _mapDownloaded;
+        private BeatmapLevel? _map;
 
-        private async Task RefreshButtons() {
-            var hasMap = false;
+        private async Task FetchMap() {
             var hash = _mapDetail?.hash;
             if (hash != null) {
-                var map = await ReplayerMenuLoader.Instance!.GetBeatmapLevelByHashAsync(
-                    _mapDetail!.hash,
+                _map = await ReplayerMenuLoader.Instance!.GetBeatmapLevelByHashAsync(
+                    _mapDetail!.hash.ToUpper(),
                     CancellationToken.None
                 );
-                hasMap = map != null;
             }
-            DownloadInteractable = !hasMap && !_mapDownloaded && _downloadUrl != null;
         }
 
         public async void Setup(MapData mapData) {
@@ -70,41 +70,61 @@ namespace BeatLeader.UI.MainMenu {
             _downloadUrl = song.downloadUrl;
             _mapDetail = song;
             _previewPanel.Setup(song.coverImage, song.name, song.mapper);
-            await RefreshButtons();
         }
 
         protected override async void OnInstantiate() {
             _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
-            await RefreshButtons();
         }
 
         #endregion
 
         #region Callbacks
 
+        private void OpenMap() {
+            if (_map == null) return;
+
+            var key = _map.GetBeatmapKeys().First();
+            var x = new LevelSelectionFlowCoordinator.State(
+				LevelCategory.All, 
+				SongCore.Loader.CustomLevelsPack, 
+				in key, 
+				_map
+			);
+
+			FindObjectOfType<SoloFreePlayFlowCoordinator>().Setup(x);
+
+			(GameObject.Find("SoloButton") ?? GameObject.Find("Wrapper/BeatmapWithModifiers/BeatmapSelection/EditButton"))
+				?.GetComponent<NoTransitionsButton>()?.onClick.Invoke();
+        }
+
         [UIAction("downloadPressed"), UsedImplicitly]
         private async void HandleDownloadButtonClicked() {
-            _loadingContainer.SetActive(true);
-            _finishedContainer.SetActive(false);
-            _modal.Show(true, true);
-            //attempting to download
-            var result = false;
-            var bytes = await WebUtils.SendRawDataRequestAsync(_downloadUrl!);
-            if (bytes != null) {
-                var folderName = BeatSaverUtils.FormatBeatmapFolderName(
-                    _mapDetail!.id,
-                    _mapDetail.name,
-                    _mapDetail.author,
-                    _mapDetail.hash
-                );
-                result = await FileManager.InstallBeatmap(bytes, folderName);
+            await FetchMap();
+            if (_map != null) {
+                OpenMap();
+            } else {
+                _loadingContainer.SetActive(true);
+                _modal.Show(true, true);
+                //attempting to download
+                var bytes = await WebUtils.SendRawDataRequestAsync(_downloadUrl!);
+                if (bytes != null) {
+                    var folderName = BeatSaverUtils.FormatBeatmapFolderName(
+                        _mapDetail!.id,
+                        _mapDetail.name,
+                        _mapDetail.author,
+                        _mapDetail.hash
+                    );
+                    await FileManager.InstallBeatmap(bytes, folderName);
+                }
+                //showing finish view
+                await FetchMap();
+
+                _mapDownloaded = _map != null;
+                _finishedText.text = _map != null ? "Download has finished" : "Download has failed!";
+                _loadingContainer.SetActive(false);
+
+                OpenMap();
             }
-            //showing finish view
-            _mapDownloaded = result;
-            _finishedText.text = result ? "Download has finished" : "Download has failed!";
-            _loadingContainer.SetActive(false);
-            _finishedContainer.SetActive(true);
-            await RefreshButtons();
         }
 
         [UIAction("ok-button-click"), UsedImplicitly]

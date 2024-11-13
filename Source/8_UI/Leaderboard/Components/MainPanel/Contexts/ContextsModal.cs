@@ -17,6 +17,11 @@ namespace BeatLeader.Components {
             PluginConfig.ScoresContextListChangedEvent += OnScoresContextListWasChanged;
         }
 
+        protected override void OnDispose() {
+            base.OnDispose();
+            PluginConfig.ScoresContextListChangedEvent -= OnScoresContextListWasChanged;
+        }
+
         protected void OnScoresContextListWasChanged() {
             InitializeOptions();
         }

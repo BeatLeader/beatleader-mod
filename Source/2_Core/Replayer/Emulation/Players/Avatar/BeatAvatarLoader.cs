@@ -48,6 +48,7 @@ namespace BeatLeader.Replayer.Emulation {
             return avatar.AddComponent<BeatAvatarController>();
         }
 
+        //TODO: Potential bug: at least one BeatAvatarEditorFlowCoordinator must be instantiated first
         public MenuBeatAvatarController CreateMenuAvatar(Transform? parent = null, float size = 1.2f) {
             var avatar = CreateAvatar(parent, size);
             return avatar.AddComponent<MenuBeatAvatarController>();

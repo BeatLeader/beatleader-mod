@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
@@ -50,8 +51,8 @@ namespace BeatLeader.UI.Hub {
             _hubFlowCoordinator.FlowCoordinatorPresentedEvent += Present;
             _hubFlowCoordinator.FlowCoordinatorDismissedEvent += Dismiss;
             //
-            _avatarController = _beatAvatarLoader.CreateMenuAvatar(transform);
             _editAvatarFlowCoordinator = await _beatAvatarLoader.CreateEditorFlowCoordinator();
+            _avatarController = _beatAvatarLoader.CreateMenuAvatar(transform);
             SetupEditAvatarFlowCoordinator();
             //
             var screenSystem = _hierarchyManager.GetComponent<ScreenSystem>();

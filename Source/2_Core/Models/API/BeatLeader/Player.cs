@@ -15,18 +15,8 @@ namespace BeatLeader.Models {
         public Player[] friends;
     }
 
-    [Flags]
-    public enum LeaderboardContexts {
-        None = 0,
-        General = 1 << 1,
-        NoMods = 1 << 2,
-        NoPause = 1 << 3,
-        Golf = 1 << 4,
-        SCPM = 1 << 5
-    }
-
     public class PlayerContextExtension {
-        public LeaderboardContexts context;
+        public int context;
         public float pp;
         public int rank;
         public int countryRank;
@@ -87,7 +77,7 @@ namespace BeatLeader.Models {
         public PlayerContextExtension[]? contextExtensions;
         public ProfileSettings? profileSettings;
 
-        public Player GetContextPlayer(LeaderboardContexts context) {
+        public Player ContextPlayer(int context) {
             var contextPlayer = contextExtensions?.FirstOrDefault(ce => ce.context == context);
             if (contextPlayer == null) return this;
             return new Player {

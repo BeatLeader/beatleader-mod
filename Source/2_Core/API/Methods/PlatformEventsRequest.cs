@@ -6,7 +6,7 @@ using BeatLeader.Utils;
 namespace BeatLeader.API.Methods {
     public class PlatformEventsRequest : PersistentSingletonRequestHandler<PlatformEventsRequest, Paged<PlatformEvent>> {
         public static void SendRequest() {
-            var descriptor = new JsonGetRequestDescriptor<Paged<PlatformEvent>>($"{BLConstants.BEATLEADER_API_URL}/events");
+            var descriptor = new JsonGetRequestDescriptor<Paged<PlatformEvent>>($"{BLConstants.BEATLEADER_API_URL}/mod/events");
             Instance.Send(descriptor);
         }
     }

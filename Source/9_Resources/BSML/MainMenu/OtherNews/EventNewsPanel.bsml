@@ -5,10 +5,20 @@
     <horizontal id="empty-container" pref-width="70" pref-height="14" horizontal-fit="PreferredSize">
         <text text="Monke is not hosting any events yet"/>
     </horizontal>
+    <modal id="loading-modal" size-delta-x="100" size-delta-y="50" click-off-closes="true">
+        <vertical id="loading-container" spacing="2" child-expand-height="false" child-control-height="false" child-align="MiddleCenter">
+            <loading-indicator preserve-aspect="true" pref-height="8" pref-width="8"/>
+            <text text="Loading..."/>
+        </vertical>
+        <vertical id="finished-container" pref-width="60">
+            <text id="finished-text" text="" font-size="3" align="Bottom"/>
+            <button text="Download Playlist" active="~download-button-active" on-click="download-button-click"/>
+        </vertical>
+    </modal>
     <horizontal id="events-container" pref-width="70" pref-height="14" horizontal-fit="PreferredSize">
         <macro.as-host host="event">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
-        <button pref-height="8" text="Join" on-click="downloadPressed" pad="0"/>
+        <button pref-height="8" text="Join" on-click="joinPressed" pad="0"/>
     </horizontal>
 </vertical>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using BeatLeader.Core.Managers.NoteEnhancer;
@@ -290,7 +290,7 @@ namespace BeatLeader {
 
         #region Note Events
 
-        private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
+        private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData) {
             if (_stopRecording) return;
 
             var noteId = _noteId++;

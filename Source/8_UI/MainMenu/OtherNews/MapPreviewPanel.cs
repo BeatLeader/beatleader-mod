@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,7 +88,9 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIAction("downloadPressed"), UsedImplicitly]
         private async void HandleDownloadButtonClicked() {
+            OkButtonActive = false;
             await FetchMap();
+
             if (_map != null) {
                 OpenMap();
             } else {
@@ -95,23 +98,37 @@ namespace BeatLeader.UI.MainMenu {
                 _modal.Show(true, true);
                 //attempting to download
                 var bytes = await WebUtils.SendRawDataRequestAsync(_downloadUrl!);
-                if (bytes != null) {
-                    var folderName = BeatSaverUtils.FormatBeatmapFolderName(
-                        _mapDetail!.id,
-                        _mapDetail.name,
-                        _mapDetail.author,
-                        _mapDetail.hash
-                    );
-                    await FileManager.InstallBeatmap(bytes, folderName);
+                if (bytes != null && _mapDetail != null) {
+                    var basePath = _mapDetail.id + " (" + _mapDetail.name + " - " + _mapDetail.author + ")";
+                    basePath = string.Join("", basePath.Split(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()));
+                    await FileManager.InstallBeatmap(bytes, basePath);
+                    await Task.Delay(TimeSpan.FromSeconds(2));
                 }
                 //showing finish view
+
                 await FetchMap();
 
                 _mapDownloaded = _map != null;
-                _finishedText.text = _map != null ? "Download has finished" : "Download has failed!";
+                _finishedText.text = _mapDownloaded ? "Download has finished" : "Download has failed!";
                 _loadingContainer.SetActive(false);
+                
+                if (_mapDownloaded) {
+                    OpenMap();
+                } else {
+                    OkButtonActive = true;
+                }
+            }
+        }
 
-                OpenMap();
+        private bool _okButtonActive;
+
+        [UIValue("ok-button-active"), UsedImplicitly]
+        private bool OkButtonActive {
+            get => _okButtonActive;
+            set {
+                if (_okButtonActive.Equals(value)) return;
+                _okButtonActive = value;
+                NotifyPropertyChanged();
             }
         }
 

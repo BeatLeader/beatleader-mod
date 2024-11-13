@@ -130,7 +130,7 @@ namespace BeatLeader.DataManager {
 
                 if (FileManager.TrySaveRankedPlaylist(playlistInfo.FileName, bytes)) {
                     PlaylistsLibInterop.TryRefreshPlaylists(true);
-                    SongCoreInterop.TryRefreshSongs(false);
+                    SongCore.Loader.Instance.RefreshSongs(false);
                     SetPlaylistState(playlistType, PlaylistState.UpToDate);
                 }
 

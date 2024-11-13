@@ -6,7 +6,7 @@
         </vertical>
         <vertical id="finished-container">
             <text id="finished-text" text="" align="Bottom"/>
-            <button text="Ok" on-click="ok-button-click"/>
+            <button text="Ok" active="~ok-button-active" on-click="ok-button-click"/>
         </vertical>
     </modal>
     <macro.as-host host="preview">

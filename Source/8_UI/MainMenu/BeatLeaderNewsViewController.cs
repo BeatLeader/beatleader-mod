@@ -9,16 +9,16 @@ namespace BeatLeader.UI.MainMenu {
     internal class BeatLeaderNewsViewController : BSMLAutomaticViewController {
         #region UI Components
 
-        
-        [UIValue("text-news-panel"), UsedImplicitly]
-        private TextNewsPanel _textNewsPanel = null!;
+        [UIValue("text-news-panel"), UsedImplicitly] private TextNewsPanel _textNewsPanel = null!;
 
-        [UIValue("map-news-panel"), UsedImplicitly]
-        private MapNewsPanel _mapNewsPanel = null!;
-        
-        [UIValue("event-news-panel"), UsedImplicitly]
-        private EventNewsPanel _eventNewsPanel = null!;
-        
+        [UIValue("map-news-panel"), UsedImplicitly] private MapNewsPanel _mapNewsPanel = null!;
+
+        [UIValue("event-news-panel"), UsedImplicitly] private EventNewsPanel _eventNewsPanel = null!;
+
+        [UIComponent("left-panel"), UsedImplicitly] private ImageView _leftPanelBg = null!;
+
+        [UIComponent("right-panel"), UsedImplicitly] private ImageView _rightPanelBg = null!;
+
         #endregion
 
         #region Setup
@@ -31,14 +31,56 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIAction("#post-parse"), UsedImplicitly]
         private void OnInitialize() {
-            //
             _textNewsPanel.Reload();
             _mapNewsPanel.Reload();
             _eventNewsPanel.Reload();
+
+            _leftPanelBg.raycastTarget = true;
+            _rightPanelBg.raycastTarget = true;
+            
+            UpdateScreen();
         }
-        
+
+        private void OnEnable() {
+            if (!_initialized) return;
+            UpdateScreen();
+        }
+
+        private void OnDisable() {
+            RevertScreenChanges();
+        }
+
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             gameObject.SetActive(false);
+        }
+
+        #endregion
+
+        #region Screen Changes
+
+        private static Vector2 TargetScreenSize => new Vector2(170, 80);
+
+        private RectTransform _screenTransform;
+        private Vector2 _originalScreenSize;
+        private bool _initialized;
+
+        private bool LazyInitializeScreen() {
+            if (_initialized) return true;
+            if (screen == null) return false;
+            _screenTransform = screen.GetComponent<RectTransform>();
+            _originalScreenSize = _screenTransform.sizeDelta;
+            _initialized = true;
+            return true;
+        }
+
+        private void UpdateScreen() {
+            if (!LazyInitializeScreen()) return;
+            _screenTransform.sizeDelta = TargetScreenSize;
+        }
+
+        private void RevertScreenChanges() {
+            if (!LazyInitializeScreen()) return;
+            _screenTransform.sizeDelta = _originalScreenSize;
         }
 
         #endregion

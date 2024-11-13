@@ -9,26 +9,17 @@ namespace BeatLeader.UI.MainMenu {
     internal class EventNewsPanel : ReeUIComponentV2 {
         #region UI Components
 
-        [UIValue("header"), UsedImplicitly]
-        private NewsHeader _header = null!;
+        [UIValue("header"), UsedImplicitly] private NewsHeader _header = null!;
 
-        [UIValue("event"), UsedImplicitly]
-        private FeaturedPreviewPanel _previewPanel = null!;
+        [UIValue("event"), UsedImplicitly] private FeaturedPreviewPanel _previewPanel = null!;
 
-        [UIObject("empty-text"), UsedImplicitly]
-        private GameObject _emptyText = null!;
+        [UIObject("empty-container"), UsedImplicitly] private GameObject _emptyContainer = null!;
 
-        private bool _downloadInteractable = true;
+        [UIObject("events-container"), UsedImplicitly] private GameObject _eventsContainer = null!;
 
-        [UIValue("downloadInteractable")]
-        public bool DownloadInteractable
-        {
-            get => _downloadInteractable;
-            set
-            {
-                _downloadInteractable = value;
-                NotifyPropertyChanged();
-            }
+        private void Awake() {
+            _header = Instantiate<NewsHeader>(transform);
+            _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
         }
 
         #endregion
@@ -39,9 +30,7 @@ namespace BeatLeader.UI.MainMenu {
             PlatformEventsRequest.SendRequest();
         }
 
-        protected override void OnInstantiate() {
-            _header = Instantiate<NewsHeader>(transform);
-            _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
+        protected override void OnInitialize() {
             _header.Setup("Events");
             PlatformEventsRequest.AddStateListener(OnRequestStateChanged);
         }
@@ -55,8 +44,8 @@ namespace BeatLeader.UI.MainMenu {
         #region Request
 
         private void SetEmptyActive(bool active) {
-            _emptyText.SetActive(active);
-            _previewPanel.GetRootTransform().gameObject.SetActive(!active);
+            _emptyContainer.SetActive(active);
+            _eventsContainer.SetActive(!active);
         }
 
         private void OnRequestStateChanged(API.RequestState state, Paged<PlatformEvent> result, string failReason) {
@@ -77,6 +66,7 @@ namespace BeatLeader.UI.MainMenu {
                         var date = FormatUtils.GetRelativeTimeString(platformEvent!.endDate, false);
                         _previewPanel.Setup(platformEvent.image, platformEvent.name, date);
                     }
+
                     break;
                 }
             }
@@ -85,7 +75,6 @@ namespace BeatLeader.UI.MainMenu {
         #endregion
 
         [UIAction("downloadPressed"), UsedImplicitly]
-        private async void HandleDownloadButtonClicked() {
-        }
+        private async void HandleDownloadButtonClicked() { }
     }
 }

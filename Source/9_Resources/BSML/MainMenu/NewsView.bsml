@@ -2,21 +2,21 @@
     anchor-pos-x='15'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
-    <vertical spacing="2" horizontal-fit="Unconstrained">
-        <horizontal flexible-height="900" vertical-fit="Unconstrained">
-            <vertical pref-width="70" anchor-pos-y='-15'>
-                <macro.as-host host="text-news-panel">
-                    <macro.reparent transform="ui-component"/>
-                </macro.as-host>
-            </vertical>
-            <vertical pref-width="50">
-                <macro.as-host host="event-news-panel">
-                    <macro.reparent transform="ui-component"/>
-                </macro.as-host>
-                <macro.as-host host="map-news-panel">
-                    <macro.reparent transform="ui-component"/>
-                </macro.as-host>
-            </vertical>
-        </horizontal>
-    </vertical>
+    <horizontal spacing="2" horizontal-fit="PreferredSize">
+        <!--  NEWS CONTAINER  -->
+        <vertical id="left-panel" pad="1" pref-height="80" pref-width="70" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff88">
+            <macro.as-host host="text-news-panel">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+        </vertical>
+        <!--  EVENTS AND MAPS CONTAINER -->
+        <vertical id="right-panel" pad="1" spacing="1" pref-height="80" pref-width="70" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff88">
+            <macro.as-host host="event-news-panel">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+            <macro.as-host host="map-news-panel">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+        </vertical>
+    </horizontal>
 </bg>

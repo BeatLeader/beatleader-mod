@@ -1,9 +1,7 @@
-﻿<horizontal id="container" spacing="1" vertical-fit="Unconstrained">
-    <bg id="image-container">
-        <image id="image" pref-width="3"/>
-    </bg>
-    <vertical horizontal-fit="Unconstrained" max-width="10">
-        <text id="top-text" font-size="4" italics="true" overflow="Ellipsis" align="MidlineLeft"/>
+﻿<horizontal spacing="1" horizontal-fit="PreferredSize">
+    <image id="image" pref-width="10" pref-height="10" horizontal-fit="PreferredSize" vertical-fit="PreferredSize"/>
+    <vertical pref-width="40">
+        <text id="top-text" font-size="4" italics="true" overflow="Ellipsis" align="Left"/>
         <text id="bottom-text" font-size="3" italics="true" overflow="Ellipsis" font-color="#888888"/>
     </vertical>
 </horizontal>

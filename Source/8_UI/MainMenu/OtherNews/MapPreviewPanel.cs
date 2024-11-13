@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
@@ -31,17 +32,8 @@ namespace BeatLeader.UI.MainMenu {
         [UIObject("loading-container"), UsedImplicitly]
         private GameObject _loadingContainer = null!;
 
-        private bool _downloadInteractable = true;
-
-        [UIValue("downloadInteractable")]
-        public bool DownloadInteractable
-        {
-            get => _downloadInteractable;
-            set
-            {
-                _downloadInteractable = value;
-                NotifyPropertyChanged();
-            }
+        private void Awake() {
+            _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
         }
 
         #endregion
@@ -70,10 +62,6 @@ namespace BeatLeader.UI.MainMenu {
             _downloadUrl = song.downloadUrl;
             _mapDetail = song;
             _previewPanel.Setup(song.coverImage, song.name, song.mapper);
-        }
-
-        protected override async void OnInstantiate() {
-            _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
         }
 
         #endregion

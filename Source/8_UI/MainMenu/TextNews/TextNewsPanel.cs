@@ -15,6 +15,10 @@ namespace BeatLeader.UI.MainMenu {
         [UIObject("empty-text"), UsedImplicitly]
         private GameObject _emptyText = null!;
 
+        private void Awake() {
+            _post = Instantiate<TextNewsPostPanel>(transform);
+        }
+
         #endregion
 
         #region Setup
@@ -31,10 +35,6 @@ namespace BeatLeader.UI.MainMenu {
 
         public void Reload() {
             NewsRequest.SendRequest();
-        }
-
-        protected override void OnInstantiate() {
-            _post = Instantiate<TextNewsPostPanel>(transform);
         }
 
         protected override void OnInitialize() {

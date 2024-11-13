@@ -1,4 +1,4 @@
-﻿<vertical horizontal-fit="Unconstrained">
+﻿<vertical>
     <macro.as-host host="header">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>

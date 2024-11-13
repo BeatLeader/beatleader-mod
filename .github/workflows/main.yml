@@ -2,7 +2,7 @@ name: Build
 
 on:
     push:
-        branches: [master, 1.37.1]
+        branches: [master]
         tags: v*
     pull_request:
         branches: [master]
@@ -36,7 +36,7 @@ jobs:
                   BUILDTEXT: Filename=${{ steps.Build.outputs.filename }}
                   ASSEMBLYNAME: AssemblyName=${{ steps.Build.outputs.assemblyname }}
             - name: Upload Artifact
-              uses: actions/upload-artifact@v1
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ steps.Build.outputs.filename }}
                   path: ${{ steps.Build.outputs.artifactpath }}

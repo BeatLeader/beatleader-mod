@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
 using BeatLeader.API;
-using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -42,6 +40,10 @@ namespace BeatLeader.DataManager {
             return HasProfile && Profile.clans.Any(profileClan => profileClan.id == clan.id);
         }
 
+        public static bool IsCurrentPlayerTopClan(Clan clan) {
+            return HasProfile && Profile.clans.Length > 0 && Profile.clans[0].id == clan.id;
+        }
+        
         public static bool TryGetUserId(out string? userId) {
             if (!HasProfile) {
                 userId = null;

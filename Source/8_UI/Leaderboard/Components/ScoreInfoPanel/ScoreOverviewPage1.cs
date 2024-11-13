@@ -79,7 +79,7 @@ namespace BeatLeader.Components {
         private static string GetTimeSetString(Score score) {
             var absoluteTimeString = $"<size=100%><color={Neutral}>{FormatUtils.GetDateTimeString(score.timeSet)}</color></size>";
             var relativeTimeString = $"<size=80%><color={Neutral}>   ({FormatUtils.GetRelativeTimeString(score.timeSet, false)})</color></size>";
-            var headsetString = $"<size=100%><color={Neutral}>{FormatUtils.GetHeadsetNameById(score.hmd)}</color></size>";
+            var headsetString = $"<size=100%><color={Neutral}>{score.headsetName ?? "Unknown HMD"}</color></size>";
             
             var sb = new StringBuilder(200);
             
@@ -90,8 +90,8 @@ namespace BeatLeader.Components {
             sb.Append(relativeTimeString);
             sb.AppendLine($"<color={Faded}><size=75%>");
 
-            var controllerName = FormatUtils.GetControllerNameById(score.controller);
-            if (!controllerName.Equals("Unknown")) {
+            var controllerName = score.controllerName;
+            if (controllerName != null) {
                 var controllersString = $"<size=90%><color={Neutral}>{controllerName}</color></size>";
                 var localized = BLLocalization.GetTranslation("ls-hmd-with-controllers")
                     .Replace("<hmd>", headsetString)

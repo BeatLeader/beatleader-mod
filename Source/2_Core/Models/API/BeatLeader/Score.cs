@@ -45,6 +45,8 @@ namespace BeatLeader.Models {
         public bool fullCombo;
         public int hmd;
         public int controller;
+        public string? headsetName;
+        public string? controllerName;
         public string timeSet;
         private Player _originalPlayer;
         public string replay;

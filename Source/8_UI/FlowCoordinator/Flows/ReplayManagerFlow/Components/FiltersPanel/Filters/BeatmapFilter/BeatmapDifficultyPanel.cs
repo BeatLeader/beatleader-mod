@@ -12,9 +12,9 @@ namespace BeatLeader.Components {
     internal class BeatmapDifficultyPanel : ReeUIComponentV2 {
         #region Prefab
 
-        private static Transform BeatmapDifficultySegmentedControl => _beatmapDifficultySegmentedControl ?
-            _beatmapDifficultySegmentedControl! : _beatmapDifficultySegmentedControl = Resources
-                .FindObjectsOfTypeAll<BeatmapDifficultySegmentedControlController>().First().transform.parent;
+        public static Transform BeatmapDifficultySegmentedControl => _beatmapDifficultySegmentedControl ?
+            _beatmapDifficultySegmentedControl! : _beatmapDifficultySegmentedControl = Instantiate(Resources
+                .FindObjectsOfTypeAll<BeatmapDifficultySegmentedControlController>().First().transform.parent);
 
         private static Transform? _beatmapDifficultySegmentedControl;
 
@@ -93,11 +93,8 @@ namespace BeatLeader.Components {
         private List<BeatmapDifficulty> _difficulties = null!;
         
         protected override void OnInitialize() {
-            var characteristicPanel = Instantiate(
-                BeatmapDifficultySegmentedControl,
-                _container,
-                true
-            );
+            var characteristicPanel = BeatmapDifficultySegmentedControl;
+            characteristicPanel.SetParent(_container, true);
             characteristicPanel.localScale = Vector3.one;
             characteristicPanel.localPosition = Vector3.zero;
             characteristicPanel

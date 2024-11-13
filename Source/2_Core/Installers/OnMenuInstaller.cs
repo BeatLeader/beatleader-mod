@@ -9,6 +9,7 @@ using BeatLeader.Utils;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using BeatLeader.Components;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]
@@ -75,6 +76,9 @@ namespace BeatLeader.Installers {
             //<--------------------------------Settings------------------------------->
             Container.Bind<BeatLeaderSettingsFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<BeatLeaderSettingsViewController>().FromNewComponentAsViewController().AsSingle();
+            
+            _ = BeatmapDifficultyPanel.BeatmapDifficultySegmentedControl;
+            _ = BeatmapCharacteristicPanel.BeatmapCharacteristicSegmentedControl;
         }
     }
 }

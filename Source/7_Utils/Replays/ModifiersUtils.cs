@@ -54,7 +54,6 @@ namespace BeatLeader.Utils {
                 "GN" => modifiersMap.gn,
                 "NA" => modifiersMap.na,
                 "NB" => modifiersMap.nb,
-                "NF" => modifiersMap.nf,
                 "NO" => modifiersMap.no,
                 "PM" => modifiersMap.pm,
                 "SC" => modifiersMap.sc,

@@ -282,16 +282,15 @@ namespace BeatLeader {
             controllerRot = xrRigTransform.LocalToWorldRotation(controllerRot);
             var controllerTransform = new ReeTransform(controllerPos, controllerRot);
 
-            localPosition = controllerTransform.WorldToLocalPosition(saber.handlePos);
-            // saber.handleRot is gone :(
-            // localRotation = controllerTransform.WorldToLocalRotation(saber.handleRot);
+            localPosition = controllerTransform.WorldToLocalPosition(saber._handleTransform.position);
+            localRotation = controllerTransform.WorldToLocalRotation(saber._handleTransform.rotation);
         }
 
         #endregion
 
         #region Note Events
 
-        private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData, float rotation) {
+        private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData) {
             if (_stopRecording) return;
 
             var noteId = _noteId++;

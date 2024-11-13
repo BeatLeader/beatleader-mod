@@ -3,6 +3,7 @@ using BeatLeader.Components;
 using JetBrains.Annotations;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
+using BeatLeader.Manager;
 
 namespace BeatLeader.ViewControllers {
     internal class ResultsScreenUI : ReeUIComponentV2 {
@@ -18,10 +19,12 @@ namespace BeatLeader.ViewControllers {
             _votingButton.SetParent(transform);
             _replayButton.SetParent(transform);
             _replayButton.ReplayButtonClickedEvent += HandleReplayButtonClicked;
+            LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
         }
         
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
             _replayButton.ReplayButtonClickedEvent -= HandleReplayButtonClicked;
+            LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
         }
 
         public void Refresh() {
@@ -35,6 +38,10 @@ namespace BeatLeader.ViewControllers {
 
         private void HandleReplayButtonClicked() {
             ReplayerMenuLoader.Instance!.StartLastReplayAsync().RunCatching();
+        }
+
+        private void PresentVotingModal() {
+            ReeModalSystem.OpenModal<VotingPanel>(transform, 0);
         }
 
         #endregion

@@ -79,7 +79,7 @@ namespace BeatLeader.Components {
             _countryFlag.SetCountry(player.country);
             _avatar.SetAvatar(player.avatar, player.profileSettings);
 
-            var contextPlayer = player.GetContextPlayer(PluginConfig.ScoresContext.Enum());
+            var contextPlayer = player.ContextPlayer(PluginConfig.ScoresContext);
             NameText = FormatUtils.FormatUserName(player.name);
             GlobalRankText = FormatUtils.FormatRank(contextPlayer.rank, true);
             CountryRankText = FormatUtils.FormatRank(contextPlayer.countryRank, true);
@@ -89,7 +89,7 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        private void ChangeScoreContext(ScoresContext context) {
+        private void ChangeScoreContext(int context) {
             OnProfileUpdated(user.player);
         }
 

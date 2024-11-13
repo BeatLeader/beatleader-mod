@@ -1,12 +1,8 @@
 ﻿using System.Linq;
 using BeatLeader.API.Methods;
-using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
-using HMUI;
-using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
@@ -21,7 +17,7 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIObject("events-container"), UsedImplicitly] private GameObject _eventsContainer = null!;
 
-        PlatformEvent? currentEvent = null;
+        private PlatformEvent? currentEvent = null;
 
         private void Awake() {
             _header = Instantiate<NewsHeader>(transform);
@@ -69,8 +65,11 @@ namespace BeatLeader.UI.MainMenu {
                     currentEvent = result.data.FirstOrDefault();
                     var valid = currentEvent != null;
                     SetIsEmpty(!valid);
-                    var date = FormatUtils.GetRelativeTimeString(currentEvent!.endDate, false);
-                    _previewPanel.Setup(currentEvent.image, currentEvent.name, date);
+                    if (valid) {
+                        var date = FormatUtils.GetRelativeTimeString(currentEvent!.endDate, false);
+                        _previewPanel.Setup(currentEvent.image, currentEvent.name, date);
+                    }
+
                     break;
                 }
             }

@@ -8,17 +8,6 @@ namespace BeatLeader.Models {
         public Player[] friends;
     }
 
-    [Flags]
-    public enum LeaderboardContexts
-    {
-        None = 0,
-        General = 1 << 1,
-        NoMods = 1 << 2,
-        NoPause = 1 << 3,
-        Golf = 1 << 4,
-        SCPM = 1 << 5
-    }
-
     public interface IPlayer {
         public string country { get; set; }
         public float pp { get; set; }
@@ -27,7 +16,7 @@ namespace BeatLeader.Models {
     }
 
     public class PlayerContextExtension : IPlayer {
-        public LeaderboardContexts context { get; set; }
+        public int context { get; set; }
         public float pp { get; set; }
 
         public int rank { get; set; }
@@ -49,7 +38,7 @@ namespace BeatLeader.Models {
         public PlayerContextExtension[]? contextExtensions;
         public ProfileSettings? profileSettings;
 
-        public Player ContextPlayer(LeaderboardContexts context) {
+        public Player ContextPlayer(int context) {
             var contextPlayer = this.contextExtensions?.FirstOrDefault(ce => ce.context == context);
             if (contextPlayer == null) {
                 return this;

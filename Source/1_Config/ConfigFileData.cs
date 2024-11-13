@@ -50,7 +50,7 @@ namespace BeatLeader {
         #region ScoresContext
 
         [UseConverter]
-        public ScoresContext ScoresContext = ConfigDefaults.ScoresContext;
+        public int ScoresContext = ConfigDefaults.ScoresContext;
 
         #endregion
 

@@ -21,18 +21,6 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIObject("events-container"), UsedImplicitly] private GameObject _eventsContainer = null!;
 
-        [UIComponent("loading-modal"), UsedImplicitly]
-        private ModalView _modal = null!;
-
-        [UIObject("finished-container"), UsedImplicitly]
-        private GameObject _finishedContainer = null!;
-
-        [UIComponent("finished-text"), UsedImplicitly]
-        private TMP_Text _finishedText = null!;
-
-        [UIObject("loading-container"), UsedImplicitly]
-        private GameObject _loadingContainer = null!;
-
         PlatformEvent? currentEvent = null;
 
         private void Awake() {
@@ -59,83 +47,40 @@ namespace BeatLeader.UI.MainMenu {
 
         #endregion
 
-        #region Request
+        #region Events
 
-        private void SetEmptyActive(bool active) {
-            _emptyContainer.SetActive(active);
-            _eventsContainer.SetActive(!active);
+        [UIAction("joinPressed"), UsedImplicitly]
+        private void HandleJoinButtonClicked() {
+            if (currentEvent == null) return;
+            ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, currentEvent);
         }
 
         private void OnRequestStateChanged(API.RequestState state, Paged<PlatformEvent> result, string failReason) {
             switch (state) {
                 case API.RequestState.Started:
                     _previewPanel.Setup("", "Loading...", "...");
-                    SetEmptyActive(false);
+                    SetIsEmpty(false);
                     break;
                 case API.RequestState.Failed:
                     _previewPanel.Setup("", "Failed to load", "");
-                    SetEmptyActive(false);
+                    SetIsEmpty(false);
                     break;
                 case API.RequestState.Finished: {
                     currentEvent = result.data.FirstOrDefault();
                     var valid = currentEvent != null;
-                    SetEmptyActive(!valid);
-                    if (valid) {
-                        if (currentEvent.description != null) {
-                            _finishedText.SetText(currentEvent.description);
-                        }
-                        var date = FormatUtils.GetRelativeTimeString(currentEvent!.endDate, false);
-                        _previewPanel.Setup(currentEvent.image, currentEvent.name, date);
-                        DownloadButtonActive = currentEvent.downloadable;
-                    }
-
+                    SetIsEmpty(!valid);
+                    var date = FormatUtils.GetRelativeTimeString(currentEvent!.endDate, false);
+                    _previewPanel.Setup(currentEvent.image, currentEvent.name, date);
                     break;
                 }
             }
         }
 
+        private void SetIsEmpty(bool isEmpty) {
+            _emptyContainer.SetActive(isEmpty);
+            _eventsContainer.SetActive(!isEmpty);
+        }
+
         #endregion
-
-        private bool _downloadButtonActive;
-
-        [UIValue("download-button-active"), UsedImplicitly]
-        private bool DownloadButtonActive {
-            get => _downloadButtonActive;
-            set {
-                if (_downloadButtonActive.Equals(value)) return;
-                _downloadButtonActive = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        [UIAction("download-button-click"), UsedImplicitly]
-        private void HandleDownloadButtonClicked() {
-            _finishedContainer.SetActive(false);
-            _loadingContainer.SetActive(true);
-            void OnSuccess(byte[] bytes) {
-                var filename = currentEvent.name.Replace(" ", "_");
-                FileManager.DeletePlaylist(filename);
-
-                if (FileManager.TrySaveRankedPlaylist(filename, bytes)) {
-                    PlaylistsLibInterop.TryRefreshPlaylists(true);
-                    SongCore.Loader.Instance.RefreshSongs(false);
-                }
-            }
-
-            void OnFail(string reason) {
-                Plugin.Log.Debug($"Event {currentEvent.name} playlist update failed: {reason}");
-            }
-
-            StartCoroutine(PlaylistRequest.SendRequest(currentEvent.playlistId.ToString(), OnSuccess, OnFail));
-
-            _modal.Hide(true);
-        }
-
-        [UIAction("joinPressed"), UsedImplicitly]
-        private async void HandleJoinButtonClicked() { 
-            _finishedContainer.SetActive(true);
-            _loadingContainer.SetActive(false);
-            _modal.Show(true, true);
-        }
     }
 }

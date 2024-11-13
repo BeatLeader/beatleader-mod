@@ -15,11 +15,13 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             InitializeMainButton();
             PluginConfig.ScoresContextChangedEvent += ApplyContext;
+            PluginConfig.ScoresContextListChangedEvent += ScoresContextListUpdated;
             ApplyContext(PluginConfig.ScoresContext);
         }
 
         protected override void OnDispose() {
             PluginConfig.ScoresContextChangedEvent -= ApplyContext;
+            PluginConfig.ScoresContextListChangedEvent -= ScoresContextListUpdated;
         }
 
         #endregion
@@ -37,6 +39,10 @@ namespace BeatLeader.Components {
 
         private void ApplyContext(int scoresContext) {
             _mainButton.sprite = ScoresContexts.ContextForId(scoresContext).Icon;
+        }
+
+        private void ScoresContextListUpdated() {
+            ApplyContext(PluginConfig.ScoresContext);
         }
 
         [UIAction("main-button-on-click"), UsedImplicitly]

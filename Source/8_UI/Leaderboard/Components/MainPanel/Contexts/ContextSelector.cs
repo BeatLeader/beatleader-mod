@@ -35,8 +35,8 @@ namespace BeatLeader.Components {
             _mainButton.HighlightColor = HoverColor;
         }
 
-        private void ApplyContext(ScoresContext scoresContext) {
-            _mainButton.sprite = scoresContext.Icon();
+        private void ApplyContext(int scoresContext) {
+            _mainButton.sprite = ScoresContexts.ContextForId(scoresContext).Icon;
         }
 
         [UIAction("main-button-on-click"), UsedImplicitly]

@@ -26,7 +26,7 @@ namespace BeatLeader.Components {
             PluginConfig.ScoresContextChangedEvent -= OnContextChanged;
         }
 
-        private void OnContextChanged(ScoresContext value) {
+        private void OnContextChanged(int value) {
             UpdateVisuals();
         }
 
@@ -36,7 +36,7 @@ namespace BeatLeader.Components {
 
         public event Action OnClick;
 
-        private ScoresContext _context;
+        private ScoresContext? _context = null;
 
         public void SetContext(ScoresContext value) {
             _context = value;
@@ -44,12 +44,12 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateVisuals() {
-            if (!IsParsed) return;
+            if (!IsParsed || _context == null) return;
 
-            _buttonText.text = _context.LocalizedName();
-            HoverHint = _context.LocalizedDescription();
+            _buttonText.text = _context.Name;
+            HoverHint = _context.Description;
 
-            if (_context == PluginConfig.ScoresContext) {
+            if (_context.Id == PluginConfig.ScoresContext) {
                 _buttonText.faceColor = Color.cyan;
                 _buttonText.fontSize = 4.0f;
             } else {

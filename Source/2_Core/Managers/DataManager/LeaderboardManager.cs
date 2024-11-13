@@ -15,7 +15,7 @@ namespace BeatLeader.DataManager {
         private BeatmapLevelsModel _beatmapLevelsModel;
 
         private ScoresScope _selectedScoreScope;
-        private ScoresContext _selectedScoreContext;
+        private int _selectedScoreContext;
         private int _lastSelectedPage = 1;
         private BeatmapKey _lastSelectedBeatmap;
 
@@ -23,7 +23,7 @@ namespace BeatLeader.DataManager {
         private string Diff => _lastSelectedBeatmap.difficulty.ToString();
         private string Mode => _lastSelectedBeatmap.beatmapCharacteristic.serializedName;
         private string Scope => _selectedScoreScope.ToString().ToLowerInvariant();
-        private string Context => _selectedScoreContext.ToString().ToLower();
+        private string Context => ScoresContexts.ContextForId(_selectedScoreContext).Key;
 
         #endregion
 
@@ -206,7 +206,7 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        private void OnScoresContextWasChanged(ScoresContext context) {
+        private void OnScoresContextWasChanged(int context) {
             Plugin.Log.Debug($"Attempt to switch score context from [{_selectedScoreContext}] to [{context}]");
 
             if (_selectedScoreContext != context) {

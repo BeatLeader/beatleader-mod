@@ -23,7 +23,7 @@ namespace BeatLeader {
 
         #region ScoresContext
 
-        public static readonly ScoresContext ScoresContext = ScoresContext.Modifiers;
+        public static readonly int ScoresContext = 0;
 
         #endregion
 

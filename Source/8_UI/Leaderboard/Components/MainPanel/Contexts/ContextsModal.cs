@@ -14,6 +14,11 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             base.OnInitialize();
             InitializeOptions();
+            PluginConfig.ScoresContextListChangedEvent += OnScoresContextListWasChanged;
+        }
+
+        protected void OnScoresContextListWasChanged() {
+            InitializeOptions();
         }
 
         #endregion
@@ -25,12 +30,12 @@ namespace BeatLeader.Components {
         private void InitializeOptions() {
             DespawnOptions();
 
-            foreach (var scoresContext in ScoresContextExtenstions.GetAvailableContexts()) {
+            foreach (var scoresContext in ScoresContexts.AllContexts) {
                 var option = Instantiate<ContextsModalOption>(_container);
                 option.ManualInit(_container);
                 option.SetContext(scoresContext);
                 option.OnClick += () => {
-                    PluginConfig.ScoresContext = scoresContext;
+                    PluginConfig.ScoresContext = scoresContext.Id;
                     Close();
                 };
                 _options.Add(option);

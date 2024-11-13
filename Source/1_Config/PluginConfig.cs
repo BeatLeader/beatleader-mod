@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using BeatLeader.Models;
 
 namespace BeatLeader {
@@ -35,15 +35,21 @@ namespace BeatLeader {
 
         #region ScoresContext
 
-        public static event Action<ScoresContext> ScoresContextChangedEvent;
+        public static event Action<int> ScoresContextChangedEvent;
 
-        public static ScoresContext ScoresContext {
+        public static int ScoresContext {
             get => ConfigFileData.Instance.ScoresContext;
             set {
                 if (ConfigFileData.Instance.ScoresContext.Equals(value)) return;
                 ConfigFileData.Instance.ScoresContext = value;
                 ScoresContextChangedEvent?.Invoke(value);
             }
+        }
+
+        public static event Action ScoresContextListChangedEvent;
+
+        public static void NotifyScoresContextListWasChanged() {
+            ScoresContextListChangedEvent?.Invoke();
         }
 
         #endregion

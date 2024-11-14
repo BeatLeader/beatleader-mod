@@ -18,6 +18,21 @@ namespace BeatLeader {
 
         #endregion
 
+        #region Noticeboard
+
+        public static event Action<bool> OnNoticeboardEnabledChangedEvent;
+
+        public static bool NoticeboardEnabled {
+            get => ConfigFileData.Instance.NoticeboardEnabled;
+            set {
+                if (ConfigFileData.Instance.NoticeboardEnabled == value) return;
+                ConfigFileData.Instance.NoticeboardEnabled = value;
+                OnNoticeboardEnabledChangedEvent?.Invoke(value);
+            }
+        }
+
+        #endregion
+
         #region MainServer
 
         public static event Action<BeatLeaderServer> MainServerChangedEvent;

@@ -1,5 +1,5 @@
 ﻿<bg id='root-object'
-    anchor-pos-x='15'
+    anchor-pos-x='20'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://monkeymanboy.github.io/BSML-Docs/BSMLSchema.xsd'>
     <horizontal spacing="2" horizontal-fit="PreferredSize">

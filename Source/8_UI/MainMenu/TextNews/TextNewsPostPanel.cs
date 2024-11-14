@@ -34,7 +34,8 @@ namespace BeatLeader.UI.MainMenu {
                 {
                     ShouldScale = true,
                     MaintainRatio = true,
-                    Width = 512
+                    Width = 512,
+                    Height = 400
                 };
                 await _image.SetImageAsync(post.image, false, options);
             }

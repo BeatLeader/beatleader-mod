@@ -3,6 +3,7 @@ using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -63,6 +64,19 @@ namespace BeatLeader.UI.MainMenu {
                 if (FileManager.TrySaveRankedPlaylist(filename, bytes)) {
                     PlaylistsLibInterop.TryRefreshPlaylists(true);
                     SongCore.Loader.Instance.RefreshSongs(false);
+
+                    var playlist = PlaylistsLibInterop.TryFindPlaylist(filename);
+                    if (playlist != null) {
+                        BeatmapKey beatmapKey = new BeatmapKey();
+                        var x = new LevelSelectionFlowCoordinator.State(
+                            SelectLevelCategoryViewController.LevelCategory.CustomSongs, 
+                            playlist, 
+                            in beatmapKey, 
+                            null);
+                        FindObjectOfType<SoloFreePlayFlowCoordinator>().Setup(x);
+                        (GameObject.Find("SoloButton") ?? GameObject.Find("Wrapper/BeatmapWithModifiers/BeatmapSelection/EditButton"))
+				        ?.GetComponent<NoTransitionsButton>()?.onClick.Invoke();
+                    }
                 }
 
                 offClickCloses = true;

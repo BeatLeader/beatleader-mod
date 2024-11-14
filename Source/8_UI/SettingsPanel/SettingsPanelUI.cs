@@ -20,6 +20,13 @@ namespace BeatLeader {
             set => BeatLeaderMenuButtonManager.MenuButtonEnabled = value;
         }
 
+        
+        [UIValue("noticeboard-enabled"), UsedImplicitly]
+        private bool NoticeboardEnabled {
+            get => PluginConfig.NoticeboardEnabled;
+            set => PluginConfig.NoticeboardEnabled = value;
+        }
+
         #endregion
 
         #region Language

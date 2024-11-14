@@ -1,6 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -15,10 +14,6 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIValue("event-news-panel"), UsedImplicitly] private EventNewsPanel _eventNewsPanel = null!;
 
-        [UIComponent("left-panel"), UsedImplicitly] private ImageView _leftPanelBg = null!;
-
-        [UIComponent("right-panel"), UsedImplicitly] private ImageView _rightPanelBg = null!;
-
         #endregion
 
         #region Setup
@@ -31,13 +26,6 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIAction("#post-parse"), UsedImplicitly]
         private void OnInitialize() {
-            _textNewsPanel.Reload();
-            _mapNewsPanel.Reload();
-            _eventNewsPanel.Reload();
-
-            _leftPanelBg.raycastTarget = true;
-            _rightPanelBg.raycastTarget = true;
-            
             UpdateScreen();
         }
 
@@ -58,7 +46,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Screen Changes
 
-        private static Vector2 TargetScreenSize => new Vector2(180, 80);
+        private static Vector2 TargetScreenSize => new Vector2(186, 80);
 
         private RectTransform _screenTransform;
         private Vector2 _originalScreenSize;

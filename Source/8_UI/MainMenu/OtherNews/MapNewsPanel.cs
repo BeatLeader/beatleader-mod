@@ -1,56 +1,23 @@
-﻿using BeatLeader.API.Methods;
+﻿using System.Collections.Generic;
+using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using TMPro;
+using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class MapNewsPanel : ReeUIComponentV2 {
+    internal class MapNewsPanel : AbstractNewsPanel {
         #region UI Components
 
-        [UIValue("header"), UsedImplicitly]
-        private NewsHeader _header = null!;
+        [UIComponent("empty-text"), UsedImplicitly] private TextMeshProUGUI _emptyText = null!;
 
-        [UIValue("map1"), UsedImplicitly]
-        private MapPreviewPanel _map1Preview = null!;
-
-        [UIValue("map2"), UsedImplicitly]
-        private MapPreviewPanel _map2Preview = null!;
-
-        [UIValue("map3"), UsedImplicitly]
-        private MapPreviewPanel _map3Preview = null!;
-
-        private void Awake() {
-            _header = Instantiate<NewsHeader>(transform);
-            _map1Preview = Instantiate<MapPreviewPanel>(transform);
-            _map2Preview = Instantiate<MapPreviewPanel>(transform);
-            _map3Preview = Instantiate<MapPreviewPanel>(transform);
-        }
-
-        #endregion
-
-        #region Setup
-
-        private static readonly MapData loadingMapData = new() {
-            song = new() {
-                name = "Loading...",
-                author = "..."
-            }
-        };
-        
-        private static readonly MapData failedMapData = new() {
-            song = new() {
-                name = "Error",
-                author = ""
-            }
-        };
-        
-        public void Reload() {
-            TrendingMapsRequest.SendRequest();
-        }
+        [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
 
         protected override void OnInitialize() {
-            _header.Setup("Trending Maps");
-            
+            base.OnInitialize();
+            header.Setup("Trending Maps");
+            TrendingMapsRequest.SendRequest();
             TrendingMapsRequest.AddStateListener(OnRequestStateChanged);
         }
 
@@ -64,23 +31,73 @@ namespace BeatLeader.UI.MainMenu {
 
         private void OnRequestStateChanged(API.RequestState state, Paged<MapData> result, string failReason) {
             switch (state) {
+                case API.RequestState.Uninitialized:
                 case API.RequestState.Started:
-                    _map1Preview.Setup(loadingMapData);
-                    _map2Preview.Setup(loadingMapData);
-                    _map3Preview.Setup(loadingMapData);
+                default: {
+                    _loadingIndicator.SetActive(true);
+                    _emptyText.gameObject.SetActive(false);
+                    DisposeList();
                     break;
+                }
                 case API.RequestState.Failed:
-                    _map1Preview.Setup(failedMapData);
-                    _map2Preview.Setup(failedMapData);
-                    _map3Preview.Setup(failedMapData);
+                    _loadingIndicator.SetActive(false);
+                    _emptyText.gameObject.SetActive(true);
+                    _emptyText.text = "<color=#ff8888>Failed to load";
+                    DisposeList();
                     break;
                 case API.RequestState.Finished: {
-                    _map1Preview.Setup(result.data[0]);
-                    _map2Preview.Setup(result.data[1]);
-                    _map3Preview.Setup(result.data[2]);
+                    _loadingIndicator.SetActive(false);
+
+                    if (result.data is { Count: > 0 }) {
+                        _emptyText.gameObject.SetActive(false);
+                        PresentList(result.data);
+                    } else {
+                        _emptyText.gameObject.SetActive(true);
+                        _emptyText.text = "There is no trending maps";
+                        DisposeList();
+                    }
+
                     break;
                 }
             }
+        }
+
+        #endregion
+
+        #region List
+
+        private readonly List<FeaturedPreviewPanel> _list = new List<FeaturedPreviewPanel>();
+
+        private void PresentList(IEnumerable<MapData> items) {
+            DisposeList();
+
+            foreach (var item in items) {
+                var component = Instantiate<FeaturedPreviewPanel>(transform);
+                component.ManualInit(mainContainer);
+                SetupFeaturePreview(component, item);
+                _list.Add(component);
+            }
+
+            MarkScrollbarDirty();
+        }
+
+        private void SetupFeaturePreview(FeaturedPreviewPanel panel, MapData item) {
+            panel.Setup(item.song.coverImage, item.song.name, item.song.mapper, "Play", ButtonAction);
+            return;
+
+            void ButtonAction() {
+                MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
+            }
+        }
+
+
+        private void DisposeList() {
+            foreach (var post in _list) {
+                Destroy(post.gameObject);
+            }
+
+            _list.Clear();
+            MarkScrollbarDirty();
         }
 
         #endregion

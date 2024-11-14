@@ -70,6 +70,10 @@ namespace BeatLeader {
             ActiveModals.Remove(_screen.GetHashCode());
         }
 
+        private void OnDisable() {
+            InterruptAll();
+        }
+
         private void OnActiveSceneChanged(Scene from, Scene to) {
             InterruptAll();
         }
@@ -199,6 +203,8 @@ namespace BeatLeader {
 
         private void ShowModal(bool animated = true) {
             if (_modalView == null) return;
+            _modalView.transform.SetParent(Content.transform, false);
+            _modalView._viewIsValid = false;
             _modalView.Show(animated, true);
         }
 

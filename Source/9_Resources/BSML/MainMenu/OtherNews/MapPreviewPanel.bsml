@@ -1,6 +1,0 @@
-﻿<horizontal pref-height="10" pref-width="70" horizontal-fit="PreferredSize">
-    <macro.as-host host="preview">
-        <macro.reparent transform="ui-component"/>
-    </macro.as-host>
-    <button text="Play" on-click="downloadPressed" pad="0" pref-height="8"/>
-</horizontal>

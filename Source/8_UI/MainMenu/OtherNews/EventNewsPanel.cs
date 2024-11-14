@@ -1,39 +1,24 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class EventNewsPanel : ReeUIComponentV2 {
+    internal class EventNewsPanel : AbstractNewsPanel {
         #region UI Components
 
-        [UIValue("header"), UsedImplicitly] private NewsHeader _header = null!;
+        [UIComponent("empty-text"), UsedImplicitly] private TextMeshProUGUI _emptyText = null!;
 
-        [UIValue("event"), UsedImplicitly] private FeaturedPreviewPanel _previewPanel = null!;
-
-        [UIObject("empty-container"), UsedImplicitly] private GameObject _emptyContainer = null!;
-
-        [UIObject("events-container"), UsedImplicitly] private GameObject _eventsContainer = null!;
-
-        private PlatformEvent? currentEvent = null;
-
-        private void Awake() {
-            _header = Instantiate<NewsHeader>(transform);
-            _previewPanel = Instantiate<FeaturedPreviewPanel>(transform);
-        }
-
-        #endregion
-
-        #region Setup
-
-        public void Reload() {
-            PlatformEventsRequest.SendRequest();
-        }
+        [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
 
         protected override void OnInitialize() {
-            _header.Setup("Events");
+            base.OnInitialize();
+            header.Setup("BeatLeader Events");
+            PlatformEventsRequest.SendRequest();
             PlatformEventsRequest.AddStateListener(OnRequestStateChanged);
         }
 
@@ -45,29 +30,32 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Events
 
-        [UIAction("joinPressed"), UsedImplicitly]
-        private void HandleJoinButtonClicked() {
-            if (currentEvent == null) return;
-            ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, currentEvent);
-        }
-
         private void OnRequestStateChanged(API.RequestState state, Paged<PlatformEvent> result, string failReason) {
             switch (state) {
+                case API.RequestState.Uninitialized:
                 case API.RequestState.Started:
-                    _previewPanel.Setup("", "Loading...", "...");
-                    SetIsEmpty(false);
+                default: {
+                    _loadingIndicator.SetActive(true);
+                    _emptyText.gameObject.SetActive(false);
+                    DisposeList();
                     break;
+                }
                 case API.RequestState.Failed:
-                    _previewPanel.Setup("", "Failed to load", "");
-                    SetIsEmpty(false);
+                    _loadingIndicator.SetActive(false);
+                    _emptyText.gameObject.SetActive(true);
+                    _emptyText.text = "<color=#ff8888>Failed to load";
+                    DisposeList();
                     break;
                 case API.RequestState.Finished: {
-                    currentEvent = result.data.FirstOrDefault();
-                    var valid = currentEvent != null;
-                    SetIsEmpty(!valid);
-                    if (valid) {
-                        var date = FormatUtils.GetRelativeTimeString(currentEvent!.endDate, false);
-                        _previewPanel.Setup(currentEvent.image, currentEvent.name, date);
+                    _loadingIndicator.SetActive(false);
+
+                    if (result.data is { Count: > 0 }) {
+                        _emptyText.gameObject.SetActive(false);
+                        PresentList(result.data);
+                    } else {
+                        _emptyText.gameObject.SetActive(true);
+                        _emptyText.text = "There is no events";
+                        DisposeList();
                     }
 
                     break;
@@ -75,9 +63,51 @@ namespace BeatLeader.UI.MainMenu {
             }
         }
 
-        private void SetIsEmpty(bool isEmpty) {
-            _emptyContainer.SetActive(isEmpty);
-            _eventsContainer.SetActive(!isEmpty);
+        #endregion
+
+        #region List
+
+        private readonly List<FeaturedPreviewPanel> _list = new List<FeaturedPreviewPanel>();
+
+        private void PresentList(IEnumerable<PlatformEvent> items) {
+            DisposeList();
+
+            foreach (var item in items) {
+                var component = Instantiate<FeaturedPreviewPanel>(transform);
+                component.ManualInit(mainContainer);
+                SetupFeaturePreview(component, item);
+                _list.Add(component);
+            }
+
+            MarkScrollbarDirty();
+        }
+
+        private void SetupFeaturePreview(FeaturedPreviewPanel panel, PlatformEvent item) {
+            string bottomText;
+            var timeSpan = FormatUtils.GetRelativeTime(item.endDate);
+            if (timeSpan < TimeSpan.Zero) {
+                bottomText = "<color=#88FF88>Ongoing!";
+            } else {
+                var date = FormatUtils.GetRelativeTimeString(timeSpan, false);
+                bottomText = $"<color=#884444>Ended {date}";
+            }
+
+            panel.Setup(item.image, item.name, bottomText, "Details", ButtonAction);
+            return;
+
+            void ButtonAction() {
+                ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
+            }
+        }
+
+
+        private void DisposeList() {
+            foreach (var post in _list) {
+                Destroy(post.gameObject);
+            }
+
+            _list.Clear();
+            MarkScrollbarDirty();
         }
 
         #endregion

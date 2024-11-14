@@ -1,14 +1,13 @@
-﻿<vertical pref-height="20" horizontal-fit="Unconstrained">
+﻿<vertical id="background" pad="1" spacing="1" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff55">
     <macro.as-host host="header">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
-    <horizontal id="empty-container" pref-width="70" pref-height="14" horizontal-fit="PreferredSize">
-        <text text="Monke is not hosting any events yet"/>
-    </horizontal>
-    <horizontal id="events-container" pref-width="70" pref-height="14" horizontal-fit="PreferredSize">
-        <macro.as-host host="event">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-        <button pref-height="8" text="Join" on-click="joinPressed" pad="0"/>
-    </horizontal>
+    <scroll-view id="scroll-view" pref-width="70" pref-height="26" pad-right="4" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel">
+        <horizontal id="height-wrapper" min-height="27" horizontal-fit="PreferredSize">
+            <vertical spacing="1" id="main-container" vertical-fit="PreferredSize">
+                <loading-indicator id="loading-indicator" preserve-aspect="true" pref-height="8" pref-width="8"/>
+                <text id="empty-text" text=""/>
+            </vertical>
+        </horizontal>
+    </scroll-view>
 </vertical>

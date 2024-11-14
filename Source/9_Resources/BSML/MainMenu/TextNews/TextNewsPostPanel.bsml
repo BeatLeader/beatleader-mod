@@ -1,4 +1,4 @@
-﻿<vertical spacing="2" horizontal-fit="Unconstrained">
+﻿<vertical spacing="2" pref-width="62" horizontal-fit="PreferredSize">
     <macro.as-host host="header">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>

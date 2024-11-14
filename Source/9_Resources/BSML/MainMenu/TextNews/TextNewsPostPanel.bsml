@@ -3,7 +3,7 @@
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
     <horizontal>
-        <text id="body" font-size="3" word-wrapping="true"/>
+        <text text="Loading..." id="body" font-size="3" word-wrapping="true"/>
     </horizontal>
-    <img id="image" preserve-aspect="true" pref-height="44"/>
+    <img active="false" id="image" preserve-aspect="true" pref-height="44"/>
 </vertical>

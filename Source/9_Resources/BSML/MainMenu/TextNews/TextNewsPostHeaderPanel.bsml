@@ -2,10 +2,10 @@
     <horizontal spacing="2" pref-height="5">
         <image anchor-pos-x='5' id="avatar" pref-width="5"/>
         <vertical flexible-width="1000" horizontal-fit="Unconstrained">
-            <text id="name" overflow="Ellipsis"/>
+            <text text="Loading News..." id="name" overflow="Ellipsis"/>
         </vertical>
         <vertical anchor-pos-x='-5'>
-            <text id="date" font-size="3" font-color="#888888"/>
+            <text text="" id="date" font-size="3" font-color="#888888"/>
         </vertical>
     </horizontal>
 </better-image>

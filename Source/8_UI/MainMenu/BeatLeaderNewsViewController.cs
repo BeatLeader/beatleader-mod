@@ -58,7 +58,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Screen Changes
 
-        private static Vector2 TargetScreenSize => new Vector2(170, 80);
+        private static Vector2 TargetScreenSize => new Vector2(180, 80);
 
         private RectTransform _screenTransform;
         private Vector2 _originalScreenSize;

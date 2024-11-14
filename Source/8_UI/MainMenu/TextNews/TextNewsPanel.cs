@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -22,11 +24,6 @@ namespace BeatLeader.UI.MainMenu {
         #endregion
 
         #region Setup
-
-        private static readonly NewsPost loadingPost = new() {
-            owner = "Loading...",
-            body = "Loading..."
-        };
 
         private static readonly NewsPost failedToLoadPost = new() {
             owner = "Error",
@@ -56,10 +53,6 @@ namespace BeatLeader.UI.MainMenu {
         
         private void OnRequestStateChanged(API.RequestState state, Paged<NewsPost> result, string failReason) {
             switch (state) {
-                case API.RequestState.Started:
-                    _post.Setup(loadingPost);
-                    SetEmptyActive(false);
-                    break;
                 case API.RequestState.Failed:
                     _post.Setup(failedToLoadPost);
                     SetEmptyActive(false);

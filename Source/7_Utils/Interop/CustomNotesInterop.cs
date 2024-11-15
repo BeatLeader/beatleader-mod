@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 
 namespace BeatLeader.Interop {
-    [PluginInterop("Custom Notes")]
+    [PluginInterop("CustomNotes")]
     internal static class CustomNotesInterop {
         #region Init
 

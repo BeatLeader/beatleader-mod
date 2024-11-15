@@ -1,4 +1,4 @@
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -17,10 +17,6 @@ namespace BeatLeader.UI.MainMenu {
         [UIComponent("height-wrapper"), UsedImplicitly] protected HorizontalLayoutGroup heightWrapper = null!;
 
         [UIComponent("background"), UsedImplicitly] protected ImageView background = null!;
-
-        protected virtual void Awake() {
-            header = Instantiate<NewsHeader>(transform);
-        }
 
         protected override void OnInitialize() {
             background.raycastTarget = true;

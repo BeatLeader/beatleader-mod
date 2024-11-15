@@ -16,7 +16,6 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            header.Setup("BeatLeader News");
             NewsRequest.SendRequest();
             NewsRequest.AddStateListener(OnRequestStateChanged);
         }

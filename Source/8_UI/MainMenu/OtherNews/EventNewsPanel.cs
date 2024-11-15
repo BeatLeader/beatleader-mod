@@ -15,6 +15,10 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
 
+        protected virtual void Awake() {
+            header = Instantiate<NewsHeader>(transform);
+        }
+
         protected override void OnInitialize() {
             base.OnInitialize();
             header.Setup("BeatLeader Events");

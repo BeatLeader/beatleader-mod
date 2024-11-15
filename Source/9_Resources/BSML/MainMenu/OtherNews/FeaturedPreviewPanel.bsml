@@ -1,4 +1,4 @@
-﻿<horizontal pad="1" spacing="1" horizontal-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff88">
+﻿<horizontal id="background" pad="1" spacing="1" horizontal-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff88">
     <image id="image" pref-width="10" pref-height="10" horizontal-fit="PreferredSize" vertical-fit="PreferredSize"/>
     <vertical pref-width="38">
         <text id="top-text" font-size="4" italics="true" overflow="Ellipsis" align="Left"/>

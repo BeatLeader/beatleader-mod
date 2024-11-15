@@ -10,6 +10,8 @@ namespace BeatLeader.UI.MainMenu {
     internal class FeaturedPreviewPanel : ReeUIComponentV2 {
         #region UI Components
 
+        [UIComponent("background"), UsedImplicitly] private ImageView _background = null!;
+        
         [UIComponent("image"), UsedImplicitly] private ImageView _image = null!;
 
         [UIComponent("top-text"), UsedImplicitly] private TMP_Text _topText = null!;
@@ -37,6 +39,8 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         protected override void OnInitialize() {
+            _background._skew = 0.18f;
+            
             _image.material = BundleLoader.RoundTexture10Material;
             _image._skew = 0.18f;
             _image.__Refresh();

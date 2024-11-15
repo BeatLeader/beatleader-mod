@@ -5,6 +5,8 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using System;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -57,13 +59,14 @@ namespace BeatLeader.UI.MainMenu {
             StartCoroutine(PlaylistRequest.SendRequest(Context.playlistId.ToString(), OnSuccess, OnFail));
             return;
 
-            void OnSuccess(byte[] bytes) {
+            async void OnSuccess(byte[] bytes) {
                 var filename = Context.name.Replace(" ", "_");
                 FileManager.DeletePlaylist(filename);
 
                 if (FileManager.TrySaveRankedPlaylist(filename, bytes)) {
                     PlaylistsLibInterop.TryRefreshPlaylists(true);
                     SongCore.Loader.Instance.RefreshSongs(false);
+                    await Task.Delay(TimeSpan.FromSeconds(2));
 
                     var playlist = PlaylistsLibInterop.TryFindPlaylist(filename);
                     if (playlist != null) {

@@ -112,10 +112,10 @@ namespace BeatLeader.Replayer.Emulation {
                     var lineIndex = i < sliceCount - 1 ? sliderData.headLineIndex : sliderData.tailLineIndex;
                     var noteLineLayer = i < sliceCount - 1 ? sliderData.headLineLayer : sliderData.tailLineLayer;
                     var time = Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, (float)i / (sliceCount - 1));
+                    var beat = sliderData.beat;
                     var sliderNoteData = NoteData.CreateBurstSliderNoteData(
                         time,
-                        sliderData.beat,
-                        sliderData.rotation,
+                        beat,
                         lineIndex,
                         noteLineLayer,
                         sliderData.headBeforeJumpLineLayer,

@@ -56,7 +56,7 @@ namespace BeatLeader.Components {
             LoadAndAssignImage(level);
         }
         private async void LoadAndAssignImage(BeatmapLevel level) {
-            _songPreviewImage.sprite = await level.previewMediaData.GetCoverSpriteAsync();
+            _songPreviewImage.sprite = await level.previewMediaData.GetCoverSpriteAsync(CancellationToken.None);
         }
 
         #endregion

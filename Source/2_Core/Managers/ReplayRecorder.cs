@@ -282,8 +282,8 @@ namespace BeatLeader {
             controllerRot = xrRigTransform.LocalToWorldRotation(controllerRot);
             var controllerTransform = new ReeTransform(controllerPos, controllerRot);
 
-            localPosition = controllerTransform.WorldToLocalPosition(saber._handleTransform.position);
-            localRotation = controllerTransform.WorldToLocalRotation(saber._handleTransform.rotation);
+            localPosition = controllerTransform.WorldToLocalPosition(saber.handlePos);
+            localRotation = controllerTransform.WorldToLocalRotation(saber.handleRot);
         }
 
         #endregion

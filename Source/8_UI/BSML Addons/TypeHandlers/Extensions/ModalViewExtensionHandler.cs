@@ -14,8 +14,8 @@ namespace BeatLeader.UI.BSML_Addons.Extensions {
 
         public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
             ModalView modal;
-            if ((modal = componentType.Component as ModalView) != null
-                && componentType.Data.TryGetValue("hideBackground", out string overrideBackground)) {
+            if ((modal = componentType.component as ModalView) != null
+                && componentType.data.TryGetValue("hideBackground", out string overrideBackground)) {
                 modal.GetComponentInChildren<ImageView>().enabled = !bool.Parse(overrideBackground);
             }
         }

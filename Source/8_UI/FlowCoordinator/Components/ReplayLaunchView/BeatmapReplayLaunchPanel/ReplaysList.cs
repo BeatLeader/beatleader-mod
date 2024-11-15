@@ -69,7 +69,7 @@ namespace BeatLeader.Components {
             public AbstractDataCell Init(IReplayHeader header) {
                 ReplayHeader = header;
                 if (!_isInitialized) {
-                    BSMLParser.Instance.Parse(markup, gameObject, this);
+                    PersistentSingleton<BSMLParser>.instance.Parse(markup, gameObject, this);
                     ((SelectableCell)this).SetField("_wasPressedSignal", clickSignal);
                     gameObject.AddComponent<Touchable>();
                     name = nameof(AbstractDataCell);
@@ -270,7 +270,7 @@ namespace BeatLeader.Components {
         #region Init & Dispose
 
         protected override void OnInitialize() {
-            _tableView = _replaysList.TableView;
+            _tableView = _replaysList.tableView;
             _tableView.SetDataSource(this, true);
             _tableView.didSelectCellWithIdxEvent += HandleCellSelected;
             Refresh();
@@ -286,7 +286,7 @@ namespace BeatLeader.Components {
 
         #region TableView
 
-        float TableView.IDataSource.CellSize(int idx) => AbstractDataCell.CellHeight;
+        float TableView.IDataSource.CellSize() => AbstractDataCell.CellHeight;
 
         int TableView.IDataSource.NumberOfCells() => _replayHeaders?.Count ?? 0;
 

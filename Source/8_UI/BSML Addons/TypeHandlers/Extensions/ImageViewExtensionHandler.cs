@@ -16,10 +16,10 @@ namespace BeatLeader.UI.BSML_Addons.Extensions {
         };
 
         public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
-            if (!componentType.Data.TryGetValue("skew", out string skew) ||
+            if (!componentType.data.TryGetValue("skew", out string skew) ||
                 !float.TryParse(skew.Replace('.', ','), out float skewFloat)) return;
 
-            var component = componentType.Component;
+            var component = componentType.component;
             foreach (var view in component.GetComponentsInChildren<ImageView>()) {
                 view.SetField("_skew", skewFloat);
                 view.SetAllDirty();

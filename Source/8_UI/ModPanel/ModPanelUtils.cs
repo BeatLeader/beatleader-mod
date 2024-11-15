@@ -9,7 +9,7 @@ namespace BeatLeader {
 
         public static void AddTab() {
             if (_tabActive) return;
-            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.Instance.AddTab(
+            PersistentSingleton<BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup>.instance.AddTab(
                 TabName,
                 ResourcePath,
                 instance
@@ -19,7 +19,7 @@ namespace BeatLeader {
 
         public static void RemoveTab() {
             if (!_tabActive) return;
-            BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup.Instance.RemoveTab(TabName);
+            PersistentSingleton<BeatSaberMarkupLanguage.GameplaySetup.GameplaySetup>.instance.RemoveTab(TabName);
             _tabActive = false;
         }
     }

@@ -65,7 +65,7 @@ namespace BeatLeader.Replayer {
         }
         
         private void HandleLevelFailed() {
-            if (_gameplayManagerInitData.continueGameplayWith0Energy) return;
+            if (!_gameplayManagerInitData.failOn0Energy) return;
             HandleLevelFinished();
         }
 

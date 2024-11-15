@@ -69,7 +69,7 @@ namespace BeatLeader.Components {
             var interactable = SaveReplays;
             foreach (var toggle in _togglesContainer
                 .GetComponentsInChildren<ToggleSetting>()) {
-                toggle.Interactable = interactable;
+                toggle.interactable = interactable;
             }
         }
         

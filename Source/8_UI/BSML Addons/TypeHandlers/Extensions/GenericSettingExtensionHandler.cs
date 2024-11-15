@@ -15,27 +15,27 @@ namespace BeatLeader.UI.BSML_Addons.Extensions {
         };
 
         public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
-            if (!componentType.Data.TryGetValue("hideText", out var showText) ||
+            if (!componentType.data.TryGetValue("hideText", out var showText) ||
                 !bool.TryParse(showText, out var showTextBool) || !showTextBool) return;
 
             var text = default(GameObject?);
             var transform = default(Transform?);
             var parent = default(Transform?);
-            switch (componentType.Component) {
+            switch (componentType.component) {
                 case SliderSetting sliderSetting:
-                    var sliderTransform = sliderSetting.Slider.transform;
+                    var sliderTransform = sliderSetting.slider.transform;
                     parent = sliderTransform.parent;
                     transform = sliderTransform;
                     text = sliderSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject;
                     break;
                 case IncDecSetting incDecSetting:
                     text = incDecSetting.GetComponentInChildren<TextMeshProUGUI>().gameObject;
-                    transform = incDecSetting.TextMesh.transform.parent;
+                    transform = incDecSetting.text.transform.parent;
                     parent = incDecSetting.transform;
                     break;
                 case ToggleSetting toggleSetting:
-                    text = toggleSetting.TextMesh.gameObject;
-                    transform = toggleSetting.Toggle.transform;
+                    text = toggleSetting.text.gameObject;
+                    transform = toggleSetting.toggle.transform;
                     parent = toggleSetting.transform;
                     break;
                 default:

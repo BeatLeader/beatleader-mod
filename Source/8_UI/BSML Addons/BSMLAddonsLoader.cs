@@ -45,6 +45,7 @@ namespace BeatLeader.UI.BSML_Addons {
             new GenericSettingExtensionHandler(),
             new GraphicExtensionHandler(),
             new ImageViewExtensionHandler(),
+            new LayoutElementExtensionHandler(),
             new ModalViewExtensionHandler()
         };
 
@@ -52,13 +53,13 @@ namespace BeatLeader.UI.BSML_Addons {
 
         public static void LoadAddons() {
             if (!_ready) {
-            foreach (var sprite in spritesToCache)
-                BSMLUtility
-                    .AddSpriteToBSMLCache("bl-" + sprite.Key, sprite.Value);
+                foreach (var sprite in spritesToCache)
+                    BSMLUtility
+                        .AddSpriteToBSMLCache("bl-" + sprite.Key, sprite.Value);
+                foreach (var tag in addonTags) BSMLParser.instance.RegisterTag(tag);
+                foreach (var handler in addonHandlers) BSMLParser.instance.RegisterTypeHandler(handler);
+                _ready = true;
             }
-            foreach (var tag in addonTags) BSMLParser.Instance.RegisterTag(tag);
-            foreach (var handler in addonHandlers) BSMLParser.Instance.RegisterTypeHandler(handler);
-            _ready = true;
         }
     }
 }

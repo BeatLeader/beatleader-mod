@@ -47,7 +47,7 @@ namespace BeatLeader.Replayer {
         }
 
         private void UnsubscribeStandardEvents() {
-            _vrPlatformHelper.inputFocusWasCapturedEvent -= _pauseController.HandleFocusWasCaptured;
+            _vrPlatformHelper.inputFocusWasCapturedEvent -= _pauseController.HandleInputFocusWasCaptured;
             _vrPlatformHelper.hmdUnmountedEvent -= _pauseController.HandleHMDUnmounted;
             _pauseMenuManager.didFinishResumeAnimationEvent -= _pauseController.HandlePauseMenuManagerDidFinishResumeAnimation;
             _pauseMenuManager.didPressContinueButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressContinueButton;

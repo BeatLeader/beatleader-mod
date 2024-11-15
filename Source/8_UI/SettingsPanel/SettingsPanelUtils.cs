@@ -6,7 +6,7 @@ namespace BeatLeader {
         private const string TabName = Plugin.FancyName;
 
         public static void AddTab() {
-            BeatSaberMarkupLanguage.Settings.BSMLSettings.Instance.AddSettingsMenu(
+            BeatSaberMarkupLanguage.Settings.BSMLSettings.instance.AddSettingsMenu(
                 TabName,
                 ResourcePath,
                 instance

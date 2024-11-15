@@ -14,9 +14,9 @@ namespace BeatLeader.Components {
 
         private class NotSelectedPreviewBeatmapLevel : BeatmapLevel {
             private class PreviewMediaData : IPreviewMediaData {
-                public Task<Sprite> GetCoverSpriteAsync() => Task.FromResult(BundleLoader.UnknownIcon);
+                public Task<Sprite> GetCoverSpriteAsync(CancellationToken cancellationToken) => Task.FromResult(BundleLoader.UnknownIcon);
 
-                public Task<AudioClip> GetPreviewAudioClip() => throw new NotImplementedException();
+                public Task<AudioClip> GetPreviewAudioClip(CancellationToken cancellationToken) => throw new NotImplementedException();
 
                 public void UnloadCoverSprite() {}
 
@@ -109,7 +109,7 @@ namespace BeatLeader.Components {
         public void SetData(BeatmapLevel? previewBeatmapLevel) {
             previewBeatmapLevel ??= defaultPreviewBeatmapLevel;
             if (_cell == null) throw new UninitializedComponentException();
-            _cell.SetDataFromLevelAsync(previewBeatmapLevel, false, false, false, true);
+            _cell.SetDataFromLevelAsync(previewBeatmapLevel, false, false, false);
         }
 
         #endregion

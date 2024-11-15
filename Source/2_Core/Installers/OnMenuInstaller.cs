@@ -37,9 +37,6 @@ namespace BeatLeader.Installers {
             Container.Bind<BeatLeaderMenuButtonManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatLeaderFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayLaunchViewController>().FromNewComponentAsViewController().AsSingle();
-
-            _ = BeatmapDifficultyPanel.BeatmapDifficultySegmentedControl;
-            _ = BeatmapCharacteristicPanel.BeatmapCharacteristicSegmentedControl;
         }
     }
 }

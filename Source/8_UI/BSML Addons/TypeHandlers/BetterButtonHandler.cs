@@ -45,15 +45,15 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
             try
             {
                 BetterButton button;
-                if (button = componentType.Component as BetterButton)
+                if (button = componentType.component as BetterButton)
                 {
-                    if (componentType.Data.TryGetValue("transition", out string transition) && transition != "Animation")
+                    if (componentType.data.TryGetValue("transition", out string transition) && transition != "Animation")
                     {
                         button.Button.transition = (Selectable.Transition)Enum.Parse(typeof(Selectable.Transition), transition);
                     }
 
                     #region Button colors
-                    if (componentType.Data.TryGetValue("normalColor", out string normalColor))
+                    if (componentType.data.TryGetValue("normalColor", out string normalColor))
                     {
                         ColorBlock colors = button.Button.colors;
                         if (ColorUtility.TryParseHtmlString(normalColor, out Color color))
@@ -62,7 +62,7 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                             button.Button.colors = colors;
                         }
                     }
-                    if (componentType.Data.TryGetValue("highlightedColor", out string highlightedColor))
+                    if (componentType.data.TryGetValue("highlightedColor", out string highlightedColor))
                     {
                         ColorBlock colors = button.Button.colors;
                         if (ColorUtility.TryParseHtmlString(highlightedColor, out Color color))
@@ -71,7 +71,7 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                             button.Button.colors = colors;
                         }
                     }
-                    if (componentType.Data.TryGetValue("pressedColor", out string pressedColor))
+                    if (componentType.data.TryGetValue("pressedColor", out string pressedColor))
                     {
                         ColorBlock colors = button.Button.colors;
                         if (ColorUtility.TryParseHtmlString(pressedColor, out Color color))
@@ -80,7 +80,7 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                             button.Button.colors = colors;
                         }
                     }
-                    if (componentType.Data.TryGetValue("colorMultiplier", out string colorMultiplier))
+                    if (componentType.data.TryGetValue("colorMultiplier", out string colorMultiplier))
                     {
                         ColorBlock colors = button.Button.colors;
                         if (float.TryParse(colorMultiplier, out float result))
@@ -91,20 +91,20 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
                     }
                     #endregion
 
-                    if (componentType.Data.TryGetValue("highlightedSprite", out string highlightedImage))
+                    if (componentType.data.TryGetValue("highlightedSprite", out string highlightedImage))
                     {
                         SpriteState spriteState = button.Button.spriteState;
                         spriteState.highlightedSprite = BSMLUtility.LoadSprite(highlightedImage);
                         button.Button.spriteState = spriteState;
                     }
-                    if (componentType.Data.TryGetValue("pressedSprite", out string pressedImage))
+                    if (componentType.data.TryGetValue("pressedSprite", out string pressedImage))
                     {
                         SpriteState spriteState = button.Button.spriteState;
                         spriteState.pressedSprite = BSMLUtility.LoadSprite(pressedImage);
                         button.Button.spriteState = spriteState;
                     }
 
-                    BetterImageHandler.HandleImage(componentType.Data, button.TargetGraphic);
+                    BetterImageHandler.HandleImage(componentType.data, button.TargetGraphic);
                 }
             }
             catch (Exception ex)

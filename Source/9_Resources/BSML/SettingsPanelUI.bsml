@@ -2,6 +2,7 @@
     <vertical preferred-width="80" pad="2" vertical-fit="PreferredSize" bg="round-rect-panel">
         <toggle-setting text="Enabled" value="enabled"/>
         <toggle-setting text="Menu Button Enabled" value="menu-button-enabled"/>
+        <toggle-setting text="Show Noticeboard" value="noticeboard-enabled"/>
         <dropdown-list-setting text="Language" apply-on-change="true" value="language-choice"
                                choices="language-choices" on-change="language-on-change" formatter="language-formatter"/>
         <dropdown-list-setting text="Server" apply-on-change="true" value="server-choice"

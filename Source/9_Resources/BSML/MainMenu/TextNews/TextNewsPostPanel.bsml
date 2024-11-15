@@ -1,0 +1,9 @@
+﻿<vertical spacing="2" pref-width="62" horizontal-fit="PreferredSize">
+    <macro.as-host host="header">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <horizontal>
+        <text text="Loading..." id="body" font-size="3" word-wrapping="true"/>
+    </horizontal>
+    <img active="false" id="image" preserve-aspect="true" pref-height="44"/>
+</vertical>

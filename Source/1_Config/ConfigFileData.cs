@@ -31,6 +31,7 @@ namespace BeatLeader {
         #region Enabled
 
         public bool Enabled = ConfigDefaults.Enabled;
+        public bool NoticeboardEnabled = true;
 
         #endregion
         

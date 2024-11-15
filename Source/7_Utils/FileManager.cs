@@ -21,23 +21,26 @@ namespace BeatLeader.Utils {
                 var path = Path.Combine(BeatmapsDirectory, folderName);
                 using var memoryStream = new MemoryStream(bytes);
                 using var archive = new ZipArchive(memoryStream);
-                foreach (var entry in archive.Entries) {
-                    using var entryStream = entry.Open();
-                    var streamLength = entry.Length;
-                    var entryBuffer = new byte[streamLength];
-                    var bytesRead = await entryStream.ReadAsync(entryBuffer, 0, (int)streamLength);
-                    if (bytesRead < streamLength) throw new FileLoadException();
-                    var destinationPath = Path.Combine(path, entry.FullName);
-                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-                    using var destinationStream = File.OpenWrite(destinationPath);
-                    await destinationStream.WriteAsync(entryBuffer, 0, (int)streamLength);
-                }
-                SongCoreInterop.TryRefreshSongs(true);
+                Directory.CreateDirectory(path);
+                await ExtractFiles(archive, path);
+                SongCore.Loader.Instance.RefreshSongs(true);
                 return true;
             } catch (Exception ex) {
                 Plugin.Log.Error("Failed to install beatmap:\n" + ex);
                 return false;
             }
+        }
+
+        private static Task ExtractFiles(ZipArchive archive, string path)
+        {
+            return Task.Run(() =>
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    var entryPath = Path.Combine(path, entry.FullName);
+                    entry.ExtractToFile(entryPath, true);
+                }
+            });
         }
         
         #endregion

@@ -203,8 +203,11 @@ namespace BeatLeader {
 
         private void ShowModal(bool animated = true) {
             if (_modalView == null) return;
-            _modalView.transform.SetParent(Content.transform, false);
-            _modalView._viewIsValid = false;
+            if (_modalView._viewIsValid) {
+                _modalView.transform.SetParent(Content.transform, false);
+                _modalView._viewIsValid = false;
+            }
+            _modalView._animateParentCanvas = true;
             _modalView.Show(animated, true);
         }
 

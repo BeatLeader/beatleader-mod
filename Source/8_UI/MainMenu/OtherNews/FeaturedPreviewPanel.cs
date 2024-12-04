@@ -38,6 +38,10 @@ namespace BeatLeader.UI.MainMenu {
             }
         }
 
+        public void UpdateBottomText(string bottomText) {
+            _bottomText.text = bottomText;
+        }
+
         protected override void OnInitialize() {
             _background._skew = 0.18f;
             

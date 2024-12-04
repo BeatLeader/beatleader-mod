@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
@@ -22,8 +23,13 @@ namespace BeatLeader.UI.MainMenu {
         protected override void OnInitialize() {
             base.OnInitialize();
             header.Setup("BeatLeader Events");
-            PlatformEventsRequest.SendRequest();
-            PlatformEventsRequest.AddStateListener(OnRequestStateChanged);
+        }
+
+        protected override void OnRootStateChange(bool active) {
+            if (active) {
+                PlatformEventsRequest.SendRequest();
+                PlatformEventsRequest.AddStateListener(OnRequestStateChanged);
+            }
         }
 
         protected override void OnDispose() {
@@ -86,16 +92,60 @@ namespace BeatLeader.UI.MainMenu {
             MarkScrollbarDirty();
         }
 
-        private void SetupFeaturePreview(FeaturedPreviewPanel panel, PlatformEvent item) {
+        private string FormatRemainingTime(TimeSpan span) {
+            if (span.TotalDays >= 1) {
+                return $"Ongoing! {(int)span.TotalDays} day{((int)span.TotalDays > 1 ? "s" : "")} left";
+            }
+            if (span.TotalHours >= 1) {
+                return $"Ongoing! {(int)span.TotalHours} hour{((int)span.TotalHours > 1 ? "s" : "")} left";
+            }
+            if (span.TotalMinutes >= 1) {
+                return $"Ongoing! {(int)span.TotalMinutes} minute{((int)span.TotalMinutes > 1 ? "s" : "")} left";
+            }
+            return $"Ongoing! {(int)span.TotalSeconds} second{((int)span.TotalSeconds > 1 ? "s" : "")} left";
+        }
+
+        private string ScheduleBottomText(FeaturedPreviewPanel panel, PlatformEvent item) {
             string bottomText;
             var timeSpan = FormatUtils.GetRelativeTime(item.endDate);
             if (timeSpan < TimeSpan.Zero) {
-                bottomText = "<color=#88FF88>Ongoing!";
+                timeSpan = FormatUtils.GetRelativeTime(1733336600);
+            }
+            var remainingTime = timeSpan;
+            if (timeSpan < TimeSpan.Zero) {
+                bottomText = $"<color=#88FF88>{FormatRemainingTime(-timeSpan)}";
+                
+                // Calculate time until next significant change
+                remainingTime = -timeSpan;
+                
             } else {
                 var date = FormatUtils.GetRelativeTimeString(timeSpan, false);
                 bottomText = $"<color=#884444>Ended {date}";
             }
 
+            TimeSpan updateDelay;
+            if (remainingTime.TotalDays >= 1) {
+                updateDelay = TimeSpan.FromDays(Math.Ceiling(remainingTime.TotalDays)) - remainingTime;
+            }
+            else if (remainingTime.TotalHours >= 1) {
+                updateDelay = TimeSpan.FromHours(Math.Ceiling(remainingTime.TotalHours)) - remainingTime;
+            }
+            else if (remainingTime.TotalMinutes >= 1) {
+                updateDelay = TimeSpan.FromMinutes(Math.Ceiling(remainingTime.TotalMinutes)) - remainingTime;
+            }
+            else {
+                updateDelay = TimeSpan.FromSeconds(1);
+            }
+
+            // Schedule update
+            StartCoroutine(UpdateAfterDelay(updateDelay, panel, item));
+
+            return bottomText;
+        }
+
+        private void SetupFeaturePreview(FeaturedPreviewPanel panel, PlatformEvent item) {
+            
+            string bottomText = ScheduleBottomText(panel, item);
             panel.Setup(item.image, item.name, bottomText, "Details", ButtonAction);
             return;
 
@@ -104,6 +154,11 @@ namespace BeatLeader.UI.MainMenu {
             }
         }
 
+        private IEnumerator UpdateAfterDelay(TimeSpan delay, FeaturedPreviewPanel panel, PlatformEvent item) {
+            yield return new WaitForSeconds((float)delay.TotalSeconds);
+            string bottomText = ScheduleBottomText(panel, item);
+            panel.UpdateBottomText(bottomText);
+        }
 
         private void DisposeList() {
             foreach (var post in _list) {

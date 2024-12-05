@@ -21,7 +21,7 @@ namespace BeatLeader.Installers {
                 Container.Bind<IReplayerViewNavigator>().To<ReplayerMenuLoader>().FromResolve();
             }
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
+            Container.BindInterfacesTo<ChristmasTreeManager>().AsSingle().NonLazy();
         }
 
         private void BindLeaderboard() {

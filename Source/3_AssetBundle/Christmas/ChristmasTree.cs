@@ -85,11 +85,11 @@ namespace BeatLeader {
 
             for (var i = 0; i < size; i++) {
                 var ornament = settings.ornaments[i];
-                if (!prefabs.TryGetValue(ornament.bundleId, out var prefab)) {
+                var prefab = prefabs[ornament.bundleId];
+                if (prefab == null) {
                     continue;
                 }
-                
-                var instance = Instantiate(prefab!, transform, false);
+                var instance = Instantiate(prefab, transform, false);
                 instance.transform.SetLocalPose(ornament.pose);
                 _ornaments.Add(instance);
             }

@@ -108,9 +108,6 @@ namespace BeatLeader.UI.MainMenu {
         private string ScheduleBottomText(FeaturedPreviewPanel panel, PlatformEvent item) {
             string bottomText;
             var timeSpan = FormatUtils.GetRelativeTime(item.endDate);
-            if (timeSpan < TimeSpan.Zero) {
-                timeSpan = FormatUtils.GetRelativeTime(1733336600);
-            }
             var remainingTime = timeSpan;
             if (timeSpan < TimeSpan.Zero) {
                 bottomText = $"<color=#88FF88>{FormatRemainingTime(-timeSpan)}";

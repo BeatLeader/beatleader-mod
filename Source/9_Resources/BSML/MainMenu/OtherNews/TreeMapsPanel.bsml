@@ -1,0 +1,15 @@
+﻿<vertical id="background" pad="1" spacing="1" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff55">
+    <macro.as-host host="header">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <loading-indicator id="loading-indicator" preserve-aspect="true" pref-height="8" pref-width="8"/>
+    <vertical spacing="1" id="details-container" vertical-fit="PreferredSize">
+        <text id="date-text" text="December 12th"/>
+        <image id="image" pref-width="20" pref-height="20" horizontal-fit="PreferredSize" vertical-fit="PreferredSize"/>
+        <vertical pref-width="38">
+            <text id="top-text" font-size="4" italics="true" overflow="Ellipsis" align="Left"/>
+            <text id="bottom-text" font-size="3" italics="true" overflow="Ellipsis" font-color="#888888"/>
+        </vertical>
+        <button id="button" pref-height="8" pref-width="12" text="Play" on-click="OnButtonPressed" pad="0"/>
+    </vertical>
+</vertical>

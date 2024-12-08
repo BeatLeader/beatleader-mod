@@ -14,6 +14,13 @@ namespace BeatLeader.UI.MainMenu {
 
         [UIValue("event-news-panel"), UsedImplicitly] private EventNewsPanel _eventNewsPanel = null!;
 
+        [UIValue("tree-maps-panel"), UsedImplicitly] private TreeMapsPanel _treeMapsPanel = null!;
+
+        [UIObject("tree-maps"), UsedImplicitly] 
+        private GameObject _treeMaps = null!;
+        [UIObject("normal-maps"), UsedImplicitly] 
+        private GameObject _normalMaps = null!;
+
         #endregion
 
         #region Setup
@@ -22,11 +29,25 @@ namespace BeatLeader.UI.MainMenu {
             _textNewsPanel = ReeUIComponentV2.Instantiate<TextNewsPanel>(transform);
             _mapNewsPanel = ReeUIComponentV2.Instantiate<MapNewsPanel>(transform);
             _eventNewsPanel = ReeUIComponentV2.Instantiate<EventNewsPanel>(transform);
+
+            _treeMapsPanel = ReeUIComponentV2.Instantiate<TreeMapsPanel>(transform);
+            _treeMapsPanel.ShouldDisplayOtherMapsEvent += ShouldDisplayOtherMapsEvent;
+        }
+
+        private void ShouldDisplayOtherMapsEvent(bool obj) {
+            if (obj) {
+                _treeMaps.gameObject.SetActive(false);
+                _normalMaps.gameObject.SetActive(true);
+            } else {
+                _treeMaps.gameObject.SetActive(true);
+                _normalMaps.gameObject.SetActive(false);
+            }
         }
 
         [UIAction("#post-parse"), UsedImplicitly]
         private void OnInitialize() {
             UpdateScreen();
+            _normalMaps.gameObject.SetActive(false);
         }
 
         private void OnEnable() {

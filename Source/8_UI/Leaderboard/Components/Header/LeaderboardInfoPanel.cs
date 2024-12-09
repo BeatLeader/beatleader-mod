@@ -20,6 +20,9 @@ namespace BeatLeader.Components {
         [UIValue("menu-button"), UsedImplicitly]
         private HeaderButton _menuButton = null!;
 
+        [UIValue("tree-button"), UsedImplicitly]
+        private HeaderButton _treeButton = null!;
+        
         [UIValue("website-button"), UsedImplicitly]
         private HeaderButton _websiteButton = null!;
 
@@ -36,6 +39,7 @@ namespace BeatLeader.Components {
             _criteriaCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _approvalCheckbox = Instantiate<QualificationCheckbox>(transform, false);
             _menuButton = Instantiate<HeaderButton>(transform, false);
+            _treeButton = Instantiate<HeaderButton>(transform, false);
             _websiteButton = Instantiate<HeaderButton>(transform, false);
             _settingsButton = Instantiate<HeaderButton>(transform, false);
             _mapStatus = Instantiate<MapStatus>(transform, false);
@@ -48,10 +52,12 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             _menuButton.Setup(BundleLoader.ReplayIcon);
+            _treeButton.Setup(BundleLoader.TreeIcon);
             _websiteButton.Setup(BundleLoader.ProfileIcon);
             _settingsButton.Setup(BundleLoader.SettingsIcon);
 
             _menuButton.OnClick += MenuButtonOnClick;
+            _treeButton.OnClick += TreeButtonOnClick;
             _websiteButton.OnClick += WebsiteButtonOnClick;
             _settingsButton.OnClick += SettingsButtonOnClick;
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
@@ -246,6 +252,10 @@ namespace BeatLeader.Components {
             LeaderboardEvents.NotifyMenuButtonWasPressed();
         }
 
+        private void TreeButtonOnClick() {
+            LeaderboardEvents.NotifyTreeButtonWasPressed();
+        }
+        
         private void WebsiteButtonOnClick() {
             if (_websiteLink == null) return;
             EnvironmentUtils.OpenBrowserPage(_websiteLink);

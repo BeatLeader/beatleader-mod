@@ -1,0 +1,14 @@
+<vertical pref-width="52">
+    <vertical pref-height="14"> 
+        <!--<toggle-setting text="Enable Tree" value="enable-tree"/>
+        <toggle-setting text="Enable Snow" value="enable-snow"/>-->
+    </vertical>
+    <horizontal pref-height="8" pad="1" bg="round-rect-panel">
+        <macro.as-host host="editor-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <macro.as-host host="movement-button">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+    </horizontal>
+</vertical>

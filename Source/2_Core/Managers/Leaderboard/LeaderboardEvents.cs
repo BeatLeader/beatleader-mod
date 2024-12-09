@@ -129,6 +129,16 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region TreeButtonWasPressed
+
+        public static event Action TreeButtonWasPressedEvent;
+
+        public static void NotifyTreeButtonWasPressed() {
+            TreeButtonWasPressedEvent?.Invoke();
+        }
+
+        #endregion
+
         #region LeaderboardSettingsButtonWasPressed
 
         public static event Action LeaderboardSettingsButtonWasPressedEvent;

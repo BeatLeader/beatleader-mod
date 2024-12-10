@@ -11,6 +11,7 @@ namespace BeatLeader.Components {
         public void Present() {
             _targetAlpha = 1f;
             _set = false;
+            gameObject.SetActive(true);
         }
 
         public void Dismiss() {
@@ -26,6 +27,7 @@ namespace BeatLeader.Components {
             if (Mathf.Abs(_targetAlpha - val) < 0.001f) {
                 val = _targetAlpha;
                 _set = true;
+                gameObject.SetActive(Mathf.Approximately(val, 1f));
             }
             _canvasGroup.alpha = val;
         }
@@ -38,6 +40,7 @@ namespace BeatLeader.Components {
             //
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();
             _canvasGroup.alpha = 0f;
+            gameObject.SetActive(false);
             // Raycaster
             var raycaster = gameObject.AddComponent<VRGraphicRaycaster>();
             BeatSaberUI.DiContainer.Inject(raycaster);

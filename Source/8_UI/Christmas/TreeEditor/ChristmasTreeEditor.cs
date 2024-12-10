@@ -8,13 +8,14 @@ namespace BeatLeader.Components {
 
         private OrnamentStorePanel _ornamentStore = null!;
         private ChristmasTreeEditorControlPanel _editorPanel = null!;
-        
+
         private ChristmasTree _tree = null!;
         private Vector3 _editorPos = new(0f, 0f, 1f);
         private Vector3 _initialPos;
 
         public void Setup(ChristmasTree tree) {
             _tree = tree;
+            _ornamentStore.Setup(tree);
         }
 
         public void LoadSettings(ChristmasTreeSettings settings) {
@@ -27,6 +28,9 @@ namespace BeatLeader.Components {
             _tree.MoveTo(_editorPos);
             _ornamentStore.Present();
             _editorPanel.Present();
+            
+            VRRaycasterPatch.RaycastDistance = 0.5f;
+            VRRaycasterPatch.OverrideRaycastDistance = true;
         }
 
         private void Dismiss() {
@@ -34,6 +38,8 @@ namespace BeatLeader.Components {
             _tree.ScaleTo(1f);
             _ornamentStore.Dismiss();
             _editorPanel.Dismiss();
+            
+            VRRaycasterPatch.OverrideRaycastDistance = false;
             EditorClosedEvent?.Invoke();
         }
 
@@ -48,7 +54,7 @@ namespace BeatLeader.Components {
             _editorPanel.ManualInit(transform);
             _editorPanel.CancelButtonClickedEvent += HandleCancelButtonClicked;
             _editorPanel.OkButtonClickedEvent += HandleOkButtonClicked;
-            
+
             trans = _editorPanel.GetRootTransform();
             trans.localPosition = new Vector3(0.8f, 1f, 0.3f);
             trans.localEulerAngles = new Vector3(0f, 60f, 0f);

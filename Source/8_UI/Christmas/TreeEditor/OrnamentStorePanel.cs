@@ -12,8 +12,13 @@ namespace BeatLeader.Components {
 
         private readonly OrnamentStoreCell[] _cells = new OrnamentStoreCell[VerticalCells * HorizontalCells];
         private StaticScreen _screen = null!;
+        private ChristmasTree _tree = null!;
         private bool _initialized;
 
+        public void Setup(ChristmasTree tree) {
+            _tree = tree;
+        }
+        
         public void Present() {
             _screen.Present();
         }
@@ -33,7 +38,7 @@ namespace BeatLeader.Components {
                 var cell = _cells[i];
                 
                 if (i <= size - 1) {
-                    cell.Setup(ornament.bundleId);
+                    cell.Setup(_tree, ornament.bundleId);
                     cell.gameObject.SetActive(true);
                 } else {
                     cell.gameObject.SetActive(false);

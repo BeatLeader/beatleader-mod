@@ -43,6 +43,7 @@ namespace BeatLeader {
             var prefab = BundleLoader.ChristmasTree;
             var instance = Object.Instantiate(prefab, null, false);
             instance.transform.position = new Vector3(2.7f, 0f, 4f);
+            instance.transform.localScale = Vector3.one * 1.7f;
             _christmasTree = instance;
         }
 

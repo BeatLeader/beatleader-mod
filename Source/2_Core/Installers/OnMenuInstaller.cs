@@ -22,7 +22,6 @@ namespace BeatLeader.Installers {
             }
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesTo<ChristmasTreeManager>().AsSingle().NonLazy();
-            Container.Bind<GrabbingInputHelper>().AsSingle().NonLazy();
         }
 
         private void BindLeaderboard() {

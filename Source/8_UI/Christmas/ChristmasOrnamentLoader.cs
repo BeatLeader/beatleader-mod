@@ -16,8 +16,7 @@ namespace BeatLeader {
             if (prefab == null) {
                 prefab = BundleLoader.MonkeyPrefab;
             }
-            //TODO: remove
-            prefab.transform.localScale *= 0.2f;
+            
             return UnityEngine.Object.Instantiate(prefab, null, false);
         }
 
@@ -54,6 +53,11 @@ namespace BeatLeader {
                         throw new Exception("Prefab is null");
                     }
                     prefabs[id] = (GameObject)prefab;
+                    //TODO: REMOVE
+                    foreach (var mesh in prefabs[id].GetComponentsInChildren<MeshFilter>()) {
+                        var c = mesh.gameObject.AddComponent<MeshCollider>();
+                        c.convex = true;
+                    }
                     Plugin.Log.Info($"Loaded ornament {id}.");
 
                     bundle.Unload(false);

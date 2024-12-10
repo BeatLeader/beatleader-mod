@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,9 +8,11 @@ namespace BeatLeader.Components {
     internal class OrnamentStoreCell : MonoBehaviour {
         private readonly Stack<ChristmasTreeOrnament> _cachedOrnaments = new();
         private ChristmasTreeOrnament _previewInstance = null!;
+        private ChristmasTree _tree = null!;
         private int _bundleId;
 
-        public async void Setup(int bundleId) {
+        public async void Setup(ChristmasTree tree, int bundleId) {
+            _tree = tree;
             _bundleId = bundleId;
             await ChristmasOrnamentLoader.EnsureOrnamentPrefabLoaded(bundleId);
             ReloadPreviewInstance();
@@ -19,8 +20,7 @@ namespace BeatLeader.Components {
 
         private void Awake() {
             var image = gameObject.AddComponent<Image>();
-            image.sprite = BundleLoader.WhiteBG;
-            image.color = Color.white.ColorWithAlpha(0.3f);
+            image.sprite = BundleLoader.OrnamentCellBG;
             image.pixelsPerUnitMultiplier = 5f;
             image.type = Image.Type.Sliced;
         }
@@ -37,10 +37,12 @@ namespace BeatLeader.Components {
             } else {
                 // supposing that it was previously loaded (sorry, but I don't have any passion to implement it in a proper way)
                 var go = ChristmasOrnamentLoader.LoadOrnamentInstanceAsync(_bundleId).Result;
-                go.transform.SetParent(transform, false);
+                go.transform.localScale *= 4f;
                 ornament = go.AddComponent<ChristmasTreeOrnament>();
+                ornament.Setup(_tree, _bundleId);
             }
             ornament.OrnamentDeinitEvent += HandleOrnamentInstanceDeinitialized;
+            ornament.Init(transform);
             return ornament;
         }
 

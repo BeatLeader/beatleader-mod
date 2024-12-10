@@ -4,18 +4,20 @@ using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 #nullable disable
 
 namespace BeatLeader {
     public class ChristmasTree : MonoBehaviour {
         [SerializeField] private ChristmasTreeLevel[] _levels;
-        [SerializeField] private CapsuleCollider _collider;
         [SerializeField] private ChristmasTreeAnimator _animator;
+        [SerializeField] private Transform _mesh;
+        [SerializeField] private float _radius;
         public bool gizmos;
 
-        public Collider AreaCollider => _collider;
-
+        public Transform TreeMesh => _mesh;
+        
         public void Present() {
             _animator.TargetScale = 1f;
         }
@@ -61,7 +63,7 @@ namespace BeatLeader {
 
         #endregion
 
-        #region Editor
+        #region Math
 
         public Vector3 Align(Vector3 pos) {
             var y = pos.y;
@@ -80,6 +82,16 @@ namespace BeatLeader {
 
             return new Vector3(xz.x, pos.y, xz.y);
         }
+
+        public bool HasAreaContact(Vector3 pos) {
+            var mul = _mesh.localScale;
+            pos = _mesh.InverseTransformPoint(pos);
+            return Mathf.Abs(pos.x) <= _radius * mul.x && Mathf.Abs(pos.z) <= _radius * mul.z;
+        }
+
+        #endregion
+
+        #region Editor
 
         private void OnDrawGizmos() {
             if (!gizmos) return;

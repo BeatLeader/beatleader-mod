@@ -206,6 +206,8 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite UnknownIcon;
         
         [UsedImplicitly] public static Sprite TreeIcon;
+
+        [UsedImplicitly] public static Sprite OrnamentCellBG;
         
         private static List<Sprite> _loadedSprites = null!;
 
@@ -273,6 +275,7 @@ namespace BeatLeader {
             DefaultAvatar = assetBundle.LoadAsset<Sprite>("BL_DefaultAvatar");
             UnknownIcon = assetBundle.LoadAsset<Sprite>("BL_UnknownIcon");
             TreeIcon = assetBundle.LoadAsset<Sprite>("BL_TreeIcon");
+            OrnamentCellBG = assetBundle.LoadAsset<Sprite>("BL_OrnamentCellBackground");
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }
 

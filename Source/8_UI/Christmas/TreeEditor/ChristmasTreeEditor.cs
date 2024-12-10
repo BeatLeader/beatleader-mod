@@ -28,9 +28,6 @@ namespace BeatLeader.Components {
             _tree.MoveTo(_editorPos);
             _ornamentStore.Present();
             _editorPanel.Present();
-            
-            VRRaycasterPatch.RaycastDistance = 0.5f;
-            VRRaycasterPatch.OverrideRaycastDistance = true;
         }
 
         private void Dismiss() {
@@ -38,8 +35,6 @@ namespace BeatLeader.Components {
             _tree.ScaleTo(1f);
             _ornamentStore.Dismiss();
             _editorPanel.Dismiss();
-            
-            VRRaycasterPatch.OverrideRaycastDistance = false;
             EditorClosedEvent?.Invoke();
         }
 

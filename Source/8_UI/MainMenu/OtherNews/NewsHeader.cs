@@ -24,6 +24,10 @@ namespace BeatLeader.UI.MainMenu {
         public void Setup(string text) {
             _text.text = text;
         }
+
+        public void SetBackgroundColor(Color color) {
+            _image.color = color;
+        }
         
         protected override void OnInitialize() {
             _textRect.anchorMin = Vector2.zero;

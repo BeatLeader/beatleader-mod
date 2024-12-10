@@ -2,8 +2,8 @@
     <horizontal pref-height="16" bg="round-rect-panel">
         <text text="TIP: Use joysticks on your controllers to rotate the tree" align="Center" word-wrapping="true"/>
     </horizontal>
-    <horizontal pref-height="8" bg="round-rect-panel">
-        <button text="Cancel" on-click="cancel-click"/>
-        <primary-button text="Save" on-click="save-click"/>
+    <horizontal pref-height="8" spacing="2">
+        <button text="Cancel" on-click="cancel-click" horizontal-fit="Unconstrained"/>
+        <primary-button text="Save" on-click="save-click" horizontal-fit="Unconstrained"/>
     </horizontal>
 </vertical>

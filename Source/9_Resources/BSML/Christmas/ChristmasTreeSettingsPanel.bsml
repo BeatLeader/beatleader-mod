@@ -1,14 +1,23 @@
-<vertical pref-width="52">
-    <vertical pref-height="14"> 
-        <!--<toggle-setting text="Enable Tree" value="enable-tree"/>
-        <toggle-setting text="Enable Snow" value="enable-snow"/>-->
+<bg size-delta-x="42" size-delta-y="24">
+    <vertical pref-width="42" pref-height="24" vertical-fit="PreferredSize">
+        <macro.as-host host="mover">
+            <macro.reparent transform="ui-component"/>
+        </macro.as-host>
+        <vertical pref-height="14" bg="round-rect-panel" pad-left="2" pad-right="2" horizontal-fit="Unconstrained">
+            <toggle-setting text="Enable Tree" value="enable-tree"/>
+            <toggle-setting text="Enable Snow" value="enable-snow"/>
+        </vertical>
+        <horizontal pref-height="8">
+            <button text="Close" on-click="close-click" pref-width="20"/>
+            <horizontal pref-height="6" pad="1" bg="round-rect-panel">
+                <macro.as-host host="editor-button">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+                <macro.as-host host="mover-button">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </horizontal>
+        </horizontal>
     </vertical>
-    <horizontal pref-height="8" pad="1" bg="round-rect-panel">
-        <macro.as-host host="editor-button">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-        <macro.as-host host="movement-button">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-    </horizontal>
-</vertical>
+</bg>
+    

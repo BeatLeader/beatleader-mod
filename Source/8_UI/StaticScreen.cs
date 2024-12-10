@@ -23,7 +23,7 @@ namespace BeatLeader.Components {
             if (_set) {
                 return;
             }
-            var val =  Mathf.Lerp(_canvasGroup.alpha, _targetAlpha, Time.deltaTime * 8f);
+            var val =  Mathf.Lerp(_canvasGroup.alpha, _targetAlpha, Time.deltaTime * 10f);
             if (Mathf.Abs(_targetAlpha - val) < 0.001f) {
                 val = _targetAlpha;
                 _set = true;
@@ -37,6 +37,7 @@ namespace BeatLeader.Components {
             canvas.referencePixelsPerUnit = 10f;
             canvas.additionalShaderChannels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2;
             canvas.sortingOrder = 5;
+            gameObject.AddComponent<HMUI.Screen>();
             //
             _canvasGroup = gameObject.AddComponent<CanvasGroup>();
             _canvasGroup.alpha = 0f;

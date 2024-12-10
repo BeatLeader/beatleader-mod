@@ -1,5 +1,6 @@
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -10,11 +11,24 @@ namespace BeatLeader.Components {
         [UIValue("editor-button"), UsedImplicitly]
         private HeaderButton _editorButton = null!;
 
-        [UIValue("movement-button"), UsedImplicitly]
+        [UIValue("mover-button"), UsedImplicitly]
         private HeaderButton _movementButton = null!;
 
+        [UIValue("mover"), UsedImplicitly]
+        private ChristmasTreeMover _mover = null!;
+        
         #endregion
 
+        #region Toggles
+
+        [UIValue("enable-tree"), UsedImplicitly]
+        private bool EnableTree { get; set; }
+        
+        [UIValue("enable-snow"), UsedImplicitly]
+        private bool EnableSnow { get; set; }
+
+        #endregion
+        
         #region Setup
 
         private ChristmasTree _tree = null!;
@@ -43,11 +57,12 @@ namespace BeatLeader.Components {
             _treeEditor.EditorClosedEvent += HandleEditorClosed;
             //
             _screen = Content.gameObject.AddComponent<StaticScreen>();
-            Content.position = new Vector3(0f, 1f, 0.5f);
+            Content.position = new Vector3(0f, 0.9f, 0.7f);
             Content.eulerAngles = new Vector3(45f, 0f, 0f);
         }
 
         protected override void OnInstantiate() {
+            _mover = Instantiate<ChristmasTreeMover>(transform);
             _editorButton = Instantiate<HeaderButton>(transform);
             _movementButton = Instantiate<HeaderButton>(transform);
 
@@ -55,19 +70,26 @@ namespace BeatLeader.Components {
             _movementButton.Setup(BundleLoader.LocationIcon);
             
             _editorButton.OnClick += HandleEditorButtonClicked;
-            _movementButton.OnClick += HandleMovementButtonClicked;
+            _movementButton.OnClick += HandleMoverButtonClicked;
         }
 
         #endregion
 
         #region Callbacks
 
+        [UIAction("close-click"), UsedImplicitly]
+        private void HandleCloseButtonClicked() {
+            Dismiss();
+        }
+        
         private void HandleEditorButtonClicked() {
             _treeEditor.Present();
             Dismiss();
         }
 
-        private void HandleMovementButtonClicked() { }
+        private void HandleMoverButtonClicked() {
+            _mover.Present();
+        }
 
         private void HandleEditorClosed() {
             Present();

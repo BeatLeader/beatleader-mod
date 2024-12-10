@@ -25,6 +25,8 @@ namespace BeatLeader.Components {
 
         public void Init(Transform parent) {
             transform.SetParent(parent, false);
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
             gameObject.SetActive(true);
         }
 

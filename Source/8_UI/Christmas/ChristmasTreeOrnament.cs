@@ -1,4 +1,6 @@
 ﻿using System;
+using BeatLeader.Models;
+using BeatLeader.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VRUIControls;
@@ -23,9 +25,14 @@ namespace BeatLeader.Components {
             _initialized = true;
         }
 
-        public void Init(Transform parent) {
-            transform.SetParent(parent, false);
-            transform.localPosition = Vector3.zero;
+        public ChristmasTreeOrnamentSettings GetSettings() {
+            return new ChristmasTreeOrnamentSettings {
+                bundleId = BundleId,
+                pose = transform.GetLocalPose()
+            };
+        }
+
+        public void Init() {
             transform.localRotation = Quaternion.identity;
             gameObject.SetActive(true);
         }
@@ -65,7 +72,12 @@ namespace BeatLeader.Components {
             if (!_grabbed) {
                 if (_hadContact) {
                     var t = Time.deltaTime * 7f;
-                    transform.localPosition = Vector3.Lerp(transform.localPosition, _alignedOrnamentPos, t);
+                    var pos = Vector3.Lerp(transform.localPosition, _alignedOrnamentPos, t);
+                    if (pos.x - _alignedOrnamentPos.x < 0.001f) {
+                        pos = _alignedOrnamentPos;
+                        _hadContact = false;
+                    }
+                    transform.localPosition = pos;
                 } else if (transform.position.y < 0) {
                     Deinit();
                     OrnamentDeinitEvent?.Invoke(this);
@@ -97,9 +109,13 @@ namespace BeatLeader.Components {
             _hadContact = _tree!.HasAreaContact(transform.position);
             _rigidbody.useGravity = !_hadContact;
             _grabbed = false;
+            
             if (_hadContact) {
-                transform.SetParent(_tree!.TreeMesh, true);
+                transform.SetParent(_tree!.Origin, true);
                 _alignedOrnamentPos = transform.localPosition;
+                _tree.AddOrnament(this);
+            } else {
+                _tree.RemoveOrnament(this);
             }
         }
 

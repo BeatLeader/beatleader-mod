@@ -1,21 +1,27 @@
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     [RequireComponent(typeof(RectTransform))]
-    //TODO: Add a text at the bottom displaying items left + cell frame
     internal class OrnamentStoreCell : MonoBehaviour {
-        private readonly Stack<ChristmasTreeOrnament> _cachedOrnaments = new();
         private ChristmasTreeOrnament _previewInstance = null!;
-        private ChristmasTree _tree = null!;
+        private ChristmasOrnamentPool _pool = null!;
+        private TMP_Text _text = null!;
         private int _bundleId;
 
-        public async void Setup(ChristmasTree tree, int bundleId) {
-            _tree = tree;
+        public void Setup(ChristmasOrnamentPool pool) {
+            _pool = pool;
+        }
+
+        public void SetOpeningDay(int day) {
+            _text.text = $"Day {day}";
+        }
+
+        public async void SetBundleId(int bundleId) {
             _bundleId = bundleId;
-            await ChristmasOrnamentLoader.EnsureOrnamentPrefabLoaded(bundleId);
-            ReloadPreviewInstance();
+            await _pool.PreloadAsync(bundleId);
+            ReloadNextInstance();
         }
 
         private void Awake() {
@@ -23,36 +29,24 @@ namespace BeatLeader.Components {
             image.sprite = BundleLoader.OrnamentCellBG;
             image.pixelsPerUnitMultiplier = 5f;
             image.type = Image.Type.Sliced;
+
+            _text = new GameObject("Text").AddComponent<TextMeshProUGUI>();
+            _text.alignment = TextAlignmentOptions.Center;
+            _text.fontSize = 4f;
+            _text.color = Color.red;
+            var trans = _text.GetComponent<RectTransform>();
+            trans.SetParent(transform, false);
+            trans.sizeDelta = 10f * Vector2.one;
         }
 
-        private void ReloadPreviewInstance() {
-            _previewInstance = GetOrnament();
+        private void ReloadNextInstance() {
+            _previewInstance = _pool.Spawn(_bundleId, transform, new Vector2(0f, 2.5f));
             _previewInstance.OrnamentGrabbedEvent += HandlePreviewOrnamentGrabbed;
-        }
-
-        private ChristmasTreeOrnament GetOrnament() {
-            ChristmasTreeOrnament ornament;
-            if (_cachedOrnaments.Count > 0) {
-                ornament = _cachedOrnaments.Pop();
-            } else {
-                // supposing that it was previously loaded (sorry, but I don't have any passion to implement it in a proper way)
-                var go = ChristmasOrnamentLoader.LoadOrnamentInstanceAsync(_bundleId).Result;
-                go.transform.localScale *= 4f;
-                ornament = go.AddComponent<ChristmasTreeOrnament>();
-                ornament.Setup(_tree, _bundleId);
-            }
-            ornament.OrnamentDeinitEvent += HandleOrnamentInstanceDeinitialized;
-            ornament.Init(transform);
-            return ornament;
-        }
-
-        private void HandleOrnamentInstanceDeinitialized(ChristmasTreeOrnament ornament) {
-            _cachedOrnaments.Push(ornament);
         }
 
         private void HandlePreviewOrnamentGrabbed(ChristmasTreeOrnament ornament) {
             ornament.OrnamentGrabbedEvent -= HandlePreviewOrnamentGrabbed;
-            ReloadPreviewInstance();
+            ReloadNextInstance();
         }
     }
 }

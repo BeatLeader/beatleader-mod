@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -51,20 +52,26 @@ namespace BeatLeader.Utils {
         public static async Task<HttpResponseMessage?> SendAsync(
             string url,
             string method = "GET",
+            object? body = null,
             Action<HttpRequestHeaders>? headersCallback = null
         ) {
-            return await SendAsync(new Uri(url, UriKind.Absolute), method, headersCallback);
+            return await SendAsync(new Uri(url, UriKind.Absolute), method, body, headersCallback);
         }
-
+        
         public static async Task<HttpResponseMessage?> SendAsync(
             Uri uri,
             string method = "GET",
+            object? body = null,
             Action<HttpRequestHeaders>? headersCallback = null
         ) {
             var request = new HttpRequestMessage {
                 RequestUri = uri,
                 Method = new(method)
             };
+            if (body != null) {
+                var json = JsonConvert.SerializeObject(body);
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            }
             headersCallback?.Invoke(request.Headers);
             try {
                 return await HttpClient.SendAsync(request);

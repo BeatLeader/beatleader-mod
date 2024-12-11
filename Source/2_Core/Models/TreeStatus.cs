@@ -6,6 +6,8 @@
         public long startTime;
     }
 
+#nullable disable
+
     public class TreeStatus {
         public DailyTreeStatus today;
         public DailyTreeStatus[] previousDays;

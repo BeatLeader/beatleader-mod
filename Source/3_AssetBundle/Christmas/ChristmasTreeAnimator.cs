@@ -27,10 +27,18 @@ namespace BeatLeader {
             }
         }
 
-        private readonly ValueAnimator _scaleAnimator = new();
-        private readonly ValueAnimator _positionAnimator = new();
-        private readonly ValueAnimator _rotationAnimator = new();
+        private readonly VectorAnimator _scaleAnimator = new();
+        private readonly VectorAnimator _positionAnimator = new();
+        private readonly VectorAnimator _rotationAnimator = new();
 
+        public void EvaluateScaleImmediate() {
+            _scaleAnimator.EvaluateImmediate();
+        }
+        
+        public void EvaluatePosImmediate() {
+            _positionAnimator.EvaluateImmediate();
+        }
+        
         private void Update() {
             _scaleAnimator.Update();
             _positionAnimator.Update();

@@ -10,14 +10,13 @@ namespace BeatLeader {
         private static readonly Dictionary<int, GameObject?> prefabs = new();
         private static readonly Dictionary<int, Task> tasks = new();
 
-        public static async Task<GameObject> LoadOrnamentInstanceAsync(int bundleId) {
+        public static async Task<GameObject> LoadOrnamentPrefabAsync(int bundleId) {
             await EnsureOrnamentPrefabLoaded(bundleId);
             var prefab = prefabs[bundleId];
             if (prefab == null) {
                 prefab = BundleLoader.MonkeyPrefab;
             }
-            
-            return UnityEngine.Object.Instantiate(prefab, null, false);
+            return prefab;
         }
 
         public static async Task EnsureOrnamentPrefabLoaded(int id) {
@@ -25,13 +24,13 @@ namespace BeatLeader {
                 if (prefabs.ContainsKey(id)) {
                     return;
                 }
-                task = LoadOrnamentPrefabAsync(id);
+                task = LoadOrnamentPrefabInternalAsync(id);
                 tasks[id] = task;
             }
             await task;
         }
 
-        private static async Task LoadOrnamentPrefabAsync(int id) {
+        private static async Task LoadOrnamentPrefabInternalAsync(int id) {
             prefabs[id] = null;
 
             Plugin.Log.Info($"Loading ornament bundle {id}.");
@@ -53,11 +52,6 @@ namespace BeatLeader {
                         throw new Exception("Prefab is null");
                     }
                     prefabs[id] = (GameObject)prefab;
-                    //TODO: REMOVE
-                    foreach (var mesh in prefabs[id].GetComponentsInChildren<MeshFilter>()) {
-                        var c = mesh.gameObject.AddComponent<MeshCollider>();
-                        c.convex = true;
-                    }
                     Plugin.Log.Info($"Loaded ornament {id}.");
 
                     bundle.Unload(false);

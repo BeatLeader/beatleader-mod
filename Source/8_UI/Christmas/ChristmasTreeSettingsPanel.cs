@@ -1,6 +1,5 @@
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -15,7 +14,7 @@ namespace BeatLeader.Components {
         private HeaderButton _movementButton = null!;
 
         [UIValue("mover"), UsedImplicitly]
-        private ChristmasTreeMover _mover = null!;
+        private ChristmasTreeMoverControlPanel _moverControlPanel = null!;
         
         #endregion
 
@@ -38,18 +37,18 @@ namespace BeatLeader.Components {
         public void Setup(ChristmasTree tree) {
             _tree = tree;
             _treeEditor.Setup(tree);
+            _moverControlPanel.Setup(tree);
         }
 
         public void Present() {
+            if (_treeEditor.IsOpened) {
+                return;
+            }
             _screen.Present();
         }
 
         public void Dismiss() {
             _screen.Dismiss();
-        }
-
-        public void LoadSettings(ChristmasTreeSettings settings) {
-            _treeEditor.LoadSettings(settings);
         }
 
         protected override void OnInitialize() {
@@ -62,7 +61,7 @@ namespace BeatLeader.Components {
         }
 
         protected override void OnInstantiate() {
-            _mover = Instantiate<ChristmasTreeMover>(transform);
+            _moverControlPanel = Instantiate<ChristmasTreeMoverControlPanel>(transform);
             _editorButton = Instantiate<HeaderButton>(transform);
             _movementButton = Instantiate<HeaderButton>(transform);
 
@@ -88,7 +87,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleMoverButtonClicked() {
-            _mover.Present();
+            _moverControlPanel.Present();
         }
 
         private void HandleEditorClosed() {

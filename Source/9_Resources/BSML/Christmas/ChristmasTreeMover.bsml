@@ -1,6 +1,0 @@
-<modal id="modal" size-delta-x="42" size-delta-y="14" click-off-closes="false">
-    <vertical spacing="-2">
-        <text text="You are now able to move the tree." align="Center" font-size="3.5"/>
-        <button text="Finish" on-click="finish-click" pref-height="8"/>
-    </vertical>
-</modal>

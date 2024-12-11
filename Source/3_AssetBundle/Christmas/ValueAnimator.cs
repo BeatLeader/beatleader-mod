@@ -3,34 +3,27 @@ using UnityEngine;
 
 namespace BeatLeader {
     internal class ValueAnimator {
-        public Vector3 Value { get; set; }
+        public float Value { get; set; }
         public float LerpCoefficient { get; set; } = 10f;
-        public bool Set => _set;
 
-        private Vector3 _targetValue;
+        private float _targetValue;
         private bool _set = true;
-        private bool _shouldBeSet = true;
 
-        public void SetTarget(Vector3 value) {
+        public void SetTarget(float value) {
             _targetValue = value;
             _set = false;
-            _shouldBeSet = false;
         }
 
         public void Update() {
             if (_set) {
                 return;
             }
-            if (Math.Abs(_targetValue.x - Value.x) < 0.001f) {
+            if (Math.Abs(_targetValue - Value) < 0.001f) {
                 Value = _targetValue;
-                _shouldBeSet = true;
+                _set = true;
             } else {
-                Value = Vector3.Lerp(Value, _targetValue, Time.deltaTime * LerpCoefficient);
+                Value = Mathf.Lerp(Value, _targetValue, Time.deltaTime * LerpCoefficient);
             }
-        }
-
-        public void LateUpdate() {
-            _set = _shouldBeSet;
         }
     }
 }

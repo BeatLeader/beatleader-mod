@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BeatLeader.API.Methods;
+using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 #nullable disable
 
@@ -12,11 +14,17 @@ namespace BeatLeader {
     public class ChristmasTree : MonoBehaviour {
         [SerializeField] private ChristmasTreeLevel[] _levels;
         [SerializeField] private ChristmasTreeAnimator _animator;
+        [SerializeField] private ChristmasTreeMover _mover;
         [SerializeField] private Transform _mesh;
         [SerializeField] private float _radius;
         public bool gizmos;
 
-        public Transform TreeMesh => _mesh;
+        public Transform Origin => _mesh;
+        internal ChristmasOrnamentPool OrnamentsPool { get; private set; }
+
+        public void SetMoverEnabled(bool enable) {
+            _mover.SetEnabled(enable);
+        }
         
         public void Present() {
             _animator.TargetScale = 1f;
@@ -26,37 +34,57 @@ namespace BeatLeader {
             _animator.TargetScale = 0f;
         }
 
-        public void MoveTo(Vector3 pos) {
+        public void MoveTo(Vector3 pos, bool immediate = false) {
             _animator.TargetPosition = pos;
+            if (immediate) {
+                _animator.EvaluatePosImmediate();
+            }
         }
 
-        public void ScaleTo(float size) {
+        public void ScaleTo(float size, bool immediate = false) {
             _animator.TargetScale = size;
+            if (immediate) {
+                _animator.EvaluateScaleImmediate();
+            }
         }
 
-        #region LoadOrnaments
+        private void Awake() {
+            OrnamentsPool = new(this);
+        }
 
-        private readonly List<GameObject> _ornaments = new();
+        #region Ornaments
 
+        internal IReadOnlyCollection<ChristmasTreeOrnament> Ornaments => _ornaments;
+        
+        private readonly HashSet<ChristmasTreeOrnament> _ornaments = new();
+
+        internal void AddOrnament(ChristmasTreeOrnament ornament) {
+            _ornaments.Add(ornament);
+        }
+        
+        internal void RemoveOrnament(ChristmasTreeOrnament ornament) {
+            _ornaments.Remove(ornament);
+        }
+        
         internal async Task LoadOrnaments(ChristmasTreeSettings settings) {
             var size = settings.ornaments.Length;
-            var tasks = new Task<GameObject>[size];
+            var tasks = new Task[size];
 
             foreach (var ornament in _ornaments) {
-                Destroy(ornament);
+                OrnamentsPool.Despawn(ornament);
             }
             _ornaments.Clear();
 
             for (var i = 0; i < size; i++) {
-                tasks[i] = ChristmasOrnamentLoader.LoadOrnamentInstanceAsync(settings.ornaments[i].bundleId);
+                tasks[i] = OrnamentsPool.PreloadAsync(settings.ornaments[i].bundleId);
             }
             await Task.WhenAll(tasks);
 
             for (var i = 0; i < size; i++) {
-                var instance = tasks[i].Result;
-                var trans = instance.transform;
-                trans.SetParent(transform, false);
-                trans.SetLocalPose(settings.ornaments[i].pose);
+                var ornament = settings.ornaments[i];
+                var instance = OrnamentsPool.Spawn(ornament.bundleId, transform, default);
+                Plugin.Log.Info($"POSE: {settings.ornaments[i].pose}");
+                instance.transform.SetLocalPose(settings.ornaments[i].pose);
                 _ornaments.Add(instance);
             }
         }

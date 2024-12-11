@@ -1,0 +1,9 @@
+<modal id="modal" size-delta-x="42" size-delta-y="14" click-off-closes="false">
+    <vertical id="bg" spacing="-2">
+        <text text="You are now able to move the tree." align="Center" font-size="3.5"/>
+        <button text="Finish" on-click="finish-click" pref-height="8"/>
+    </vertical>
+    <bg id="loading-indicator" size-delta-x="42" size-delta-y="14">
+        <loading-indicator size-delta-x="42" size-delta-y="14"/>
+    </bg>
+</modal>

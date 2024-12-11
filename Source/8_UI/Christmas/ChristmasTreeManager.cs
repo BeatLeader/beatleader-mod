@@ -12,7 +12,6 @@ namespace BeatLeader {
 
         public void Initialize() {
             SpawnTree();
-
             _settingsPanel = ReeUIComponentV2.Instantiate<ChristmasTreeSettingsPanel>(null!);
             _settingsPanel.ManualInit(null!);
             _settingsPanel.Setup(_christmasTree);
@@ -42,8 +41,8 @@ namespace BeatLeader {
         private void SpawnTree() {
             var prefab = BundleLoader.ChristmasTree;
             var instance = Object.Instantiate(prefab, null, false);
-            instance.transform.position = new Vector3(2.7f, 0f, 4f);
-            instance.transform.localScale = Vector3.one * 1.7f;
+            instance.MoveTo(new Vector3(2.7f, 0f, 0f), true);
+            instance.ScaleTo(1.7f, true);
             _christmasTree = instance;
         }
 
@@ -58,7 +57,6 @@ namespace BeatLeader {
                 return;
             }
             LoadTreeSettings(settings);
-            _settingsPanel.LoadSettings(settings);
         }
 
         #endregion

@@ -105,6 +105,7 @@ namespace BeatLeader.Replayer {
                     launchData.BeatmapLevel,
                     envSettings,
                     playerData.colorSchemesSettings.GetOverrideColorScheme(),
+                    false,
                     null,
                     launchData.Settings.IgnoreModifiers ? CreateDisabledModifiers(replayModifiers) : replayModifiers,
                     playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),

@@ -49,7 +49,7 @@ namespace BeatLeader.Components {
         private void Awake() {
             _rigidbody = GetComponent<Rigidbody>();
             _rigidbody.useGravity = false;
-            _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+            _rigidbody.interpolation = RigidbodyInterpolation.None;
         }
 
         #endregion
@@ -107,7 +107,10 @@ namespace BeatLeader.Components {
             _grabbingController = null;
             //TODO: implement alignment
             _hadContact = _tree!.HasAreaContact(transform.position);
-            _rigidbody.useGravity = !_hadContact;
+            if (!_hadContact) {
+                _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+                _rigidbody.useGravity = true;
+            }
             _grabbed = false;
             
             if (_hadContact) {

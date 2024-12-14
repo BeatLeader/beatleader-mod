@@ -13,5 +13,6 @@ namespace BeatLeader.Models {
         
         float FailTime { get; }
         long Timestamp { get; }
+        string Modifiers { get; }
     }
 }

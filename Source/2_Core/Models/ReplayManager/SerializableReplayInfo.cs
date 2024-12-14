@@ -12,5 +12,6 @@ namespace BeatLeader.Models {
         public LevelEndType LevelEndType { get; set; }
         public float FailTime { get; set; }
         public long Timestamp { get; set; }
+        public string Modifiers { get; set; }
     }
 }

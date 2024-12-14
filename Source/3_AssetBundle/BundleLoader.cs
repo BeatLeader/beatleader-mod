@@ -40,12 +40,14 @@ namespace BeatLeader {
         public static GameObject AccuracyGraphPrefab;
         public static ThemesCollection ThemesCollection;
         public static ChristmasTree ChristmasTree;
+        public static GameObject ChristmasPresent;
 
         private static void LoadPrefabs(AssetBundle assetBundle) {
             MonkeyPrefab = assetBundle.LoadAsset<GameObject>("TemplatePrefab");
             AccuracyGraphPrefab = assetBundle.LoadAsset<GameObject>("AccuracyGraph");
             ThemesCollection = assetBundle.LoadAsset<ThemesCollection>("ThemesCollection");
             ChristmasTree = assetBundle.LoadAsset<GameObject>("ChristmasTree").GetComponent<ChristmasTree>();
+            ChristmasPresent = assetBundle.LoadAsset<GameObject>("ChristmasPresent");
         }
 
         #endregion

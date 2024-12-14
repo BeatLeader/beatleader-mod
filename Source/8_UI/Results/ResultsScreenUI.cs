@@ -4,6 +4,9 @@ using JetBrains.Annotations;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using BeatLeader.Manager;
+using BeatLeader.API.Methods;
+using BeatLeader.Results;
+using BeatLeader.Models;
 
 namespace BeatLeader.ViewControllers {
     internal class ResultsScreenUI : ReeUIComponentV2 {
@@ -20,15 +23,37 @@ namespace BeatLeader.ViewControllers {
             _replayButton.SetParent(transform);
             _replayButton.ReplayButtonClickedEvent += HandleReplayButtonClicked;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
+            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
         }
         
         protected override void OnDestroy() {
             _replayButton.ReplayButtonClickedEvent -= HandleReplayButtonClicked;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
+            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+        }
+
+        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+            if (state is not API.RequestState.Finished) return;
+            var todayTree = TreeMapRequest.treeStatus?.today;
+            var latestReplayInfo = ReplayManager.Instance.CachedReplay?.ReplayInfo;
+
+            if (todayTree != null &&
+                todayTree.score == null &&
+                latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower() &&
+                latestReplayInfo?.LevelEndType == Models.LevelEndType.Clear &&
+                latestReplayInfo?.Modifiers.Contains("NF") == false) {
+                ReeModalSystem.OpenModal<TreeResultsModal>(transform, 0);
+            }
         }
 
         public void Refresh() {
             _replayButton.Interactable = ReplayManager.Instance.CachedReplay is not null;
+            
+            //if (todayTree != null &&
+            //    todayTree.score == null && 
+            //    latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower()) {
+            //    ReeModalSystem.OpenModal<TreeResultsModal>(transform, 0);
+            //}
         }
 
         #endregion

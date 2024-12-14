@@ -1,0 +1,12 @@
+﻿<vertical pad="2" spacing="3" vertical-fit="PreferredSize" bg="round-rect-panel">
+    <text id="date-text" text="December 12th completed!" align="Center"/>
+
+    <horizontal id="vertical-spacer" pref-height="20" />
+
+    <horizontal id="button-container" pref-width="50" pad="2" spacing="0" horizontal-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff88">
+
+        <button id="button" pref-height="8" text=" Decorate the tree!" on-click="OnDecoratePressed" pad="0" />
+        <vertical pref-width="2" vertical-fit="PreferredSize" />
+        <button id="button" pref-height="8" text="Close" on-click="OnClosePressed" pad="0" />
+    </horizontal>
+</vertical>

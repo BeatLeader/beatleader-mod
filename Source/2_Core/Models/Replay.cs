@@ -32,6 +32,7 @@ namespace BeatLeader.Models.Replay {
         public LevelEndType LevelEndType => levelEndType ?? (failTime > 0 ? LevelEndType.Fail : LevelEndType.Clear);
         float IReplayInfo.FailTime => failTime;
         long IReplayInfo.Timestamp => _timestamp ??= long.Parse(timestamp);
+        public string Modifiers => modifiers;
 
         private long? _timestamp;
         

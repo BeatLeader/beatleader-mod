@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
+using BeatLeader.Results;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
@@ -53,6 +54,8 @@ namespace BeatLeader.UI.MainMenu {
             if (active) {
                 TreeMapRequest.SendRequest();
                 TreeMapRequest.AddStateListener(OnRequestStateChanged);
+            } else {
+                TreeMapRequest.RemoveStateListener(OnRequestStateChanged);
             }
         }
 
@@ -136,7 +139,7 @@ namespace BeatLeader.UI.MainMenu {
                     case API.RequestState.Finished: {
                         _loadingIndicator.SetActive(false);
                         _detailsContainer.gameObject.SetActive(true);
-                        if (result.today.score != null) {
+                        if (result.today?.score != null) {
                             ShouldDisplayOtherMapsEvent.Invoke(true);
                         } else {
                             currentStatus = result;

@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
+using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -43,6 +45,11 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             SetUploading(false);
+            UpdateTreeRequest.AddStateListener(OnTreeRequestStateChanged);
+        }
+
+        protected override void OnDispose() {
+            UpdateTreeRequest.RemoveStateListener(OnTreeRequestStateChanged);
         }
 
         #endregion
@@ -57,10 +64,33 @@ namespace BeatLeader.Components {
             _uploading = loading;
         }
 
-        private async Task<bool> UploadSettings() {
-            var pos = (SerializablePose)_tree.transform.GetLocalPose();
-            var res = await WebUtils.SendAsync($"{BLConstants.BEATLEADER_API_URL}/projecttree/game", "POST", pos);
-            return res?.IsSuccessStatusCode ?? false;
+        private void UploadSettings() {
+            var localPos = _tree.transform.GetLocalPose();
+
+            var pos = new FullSerializablePose {
+                position = localPos.position,
+                rotation = localPos.rotation,
+                scale = _tree.transform.localScale
+            };
+            UpdateTreeRequest.SendRequest(pos);
+        }
+
+        private void OnTreeRequestStateChanged(API.RequestState state, string? result, string failReason) {
+            switch (state) {
+                case API.RequestState.Started:
+                    SetUploading(true);
+                    break;
+                case API.RequestState.Finished:
+                    SetUploading(false);
+                    Dismiss();
+                    break;
+                case API.RequestState.Failed:
+                    Plugin.Log.Error($"OnTreeRequestStateChanged {failReason}");
+                    SetUploading(false);
+                    _tree.transform.SetLocalPose(_initialPose);
+                    Dismiss();
+                    break;
+            }
         }
 
         #endregion
@@ -72,12 +102,7 @@ namespace BeatLeader.Components {
             if (_uploading) {
                 return;
             }
-            SetUploading(true);
-            if (!await UploadSettings()) {
-                _tree.transform.SetLocalPose(_initialPose);
-            }
-            SetUploading(false);
-            Dismiss();
+            UploadSettings();
         }
 
         #endregion

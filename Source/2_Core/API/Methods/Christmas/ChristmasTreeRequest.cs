@@ -1,4 +1,4 @@
-using BeatLeader.API.RequestDescriptors;
+﻿using BeatLeader.API.RequestDescriptors;
 using BeatLeader.API.RequestHandlers;
 using BeatLeader.Models;
 using BeatLeader.Utils;

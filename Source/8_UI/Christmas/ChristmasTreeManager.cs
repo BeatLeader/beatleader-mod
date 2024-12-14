@@ -48,7 +48,10 @@ namespace BeatLeader {
 
         private async void LoadTreeSettings(ChristmasTreeSettings settings) {
             await _semaphore.WaitAsync();
+            _christmasTree.MoveTo(settings.gameTreePose.position, true);
+            _christmasTree.ScaleTo(settings.gameTreePose.scale.x, true);
             await _christmasTree.LoadOrnaments(settings);
+
             _semaphore.Release();
         }
 

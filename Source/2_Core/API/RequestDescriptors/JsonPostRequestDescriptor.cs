@@ -28,7 +28,7 @@ namespace BeatLeader.API.RequestDescriptors {
             if (_form != null) {
                 return UnityWebRequest.Post(_url, _form);
             }
-            return UnityWebRequest.Post(_url, _body);
+            return UnityWebRequest.Post(_url, _body, "application/json; charset=utf-8");
         }
 
         public T ParseResponse(UnityWebRequest request) {

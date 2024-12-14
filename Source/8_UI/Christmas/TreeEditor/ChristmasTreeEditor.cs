@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using BeatLeader.API.Methods;
 using BeatLeader.Utils;
 using UnityEngine;
 
@@ -34,6 +35,8 @@ namespace BeatLeader.Components {
             _tree.MoveTo(_editorPos);
             _ornamentStore.Present();
             _editorPanel.Present();
+
+            UploadTreeOrnamentsRequest.AddStateListener(OnTreeRequestStateChanged);
         }
 
         private void Dismiss() {
@@ -43,6 +46,8 @@ namespace BeatLeader.Components {
             _ornamentStore.Dismiss();
             _editorPanel.Dismiss();
             EditorClosedEvent?.Invoke();
+
+            UploadTreeOrnamentsRequest.RemoveStateListener(OnTreeRequestStateChanged);
         }
 
         private void Awake() {
@@ -69,13 +74,31 @@ namespace BeatLeader.Components {
         private bool _uploading;
 
         private async Task UploadSettings() {
-            var settings = _tree.Ornaments.Select(static x => x.GetSettings());
-            await WebUtils.SendAsync($"{BLConstants.BEATLEADER_API_URL}/projecttree/ornaments", "POST", settings);
+            var settings = _tree.Ornaments.Select(static x => x.GetSettings()).ToArray();
+            UploadTreeOrnamentsRequest.SendRequest(settings);
         }
 
         private void SetUploading(bool loading) {
             _uploading = loading;
             _editorPanel.SetLoading(loading);
+        }
+
+        private void OnTreeRequestStateChanged(API.RequestState state, string? result, string failReason) {
+            switch (state) {
+                case API.RequestState.Started:
+                    SetUploading(true);
+                    break;
+                case API.RequestState.Finished:
+                    SetUploading(false);
+                    Dismiss();
+                    break;
+                case API.RequestState.Failed:
+                    Plugin.Log.Error($"OnTreeRequestStateChanged {failReason}");
+                    SetUploading(false);
+                    ChristmasTreeRequest.SendRequest();
+                    Dismiss();
+                    break;
+            }
         }
 
         #endregion
@@ -90,10 +113,7 @@ namespace BeatLeader.Components {
             if (_uploading) {
                 return;
             }
-            SetUploading(true);
-            await UploadSettings();
-            SetUploading(false);
-            Dismiss();
+            UploadSettings();
         }
 
         #endregion

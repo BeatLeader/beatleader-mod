@@ -29,11 +29,9 @@ namespace BeatLeader.UI.MainMenu {
             if (active) {
                 PlatformEventsRequest.SendRequest();
                 PlatformEventsRequest.AddStateListener(OnRequestStateChanged);
+            } else {
+                PlatformEventsRequest.RemoveStateListener(OnRequestStateChanged);
             }
-        }
-
-        protected override void OnDispose() {
-            PlatformEventsRequest.RemoveStateListener(OnRequestStateChanged);
         }
 
         #endregion

@@ -47,12 +47,22 @@ namespace BeatLeader {
             }
             var t = Time.unscaledDeltaTime;
             var stickVec = _grabbingVRController!.thumbstick * t;
+
+            var originalPos = _grabbingController!.TransformPoint(_grabPos);
             
+            // Handle movement and scaling on Z/Y axes
             _grabPos += Vector3.forward * (stickVec.y * 5f);
             var pos = _grabbingController!.TransformPoint(_grabPos);
+
+            // Scale based on Y movement
+            var currentScale = _container.localScale;
+            var newScale = Mathf.Clamp(currentScale.x + originalPos.y * 2f, 0.4f, 3f);
+            _container.localScale = Vector3.one * newScale;
+
             pos.y = 0;
             _container.position = Vector3.Lerp(_container.position, pos, t * 5f);
 
+            // Rotation with X axis
             var initialRot = _container.eulerAngles;
             initialRot.y -= stickVec.x * 50f;
             _container.eulerAngles = initialRot;

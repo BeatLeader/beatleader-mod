@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.Components;
@@ -19,15 +20,25 @@ namespace BeatLeader {
         [SerializeField] private float _radius;
         public bool gizmos;
 
+        public ChristmasTreeSettings settings = new ChristmasTreeSettings {
+            gameTreePose = new FullSerializablePose {
+                position = new Vector3(2.7f, 0f, 4f),
+                rotation = new Quaternion(0, 0, 0, 1),
+                scale = Vector3.one
+            },
+            ornaments = new ChristmasTreeOrnamentSettings[] { }
+        };
+
         public Transform Origin => _mesh;
         internal ChristmasOrnamentPool OrnamentsPool { get; private set; }
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         public void SetMoverEnabled(bool enable) {
             _mover.SetEnabled(enable);
         }
         
         public void Present() {
-            _animator.TargetScale = 1f;
+            _animator.TargetScale = settings.gameTreePose.scale.x;
         }
 
         public void Dismiss() {
@@ -46,6 +57,19 @@ namespace BeatLeader {
             if (immediate) {
                 _animator.EvaluateScaleImmediate();
             }
+        }
+
+        public async void LoadSettings(ChristmasTreeSettings settings, bool move = true) {
+            await _semaphore.WaitAsync();
+            this.settings = settings;
+            ScaleTo(1, true);
+            await LoadOrnaments(settings);
+            if (move) {
+                MoveTo(settings.gameTreePose.position);
+                ScaleTo(settings.gameTreePose.scale.x);
+            }
+
+            _semaphore.Release();
         }
 
         private void Awake() {

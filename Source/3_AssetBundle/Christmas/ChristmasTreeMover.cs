@@ -4,6 +4,7 @@ using VRUIControls;
 
 namespace BeatLeader {
     public class ChristmasTreeMover : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler {
+        private static readonly int treePositionPropertyId = Shader.PropertyToID("_TreePosition");
         private static readonly int textureTintId = Shader.PropertyToID("_TextureTint");
         
         [SerializeField] private Transform _container = null!;
@@ -40,6 +41,10 @@ namespace BeatLeader {
         }
         
         private void Update() {
+            var shaderPos = _container.position;
+            shaderPos.y += 1.5f;
+            Shader.SetGlobalVector(treePositionPropertyId, shaderPos);
+            
             RefreshColor();
             RefreshScale();
             if (!_grabbed) {

@@ -4,6 +4,6 @@
         <button text="Finish" on-click="finish-click" pref-height="8"/>
     </vertical>
     <bg id="loading-indicator" size-delta-x="42" size-delta-y="14">
-        <loading-indicator size-delta-x="42" size-delta-y="14"/>
+        <loading-indicator size-delta-x="12" size-delta-y="12"/>
     </bg>
 </modal>

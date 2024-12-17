@@ -79,7 +79,7 @@ namespace BeatLeader.UI.MainMenu {
                 await _image.SetImageAsync(todaysMap.coverImage);
             }
 
-            await _ornamentTease.SetImageAsync($"https://cdn.assets.beatleader.xyz/project_tree_ornament_preview_1.png");
+            await _ornamentTease.SetImageAsync($"https://cdn.assets.beatleader.xyz/project_tree_ornament_preview_{status.today.bundleId}.png");
         }
 
         private string FormatRemainingTime(TimeSpan span) {

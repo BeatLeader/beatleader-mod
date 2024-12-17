@@ -19,12 +19,14 @@ namespace BeatLeader {
             ChristmasTreeRequest.SendRequest();
 
             LeaderboardEvents.TreeButtonWasPressedEvent += HandleTreeButtonClicked;
+            LeaderboardEvents.TreeEditorWasRequested += HandleTreeEditorWasRequested;
             SoloFlowCoordinatorPatch.PresentedEvent += HandleCoordinatorPresented;
         }
 
         public void LateDispose() {
             ChristmasTreeRequest.RemoveStateListener(HandleTreeRequestState);
             LeaderboardEvents.TreeButtonWasPressedEvent -= HandleTreeButtonClicked;
+            LeaderboardEvents.TreeEditorWasRequested -= HandleTreeEditorWasRequested;
             SoloFlowCoordinatorPatch.PresentedEvent -= HandleCoordinatorPresented;
         }
 
@@ -32,8 +34,10 @@ namespace BeatLeader {
 
         #region Tree
 
-        private ChristmasTree _christmasTree = null!;
+        private ChristmasTree? _christmasTree = null;
         private ChristmasTreeSettingsPanel _settingsPanel = null!;
+
+        private bool coordinatorWasPresented = false;
 
         private void SpawnTree() {
             var prefab = BundleLoader.ChristmasTree;
@@ -48,7 +52,10 @@ namespace BeatLeader {
                 return;
             }
             SpawnTree();
-            _christmasTree.LoadSettings(settings);
+            _christmasTree?.LoadSettings(settings);
+            if (coordinatorWasPresented && _settingsPanel?._treeEditor?.IsOpened != true) {
+                _christmasTree?.Present();
+            }
         }
 
         #endregion
@@ -56,11 +63,19 @@ namespace BeatLeader {
         #region Callbacks
 
         private void HandleCoordinatorPresented() {
-            _christmasTree.Present();
+            coordinatorWasPresented = true;
+            if (_settingsPanel?._treeEditor?.IsOpened != true) {
+                _christmasTree?.Present();
+            }
         }
 
         private void HandleTreeButtonClicked() {
-            _settingsPanel.Present();
+            _settingsPanel?.Present();
+        }
+
+        private void HandleTreeEditorWasRequested() {
+            _settingsPanel?.Present();
+            _settingsPanel?.HandleEditorButtonClicked();
         }
 
         #endregion

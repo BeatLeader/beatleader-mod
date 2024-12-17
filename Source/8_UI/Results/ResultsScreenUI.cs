@@ -48,12 +48,14 @@ namespace BeatLeader.ViewControllers {
 
         public void Refresh() {
             _replayButton.Interactable = ReplayManager.Instance.CachedReplay is not null;
-            
-            //if (todayTree != null &&
-            //    todayTree.score == null && 
-            //    latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower()) {
-            //    ReeModalSystem.OpenModal<TreeResultsModal>(transform, 0);
-            //}
+
+            var todayTree = TreeMapRequest.treeStatus?.today;
+            var latestReplayInfo = ReplayManager.Instance.CachedReplay?.ReplayInfo;
+            if (todayTree != null &&
+                todayTree.score == null &&
+                latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower()) {
+                ReeModalSystem.OpenModal<TreeResultsModal>(transform, 0);
+            }
         }
 
         #endregion

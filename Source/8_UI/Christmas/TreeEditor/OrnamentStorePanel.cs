@@ -21,7 +21,7 @@ namespace BeatLeader.Components {
 
         public void Setup(ChristmasOrnamentPool pool) {
             foreach (var cell in _cells) {
-                cell.Setup(pool);
+                cell.Setup(pool, gameObject);
             }
         }
 
@@ -43,10 +43,10 @@ namespace BeatLeader.Components {
                 var ornament = i == size ? _treeStatus.today : ornaments[i];
                 var cell = _cells[i];
 
-                if (i <= size - 1) {
-                    cell.SetBundleId(ornament.bundleId);
+                if (i <= size - 1 && ornament != null) {
+                    cell.SetOrnamentStatus(ornament);
                 } else {
-                    cell.SetOpeningDay(i + 1);
+                    cell.SetOpeningDayIndex(i);
                 }
             }
         }
@@ -54,19 +54,20 @@ namespace BeatLeader.Components {
         private void Awake() {
             _screen = gameObject.AddComponent<StaticScreen>();
 
-            var group = gameObject.AddComponent<GridLayoutGroup>();
+            var group = new GameObject("GridLayoutGroup").AddComponent<GridLayoutGroup>();
             group.cellSize = Vector2.one * CellSize;
             group.spacing = Vector2.one * GapSize;
             group.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             group.constraintCount = HorizontalCells;
             group.startCorner = GridLayoutGroup.Corner.UpperLeft;
 
-            var rect = GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(CalcSize(HorizontalCells), CalcSize(VerticalCells));
+            var trans = group.GetComponent<RectTransform>();
+            trans.SetParent(transform, false);
+            trans.sizeDelta = new Vector2(CalcSize(HorizontalCells), CalcSize(VerticalCells));
 
             for (var i = 0; i < VerticalCells * HorizontalCells; i++) {
                 var cell = new GameObject("OrnamentStoreCell").AddComponent<OrnamentStoreCell>();
-                cell.transform.SetParent(transform, false);
+                cell.transform.SetParent(group.transform, false);
                 _cells[i] = cell;
             }
 

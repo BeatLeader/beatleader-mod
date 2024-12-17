@@ -58,10 +58,9 @@ namespace BeatLeader.Results {
         private void OnRequestStateChanged(API.RequestState state, TreeStatus result, string failReason) {
             switch (state) {
                 case API.RequestState.Finished: {
-                    //var resultOrnaments = new List<(int, string)> { (1, null) };
-                    //ornamentsToShow = resultOrnaments.Where(o => !existingOrnamentIds.Any(e => e.Item1 == o.Item1)).ToList();
+                    ornamentsToShow = new List<(int, string)> { (1, null), (4, null), (5, null) };
 
-                    ornamentsToShow = result.GetOrnamentIds().Where(o => !existingOrnamentIds.Any(e => e.Item1 == o.Item1)).ToList();
+                    //ornamentsToShow = result.GetOrnamentIds().Where(o => !existingOrnamentIds.Any(e => e.Item1 == o.Item1)).ToList();
                     if (ornamentsToShow.Count() == 0) {
                         Close();
                     }
@@ -161,7 +160,8 @@ namespace BeatLeader.Results {
 
             // Create and animate ornaments
             List<GameObject> ornaments = tasks.Select(t => t.Result).ToList();
-            foreach (var ornament in ornaments) {
+            foreach (var ornamentPrefab in ornaments) {
+                var ornament = Instantiate(ornamentPrefab, null, false);
                 ornament.transform.SetParent(transform);
                 ornament.transform.position = present.transform.position;
                 float angle = UnityEngine.Random.Range(230f, 310f);
@@ -205,7 +205,7 @@ namespace BeatLeader.Results {
 
         [UIAction("OnDecoratePressed"), UsedImplicitly]
         void OnDecorateButtonClick() {
-            LeaderboardEvents.NotifyTreeButtonWasPressed();
+            LeaderboardEvents.NotifyTreeEditorWasRequested();
             Close();
         }
     }

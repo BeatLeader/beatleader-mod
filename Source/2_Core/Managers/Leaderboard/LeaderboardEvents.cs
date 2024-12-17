@@ -137,6 +137,12 @@ namespace BeatLeader.Manager {
             TreeButtonWasPressedEvent?.Invoke();
         }
 
+        public static event Action TreeEditorWasRequested;
+
+        public static void NotifyTreeEditorWasRequested() {
+            TreeEditorWasRequested?.Invoke();
+        }
+
         #endregion
 
         #region LeaderboardSettingsButtonWasPressed

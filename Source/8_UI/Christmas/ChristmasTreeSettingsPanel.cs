@@ -1,4 +1,4 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -31,7 +31,7 @@ namespace BeatLeader.Components {
         #region Setup
 
         private ChristmasTree _tree = null!;
-        private ChristmasTreeEditor _treeEditor = null!;
+        public ChristmasTreeEditor _treeEditor = null!;
         private StaticScreen _screen = null!;
 
         public void Setup(ChristmasTree tree) {
@@ -81,7 +81,7 @@ namespace BeatLeader.Components {
             Dismiss();
         }
         
-        private void HandleEditorButtonClicked() {
+        public void HandleEditorButtonClicked() {
             _treeEditor.Present();
             Dismiss();
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
@@ -64,6 +65,7 @@ namespace BeatLeader.Components {
 
         private void OnClickEvent(PointerEventData _) {
             OnClick?.Invoke();
+            BeatSaberUI.BasicUIAudioManager.HandleButtonClickEvent();
         }
 
         #endregion

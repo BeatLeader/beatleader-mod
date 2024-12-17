@@ -135,5 +135,17 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        #region Christmas
+
+        public static event Action<ChristmasSettings>? ChristmasSettingsUpdatedEvent;
+
+        public static ChristmasSettings ChristmasSettings => ConfigFileData.Instance.ChristmasSettings;
+
+        public static void NotifyChristmasSettingsUpdated() {
+            ChristmasSettingsUpdatedEvent?.Invoke(ChristmasSettings);
+        }
+
+        #endregion
     }
 }

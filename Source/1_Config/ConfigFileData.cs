@@ -112,5 +112,7 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        public ChristmasSettings ChristmasSettings = new();
     }
 }

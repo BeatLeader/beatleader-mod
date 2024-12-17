@@ -1,11 +1,9 @@
-﻿using System.Threading.Tasks;
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace BeatLeader.Components {
@@ -27,6 +25,7 @@ namespace BeatLeader.Components {
 
         private ChristmasTree _tree = null!;
         private Pose _initialPose;
+        private Vector3 _initialScale;
 
         public void Setup(ChristmasTree tree) {
             _tree = tree;
@@ -34,6 +33,7 @@ namespace BeatLeader.Components {
 
         public void Present() {
             _initialPose = _tree.transform.GetLocalPose();
+            _initialScale = _tree.transform.localScale;
             _modal.Show(true, true);
             _tree.SetMoverEnabled(true);
         }
@@ -82,12 +82,14 @@ namespace BeatLeader.Components {
                     break;
                 case API.RequestState.Finished:
                     SetUploading(false);
+                    ChristmasTreeRequest.SendRequest();
                     Dismiss();
                     break;
                 case API.RequestState.Failed:
                     Plugin.Log.Error($"OnTreeRequestStateChanged {failReason}");
                     SetUploading(false);
                     _tree.transform.SetLocalPose(_initialPose);
+                    _tree.transform.localScale = _initialScale;
                     Dismiss();
                     break;
             }
@@ -98,7 +100,7 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         [UIAction("finish-click"), UsedImplicitly]
-        private async void HandleFinishButtonClicked() {
+        private void HandleFinishButtonClicked() {
             if (_uploading) {
                 return;
             }

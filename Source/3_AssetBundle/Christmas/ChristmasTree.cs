@@ -20,25 +20,15 @@ namespace BeatLeader {
         [SerializeField] private float _radius;
         public bool gizmos;
 
-        public ChristmasTreeSettings settings = new ChristmasTreeSettings {
-            gameTreePose = new FullSerializablePose {
-                position = new Vector3(2.7f, 0f, 4f),
-                rotation = new Quaternion(0, 0, 0, 1),
-                scale = Vector3.one
-            },
-            ornaments = new ChristmasTreeOrnamentSettings[] { }
-        };
-
         public Transform Origin => _mesh;
         internal ChristmasOrnamentPool OrnamentsPool { get; private set; }
-        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         public void SetMoverEnabled(bool enable) {
             _mover.SetEnabled(enable);
         }
-        
+
         public void Present() {
-            _animator.TargetScale = settings.gameTreePose.scale.x;
+            _animator.TargetScale = _settings.gameTreePose.scale.x;
         }
 
         public void Dismiss() {
@@ -59,38 +49,53 @@ namespace BeatLeader {
             }
         }
 
-        public async void LoadSettings(ChristmasTreeSettings settings, bool move = true) {
+        private void Awake() {
+            OrnamentsPool = new(this);
+        }
+
+        #region Settings
+
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
+
+        private ChristmasTreeSettings _settings = new() {
+            gameTreePose = new FullSerializablePose {
+                position = new Vector3(2.7f, 0f, 4f),
+                rotation = new Quaternion(0, 0, 0, 1),
+                scale = Vector3.one
+            },
+            ornaments = Array.Empty<ChristmasTreeOrnamentSettings>()
+        };
+
+        public async Task LoadSettings(ChristmasTreeSettings settings, bool move = true) {
             await _semaphore.WaitAsync();
-            this.settings = settings;
-            ScaleTo(1, true);
+
+            _settings = settings;
             await LoadOrnaments(settings);
             if (move) {
-                MoveTo(settings.gameTreePose.position);
+                MoveTo(settings.gameTreePose.position, true);
                 ScaleTo(settings.gameTreePose.scale.x);
             }
 
             _semaphore.Release();
         }
 
-        private void Awake() {
-            OrnamentsPool = new(this);
-        }
+        #endregion
 
         #region Ornaments
 
         internal IReadOnlyCollection<ChristmasTreeOrnament> Ornaments => _ornaments;
-        
+
         private readonly HashSet<ChristmasTreeOrnament> _ornaments = new();
 
         internal void AddOrnament(ChristmasTreeOrnament ornament) {
             _ornaments.Add(ornament);
         }
-        
+
         internal void RemoveOrnament(ChristmasTreeOrnament ornament) {
             _ornaments.Remove(ornament);
         }
-        
-        internal async Task LoadOrnaments(ChristmasTreeSettings settings) {
+
+        private async Task LoadOrnaments(ChristmasTreeSettings settings) {
             var size = settings.ornaments.Length;
             var tasks = new Task[size];
 
@@ -107,7 +112,6 @@ namespace BeatLeader {
             for (var i = 0; i < size; i++) {
                 var ornament = settings.ornaments[i];
                 var instance = OrnamentsPool.Spawn(ornament.bundleId, transform, default);
-                Plugin.Log.Info($"POSE: {settings.ornaments[i].pose}");
                 instance.transform.SetLocalPose(settings.ornaments[i].pose);
                 _ornaments.Add(instance);
             }

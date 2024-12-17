@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API.Methods;
 using BeatLeader.Models;
-using ModestTree;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +14,6 @@ namespace BeatLeader.Components {
         private readonly OrnamentStoreCell[] _cells = new OrnamentStoreCell[VerticalCells * HorizontalCells];
         private TreeStatus? _treeStatus;
         private StaticScreen _screen = null!;
-        private bool _initialized;
 
         public void Setup(ChristmasOrnamentPool pool) {
             foreach (var cell in _cells) {
@@ -33,8 +29,8 @@ namespace BeatLeader.Components {
             _screen.Dismiss();
         }
 
-        public void Reload() {
-            if (_initialized || _treeStatus == null) {
+        private void Reload() {
+            if (_treeStatus == null) {
                 return;
             }
             var ornaments = _treeStatus.previousDays;

@@ -14,6 +14,7 @@ namespace BeatLeader.Components {
         public event Action? EditorClosedEvent;
 
         private OrnamentStorePanel _ornamentStore = null!;
+        private BonusOrnamentStorePanel _bonusOrnamentStore = null!;
         private ChristmasTreeEditorControlPanel _editorPanel = null!;
         private ChristmasTree _tree = null!;
 
@@ -25,6 +26,7 @@ namespace BeatLeader.Components {
         public void Setup(ChristmasTree tree) {
             _tree = tree;
             _ornamentStore.Setup(tree.OrnamentsPool);
+            _bonusOrnamentStore.Setup(tree.OrnamentsPool);
         }
 
         public void Present() {
@@ -34,6 +36,7 @@ namespace BeatLeader.Components {
             _tree.ScaleTo(_editorScale);
             _tree.MoveTo(_editorPos);
             _ornamentStore.Present();
+            _bonusOrnamentStore.Present();
             _editorPanel.Present();
 
             UploadTreeOrnamentsRequest.AddStateListener(OnTreeRequestStateChanged);
@@ -44,6 +47,7 @@ namespace BeatLeader.Components {
             _tree.MoveTo(_initialPos);
             _tree.ScaleTo(_initialScale);
             _ornamentStore.Dismiss();
+            _bonusOrnamentStore.Dismiss();
             _editorPanel.Dismiss();
             EditorClosedEvent?.Invoke();
 
@@ -56,6 +60,12 @@ namespace BeatLeader.Components {
             trans.SetParent(transform, false);
             trans.localPosition = new Vector3(-0.8f, 1f, 0.3f);
             trans.localEulerAngles = new Vector3(0f, 300f, 0f);
+            
+            _bonusOrnamentStore = new GameObject("BonusOrnamentStorePanel").AddComponent<BonusOrnamentStorePanel>();
+            trans = _bonusOrnamentStore.transform;
+            trans.SetParent(transform, false);
+            trans.localPosition = new Vector3(-1.1f, 1f, -0.25f);
+            trans.localEulerAngles = new Vector3(0f, 280f, 0f);
 
             _editorPanel = ReeUIComponentV2.Instantiate<ChristmasTreeEditorControlPanel>(transform);
             _editorPanel.ManualInit(transform);

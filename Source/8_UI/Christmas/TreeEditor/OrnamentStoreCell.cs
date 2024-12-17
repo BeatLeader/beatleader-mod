@@ -20,7 +20,7 @@ namespace BeatLeader.Components {
         private ClickableImage? _previewImage = null;
 
         private int _bundleId;
-        private MapDetail? _song = null; 
+        private MapDetail? _song = null;
 
         public void Setup(ChristmasOrnamentPool pool, GameObject parent) {
             _pool = pool;
@@ -45,7 +45,6 @@ namespace BeatLeader.Components {
             } else {
                 _song = status.song;
                 if (_previewImage == null) {
-
                     var previewImage = new GameObject("PreviewImage").AddComponent<ClickableImage>();
                     previewImage.material = Utilities.ImageResources.NoGlowMat;
 
@@ -60,7 +59,7 @@ namespace BeatLeader.Components {
                 }
                 _previewImage.gameObject.SetActive(true);
                 _hint.text = $"Pass {status.song.name} from {status.song.mapper} to unlock this ornament";
-                
+
                 await _previewImage.SetImageAsync($"https://cdn.assets.beatleader.xyz/project_tree_ornament_preview_{status.bundleId}.png");
             }
         }
@@ -68,7 +67,7 @@ namespace BeatLeader.Components {
         public async void SetBonusOrnamentStatus(BonusOrnament status) {
             _bundleId = status.bundleId;
             await _pool.PreloadAsync(status.bundleId);
-            ReloadNextInstance();
+            ReloadNextInstance(true);
             if (_previewImage != null) {
                 _previewImage.gameObject.SetActive(false);
             }
@@ -94,9 +93,16 @@ namespace BeatLeader.Components {
             var trans = _text.GetComponent<RectTransform>();
             trans.SetParent(transform, false);
             trans.sizeDelta = 10f * Vector2.one;
+
+            trans = GetComponent<RectTransform>();
+            trans.sizeDelta = 10f * Vector2.one;
         }
 
-        private void ReloadNextInstance() {
+        private void ReloadNextInstance(bool despawn = false) {
+            if (despawn && _previewInstance != null) {
+                _previewInstance.gameObject.SetActive(false);
+                _pool.Despawn(_previewInstance);
+            }
             _previewInstance = _pool.Spawn(_bundleId, transform, new Vector2(0f, 2.5f));
             _previewInstance.OrnamentGrabbedEvent += HandlePreviewOrnamentGrabbed;
         }

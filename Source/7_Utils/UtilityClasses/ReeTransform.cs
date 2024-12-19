@@ -1,43 +1,70 @@
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace BeatLeader {
-    public class ReeTransform {
+    public struct ReeTransform {
         #region Constructor
 
-        private Quaternion _rotation;
-        private Quaternion _inverseRotation;
+        public Quaternion Rotation;
 
         public Vector3 Position;
 
-        public Quaternion Rotation {
-            get => _rotation;
-            set {
-                _rotation = value;
-                _inverseRotation = Quaternion.Inverse(value);
-            }
-        }
+        public static ReeTransform Identity => new ReeTransform(Vector3.zero, Quaternion.identity);
+        public static ReeTransform PositiveInfinity => new ReeTransform(new Vector3(500, 500, 500), Quaternion.identity);
 
-        public ReeTransform(
-            Vector3 position,
-            Quaternion rotation
-        ) {
+        public ReeTransform(in Vector3 position, in Quaternion rotation) {
             Position = position;
             Rotation = rotation;
+        }
+
+        public static ReeTransform FromTransform(Transform transform) {
+            return new ReeTransform(transform.position, transform.rotation);
+        }
+
+        #endregion
+
+        #region Properties
+
+        [JsonIgnore]
+        public readonly Quaternion InverseRotation => Quaternion.Inverse(Rotation);
+        [JsonIgnore]
+        public Vector3 Forward => LocalToWorldDirection(Vector3.forward);
+        [JsonIgnore]
+        public Vector3 Right => LocalToWorldDirection(Vector3.right);
+
+        #endregion
+
+        #region Child/Parent
+
+        public static ReeTransform GetParentTransform(in ReeTransform childWorldTransform, in ReeTransform childLocalTransform) {
+            var rotation = childWorldTransform.Rotation * childLocalTransform.InverseRotation;
+
+            return new ReeTransform(
+                childWorldTransform.Position - rotation * childLocalTransform.Position,
+                rotation
+            );
+        }
+
+        public static ReeTransform GetChildTransform(in ReeTransform parentWorldTransform, in ReeTransform childLocalTransform) {
+            return new ReeTransform(
+                parentWorldTransform.LocalToWorldPosition(childLocalTransform.Position),
+                parentWorldTransform.LocalToWorldRotation(childLocalTransform.Rotation)
+            );
         }
 
         #endregion
 
         #region LocalToWorld
 
-        public Vector3 LocalToWorldPosition(Vector3 localPosition) {
-            return Position + _rotation * localPosition;
+        public readonly Vector3 LocalToWorldPosition(in Vector3 localPosition) {
+            return Position + Rotation * localPosition;
         }
 
-        public Vector3 LocalToWorldDirection(Vector3 localDirection) {
-            return _rotation * localDirection;
+        public readonly Vector3 LocalToWorldDirection(in Vector3 localDirection) {
+            return Rotation * localDirection;
         }
 
-        public Quaternion LocalToWorldRotation(Quaternion localRotation) {
+        public readonly Quaternion LocalToWorldRotation(in Quaternion localRotation) {
             return Rotation * localRotation;
         }
 
@@ -45,16 +72,34 @@ namespace BeatLeader {
 
         #region WorldToLocal
 
-        public Vector3 WorldToLocalPosition(Vector3 worldPosition) {
-            return _inverseRotation * (worldPosition - Position);
+        public readonly Vector3 WorldToLocalPosition(in Vector3 worldPosition) {
+            return InverseRotation * (worldPosition - Position);
         }
 
-        public Vector3 WorldToLocalDirection(Vector3 worldDirection) {
-            return _inverseRotation * worldDirection;
+        public readonly Vector3 WorldToLocalDirection(in Vector3 worldDirection) {
+            return InverseRotation * worldDirection;
         }
 
-        public Quaternion WorldToLocalRotation(Quaternion worldRotation) {
-            return _inverseRotation * worldRotation;
+        public readonly Quaternion WorldToLocalRotation(in Quaternion worldRotation) {
+            return InverseRotation * worldRotation;
+        }
+
+        #endregion
+
+        #region Equals
+
+        public bool Equals(ReeTransform other) {
+            return Rotation.Equals(other.Rotation) && Position.Equals(other.Position);
+        }
+
+        public override bool Equals(object obj) {
+            return obj is ReeTransform other && Equals(other);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                return Rotation.GetHashCode() * 397 ^ Position.GetHashCode();
+            }
         }
 
         #endregion

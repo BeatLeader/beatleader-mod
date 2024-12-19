@@ -15,8 +15,9 @@ namespace BeatLeader {
 
         private Transform? _grabbingController;
         private VRController? _grabbingVRController;
-        private Vector3 _grabPos;
-        private Quaternion _grabRot;
+        private ReeTransform _attachmentLocalPose;
+        private ReeTransform _grabWorldPose;
+        private Vector3 _grabScale;
 
         private readonly ValueAnimator _highlightAnimator = new();
         private readonly ValueAnimator _scaleAnimator = new();
@@ -50,24 +51,27 @@ namespace BeatLeader {
             if (!_grabbed) {
                 return;
             }
-            var t = Time.unscaledDeltaTime;
-            var stickVec = _grabbingVRController!.thumbstick * t;
-
-            var originalPos = _grabbingController!.TransformPoint(_grabPos);
             
-            // Handle movement and scaling on Z/Y axes
-            _grabPos += Vector3.forward * (stickVec.y * 5f);
-            var pos = _grabbingController!.TransformPoint(_grabPos);
+            var controllerPose = ReeTransform.FromTransform(_grabbingController);
+            
+            var targetWorldPose = new ReeTransform(
+                controllerPose.LocalToWorldPosition(_attachmentLocalPose.Position),
+                controllerPose.LocalToWorldRotation(_attachmentLocalPose.Rotation)
+            );
 
-            // Scale based on Y movement
-            var currentScale = _container.localScale;
-            var newScale = Mathf.Clamp(currentScale.x + originalPos.y * 2f, 0.4f, 3f);
-            _container.localScale = Vector3.one * newScale;
+            var scale = _grabScale;
+            scale *= targetWorldPose.Position.y / _grabWorldPose.Position.y;
+            scale.x = scale.y = scale.z = Mathf.Clamp(scale.y, 0.3f, 2.0f);
 
-            pos.y = 0;
-            _container.position = Vector3.Lerp(_container.position, pos, t * 5f);
+            var pos = targetWorldPose.Position;
+            pos.y = 0.0f;
+            
+            var t = Time.unscaledDeltaTime * 10f;
+            _container.localScale = Vector3.Lerp(_container.localScale, scale, t);
+            _container.position = Vector3.Lerp(_container.position, pos, t);
 
             // Rotation with X axis
+            var stickVec = _grabbingVRController!.thumbstick * t;
             var initialRot = _container.eulerAngles;
             initialRot.y -= stickVec.x * 50f;
             _container.eulerAngles = initialRot;
@@ -79,8 +83,21 @@ namespace BeatLeader {
             }
             _grabbingVRController = module.vrPointer.lastSelectedVrController;
             _grabbingController = _grabbingVRController.transform;
-            _grabPos = _grabbingController.InverseTransformPoint(_container.position);
-            _grabRot = Quaternion.Inverse(_grabbingController.rotation) * _container.rotation;
+
+            var controllerPose = ReeTransform.FromTransform(_grabbingController);
+            
+            _attachmentLocalPose = new ReeTransform(
+                controllerPose.WorldToLocalPosition(transform.position),
+                controllerPose.WorldToLocalRotation(transform.rotation)
+            );
+            
+            _grabWorldPose = new ReeTransform(
+                transform.position,
+                transform.rotation
+            );
+
+            _grabScale = _container.localScale;
+            
             _grabbed = true;
             RefreshHighlight();
         }

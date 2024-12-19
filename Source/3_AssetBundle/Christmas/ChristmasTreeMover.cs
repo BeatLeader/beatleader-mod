@@ -17,6 +17,7 @@ namespace BeatLeader {
         private VRController? _grabbingVRController;
         private ReeTransform _attachmentLocalPose;
         private Vector3 _attachmentLocalUp;
+        private Vector3 _attachmentWorldForward;
         private ReeTransform _grabWorldPose;
         private Quaternion _grabRotation;
         private Vector3 _grabScale;
@@ -71,9 +72,16 @@ namespace BeatLeader {
             // Rotation with X axis
             var stickVec = _grabbingVRController!.thumbstick * t;
             _rotOffset -= stickVec.x * 20f;
+            
             var currentLocalUp = controllerPose.WorldToLocalDirection(Vector3.up);
-            var angleDiff = Vector3.SignedAngle(_attachmentLocalUp, currentLocalUp, Vector3.forward);
-            var rot = Quaternion.AngleAxis(_rotOffset - angleDiff, Vector3.up) * _grabRotation;
+            currentLocalUp.z = 0;
+            
+            var currentWorldForward = controllerPose.LocalToWorldDirection(Vector3.forward);
+            currentWorldForward.y = 0;
+            
+            var doorknobAngle = Vector3.SignedAngle(_attachmentLocalUp, currentLocalUp, Vector3.forward);
+            var forwardAngle = Vector3.SignedAngle(_attachmentWorldForward, currentWorldForward, Vector3.up);
+            var rot = Quaternion.AngleAxis(_rotOffset + forwardAngle - doorknobAngle, Vector3.up) * _grabRotation;
 
             // Scale
             var scale = _grabScale;
@@ -110,6 +118,10 @@ namespace BeatLeader {
             );
 
             _attachmentLocalUp = controllerPose.WorldToLocalDirection(Vector3.up);
+            _attachmentLocalUp.z = 0;
+
+            _attachmentWorldForward = controllerPose.LocalToWorldDirection(Vector3.forward);
+            _attachmentWorldForward.y = 0;
 
             _grabWorldPose = new ReeTransform(
                 transform.position,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine.EventSystems;
 using VRUIControls;
 
 namespace BeatLeader.Components {
-    [RequireComponent(typeof(Rigidbody))]
+    //[RequireComponent(typeof(Rigidbody))]
     internal class ChristmasTreeOrnament : MonoBehaviour, IPointerExitHandler, IPointerEnterHandler, IPointerDownHandler, IPointerUpHandler {
         #region Setup
 
@@ -15,9 +16,10 @@ namespace BeatLeader.Components {
         public event Action<ChristmasTreeOrnament>? OrnamentDeinitEvent;
         public event Action<ChristmasTreeOrnament>? OrnamentGrabbedEvent;
 
-        private Rigidbody _rigidbody = null!;
+        //private Rigidbody _rigidbody = null!;
         private ChristmasTree? _tree;
         private bool _initialized;
+        public bool _canBeDeinitialized;
 
         public void Setup(ChristmasTree tree, int bundleId) {
             _tree = tree;
@@ -37,9 +39,10 @@ namespace BeatLeader.Components {
             gameObject.SetActive(true);
         }
 
-        private void Deinit() {
-            _rigidbody.useGravity = false;
-            _rigidbody.velocity = Vector3.zero;
+        public void Deinit() {
+            //_rigidbody.useGravity = false;
+            //_rigidbody.velocity = Vector3.zero;
+            //_rigidbody.interpolation = RigidbodyInterpolation.None;
             _hadContact = false;
             _grabbed = false;
             _hovered = false;
@@ -47,9 +50,9 @@ namespace BeatLeader.Components {
         }
 
         private void Awake() {
-            _rigidbody = GetComponent<Rigidbody>();
-            _rigidbody.useGravity = false;
-            _rigidbody.interpolation = RigidbodyInterpolation.None;
+            //_rigidbody = GetComponent<Rigidbody>();
+            //_rigidbody.useGravity = false;
+            //_rigidbody.interpolation = RigidbodyInterpolation.None;
         }
 
         #endregion
@@ -80,7 +83,7 @@ namespace BeatLeader.Components {
                     }
 
                     transform.localPosition = pos;
-                } else if (transform.position.y < 0) {
+                } else if (transform.position.y < 0 && _canBeDeinitialized) {
                     Deinit();
                     OrnamentDeinitEvent?.Invoke(this);
                 }
@@ -104,12 +107,12 @@ namespace BeatLeader.Components {
             }
 
             _grabRot = Quaternion.Inverse(_grabbingController.rotation) * transform.rotation;
-            _rigidbody.useGravity = false;
+           // _rigidbody.useGravity = false;
             _grabbed = true;
-            
+
             transform.SetParent(_tree!.Origin, true);
             transform.localScale = Vector3.one;
-            
+
             OrnamentGrabbedEvent?.Invoke(this);
         }
 
@@ -122,10 +125,12 @@ namespace BeatLeader.Components {
             //TODO: implement alignment
             _hadContact = _tree!.HasAreaContact(transform.position);
             if (!_hadContact) {
-                _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-                _rigidbody.useGravity = true;
+                Deinit();
+                //_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+                //_rigidbody.useGravity = true;
             }
 
+            _canBeDeinitialized = true;
             _grabbed = false;
 
             if (_hadContact) {

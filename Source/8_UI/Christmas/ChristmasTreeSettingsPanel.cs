@@ -41,6 +41,15 @@ namespace BeatLeader.Components {
             }
         }
 
+        [UIValue("enable-others-tree"), UsedImplicitly]
+        private bool EnableOthersTree {
+            get => PluginConfig.ChristmasSettings.OthersTreeEnabled;
+            set {
+                PluginConfig.ChristmasSettings.OthersTreeEnabled = value;
+                PluginConfig.NotifyChristmasSettingsUpdated();
+            }
+        }
+
         #endregion
         
         #region Setup

@@ -25,6 +25,8 @@ namespace BeatLeader {
 
         private bool _moverFull;
         private bool _moverRestricted;
+        private bool _isSpinning;
+        private float _spinSpeed = 20f; // Degrees per second
 
         public void SetMoverFull(bool value) {
             _moverFull = value;
@@ -36,12 +38,21 @@ namespace BeatLeader {
             _mover.SetEnabled(_moverFull, _moverRestricted);
         }
 
+        public void StartSpinning() {
+            _isSpinning = true;
+        }
+
+        public void StopSpinning() {
+            _isSpinning = false;
+        }
+
         public void Present() {
             _animator.TargetScale = _settings.gameTreePose.scale.x;
         }
 
         public void Dismiss() {
             _animator.TargetScale = 0f;
+            StopSpinning();
         }
 
         public void MoveTo(Vector3 pos, bool immediate = false) {
@@ -60,6 +71,12 @@ namespace BeatLeader {
 
         private void Awake() {
             OrnamentsPool = new(this);
+        }
+
+        private void Update() {
+            if (_isSpinning) {
+                transform.Rotate(Vector3.up, _spinSpeed * Time.deltaTime);
+            }
         }
 
         #region Settings

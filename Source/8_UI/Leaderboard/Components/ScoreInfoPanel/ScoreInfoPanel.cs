@@ -48,6 +48,8 @@ namespace BeatLeader.Components {
         [UIComponent("bottom-panel"), UsedImplicitly]
         private ImageView _bottomPanel = null!;
 
+        public static event Action<(bool, Score)> ScoreInfoPanelEvent;
+
         private void Awake() {
             _miniProfile = Instantiate<MiniProfile>(transform);
             _scoreStatsLoadingScreen = Instantiate<ScoreStatsLoadingScreen>(transform);
@@ -90,6 +92,10 @@ namespace BeatLeader.Components {
         protected override void OnResume() {
             SetScore(Context.Item1);
             _replayPanel.Setup(Context.Item2);
+        }
+
+        protected override void OnRootStateChange(bool active) {
+            ScoreInfoPanelEvent.Invoke((active, Context.Item1));
         }
 
         private void OnReplayDownloadStateChangedEvent(bool state) {

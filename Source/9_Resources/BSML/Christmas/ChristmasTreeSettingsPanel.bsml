@@ -1,11 +1,12 @@
-<bg size-delta-x="42" size-delta-y="24">
+﻿<bg size-delta-x="42" size-delta-y="24">
     <vertical pref-width="42" pref-height="24" vertical-fit="PreferredSize">
         <macro.as-host host="mover">
             <macro.reparent transform="ui-component"/>
         </macro.as-host>
-        <vertical pref-height="14" bg="round-rect-panel" pad-left="2" pad-right="2" horizontal-fit="Unconstrained">
+        <vertical pref-height="21" bg="round-rect-panel" pad-left="2" pad-right="2" horizontal-fit="Unconstrained">
             <toggle-setting text="Enable Tree" value="enable-tree" bind-value="true" apply-on-change="true"/>
             <toggle-setting text="Enable Snow" value="enable-snow" bind-value="true" apply-on-change="true"/>
+            <toggle-setting text="Other's trees" hover-hint="Show trees of other players on score details" value="enable-others-tree" bind-value="true" apply-on-change="true"/>
         </vertical>
         <horizontal pref-height="8">
             <button text="Close" on-click="close-click" pref-width="20"/>

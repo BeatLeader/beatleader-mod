@@ -120,7 +120,7 @@ namespace BeatLeader {
 
             for (var i = 0; i < size; i++) {
                 var ornament = settings.ornaments[i];
-                var instance = OrnamentsPool.Spawn(ornament.bundleId, transform, default);
+                var instance = OrnamentsPool.Spawn(ornament.bundleId, transform, default, false);
                 instance.transform.SetLocalPose(settings.ornaments[i].pose);
                 _ornaments.Add(instance);
             }

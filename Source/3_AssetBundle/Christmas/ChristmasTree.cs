@@ -23,8 +23,17 @@ namespace BeatLeader {
         public Transform Origin => _mesh;
         internal ChristmasOrnamentPool OrnamentsPool { get; private set; }
 
-        public void SetMoverEnabled(bool enable) {
-            _mover.SetEnabled(enable);
+        private bool _moverFull;
+        private bool _moverRestricted;
+
+        public void SetMoverFull(bool value) {
+            _moverFull = value;
+            _mover.SetEnabled(_moverFull, _moverRestricted);
+        }
+
+        public void SetMoverRestricted(bool value) {
+            _moverRestricted = value;
+            _mover.SetEnabled(_moverFull, _moverRestricted);
         }
 
         public void Present() {

@@ -35,12 +35,12 @@ namespace BeatLeader.Components {
             _initialPose = _tree.transform.GetLocalPose();
             _initialScale = _tree.transform.localScale;
             _modal.Show(true, true);
-            _tree.SetMoverEnabled(true);
+            _tree.SetMoverFull(true);
         }
 
         private void Dismiss() {
             _modal.Hide(true);
-            _tree.SetMoverEnabled(false);
+            _tree.SetMoverFull(false);
         }
 
         protected override void OnInitialize() {

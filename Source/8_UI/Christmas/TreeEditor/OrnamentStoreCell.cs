@@ -103,7 +103,12 @@ namespace BeatLeader.Components {
                 _previewInstance.gameObject.SetActive(false);
                 _pool.Despawn(_previewInstance);
             }
-            _previewInstance = _pool.Spawn(_bundleId, transform, new Vector2(0f, 2.5f), true);
+            
+            _previewInstance = _pool.Spawn(_bundleId);
+            _previewInstance.transform.SetParent(transform, false);
+            _previewInstance.transform.localPosition = new Vector3(0.0f, 2.5f, 0.0f);
+            _previewInstance.transform.localRotation = Quaternion.identity;
+            _previewInstance.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
             _previewInstance.OrnamentGrabbedEvent += HandlePreviewOrnamentGrabbed;
         }
 

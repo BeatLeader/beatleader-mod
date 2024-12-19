@@ -15,21 +15,19 @@ namespace BeatLeader.Components {
             await ChristmasOrnamentLoader.EnsureOrnamentPrefabLoaded(bundleId);
         }
 
-        public ChristmasTreeOrnament Spawn(int id, Transform? parent, Vector3 pos, bool localPosStays) {
+        public ChristmasTreeOrnament Spawn(int id) {
             ChristmasTreeOrnament ornament;
             var cache = GetCache(id);
             if (cache.Count > 0) {
                 ornament = cache.Pop();
-                // True to keep the size
-                ornament.transform.SetParent(parent, localPosStays);
             } else {
                 // supposing that it was previously loaded (sorry, but I don't have any time to implement it in a proper way)
                 var prefab = ChristmasOrnamentLoader.LoadOrnamentPrefabAsync(id).Result;
-                var go = Object.Instantiate(prefab, parent, localPosStays);
+                var go = Object.Instantiate(prefab);
                 ornament = go.AddComponent<ChristmasTreeOrnament>();
                 ornament.Setup(_tree, id);
             }
-            ornament.transform.localPosition = pos;
+
             ornament.OrnamentDeinitEvent += Despawn;
             ornament.Init();
             return ornament;

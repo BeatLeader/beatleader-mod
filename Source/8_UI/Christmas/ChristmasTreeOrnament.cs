@@ -69,6 +69,7 @@ namespace BeatLeader.Components {
             if (!_initialized) {
                 return;
             }
+
             if (!_grabbed) {
                 if (_hadContact) {
                     var t = Time.deltaTime * 7f;
@@ -77,6 +78,7 @@ namespace BeatLeader.Components {
                         pos = _alignedOrnamentPos;
                         _hadContact = false;
                     }
+
                     transform.localPosition = pos;
                 } else if (transform.position.y < 0) {
                     Deinit();
@@ -94,14 +96,20 @@ namespace BeatLeader.Components {
             if (!_hovered || eventData.currentInputModule is not VRInputModule module) {
                 return;
             }
+
             _grabbingController = module.vrPointer.lastSelectedVrController.transform;
             _grabPos = _grabbingController.InverseTransformPoint(transform.position);
             if (_grabPos.magnitude > MaxDistance) {
                 _grabPos = _grabPos.normalized * MaxDistance;
             }
+
             _grabRot = Quaternion.Inverse(_grabbingController.rotation) * transform.rotation;
             _rigidbody.useGravity = false;
             _grabbed = true;
+            
+            transform.SetParent(_tree!.Origin, true);
+            transform.localScale = Vector3.one;
+            
             OrnamentGrabbedEvent?.Invoke(this);
         }
 
@@ -109,6 +117,7 @@ namespace BeatLeader.Components {
             if (!_grabbed) {
                 return;
             }
+
             _grabbingController = null;
             //TODO: implement alignment
             _hadContact = _tree!.HasAreaContact(transform.position);
@@ -116,8 +125,9 @@ namespace BeatLeader.Components {
                 _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
                 _rigidbody.useGravity = true;
             }
+
             _grabbed = false;
-            
+
             if (_hadContact) {
                 transform.SetParent(_tree!.Origin, true);
                 _alignedOrnamentPos = transform.localPosition;

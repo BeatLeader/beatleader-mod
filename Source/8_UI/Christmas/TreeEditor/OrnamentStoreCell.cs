@@ -28,7 +28,7 @@ namespace BeatLeader.Components {
         }
 
         public void SetOpeningDayIndex(int dayIndex) {
-            _text.text = $"{19 + dayIndex}th";
+            _text.text = $"Dec {19 + dayIndex}";
             if (dayIndex == 6) {
                 _text.color = Color.yellow;
             }
@@ -87,7 +87,7 @@ namespace BeatLeader.Components {
 
             _text = new GameObject("Text").AddComponent<TextMeshProUGUI>();
             _text.alignment = TextAlignmentOptions.Center;
-            _text.fontSize = 5f;
+            _text.fontSize = 4f;
             _text.color = Color.red;
 
             var trans = _text.GetComponent<RectTransform>();

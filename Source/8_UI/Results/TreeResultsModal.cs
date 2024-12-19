@@ -30,7 +30,18 @@ namespace BeatLeader.Results {
             ornamentsToShow = null;
 
             if (TreeMapRequest.treeStatus != null) {
-                _dateText.SetText($"December {TreeMapRequest.treeStatus.today.startTime.AsUnixTime().Day}th completed!");
+                var day = TreeMapRequest.treeStatus.today.startTime.AsUnixTime().Day;
+                var suffix = "th";
+                if (day % 10 == 1) {
+                    suffix = "st";
+                }
+                if (day % 10 == 2) {
+                    suffix = "nd";
+                }
+                if (day % 10 == 3) {
+                    suffix = "rd";
+                }
+                _dateText.SetText($"December {day}{suffix} completed!");
             }
             TreeMapRequest.AddStateListener(OnRequestStateChanged);
         }

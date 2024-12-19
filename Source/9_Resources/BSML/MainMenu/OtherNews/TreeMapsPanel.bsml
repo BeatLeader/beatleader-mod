@@ -15,7 +15,7 @@
             
             <button id="button" pref-height="8" pref-width="12" text="Play" on-click="OnButtonPressed" pad="0" />
             <vertical pref-width="2" vertical-fit="PreferredSize" />
-            <img id="ornament-tease" preserve-aspect="true" pref-width="6" pref-height="6" horizontal-fit="PreferredSize" vertical-fit="PreferredSize"/>
+            <img id="ornament-tease" hover-hint="Pass this map to unlock ornament" preserve-aspect="true" pref-width="6" pref-height="6" horizontal-fit="PreferredSize" vertical-fit="PreferredSize"/>
         </horizontal>
     </vertical>
 </vertical>

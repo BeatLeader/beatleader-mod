@@ -107,6 +107,15 @@ namespace BeatLeader.Components {
             UploadSettings();
         }
 
+        [UIAction("reset-click"), UsedImplicitly]
+        private void HandleResetButtonClicked() {
+            _tree.transform.SetLocalPose(new FullSerializablePose {
+                position = new Vector3(2.7f, 0f, 4f),
+                rotation = new Quaternion(0, 0, 0, 1),
+            });
+            _tree.transform.localScale = Vector3.one * 1.7f;
+        }
+
         #endregion
     }
 }

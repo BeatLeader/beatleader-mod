@@ -23,27 +23,11 @@ namespace BeatLeader.ViewControllers {
             _replayButton.SetParent(transform);
             _replayButton.ReplayButtonClickedEvent += HandleReplayButtonClicked;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
         }
         
         protected override void OnDestroy() {
             _replayButton.ReplayButtonClickedEvent -= HandleReplayButtonClicked;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
-        }
-
-        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
-            var todayTree = TreeMapRequest.treeStatus?.today;
-            var latestReplayInfo = ReplayManager.Instance.CachedReplay?.ReplayInfo;
-
-            if (todayTree != null &&
-                todayTree.score == null &&
-                latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower() &&
-                latestReplayInfo?.LevelEndType == Models.LevelEndType.Clear &&
-                latestReplayInfo?.Modifiers.Contains("NF") == false) {
-                ReeModalSystem.OpenModal<TreeResultsModal>(transform, 0);
-            }
         }
 
         public void Refresh() {
@@ -51,9 +35,11 @@ namespace BeatLeader.ViewControllers {
 
             var todayTree = TreeMapRequest.treeStatus?.today;
             var latestReplayInfo = ReplayManager.Instance.CachedReplay?.ReplayInfo;
+
             if (todayTree != null &&
                 todayTree.score == null &&
-                latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower()) {
+                latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower() &&
+                latestReplayInfo?.LevelEndType == Models.LevelEndType.Clear) {
                 ReeModalSystem.OpenModal<TreeResultsModal>(transform, 0);
             }
         }

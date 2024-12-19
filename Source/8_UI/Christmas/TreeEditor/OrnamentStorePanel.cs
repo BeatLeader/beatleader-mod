@@ -36,10 +36,10 @@ namespace BeatLeader.Components {
             var ornaments = _treeStatus.previousDays;
             var size = ornaments.Length;
             for (var i = 0; i < VerticalCells * HorizontalCells; i++) {
-                var ornament = i == size ? _treeStatus.today : ornaments[i];
                 var cell = _cells[i];
 
-                if (i <= size - 1 && ornament != null) {
+                if (i <= size) {
+                    var ornament = i == size ? _treeStatus.today : ornaments[i];
                     cell.SetOrnamentStatus(ornament);
                 } else {
                     cell.SetOpeningDayIndex(i);

@@ -60,7 +60,7 @@ namespace BeatLeader.Components {
                 _previewImage.gameObject.SetActive(true);
                 _hint.text = $"Pass {status.song.name} from {status.song.mapper} to unlock this ornament";
 
-                await _previewImage.SetImageAsync($"https://cdn.assets.beatleader.xyz/project_tree_ornament_preview_{status.bundleId}.png");
+                await _previewImage.SetImageAsync($"https://cdn.assets.beatleader.xyz/project_tree_ornament_{status.bundleId}_preview.png");
             }
         }
 

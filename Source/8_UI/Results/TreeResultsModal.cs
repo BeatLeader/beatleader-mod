@@ -32,7 +32,6 @@ namespace BeatLeader.Results {
             if (TreeMapRequest.treeStatus != null) {
                 _dateText.SetText($"December {TreeMapRequest.treeStatus.today.startTime.AsUnixTime().Day}th completed!");
             }
-            TreeMapRequest.SendRequest();
             TreeMapRequest.AddStateListener(OnRequestStateChanged);
         }
 
@@ -58,17 +57,12 @@ namespace BeatLeader.Results {
         private void OnRequestStateChanged(API.RequestState state, TreeStatus result, string failReason) {
             switch (state) {
                 case API.RequestState.Finished: {
-                    ornamentsToShow = new List<(int, string)> { (1, null), (4, null), (5, null) };
-
-                    //ornamentsToShow = result.GetOrnamentIds().Where(o => !existingOrnamentIds.Any(e => e.Item1 == o.Item1)).ToList();
+                    ornamentsToShow = result.GetOrnamentIds().Where(o => !existingOrnamentIds.Any(e => e.Item1 == o.Item1)).ToList();
                     if (ornamentsToShow.Count() == 0) {
                         Close();
                     }
                     break;
                 }
-                default:
-                    Close();
-                    break;
             }
         }
 
@@ -99,15 +93,17 @@ namespace BeatLeader.Results {
                 yield return null;
             }
 
+            yield return new WaitForSeconds(4f);
+            
+            TreeMapRequest.SendRequest();
+
             yield return new WaitUntil(() => ornamentsToShow != null);
 
             for (var i = 0; i < ornamentsToShow.Count; i++) {
                 tasks.Add(ChristmasOrnamentLoader.LoadOrnamentPrefabAsync(ornamentsToShow[i].Item1));
             }
 
-            if (tasks.Count == 0 || tasks.All(t => t.IsCompleted)) {
-                yield return new WaitForSeconds(2f);
-            } else {
+            if (tasks.Count > 0) {
                 yield return new WaitUntil(() => Task.WhenAll(tasks).IsCompleted);
             }
 

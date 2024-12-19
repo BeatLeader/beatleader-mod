@@ -74,6 +74,8 @@ namespace BeatLeader {
 
             if (PluginConfig.ChristmasSettings.SnowEnabled) {
                 _snow.Play(true);
+            } else {
+                _snow.Stop();
             }
         }
 

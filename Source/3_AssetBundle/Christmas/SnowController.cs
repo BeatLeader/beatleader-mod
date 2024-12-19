@@ -28,6 +28,8 @@ namespace BeatLeader {
         public void Stop() {
             var emission = _particleSystem.emission;
             emission.enabled = false;
+            _particleSystem.Stop();
+            _particleSystem.Clear();
         }
     }
 }

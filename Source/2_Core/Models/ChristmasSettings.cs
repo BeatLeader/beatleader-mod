@@ -1,6 +1,6 @@
 ﻿namespace BeatLeader.Models {
     internal class ChristmasSettings {
-        public bool TreeEnabled { get; set; }
-        public bool SnowEnabled { get; set; }
+        public bool TreeEnabled { get; set; } = true;
+        public bool SnowEnabled { get; set; } = true;
     }
 }

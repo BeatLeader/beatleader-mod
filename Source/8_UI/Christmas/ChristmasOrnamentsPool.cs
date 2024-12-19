@@ -21,11 +21,11 @@ namespace BeatLeader.Components {
             if (cache.Count > 0) {
                 ornament = cache.Pop();
                 // True to keep the size
-                ornament.transform.SetParent(parent, true);
+                ornament.transform.SetParent(parent, false);
             } else {
                 // supposing that it was previously loaded (sorry, but I don't have any time to implement it in a proper way)
                 var prefab = ChristmasOrnamentLoader.LoadOrnamentPrefabAsync(id).Result;
-                var go = Object.Instantiate(prefab, parent, true);
+                var go = Object.Instantiate(prefab, parent, false);
                 ornament = go.AddComponent<ChristmasTreeOrnament>();
                 ornament.Setup(_tree, id);
             }

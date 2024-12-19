@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatLeader.API.Methods;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -57,6 +58,7 @@ namespace BeatLeader.Components {
 
         [UIAction("cancel-click"), UsedImplicitly]
         private void HandleCancelClicked() {
+            ChristmasTreeRequest.SendRequest();
             CancelButtonClickedEvent?.Invoke();
         }
 

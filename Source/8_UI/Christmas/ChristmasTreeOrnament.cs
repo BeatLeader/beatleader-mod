@@ -48,6 +48,8 @@ namespace BeatLeader.Components {
             _grabbed = false;
             _hovered = false;
             gameObject.SetActive(false);
+            OrnamentDeinitEvent = null;
+            OrnamentGrabbedEvent = null;
         }
 
         private void Awake() {

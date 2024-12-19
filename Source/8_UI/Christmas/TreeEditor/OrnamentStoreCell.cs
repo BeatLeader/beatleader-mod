@@ -1,4 +1,5 @@
-﻿using BeatLeader.Models;
+﻿using System.Threading;
+using BeatLeader.Models;
 using BeatLeader.UI.MainMenu;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Components;
@@ -21,6 +22,8 @@ namespace BeatLeader.Components {
 
         private int _bundleId;
         private MapDetail? _song = null;
+        
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         public void Setup(ChristmasOrnamentPool pool, GameObject parent) {
             _pool = pool;
@@ -65,6 +68,8 @@ namespace BeatLeader.Components {
         }
 
         public async void SetBonusOrnamentStatus(BonusOrnament status) {
+            await _semaphore.WaitAsync();
+            
             _bundleId = status.bundleId;
             await _pool.PreloadAsync(status.bundleId);
             ReloadNextInstance(true);
@@ -74,6 +79,8 @@ namespace BeatLeader.Components {
             if (status.description.Length > 0) {
                 _hint.text = status.description;
             }
+            
+            _semaphore.Release();
         }
 
         private void Awake() {
@@ -103,7 +110,7 @@ namespace BeatLeader.Components {
                 _previewInstance.Deinit();
                 _pool.Despawn(_previewInstance);
             }
-            
+
             _previewInstance = _pool.Spawn(_bundleId);
             _previewInstance.transform.SetParent(transform, false);
             _previewInstance.transform.localPosition = new Vector3(0.0f, 2.5f, 0.0f);

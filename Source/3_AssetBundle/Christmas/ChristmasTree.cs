@@ -132,6 +132,7 @@ namespace BeatLeader {
             var tasks = new Task[size];
 
             foreach (var ornament in _ornaments) {
+                ornament.Deinit();
                 OrnamentsPool.Despawn(ornament);
             }
             _ornaments.Clear();

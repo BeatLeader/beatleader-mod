@@ -34,6 +34,7 @@ namespace BeatLeader.Components {
         }
 
         public void Despawn(ChristmasTreeOrnament ornament) {
+            ornament.OrnamentDeinitEvent -= Despawn;
             var cache = GetCache(ornament.BundleId);
             cache.Push(ornament);
         }

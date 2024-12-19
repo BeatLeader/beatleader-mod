@@ -22,6 +22,8 @@ namespace BeatLeader.Results {
         List<(int, string)> ornamentsToShow;
         List<Task<GameObject>> tasks;
 
+        List<GameObject> spawned = new List<GameObject>();
+
         bool active = false;
         bool animating = false;
 
@@ -91,6 +93,11 @@ namespace BeatLeader.Results {
             Vector3 startPos = present.transform.localPosition;
             Vector3 targetPos = startPos - Vector3.up * 20f;
 
+            foreach (var item in spawned) {
+                Destroy(item);
+            }
+            spawned.Clear();
+
             while (elapsedTime < dropDuration) {
                 elapsedTime += Time.deltaTime;
                 float progress = elapsedTime / dropDuration;
@@ -104,21 +111,7 @@ namespace BeatLeader.Results {
                 yield return null;
             }
 
-            yield return new WaitForSeconds(4f);
-            
-            TreeMapRequest.SendRequest();
-
-            yield return new WaitUntil(() => ornamentsToShow != null);
-
-            for (var i = 0; i < ornamentsToShow.Count; i++) {
-                tasks.Add(ChristmasOrnamentLoader.LoadOrnamentPrefabAsync(ornamentsToShow[i].Item1));
-            }
-
-            if (tasks.Count > 0) {
-                yield return new WaitUntil(() => Task.WhenAll(tasks).IsCompleted);
-            }
-
-            float shakeDuration = 0.3f;
+            float shakeDuration = 2f;
             elapsedTime = 0;
             Vector3 originalPos = present.transform.localPosition;
             
@@ -130,6 +123,18 @@ namespace BeatLeader.Results {
                 present.transform.localPosition = originalPos + new Vector3(shake, 0, shake);
                 
                 yield return null;
+            }
+
+            TreeMapRequest.SendRequest();
+
+            yield return new WaitUntil(() => ornamentsToShow != null);
+
+            for (var i = 0; i < ornamentsToShow.Count; i++) {
+                tasks.Add(ChristmasOrnamentLoader.LoadOrnamentPrefabAsync(ornamentsToShow[i].Item1));
+            }
+
+            if (tasks.Count > 0) {
+                yield return new WaitUntil(() => Task.WhenAll(tasks).IsCompleted);
             }
             
             present.transform.localPosition = originalPos;
@@ -171,6 +176,7 @@ namespace BeatLeader.Results {
                 var ornament = Instantiate(ornamentPrefab, null, false);
                 ornament.transform.SetParent(transform);
                 ornament.transform.position = present.transform.position;
+                ornament.transform.localScale *= 4f;
                 float angle = UnityEngine.Random.Range(230f, 310f);
                 float radius = UnityEngine.Random.Range(0.3f, 0.8f); // Reduced radius range
                 Vector3 targetPos2 = present.transform.position + new Vector3(
@@ -178,6 +184,8 @@ namespace BeatLeader.Results {
                     UnityEngine.Random.Range(0.3f, 0.8f),
                     Mathf.Sin(angle * Mathf.Deg2Rad) * radius
                 );
+
+                spawned.Add(ornament);
 
                 StartCoroutine(AnimateOrnament(ornament, targetPos2));
             }

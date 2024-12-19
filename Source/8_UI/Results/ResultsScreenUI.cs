@@ -39,6 +39,7 @@ namespace BeatLeader.ViewControllers {
             if (todayTree != null &&
                 todayTree.score == null &&
                 latestReplayInfo?.SongHash.ToLower() == todayTree.song.hash.ToLower() &&
+                latestReplayInfo?.Modifiers.Contains("NF") == false &&
                 latestReplayInfo?.LevelEndType == Models.LevelEndType.Clear) {
                 ReeModalSystem.OpenModal<TreeResultsModal>(transform, 0);
             }

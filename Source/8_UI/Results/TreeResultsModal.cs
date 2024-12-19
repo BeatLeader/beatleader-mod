@@ -71,6 +71,11 @@ namespace BeatLeader.Results {
             switch (state) {
                 case API.RequestState.Finished: {
                     ornamentsToShow = result.GetOrnamentIds().Where(o => !existingOrnamentIds.Any(e => e.Item1 == o.Item1)).ToList();
+                    if (result?.today != null) {
+                        if (!ornamentsToShow.Any(o => o.Item1 == result.today.bundleId)) {
+                            ornamentsToShow.Add((result.today.bundleId, ""));
+                        }
+                    }
                     if (ornamentsToShow.Count() == 0) {
                         Close();
                     }

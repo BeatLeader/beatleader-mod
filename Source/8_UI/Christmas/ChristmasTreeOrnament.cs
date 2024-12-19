@@ -88,12 +88,17 @@ namespace BeatLeader.Components {
             }
         }
 
+        private const float MaxDistance = 0.17f;
+
         public void OnPointerDown(PointerEventData eventData) {
             if (!_hovered || eventData.currentInputModule is not VRInputModule module) {
                 return;
             }
             _grabbingController = module.vrPointer.lastSelectedVrController.transform;
             _grabPos = _grabbingController.InverseTransformPoint(transform.position);
+            if (_grabPos.magnitude > MaxDistance) {
+                _grabPos = _grabPos.normalized * MaxDistance;
+            }
             _grabRot = Quaternion.Inverse(_grabbingController.rotation) * transform.rotation;
             _rigidbody.useGravity = false;
             _grabbed = true;

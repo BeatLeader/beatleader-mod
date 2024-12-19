@@ -1,12 +1,13 @@
-<vertical id="bg" pref-width="40" pref-height="24" vertical-fit="PreferredSize">
+<vertical id="bg" pref-width="44" pref-height="24" vertical-fit="PreferredSize">
     <horizontal pref-height="16" bg="round-rect-panel">
         <text text="TIP: Use joysticks on your controllers to rotate the tree" align="Center" word-wrapping="true"/>
     </horizontal>
     <horizontal pref-height="8" spacing="2">
         <button text="Cancel" on-click="cancel-click" horizontal-fit="Unconstrained"/>
-        <primary-button text="Save" on-click="save-click" horizontal-fit="Unconstrained"/>
+        <button text="Clear" on-click="clear-click" horizontal-fit="Unconstrained"/>
+        <primary-button text="Save" on-click="save-click" horizontal-fit="PreferredSize"/>
     </horizontal>
-    <vertical id="loading-indicator" ignore-layout="true" pref-width="40" pref-height="24">
-        <loading-indicator size-delta-x="42" size-delta-y="14"/>
-    </vertical>
+    <bg id="loading-indicator" ignore-layout="true" pref-width="40" pref-height="24">
+        <loading-indicator size-delta-x="14" size-delta-y="14"/>
+    </bg>
 </vertical>

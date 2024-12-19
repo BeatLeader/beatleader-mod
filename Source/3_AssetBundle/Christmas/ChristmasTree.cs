@@ -33,7 +33,7 @@ namespace BeatLeader {
                 ornament.CanGrab = value;
             }
         }
-        
+
         public void SetMoverFull(bool value) {
             _moverFull = value;
             _mover.SetEnabled(_moverFull, _moverRestricted);
@@ -127,15 +127,18 @@ namespace BeatLeader {
             _ornaments.Remove(ornament);
         }
 
-        private async Task LoadOrnaments(ChristmasTreeSettings settings) {
-            var size = settings.ornaments.Length;
-            var tasks = new Task[size];
-
+        internal void ClearOrnaments() {
             foreach (var ornament in _ornaments) {
                 ornament.Deinit();
                 OrnamentsPool.Despawn(ornament);
             }
             _ornaments.Clear();
+        }
+
+        private async Task LoadOrnaments(ChristmasTreeSettings settings) {
+            var size = settings.ornaments.Length;
+            var tasks = new Task[size];
+            ClearOrnaments();
 
             for (var i = 0; i < size; i++) {
                 tasks[i] = OrnamentsPool.PreloadAsync(settings.ornaments[i].bundleId);

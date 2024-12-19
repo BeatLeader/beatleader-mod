@@ -27,6 +27,7 @@ namespace BeatLeader.Components {
             _tree = tree;
             _ornamentStore.Setup(tree.OrnamentsPool);
             _bonusOrnamentStore.Setup(tree.OrnamentsPool);
+            _editorPanel.Setup(tree);
         }
 
         public void Present() {

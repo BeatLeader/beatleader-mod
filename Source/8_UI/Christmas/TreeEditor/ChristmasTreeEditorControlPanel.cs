@@ -29,7 +29,12 @@ namespace BeatLeader.Components {
         #region Setup
 
         private StaticScreen _screen = null!;
-
+        private ChristmasTree _tree = null!;
+        
+        public void Setup(ChristmasTree tree) {
+            _tree = tree;
+        }
+        
         public void SetLoading(bool loading) {
             _bgGroup.alpha = loading ? 0.3f : 1f;
             _bgGroup.interactable = !loading;
@@ -56,6 +61,11 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
+        [UIAction("clear-click"), UsedImplicitly]
+        private void HandleClearClicked() {
+            _tree.ClearOrnaments();
+        }
+        
         [UIAction("cancel-click"), UsedImplicitly]
         private void HandleCancelClicked() {
             ChristmasTreeRequest.SendRequest();

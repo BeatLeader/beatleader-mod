@@ -36,6 +36,7 @@ namespace BeatLeader.Components {
             _tree.ScaleTo(_editorScale);
             _tree.MoveTo(_editorPos);
             _tree.SetMoverRestricted(true);
+            _tree.SetOrnamentsMovement(true);
             _ornamentStore.Present();
             _bonusOrnamentStore.Present();
             _editorPanel.Present();
@@ -48,6 +49,7 @@ namespace BeatLeader.Components {
             _tree.MoveTo(_initialPos);
             _tree.ScaleTo(_initialScale);
             _tree.SetMoverRestricted(false);
+            _tree.SetOrnamentsMovement(false);
             _ornamentStore.Dismiss();
             _bonusOrnamentStore.Dismiss();
             _editorPanel.Dismiss();

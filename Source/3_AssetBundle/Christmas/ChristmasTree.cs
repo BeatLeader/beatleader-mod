@@ -28,6 +28,12 @@ namespace BeatLeader {
         private bool _isSpinning;
         private float _spinSpeed = 20f; // Degrees per second
 
+        public void SetOrnamentsMovement(bool value) {
+            foreach (var ornament in _ornaments) {
+                ornament.CanGrab = value;
+            }
+        }
+        
         public void SetMoverFull(bool value) {
             _moverFull = value;
             _mover.SetEnabled(_moverFull, _moverRestricted);

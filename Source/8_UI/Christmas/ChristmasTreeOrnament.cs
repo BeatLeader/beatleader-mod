@@ -12,6 +12,7 @@ namespace BeatLeader.Components {
         #region Setup
 
         public int BundleId { get; private set; }
+        public bool CanGrab { get; set; }
 
         public event Action<ChristmasTreeOrnament>? OrnamentDeinitEvent;
         public event Action<ChristmasTreeOrnament>? OrnamentGrabbedEvent;
@@ -96,7 +97,7 @@ namespace BeatLeader.Components {
         private const float MaxDistance = 0.17f;
 
         public void OnPointerDown(PointerEventData eventData) {
-            if (!_hovered || eventData.currentInputModule is not VRInputModule module) {
+            if (!_hovered || !CanGrab || eventData.currentInputModule is not VRInputModule module) {
                 return;
             }
 
@@ -107,7 +108,7 @@ namespace BeatLeader.Components {
             }
 
             _grabRot = Quaternion.Inverse(_grabbingController.rotation) * transform.rotation;
-           // _rigidbody.useGravity = false;
+            //_rigidbody.useGravity = false;
             _grabbed = true;
 
             transform.SetParent(_tree!.Origin, true);

@@ -49,7 +49,8 @@ namespace BeatLeader.Interop {
                         DespawnCustomNote(controller);
                         break;
                     case BombNoteController:
-                        DespawnCustomBomb(controller);
+                        // I don't know why it's needed, but it throws exception with new custom notes. @nsgolova 
+                        // DespawnCustomBomb(controller);
                         break;
                     case BurstSliderGameNoteController:
                         DespawnCustomSlider(controller);

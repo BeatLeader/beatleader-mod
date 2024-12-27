@@ -120,10 +120,10 @@ namespace BeatLeader.Utils {
         public static int ComputeNoteId(
                 this NoteData noteData, 
                 bool noScoring = false, 
-                bool altBomb = false,
+                bool altScoring = false,
                 bool legacyScoring = false) {
             // Bombs may have both correct values as well as default.
-            var colorType = altBomb && noteData.colorType == ColorType.None ? 3 : (int)noteData.colorType;
+            var colorType = altScoring && noteData.colorType == ColorType.None ? 3 : (int)noteData.colorType;
             
             // Pre 1.20 replays has no scoring in ID
             var scoringPart = noScoring ? 0 : ((int)noteData.scoringType + 2) * 10000;
@@ -143,10 +143,17 @@ namespace BeatLeader.Utils {
                     default:
                         break;
                 }
+            }
 
-                // Notes that are both chain and arc head have undefined scoring type priority
+            // Notes that are both chain and arc head have undefined scoring type priority
+            // Bools are reused for compactness
+            if (legacyScoring) {
                 if (noteData.scoringType == NoteData.ScoringType.ChainHead && noteData.isArcHead) {
                     scoringPart = ((int)NoteData.ScoringType.ArcHead + 2) * 10000;
+                }
+            } else if (altScoring) {
+                if (noteData.scoringType == NoteData.ScoringType.ArcHead && noteData.gameplayType == NoteData.GameplayType.BurstSliderHead) {
+                    scoringPart = ((int)NoteData.ScoringType.ChainHead + 2) * 10000;
                 }
             }
 

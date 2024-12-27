@@ -230,7 +230,18 @@ namespace BeatLeader.Interop {
             this TypeBuilder typeBuilder,
             MethodInfo getValueForMethodInfo
         ) {
-            typeBuilder.AddConstantGetOnlyProperty("isReady", true);
+            var isReadyMethod = typeof(LeaderboardInfoManager).GetMethod(nameof(LeaderboardInfoManager.RefreshTask), BindingFlags.Public | BindingFlags.Static);
+            var isCompletedProp = typeof(Task).GetProperty(nameof(Task.IsCompleted));
+
+            //isReady property
+            typeBuilder.DefineProperty("isReady", PropertyAttributes.HasDefault, typeof(bool), null);
+            const MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+            var getAccessor = typeBuilder.DefineMethod("get_isReady", getSetAttr, typeof(bool), Type.EmptyTypes);
+
+            var nameGetIL = getAccessor.GetILGenerator();
+            nameGetIL.Emit(OpCodes.Call, isReadyMethod);
+            nameGetIL.Emit(OpCodes.Callvirt, isCompletedProp.GetGetMethod());
+            nameGetIL.Emit(OpCodes.Ret);
 
             //GetValueFor()
             var getValueForIL = typeBuilder.DefineMethod(
@@ -246,7 +257,7 @@ namespace BeatLeader.Interop {
                 "Prepare", MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof(Task), new[] { typeof(CancellationToken) }
             ).GetILGenerator();
-            prepareIL.Emit(OpCodes.Ldnull);
+            prepareIL.Emit(OpCodes.Call, typeof(LeaderboardInfoManager).GetMethod(nameof(LeaderboardInfoManager.RefreshTask), BindingFlags.Public | BindingFlags.Static));
             prepareIL.Emit(OpCodes.Ret);
         }
 
@@ -259,7 +270,18 @@ namespace BeatLeader.Interop {
             MethodInfo getValueForMethodInfo,
             MethodInfo buildLegendMethodInfo
         ) {
-            typeBuilder.AddConstantGetOnlyProperty("isReady", true);
+            var isReadyMethod = typeof(LeaderboardInfoManager).GetMethod(nameof(LeaderboardInfoManager.RefreshTask), BindingFlags.Public | BindingFlags.Static);
+            var isCompletedProp = typeof(Task).GetProperty(nameof(Task.IsCompleted));
+
+            //isReady property
+            typeBuilder.DefineProperty("isReady", PropertyAttributes.HasDefault, typeof(bool), null);
+            const MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+            var getAccessor = typeBuilder.DefineMethod("get_isReady", getSetAttr, typeof(bool), Type.EmptyTypes);
+
+            var nameGetIL = getAccessor.GetILGenerator();
+            nameGetIL.Emit(OpCodes.Call, isReadyMethod);
+            nameGetIL.Emit(OpCodes.Callvirt, isCompletedProp.GetGetMethod());
+            nameGetIL.Emit(OpCodes.Ret);
 
             //GetValueFor()
             var getValueForIL = typeBuilder.DefineMethod(
@@ -284,7 +306,7 @@ namespace BeatLeader.Interop {
                 "Prepare", MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof(Task), new[] { typeof(CancellationToken) }
             ).GetILGenerator();
-            prepareIL.Emit(OpCodes.Ldnull);
+            prepareIL.Emit(OpCodes.Call, typeof(LeaderboardInfoManager).GetMethod(nameof(LeaderboardInfoManager.RefreshTask), BindingFlags.Public | BindingFlags.Static));
             prepareIL.Emit(OpCodes.Ret);
         }
 

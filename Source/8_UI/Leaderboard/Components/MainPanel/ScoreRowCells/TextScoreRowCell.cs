@@ -33,7 +33,12 @@ namespace BeatLeader.Components {
         #region Implementation
 
         public override void SetValue(object? value) {
-            textComponent.text = value == null ? "" : _formatter.Invoke(value);
+            if (value == null) {
+                textComponent.text = string.Empty;
+            } else {
+                textComponent.text = _formatter.Invoke(value);
+            }
+
             isEmpty = false;
         }
 

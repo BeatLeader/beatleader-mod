@@ -8,6 +8,9 @@ namespace BeatLeader {
         public readonly int PagesCount;
         public readonly bool ForceClanTags;
         public readonly bool SeekAvailable;
+        
+        public bool HasPreviousPage => CurrentPage > 1;
+        public bool HasNextPage => CurrentPage < PagesCount;
 
         public ScoresTableContent(IScoreRowContent? extraRowContent, IReadOnlyList<IScoreRowContent> mainRowContents, int currentPage, int pagesCount, bool forceClanTags, bool seekAvailable) {
             ExtraRowContent = extraRowContent;

@@ -32,9 +32,9 @@ namespace BeatLeader.Components {
         }
 
         private void OnScoresFetched(ScoresTableContent scoresData) {
-            UpInteractable = scoresData.CurrentPage > 1;
+            UpInteractable = scoresData.HasPreviousPage;
             AroundInteractable = scoresData.SeekAvailable;
-            DownInteractable = scoresData.CurrentPage < scoresData.PagesCount;
+            DownInteractable = scoresData.HasNextPage;
         }
 
         private void DisableAllInteraction() {

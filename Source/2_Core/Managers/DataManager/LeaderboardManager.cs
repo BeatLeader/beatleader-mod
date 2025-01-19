@@ -18,10 +18,6 @@ namespace BeatLeader.DataManager {
         private int _selectedScoreContext;
         private int _lastSelectedPage = 1;
         private BeatmapKey _lastSelectedBeatmap;
-
-        private string Hash => _lastSelectedBeatmap.levelId.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
-        private string Diff => _lastSelectedBeatmap.difficulty.ToString();
-        private string Mode => _lastSelectedBeatmap.beatmapCharacteristic.serializedName;
         private string Scope => _selectedScoreScope.ToString().ToLowerInvariant();
         private string Context => ScoresContexts.ContextForId(_selectedScoreContext).Key;
 
@@ -116,16 +112,16 @@ namespace BeatLeader.DataManager {
 
         private void LoadPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPlayerScoresPageRequest(userId, Hash, Diff, Mode, Context, Scope, _lastSelectedPage);
+            ScoresRequest.SendPlayerScoresPageRequest(_lastSelectedBeatmap, userId, Context, Scope, _lastSelectedPage);
         }
 
         private void SeekPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPlayerScoresSeekRequest(userId, Hash, Diff, Mode, Context, Scope);
+            ScoresRequest.SendPlayerScoresSeekRequest(_lastSelectedBeatmap, userId, Context, Scope);
         }
 
         private void LoadClanScores() {
-            ScoresRequest.SendClanScoresPageRequest(Hash, Diff, Mode, _lastSelectedPage);
+            ScoresRequest.SendClanScoresPageRequest(_lastSelectedBeatmap, _lastSelectedPage);
         }
 
         #endregion

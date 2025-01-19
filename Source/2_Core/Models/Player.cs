@@ -66,6 +66,9 @@ namespace BeatLeader.Models {
         public string color;
         public string name;
         public string avatar;
+        public int rank;
+        public int captureLeaderboardsCount;
+        public float rankedPoolPercentCaptured;
     }
 
     public class ProfileSettings {

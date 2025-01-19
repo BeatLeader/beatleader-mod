@@ -2,93 +2,66 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.API.Methods;
-using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatLeader.Components {
-    internal class ScoresTable : ReeUIComponentV2 {
+    internal abstract class AbstractScoresTable<T> : ReeUIComponentV2 where T : AbstractScoreRow {
+        #region Properties
+
+        protected abstract int RowsCount { get; }
+        protected abstract float RowWidth { get; }
+        protected abstract float Spacing { get; }
+        protected abstract ScoreRowCellType CellTypeMask { get; }
+
+        #endregion
+
         #region Components
 
-        private const int MainRowsCount = 10;
+        [UIComponent("Root"), UsedImplicitly]
+        private protected LayoutElement _root;
 
         [UIValue("extra-score-row"), UsedImplicitly]
-        private ScoreRow _extraRow;
+        private protected T _extraRow;
 
         [UIValue("top-row-divider"), UsedImplicitly]
-        private ScoreRowDivider _topRowDivider;
+        private protected ScoreRowDivider _topRowDivider;
 
         [UIValue("bottom-row-divider"), UsedImplicitly]
-        private ScoreRowDivider _bottomRowDivider;
+        private protected ScoreRowDivider _bottomRowDivider;
 
         [UIValue("score-rows"), UsedImplicitly]
-        private readonly List<object> _scoreRowsObj = new();
+        private protected readonly List<object> _scoreRowsObj = new List<object>();
 
-        private readonly List<ScoreRow> _mainRows = new();
+        private readonly List<T> _mainRows = new List<T>();
+
+        private ScoresTableLayoutHelper _layoutHelper;
 
         private void Awake() {
-            _extraRow = Instantiate<ScoreRow>(transform);
+            _layoutHelper = new ScoresTableLayoutHelper(RowWidth, Spacing);
+
+            _extraRow = Instantiate<T>(transform);
             _topRowDivider = Instantiate<ScoreRowDivider>(transform);
             _bottomRowDivider = Instantiate<ScoreRowDivider>(transform);
 
-            for (var i = 0; i < MainRowsCount; i++) {
-                var scoreRow = Instantiate<ScoreRow>(transform);
+            for (var i = 0; i < RowsCount; i++) {
+                var scoreRow = Instantiate<T>(transform);
                 _scoreRowsObj.Add(scoreRow);
                 _mainRows.Add(scoreRow);
             }
         }
 
-        #endregion
-
-        #region Initialize/Dispose
-
         protected override void OnInitialize() {
+            _root.preferredWidth = RowWidth;
             SetupLayout();
-
-            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibleChanged;
-            PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
-            OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
-        }
-
-        protected override void OnDispose() {
-            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibleChanged;
-            PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
-        }
-
-        #endregion
-
-        #region Events
-
-        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not API.RequestState.Finished) {
-                PresentContent(null);
-                return;
-            }
-
-            PresentContent(result);
-        }
-
-        private void OnLeaderboardVisibleChanged(bool isVisible) {
-            if (isVisible) return;
-            StartAnimation();
-        }
-
-        private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {
-            UpdateLayout();
         }
 
         #endregion
 
         #region Layout
-
-        private readonly ScoresTableLayoutHelper _layoutHelper = new();
 
         private void SetupLayout() {
             _extraRow.SetupLayout(_layoutHelper);
@@ -97,8 +70,8 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void UpdateLayout() {
-            var mask = PluginConfig.LeaderboardTableMask;
+        protected void UpdateLayout() {
+            var mask = CellTypeMask;
 
             if (_content != null) {
                 if (_content.ForceClanTags) mask |= ScoreRowCellType.Clans;
@@ -133,13 +106,13 @@ namespace BeatLeader.Components {
 
         private ScoresTableContent? _content;
 
-        private void PresentContent(ScoresTableContent? content) {
+        public void PresentContent(ScoresTableContent? content) {
             _content = content;
 
             if (content != null) {
                 if (content.ExtraRowContent != null) _extraRow.SetContent(content.ExtraRowContent);
 
-                for (var i = 0; i < MainRowsCount; i++) {
+                for (var i = 0; i < RowsCount; i++) {
                     if (i >= content.MainRowContents.Count) continue;
                     _mainRows[i].SetContent(content.MainRowContents[i]);
                 }
@@ -162,7 +135,7 @@ namespace BeatLeader.Components {
         private ExtraRowState _lastExtraRowState = ExtraRowState.Hidden;
         private const float DelayPerRow = 0.016f;
 
-        private void StartAnimation() {
+        protected void StartAnimation() {
             if (gameObject.activeInHierarchy) {
                 StartCoroutine(_content == null ? FadeOutCoroutine() : FadeInCoroutine(_content));
             } else {
@@ -205,15 +178,19 @@ namespace BeatLeader.Components {
                 yield return new WaitForSeconds(DelayPerRow);
             }
 
-            if (content.CurrentPage > 1) _topRowDivider.FadeIn();
+            if (content.CurrentPage > 1) {
+                _topRowDivider.FadeIn();
+            }
 
-            for (var i = 0; i < MainRowsCount; i++) {
+            for (var i = 0; i < RowsCount; i++) {
                 var row = _mainRows[i];
                 if (i < content.MainRowContents.Count) row.FadeIn();
                 yield return new WaitForSeconds(DelayPerRow);
             }
 
-            if (content.CurrentPage < content.PagesCount) _bottomRowDivider.FadeIn();
+            if (content.CurrentPage < content.PagesCount) {
+                _bottomRowDivider.FadeIn();
+            }
 
             if (extraRowState == ExtraRowState.Bottom) {
                 _extraRow.FadeIn();
@@ -240,7 +217,7 @@ namespace BeatLeader.Components {
             if (content.CurrentPage > 1) _topRowDivider.FadeIn();
             if (content.CurrentPage < content.PagesCount) _bottomRowDivider.FadeIn();
 
-            for (var i = 0; i < MainRowsCount; i++) {
+            for (var i = 0; i < RowsCount; i++) {
                 var row = _mainRows[i];
                 if (i < content.MainRowContents.Count) row.FadeIn();
             }
@@ -252,7 +229,7 @@ namespace BeatLeader.Components {
 
         #region ExtraRowUtils
 
-        private const int BottomSiblingIndex = MainRowsCount + 2;
+        private int BottomSiblingIndex => RowsCount + 2;
         private const int TopSiblingIndex = 0;
 
         private ExtraRowState UpdateExtraRowState(ScoresTableContent content) {

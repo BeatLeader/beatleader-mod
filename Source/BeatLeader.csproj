@@ -143,7 +143,7 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="SegmentedControl">
+    <Reference Include="SegmentedControl" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\SegmentedControl.dll</HintPath>
     </Reference>
     <Reference Include="SongCore">

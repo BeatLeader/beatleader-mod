@@ -1,4 +1,5 @@
 using BeatLeader.Components;
+using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -12,8 +13,10 @@ namespace BeatLeader.ViewControllers {
     internal class LeaderboardView : BSMLAutomaticViewController {
         #region Injection
 
-        [Inject] private readonly IReplayerViewNavigator _replayerNavigator = null!;
-        [Inject] private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
+        [Inject]
+        private readonly IReplayerViewNavigator _replayerNavigator = null!;
+        [Inject]
+        private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
 
         #endregion
 
@@ -23,7 +26,7 @@ namespace BeatLeader.ViewControllers {
         private PreParser _preParser;
 
         public class PreParser : MonoBehaviour {
-            public ScoresTable scoresTable;
+            public MainScoresTable scoresTable;
             public VotingButton votingButton;
             public Pagination pagination;
             public ScopeSelector scopeSelector;
@@ -32,7 +35,7 @@ namespace BeatLeader.ViewControllers {
             public MapDifficultyPanel mapDifficultyPanel;
 
             private void Awake() {
-                scoresTable = ReeUIComponentV2.InstantiateOnSceneRoot<ScoresTable>();
+                scoresTable = ReeUIComponentV2.InstantiateOnSceneRoot<MainScoresTable>();
                 votingButton = ReeUIComponentV2.InstantiateOnSceneRoot<VotingButton>(false);
                 pagination = ReeUIComponentV2.InstantiateOnSceneRoot<Pagination>(false);
                 scopeSelector = ReeUIComponentV2.InstantiateOnSceneRoot<ScopeSelector>(false);
@@ -47,7 +50,7 @@ namespace BeatLeader.ViewControllers {
         #region Components
 
         [UIValue("scores-table"), UsedImplicitly]
-        private ScoresTable ScoresTable => _preParser.scoresTable;
+        private MainScoresTable ScoresTable => _preParser.scoresTable;
 
         [UIValue("voting-button"), UsedImplicitly]
         private VotingButton VotingButton => _preParser.votingButton;
@@ -86,6 +89,7 @@ namespace BeatLeader.ViewControllers {
 
         protected void OnEnable() {
             LeaderboardEvents.ScoreInfoButtonWasPressed += PresentScoreInfoModal;
+            LeaderboardEvents.ClanScoreInfoButtonWasPressed += PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent += PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent += PresentBeatLeaderInfoModal;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
@@ -95,6 +99,7 @@ namespace BeatLeader.ViewControllers {
 
         protected void OnDisable() {
             LeaderboardEvents.ScoreInfoButtonWasPressed -= PresentScoreInfoModal;
+            LeaderboardEvents.ClanScoreInfoButtonWasPressed -= PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent -= PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent -= PresentBeatLeaderInfoModal;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
@@ -107,7 +112,17 @@ namespace BeatLeader.ViewControllers {
         #region Events
 
         private void PresentScoreInfoModal(Score score) {
-            ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _replayerStarter));
+            ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _replayerStarter), false);
+        }
+
+        private void PresentClanScoreInfoModal(ClanScore score) {
+            var context = new ClanScorePanelContext {
+                beatmapKey = LeaderboardState.SelectedBeatmapKey,
+                clanScore = score,
+                clanPlayer = ProfileManager.Profile
+            };
+
+            ReeModalSystem.OpenModal<ClanScorePanel>(transform, context, false);
         }
 
         private void PresentSettingsModal() {

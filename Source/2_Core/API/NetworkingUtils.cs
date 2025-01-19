@@ -150,6 +150,15 @@ namespace BeatLeader.API {
             }
         }
 
+        public static void BeatmapKeyToUrlParams(
+            in BeatmapKey beatmapKey,
+            out string mapHash, out string mapDiff, out string mapMode
+        ) {
+            mapHash = beatmapKey.levelId.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
+            mapDiff = beatmapKey.difficulty.ToString();
+            mapMode = beatmapKey.beatmapCharacteristic.serializedName;
+        }
+
         public static string ToHttpParams(Dictionary<string, object> param) {
             if (param.Count == 0) return "";
 

@@ -17,9 +17,9 @@ namespace BeatLeader {
         private static event Action InterruptAllEvent;
 
         [PublicAPI]
-        public static void OpenModal<T>(Transform screenChild, object state) where T : IReeModal {
+        public static void OpenModal<T>(Transform screenChild, object state, bool interruptActiveModals = true) where T : IReeModal {
             var screen = screenChild.GetComponentInParent<Screen>();
-            OpenModal<T>(screen, state);
+            OpenModal<T>(screen, state, interruptActiveModals);
         }
 
         public static void OpenModal<T>(Screen screen, object state, bool interruptActiveModals = true) where T : IReeModal {
@@ -202,7 +202,7 @@ namespace BeatLeader {
         }
 
         private void ShowModal(bool animated = true) {
-            if (_modalView == null) return;
+            if (_modalView == null || _modalView.isShown) return;
             if (_modalView._viewIsValid) {
                 _modalView.transform.SetParent(Content.transform, false);
                 _modalView._viewIsValid = false;

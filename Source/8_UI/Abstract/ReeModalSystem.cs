@@ -202,7 +202,7 @@ namespace BeatLeader {
         }
 
         private void ShowModal(bool animated = true) {
-            if (_modalView == null || _modalView.isShown) return;
+            if (_modalView == null || _modalView._isShown) return;
             if (_modalView._viewIsValid) {
                 _modalView.transform.SetParent(Content.transform, false);
                 _modalView._viewIsValid = false;

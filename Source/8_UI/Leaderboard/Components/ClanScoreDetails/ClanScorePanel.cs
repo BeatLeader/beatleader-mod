@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    public struct ClanScorePanelContext {
+    internal struct ClanScorePanelContext {
         public BeatmapKey beatmapKey;
         public ClanScore clanScore;
         public Player clanPlayer;

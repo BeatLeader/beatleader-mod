@@ -1,80 +1,11 @@
-<horizontal pref-height="5.2">
-    <!--  STYLE  -->
-    <macro.define name="row-height" value="5.2"/>
-    <macro.define name="row-width" value="80"/>
-    
-    <vertical pref-width="~row-width" min-width="~row-width">
-        <horizontal ignore-layout="true" anchor-pos-x="~horizontal-offset" spacing="1.3" pad-left="2" pad-right="2" pref-height="~row-height">
-            <!--  BACKGROUND  -->
-            <vertical ignore-layout="true" pref-width="~row-width">
-                <image src="#TransparentPixel" id="background-component" pref-height="~row-height" pref-width="~row-width"/>
-            </vertical>
+<horizontal pref-width="80" pref-height="5.2">
+    <horizontal ignore-layout="true">
+        <image id="Background" src="#TransparentPixel" pref-width="80" pref-height="5.2"/>
+    </horizontal>
 
-            <!--  RANK  -->
-            <macro.as-host host="rank-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
+    <horizontal id="CellsContainer" ignore-layout="true" spacing="1.3" pref-height="5.2" horizontal-fit="PreferredSize"/>
 
-            <!--  AVATAR  -->
-            <macro.as-host host="avatar-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  COUNTRY  -->
-            <macro.as-host host="country-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  NAME  -->
-            <macro.as-host host="username-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  CLANS  -->
-            <macro.as-host host="clans-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  MODIFIERS  -->
-            <macro.as-host host="modifiers-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  ACC  -->
-            <macro.as-host host="accuracy-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  PP  -->
-            <macro.as-host host="pp-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  SCORE  -->
-            <macro.as-host host="score-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  TIME  -->
-            <macro.as-host host="time-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  MISTAKES  -->
-            <macro.as-host host="mistakes-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  PAUSES  -->
-            <macro.as-host host="pauses-cell">
-                <macro.reparent transform="ui-component"/>
-            </macro.as-host>
-
-            <!--  CLICKABLE AREA  -->
-            <vertical ignore-layout="true" pref-width="~row-width">
-                <clickable-image src="#TransparentPixel" id="info-component" pref-height="~row-height" pref-width="~row-width"
-                                 active="~clickable" on-click="info-on-click"/>
-            </vertical>
-        </horizontal>
-    </vertical>
+    <horizontal ignore-layout="true">
+        <clickable-image id="Underline" src="#TransparentPixel" pref-width="80" pref-height="5.2" on-click="OnClick"/>
+    </horizontal>
 </horizontal>

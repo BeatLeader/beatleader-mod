@@ -1,0 +1,24 @@
+<vertical spacing="1" vertical-fit="PreferredSize">
+    <macro.as-host host="MiniProfile">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    
+    <horizontal pad-right="9" spacing="1">
+        <vertical id="PaginationPanel" spacing="1" pad-left="2" pad-right="2" pad-top="1" pad-bottom="1" vertical-fit="PreferredSize" bg="round-rect-panel">
+            <clickable-image src="#TriangleDownIcon" id="PageUpButton" pref-width="4" pref-height="4" on-click="UpOnClick"/>
+            <clickable-image src="#PlayerIcon" id="AroundMeButton" pref-width="4" pref-height="4" on-click="AroundMeOnClick"/>
+            <clickable-image src="#TriangleDownIcon" id="PageDownButton" pref-width="4" pref-height="4" on-click="DownOnClick"/>
+        </vertical>
+        <vertical id="MiddlePanel" pad="2" pref-width="68" pref-height="48" bg="round-rect-panel">
+            <vertical id="TableContainer" ignore-layout="true">
+                <macro.as-host host="ScoresTable">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </vertical>
+        </vertical>
+    </horizontal>
+
+    <vertical id="BottomPanel" pref-height="7" pad="1" pref-width="30" vertical-fit="PreferredSize" horizontal-fit="PreferredSize" bg="round-rect-panel">
+        <text-segments id="TabSelector" select-cell="OnSelectCell"/>
+    </vertical>
+</vertical>

@@ -3,7 +3,7 @@ using BeatLeader.DataManager;
 using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
-    public class Score : IScoreRowContent {
+    public class ClanPlayer : IScoreRowContent {
         [JsonProperty("player")]
         public Player Player {
             get => HiddenPlayersCache.HidePlayerIfNeeded(originalPlayer);
@@ -12,30 +12,7 @@ namespace BeatLeader.Models {
 
         [JsonIgnore] public Player originalPlayer;
 
-        public int id;
-        public float accuracy;
-        public float fcAccuracy;
-        public int baseScore;
-        public int modifiedScore;
-        public string modifiers;
-        public float pp;
-        public float fcPp;
-        public int rank;
-        public int badCuts;
-        public int missedNotes;
-        public int bombCuts;
-        public int wallsHit;
-        public int pauses;
-        public bool fullCombo;
-        public int hmd;
-        public int controller;
-        public string? headsetName;
-        public string? controllerName;
-        public string timeSet;
-        public string replay;
-        public string platform;
-
-        public int TotalMistakes => missedNotes + badCuts + bombCuts + wallsHit;
+        public Score? score;
 
         #region IScoreRowContent implementation
 
@@ -47,10 +24,10 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Username => true,
                 ScoreRowCellType.Modifiers => true,
                 ScoreRowCellType.Accuracy => true,
-                ScoreRowCellType.PerformancePoints => pp > 0,
+                ScoreRowCellType.PerformancePoints => true,
                 ScoreRowCellType.Score => true,
                 ScoreRowCellType.Mistakes => true,
-                ScoreRowCellType.Clans => true,
+                ScoreRowCellType.Clans => false,
                 ScoreRowCellType.Time => true,
                 ScoreRowCellType.Pauses => true,
                 _ => false
@@ -59,18 +36,18 @@ namespace BeatLeader.Models {
 
         public object? GetValue(ScoreRowCellType cellType) {
             return cellType switch {
-                ScoreRowCellType.Rank => rank,
+                ScoreRowCellType.Rank => Player.rank,
                 ScoreRowCellType.Country => Player.country,
                 ScoreRowCellType.Avatar => new AvatarScoreRowCell.Data(Player.avatar, Player.profileSettings),
                 ScoreRowCellType.Username => Player.name,
-                ScoreRowCellType.Modifiers => modifiers,
-                ScoreRowCellType.Accuracy => accuracy,
-                ScoreRowCellType.PerformancePoints => pp,
-                ScoreRowCellType.Score => modifiedScore,
-                ScoreRowCellType.Mistakes => TotalMistakes,
+                ScoreRowCellType.Modifiers => score?.modifiers,
+                ScoreRowCellType.Accuracy => score?.accuracy,
+                ScoreRowCellType.PerformancePoints => score?.pp,
+                ScoreRowCellType.Score => score?.modifiedScore,
+                ScoreRowCellType.Mistakes => score?.TotalMistakes,
                 ScoreRowCellType.Clans => Player.clans,
-                ScoreRowCellType.Time => timeSet,
-                ScoreRowCellType.Pauses => pauses,
+                ScoreRowCellType.Time => score?.timeSet,
+                ScoreRowCellType.Pauses => score?.pauses,
                 _ => default
             };
         }

@@ -12,6 +12,7 @@ namespace BeatLeader {
         }
 
         public void SetContext(TC context) {
+            if (Equals(Context, context)) return;
             Context = context;
             OnContextChanged();
         }

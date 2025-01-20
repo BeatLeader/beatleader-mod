@@ -1,4 +1,4 @@
-<vertical preferred-width="80" vertical-fit="PreferredSize">
+<vertical id="Root" vertical-fit="PreferredSize">
     <macro.as-host host="top-row-divider">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>

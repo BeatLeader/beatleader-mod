@@ -13,10 +13,8 @@ namespace BeatLeader.ViewControllers {
     internal class LeaderboardView : BSMLAutomaticViewController {
         #region Injection
 
-        [Inject]
-        private readonly IReplayerViewNavigator _replayerNavigator = null!;
-        [Inject]
-        private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
+        [Inject] private readonly IReplayerViewNavigator _replayerNavigator = null!;
+        [Inject] private readonly SoloFreePlayFlowCoordinator _soloFlowCoordinator = null!;
 
         #endregion
 

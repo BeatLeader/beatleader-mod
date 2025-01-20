@@ -20,7 +20,7 @@ namespace BeatLeader {
 
         #region Cells Dictionary
 
-        private readonly Dictionary<ScoreRowCellType, List<AbstractScoreRowCell>> _cells = new Dictionary<ScoreRowCellType, List<AbstractScoreRowCell>>();
+        private readonly Dictionary<ScoreRowCellType, List<AbstractScoreRowCell>> _cells = new();
 
         private List<AbstractScoreRowCell> GetEntry(ScoreRowCellType cellType) {
             List<AbstractScoreRowCell> entry;

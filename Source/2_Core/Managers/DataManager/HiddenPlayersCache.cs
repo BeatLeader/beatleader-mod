@@ -56,6 +56,23 @@ namespace BeatLeader.DataManager {
             SaveHiddenPlayersCache();
         }
 
+        public static Player HidePlayerIfNeeded(Player player) {
+            if (!IsHidden(player)) return player;
+            
+            return new Player() {
+                id = player.id,
+                rank = 0,
+                name = "~hidden player~",
+                country = "not set",
+                countryRank = 0,
+                pp = 0f,
+                role = "",
+                clans = Array.Empty<Clan>(),
+                socials = Array.Empty<ServiceIntegration>(),
+                profileSettings = null
+            };
+        }
+
         public static bool IsHidden(Player player) {
             return player != null && HiddenPlayers.Contains(player.id);
         }

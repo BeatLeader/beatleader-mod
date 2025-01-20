@@ -1,32 +1,16 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.DataManager;
 using Newtonsoft.Json;
-using System;
 
 namespace BeatLeader.Models {
     public class Score : IScoreRowContent {
         [JsonProperty("player")]
-        public Player Player { 
-            get {
-                if (!HiddenPlayersCache.IsHidden(_originalPlayer)) return _originalPlayer;
-            
-                return new Player() {
-                    id = _originalPlayer.id,
-                    rank = 0,
-                    name = "~hidden player~",
-                    country = "not set",
-                    countryRank = 0,
-                    pp = 0f,
-                    role = "",
-                    clans = Array.Empty<Clan>(),
-                    socials = Array.Empty<ServiceIntegration>(),
-                    profileSettings = null
-                };
-            }
-            set { 
-                _originalPlayer = value;
-            }
+        public Player Player {
+            get => HiddenPlayersCache.HidePlayerIfNeeded(originalPlayer);
+            set => originalPlayer = value;
         }
+
+        [JsonIgnore] public Player originalPlayer;
 
         public int id;
         public float accuracy;
@@ -48,7 +32,6 @@ namespace BeatLeader.Models {
         public string? headsetName;
         public string? controllerName;
         public string timeSet;
-        public Player _originalPlayer;
         public string replay;
         public string platform;
 

@@ -190,7 +190,7 @@ namespace BeatLeader.API.Methods {
 
                 foreach (var clanPlayer in result.data) {
                     if (clanPlayer.score == null) continue;
-                    clanPlayer.score._originalPlayer = clanPlayer._originalPlayer;
+                    clanPlayer.score.originalPlayer = clanPlayer.originalPlayer;
                 }
                 
                 return new ScoresTableContent(result.selection, result.data, result.metadata.page, result.metadata.PagesCount, false, seekAvailable);

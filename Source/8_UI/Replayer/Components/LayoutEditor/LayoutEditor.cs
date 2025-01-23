@@ -10,20 +10,14 @@ namespace BeatLeader.Components {
 
         public IReadOnlyCollection<ILayoutComponent> LayoutComponents => _components;
         public RectTransform AreaTransform => ContentTransform;
-
         private Vector2 AreaSize => AreaTransform.rect.size;
-        public event Action<LayoutEditorMode>? ModeChangedEvent;
 
-        private readonly HashSet<ILayoutComponent> _components = new();
-        private readonly Dictionary<ILayoutComponent, LayoutData> _cachedLayoutData = new();
-
-        private LayoutGrid _layoutGrid = null!;
-        private LayoutEditorSettings? _settings;
-        private LayoutEditorMode _mode;
+        public LayoutEditorMode PreviousMode { get; private set; }
 
         public LayoutEditorMode Mode {
             get => _mode;
             set {
+                PreviousMode = _mode;
                 _mode = value;
                 if (value is LayoutEditorMode.Edit) {
                     foreach (var component in _components) {
@@ -39,6 +33,17 @@ namespace BeatLeader.Components {
                 ModeChangedEvent?.Invoke(value);
             }
         }
+
+        public event Action<LayoutEditorMode>? ModeChangedEvent;
+        public event Action<ILayoutComponent>? ComponentAddedEvent;
+        public event Action<ILayoutComponent>? ComponentRemovedEvent;
+
+        private readonly HashSet<ILayoutComponent> _components = new();
+        private readonly Dictionary<ILayoutComponent, LayoutData> _cachedLayoutData = new();
+
+        private LayoutGrid _layoutGrid = null!;
+        private LayoutEditorSettings? _settings;
+        private LayoutEditorMode _mode;
 
         public void CancelChanges() {
             // Applying changes that was saved before entering the edit mode
@@ -73,11 +78,13 @@ namespace BeatLeader.Components {
             if (!_components.Add(component)) return;
             component.Setup(this);
             component.OnEditorModeChanged(_mode);
+            ComponentAddedEvent?.Invoke(component);
         }
 
         public void RemoveComponent(ILayoutComponent component) {
             component.Setup(null);
             _components.Remove(component);
+            ComponentRemovedEvent?.Invoke(component);
         }
 
         #endregion

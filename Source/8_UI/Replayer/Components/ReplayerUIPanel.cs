@@ -7,11 +7,12 @@ namespace BeatLeader.UI.Replayer {
     internal class ReplayerUIPanel : ReactiveComponent {
         #region UI Components
 
-        private readonly LayoutEditor _layoutEditor = new();
-
-        private readonly BeatmapLevelPreviewEditorComponent _songInfo = new();
-        private readonly PlayerListEditorComponent _playerList = new();
-        private readonly ToolbarEditorComponent _toolbar = new();
+        private LayoutEditor _layoutEditor = null!;
+        private BeatmapLevelPreviewEditorComponent _songInfo = null!;
+        private ToolbarEditorComponent _toolbar = null!;
+        
+        private PlayerListEditorComponent? _playerList;
+        private PlayerProfileEditorComponent? _playerProfile;
 
         #endregion
 
@@ -56,19 +57,34 @@ namespace BeatLeader.UI.Replayer {
                 _layoutEditor,
                 watermark
             );
-            _playerList.Setup(playersManager, timeController);
+            
+            if (launchData.IsBattleRoyale) {
+                _playerList = new();
+                _playerList.Use(ContentTransform);
+                _playerList.Setup(playersManager, timeController);
+                _layoutEditor.AddComponent(_playerList);
+            } else {
+                _playerProfile = new();
+                _playerProfile.Use(ContentTransform);
+                _playerProfile.Setup(launchData.MainReplay.ReplayData.Player);
+                _layoutEditor.AddComponent(_playerProfile);
+            }
+            
             var settings = launchData.Settings.UISettings.LayoutEditorSettings ??= new();
             _layoutEditor.Setup(settings);
-            // Applying immediately only if the ui is loaded
+            // Applying immediately only if ui is loaded
             if (_started) {
                 _layoutEditor.LoadLayoutFromSettings();
             }
         }
 
         protected override void Construct(RectTransform rect) {
+            _layoutEditor = new();
+            _songInfo = new();
+            _toolbar = new();
+            
             _songInfo.Use(rect);
             _toolbar.Use(rect);
-            _playerList.Use(rect);
             _layoutEditor.WithRectExpand().Use(rect);
 
             var editorWindow = new LayoutEditorWindow();
@@ -76,7 +92,6 @@ namespace BeatLeader.UI.Replayer {
             _layoutEditor.ModeChangedEvent += HandleLayoutEditorModeChanged;
             _layoutEditor.AddComponent(_toolbar);
             _layoutEditor.AddComponent(_songInfo);
-            _layoutEditor.AddComponent(_playerList);
             _layoutEditor.AddComponent(editorWindow);
         }
 

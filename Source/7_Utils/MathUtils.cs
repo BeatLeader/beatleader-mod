@@ -6,7 +6,7 @@ namespace BeatLeader.Utils {
         public static void SwapMaskBit(this ref int mask, int bit) {
             mask ^= 1 << bit;
         }
-        
+
         public static void SetMaskBit(this ref int mask, int bit, bool state) {
             if (state) {
                 mask &= ~(1 << bit);
@@ -14,21 +14,19 @@ namespace BeatLeader.Utils {
                 mask |= 1 << bit;
             }
         }
-        
+
         public static float RoundStepped(float value, float step, float startValue = 0) {
             if (step is 0) return value;
             var relativeValue = value - startValue;
             return startValue + Mathf.Round(relativeValue / step) * step;
         }
-        
+
         public static float Map(float val, float inMin, float inMax, float outMin, float outMax) {
             return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
         }
 
-        public static float GetClosestCoordinate(float pos, float inc) {
-            var point1 = pos - (pos % inc);
-            var point2 = point1 + inc;
-            return pos > point2 - (inc / 2) ? point2 : point1;
+        public static Vector2 Map(Vector2 val, Vector2 inMin, Vector2 inMax, Vector2 outMin, Vector2 outMax) {
+            return (val - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
         }
 
         public static Vector2 Clamp(this Vector2 vector, Vector2 minVector, Vector2 maxVector) {

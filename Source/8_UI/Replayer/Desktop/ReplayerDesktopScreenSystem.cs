@@ -1,6 +1,7 @@
 using System.Collections;
 using BeatLeader.Utils;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Screen = HMUI.Screen;
 
@@ -44,7 +45,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
             
             _screenCanvas = go.AddComponent<Canvas>();
             _screenCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _screenCanvas.scaleFactor = 4.5f;
+            _screenCanvas.scaleFactor = 5f;
             _screenCanvas.planeDistance = 0.1f;
             _canvasGroup = go.AddComponent<CanvasGroup>();
             var scaler = go.AddComponent<CanvasScaler>();
@@ -65,12 +66,12 @@ namespace BeatLeader.UI.Replayer.Desktop {
 
         #region Animation
 
-        [SerializeField] private float animationTime = 0.4f;
-        [SerializeField] private float animationFramerate = 120f;
+        private float _animationTime = 0.4f;
+        private float _animationFramerate = 120f;
 
         private IEnumerator FadeAnimationCoroutine(float startValue, float endValue) {
-            var totalFrames = animationTime * animationFramerate;
-            var timePerFrame = animationTime / animationFramerate;
+            var totalFrames = _animationTime * _animationFramerate;
+            var timePerFrame = _animationTime / _animationFramerate;
             var delta = endValue - startValue;
             var sum = delta / totalFrames;
 

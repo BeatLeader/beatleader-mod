@@ -209,7 +209,6 @@ namespace BeatLeader {
                                 },
                                 layer = 1,
                                 visible = false,
-                                migrationRules = LayoutMigrationRules.None
                             }
                         },
                         {
@@ -224,7 +223,6 @@ namespace BeatLeader {
                                 },
                                 layer = 2,
                                 visible = false,
-                                migrationRules = LayoutMigrationRules.All
                             }
                         },
                         {
@@ -239,7 +237,6 @@ namespace BeatLeader {
                                 },
                                 layer = 3,
                                 visible = false,
-                                migrationRules = LayoutMigrationRules.All
                             }
                         }
                     }

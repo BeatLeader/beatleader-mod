@@ -25,13 +25,24 @@ namespace BeatLeader.Components {
             if (handler is not null and not ILayoutEditor) {
                 throw new NotSupportedException("Only ILayoutEditor is supported");
             }
-            _handler = handler;
-            _editor = handler as ILayoutEditor;
-            if (_handler != null) {
+
+            if (handler != null) {
+                _handler = handler;
+                _editor = handler as ILayoutEditor;
+
+                _editor!.ComponentAddedEvent += HandleComponentAdded;
+                _editor.ComponentRemovedEvent += HandleComponentRemoved;
                 RefreshComponents();
                 ContentTransform.SetParent(_handler!.AreaTransform);
             } else {
+                if (_editor != null) {
+                    _editor!.ComponentAddedEvent -= HandleComponentAdded;
+                    _editor.ComponentRemovedEvent -= HandleComponentRemoved;
+                }
                 ContentTransform.SetParent(null);
+
+                _editor = null;
+                _handler = null;
             }
         }
 
@@ -180,7 +191,7 @@ namespace BeatLeader.Components {
                                             new BsPrimaryButton {
                                                     Skew = 0f,
                                                     OnClick = () => {
-                                                        _editor!.Mode = LayoutEditorMode.View;
+                                                        _editor!.Mode = _editor.PreviousMode;
                                                     }
                                                 }
                                                 .WithLabel("Apply")
@@ -280,6 +291,22 @@ namespace BeatLeader.Components {
             _applyingSelection = true;
             _handler!.OnSelect(comp);
             _applyingSelection = false;
+        }
+
+        private void HandleComponentAdded(ILayoutComponent component) {
+            if (component == this) {
+                return;
+            }
+            _layoutEditorComponentsList.Items.Add(component);
+            _layoutEditorComponentsList.Refresh();
+            RefreshLayerButtons();
+        }
+
+        private void HandleComponentRemoved(ILayoutComponent component) {
+            if (_layoutEditorComponentsList.Items.Remove(component)) {
+                _layoutEditorComponentsList.Refresh();
+                RefreshLayerButtons();
+            }
         }
 
         #endregion

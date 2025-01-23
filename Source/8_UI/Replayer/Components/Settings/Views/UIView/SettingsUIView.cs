@@ -34,7 +34,7 @@ namespace BeatLeader.UI.Replayer {
             _watermarkToggle.Interactable = watermark.CanBeDisabled;
 
             _autoHideToggle.SetActive(settings.AutoHideUI, false, true);
-            
+
             _quickSettingsPanel = quickSettingsPanel;
             _quickSettingsToggle.SetActive(settings.QuickSettingsEnabled, false, true);
 
@@ -126,9 +126,10 @@ namespace BeatLeader.UI.Replayer {
                         2f,
                         //layout editor
                         new ImageButton {
-                            Colors = UIStyle.SecondaryButtonColorSet,
+                            Colors = UIStyle.ButtonColorSet,
                             OnClick = HandleLayoutEditorButtonClicked,
                             Image = {
+                                Material = BundleLoader.UIAdditiveGlowMaterial,
                                 Sprite = BundleLoader.EditLayoutIcon
                             }
                         }.WithScaleAnimation(1f, 1.2f).AsFlexItem(

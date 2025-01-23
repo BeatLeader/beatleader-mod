@@ -51,7 +51,8 @@ namespace BeatLeader.UI.Replayer {
                 justifyContent: Justify.FlexStart
             ).AsBackground(
                 color: new(0.15f, 0.15f, 0.15f, 1f),
-                sprite: BundleLoader.Sprites.rectangle
+                sprite: BundleLoader.Sprites.backgroundRightBottom,
+                pixelsPerUnit: 7f
             ).WithEffect(
                 _contentAnim,
                 (_, y) => {

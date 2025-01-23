@@ -5,6 +5,8 @@ using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
+using UnityEngine.UI;
+using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.UI.Replayer {
     internal class ReplayerSettingsPanel : ReactiveComponent {

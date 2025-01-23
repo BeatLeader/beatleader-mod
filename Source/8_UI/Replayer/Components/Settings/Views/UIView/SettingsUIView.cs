@@ -1,4 +1,5 @@
 using BeatLeader.Components;
+using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -12,18 +13,31 @@ namespace BeatLeader.UI.Replayer {
         private ILayoutEditor? _layoutEditor;
         private IReplayTimeline? _timeline;
         private IReplayWatermark? _watermark;
+        private ReplayerUISettings? _settings;
+        private QuickSettingsPanel? _quickSettingsPanel;
 
         public void Setup(
+            ReplayerUISettings settings,
+            QuickSettingsPanel quickSettingsPanel,
             ILayoutEditor? layoutEditor,
             IReplayTimeline timeline,
             IReplayWatermark watermark
         ) {
-            _layoutEditor = layoutEditor;
+            _settings = settings;
             _timeline = timeline;
             _watermark = watermark;
+
+            _layoutEditor = layoutEditor;
+            _layoutEditorRail.Enabled = layoutEditor != null;
+
             _watermarkToggle.SetActive(watermark.Enabled, false, true);
             _watermarkToggle.Interactable = watermark.CanBeDisabled;
-            _layoutEditorRail.Enabled = layoutEditor != null;
+
+            _autoHideToggle.SetActive(settings.AutoHideUI, false, true);
+            
+            _quickSettingsPanel = quickSettingsPanel;
+            _quickSettingsToggle.SetActive(settings.QuickSettingsEnabled, false, true);
+
             ReloadTimelineMarkerToggles();
         }
 
@@ -87,6 +101,8 @@ namespace BeatLeader.UI.Replayer {
 
         private Image _timelineTogglesContainer = null!;
         private Toggle _watermarkToggle = null!;
+        private Toggle _autoHideToggle = null!;
+        private Toggle _quickSettingsToggle = null!;
         private NamedRail _layoutEditorRail = null!;
 
         protected override GameObject Construct() {
@@ -120,6 +136,7 @@ namespace BeatLeader.UI.Replayer {
                             basis: 6f,
                             alignSelf: Align.Center
                         ).InNamedRail("Open Layout Editor").Bind(ref _layoutEditorRail),
+
                         //watermark
                         new Toggle().WithListener(
                             x => x.Active,
@@ -127,7 +144,26 @@ namespace BeatLeader.UI.Replayer {
                                 if (_watermark == null) return;
                                 _watermark.Enabled = x;
                             }
-                        ).Bind(ref _watermarkToggle).InNamedRail("Show watermark")
+                        ).Bind(ref _watermarkToggle).InNamedRail("Show watermark"),
+
+                        //auto-hide
+                        new Toggle().WithListener(
+                            x => x.Active,
+                            x => {
+                                _settings!.AutoHideUI = x;
+                            }
+                        ).Bind(ref _autoHideToggle).InNamedRail(
+                            text: "Auto-hide UI <size=80%>(requires reload)</size>"
+                        ).With(x => x.Label.RichText = true),
+
+                        //quick settings
+                        new Toggle().WithListener(
+                            x => x.Active,
+                            x => {
+                                _quickSettingsPanel!.SetShown(x, false);
+                                _settings!.QuickSettingsEnabled = x;
+                            }
+                        ).Bind(ref _quickSettingsToggle).InNamedRail("Show quick settings")
                     ),
                     //timeline toggles
                     CreateContainer(1f).Bind(ref _timelineTogglesContainer),

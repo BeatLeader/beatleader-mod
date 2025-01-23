@@ -1,6 +1,5 @@
 using BeatLeader.Components;
 using BeatLeader.Models;
-using BeatLeader.UI.Rendering;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -22,9 +21,11 @@ namespace BeatLeader.UI.Replayer {
             IReplayWatermark watermark,
             bool useAlternativeBlur
         ) {
+            _quickSettingsPanel.Setup(timeController);
+            _quickSettingsPanel.SetShown(settings.UISettings.QuickSettingsEnabled, true);
             _cameraView.Setup(cameraController, settings.CameraSettings!);
             _avatarView.Setup(bodySpawner, settings.BodySettings);
-            _uiView.Setup(layoutEditor, timeline, watermark);
+            _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);
             RefreshBackgroundBlur(useAlternativeBlur);
         }
@@ -37,6 +38,7 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
+        private QuickSettingsPanel _quickSettingsPanel = null!;
         private SettingsCameraView _cameraView = null!;
         private SettingsAvatarView _avatarView = null!;
         private SettingsUIView _uiView = null!;
@@ -61,27 +63,42 @@ namespace BeatLeader.UI.Replayer {
                         pixelsPerUnit: 7f
                     ).AsFlexItem(basis: 12f),
                     //view container
-                    new KeyedContainer<string> {
-                        Control = segmentedControl,
-                        Items = {
-                            {
-                                "Camera",
-                                new SettingsCameraView {
-                                    CameraViewParams = {
-                                        new PlayerViewCameraParams(),
-                                        new FlyingViewCameraParams(),
-                                        new ManualViewCameraParams()
-                                    }
-                                }.Bind(ref _cameraView)
-                            },
-                            { "Avatar", new SettingsAvatarView().Bind(ref _avatarView) },
-                            { "UI", new SettingsUIView().Bind(ref _uiView) },
-                            { "Other", new SettingsOtherView().Bind(ref _otherView) }
+                    new Image {
+                        ContentTransform = {
+                            anchorMin = new Vector2(0f, 0f),
+                            anchorMax = new Vector2(1f, 0f)
+                        },
+                        Children = {
+                            //actual view
+                            new KeyedContainer<string> {
+                                Control = segmentedControl,
+                                Items = {
+                                    {
+                                        "Camera",
+                                        new SettingsCameraView {
+                                            CameraViewParams = {
+                                                new PlayerViewCameraParams(),
+                                                new FlyingViewCameraParams(),
+                                                new ManualViewCameraParams()
+                                            }
+                                        }.Bind(ref _cameraView)
+                                    },
+                                    { "Avatar", new SettingsAvatarView().Bind(ref _avatarView) },
+                                    { "UI", new SettingsUIView().Bind(ref _uiView) },
+                                    { "Other", new SettingsOtherView().Bind(ref _otherView) }
+                                }
+                            }.AsFlexItem(grow: 1f, margin: 2f),
+
+                            //pop-up with quick settings
+                            new QuickSettingsPanel().Bind(ref _quickSettingsPanel)
                         }
-                    }.AsFlexItem(grow: 1f).InBackground(
+                    }.AsFlexItem(grow: 1f).AsBackground(
                         sprite: BundleLoader.Sprites.backgroundRight,
                         pixelsPerUnit: 7f
-                    ).AsFlexGroup(padding: 2f).AsFlexItem(grow: 1f).Bind(ref _backgroundImage),
+                    ).AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        justifyContent: Justify.FlexStart
+                    ).Bind(ref _backgroundImage)
                 }
             }.WithRectExpand().AsFlexGroup().Use();
         }

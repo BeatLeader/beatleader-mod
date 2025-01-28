@@ -1,3 +1,4 @@
-﻿<vertical id="container" spacing="0" pad="2" vertical-fit="PreferredSize" bg="round-rect-panel">
-    <text text="&lt;bll&gt;ls-scores-context&lt;/bll&gt;" underlined="true" font-size="3.0" font-color="#999999" align="Center"/>
+﻿<vertical id="container" spacing="1" pad="2" vertical-fit="PreferredSize" bg="round-rect-panel">
+    <text text="&lt;bll&gt;ls-scores-context&lt;/bll&gt;" underlined="true" italics="true" font-size="3.0" font-color="#999999" align="Center"/>
+    <list id="OptionsList" cell-size="8" select-cell='OnOptionSelected' visible-cells="5" list-style="List" show-scrollbar="true" stick-scrolling="true"/>
 </vertical>

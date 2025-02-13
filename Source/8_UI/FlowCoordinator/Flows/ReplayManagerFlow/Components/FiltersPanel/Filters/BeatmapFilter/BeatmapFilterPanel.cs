@@ -54,6 +54,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn => null;
         public string FilterName => "Beatmap Filter";
+        public string FilterStatus { get; private set; } = null!;
         public BeatmapLevelWithKey BeatmapLevel { get; private set; }
 
         public event Action? FilterUpdatedEvent;
@@ -62,6 +63,11 @@ namespace BeatLeader.UI.Hub {
             if (!BeatmapLevel.HasValue) return false;
             var levelId = BeatmapLevel.Level.levelID;
             return levelId.Replace("custom_level_", "") == value.ReplayInfo.SongHash;
+        }
+
+        private void RefreshFilterStatus() {
+            var level = BeatmapLevel;
+            FilterStatus = level.HasValue ? $"Map: {FormatUtils.TruncateEllipsis(level.Level.songName, 15)}" : "No Map";
         }
 
         #endregion
@@ -131,6 +137,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
+            RefreshFilterStatus();
             SetBeatmapLevel(previewBeatmapLevel);
             this.AsFlexItem(size: new() { x = 52f, y = 12f });
         }
@@ -146,6 +153,7 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleBeatmapSelected(BeatmapLevelWithKey beatmap) {
             BeatmapLevel = beatmap;
+            RefreshFilterStatus();
             SetBeatmapLevel(beatmap.Level);
             BeatmapSelectedEvent?.Invoke(BeatmapLevel);
             FilterUpdatedEvent?.Invoke();

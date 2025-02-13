@@ -15,6 +15,7 @@ namespace BeatLeader.UI.Hub {
 
         public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn => null;
         public string FilterName => "Tag Filter";
+        public string FilterStatus { get; private set; } = null!;
 
         public event Action? FilterUpdatedEvent;
 
@@ -23,6 +24,15 @@ namespace BeatLeader.UI.Hub {
         public bool Matches(IReplayHeaderBase value) {
             var i = value.ReplayMetadata.Tags.Count(tag => _selectedTags.Contains(tag));
             return i == _selectedTags.Count;
+        }
+
+        private void RefreshFilterStatus() {
+            if (_selectedTags.Count == 0) {
+                FilterStatus = "No Tags";
+                return;
+            }
+            var items = _selectedTags.Take(3).Select((x, idx) => $"{(idx > 0 ? ", " : "")}{x.Name}");
+            FilterStatus = "Tags: " + string.Join(string.Empty, items);
         }
 
         #endregion
@@ -75,6 +85,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
+            RefreshFilterStatus();
             this.AsFlexItem(size: new() { x = 52f, y = 10f });
         }
 
@@ -122,11 +133,13 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleSelectedTagAdded(IReplayTag tag) {
             _selectedTags.Add(tag);
+            RefreshFilterStatus();
             RefreshTextArea();
         }
 
         private void HandleSelectedTagRemoved(IReplayTag tag) {
             _selectedTags.Remove(tag);
+            RefreshFilterStatus();
             RefreshTextArea();
         }
 

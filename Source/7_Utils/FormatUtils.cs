@@ -318,5 +318,16 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        #region TruncateEllipsis
+
+        public static string TruncateEllipsis(string str, int threshold) {
+            if (str.Length <= threshold) {
+                return str;
+            }
+            return str.Substring(0, threshold - 3) + "...";
+        }
+
+        #endregion
     }
 }

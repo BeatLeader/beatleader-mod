@@ -13,6 +13,7 @@ namespace BeatLeader.UI.Hub {
     internal interface IPanelListFilter<in T> : IReactiveComponent, ILayoutItem, ITableFilter<T> {
         IEnumerable<IPanelListFilter<T>>? DependsOn { get; }
         string FilterName { get; }
+        string FilterStatus { get; }
     }
 
     internal class ListFiltersPanel<T> : ReactiveComponent, ITextTableFilter<T> {
@@ -244,7 +245,7 @@ namespace BeatLeader.UI.Hub {
 
         private void RefreshFiltersCaption() {
             _filtersTextArea.WithItemsText(
-                _modal.ActiveFilters.Select(static x => x.FilterName)
+                _modal.ActiveFilters.Select(static x => x.FilterStatus)
             );
         }
 

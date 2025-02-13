@@ -30,6 +30,7 @@ namespace BeatLeader {
         public Sprite ascendingIcon;
         public Sprite descendingIcon;
         public Sprite triangleIcon;
+        public Sprite checkIcon;
         /* Other */
         [Space] [Header("Misc")]
         public Sprite glare;

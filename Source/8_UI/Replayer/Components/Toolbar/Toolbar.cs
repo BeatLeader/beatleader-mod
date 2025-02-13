@@ -104,6 +104,7 @@ namespace BeatLeader.UI.Replayer {
                                 Alignment = TextAlignmentOptions.Center
                             }.Bind(ref _timeText).AsFlexItem(
                                 size: "auto",
+                                minSize: new() { x = 12 },
                                 alignSelf: Align.Center
                             ),
                             //settings button

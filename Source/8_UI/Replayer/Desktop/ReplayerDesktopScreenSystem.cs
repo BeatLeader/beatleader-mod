@@ -42,22 +42,26 @@ namespace BeatLeader.UI.Replayer.Desktop {
         private void CreateViewController() {
             var go = gameObject.CreateChild("Screen");
             go.layer = 5;
-            
-            _screenCanvas = go.AddComponent<Canvas>();
-            _screenCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _screenCanvas.scaleFactor = 5f;
-            _screenCanvas.planeDistance = 0.1f;
-            _canvasGroup = go.AddComponent<CanvasGroup>();
-            var scaler = go.AddComponent<CanvasScaler>();
-            scaler.dynamicPixelsPerUnit = 3.44f;
-            scaler.referencePixelsPerUnit = 10;
-            go.AddComponent<GraphicRaycaster>();
 
-            var rect = go.GetComponent<RectTransform>();
+            var rect = go.AddComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.sizeDelta = Vector2.zero;
             rect.anchoredPosition = Vector2.zero;
+
+            var growthFactor = rect.rect.size / new Vector2(1920f, 1200f);
+            var growthFactorAvg = (growthFactor.x + growthFactor.y) / 2;
+
+            _screenCanvas = go.AddComponent<Canvas>();
+            _screenCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            _screenCanvas.scaleFactor = 5f + growthFactorAvg;
+            _screenCanvas.planeDistance = 0.1f;
+            _canvasGroup = go.AddComponent<CanvasGroup>();
+
+            var scaler = go.AddComponent<CanvasScaler>();
+            scaler.dynamicPixelsPerUnit = 3.44f;
+            scaler.referencePixelsPerUnit = 10;
+            go.AddComponent<GraphicRaycaster>();
 
             Screen = go.AddComponent<Screen>();
         }

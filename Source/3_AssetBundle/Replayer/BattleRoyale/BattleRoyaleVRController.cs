@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -6,11 +7,21 @@ namespace BeatLeader {
         #region Unity Events
 
         private void Awake() {
+            gameObject.SetActive(false);
             _propertyBlock = new MaterialPropertyBlock();
+            _saberTrail = gameObject.AddComponent<SaberTrail>();
+            _saberTrail._trailRendererPrefab = InstantiateTrailRenderer();
+            _saberTrail._trailDuration = 0.4f;
+            _saberTrail._whiteSectionMaxDuration = 0.001f;
+            _saberTrail._samplingFrequency = 120;
+            _saberTrail._granularity = 45;
+            _saberTrail.Setup(coreColor, _movementData);
+            gameObject.SetActive(true);
         }
 
         private new void Update() {
             UpdateMaterialIfDirty();
+            UpdateMovementData();
         }
 
         private void OnValidate() {
@@ -32,6 +43,7 @@ namespace BeatLeader {
             set {
                 if (coreColor == value) return;
                 coreColor = value;
+                _saberTrail.Setup(value, _movementData);
                 SetPropertyBlockDirty();
             }
         }
@@ -43,6 +55,26 @@ namespace BeatLeader {
                 coreIntensity = value;
                 SetPropertyBlockDirty();
             }
+        }
+
+        #endregion
+
+        #region Trail
+
+        private readonly SaberMovementData _movementData = new();
+        private SaberTrail _saberTrail = null!;
+
+        private void UpdateMovementData() {
+            var bottomPos = transform.position;
+            var topPos = transform.forward + bottomPos;
+            _movementData.AddNewData(topPos, bottomPos, TimeHelper.time);
+        }
+
+        private static SaberTrailRenderer InstantiateTrailRenderer() {
+            var prefab = Resources
+                .FindObjectsOfTypeAll<SaberTrailRenderer>()
+                .First(x => x.name == "SaberTrailRenderer");
+            return Instantiate(prefab);
         }
 
         #endregion

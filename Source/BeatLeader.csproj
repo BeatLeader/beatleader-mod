@@ -153,6 +153,10 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="SaberTrail">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\SaberTrail.dll</HintPath>
+      <Publicize>True</Publicize>
+    </Reference>
     <Reference Include="MenuSystem">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\MenuSystem.dll</HintPath>
       <Publicize>True</Publicize>
@@ -322,8 +326,5 @@
   <ItemGroup>
     <PackageReference Include="BeatSaberModdingTools.Tasks" Version="2.0.0-beta7" PrivateAssets="all" />
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="2_Core\Replayer\Emulation\Players\Body\AvatarLoader.cs" />
   </ItemGroup>
 </Project>

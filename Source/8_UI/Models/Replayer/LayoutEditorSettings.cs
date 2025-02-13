@@ -27,7 +27,11 @@ namespace BeatLeader.Models {
         }
 
         private static Vector2 Sign(Vector2 vec) {
-            return new Vector2(Mathf.Sign(vec.x), Mathf.Sign(vec.y));
+            return new Vector2(SignOrZero(vec.x), SignOrZero(vec.y));
+        }
+
+        private static float SignOrZero(float val) {
+            return val == 0 ? 0 : Mathf.Sign(val);
         }
     }
 }

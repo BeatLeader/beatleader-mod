@@ -195,13 +195,13 @@ namespace BeatLeader {
                     CurvatureEnabled = true
                 },
                 LayoutEditorSettings = new() {
-                    ReferenceResolution = new(1800f, 1125f),
+                    ReferenceResolution = new(1920f, 1200f),
                     ComponentData = new() {
                         {
                             "Toolbar", new() {
                                 position = new() {
-                                    x = 3f,
-                                    y = -96f
+                                    x = 0f,
+                                    y = -84f
                                 },
                                 size = new() {
                                     x = 108f,
@@ -214,15 +214,15 @@ namespace BeatLeader {
                         {
                             "Beatmap Preview", new() {
                                 position = new() {
-                                    x = -165f,
-                                    y = 120f
+                                    x = -150f,
+                                    y = 108f
                                 },
                                 size = new() {
                                     x = 84f,
                                     y = 24f
                                 },
                                 layer = 2,
-                                visible = false,
+                                visible = true,
                             }
                         },
                         {
@@ -236,9 +236,23 @@ namespace BeatLeader {
                                     y = 60f
                                 },
                                 layer = 3,
-                                visible = false,
+                                visible = true,
                             }
-                        }
+                        },
+                        {
+                            "Player Profile", new() {
+                                position = new() {
+                                    x = -150f,
+                                    y = 84f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 24f
+                                },
+                                layer = 3,
+                                visible = true,
+                            }
+                        },
                     }
                 }
             },

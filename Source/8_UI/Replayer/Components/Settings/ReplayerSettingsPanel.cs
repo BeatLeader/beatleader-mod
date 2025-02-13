@@ -167,7 +167,10 @@ namespace BeatLeader.UI.Replayer {
                                 PreserveAspect = true
                             }.AsFlexItem(grow: 1f).Bind(ref _icon).In<Dummy>().AsFlexGroup(
                                 padding: 1f
-                            ).AsFlexItem(aspectRatio: 1f),
+                            ).AsFlexItem(
+                                minSize: new() { y = 9f },
+                                maxSize: new() { y = 10f }
+                            ),
                             //
                             new Label {
                                 Material = BundleLoader.UIAdditiveGlowMaterial,

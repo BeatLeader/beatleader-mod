@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -107,7 +108,7 @@ namespace BeatLeader.UI.Hub {
             if (header == Header) return;
             _tokenSource.Cancel();
             _tokenSource = new();
-            _ = SetDataAsync(header, _tokenSource.Token);
+            SetDataAsync(header, _tokenSource.Token).RunCatching();
         }
 
         private async Task SetDataAsync(IReplayHeader? header, CancellationToken token) {
@@ -115,6 +116,7 @@ namespace BeatLeader.UI.Hub {
             if (header == null) {
                 SetDetailsVisible(false);
                 _miniProfile.SetPlayer(null);
+                _lastPlayerId = null;
             } else {
                 SetDetailsVisible(true);
                 //starting tasks

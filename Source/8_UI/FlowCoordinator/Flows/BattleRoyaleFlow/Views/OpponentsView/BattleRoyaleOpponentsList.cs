@@ -160,22 +160,29 @@ namespace BeatLeader.UI.Hub {
             #region Setup
 
             private IBattleRoyaleReplay? _prevReplay;
+            private int _prevRank;
             private IBattleRoyaleHost _battleRoyaleHost = null!;
             private CancellationTokenSource _tokenSource = new();
             private Task? _refreshColorTask;
             private Task? _refreshPlayerTask;
 
             protected override void OnInit(IBattleRoyaleReplay item) {
-                if (item == _prevReplay) return;
+                if (item == _prevReplay && item.ReplayRank == _prevRank) {
+                    return;
+                }
                 //
                 if (_refreshColorTask != null || _refreshPlayerTask != null) {
                     _tokenSource.Cancel();
                     _tokenSource = new();
                 }
                 ResetColor();
+                RefreshOtherText();
+                
                 _refreshPlayerTask = RefreshPlayer(_tokenSource.Token).RunCatching();
                 _refreshColorTask = RefreshAccentColor(_tokenSource.Token).RunCatching();
+                
                 _prevReplay = item;
+                _prevRank = item.ReplayRank;
             }
 
             public void Init(IBattleRoyaleHost battleRoyaleHost) {
@@ -199,8 +206,11 @@ namespace BeatLeader.UI.Hub {
                 //applying
                 _playerAvatar.SetAvatar(player);
                 _playerNameText.Text = player.Name;
+            }
+
+            private void RefreshOtherText() {
                 _rankText.Text = $"#{Item.ReplayRank}";
-                var timestamp = header.ReplayInfo.Timestamp.ToString();
+                var timestamp = Item.ReplayHeader.ReplayInfo.Timestamp.ToString();
                 _dateText.Text = FormatUtils.FormatTimeset(timestamp, false);
             }
 

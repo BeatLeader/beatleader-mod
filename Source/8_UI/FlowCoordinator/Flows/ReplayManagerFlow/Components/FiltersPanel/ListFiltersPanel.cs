@@ -60,9 +60,9 @@ namespace BeatLeader.UI.Hub {
             #region Setup
 
             public bool FilterEnabled {
-                get => _enableButton.Active;
+                get => _enableToggle.Active;
                 set {
-                    _enableButton.Click(value);
+                    _enableToggle.SetActive(value);
                     HandleButtonClicked(true);
                 }
             }
@@ -99,7 +99,7 @@ namespace BeatLeader.UI.Hub {
             #region Construct
 
             private PushContainer _filterContainer = null!;
-            private ButtonBase _enableButton = null!;
+            private IToggle _enableToggle = null!;
 
             protected override GameObject Construct() {
                 return new Dummy {
@@ -113,15 +113,9 @@ namespace BeatLeader.UI.Hub {
                         new Image {
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
                             Children = {
-                                new ImageButton {
-                                    Image = {
-                                        Sprite = BundleLoader.Sprites.checkIcon,
-                                        Material = BundleLoader.Materials.uiAdditiveGlowMaterial
-                                    },
-                                    Colors = UIStyle.ButtonColorSet,
-                                    Latching = true,
+                                new CheckCircle {
                                     OnStateChanged = _ => HandleButtonClicked(false)
-                                }.AsFlexItem(size: 3f).Bind(ref _enableButton)
+                                }.AsFlexItem(size: 3f).Bind(ref _enableToggle)
                             }
                         }.AsFlexGroup(
                             alignItems: Align.Center,

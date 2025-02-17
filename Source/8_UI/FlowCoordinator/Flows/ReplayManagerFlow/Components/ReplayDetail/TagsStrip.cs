@@ -1,10 +1,10 @@
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
+using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -152,7 +152,8 @@ namespace BeatLeader.UI.Hub {
                                 //tags label
                                 new Label {
                                     Color = UIStyle.SecondaryTextColor,
-                                    FontSize = 3.5f
+                                    FontSize = 3.5f,
+                                    Alignment = TextAlignmentOptions.Capline
                                 }.AsFlexItem(
                                     size: new() { x = "auto" },
                                     margin: new() { left = 1f, right = 1f }

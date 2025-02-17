@@ -50,24 +50,30 @@ namespace BeatLeader.UI.Replayer {
                             //pin button
                             new ImageButton {
                                 Image = {
-                                    Sprite = BundleLoader.Sprites.pinIcon
+                                    Sprite = BundleLoader.Sprites.pinIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
+                                Colors = UIStyle.ButtonColorSet,
                                 Latching = true,
                                 OnStateChanged = HandlePinStateChanged
                             }.AsFlexItem(size: 4f).Bind(ref _pinButton),
                             //snap button
                             new ImageButton {
                                 Image = {
-                                    Sprite = BundleLoader.Sprites.snapIcon
+                                    Sprite = BundleLoader.Sprites.snapIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
+                                Colors = UIStyle.ButtonColorSet,
                                 Latching = true,
                                 OnStateChanged = HandleSnapStateChanged
                             }.AsFlexItem(size: 4f).Bind(ref _snapButton),
                             //curvature button
                             new ImageButton {
                                 Image = {
-                                    Sprite = BundleLoader.Sprites.curvatureIcon
+                                    Sprite = BundleLoader.Sprites.curvatureIcon,
+                                    Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
+                                Colors = UIStyle.ButtonColorSet,
                                 OnClick = HandleCurvatureButtonClicked
                             }.AsFlexItem(size: 4f),
                         }

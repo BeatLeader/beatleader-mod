@@ -6,6 +6,7 @@ using Zenject;
 using BeatLeader.Utils;
 using BeatLeader.Models;
 using IPA.Utilities;
+using UnityEngine.SpatialTracking;
 
 namespace BeatLeader.Replayer {
     public class ReplayerCameraController : MonoBehaviour, ICameraController {
@@ -88,6 +89,10 @@ namespace BeatLeader.Replayer {
                 camera.stereoTargetEye = StereoTargetEyeMask.None;
                 camera.fieldOfView = 90;
             } else {
+                var trackedPoseDriver = camera.gameObject.AddComponent<TrackedPoseDriver>();
+                trackedPoseDriver.SetPoseSource(TrackedPoseDriver.DeviceType.GenericXRDevice, TrackedPoseDriver.TrackedPose.Center);
+                trackedPoseDriver.updateType = TrackedPoseDriver.UpdateType.UpdateAndBeforeRender;
+
                 camera.stereoTargetEye = StereoTargetEyeMask.Both;
                 PatchSmoothCamera();
             }

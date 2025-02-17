@@ -62,11 +62,13 @@ namespace BeatLeader.UI.Hub {
             #region Setup
 
             private ReplayManagerSearchTheme? _theme;
+            private ReplaysList? _replaysList;
 
-            public void Setup(ReplayManagerSearchTheme? theme) {
+            public void Setup(ReplaysList replaysList, ReplayManagerSearchTheme? theme) {
                 if (_theme != null) {
                     _theme.SearchThemeUpdatedEvent -= HandleThemeUpdated;
                 }
+                _replaysList = replaysList;
                 _theme = theme;
                 if (_theme != null) {
                     _theme.SearchThemeUpdatedEvent += HandleThemeUpdated;
@@ -109,14 +111,6 @@ namespace BeatLeader.UI.Hub {
                 _bottomLeftLabel.Text += FormatByPhrase(info.PlayerName);
             }
 
-            protected override void OnInit(IReplayHeaderBase item) {
-                RefreshTexts();
-            }
-
-            #endregion
-
-            #region Text Formatting
-
             private static string FormatLevelEndType(LevelEndType levelEndType, float failTime) {
                 return levelEndType switch {
                     Clear => "Completed",
@@ -124,6 +118,75 @@ namespace BeatLeader.UI.Hub {
                     Fail => $"Failed at {FormatUtils.FormatTime(failTime)}",
                     _ => "Unknown"
                 };
+            }
+
+            #endregion
+
+            #region Init
+
+            private IReplayHeaderBase? _prevItem;
+
+            protected override void OnInit(IReplayHeaderBase item) {
+                RefreshTexts();
+                RefreshTags();
+                
+                if (_prevItem != null) {
+                    _prevItem.ReplayMetadata.TagAddedEvent -= HandleTagAddedOrRemoved;
+                    _prevItem.ReplayMetadata.TagRemovedEvent -= HandleTagAddedOrRemoved;
+                }
+                item.ReplayMetadata.TagAddedEvent += HandleTagAddedOrRemoved;
+                item.ReplayMetadata.TagRemovedEvent += HandleTagAddedOrRemoved;
+                
+                _prevItem = item;
+            }
+
+            #endregion
+
+            #region Tags
+
+            private readonly List<TagPanel> _spawnedTags = new();
+            private int _maxTags = 3;
+
+            private void RefreshTags() {
+                if (_replaysList == null) {
+                    return;
+                }
+
+                var tags = Item.ReplayMetadata.Tags;
+                RefreshTagPanels(tags);
+
+                var index = 0;
+                foreach (var tag in tags) {
+                    if (index == _maxTags) {
+                        break;
+                    }
+                    var panel = _spawnedTags[index];
+                    panel.Interactable = false;
+                    panel.Animated = false;
+                    panel.SetTag(tag);
+                    panel.AsFlexItem(size: new() { y = 4f });
+                    panel.LayoutDriver = _tagsContainer;
+                    index++;
+                }
+            }
+
+            private void RefreshTagPanels(ICollection<IReplayTag> tags) {
+                var delta = tags.Count - _spawnedTags.Count;
+                if (delta < 0) {
+                    for (var i = -delta - 1; i >= 0; i--) {
+                        var tag = _spawnedTags[i];
+                        _replaysList!._tagsPool.Despawn(tag);
+                        _spawnedTags.RemoveAt(i);
+                    }
+                } else if (delta > 0) {
+                    for (var i = 0; i < delta; i++) {
+                        if (_spawnedTags.Count == _maxTags) {
+                            break;
+                        }
+                        var tag = _replaysList!._tagsPool.Spawn();
+                        _spawnedTags.Add(tag);
+                    }
+                }
             }
 
             #endregion
@@ -138,6 +201,7 @@ namespace BeatLeader.UI.Hub {
             private Label _topRightLabel = null!;
             private Label _bottomRightLabel = null!;
             private ImageButton _button = null!;
+            private Dummy _tagsContainer = null!;
 
             protected override GameObject Construct() {
                 static Label CellLabel(
@@ -176,15 +240,30 @@ namespace BeatLeader.UI.Hub {
                             OnStateChanged = _ => SelectSelf(true),
                             Children = {
                                 //top left
-                                CellLabel(
-                                    TextOverflowModes.Ellipsis,
-                                    TextAlignmentOptions.TopLeft,
-                                    4,
-                                    60,
-                                    new() { top = 0, left = 0.6f },
-                                    textColor,
-                                    ref _topLeftLabel
+                                new Dummy {
+                                    Children = {
+                                        new Label {
+                                            Overflow = TextOverflowModes.Ellipsis,
+                                            Alignment = TextAlignmentOptions.TopLeft,
+                                            FontStyle = FontStyles.Italic,
+                                            FontSize = 4f,
+                                            Color = textColor
+                                        }.AsFlexItem(size: new() { x = "auto" }).Bind(ref _topLeftLabel),
+
+                                        new Dummy()
+                                            .AsFlexGroup(
+                                                justifyContent: Justify.FlexStart,
+                                                padding: new() { top = 0.7f, left = 0.7f },
+                                                gap: new() { x = 0.5f }
+                                            )
+                                            .AsFlexItem(grow: 1f)
+                                            .Bind(ref _tagsContainer)
+                                    }
+                                }.AsFlexGroup(alignItems: Align.Stretch).AsFlexItem(
+                                    size: new() { y = "100%", x = "70%" },
+                                    position: new() { top = 0, left = 0.6f }
                                 ),
+
                                 //bottom left
                                 CellLabel(
                                     TextOverflowModes.Ellipsis,
@@ -227,6 +306,10 @@ namespace BeatLeader.UI.Hub {
             #endregion
 
             #region Callbacks
+
+            private void HandleTagAddedOrRemoved(IReplayTag tag) {
+                RefreshTags();
+            }
 
             private void HandleThemeUpdated() {
                 RefreshTexts();
@@ -302,13 +385,14 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
+        public readonly HashSet<IReplayHeaderBase> HighlightedItems = new();
+
+        private readonly ReactivePool<TagPanel> _tagsPool = new();
         private ReplayManagerSearchTheme? _theme;
 
         public void Setup(ReplayManagerSearchTheme theme) {
             _theme = theme;
         }
-
-        public readonly HashSet<IReplayHeaderBase> HighlightedItems = new();
 
         protected override void OnCellConstruct(Cell cell) {
             if (Filter is ITextTableFilter<IReplayHeaderBase> filter) {
@@ -316,7 +400,7 @@ namespace BeatLeader.UI.Hub {
             } else {
                 cell.HighlightPhrase = null;
             }
-            cell.Setup(_theme);
+            cell.Setup(this, _theme);
             cell.Highlighted = HighlightedItems.Contains(cell.Item);
         }
 

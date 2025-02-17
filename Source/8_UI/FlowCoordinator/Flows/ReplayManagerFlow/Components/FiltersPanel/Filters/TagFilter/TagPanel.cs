@@ -5,6 +5,7 @@ using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
+using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -56,6 +57,8 @@ namespace BeatLeader.UI.Hub {
                 _button.Interactable = value && _tagPresented;
             }
         }
+
+        public bool Animated { get; set; } = true;
 
         public event Action<IReplayTag>? StateAnimationFinishedEvent;
         public event Action<IReplayTag>? DeleteButtonClickedEvent;
@@ -178,6 +181,9 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnLateUpdate() {
+            if (!Animated) {
+                return;
+            }
             RefreshPanelSlideAnimation();
         }
 
@@ -249,7 +255,8 @@ namespace BeatLeader.UI.Hub {
                     ).Bind(ref _deleteButton).Bind(ref _deleteButtonTransform),
                     //text
                     new Label {
-                        FontSize = 3f
+                        FontSize = 3f,
+                        Alignment = TextAlignmentOptions.Capline
                     }.AsFlexItem(size: "auto").Bind(ref _label)
                 }
             }.WithScaleAnimation(1f, 1.1f).AsFlexGroup(

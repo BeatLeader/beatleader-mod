@@ -74,7 +74,7 @@ namespace BeatLeader.UI {
             //distance
             _grabDistance -= _grabbingController.thumbstick.y * Time.deltaTime;
             //position
-            var controllerTransform = _grabbingController.transform;
+            var controllerTransform = _grabbingController._viewAnchorTransform;
             var newPos = controllerTransform.position + controllerTransform.forward * _grabDistance + _grabPointDelta;
             _screen!.position = Vector3.Lerp(_screen!.position, newPos, _posCoefficient * Time.deltaTime);
             //rotation
@@ -106,7 +106,7 @@ namespace BeatLeader.UI {
             if (!_isInitialized) return;
             _grabbingController = handler.VRController;
             //
-            var controllerTransform = _grabbingController!.transform;
+            var controllerTransform = _grabbingController!._viewAnchorTransform;
             _grabDistance = Vector3.Distance(controllerTransform.position, hit.point);
             _grabPointDelta = _screen!.position - hit.point;
             _grabRot = Quaternion.Inverse(controllerTransform.rotation) * _screen.rotation;

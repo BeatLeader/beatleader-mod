@@ -34,11 +34,14 @@ namespace BeatLeader.UI {
 
         private void Update() {
             var controller = _pointer.lastSelectedVrController;
+            var controllerAnchor = controller._viewAnchorTransform;
+            
             var hovered = Physics.Raycast(
-                controller.position,
-                controller.forward,
+                controllerAnchor.position,
+                controllerAnchor.forward,
                 out var hitInfo,
-                raycastDistanceThreshold
+                raycastDistanceThreshold,
+                32
             ) && hitInfo.transform == transform;
             //
             var triggerPressed = controller.triggerValue >= 0.9f;

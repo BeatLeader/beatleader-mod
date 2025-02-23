@@ -11,14 +11,6 @@ using UnityEngine.Networking;
 
 namespace BeatLeader.API {
 
-    public class CustomCertificateHandler : CertificateHandler
-    {
-        protected override bool ValidateCertificate(byte[] certificateData)
-        {
-            // Bypass validation (not recommended for production)
-            return true;
-        }
-    }
     internal static class Authentication {
         #region AuthPlatform
 
@@ -113,7 +105,6 @@ namespace BeatLeader.API {
             };
 
             var request = UnityWebRequest.Post(BLConstants.SIGNIN_WITH_TICKET, form);
-            request.certificateHandler = new CustomCertificateHandler();
             
             yield return request.SendWebRequest();
 

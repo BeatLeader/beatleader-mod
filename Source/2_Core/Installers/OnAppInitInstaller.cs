@@ -5,6 +5,7 @@ using BeatLeader.Utils;
 using JetBrains.Annotations;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Zenject;
 
 namespace BeatLeader.Installers {
@@ -26,7 +27,9 @@ namespace BeatLeader.Installers {
                 Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             }
 
-            OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);
+            }
 
             Container.BindInterfacesAndSelfTo<LeaderboardContextsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();

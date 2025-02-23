@@ -9,15 +9,6 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader {
-    [HarmonyPatch(typeof(DeactivateMenuControllersOnFocusCaptureOrTrackingLost), "SetActiveMenuController")]
-    internal static class MenuFocusPatch {
-        
-        [UsedImplicitly]
-        private static bool Prefix(VRController vrController) {
-            return vrController != null && vrController.gameObject != null;
-        }
-    }
-
     [HarmonyPatch(typeof(GameplayModifiersPanelController), "RefreshTotalMultiplierAndRankUI")]
     internal static class GameplayModifiersPanelPatch {
         public static event Action<GameplayModifiers>? ModifiersChangedEvent;

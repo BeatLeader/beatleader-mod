@@ -74,16 +74,23 @@ namespace BeatLeader.UI.Replayer {
                 _cameraController.CameraFovChangedEvent -= HandleCameraFovChanged;
                 _cameraController.CameraViewChangedEvent -= HandleCameraViewChanged;
             }
+
             _cameraController = cameraController;
             _isInitialized = false;
+
             if (_cameraController != null && cameraSettings != null) {
                 _fovSlider.ValueRange = new(cameraSettings.MinCameraFOV, cameraSettings.MaxCameraFOV);
                 _fovSlider.Value = cameraSettings.CameraFOV;
                 _fovSlider.Interactable = EnvironmentUtils.UsesFPFC;
+
                 _cameraController.CameraFovChangedEvent += HandleCameraFovChanged;
                 _cameraController.CameraViewChangedEvent += HandleCameraViewChanged;
                 RefreshCameraViews();
+                SetUnavailableTextActive(false);
+
                 _isInitialized = true;
+            } else {
+                SetUnavailableTextActive(true);
             }
         }
 
@@ -91,21 +98,34 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
-        private Slider _fovSlider = null!;
         private TextListControl<ICameraView> _viewSelector = null!;
         private KeyedContainer<ICameraView> _viewContainer = null!;
+        private Label _unavailableLabel = null!;
+        private Slider _fovSlider = null!;
+        private Dummy _container = null!;
+
+        private void SetUnavailableTextActive(bool active) {
+            foreach (var layoutItem in _container.Children) {
+                var comp = (IReactiveComponent)layoutItem;
+                comp.Enabled = comp == _unavailableLabel ? active : !active;
+            }
+        }
 
         protected override GameObject Construct() {
             return new Dummy {
                 Children = {
+                    new Label {
+                        Text = "Camera controls are not available while using an external camera",
+                        Enabled = false
+                    }.Bind(ref _unavailableLabel).AsFlexItem(alignSelf: Align.Center),
+                    //
                     new Slider {
-                        ValueStep = 5f
-                    }.WithListener(
-                        x => x.Value,
-                        HandleFOVSliderValueChanged
-                    ).AsFlexItem(
-                        size: new() { x = 40f, y = 6f }
-                    ).Bind(ref _fovSlider).InNamedRail("Camera FOV"),
+                            ValueStep = 5f
+                        }
+                        .WithListener(x => x.Value, HandleFOVSliderValueChanged)
+                        .AsFlexItem(size: new() { x = 40f, y = 6f })
+                        .Bind(ref _fovSlider)
+                        .InNamedRail("Camera FOV"),
                     //
                     new TextListControl<ICameraView>()
                         .WithListener(x => x.SelectedKey, HandleViewSelectorViewChanged)
@@ -113,7 +133,11 @@ namespace BeatLeader.UI.Replayer {
                         .Bind(ref _viewSelector)
                         .InNamedRail("Camera View"),
                     //
-                    new KeyedContainer<ICameraView>()
+                    new KeyedContainer<ICameraView> {
+                            DummyView = new Label {
+                                Text = "Monke has nothing to show here"
+                            }
+                        }
                         .AsFlexItem(grow: 1f)
                         .Bind(ref _viewContainer)
                         .InBackground(color: (Color.white * 0.1f).ColorWithAlpha(1f))
@@ -123,7 +147,7 @@ namespace BeatLeader.UI.Replayer {
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
                 gap: 2f
-            ).Use();
+            ).Bind(ref _container).Use();
         }
 
         #endregion

@@ -25,7 +25,7 @@ namespace BeatLeader.UI.Replayer {
         ) {
             _quickSettingsPanel.Setup(timeController);
             _quickSettingsPanel.SetShown(settings.UISettings.QuickSettingsEnabled, true);
-            _cameraView.Setup(cameraController, settings.CameraSettings!);
+            _cameraView.Setup(cameraController, settings.CameraSettings);
             _avatarView.Setup(bodySpawner, settings.BodySettings);
             _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);

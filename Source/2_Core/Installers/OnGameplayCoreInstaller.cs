@@ -63,6 +63,7 @@ namespace BeatLeader.Installers {
 
         private void InitReplayer() {
             DisableScoreSubmission();
+            PatchSiraFreeView();
 
             //Dependencies
             Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData!).AsSingle();
@@ -100,6 +101,23 @@ namespace BeatLeader.Installers {
             Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Plugin.Log.Notice("[Installer] Replays system successfully installed!");
+        }
+
+        //TODO: move to tweak without unbinding
+        private void PatchSiraFreeView() {
+            if (!InputUtils.IsInFPFC) return;
+            try {
+                Container.Resolve<IFPFCSettings>().Enabled = false;
+                var assembly = typeof(IFPFCSettings).Assembly;
+
+                var smoothCameraListenerType = assembly.GetType("SiraUtil.Tools.FPFC.SmoothCameraListener");
+                var fpfcToggleType = assembly.GetType("SiraUtil.Tools.FPFC.FPFCToggle");
+
+                Container.UnbindInterfacesTo(smoothCameraListenerType);
+                Container.UnbindInterfacesTo(fpfcToggleType);
+            } catch (Exception ex) {
+                Plugin.Log.Error($"[Installer] Error during attempting to remove Sira's FPFC system! \r\n {ex}");
+            }
         }
 
         #endregion

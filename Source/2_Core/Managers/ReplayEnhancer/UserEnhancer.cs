@@ -69,8 +69,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 
         private static async Task<UserInfo> InternalGetUserAsync()
         {
-            CancellationToken cancellationToken = new CancellationToken();
-            UserInfo userInfo = await _platformUserModel.GetUserInfo(cancellationToken);
+            UserInfo userInfo = await _platformUserModel.GetUserInfo();
             if (userInfo != null)
             {
                 Plugin.Log.Debug($"UserInfo found: {userInfo.platformUserId}: {userInfo.userName} on {userInfo.platform}");

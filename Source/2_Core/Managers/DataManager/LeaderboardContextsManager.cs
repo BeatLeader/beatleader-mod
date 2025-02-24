@@ -48,7 +48,7 @@ namespace BeatLeader.DataManager {
             using var www = UnityWebRequestTexture.GetTexture(url);
             yield return www.SendWebRequest();
             
-            if (www.result != UnityWebRequest.Result.Success) {
+            if (www.responseCode != 200) {
                 Plugin.Log.Debug($"Failed to load icon from {url}: {www.error}");
                 yield break;
             }

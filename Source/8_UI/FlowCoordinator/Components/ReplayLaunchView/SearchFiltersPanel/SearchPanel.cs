@@ -4,7 +4,7 @@ using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
-using BGLib.Polyglot;
+using Polyglot;
 using TMPro;
 using UnityEngine;
 

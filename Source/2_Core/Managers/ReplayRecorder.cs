@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using BeatLeader.Core.Managers.NoteEnhancer;
@@ -39,7 +39,7 @@ namespace BeatLeader {
         #region ScoreController.LateUpdate Patch
 
         private static HarmonyPatchDescriptor LateUpdatePatchDescriptor => new(
-            typeof(ScoreController).GetMethod(nameof(ScoreController.LateUpdate), BindingFlags.Instance | BindingFlags.NonPublic),
+            typeof(ScoreController).GetMethod(nameof(ScoreController.LateUpdate), BindingFlags.Instance | BindingFlags.Public),
             typeof(ReplayRecorder).GetMethod(nameof(ScoreControllerLateUpdatePrefix), BindingFlags.Static | BindingFlags.NonPublic)
         );
 

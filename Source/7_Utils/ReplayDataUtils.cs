@@ -142,7 +142,7 @@ namespace BeatLeader.Utils {
             // Notes that are both chain and arc head have undefined scoring type priority
             // Bools are reused for compactness
             if (legacyScoring) {
-                if (noteData.scoringType == NoteData.ScoringType.BurstSliderHead && noteData.isArcHead) {
+                if (noteData.scoringType == NoteData.ScoringType.BurstSliderHead) {
                     scoringPart = ((int)NoteData.ScoringType.SliderHead + 2) * 10000;
                 }
             } else if (altScoring) {

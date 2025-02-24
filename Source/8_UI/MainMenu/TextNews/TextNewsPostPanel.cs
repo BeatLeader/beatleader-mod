@@ -39,7 +39,7 @@ namespace BeatLeader.UI.MainMenu {
                     Width = 512,
                     Height = 400
                 };
-                await _image.SetImageAsync(post.image, false, options);
+                _image.SetImage(post.image, false, options);
             }
         }
 

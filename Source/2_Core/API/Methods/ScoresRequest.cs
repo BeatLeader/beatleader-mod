@@ -17,7 +17,7 @@ namespace BeatLeader.API.Methods {
         private static string PlayerScoresPageEndpoint => BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
 
         public static void SendPlayerScoresPageRequest(
-            BeatmapKey beatmapKey,
+            LeaderboardKey beatmapKey,
             string userId,
             string context,
             string scope,
@@ -54,7 +54,7 @@ namespace BeatLeader.API.Methods {
         private static string PlayerScoresSeekEndpoint => BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
 
         public static void SendPlayerScoresSeekRequest(
-            BeatmapKey beatmapKey,
+            LeaderboardKey beatmapKey,
             string userId,
             string context,
             string scope
@@ -88,7 +88,7 @@ namespace BeatLeader.API.Methods {
         private static string ClanScoresPageEndpoint => BLConstants.BEATLEADER_API_URL + "/v1/clanScores/{0}/{1}/{2}/page?{3}";
 
         public static void SendClanScoresPageRequest(
-            BeatmapKey beatmapKey,
+            LeaderboardKey beatmapKey,
             int page
         ) {
             NetworkingUtils.BeatmapKeyToUrlParams(in beatmapKey, out var mapHash, out var mapDiff, out var mapMode);

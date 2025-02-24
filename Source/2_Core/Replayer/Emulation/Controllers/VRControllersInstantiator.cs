@@ -36,6 +36,7 @@ namespace BeatLeader.Replayer.Emulation {
             }
 
             var transform = new GameObject(name ?? "InstantiatedVRControllersContainer").transform;
+
             transform.SetParent(Origin, false);
 
             var leftGo = Object.Instantiate(_provider.LeftSaber.gameObject);

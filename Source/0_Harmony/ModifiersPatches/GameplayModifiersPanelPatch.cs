@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
-using BGLib.Polyglot;
+using Polyglot;
 using TMPro;
 using UnityEngine;
 

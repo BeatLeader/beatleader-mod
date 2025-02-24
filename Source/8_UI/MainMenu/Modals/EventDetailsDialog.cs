@@ -70,11 +70,10 @@ namespace BeatLeader.UI.MainMenu {
 
                     var playlist = PlaylistsLibInterop.TryFindPlaylist(filename);
                     if (playlist != null) {
-                        BeatmapKey beatmapKey = new BeatmapKey();
                         var x = new LevelSelectionFlowCoordinator.State(
                             SelectLevelCategoryViewController.LevelCategory.CustomSongs, 
                             playlist, 
-                            in beatmapKey, 
+                            null, 
                             null);
                         FindObjectOfType<SoloFreePlayFlowCoordinator>().Setup(x);
                         (GameObject.Find("SoloButton") ?? GameObject.Find("Wrapper/BeatmapWithModifiers/BeatmapSelection/EditButton"))

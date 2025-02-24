@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Util;
+using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
 
 namespace BeatLeader {

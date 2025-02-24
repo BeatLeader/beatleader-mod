@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     internal struct ClanScorePanelContext {
-        public BeatmapKey beatmapKey;
+        public LeaderboardKey beatmapKey;
         public ClanScore clanScore;
         public Player clanPlayer;
     }

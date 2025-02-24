@@ -4,6 +4,7 @@ namespace BeatLeader.Models {
     internal enum BeatLeaderServer {
         COM_DOMAIN,
         NET_DOMAIN,
+        XYZ_DOMAIN
     }
 
     internal static class BeatLeaderServerUtils {
@@ -16,6 +17,7 @@ namespace BeatLeader.Models {
             switch (server) {
                 case BeatLeaderServer.NET_DOMAIN: return "beatleader.net";
                 case BeatLeaderServer.COM_DOMAIN:
+                case BeatLeaderServer.XYZ_DOMAIN:
                 default: return "beatleader.com";
             }
         }
@@ -24,6 +26,7 @@ namespace BeatLeader.Models {
             switch (server) {
                 case BeatLeaderServer.NET_DOMAIN: return "https://api.beatleader.net";
                 case BeatLeaderServer.COM_DOMAIN:
+                case BeatLeaderServer.XYZ_DOMAIN:
                 default: return "https://api.beatleader.com";
             }
         }
@@ -32,6 +35,7 @@ namespace BeatLeader.Models {
             switch (server) {
                 case BeatLeaderServer.NET_DOMAIN: return "https://beatleader.net";
                 case BeatLeaderServer.COM_DOMAIN:
+                case BeatLeaderServer.XYZ_DOMAIN:
                 default: return "https://beatleader.com";
             }
         }

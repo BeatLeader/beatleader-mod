@@ -34,7 +34,7 @@ namespace BeatLeader.UI.MainMenu {
             _buttonText.text = buttonText;
             _buttonAction = buttonAction;
             if (!string.IsNullOrEmpty(previewUrl)) {
-                await _image.SetImageAsync(previewUrl);
+                _image.SetImage(previewUrl);
             }
         }
 

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using BeatLeader.API.RequestHandlers;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Loader;
 using JetBrains.Annotations;
@@ -151,12 +152,12 @@ namespace BeatLeader.API {
         }
 
         public static void BeatmapKeyToUrlParams(
-            in BeatmapKey beatmapKey,
+            in LeaderboardKey beatmapKey,
             out string mapHash, out string mapDiff, out string mapMode
         ) {
-            mapHash = beatmapKey.levelId.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
-            mapDiff = beatmapKey.difficulty.ToString();
-            mapMode = beatmapKey.beatmapCharacteristic.serializedName;
+            mapHash = beatmapKey.Hash;
+            mapDiff = beatmapKey.Diff;
+            mapMode = beatmapKey.Mode;
         }
 
         public static string ToHttpParams(Dictionary<string, object> param) {

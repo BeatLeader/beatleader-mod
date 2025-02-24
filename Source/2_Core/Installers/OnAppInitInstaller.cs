@@ -6,25 +6,26 @@ using JetBrains.Annotations;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
 using Zenject;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnAppInitInstaller : Installer<OnAppInitInstaller> {
         [Inject, UsedImplicitly]
+        private IPlatformUserModel _platformUserModel;
+
+        [Inject, UsedImplicitly]
         private IVRPlatformHelper _vrPlatformHelper;
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
-            
-            var steamPlatformUserModel = Assembly.GetAssembly(typeof(IPlatformUserModel))
-                .GetTypes()
-                .FirstOrDefault(t => t.FullName.Contains("SteamPlatformUserModel"));
-            if (steamPlatformUserModel != null) {
-                Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
-            } else {
+
+            if (_platformUserModel is OculusPlatformUserModel) {
                 Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
                 Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            } else {
+                Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {

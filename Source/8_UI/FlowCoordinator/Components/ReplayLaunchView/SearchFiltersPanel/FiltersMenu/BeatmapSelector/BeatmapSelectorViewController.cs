@@ -1,5 +1,5 @@
 ﻿using System;
-using BGLib.Polyglot;
+using Polyglot;
 using HMUI;
 using IPA.Utilities;
 using UnityEngine;
@@ -8,7 +8,7 @@ namespace BeatLeader.Components {
     internal class BeatmapSelectorViewController : DummyViewController {
         #region Events
 
-        public event Action<BeatmapLevel>? BeatmapSelectedEvent;
+        public event Action<IPreviewBeatmapLevel>? BeatmapSelectedEvent;
 
         #endregion
 
@@ -32,7 +32,7 @@ namespace BeatLeader.Components {
         private Vector3 _levelDetailLevelBarOriginalPos;
         private SelectLevelCategoryViewController.LevelCategory _originalLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
         private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
-        private BeatmapLevel? _originalPreviewBeatmapLevel;
+        private IPreviewBeatmapLevel? _originalPreviewBeatmapLevel;
         private bool _isInitialized;
 
         private string _defaultPlayButtonText = Localization.Get("BUTTON_PLAY");
@@ -92,7 +92,7 @@ namespace BeatLeader.Components {
             _levelSelectionNavigationController._actionButtonText = CUSTOM_PLAY_BUTTON;
 
             _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
-            _originalPreviewBeatmapLevel = _levelCollectionNavigationController.beatmapLevel;
+            _originalPreviewBeatmapLevel = _levelCollectionNavigationController.selectedBeatmapLevel;
             SetLevelDetailWrapperEnabled(true);
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             NavigateToBeatmap(null, _lastSelectedLevelCategory);
@@ -118,7 +118,7 @@ namespace BeatLeader.Components {
             __DismissViewController(null, AnimationDirection.Vertical, immediate);
         }
 
-        private void NavigateToBeatmap(BeatmapLevel? level, SelectLevelCategoryViewController.LevelCategory category) {
+        private void NavigateToBeatmap(IPreviewBeatmapLevel? level, SelectLevelCategoryViewController.LevelCategory category) {
             if (category is SelectLevelCategoryViewController.LevelCategory.None) return;
             var cell = _levelCategorySegmentedControl.cells[(int)category - 1];
             cell.SetSelected(true, SelectableCell.TransitionType.Animated, cell, false);
@@ -171,7 +171,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleSelectButtonPressed() {
-            BeatmapSelectedEvent?.Invoke(_levelSelectionNavigationController.beatmapLevel);
+            BeatmapSelectedEvent?.Invoke(_levelSelectionNavigationController.selectedBeatmapLevel);
             HandleCloseButtonPressed();
         }
 

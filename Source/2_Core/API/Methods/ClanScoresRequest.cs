@@ -17,7 +17,7 @@ namespace BeatLeader.API.Methods {
         private static string ClanScoresPageEndpoint => BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/page?{5}";
 
         public static void SendClanScoresPageRequest(
-            BeatmapKey beatmapKey,
+            LeaderboardKey beatmapKey,
             string userId,
             string clanTag,
             string context,
@@ -55,7 +55,7 @@ namespace BeatLeader.API.Methods {
         private static string ClanScoresSeekEndpoint => BLConstants.BEATLEADER_API_URL + "/v3/scores/{0}/{1}/{2}/{3}/{4}/around?{5}";
 
         public static void SendClanScoresSeekRequest(
-            BeatmapKey beatmapKey,
+            LeaderboardKey beatmapKey,
             string userId,
             string clanTag,
             string context
@@ -90,7 +90,7 @@ namespace BeatLeader.API.Methods {
         private static string ClanPlayersPageEndpoint => BLConstants.BEATLEADER_API_URL + "/v1/clan/players/{0}/{1}/{2}/{3}/page?{4}";
 
         public static void SendClanPlayersPageRequest(
-            BeatmapKey beatmapKey,
+            LeaderboardKey beatmapKey,
             string userId,
             string clanTag,
             int page
@@ -126,7 +126,7 @@ namespace BeatLeader.API.Methods {
         private static string ClanPlayersSeekEndpoint => BLConstants.BEATLEADER_API_URL + "/v1/clan/players/{0}/{1}/{2}/{3}/around?{4}";
 
         public static void SendClanPlayersSeekRequest(
-            BeatmapKey beatmapKey,
+            LeaderboardKey beatmapKey,
             string userId,
             string clanTag
         ) {

@@ -12,14 +12,16 @@ namespace BeatLeader {
         }
     }
 
-    [HarmonyPatch(typeof(TMP_Text), "PopulateTextBackingArray", typeof(string))]
+    [HarmonyPatch(typeof(TMP_Text), "ParseInputText")]
     public static class PreProcessTextPatch {
         [UsedImplicitly]
-        private static void Prefix(ref string sourceText) {
-            if (sourceText == null) return;
+        private static void Prefix(TMP_Text __instance) {
+            if (__instance.text == null) return;
+            string sourceText = __instance.text;
             while (true) {
                 if (!ProcessLocalizationTag(ref sourceText)) break;
             }
+            __instance.text = sourceText;
         }
 
         private static bool ProcessLocalizationTag(ref string sourceText) {

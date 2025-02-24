@@ -8,9 +8,9 @@ namespace BeatLeader {
     public static class MainSystemInitPatch {
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static void Postfix(MainSystemInit __instance) {
+        private static void Postfix(MainSystemInit __instance, MainSettingsModelSO ____mainSettingsModel) {
             try {
-                BLLocalization.Initialize(__instance._mainSettingsHandler);
+                BLLocalization.Initialize(____mainSettingsModel);
             } catch (Exception ex) {
                 Plugin.Log.Critical($"---\nMainSystemInit patch exception: {ex.Message}\n{ex.StackTrace}\n---");
             }

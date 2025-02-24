@@ -3,7 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
-using BGLib.Polyglot;
+using Polyglot;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -42,11 +42,11 @@ namespace BeatLeader.DataManager {
         #region Events
 
         private void OnCacheWasChanged() {
-            UpdateModifiersMap(LeaderboardState.IsAnyBeatmapSelected, LeaderboardState.SelectedLeaderboardKey);
+            UpdateModifiersMap(LeaderboardState.IsAnyBeatmapSelected, LeaderboardState.SelectedBeatmapKey);
             UpdateToggles();
         }
 
-        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey key, BeatmapLevel level) {
+        private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, IDifficultyBeatmap beatmap) {
             UpdateModifiersMap(selectedAny, leaderboardKey);
             UpdateToggles();
         }

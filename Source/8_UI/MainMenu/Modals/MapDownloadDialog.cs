@@ -49,8 +49,8 @@ namespace BeatLeader.UI.MainMenu {
             }
         }
 
-        private static async Task<BeatmapLevel?> FetchMap(MapDetail mapDetail) {
-            BeatmapLevel? map = null;
+        private static async Task<IBeatmapLevel?> FetchMap(MapDetail mapDetail) {
+            IBeatmapLevel? map = null;
 
             var hash = mapDetail.hash;
             if (hash != null) {
@@ -63,15 +63,14 @@ namespace BeatLeader.UI.MainMenu {
             return map;
         }
 
-        private static void OpenMap(BeatmapLevel? map) {
+        private static void OpenMap(IBeatmapLevel? map) {
             if (map == null) return;
 
-            var key = map.GetBeatmapKeys().First();
             var x = new LevelSelectionFlowCoordinator.State(
                 SelectLevelCategoryViewController.LevelCategory.All,
                 SongCore.Loader.CustomLevelsPack,
-                in key,
-                map
+                map,
+                null
             );
 
             FindObjectOfType<SoloFreePlayFlowCoordinator>().Setup(x);

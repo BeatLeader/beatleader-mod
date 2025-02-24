@@ -7,7 +7,6 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

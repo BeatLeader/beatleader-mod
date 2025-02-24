@@ -1,5 +1,3 @@
-using BeatSaberMarkupLanguage.Util;
-
 namespace BeatLeader {
     internal partial class ModPanelUI {
         private const string ResourcePath = Plugin.ResourcesPath + ".BSML.Leaderboard.ModPanelUI.bsml";

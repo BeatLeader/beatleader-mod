@@ -30,7 +30,7 @@ namespace BeatLeader.UI.MainMenu {
             if (string.IsNullOrEmpty(avatarUrl)) {
                 _avatarImage.sprite = BundleLoader.UnknownIcon;
             } else {
-                await _avatarImage.SetImageAsync(avatarUrl);
+                _avatarImage.SetImage(avatarUrl);
             }
         }
 

@@ -10,17 +10,16 @@ using BeatLeader.DataManager;
 using BeatLeader.Utils;
 
 namespace BeatLeader.Interop {
-    // Must be public to be accessible from dynamically created classes
     [PluginInterop("BetterSongList")]
     public static class BetterSongListInterop {
         #region TryRegister
 
         [PluginAssembly]
-        private static readonly Assembly bslAssembly = null!;
+        private static readonly Assembly _bslAssembly;
 
         [InteropEntry]
         private static void Init() {
-            var helper = new BslHelper(bslAssembly);
+            var helper = new BslHelper(_bslAssembly);
 
             helper.AddSort("BL Stars", StarsSortGetter, StarsSortLegend);
             helper.AddSort("BL Tech Rating", TechSortGetter, TechSortLegend);
@@ -36,23 +35,23 @@ namespace BeatLeader.Interop {
 
         #region Sorts
 
-        public static float? StarsSortGetter(BeatmapLevel level) => level.CachedData()?.HighestStars;
-        public static float? TechSortGetter(BeatmapLevel level) => level.CachedData()?.HighestTechStars;
-        public static float? AccSortGetter(BeatmapLevel level) => level.CachedData()?.HighestAccStars;
-        public static float? PassSortGetter(BeatmapLevel level) => level.CachedData()?.HighestPassStars;
+        public static float? StarsSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestStars;
+        public static float? TechSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestTechStars;
+        public static float? AccSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestAccStars;
+        public static float? PassSortGetter(IPreviewBeatmapLevel level) => level.CachedData()?.HighestPassStars;
 
-        public static IEnumerable<KeyValuePair<string, int>> StarsSortLegend(BeatmapLevel[] levels) => StarsSortLegend(levels, StarsSortGetter);
-        public static IEnumerable<KeyValuePair<string, int>> TechSortLegend(BeatmapLevel[] levels) => StarsSortLegend(levels, TechSortGetter);
-        public static IEnumerable<KeyValuePair<string, int>> AccSortLegend(BeatmapLevel[] levels) => StarsSortLegend(levels, AccSortGetter);
-        public static IEnumerable<KeyValuePair<string, int>> PassSortLegend(BeatmapLevel[] levels) => StarsSortLegend(levels, PassSortGetter);
+        public static IEnumerable<KeyValuePair<string, int>> StarsSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, StarsSortGetter);
+        public static IEnumerable<KeyValuePair<string, int>> TechSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, TechSortGetter);
+        public static IEnumerable<KeyValuePair<string, int>> AccSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, AccSortGetter);
+        public static IEnumerable<KeyValuePair<string, int>> PassSortLegend(IPreviewBeatmapLevel[] levels) => StarsSortLegend(levels, PassSortGetter);
 
         #endregion
 
         #region Filters
 
-        public static bool NominatedFilterGetter(BeatmapLevel level) => level.CachedData()?.IsNominated ?? false;
-        public static bool QualifiedFilterGetter(BeatmapLevel level) => level.CachedData()?.IsQualified ?? false;
-        public static bool RankedFilterGetter(BeatmapLevel level) => level.CachedData()?.IsRanked ?? false;
+        public static bool NominatedFilterGetter(IPreviewBeatmapLevel level) => level.CachedData()?.IsNominated ?? false;
+        public static bool QualifiedFilterGetter(IPreviewBeatmapLevel level) => level.CachedData()?.IsQualified ?? false;
+        public static bool RankedFilterGetter(IPreviewBeatmapLevel level) => level.CachedData()?.IsRanked ?? false;
 
         #endregion
 
@@ -86,7 +85,7 @@ namespace BeatLeader.Interop {
                 _registerFilterMethodInfo = tmp;
             }
 
-            public void AddSort(string displayName, Func<BeatmapLevel, float?> getter, Func<BeatmapLevel[], IEnumerable<KeyValuePair<string, int>>> legendBuilder) {
+            public void AddSort(string displayName, Func<IPreviewBeatmapLevel, float?> getter, Func<IPreviewBeatmapLevel[], IEnumerable<KeyValuePair<string, int>>> legendBuilder) {
                 var type = _moduleBuilder.CreateSorterType(
                     $"{displayName.Replace(' ', '_')}Sort",
                     _sorterPrimitiveInterface, _sorterWithLegendInterface, _transformerPluginInterface,
@@ -96,7 +95,7 @@ namespace BeatLeader.Interop {
                 _registerSorterMethodInfo.Invoke(null, new[] { instance });
             }
 
-            public void AddFilter(string displayName, Func<BeatmapLevel, bool> getter) {
+            public void AddFilter(string displayName, Func<IPreviewBeatmapLevel, bool> getter) {
                 var type = _moduleBuilder.CreateFilterType(
                     $"{displayName.Replace(' ', '_')}Filter",
                     _filterInterface, _transformerPluginInterface,
@@ -112,8 +111,8 @@ namespace BeatLeader.Interop {
         #region Utils
 
         private static IEnumerable<KeyValuePair<string, int>> StarsSortLegend(
-            IEnumerable<BeatmapLevel> levels,
-            Func<BeatmapLevel, float?> getter
+            IEnumerable<IPreviewBeatmapLevel> levels,
+            Func<IPreviewBeatmapLevel, float?> getter
         ) {
             return BuildLegendFor(levels, level => {
                 var stars = getter(level);
@@ -122,8 +121,8 @@ namespace BeatLeader.Interop {
         }
 
         private static IEnumerable<KeyValuePair<string, int>> BuildLegendFor(
-            IEnumerable<BeatmapLevel> beatmaps,
-            Func<BeatmapLevel, string> displayValueTransformer,
+            IEnumerable<IPreviewBeatmapLevel> beatmaps,
+            Func<IPreviewBeatmapLevel, string> displayValueTransformer,
             int entryLengthLimit = 6,
             int valueLimit = 28
         ) {
@@ -147,11 +146,11 @@ namespace BeatLeader.Interop {
             }
         }
 
-        private static LeaderboardsCache.SortEntry? CachedData(this BeatmapLevel level) {
+        private static LeaderboardsCache.SortEntry? CachedData(this IPreviewBeatmapLevel level) {
             return LeaderboardsCache.GetSortingInfo(level.Hash());
         }
 
-        private static string Hash(this BeatmapLevel level) => level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
+        private static string Hash(this IPreviewBeatmapLevel level) => level.levelID.Replace(CustomLevelLoader.kCustomLevelPrefixId, "");
 
         #endregion
 
@@ -217,7 +216,7 @@ namespace BeatLeader.Interop {
             //ContextSwitch()
             var prepareIL = typeBuilder.DefineMethod(
                 "ContextSwitch", MethodAttributes.Public | MethodAttributes.Virtual,
-                typeof(void), new[] { typeof(SelectLevelCategoryViewController.LevelCategory), typeof(BeatmapLevelPack) }
+                typeof(void), new[] { typeof(SelectLevelCategoryViewController.LevelCategory), typeof(IAnnotatedBeatmapLevelCollection) }
             ).GetILGenerator();
             prepareIL.Emit(OpCodes.Ret);
         }
@@ -246,7 +245,7 @@ namespace BeatLeader.Interop {
             //GetValueFor()
             var getValueForIL = typeBuilder.DefineMethod(
                 "GetValueFor", MethodAttributes.Public | MethodAttributes.Virtual,
-                typeof(bool), new[] { typeof(BeatmapLevel) }
+                typeof(bool), new[] { typeof(IPreviewBeatmapLevel) }
             ).GetILGenerator();
             getValueForIL.Emit(OpCodes.Ldarg_1);
             getValueForIL.Emit(OpCodes.Call, getValueForMethodInfo);
@@ -286,7 +285,7 @@ namespace BeatLeader.Interop {
             //GetValueFor()
             var getValueForIL = typeBuilder.DefineMethod(
                 "GetValueFor", MethodAttributes.Public | MethodAttributes.Virtual,
-                typeof(float?), new[] { typeof(BeatmapLevel) }
+                typeof(float?), new[] { typeof(IPreviewBeatmapLevel) }
             ).GetILGenerator();
             getValueForIL.Emit(OpCodes.Ldarg_1);
             getValueForIL.Emit(OpCodes.Call, getValueForMethodInfo);
@@ -295,7 +294,7 @@ namespace BeatLeader.Interop {
             //BuildLegend()
             var buildLegendIL = typeBuilder.DefineMethod(
                 "BuildLegend", MethodAttributes.Public | MethodAttributes.Virtual,
-                typeof(IEnumerable<KeyValuePair<string, int>>), new[] { typeof(BeatmapLevel[]) }
+                typeof(IEnumerable<KeyValuePair<string, int>>), new[] { typeof(IPreviewBeatmapLevel[]) }
             ).GetILGenerator();
             buildLegendIL.Emit(OpCodes.Ldarg_1);
             buildLegendIL.Emit(OpCodes.Call, buildLegendMethodInfo);

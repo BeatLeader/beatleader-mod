@@ -6,10 +6,10 @@ namespace BeatLeader.Interop {
 
         #region TryGetBeatmapRequirements
 
-        public static bool TryGetBeatmapRequirements(BeatmapLevel beatmap, BeatmapKey key, out string[]? requirements) {
+        public static bool TryGetBeatmapRequirements(IDifficultyBeatmap beatmap, out string[]? requirements) {
             requirements = null;
             try {
-                var data = SongCore.Collections.RetrieveDifficultyData(beatmap, key);
+                var data = SongCore.Collections.RetrieveDifficultyData(beatmap);
                 if (data == null) return false;
                 var reqData = data.additionalDifficultyData;
                 if (reqData == null) return false;
@@ -25,8 +25,8 @@ namespace BeatLeader.Interop {
 
         #region ValidateRequirements
 
-        public static bool ValidateRequirements(BeatmapLevel beatmap, BeatmapKey key) {
-            return !TryGetBeatmapRequirements(beatmap, key, out var requirements)
+        public static bool ValidateRequirements(IDifficultyBeatmap beatmap) {
+            return !TryGetBeatmapRequirements(beatmap, out var requirements)
                 || (requirements?.All(x => SongCore.Collections.capabilities.Contains(x)) ?? true);
         }
 

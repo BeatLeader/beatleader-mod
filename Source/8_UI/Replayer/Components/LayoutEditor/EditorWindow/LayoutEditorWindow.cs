@@ -182,7 +182,7 @@ namespace BeatLeader.Components {
                                                     Skew = 0f,
                                                     OnClick = () => {
                                                         _editor!.CancelChanges();
-                                                        _editor!.Mode = LayoutEditorMode.View;
+                                                        _editor!.Mode = _editor.PreviousMode;
                                                     }
                                                 }
                                                 .WithLabel("Cancel")

@@ -33,7 +33,7 @@ namespace BeatLeader.UI.Replayer {
             _watermarkToggle.SetActive(watermark.Enabled, false, true);
             _watermarkToggle.Interactable = watermark.CanBeDisabled;
 
-            _autoHideToggle.SetActive(settings.AutoHideUI, false, true);
+            _autoHideToggle.SetActive(settings.ShowUIOnPause, false, true);
 
             _quickSettingsPanel = quickSettingsPanel;
             _quickSettingsToggle.SetActive(settings.QuickSettingsEnabled, false, true);
@@ -151,10 +151,10 @@ namespace BeatLeader.UI.Replayer {
                         new Toggle().WithListener(
                             x => x.Active,
                             x => {
-                                _settings!.AutoHideUI = x;
+                                _settings!.ShowUIOnPause = x;
                             }
                         ).Bind(ref _autoHideToggle).InNamedRail(
-                            text: "Auto-hide UI <size=80%>(requires reload)</size>"
+                            text: "Show UI on Pause"
                         ).With(x => x.Label.RichText = true),
 
                         //quick settings

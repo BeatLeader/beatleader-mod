@@ -64,7 +64,7 @@ namespace BeatLeader.Components {
             _hintField.Setup("<alpha=#66><bll>ls-replayer-settings</bll>");
 
             _showUIToggle.Setup(BundleLoader.UIIcon, "<bll>ls-replayer-enable-ui</bll>", _hintField);
-            _showUIToggle.Value = !PluginConfig.ReplayerSettings.AutoHideUI;
+            _showUIToggle.Value = !PluginConfig.ReplayerSettings.UISettings.ShowUIOnPause;
             _showUIToggle.OnClick += _ => UpdateReplayerSettings();
 
             _loadEnvironmentToggle.Setup(BundleLoader.SceneIcon, "<bll>ls-replayer-load-environment</bll>", _hintField);
@@ -94,7 +94,7 @@ namespace BeatLeader.Components {
 
         private void UpdateReplayerSettings() {
             var settings = PluginConfig.ReplayerSettings;
-            settings.AutoHideUI = !_showUIToggle.Value;
+            settings.UISettings.ShowUIOnPause = !_showUIToggle.Value;
             settings.LoadPlayerEnvironment = _loadEnvironmentToggle.Value;
             settings.LoadPlayerJumpDistance = _loadJumpDistanceToggle.Value;
             settings.IgnoreModifiers = _ignoreModifiersToggle.Value;

@@ -10,7 +10,7 @@ namespace BeatLeader.UI.Replayer {
         private LayoutEditor _layoutEditor = null!;
         private BeatmapLevelPreviewEditorComponent _songInfo = null!;
         private ToolbarEditorComponent _toolbar = null!;
-        
+
         private PlayerListEditorComponent? _playerList;
         private PlayerProfileEditorComponent? _playerProfile;
 
@@ -57,7 +57,7 @@ namespace BeatLeader.UI.Replayer {
                 _layoutEditor,
                 watermark
             );
-            
+
             if (launchData.IsBattleRoyale) {
                 _playerList = new();
                 _playerList.Use(ContentTransform);
@@ -69,12 +69,13 @@ namespace BeatLeader.UI.Replayer {
                 _playerProfile.Setup(launchData.MainReplay.ReplayData.Player);
                 _layoutEditor.AddComponent(_playerProfile);
             }
-            
+
             var settings = launchData.Settings.UISettings.LayoutEditorSettings ??= new();
             _layoutEditor.Setup(settings);
             // Applying immediately only if ui is loaded
             if (_started) {
                 _layoutEditor.LoadLayoutFromSettings();
+                _layoutEditor.Mode = LayoutEditorMode.ViewAll;
             }
         }
 
@@ -82,7 +83,7 @@ namespace BeatLeader.UI.Replayer {
             _layoutEditor = new();
             _songInfo = new();
             _toolbar = new();
-            
+
             _songInfo.Use(rect);
             _toolbar.Use(rect);
             _layoutEditor.WithRectExpand().Use(rect);
@@ -98,6 +99,7 @@ namespace BeatLeader.UI.Replayer {
         protected override void OnStart() {
             _started = true;
             _layoutEditor.LoadLayoutFromSettings();
+            _layoutEditor.Mode = LayoutEditorMode.ViewAll;
         }
 
         #endregion

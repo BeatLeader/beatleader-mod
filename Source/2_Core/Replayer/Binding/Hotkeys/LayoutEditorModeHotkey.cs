@@ -12,7 +12,7 @@ namespace BeatLeader.Replayer.Binding {
         [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         public override void OnKeyDown() {
-            if (_launchData.Settings.UISettings.AutoHideUI) return;
+            if (_launchData.Settings.UISettings.ShowUIOnPause) return;
             _viewController?.SwitchViewMode();
         }
     }

@@ -29,6 +29,11 @@ namespace BeatLeader.UI.Replayer.Desktop {
         private Canvas _screenCanvas = null!;
         private CanvasGroup _canvasGroup = null!;
 
+        public void ShowImmediate() {
+            StopAllCoroutines();
+            _canvasGroup.alpha = 1f;
+        }
+        
         private void Awake() {
             CreateViewController();
             gameObject.layer = 5;

@@ -178,7 +178,7 @@ namespace BeatLeader {
             },
 
             UISettings = {
-                AutoHideUI = false,
+                ShowUIOnPause = false,
                 MarkersMask = TimelineMarkersMask.Miss | TimelineMarkersMask.Bomb,
                 FloatingSettings = new() {
                     Pose = new() {
@@ -223,7 +223,7 @@ namespace BeatLeader {
                                     y = 24f
                                 },
                                 layer = 2,
-                                visible = true,
+                                visible = false,
                             }
                         },
                         {
@@ -237,7 +237,7 @@ namespace BeatLeader {
                                     y = 60f
                                 },
                                 layer = 3,
-                                visible = true,
+                                visible = false,
                             }
                         },
                         {
@@ -251,7 +251,7 @@ namespace BeatLeader {
                                     y = 24f
                                 },
                                 layer = 3,
-                                visible = true,
+                                visible = false,
                             }
                         },
                     }

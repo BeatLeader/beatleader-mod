@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Replayer {
         #region UI Visibility
 
         private void RefreshUIVisibility() {
-            if (!_launchData.Settings.UISettings.AutoHideUI) return;
+            if (!_launchData.Settings.UISettings.ShowUIOnPause) return;
             SetUIEnabled(_pauseController.IsPaused);
         }
 

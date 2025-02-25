@@ -48,13 +48,14 @@ namespace BeatLeader.UI.Replayer.Desktop {
             rect.anchorMax = Vector2.one;
             rect.sizeDelta = Vector2.zero;
             rect.anchoredPosition = Vector2.zero;
-
-            var growthFactor = rect.rect.size / new Vector2(1920f, 1200f);
-            var growthFactorAvg = (growthFactor.x + growthFactor.y) / 2;
-
+            
             _screenCanvas = go.AddComponent<Canvas>();
             _screenCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _screenCanvas.scaleFactor = 5f + growthFactorAvg;
+            
+            var growthFactor = rect.rect.size / new Vector2(1920f, 1200f);
+            var growthFactorAvg = Mathf.Min(growthFactor.x, growthFactor.y);
+            
+            _screenCanvas.scaleFactor = 5f * growthFactorAvg;
             _screenCanvas.planeDistance = 0.1f;
             _canvasGroup = go.AddComponent<CanvasGroup>();
 

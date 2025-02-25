@@ -196,6 +196,7 @@ namespace BeatLeader {
                 },
                 LayoutEditorSettings = new() {
                     ReferenceResolution = new(1920f, 1200f),
+                    ReferenceScaleFactor = 5f,
                     ComponentData = new() {
                         {
                             "Toolbar", new() {

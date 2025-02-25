@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -32,19 +33,19 @@ namespace BeatLeader {
         #region Language
 
         [UIValue("language-choices"), UsedImplicitly]
-        private List<BLLanguage> _languageOptions = BLLocalization.SupportedLanguagesSorted();
+        private List<object> _languageOptions = BLLocalization.SupportedLanguagesSorted().Cast<object>().ToList();
 
         [UIValue("language-choice"), UsedImplicitly]
-        private BLLanguage _languageValue = PluginConfig.SelectedLanguage;
+        private object _languageValue = PluginConfig.SelectedLanguage;
 
         [UIAction("language-on-change"), UsedImplicitly]
-        private void LanguageOnChange(BLLanguage selectedValue) {
-            PluginConfig.SelectedLanguage = selectedValue;
+        private void LanguageOnChange(object selectedValue) {
+            PluginConfig.SelectedLanguage = (BLLanguage)selectedValue;
         }
 
         [UIAction("language-formatter"), UsedImplicitly]
-        private string LanguageFormatter(BLLanguage selectedValue) {
-            return BLLocalization.GetLanguageName(selectedValue);
+        private string LanguageFormatter(object selectedValue) {
+            return BLLocalization.GetLanguageName((BLLanguage)selectedValue);
         }
 
         #endregion
@@ -52,19 +53,19 @@ namespace BeatLeader {
         #region Server
 
         [UIValue("server-choices"), UsedImplicitly]
-        private List<BeatLeaderServer> _serverOptions = BeatLeaderServerUtils.ServerOptions;
+        private List<object> _serverOptions = BeatLeaderServerUtils.ServerOptions.Cast<object>().ToList();
 
         [UIValue("server-choice"), UsedImplicitly]
-        private BeatLeaderServer _serverValue = PluginConfig.MainServer;
+        private object _serverValue = PluginConfig.MainServer;
 
         [UIAction("server-on-change"), UsedImplicitly]
-        private void ServerOnChange(BeatLeaderServer selectedValue) {
-            PluginConfig.MainServer = selectedValue;
+        private void ServerOnChange(object selectedValue) {
+            PluginConfig.MainServer = (BeatLeaderServer)selectedValue;
         }
 
         [UIAction("server-formatter"), UsedImplicitly]
-        private string ServerFormatter(BeatLeaderServer selectedValue) {
-            return selectedValue.GetName();
+        private string ServerFormatter(object selectedValue) {
+            return ((BeatLeaderServer)selectedValue).GetName();
         }
 
         #endregion

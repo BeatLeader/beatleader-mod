@@ -20,7 +20,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer {
     [PublicAPI]
-    public class ReplayerMenuLoader : MonoBehaviour, IReplayerViewNavigator {
+    public class ReplayerMenuLoader : MonoBehaviour {
         #region Injection
 
         [Inject] private readonly ReplayerLauncher _launcher = null!;
@@ -45,21 +45,6 @@ namespace BeatLeader.Replayer {
 
         private void OnDestroy() {
             if (Instance == this) Instance = null;
-        }
-
-        #endregion
-
-        #region NavigateToReplay
-
-        Task IReplayerViewNavigator.NavigateToReplayAsync(
-            FlowCoordinator flowCoordinator, 
-            Replay replay,
-            Player player,
-            bool alternative
-        ) {
-            return alternative ? 
-                StartReplayFromLeaderboardAsync(replay, player) : 
-                StartReplayAsync(replay, player);
         }
 
         #endregion

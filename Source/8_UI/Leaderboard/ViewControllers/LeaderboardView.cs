@@ -67,7 +67,7 @@ namespace BeatLeader.ViewControllers {
         [UIValue("map-difficulty-panel"), UsedImplicitly]
         private MapDifficultyPanel MapDifficultyPanel => _preParser.mapDifficultyPanel;
 
-        private IReplayerStarter _replayerStarter = null!;
+        private ReplayerViewNavigatorWrapper _navigatorWrapper = null!;
 
         private void Awake() {
             ScoresTable.SetParent(transform);
@@ -77,7 +77,7 @@ namespace BeatLeader.ViewControllers {
             ContextSelector.SetParent(transform);
             EmptyBoardMessage.SetParent(transform);
             MapDifficultyPanel.SetParent(transform);
-            _replayerStarter = new ReplayerNavigatingStarter(_soloFlowCoordinator, true, _replayerNavigator);
+            _navigatorWrapper = new(_replayerNavigator, _soloFlowCoordinator);
         }
 
         #endregion
@@ -90,6 +90,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.LogoWasPressedEvent += PresentBeatLeaderInfoModal;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction += PresentContextsModal;
+            LeaderboardEvents.BattleRoyaleEnabledEvent += HandleBattleRoyaleEnabled;
             LeaderboardState.IsVisible = true;
         }
 
@@ -99,6 +100,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.LogoWasPressedEvent -= PresentBeatLeaderInfoModal;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction -= PresentContextsModal;
+            LeaderboardEvents.BattleRoyaleEnabledEvent -= HandleBattleRoyaleEnabled;
             LeaderboardState.IsVisible = false;
         }
 
@@ -106,8 +108,17 @@ namespace BeatLeader.ViewControllers {
 
         #region Events
 
+        private bool _battleRoyaleEnabled;
+        
+        private void HandleBattleRoyaleEnabled(bool brEnabled) {
+            _battleRoyaleEnabled = brEnabled;
+        }
+        
         private void PresentScoreInfoModal(Score score) {
-            ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _replayerStarter));
+            if (_battleRoyaleEnabled) {
+                return;
+            }
+            ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _navigatorWrapper));
         }
 
         private void PresentSettingsModal() {

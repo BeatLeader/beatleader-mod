@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using IPA.Utilities;
 
 namespace BeatLeader.Replayer {
+    [Obsolete("Use ReplayManager instead")]
     internal static class ReplayerCache {
         public static readonly string CacheDirectory = Path.Combine(UnityGame.UserDataPath, "BeatLeader", "ReplayerCache\\");
 

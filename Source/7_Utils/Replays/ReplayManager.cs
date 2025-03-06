@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using JetBrains.Annotations;
+using Zenject;
 using static BeatLeader.Utils.FileManager;
 
 namespace BeatLeader.Utils {
     [UsedImplicitly, PublicAPI]
-    internal class ReplayManager : Singleton<ReplayManager>, IReplayManager, IReplayFileManager {
+    internal class ReplayManager : Singleton<ReplayManager>, IInitializable, IReplayManager, IReplayFileManager {
         public const string ReplayFileExtension = ".bsor";
 
         #region ReplayManager Events
@@ -89,8 +90,12 @@ namespace BeatLeader.Utils {
 
         public IReplayHeader? CachedReplay { get; private set; }
 
+        /// <summary>
+        /// Writes a replay performing configuration checks.
+        /// </summary>
         public async Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
             CachedReplay = null;
+            
             if (!ValidatePlay(replay, playEndData)) {
                 Plugin.Log.Info("Validation failed, replay will not be saved!");
                 return null;
@@ -99,14 +104,27 @@ namespace BeatLeader.Utils {
                 Plugin.Log.Warn("OverrideOldReplays is enabled, old replays will be deleted");
                 await DeleteSimilarReplaysAsync(replay);
             }
-            SaturateReplay(replay, playEndData);
             
+            SaturateReplay(replay, playEndData);
+
+            return SaveAnyReplay(replay, playEndData);
+        }
+
+        /// <summary>
+        /// Writes a replay without any validity or config checks.
+        /// </summary>
+        /// <param name="playEndData">Used for name formatting, not too important.</param>
+        public IReplayHeader? SaveAnyReplay(Replay replay, PlayEndData? playEndData) {
             var name = FormatFileName(replay, playEndData);
             Plugin.Log.Info($"Replay will be saved as: {name}");
-            if (!TryWriteReplay(name, replay)) return null;
+            
+            if (!TryWriteReplay(name, replay)) {
+                return null;
+            }
 
             var absolutePath = GetAbsoluteReplayPath(name);
             var header = GetReplayHeader(absolutePath, replay);
+            
             CachedReplay = header;
             _replays.Add(header);
             NotifyReplayAdded(header);
@@ -276,5 +294,9 @@ namespace BeatLeader.Utils {
         }
 
         #endregion
+
+        public void Initialize() {
+            LoadReplayHeadersIfNeededAsync().RunCatching();
+        }
     }
 }

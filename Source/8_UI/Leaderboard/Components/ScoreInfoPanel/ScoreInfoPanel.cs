@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class ScoreInfoPanel : AbstractReeModal<(Score, IReplayerStarter)> {
+    internal class ScoreInfoPanel : AbstractReeModal<(Score, ReplayerViewNavigatorWrapper)> {
         #region Components
 
         [UIValue("mini-profile"), UsedImplicitly]

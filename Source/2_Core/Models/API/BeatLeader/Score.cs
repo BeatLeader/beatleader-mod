@@ -6,10 +6,10 @@ using System;
 namespace BeatLeader.Models {
     public class Score : IScoreRowContent {
         [JsonProperty("player")]
-        public Player Player { 
+        public Player Player {
             get {
                 if (!HiddenPlayersCache.IsHidden(_originalPlayer)) return _originalPlayer;
-            
+
                 return new Player() {
                     id = _originalPlayer.id,
                     rank = 0,
@@ -23,10 +23,12 @@ namespace BeatLeader.Models {
                     profileSettings = null
                 };
             }
-            set { 
+            set {
                 _originalPlayer = value;
             }
         }
+
+        public Player ActualPlayer => _originalPlayer;
 
         public int id;
         public float accuracy;
@@ -91,5 +93,10 @@ namespace BeatLeader.Models {
         }
 
         #endregion
+
+        // important for proper work with hash sets
+        public override int GetHashCode() {
+            return id;
+        }
     }
 }

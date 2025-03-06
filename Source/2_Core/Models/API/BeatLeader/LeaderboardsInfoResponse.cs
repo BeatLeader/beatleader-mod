@@ -73,7 +73,6 @@ namespace BeatLeader.Models {
         public float sfStars;
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal struct QualificationInfo {
         public int id;
         public int timeset;
@@ -81,7 +80,7 @@ namespace BeatLeader.Models {
         public int criteriaMet;
         public int criteriaTimeset;
         public string criteriaChecker;
-        public string criteriaCommentary;
+        public string? criteriaCommentary;
         public string mapperId;
         public bool mapperQualification;
         public int approvalTimeset;

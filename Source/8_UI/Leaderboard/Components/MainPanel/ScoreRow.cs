@@ -307,7 +307,7 @@ namespace BeatLeader.Components {
             return AnimationState.Idle;
         }
 
-        private void ApplyVisualChanges() {
+        public void ApplyVisualChanges() {
             HorizontalOffset = _currentOffset;
 
             foreach (var cell in _cells.Values) {
@@ -350,7 +350,7 @@ namespace BeatLeader.Components {
             _backgroundComponent.material = BundleLoader.ScoreBackgroundMaterial;
         }
 
-        private void SetHighlight(bool highlight) {
+        public void SetHighlight(bool highlight) {
             _highlighted = highlight;
         }
 

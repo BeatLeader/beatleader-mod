@@ -13,7 +13,8 @@ namespace BeatLeader.UI.Hub.Models {
 
         event Action? ReplaysLoadStartedEvent;
         event Action? ReplaysLoadFinishedEvent;
-        
+
+        void StartReplaysLoadIfNeverLoaded();
         void StartReplaysLoad();
         void CancelReplaysLoad();
         Task WaitForReplaysLoad();

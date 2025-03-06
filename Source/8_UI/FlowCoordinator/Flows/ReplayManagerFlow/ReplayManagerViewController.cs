@@ -32,6 +32,12 @@ namespace BeatLeader.UI.Hub {
 
         #region Init
 
+        public async void NavigateToReplay(IReplayHeader header) {
+            await _replaysLoader.WaitForReplaysLoad();
+            _replayPanel.ReplaysList.Select(header);
+            _replayPanel.ReplaysList.ScrollTo(header, false);
+        }
+        
         private void Awake() {
             var tagManager = _replayManager.MetadataManager.TagManager;
             new Dummy {
@@ -78,7 +84,7 @@ namespace BeatLeader.UI.Hub {
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (!firstActivation) return;
-            _replaysLoader.StartReplaysLoad();
+            _replaysLoader.StartReplaysLoadIfNeverLoaded();
         }
 
         [HarmonyPatch(typeof(ViewController), "__DismissViewController"), HarmonyPrefix]

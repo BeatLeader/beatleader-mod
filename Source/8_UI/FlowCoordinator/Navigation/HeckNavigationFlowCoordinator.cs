@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace BeatLeader {
 
         [Inject] private readonly DiContainer _container = null!;
         [Inject] private readonly ReplayerMenuLoader _replayerMenuLoader = null!;
+        [Inject] private readonly ReplayerViewNavigator _replayerViewNavigator = null!;
         [Inject] private readonly PlayerDataModel _playerDataModel = null!;
 
         #endregion
@@ -38,10 +40,10 @@ namespace BeatLeader {
             _setterViewController = (ViewController)_container.Resolve(HeckInterop.PlayViewControllerType);
         }
 
-        public async Task NavigateToReplayAsync(FlowCoordinator flowCoordinator, Replay replay, Player player, bool alternative) {
+        public async Task NavigateToReplayAsync(FlowCoordinator flowCoordinator, Replay replay, Player player, bool tryLoadSelectedMap) {
             _pendingReplay = replay;
             _pendingPlayer = player;
-            _alternativeLoading = alternative;
+            _alternativeLoading = tryLoadSelectedMap;
             //loading beatmap data
             var info = replay.info;
             var level = await _replayerMenuLoader.LoadBeatmapAsync(
@@ -68,6 +70,14 @@ namespace BeatLeader {
             } else {
                 StartReplay(false);
             }
+        }
+
+        public void NavigateToReplayManager(FlowCoordinator flowCoordinator, IReplayHeader header) {
+            _replayerViewNavigator.NavigateToReplayManager(flowCoordinator, header);
+        }
+        
+        public void NavigateToBattleRoyale(FlowCoordinator flowCoordinator, IReadOnlyList<IReplayInfo> plays) {
+            _replayerViewNavigator.NavigateToBattleRoyale(flowCoordinator, plays);
         }
 
         private async void StartReplay(bool fromFlowCoordinator) {

@@ -69,7 +69,7 @@ namespace BeatLeader.UI.Hub {
             _battleRoyaleHost.ReplayBeatmapChangedEvent += HandleBeatmapChanged;
             _battleRoyaleHost.ReplayNavigationRequestedEvent += HandleHostNavigationRequested;
             
-            _replaysLoader.StartReplaysLoad();
+            _replaysLoader.StartReplaysLoadIfNeverLoaded();
         }
 
         public override void OnDestroy() {

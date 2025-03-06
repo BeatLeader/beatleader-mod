@@ -30,6 +30,12 @@ namespace BeatLeader.UI.Hub {
         private CancellationTokenSource _cancellationTokenSource = new();
         private Task? _loadHeadersTask;
 
+        public void StartReplaysLoadIfNeverLoaded() {
+            if (_replayManager.Replays.Count == 0) {
+                StartReplaysLoad();
+            }
+        }
+
         public void StartReplaysLoad() {
             if (_loadHeadersTask is not null) return;
             LoadHeadersAsync().ConfigureAwait(true);
@@ -47,8 +53,10 @@ namespace BeatLeader.UI.Hub {
         private async Task LoadHeadersAsync() {
             _cancellationTokenSource = new();
             AllReplaysRemovedEvent?.Invoke();
+            
             _loadHeadersTask = _replayManager.LoadReplayHeadersAsync(_cancellationTokenSource.Token);
             ReplaysLoadStartedEvent?.Invoke();
+
             await _loadHeadersTask;
             _loadHeadersTask = null;
             ReplaysLoadFinishedEvent?.Invoke();

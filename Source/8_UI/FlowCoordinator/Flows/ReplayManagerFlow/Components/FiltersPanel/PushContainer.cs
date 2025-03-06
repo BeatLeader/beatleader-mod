@@ -4,12 +4,35 @@ using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class PushContainer : DrivingReactiveComponent {
+    internal class PushContainer : ReactiveComponent {
         #region Setup
-        
-        public string Placeholder {
-            get => _label.Text;
-            set => _label.Text = value;
+
+        public ILayoutItem? OpenedView {
+            get => _openedView;
+            set {
+                if (_openedView != null) {
+                    _backgroundImage.Children.Remove(_openedView);
+                }
+                _openedView = value;
+                if (_openedView != null) {
+                    _openedView.WithRectExpand();
+                    _backgroundImage.Children.Add(_openedView);
+                }
+            }
+        }
+
+        public ILayoutItem? ClosedView {
+            get => _closedView;
+            set {
+                if (_closedView != null) {
+                    _backgroundImage.Children.Remove(_closedView);
+                }
+                _closedView = value;
+                if (_closedView != null) {
+                    _closedView.WithRectExpand();
+                    _backgroundImage.Children.Add(_closedView);
+                }
+            }
         }
 
         public bool Opened {
@@ -20,7 +43,15 @@ namespace BeatLeader.UI.Hub {
                 _progress = 0f;
             }
         }
-        
+
+        public Color Color {
+            get => _backgroundImage.Color;
+            set => _backgroundImage.Color = value;
+        }
+
+        private ILayoutItem? _openedView;
+        private ILayoutItem? _closedView;
+
         public void Push() {
             _opened = !_opened;
             _progress = 0f;
@@ -32,12 +63,8 @@ namespace BeatLeader.UI.Hub {
 
         public Image BackgroundImage => _backgroundImage;
 
-        protected override Transform ChildrenContainer => _childrenContainer;
-
         private Image _backgroundImage = null!;
-        private Label _label = null!;
         private CanvasGroup _canvasGroup = null!;
-        private RectTransform _childrenContainer = null!;
 
         protected override GameObject Construct() {
             return new Dummy {
@@ -45,23 +72,13 @@ namespace BeatLeader.UI.Hub {
                     new Image()
                         .WithRectExpand()
                         .AsBlurBackground()
-                        .Bind(ref _childrenContainer)
                         .Bind(ref _backgroundImage),
-                    //
-                    new Label {
-                        Enabled = false,
-                    }.WithRectExpand().Bind(ref _label)
                 }
             }.WithNativeComponent(out _canvasGroup).Use();
         }
 
         protected override void OnInitialize() {
             RefreshContent();
-        }
-
-        protected override void AppendReactiveChild(ReactiveComponentBase comp) {
-            base.AppendReactiveChild(comp);
-            comp.WithinLayoutIfDisabled = true;
         }
 
         #endregion
@@ -80,10 +97,15 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void RefreshContent() {
-            _label.Enabled = !_opened;
-            foreach (var child in Children) {
-                if (child is not ReactiveComponent comp) continue;
-                comp.Enabled = _opened;
+            _canvasGroup.blocksRaycasts = _opened;
+            _canvasGroup.interactable = _opened;
+
+            if (OpenedView != null) {
+                OpenedView.WithinLayout = _opened;
+            }
+
+            if (ClosedView != null) {
+                ClosedView.WithinLayout = !_opened;
             }
         }
 
@@ -94,7 +116,6 @@ namespace BeatLeader.UI.Hub {
             var t = Mathf.Abs((_progress - 0.5f) * 2.0f);
             _canvasGroup.alpha = t;
             ContentTransform.localScale = new Vector3(1.0f, t, 1.0f);
-            _backgroundImage.Color = _backgroundImage.Color.ColorWithAlpha(t);
         }
 
         #endregion

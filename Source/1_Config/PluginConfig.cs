@@ -111,14 +111,5 @@ namespace BeatLeader {
         }
 
         #endregion
-
-        #region EnableReplayCaching
-
-        public static bool EnableReplayCaching {
-            get => ConfigFileData.Instance.EnableReplayCaching;
-            set => ConfigFileData.Instance.EnableReplayCaching = value;
-        }
-
-        #endregion
     }
 }

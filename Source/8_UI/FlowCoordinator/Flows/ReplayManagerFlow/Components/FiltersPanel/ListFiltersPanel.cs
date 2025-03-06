@@ -73,14 +73,14 @@ namespace BeatLeader.UI.Hub {
 
             public void Setup(IPanelListFilter<T>? filter) {
                 if (_filter != null) {
-                    _filterContainer.Children.Remove(_filter);
+                    _filterContainer.OpenedView = null;
                     _filter.FilterUpdatedEvent -= HandleFilterUpdated;
                 }
                 _filter = filter;
                 if (_filter != null) {
-                    _filterContainer.Children.Add(_filter);
+                    _filterContainer.OpenedView = _filter;
                     _filter.FilterUpdatedEvent += HandleFilterUpdated;
-                    _filterContainer.Placeholder = _filter.FilterName;
+                    _placeholder.Text = _filter.FilterName;
                 }
             }
 
@@ -98,6 +98,7 @@ namespace BeatLeader.UI.Hub {
 
             #region Construct
 
+            private Label _placeholder = null!;
             private PushContainer _filterContainer = null!;
             private IToggle _enableToggle = null!;
 
@@ -105,10 +106,12 @@ namespace BeatLeader.UI.Hub {
                 return new Dummy {
                     Children = {
                         new PushContainer {
+                            ClosedView = new Label()
+                                .Bind(ref _placeholder),
                             BackgroundImage = {
                                 Color = (Color.white * 0.9f).ColorWithAlpha(1f)
                             }
-                        }.AsFlexGroup().AsFlexItem(grow: 1f).Bind(ref _filterContainer),
+                        }.AsFlexItem(grow: 1f).Bind(ref _filterContainer),
                         //
                         new Image {
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),

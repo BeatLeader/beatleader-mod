@@ -17,10 +17,15 @@ namespace BeatLeader.UI.Hub {
                 _replaysLoader.ReplayRemovedEvent -= HandleReplayRemoved;
                 _replaysLoader.AllReplaysRemovedEvent -= HandleAllReplaysRemoved;
             }
+
+            _replaysLoader = replaysLoader;
+
             lock (_locker) {
                 _settingsPanel.Setup(_replaysList, replaysLoader);
+                _replaysList.Items.AddRange(replaysLoader.LoadedReplays);
+                _replaysList.Refresh();
             }
-            _replaysLoader = replaysLoader;
+
             _replaysLoader.ReplayLoadedEvent += HandleReplayAdded;
             _replaysLoader.ReplayRemovedEvent += HandleReplayRemoved;
             _replaysLoader.AllReplaysRemovedEvent += HandleAllReplaysRemoved;

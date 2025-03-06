@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using BeatLeader.Models.Replay;
-using BeatLeader.Replayer;
+using BeatLeader.Utils;
 using TMPro;
 using UnityEngine.UI;
 
@@ -19,9 +21,15 @@ namespace BeatLeader.Components {
 
         [UIComponent("play-button"), UsedImplicitly]
         private Button _playButton = null!;
-        
+
         [UIComponent("play-button"), UsedImplicitly]
         private TMP_Text _playButtonText = null!;
+
+        [UIComponent("download-button"), UsedImplicitly]
+        private Button _downloadButton = null!;
+
+        [UIComponent("download-button"), UsedImplicitly]
+        private TMP_Text _downloadButtonText = null!;
 
         [UIValue("settings-panel"), UsedImplicitly]
         private ReplayerSettingsPanel _settingsPanel = null!;
@@ -32,26 +40,27 @@ namespace BeatLeader.Components {
 
         public event Action<bool>? DownloadStateChangedEvent;
 
-        private void RefreshDownloadState(bool state) {
+        private void NotifyDownloadStateChanged(bool state) {
             DownloadStateChangedEvent?.Invoke(state);
         }
-        
+
         #endregion
 
         #region Initialize/Dispose
 
-        private IReplayerStarter? _replayerStarter;
-        
-        public void Setup(IReplayerStarter starter) {
-            _replayerStarter = starter;
+        private ReplayerViewNavigatorWrapper? _replayerNavigator;
+
+        public void Setup(ReplayerViewNavigatorWrapper starter) {
+            _replayerNavigator = starter;
         }
-        
+
         protected override void OnInstantiate() {
             _settingsPanel = Instantiate<ReplayerSettingsPanel>(transform);
         }
 
         protected override void OnInitialize() {
-            InitializePlayButton();
+            _playButton.onClick.AddListener(OnPlayButtonClicked);
+            _downloadButton.onClick.AddListener(OnDownloadButtonClicked);
 
             DownloadReplayRequest.AddProgressListener(OnDownloadProgressChanged);
             DownloadReplayRequest.AddStateListener(OnDownloadRequestStateChanged);
@@ -68,80 +77,167 @@ namespace BeatLeader.Components {
         #region SetScore
 
         private Score? _score;
+        private IReplayHeader? _replayHeader;
 
         public void SetScore(Score score) {
             _score = score;
+            _replayHeader = FindReplayHeader(_score);
+
+            ResetButtons();
+        }
+
+        private static IReplayHeader? FindReplayHeader(Score score) {
+            if (!long.TryParse(score.timeSet, out var scoreTimestamp)) {
+                Plugin.Log.Error($"Failed to parse score's timestamp: {score.timeSet}");
+                return null;
+            }
+
+            return ReplayManager.Instance.Replays
+                .Where(x => x.ReplayInfo.SongHash == LeaderboardState.SelectedBeatmapKey.levelId)
+                .Where(x => x.ReplayInfo.Timestamp == scoreTimestamp)
+                .FirstOrDefault(x => x.ReplayInfo.PlayerID == score.ActualPlayer.id);
         }
 
         #endregion
 
         #region StartReplay
 
-        private void StartReplay(Replay replay) {
-            _replayerStarter!.StartReplay(replay, _score!.Player);
+        private async Task StartReplay(Replay replay) {
+            await _replayerNavigator!.NavigateToReplayAsync(replay, _score!.Player, true).RunCatching();
+
+            SendViewReplayRequest.SendRequest(_score.id);
+        }
+
+        private async Task LoadAndStartReplay() {
+            if (_replayHeader == null) {
+                throw new InvalidOperationException("Replay header must not be null");
+            }
+
+            var replay = await _replayHeader.LoadReplayAsync(CancellationToken.None);
+            await StartReplay(replay!);
         }
 
         #endregion
-        
+
         #region Callbacks
 
         private bool _blockIncomingEvents = true;
+        private bool _isWaitingToStart;
         private bool _isDownloading;
 
         private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey key, BeatmapLevel level) {
-            _buttonCanBeInteractable = SongCoreInterop.ValidateRequirements(new(level, key));
+            _playCanBeInteractable = SongCoreInterop.ValidateRequirements(new(level, key));
         }
 
         private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
-            if (_blockIncomingEvents) return;
+            if (_blockIncomingEvents) {
+                return;
+            }
             _downloadText.text = $"<alpha=#66>Downloading: {downloadProgress * 100:F0}%";
         }
 
         private void OnDownloadRequestStateChanged(API.RequestState state, Replay result, string failReason) {
-            if (_blockIncomingEvents) return;
+            if (_blockIncomingEvents) {
+                return;
+            }
+
             _isDownloading = state is API.RequestState.Started;
-            RefreshPlayButtonText(_isDownloading);
-            RefreshDownloadState(_isDownloading);
+            NotifyDownloadStateChanged(_isDownloading);
+
             switch (state) {
+                case API.RequestState.Started:
+                    RefreshPlayButton(_isWaitingToStart ? PlayButtonState.Downloading : PlayButtonState.Unavailable);
+                    RefreshDownloadButton(_isWaitingToStart ? DownloadButtonState.Unavailable : DownloadButtonState.Downloading);
+
+                    return;
                 case API.RequestState.Finished:
                     _downloadText.text = "<alpha=#66>Finished!";
-                    if (PluginConfig.EnableReplayCaching) ReplayerCache.TryWriteReplay(_score!.id, result);
-                    SetPlayButtonInteractable(false);
-                    StartReplay(result);
+
+                    // When initiated using the play button
+                    if (_isWaitingToStart) {
+                        RefreshDownloadButton(DownloadButtonState.Unavailable);
+                        RefreshPlayButton(PlayButtonState.Unavailable);
+
+                        StartReplay(result).RunCatching();
+                    }
+                    // When initiated using the download button
+                    else {
+                        _replayHeader = ReplayManager.Instance.SaveAnyReplay(result, null);
+                        
+                        RefreshDownloadButton(DownloadButtonState.ReadyToNavigate);
+                        RefreshPlayButton(PlayButtonState.ReadyToDownloadOrStart);
+                    }
+
                     return;
                 case API.RequestState.Failed:
+                    ResetButtons();
+
                     _downloadText.text = FormatFailString(failReason);
                     return;
             }
         }
 
+        #endregion
+
+        #region Button Callbacks
+
         private void OnPlayButtonClicked() {
             if (_isDownloading) {
-                _blockIncomingEvents = true;
-                _isDownloading = false;
-                _downloadText.gameObject.SetActive(false);
-                RefreshPlayButtonText(false);
-                RefreshDownloadState(false);
+                ResetDownload();
                 return;
             }
-            if (_score is null) {
-                _downloadText.text = FormatFailString("Score is unavailable!");
+
+            if (_replayHeader != null) {
+                _downloadButton.interactable = false;
+                _playButton.interactable = false;
+
+                LoadAndStartReplay().RunCatching();
                 return;
             }
-            if (ReplayerCache.TryReadReplay(_score.id, out var storedReplay)) {
-                StartReplay(storedReplay);
+
+            _isWaitingToStart = true;
+            StartDownload();
+        }
+
+        private void OnDownloadButtonClicked() {
+            if (_isDownloading) {
+                ResetDownload();
                 return;
             }
-            RefreshDownloadState(true);
-            _blockIncomingEvents = false;
-            _downloadText.gameObject.SetActive(true);
-            DownloadReplayRequest.SendRequest(_score.replay);
-            SendViewReplayRequest.SendRequest(_score.id);
+
+            if (_replayHeader != null) {
+                _replayerNavigator!.NavigateToReplayManager(_replayHeader);
+                return;
+            }
+
+            _isWaitingToStart = false;
+            StartDownload();
         }
 
         #endregion
 
-        #region Format
+        #region Other
+
+        private void ResetButtons() {
+            RefreshDownloadButton(_replayHeader != null ? DownloadButtonState.ReadyToNavigate : DownloadButtonState.ReadyToDownload);
+            RefreshPlayButton(PlayButtonState.ReadyToDownloadOrStart);
+        }
+
+        private void ResetDownload() {
+            _blockIncomingEvents = true;
+            _isDownloading = false;
+            _downloadText.gameObject.SetActive(false);
+
+            NotifyDownloadStateChanged(false);
+            ResetButtons();
+        }
+
+        private void StartDownload() {
+            _blockIncomingEvents = false;
+            _downloadText.gameObject.SetActive(true);
+            
+            DownloadReplayRequest.SendRequest(_score!.replay);
+        }
 
         private static string FormatFailString(string failReason) {
             return $"<color=red>Fail: {failReason}</color>";
@@ -149,38 +245,59 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        #region PlayButton
+        #region Play Button
 
-        private bool _buttonCanBeInteractable = true;
-
-        private void InitializePlayButton() {
-            _playButton.onClick.AddListener(OnPlayButtonClicked);
+        private enum PlayButtonState {
+            ReadyToDownloadOrStart,
+            Downloading,
+            Unavailable
         }
 
-        private void RefreshPlayButtonText(bool downloading) {
-            _playButtonText.text = downloading ? "<bll>ls-cancel</bll>" : "<bll>ls-watch-replay</bll>";
-        }
-
-        private void SetPlayButtonInteractable(bool interactable) {
-            _playButton.interactable = interactable;
+        private bool _playCanBeInteractable;
+        
+        private void RefreshPlayButton(PlayButtonState state) {
+            if (state is PlayButtonState.Unavailable || !_playCanBeInteractable) {
+                _playButton.interactable = false;
+                return;
+            }
+            
+            _playButton.interactable = true;
+            _playButtonText.text = state switch {
+                PlayButtonState.ReadyToDownloadOrStart => "<bll>ls-watch-replay</bll>",
+                PlayButtonState.Downloading => "<bll>ls-cancel</bll>",
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+            };
         }
 
         #endregion
 
-        #region SetActive
+        #region Download Button
 
-        public void SetActive(bool value) {
-            Active = value;
-            _downloadText.gameObject.SetActive(false);
-            SetPlayButtonInteractable(_buttonCanBeInteractable);
-            RefreshPlayButtonText(false);
+        private enum DownloadButtonState {
+            ReadyToNavigate,
+            ReadyToDownload,
+            Downloading,
+            Unavailable
+        }
+
+        private void RefreshDownloadButton(DownloadButtonState state) {
+            if (state is DownloadButtonState.Unavailable) {
+                _downloadButton.interactable = false;
+                return;
+            }
+
+            _downloadButton.interactable = true;
+            _downloadButtonText.text = state switch {
+                DownloadButtonState.ReadyToNavigate => "Navigate",
+                DownloadButtonState.ReadyToDownload => "Download",
+                DownloadButtonState.Downloading => "<bll>ls-cancel</bll>",
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+            };
         }
 
         #endregion
 
         #region Active
-
-        private bool _active = true;
 
         [UIValue("active"), UsedImplicitly]
         private bool Active {
@@ -190,6 +307,13 @@ namespace BeatLeader.Components {
                 _active = value;
                 NotifyPropertyChanged();
             }
+        }
+
+        private bool _active = true;
+
+        public void SetActive(bool value) {
+            Active = value;
+            _downloadText.gameObject.SetActive(false);
         }
 
         #endregion

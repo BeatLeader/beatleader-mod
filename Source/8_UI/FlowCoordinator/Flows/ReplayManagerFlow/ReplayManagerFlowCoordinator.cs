@@ -1,11 +1,15 @@
-﻿using HMUI;
+﻿using BeatLeader.Models;
+using HMUI;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplayManagerFlowCoordinator : FlowCoordinator {
         [Inject] private readonly ReplayManagerViewController _replayManagerViewController = null!;
-        [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
 
+        public void NavigateToReplay(IReplayHeader header) {
+            _replayManagerViewController.NavigateToReplay(header);
+        }
+        
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (!firstActivation) return;
             showBackButton = true;
@@ -14,7 +18,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         public override void BackButtonWasPressed(ViewController viewController) {
-            _beatLeaderHubFlowCoordinator.DismissFlowCoordinator(
+            _parentFlowCoordinator.DismissFlowCoordinator(
                 this, animationDirection: ViewController.AnimationDirection.Vertical
             );
         }

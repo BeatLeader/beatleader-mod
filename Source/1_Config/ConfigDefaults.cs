@@ -271,8 +271,6 @@ namespace BeatLeader {
 
         #region ReplaySavingSettings
 
-        public const bool EnableReplayCaching = false;
-
         public const bool OverrideOldReplays = true;
 
         public const bool SaveLocalReplays = true;

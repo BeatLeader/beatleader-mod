@@ -188,5 +188,15 @@ namespace BeatLeader.Manager {
         }
 
         #endregion
+
+        #region BattleRoyaleEnabled
+
+        public static event Action<bool> BattleRoyaleEnabledEvent;
+
+        public static void NotifyBattleRoyaleEnabled(bool enabled) {
+            BattleRoyaleEnabledEvent?.Invoke(enabled);
+        }
+
+        #endregion
     }
 }

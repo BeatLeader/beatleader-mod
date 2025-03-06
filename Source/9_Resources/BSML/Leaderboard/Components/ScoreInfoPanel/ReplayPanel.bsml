@@ -9,6 +9,7 @@
         </horizontal>
         <horizontal pref-height="5">
             <button id="play-button" min-width="30" font-size="4.5"/>
+            <button id="download-button" min-width="20" font-size="4.5"/>
         </horizontal>
     </vertical>
 </horizontal>

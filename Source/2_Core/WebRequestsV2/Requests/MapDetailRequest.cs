@@ -4,7 +4,7 @@ using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
-    public class MapDetailRequest : PersistentWebRequestBaseWithResult<MapDetailRequest, MapDetail, JsonWebRequestResponseParser<MapDetail>> {
+    public class MapDetailRequest : PersistentWebRequestBase<MapDetail, JsonResponseParser<MapDetail>> {
         public static IWebRequest<MapDetail> SendRequest(string mapHash) {
             return SendRet(BeatSaverUtils.CreateMapUrl(mapHash), HttpMethod.Get);
         }

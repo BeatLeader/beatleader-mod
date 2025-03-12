@@ -3,7 +3,7 @@ using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
 namespace BeatLeader.API { 
-    public class DownloadMapRequest : PersistentWebRequestBaseWithResult<DownloadMapRequest, byte[], RawWebRequestResponseParser> {
+    public class DownloadMapRequest : PersistentWebRequestBase<byte[], RawResponseParser> {
         public static IWebRequest<byte[]> SendRequest(string mapHash) {
             return SendRet(BeatSaverUtils.CreateDownloadMapUrl(mapHash), HttpMethod.Get);
         }

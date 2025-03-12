@@ -35,8 +35,7 @@ namespace BeatLeader.WebRequests {
         }
     }
 
-    public abstract class PersistentWebRequestBaseWithResult<T, TResult, TDescriptor> : PersistentWebRequestBase
-        where T : PersistentWebRequestBaseWithResult<T, TResult, TDescriptor>
+    public abstract class PersistentWebRequestBase<TResult, TDescriptor> : PersistentWebRequestBase
         where TDescriptor : IWebRequestResponseParser<TResult>, new() {
 
         private static readonly TDescriptor descriptor = new();

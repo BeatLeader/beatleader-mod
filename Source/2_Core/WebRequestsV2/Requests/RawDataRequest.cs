@@ -2,7 +2,7 @@
 using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
-    internal class RawDataRequest : PersistentWebRequestBaseWithResult<RawDataRequest, byte[], RawWebRequestResponseParser> {
+    internal class RawDataRequest : PersistentWebRequestBase<byte[], RawResponseParser> {
         public static IWebRequest<byte[]> SendRequest(string url) {
             return SendRet(url, HttpMethod.Get);
         }

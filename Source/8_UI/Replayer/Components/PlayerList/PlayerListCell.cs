@@ -11,8 +11,8 @@ using Object = UnityEngine.Object;
 
 namespace BeatLeader.UI.Replayer {
     internal class PlayerListCell : ReactiveComponent {
-        public const float CELL_SIZE = 20f;
-        
+        public const float CELL_SIZE = 16f;
+
         #region Construct
 
         private QuickReplayOverview _replayOverview = null!;
@@ -24,62 +24,60 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             return new ImageButton {
-                ContentTransform = {
-                    pivot = new(1f, 0f)
-                },
-                OnClick = () => CellSelectedEvent?.Invoke(this),
-                Image = {
-                    Sprite = BundleLoader.Sprites.background,
-                    PixelsPerUnit = 5f
-                },
-                Colors = null,
-                Children = {
-                    new QuickMiniProfile {
-                            UseAlternativeBlur = true
-                        }
-                        .Bind(ref _miniProfile)
-                        .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
-                    //overview
-                    new Dummy {
-                        Children = {
-                            //score background
-                            new Image {
-                                Sprite = BundleLoader.Sprites.background,
-                                Children = {
-                                    //score label
-                                    new Label {
-                                        Text = "Score",
-                                        FontSize = 3f
-                                    }.AsFlexItem(size: "auto"),
-                                    //actual score label
-                                    new Label {
-                                        Text = "0",
-                                        FontSize = 4f
-                                    }.Bind(ref _scoreText).AsFlexItem(size: "auto")
-                                }
-                            }.AsFlexGroup(
-                                direction: FlexDirection.Column,
-                                alignItems: Align.Center,
-                                padding: new() {
-                                    left = 2f,
-                                    top = 1f,
-                                    right = 2f,
-                                    bottom = 1f
-                                }
-                            ).Bind(ref _scoreBackground).AsFlexItem(grow: 1f),
-                            //replay overview
-                            new QuickReplayOverview()
-                                .Bind(ref _replayOverview)
-                                .AsFlexItem(size: new() { y = 5f, x = 12f })
-                        }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        alignItems: Align.Center,
-                        padding: 1f,
-                        gap: 1f
-                    ).AsFlexItem(minSize: new() { x = 22f })
-                }
-            }.AsFlexGroup()
+                    ContentTransform = {
+                        pivot = new(1f, 0f)
+                    },
+                    OnClick = () => CellSelectedEvent?.Invoke(this),
+                    Image = {
+                        Sprite = BundleLoader.Sprites.background,
+                        PixelsPerUnit = 5f
+                    },
+                    Colors = null,
+                    Children = {
+                        new QuickMiniProfile {
+                                UseAlternativeBlur = true
+                            }
+                            .Bind(ref _miniProfile)
+                            .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
+                        //overview
+                        new Dummy {
+                            Children = {
+                                //score background
+                                new Image {
+                                    Sprite = BundleLoader.Sprites.background,
+                                    Children = {
+                                        //score label
+                                        new Label {
+                                            Text = "0",
+                                            FontSize = 4f
+                                        }.Bind(ref _scoreText).AsFlexItem(size: "auto")
+                                    }
+                                }.AsFlexGroup(
+                                    direction: FlexDirection.Column,
+                                    alignItems: Align.Center,
+                                    padding: new() {
+                                        left = 2f,
+                                        top = 1f,
+                                        right = 2f,
+                                        bottom = 1f
+                                    }
+                                ).Bind(ref _scoreBackground).AsFlexItem(grow: 1f),
+                                //replay overview
+                                new QuickReplayOverview()
+                                    .Bind(ref _replayOverview)
+                                    .AsFlexItem(size: new() { y = 5f, x = 12f })
+                            }
+                        }.AsFlexGroup(
+                            direction: FlexDirection.Column,
+                            alignItems: Align.Center,
+                            padding: 1f,
+                            gap: 1f
+                        ).AsFlexItem(
+                            minSize: new() { x = 22f },
+                            margin: new() { right = 2f }
+                        )
+                    }
+                }.AsFlexGroup()
                 .Bind(ref _backgroundImage)
                 .Bind(ref _actualContent)
                 .WithSizeDelta(0f, CELL_SIZE)
@@ -92,7 +90,7 @@ namespace BeatLeader.UI.Replayer {
 
         public IVirtualPlayer Player => _player ?? throw new UninitializedComponentException();
 
-        public event Action<PlayerListCell>? CellSelectedEvent; 
+        public event Action<PlayerListCell>? CellSelectedEvent;
 
         private IBeatmapTimeController _timeController = null!;
         private IReplayScoreEventsProcessor? _scoreEventsProcessor;
@@ -190,7 +188,7 @@ namespace BeatLeader.UI.Replayer {
         #region Move Animation
 
         private float _targetPos;
-        
+
         public void MoveTo(float pos) {
             _targetPos = pos;
         }

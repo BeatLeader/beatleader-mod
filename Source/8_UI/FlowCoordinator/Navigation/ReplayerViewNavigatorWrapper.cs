@@ -30,8 +30,8 @@ namespace BeatLeader {
         }
 
         /// <inheritdoc cref="IReplayerViewNavigator.NavigateToBattleRoyale"/>
-        public void NavigateToBattleRoyale(IReadOnlyList<IReplayInfo> plays) {
-            _viewNavigator.NavigateToBattleRoyale(_flowCoordinator, plays);
+        public void NavigateToBattleRoyale(BeatmapLevelWithKey level, IReadOnlyCollection<IReplayHeader> plays) {
+            _viewNavigator.NavigateToBattleRoyale(_flowCoordinator, level, plays);
         }
     }
 }

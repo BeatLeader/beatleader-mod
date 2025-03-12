@@ -1,4 +1,5 @@
-﻿using Reactive;
+﻿using BeatLeader.Utils;
+using Reactive;
 using Reactive.Components;
 using UnityEngine;
 
@@ -8,8 +9,8 @@ namespace BeatLeader.UI.Hub {
 
         private Transform? _headTransform;
 
-        public async void SetData(IBattleRoyaleReplay replay) {
-            await _badge.SetData(replay);
+        public void SetData(IBattleRoyaleReplay replay) {
+            _badge.SetData(replay).RunCatching();
         }
 
         public void Setup(Transform head) {

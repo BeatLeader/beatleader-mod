@@ -153,7 +153,7 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             base.OnInitialize();
             this.WithSizeDelta(64f, 34f);
-            UnityExtensions.GetOrAddComponent<CanvasGroup>(Content).ignoreParentGroups = true;
+            Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
             Title = "Download Beatmap";
         }
 

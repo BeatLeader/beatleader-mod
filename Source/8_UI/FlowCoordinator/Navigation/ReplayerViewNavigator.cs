@@ -26,8 +26,13 @@ namespace BeatLeader {
             _replayManagerFlowCoordinator.NavigateToReplay(header);
         }
 
-        public void NavigateToBattleRoyale(FlowCoordinator flowCoordinator, IReadOnlyList<IReplayInfo> plays) {
+        public void NavigateToBattleRoyale(FlowCoordinator flowCoordinator, BeatmapLevelWithKey level, IReadOnlyCollection<IReplayHeader> plays) {
             flowCoordinator.PresentFlowCoordinator(_battleRoyaleFlowCoordinator);
+            _battleRoyaleFlowCoordinator.ReplayBeatmap = level;
+            
+            foreach (var replay in plays) {
+                _battleRoyaleFlowCoordinator.AddReplay(replay, this);
+            }
         }
     }
 }

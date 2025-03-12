@@ -98,5 +98,9 @@ namespace BeatLeader.Models {
         public override int GetHashCode() {
             return id;
         }
+
+        public override bool Equals(object? obj) {
+            return obj is Score score && score.id == id;
+        }
     }
 }

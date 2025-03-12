@@ -15,10 +15,16 @@ namespace BeatLeader {
     [UsedImplicitly]
     public class LeaderboardHeaderManager : IInitializable, ITickable, IDisposable {
         #region Initialize & Dispose
-
+        
         [Inject, UsedImplicitly]
         private LeaderboardView _leaderboardView;
 
+        [Inject, UsedImplicitly]
+        private IReplayerViewNavigator _viewNavigator;
+        
+        [Inject, UsedImplicitly] 
+        private SoloFreePlayFlowCoordinator _soloFlowCoordinator;
+        
         public void Initialize() {
             LeaderboardState.IsVisibleChangedEvent += OnVisibilityChanged;
         }
@@ -52,6 +58,9 @@ namespace BeatLeader {
 
                 _infoPanel = new LeaderboardInfoPanel().WithRectExpand();
                 _infoPanel.Use(_headerImage.transform);
+
+                var wrapper = new ReplayerViewNavigatorWrapper(_viewNavigator, _soloFlowCoordinator);
+                _infoPanel.Setup(wrapper);
    
                 _boringColor0 = _headerImage.color0;
                 _boringColor1 = _headerImage.color1;

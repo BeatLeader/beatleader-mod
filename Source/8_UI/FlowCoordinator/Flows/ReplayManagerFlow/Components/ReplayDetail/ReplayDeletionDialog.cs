@@ -28,7 +28,7 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             base.OnInitialize();
             this.WithSizeDelta(60f, 28f);
-            UnityExtensions.GetOrAddComponent<CanvasGroup>(Content).ignoreParentGroups = true;
+            Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
             Title = "Delete Replay";
         }
 

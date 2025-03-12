@@ -10,11 +10,6 @@ namespace BeatLeader.Utils {
             child.transform.SetParent(go.transform, false);
             return child;
         }
-        
-        public static T GetOrAddComponent<T>(this GameObject go) where T : Component {
-            if (!go.TryGetComponent(out T component)) component = go.AddComponent<T>();
-            return component;
-        }
 
         public static bool TryDestroy(this Object obj) {
             if (!obj) return false;

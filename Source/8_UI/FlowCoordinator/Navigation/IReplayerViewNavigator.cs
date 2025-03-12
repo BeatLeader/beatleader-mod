@@ -32,13 +32,14 @@ namespace BeatLeader {
         );
 
         /// <summary>
-        /// Navigates to the battle royale view with the configured party.
+        /// Navigates to the battle royale view with the configured lobby.
         /// </summary>
         /// <param name="flowCoordinator">The flow coordinator to be presented from.</param>
-        /// <param name="plays">The plays to use for the party.</param>
+        /// <param name="plays">The plays to use for the lobby.</param>
         void NavigateToBattleRoyale(
             FlowCoordinator flowCoordinator,
-            IReadOnlyList<IReplayInfo> plays
+            BeatmapLevelWithKey level,
+            IReadOnlyCollection<IReplayHeader> plays
         );
     }
 }

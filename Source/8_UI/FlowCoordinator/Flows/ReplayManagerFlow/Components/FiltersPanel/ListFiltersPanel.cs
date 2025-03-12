@@ -223,7 +223,7 @@ namespace BeatLeader.UI.Hub {
                     .AsFlexGroup(
                         direction: FlexDirection.Column,
                         justifyContent: Justify.FlexStart,
-                        alignItems: Align.Center,
+                        alignItems: Align.Stretch,
                         padding: 2f,
                         gap: 1f
                     )

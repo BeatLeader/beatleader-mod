@@ -55,6 +55,7 @@ namespace BeatLeader.Components {
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
             LeaderboardEvents.BattleRoyaleEnabledEvent += OnBattleRoyaleEnabledChanged;
             LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreClicked;
+            LeaderboardState.AddSelectedBeatmapListener(OnBeatmapChanged);
 
             OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
         }
@@ -66,11 +67,17 @@ namespace BeatLeader.Components {
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
             LeaderboardEvents.BattleRoyaleEnabledEvent -= OnBattleRoyaleEnabledChanged;
             LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreClicked;
+
+            LeaderboardState.RemoveSelectedBeatmapListener(OnBeatmapChanged);
         }
 
         #endregion
 
         #region Events
+
+        private void OnBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey beatmapKey, BeatmapLevel beatmapLevel) {
+            _selectedContents.Clear();
+        }
 
         private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
             if (state is not API.RequestState.Finished) {
@@ -86,13 +93,13 @@ namespace BeatLeader.Components {
             StartAnimation();
         }
 
-        private void OnBattleRoyaleEnabledChanged(bool brEnabled) {            
+        private void OnBattleRoyaleEnabledChanged(bool brEnabled) {
             _battleRoyaleEnabled = brEnabled;
-            
+
             if (brEnabled) {
                 _selectedContents.Clear();
             }
-            
+
             RefreshCells();
             StartBattleRoyaleAnimation();
         }
@@ -101,13 +108,13 @@ namespace BeatLeader.Components {
             if (!_battleRoyaleEnabled) {
                 return;
             }
-            
+
             if (_selectedContents.Contains(score)) {
                 _selectedContents.Remove(score);
             } else {
                 _selectedContents.Add(score);
             }
-            
+
             RefreshCells(true);
         }
 
@@ -186,7 +193,7 @@ namespace BeatLeader.Components {
             if (_content == null) {
                 return;
             }
-            
+
             if (_content.ExtraRowContent != null) {
                 _extraRow.SetContent(_content.ExtraRowContent);
             }
@@ -196,7 +203,7 @@ namespace BeatLeader.Components {
 
                 var row = _mainRows[i];
                 row.SetContent(_content.MainRowContents[i]);
-                
+
                 if (_battleRoyaleEnabled) {
                     var rowSelected = _selectedContents.Contains(_content.MainRowContents[i]);
                     row.SetHighlight(rowSelected);
@@ -224,7 +231,7 @@ namespace BeatLeader.Components {
 
             StartCoroutine(Coroutine());
         }
-        
+
         private void StartAnimation() {
             if (gameObject.activeInHierarchy) {
                 StartCoroutine(_content == null ? FadeOutCoroutine() : FadeInCoroutine(_content));

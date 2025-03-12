@@ -13,7 +13,6 @@ using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,6 +25,7 @@ namespace BeatLeader.Components {
         private CaptorClan _captorClan = null!;
         private MapStatus _mapStatus = null!;
 
+        private DownloadScoresModal _downloadModal = null!;
         private Label _replaysLabel = null!;
         private ButtonBase _proceedButton = null!;
 
@@ -44,6 +44,10 @@ namespace BeatLeader.Components {
         }
 
         protected override GameObject Construct() {
+            _downloadModal = new DownloadScoresModal {
+                DownloadingFinishedCallback = OnScoreDownloadingFinished
+            }.WithAlphaAnimation(() => Canvas!.gameObject).WithJumpAnimation();
+
             return new PushContainer {
                 OpenedView = new Dummy {
                     Children = {
@@ -104,7 +108,7 @@ namespace BeatLeader.Components {
                     alignItems: Align.Center,
                     padding: new() { left = 1f, right = 2f },
                     gap: 1f
-                ),
+                ).WithRectExpand(),
 
                 ClosedView = new Dummy {
                     Children = {
@@ -118,15 +122,21 @@ namespace BeatLeader.Components {
                         }.AsFlexItem().Bind(ref _replaysLabel),
 
                         new BsButton {
-                            ShowUnderline = false,
-                            OnClick = () => { }
-                        }.WithLabel("Proceed").AsFlexItem().Bind(ref _proceedButton),
+                                ShowUnderline = false,
+                                OnClick = () => {
+                                    ModalSystem.PresentModal(_downloadModal, Canvas!.transform);
+                                    _downloadModal.StartDownloading(_selectedScores);
+                                }
+                            }
+                            .WithLabel("Proceed")
+                            .AsFlexItem()
+                            .Bind(ref _proceedButton),
                     }
                 }.AsFlexGroup(
                     alignItems: Align.Center,
                     padding: new() { left = 1f, right = 2f },
                     justifyContent: Justify.SpaceBetween
-                ),
+                ).WithRectExpand(),
 
                 Opened = true,
                 Color = Color.clear
@@ -136,6 +146,12 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Init/Dispose
+
+        private ReplayerViewNavigatorWrapper? _replayerNavigator;
+
+        public void Setup(ReplayerViewNavigatorWrapper navigator) {
+            _replayerNavigator = navigator;
+        }
 
         protected override void OnInitialize() {
             LeaderboardsCache.CacheWasChangedEvent += OnCacheWasChanged;
@@ -169,8 +185,13 @@ namespace BeatLeader.Components {
 
             if (enabled) {
                 _selectedScores.Clear();
-                RefreshReplaysLabel();
+                RefreshBattleRoyaleUI();
             }
+        }
+
+        private void RefreshBattleRoyaleUI() {
+            _replaysLabel.Text = $"{_selectedScores.Count} OPPONENTS";
+            _proceedButton.Interactable = _selectedScores.Count > 1;
         }
 
         private void OnScoreClicked(Score score) {
@@ -184,11 +205,16 @@ namespace BeatLeader.Components {
                 _selectedScores.Add(score);
             }
 
-            RefreshReplaysLabel();
+            RefreshBattleRoyaleUI();
         }
 
-        private void RefreshReplaysLabel() {
-            _replaysLabel.Text = $"{_selectedScores.Count} OPPONENTS";
+        private void OnScoreDownloadingFinished() {
+            var level = new BeatmapLevelWithKey(
+                LeaderboardState.SelectedBeatmapLevel,
+                LeaderboardState.SelectedBeatmapKey
+            );
+
+            _replayerNavigator?.NavigateToBattleRoyale(level, _downloadModal.Headers);
         }
 
         #endregion
@@ -205,6 +231,8 @@ namespace BeatLeader.Components {
         }
 
         private void OnSelectedBeatmapWasChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey key, BeatmapLevel level) {
+            _selectedScores.Clear();
+            RefreshBattleRoyaleUI();
             SetBeatmap(key);
         }
 

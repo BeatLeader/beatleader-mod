@@ -133,7 +133,7 @@ namespace BeatLeader.UI.Hub {
                         margin: new() { left = 1f, right = 1f }
                     )
                 }
-            }.AsFlexGroup(padding: 1f).Use();
+            }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
         }
 
         protected override void OnInitialize() {

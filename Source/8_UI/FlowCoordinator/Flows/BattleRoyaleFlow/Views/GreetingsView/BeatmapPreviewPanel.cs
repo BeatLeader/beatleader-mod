@@ -50,9 +50,10 @@ namespace BeatLeader.UI.Hub {
 
         public async Task SetBeatmapLevel(BeatmapLevel level) {
             _songNameLabel.Text = FormatSongNameText(level.songName, level.songSubName);
-            var mappers = level.allMappers.Aggregate((x, y) => y.Length > 0 ? $", {y}" : "");
+
+            var mappers = string.Join(", ", level.allMappers);
             _songAuthorLabel.Text = FormatAuthorText(level.songAuthorName, mappers);
-            //
+            
             _songTimeLabel.Text = FormatUtils.FormatTime(level.songDuration);
             _songBpmLabel.Text = Mathf.FloorToInt(level.beatsPerMinute).ToString();
             _songImage.Sprite = await level.previewMediaData.GetCoverSpriteAsync();
@@ -63,7 +64,13 @@ namespace BeatLeader.UI.Hub {
         }
 
         private static string FormatAuthorText(string author, string mapper) {
-            return $"<size=80%>{author}</size> <size=90%>[<color=#89ff89>{mapper}</color>]</size>";
+            var text = $"<size=80%>{author}</size>";
+            
+            if (!string.IsNullOrEmpty(mapper)) {
+                text += $" <size=90%>[<color=#89ff89>{mapper}</color>]</size>";
+            }
+            
+            return text;
         }
 
         #endregion

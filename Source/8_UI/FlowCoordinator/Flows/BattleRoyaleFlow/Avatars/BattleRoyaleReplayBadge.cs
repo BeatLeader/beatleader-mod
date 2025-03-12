@@ -13,13 +13,32 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         public async Task SetData(IBattleRoyaleReplay replay) {
+            Hide();
+
             var header = replay.ReplayHeader;
             var player = await header.LoadPlayerAsync(false, CancellationToken.None);
             var timestamp = header.ReplayInfo.Timestamp.ToString();
+
             _rankLabel.Text = $"#{replay.ReplayRank}";
             _nameLabel.Text = player.Name;
             _playerAvatar.SetAvatar(player);
             _dateLabel.Text = FormatUtils.FormatTimeset(timestamp, true);
+
+            Show();
+        }
+
+        #endregion
+
+        #region Animation
+
+        private AnimatedValue<Vector3> _scale = null!;
+
+        private void Show() {
+            _scale.Value = Vector3.one;
+        }
+
+        private void Hide() {
+            _scale.SetValueImmediate(Vector3.zero);
         }
 
         #endregion
@@ -32,6 +51,8 @@ namespace BeatLeader.UI.Hub {
         private Label _nameLabel = null!;
 
         protected override GameObject Construct() {
+            _scale = RememberAnimated(Vector3.zero, 10.fact());
+
             return new Image {
                 Children = {
                     new Dummy {
@@ -55,12 +76,23 @@ namespace BeatLeader.UI.Hub {
                         FontSize = 2.8f
                     }.AsFlexItem(size: "auto").Bind(ref _dateLabel)
                 }
-            }.AsBlurBackground().AsRootFlexGroup(
-                direction: FlexDirection.Column,
-                padding: new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
-                alignItems: Align.Center,
-                gap: 0.5f
-            ).AsFlexItem(size: "auto").Use();
+            }.With(
+                x => {
+                    x.AsBlurBackground();
+                    x.WithEffect(_scale, static (x, y) => x.ContentTransform.localScale = y);
+                    x.AsRootFlexGroup(
+                        direction: FlexDirection.Column,
+                        padding: new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
+                        alignItems: Align.Center,
+                        gap: 0.5f
+                    );
+                    x.AsFlexItem(size: "auto");
+                }
+            ).Use();
+        }
+
+        protected override void OnInitialize() {
+            Hide();
         }
 
         #endregion

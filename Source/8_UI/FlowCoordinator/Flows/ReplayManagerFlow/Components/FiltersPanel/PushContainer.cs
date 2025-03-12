@@ -14,8 +14,10 @@ namespace BeatLeader.UI.Hub {
                     _backgroundImage.Children.Remove(_openedView);
                 }
                 _openedView = value;
-                if (_openedView != null) {
-                    _openedView.WithRectExpand();
+                if (_openedView != null) { 
+                    if (_openedView is ReactiveComponent comp) {
+                        comp.WithinLayoutIfDisabled = true;
+                    }
                     _backgroundImage.Children.Add(_openedView);
                 }
             }
@@ -29,7 +31,9 @@ namespace BeatLeader.UI.Hub {
                 }
                 _closedView = value;
                 if (_closedView != null) {
-                    _closedView.WithRectExpand();
+                    if (_closedView is ReactiveComponent comp) {
+                        comp.WithinLayoutIfDisabled = true;
+                    }
                     _backgroundImage.Children.Add(_closedView);
                 }
             }
@@ -70,11 +74,12 @@ namespace BeatLeader.UI.Hub {
             return new Dummy {
                 Children = {
                     new Image()
-                        .WithRectExpand()
+                        .AsFlexGroup()
+                        .AsFlexItem(grow: 1f)
                         .AsBlurBackground()
                         .Bind(ref _backgroundImage),
                 }
-            }.WithNativeComponent(out _canvasGroup).Use();
+            }.AsFlexGroup().WithNativeComponent(out _canvasGroup).Use();
         }
 
         protected override void OnInitialize() {
@@ -100,11 +105,15 @@ namespace BeatLeader.UI.Hub {
             _canvasGroup.blocksRaycasts = _opened;
             _canvasGroup.interactable = _opened;
 
-            if (OpenedView != null) {
+            if (OpenedView is ReactiveComponent opened) {
+                opened.Enabled = _opened;
+            } else if (OpenedView != null) {
                 OpenedView.WithinLayout = _opened;
             }
 
-            if (ClosedView != null) {
+            if (ClosedView is ReactiveComponent closed) {
+                closed.Enabled = !_opened;
+            } else if (ClosedView != null) {
                 ClosedView.WithinLayout = !_opened;
             }
         }

@@ -72,14 +72,6 @@ namespace BeatLeader {
             }
         }
 
-        public void NavigateToReplayManager(FlowCoordinator flowCoordinator, IReplayHeader header) {
-            _replayerViewNavigator.NavigateToReplayManager(flowCoordinator, header);
-        }
-        
-        public void NavigateToBattleRoyale(FlowCoordinator flowCoordinator, IReadOnlyList<IReplayInfo> plays) {
-            _replayerViewNavigator.NavigateToBattleRoyale(flowCoordinator, plays);
-        }
-
         private async void StartReplay(bool fromFlowCoordinator) {
             var callback = fromFlowCoordinator ? (Action)DismissSetterViewController : null;
             if (_alternativeLoading) {
@@ -87,6 +79,18 @@ namespace BeatLeader {
             } else {
                 await _replayerMenuLoader.StartReplayAsync(_pendingReplay!, _pendingPlayer!, finishCallback: callback);
             }
+        }
+
+        #endregion
+
+        #region Adapter
+
+        public void NavigateToReplayManager(FlowCoordinator flowCoordinator, IReplayHeader header) {
+            _replayerViewNavigator.NavigateToReplayManager(flowCoordinator, header);
+        }
+
+        public void NavigateToBattleRoyale(FlowCoordinator flowCoordinator, BeatmapLevelWithKey level, IReadOnlyCollection<IReplayHeader> plays) {
+            _replayerViewNavigator.NavigateToBattleRoyale(flowCoordinator, level, plays);
         }
 
         #endregion

@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using HMUI;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -180,7 +181,6 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleLevelSelectionFlowBeatmapSelected(BeatmapLevelWithKey beatmap) {
             _battleRoyaleHost.ReplayBeatmap = beatmap;
-            _beatmapPreviewPanel.SetBeatmap(beatmap);
         }
 
         #endregion
@@ -226,6 +226,7 @@ namespace BeatLeader.UI.Hub {
         private void HandleHostBeatmapChanged(BeatmapLevelWithKey beatmap) {
             _replaysPanel.Interactable = beatmap.HasValue;
             _beatmapPanel.ShowComponent = beatmap.HasValue;
+            _beatmapPreviewPanel.SetBeatmap(beatmap).RunCatching();
         }
 
         private void HandleHostCanLaunchStateChanged(bool canLaunch) {

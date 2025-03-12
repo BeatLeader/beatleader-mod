@@ -86,6 +86,7 @@ namespace BeatLeader.Components {
             ResetButtons();
         }
 
+        // TODO: move to ReplayManager and add hashed access
         private static IReplayHeader? FindReplayHeader(Score score) {
             if (!long.TryParse(score.timeSet, out var scoreTimestamp)) {
                 Plugin.Log.Error($"Failed to parse score's timestamp: {score.timeSet}");

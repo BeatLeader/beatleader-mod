@@ -60,6 +60,7 @@ namespace BeatLeader.UI.Hub {
                     filtersPanel
                 }
             };
+            _replayLaunchPanel.ReplaysList.Refresh();
 
             _replayLaunchPanel.ReplaySelectedEvent += HandleReplaySelected;
             _replayLaunchPanel.ReplayDeselectedEvent += HandleReplayDeselected;

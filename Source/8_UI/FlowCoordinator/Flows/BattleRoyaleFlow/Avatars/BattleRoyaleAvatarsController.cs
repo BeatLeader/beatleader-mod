@@ -40,28 +40,29 @@ namespace BeatLeader.UI.Hub {
 
         #region Placement
 
-        //these attributes are useless in the game, but sometimes i need to modify them from RUE,
-        //so made them serializable to stop rider from yelling
-        [SerializeField] private float anchorAngle = -90f;
-        [SerializeField] private float avatarMarginAngle = 30f;
-        [SerializeField] private float radiusMultiplier = 3.5f;
-        [SerializeField] private float animationTime = 0.4f;
-        [SerializeField] private float animationFramerate = 120f;
+        private const float AnchorAngle = -90f;
+        private const float AvatarMarginAngle = 30f;
+        private const float RadiusMultiplier = 3.5f;
+        private const float AnimationTime = 0.4f;
+        private const float AnimationFramerate = 120f;
+        
+        private static readonly int maxAvatarsCount = Mathf.FloorToInt(360 / AvatarMarginAngle) - 1;
 
         private readonly Dictionary<IReplayHeaderBase, BattleRoyaleAvatar> _avatars = new();
 
         private void RecalculateAvatarPositions(BattleRoyaleAvatar? accentAvatar = null) {
             var index = 0;
-            var totalLength = (_avatars.Count - 1) * avatarMarginAngle;
-            var adjustmentAngle = anchorAngle + totalLength / 2;
+            var totalLength = Mathf.Clamp(_avatars.Count - 1, 0, maxAvatarsCount) * AvatarMarginAngle;
+            var adjustmentAngle = AnchorAngle + totalLength / 2;
+            
             foreach (var (_, avatar) in _avatars) {
-                var deg = index * avatarMarginAngle - adjustmentAngle;
+                var deg = index * AvatarMarginAngle - adjustmentAngle;
                 var rad = Mathf.Deg2Rad * deg;
-                var x = Mathf.Cos(rad);
-                var z = Mathf.Sin(rad);
-                var pos = new Vector3(x, 0, z);
+                
+                var pos = new Vector3(Mathf.Cos(rad), 0, Mathf.Sin(rad));
                 var trans = avatar.transform;
-                pos *= radiusMultiplier;
+                pos *= RadiusMultiplier;
+                
                 if (avatar == accentAvatar) {
                     trans.localPosition = pos;
                     trans.LookAt(Vector3.zero);
@@ -73,8 +74,8 @@ namespace BeatLeader.UI.Hub {
         }
 
         private IEnumerator AdjustAvatarPositionAnimationCoroutine(Transform trans, Vector3 targetPosition) {
-            var totalFrames = animationTime * animationFramerate;
-            var timePerFrame = animationTime / animationFramerate;
+            var totalFrames = AnimationTime * AnimationFramerate;
+            var timePerFrame = AnimationTime / AnimationFramerate;
             var startPosition = trans.localPosition;
 
             for (var i = 0; i < totalFrames; i++) {
@@ -102,9 +103,14 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
+            if (_battleRoyaleAvatarPool.NumActive == maxAvatarsCount) {
+                return;
+            }
+            
             var avatar = _battleRoyaleAvatarPool.Spawn(replay);
             avatar.transform.SetParent(transform, false);
             _avatars[replay.ReplayHeader] = avatar;
+            
             RecalculateAvatarPositions(avatar);
         }
 

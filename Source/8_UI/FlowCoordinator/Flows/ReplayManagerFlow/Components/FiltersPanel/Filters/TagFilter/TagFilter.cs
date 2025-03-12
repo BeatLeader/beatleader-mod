@@ -79,7 +79,7 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _textArea)
                 }
             }.AsFlexGroup(
-                padding: 1f,
+                padding: new() { top = 1f, bottom = 1f },
                 justifyContent: Justify.Center
             ).Use();
         }

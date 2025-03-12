@@ -47,9 +47,7 @@ namespace BeatLeader.UI.Hub {
 
         public void SetCharacteristic(BeatmapCharacteristicSO characteristic) {
             _characteristic = characteristic;
-            var sets = _beatmapLevel?.GetCharacteristics()
-                .SelectMany(x => _beatmapLevel.GetDifficulties(x))
-                .ToArray();
+            var sets = _beatmapLevel?.GetDifficulties(characteristic).ToArray();
             _difficultyPanel.SetData(sets);
         }
 
@@ -73,7 +71,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(grow: 1f)
                         .BindRee(ref _difficultyPanel)
                 }
-            }.AsFlexGroup(padding: 1f).Use();
+            }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
         }
 
         #endregion

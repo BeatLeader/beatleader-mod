@@ -65,7 +65,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(grow: 1f)
                         .BindRee(ref _characteristicPanel)
                 }
-            }.AsFlexGroup(padding: 1f).Use();
+            }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
         }
 
         #endregion

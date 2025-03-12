@@ -89,7 +89,6 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly BattleRoyaleOpponentsViewController _opponentsViewController = null!;
         [Inject] private readonly BattleRoyaleGreetingsViewController _greetingsViewController = null!;
         [Inject] private readonly BattleRoyaleBattleSetupViewController _battleSetupViewController = null!;
-        [Inject] private readonly BeatLeaderHubFlowCoordinator _beatLeaderHubFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderMiniScreenSystem _alternativeScreenSystem = null!;
         [Inject] private readonly ReplayerMenuLoader _replayerMenuLoader = null!;
 
@@ -119,14 +118,6 @@ namespace BeatLeader.UI.Hub {
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (firstActivation) {
                 _alternativeFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<AlternativeFlowCoordinator>();
-                _alternativeFlowCoordinator.Setup(
-                    _beatLeaderHubFlowCoordinator,
-                    this,
-                    _alternativeScreenSystem.FlowCoordinator,
-                    _greetingsViewController,
-                    _battleSetupViewController,
-                    _opponentsViewController
-                );
                 _emptyViewController = BeatSaberUI.CreateViewController<ViewController>();
                 ProvideInitialViewControllers(
                     _emptyViewController,
@@ -134,6 +125,14 @@ namespace BeatLeader.UI.Hub {
                 );
             }
             if (addedToHierarchy) {
+                _alternativeFlowCoordinator.Setup(
+                    _parentFlowCoordinator,
+                    this,
+                    _alternativeScreenSystem.FlowCoordinator,
+                    _greetingsViewController,
+                    _battleSetupViewController,
+                    _opponentsViewController
+                );
                 _alternativeFlowCoordinator.Present();
                 HostStateChangedEvent?.Invoke(true);
             }
@@ -224,7 +223,6 @@ namespace BeatLeader.UI.Hub {
             CanLaunchBattle = _replays.Count > 1;
             CanLaunchBattleStateChangedEvent?.Invoke(CanLaunchBattle);
         }
-
 
         #endregion
     }

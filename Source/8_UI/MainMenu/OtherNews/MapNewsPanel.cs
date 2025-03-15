@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -75,7 +76,7 @@ namespace BeatLeader.UI.MainMenu {
         private void PresentList(IEnumerable<MapData> items) {
             DisposeList();
 
-            foreach (var item in items) {
+            foreach (var item in items.Where(m => m.difficulty?.status != 5)) {
                 var component = Instantiate<FeaturedPreviewPanel>(transform);
                 component.ManualInit(mainContainer);
                 SetupFeaturePreview(component, item);

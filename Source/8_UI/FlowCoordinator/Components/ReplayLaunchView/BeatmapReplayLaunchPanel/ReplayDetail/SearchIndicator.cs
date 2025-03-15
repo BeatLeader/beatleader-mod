@@ -24,11 +24,6 @@ namespace BeatLeader.Components {
 
         private float _angle;
 
-        protected override void OnRootStateChange(bool active) {
-            if (!active) StopAllCoroutines();
-            else StartCoroutine(AnimationCoroutine());
-        }
-
         protected override void OnInitialize() {
             ImageSize = 6f;
         }

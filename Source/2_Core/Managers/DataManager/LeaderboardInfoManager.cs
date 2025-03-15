@@ -20,6 +20,7 @@ namespace BeatLeader.DataManager {
         }
 
         private IEnumerator RunCoroutine(IEnumerator coroutine, TaskCompletionSource<bool> tcs) {
+            if (tcs.Task.IsCompleted) yield break;
             yield return StartCoroutine(coroutine);
             tcs.SetResult(true);
         }

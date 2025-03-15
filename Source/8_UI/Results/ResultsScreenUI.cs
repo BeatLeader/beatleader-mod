@@ -10,14 +10,14 @@ namespace BeatLeader.ViewControllers {
         #region Setup
 
         [UIValue("voting-button"), UsedImplicitly]
-        private readonly VotingButton _votingButton = InstantiateOnSceneRoot<VotingButton>(false);
+        private VotingButton _votingButton;
 
         [UIValue("replay-button")]
-        private readonly ReplayButton _replayButton = InstantiateOnSceneRoot<ReplayButton>(false);
+        private ReplayButton _replayButton;
 
         private void Awake() {
-            _votingButton.SetParent(transform);
-            _replayButton.SetParent(transform);
+            _votingButton = ReeUIComponentV2.Instantiate<VotingButton>(transform, false);
+            _replayButton = ReeUIComponentV2.Instantiate<ReplayButton>(transform, false);
             _replayButton.ReplayButtonClickedEvent += HandleReplayButtonClicked;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
         }

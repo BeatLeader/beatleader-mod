@@ -8,6 +8,7 @@ namespace BeatLeader.Components {
         bool IsVisible { get; set; }
 
         void Init();
+        void OnClose();
         void Dispose();
     }
 
@@ -51,5 +52,9 @@ namespace BeatLeader.Components {
         protected virtual void OnDispose() { }
 
         protected virtual void OnPreParse() { }
+
+        public virtual void OnClose() {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -43,7 +43,7 @@ namespace BeatLeader.UI.MainMenu {
             var map = await FetchMap(mapDetail);
 
             if (map != null) {
-                OpenMap(map);
+                OpenMap(map, null);
             } else {
                 ReeModalSystem.OpenModal<MapDownloadDialog>(screenChild, mapDetail);
             }
@@ -63,7 +63,7 @@ namespace BeatLeader.UI.MainMenu {
             return map;
         }
 
-        private static void OpenMap(BeatmapLevel? map) {
+        private static void OpenMap(BeatmapLevel? map, MapDownloadDialog? dialog) {
             if (map == null) return;
 
             var key = map.GetBeatmapKeys().First();
@@ -75,6 +75,10 @@ namespace BeatLeader.UI.MainMenu {
             );
 
             FindObjectOfType<SoloFreePlayFlowCoordinator>().Setup(x);
+
+            if (dialog != null) {
+                dialog.Close();
+            }
 
             (GameObject.Find("SoloButton") ?? GameObject.Find("Wrapper/BeatmapWithModifiers/BeatmapSelection/EditButton"))
                 ?.GetComponent<NoTransitionsButton>()?.onClick.Invoke();
@@ -124,7 +128,7 @@ namespace BeatLeader.UI.MainMenu {
 
             if (_mapDownloaded) {
                 Close();
-                OpenMap(map);
+                OpenMap(map, this);
             } else {
                 OkButtonActive = true;
             }

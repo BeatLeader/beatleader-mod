@@ -28,14 +28,16 @@ namespace BeatLeader.Components {
         public Transform? ResetTransform { get; private set; }
         public Pose pose;
 
-        public InputDevice actionInputDevice = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
-        public InputFeatureUsage<bool> actionFeature = CommonUsages.secondaryButton;
+        public InputDevice actionInputDevice;
+        public InputFeatureUsage<bool> actionFeature;
 
         private ResetProgressAnimator _animator = null!;
         private bool _initialized;
 
         private void Awake() {
             this.ParseInObjectHierarchy();
+            actionInputDevice = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+            actionFeature = CommonUsages.secondaryButton;
             _animator = gameObject.AddComponent<ResetProgressAnimator>();
             _animator.SetImage(_image.Image);
             _animator.RevealWasFinishedEvent += HandleRevealWasFinished;
@@ -61,7 +63,7 @@ namespace BeatLeader.Components {
         private bool _wasExecuted;
 
         private void Update() {
-            if (!_initialized) return;
+            if (!_initialized || actionInputDevice == null) return;
 
             actionInputDevice.TryGetFeatureValue(actionFeature, out var state);
 

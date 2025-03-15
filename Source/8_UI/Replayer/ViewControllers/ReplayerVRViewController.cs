@@ -65,5 +65,9 @@ namespace BeatLeader.ViewControllers {
             scaler.dynamicPixelsPerUnit = 3.44f;
             scaler.referencePixelsPerUnit = 10;
         }
+
+        public override void OnClose() {
+            _toolbar.HandleClose();
+        }
     }
 }

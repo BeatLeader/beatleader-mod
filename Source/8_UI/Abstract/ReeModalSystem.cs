@@ -42,6 +42,10 @@ namespace BeatLeader {
             controller.OpenModal<T>(state);
         }
 
+        public static void CloseAll() {
+            InterruptAllEvent?.Invoke();
+        }
+
         public static void ForceUpdateAll() {
             foreach (var activeModal in ActiveModals.Values) {
                 activeModal.ForceUpdate();
@@ -135,7 +139,7 @@ namespace BeatLeader {
         }
 
         private void CloseOrPop() {
-            _activeModal.Pause();
+            _activeModal?.Pause();
 
             if (_stack.Count != 0) {
                 OpenImmediately();

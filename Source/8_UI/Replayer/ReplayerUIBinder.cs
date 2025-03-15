@@ -61,6 +61,10 @@ namespace BeatLeader.UI {
             AutoHideUI = _launchData.Settings.AutoHideUI;
         }
 
+        private void OnDisable() {
+            ViewController.OnClose();
+        }
+
         private void OnDestroy() {
             _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
         }

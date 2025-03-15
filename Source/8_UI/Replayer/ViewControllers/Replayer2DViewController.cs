@@ -63,6 +63,10 @@ namespace BeatLeader.ViewControllers {
             }
         }
 
+        public override void OnClose() {
+            _mainScreenPanel.HandleClose();
+        }
+
         protected override void OnDispose() {
             _finishController.ReplayWasLeftEvent -= HandleReplayFinish;
         }

@@ -69,20 +69,18 @@ namespace BeatLeader.Components {
 
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             if (!_isInitialized) throw new UninitializedComponentException();
+            _levelSelectionNavigationController.Setup(
+                SongPackMask.all,
+                BeatmapDifficultyMask.All,
+                Array.Empty<BeatmapCharacteristicSO>(),
+                false,
+                false,
+                CUSTOM_PLAY_BUTTON,
+                null,
+                SelectLevelCategoryViewController.LevelCategory.CustomSongs,
+                null,
+                true);
             if (firstActivation) {
-                if (_levelSelectionNavigationController._actionButtonText == null) {
-                    _levelSelectionNavigationController.Setup(
-                        SongPackMask.all,
-                        BeatmapDifficultyMask.All,
-                        Array.Empty<BeatmapCharacteristicSO>(),
-                        false,
-                        false,
-                        CUSTOM_PLAY_BUTTON,
-                        null,
-                        SelectLevelCategoryViewController.LevelCategory.None,
-                        null,
-                        true);
-                }
                 _levelDetailWrapper = ReeUIComponentV2.Instantiate<LevelDetailWrapper>(_levelDetail.parent);
                 _levelDetailWrapper.SelectButtonPressedEvent += HandleSelectButtonPressed;
                 _closeButton = ReeUIComponentV2.Instantiate<CloseButton>(_levelFilteringNavigationController.transform);

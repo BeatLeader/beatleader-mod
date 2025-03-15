@@ -77,6 +77,7 @@ namespace BeatLeader.UI.MainMenu {
                             in beatmapKey, 
                             null);
                         FindObjectOfType<SoloFreePlayFlowCoordinator>().Setup(x);
+                        Close();
                         (GameObject.Find("SoloButton") ?? GameObject.Find("Wrapper/BeatmapWithModifiers/BeatmapSelection/EditButton"))
 				        ?.GetComponent<NoTransitionsButton>()?.onClick.Invoke();
                     }

@@ -39,6 +39,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+            ReeModalSystem.CloseAll();
             gameObject.SetActive(false);
         }
 

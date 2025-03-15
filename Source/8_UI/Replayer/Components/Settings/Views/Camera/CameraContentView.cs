@@ -70,6 +70,15 @@ namespace BeatLeader.Components {
             HandleViewChanged(_cameraController.SelectedView!);
         }
 
+        private List<ParamsContentViewBase> _contentViews;
+
+        private void Awake() {
+            _contentViews = new() {
+                InstantiateOnSceneRoot<PlayerViewParamsContentView>(),
+                InstantiateOnSceneRoot<FlyingViewParamsContentView>()
+            };
+        }
+
         protected override void OnInitialize() {
             _cameraFovContainer.AddComponent<InputDependentObject>().Init(InputUtils.InputType.FPFC);
         }
@@ -93,10 +102,7 @@ namespace BeatLeader.Components {
 
         #region Params
 
-        private readonly List<ParamsContentViewBase> _contentViews = new() {
-            InstantiateOnSceneRoot<PlayerViewParamsContentView>(),
-            InstantiateOnSceneRoot<FlyingViewParamsContentView>()
-        };
+        
 
         private ParamsContentViewBase? _selectedParamsMenu;
 

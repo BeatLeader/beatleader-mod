@@ -52,7 +52,7 @@ namespace BeatLeader.Interop {
 
                 return (BeatmapLevelPack)levelPackField.GetValue(playlistWrapper);
             } catch (Exception e) {
-                Plugin.Log.Critical($"RefreshPlaylists failed: {e}");
+                Plugin.Log.Debug($"TryFindPlaylist failed: {e}");
                 return null;
             }
         }

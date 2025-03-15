@@ -85,6 +85,10 @@ namespace BeatLeader.Components {
             RoutineFactory.Instance.StartCoroutine(MapLayoutCoroutine());
         }
 
+        public void HandleClose() {
+            _toolbar.HandleClose();
+        }
+
         #endregion
 
         #region Layout

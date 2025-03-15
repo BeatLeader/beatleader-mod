@@ -53,6 +53,10 @@ namespace BeatLeader.Components {
                 timeController, playersManager, launchData);
         }
 
+        public void HandleClose() {
+            _settingsModal.HideModalImmediate();
+        }
+
         private void HandleEditModeChanged(bool state) {
             _settingsModal.HideModalImmediate();
         }

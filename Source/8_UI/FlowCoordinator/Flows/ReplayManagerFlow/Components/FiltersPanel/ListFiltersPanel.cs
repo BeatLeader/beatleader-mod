@@ -100,7 +100,7 @@ namespace BeatLeader.UI.Hub {
 
             private Label _placeholder = null!;
             private PushContainer _filterContainer = null!;
-            private IToggle _enableToggle = null!;
+            private CheckCircle _enableToggle = null!;
 
             protected override GameObject Construct() {
                 return new Dummy {

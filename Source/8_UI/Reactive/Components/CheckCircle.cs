@@ -6,7 +6,7 @@ using UnityEngine;
 using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class CheckCircle : ReactiveComponent, IToggle {
+    internal class CheckCircle : ReactiveComponent {
         public bool Active { get; private set; }
         public Action<bool>? OnStateChanged { get; set; }
 

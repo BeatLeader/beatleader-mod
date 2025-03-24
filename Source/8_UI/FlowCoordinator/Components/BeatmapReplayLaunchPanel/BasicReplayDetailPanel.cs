@@ -15,7 +15,6 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private ReplayStatisticsPanel _replayStatisticsPanel = null!;
-        private LoadingContainer _statsContainer = null!;
         private QuickMiniProfile _miniProfile = null!;
         private TagsStrip _tagsStrip = null!;
         private CanvasGroup _contentGroup = null!;
@@ -35,11 +34,9 @@ namespace BeatLeader.UI.Hub {
                                 .AsFlexItem(size: new() { y = 5f })
                                 .Bind(ref _tagsStrip),
                             //
-                            new ReeWrapperV2<ReplayStatisticsPanel>()
-                                .AsFlexItem(size: new() { y = 37f })
-                                .BindRee(ref _replayStatisticsPanel)
-                                .InLoadingContainer()
-                                .Bind(ref _statsContainer),
+                            new ReplayStatisticsPanel()
+                                .AsFlexItem(size: new() { y = 37f }, margin: new() { bottom = 1f })
+                                .Bind(ref _replayStatisticsPanel),
                             //
                             ConstructButtons()
                         }
@@ -65,7 +62,7 @@ namespace BeatLeader.UI.Hub {
         public virtual void Setup(IBeatmapReplayLaunchPanel? launchPanel) { }
 
         protected void SetupInternal(IReplayTagManager tagManager) {
-            _tagsStrip.Setup(tagManager, _statsContainer);
+            _tagsStrip.Setup(tagManager);
         }
 
         protected override void OnInitialize() {
@@ -100,7 +97,7 @@ namespace BeatLeader.UI.Hub {
 
         protected IReplayHeader? Header { get; private set; }
         protected CancellationToken CancellationToken => _tokenSource.Token;
-        
+
         private CancellationTokenSource _tokenSource = new();
         private string? _lastPlayerId;
 
@@ -136,15 +133,20 @@ namespace BeatLeader.UI.Hub {
         }
 
         private async Task RefreshStatsAsync(IReplayHeader header, CancellationToken token) {
-            _statsContainer.Loading = true;
+            _replayStatisticsPanel.SetLoading();
+
             await _replayStatisticsPanel.SetDataByHeaderAsync(header, token);
-            _statsContainer.Loading = false;
         }
 
         private async Task RefreshPlayerAsync(IReplayHeader header, CancellationToken token) {
-            if (_lastPlayerId == header.ReplayInfo.PlayerID) return;
+            if (_lastPlayerId == header.ReplayInfo.PlayerID) {
+                return;
+            }
+
             _miniProfile.SetLoading();
+
             var player = await header.LoadPlayerAsync(false, token);
+
             _miniProfile.SetPlayer(player);
             _lastPlayerId = player.Id;
         }

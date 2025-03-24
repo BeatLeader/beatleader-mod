@@ -2,72 +2,79 @@
 using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class ReplayStatisticsPanel : ReeUIComponentV2 {
+    internal class ReplayStatisticsPanel : ReactiveComponent {
         #region Components
 
-        [UIValue("score-stats-loading-screen"), UsedImplicitly]
         private ScoreStatsLoadingScreen _scoreStatsLoadingScreen = null!;
-
-        [UIValue("score-overview-page1"), UsedImplicitly]
         private ScoreOverviewPage1 _scoreOverviewPage1 = null!;
-
-        [UIValue("score-overview-page2"), UsedImplicitly]
         private ScoreOverviewPage2 _scoreOverviewPage2 = null!;
-
-        [UIValue("accuracy-details"), UsedImplicitly]
         private AccuracyDetails _accuracyDetails = null!;
-
-        [UIValue("accuracy-grid"), UsedImplicitly]
         private AccuracyGrid _accuracyGrid = null!;
-
-        [UIValue("accuracy-graph"), UsedImplicitly]
         private AccuracyGraphPanel _accuracyGraphPanel = null!;
-
-        [UIValue("replay-panel"), UsedImplicitly]
         private ReplayerSettingsPanel _replaySettingsPanel = null!;
-
-        [UIValue("panel-controls"), UsedImplicitly]
         private ScoreInfoPanelControls _panelControls = null!;
+        private ReactiveComponentBase _panelControlsContainer = null!;
 
-        [UIObject("panel-controls-container"), UsedImplicitly]
-        private GameObject? _panelControlsContainer;
+        protected override GameObject Construct() {
+            return new Dummy {
+                Children = {
+                    new Image {
+                        Children = {
+                            new ReeWrapperV2<ScoreStatsLoadingScreen>()
+                                .WithRectExpand()
+                                .BindRee(ref _scoreStatsLoadingScreen),
 
-        #endregion
+                            new ReeWrapperV2<ScoreOverviewPage1>()
+                                .WithRectExpand()
+                                .BindRee(ref _scoreOverviewPage1),
 
-        #region Init
+                            new ReeWrapperV2<ScoreOverviewPage2>()
+                                .WithRectExpand()
+                                .BindRee(ref _scoreOverviewPage2),
 
-        protected override void OnInstantiate() {
-            _scoreStatsLoadingScreen = Instantiate<ScoreStatsLoadingScreen>(transform);
-            _scoreOverviewPage1 = Instantiate<ScoreOverviewPage1>(transform);
-            _scoreOverviewPage2 = Instantiate<ScoreOverviewPage2>(transform);
-            _accuracyDetails = Instantiate<AccuracyDetails>(transform);
-            _accuracyGrid = Instantiate<AccuracyGrid>(transform);
-            _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>(transform);
-            _replaySettingsPanel = Instantiate<ReplayerSettingsPanel>(transform);
-            _panelControls = Instantiate<ScoreInfoPanelControls>(transform);
+                            new ReeWrapperV2<AccuracyDetails>()
+                                .WithRectExpand()
+                                .BindRee(ref _accuracyDetails),
 
-            _panelControls.followLeaderboardEvents = false;
-            _panelControls.TabsMask &= ~ScoreInfoPanelTab.Replay;
+                            new ReeWrapperV2<AccuracyGrid>()
+                                .WithRectExpand()
+                                .BindRee(ref _accuracyGrid),
 
-            _panelControls.TabChangedEvent += HandleSelectedTabChanged;
-        }
+                            new ReeWrapperV2<AccuracyGraphPanel>()
+                                .WithRectExpand()
+                                .BindRee(ref _accuracyGraphPanel),
 
-        #endregion
+                            new ReeWrapperV2<ReplayerSettingsPanel>()
+                                .WithRectExpand()
+                                .BindRee(ref _replaySettingsPanel)
+                        }
+                    }.AsBlurBackground().AsFlexItem(grow: 1f),
 
-        #region Dismiss
-
-        public void PrepareForDismiss() {
-            HideAllTabs();
-        }
-
-        public void PrepareForDisplay() {
-            UpdateVisibility(_openedTab);
+                    new ReeWrapperV2<ScoreInfoPanelControls>()
+                        .With(
+                            x => {
+                                var ree = x.ReeComponent;
+                                ree.TabsMask &= ~ScoreInfoPanelTab.Replay;
+                                ree.TabChangedEvent += SwitchTab;
+                            }
+                        )
+                        .AsFlexItem(grow: 1f)
+                        .BindRee(ref _panelControls)
+                        .InBlurBackground()
+                        .AsFlexGroup(padding: 1f)
+                        .AsFlexItem(size: new() { y = 6 })
+                        .Bind(ref _panelControlsContainer)
+                }
+            }.AsFlexGroup(direction: FlexDirection.Column, gap: 0.5f).Use();
         }
 
         #endregion
@@ -88,41 +95,57 @@ namespace BeatLeader.UI.Hub {
 
         #region SetScore
 
-        public async Task SetDataByHeaderAsync(IReplayHeader? header, CancellationToken token = default) {
-            if (header is null) {
-                SetData(null, null, true, true);
-                return;
-            }
+        public async Task SetDataByHeaderAsync(IReplayHeader header, CancellationToken token = default) {
             if (!StatsStorage.TryGetStats(header, out var score, out var stats)) {
                 //loading if wasn't represented in the cache
                 var replay = await header.LoadReplayAsync(token);
-                if (token.IsCancellationRequested) return;
-                if (replay is not null) {
+
+                if (token.IsCancellationRequested) {
+                    return;
+                }
+
+                if (replay != null) {
                     stats = await Task.Run(() => ReplayStatisticUtils.ComputeScoreStats(replay), token);
                     score = ReplayUtils.ComputeScore(replay);
                     score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
                 }
+
                 StatsStorage.AddStats(header, score, stats);
             }
-            if (token.IsCancellationRequested) return;
-            SetData(score, stats, score is null || stats is null);
-        }
 
-        public void SetData(Score? score, ScoreStats? stats, bool invalid, bool notSelected = false) {
-            if (score is null || stats is null) {
-                _scoreStatsLoadingScreen.SetFailed(invalid, notSelected ? string.Empty : null);
-                _panelControlsContainer.SetActive(!invalid);
-                _scoreStatsUpdateRequired = true;
-                UpdateVisibility(invalid ? ScoreInfoPanelTab.OverviewPage1 : _openedTab);
+            if (score == null || stats == null) {
+                SetFailed();
                 return;
             }
+
+            SetData(score, stats);
+        }
+
+        public void SetLoading() {
+            _panelControlsContainer.Enabled = false;
+            
+            HideAllTabs();
+            _scoreStatsLoadingScreen.SetActive(true);
+            _scoreStatsLoadingScreen.SetFailed(false);
+        }
+
+        private void SetData(Score score, ScoreStats stats) {
             _scoreStatsUpdateRequired = false;
             _scoreOverviewPage1.SetScore(score);
             _scoreOverviewPage2.SetScoreAndStats(score, stats);
             _accuracyDetails.SetScoreStats(stats);
             _accuracyGrid.SetScoreStats(stats);
             _accuracyGraphPanel.SetScoreStats(stats);
+
             UpdateVisibility(_openedTab);
+        }
+
+        private void SetFailed() {
+            _scoreStatsLoadingScreen.SetFailed(true);
+            _panelControls.gameObject.SetActive(false);
+            _scoreStatsUpdateRequired = true;
+
+            UpdateVisibility(ScoreInfoPanelTab.OverviewPage1);
         }
 
         #endregion
@@ -163,16 +186,8 @@ namespace BeatLeader.UI.Hub {
             }
 
             _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
-            _panelControlsContainer?.SetActive(true);
+            _panelControlsContainer.Enabled = true;
             _openedTab = tab;
-        }
-
-        #endregion
-
-        #region Callbacks
-
-        private void HandleSelectedTabChanged(ScoreInfoPanelTab tab) {
-            SwitchTab(tab);
         }
 
         #endregion

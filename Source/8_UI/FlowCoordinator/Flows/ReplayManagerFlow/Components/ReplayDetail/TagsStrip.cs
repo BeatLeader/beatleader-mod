@@ -34,9 +34,8 @@ namespace BeatLeader.UI.Hub {
             StartAnimation();
         }
 
-        public void Setup(IReplayTagManager tagManager, IReactiveComponent? background) {
+        public void Setup(IReplayTagManager tagManager) {
             _tagManager = tagManager;
-            //background?.WithAlphaOnModalOpen(_tagSelectorModal);
         }
 
         #endregion

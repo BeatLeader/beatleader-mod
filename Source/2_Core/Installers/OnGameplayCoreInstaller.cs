@@ -38,6 +38,7 @@ namespace BeatLeader.Installers {
                 RecorderUtils.shouldRecord = false;
 
                 #region Gates
+
                 if (PluginManager.GetPluginFromId("ScoreSaber") != null && ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
                     Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started!");
                     return;
@@ -68,6 +69,8 @@ namespace BeatLeader.Installers {
 
             //Dependencies
             var launchData = ReplayerLauncher.LaunchData!;
+            var replaysCount = launchData.Replays.Count;
+
             Container.Bind<ReplayLaunchData>().FromInstance(launchData).AsSingle();
             Container.BindInterfacesTo<ReplayBeatmapData>().AsSingle();
             Container.Bind<ReplayerExtraObjectsProvider>().FromNewComponentOnNewGameObject().AsSingle();
@@ -79,32 +82,25 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //Controllers
-            Container.Bind<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<VirtualPlayerGameSabers>().AsSingle();
+            Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>().WithInitialSize(replaysCount - 1);
+            Container.BindMemoryPool<VirtualPlayerBattleRoyaleSabers, VirtualPlayerBattleRoyaleSabers.Pool>().WithInitialSize(replaysCount - 1);
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            //Sabers
-            if (launchData.SabersSpawner is { } controllersSpawner) {
-                Container.Bind<VirtualPlayerSabersSpawnerBase>().To(controllersSpawner.GetType()).AsSingle();
+            //Body
+            if (launchData.BodySpawner is { } bodySpawner) {
+                Container.Bind<IVirtualPlayerBodySpawner>().To(bodySpawner.GetType()).FromInstance(bodySpawner).AsSingle();
             } else {
-                Container.Bind<VirtualPlayerSabersSpawnerBase>().To<VirtualPlayerSabersSpawner>().AsSingle();
+                Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
             }
-
-            //Avatar
-            if (launchData.AvatarSpawner is { } avatarSpawner) {
-                Container.Bind<VirtualPlayerAvatarSpawnerBase>().To(avatarSpawner.GetType()).AsSingle();
-            } else {
-                Container.Bind<VirtualPlayerAvatarSpawnerBase>().To<VirtualPlayerAvatarSpawner>().AsSingle();
-            }
-            Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>();
-            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2);
 
             //Players
+            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(replaysCount);
             Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
 
             //Event Processing
-            Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(2);
-            Container.BindMemoryPool<ReplayScoreEventsProcessor, ReplayScoreEventsProcessor.Pool>().WithInitialSize(2);
+            Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(replaysCount);
+            Container.BindMemoryPool<ReplayScoreEventsProcessor, ReplayScoreEventsProcessor.Pool>().WithInitialSize(replaysCount);
             Container.BindInterfacesTo<ReplayBeatmapEventsProcessorProxy>().AsSingle();
             Container.Bind<ReplayHeightsProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 

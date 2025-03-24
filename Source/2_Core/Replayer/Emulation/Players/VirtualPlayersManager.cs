@@ -20,21 +20,26 @@ namespace BeatLeader.Replayer.Emulation {
         #region VirtualPlayersManager
 
         public IReadOnlyList<IVirtualPlayer> Players => _virtualPlayers;
-        public IVirtualPlayer PrimaryPlayer => _primaryPlayer!;
+        public IVirtualPlayer PrimaryPlayer { get; private set; } = null!;
 
         public event Action<IVirtualPlayer>? PrimaryPlayerWasChangedEvent;
 
-        private IVirtualPlayer? _primaryPlayer;
-
         public void SetPrimaryPlayer(IVirtualPlayer player) {
-            if (!_virtualPlayers.Contains(player)) return;
+            if (!_virtualPlayers.Contains(player)) {
+                return;
+            }
 
-            var previousPrimaryPlayer = _primaryPlayer;
-            _primaryPlayer = player;
-            //refreshing previous first to release base-game sabers in case they are used
-            previousPrimaryPlayer?.Body.RefreshVisuals();
-            _primaryPlayer.Body.RefreshVisuals();
-            
+            var newPlayer = (VirtualPlayer)player;
+            var prevPlayer = (VirtualPlayer)PrimaryPlayer;
+
+            _bodySpawner.DespawnBody(newPlayer.Body);
+            _bodySpawner.DespawnBody(prevPlayer.Body);
+
+            PrimaryPlayer = newPlayer;
+
+            newPlayer.LateInit(_bodySpawner.SpawnBody(newPlayer));
+            prevPlayer.LateInit(_bodySpawner.SpawnBody(prevPlayer));
+
             PrimaryPlayerWasChangedEvent?.Invoke(player);
         }
 
@@ -44,9 +49,16 @@ namespace BeatLeader.Replayer.Emulation {
 
         private void Awake() {
             LoadDummyControllers();
-            foreach (var replay in _launchData.Replays) Spawn(replay);
+
+            var first = true;
+            foreach (var replay in _launchData.Replays) {
+                Spawn(replay, first);
+
+                first = false;
+            }
         }
 
+        //TODO: set transforms of the primary player
         private void LoadDummyControllers() {
             _playerTransforms.SetField("_headTransform", CreateDummyController());
             _playerTransforms.SetField("_leftHandTransform", CreateDummyController());
@@ -65,15 +77,17 @@ namespace BeatLeader.Replayer.Emulation {
 
         private readonly List<IVirtualPlayer> _virtualPlayers = new();
 
-        private void Spawn(IReplay replay) {
+        private void Spawn(IReplay replay, bool setPrimary) {
             var virtualPlayer = _virtualPlayersPool.Spawn();
             virtualPlayer.Init(replay);
-            //setting player if not set yet
-            _primaryPlayer ??= virtualPlayer;
-            //initializing body
-            var body = _bodySpawner.SpawnBody(this, virtualPlayer);
+
+            if (setPrimary) {
+                PrimaryPlayer = virtualPlayer;
+            }
+
+            var body = _bodySpawner.SpawnBody(virtualPlayer);
             virtualPlayer.LateInit(body);
-            //adding to the list
+
             _virtualPlayers.Add(virtualPlayer);
         }
 

@@ -44,7 +44,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         public IReplay Replay { get; private set; } = null!;
         public IVirtualPlayerMovementProcessor MovementProcessor => this;
-        public IVirtualPlayerBody Body => _controllableBody;
+        public IVirtualPlayerBody Body => _playerBody;
         public IReplayScoreEventsProcessor ReplayScoreEventsProcessor => _scoreEventsProcessor;
         public IReplayBeatmapEventsProcessor ReplayBeatmapEventsProcessor => _beatmapEventsProcessor;
 
@@ -58,7 +58,7 @@ namespace BeatLeader.Replayer.Emulation {
         private LinkedList<PlayerMovementFrame>? _frames;
         private ReplayScoreEventsProcessor _scoreEventsProcessor = null!;
         private ReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
-        private IControllableVirtualPlayerBody _controllableBody = null!;
+        private IVirtualPlayerBody _playerBody = null!;
         private bool _allowPlayback;
 
         public void Init(IReplay replay) {
@@ -74,8 +74,8 @@ namespace BeatLeader.Replayer.Emulation {
             _allowPlayback = true;
         }
 
-        public void LateInit(IControllableVirtualPlayerBody body) {
-            _controllableBody = body;
+        public void LateInit(IVirtualPlayerBody body) {
+            _playerBody = body;
         }
 
         #endregion
@@ -148,7 +148,7 @@ namespace BeatLeader.Replayer.Emulation {
                 rightSaberPose = rightSaberPose.Lerp(nextFrame.rightHandPose, t);
             }
 
-            ApplyPose(_controllableBody, headPose, leftSaberPose, rightSaberPose);
+            ApplyPose(_playerBody, headPose, leftSaberPose, rightSaberPose);
             UpdatePoseReceivers(headPose, leftSaberPose, rightSaberPose);
         }
 

@@ -5,7 +5,6 @@ using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
-using UnityEngine.UI;
 using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.UI.Replayer {
@@ -26,7 +25,7 @@ namespace BeatLeader.UI.Replayer {
             _quickSettingsPanel.Setup(timeController);
             _quickSettingsPanel.SetShown(settings.UISettings.QuickSettingsEnabled, true);
             _cameraView.Setup(cameraController, settings.CameraSettings);
-            _avatarView.Setup(bodySpawner, settings.BodySettings);
+            //_avatarView.Setup(bodySpawner, settings.BodySettings);
             _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);
             RefreshBackgroundBlur(useAlternativeBlur);

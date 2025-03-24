@@ -82,7 +82,7 @@ namespace BeatLeader {
         };
 
         #endregion
-        
+
         #region ReplayerSettings
 
         public static readonly ReplayerSettings ReplayerSettings = new() {
@@ -100,79 +100,30 @@ namespace BeatLeader {
             },
 
             BodySettings = {
-                BodyModels = {
+                Configs = {
                     {
-                        "Primary", SerializableVirtualPlayerBodyConfig.CreateManual(
-                            new Dictionary<string, SerializableVirtualPlayerBodyPartConfig> {
-                                {
-                                    "BATTLE_ROYALE_AVATAR_HEAD", new() {
-                                        PotentiallyActive = false,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "BATTLE_ROYALE_AVATAR_BODY", new() {
-                                        PotentiallyActive = false,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "BATTLE_ROYALE_AVATAR_LEFT_HAND", new() {
-                                        PotentiallyActive = true,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "BATTLE_ROYALE_AVATAR_RIGHT_HAND", new() {
-                                        PotentiallyActive = true,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "LEFT_SABER", new() {
-                                        PotentiallyActive = true,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "RIGHT_SABER", new() {
-                                        PotentiallyActive = true,
-                                        Alpha = 1f
-                                    }
-                                }
-                            }
-                        )
+                        typeof(BasicBodySettings), new BasicBodySettings {
+                            HeadEnabled = true,
+                            TorsoEnabled = false,
+                            LeftHandEnabled = true,
+                            RightHandEnabled = true,
+                            
+                            LeftSaberEnabled = true,
+                            RightSaberEnabled = true,
+                        }
                     }, {
-                        "Default", SerializableVirtualPlayerBodyConfig.CreateManual(
-                            new Dictionary<string, SerializableVirtualPlayerBodyPartConfig> {
-                                {
-                                    "BATTLE_ROYALE_AVATAR_HEAD", new() {
-                                        PotentiallyActive = false,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "BATTLE_ROYALE_AVATAR_BODY", new() {
-                                        PotentiallyActive = false,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "BATTLE_ROYALE_AVATAR_LEFT_HAND", new() {
-                                        PotentiallyActive = false,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "BATTLE_ROYALE_AVATAR_RIGHT_HAND", new() {
-                                        PotentiallyActive = false,
-                                        Alpha = 1f
-                                    }
-                                }, {
-                                    "LEFT_SABER", new() {
-                                        PotentiallyActive = true,
-                                        Alpha = 0.7f
-                                    }
-                                }, {
-                                    "RIGHT_SABER", new() {
-                                        PotentiallyActive = true,
-                                        Alpha = 0.7f
-                                    }
-                                }
-                            }
-                        )
+                        typeof(BattleRoyaleBodySettings), new BattleRoyaleBodySettings {
+                            HeadEnabled = true,
+                            TorsoEnabled = false,
+                            LeftHandEnabled = false,
+                            RightHandEnabled = false,
+                            
+                            LeftSaberEnabled = true,
+                            RightSaberEnabled = true,
+                            
+                            TrailLength = 0.4f,
+                            TrailOpacity = 0.5f
+                        }
                     }
                 }
             },
@@ -211,8 +162,7 @@ namespace BeatLeader {
                                 layer = 1,
                                 visible = false,
                             }
-                        },
-                        {
+                        }, {
                             "Beatmap Preview", new() {
                                 position = new() {
                                     x = -150f,
@@ -225,8 +175,7 @@ namespace BeatLeader {
                                 layer = 2,
                                 visible = false,
                             }
-                        },
-                        {
+                        }, {
                             "Player List", new() {
                                 position = new() {
                                     x = -165f,
@@ -239,8 +188,7 @@ namespace BeatLeader {
                                 layer = 3,
                                 visible = false,
                             }
-                        },
-                        {
+                        }, {
                             "Player Profile", new() {
                                 position = new() {
                                     x = -150f,

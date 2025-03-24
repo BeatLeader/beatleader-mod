@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Models {
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    //TODO: make an abstraction and remove that reinitialization
+    [PublicAPI]
     public class ReplayLaunchData {
         public IReadOnlyList<IReplay> Replays { get; protected set; } = null!;
         public BeatmapLevelWithKey BeatmapLevel { get; protected set; }
@@ -12,8 +13,7 @@ namespace BeatLeader.Models {
         public EnvironmentInfoSO? EnvironmentInfo { get; protected set; }
 
         public IReplayComparator ReplayComparator { get; protected set; } = null!;
-        public VirtualPlayerSabersSpawnerBase? SabersSpawner { get; protected set; }
-        public VirtualPlayerAvatarSpawnerBase? AvatarSpawner { get; protected set; }
+        public IVirtualPlayerBodySpawner? BodySpawner { get; protected set; }
 
         public IReplay MainReplay => Replays[0];
         public bool IsBattleRoyale => Replays.Count > 1;

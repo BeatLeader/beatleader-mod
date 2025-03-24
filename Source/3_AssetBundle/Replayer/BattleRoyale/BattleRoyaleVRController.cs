@@ -61,6 +61,13 @@ namespace BeatLeader {
 
         #region Trail
 
+        public float TrailLength {
+            get => _saberTrail._trailDuration;
+            set => _saberTrail._trailDuration = value;
+        }
+        
+        
+        
         private readonly SaberMovementData _movementData = new();
         private SaberTrail _saberTrail = null!;
 

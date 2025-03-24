@@ -40,11 +40,11 @@ namespace BeatLeader.Replayer {
         }
 
         public override void OnEnable() {
-            _bodySpawner.BodyConfigs.Values.ForEach(static x => x.AnchorMask &= ~BodyNode.Head);
+            _bodySpawner.BodyHeadsVisible = false;
         }
 
         public override void OnDisable() {
-            _bodySpawner.BodyConfigs.Values.ForEach(static x => x.AnchorMask |= BodyNode.Head);
+            _bodySpawner.BodyHeadsVisible = true;
         }
     }
 }

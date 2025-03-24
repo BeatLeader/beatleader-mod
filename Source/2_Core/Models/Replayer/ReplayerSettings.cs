@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
@@ -13,19 +12,12 @@ namespace BeatLeader.Models {
         public bool LoadPlayerJumpDistance { get; set; }
         public bool IgnoreModifiers { get; set; }
 
-        [Obsolete] public bool ShowHead { get; set; }
-        [Obsolete] public bool ShowLeftSaber { get; set; }
-        [Obsolete] public bool ShowRightSaber { get; set; }
-
         public bool ShowWatermark { get; set; }
 
         public ReplayerShortcuts Shortcuts { get; set; } = new();
         public ReplayerUISettings UISettings { get; set; } = new();
         public BodySettings BodySettings { get; set; } = new();
-
-        [Obsolete]
-        public LayoutEditorSettings? LayoutEditorSettings => UISettings.LayoutEditorSettings;
-
+        
         [JsonConverter(typeof(ImplicitTypeConverter<InternalReplayerCameraSettings>))]
         public ReplayerCameraSettings? CameraSettings { get; set; }
     }

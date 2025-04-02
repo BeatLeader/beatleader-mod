@@ -11,14 +11,13 @@ namespace BeatLeader.Replayer.Emulation {
 
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
         [Inject] private readonly IReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
-        [Inject] private readonly ReplayLaunchData _launchData = null!;
-
+        [Inject] private readonly IReplayNoteComparator _noteComparator = null!;
+        
         #endregion
 
         #region Setup
         
         private void Awake() {
-            _comparator = _launchData.ReplayComparator;
             _beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
             _beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
             _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteBeatmapEventDequeued;
@@ -54,13 +53,12 @@ namespace BeatLeader.Replayer.Emulation {
         #region NotesHash
 
         private readonly HashSet<NoteController> _spawnedNotes = new();
-        private IReplayComparator _comparator = null!;
 
         private bool TryFindSpawnedNote(NoteEvent replayNote, out NoteController? noteController, float timeMargin = 0.2f) {
             var minTimeDifference = float.MaxValue;
             noteController = null;
             foreach (var item in _spawnedNotes) {
-                if (!_comparator.Compare(replayNote, item.noteData)) continue;
+                if (!_noteComparator.Compare(replayNote, item.noteData)) continue;
                 var timeDifference = Mathf.Abs(replayNote.spawnTime - item.noteData.time);
                 if (timeDifference > minTimeDifference) continue;
                 

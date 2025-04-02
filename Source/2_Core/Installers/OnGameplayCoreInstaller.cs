@@ -15,6 +15,7 @@ using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
 using BeatLeader.UI;
 using BeatLeader.Models;
+using BeatLeader.Models.AbstractReplay;
 using BeatLeader.UI.Replayer;
 using BeatLeader.UI.Replayer.Desktop;
 using IPA.Loader;
@@ -87,12 +88,7 @@ namespace BeatLeader.Installers {
             Container.BindMemoryPool<VirtualPlayerBattleRoyaleSabers, VirtualPlayerBattleRoyaleSabers.Pool>().WithInitialSize(replaysCount - 1);
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            //Body
-            if (launchData.BodySpawner is { } bodySpawner) {
-                Container.Bind<IVirtualPlayerBodySpawner>().To(bodySpawner.GetType()).FromInstance(bodySpawner).AsSingle();
-            } else {
-                Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
-            }
+            InitReplayerOverridable(launchData.ReplayerBindings);
 
             //Players
             Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(replaysCount);
@@ -126,11 +122,35 @@ namespace BeatLeader.Installers {
                 Container.Bind<ReplayerFloatingUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             }
 
-            //Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
-            //Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
-            //Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-
             Plugin.Log.Notice("[Installer] Replays system successfully installed!");
+        }
+
+        private void InitReplayerOverridable(ReplayerBindings? bindings) {
+            // Comparator
+            if (bindings?.ReplayComparator is { } comparator) {
+                BindConcrete(comparator);
+            } else {
+                BindConcrete(ReplayDataUtils.BasicReplayNoteComparator);
+            }
+
+            // Body Settings 
+            if (bindings?.BodySettingsFactory is { HasValue: true, Value: not null } bodySettings) {
+                // If Value is null, do not bind the settings at all
+                BindConcrete(bodySettings.Value);
+            } else {
+                // BindConcrete();
+            }
+            
+            // Body
+            if (bindings?.BodySpawner is { } bodySpawner) {
+                BindConcrete(bodySpawner);
+            } else {
+                Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
+            }
+        }
+
+        private void BindConcrete<T>(T instance) {
+            Container.Bind<T>().To(instance!.GetType()).FromInstance(instance).AsSingle();
         }
 
         #endregion

@@ -223,7 +223,6 @@ namespace BeatLeader.Replayer {
             //initializing data
             data.Init(
                 list,
-                ReplayDataUtils.BasicReplayComparator,
                 settings,
                 beatmap,
                 data.EnvironmentInfo
@@ -267,8 +266,8 @@ namespace BeatLeader.Replayer {
                 info.hash,
                 info.mode,
                 info.difficulty,
-                default
-            ) is { } beatmap && SongCoreInterop.ValidateRequirements(beatmap);
+                CancellationToken.None
+            ) is var beatmap && SongCoreInterop.ValidateRequirements(beatmap);
         }
 
         public async Task<bool> LoadBeatmapAsync(
@@ -279,20 +278,26 @@ namespace BeatLeader.Replayer {
             CancellationToken token
         ) {
             var beatmap = await LoadBeatmapAsync(hash, mode, difficulty, token);
-            if (!beatmap.HasValue) return false;
-            Reinit(launchData, beatmap);
+            if (!beatmap.HasValue) {
+                return false;
+            }
+            
+            launchData.BeatmapLevel = beatmap;
             return true;
         }
 
         public bool LoadEnvironment(ReplayLaunchData launchData, string environmentName) {
             var environment = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
                 .FirstOrDefault(x => x.environmentName == environmentName);
+            
             if (environment == null) {
-                Plugin.Log.Error($"[Loader] Failed to load specified environment");
+                Plugin.Log.Error("[ReplayerLoader] Failed to load specified environment");
                 return false;
             }
-            Plugin.Log.Notice($"[Loader] Applied specified environment: " + environmentName);
-            Reinit(launchData, environment: environment);
+            
+            Plugin.Log.Notice("[ReplayerLoader] Applied specified environment: " + environmentName);
+            
+            launchData.EnvironmentInfo = environment;
             return true;
         }
 
@@ -346,10 +351,6 @@ namespace BeatLeader.Replayer {
             }
 
             return null;
-        }
-
-        private static void Reinit(ReplayLaunchData data, BeatmapLevelWithKey? beatmap = null, EnvironmentInfoSO? environment = null) {
-            data.Init(data.Replays, data.ReplayComparator, data.Settings, beatmap ?? data.BeatmapLevel, environment ?? data.EnvironmentInfo);
         }
 
         #endregion

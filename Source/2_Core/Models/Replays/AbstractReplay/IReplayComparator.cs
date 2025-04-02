@@ -1,5 +1,5 @@
 ﻿namespace BeatLeader.Models.AbstractReplay {
-    public interface IReplayComparator {
+    public interface IReplayNoteComparator {
         bool Compare(NoteEvent noteEvent, NoteData noteData);
     }
 }

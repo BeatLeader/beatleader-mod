@@ -12,11 +12,11 @@ namespace BeatLeader.Utils {
     public static class ReplayDataUtils {
         #region Encoding
 
-        private class ReplayComparator : IReplayComparator {
-            bool IReplayComparator.Compare(NoteEvent noteEvent, NoteData noteData) => ReplayDataUtils.Compare(noteEvent, noteData);
+        private class ReplayNoteComparator : IReplayNoteComparator {
+            bool IReplayNoteComparator.Compare(NoteEvent noteEvent, NoteData noteData) => ReplayDataUtils.Compare(noteEvent, noteData);
         }
 
-        public static readonly IReplayComparator BasicReplayComparator = new ReplayComparator();
+        public static readonly IReplayNoteComparator BasicReplayNoteComparator = new ReplayNoteComparator();
 
         public static IReplay ConvertToAbstractReplay(Replay replay, IPlayer? player, IOptionalReplayData? optionalData) {
             var replayData = replay.info;

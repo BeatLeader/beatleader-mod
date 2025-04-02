@@ -8,8 +8,8 @@ namespace BeatLeader.Replayer {
     internal class ReplayBeatmapData : IInitializable, IReplayBeatmapData {
         #region Injection
 
-        [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly IReadonlyBeatmapData _beatmapData = null!;
+        [Inject] private readonly IReplayNoteComparator _noteComparator = null!;
 
         #endregion
 
@@ -39,7 +39,7 @@ namespace BeatLeader.Replayer {
                 var timeDoesMatch = Mathf.Abs(noteEvent.spawnTime - data.time) < 1e-3;
                 if (!timeDoesMatch) continue;
 
-                var idDoesMatch = _comparator.Compare(noteEvent, data);
+                var idDoesMatch = _noteComparator.Compare(noteEvent, data);
                 if (!idDoesMatch) continue;
 
                 noteData = data;
@@ -60,7 +60,6 @@ namespace BeatLeader.Replayer {
 
         public void Initialize() {
             if (_isInitialized) return;
-            _comparator = _launchData.ReplayComparator;
             var beatmapItems = _beatmapData.allBeatmapDataItems;
             var noteDataList = CreateSortedNoteDataList(beatmapItems);
             _generatedNoteDatas.AddRange(noteDataList);
@@ -79,7 +78,6 @@ namespace BeatLeader.Replayer {
 
         private static readonly BeatmapDataItemsComparer beatmapItemsComparer = new();
         private readonly List<NoteData> _generatedNoteDatas = new();
-        private IReplayComparator _comparator = null!;
 
         private static IEnumerable<NoteData> CreateSortedNoteDataList(IEnumerable<BeatmapDataItem> items) {
             var result = new List<NoteData>();

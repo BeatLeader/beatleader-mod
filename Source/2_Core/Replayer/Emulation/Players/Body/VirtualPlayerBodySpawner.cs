@@ -19,13 +19,22 @@ namespace BeatLeader.Replayer.Emulation {
             }
 
             public void ApplySettings(BasicBodySettings settings) {
-                Avatar.ApplySettings(settings);
-
+                var royaleSettings = settings as BattleRoyaleBodySettings;
                 // a little bit of casting shenanigans
-                if (!UsesPrimarySabers && settings is BattleRoyaleBodySettings royaleSettings) {
-                    ((VirtualPlayerBattleRoyaleSabers)Sabers).ApplySettings(royaleSettings);
-                } else {
+                if (UsesPrimarySabers) {
+                    if (royaleSettings != null) {
+                        return;
+                    }
+                    
+                    Avatar.ApplySettings(settings);
                     ((VirtualPlayerGameSabers)Sabers).ApplySettings(settings);
+                } else {
+                    if (royaleSettings == null) {
+                        return;
+                    }
+
+                    Avatar.ApplySettings(royaleSettings);
+                    ((VirtualPlayerBattleRoyaleSabers)Sabers).ApplySettings(royaleSettings);
                 }
             }
         }
@@ -40,12 +49,14 @@ namespace BeatLeader.Replayer.Emulation {
         [Inject] private readonly ReplayLaunchData _replayLaunchData = null!;
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
 
+        private BodySettings BodySettings => _replayLaunchData.Settings.BodySettings;
+
         private void Awake() {
-            _replayLaunchData.Settings.BodySettings.ConfigUpdatedEvent += HandleBodyConfigUpdated;
+            BodySettings.ConfigUpdatedEvent += HandleBodyConfigUpdated;
         }
 
         private void OnDestroy() {
-            _replayLaunchData.Settings.BodySettings.ConfigUpdatedEvent -= HandleBodyConfigUpdated;
+            BodySettings.ConfigUpdatedEvent -= HandleBodyConfigUpdated;
         }
 
         #endregion
@@ -81,7 +92,7 @@ namespace BeatLeader.Replayer.Emulation {
 
         public bool BodyHeadsVisible { get; set; }
 
-        private readonly List<VirtualPlayerBodyAdapter> _spawnedAvatars = new();
+        private readonly List<VirtualPlayerBodyAdapter> _spawnedAdapters = new();
 
         public IVirtualPlayerBody SpawnBody(IVirtualPlayer player) {
             var primary = player == _playersManager.PrimaryPlayer;
@@ -90,7 +101,13 @@ namespace BeatLeader.Replayer.Emulation {
             var avatar = _avatarsPool.Spawn(player);
 
             var adapter = new VirtualPlayerBodyAdapter(avatar, sabers, primary);
-            _spawnedAvatars.Add(adapter);
+            _spawnedAdapters.Add(adapter);
+
+            var config = primary ?
+                BodySettings.RequireConfig<BasicBodySettings>() :
+                BodySettings.RequireConfig<BattleRoyaleBodySettings>();
+
+            adapter.ApplySettings(config);
 
             return adapter;
         }
@@ -103,7 +120,7 @@ namespace BeatLeader.Replayer.Emulation {
             _avatarsPool.Despawn(castedBody.Avatar);
             ReleaseSabers(castedBody.Sabers, castedBody.UsesPrimarySabers);
 
-            _spawnedAvatars.Remove(castedBody);
+            _spawnedAdapters.Remove(castedBody);
         }
 
         #endregion
@@ -115,7 +132,7 @@ namespace BeatLeader.Replayer.Emulation {
                 return;
             }
 
-            foreach (var avatar in _spawnedAvatars) {
+            foreach (var avatar in _spawnedAdapters) {
                 avatar.ApplySettings(settings);
             }
         }

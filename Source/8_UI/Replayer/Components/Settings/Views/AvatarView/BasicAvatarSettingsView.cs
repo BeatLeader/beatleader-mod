@@ -48,30 +48,41 @@ namespace BeatLeader.UI.Replayer {
             return new Dummy {
                 Children = {
                     new TextSegmentedControl<int> {
-                        Enabled = false,
-                        Items = {
-                            [0] = "Standard",
-                            [1] = "Battle Royale"
+                            Enabled = false,
+                            Items = {
+                                [0] = "Standard",
+                                [1] = "Battle Royale"
+                            }
                         }
-                    }.AsFlexItem(basis: 6f).Bind(ref _segmentedControl),
+                        .WithRectExpand()
+                        .Bind(ref _segmentedControl)
+                        .InBackground(
+                            color: new(0.1f, 0.1f, 0.1f, 1f),
+                            pixelsPerUnit: 10f
+                        )
+                        .AsFlexItem(basis: 6f),
 
-                    new ScrollArea {
-                            ScrollContent = new KeyedContainer<int> {
-                                    Control = _segmentedControl,
+                    new Dummy {
+                        Children = {
+                            new ScrollArea {
+                                    ScrollContent = new KeyedContainer<int> {
+                                            Control = _segmentedControl
+                                        }
+                                        .AsRootFlexGroup()
+                                        .AsFlexItem(size: new() { y = "auto" })
+                                        .Bind(ref _keyedContainer)
                                 }
-                                .AsRootFlexGroup()
-                                .AsFlexItem(size: new() { y = "auto" })
-                                .Bind(ref _keyedContainer)
-                        }
-                        .AsFlexItem(grow: 1f)
-                        .Export(out var area)
-                        .Bind(ref _scrollArea),
+                                .AsFlexItem(grow: 1f)
+                                .Export(out var area)
+                                .Bind(ref _scrollArea),
 
-                    new Scrollbar {
-                        WithinLayoutIfDisabled = false
-                    }.With(x => area.Scrollbar = x)
+                            new Scrollbar {
+                                WithinLayoutIfDisabled = false
+                            }.With(x => area.Scrollbar = x)
+                        }
+                    }.AsFlexGroup(gap: 1f).AsFlexItem(grow: 1f)
                 }
-            }.AsFlexGroup(alignItems: Align.Stretch, gap: 1f).Use();
+            }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
         }
 
         #endregion

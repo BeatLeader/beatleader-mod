@@ -6,6 +6,7 @@ using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatSaberMarkupLanguage;
 using HMUI;
+using Reactive;
 using Reactive.Components;
 using Zenject;
 
@@ -175,35 +176,58 @@ namespace BeatLeader.UI.Hub {
 
         public async void LaunchBattle() {
             BattleLaunchStartedEvent?.Invoke();
+            
             await _replayerMenuLoader.StartBattleRoyaleAsync(
                 PendingReplays,
                 null,
                 null,
                 CancellationToken.None
             );
+            
             BattleLaunchFinishedEvent?.Invoke();
         }
 
         public void AddReplay(IReplayHeaderBase header, object caller) {
-            if (_replays.ContainsKey(header)) return;
-            //
+            if (_replays.ContainsKey(header)) {
+                return;
+            }
+            
             var replay = new BattleRoyaleReplay(header);
+            
             _replays.Add(header, replay);
             ReplayAddedEvent?.Invoke(replay, caller);
+            
             RecalculateReplayRanks();
             RefreshLaunchState();
         }
 
         public void RemoveReplay(IReplayHeaderBase header, object caller) {
-            if (!_replays.TryGetValue(header, out var replay)) return;
+            if (!_replays.TryGetValue(header, out var replay)) {
+                return;
+            }
+
             _replays.Remove(header);
             ReplayRemovedEvent?.Invoke(replay, caller);
+
+            RecalculateReplayRanks();
+            RefreshLaunchState();
+        }
+
+        public void RemoveAllReplays() {
+            foreach (var (header, replay) in _replays.ToArray()) {
+                _replays.Remove(header);
+                ReplayRemovedEvent?.Invoke(replay, this);
+            }
+            
             RecalculateReplayRanks();
             RefreshLaunchState();
         }
 
         public void NavigateTo(IReplayHeaderBase header) {
-            if (!_replays.TryGetValue(header, out var replay)) return;
+            if (!_replays.TryGetValue(header, out var replay)) {
+                return;
+            }
+            
             ReplayNavigationRequestedEvent?.Invoke(replay);
         }
 

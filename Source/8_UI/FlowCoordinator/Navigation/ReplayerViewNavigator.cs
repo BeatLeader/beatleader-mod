@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
@@ -30,6 +31,7 @@ namespace BeatLeader {
             flowCoordinator.PresentFlowCoordinator(_battleRoyaleFlowCoordinator);
             _battleRoyaleFlowCoordinator.ReplayBeatmap = level;
             
+            _battleRoyaleFlowCoordinator.RemoveAllReplays();
             foreach (var replay in plays) {
                 _battleRoyaleFlowCoordinator.AddReplay(replay, this);
             }

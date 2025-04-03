@@ -67,7 +67,11 @@ namespace BeatLeader.UI.Hub {
                     trans.localPosition = pos;
                     trans.LookAt(Vector3.zero);
                 } else {
-                    StartCoroutine(AdjustAvatarPositionAnimationCoroutine(trans, pos));
+                    if (isActiveAndEnabled) {
+                        StartCoroutine(AdjustAvatarPositionAnimationCoroutine(trans, pos));
+                    } else {
+                        trans.localPosition = pos;
+                    }
                 }
                 index++;
             }

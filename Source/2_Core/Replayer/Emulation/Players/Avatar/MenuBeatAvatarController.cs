@@ -7,7 +7,7 @@ using UnityEngine;
 namespace BeatLeader.Replayer.Emulation {
     public class MenuBeatAvatarController : BeatAvatarController {
         #region Setup
-        
+
         private AvatarTweenController _tweenController = null!;
         private Spinner _spinner = null!;
 
@@ -44,17 +44,21 @@ namespace BeatLeader.Replayer.Emulation {
 
         #endregion
 
-        #region Present & Hide 
-        
+        #region Present & Hide
+
         public void Present(bool animated = true) {
             gameObject.SetActive(true);
             if (animated) _tweenController.PresentAvatar();
         }
 
         public void Hide() {
-            _tweenController.HideAvatar();
+            if (!isActiveAndEnabled) {
+                _tweenController.gameObject.SetActive(false);
+            } else {
+                _tweenController.HideAvatar();
+            }
         }
-        
+
         #endregion
     }
 }

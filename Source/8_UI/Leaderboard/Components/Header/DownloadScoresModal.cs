@@ -56,6 +56,7 @@ namespace BeatLeader.Components {
 
         private async Task StartDownloadingInternal(IReadOnlyCollection<Score> scores, CancellationToken token) {
             _requests.Clear();
+            _headers.Clear();
             
             foreach (var score in scores) {
                 var header = FindReplayHeader(score);
@@ -66,6 +67,10 @@ namespace BeatLeader.Components {
 
                 var task = DownloadReplayRequest.SendRequest(score.replay, token);
                 _requests.Add(task);
+            }
+
+            if (token.IsCancellationRequested) {
+                return;
             }
 
             _totalRequests = _requests.Count;
@@ -83,6 +88,10 @@ namespace BeatLeader.Components {
                 RefreshDownloading();
             }
 
+            if (token.IsCancellationRequested) {
+                return;
+            }
+            
             SetSaving();
             foreach (var request in _requests) {
                 var header = ReplayManager.Instance.SaveAnyReplay(request.Result!, null);

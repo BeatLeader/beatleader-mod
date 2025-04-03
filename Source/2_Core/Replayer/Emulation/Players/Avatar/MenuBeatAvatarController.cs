@@ -1,4 +1,5 @@
-﻿using BeatSaber.BeatAvatarAdapter.AvatarEditor;
+﻿using System.Collections;
+using BeatSaber.BeatAvatarAdapter.AvatarEditor;
 using BeatSaber.BeatAvatarSDK;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -46,17 +47,27 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Present & Hide
 
+        private Coroutine? _hideCoroutine;
+
         public void Present(bool animated = true) {
             gameObject.SetActive(true);
-            if (animated) _tweenController.PresentAvatar();
+            
+            if (animated) {
+                if (_hideCoroutine != null) {
+                    _tweenController._sharedCoroutineStarter.StopCoroutine(_hideCoroutine);
+                }
+                
+                _tweenController.PresentAvatar();
+            }
         }
 
         public void Hide() {
-            if (!isActiveAndEnabled) {
-                _tweenController.gameObject.SetActive(false);
-            } else {
-                _tweenController.HideAvatar();
-            }
+            _hideCoroutine = _tweenController._sharedCoroutineStarter.StartCoroutine(DisappearAnimationWrapper());
+        }
+
+        private IEnumerator DisappearAnimationWrapper() {
+            yield return _tweenController.DisappearAnimation();
+            _hideCoroutine = null;
         }
 
         #endregion

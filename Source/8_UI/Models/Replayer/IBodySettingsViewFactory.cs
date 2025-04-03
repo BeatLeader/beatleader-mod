@@ -8,6 +8,6 @@ namespace BeatLeader.UI.Replayer {
         /// Creates a body settings view instance.
         /// </summary>
         /// <returns></returns>
-        ILayoutItem CreateBodySettingsView();
+        IReactiveComponent CreateBodySettingsView();
     }
 }

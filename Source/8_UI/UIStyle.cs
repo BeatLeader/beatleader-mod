@@ -43,13 +43,6 @@ namespace BeatLeader.UI {
             Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
         };
 
-        public static ReadOnlyColorSet TextColorSet => new() {
-            ActiveColor = new(0f, 0.75f, 1f, 1f),
-            NotInteractableColor = Color.white.ColorWithAlpha(0.2f),
-            HoveredColor = Color.white * 0.9f,
-            Color = Color.white
-        };
-
         public static readonly Color TextColor = Color.white;
         public static readonly Color SelectedTextColor = new(0f, 0.75f, 1f, 1f);
         public static readonly Color InactiveTextColor = Color.white.ColorWithAlpha(0.2f);

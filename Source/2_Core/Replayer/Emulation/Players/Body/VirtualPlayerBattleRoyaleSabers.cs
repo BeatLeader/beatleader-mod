@@ -51,8 +51,8 @@ namespace BeatLeader.Replayer.Emulation {
             _leftHand.TrailLength = basicBodySettings.TrailLength;
             _rightHand.TrailLength = basicBodySettings.TrailLength;
             
-            _leftHand.gameObject.SetActive(basicBodySettings.LeftHandEnabled);
-            _rightHand.gameObject.SetActive(basicBodySettings.RightHandEnabled);
+            _leftHand.gameObject.SetActive(basicBodySettings.LeftSaberEnabled);
+            _rightHand.gameObject.SetActive(basicBodySettings.RightSaberEnabled);
         }
         
         public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {

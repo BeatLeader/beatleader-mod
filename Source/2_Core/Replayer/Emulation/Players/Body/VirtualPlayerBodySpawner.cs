@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using UnityEngine;
 using Zenject;
@@ -8,13 +9,24 @@ namespace BeatLeader.Replayer.Emulation {
         #region Adapter
 
         private record VirtualPlayerBodyAdapter(
-            IVirtualPlayerBody Avatar,
+            VirtualPlayerAvatarBody Avatar,
             IVirtualPlayerBody Sabers,
             bool UsesPrimarySabers
         ) : IVirtualPlayerBody {
             public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {
                 Avatar.ApplyPose(headPose, leftHandPose, rightHandPose);
                 Sabers.ApplyPose(headPose, leftHandPose, rightHandPose);
+            }
+
+            public void ApplySettings(BasicBodySettings settings) {
+                Avatar.ApplySettings(settings);
+
+                // a little bit of casting shenanigans
+                if (!UsesPrimarySabers && settings is BattleRoyaleBodySettings royaleSettings) {
+                    ((VirtualPlayerBattleRoyaleSabers)Sabers).ApplySettings(royaleSettings);
+                } else {
+                    ((VirtualPlayerGameSabers)Sabers).ApplySettings(settings);
+                }
             }
         }
 
@@ -29,11 +41,11 @@ namespace BeatLeader.Replayer.Emulation {
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
 
         private void Awake() {
-            _replayLaunchData.Settings.BodySettings.SettingsUpdatedEvent += HandleBodySettingsUpdated;
+            _replayLaunchData.Settings.BodySettings.ConfigUpdatedEvent += HandleBodyConfigUpdated;
         }
 
         private void OnDestroy() {
-            _replayLaunchData.Settings.BodySettings.SettingsUpdatedEvent -= HandleBodySettingsUpdated;
+            _replayLaunchData.Settings.BodySettings.ConfigUpdatedEvent -= HandleBodyConfigUpdated;
         }
 
         #endregion
@@ -50,7 +62,7 @@ namespace BeatLeader.Replayer.Emulation {
             if (primary) {
                 _sabersBorrowed = true;
             }
-            
+
             return primary ? _gameSabers : _sabersPool.Spawn(player);
         }
 
@@ -59,7 +71,7 @@ namespace BeatLeader.Replayer.Emulation {
                 _sabersBorrowed = false;
                 return;
             }
-            
+
             _sabersPool.Despawn((VirtualPlayerBattleRoyaleSabers)sabers);
         }
 
@@ -68,33 +80,46 @@ namespace BeatLeader.Replayer.Emulation {
         #region Impl
 
         public bool BodyHeadsVisible { get; set; }
-        
+
+        private readonly List<VirtualPlayerBodyAdapter> _spawnedAvatars = new();
+
         public IVirtualPlayerBody SpawnBody(IVirtualPlayer player) {
             var primary = player == _playersManager.PrimaryPlayer;
 
             var sabers = SpawnOrBorrowSabers(player, primary);
             var avatar = _avatarsPool.Spawn(player);
 
-            return new VirtualPlayerBodyAdapter(avatar, sabers, primary);
+            var adapter = new VirtualPlayerBodyAdapter(avatar, sabers, primary);
+            _spawnedAvatars.Add(adapter);
+
+            return adapter;
         }
 
         public void DespawnBody(IVirtualPlayerBody body) {
             if (body is not VirtualPlayerBodyAdapter castedBody) {
                 throw new InvalidOperationException("Unable to despawn a body which does not belong to the pool");
             }
-            
-            _avatarsPool.Despawn((VirtualPlayerAvatarBody)castedBody.Avatar);
+
+            _avatarsPool.Despawn(castedBody.Avatar);
             ReleaseSabers(castedBody.Sabers, castedBody.UsesPrimarySabers);
+
+            _spawnedAvatars.Remove(castedBody);
         }
 
         #endregion
-        
+
         #region Config
 
-        private void HandleBodySettingsUpdated(BodySettings settings) {
-            //TODO: implement settings
+        private void HandleBodyConfigUpdated(BodySettings _, object config) {
+            if (config is not BasicBodySettings settings) {
+                return;
+            }
+
+            foreach (var avatar in _spawnedAvatars) {
+                avatar.ApplySettings(settings);
+            }
         }
-        
+
         #endregion
     }
 }

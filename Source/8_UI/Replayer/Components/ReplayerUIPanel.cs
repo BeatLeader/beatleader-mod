@@ -40,7 +40,7 @@ namespace BeatLeader.UI.Replayer {
             IReplayTimeController timeController,
             IVirtualPlayersManager playersManager,
             ICameraController cameraController,
-            IVirtualPlayerBodySpawner bodySpawner,
+            IBodySettingsViewFactory bodySettingsFactory,
             ReplayLaunchData launchData,
             IReplayWatermark watermark
         ) {
@@ -52,7 +52,7 @@ namespace BeatLeader.UI.Replayer {
                 timeController,
                 playersManager,
                 cameraController,
-                bodySpawner,
+                bodySettingsFactory,
                 launchData,
                 _layoutEditor,
                 watermark

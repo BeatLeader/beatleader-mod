@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Replayer {
             IBeatmapTimeController timeController,
             IReplayFinishController finishController,
             ICameraController cameraController,
-            IVirtualPlayerBodySpawner bodySpawner,
+            IBodySettingsViewFactory bodySettingsFactory,
             ILayoutEditor? layoutEditor,
             IReplayTimeline timeline,
             IReplayWatermark watermark,
@@ -24,10 +24,13 @@ namespace BeatLeader.UI.Replayer {
         ) {
             _quickSettingsPanel.Setup(timeController);
             _quickSettingsPanel.SetShown(settings.UISettings.QuickSettingsEnabled, true);
+
             _cameraView.Setup(cameraController, settings.CameraSettings);
-            //_avatarView.Setup(bodySpawner, settings.BodySettings);
             _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);
+
+            _selectorContainer.Items["Avatar"] = bodySettingsFactory.CreateBodySettingsView().WithRectExpand();
+
             RefreshBackgroundBlur(useAlternativeBlur);
         }
 
@@ -41,10 +44,11 @@ namespace BeatLeader.UI.Replayer {
 
         private QuickSettingsPanel _quickSettingsPanel = null!;
         private SettingsCameraView _cameraView = null!;
-        private SettingsAvatarView _avatarView = null!;
         private SettingsUIView _uiView = null!;
         private SettingsOtherView _otherView = null!;
         private Image _backgroundImage = null!;
+
+        private KeyedContainer<string> _selectorContainer = null!;
 
         protected override GameObject Construct() {
             return new Dummy {
@@ -74,21 +78,18 @@ namespace BeatLeader.UI.Replayer {
                             new KeyedContainer<string> {
                                 Control = segmentedControl,
                                 Items = {
-                                    {
-                                        "Camera",
-                                        new SettingsCameraView {
-                                            CameraViewParams = {
-                                                new PlayerViewCameraParams(),
-                                                new FlyingViewCameraParams(),
-                                                new ManualViewCameraParams()
-                                            }
-                                        }.Bind(ref _cameraView)
-                                    },
-                                    { "Avatar", new SettingsAvatarView().Bind(ref _avatarView) },
-                                    { "UI", new SettingsUIView().Bind(ref _uiView) },
-                                    { "Other", new SettingsOtherView().Bind(ref _otherView) }
+                                    ["Camera"] = new SettingsCameraView {
+                                        CameraViewParams = {
+                                            new PlayerViewCameraParams().WithRectExpand(),
+                                            new FlyingViewCameraParams().WithRectExpand(),
+                                            new ManualViewCameraParams().WithRectExpand()
+                                        }
+                                    }.WithRectExpand().Bind(ref _cameraView),
+
+                                    ["UI"] = new SettingsUIView().WithRectExpand().Bind(ref _uiView),
+                                    ["Other"] = new SettingsOtherView().WithRectExpand().Bind(ref _otherView)
                                 }
-                            }.AsFlexItem(grow: 1f, margin: 2f),
+                            }.AsFlexItem(grow: 1f, margin: 2f).Bind(ref _selectorContainer),
 
                             //pop-up with quick settings
                             new QuickSettingsPanel().Bind(ref _quickSettingsPanel)

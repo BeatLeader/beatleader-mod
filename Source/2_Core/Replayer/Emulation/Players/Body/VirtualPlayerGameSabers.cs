@@ -21,8 +21,8 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         public void ApplySettings(BasicBodySettings basicBodySettings) {
-            _leftController.gameObject.SetActive(basicBodySettings.LeftHandEnabled);
-            _rightController.gameObject.SetActive(basicBodySettings.RightHandEnabled);
+            _leftController.gameObject.SetActive(basicBodySettings.LeftSaberEnabled);
+            _rightController.gameObject.SetActive(basicBodySettings.RightSaberEnabled);
         }
 
         public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {

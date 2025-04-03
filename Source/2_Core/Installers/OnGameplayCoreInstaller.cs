@@ -134,11 +134,14 @@ namespace BeatLeader.Installers {
             }
 
             // Body Settings 
-            if (bindings?.BodySettingsFactory is { HasValue: true, Value: not null } bodySettings) {
-                // If Value is null, do not bind the settings at all
-                BindConcrete(bodySettings.Value);
+            if (bindings?.BodySettingsFactory is { HasValue: true} bodySettings) {
+                if (bodySettings.Value != null) {
+                    BindConcrete(bodySettings.Value);
+                } else {
+                    Container.BindInterfacesTo<EmptyAvatarSettingsViewFactory>().AsSingle();
+                }
             } else {
-                // BindConcrete();
+                Container.BindInterfacesTo<BasicAvatarSettingsViewFactory>().AsSingle();
             }
             
             // Body

@@ -12,7 +12,7 @@ namespace BeatLeader.Models {
     /// </summary>
     [PublicAPI]
     public class BodySettings {
-        public event Action<BodySettings>? SettingsUpdatedEvent;
+        public event Action<BodySettings, object>? ConfigUpdatedEvent;
         
         [JsonProperty("Configs")]
         private readonly Dictionary<Type, string> _serializedConfigs = new();
@@ -21,7 +21,7 @@ namespace BeatLeader.Models {
 
         public void SetConfig<T>(T config) {
             Configs[typeof(T)] = config!;
-            NotifySettingsUpdated();
+            NotifyConfigUpdated(config!);
         }
 
         public T? GetConfig<T>() {
@@ -32,8 +32,19 @@ namespace BeatLeader.Models {
             return (T)obj;
         }
 
-        public void NotifySettingsUpdated() {
-            SettingsUpdatedEvent?.Invoke(this);
+        public T RequireConfig<T>() where T : new() {
+            if (!Configs.TryGetValue(typeof(T), out var obj)) {
+                var instance = new T();
+
+                SetConfig(instance);
+                return instance;
+            }
+
+            return (T)obj;
+        }
+
+        public void NotifyConfigUpdated(object config) {
+            ConfigUpdatedEvent?.Invoke(this, config);
         }
 
         [OnSerializing]

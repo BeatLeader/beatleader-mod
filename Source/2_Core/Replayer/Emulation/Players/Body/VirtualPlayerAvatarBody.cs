@@ -23,9 +23,7 @@ namespace BeatLeader.Replayer.Emulation {
         #region Injection
 
         [Inject] private readonly ZenjectMenuResolver _zenjectMenuResolver = null!;
-        [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
         [Inject] private readonly ReplayerExtraObjectsProvider _extraObjectsProvider = null!;
-        [Inject] private readonly ReplayLaunchData _launchData = null!;
 
         #endregion
 
@@ -67,7 +65,10 @@ namespace BeatLeader.Replayer.Emulation {
         }
 
         public void ApplySettings(BasicBodySettings basicBodySettings) {
-            
+            _headTransform.gameObject.SetActive(basicBodySettings.HeadEnabled); 
+            _bodyTransform.gameObject.SetActive(basicBodySettings.TorsoEnabled);
+            _leftHandTransform.gameObject.SetActive(basicBodySettings.LeftHandEnabled);
+            _rightHandTransform.gameObject.SetActive(basicBodySettings.RightHandEnabled);
         }
 
         public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {

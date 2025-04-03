@@ -13,7 +13,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
         [Inject] private readonly IReplayFinishController _finishController = null!;
         [Inject] private readonly IReplayTimeController _timeController = null!;
         [Inject] private readonly IVirtualPlayersManager _playersManager = null!;
-        [Inject] private readonly IVirtualPlayerBodySpawner _bodySpawner = null!;
+        [Inject] private readonly IBodySettingsViewFactory _bodySettingsFactory = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly ICameraController _cameraController = null!;
         [Inject] private readonly IReplayWatermark _watermark = null!;
@@ -40,7 +40,7 @@ namespace BeatLeader.UI.Replayer.Desktop {
                     _timeController,
                     _playersManager,
                     _cameraController,
-                    _bodySpawner,
+                    _bodySettingsFactory,
                     _launchData,
                     _watermark
                 );

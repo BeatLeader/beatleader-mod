@@ -85,12 +85,55 @@ namespace BeatLeader.UI.Replayer {
             }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
         }
 
+        protected override void OnInitialize() {
+            _segmentedControl.SelectedKeyChangedEvent += RefreshScrollArea;
+        }
+
+        protected override void OnDestroy() {
+            _segmentedControl.SelectedKeyChangedEvent -= RefreshScrollArea;
+        }
+
+
+        private void RefreshScrollArea(int _) {
+            
+        }
+
         #endregion
 
         #region Views
 
         private Dummy CreateRoyaleView(BattleRoyaleBodySettings settings) {
-            return CreateBasicView(settings, null);
+            return CreateBasicView(
+                settings,
+                CreateContainer(
+                    CreateToggle(
+                        settings,
+                        "Enable Trails",
+                        settings.TrailEnabled,
+                        x => settings.TrailEnabled = x
+                    ),
+                    
+                    CreateSlider(
+                        settings,
+                        from: 0.2f,
+                        to: 4,
+                        step: 0.2f,
+                        "Trail Length",
+                        settings.TrailLength,
+                        x => settings.TrailLength = x
+                    ),
+                    
+                    CreateSlider(
+                        settings,
+                        from: 0.05f,
+                        to: 1,
+                        step: 0.05f,
+                        "Trail Opacity",
+                        settings.TrailOpacity,
+                        x => settings.TrailOpacity = x
+                    )
+                )
+            );
         }
 
         private Dummy CreateBasicView(BasicBodySettings settings, ILayoutItem? additionalComponent) {
@@ -171,11 +214,34 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private NamedRail CreateToggle(BasicBodySettings settings, string name, bool initial, Action<bool> callback) {
-            return new Toggle {
-                    Active = initial
-                }
+            return new Toggle()
+                .With(x => x.SetActive(initial, false))
                 .WithListener(
                     x => x.Active,
+                    x => {
+                        callback(x);
+                        _bodySettings!.NotifyConfigUpdated(settings);
+                    }
+                )
+                .InNamedRail(name);
+        }
+
+        private NamedRail CreateSlider(
+            BasicBodySettings settings,
+            float from,
+            float to,
+            float step,
+            string name,
+            float initial,
+            Action<float> callback
+        ) {
+            return new Slider {
+                    ValueRange = new(from, to),
+                    ValueStep = step,
+                    Value = initial,
+                }
+                .WithListener(
+                    x => x.Value,
                     x => {
                         callback(x);
                         _bodySettings!.NotifyConfigUpdated(settings);

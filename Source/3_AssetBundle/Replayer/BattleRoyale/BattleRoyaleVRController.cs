@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BeatLeader {
     internal abstract class BattleRoyaleVRController : VRController {
@@ -65,9 +66,21 @@ namespace BeatLeader {
             get => _saberTrail._trailDuration;
             set => _saberTrail._trailDuration = value;
         }
-        
-        
-        
+
+        public float TrailOpacity {
+            get => _saberTrail._color.a;
+            set {
+                var color = coreColor;
+                color.a = Mathf.Lerp(0f, color.a, value);
+                _saberTrail._color = color;
+            }
+        }
+
+        public bool TrailEnabled {
+            get => _saberTrail.enabled;
+            set => _saberTrail.enabled = value;
+        }
+
         private readonly SaberMovementData _movementData = new();
         private SaberTrail _saberTrail = null!;
 

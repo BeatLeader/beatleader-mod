@@ -24,10 +24,10 @@ namespace BeatLeader.Replayer.Emulation {
         private void Initialize() {
             _leftHandTransform = Object.Instantiate(BundleLoader.SaberPrefab, null, false).transform;
             _rightHandTransform = Object.Instantiate(BundleLoader.SaberPrefab, null, false).transform;
-            
+
             _leftHand = _leftHandTransform.GetComponent<BattleRoyaleVRController>();
             _rightHand = _rightHandTransform.GetComponent<BattleRoyaleVRController>();
-            
+
             _leftHand.CoreIntensity = 1f;
             _rightHand.CoreIntensity = 1f;
         }
@@ -48,13 +48,22 @@ namespace BeatLeader.Replayer.Emulation {
         private Transform _rightHandTransform = null!;
 
         public void ApplySettings(BattleRoyaleBodySettings basicBodySettings) {
-            _leftHand.TrailLength = basicBodySettings.TrailLength;
-            _rightHand.TrailLength = basicBodySettings.TrailLength;
-            
+            ApplyControllerSettings(_leftHand, basicBodySettings);
+            ApplyControllerSettings(_rightHand, basicBodySettings);
+
             _leftHand.gameObject.SetActive(basicBodySettings.LeftSaberEnabled);
             _rightHand.gameObject.SetActive(basicBodySettings.RightSaberEnabled);
         }
-        
+
+        private static void ApplyControllerSettings(
+            BattleRoyaleVRController controller,
+            BattleRoyaleBodySettings basicBodySettings
+        ) {
+            controller.TrailEnabled = basicBodySettings.TrailEnabled;
+            controller.TrailLength = basicBodySettings.TrailLength;
+            controller.TrailOpacity = basicBodySettings.TrailOpacity;
+        }
+
         public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {
             _leftHandTransform.SetLocalPose(leftHandPose);
             _rightHandTransform.SetLocalPose(rightHandPose);

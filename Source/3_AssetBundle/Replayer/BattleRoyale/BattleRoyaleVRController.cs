@@ -64,7 +64,10 @@ namespace BeatLeader {
 
         public float TrailLength {
             get => _saberTrail._trailDuration;
-            set => _saberTrail._trailDuration = value;
+            set {
+                _saberTrail._trailDuration = value;
+                _saberTrail.Init();
+            }
         }
 
         public float TrailOpacity {

@@ -29,7 +29,7 @@ namespace BeatLeader.UI.Replayer {
                 _royaleView = CreateRoyaleView(royaleSettings);
 
                 _keyedContainer.Items[1] = _royaleView;
-                _segmentedControl.Enabled = true;
+                _segmentedControlContainer.Enabled = true;
             }
         }
 
@@ -38,6 +38,7 @@ namespace BeatLeader.UI.Replayer {
         #region Construct
 
         private ScrollArea _scrollArea = null!;
+        private Image _segmentedControlContainer = null!;
         private TextSegmentedControl<int> _segmentedControl = null!;
         private KeyedContainer<int> _keyedContainer = null!;
 
@@ -48,7 +49,6 @@ namespace BeatLeader.UI.Replayer {
             return new Dummy {
                 Children = {
                     new TextSegmentedControl<int> {
-                            Enabled = false,
                             Items = {
                                 [0] = "Standard",
                                 [1] = "Battle Royale"
@@ -60,7 +60,9 @@ namespace BeatLeader.UI.Replayer {
                             color: new(0.1f, 0.1f, 0.1f, 1f),
                             pixelsPerUnit: 10f
                         )
-                        .AsFlexItem(basis: 6f),
+                        .AsFlexItem(basis: 6f)
+                        .With(x => x.Enabled = false)
+                        .Bind(ref _segmentedControlContainer),
 
                     new Dummy {
                         Children = {
@@ -93,9 +95,8 @@ namespace BeatLeader.UI.Replayer {
             _segmentedControl.SelectedKeyChangedEvent -= RefreshScrollArea;
         }
 
-
         private void RefreshScrollArea(int _) {
-            
+            _scrollArea.ScrollToStart(true);
         }
 
         #endregion
@@ -112,17 +113,15 @@ namespace BeatLeader.UI.Replayer {
                         settings.TrailEnabled,
                         x => settings.TrailEnabled = x
                     ),
-                    
                     CreateSlider(
                         settings,
-                        from: 0.2f,
-                        to: 4,
-                        step: 0.2f,
+                        from: 0.1f,
+                        to: 2,
+                        step: 0.1f,
                         "Trail Length",
                         settings.TrailLength,
                         x => settings.TrailLength = x
                     ),
-                    
                     CreateSlider(
                         settings,
                         from: 0.05f,

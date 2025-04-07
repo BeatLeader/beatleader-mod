@@ -15,7 +15,7 @@ namespace BeatLeader.UI.Hub {
         #region Injection
 
         [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;
-        [Inject] private readonly IReplayPreviewLoader _previewLoader = null!;
+        [Inject] private readonly ReplayPreviewLoader _previewLoader = null!;
         [Inject] private readonly LevelSelectionFlowCoordinator _levelSelectionFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;

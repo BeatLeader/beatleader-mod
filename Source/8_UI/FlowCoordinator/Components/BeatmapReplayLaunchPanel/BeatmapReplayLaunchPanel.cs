@@ -66,9 +66,9 @@ namespace BeatLeader.UI.Hub {
 
         #region Init
 
-        private IReplayPreviewLoader? _previewLoader;
+        private ReplayPreviewLoader? _previewLoader;
 
-        public void Setup(IReplayPreviewLoader? previewLoader) {
+        public void Setup(ReplayPreviewLoader? previewLoader) {
             _previewLoader = previewLoader;
         }
 

@@ -5,7 +5,7 @@ using Zenject;
 
 namespace BeatLeader.UI.Hub {
     [HarmonyPatch]
-    internal class ReplayPreviewLoader : IReplayPreviewLoader {
+    internal class ReplayPreviewLoader {
         #region Loader
 
         [Inject] private readonly SongPreviewPlayer _songPreviewPlayer = null!;

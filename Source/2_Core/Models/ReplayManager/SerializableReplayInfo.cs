@@ -1,16 +1,16 @@
-﻿using JetBrains.Annotations;
+﻿#nullable disable
 
-#nullable disable
+using JetBrains.Annotations;
 
 namespace BeatLeader.Models {
-    [UsedImplicitly]
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal class SerializableReplayInfo : IReplayInfo {
-        public string PlayerID { get; set; }
-        public string PlayerName { get; set; }
-        public string SongName { get; set; }
-        public string SongDifficulty { get; set; }
-        public string SongMode { get; set; }
-        public string SongHash { get; set; }
+        public string PlayerID { get; set; } = null!;
+        public string PlayerName { get; set; } = null!;
+        public string SongName { get; set; } = null!;
+        public string SongDifficulty { get; set; } = null!;
+        public string SongMode { get; set; } = null!;
+        public string SongHash { get; set; } = null!;
         public LevelEndType LevelEndType { get; set; }
         public float FailTime { get; set; }
         public int Score { get; set; }

@@ -1,12 +1,13 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
-using BeatLeader.UI.Hub.Models;
+using BeatLeader.Utils;
 using HarmonyLib;
 using HMUI;
 using Reactive;
 using Reactive.Components;
 using Reactive.Yoga;
 using Zenject;
+using CollectionExtensions = Reactive.CollectionExtensions;
 
 namespace BeatLeader.UI.Hub {
     [HarmonyPatch]
@@ -14,8 +15,6 @@ namespace BeatLeader.UI.Hub {
         #region Injection
 
         [Inject] private readonly ReplayerMenuLoader _replayerLoader = null!;
-        [Inject] private readonly IReplayManager _replayManager = null!;
-        [Inject] private readonly IReplaysLoader _replaysLoader = null!;
         [Inject] private readonly IReplayPreviewLoader _previewLoader = null!;
         [Inject] private readonly LevelSelectionFlowCoordinator _levelSelectionFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
@@ -33,30 +32,30 @@ namespace BeatLeader.UI.Hub {
         #region Init
 
         public async void NavigateToReplay(IReplayHeader header) {
-            await _replaysLoader.WaitForReplaysLoad();
+            await ReplayManager.WaitForLoadingAsync();
+            
             _replayPanel.ReplaysList.Select(header);
             _replayPanel.ReplaysList.ScrollTo(header, false);
         }
-        
+
         private void Awake() {
-            var tagManager = _replayManager.MetadataManager.TagManager;
             new Dummy {
                 Children = {
-                    new ListFiltersPanel<IReplayHeaderBase> {
+                    new ListFiltersPanel<IReplayHeader> {
                         SearchContract = x => {
                             var info = x.ReplayInfo;
                             var str = new[] { info.PlayerName, info.SongName };
                             return str;
                         },
                         Filters = {
-                            new TagFilter().With(x => x.Setup(tagManager))
+                            new TagFilter()
                         }
                     }.With(
                         x => {
                             //adding beatmap filter items
                             var beatmapFilters = new BeatmapFilterHost();
                             beatmapFilters.Setup(_replayManagerFlowCoordinator, _levelSelectionFlowCoordinator);
-                            x.Filters.AddRange(beatmapFilters.Filters);
+                            CollectionExtensions.AddRange(x.Filters, beatmapFilters.Filters);
                         }
                     ).AsFlexItem(
                         size: new() { x = 100f, y = 8f },
@@ -75,16 +74,20 @@ namespace BeatLeader.UI.Hub {
             ).WithRectExpand().Use(transform);
 
             _replayDetailPanel = new ReplayDetailPanel();
-            _replayDetailPanel.Setup(_replayerLoader, tagManager);
-            _replayPanel.Setup(_replaysLoader, _previewLoader);
+            _replayDetailPanel.Setup(_replayerLoader);
+            _replayPanel.Setup(_previewLoader);
             _replayPanel.DetailPanel = _replayDetailPanel;
             _replayPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);
         }
 
         public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            if (!firstActivation) return;
-            _replaysLoader.StartReplaysLoadIfNeverLoaded();
+
+            if (!firstActivation) {
+                return;
+            }
+
+            ReplayManager.StartLoadingIfNeverLoaded();
         }
 
         [HarmonyPatch(typeof(ViewController), "__DismissViewController"), HarmonyPrefix]

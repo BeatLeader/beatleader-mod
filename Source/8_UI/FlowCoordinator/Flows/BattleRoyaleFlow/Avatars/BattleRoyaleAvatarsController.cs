@@ -48,7 +48,7 @@ namespace BeatLeader.UI.Hub {
         
         private static readonly int maxAvatarsCount = Mathf.FloorToInt(360 / AvatarMarginAngle) - 1;
 
-        private readonly Dictionary<IReplayHeaderBase, BattleRoyaleAvatar> _avatars = new();
+        private readonly Dictionary<IReplayHeader, BattleRoyaleAvatar> _avatars = new();
 
         private void RecalculateAvatarPositions(BattleRoyaleAvatar? accentAvatar = null) {
             var index = 0;

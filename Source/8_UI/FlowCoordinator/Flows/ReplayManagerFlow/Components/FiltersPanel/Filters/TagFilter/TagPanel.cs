@@ -60,11 +60,11 @@ namespace BeatLeader.UI.Hub {
 
         public bool Animated { get; set; } = true;
 
-        public event Action<IReplayTag>? StateAnimationFinishedEvent;
-        public event Action<IReplayTag>? DeleteButtonClickedEvent;
-        public event Action<IReplayTag, bool>? TagStateChangedEvent;
+        public event Action<ReplayTag>? StateAnimationFinishedEvent;
+        public event Action<ReplayTag>? DeleteButtonClickedEvent;
+        public event Action<ReplayTag, bool>? TagStateChangedEvent;
 
-        private IReplayTag? _replayTag;
+        private ReplayTag? _replayTag;
         private bool _tagSelected;
         private bool _interactable = true;
 
@@ -72,16 +72,13 @@ namespace BeatLeader.UI.Hub {
             _button.Click(enabled, !silent);
         }
 
-        public void SetTag(IReplayTag? tag, bool animated = false) {
-            if (_replayTag != null) {
-                _replayTag.TagUpdatedEvent -= HandleTagUpdated;
-            } else {
+        public void SetTag(ReplayTag? tag, bool animated = false) {
+            if (_replayTag == null) {
                 _setLastFrame = true;
             }
+
             _replayTag = tag;
-            if (_replayTag != null) {
-                _replayTag.TagUpdatedEvent += HandleTagUpdated;
-            }
+            
             SetEditModeEnabled(false, true);
             SetTagSelected(false, true);
             SetTagPresented(true, !animated);
@@ -279,6 +276,11 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             this.AsFlexItem(size: new() { y = 5f });
+            ReplayMetadataManager.TagUpdatedEvent += HandleTagUpdated;
+        }
+
+        protected override void OnDestroy() {
+            ReplayMetadataManager.TagUpdatedEvent -= HandleTagUpdated;
         }
 
         #endregion
@@ -301,8 +303,10 @@ namespace BeatLeader.UI.Hub {
             DeleteButtonClickedEvent?.Invoke(_replayTag);
         }
 
-        private void HandleTagUpdated() {
-            RefreshVisuals();
+        private void HandleTagUpdated(ReplayTag tag) {
+            if (tag == _replayTag) {
+                RefreshVisuals();
+            }
         }
 
         #endregion

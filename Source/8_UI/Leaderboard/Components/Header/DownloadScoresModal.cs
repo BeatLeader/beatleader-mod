@@ -59,7 +59,8 @@ namespace BeatLeader.Components {
             _headers.Clear();
             
             foreach (var score in scores) {
-                var header = FindReplayHeader(score);
+                var header = ReplayManager.FindReplayByHash(score);
+                
                 if (header != null) {
                     _headers.Add(header);
                     continue;
@@ -94,7 +95,7 @@ namespace BeatLeader.Components {
             
             SetSaving();
             foreach (var request in _requests) {
-                var header = ReplayManager.Instance.SaveAnyReplay(request.Result!, null);
+                var header = await ReplayManager.SaveAnyReplayAsync(request.Result!, null, CancellationToken.None);
 
                 if (header == null) {
                     FailDownloading("Failed to save the replay");
@@ -106,19 +107,6 @@ namespace BeatLeader.Components {
 
             SetFinished();
             _downloadTask = null;
-        }
-
-        // TODO: move to ReplayManager and add hashed access
-        private static IReplayHeader? FindReplayHeader(Score score) {
-            if (!long.TryParse(score.timeSet, out var scoreTimestamp)) {
-                Plugin.Log.Error($"Failed to parse score's timestamp: {score.timeSet}");
-                return null;
-            }
-
-            return ReplayManager.Instance.Replays
-                .Where(x => x.ReplayInfo.SongHash == LeaderboardState.SelectedBeatmapKey.levelId)
-                .Where(x => x.ReplayInfo.Timestamp == scoreTimestamp)
-                .FirstOrDefault(x => x.ReplayInfo.PlayerID == score.ActualPlayer.id);
         }
 
         #endregion

@@ -61,10 +61,6 @@ namespace BeatLeader.UI.Hub {
 
         public virtual void Setup(IBeatmapReplayLaunchPanel? launchPanel) { }
 
-        protected void SetupInternal(IReplayTagManager tagManager) {
-            _tagsStrip.Setup(tagManager);
-        }
-
         protected override void OnInitialize() {
             _miniProfile.SetPlayer(null);
             _tagsStrip.AllowEdit = AllowTagsEdit;
@@ -145,7 +141,7 @@ namespace BeatLeader.UI.Hub {
 
             _miniProfile.SetLoading();
 
-            var player = await header.LoadPlayerAsync(false, token);
+            var player = await header.LoadPlayerAsync(false, token) as IPlayer;
 
             _miniProfile.SetPlayer(player);
             _lastPlayerId = player.Id;

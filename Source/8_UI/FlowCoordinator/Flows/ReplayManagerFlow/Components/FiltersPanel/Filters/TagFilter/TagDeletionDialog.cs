@@ -1,5 +1,6 @@
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 
@@ -7,16 +8,11 @@ namespace BeatLeader.UI.Hub {
     internal class TagDeletionDialog : DialogComponentBase {
         #region Setup
 
-        private IReplayTagManager? _tagManager;
-        private IEditableReplayTag? _replayTag;
+        private ReplayTag? _replayTag;
         
-        public void SetTag(IEditableReplayTag tag) {
+        public void SetTag(ReplayTag tag) {
             _replayTag = tag;
             _label.Text = $"Do you really want to delete {tag.Name}?";
-        }
-
-        public void Setup(IReplayTagManager replayManager) {
-            _tagManager = replayManager;
         }
         
         #endregion
@@ -43,8 +39,11 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnOkButtonClicked() {
             base.OnOkButtonClicked();
-            if (_tagManager == null || _replayTag == null) return;
-            _tagManager.DeleteTag(_replayTag);
+            if (_replayTag == null) {
+                return;
+            }
+            
+            ReplayMetadataManager.DeleteTag(_replayTag.Name);
             _replayTag = null;
         }
 

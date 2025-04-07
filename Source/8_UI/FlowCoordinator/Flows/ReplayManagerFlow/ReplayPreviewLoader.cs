@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Hub {
 
         private string? _currentPreviewedLevelId;
 
-        public async void LoadPreview(IReplayHeaderBase header) {
+        public async void LoadPreview(IReplayHeader header) {
             var hash = header.ReplayInfo.SongHash;
             if (_currentPreviewedLevelId == hash) return;
             //attempting to load

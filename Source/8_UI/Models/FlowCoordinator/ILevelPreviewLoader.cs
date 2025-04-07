@@ -2,7 +2,7 @@
 
 namespace BeatLeader.UI.Hub {
     internal interface IReplayPreviewLoader {
-        void LoadPreview(IReplayHeaderBase header);
+        void LoadPreview(IReplayHeader header);
         void StopPreview();
     }
 }

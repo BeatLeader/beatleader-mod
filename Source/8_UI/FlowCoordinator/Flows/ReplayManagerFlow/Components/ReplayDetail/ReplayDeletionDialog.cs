@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using UnityEngine;
@@ -34,8 +35,11 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnOkButtonClicked() {
             base.OnOkButtonClicked();
-            _header?.DeleteReplay();
-            _header = null;
+            
+            if (_header != null) {
+                ReplayManager.DeleteReplay(_header);
+                _header = null;
+            }
         }
 
         #endregion

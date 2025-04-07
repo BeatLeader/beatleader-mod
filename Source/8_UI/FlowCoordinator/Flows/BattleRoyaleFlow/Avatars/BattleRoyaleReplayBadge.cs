@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Hub {
             var timestamp = header.ReplayInfo.Timestamp.ToString();
 
             _rankLabel.Text = $"#{replay.ReplayRank}";
-            _nameLabel.Text = player.Name;
+            _nameLabel.Text = player.name;
             _playerAvatar.SetAvatar(player);
             _dateLabel.Text = FormatUtils.FormatTimeset(timestamp, true);
 

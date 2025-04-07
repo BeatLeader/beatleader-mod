@@ -1,5 +1,5 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.UI.Hub.Models;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -7,32 +7,6 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListPanel : ReactiveComponent {
-        #region Setup
-
-        private IReplaysLoader? _replaysLoader;
-
-        public void Setup(IReplaysLoader replaysLoader) {
-            if (_replaysLoader is not null) {
-                _replaysLoader.ReplayLoadedEvent -= HandleReplayAdded;
-                _replaysLoader.ReplayRemovedEvent -= HandleReplayRemoved;
-                _replaysLoader.AllReplaysRemovedEvent -= HandleAllReplaysRemoved;
-            }
-
-            _replaysLoader = replaysLoader;
-
-            lock (_locker) {
-                _settingsPanel.Setup(_replaysList, replaysLoader);
-                _replaysList.Items.AddRange(replaysLoader.LoadedReplays);
-                _replaysList.Refresh();
-            }
-
-            _replaysLoader.ReplayLoadedEvent += HandleReplayAdded;
-            _replaysLoader.ReplayRemovedEvent += HandleReplayRemoved;
-            _replaysLoader.AllReplaysRemovedEvent += HandleAllReplaysRemoved;
-        }
-
-        #endregion
-
         #region Construct
 
         public ReplaysList ReplaysList {
@@ -59,6 +33,24 @@ namespace BeatLeader.UI.Hub {
                 }
             }.AsFlexGroup(direction: FlexDirection.Column).Use();
             return go;
+        }
+
+        protected override void OnInitialize() {
+            lock (_locker) {
+                _settingsPanel.Setup(_replaysList);
+                CollectionExtensions.AddRange(_replaysList.Items, ReplayManager.Headers);
+                _replaysList.Refresh();
+            }
+
+            ReplayManager.ReplayAddedEvent += HandleReplayAdded;
+            ReplayManager.ReplayDeletedEvent += HandleReplayRemoved;
+            ReplayManager.AllReplaysDeletedEvent += HandleAllReplaysRemoved;
+        }
+
+        protected override void OnDestroy() {
+            ReplayManager.ReplayAddedEvent -= HandleReplayAdded;
+            ReplayManager.ReplayDeletedEvent -= HandleReplayRemoved;
+            ReplayManager.AllReplaysDeletedEvent -= HandleAllReplaysRemoved;
         }
 
         #endregion

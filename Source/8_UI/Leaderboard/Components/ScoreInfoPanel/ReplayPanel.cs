@@ -102,22 +102,9 @@ namespace BeatLeader.Components {
 
         public void SetScore(Score score) {
             _score = score;
-            _replayHeader = FindReplayHeader(_score);
+            _replayHeader = ReplayManager.FindReplayByHash(_score);
 
             ResetButtons();
-        }
-
-        // TODO: move to ReplayManager and add hashed access
-        private static IReplayHeader? FindReplayHeader(Score score) {
-            if (!long.TryParse(score.timeSet, out var scoreTimestamp)) {
-                Plugin.Log.Error($"Failed to parse score's timestamp: {score.timeSet}");
-                return null;
-            }
-
-            return ReplayManager.Instance.Replays
-                .Where(x => x.ReplayInfo.SongHash == LeaderboardState.SelectedBeatmapKey.levelId)
-                .Where(x => x.ReplayInfo.Timestamp == scoreTimestamp)
-                .FirstOrDefault(x => x.ReplayInfo.PlayerID == score.ActualPlayer.id);
         }
 
         #endregion
@@ -184,7 +171,11 @@ namespace BeatLeader.Components {
                     }
                     // When initiated using the download button
                     else {
-                        _replayHeader = ReplayManager.Instance.SaveAnyReplay(result, null);
+                        Task.Run(
+                            async () => {
+                                _replayHeader = await ReplayManager.SaveAnyReplayAsync(result, null, CancellationToken.None);
+                            }
+                        ).RunCatching();
 
                         RefreshDownloadButton(DownloadButtonState.ReadyToNavigate);
                         RefreshPlayButton(PlayButtonState.ReadyToDownloadOrStart);

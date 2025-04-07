@@ -1,5 +1,5 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.UI.Hub.Models;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -113,7 +113,7 @@ namespace BeatLeader.UI.Hub {
                             Material = BundleLoader.UIAdditiveGlowMaterial
                         },
                         Colors = UIStyle.ButtonColorSet,
-                        OnClick = () => _replaysLoader!.StartReplaysLoad()
+                        OnClick = ReplayManager.StartLoading
                     }.AsFlexItem(aspectRatio: 1f),
                     //settings button
                     new ImageButton {
@@ -131,10 +131,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        private IReplaysLoader? _replaysLoader;
-
-        public void Setup(IReplaysList replaysList, IReplaysLoader replaysLoader) {
-            _replaysLoader = replaysLoader;
+        public void Setup(IReplaysList replaysList) {
             _sortOptionsModal.Setup(replaysList);
         }
 

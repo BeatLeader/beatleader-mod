@@ -26,18 +26,13 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        private IReplayMetadata? _metadata;
-        private IReplayTagManager? _tagManager;
+        private ReplayMetadata? _metadata;
 
-        public void SetMetadata(IReplayMetadata metadata) {
+        public void SetMetadata(ReplayMetadata metadata) {
             _metadata = metadata;
             StartAnimation();
         }
-
-        public void Setup(IReplayTagManager tagManager) {
-            _tagManager = tagManager;
-        }
-
+        
         #endregion
 
         #region Animation
@@ -76,7 +71,7 @@ namespace BeatLeader.UI.Hub {
 
         public int ShownTagsCount = 3;
 
-        private readonly ReactivePool<IReplayTag, TagPanel> _tagsPool = new() { DetachOnDespawn = false };
+        private readonly ReactivePool<ReplayTag, TagPanel> _tagsPool = new() { DetachOnDespawn = false };
 
         private void ReloadTags() {
             var index = 0;
@@ -88,7 +83,7 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        private void SpawnTag(IReplayTag tag, bool animated) {
+        private void SpawnTag(ReplayTag tag, bool animated) {
             if (_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
                 panel.StateAnimationFinishedEvent -= HandleTagStateAnimationFinished;
             } else {
@@ -100,7 +95,7 @@ namespace BeatLeader.UI.Hub {
             _tagsContainer.Children.Add(panel);
         }
 
-        private void DespawnTag(IReplayTag tag, bool animated) {
+        private void DespawnTag(ReplayTag tag, bool animated) {
             if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) return;
             panel.StateAnimationFinishedEvent += HandleTagStateAnimationFinished;
             panel.SetTagPresented(false, !animated);
@@ -191,10 +186,11 @@ namespace BeatLeader.UI.Hub {
         private void HandleTagSelectorOpened(IModal modal, bool finished) {
             if (finished) return;
             var tagSelector = _tagSelectorModal.Component;
-            if (_metadata == null || _tagManager == null) {
+            
+            if (_metadata == null) {
                 throw new UninitializedComponentException();
             }
-            tagSelector.Setup(_tagManager);
+            
             tagSelector.SelectTags(_metadata.Tags);
             tagSelector.WithSizeDelta(50f, 36f);
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
@@ -208,7 +204,7 @@ namespace BeatLeader.UI.Hub {
             tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;
         }
 
-        private void HandleTagStateAnimationFinished(IReplayTag tag) {
+        private void HandleTagStateAnimationFinished(ReplayTag tag) {
             var panel = _tagsPool.SpawnedComponents[tag];
             panel.StateAnimationFinishedEvent -= HandleTagStateAnimationFinished;
             _tagsPool.Despawn(panel);
@@ -220,7 +216,7 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        private void HandleSelectedTagAdded(IReplayTag tag) {
+        private void HandleSelectedTagAdded(ReplayTag tag) {
             _metadata!.Tags.Add(tag);
             if (_tagsPool.SpawnedComponents.Count < ShownTagsCount ||
                 _tagsPool.SpawnedComponents.ContainsKey(tag)
@@ -230,7 +226,7 @@ namespace BeatLeader.UI.Hub {
             RefreshTagsLabel();
         }
 
-        private void HandleSelectedTagRemoved(IReplayTag tag) {
+        private void HandleSelectedTagRemoved(ReplayTag tag) {
             _metadata!.Tags.Remove(tag);
             DespawnTag(tag, true);
             RefreshTagsLabel();

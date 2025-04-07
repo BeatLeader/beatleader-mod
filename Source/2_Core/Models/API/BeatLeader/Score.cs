@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using System;
 
 namespace BeatLeader.Models {
-    public class Score : IScoreRowContent {
+    public class Score : IScoreRowContent, IReplayHashProvider {
         [JsonProperty("player")]
         public Player Player {
             get {
@@ -91,6 +91,15 @@ namespace BeatLeader.Models {
                 _ => default
             };
         }
+
+        #endregion
+
+        #region IReplayHashProvider impl
+
+        string IReplayHashProvider.PlayerID => _originalPlayer.id;
+        long IReplayHashProvider.Timestamp => _timestamp ??= long.Parse(timeSet);
+
+        private long? _timestamp;
 
         #endregion
 

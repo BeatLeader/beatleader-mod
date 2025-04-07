@@ -6,7 +6,7 @@ using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal record BattleRoyaleReplay(IReplayHeaderBase ReplayHeader) : IBattleRoyaleReplay {
+    internal record BattleRoyaleReplay(IReplayHeader ReplayHeader) : IBattleRoyaleReplay {
         public int ReplayRank { get; set; }
 
         private IOptionalReplayData? _replayData;

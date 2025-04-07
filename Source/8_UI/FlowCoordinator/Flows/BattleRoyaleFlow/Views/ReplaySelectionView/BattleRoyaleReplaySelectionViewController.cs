@@ -1,5 +1,5 @@
 ﻿using BeatLeader.Models;
-using BeatLeader.UI.Hub.Models;
+using BeatLeader.Utils;
 using HMUI;
 using Reactive;
 using Reactive.Components;
@@ -9,9 +9,7 @@ using Zenject;
 namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleReplaySelectionViewController : ViewController {
         #region Injection
-
-        [Inject] private readonly IReplayManager _replayManager = null!;
-        [Inject] private readonly IReplaysLoader _replaysLoader = null!;
+        
         [Inject] private readonly IBattleRoyaleHost _battleRoyaleHost = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
 
@@ -24,16 +22,14 @@ namespace BeatLeader.UI.Hub {
         private void Awake() {
             new Dummy {
                 Children = {
-                    new ListFiltersPanel<IReplayHeaderBase> {
+                    new ListFiltersPanel<IReplayHeader> {
                         SearchContract = x => {
                             var info = x.ReplayInfo;
                             var str = new[] { info.PlayerName, info.SongName };
                             return str;
                         },
                         Filters = {
-                            new TagFilter().With(
-                                x => x.Setup(_replayManager.MetadataManager.TagManager)
-                            )
+                            new TagFilter()
                         }
                     }.AsFlexItem(
                         size: new() { x = 100f, y = 8f },
@@ -51,10 +47,10 @@ namespace BeatLeader.UI.Hub {
             ).WithRectExpand().Use(transform);
 
             var detailPanel = new BattleRoyaleDetailPanel();
-            _replayLaunchPanel.Setup(_replaysLoader);
+            _replayLaunchPanel.Setup(null);
             _replayLaunchPanel.DetailPanel = detailPanel;
             _replayLaunchPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);
-            _replayLaunchPanel.ReplaysList.Filter = new FilterProxy<IReplayHeaderBase> {
+            _replayLaunchPanel.ReplaysList.Filter = new FilterProxy<IReplayHeader> {
                 Filters = {
                     _battleRoyaleHost.ReplayFilter,
                     filtersPanel
@@ -70,7 +66,7 @@ namespace BeatLeader.UI.Hub {
             _battleRoyaleHost.ReplayBeatmapChangedEvent += HandleBeatmapChanged;
             _battleRoyaleHost.ReplayNavigationRequestedEvent += HandleHostNavigationRequested;
             
-            _replaysLoader.StartReplaysLoadIfNeverLoaded();
+            ReplayManager.StartLoadingIfNeverLoaded();
         }
 
         public override void OnDestroy() {
@@ -101,11 +97,11 @@ namespace BeatLeader.UI.Hub {
             _replayLaunchPanel.RemoveSelectedReplay(replay.ReplayHeader, false);
         }
 
-        private void HandleReplaySelected(IReplayHeaderBase header) {
+        private void HandleReplaySelected(IReplayHeader header) {
             _battleRoyaleHost.AddReplay(header, this);
         }
 
-        private void HandleReplayDeselected(IReplayHeaderBase header) {
+        private void HandleReplayDeselected(IReplayHeader header) {
             _battleRoyaleHost.RemoveReplay(header, this);
         }
 

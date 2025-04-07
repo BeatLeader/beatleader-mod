@@ -18,15 +18,15 @@ namespace BeatLeader.UI.Hub {
         Date
     }
 
-    internal interface IReplaysList : IModifiableTableComponent<IReplayHeaderBase> {
+    internal interface IReplaysList : IModifiableTableComponent<IReplayHeader> {
         ReplaysListSorter Sorter { get; set; }
         SortOrder SortOrder { get; set; }
     }
 
-    internal class ReplaysList : Table<IReplayHeaderBase, ReplaysList.Cell>, IReplaysList {
+    internal class ReplaysList : Table<IReplayHeader, ReplaysList.Cell>, IReplaysList {
         #region Cell
 
-        public class Cell : TableComponentCell<IReplayHeaderBase> {
+        public class Cell : TableComponentCell<IReplayHeader> {
             #region Colors
 
             private static readonly StateColorSet colorSet = new() {
@@ -124,9 +124,9 @@ namespace BeatLeader.UI.Hub {
 
             #region Init
 
-            private IReplayHeaderBase? _prevItem;
+            private IReplayHeader? _prevItem;
 
-            protected override void OnInit(IReplayHeaderBase item) {
+            protected override void OnInit(IReplayHeader item) {
                 RefreshTexts();
                 RefreshTags();
                 
@@ -170,7 +170,7 @@ namespace BeatLeader.UI.Hub {
                 }
             }
 
-            private void RefreshTagPanels(ICollection<IReplayTag> tags) {
+            private void RefreshTagPanels(ICollection<ReplayTag> tags) {
                 var delta = tags.Count - _spawnedTags.Count;
                 if (delta < 0) {
                     for (var i = -delta - 1; i >= 0; i--) {
@@ -307,7 +307,7 @@ namespace BeatLeader.UI.Hub {
 
             #region Callbacks
 
-            private void HandleTagAddedOrRemoved(IReplayTag tag) {
+            private void HandleTagAddedOrRemoved(ReplayTag tag) {
                 RefreshTags();
             }
 
@@ -326,10 +326,10 @@ namespace BeatLeader.UI.Hub {
 
         #region Sorting
 
-        private class HeaderComparator : IComparer<IReplayHeaderBase> {
+        private class HeaderComparator : IComparer<IReplayHeader> {
             public ReplaysListSorter sorter;
 
-            public int Compare(IReplayHeaderBase x, IReplayHeaderBase y) {
+            public int Compare(IReplayHeader x, IReplayHeader y) {
                 var xi = x.ReplayInfo;
                 var yi = y.ReplayInfo;
                 return sorter switch {
@@ -385,7 +385,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        public readonly HashSet<IReplayHeaderBase> HighlightedItems = new();
+        public readonly HashSet<IReplayHeader> HighlightedItems = new();
 
         private readonly ReactivePool<TagPanel> _tagsPool = new();
         private ReplayManagerSearchTheme? _theme;
@@ -395,7 +395,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnCellConstruct(Cell cell) {
-            if (Filter is ITextTableFilter<IReplayHeaderBase> filter) {
+            if (Filter is ITextTableFilter<IReplayHeader> filter) {
                 cell.HighlightPhrase = filter.GetMatchedPhrase(cell.Item);
             } else {
                 cell.HighlightPhrase = null;

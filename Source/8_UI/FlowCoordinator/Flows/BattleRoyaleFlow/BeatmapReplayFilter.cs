@@ -3,7 +3,7 @@ using BeatLeader.Models;
 using Reactive.Components;
 
 namespace BeatLeader.UI.Hub {
-    internal class BeatmapReplayFilter : ITableFilter<IReplayHeaderBase> {
+    internal class BeatmapReplayFilter : ITableFilter<IReplayHeader> {
         public event Action? FilterUpdatedEvent;
 
         public BeatmapLevelWithKey DifficultyBeatmap {
@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Hub {
 
         private BeatmapLevelWithKey _beatmap;
         
-        public bool Matches(IReplayHeaderBase header) {
+        public bool Matches(IReplayHeader header) {
             var info = header.ReplayInfo;
             //in case beatmap is not selected showing no replays
             if (!_beatmap.HasValue) return false;

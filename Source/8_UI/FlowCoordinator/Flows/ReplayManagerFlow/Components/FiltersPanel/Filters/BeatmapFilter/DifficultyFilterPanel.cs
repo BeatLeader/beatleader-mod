@@ -8,21 +8,21 @@ using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class DifficultyFilterPanel : ReactiveComponent, IPanelListFilter<IReplayHeaderBase> {
-        public DifficultyFilterPanel(params IPanelListFilter<IReplayHeaderBase>[] dependsOn) {
+    internal class DifficultyFilterPanel : ReactiveComponent, IPanelListFilter<IReplayHeader> {
+        public DifficultyFilterPanel(params IPanelListFilter<IReplayHeader>[] dependsOn) {
             DependsOn = dependsOn;
         }
 
         #region Filter
 
-        public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn { get; }
+        public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn { get; }
         public string FilterName => "Difficulty Filter";
         public string FilterStatus { get; private set; } = null!;
         public BeatmapDifficulty? BeatmapDifficulty { get; private set; }
 
         public event Action? FilterUpdatedEvent;
 
-        public bool Matches(IReplayHeaderBase value) {
+        public bool Matches(IReplayHeader value) {
             var diff = BeatmapDifficulty;
             return !diff.HasValue || value.ReplayInfo.SongDifficulty == diff.Value.ToString();
         }

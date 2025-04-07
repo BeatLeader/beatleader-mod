@@ -1,22 +1,9 @@
-using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 
 namespace BeatLeader.UI.Hub {
     internal class TagCreationDialog : DialogComponentBase {
-        #region Setup
-
-        private IReplayTagManager? _tagManager;
-        
-        public void Setup(IReplayTagManager? tagManager) {
-            _tagManager = tagManager;
-            if (tagManager != null) {
-                _tagEditorPanel.ValidationContract = tagManager.ValidateTag;
-            }
-        }
-
-        #endregion
-
         #region Construct
 
         private TagEditorPanel _tagEditorPanel = null!;
@@ -35,6 +22,7 @@ namespace BeatLeader.UI.Hub {
             base.OnInitialize();
             this.WithSizeDelta(46f, 24f);
             Title = "Create Tag";
+            _tagEditorPanel.ValidationContract = ReplayMetadataManager.ValidateTagName;
         }
 
         #endregion
@@ -47,9 +35,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnOkButtonClicked() {
-            if (_tagManager == null) return;
-            var tag = _tagManager.CreateTag(_tagEditorPanel.TagName);
-            tag.SetColor( _tagEditorPanel.TagColor);
+            ReplayMetadataManager.CreateTag(_tagEditorPanel.TagName, _tagEditorPanel.TagColor);
             CloseInternal();
         }
 

@@ -24,7 +24,6 @@ namespace BeatLeader.Installers {
             _container = base.Container;
             BindLeaderboard();
             BindHub();
-            Container.BindInterfacesTo<ReplayManager>().FromInstance(ReplayManager.Instance).AsSingle();
             Container.Bind<ReplayerLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerMenuLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerViewNavigator>().AsSingle();
@@ -55,7 +54,6 @@ namespace BeatLeader.Installers {
             Container.Bind<BeatLeaderHubFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatLeaderHubMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BeatLeaderMiniScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.BindInterfacesTo<ReplaysLoader>().AsSingle();
             
             var go = Container.Resolve<LevelSelectionNavigationController>().gameObject;
             Container.Bind<LevelSelectionViewController>().FromNewComponentOn(go).AsSingle();

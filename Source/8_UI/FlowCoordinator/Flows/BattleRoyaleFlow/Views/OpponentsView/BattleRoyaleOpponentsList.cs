@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
+using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
@@ -200,8 +201,12 @@ namespace BeatLeader.UI.Hub {
 
             private async Task RefreshPlayer(CancellationToken token) {
                 var header = Item.ReplayHeader;
-                var player = await header.LoadPlayerAsync(false, token);
-                if (token.IsCancellationRequested) return;
+                var player = await header.LoadPlayerAsync(false, token) as IPlayer;
+                
+                if (token.IsCancellationRequested) {
+                    return;
+                }
+                
                 _refreshPlayerTask = null;
                 //applying
                 _playerAvatar.SetAvatar(player);

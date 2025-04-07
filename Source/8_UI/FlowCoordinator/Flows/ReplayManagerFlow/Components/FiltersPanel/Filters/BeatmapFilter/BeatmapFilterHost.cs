@@ -8,7 +8,7 @@ namespace BeatLeader.UI.Hub {
             _beatmapFilter = new();
             _characteristicFilter = new(_beatmapFilter);
             _difficultyFilter = new(_beatmapFilter, _characteristicFilter);
-            Filters = new IPanelListFilter<IReplayHeaderBase>[] {
+            Filters = new IPanelListFilter<IReplayHeader>[] {
                 _beatmapFilter,
                 _characteristicFilter,
                 _difficultyFilter
@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Hub {
             Init();
         }
 
-        public IEnumerable<IPanelListFilter<IReplayHeaderBase>> Filters { get; }
+        public IEnumerable<IPanelListFilter<IReplayHeader>> Filters { get; }
 
         private readonly BeatmapFilterPanel _beatmapFilter;
         private readonly CharacteristicFilterPanel _characteristicFilter;

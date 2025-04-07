@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -17,32 +18,14 @@ namespace BeatLeader.UI.Hub {
     internal class TagSelector : ReactiveComponent {
         #region Setup
 
-        public IReadOnlyCollection<IReplayTag> SelectedTags => _selectedTags;
+        public IReadOnlyCollection<ReplayTag> SelectedTags => _selectedTags;
 
-        public event Action<IReplayTag>? SelectedTagAddedEvent;
-        public event Action<IReplayTag>? SelectedTagRemovedEvent;
+        public event Action<ReplayTag>? SelectedTagAddedEvent;
+        public event Action<ReplayTag>? SelectedTagRemovedEvent;
 
-        private readonly HashSet<IReplayTag> _selectedTags = new();
-        private IReplayTagManager? _tagManager;
-
-        public void Setup(IReplayTagManager tagManager) {
-            if (_tagManager == tagManager) return;
-            if (_tagManager != null) {
-                _tagManager.TagCreatedEvent -= HandleTagCreated;
-                _tagManager.TagDeletedEvent -= HandleTagDeleted;
-            }
-            _tagManager = tagManager;
-            _tagCreationDialog.Setup(tagManager);
-            _tagDeletionDialog.Setup(tagManager);
-            DespawnAllTags();
-            if (_tagManager != null) {
-                SetTags(_tagManager.Tags);
-                _tagManager.TagCreatedEvent += HandleTagCreated;
-                _tagManager.TagDeletedEvent += HandleTagDeleted;
-            }
-        }
-
-        public void SelectTags(ICollection<IReplayTag> tags) {
+        private readonly HashSet<ReplayTag> _selectedTags = new();
+        
+        public void SelectTags(ICollection<ReplayTag> tags) {
             foreach (var (tag, panel) in _tagsPool.SpawnedComponents) {
                 var selected = tags.Contains(tag);
                 panel.SetTagSelected(selected, true);
@@ -64,13 +47,25 @@ namespace BeatLeader.UI.Hub {
             NotifyPropertyChanged(nameof(SelectedTags));
         }
 
+        protected override void OnInitialize() {
+            ReplayMetadataManager.TagCreatedEvent += HandleTagCreated;
+            ReplayMetadataManager.TagDeletedEvent += HandleTagDeleted;
+            
+            SetTags(ReplayMetadataManager.Tags.Values);
+        }
+
+        protected override void OnDestroy() {
+            ReplayMetadataManager.TagCreatedEvent -= HandleTagCreated;
+            ReplayMetadataManager.TagDeletedEvent -= HandleTagDeleted;
+        }
+
         #endregion
 
         #region Tags
 
-        private readonly ReactivePool<IReplayTag, TagPanel> _tagsPool = new() { DetachOnDespawn = false };
+        private readonly ReactivePool<ReplayTag, TagPanel> _tagsPool = new() { DetachOnDespawn = false };
 
-        private void SetTags(IEnumerable<IReplayTag> tags) {
+        private void SetTags(IEnumerable<ReplayTag> tags) {
             _tagsContainer.Children.Clear();
             DespawnAllTags();
             foreach (var tag in tags) {
@@ -78,7 +73,7 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        private void SpawnTag(IReplayTag tag) {
+        private void SpawnTag(ReplayTag tag) {
             var panel = _tagsPool.Spawn(tag);
             panel.AsFlexItem();
             panel.SetTag(tag);
@@ -87,8 +82,11 @@ namespace BeatLeader.UI.Hub {
             _tagsContainer.Children.Add(panel);
         }
 
-        private void DespawnTag(IReplayTag tag, bool animated) {
-            if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) return;
+        private void DespawnTag(ReplayTag tag, bool animated) {
+            if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
+                return;
+            }
+
             panel.TagStateChangedEvent -= HandleTagStateChanged;
             panel.DeleteButtonClickedEvent -= HandleTagDeleteButtonClicked;
             //starting disappear animation
@@ -185,12 +183,12 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleTagDeleteButtonClicked(IReplayTag tag) {
-            _tagDeletionDialog.SetTag((IEditableReplayTag)tag);
+        private void HandleTagDeleteButtonClicked(ReplayTag tag) {
+            _tagDeletionDialog.SetTag(tag);
             _tagDeletionDialog.Present(ContentTransform);
         }
 
-        private void HandleTagStateAnimationFinished(IReplayTag tag) {
+        private void HandleTagStateAnimationFinished(ReplayTag tag) {
             if (_selectedTags.Contains(tag)) {
                 HandleTagStateChanged(tag, false);
             }
@@ -199,7 +197,7 @@ namespace BeatLeader.UI.Hub {
             _tagsPool.Despawn(panel);
         }
 
-        private void HandleTagStateChanged(IReplayTag tag, bool state) {
+        private void HandleTagStateChanged(ReplayTag tag, bool state) {
             if (state) {
                 _selectedTags.Add(tag);
                 SelectedTagAddedEvent?.Invoke(tag);
@@ -210,14 +208,14 @@ namespace BeatLeader.UI.Hub {
             NotifySelectedTagsChanged();
         }
 
-        private void HandleTagCreated(IReplayTag tag) {
+        private void HandleTagCreated(ReplayTag tag) {
             SynchronizationContext.Current.Send(
                 _ => SpawnTag(tag),
                 null
             );
         }
 
-        private void HandleTagDeleted(IReplayTag tag) {
+        private void HandleTagDeleted(ReplayTag tag) {
             SynchronizationContext.Current.Send(
                 _ => DespawnTag(tag, true),
                 null

@@ -10,18 +10,18 @@ using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class TagFilter : ReactiveComponent, IPanelListFilter<IReplayHeaderBase> {
+    internal class TagFilter : ReactiveComponent, IPanelListFilter<IReplayHeader> {
         #region Filter
 
-        public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn => null;
+        public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn => null;
         public string FilterName => "Tag Filter";
         public string FilterStatus { get; private set; } = null!;
 
         public event Action? FilterUpdatedEvent;
 
-        private readonly HashSet<IReplayTag> _selectedTags = new();
+        private readonly HashSet<ReplayTag> _selectedTags = new();
 
-        public bool Matches(IReplayHeaderBase value) {
+        public bool Matches(IReplayHeader value) {
             var i = value.ReplayMetadata.Tags.Count(tag => _selectedTags.Contains(tag));
             return i == _selectedTags.Count;
         }
@@ -38,12 +38,6 @@ namespace BeatLeader.UI.Hub {
         #endregion
 
         #region Setup
-
-        private IReplayTagManager? _tagManager;
-
-        public void Setup(IReplayTagManager tagManager) {
-            _tagManager = tagManager;
-        }
 
         private void RefreshTextArea() {
             var names = _tagSelectorModal.Component.SelectedTags.Select(static x => x.Name);
@@ -97,11 +91,8 @@ namespace BeatLeader.UI.Hub {
             if (finished) return;
             _tagSelectorModalOpened = true;
             var tagSelector = _tagSelectorModal.Component;
-            if (_tagManager == null) {
-                throw new UninitializedComponentException();
-            }
+
             tagSelector.WithSizeDelta(50f, 40f);
-            tagSelector.Setup(_tagManager);
             tagSelector.SelectTags(_selectedTags);
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
@@ -131,13 +122,13 @@ namespace BeatLeader.UI.Hub {
             FilterUpdatedEvent?.Invoke();
         }
 
-        private void HandleSelectedTagAdded(IReplayTag tag) {
+        private void HandleSelectedTagAdded(ReplayTag tag) {
             _selectedTags.Add(tag);
             RefreshFilterStatus();
             RefreshTextArea();
         }
 
-        private void HandleSelectedTagRemoved(IReplayTag tag) {
+        private void HandleSelectedTagRemoved(ReplayTag tag) {
             _selectedTags.Remove(tag);
             RefreshFilterStatus();
             RefreshTextArea();

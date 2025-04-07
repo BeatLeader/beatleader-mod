@@ -11,7 +11,7 @@ using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class BeatmapFilterPanel : ReactiveComponent, IPanelListFilter<IReplayHeaderBase> {
+    internal class BeatmapFilterPanel : ReactiveComponent, IPanelListFilter<IReplayHeader> {
         #region Dummies
 
         private class NotSelectedPreviewMediaData : IPreviewMediaData {
@@ -52,14 +52,14 @@ namespace BeatLeader.UI.Hub {
 
         #region Filter
 
-        public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn => null;
+        public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn => null;
         public string FilterName => "Beatmap Filter";
         public string FilterStatus { get; private set; } = null!;
         public BeatmapLevelWithKey BeatmapLevel { get; private set; }
 
         public event Action? FilterUpdatedEvent;
 
-        public bool Matches(IReplayHeaderBase value) {
+        public bool Matches(IReplayHeader value) {
             if (!BeatmapLevel.HasValue) return false;
             var levelId = BeatmapLevel.Level.levelID;
             return levelId.Replace("custom_level_", "") == value.ReplayInfo.SongHash;

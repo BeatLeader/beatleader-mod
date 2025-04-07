@@ -4,113 +4,135 @@ using System.IO;
 using System.Linq;
 using BeatLeader.Models;
 using IPA.Utilities;
+using JetBrains.Annotations;
+using UnityEngine;
 
 namespace BeatLeader.Utils {
-    internal class ReplayMetadataManager : Singleton<ReplayMetadataManager>, IReplayMetadataManager, IReplayTagManager {
-        #region MetadataManager
+    /// <summary>
+    /// A class for managing replay metadatas.
+    /// </summary>
+    [PublicAPI]
+    public static class ReplayMetadataManager {
+        #region Tags
 
-        public IReplayTagManager TagManager => this;
+        public static event Action<ReplayTag>? TagCreatedEvent;
+        public static event Action<ReplayTag>? TagDeletedEvent;
+        public static event Action<ReplayTag>? TagUpdatedEvent;
 
-        #endregion
+        public static IReadOnlyDictionary<string, ReplayTag> Tags => tagsCache.Cache;
 
-        #region TagManager
+        private static IDictionary<string, ReplayTag> MutableTags => tagsCache.Cache;
 
-        public IReadOnlyCollection<IEditableReplayTag> Tags => cachedTags.Values;
-
-        public event Action<IEditableReplayTag>? TagCreatedEvent;
-        public event Action<IReplayTag>? TagDeletedEvent;
-
-        public ReplayTagValidationResult ValidateTag(string name) {
+        /// <summary>
+        /// Validates the specified tag name.
+        /// </summary>
+        /// <param name="name">A name to validate.</param>
+        /// <returns>A struct containing validation results.</returns>
+        public static ReplayTagValidationResult ValidateTagName(string name) {
             return new(
                 name.Length is >= 2 and <= 10,
-                !cachedTags.ContainsKey(name)
+                !tagsCache.Cache.ContainsKey(name)
             );
         }
 
-        public IEditableReplayTag CreateTag(string name) {
-            var tag = new GenericReplayTag(name, ValidateTag, DeleteTag);
-            cachedTags[name] = tag;
+        /// <summary>
+        /// Updates an existing tag.
+        /// </summary>
+        /// <param name="name">The old name.</param>
+        /// <param name="newName">A new name.</param>
+        /// <exception cref="InvalidOperationException">If a tag with the same name already exists.</exception>
+        /// <returns>A struct containing validation results.</returns>
+        public static ReplayTagValidationResult UpdateTagName(string name, string newName) {
+            var val = ValidateTagName(newName);
+
+            if (val.Ok) {
+                if (!MutableTags.TryGetValue(name, out var tag)) {
+                    throw new InvalidOperationException("The tag does not exist");
+                }
+
+                tag.Name = newName;
+
+                MutableTags.Remove(name);
+                MutableTags.Add(newName, tag);
+            }
+
+            return val;
+        }
+
+        /// <summary>
+        /// Creates a new tag.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If a tag with the same name already exists.</exception>
+        /// <returns>The tag instance.</returns>
+        public static ReplayTag CreateTag(string name, Color? color = null) {
+            if (MutableTags.ContainsKey(name)) {
+                throw new InvalidOperationException("A tag with the same name already exists");
+            }
+
+            var tag = new ReplayTag(name, color ?? Color.white);
+
+            MutableTags[name] = tag;
             TagCreatedEvent?.Invoke(tag);
+
             return tag;
         }
 
-        public void DeleteTag(IReplayTag tag) {
-            cachedTags.Remove(tag.Name);
+        /// <summary>
+        /// Deletes an existing tag.
+        /// </summary>
+        /// <param name="name">The name of the tag to remove.</param>
+        /// <exception cref="InvalidOperationException">If the tag does not exist.</exception>
+        /// <returns>True if the tag was removed, otherwise False.</returns>
+        public static void DeleteTag(string name) {
+            if (!MutableTags.TryGetValue(name, out var tag)) {
+                throw new InvalidOperationException("The tag does not exist");
+            }
+
+            MutableTags.Remove(name);
             TagDeletedEvent?.Invoke(tag);
+        }
+
+        #endregion
+
+        #region Metadata
+
+        internal static Dictionary<string, ReplayMetadata> MutableMetadatas => metaCache.Cache;
+
+        internal static ReplayMetadata GetMetadata(string path) {
+            var name = Path.GetFileName(path);
+            
+            if (!MutableMetadatas.TryGetValue(name, out var metadata)) {
+                metadata = new ReplayMetadata();
+                MutableMetadatas[name] = metadata;
+            }
+            
+            return metadata;
+        }
+
+        internal static void DeleteMetadata(string path) {
+            MutableMetadatas.Remove(Path.GetFileName(path));
+        }
+
+        internal static void ClearMetadata() {
+            MutableMetadatas.Clear();
         }
 
         #endregion
 
         #region Serialization
 
-        private static readonly Dictionary<string, IEditableReplayTag> cachedTags = new();
-        private static readonly Dictionary<string, IReplayMetadata> cachedMetadatas = new();
+        private static readonly AppCache<Dictionary<string, ReplayTag>> tagsCache = new("ReplayTagsCache");
+        private static readonly AppCache<Dictionary<string, ReplayMetadata>> metaCache = new("ReplayMetadataCache");
 
-        public static void LoadSerializedCache() {
-            LoadTags();
-            LoadMetadatas();
+        internal static void LoadCache() {
+            tagsCache.Load();
+            // Important to load after tags as it takes tags instances from ReplayMetadataManager
+            metaCache.Load();
         }
 
-        public static void SaveSerializedCache() {
-            SaveTags();
-            SaveMetadatas();
-        }
-
-        private static void LoadTags() {
-            foreach (var (_, serializedTag) in ReplayHeadersCache.Tags) {
-                var tag = ToGenericReplayTag(serializedTag);
-                cachedTags.Add(tag.Name, tag);
-            }
-        }
-
-        private static void SaveTags() {
-            foreach (var (_, tag) in cachedTags) {
-                ReplayHeadersCache.AddTag(tag);
-            }
-        }
-
-        private static void LoadMetadatas() {
-            foreach (var (path, serializedMetadata) in ReplayHeadersCache.Metadata) {
-                var meta = new GenericReplayMetadata();
-                var tags = serializedMetadata.Tags
-                    .Where(x => cachedTags.ContainsKey(x))
-                    .Select(x => cachedTags[x]);
-                meta.Tags.AddRange(tags);
-                cachedMetadatas[path] = meta;
-            }
-        }
-
-        private static void SaveMetadatas() {
-            foreach (var (path, metadata) in cachedMetadatas) {
-                ReplayHeadersCache.AddMetadataByPath(path, metadata);
-            }
-        }
-
-        private static GenericReplayTag ToGenericReplayTag(SerializableReplayTag tag) {
-            var stag = new GenericReplayTag(tag.Name, Instance.ValidateTag, Instance.DeleteTag);
-            stag.SetColor(tag.Color);
-            return stag;
-        }
-
-        #endregion
-
-        #region Internal
-
-        public static IReplayMetadata GetMetadata(string path) {
-            var name = Path.GetFileName(path);
-            if (!cachedMetadatas.TryGetValue(name, out var metadata)) {
-                metadata = new GenericReplayMetadata();
-                cachedMetadatas[name] = metadata;
-            }
-            return metadata;
-        }
-
-        public static void DeleteMetadata(string path) {
-            cachedMetadatas.Remove(Path.GetFileName(path));
-        }
-
-        public static void ClearMetadata() {
-            cachedMetadatas.Clear();
+        internal static void SaveCache() {
+            tagsCache.Save();
+            metaCache.Save();
         }
 
         #endregion

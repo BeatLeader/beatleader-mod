@@ -27,7 +27,6 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly GameScenesManager _scenesManager = null!;
         [Inject] private readonly IFPFCSettings _fpfcSettings = null!;
         [Inject] private readonly BeatmapLevelsModel _levelsModel = null!;
-        [Inject] private readonly IReplayManager _replayManager = null!;
 
         #endregion
 
@@ -238,9 +237,12 @@ namespace BeatLeader.Replayer {
         }
 
         public async Task StartLastReplayAsync() {
-            if (Instance is null) return;
-            if (_replayManager.CachedReplay is not { } header) return;
-            var replay = await header.LoadReplayAsync(default);
+            if (Instance == null || ReplayManager.LastSavedReplay is not { } header) {
+                return;
+            }
+            
+            var replay = await header.LoadReplayAsync(CancellationToken.None);
+            
             await StartReplayAsync(replay!, ProfileManager.Profile);
         }
 

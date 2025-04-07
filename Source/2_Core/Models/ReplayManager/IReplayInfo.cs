@@ -1,4 +1,7 @@
-﻿namespace BeatLeader.Models {
+﻿using JetBrains.Annotations;
+
+namespace BeatLeader.Models {
+    [PublicAPI]
     public interface IReplayInfo {
         string PlayerID { get; }
         string PlayerName { get; }

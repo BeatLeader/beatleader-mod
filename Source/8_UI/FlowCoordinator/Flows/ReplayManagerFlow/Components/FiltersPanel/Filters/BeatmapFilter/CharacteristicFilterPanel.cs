@@ -8,21 +8,21 @@ using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class CharacteristicFilterPanel : ReactiveComponent, IPanelListFilter<IReplayHeaderBase> {
-        public CharacteristicFilterPanel(params IPanelListFilter<IReplayHeaderBase>[] dependsOn) {
+    internal class CharacteristicFilterPanel : ReactiveComponent, IPanelListFilter<IReplayHeader> {
+        public CharacteristicFilterPanel(params IPanelListFilter<IReplayHeader>[] dependsOn) {
             DependsOn = dependsOn;
         }
 
         #region Filter
 
-        public IEnumerable<IPanelListFilter<IReplayHeaderBase>>? DependsOn { get; }
+        public IEnumerable<IPanelListFilter<IReplayHeader>>? DependsOn { get; }
         public string FilterName => "Characteristic Filter";
         public string FilterStatus { get; private set; } = null!;
         public BeatmapCharacteristicSO? BeatmapCharacteristic { get; private set; }
 
         public event Action? FilterUpdatedEvent;
 
-        public bool Matches(IReplayHeaderBase value) {
+        public bool Matches(IReplayHeader value) {
             var characteristic = BeatmapCharacteristic?.serializedName;
             return characteristic == null || value.ReplayInfo.SongMode == characteristic;
         }

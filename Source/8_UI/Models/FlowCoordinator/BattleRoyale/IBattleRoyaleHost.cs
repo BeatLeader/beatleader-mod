@@ -7,7 +7,7 @@ using Reactive.Components;
 namespace BeatLeader.UI.Hub {
     internal interface IBattleRoyaleHost {
         IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays { get; }
-        ITableFilter<IReplayHeaderBase> ReplayFilter { get; }
+        ITableFilter<IReplayHeader> ReplayFilter { get; }
         BeatmapLevelWithKey ReplayBeatmap { get; set; }
         bool CanLaunchBattle { get; }
 
@@ -23,8 +23,8 @@ namespace BeatLeader.UI.Hub {
         event Action? BattleLaunchFinishedEvent;
 
         void LaunchBattle();
-        void AddReplay(IReplayHeaderBase header, object caller);
-        void RemoveReplay(IReplayHeaderBase header, object caller);
-        void NavigateTo(IReplayHeaderBase header);
+        void AddReplay(IReplayHeader header, object caller);
+        void RemoveReplay(IReplayHeader header, object caller);
+        void NavigateTo(IReplayHeader header);
     }
 }

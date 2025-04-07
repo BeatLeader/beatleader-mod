@@ -69,9 +69,8 @@ namespace BeatLeader.UI.Hub {
 
         private ReplayerMenuLoader? _replayerMenuLoader;
 
-        public void Setup(ReplayerMenuLoader menuLoader, IReplayTagManager tagManager) {
+        public void Setup(ReplayerMenuLoader menuLoader) {
             _replayerMenuLoader = menuLoader;
-            SetupInternal(tagManager);
         }
 
         #endregion

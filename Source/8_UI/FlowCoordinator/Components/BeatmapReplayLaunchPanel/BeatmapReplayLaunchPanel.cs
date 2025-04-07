@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Hub.Models;
-using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -12,12 +11,12 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal interface IBeatmapReplayLaunchPanel {
-        IReadOnlyCollection<IReplayHeaderBase> SelectedReplays { get; }
+        IReadOnlyCollection<IReplayHeader> SelectedReplays { get; }
 
         event Action? SelectedReplaysUpdatedEvent;
 
-        void AddSelectedReplay(IReplayHeaderBase header);
-        void RemoveSelectedReplay(IReplayHeaderBase header);
+        void AddSelectedReplay(IReplayHeader header);
+        void RemoveSelectedReplay(IReplayHeader header);
     }
 
     internal class BeatmapReplayLaunchPanel : ReactiveComponent, IBeatmapReplayLaunchPanel {
@@ -32,25 +31,25 @@ namespace BeatLeader.UI.Hub {
 
         #region BeatmapReplayLaunchPanel
 
-        IReadOnlyCollection<IReplayHeaderBase> IBeatmapReplayLaunchPanel.SelectedReplays => ReplaysList.HighlightedItems;
+        IReadOnlyCollection<IReplayHeader> IBeatmapReplayLaunchPanel.SelectedReplays => ReplaysList.HighlightedItems;
         public ReplaysList ReplaysList => _replaysListPanel.ReplaysList;
 
         public event Action? SelectedReplaysUpdatedEvent;
 
-        public event Action<IReplayHeaderBase>? ReplaySelectedEvent;
-        public event Action<IReplayHeaderBase>? ReplayDeselectedEvent;
+        public event Action<IReplayHeader>? ReplaySelectedEvent;
+        public event Action<IReplayHeader>? ReplayDeselectedEvent;
 
-        void IBeatmapReplayLaunchPanel.AddSelectedReplay(IReplayHeaderBase header) => AddSelectedReplay(header, true);
-        void IBeatmapReplayLaunchPanel.RemoveSelectedReplay(IReplayHeaderBase header) => RemoveSelectedReplay(header, true);
+        void IBeatmapReplayLaunchPanel.AddSelectedReplay(IReplayHeader header) => AddSelectedReplay(header, true);
+        void IBeatmapReplayLaunchPanel.RemoveSelectedReplay(IReplayHeader header) => RemoveSelectedReplay(header, true);
 
-        public void AddSelectedReplay(IReplayHeaderBase header, bool notify) {
+        public void AddSelectedReplay(IReplayHeader header, bool notify) {
             ReplaysList.HighlightedItems.Add(header);
             ReplaysList.Refresh(false);
             SelectedReplaysUpdatedEvent?.Invoke();
             ReplaySelectedEvent?.Invoke(header);
         }
 
-        public void RemoveSelectedReplay(IReplayHeaderBase header, bool notify) {
+        public void RemoveSelectedReplay(IReplayHeader header, bool notify) {
             ReplaysList.HighlightedItems.Remove(header);
             ReplaysList.Refresh(false);
             SelectedReplaysUpdatedEvent?.Invoke();
@@ -67,21 +66,10 @@ namespace BeatLeader.UI.Hub {
 
         #region Init
 
-        private IReplaysLoader? _replaysLoader;
         private IReplayPreviewLoader? _previewLoader;
 
-        public void Setup(IReplaysLoader replaysLoader, IReplayPreviewLoader? previewLoader = null) {
-            if (_replaysLoader is not null) {
-                _replaysLoader.ReplayRemovedEvent -= HandleReplayDeleted;
-                _replaysLoader.ReplaysLoadStartedEvent -= HandleReplaysLoadStarted;
-                _replaysLoader.ReplaysLoadFinishedEvent -= HandleReplaysLoadFinished;
-            }
-            _replaysLoader = replaysLoader;
+        public void Setup(IReplayPreviewLoader? previewLoader) {
             _previewLoader = previewLoader;
-            _replaysListPanel.Setup(replaysLoader);
-            _replaysLoader.ReplayRemovedEvent += HandleReplayDeleted;
-            _replaysLoader.ReplaysLoadStartedEvent += HandleReplaysLoadStarted;
-            _replaysLoader.ReplaysLoadFinishedEvent += HandleReplaysLoadFinished;
         }
 
         protected override void OnDisable() {
@@ -159,12 +147,16 @@ namespace BeatLeader.UI.Hub {
             }.AsFlexGroup().Use();
         }
 
+        protected override void OnInitialize() {
+            ReplayManager.ReplayDeletedEvent += HandleReplayDeleted;
+            ReplayManager.LoadingStartedEvent += HandleReplaysLoadStarted;
+            ReplayManager.LoadingFinishedEvent += HandleReplaysLoadFinished;
+        }
+
         protected override void OnDestroy() {
-            if (_replaysLoader is not null) {
-                _replaysLoader.ReplayRemovedEvent -= HandleReplayDeleted;
-                _replaysLoader.ReplaysLoadStartedEvent -= HandleReplaysLoadStarted;
-                _replaysLoader.ReplaysLoadFinishedEvent -= HandleReplaysLoadFinished;
-            }
+            ReplayManager.ReplayDeletedEvent -= HandleReplayDeleted;
+            ReplayManager.LoadingStartedEvent -= HandleReplaysLoadStarted;
+            ReplayManager.LoadingFinishedEvent -= HandleReplaysLoadFinished;
         }
 
         #endregion
@@ -200,7 +192,7 @@ namespace BeatLeader.UI.Hub {
                 return;
             }
             var index = items.First();
-            var header = (IReplayHeader)_replaysListPanel.ReplaysList.FilteredItems[index];
+            var header = _replaysListPanel.ReplaysList.FilteredItems[index];
             _previewLoader?.LoadPreview(header);
             _detailPanel?.SetData(header);
         }
@@ -209,12 +201,12 @@ namespace BeatLeader.UI.Hub {
             ShowLoadingScreen(true);
         }
 
-        private void HandleReplaysLoadFinished() {
+        private void HandleReplaysLoadFinished(bool finished) {
             ShowLoadingScreen(false);
         }
 
         private void HandleCancelLoadingButtonClicked() {
-            _replaysLoader!.CancelReplaysLoad();
+            ReplayManager.CancelLoading();
         }
 
         #endregion

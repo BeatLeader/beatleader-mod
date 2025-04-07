@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.IO.Compression;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Interop;
 using BeatLeader.Models.Replay;
@@ -19,19 +20,29 @@ namespace BeatLeader.Utils {
         public static async Task<bool> InstallBeatmap(byte[] bytes, string folderName) {
             try {
                 var path = Path.Combine(BeatmapsDirectory, folderName);
+
                 using var memoryStream = new MemoryStream(bytes);
                 using var archive = new ZipArchive(memoryStream);
+
                 foreach (var entry in archive.Entries) {
                     using var entryStream = entry.Open();
+
                     var streamLength = entry.Length;
                     var entryBuffer = new byte[streamLength];
                     var bytesRead = await entryStream.ReadAsync(entryBuffer, 0, (int)streamLength);
-                    if (bytesRead < streamLength) throw new FileLoadException();
+
+                    if (bytesRead < streamLength) {
+                        throw new FileLoadException();
+                    }
+
                     var destinationPath = Path.Combine(path, entry.FullName);
                     Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+
                     using var destinationStream = File.OpenWrite(destinationPath);
+
                     await destinationStream.WriteAsync(entryBuffer, 0, (int)streamLength);
                 }
+
                 SongCoreInterop.TryRefreshSongs(true);
                 return true;
             } catch (Exception ex) {
@@ -39,9 +50,9 @@ namespace BeatLeader.Utils {
                 return false;
             }
         }
-        
+
         #endregion
-        
+
         #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
@@ -52,41 +63,70 @@ namespace BeatLeader.Utils {
         public static string GetAbsoluteReplayPath(string fileName) {
             return Path.Combine(replaysFolderPath, fileName);
         }
-        
-        public static bool TryWriteReplay(string fileName, Replay replay) {
+
+        public static async Task<bool> WriteReplayAsync(string fileName, Replay replay, CancellationToken token) {
             try {
                 var path = GetAbsoluteReplayPath(fileName);
-                using BinaryWriter file = new(File.Open(path, FileMode.OpenOrCreate), Encoding.UTF8);
-                ReplayEncoder.Encode(replay, file);
-                file.Close();
-                Plugin.Log.Debug("Saved.");
+                var file = File.Open(path, FileMode.OpenOrCreate);
+
+                using (var stream = new BinaryWriter(file, Encoding.UTF8)) {
+                    await Task.Run(() => ReplayEncoder.Encode(replay, stream), token);
+                }
+
+                Plugin.Log.Debug("[FileManager] Replay saved");
+                
                 return true;
             } catch (Exception ex) {
-                Plugin.Log.Error($"Unable to save replay. Reason: {ex.Message}");
+                Plugin.Log.Error($"[FileManager] Failed to save replay: {ex.Message}");
+                
                 return false;
             }
         }
 
-        public static bool TryReadReplay(string path, out Replay? replay) {
-            if (File.Exists(path)) {
-                return ReplayDecoder.TryDecodeReplay(File.ReadAllBytes(path), out replay);
+        public static async Task<Replay?> ReadReplayAsync(string path, CancellationToken token) {
+            if (!File.Exists(path)) {
+                return null;
             }
-            replay = null;
-            return false;
+
+            var bytes = await Task.Run(() => File.ReadAllBytes(path), token);
+
+            // Unlike for replay info, we create a separate task as it takes 
+            // more time to decode the whole replay
+            var replay = await Task.Run(
+                () => {
+                    ReplayDecoder.TryDecodeReplay(bytes, out var replay);
+                    return replay;
+                },
+                token
+            );
+
+            return replay;
         }
 
-        public static bool TryReadReplayInfo(string path, out ReplayInfo? replayInfo) {
-            if (File.Exists(path)) {
-                return ReplayDecoder.TryDecodeReplayInfo(File.ReadAllBytes(path), out replayInfo);
+        public static async Task<ReplayInfo?> ReadReplayInfoAsync(string path, CancellationToken token) {
+            if (!File.Exists(path)) {
+                return null;
             }
-            replayInfo = null;
-            return false;
+
+            // Here we load the whole file as we don't have neither a stop byte
+            // nor an implementation that would use streams instead of a byte array.
+            // Implementing such thing could lead to a significant performance boost
+            // when caching for the first time or reloading the cache.
+
+            // According to my tests, this way seems to be significantly faster when
+            // loading lots of small files (exactly our case) as the runtime don't need to 
+            // switch contexts: it simply borrows the whole thread until the task is finished
+            var bytes = await Task.Run(() => File.ReadAllBytes(path), token);
+
+            ReplayDecoder.TryDecodeReplayInfo(bytes, out var replayInfo);
+
+            return replayInfo;
         }
 
         #endregion
 
         #region Directories
-        
+
         private static readonly string replaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
         private static readonly string playlistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 
@@ -106,7 +146,9 @@ namespace BeatLeader.Utils {
 
         #region Playlists
 
-        private static string GetPlaylistFileName(string name, bool json = false) => $"{playlistsFolderPath}{name}.{(json ? "json" : "bplist")}";
+        private static string GetPlaylistFileName(string name, bool json = false) {
+            return $"{playlistsFolderPath}{name}.{(json ? "json" : "bplist")}";
+        }
 
         public static void DeletePlaylist(string fileName) {
             try {

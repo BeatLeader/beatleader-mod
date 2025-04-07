@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
@@ -52,10 +53,10 @@ namespace BeatLeader.Utils {
             }
 
             SaveReplay(replay, data);
-            
-            static void SaveReplay(Replay replay, PlayEndData data) {
-                ReplayManager.Instance.SaveReplayAsync(replay, data, default).RunCatching();
-            }
+        }
+
+        private static void SaveReplay(Replay replay, PlayEndData data) {
+            ReplayManager.SaveReplayAsync(replay, data, CancellationToken.None).RunCatching();
         }
 
         public static void UploadReplay(Replay replay) {

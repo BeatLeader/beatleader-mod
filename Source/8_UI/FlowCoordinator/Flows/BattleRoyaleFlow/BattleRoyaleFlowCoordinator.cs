@@ -149,7 +149,7 @@ namespace BeatLeader.UI.Hub {
         #region BattleRoyaleHost
 
         public IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays => _replays.Values;
-        public ITableFilter<IReplayHeaderBase> ReplayFilter => _replayFilter;
+        public ITableFilter<IReplayHeader> ReplayFilter => _replayFilter;
 
         public BeatmapLevelWithKey ReplayBeatmap {
             get => _replayFilter.DifficultyBeatmap;
@@ -171,7 +171,7 @@ namespace BeatLeader.UI.Hub {
         public event Action? BattleLaunchStartedEvent;
         public event Action? BattleLaunchFinishedEvent;
 
-        private readonly Dictionary<IReplayHeaderBase, BattleRoyaleReplay> _replays = new();
+        private readonly Dictionary<IReplayHeader, BattleRoyaleReplay> _replays = new();
         private readonly BeatmapReplayFilter _replayFilter = new();
 
         public async void LaunchBattle() {
@@ -187,7 +187,7 @@ namespace BeatLeader.UI.Hub {
             BattleLaunchFinishedEvent?.Invoke();
         }
 
-        public void AddReplay(IReplayHeaderBase header, object caller) {
+        public void AddReplay(IReplayHeader header, object caller) {
             if (_replays.ContainsKey(header)) {
                 return;
             }
@@ -201,7 +201,7 @@ namespace BeatLeader.UI.Hub {
             RefreshLaunchState();
         }
 
-        public void RemoveReplay(IReplayHeaderBase header, object caller) {
+        public void RemoveReplay(IReplayHeader header, object caller) {
             if (!_replays.TryGetValue(header, out var replay)) {
                 return;
             }
@@ -223,7 +223,7 @@ namespace BeatLeader.UI.Hub {
             RefreshLaunchState();
         }
 
-        public void NavigateTo(IReplayHeaderBase header) {
+        public void NavigateTo(IReplayHeader header) {
             if (!_replays.TryGetValue(header, out var replay)) {
                 return;
             }

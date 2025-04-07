@@ -14,11 +14,11 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaysPreviewPanel : ReactiveComponent {
         #region Replays
 
-        public ICollection<IReplayHeaderBase> Replays => _replays;
+        public ICollection<IReplayHeader> Replays => _replays;
 
-        private ObservableSet<IReplayHeaderBase> _replays = null!;
+        private ObservableSet<IReplayHeader> _replays = null!;
 
-        private void HandleReplayAddedOrRemoved(IReplayHeaderBase header) {
+        private void HandleReplayAddedOrRemoved(IReplayHeader header) {
             RefreshReplaysLabel();
             RefreshAvatarPlacement();
         }
@@ -35,7 +35,7 @@ namespace BeatLeader.UI.Hub {
             private CancellationTokenSource _tokenSource = new();
             private Task? _setAvatarTask;
 
-            public void SetAvatar(IReplayHeaderBase replay) {
+            public void SetAvatar(IReplayHeader replay) {
                 if (_setAvatarTask != null) {
                     _tokenSource.Cancel();
                     _tokenSource = new();
@@ -43,9 +43,13 @@ namespace BeatLeader.UI.Hub {
                 _setAvatarTask = SetAvatarInternal(replay, _tokenSource.Token);
             }
 
-            private async Task SetAvatarInternal(IReplayHeaderBase replay, CancellationToken token) {
-                var player = await replay.LoadPlayerAsync(false, token);
-                if (token.IsCancellationRequested) return;
+            private async Task SetAvatarInternal(IReplayHeader replay, CancellationToken token) {
+                var player = await replay.LoadPlayerAsync(false, token) as IPlayer;
+                
+                if (token.IsCancellationRequested) {
+                    return;
+                }
+                
                 ReeComponent.SetAvatar(player.AvatarUrl, null);
                 _setAvatarTask = null;
             }
@@ -59,7 +63,7 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        private readonly ReactivePool<IReplayHeaderBase, Avatar> _avatarsPool = new();
+        private readonly ReactivePool<IReplayHeader, Avatar> _avatarsPool = new();
         private int _maxAvatarCount = 5;
         private float _avatarSize;
 

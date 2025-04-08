@@ -90,7 +90,10 @@ namespace BeatLeader.UI.MainMenu {
         #region OpenSongOrDownloadDialog
 
         public static async void OpenSongOrDownloadDialog(TrendingMapData mapDetail, Transform screenChild) {
-            var map = await FetchMap(mapDetail.song);
+            BeatmapLevel? map = null; 
+            try {    
+                map = await FetchMap(mapDetail.song);
+            } catch (Exception) { }
 
             if (map != null) {
                 OpenMap(map, null);

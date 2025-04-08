@@ -34,7 +34,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Request
 
-        private void OnRequestStateChanged(API.RequestState state, Paged<MapData> result, string failReason) {
+        private void OnRequestStateChanged(API.RequestState state, Paged<TrendingMapData> result, string failReason) {
             switch (state) {
                 case API.RequestState.Uninitialized:
                 case API.RequestState.Started:
@@ -73,7 +73,7 @@ namespace BeatLeader.UI.MainMenu {
 
         private readonly List<FeaturedPreviewPanel> _list = new List<FeaturedPreviewPanel>();
 
-        private void PresentList(IEnumerable<MapData> items) {
+        private void PresentList(IEnumerable<TrendingMapData> items) {
             DisposeList();
 
             foreach (var item in items.Where(m => m.difficulty?.status != 5)) {
@@ -86,12 +86,16 @@ namespace BeatLeader.UI.MainMenu {
             MarkScrollbarDirty();
         }
 
-        private void SetupFeaturePreview(FeaturedPreviewPanel panel, MapData item) {
-            panel.Setup(item.song.coverImage, item.song.name, item.song.mapper, "Play", ButtonAction);
+        private void SetupFeaturePreview(FeaturedPreviewPanel panel, TrendingMapData item) {
+            panel.Setup(item.song.coverImage, item.song.name, item.song.mapper, "Play", ButtonAction, BackgroundAction);
             return;
 
             void ButtonAction() {
                 MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
+            }
+
+            void BackgroundAction() {
+                MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
             }
         }
 

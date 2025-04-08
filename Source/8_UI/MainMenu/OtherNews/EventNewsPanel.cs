@@ -141,7 +141,7 @@ namespace BeatLeader.UI.MainMenu {
         private void SetupFeaturePreview(FeaturedPreviewPanel panel, PlatformEvent item) {
             
             string bottomText = ScheduleBottomText(panel, item);
-            panel.Setup(item.image, item.name, bottomText, "Details", ButtonAction);
+            panel.Setup(item.image, item.name, bottomText, "Details", ButtonAction, ButtonAction);
             return;
 
             void ButtonAction() {

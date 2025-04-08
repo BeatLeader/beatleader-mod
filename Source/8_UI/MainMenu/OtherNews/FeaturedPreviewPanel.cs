@@ -1,9 +1,12 @@
 ﻿using System;
+using BeatLeader.Components;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using JetBrains.Annotations;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.UI.MainMenu {
@@ -27,12 +30,14 @@ namespace BeatLeader.UI.MainMenu {
         #region Setup
 
         private Action? _buttonAction;
+        private Action? _backgroundAction;
 
-        public async void Setup(string previewUrl, string topText, string bottomText, string buttonText, Action buttonAction) {
+        public async void Setup(string previewUrl, string topText, string bottomText, string buttonText, Action buttonAction, Action backgroundAction) {
             _topText.text = $" {topText}";
             _bottomText.text = bottomText;
             _buttonText.text = buttonText;
             _buttonAction = buttonAction;
+            _backgroundAction = backgroundAction;
             if (!string.IsNullOrEmpty(previewUrl)) {
                 await _image.SetImageAsync(previewUrl);
             }
@@ -51,11 +56,22 @@ namespace BeatLeader.UI.MainMenu {
 
             _topText.overflowMode = TextOverflowModes.Ellipsis;
             _bottomText.overflowMode = TextOverflowModes.Ellipsis;
+
+            SimpleClickHandler.Custom(Content.gameObject, OnBackgroundPressed);
+            SmoothHoverController.Custom(Content.gameObject, OnBackgroundHover);
         }
 
         [UIAction("OnButtonPressed"), UsedImplicitly]
         private void OnButtonPressed() {
             _buttonAction?.Invoke();
+        }
+
+        private void OnBackgroundPressed() {
+            _backgroundAction?.Invoke();
+        }
+
+        private void OnBackgroundHover(bool hovered, float progress) {
+            _background.color = new Color(0, 0, 0, 0.5f + 0.4f * progress);
         }
 
         #endregion

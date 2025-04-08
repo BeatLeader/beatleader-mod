@@ -83,12 +83,12 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
+        private void HandleReplayAdded(BattleRoyaleReplay replay, object caller) {
             _replaysCount++;
             RefreshVisibility();
         }
 
-        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
+        private void HandleReplayRemoved(BattleRoyaleReplay replay, object caller) {
             _replaysCount--;
             RefreshVisibility();
         }

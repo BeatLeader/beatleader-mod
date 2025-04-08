@@ -3,7 +3,7 @@
 using BeatSaber.BeatAvatarSDK;
 
 namespace BeatLeader.Models {
-    public class AvatarSettings {
+    internal class AvatarSettings {
         public AvatarPartSettings headTop;
         public AvatarPartSettings glasses;
         public AvatarPartSettings eyes;

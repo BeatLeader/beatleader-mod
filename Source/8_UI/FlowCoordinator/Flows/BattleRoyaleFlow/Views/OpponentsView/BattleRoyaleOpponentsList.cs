@@ -15,10 +15,10 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
-    internal class BattleRoyaleOpponentsList : Table<IBattleRoyaleReplay, BattleRoyaleOpponentsList.Cell> {
+    internal class BattleRoyaleOpponentsList : Table<BattleRoyaleReplay, BattleRoyaleOpponentsList.Cell> {
         #region Cells
 
-        public class Cell : TableComponentCell<IBattleRoyaleReplay> {
+        public class Cell : TableComponentCell<BattleRoyaleReplay> {
             #region Construct
 
             private Image _backgroundImage = null!;
@@ -167,7 +167,7 @@ namespace BeatLeader.UI.Hub {
             private Task? _refreshColorTask;
             private Task? _refreshPlayerTask;
 
-            protected override void OnInit(IBattleRoyaleReplay item) {
+            protected override void OnInit(BattleRoyaleReplay item) {
                 if (item == _prevReplay && item.ReplayRank == _prevRank) {
                     return;
                 }
@@ -191,8 +191,11 @@ namespace BeatLeader.UI.Hub {
             }
 
             private async Task RefreshAccentColor(CancellationToken token) {
-                var data = await Item.GetReplayDataAsync();
-                if (token.IsCancellationRequested) return;
+                var data = await Item.GetBattleRoyaleDataAsync(false, token);
+                
+                if (token.IsCancellationRequested) {
+                    return;
+                }
                 _refreshColorTask = null;
                 //applying
                 var color = data.AccentColor ?? Color.white;
@@ -267,8 +270,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Comparison
 
-        private class OpponentComparator : IComparer<IBattleRoyaleReplay> {
-            public int Compare(IBattleRoyaleReplay x, IBattleRoyaleReplay y) {
+        private class OpponentComparator : IComparer<BattleRoyaleReplay> {
+            public int Compare(BattleRoyaleReplay x, BattleRoyaleReplay y) {
                 return x.ReplayRank.CompareTo(y.ReplayRank);
             }
         }
@@ -279,12 +282,12 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
+        private void HandleReplayAdded(BattleRoyaleReplay replay, object caller) {
             Items.Add(replay);
             Refresh();
         }
 
-        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
+        private void HandleReplayRemoved(BattleRoyaleReplay replay, object caller) {
             Items.Remove(replay);
             Refresh();
         }

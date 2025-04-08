@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleReplayBadge : ReactiveComponent {
         #region Setup
 
-        public async Task SetData(IBattleRoyaleReplay replay) {
+        public async Task SetData(BattleRoyaleReplay replay) {
             Hide();
 
             var header = replay.ReplayHeader;

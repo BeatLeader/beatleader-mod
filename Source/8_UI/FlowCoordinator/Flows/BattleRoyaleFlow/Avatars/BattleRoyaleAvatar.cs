@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using BeatLeader.Replayer.Emulation;
 using BeatLeader.Utils;
-using BeatSaber.AvatarCore;
 using BeatSaber.BeatAvatarSDK;
 using UnityEngine;
 using Zenject;
@@ -11,7 +10,7 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleAvatar : MonoBehaviour {
         #region Pool
 
-        public class Pool : MonoMemoryPool<IBattleRoyaleReplay, BattleRoyaleAvatar> {
+        public class Pool : MonoMemoryPool<BattleRoyaleReplay, BattleRoyaleAvatar> {
             public override void OnSpawned(BattleRoyaleAvatar item) {
                 item.PresentAvatar();
             }
@@ -20,7 +19,7 @@ namespace BeatLeader.UI.Hub {
                 item.HideAvatar();
             }
 
-            public override void Reinitialize(IBattleRoyaleReplay replay, BattleRoyaleAvatar item) {
+            public override void Reinitialize(BattleRoyaleReplay replay, BattleRoyaleAvatar item) {
                 item.Init(replay);
             }
 
@@ -41,7 +40,7 @@ namespace BeatLeader.UI.Hub {
         private MenuBeatAvatarController _avatarController = null!;
         private FloatingBattleRoyaleReplayBadge _badge = null!;
         private AvatarData? _avatarData;
-        private IBattleRoyaleReplay? _replay;
+        private BattleRoyaleReplay? _replay;
         private CancellationTokenSource _tokenSource = new();
         private Task? _refreshTask;
 
@@ -58,23 +57,35 @@ namespace BeatLeader.UI.Hub {
                 _refreshTask = null;
                 return;
             }
+            
             _badge.SetData(_replay);
+            
             if (_avatarData == null || force) {
                 _avatarController.SetVisuals(null);
                 _avatarController.SetLoading(true);
-                var replayData = await _replay.GetReplayDataAsync(force);
-                _avatarData = replayData.AvatarData;
-                if (token.IsCancellationRequested) return;
+
+                var player = await _replay.ReplayHeader.LoadPlayerAsync(false, token);
+                _avatarData = await player.GetBeatAvatarAsync(false, token);
+
+                if (token.IsCancellationRequested) {
+                    return;
+                }
+
                 _avatarController.SetLoading(false);
                 _avatarController.SetVisuals(_avatarData!, true);
             }
+            
             _refreshTask = null;
         }
 
-        private void Init(IBattleRoyaleReplay replay) {
-            if (_replay == replay) return;
+        private void Init(BattleRoyaleReplay replay) {
+            if (_replay == replay) {
+                return;
+            }
+            
             _avatarData = null;
             _replay = replay;
+            
             Refresh();
         }
 

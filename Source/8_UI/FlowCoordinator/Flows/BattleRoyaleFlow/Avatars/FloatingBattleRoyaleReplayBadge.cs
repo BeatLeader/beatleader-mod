@@ -9,7 +9,7 @@ namespace BeatLeader.UI.Hub {
 
         private Transform? _headTransform;
 
-        public void SetData(IBattleRoyaleReplay replay) {
+        public void SetData(BattleRoyaleReplay replay) {
             _badge.SetData(replay).RunCatching();
         }
 

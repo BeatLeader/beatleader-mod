@@ -106,7 +106,7 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
-        private void HandleReplayAdded(IBattleRoyaleReplay replay, object caller) {
+        private void HandleReplayAdded(BattleRoyaleReplay replay, object caller) {
             if (_battleRoyaleAvatarPool.NumActive == maxAvatarsCount) {
                 return;
             }
@@ -118,7 +118,7 @@ namespace BeatLeader.UI.Hub {
             RecalculateAvatarPositions(avatar);
         }
 
-        private void HandleReplayRemoved(IBattleRoyaleReplay replay, object caller) {
+        private void HandleReplayRemoved(BattleRoyaleReplay replay, object caller) {
             var avatar = _avatars[replay.ReplayHeader];
             _avatars.Remove(replay.ReplayHeader);
             _battleRoyaleAvatarPool.Despawn(avatar);

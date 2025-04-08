@@ -281,6 +281,7 @@ namespace BeatLeader.Utils {
 
         private static void FinalizeReplayDeletion(IReplayHeader header) {
             headers.Remove(header);
+            (header as BeatLeaderReplayHeader)?.NotifyReplayDeleted();
             ReplayDeletedEvent?.Invoke(header);
         }
 

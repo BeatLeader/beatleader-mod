@@ -1,6 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using BeatSaber.BeatAvatarSDK;
+using JetBrains.Annotations;
 
 namespace BeatLeader.Models {
+    [PublicAPI]
     public interface IPlayer {
         string Id { get; }
         string Name { get; }
@@ -11,6 +15,11 @@ namespace BeatLeader.Models {
         float PerformancePoints { get; }
         IPlayerProfileSettings? ProfileSettings { get; }
 
-        Task<AvatarSettings> GetBeatAvatarAsync(bool bypassCache = false);
+        /// <summary>
+        /// Fetches beat avatar from the server.
+        /// </summary>
+        /// <param name="bypassCache">Determines if the cached value should be omitted.</param>
+        /// <returns>An avatar data.</returns>
+        Task<AvatarData> GetBeatAvatarAsync(bool bypassCache, CancellationToken token);
     }
 }

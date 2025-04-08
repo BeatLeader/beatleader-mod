@@ -1,9 +1,10 @@
-﻿using System;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatLeader.Replayer.Emulation;
+using BeatLeader.Utils;
 using BeatSaber.AvatarCore;
 using BeatSaber.BeatAvatarAdapter.AvatarEditor;
 using BeatSaber.BeatAvatarSDK;
@@ -57,43 +58,49 @@ namespace BeatLeader.UI.Hub {
             //
             var screenSystem = _hierarchyManager.GetComponent<ScreenSystem>();
             _screenTransform = screenSystem.mainScreen.transform;
-            LoadAvatar();
+            
+            await LoadAvatar().RunCatching();
         }
 
         #endregion
 
         #region Avatar
 
-        private async void UploadAvatar() {
+        private async Task UploadAvatar() {
             _avatarController.SetVisuals(_avatarData);
             _avatarController.SetLoading(true);
+
             var player = ProfileManager.Profile!;
             var settings = AvatarSettings.FromAvatarData(_avatarData);
-            //request
+
             var request = UpdateAvatarRequest.Send(player.id, settings);
             await request.Join();
+
             if (request.RequestState is WebRequests.RequestState.Failed) {
                 await LoadAvatarFromPlayerAsync(player, true);
             }
+
             //forcing player to update avatar
-            await player.GetBeatAvatarAsync(true);
+            await player.GetBeatAvatarAsync(true, CancellationToken.None);
             _avatarController.SetLoading(false);
         }
 
-        private async void LoadAvatar() {
+        private async Task LoadAvatar() {
             _avatarController.SetLoading(true);
+
             await ProfileManager.WaitUntilProfileLoad();
             var player = ProfileManager.Profile;
+
             if (player != null) {
                 await LoadAvatarFromPlayerAsync(player, false);
                 _editAvatarButton.Interactable = true;
             }
+
             _avatarController.SetLoading(false);
         }
 
         private async Task LoadAvatarFromPlayerAsync(IPlayer player, bool bypassCache) {
-            var settings = await player.GetBeatAvatarAsync(bypassCache);
-            _avatarData = settings.ToAvatarData();
+            _avatarData = await player.GetBeatAvatarAsync(bypassCache, CancellationToken.None);
             _avatarController.SetVisuals(_avatarData, true);
         }
 
@@ -136,7 +143,7 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleFlowCoordinatorEditFinished(AvatarEditorFlowCoordinator _, IAvatarSystemMetadata _1, AvatarEditorFlowCoordinator.FinishAction finishAction) {
             if (finishAction is AvatarEditorFlowCoordinator.FinishAction.Apply) {
-                UploadAvatar();
+                UploadAvatar().RunCatching();
             }
             _editAvatarFlowCoordinator.DismissSelf();
         }

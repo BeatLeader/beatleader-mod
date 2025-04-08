@@ -7,6 +7,7 @@ using BeatLeader.API;
 using Newtonsoft.Json;
 using BeatLeader.Themes;
 using BeatLeader.Utils;
+using BeatSaber.BeatAvatarSDK;
 using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
@@ -38,19 +39,19 @@ namespace BeatLeader.Models {
         private static readonly Dictionary<string, AvatarSettings?> avatarSettingsCache = new();
         private static readonly Dictionary<string, SemaphoreSlim?> semaphores = new();
 
-        public async Task<AvatarSettings> GetBeatAvatarAsync(bool bypassCache) {
+        public async Task<AvatarData> GetBeatAvatarAsync(bool bypassCache, CancellationToken token) {
             var semaphore = semaphores.GetOrAdd(id, new SemaphoreSlim(1, 1))!;
-            await semaphore.WaitAsync();
-            //fetching if needed
+            await semaphore.WaitAsync(token);
+
             if (!avatarSettingsCache.TryGetValue(id, out var avatarSettings) || bypassCache) {
                 var request = await GetAvatarRequest.Send(id).Join();
                 avatarSettings = request.Result;
                 avatarSettingsCache[id] = avatarSettings;
             }
-            //returning
+
             semaphore.Release();
-            var settings = AvatarSettings.FromAvatarData(AvatarUtils.DefaultAvatarData);
-            return avatarSettings ?? settings;
+
+            return avatarSettings?.ToAvatarData() ?? AvatarUtils.DefaultAvatarData;
         }
 
         #endregion

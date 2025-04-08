@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using Reactive.Components;
 
 namespace BeatLeader.UI.Hub {
     internal interface IBattleRoyaleHost {
-        IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays { get; }
+        IReadOnlyCollection<BattleRoyaleReplay> PendingReplays { get; }
         ITableFilter<IReplayHeader> ReplayFilter { get; }
         BeatmapLevelWithKey ReplayBeatmap { get; set; }
         bool CanLaunchBattle { get; }
 
-        event Action<IBattleRoyaleReplay, object>? ReplayAddedEvent;
-        event Action<IBattleRoyaleReplay, object>? ReplayRemovedEvent;
-        event Action<IBattleRoyaleReplay>? ReplayNavigationRequestedEvent;
+        event Action<BattleRoyaleReplay, object>? ReplayAddedEvent;
+        event Action<BattleRoyaleReplay, object>? ReplayRemovedEvent;
+        event Action<BattleRoyaleReplay>? ReplayNavigationRequestedEvent;
         event Action? ReplayRefreshRequestedEvent;
         
         event Action<BeatmapLevelWithKey> ReplayBeatmapChangedEvent;

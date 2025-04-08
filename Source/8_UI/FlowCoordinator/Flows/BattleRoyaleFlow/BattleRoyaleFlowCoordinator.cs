@@ -148,7 +148,7 @@ namespace BeatLeader.UI.Hub {
 
         #region BattleRoyaleHost
 
-        public IReadOnlyCollection<IBattleRoyaleReplay> PendingReplays => _replays.Values;
+        public IReadOnlyCollection<BattleRoyaleReplay> PendingReplays => _replays.Values;
         public ITableFilter<IReplayHeader> ReplayFilter => _replayFilter;
 
         public BeatmapLevelWithKey ReplayBeatmap {
@@ -161,9 +161,9 @@ namespace BeatLeader.UI.Hub {
 
         public bool CanLaunchBattle { get; private set; }
 
-        public event Action<IBattleRoyaleReplay, object>? ReplayAddedEvent;
-        public event Action<IBattleRoyaleReplay, object>? ReplayRemovedEvent;
-        public event Action<IBattleRoyaleReplay>? ReplayNavigationRequestedEvent;
+        public event Action<BattleRoyaleReplay, object>? ReplayAddedEvent;
+        public event Action<BattleRoyaleReplay, object>? ReplayRemovedEvent;
+        public event Action<BattleRoyaleReplay>? ReplayNavigationRequestedEvent;
         public event Action? ReplayRefreshRequestedEvent;
         public event Action<BeatmapLevelWithKey>? ReplayBeatmapChangedEvent;
         public event Action<bool>? HostStateChangedEvent;

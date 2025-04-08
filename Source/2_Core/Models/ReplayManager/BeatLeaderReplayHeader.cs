@@ -82,5 +82,9 @@ namespace BeatLeader.Models {
 
             return _cachedPlayer ?? Player.GuestPlayer;
         }
+
+        public void NotifyReplayDeleted() {
+            FileStatus = FileStatus.Deleted;
+        }
     }
 }

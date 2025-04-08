@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace BeatLeader.Models.AbstractReplay {
+    [PublicAPI]
     public interface IReplay {
         IReplayData ReplayData { get; }
-        IOptionalReplayData? OptionalReplayData { get; }
+        BattleRoyaleReplayData? OptionalReplayData { get; }
 
         IReadOnlyList<PlayerMovementFrame> PlayerMovementFrames { get; }
         IReadOnlyList<NoteEvent> NoteEvents { get; }

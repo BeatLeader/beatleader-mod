@@ -19,6 +19,7 @@ namespace BeatLeader.Models {
             Tags = set;
         }
 
+        [JsonIgnore]
         public ICollection<ReplayTag> Tags { get; }
 
         [JsonProperty("Tags")]
@@ -37,7 +38,7 @@ namespace BeatLeader.Models {
         }
 
         [OnSerializing]
-        private void OnSerializing() {
+        private void OnSerializing(StreamingContext context) {
             _serializableTags ??= new();
 
             foreach (var tag in Tags) {
@@ -46,7 +47,7 @@ namespace BeatLeader.Models {
         }
 
         [OnDeserialized]
-        private void OnDeserialized() {
+        private void OnDeserialized(StreamingContext context) {
             if (_serializableTags == null) {
                 return;
             }

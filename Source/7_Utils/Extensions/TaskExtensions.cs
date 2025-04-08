@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BeatLeader.Utils {
     internal static class TaskExtensions {
@@ -8,8 +10,26 @@ namespace BeatLeader.Utils {
                     if (!x.IsFaulted) return;
                     Plugin.Log.Critical(x.Exception!);
                 }
-            ).ConfigureAwait(true);
+            );
             return task;
+        }
+
+        public static Task RunOnMainThread(Action callback) {
+            var completionSource = new TaskCompletionSource<bool>();
+
+            SynchronizationContext.Current.Send(
+                _ => {
+                    try {
+                        callback();
+                        completionSource.SetResult(true);
+                    } catch (Exception ex) {
+                        completionSource.SetException(ex);
+                    }
+                },
+                null
+            );
+
+            return completionSource.Task;
         }
     }
 }

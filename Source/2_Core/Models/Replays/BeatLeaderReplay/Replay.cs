@@ -23,7 +23,7 @@ namespace BeatLeader.Models.Replay {
         public Dictionary<string, byte[]> customData = new Dictionary<string, byte[]>();
     }
     public class ReplayInfo : IReplayInfo {
-        string IReplayInfo.PlayerID => playerID;
+        string IReplayHashProvider.PlayerID => playerID;
         string IReplayInfo.PlayerName => playerName;
         string IReplayInfo.SongName => songName;
         string IReplayInfo.SongDifficulty => difficulty;
@@ -32,7 +32,7 @@ namespace BeatLeader.Models.Replay {
         public LevelEndType LevelEndType => levelEndType ?? (failTime > 0 ? LevelEndType.Fail : LevelEndType.Clear);
         float IReplayInfo.FailTime => failTime;
         int IReplayInfo.Score => score;
-        long IReplayInfo.Timestamp => _timestamp ??= long.Parse(timestamp);
+        long IReplayHashProvider.Timestamp => _timestamp ??= long.Parse(timestamp);
 
         private long? _timestamp;
         

@@ -134,7 +134,7 @@ namespace BeatLeader.UI.Hub {
                             new Spinner().AsFlexItem(size: 8f),
                             //
                             new BsButton {
-                                OnClick = HandleCancelLoadingButtonClicked
+                                OnClick = () => ReplayManager.CancelLoading()
                             }.WithLabel("Cancel").AsFlexItem()
                         }
                     }.AsFlexGroup(
@@ -203,10 +203,6 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleReplaysLoadFinished(bool finished) {
             ShowLoadingScreen(false);
-        }
-
-        private void HandleCancelLoadingButtonClicked() {
-            ReplayManager.CancelLoading();
         }
 
         #endregion

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,10 +56,14 @@ namespace BeatLeader.Components {
         private async Task StartDownloadingInternal(IReadOnlyCollection<Score> scores, CancellationToken token) {
             _requests.Clear();
             _headers.Clear();
-            
+
+            if (ReplayManager.StartLoadingIfNeverLoaded()) {
+                await ReplayManager.WaitForLoadingAsync();
+            }
+
             foreach (var score in scores) {
                 var header = ReplayManager.FindReplayByHash(score);
-                
+
                 if (header != null) {
                     _headers.Add(header);
                     continue;
@@ -77,35 +80,40 @@ namespace BeatLeader.Components {
             _totalRequests = _requests.Count;
             _currentRequests = 0;
 
-            foreach (var request in _requests) {
-                var req = await request.Join();
+            if (_requests.Count > 0) {
+                foreach (var request in _requests) {
+                    var req = await request.Join();
 
-                if (req.RequestStatusCode != HttpStatusCode.OK) {
-                    FailDownloading(req.FailReason!);
+                    if (req.RequestStatusCode != HttpStatusCode.OK) {
+                        FailDownloading(req.FailReason!);
+                        return;
+                    }
+
+                    _currentRequests++;
+                    RefreshDownloading();
+                }
+
+                if (token.IsCancellationRequested) {
                     return;
                 }
 
-                _currentRequests++;
-                RefreshDownloading();
-            }
+                SetSaving();
+                foreach (var request in _requests) {
+                    var header = await ReplayManager.SaveAnyReplayAsync(request.Result!, null, token);
 
-            if (token.IsCancellationRequested) {
-                return;
-            }
-            
-            SetSaving();
-            foreach (var request in _requests) {
-                var header = await ReplayManager.SaveAnyReplayAsync(request.Result!, null, CancellationToken.None);
+                    if (header == null) {
+                        FailDownloading("Failed to save the replay");
+                        return;
+                    }
 
-                if (header == null) {
-                    FailDownloading("Failed to save the replay");
-                    return;
+                    _headers.Add(header);
                 }
-
-                _headers.Add(header);
+                
+                SetDownloadingFinished();
+            } else {
+                SetInitiallyReady();
             }
 
-            SetFinished();
             _downloadTask = null;
         }
 
@@ -152,16 +160,17 @@ namespace BeatLeader.Components {
             if (opened) {
                 return;
             }
-            
-            _progressLabel.Color = Color.white;
-            _progressLabel.Text = "Waiting for download...";
-            _progressBar.Color = UIStyle.ControlButtonColorSet.ActiveColor;
-            _progressBar.Progress = 0f;
-            OkButtonInteractable = false;
+
+            SetWaitingForStart();
         }
 
         protected override void OnOkButtonClicked() {
             DownloadingFinishedCallback?.Invoke();
+            CloseInternal();
+        }
+
+        protected override void OnCancelButtonClicked() {
+            CancelDownloading();
             CloseInternal();
         }
 
@@ -173,26 +182,42 @@ namespace BeatLeader.Components {
             _progressBar.TotalProgress = _totalRequests;
             _progressBar.Progress = _currentRequests;
             _progressLabel.Text = $"Downloading {_currentRequests}/{_totalRequests}";
+            _progressBar.Enabled = true;
+        }
+
+        private void SetWaitingForStart() {
+            _progressLabel.Color = Color.white;
+            _progressLabel.Text = "Waiting for download...";
+            _progressBar.Color = UIStyle.ControlButtonColorSet.ActiveColor;
+            _progressBar.Progress = 0f;
+            _progressBar.Enabled = false;
+            OkButtonInteractable = false;
         }
 
         private void SetPanicking(string reason) {
             _progressLabel.Text = $"{reason}";
             _progressLabel.Color = Color.red;
             _progressBar.Color = Color.red;
+            OkButtonInteractable = true;
         }
 
-        private void SetFinished() {
+        private void SetDownloadingFinished() {
             _progressLabel.Text = "Downloading finished";
             _progressBar.Progress = 1f;
             _progressBar.TotalProgress = 1f;
             _progressBar.Color = Color.green * 0.8f;
             OkButtonInteractable = true;
-            CancelButtonInteractable = true;
+        }
+
+        private void SetInitiallyReady() {
+            _progressLabel.Text = "Everything is ready!";
+            _progressBar.Enabled = false;
+            OkButtonInteractable = true;
         }
 
         private void SetSaving() {
             _progressLabel.Text = "Saving replays...";
-            CancelButtonInteractable = false;
+            OkButtonInteractable = false;
         }
 
         #endregion

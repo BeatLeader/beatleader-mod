@@ -2,8 +2,7 @@
 
 namespace BeatLeader.Models {
     [PublicAPI]
-    public interface IReplayInfo {
-        string PlayerID { get; }
+    public interface IReplayInfo : IReplayHashProvider {
         string PlayerName { get; }
         
         string SongName { get; }
@@ -14,6 +13,5 @@ namespace BeatLeader.Models {
         
         float FailTime { get; }
         int Score { get; }
-        long Timestamp { get; }
     }
 }

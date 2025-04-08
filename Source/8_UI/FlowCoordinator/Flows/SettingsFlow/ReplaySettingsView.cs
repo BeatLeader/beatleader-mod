@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Components;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -12,16 +13,6 @@ namespace BeatLeader.UI.Hub {
         #region DeletionModal
 
         private class DeletionModal : ModalComponentBase {
-            #region Setup
-
-            private IReplayFileManager? _replayFileManager;
-
-            public void Setup(IReplayFileManager replayFileManager) {
-                _replayFileManager = replayFileManager;
-            }
-
-            #endregion
-
             #region Visuals
 
             private enum DeletionStage {
@@ -112,9 +103,8 @@ namespace BeatLeader.UI.Hub {
                         _deletionStage++;
                         break;
                     case DeletionStage.Warning2:
-                        if (_replayFileManager == null) return;
                         _deletionStage++;
-                        _deletedReplaysCount = _replayFileManager.DeleteAllReplays();
+                        _deletedReplaysCount = ReplayManager.DeleteAllReplays();
                         break;
                     case DeletionStage.Finish:
                         CloseInternal();
@@ -140,14 +130,6 @@ namespace BeatLeader.UI.Hub {
             } else {
                 ConfigFileData.Instance.ReplaySavingOptions &= ~option;
             }
-        }
-
-        #endregion
-
-        #region Setup
-
-        public void Setup(IReplayFileManager replayFileManager) {
-            _deletionModal.Setup(replayFileManager);
         }
 
         #endregion

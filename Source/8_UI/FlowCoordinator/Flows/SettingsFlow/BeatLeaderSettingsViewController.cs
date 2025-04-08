@@ -1,5 +1,3 @@
-using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using HMUI;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -13,7 +11,6 @@ namespace BeatLeader.UI.Hub {
         #region Injection
 
         [Inject] private readonly MenuTransitionsHelper _menuTransitionsHelper = null!;
-        [Inject] private readonly IReplayFileManager _replayFileManager = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
 
         #endregion
@@ -56,7 +53,6 @@ namespace BeatLeader.UI.Hub {
 
                             ["REPLAYS"] = new ReplaySettingsView()
                                 .WithRectExpand()
-                                .With(x => x.Setup(_replayFileManager))
                         }
                     }.AsFlexItem(grow: 1f, size: new() { x = 90f })
                 }

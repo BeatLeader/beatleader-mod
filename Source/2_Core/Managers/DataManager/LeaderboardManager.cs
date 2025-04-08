@@ -180,7 +180,7 @@ namespace BeatLeader.DataManager {
             var level = _beatmapLevelsModel.GetBeatmapLevel(beatmapKey.levelId);
             if (level == null) return;
 
-            Plugin.Log.Debug($"Selected beatmap: {beatmapKey.levelId}, diff: {beatmapKey.difficulty}");
+            Plugin.Log.Debug($"OnLeaderboardSet: {beatmapKey.levelId}, diff: {beatmapKey.difficulty}");
             _lastSelectedBeatmap = beatmapKey;
             _lastSelectedPage = 1;
 

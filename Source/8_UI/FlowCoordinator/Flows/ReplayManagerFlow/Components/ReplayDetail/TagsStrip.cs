@@ -208,6 +208,13 @@ namespace BeatLeader.UI.Hub {
             }.WithNativeComponent(out _containerGroup).AsFlexGroup(gap: 0.5f).Use();
         }
 
+        protected override void OnDestroy() {
+            if (_metadata != null) {
+                _metadata.TagAddedEvent -= HandleTagAddedExternal;
+                _metadata.TagRemovedEvent -= HandleTagRemovedExternal;
+            }
+        }
+
         #endregion
 
         #region Callbacks

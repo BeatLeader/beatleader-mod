@@ -40,13 +40,16 @@ namespace BeatLeader.Utils {
         /// </summary>
         /// <param name="name">The old name.</param>
         /// <param name="newName">A new name.</param>
+        /// <exception cref="InvalidOperationException">If the tag does not exist.</exception>
         /// <returns>A struct containing validation results.</returns>
         public static ReplayTagValidationResult UpdateTagName(string name, string newName) {
             var val = ValidateTagName(newName);
 
             if (val.Ok) {
-                var tag = MutableTags[name];
-                
+                if (!MutableTags.TryGetValue(name, out var tag)) {
+                    throw new InvalidOperationException("The tag does not exist");
+                }
+
                 tag.Name = newName;
 
                 MutableTags.Remove(name);
@@ -55,7 +58,7 @@ namespace BeatLeader.Utils {
 
             return val;
         }
-        
+
         /// <summary>
         /// Updates color of an existing tag.
         /// </summary>
@@ -68,7 +71,7 @@ namespace BeatLeader.Utils {
 
             tag.Color = newColor;
         }
-        
+
         /// <summary>
         /// Creates a new tag.
         /// </summary>

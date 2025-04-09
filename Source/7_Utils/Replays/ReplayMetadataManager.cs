@@ -31,25 +31,22 @@ namespace BeatLeader.Utils {
         public static ReplayTagValidationResult ValidateTagName(string name) {
             return new(
                 name.Length is >= 2 and <= 10,
-                !tagsCache.Cache.ContainsKey(name)
+                !MutableTags.ContainsKey(name)
             );
         }
 
         /// <summary>
-        /// Updates an existing tag.
+        /// Updates name of an existing tag.
         /// </summary>
         /// <param name="name">The old name.</param>
         /// <param name="newName">A new name.</param>
-        /// <exception cref="InvalidOperationException">If a tag with the same name already exists.</exception>
         /// <returns>A struct containing validation results.</returns>
         public static ReplayTagValidationResult UpdateTagName(string name, string newName) {
             var val = ValidateTagName(newName);
 
             if (val.Ok) {
-                if (!MutableTags.TryGetValue(name, out var tag)) {
-                    throw new InvalidOperationException("The tag does not exist");
-                }
-
+                var tag = MutableTags[name];
+                
                 tag.Name = newName;
 
                 MutableTags.Remove(name);
@@ -58,23 +55,35 @@ namespace BeatLeader.Utils {
 
             return val;
         }
+        
+        /// <summary>
+        /// Updates color of an existing tag.
+        /// </summary>
+        /// <param name="name">The name of the tag to update.</param>
+        /// <exception cref="InvalidOperationException">If the tag does not exist.</exception>
+        public static void UpdateTagColor(string name, Color newColor) {
+            if (!MutableTags.TryGetValue(name, out var tag)) {
+                throw new InvalidOperationException("The tag does not exist");
+            }
 
+            tag.Color = newColor;
+        }
+        
         /// <summary>
         /// Creates a new tag.
         /// </summary>
-        /// <exception cref="InvalidOperationException">If a tag with the same name already exists.</exception>
-        /// <returns>The tag instance.</returns>
-        public static ReplayTag CreateTag(string name, Color? color = null) {
-            if (MutableTags.ContainsKey(name)) {
-                throw new InvalidOperationException("A tag with the same name already exists");
+        /// <returns>A struct containing validation results.</returns>
+        public static ReplayTagValidationResult CreateTag(string name, Color? color = null) {
+            var val = ValidateTagName(name);
+
+            if (val.Ok) {
+                var tag = new ReplayTag(name, color ?? Color.white);
+
+                MutableTags[name] = tag;
+                TagCreatedEvent?.Invoke(tag);
             }
 
-            var tag = new ReplayTag(name, color ?? Color.white);
-
-            MutableTags[name] = tag;
-            TagCreatedEvent?.Invoke(tag);
-
-            return tag;
+            return val;
         }
 
         /// <summary>
@@ -100,12 +109,12 @@ namespace BeatLeader.Utils {
 
         internal static ReplayMetadata GetMetadata(string path) {
             var name = Path.GetFileName(path);
-            
+
             if (!MutableMetadatas.TryGetValue(name, out var metadata)) {
                 metadata = new ReplayMetadata();
                 MutableMetadatas[name] = metadata;
             }
-            
+
             return metadata;
         }
 

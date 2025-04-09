@@ -64,6 +64,7 @@ namespace BeatLeader.UI.Hub {
                             x => {
                                 var ree = x.ReeComponent;
                                 ree.TabsMask &= ~ScoreInfoPanelTab.Replay;
+                                ree.followLeaderboardEvents = false;
                                 ree.TabChangedEvent += SwitchTab;
                             }
                         )

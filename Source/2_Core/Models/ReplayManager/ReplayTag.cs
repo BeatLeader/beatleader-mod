@@ -4,14 +4,20 @@ using UnityEngine;
 namespace BeatLeader.Models {
     public class ReplayTag {
         [JsonConstructor]
-        private ReplayTag() { }
-        
         internal ReplayTag(string name, Color color) {
             Name = name;
             Color = color;
         }
 
-        public string Name { get; internal set; } = null!;
-        public Color Color { get; internal set; }
+        public string Name { get; internal set; }
+
+        [JsonIgnore]
+        public Color Color {
+            get => _color;
+            internal set => _color = value;
+        }
+
+        [JsonProperty("Color")]
+        private SerializableColor _color;
     }
 }

@@ -28,11 +28,40 @@ namespace BeatLeader.UI.Hub {
 
         private ReplayMetadata? _metadata;
 
-        public void SetMetadata(ReplayMetadata metadata) {
+        public void SetMetadata(ReplayMetadata? metadata) {
+            var shouldAnimate = false;
+
+            // Compare by values if no obvious signs of change
+            if (_metadata != null && _metadata.Tags.Count == metadata?.Tags.Count) {
+                using var newNum = metadata.Tags.GetEnumerator();
+
+                foreach (var oldItem in _metadata.Tags) {
+                    newNum.MoveNext();
+
+                    if (oldItem != newNum.Current) {
+                        shouldAnimate = true;
+                        break;
+                    }
+                }
+            } else {
+                shouldAnimate = true;
+            }
+
+            if (_metadata != null) {
+                _metadata.TagAddedEvent -= HandleTagAddedExternal;
+                _metadata.TagRemovedEvent -= HandleTagRemovedExternal;
+            }
             _metadata = metadata;
-            StartAnimation();
+            if (_metadata != null) {
+                _metadata.TagAddedEvent += HandleTagAddedExternal;
+                _metadata.TagRemovedEvent += HandleTagRemovedExternal;
+            }
+
+            if (shouldAnimate) {
+                StartAnimation();
+            }
         }
-        
+
         #endregion
 
         #region Animation
@@ -186,11 +215,11 @@ namespace BeatLeader.UI.Hub {
         private void HandleTagSelectorOpened(IModal modal, bool finished) {
             if (finished) return;
             var tagSelector = _tagSelectorModal.Component;
-            
+
             if (_metadata == null) {
                 throw new UninitializedComponentException();
             }
-            
+
             tagSelector.SelectTags(_metadata.Tags);
             tagSelector.WithSizeDelta(50f, 36f);
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
@@ -218,6 +247,13 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleSelectedTagAdded(ReplayTag tag) {
             _metadata!.Tags.Add(tag);
+        }
+
+        private void HandleSelectedTagRemoved(ReplayTag tag) {
+            _metadata!.Tags.Remove(tag);
+        }
+
+        private void HandleTagAddedExternal(ReplayTag tag) {
             if (_tagsPool.SpawnedComponents.Count < ShownTagsCount ||
                 _tagsPool.SpawnedComponents.ContainsKey(tag)
             ) {
@@ -226,8 +262,7 @@ namespace BeatLeader.UI.Hub {
             RefreshTagsLabel();
         }
 
-        private void HandleSelectedTagRemoved(ReplayTag tag) {
-            _metadata!.Tags.Remove(tag);
+        private void HandleTagRemovedExternal(ReplayTag tag) {
             DespawnTag(tag, true);
             RefreshTagsLabel();
         }

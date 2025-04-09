@@ -15,8 +15,13 @@ namespace BeatLeader.Models {
 
             set.ItemAddedEvent += HandleTagAdded;
             set.ItemRemovedEvent += HandleTagRemoved;
+            ReplayMetadataManager.TagDeletedEvent += HandleTagRemovedExternal;
 
             Tags = set;
+        }
+
+        ~ReplayMetadata() {
+            ReplayMetadataManager.TagDeletedEvent -= HandleTagRemovedExternal;
         }
 
         [JsonIgnore]
@@ -24,6 +29,7 @@ namespace BeatLeader.Models {
 
         [JsonProperty("Tags")]
         private HashSet<string>? _serializableTags;
+
         private readonly HashSet<ReplayTag> _tags;
 
         public event Action<ReplayTag>? TagAddedEvent;
@@ -35,6 +41,13 @@ namespace BeatLeader.Models {
 
         private void HandleTagRemoved(ReplayTag tag) {
             TagRemovedEvent?.Invoke(tag);
+        }
+
+        private void HandleTagRemovedExternal(ReplayTag tag) {
+            if (_tags.Contains(tag)) {
+                _tags.Remove(tag);
+                TagRemovedEvent?.Invoke(tag);
+            }
         }
 
         [OnSerializing]

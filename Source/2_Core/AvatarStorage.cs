@@ -54,9 +54,11 @@ namespace BeatLeader {
                 onFailCallback?.Invoke(request.error);
                 yield break;
             }
+
+            var data = handler.data;
             
             var task = Task.Run(() => {
-                using var reader = new BinaryReader(new MemoryStream(handler.data));
+                using var reader = new BinaryReader(new MemoryStream(data));
                 return new GIFLoader().Load(reader);
             });
             

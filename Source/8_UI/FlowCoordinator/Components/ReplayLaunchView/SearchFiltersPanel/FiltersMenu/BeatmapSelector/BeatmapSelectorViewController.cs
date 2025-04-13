@@ -30,9 +30,7 @@ namespace BeatLeader.Components {
         #region Init & Dispose
 
         private Vector3 _levelDetailLevelBarOriginalPos;
-        private SelectLevelCategoryViewController.LevelCategory _originalLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
         private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
-        private BeatmapLevel? _originalPreviewBeatmapLevel;
         private bool _isInitialized;
 
         private string _defaultPlayButtonText = Localization.Get("BUTTON_PLAY");
@@ -79,7 +77,8 @@ namespace BeatLeader.Components {
                 null,
                 SelectLevelCategoryViewController.LevelCategory.CustomSongs,
                 null,
-                true);
+                true
+            );
             if (firstActivation) {
                 _levelDetailWrapper = ReeUIComponentV2.Instantiate<LevelDetailWrapper>(_levelDetail.parent);
                 _levelDetailWrapper.SelectButtonPressedEvent += HandleSelectButtonPressed;
@@ -89,8 +88,6 @@ namespace BeatLeader.Components {
             }
             _levelSelectionNavigationController._actionButtonText = CUSTOM_PLAY_BUTTON;
 
-            _originalLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
-            _originalPreviewBeatmapLevel = _levelCollectionNavigationController.beatmapLevel;
             SetLevelDetailWrapperEnabled(true);
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             NavigateToBeatmap(null, _lastSelectedLevelCategory);
@@ -103,7 +100,6 @@ namespace BeatLeader.Components {
             SetLevelDetailWrapperEnabled(false);
             SetCloseButtonEnabled(false);
             _lastSelectedLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
-            NavigateToBeatmap(_originalPreviewBeatmapLevel, _originalLevelCategory);
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
         }
 

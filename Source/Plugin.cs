@@ -52,7 +52,7 @@ namespace BeatLeader {
         [OnStart]
         [UsedImplicitly]
         public void OnApplicationStart() {
-            ObserveEnabled();
+            OnEnabledChanged(PluginConfig.Enabled);
             MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             InteropLoader.Init();
         }
@@ -60,10 +60,6 @@ namespace BeatLeader {
         public static void MainMenuInit() {
             SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
-        }
-        private static void ObserveEnabled() {
-            PluginConfig.OnEnabledChangedEvent += OnEnabledChanged;
-            OnEnabledChanged(PluginConfig.Enabled);
         }
 
         private static void OnEnabledChanged(bool enabled) {

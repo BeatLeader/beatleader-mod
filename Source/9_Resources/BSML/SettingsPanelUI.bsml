@@ -3,9 +3,9 @@
         <toggle-setting text="Enabled" value="enabled"/>
         <toggle-setting text="Menu Button Enabled" value="menu-button-enabled"/>
         <toggle-setting text="Show Noticeboard" value="noticeboard-enabled"/>
-        <dropdown-list-setting text="Language" apply-on-change="true" value="language-choice"
+        <dropdown-list-setting text="Language" value="language-choice"
                                choices="language-choices" on-change="language-on-change" formatter="language-formatter"/>
-        <dropdown-list-setting text="Server" apply-on-change="true" value="server-choice"
+        <dropdown-list-setting text="Server" value="server-choice"
                                choices="server-choices" on-change="server-on-change" formatter="server-formatter"/>
     </vertical>
 </horizontal>

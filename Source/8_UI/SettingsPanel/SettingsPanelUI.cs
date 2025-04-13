@@ -37,9 +37,11 @@ namespace BeatLeader {
         [UIValue("language-choice"), UsedImplicitly]
         private BLLanguage _languageValue = PluginConfig.SelectedLanguage;
 
+        BLLanguage languageToSelect = PluginConfig.SelectedLanguage;
+
         [UIAction("language-on-change"), UsedImplicitly]
         private void LanguageOnChange(BLLanguage selectedValue) {
-            PluginConfig.SelectedLanguage = selectedValue;
+            languageToSelect = selectedValue;
         }
 
         [UIAction("language-formatter"), UsedImplicitly]
@@ -57,9 +59,11 @@ namespace BeatLeader {
         [UIValue("server-choice"), UsedImplicitly]
         private BeatLeaderServer _serverValue = PluginConfig.MainServer;
 
+        BeatLeaderServer serverToSelect = PluginConfig.MainServer;
+
         [UIAction("server-on-change"), UsedImplicitly]
         private void ServerOnChange(BeatLeaderServer selectedValue) {
-            PluginConfig.MainServer = selectedValue;
+            serverToSelect = selectedValue;
         }
 
         [UIAction("server-formatter"), UsedImplicitly]
@@ -68,5 +72,20 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        [UIAction("#cancel")]
+        protected void HandleCancel() {
+            _languageValue = PluginConfig.SelectedLanguage;
+            NotifyPropertyChanged(nameof(_languageValue));
+
+            _serverValue = PluginConfig.MainServer;
+            NotifyPropertyChanged(nameof(_serverValue));
+        }
+
+        [UIAction("#apply")]
+        protected void HandleApply() {
+            PluginConfig.SelectedLanguage = languageToSelect;
+            PluginConfig.MainServer = serverToSelect;
+        }
     }
 }

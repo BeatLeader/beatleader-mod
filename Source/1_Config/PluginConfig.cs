@@ -5,14 +5,11 @@ namespace BeatLeader {
     internal static class PluginConfig {
         #region Enabled
 
-        public static event Action<bool> OnEnabledChangedEvent;
-
         public static bool Enabled {
             get => ConfigFileData.Instance.Enabled;
             set {
                 if (ConfigFileData.Instance.Enabled == value) return;
                 ConfigFileData.Instance.Enabled = value;
-                OnEnabledChangedEvent?.Invoke(value);
             }
         }
 
@@ -20,14 +17,11 @@ namespace BeatLeader {
 
         #region Noticeboard
 
-        public static event Action<bool> OnNoticeboardEnabledChangedEvent;
-
         public static bool NoticeboardEnabled {
             get => ConfigFileData.Instance.NoticeboardEnabled;
             set {
                 if (ConfigFileData.Instance.NoticeboardEnabled == value) return;
                 ConfigFileData.Instance.NoticeboardEnabled = value;
-                OnNoticeboardEnabledChangedEvent?.Invoke(value);
             }
         }
 
@@ -35,14 +29,11 @@ namespace BeatLeader {
 
         #region MainServer
 
-        public static event Action<BeatLeaderServer> MainServerChangedEvent;
-
         public static BeatLeaderServer MainServer {
             get => ConfigFileData.Instance.MainServer;
             set {
                 if (ConfigFileData.Instance.MainServer.Equals(value)) return;
                 ConfigFileData.Instance.MainServer = value;
-                MainServerChangedEvent?.Invoke(value);
             }
         }
 

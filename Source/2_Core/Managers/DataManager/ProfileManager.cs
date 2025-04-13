@@ -108,7 +108,6 @@ namespace BeatLeader.DataManager {
             RemoveFriendRequest.AddStateListener(OnRemoveFriendRequestStateChanged);
             LeaderboardEvents.AddFriendWasPressedEvent += OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent += OnRemoveFriendWasPressed;
-            PluginConfig.MainServerChangedEvent += OnMainServerChanged;
 
             UserRequest.SendRequest();
         }
@@ -120,7 +119,6 @@ namespace BeatLeader.DataManager {
             RemoveFriendRequest.RemoveStateListener(OnRemoveFriendRequestStateChanged);
             LeaderboardEvents.AddFriendWasPressedEvent -= OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent -= OnRemoveFriendWasPressed;
-            PluginConfig.MainServerChangedEvent -= OnMainServerChanged;
         }
 
         #endregion

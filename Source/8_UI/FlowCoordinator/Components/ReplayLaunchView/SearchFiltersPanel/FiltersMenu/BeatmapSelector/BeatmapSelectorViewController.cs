@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BGLib.Polyglot;
 using HMUI;
 using IPA.Utilities;
@@ -31,6 +32,7 @@ namespace BeatLeader.Components {
 
         private Vector3 _levelDetailLevelBarOriginalPos;
         private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
+        private BeatmapLevel? _originalBeatmapLevel;
         private bool _isInitialized;
 
         private string _defaultPlayButtonText = Localization.Get("BUTTON_PLAY");
@@ -86,7 +88,9 @@ namespace BeatLeader.Components {
                 _closeButton.ManualInit(_closeButton.transform);
                 _closeButton.ButtonPressedEvent += HandleCloseButtonPressed;
             }
+
             _levelSelectionNavigationController._actionButtonText = CUSTOM_PLAY_BUTTON;
+            _originalBeatmapLevel = _levelCollectionNavigationController.beatmapLevel;
 
             SetLevelDetailWrapperEnabled(true);
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
@@ -99,6 +103,11 @@ namespace BeatLeader.Components {
             _levelSelectionNavigationController._actionButtonText = _defaultPlayButtonText;
             SetLevelDetailWrapperEnabled(false);
             SetCloseButtonEnabled(false);
+
+            if (_originalBeatmapLevel != null) {
+                SetSelectedLevel(_originalBeatmapLevel);
+            }
+
             _lastSelectedLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
         }
@@ -119,6 +128,23 @@ namespace BeatLeader.Components {
             if (level is null) return;
             _levelCollectionNavigationController.SelectLevel(level);
             _levelCollectionNavigationController.HandleLevelCollectionViewControllerDidSelectLevel(null, level);
+        }
+
+        private void SetSelectedLevel(BeatmapLevel level) {
+            var controller = _levelCollectionNavigationController;
+            var detail = _levelDetailViewController;
+
+            _levelCollectionNavigationController._beatmapLevelToBeSelectedAfterPresent = level;
+            _levelCollectionNavigationController._levelCollectionViewController._beatmapLevelToBeSelected = level;
+
+            detail._canBuyPack = controller._levelPack != null;
+            detail._pack = controller._levelPack ?? detail._beatmapLevelsModel.GetLevelPackForLevelId(level.levelID);
+            detail._standardLevelDetailView.hidePracticeButton = !controller._showPracticeButtonInDetailView;
+            detail._standardLevelDetailView.actionButtonText = controller._actionButtonTextInDetailView;
+            detail._allowedBeatmapDifficultyMask = controller._allowedBeatmapDifficultyMask;
+            detail._notAllowedCharacteristics = new HashSet<BeatmapCharacteristicSO>(controller._notAllowedCharacteristics);
+            detail._notAllowedCharacteristics.UnionWith(detail._beatmapCharacteristicCollection.disabledBeatmapCharacteristics);
+            detail._contentIsOwnedAndReady = false;
         }
 
         #endregion

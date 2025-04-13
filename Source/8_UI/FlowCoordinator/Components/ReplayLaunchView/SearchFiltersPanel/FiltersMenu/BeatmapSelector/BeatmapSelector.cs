@@ -28,7 +28,7 @@ namespace BeatLeader.Components {
 
         private CanvasGroup? _canvasGroup;
         private IEnumerable<Touchable>? _touchables;
-        
+
         private LevelSelectionNavigationController? _selectionNavigationController;
         private LevelCollectionViewController? _collectionViewController;
         private BeatmapSelectorViewController? _beatmapSelectorViewController;
@@ -57,9 +57,13 @@ namespace BeatLeader.Components {
             _flowCoordinator = flowCoordinator;
             _selectionNavigationController = levelSelectionNavigationController;
             _collectionViewController = levelCollectionViewController;
+
             _beatmapSelectorViewController = levelSelectionNavigationController.gameObject.AddComponent<BeatmapSelectorViewController>();
             _beatmapSelectorViewController.Init(levelSelectionNavigationController, standardLevelDetailViewController);
             _beatmapSelectorViewController.BeatmapSelectedEvent += HandleSelectorBeatmapSelected;
+            _beatmapSelectorViewController.didDeactivateEvent += HandleSelectorDidDeactivate;
+            _beatmapSelectorViewController.didActivateEvent += HandleSelectorDidActivate;
+
             _collectionViewController.didSelectLevelEvent += HandleSelectedBeatmapChanged;
             _isInitializedDependencies = true;
         }
@@ -81,6 +85,9 @@ namespace BeatLeader.Components {
                 _collectionViewController.didSelectLevelEvent -= HandleSelectedBeatmapChanged;
             }
             if (_beatmapSelectorViewController != null) {
+                _beatmapSelectorViewController.BeatmapSelectedEvent -= HandleSelectorBeatmapSelected;
+                _beatmapSelectorViewController.didDeactivateEvent -= HandleSelectorDidDeactivate;
+                _beatmapSelectorViewController.didActivateEvent -= HandleSelectorDidActivate;
                 Destroy(_beatmapSelectorViewController);
             }
         }
@@ -125,29 +132,46 @@ namespace BeatLeader.Components {
 
         private void OpenLevelSelectionDialog() {
             if (!IsInitialized) throw new UninitializedComponentException();
-            _isSelectorOpened = true;
             //SetFlowCoordinatorBackButtonEnabled(false);
-            _viewController!.__PresentViewController(_beatmapSelectorViewController,
-                null, ViewController.AnimationDirection.Vertical);
+            _viewController!.__PresentViewController(
+                _beatmapSelectorViewController,
+                null,
+                ViewController.AnimationDirection.Vertical
+            );
         }
 
         private void CloseLevelSelectionDialog(bool immediate = false) {
             if (!IsInitialized) throw new UninitializedComponentException();
             RefreshBeatmapPreview();
-            _isSelectorOpened = false;
             _beatmapSelectorViewController!.Dismiss(immediate);
             //SetFlowCoordinatorBackButtonEnabled(true);
         }
 
+        private void HandleSelectorDidActivate(
+            bool firstActivation,
+            bool addedToHierarchy,
+            bool screenSystemEnabling
+        ) {
+            _isSelectorOpened = true;
+        }
+
+        private void HandleSelectorDidDeactivate(
+            bool removedFromHierarchy,
+            bool screenSystemDisabling
+        ) {
+            _isSelectorOpened = false;
+        }
+
         private void SetFlowCoordinatorBackButtonEnabled(bool buttonEnabled) {
             _flowCoordinator!.GetField<ScreenSystem, FlowCoordinator>(
-                "_screenSystem").SetBackButton(buttonEnabled, true);
+                "_screenSystem"
+            ).SetBackButton(buttonEnabled, true);
         }
 
         #endregion
 
         #region SetActive
-        
+
         public void SetActive(bool active) {
             if (!_isInitializedComponent) return;
             _beatmapPreview.BlockPresses = _currentTabOpened || !active;
@@ -160,6 +184,9 @@ namespace BeatLeader.Components {
         #region Callbacks
 
         private void HandleSelectedBeatmapChanged(LevelCollectionViewController? controller, BeatmapLevel level) {
+            if (_isSelectorOpened) {
+                return;
+            }
             _currentPreviewBeatmapLevel = level;
             _currentBeatmapChanged = true;
         }
@@ -182,5 +209,4 @@ namespace BeatLeader.Components {
 
         #endregion
     }
-
 }

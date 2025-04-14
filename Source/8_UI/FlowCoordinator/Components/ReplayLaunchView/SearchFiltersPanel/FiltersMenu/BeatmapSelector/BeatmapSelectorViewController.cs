@@ -31,6 +31,7 @@ namespace BeatLeader.Components {
         #region Init & Dispose
 
         private Vector3 _levelDetailLevelBarOriginalPos;
+        private int _levelDetailLevelBarOriginalIndex;
         private SelectLevelCategoryViewController.LevelCategory _lastSelectedLevelCategory = SelectLevelCategoryViewController.LevelCategory.All;
         private BeatmapLevel? _originalBeatmapLevel;
         private bool _isInitialized;
@@ -166,11 +167,13 @@ namespace BeatLeader.Components {
             if (wrapperEnabled) {
                 _levelDetailViewController.didChangeContentEvent += HandleContentChanged;
                 _levelDetailLevelBarOriginalPos = _levelDetailLevelBar.localPosition;
+                _levelDetailLevelBarOriginalIndex = _levelDetailLevelBar.GetSiblingIndex();
                 _levelDetailWrapper!.Setup(_levelDetailLevelBar);
                 _levelDetailWrapper.Size = new(70, 56);
             } else {
                 _levelDetailViewController.didChangeContentEvent -= HandleContentChanged;
                 _levelDetailLevelBar.SetParent(_levelDetail, false);
+                _levelDetailLevelBar.SetSiblingIndex(_levelDetailLevelBarOriginalIndex);
                 _levelDetailWrapper!.gameObject.SetActive(false);
                 _levelDetailLevelBar.localPosition = _levelDetailLevelBarOriginalPos;
             }

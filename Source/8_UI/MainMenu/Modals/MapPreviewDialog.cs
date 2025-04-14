@@ -156,13 +156,6 @@ namespace BeatLeader.UI.MainMenu {
             if (!string.IsNullOrEmpty(Context.song.coverImage)) {
                 _ = LoadCoverImage();
             }
-
-            // Load and play preview
-            if (!string.IsNullOrEmpty(Context.song.hash)) {
-                _downloadCancellationSource?.Cancel();
-                _downloadCancellationSource = new CancellationTokenSource();
-                _ = LoadAndPlayPreview(_downloadCancellationSource.Token);
-            }
         }
 
         private async Task LoadCoverImage() {
@@ -191,7 +184,7 @@ namespace BeatLeader.UI.MainMenu {
                     if (www.result == UnityWebRequest.Result.Success) {
                         _previewClip = DownloadHandlerAudioClip.GetContent(www);
                         if (_previewClip != null && _songPreviewPlayer != null) {
-                            _songPreviewPlayer.CrossfadeTo(_previewClip, 0, 1, 0, null);
+                            _songPreviewPlayer.CrossfadeTo(_previewClip, 0, 1, _previewClip.length, null);
                         }
                     }
                 }
@@ -201,10 +194,18 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         protected override void OnResume() {
+            _playButton.interactable = true;
             _loadingContainer.SetActive(false);
             _finishedContainer.SetActive(true);
             _finishedText.text = "";
             offClickCloses = true;
+
+            // Load and play preview
+            if (!string.IsNullOrEmpty(Context.song.hash)) {
+                _downloadCancellationSource?.Cancel();
+                _downloadCancellationSource = new CancellationTokenSource();
+                _ = LoadAndPlayPreview(_downloadCancellationSource.Token);
+            }
         }
 
         [UIAction("play-button-click"), UsedImplicitly]
@@ -258,11 +259,6 @@ namespace BeatLeader.UI.MainMenu {
 
             if (_songPreviewPlayer != null) {
                 _songPreviewPlayer.CrossfadeToDefault();
-            }
-            
-            if (_previewClip != null) {
-                UnityEngine.Object.Destroy(_previewClip);
-                _previewClip = null;
             }
         }
 

@@ -116,9 +116,15 @@ namespace BeatLeader.Components {
 
         #region Navigation
 
+        BeatmapLevel? selectedLevel = null;
+
         public void Dismiss(bool immediate = false) {
             if (!_isActivated) return;
-            __DismissViewController(null, AnimationDirection.Vertical, immediate);
+            __DismissViewController(() => {
+                if (selectedLevel != null) {
+                    BeatmapSelectedEvent?.Invoke(selectedLevel);
+                }
+            }, AnimationDirection.Vertical, immediate);
         }
 
         private void NavigateToBeatmap(BeatmapLevel? level, SelectLevelCategoryViewController.LevelCategory category) {
@@ -191,7 +197,7 @@ namespace BeatLeader.Components {
         }
 
         private void HandleSelectButtonPressed() {
-            BeatmapSelectedEvent?.Invoke(_levelSelectionNavigationController.beatmapLevel);
+            selectedLevel = _levelSelectionNavigationController.beatmapLevel;
             HandleCloseButtonPressed();
         }
 

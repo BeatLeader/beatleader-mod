@@ -45,6 +45,7 @@ namespace BeatLeader.Components {
 
         private bool _isInitializedComponent;
         private bool _isInitializedDependencies;
+        private bool _isActive;
 
         public void Setup(
             ViewController viewController,
@@ -114,7 +115,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshBeatmapPreview(bool notifyListeners = true) {
-            _beatmapPreview.BlockPresses = _currentTabOpened;
+            _beatmapPreview.BlockPresses = _currentTabOpened || !_isActive;
             var level = _currentTabOpened ? _currentPreviewBeatmapLevel : _customPreviewBeatmapLevel;
             _beatmapPreview.SetData(level);
             if (notifyListeners) BeatmapSelectedEvent?.Invoke(level);
@@ -174,6 +175,7 @@ namespace BeatLeader.Components {
 
         public void SetActive(bool active) {
             if (!_isInitializedComponent) return;
+            _isActive = active;
             _beatmapPreview.BlockPresses = _currentTabOpened || !active;
             _canvasGroup!.alpha = active ? 1f : 0.25f;
             foreach (var touchable in _touchables!) touchable.enabled = active;

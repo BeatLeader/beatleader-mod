@@ -115,11 +115,11 @@ namespace BeatLeader.UI.Hub {
 
         private TagCreationDialog _tagCreationDialog = null!;
         private TagDeletionDialog _tagDeletionDialog = null!;
-        private Dummy _tagsContainer = null!;
+        private Layout _tagsContainer = null!;
         private ImageButton _createTagButton = null!;
 
         protected override GameObject Construct() {
-            return new Image {
+            return new ImageLayout {
                 Children = {
                     new TagCreationDialog()
                         .WithJumpAnimation()
@@ -135,7 +135,7 @@ namespace BeatLeader.UI.Hub {
                     //
                     new ScrollArea {
                         ScrollOrientation = ScrollOrientation.Vertical,
-                        ScrollContent = new Dummy()
+                        ScrollContent = new Layout()
                             .AsRootFlexGroup(
                                 padding: 2f,
                                 wrap: Wrap.Wrap,
@@ -147,7 +147,7 @@ namespace BeatLeader.UI.Hub {
                             .Bind(ref _tagsContainer)
                     }.AsFlexItem(grow: 1f, margin: new() { top = 1f }),
                     //action buttons
-                    new Image {
+                    new ImageLayout {
                         Sprite = BundleLoader.Sprites.backgroundBottom,
                         Children = {
                             //delete button

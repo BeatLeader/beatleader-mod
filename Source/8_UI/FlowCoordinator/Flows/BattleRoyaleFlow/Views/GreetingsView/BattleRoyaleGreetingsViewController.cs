@@ -88,11 +88,11 @@ namespace BeatLeader.UI.Hub {
             private T? _component;
             private bool _showComponent;
 
-            private ImageButton _backgroundButton = null!;
+            private ImageButtonLayout _backgroundButton = null!;
             private Label _emptyLabel = null!;
 
             protected override GameObject Construct() {
-                return new ImageButton {
+                return new ImageButtonLayout {
                         Image = {
                             Sprite = BundleLoader.Sprites.background,
                             Material = GameResources.UINoGlowMaterial,
@@ -122,10 +122,10 @@ namespace BeatLeader.UI.Hub {
         private ReplaysPreviewPanel _replaysPreviewPanel = null!;
         private ClickablePanel<ReplaysPreviewPanel> _replaysPanel = null!;
         private ClickablePanel<BeatmapPreviewPanel> _beatmapPanel = null!;
-        private ButtonBase _battleButton = null!;
+        private BsPrimaryButton _battleButton = null!;
 
         private void Construct() {
-            new Dummy {
+            new Layout {
                 Children = {
                     new ClickablePanel<BeatmapPreviewPanel> {
                             EmptyText = "NO LEVEL SELECTED",
@@ -148,11 +148,11 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _replaysPanel),
                     //
                     new BsPrimaryButton {
+                            Text = "BATTLE",
                             Skew = UIStyle.Skew,
                             Interactable = false,
                             OnClick = () => _battleRoyaleHost.LaunchBattle()
                         }
-                        .WithLabel("BATTLE")
                         .AsFlexItem(size: new() { x = 30f, y = 8f })
                         .Bind(ref _battleButton)
                 }

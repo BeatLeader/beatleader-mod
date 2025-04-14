@@ -51,7 +51,7 @@ namespace BeatLeader.UI.Replayer {
         private KeyedContainer<string> _selectorContainer = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //view selector
                     new SegmentedControl<string, Sprite, ViewSegmentedControlCell> {
@@ -68,7 +68,7 @@ namespace BeatLeader.UI.Replayer {
                         pixelsPerUnit: 7f
                     ).AsFlexItem(basis: 12f),
                     //view container
-                    new Image {
+                    new ImageLayout {
                         ContentTransform = {
                             anchorMin = new Vector2(0f, 0f),
                             anchorMax = new Vector2(1f, 0f)
@@ -160,12 +160,12 @@ namespace BeatLeader.UI.Replayer {
                 private Label _text = null!;
 
                 protected override GameObject Construct() {
-                    var dummy = new Dummy {
+                    var Layout = new Layout {
                         Children = {
                             new Image {
                                 Material = BundleLoader.UIAdditiveGlowMaterial,
                                 PreserveAspect = true
-                            }.AsFlexItem(grow: 1f).Bind(ref _icon).In<Dummy>().AsFlexGroup(
+                            }.AsFlexItem(grow: 1f).Bind(ref _icon).In<Layout>().AsFlexGroup(
                                 padding: 1f
                             ).AsFlexItem(
                                 minSize: new() { y = 9f },
@@ -182,8 +182,8 @@ namespace BeatLeader.UI.Replayer {
                         justifyContent: Justify.Center,
                         padding: 1f
                     );
-                    Construct(dummy.ContentTransform);
-                    return dummy.Use();
+                    Construct(Layout.ContentTransform);
+                    return Layout.Use();
                 }
 
                 #endregion

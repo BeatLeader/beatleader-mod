@@ -37,7 +37,7 @@ namespace BeatLeader.UI.Hub {
         private ReloadNotice _reloadNotice = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new TextDropdown<BLLanguage>()
                         .WithListener(

@@ -23,11 +23,10 @@ namespace BeatLeader.UI.Hub {
         private ReplayDeletionDialog _replayDeletionDialog = null!;
         private BeatmapDownloadDialog _beatmapDownloadDialog = null!;
         private LoadingContainer _watchButtonContainer = null!;
-        private ButtonBase _watchButton = null!;
-        private Label _watchButtonLabel = null!;
+        private BsPrimaryButton _watchButton = null!;
 
         protected override ILayoutItem ConstructButtons() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new BeatmapDownloadDialog()
                         .WithCloseListener(HandleDownloadBeatmapDialogClosed)
@@ -43,15 +42,14 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _replayDeletionDialog),
                     //
                     new BsButton {
+                            Text = BLLocalization.GetTranslation("ls-delete"),
                             OnClick = HandleDeleteButtonClicked
-                        }
-                        .WithLocalizedLabel("ls-delete")
-                        .AsFlexItem(grow: 1f),
+                        }.AsFlexItem(grow: 1f),
                     //
                     new BsPrimaryButton {
+                            Text = BLLocalization.GetTranslation(WatchTextToken),
                             OnClick = HandleWatchButtonClicked
                         }
-                        .WithLocalizedLabel(out _watchButtonLabel, WatchTextToken)
                         .AsFlexItem(grow: 1f)
                         .Bind(ref _watchButton)
                         .InLoadingContainer()
@@ -89,7 +87,7 @@ namespace BeatLeader.UI.Hub {
                 token
             );
             _needToDownloadBeatmap = !beatmap.HasValue;
-            _watchButtonLabel.SetLocalizedText(_needToDownloadBeatmap ? DownloadTextToken : WatchTextToken);
+            _watchButton.Text = BLLocalization.GetTranslation(_needToDownloadBeatmap ? DownloadTextToken : WatchTextToken);
             _watchButtonContainer.Loading = false;
             _watchButton.Interactable = _needToDownloadBeatmap || SongCoreInterop.ValidateRequirements(beatmap!);
         }

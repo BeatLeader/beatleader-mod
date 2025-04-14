@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private Label _label = null!;
         
         protected override GameObject Construct() {
-            return new Image {
+            return new ImageLayout {
                 Sprite = BundleLoader.Sprites.backgroundTop,
                 Color = (Color.white * 0.9f).ColorWithAlpha(1f),
                 Children = {

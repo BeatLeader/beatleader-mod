@@ -39,7 +39,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     new ListFiltersPanel<IReplayHeader> {
                         SearchContract = x => {

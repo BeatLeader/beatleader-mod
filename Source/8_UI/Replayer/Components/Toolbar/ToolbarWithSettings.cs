@@ -84,10 +84,10 @@ namespace BeatLeader.UI.Replayer {
         private Toolbar _toolbar = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //settings container
-                    new Dummy {
+                    new Layout {
                             ContentTransform = {
                                 pivot = new(0.5f, 0f)
                             },

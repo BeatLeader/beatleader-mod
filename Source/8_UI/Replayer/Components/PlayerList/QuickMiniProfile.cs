@@ -91,11 +91,11 @@ namespace BeatLeader.UI {
         private Image _ppFitterBackground = null!;
 
         protected override GameObject Construct() {
-            static ReactiveComponentBase CreateFitter(
+            static ReactiveComponent CreateFitter(
                 out Image background,
                 params ILayoutItem[] children
             ) {
-                var dummy = new Image()
+                var layout = new ImageLayout()
                     .Export(out background)
                     .AsBackground(pixelsPerUnit: 12f)
                     .AsFlexGroup(
@@ -105,30 +105,30 @@ namespace BeatLeader.UI {
                         size: "auto",
                         maxSize: "100%"
                     );
-                dummy.Children.AddRange(children);
-                return dummy;
+                layout.Children.AddRange(children);
+                return layout;
             }
 
-            static ReactiveComponentBase CreateRail(
+            static ReactiveComponent CreateRail(
                 params ILayoutItem[] children
             ) {
-                var dummy = new Dummy()
+                var layout = new Layout()
                     .AsFlexGroup(
                         justifyContent: Justify.FlexStart,
                         gap: new() { x = 0.5f }
                     );
-                dummy.Children.AddRange(children);
-                return dummy;
+                layout.Children.AddRange(children);
+                return layout;
             }
 
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //avatar
                     new ReeWrapperV2<PlayerAvatar>()
                         .AsFlexItem(aspectRatio: 1f)
                         .BindRee(ref _playerAvatar),
                     //infos
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //player & country
                             CreateRail(

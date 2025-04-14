@@ -9,7 +9,7 @@ namespace BeatLeader.UI.Reactive.Components {
         public ColorCircle ColorCircle { get; } = new();
 
         protected override GameObject Construct() {
-            return new Image {
+            return new ImageLayout {
                 Children = {
                     new DialogHeader {
                         Text = "Select Color"

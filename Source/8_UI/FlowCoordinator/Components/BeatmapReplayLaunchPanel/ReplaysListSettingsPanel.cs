@@ -28,7 +28,7 @@ namespace BeatLeader.UI.Hub {
             private IconSegmentedControl<SortOrder> _sortOrderSelector = null!;
             
             protected override GameObject Construct() {
-                return new Image {
+                return new ImageLayout {
                     Children = {
                         //sorter selector
                         new NamedRail {
@@ -56,7 +56,7 @@ namespace BeatLeader.UI.Hub {
                             Label = {
                                 Text = "Order"
                             },
-                            Component = new Image {
+                            Component = new ImageLayout {
                                 Children = {
                                     new IconSegmentedControl<SortOrder> {
                                         Items = {

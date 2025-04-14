@@ -23,7 +23,7 @@ namespace BeatLeader.UI.Replayer {
         private RectTransform _actualContent = null!;
 
         protected override GameObject Construct() {
-            return new ImageButton {
+            return new ImageButtonLayout {
                     ContentTransform = {
                         pivot = new(1f, 0f)
                     },
@@ -40,10 +40,10 @@ namespace BeatLeader.UI.Replayer {
                             .Bind(ref _miniProfile)
                             .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
                         //overview
-                        new Dummy {
+                        new Layout {
                             Children = {
                                 //score background
-                                new Image {
+                                new ImageLayout {
                                     Sprite = BundleLoader.Sprites.background,
                                     Children = {
                                         //score label

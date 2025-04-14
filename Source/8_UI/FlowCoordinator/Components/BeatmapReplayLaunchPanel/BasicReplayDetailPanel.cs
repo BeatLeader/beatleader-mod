@@ -21,10 +21,10 @@ namespace BeatLeader.UI.Hub {
         private Label _emptyLabel = null!;
 
         protected sealed override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //actual content
-                    new Dummy {
+                    new Layout {
                         Children = {
                             new QuickMiniProfile()
                                 .AsFlexItem(size: new() { y = 16f })

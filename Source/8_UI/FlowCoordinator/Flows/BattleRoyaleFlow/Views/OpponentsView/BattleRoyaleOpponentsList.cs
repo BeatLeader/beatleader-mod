@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
@@ -28,9 +27,9 @@ namespace BeatLeader.UI.Hub {
             private Label _dateText = null!;
 
             protected override GameObject Construct() {
-                return new Dummy {
+                return new Layout {
                     Children = {
-                        new Image {
+                        new ImageLayout {
                             Sprite = BundleLoader.Sprites.background,
                             Color = Color.white.ColorWithAlpha(0.2f),
                             PixelsPerUnit = 8f,
@@ -49,7 +48,7 @@ namespace BeatLeader.UI.Hub {
                                     .AsFlexItem(aspectRatio: 1f)
                                     .BindRee(ref _playerAvatar),
                                 //texts
-                                new Dummy {
+                                new Layout {
                                     Children = {
                                         //player name
                                         new Label {
@@ -76,29 +75,27 @@ namespace BeatLeader.UI.Hub {
                                     margin: new() { left = 2f, right = 2f }
                                 ),
                                 //remove button
-                                new BsButton {
-                                        ShowUnderline = false,
-                                        Skew = UIStyle.Skew,
-                                        OnClick = HandleRemoveButtonClicked
-                                    }
-                                    .AsFlexGroup(padding: 1f)
-                                    .WithImage(
-                                        sprite: BundleLoader.Sprites.crossIcon,
-                                        color: UIStyle.SecondaryTextColor
-                                    )
-                                    .AsFlexItem(basis: 6f),
+                                new ImageBsButton {
+                                    Image = {
+                                        Sprite = BundleLoader.Sprites.crossIcon,
+                                        Color = UIStyle.SecondaryTextColor
+                                    },
+
+                                    ShowUnderline = false,
+                                    Skew = UIStyle.Skew,
+                                    OnClick = HandleRemoveButtonClicked
+                                }.AsFlexItem(basis: 6f),
                                 //navigate button
-                                new BsButton {
-                                        ShowUnderline = false,
-                                        Skew = UIStyle.Skew,
-                                        OnClick = HandleNavigateButtonClicked
-                                    }
-                                    .AsFlexGroup(padding: 0.5f)
-                                    .WithImage(
-                                        sprite: BundleLoader.Sprites.rightArrowIcon,
-                                        color: UIStyle.SecondaryTextColor
-                                    )
-                                    .AsFlexItem(basis: 6f)
+                                new ImageBsButton {
+                                    Image = {
+                                        Sprite = BundleLoader.Sprites.rightArrowIcon,
+                                        Color = UIStyle.SecondaryTextColor
+                                    },
+
+                                    ShowUnderline = false,
+                                    Skew = UIStyle.Skew,
+                                    OnClick = HandleNavigateButtonClicked
+                                }.AsFlexItem(basis: 6f)
                             }
                         }.AsFlexGroup(
                             padding: 1f,
@@ -178,10 +175,10 @@ namespace BeatLeader.UI.Hub {
                 }
                 ResetColor();
                 RefreshOtherText();
-                
+
                 _refreshPlayerTask = RefreshPlayer(_tokenSource.Token).RunCatching();
                 _refreshColorTask = RefreshAccentColor(_tokenSource.Token).RunCatching();
-                
+
                 _prevReplay = item;
                 _prevRank = item.ReplayRank;
             }
@@ -192,28 +189,29 @@ namespace BeatLeader.UI.Hub {
 
             private async Task RefreshAccentColor(CancellationToken token) {
                 var data = await Item.GetBattleRoyaleDataAsync(false, token);
-                
+
                 if (token.IsCancellationRequested) {
                     return;
                 }
-                _refreshColorTask = null;
-                //applying
+
                 var color = data.AccentColor ?? Color.white;
                 SetColor(color);
+
+                _refreshColorTask = null;
             }
 
             private async Task RefreshPlayer(CancellationToken token) {
                 var header = Item.ReplayHeader;
                 var player = await header.LoadPlayerAsync(false, token) as IPlayer;
-                
+
                 if (token.IsCancellationRequested) {
                     return;
                 }
-                
-                _refreshPlayerTask = null;
-                //applying
+
                 _playerAvatar.SetAvatar(player);
                 _playerNameText.Text = player.Name;
+
+                _refreshPlayerTask = null;
             }
 
             private void RefreshOtherText() {

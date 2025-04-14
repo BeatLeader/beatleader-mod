@@ -54,7 +54,7 @@ namespace BeatLeader.UI.Hub {
         private bool _tagSelectorModalOpened;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new TagSelectorModal()
                         .WithShadow()

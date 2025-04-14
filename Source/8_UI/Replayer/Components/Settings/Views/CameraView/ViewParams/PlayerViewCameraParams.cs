@@ -60,7 +60,7 @@ namespace BeatLeader.UI.Replayer {
         private Toggle _keepStraightToggle = null!;
         
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Slider {
                         ValueRange = new() {

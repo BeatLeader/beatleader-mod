@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Hub {
         private QuickMiniProfile _quickMiniProfile = null!;
 
         private void Awake() {
-            ButtonBase CreateButton(
+            AeroButtonLayout CreateButton(
                 string text,
                 Sprite icon,
                 IColorSet colorSet,
@@ -30,7 +30,7 @@ namespace BeatLeader.UI.Hub {
                 float iconMargin,
                 float gap
             ) {
-                return new AeroButton {
+                return new AeroButtonLayout {
                     ContentTransform = {
                         pivot = pivot
                     },
@@ -61,7 +61,7 @@ namespace BeatLeader.UI.Hub {
 
             var menuButtonsTheme = _beatLeaderHubTheme.MenuButtonsTheme;
 
-            new Dummy {
+            new Layout {
                 Children = {
                     new QuickMiniProfile {
                             JustifyContent = Justify.Center
@@ -79,7 +79,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexGroup(padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f })
                         .AsFlexItem(),
                     //buttons (use absolute pos for correct overlap)
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //
                             CreateButton(

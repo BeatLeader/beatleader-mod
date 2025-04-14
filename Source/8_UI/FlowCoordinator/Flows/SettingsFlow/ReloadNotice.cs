@@ -19,11 +19,11 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             return new BsPrimaryButton {
+                    Text = "Reload Now",
                     Skew = UIStyle.Skew,
                     OnClick = () => _transitionsHelper?.RestartGame()
                 }
                 .AsFlexItem(size: new() { x = 20f })
-                .WithLabel("Reload Now")
                 .InNamedRail("These changes will be applied after game reload ")
                 .Use();
         }

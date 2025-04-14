@@ -9,6 +9,7 @@ using Reactive.Yoga;
 using TMPro;
 using Image = Reactive.BeatSaber.Components.Image;
 using ImageButton = Reactive.BeatSaber.Components.ImageButton;
+using ImageLayout = Reactive.BeatSaber.Components.ImageLayout;
 using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.UI.Replayer {
@@ -66,7 +67,7 @@ namespace BeatLeader.UI.Replayer {
         private ImageButton _playButton = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new ExitButton {
                             OnClick = HandleExitButtonClicked
@@ -79,7 +80,7 @@ namespace BeatLeader.UI.Replayer {
                         .AsFlexGroup(padding: new() { top = 1.5f, bottom = 1.5f, right = 1f })
                         .AsFlexItem(basis: 10f),
                     //toolbar
-                    new Image {
+                    new ImageLayout {
                         Children = {
                             //play button
                             new ImageButton {
@@ -177,7 +178,7 @@ namespace BeatLeader.UI.Replayer {
                 var activeColor = UIStyle.ButtonColorSet.ActiveColor;
                 var progress = RememberAnimated(0f, 10.fact());
 
-                return new Button {
+                return new Clickable {
                     OnClick = () => OnClick?.Invoke(),
                     Children = {
                         CreateImage(BundleLoader.ClosedDoorIcon)

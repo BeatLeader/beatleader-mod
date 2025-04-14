@@ -11,14 +11,13 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleDetailPanel : BasicReplayDetailPanel {
         #region Construct
 
-        private ButtonBase _selectButton = null!;
-        private Label _selectButtonLabel = null!;
+        private BsPrimaryButton _selectButton = null!;
 
         protected override ILayoutItem ConstructButtons() {
             return new BsPrimaryButton {
+                    Text = BLLocalization.GetTranslation("ls-watch-replay-short"),
                     OnClick = HandleSelectButtonClicked
                 }
-                .WithLocalizedLabel(out _selectButtonLabel, "ls-watch-replay-short")
                 .AsFlexItem(size: new() { y = 8f })
                 .Bind(ref _selectButton);
         }
@@ -58,7 +57,7 @@ namespace BeatLeader.UI.Hub {
             var interactable = Header != null && _beatmapReplayLaunchPanel != null;
             var containsCurrent = interactable && _beatmapReplayLaunchPanel!.SelectedReplays.Contains(Header);
             _selectButton.Interactable = interactable;
-            _selectButtonLabel.Text = containsCurrent ? "Remove" : "Select";
+            _selectButton.Text = containsCurrent ? "Remove" : "Select";
             _replayIsAdded = containsCurrent;
         }
 

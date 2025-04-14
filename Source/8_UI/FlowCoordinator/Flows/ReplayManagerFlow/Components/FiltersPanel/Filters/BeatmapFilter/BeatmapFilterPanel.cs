@@ -105,9 +105,9 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
-                    new ImageButton {
+                    new ImageButtonLayout {
                         Image = {
                             Color = Color.white,
                             Sprite = BundleLoader.Sprites.background,

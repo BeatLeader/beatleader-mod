@@ -93,11 +93,11 @@ namespace BeatLeader.UI.Hub {
 
         private MapDetailPreviewPanel _mapDetailPanel = null!;
         private Label _titleLabel = null!;
-        private Dummy _searchIndicatorContainer = null!;
+        private Layout _searchIndicatorContainer = null!;
         private Spinner _spinner = null!;
 
         protected override ILayoutItem ConstructContent() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Label {
                             EnableWrapping = true
@@ -105,7 +105,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(size: new() { y = "auto" })
                         .Bind(ref _titleLabel),
                     //
-                    new Dummy {
+                    new Layout {
                         Children = {
                             new SearchIndicator {
                                 Radius = 2f

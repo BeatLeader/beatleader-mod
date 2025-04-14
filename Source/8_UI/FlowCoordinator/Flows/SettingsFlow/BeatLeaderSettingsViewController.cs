@@ -18,7 +18,7 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     new TextSegmentedControl<string> {
                             CellConstructCallback = cell => {

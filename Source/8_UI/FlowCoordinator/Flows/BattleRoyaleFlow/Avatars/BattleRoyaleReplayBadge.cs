@@ -53,9 +53,9 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             _scale = RememberAnimated(Vector3.zero, 10.fact());
 
-            return new Image {
+            return new ImageLayout {
                 Children = {
-                    new Dummy {
+                    new Layout {
                         Children = {
                             new Label {
                                 FontSize = 3f

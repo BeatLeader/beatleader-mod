@@ -31,7 +31,7 @@ namespace BeatLeader.UI.Hub {
         private ColorPicker _colorPicker = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new InputField {
                         Icon = GameResources.Sprites.EditIcon,

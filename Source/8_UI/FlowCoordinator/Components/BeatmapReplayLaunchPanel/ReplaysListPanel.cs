@@ -21,7 +21,7 @@ namespace BeatLeader.UI.Hub {
         private ReplaysListSettingsPanel _settingsPanel = null!;
 
         protected override GameObject Construct() {
-            var go = new Dummy {
+            var go = new Layout {
                 Children = {
                     new ReplaysList()
                         .AsFlexItem(grow: 1f)

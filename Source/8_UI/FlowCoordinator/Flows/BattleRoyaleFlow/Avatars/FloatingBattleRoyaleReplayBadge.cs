@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Hub {
         private BattleRoyaleReplayBadge _badge = null!;
 
         protected override GameObject Construct() {
-            return new Dummy().With(
+            return new Layout().With(
                 x => new BattleRoyaleReplayBadge {
                     ContentTransform = {
                         localEulerAngles = new(0f, 180f, 0f)

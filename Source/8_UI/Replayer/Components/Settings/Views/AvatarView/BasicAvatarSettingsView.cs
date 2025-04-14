@@ -42,11 +42,11 @@ namespace BeatLeader.UI.Replayer {
         private TextSegmentedControl<int> _segmentedControl = null!;
         private KeyedContainer<int> _keyedContainer = null!;
 
-        private Dummy? _basicView;
-        private Dummy? _royaleView;
+        private Layout? _basicView;
+        private Layout? _royaleView;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new TextSegmentedControl<int> {
                             Items = {
@@ -64,7 +64,7 @@ namespace BeatLeader.UI.Replayer {
                         .With(x => x.Enabled = false)
                         .Bind(ref _segmentedControlContainer),
 
-                    new Dummy {
+                    new Layout {
                         Children = {
                             new ScrollArea {
                                     ScrollContent = new KeyedContainer<int> {
@@ -103,7 +103,7 @@ namespace BeatLeader.UI.Replayer {
 
         #region Views
 
-        private Dummy CreateRoyaleView(BattleRoyaleBodySettings settings) {
+        private Layout CreateRoyaleView(BattleRoyaleBodySettings settings) {
             return CreateBasicView(
                 settings,
                 CreateContainer(
@@ -135,8 +135,8 @@ namespace BeatLeader.UI.Replayer {
             );
         }
 
-        private Dummy CreateBasicView(BasicBodySettings settings, ILayoutItem? additionalComponent) {
-            return new Dummy {
+        private Layout CreateBasicView(BasicBodySettings settings, ILayoutItem? additionalComponent) {
+            return new Layout {
                 Children = {
                     CreateContainer(
                         CreateToggle(
@@ -195,17 +195,18 @@ namespace BeatLeader.UI.Replayer {
             );
         }
 
-        private static Image CreateContainer(params ILayoutItem[] components) {
-            var image = new Image().AsBackground(
-                sprite: BundleLoader.Sprites.background,
-                color: new(0.1f, 0.1f, 0.1f, 1f),
-                pixelsPerUnit: 7f
-            ).AsFlexGroup(
-                direction: FlexDirection.Column,
-                alignItems: Align.Stretch,
-                padding: 2f,
-                gap: 1f
-            ).AsFlexItem();
+        private static ImageLayout CreateContainer(params ILayoutItem[] components) {
+            var image = new ImageLayout()
+                .AsBackground(
+                    sprite: BundleLoader.Sprites.background,
+                    color: new(0.1f, 0.1f, 0.1f, 1f),
+                    pixelsPerUnit: 7f
+                ).AsFlexGroup(
+                    direction: FlexDirection.Column,
+                    alignItems: Align.Stretch,
+                    padding: 2f,
+                    gap: 1f
+                ).AsFlexItem();
 
             image.Children.AddRange(components);
 

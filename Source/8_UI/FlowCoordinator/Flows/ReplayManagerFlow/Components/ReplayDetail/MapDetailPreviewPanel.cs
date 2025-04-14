@@ -51,7 +51,7 @@ namespace BeatLeader.UI.Hub {
         private Label _bsrLabel = null!;
 
         protected override GameObject Construct() {
-            return new Image {
+            return new ImageLayout {
                 Children = {
                     //cover
                     new Image {
@@ -62,7 +62,7 @@ namespace BeatLeader.UI.Hub {
                         .InLoadingContainer()
                         .Bind(ref _coverContainer),
                     //labels
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //author label
                             new Label {

@@ -102,7 +102,7 @@ namespace BeatLeader.UI.Replayer {
         private KeyedContainer<ICameraView> _viewContainer = null!;
         private Label _unavailableLabel = null!;
         private Slider _fovSlider = null!;
-        private Dummy _container = null!;
+        private Layout _container = null!;
 
         private void SetUnavailableTextActive(bool active) {
             foreach (var layoutItem in _container.Children) {
@@ -112,7 +112,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Label {
                         Text = "Camera controls are not available while using an external camera",

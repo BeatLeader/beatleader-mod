@@ -103,7 +103,7 @@ namespace BeatLeader.UI.Hub {
             private CheckCircle _enableToggle = null!;
 
             protected override GameObject Construct() {
-                return new Dummy {
+                return new Layout {
                     Children = {
                         new PushContainer {
                             ClosedView = new Label()
@@ -113,7 +113,7 @@ namespace BeatLeader.UI.Hub {
                             }
                         }.AsFlexItem(grow: 1f).Bind(ref _filterContainer),
                         //
-                        new Image {
+                        new ImageLayout {
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
                             Children = {
                                 new CheckCircle {
@@ -216,10 +216,10 @@ namespace BeatLeader.UI.Hub {
                 .Select(static x => x.Key);
 
             private readonly ReactivePool<IPanelListFilter<T>, FilterContainer> _filtersPool = new();
-            private Image _container = null!;
+            private ImageLayout _container = null!;
 
             protected override GameObject Construct() {
-                return new Image()
+                return new ImageLayout()
                     .AsFlexGroup(
                         direction: FlexDirection.Column,
                         justifyContent: Justify.FlexStart,
@@ -264,7 +264,7 @@ namespace BeatLeader.UI.Hub {
         private TextArea _filtersTextArea = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new FiltersModal()
                         .WithShadow()

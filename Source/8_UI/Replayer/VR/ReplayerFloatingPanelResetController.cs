@@ -78,7 +78,7 @@ namespace BeatLeader.UI.Replayer {
         private Image _image = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Image {
                         Sprite = BundleLoader.ProgressRingIcon,

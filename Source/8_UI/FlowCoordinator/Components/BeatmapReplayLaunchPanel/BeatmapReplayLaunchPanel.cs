@@ -90,16 +90,16 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private Image _loadingContainer = null!;
-        private Dummy _detailPanelContainer = null!;
+        private Layout _detailPanelContainer = null!;
         private CanvasGroup _mainContainerCanvasGroup = null!;
         private Label _detailMissingLabel = null!;
         private ReplaysListPanel _replaysListPanel = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //main container
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //replays list
                             new ReplaysListPanel()
@@ -116,7 +116,7 @@ namespace BeatLeader.UI.Hub {
                                 .With(x => _replaysListPanel.ReplaysList.Scrollbar = x)
                                 .AsFlexItem(margin: new() { left = 1f, right = 2f }),
                             //detail panel container
-                            new Dummy {
+                            new Layout {
                                 Children = {
                                     new Label {
                                         Text = "Monke didn't find anything to show",
@@ -127,15 +127,16 @@ namespace BeatLeader.UI.Hub {
                         }
                     }.WithNativeComponent(out _mainContainerCanvasGroup).AsFlexGroup(gap: 2f).AsFlexItem(),
                     //loading container
-                    new Image {
+                    new ImageLayout {
                         Enabled = false,
                         Sprite = BundleLoader.Sprites.transparentPixel,
                         Children = {
                             new Spinner().AsFlexItem(size: 8f),
                             //
                             new BsButton {
+                                Text = "Cancel",
                                 OnClick = () => ReplayManager.CancelLoading()
-                            }.WithLabel("Cancel").AsFlexItem()
+                            }.AsFlexItem()
                         }
                     }.AsFlexGroup(
                         direction: FlexDirection.Column,

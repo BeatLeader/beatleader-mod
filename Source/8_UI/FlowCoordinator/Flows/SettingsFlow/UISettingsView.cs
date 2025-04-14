@@ -37,8 +37,8 @@ namespace BeatLeader.UI.Hub {
         private Toggle _replayManagerSearchBoldToggle = null!;
 
         protected override GameObject Construct() {
-            static ReactiveComponentBase CreateContainer(string name, params ILayoutItem[] children) {
-                return new Image {
+            static ReactiveComponent CreateContainer(string name, params ILayoutItem[] children) {
+                return new ImageLayout {
                     Children = {
                         new Label {
                             Text = name
@@ -53,14 +53,14 @@ namespace BeatLeader.UI.Hub {
                 ).AsFlexItem();
             }
 
-            static ReactiveComponentBase CreateColorPicker(string name, Action<Color> callback, ref ColorPicker picker) {
+            static ReactiveComponent CreateColorPicker(string name, Action<Color> callback, ref ColorPicker picker) {
                 return new ColorPicker()
                     .WithListener(x => x.Color, callback)
                     .Bind(ref picker)
                     .InNamedRail(name);
             }
 
-            return new Dummy {
+            return new Layout {
                 Children = {
                     CreateContainer(
                         "Hub Button Colors",

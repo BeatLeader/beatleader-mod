@@ -31,7 +31,7 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
-            return new AeroButton {
+            return new AeroButtonLayout {
                 OnClick = () => OnClick?.Invoke(),
                 Children = {
                     new Image {

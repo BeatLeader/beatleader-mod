@@ -201,7 +201,7 @@ namespace BeatLeader.UI.Hub {
             private Label _topRightLabel = null!;
             private Label _bottomRightLabel = null!;
             private ImageButton _button = null!;
-            private Dummy _tagsContainer = null!;
+            private Layout _tagsContainer = null!;
 
             protected override GameObject Construct() {
                 static Label CellLabel(
@@ -225,9 +225,9 @@ namespace BeatLeader.UI.Hub {
                     ).Bind(ref variable);
                 }
 
-                return new Dummy {
+                return new Layout {
                     Children = {
-                        new ImageButton {
+                        new ImageButtonLayout {
                             Image = {
                                 Sprite = BundleLoader.Sprites.background,
                                 PixelsPerUnit = 10f,
@@ -240,7 +240,7 @@ namespace BeatLeader.UI.Hub {
                             OnStateChanged = _ => SelectSelf(true),
                             Children = {
                                 //top left
-                                new Dummy {
+                                new Layout {
                                     Children = {
                                         new Label {
                                             Overflow = TextOverflowModes.Ellipsis,
@@ -250,7 +250,7 @@ namespace BeatLeader.UI.Hub {
                                             Color = textColor
                                         }.AsFlexItem(size: new() { x = "auto" }).Bind(ref _topLeftLabel),
 
-                                        new Dummy()
+                                        new Layout()
                                             .AsFlexGroup(
                                                 justifyContent: Justify.FlexStart,
                                                 padding: new() { top = 0.7f, left = 0.7f },

@@ -145,12 +145,12 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _containerGroup = null!;
         private TagSelectorModal _tagSelectorModal = null!;
         private Label _tagsLabel = null!;
-        private Dummy _tagsContainer = null!;
+        private Layout _tagsContainer = null!;
         private Image _contentContainer = null!;
         private Image _editButtonContainer = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new TagSelectorModal {
                             BuildImmediate = true
@@ -160,11 +160,11 @@ namespace BeatLeader.UI.Hub {
                         .WithCloseListener(HandleTagSelectorClosed)
                         .Bind(ref _tagSelectorModal),
                     //
-                    new Image {
+                    new ImageLayout {
                             Sprite = BundleLoader.Sprites.backgroundLeft,
                             Children = {
                                 //tags container
-                                new Dummy()
+                                new Layout()
                                     .AsFlexGroup(
                                         gap: 1f,
                                         alignItems: Align.Center,
@@ -188,7 +188,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(grow: 1f)
                         .Bind(ref _contentContainer),
                     //
-                    new Image {
+                    new ImageLayout {
                             Sprite = BundleLoader.Sprites.backgroundRight,
                             Children = {
                                 new ImageButton {

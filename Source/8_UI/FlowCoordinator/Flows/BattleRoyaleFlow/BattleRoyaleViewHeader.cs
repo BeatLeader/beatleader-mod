@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Hub {
         private Label _label = null!;
 
         protected override GameObject Construct() {
-            return new Image {
+            return new ImageLayout {
                 Children = {
                     new Label {
                         FontSize = 6f,

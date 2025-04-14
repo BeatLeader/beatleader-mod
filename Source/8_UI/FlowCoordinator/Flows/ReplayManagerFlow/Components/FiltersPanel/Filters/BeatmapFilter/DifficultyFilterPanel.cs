@@ -65,7 +65,7 @@ namespace BeatLeader.UI.Hub {
         private BeatLeader.Components.BeatmapDifficultyPanel _difficultyPanel = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new ReeWrapperV2<BeatLeader.Components.BeatmapDifficultyPanel>()
                         .AsFlexItem(grow: 1f)

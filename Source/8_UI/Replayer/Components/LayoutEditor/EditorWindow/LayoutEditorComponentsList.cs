@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Components;
-using Reactive.Components.Basic;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
@@ -36,15 +36,15 @@ namespace BeatLeader.Components {
             private Image _backgroundImage = null!;
 
             protected override GameObject Construct() {
-                return new Button {
+                return new Clickable {
                     OnClick = () => SelectSelf(true),
                     Children = {
-                        new Image {
+                        new ImageLayout {
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 8f,
                             Children = {
                                 //
-                                new Dummy {
+                                new Layout {
                                     Children = {
                                         new Label {
                                             FontSize = 3.5f,
@@ -60,7 +60,7 @@ namespace BeatLeader.Components {
                                     }
                                 }.AsFlexGroup().AsFlexItem(grow: 1f),
                                 //
-                                new Image {
+                                new ImageLayout {
                                     Sprite = BundleLoader.Sprites.background,
                                     PixelsPerUnit = 8f,
                                     Color = new(0.03f, 0.03f, 0.03f),

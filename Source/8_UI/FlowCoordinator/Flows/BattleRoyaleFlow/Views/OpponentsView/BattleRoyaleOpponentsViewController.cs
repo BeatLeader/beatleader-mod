@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _localCanvasGroup = null!;
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     //header
                     new BattleRoyaleViewHeader {

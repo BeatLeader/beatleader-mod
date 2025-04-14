@@ -125,7 +125,7 @@ namespace BeatLeader.Components {
         private ProgressBar _progressBar = null!;
 
         protected override ILayoutItem ConstructContent() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Label {
                         Overflow = TextOverflowModes.Ellipsis

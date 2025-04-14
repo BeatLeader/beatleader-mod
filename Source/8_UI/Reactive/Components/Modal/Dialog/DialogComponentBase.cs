@@ -14,8 +14,8 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         protected string CancelButtonText {
-            get => _cancelButtonLabel.Text;
-            set => _cancelButtonLabel.Text = value;
+            get => _cancelButton.Text;
+            set => _cancelButton.Text = value;
         }
 
         protected string OkButtonText {
@@ -50,13 +50,12 @@ namespace BeatLeader.UI.Reactive.Components {
         protected override bool AllowExternalClose => false;
 
         private DialogHeader _header = null!;
-        private ButtonBase _cancelButton = null!;
-        private Label _cancelButtonLabel = null!;
-        private ButtonBase _okButton = null!;
+        private BsButton _cancelButton = null!;
+        private BsPrimaryButton _okButton = null!;
         private Label _okButtonLabel = null!;
 
         protected sealed override GameObject Construct() {
-            return new Image {
+            return new ImageLayout {
                 Children = {
                     new DialogHeader()
                         .AsFlexItem(basis: 6f)
@@ -64,23 +63,19 @@ namespace BeatLeader.UI.Reactive.Components {
                     //content
                     ConstructContent().AsFlexItem(grow: 1f),
                     //
-                    new Dummy {
+                    new Layout {
                         Children = {
                             new BsButton {
-                                    Skew = 0f,
-                                    OnClick = OnCancelButtonClicked
-                                }
-                                .WithLabel(out _cancelButtonLabel, "Cancel")
-                                .AsFlexItem(grow: 1f)
-                                .Bind(ref _cancelButton),
+                                Text = "Cancel",
+                                Skew = 0f,
+                                OnClick = OnCancelButtonClicked
+                            }.AsFlexItem(grow: 1f).Bind(ref _cancelButton),
                             //
                             new BsPrimaryButton {
-                                    Skew = 0f,
-                                    OnClick = OnOkButtonClicked
-                                }
-                                .WithLabel(out _okButtonLabel, "Ok")
-                                .AsFlexItem(grow: 1f)
-                                .Bind(ref _okButton)
+                                Text = "OK",
+                                Skew = 0f,
+                                OnClick = OnOkButtonClicked
+                            }.AsFlexItem(grow: 1f).Bind(ref _okButton)
                         }
                     }.AsFlexItem(basis: 8f).AsFlexGroup(padding: 1f, gap: 1f)
                 }

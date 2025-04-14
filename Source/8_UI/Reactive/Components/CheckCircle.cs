@@ -10,7 +10,7 @@ namespace BeatLeader.UI.Reactive.Components {
         public bool Active { get; private set; }
         public Action<bool>? OnStateChanged { get; set; }
 
-        private Button _button = null!;
+        private ButtonBase _button = null!;
         private Image _inactiveImage = null!;
         private Image _activeImage = null!;
 
@@ -36,7 +36,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
             progress.ValueChangedEvent += RefreshColors;
 
-            return new Button {
+            return new Clickable {
                 OnStateChanged = x => {
                     Active = x;
                     RefreshColors(0f);

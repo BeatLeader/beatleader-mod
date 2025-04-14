@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     //header
                     new BattleRoyaleViewHeader {

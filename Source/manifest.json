@@ -3,7 +3,7 @@
   "id": "BeatLeader",
   "name": "BeatLeader",
   "author": "",
-  "version": "0.9.32",
+  "version": "0.9.33",
   "description": "beatleader.com | In-game leaderboards for custom and OST maps | Score replays | Clans, events, playlists and much more",
   "gameVersion": "1.40.2",
   "dependsOn": {
@@ -13,7 +13,8 @@
     "BSIPA": "^4.2.2",
     "SiraUtil": "^3.1.0",
     "BS Utils": "^1.12.1",
-    "System.IO.Compression": "^4.6.0"
+    "System.IO.Compression": "^4.6.0",
+    "System.IO.Compression.FileSystem": "^4.6.0"
   },
   "loadAfter": [
     "BetterSongList",

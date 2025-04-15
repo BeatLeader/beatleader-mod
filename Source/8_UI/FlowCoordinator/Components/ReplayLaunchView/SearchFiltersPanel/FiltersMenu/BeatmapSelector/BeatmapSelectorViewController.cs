@@ -164,18 +164,33 @@ namespace BeatLeader.Components {
         }
 
         private void SetLevelDetailWrapperEnabled(bool wrapperEnabled) {
+            var coverImage = _levelDetailViewController._standardLevelDetailView._levelBar._songArtworkImageView;
             if (wrapperEnabled) {
                 _levelDetailViewController.didChangeContentEvent += HandleContentChanged;
                 _levelDetailLevelBarOriginalPos = _levelDetailLevelBar.localPosition;
                 _levelDetailLevelBarOriginalIndex = _levelDetailLevelBar.GetSiblingIndex();
                 _levelDetailWrapper!.Setup(_levelDetailLevelBar);
                 _levelDetailWrapper.Size = new(70, 56);
+                if (coverImage.rectTransform.sizeDelta.x > 20) {
+                    if (coverImage.rectTransform.position.y > 100) {
+                        coverImage.rectTransform.position += new Vector3(0, 0.34f, 0);
+                    } else {
+                        coverImage.rectTransform.position += new Vector3(0, 0.47f, 0);
+                    }
+                }
             } else {
                 _levelDetailViewController.didChangeContentEvent -= HandleContentChanged;
                 _levelDetailLevelBar.SetParent(_levelDetail, false);
                 _levelDetailLevelBar.SetSiblingIndex(_levelDetailLevelBarOriginalIndex);
                 _levelDetailWrapper!.gameObject.SetActive(false);
                 _levelDetailLevelBar.localPosition = _levelDetailLevelBarOriginalPos;
+                if (coverImage.rectTransform.sizeDelta.x > 20) {
+                    if (coverImage.rectTransform.position.y > 100) {
+                        coverImage.rectTransform.position -= new Vector3(0, 0.34f, 0);
+                    } else {
+                        coverImage.rectTransform.position -= new Vector3(0, 0.47f, 0);
+                    }
+                }
             }
         }
 

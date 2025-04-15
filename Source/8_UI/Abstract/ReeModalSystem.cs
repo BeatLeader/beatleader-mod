@@ -37,9 +37,10 @@ namespace BeatLeader {
 
             if (interruptActiveModals) {
                 InterruptAllEvent?.Invoke();
+                controller.OpenModalAfterFrame<T>(state);
+            } else {
+                controller.OpenModal<T>(state);
             }
-
-            controller.OpenModal<T>(state);
         }
 
         public static void CloseAll() {
@@ -115,6 +116,16 @@ namespace BeatLeader {
         private void OpenModal<T>(object context) where T : IReeModal {
             var editor = GetOrInstantiateModal<T>();
             PopOpen(editor, context);
+        }
+
+        private void OpenModalAfterFrame<T>(object context) where T : IReeModal {
+            var editor = GetOrInstantiateModal<T>();
+            StartCoroutine(WaitAFrame(editor, context));
+        }
+
+        private IEnumerator WaitAFrame(IReeModal modal, object state) {
+            yield return new WaitForEndOfFrame();
+            PopOpen(modal, state);
         }
 
         private void PopOpen(IReeModal modal, object state) {

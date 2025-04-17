@@ -48,7 +48,7 @@ namespace BeatLeader.Components {
         }
 
         private void UpdatePlayer() {
-            var player = HiddenPlayersCache.ModifyPlayer(_player);
+            var player = HiddenPlayersCache.HidePlayerIfNeeded(_player);
             
             _miniProfileButtons.SetPlayer(player);
             _playerAvatar.SetAvatar(player);

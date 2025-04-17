@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
@@ -21,7 +23,6 @@ namespace BeatLeader.UI.MainMenu {
         [UIObject("finished-container"), UsedImplicitly] private GameObject _finishedContainer = null!;
 
         [UIComponent("finished-text"), UsedImplicitly] private TMP_Text _finishedText = null!;
-
 
         private bool _okButtonActive;
 
@@ -109,15 +110,19 @@ namespace BeatLeader.UI.MainMenu {
 
         private async void Download() {
             //attempting to download
-            var bytes = await WebUtils.SendRawDataRequestAsync(Context.downloadUrl!);
-            if (bytes != null) {
-                var basePath = Context.id + " (" + Context.name + " - " + Context.author + ")";
-                basePath = string.Join("", basePath.Split(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()));
-                await FileManager.InstallBeatmap(bytes, basePath);
-                await Task.Delay(TimeSpan.FromSeconds(2));
-            }
-            //showing finish view
+            var request = await RawDataRequest.SendRequest(Context.downloadUrl!).Join();
 
+            if (request.RequestStatusCode is not HttpStatusCode.OK) {
+                return;
+            }
+            
+            var basePath = Context.id + " (" + Context.name + " - " + Context.author + ")";
+            basePath = string.Join("", basePath.Split(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()));
+            
+            await FileManager.InstallBeatmap(request.Result!, basePath);
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            //showing the finish view
             var map = await FetchMap(Context);
 
             offClickCloses = true;

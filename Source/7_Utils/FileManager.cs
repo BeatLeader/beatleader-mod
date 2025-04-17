@@ -56,7 +56,7 @@ namespace BeatLeader.Utils {
             return Path.Combine(replaysFolderPath, fileName);
         }
         
-        public static bool TryWriteReplay(string fileName, Replay replay) {
+        public static async Task<bool> WriteReplayAsync(string fileName, Replay replay, CancellationToken token) {
             try {
                 var path = GetAbsoluteReplayPath(fileName);
                 var file = File.Open(path, FileMode.OpenOrCreate);

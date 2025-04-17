@@ -325,7 +325,7 @@ namespace BeatLeader.Components {
             _background.color = bgColor;
         }
 
-        private void SetHighlight(bool highlight) {
+        public void SetHighlight(bool highlight) {
             _highlighted = highlight;
             MarkVisualsDirty();
         }

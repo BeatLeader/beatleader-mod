@@ -122,7 +122,7 @@ namespace BeatLeader.ViewControllers {
                 return;
             }
             
-            ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _replayerStarter), false);
+            ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _replayerNavigator), false);
         }
 
         private void PresentClanScoreInfoModal(ClanScore score) {

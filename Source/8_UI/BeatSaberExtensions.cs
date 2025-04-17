@@ -1,5 +1,4 @@
-﻿using BeatLeader.BeatLeader;
-using HMUI;
+﻿using HMUI;
 using IPA.Utilities;
 
 namespace BeatLeader {

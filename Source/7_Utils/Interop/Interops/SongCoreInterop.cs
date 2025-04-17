@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BeatLeader.Models;
 
 namespace BeatLeader.Interop {
     internal static class SongCoreInterop {
@@ -25,8 +26,8 @@ namespace BeatLeader.Interop {
 
         #region ValidateRequirements
 
-        public static bool ValidateRequirements(BeatmapLevel beatmap, BeatmapKey key) {
-            return !TryGetBeatmapRequirements(beatmap, key, out var requirements)
+        public static bool ValidateRequirements(BeatmapLevelWithKey beatmap) {
+            return !TryGetBeatmapRequirements(beatmap.Level, beatmap.Key, out var requirements)
                 || (requirements?.All(x => SongCore.Collections.capabilities.Contains(x)) ?? true);
         }
 

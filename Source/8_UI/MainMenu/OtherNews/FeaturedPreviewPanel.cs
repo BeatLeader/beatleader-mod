@@ -49,8 +49,8 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnInitialize() {
             _background._skew = 0.18f;
-            
-            _image.material = BundleLoader.RoundTexture10Material;
+
+            _image.material = BundleLoader.RoundTextureMaterial;
             _image._skew = 0.18f;
             _image.__Refresh();
 

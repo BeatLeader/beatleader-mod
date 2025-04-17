@@ -8,15 +8,12 @@ namespace BeatLeader.Models {
         [JsonIgnore]
         public Player Player => HiddenPlayersCache.HidePlayerIfNeeded(originalPlayer);
 
-        [Obsolete("Use ActualPlayer instead")]
-        public Player OriginalPlayer => _originalPlayer;
-        
-        public Player ActualPlayer => _originalPlayer;
+        public Player ActualPlayer => originalPlayer;
         
         public int TotalMistakes => missedNotes + badCuts + bombCuts + wallsHit;
 
         [JsonProperty("player")]
-        private Player _originalPlayer;
+        public Player originalPlayer;
         
         public int id;
         public float accuracy;
@@ -83,7 +80,7 @@ namespace BeatLeader.Models {
 
         #region IReplayHashProvider impl
 
-        string IReplayHashProvider.PlayerID => _originalPlayer.id;
+        string IReplayHashProvider.PlayerID => originalPlayer.id;
         long IReplayHashProvider.Timestamp => _timestamp ??= long.Parse(timeSet);
 
         private long? _timestamp;

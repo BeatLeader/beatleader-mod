@@ -59,11 +59,6 @@ namespace BeatLeader {
             SettingsPanelUI.AddTab();
             ReplayManager.LoadCache();
         }
-        
-        private static void ObserveEnabled() {
-            PluginConfig.OnEnabledChangedEvent += OnEnabledChanged;
-            OnEnabledChanged(PluginConfig.Enabled);
-        }
 
         private static void OnEnabledChanged(bool enabled) {
             if (enabled) {

@@ -32,7 +32,7 @@ namespace BeatLeader.UI.Replayer {
         protected override GameObject Construct() {
             _contentAnim = RememberAnimated(0f, 150f.ms(), AnimationCurve.EaseOut);
 
-            return new ImageLayout {
+            return new Background {
                 Children = {
                     new Layout {
                         ContentTransform = {

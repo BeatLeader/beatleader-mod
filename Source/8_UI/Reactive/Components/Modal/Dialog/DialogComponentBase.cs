@@ -55,7 +55,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private Label _okButtonLabel = null!;
 
         protected sealed override GameObject Construct() {
-            return new ImageLayout {
+            return new Background {
                 Children = {
                     new DialogHeader()
                         .AsFlexItem(basis: 6f)

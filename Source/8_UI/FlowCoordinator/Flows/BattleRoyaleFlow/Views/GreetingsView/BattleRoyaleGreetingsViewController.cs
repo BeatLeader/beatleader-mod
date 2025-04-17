@@ -88,11 +88,11 @@ namespace BeatLeader.UI.Hub {
             private T? _component;
             private bool _showComponent;
 
-            private ImageButtonLayout _backgroundButton = null!;
+            private BackgroundButton _backgroundButton = null!;
             private Label _emptyLabel = null!;
 
             protected override GameObject Construct() {
-                return new ImageButtonLayout {
+                return new BackgroundButton {
                         Image = {
                             Sprite = BundleLoader.Sprites.background,
                             Material = GameResources.UINoGlowMaterial,

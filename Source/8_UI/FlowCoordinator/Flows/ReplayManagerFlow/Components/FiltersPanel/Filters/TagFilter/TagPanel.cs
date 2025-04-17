@@ -215,7 +215,7 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             //wrapping into container to allow animations
-            var content = new ImageButtonLayout {
+            var content = new BackgroundButton {
                 Image = {
                     Sprite = BundleLoader.Sprites.background,
                     PixelsPerUnit = 8f,
@@ -226,7 +226,7 @@ namespace BeatLeader.UI.Hub {
                 OnStateChanged = HandleTagButtonStateChanged,
                 Children = {
                     //delete button
-                    new ImageButtonLayout {
+                    new BackgroundButton {
                         Enabled = false,
                         OnClick = HandleDeleteButtonClicked,
                         ContentTransform = {

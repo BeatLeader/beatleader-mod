@@ -38,7 +38,7 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             static ReactiveComponent CreateContainer(string name, params ILayoutItem[] children) {
-                return new ImageLayout {
+                return new Background {
                     Children = {
                         new Label {
                             Text = name

@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             static ReactiveComponent CreateLabel(ref Label label) {
-                return new ImageLayout {
+                return new Background {
                     Children = {
                         new Label {
                             Overflow = TextOverflowModes.Ellipsis,
@@ -69,8 +69,7 @@ namespace BeatLeader.UI.Replayer {
                         direction: FlexDirection.Column,
                         justifyContent: Justify.Center,
                         alignItems: Align.FlexStart,
-                        gap: new() { y = 1f },
-                        independentLayout: true
+                        gap: new() { y = 1f }
                     ).AsFlexItem(grow: 1f)
                 }
             }.AsFlexGroup(padding: new() { top = 2f, bottom = 2f }, gap: 2f).Use();

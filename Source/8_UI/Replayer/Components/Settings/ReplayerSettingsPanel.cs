@@ -55,20 +55,23 @@ namespace BeatLeader.UI.Replayer {
                 Children = {
                     //view selector
                     new SegmentedControl<string, Sprite, ViewSegmentedControlCell> {
-                        Direction = FlexDirection.Column,
-                        Items = {
-                            { "Camera", BundleLoader.CameraIcon },
-                            { "Avatar", BundleLoader.AvatarIcon },
-                            { "UI", BundleLoader.UIIcon },
-                            { "Other", BundleLoader.OtherIcon }
+                            Items = {
+                                { "Camera", BundleLoader.CameraIcon },
+                                { "Avatar", BundleLoader.AvatarIcon },
+                                { "UI", BundleLoader.UIIcon },
+                                { "Other", BundleLoader.OtherIcon }
+                            }
                         }
-                    }.Export(out var segmentedControl).InBackground(
-                        sprite: BundleLoader.Sprites.backgroundLeft,
-                        color: new(0.1f, 0.1f, 0.1f, 1f),
-                        pixelsPerUnit: 7f
-                    ).AsFlexItem(basis: 12f),
+                        .AsFlexGroup(direction: FlexDirection.Column)
+                        .Export(out var segmentedControl)
+                        .InBackground(
+                            sprite: BundleLoader.Sprites.backgroundLeft,
+                            color: new(0.1f, 0.1f, 0.1f, 1f),
+                            pixelsPerUnit: 7f
+                        )
+                        .AsFlexItem(basis: 12f),
                     //view container
-                    new ImageLayout {
+                    new Background {
                         ContentTransform = {
                             anchorMin = new Vector2(0f, 0f),
                             anchorMax = new Vector2(1f, 0f)

@@ -65,15 +65,15 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        public ImageLayout BackgroundImage => _backgroundImage;
+        public Background BackgroundImage => _backgroundImage;
 
-        private ImageLayout _backgroundImage = null!;
+        private Background _backgroundImage = null!;
         private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
-                    new ImageLayout()
+                    new Background()
                         .AsFlexGroup()
                         .AsFlexItem(grow: 1f)
                         .AsBlurBackground()

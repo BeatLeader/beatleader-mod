@@ -227,7 +227,7 @@ namespace BeatLeader.UI.Hub {
 
                 return new Layout {
                     Children = {
-                        new ImageButtonLayout {
+                        new BackgroundButton {
                             Image = {
                                 Sprite = BundleLoader.Sprites.background,
                                 PixelsPerUnit = 10f,

@@ -99,15 +99,15 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
-        private ImageLayout _timelineTogglesContainer = null!;
+        private Background _timelineTogglesContainer = null!;
         private Toggle _watermarkToggle = null!;
         private Toggle _autoHideToggle = null!;
         private Toggle _quickSettingsToggle = null!;
         private NamedRail _layoutEditorRail = null!;
 
         protected override GameObject Construct() {
-            static ImageLayout CreateContainer(float gap, params ILayoutItem[] children) {
-                return new ImageLayout()
+            static Background CreateContainer(float gap, params ILayoutItem[] children) {
+                return new Background()
                     .With(x => x.Children.AddRange(children))
                     .AsBackground(
                         color: new(0.1f, 0.1f, 0.1f, 1f),

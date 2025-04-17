@@ -51,7 +51,7 @@ namespace BeatLeader.UI.Hub {
         private Label _bsrLabel = null!;
 
         protected override GameObject Construct() {
-            return new ImageLayout {
+            return new Background {
                 Children = {
                     //cover
                     new Image {

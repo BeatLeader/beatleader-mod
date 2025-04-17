@@ -160,7 +160,7 @@ namespace BeatLeader.UI.Hub {
                         .WithCloseListener(HandleTagSelectorClosed)
                         .Bind(ref _tagSelectorModal),
                     //
-                    new ImageLayout {
+                    new Background {
                             Sprite = BundleLoader.Sprites.backgroundLeft,
                             Children = {
                                 //tags container
@@ -188,7 +188,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexItem(grow: 1f)
                         .Bind(ref _contentContainer),
                     //
-                    new ImageLayout {
+                    new Background {
                             Sprite = BundleLoader.Sprites.backgroundRight,
                             Children = {
                                 new ImageButton {

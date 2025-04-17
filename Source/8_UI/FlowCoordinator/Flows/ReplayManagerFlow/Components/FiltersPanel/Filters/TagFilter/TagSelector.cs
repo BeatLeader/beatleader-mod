@@ -119,7 +119,7 @@ namespace BeatLeader.UI.Hub {
         private ImageButton _createTagButton = null!;
 
         protected override GameObject Construct() {
-            return new ImageLayout {
+            return new Background {
                 Children = {
                     new TagCreationDialog()
                         .WithJumpAnimation()
@@ -147,7 +147,7 @@ namespace BeatLeader.UI.Hub {
                             .Bind(ref _tagsContainer)
                     }.AsFlexItem(grow: 1f, margin: new() { top = 1f }),
                     //action buttons
-                    new ImageLayout {
+                    new Background {
                         Sprite = BundleLoader.Sprites.backgroundBottom,
                         Children = {
                             //delete button

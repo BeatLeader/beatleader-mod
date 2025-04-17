@@ -109,13 +109,13 @@ namespace BeatLeader.Components {
         private RectTransform _imageTransform = null!;
 
         protected override GameObject Construct() {
-            return new ImageLayout {
+            return new Background {
                 Sprite = BundleLoader.Sprites.background,
                 PixelsPerUnit = 7f,
                 Color = new(0.14f, 0.14f, 0.14f),
                 Children = {
                     //handle
-                    new ImageLayout {
+                    new Background {
                         Sprite = BundleLoader.Sprites.backgroundTop,
                         PixelsPerUnit = 7f,
                         Children = {
@@ -142,7 +142,7 @@ namespace BeatLeader.Components {
                     //buttons
                     new Layout {
                         Children = {
-                            new ImageLayout {
+                            new Background {
                                 Sprite = BundleLoader.Sprites.background,
                                 Color = new(0.22f, 0.22f, 0.22f),
                                 PixelsPerUnit = 10f,

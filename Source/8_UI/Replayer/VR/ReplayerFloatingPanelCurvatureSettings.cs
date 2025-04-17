@@ -65,7 +65,7 @@ namespace BeatLeader.UI.Replayer {
                     pivot = new(0.5f, 1f)
                 },
                 Children = {
-                    new ImageLayout {
+                    new Background {
                         ContentTransform = {
                             pivot = new(0.5f, 1f)
                         },

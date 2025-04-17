@@ -70,7 +70,7 @@ namespace BeatLeader.UI.Replayer {
                                     ScrollContent = new KeyedContainer<int> {
                                             Control = _segmentedControl
                                         }
-                                        .AsRootFlexGroup()
+                                        .AsFlexGroup()
                                         .AsFlexItem(size: new() { y = "auto" })
                                         .Bind(ref _keyedContainer)
                                 }
@@ -195,8 +195,8 @@ namespace BeatLeader.UI.Replayer {
             );
         }
 
-        private static ImageLayout CreateContainer(params ILayoutItem[] components) {
-            var image = new ImageLayout()
+        private static Background CreateContainer(params ILayoutItem[] components) {
+            var image = new Background()
                 .AsBackground(
                     sprite: BundleLoader.Sprites.background,
                     color: new(0.1f, 0.1f, 0.1f, 1f),

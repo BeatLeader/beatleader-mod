@@ -55,7 +55,7 @@ namespace BeatLeader.UI.Hub {
             private BsButton _cancelButton = null!;
 
             protected override GameObject Construct() {
-                return new ImageLayout {
+                return new Background {
                     Children = {
                         new Label {
                                 EnableWrapping = true
@@ -152,7 +152,7 @@ namespace BeatLeader.UI.Hub {
                         .InBlurBackground()
                         .AsFlexItem(size: new() { x = 45f, y = 14f }),
                     //toggles
-                    new ImageLayout {
+                    new Background {
                         Children = {
                             //fail toggle
                             new Toggle()

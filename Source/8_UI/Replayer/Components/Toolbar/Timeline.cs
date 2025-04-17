@@ -234,7 +234,7 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             //sliding area bg
-            return new ImageButtonLayout {
+            return new BackgroundButton {
                 Image = {
                     Sprite = BundleLoader.Sprites.background,
                     PixelsPerUnit = 12f,
@@ -243,7 +243,7 @@ namespace BeatLeader.UI.Replayer {
                 Colors = null,
                 Children = {
                     //sliding area
-                    new ImageLayout {
+                    new Background {
                         ContentTransform = {
                             pivot = new(0f, 0.5f)
                         },

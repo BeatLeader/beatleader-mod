@@ -18,12 +18,12 @@ namespace BeatLeader.UI {
             set {
                 switch (value) {
                     case Justify.FlexStart:
-                        _railsLayoutController.UseIndependentLayout = true;
+                        //_railsLayoutController.UseIndependentLayout = true;
                         _railsLayoutModifier.FlexGrow = 1;
                         _railsLayoutModifier.Size = new() { x = YogaValue.Undefined };
                         break;
                     case Justify.Center:
-                        _railsLayoutController.UseIndependentLayout = false;
+                        //_railsLayoutController.UseIndependentLayout = false;
                         _railsLayoutModifier.FlexGrow = 0;
                         _railsLayoutModifier.Size = new() { x = "auto" };
                         break;
@@ -95,7 +95,7 @@ namespace BeatLeader.UI {
                 out Image background,
                 params ILayoutItem[] children
             ) {
-                var layout = new ImageLayout()
+                var layout = new Background()
                     .Export(out background)
                     .AsBackground(pixelsPerUnit: 12f)
                     .AsFlexGroup(
@@ -183,8 +183,8 @@ namespace BeatLeader.UI {
         }
 
         protected override void OnInitialize() {
-            JustifyContent = Justify.FlexStart;
-            UseAlternativeBlur = false;
+            //JustifyContent = Justify.FlexStart;
+            //UseAlternativeBlur = false;
         }
 
         #endregion

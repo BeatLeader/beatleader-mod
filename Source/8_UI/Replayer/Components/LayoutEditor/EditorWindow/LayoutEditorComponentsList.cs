@@ -39,7 +39,7 @@ namespace BeatLeader.Components {
                 return new Clickable {
                     OnClick = () => SelectSelf(true),
                     Children = {
-                        new ImageLayout {
+                        new Background {
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 8f,
                             Children = {
@@ -60,7 +60,7 @@ namespace BeatLeader.Components {
                                     }
                                 }.AsFlexGroup().AsFlexItem(grow: 1f),
                                 //
-                                new ImageLayout {
+                                new Background {
                                     Sprite = BundleLoader.Sprites.background,
                                     PixelsPerUnit = 8f,
                                     Color = new(0.03f, 0.03f, 0.03f),

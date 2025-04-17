@@ -127,7 +127,7 @@ namespace BeatLeader.UI.Hub {
                         }
                     }.WithNativeComponent(out _mainContainerCanvasGroup).AsFlexGroup(gap: 2f).AsFlexItem(),
                     //loading container
-                    new ImageLayout {
+                    new Background {
                         Enabled = false,
                         Sprite = BundleLoader.Sprites.transparentPixel,
                         Children = {

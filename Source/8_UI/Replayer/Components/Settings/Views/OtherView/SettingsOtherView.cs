@@ -25,7 +25,7 @@ namespace BeatLeader.UI.Replayer {
         private Toggle _exitToggle = null!;
 
         protected override GameObject Construct() {
-            return new ImageLayout {
+            return new Background {
                 Children = {
                     //speed
                     new SpeedSlider().Bind(ref _speedSlider),

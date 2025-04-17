@@ -113,7 +113,7 @@ namespace BeatLeader.UI.Hub {
                             }
                         }.AsFlexItem(grow: 1f).Bind(ref _filterContainer),
                         //
-                        new ImageLayout {
+                        new Background {
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
                             Children = {
                                 new CheckCircle {
@@ -216,10 +216,10 @@ namespace BeatLeader.UI.Hub {
                 .Select(static x => x.Key);
 
             private readonly ReactivePool<IPanelListFilter<T>, FilterContainer> _filtersPool = new();
-            private ImageLayout _container = null!;
+            private Background _container = null!;
 
             protected override GameObject Construct() {
-                return new ImageLayout()
+                return new Background()
                     .AsFlexGroup(
                         direction: FlexDirection.Column,
                         justifyContent: Justify.FlexStart,

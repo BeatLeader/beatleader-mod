@@ -29,7 +29,7 @@ namespace BeatLeader.UI.Hub {
             protected override GameObject Construct() {
                 return new Layout {
                     Children = {
-                        new ImageLayout {
+                        new Background {
                             Sprite = BundleLoader.Sprites.background,
                             Color = Color.white.ColorWithAlpha(0.2f),
                             PixelsPerUnit = 8f,

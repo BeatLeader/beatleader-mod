@@ -9,7 +9,7 @@ using Reactive.Yoga;
 using TMPro;
 using Image = Reactive.BeatSaber.Components.Image;
 using ImageButton = Reactive.BeatSaber.Components.ImageButton;
-using ImageLayout = Reactive.BeatSaber.Components.ImageLayout;
+using Background = Reactive.BeatSaber.Components.Background;
 using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.UI.Replayer {
@@ -80,7 +80,7 @@ namespace BeatLeader.UI.Replayer {
                         .AsFlexGroup(padding: new() { top = 1.5f, bottom = 1.5f, right = 1f })
                         .AsFlexItem(basis: 10f),
                     //toolbar
-                    new ImageLayout {
+                    new Background {
                         Children = {
                             //play button
                             new ImageButton {

@@ -27,7 +27,7 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
-                    new ImageLayout {
+                    new Background {
                         Children = {
                             new ReeWrapperV2<ScoreStatsLoadingScreen>()
                                 .WithRectExpand()

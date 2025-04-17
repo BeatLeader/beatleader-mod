@@ -38,7 +38,7 @@ namespace BeatLeader.UI.Reactive.Components {
         private RectTransform _progressBar = null!;
 
         protected override GameObject Construct() {
-            return new ImageLayout {
+            return new Background {
                 Sprite = BundleLoader.Sprites.background,
                 PixelsPerUnit = 15f,
                 Color = (Color.white * 0.2f).ColorWithAlpha(0.5f),

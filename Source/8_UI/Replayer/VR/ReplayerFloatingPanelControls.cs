@@ -45,7 +45,7 @@ namespace BeatLeader.UI.Replayer {
             return new Layout {
                 Children = {
                     //controls
-                    new ImageLayout {
+                    new Background {
                         Children = {
                             //pin button
                             new ImageButton {

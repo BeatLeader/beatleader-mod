@@ -50,7 +50,7 @@ namespace BeatLeader {
         [OnStart]
         [UsedImplicitly]
         public void OnApplicationStart() {
-            ObserveEnabled();
+            OnEnabledChanged(PluginConfig.Enabled);
             MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             InteropLoader.Init();
         }

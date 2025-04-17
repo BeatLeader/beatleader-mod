@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BeatLeader.API {
+
     internal static class Authentication {
         #region AuthPlatform
 

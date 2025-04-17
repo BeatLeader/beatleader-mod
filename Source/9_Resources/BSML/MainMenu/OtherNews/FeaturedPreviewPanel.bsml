@@ -1,0 +1,8 @@
+﻿<horizontal id="background" pad="1" spacing="1" horizontal-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff88">
+    <image id="image" pref-width="10" pref-height="10" horizontal-fit="PreferredSize" vertical-fit="PreferredSize"/>
+    <vertical pref-width="38">
+        <text id="top-text" font-size="4" italics="true" overflow="Ellipsis" align="Left"/>
+        <text id="bottom-text" font-size="3" italics="true" overflow="Ellipsis" font-color="#888888"/>
+    </vertical>
+    <button id="button" pref-height="8" pref-width="12" text="Details" on-click="OnButtonPressed" pad="0"/>
+</horizontal>

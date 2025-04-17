@@ -1,0 +1,27 @@
+﻿<horizontal pad="2" bg="round-rect-panel">
+    <vertical pad="2" spacing="2" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
+        <horizontal bg="panel-top" pad="2">
+            <text text="~description" align="Left"/>
+            <text text="~trending-value" align="Right" color="#11BBDD"/>
+        </horizontal>
+        
+        <horizontal>
+            <image id="cover-image" pref-width="30" pref-height="30"/>
+            <vertical pad-left="4" spacing="1">
+                <text id="map-name" text="~map-name" align="Left" font-size="5"/>
+                <text id="song-author" text="~song-author" align="Left" font-size="4"/>
+                <text id="mapper" text="~mapper" align="Left" font-size="3.5" color="#888888"/>
+            </vertical>
+        </horizontal>
+        
+        <vertical id="loading-container" spacing="2" vertical-fit="PreferredSize">
+            <loading-indicator preserve-aspect="true" pref-height="8" pref-width="8"/>
+            <text text="Loading..."/>
+        </vertical>
+        
+        <vertical id="finished-container" spacing="2">
+            <text id="finished-text" text="" align="Center"/>
+            <button id="play-button" text="Play" on-click="play-button-click"/>
+        </vertical>
+    </vertical>
+</horizontal>

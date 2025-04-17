@@ -24,8 +24,8 @@ namespace BeatLeader.Replayer {
         [FirstResource]
         private readonly ComboUIController _comboUIController = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)]
-        private readonly GameEnergyUIPanel _gameEnergyUIPanel = null!;
+        [FirstResource(requireActiveInHierarchy: true)] 
+        private readonly GameEnergyUIPanel? _gameEnergyUIPanel;
 
         [FirstResource(requireActiveInHierarchy: true)]
         private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager = null!;
@@ -44,9 +44,9 @@ namespace BeatLeader.Replayer {
         #region Setup
 
         private TextMeshPro _levelFailedEffectText = null!;
-        private GameObject _laser = null!;
-        private ImageView _energyIconEmpty = null!;
-        private ImageView _energyIconFull = null!;
+        private GameObject? _laser;
+        private ImageView? _energyIconEmpty;
+        private ImageView? _energyIconFull;
 
         private float _debrisCutDirMultiplier;
         private float _debrisFromCenterSpeed;
@@ -58,10 +58,13 @@ namespace BeatLeader.Replayer {
             this.LoadResources();
 
             _levelFailedEffectText = _levelFailedTextEffect.transform.Find("Text").GetComponent<TextMeshPro>();
-            var images = _gameEnergyUIPanel.GetComponentsInChildren<ImageView>();
-            _energyIconEmpty = images.First(x => x.name == "EnergyIconEmpty");
-            _energyIconFull = images.First(x => x.name == "EnergyIconFull");
-            _laser = _gameEnergyUIPanel.transform.Find("Laser").gameObject;
+            var images = _gameEnergyUIPanel?.GetComponentsInChildren<ImageView>();
+            if (images != null) {
+                _energyIconEmpty = images.FirstOrDefault(x => x.name == "EnergyIconEmpty");
+                _energyIconFull = images.FirstOrDefault(x => x.name == "EnergyIconFull");
+                
+            }
+            _laser = _gameEnergyUIPanel?.transform.Find("Laser").gameObject;
 
             _debrisCutDirMultiplier = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_cutDirMultiplier");
             _debrisFromCenterSpeed = _noteDebrisSpawner.GetField<float, NoteDebrisSpawner>("_fromCenterSpeed");
@@ -127,7 +130,7 @@ namespace BeatLeader.Replayer {
         }
 
         public void ModifyEnergyPanel(float energy, bool shouldBeLost = false) {
-            if (!_gameEnergyUIPanel.isActiveAndEnabled) return;
+            if (_gameEnergyUIPanel == null || !_gameEnergyUIPanel.isActiveAndEnabled) return;
 
             var energyBar = _gameEnergyUIPanel.GetField<Image, GameEnergyUIPanel>("_energyBar");
             if (!shouldBeLost && !energyBar.enabled) {
@@ -137,9 +140,13 @@ namespace BeatLeader.Replayer {
                 director.RebindPlayableGraphOutputs();
                 director.Evaluate();
                 energyBar.enabled = true;
-                _laser.SetActive(false);
-                _energyIconFull.transform.localPosition = new(59, 0);
-                _energyIconEmpty.transform.localPosition = new(-59, 0);
+                _laser?.SetActive(false);
+                if (_energyIconFull != null) {
+                    _energyIconFull.transform.localPosition = new(59, 0);
+                }
+                if (_energyIconEmpty != null) {
+                    _energyIconEmpty.transform.localPosition = new(-59, 0);
+                }
                 _gameEnergyCounter.gameEnergyDidChangeEvent += _gameEnergyUIPanel.RefreshEnergyUI;
             }
             _gameEnergyUIPanel.RefreshEnergyUI(energy);

@@ -1,0 +1,25 @@
+<vertical pad-left="4">
+    <horizontal id="Background" pad="2" horizontal-fit="PreferredSize" bg="round-rect-panel">
+        <vertical>
+            <horizontal ignore-layout="true" pref-height="15" pref-width="15" vertical-fit="PreferredSize" horizontal-fit="PreferredSize">
+                <macro.as-host host="Avatar">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </horizontal>
+        </vertical>
+
+        <vertical pad-left="9" spacing="1" vertical-fit="PreferredSize">
+            <horizontal pref-height="5" spacing="1" horizontal-fit="PreferredSize">
+                <text id="Name" text="" font-size="5" align="MidlineLeft"/>
+                <macro.as-host host="Tag">
+                    <macro.reparent transform="ui-component"/>
+                </macro.as-host>
+            </horizontal>
+
+            <horizontal pref-height="4" horizontal-fit="PreferredSize">
+                <image src="#GlobalIcon" pref-height="4" pref-width="4" preserve-aspect="true"/>
+                <text id="RankText" text="" align="MidlineLeft"/>
+            </horizontal>
+        </vertical>
+    </horizontal>
+</vertical>

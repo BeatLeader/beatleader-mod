@@ -13,6 +13,8 @@ namespace BeatLeader.Components {
         public event Action OnClick;
 
         protected override void OnInitialize() {
+            _labelComponent.raycastTarget = false;
+            
             InitializeImage();
             UpdateColors();
         }

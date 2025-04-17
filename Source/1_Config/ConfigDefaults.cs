@@ -21,7 +21,7 @@ namespace BeatLeader {
 
         #region BeatLeaderServer
 
-        public const BeatLeaderServer MainServer = BeatLeaderServer.XYZ_DOMAIN;
+        public const BeatLeaderServer MainServer = BeatLeaderServer.COM_DOMAIN;
 
         #endregion
 

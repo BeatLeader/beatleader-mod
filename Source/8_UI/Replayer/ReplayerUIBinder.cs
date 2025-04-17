@@ -36,6 +36,10 @@ namespace BeatLeader.UI.Replayer {
             RefreshUIVisibility();
         }
 
+        private void OnDisable() {
+            ViewController.OnClose();
+        }
+
         private void OnDestroy() {
             _pauseController.PauseStateChangedEvent -= HandlePauseStateChanged;
         }

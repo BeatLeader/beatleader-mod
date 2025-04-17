@@ -20,8 +20,11 @@ namespace BeatLeader.Components {
 
         private static event Action<DiffInfo>? OnDiffInfoChanged;
 
+        private static DiffInfo? _diffInfo = null;
+
         public static void NotifyDiffInfoChanged(DiffInfo diffInfo) {
             OnDiffInfoChanged?.Invoke(diffInfo);
+            _diffInfo = diffInfo;
         }
 
         #endregion
@@ -45,6 +48,10 @@ namespace BeatLeader.Components {
             OnDiffInfoChanged += SetDiffInfo;
             GameplayModifiersPanelPatch.ModifiersChangedEvent += OnModifiersChanged;
             IsActive = false;
+
+            if (_diffInfo != null) {
+                SetDiffInfo((DiffInfo)_diffInfo);
+            }
         }
 
         protected override void OnDispose() {
@@ -72,8 +79,7 @@ namespace BeatLeader.Components {
         #region Events
 
         private bool _hoverEnabled;
-        private DiffInfo _diffInfo;
-
+        
         private void SetDiffInfo(DiffInfo diffInfo) {
             _diffInfo = diffInfo;
             ModifyDiffRating(ref diffInfo);
@@ -100,7 +106,7 @@ namespace BeatLeader.Components {
             _gameplayModifiers = modifiers;
             _modifiersRating = GameplayModifiersPanelPatch.ModifiersRating;
             _modifiersMap = GameplayModifiersPanelPatch.ModifiersMap;
-            SetDiffInfo(_diffInfo);
+            SetDiffInfo((DiffInfo)_diffInfo);
         }
 
         #endregion

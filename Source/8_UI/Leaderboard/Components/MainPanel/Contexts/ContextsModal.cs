@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
+using HMUI;
 using JetBrains.Annotations;
-using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class ContextsModal : AbstractReeModal<object> {
         #region Components
 
-        [UIComponent("container"), UsedImplicitly]
-        private Transform _container;
+        [UIComponent("OptionsList"), UsedImplicitly] private CustomListTableData _optionsList;
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            InitializeOptions();
             PluginConfig.ScoresContextListChangedEvent += OnScoresContextListWasChanged;
         }
 
@@ -22,37 +22,80 @@ namespace BeatLeader.Components {
             PluginConfig.ScoresContextListChangedEvent -= OnScoresContextListWasChanged;
         }
 
-        protected void OnScoresContextListWasChanged() {
-            InitializeOptions();
+        private void Update() {
+            UpdateListIfDirty();
+            UpdateHighlightIfDirty();
         }
 
         #endregion
 
-        #region Options
+        #region Events
 
-        private readonly List<ContextsModalOption> _options = new(4);
-
-        private void InitializeOptions() {
-            DespawnOptions();
-
-            foreach (var scoresContext in ScoresContexts.AllContexts) {
-                var option = Instantiate<ContextsModalOption>(_container);
-                option.ManualInit(_container);
-                option.SetContext(scoresContext);
-                option.OnClick += () => {
-                    PluginConfig.ScoresContext = scoresContext.Id;
-                    Close();
-                };
-                _options.Add(option);
-            }
+        private void OnScoresContextListWasChanged() {
+            MarkListDirty();
+            MarkHighlightDirty();
         }
 
-        private void DespawnOptions() {
+        [UIAction("OnOptionSelected"), UsedImplicitly]
+        private void OnOptionSelected(TableView tableView, int index) {
+            PluginConfig.ScoresContext = _options[index].Id;
+            MarkHighlightDirty();
+            Close();
+        }
+
+        #endregion
+
+        #region List
+
+        private IReadOnlyList<ScoresContext> _options = Array.Empty<ScoresContext>();
+        private bool _listDirty = true;
+
+        private void MarkListDirty() {
+            _listDirty = true;
+        }
+
+        private void UpdateListIfDirty() {
+            if (!_listDirty) return;
+            _listDirty = false;
+
+            _options = ScoresContexts.AllContexts;
+
+            var cellInfos = new List<CustomListTableData.CustomCellInfo>();
+
             foreach (var option in _options) {
-                Destroy(option.gameObject);
+                var cellInfo = new CustomListTableData.CustomCellInfo(option.Name, option.Description, option.Icon);
+                cellInfos.Add(cellInfo);
             }
 
-            _options.Clear();
+            _optionsList.Data = cellInfos;
+            _optionsList.TableView.ReloadDataKeepingPosition();
+
+            MarkHighlightDirty();
+        }
+
+        #endregion
+
+        #region Highlight
+
+        private bool _highlightDirty = true;
+
+        private void MarkHighlightDirty() {
+            _highlightDirty = true;
+        }
+
+        private void UpdateHighlightIfDirty() {
+            if (!_highlightDirty) return;
+            _highlightDirty = false;
+
+            var selectedContextId = PluginConfig.ScoresContext;
+
+            for (var i = 0; i < _options.Count; i++) {
+                if (_options[i].Id != selectedContextId) continue;
+                _optionsList.TableView.SelectCellWithIdx(i);
+                return;
+            }
+
+            _optionsList.TableView.ClearSelection();
         }
 
         #endregion

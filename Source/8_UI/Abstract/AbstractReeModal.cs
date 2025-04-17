@@ -12,6 +12,7 @@ namespace BeatLeader {
         }
 
         public void SetContext(TC context) {
+            if (Equals(Context, context)) return;
             Context = context;
             OnContextChanged();
         }
@@ -31,6 +32,7 @@ namespace BeatLeader {
         protected virtual void OnResume() { }
         protected virtual void OnPause() { }
         protected virtual void OnInterrupt() { }
+        protected virtual void OnClose() { }
 
         protected virtual void OnOffClick() {
             if (offClickCloses) Close();
@@ -64,6 +66,7 @@ namespace BeatLeader {
 
         public void Close() {
             _closeAction?.Invoke();
+            OnClose();
         }
 
         public void HandleOffClick() {

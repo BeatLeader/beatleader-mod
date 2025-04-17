@@ -1,4 +1,4 @@
-using BeatLeader.DataManager;
+﻿using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -183,7 +183,7 @@ namespace BeatLeader.Components {
 
         [UIAction("website-on-click"), UsedImplicitly]
         private void WebsiteOnClick() {
-            EnvironmentUtils.OpenBrowserPage("https://www.beatleader.xyz/dashboard");
+            EnvironmentUtils.OpenBrowserPage("https://beatleader.com");
         }
 
         [UIAction("discord-on-click"), UsedImplicitly]

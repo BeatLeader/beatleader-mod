@@ -3,7 +3,7 @@ using HarmonyLib;
 using JetBrains.Annotations;
 
 namespace BeatLeader.UIPatches {
-    [HarmonyPatch(typeof(ResultsViewController), "SetDataToUI")]
+    [HarmonyPatch(typeof(ResultsViewController), "DidActivate")]
     internal class ResultsViewControllerPatches {
         private static ResultsScreenUI? _resultsScreen;
 

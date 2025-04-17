@@ -4,17 +4,17 @@ using System;
 using System.Reflection;
 
 namespace BeatLeader.Interop {
-    [PluginInterop("Custom Notes")]
+    [PluginInterop("CustomNotes")]
     internal static class CustomNotesInterop {
         #region Init
 
-        [PluginType("CustomNotes.Managers.CustomNoteController")]
+        [PluginType("CustomNotes.Components.CustomNoteController")]
         private static readonly Type _customNoteControllerType;
 
-        [PluginType("CustomNotes.Managers.CustomBombController")]
+        [PluginType("CustomNotes.Components.CustomBombController")]
         private static readonly Type _customBombControllerType;
 
-        [PluginType("CustomNotes.Managers.CustomBurstSliderController")]
+        [PluginType("CustomNotes.Components.CustomBurstSliderController")]
         private static readonly Type _customSliderControllerType;
 
         [PluginState]
@@ -34,7 +34,7 @@ namespace BeatLeader.Interop {
             _finishBombControllerMethod = _customBombControllerType
                 .GetMethod("DidFinish", ReflectionUtils.DefaultFlags);
             _bombControllerContainerField = _customBombControllerType
-                .GetField("container", ReflectionUtils.DefaultFlags);
+                .GetField("siraContainer", ReflectionUtils.DefaultFlags);
         }
 
         #endregion
@@ -49,7 +49,8 @@ namespace BeatLeader.Interop {
                         DespawnCustomNote(controller);
                         break;
                     case BombNoteController:
-                        DespawnCustomBomb(controller);
+                        // I don't know why it's needed, but it throws exception with new custom notes. @nsgolova 
+                        // DespawnCustomBomb(controller);
                         break;
                     case BurstSliderGameNoteController:
                         DespawnCustomSlider(controller);

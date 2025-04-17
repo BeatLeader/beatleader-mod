@@ -119,6 +119,16 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region ClanScoreInfoButtonWasPressed
+
+        public static event Action<ClanScore> ClanScoreInfoButtonWasPressed;
+
+        public static void NotifyClanScoreInfoButtonWasPressed(ClanScore score) {
+            ClanScoreInfoButtonWasPressed?.Invoke(score);
+        }
+
+        #endregion
+
         #region MenuButtonWasPressed
 
         public static event Action MenuButtonWasPressedEvent;

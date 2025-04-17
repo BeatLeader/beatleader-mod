@@ -54,6 +54,8 @@ namespace BeatLeader.Utils {
             riftS = 16,
             quest = 32,
             quest2 = 256,
+            quest3 = 512,
+            quest3s = 513,
             vive = 2,
             vivePro = 4,
             viveCosmos = 128,
@@ -92,6 +94,12 @@ namespace BeatLeader.Utils {
             e4 = 63,
             index = 64,
             controllable = 65,
+            bigscreenbeyond = 66,
+            nolosonic = 67,
+            hypereal = 68,
+            varjoaero = 69,
+            psvr2 = 70,
+            megane1 = 71
         }
 
         #endregion
@@ -105,7 +113,11 @@ namespace BeatLeader.Utils {
             score.id = -1;
             score.baseScore = info.score < 0 ? info.score * -1 : info.score;
             score.modifiers = info.modifiers;
-            score.hmd = (int)HMDFromName(info.hmd);
+            
+            var hmd = HMDFromName(info.hmd);
+            score.hmd = (int)hmd;
+            score.headsetName = HMDToName(hmd);
+            
             score.controller = (int)ControllerFromName(info.controller);
             score.timeSet = info.timestamp;
             score.platform = info.platform + "," + info.gameVersion + "," + info.version;
@@ -136,22 +148,66 @@ namespace BeatLeader.Utils {
             return score;
         }
 
+        private static string? HMDToName(HMD hmd) {
+            return hmd switch {
+                HMD.rift => "Oculus Rift",
+                HMD.riftS => "Oculus Rift S",
+                HMD.quest => "Meta Quest",
+                HMD.quest2 => "Meta Quest 2",
+                HMD.quest3 => "Meta Quest 3",
+                HMD.quest3s => "Meta Quest 3S",
+                HMD.questPro => "Meta Quest Pro",
+                HMD.vive => "HTC Vive",
+                HMD.vivePro => "HTC Vive Pro",
+                HMD.vivePro2 => "HTC Vive Pro 2",
+                HMD.viveCosmos => "HTC Vive Cosmos",
+                HMD.viveElite => "HTC Vive Elite",
+                HMD.viveFocus => "HTC Vive Focus",
+                HMD.viveDvt => "HTC Vive DVT",
+                HMD.wmr => "WMR",
+                HMD.hpReverb => "HP Reverb",
+                HMD.samsungWmr => "Samsung Odyssey",
+                HMD.lenovoExplorer => "Lenovo Explorer",
+                HMD.acerWmr => "Acer WMR",
+                HMD.dellVisor => "Dell Visor",
+                HMD.asusWmr => "ASUS WMR",
+                HMD.picoNeo2 => "Pico Neo 2",
+                HMD.picoNeo3 => "Pico Neo 3",
+                HMD.picoNeo4 => "Pico Neo 4",
+                HMD.pimax8k => "Pimax 8K",
+                HMD.pimax5k => "Pimax 5K",
+                HMD.pimaxArtisan => "Pimax Artisan",
+                HMD.pimaxCrystal => "Pimax Crystal",
+                HMD.index => "Valve Index",
+                HMD.psvr2 => "PlayStation VR2",
+                HMD.varjoaero => "Varjo Aero",
+                HMD.bigscreenbeyond => "Bigscreen Beyond",
+                HMD.controllable => "Controllable",
+                _ => null
+            };
+        }
+
         private static HMD HMDFromName(string hmdName) {
             var lowerHmd = hmdName.ToLower();
 
             if (lowerHmd.Contains("pico") && lowerHmd.Contains("4")) return HMD.picoNeo4;
             if (lowerHmd.Contains("pico neo") && lowerHmd.Contains("3")) return HMD.picoNeo3;
             if (lowerHmd.Contains("pico neo") && lowerHmd.Contains("2")) return HMD.picoNeo2;
+            if (lowerHmd.Contains("pico")) return HMD.picoNeo4;
             if (lowerHmd.Contains("vive pro 2")) return HMD.vivePro2;
             if (lowerHmd.Contains("vive elite")) return HMD.viveElite;
             if (lowerHmd.Contains("focus3")) return HMD.viveFocus;
-            if (lowerHmd.Contains("miramar")) return HMD.miramar;
             if (lowerHmd.Contains("pimax") && lowerHmd.Contains("8k")) return HMD.pimax8k;
             if (lowerHmd.Contains("pimax") && lowerHmd.Contains("5k")) return HMD.pimax5k;
             if (lowerHmd.Contains("pimax") && lowerHmd.Contains("artisan")) return HMD.pimaxArtisan;
             if (lowerHmd.Contains("pimax") && lowerHmd.Contains("crystal")) return HMD.pimaxCrystal;
 
             if (lowerHmd.Contains("controllable")) return HMD.controllable;
+
+            if (lowerHmd.Contains("beyond")) return HMD.bigscreenbeyond;
+            if (lowerHmd.Contains("nolo") && lowerHmd.Contains("sonic")) return HMD.nolosonic;
+            if (lowerHmd.Contains("hypereal")) return HMD.hypereal;
+            if (lowerHmd.Contains("varjo") && lowerHmd.Contains("aero")) return HMD.varjoaero;
 
             if (lowerHmd.Contains("hp reverb")) return HMD.hpReverb;
             if (lowerHmd.Contains("samsung windows")) return HMD.samsungWmr;
@@ -161,6 +217,7 @@ namespace BeatLeader.Utils {
             if (lowerHmd.Contains("acer")) return HMD.acerWmr;
             if (lowerHmd.Contains("arpara")) return HMD.arpara;
             if (lowerHmd.Contains("dell visor")) return HMD.dellVisor;
+            if (lowerHmd.Contains("meganex") && lowerHmd.Contains("1")) return HMD.megane1;
 
             if (lowerHmd.Contains("e3")) return HMD.e3;
             if (lowerHmd.Contains("e4")) return HMD.e4;
@@ -175,7 +232,12 @@ namespace BeatLeader.Utils {
             if (lowerHmd.Contains("vridge")) return HMD.vridge;
             if (lowerHmd.Contains("medion mixed reality")) return HMD.medion;
 
+            if (lowerHmd.Contains("quest") && lowerHmd.Contains("3s")) return HMD.quest3s;
+            if (lowerHmd.Contains("ventura")) return HMD.quest3s;
+            if (lowerHmd.Contains("unknown_panther")) return HMD.quest3s;
+            if (lowerHmd.Contains("quest") && lowerHmd.Contains("3")) return HMD.quest3;
             if (lowerHmd.Contains("quest") && lowerHmd.Contains("2")) return HMD.quest2;
+            if (lowerHmd.Contains("miramar")) return HMD.quest2;
             if (lowerHmd.Contains("quest") && lowerHmd.Contains("pro")) return HMD.questPro;
 
             if (lowerHmd.Contains("vive cosmos")) return HMD.viveCosmos;
@@ -189,6 +251,8 @@ namespace BeatLeader.Utils {
             if (lowerHmd.Contains("vive_pro")) return HMD.vivePro;
             if (lowerHmd.Contains("vive")) return HMD.vive;
             if (lowerHmd.Contains("rift")) return HMD.rift;
+            
+            if (lowerHmd.Contains("playstation_vr2") || lowerHmd.Contains("ps vr2")) return HMD.psvr2;
 
             return HMD.unknown;
         }
@@ -240,14 +304,18 @@ namespace BeatLeader.Utils {
 
         private static float GetPositiveMultiplier(this ModifiersMap modifiersObject, string modifiers) {
             var modifiersMap = modifiersObject.ToDictionary<float>();
-            return 1 + modifiersMap.Keys.Where(modifier => modifiers.Contains(modifier) 
-                && modifiersMap[modifier] > 0).Sum(modifier => modifiersMap[modifier]);
+            return 1 + modifiersMap.Keys.Where(
+                modifier => modifiers.Contains(modifier)
+                    && modifiersMap[modifier] > 0
+            ).Sum(modifier => modifiersMap[modifier]);
         }
 
         private static float GetNegativeMultiplier(this ModifiersMap modifiersObject, string modifiers) {
             var modifiersMap = modifiersObject.ToDictionary<float>();
-            return 1 + modifiersMap.Keys.Where(modifier => modifiers.Contains(modifier)
-                && modifiersMap[modifier] < 0).Sum(modifier => modifiersMap[modifier]);
+            return 1 + modifiersMap.Keys.Where(
+                modifier => modifiers.Contains(modifier)
+                    && modifiersMap[modifier] < 0
+            ).Sum(modifier => modifiersMap[modifier]);
         }
 
         #endregion

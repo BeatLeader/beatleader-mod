@@ -6,13 +6,15 @@ using UnityEngine;
 
 namespace BeatLeader {
     internal class ScoresTableLayoutHelper {
-        #region Constants
+        #region Constructor
 
-        private const float RowWidth = 80.0f;
-        private const float Spacing = 1.3f;
-        private const float PadLeft = 2.0f;
-        private const float PadRight = 2.0f;
-        private const float AvailableWidth = RowWidth - PadLeft - PadRight;
+        private readonly float _spacing;
+        private readonly float _availableWidth;
+
+        public ScoresTableLayoutHelper(float rowWidth, float spacing, float padLeft = 2, float padRight = 2) {
+            _spacing = spacing;
+            _availableWidth = rowWidth - padLeft - padRight;
+        }
 
         #endregion
 
@@ -55,7 +57,7 @@ namespace BeatLeader {
         }
 
         private void UpdateNonFlexibleCells(ScoreRowCellType mask, out float flexibleWidth) {
-            flexibleWidth = AvailableWidth;
+            flexibleWidth = _availableWidth;
 
             var i = 0;
             foreach (var keyValuePair in _cells) {
@@ -77,7 +79,7 @@ namespace BeatLeader {
                     cell.SetCellWidth(maximalWidth);
                 }
 
-                if (i++ > 0) flexibleWidth -= Spacing;
+                if (i++ > 0) flexibleWidth -= _spacing;
                 flexibleWidth -= maximalWidth;
             }
         }
@@ -95,7 +97,7 @@ namespace BeatLeader {
                     var clansWidth = clansCell.GetPreferredWidth();
                     clansCell.SetActive(true);
                     clansCell.SetCellWidth(clansWidth);
-                    remainingWidth -= clansWidth + Spacing;
+                    remainingWidth -= clansWidth + _spacing;
                 } else {
                     clansCell.SetActive(false);
                 }
@@ -106,7 +108,7 @@ namespace BeatLeader {
                 }
 
                 var modifiersWidth = modifiersCell.GetPreferredWidth();
-                remainingWidth -= modifiersWidth + Spacing;
+                remainingWidth -= modifiersWidth + _spacing;
 
                 var nameCell = nameCells[i];
                 if (!mask.HasFlag(ScoreRowCellType.Username)) {

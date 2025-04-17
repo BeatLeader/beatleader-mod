@@ -44,6 +44,7 @@ namespace BeatLeader.Utils {
             public static readonly string PLAYER = "player";
             public static readonly string PAGE = "page";
             public static readonly string COUNT = "count";
+            public static readonly string PrimaryClan = "primaryClan";
         }
     }
 }

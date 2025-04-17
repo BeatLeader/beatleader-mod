@@ -133,8 +133,16 @@ namespace BeatLeader {
         #region GetRelativeTimeString
 
         public static TimeSpan GetRelativeTime(string timeSet) {
-            var dateTime = long.Parse(timeSet).AsUnixTime();
-            return DateTime.UtcNow - dateTime;
+            var dateTime = long.Parse(timeSet);
+            return GetRelativeTime(dateTime);
+        }
+
+        public static TimeSpan GetRelativeTime(long timeSet) {
+            return DateTime.UtcNow - timeSet.AsUnixTime();
+        }
+
+        public static string GetRelativeTimeString(long timeSet, bool compact) {
+            return GetRelativeTimeString(GetRelativeTime(timeSet), compact);
         }
 
         public static string GetRelativeTimeString(string timeSet, bool compact) {

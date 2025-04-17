@@ -7,9 +7,11 @@ using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Models.AbstractReplay;
+using BeatLeader.Models.AbstractReplay;
 using BeatLeader.Models.Replay;
 using BeatLeader.UI.Hub;
 using BeatLeader.Utils;
+using BeatSaber.BeatAvatarSDK;
 using BeatSaber.BeatAvatarSDK;
 using JetBrains.Annotations;
 using ModestTree;
@@ -354,11 +356,13 @@ namespace BeatLeader.Replayer {
             return _cachedBeatmap;
         }
 
-        private async Task<BeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {
-            var fixedHash = _levelsModel._allLoadedBeatmapLevelsRepository._idToBeatmapLevel.Keys.FirstOrDefault(k => k.StartsWith(hash));
+        public async Task<BeatmapLevel?> GetBeatmapLevelByHashAsync(string hash, CancellationToken token) {
+            if (hash.Length == 40) {
+                var fixedHash = _levelsModel._allLoadedBeatmapLevelsRepository._idToBeatmapLevel.Keys.FirstOrDefault(k => k.StartsWith(hash));
 
-            if (fixedHash != null) {
-                hash = fixedHash;
+                if (fixedHash != null) {
+                    hash = fixedHash;
+                }
             }
 
             if (await _levelsModel.CheckBeatmapLevelDataExistsAsync(hash, BeatmapLevelDataVersion.Original, token)) {

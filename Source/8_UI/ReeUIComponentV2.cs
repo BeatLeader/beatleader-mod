@@ -100,6 +100,8 @@ namespace BeatLeader {
         protected virtual void OnDestroy() {
             if (!IsHierarchySet) return;
             OnDispose();
+            if (Content != null) Destroy(Content.gameObject);
+            _state = State.Uninitialized;
         }
 
         #endregion

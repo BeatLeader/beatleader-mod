@@ -17,7 +17,7 @@ namespace BeatLeader.Replayer.Tweaking
 
         public override void Initialize()
         {
-            _baseEventSystem = _inputModule.GetComponent<EventSystem>();
+            _baseEventSystem = EventSystem.current;
 
             GameObject inputSystemContainer;
             if (InputUtils.IsInFPFC)
@@ -38,7 +38,9 @@ namespace BeatLeader.Replayer.Tweaking
         public override void Dispose()
         {
             _customEventSystem?.gameObject.TryDestroy();
-            EventSystem.current = _baseEventSystem;
+            if (_baseEventSystem != null && _baseEventSystem.ToString() != "unknown") {
+                EventSystem.current = _baseEventSystem;
+            }
             if (InputUtils.IsInFPFC) InputUtils.EnableCursor(false);
         }
     }

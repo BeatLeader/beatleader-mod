@@ -1,35 +1,23 @@
-﻿using BeatLeader.Components;
+﻿using System;
+using BeatLeader.Components;
 using BeatLeader.DataManager;
 using Newtonsoft.Json;
-using System;
 
 namespace BeatLeader.Models {
     public class Score : IScoreRowContent, IReplayHashProvider {
-        [JsonProperty("player")]
-        public Player Player {
-            get {
-                if (!HiddenPlayersCache.IsHidden(_originalPlayer)) return _originalPlayer;
+        [JsonIgnore]
+        public Player Player => HiddenPlayersCache.HidePlayerIfNeeded(originalPlayer);
 
-                return new Player() {
-                    id = _originalPlayer.id,
-                    rank = 0,
-                    name = "~hidden player~",
-                    country = "not set",
-                    countryRank = 0,
-                    pp = 0f,
-                    role = "",
-                    clans = Array.Empty<Clan>(),
-                    socials = Array.Empty<ServiceIntegration>(),
-                    profileSettings = null
-                };
-            }
-            set {
-                _originalPlayer = value;
-            }
-        }
-
+        [Obsolete("Use ActualPlayer instead")]
+        public Player OriginalPlayer => _originalPlayer;
+        
         public Player ActualPlayer => _originalPlayer;
+        
+        public int TotalMistakes => missedNotes + badCuts + bombCuts + wallsHit;
 
+        [JsonProperty("player")]
+        private Player _originalPlayer;
+        
         public int id;
         public float accuracy;
         public float fcAccuracy;
@@ -50,10 +38,9 @@ namespace BeatLeader.Models {
         public string? headsetName;
         public string? controllerName;
         public string timeSet;
-        private Player _originalPlayer;
         public string replay;
         public string platform;
-
+        
         #region IScoreRowContent implementation
 
         public bool ContainsValue(ScoreRowCellType cellType) {
@@ -84,7 +71,7 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Accuracy => accuracy,
                 ScoreRowCellType.PerformancePoints => pp,
                 ScoreRowCellType.Score => modifiedScore,
-                ScoreRowCellType.Mistakes => missedNotes + badCuts + bombCuts + wallsHit,
+                ScoreRowCellType.Mistakes => TotalMistakes,
                 ScoreRowCellType.Clans => Player.clans,
                 ScoreRowCellType.Time => timeSet,
                 ScoreRowCellType.Pauses => pauses,

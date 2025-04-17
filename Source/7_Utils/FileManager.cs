@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Interop;
 using BeatLeader.Models.Replay;
 using UnityEngine;
 using BeatLeader.Replayer;
@@ -20,30 +19,11 @@ namespace BeatLeader.Utils {
         public static async Task<bool> InstallBeatmap(byte[] bytes, string folderName) {
             try {
                 var path = Path.Combine(BeatmapsDirectory, folderName);
-
                 using var memoryStream = new MemoryStream(bytes);
                 using var archive = new ZipArchive(memoryStream);
-
-                foreach (var entry in archive.Entries) {
-                    using var entryStream = entry.Open();
-
-                    var streamLength = entry.Length;
-                    var entryBuffer = new byte[streamLength];
-                    var bytesRead = await entryStream.ReadAsync(entryBuffer, 0, (int)streamLength);
-
-                    if (bytesRead < streamLength) {
-                        throw new FileLoadException();
-                    }
-
-                    var destinationPath = Path.Combine(path, entry.FullName);
-                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-
-                    using var destinationStream = File.OpenWrite(destinationPath);
-
-                    await destinationStream.WriteAsync(entryBuffer, 0, (int)streamLength);
-                }
-
-                SongCoreInterop.TryRefreshSongs(true);
+                Directory.CreateDirectory(path);
+                await ExtractFiles(archive, path);
+                SongCore.Loader.Instance.RefreshSongs(false);
                 return true;
             } catch (Exception ex) {
                 Plugin.Log.Error("Failed to install beatmap:\n" + ex);
@@ -51,8 +31,20 @@ namespace BeatLeader.Utils {
             }
         }
 
+        private static Task ExtractFiles(ZipArchive archive, string path)
+        {
+            return Task.Run(() =>
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    var entryPath = Path.Combine(path, entry.FullName);
+                    entry.ExtractToFile(entryPath, true);
+                }
+            });
+        }
+        
         #endregion
-
+        
         #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
@@ -63,8 +55,8 @@ namespace BeatLeader.Utils {
         public static string GetAbsoluteReplayPath(string fileName) {
             return Path.Combine(replaysFolderPath, fileName);
         }
-
-        public static async Task<bool> WriteReplayAsync(string fileName, Replay replay, CancellationToken token) {
+        
+        public static bool TryWriteReplay(string fileName, Replay replay) {
             try {
                 var path = GetAbsoluteReplayPath(fileName);
                 var file = File.Open(path, FileMode.OpenOrCreate);

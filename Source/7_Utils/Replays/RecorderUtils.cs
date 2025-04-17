@@ -8,7 +8,6 @@ namespace BeatLeader.Utils {
 
         internal static void OnRestartPauseButtonWasPressed() {
             shouldRecord = buffer;
-            buffer = false;
         }
 
         internal static void OnActionButtonWasPressed() {

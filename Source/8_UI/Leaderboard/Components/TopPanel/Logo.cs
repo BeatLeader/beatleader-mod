@@ -116,12 +116,14 @@ namespace BeatLeader.Components {
 
             UserRequest.AddStateListener(OnProfileRequestStateChanged);
             ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            ClanScoresRequest.AddStateListener(OnClanScoresRequestStateChanged);
             UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
         }
 
         protected override void OnDispose() {
             UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
             ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            ClanScoresRequest.RemoveStateListener(OnClanScoresRequestStateChanged);
             UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
         }
 
@@ -144,6 +146,11 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
+        private void OnClanScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
+            _loadingClanScores = state is API.RequestState.Started;
+            UpdateState();
+        }
+
         private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
             _uploadingScore = state is API.RequestState.Started;
             UpdateState();
@@ -156,9 +163,10 @@ namespace BeatLeader.Components {
         private bool _uploadingScore;
         private bool _loadingProfile;
         private bool _loadingScores;
+        private bool _loadingClanScores;
 
         private void UpdateState() {
-            Thinking = _loadingProfile || _loadingScores || _uploadingScore;
+            Thinking = _loadingProfile || _loadingScores || _loadingClanScores || _uploadingScore;
         }
 
         #endregion

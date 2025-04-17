@@ -1,0 +1,10 @@
+﻿<vertical id="background" pad="1" spacing="1" vertical-fit="PreferredSize" bg="round-rect-panel" bg-color="#ffffff55">
+    <scroll-view id="scroll-view" pref-width="70" pref-height="80" pad-right="4" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel">
+        <horizontal id="height-wrapper" min-height="81" horizontal-fit="PreferredSize">
+            <vertical spacing="3" id="main-container" vertical-fit="PreferredSize">
+                <loading-indicator id="loading-indicator" preserve-aspect="true" pref-height="8" pref-width="8"/>
+                <text id="empty-text" text=""/>
+            </vertical>
+        </horizontal>
+    </scroll-view>
+</vertical>

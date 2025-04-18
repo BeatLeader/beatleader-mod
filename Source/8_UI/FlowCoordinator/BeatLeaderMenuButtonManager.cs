@@ -19,7 +19,7 @@ namespace BeatLeader {
         private static event Action? MenuButtonClickedEvent;
         
         private static readonly MenuButton menuButton = new(
-            "BEATLEADER HUB", Description, 
+            Plugin.PluginId, Description, 
             () => MenuButtonClickedEvent?.Invoke());
 
         #endregion

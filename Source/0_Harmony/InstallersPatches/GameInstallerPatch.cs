@@ -1,6 +1,5 @@
 using System;
 using BeatLeader.Installers;
-using BeatLeader.Utils;
 using HarmonyLib;
 using JetBrains.Annotations;
 

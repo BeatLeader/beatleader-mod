@@ -166,7 +166,6 @@ namespace BeatLeader.Installers {
             _submissionTicket = Container.Resolve<Submission>()?.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
             ReplayerLauncher.LaunchData.ReplayWasFinishedEvent += HandleReplayWasFinished;
         }
-
         private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data, Models.ReplayLaunchData launchData) {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             if (_submissionTicket != null) {
@@ -199,7 +198,6 @@ namespace BeatLeader.Installers {
                 return null;
             }
         }
-
         private MultiplayerLevelScenesTransitionSetupDataSO GetMultiDataSO() {
             try {
                 return Container.TryResolve<MultiplayerLevelScenesTransitionSetupDataSO>();

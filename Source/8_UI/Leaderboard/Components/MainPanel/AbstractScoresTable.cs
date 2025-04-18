@@ -2,9 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.API.Methods;
-using BeatLeader.DataManager;
-using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -21,7 +18,7 @@ namespace BeatLeader.Components {
         protected abstract ScoreRowCellType CellTypeMask { get; }
 
         #endregion
-        
+
         #region Components
 
         [UIComponent("Root"), UsedImplicitly]
@@ -39,7 +36,7 @@ namespace BeatLeader.Components {
         [UIValue("score-rows"), UsedImplicitly]
         private protected readonly List<object> _scoreRowsObj = new List<object>();
 
-        private readonly List<T> _mainRows = new List<T>();
+        protected readonly List<T> _mainRows = new List<T>();
 
         private ScoresTableLayoutHelper _layoutHelper;
 
@@ -57,85 +54,9 @@ namespace BeatLeader.Components {
             }
         }
 
-        #endregion
-
-        #region Initialize/Dispose
-
         protected override void OnInitialize() {
             _root.preferredWidth = RowWidth;
             SetupLayout();
-
-            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibleChanged;
-            PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
-            LeaderboardEvents.BattleRoyaleEnabledEvent += OnBattleRoyaleEnabledChanged;
-            LeaderboardEvents.ScoreInfoButtonWasPressed += OnScoreClicked;
-            LeaderboardState.AddSelectedBeatmapListener(OnBeatmapChanged);
-
-            OnLeaderboardTableMaskChanged(PluginConfig.LeaderboardTableMask);
-        }
-
-        protected override void OnDispose() {
-            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
-            LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibleChanged;
-            PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
-            HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
-            LeaderboardEvents.BattleRoyaleEnabledEvent -= OnBattleRoyaleEnabledChanged;
-            LeaderboardEvents.ScoreInfoButtonWasPressed -= OnScoreClicked;
-
-            LeaderboardState.RemoveSelectedBeatmapListener(OnBeatmapChanged);
-        }
-
-        #endregion
-
-        #region Events
-
-        private void OnBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey beatmapKey, BeatmapLevel beatmapLevel) {
-            _selectedContents.Clear();
-        }
-        
-        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not API.RequestState.Finished) {
-                PresentContent(null);
-                return;
-            }
-
-            PresentContent(result);
-        }
-
-        private void OnLeaderboardVisibleChanged(bool isVisible) {
-            if (isVisible) return;
-            StartAnimation();
-        }
-        
-        private void OnBattleRoyaleEnabledChanged(bool brEnabled) {
-            _battleRoyaleEnabled = brEnabled;
-
-            if (brEnabled) {
-                _selectedContents.Clear();
-            }
-
-            RefreshCells();
-            StartBattleRoyaleAnimation();
-        }
-        
-        private void OnScoreClicked(Score score) {
-            if (!_battleRoyaleEnabled) {
-                return;
-            }
-
-            if (_selectedContents.Contains(score)) {
-                _selectedContents.Remove(score);
-            } else {
-                _selectedContents.Add(score);
-            }
-
-            RefreshCells(true);
-        }
-
-        private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {
-            UpdateLayout();
         }
 
         #endregion
@@ -183,15 +104,19 @@ namespace BeatLeader.Components {
 
         #region Content
 
-        private readonly HashSet<IScoreRowContent> _selectedContents = new();
-        private ScoresTableContent? _content;
-        private bool _battleRoyaleEnabled;
+        protected ScoresTableContent? _content;
 
         public void PresentContent(ScoresTableContent? content) {
             _content = content;
 
             if (content != null) {
-                RefreshCells();
+                if (content.ExtraRowContent != null) _extraRow.SetContent(content.ExtraRowContent);
+
+                for (var i = 0; i < RowsCount; i++) {
+                    if (i >= content.MainRowContents.Count) continue;
+                    _mainRows[i].SetContent(content.MainRowContents[i]);
+                }
+
                 UpdateLayout();
             } else {
                 _extraRow.ClearContent();
@@ -203,48 +128,12 @@ namespace BeatLeader.Components {
             StartAnimation();
         }
 
-        private void RefreshCells(bool applyImmediately = false) {
-            if (_content == null) {
-                return;
-            }
-
-            if (_content.ExtraRowContent != null) {
-                _extraRow.SetContent(_content.ExtraRowContent);
-            }
-
-            for (var i = 0; i < RowsCount; i++) {
-                if (i >= _content.MainRowContents.Count) continue;
-
-                var row = _mainRows[i];
-                row.SetContent(_content.MainRowContents[i]);
-
-                if (_battleRoyaleEnabled) {
-                    var rowSelected = _selectedContents.Contains(_content.MainRowContents[i]);
-                    row.SetHighlight(rowSelected);
-                }
-
-                if (applyImmediately) {
-                    row.ApplyVisualChanges();
-                }
-            }
-        }
-
         #endregion
 
         #region Animations
 
         private ExtraRowState _lastExtraRowState = ExtraRowState.Hidden;
         private const float DelayPerRow = 0.016f;
-        
-        private void StartBattleRoyaleAnimation() {
-            IEnumerator Coroutine() {
-                yield return FadeOutCoroutine();
-                yield return new WaitForSeconds(0.05f);
-                yield return FadeInCoroutine(_content!);
-            }
-
-            StartCoroutine(Coroutine());
-        }
 
         protected void StartAnimation() {
             if (gameObject.activeInHierarchy) {
@@ -258,7 +147,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private IEnumerator FadeOutCoroutine() {
+        protected IEnumerator FadeOutCoroutine() {
             if (_lastExtraRowState == ExtraRowState.Top) {
                 _extraRow.FadeOut();
                 yield return new WaitForSeconds(DelayPerRow);
@@ -281,7 +170,7 @@ namespace BeatLeader.Components {
             _lastExtraRowState = ExtraRowState.Hidden;
         }
 
-        private IEnumerator FadeInCoroutine(ScoresTableContent content) {
+        protected IEnumerator FadeInCoroutine(ScoresTableContent content) {
             var extraRowState = UpdateExtraRowState(content);
 
             if (extraRowState == ExtraRowState.Top) {
@@ -344,7 +233,7 @@ namespace BeatLeader.Components {
         private const int TopSiblingIndex = 0;
 
         private ExtraRowState UpdateExtraRowState(ScoresTableContent content) {
-            if (!_battleRoyaleEnabled && content.ExtraRowContent != null && content.ExtraRowContent.ContainsValue(ScoreRowCellType.Rank)) {
+            if (content.ExtraRowContent != null && content.ExtraRowContent.ContainsValue(ScoreRowCellType.Rank)) {
                 var extraRowRank = (int)(content.ExtraRowContent.GetValue(ScoreRowCellType.Rank) ?? 0);
 
                 var firstRowRank = (int)(content.MainRowContents.First()?.GetValue(ScoreRowCellType.Rank) ?? 0);

@@ -15,16 +15,8 @@
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Reactive.BeatSaber.Components">
-      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.Components.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Reactive.Components">
-      <HintPath>$(BeatSaberDir)\Libs\Reactive.Components.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Reactive">
-      <HintPath>$(BeatSaberDir)\Libs\Reactive.dll</HintPath>
+    <Reference Include="Reactive.BeatSaber">
+      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="AdditionalContentModel.Interfaces">

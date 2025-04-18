@@ -85,7 +85,6 @@ namespace BeatLeader.DataManager {
 
         #region Scores Update
 
-        private LeaderboardType _leaderboardType = LeaderboardType.SongDiffPlayerScores;
         private bool _updateRequired;
 
         private void TryUpdateScores() {
@@ -97,7 +96,7 @@ namespace BeatLeader.DataManager {
         private void UpdateScores() {
             _updateRequired = false;
 
-            switch (_leaderboardType) {
+            switch (LeaderboardState.leaderboardType) {
                 case LeaderboardType.SongDiffPlayerScores: {
                     LoadPlayerScores();
                     break;
@@ -145,7 +144,7 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not API.RequestState.Finished || _leaderboardType is not LeaderboardType.SongDiffPlayerScores) return;
+            if (state is not API.RequestState.Finished || LeaderboardState.leaderboardType is not LeaderboardType.SongDiffPlayerScores) return;
             _lastSelectedPage = result.CurrentPage;
         }
 
@@ -160,10 +159,10 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnCacheUpdated() {
-            if (_leaderboardType is not LeaderboardType.SongDiffClanScores) return;
+            if (LeaderboardState.leaderboardType is not LeaderboardType.SongDiffClanScores) return;
             if (!LeaderboardsCache.TryGetLeaderboardInfo(LeaderboardState.SelectedLeaderboardKey, out var cacheEntry)) return;
             if (FormatUtils.GetRankedStatus(cacheEntry.DifficultyInfo) is RankedStatus.Ranked) return;
-            _leaderboardType = LeaderboardType.SongDiffPlayerScores;
+            LeaderboardState.leaderboardType = LeaderboardType.SongDiffPlayerScores;
             TryUpdateScores();
         }
 
@@ -194,7 +193,7 @@ namespace BeatLeader.DataManager {
             Plugin.Log.Debug($"Attempt to switch score scope from [{_selectedScoreScope}] to [{scope}]");
 
             if (_selectedScoreScope != scope) {
-                _leaderboardType = LeaderboardType.SongDiffPlayerScores;
+                LeaderboardState.leaderboardType = LeaderboardType.SongDiffPlayerScores;
                 _selectedScoreScope = scope;
                 _lastSelectedPage = 1;
 
@@ -206,7 +205,7 @@ namespace BeatLeader.DataManager {
             Plugin.Log.Debug($"Attempt to switch score context from [{_selectedScoreContext}] to [{context}]");
 
             if (_selectedScoreContext != context) {
-                _leaderboardType = LeaderboardType.SongDiffPlayerScores;
+                LeaderboardState.leaderboardType = LeaderboardType.SongDiffPlayerScores;
                 _selectedScoreContext = context;
                 _lastSelectedPage = 1;
 
@@ -234,7 +233,7 @@ namespace BeatLeader.DataManager {
         }
 
         private void OnCaptorClanClick() {
-            _leaderboardType = _leaderboardType switch {
+            LeaderboardState.leaderboardType = LeaderboardState.leaderboardType switch {
                 LeaderboardType.SongDiffPlayerScores => LeaderboardType.SongDiffClanScores,
                 _ => LeaderboardType.SongDiffPlayerScores
             };

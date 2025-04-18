@@ -104,5 +104,11 @@ namespace BeatLeader {
         }
 
         #endregion
+
+        #region MainLeaderboardType
+
+        public static LeaderboardType leaderboardType = LeaderboardType.SongDiffPlayerScores;
+
+        #endregion
     }
 }

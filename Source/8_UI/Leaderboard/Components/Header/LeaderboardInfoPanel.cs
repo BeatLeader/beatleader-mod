@@ -86,8 +86,10 @@ namespace BeatLeader.Components {
                             Children = {
                                 CreateHeaderButton(
                                     BundleLoader.BattleRoyaleIcon,
-                                    () => SetBattleRoyaleEnabled(true)
-                                ),
+                                    () => {
+                                        if (LeaderboardState.leaderboardType != LeaderboardType.SongDiffPlayerScores) return;
+                                        SetBattleRoyaleEnabled(true);
+                                    }),
 
                                 CreateHeaderButton(
                                     BundleLoader.ProfileIcon,

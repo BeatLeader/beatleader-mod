@@ -110,7 +110,7 @@ namespace BeatLeader.UI.MainMenu {
 
         private async void Download() {
             //attempting to download
-            var request = await RawDataRequest.SendRequest(Context.downloadUrl!).Join();
+            var request = await RawDataRequest.Send(Context.downloadUrl!).Join();
 
             if (request.RequestStatusCode is not HttpStatusCode.OK) {
                 return;

@@ -1,38 +1,17 @@
-﻿using BeatLeader.API.RequestHandlers;
+﻿using System.Net.Http;
+using BeatLeader.Models;
 using BeatLeader.Utils;
-using UnityEngine.Networking;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    internal class SendViewReplayRequest : PersistentSingletonRequestHandler<SendViewReplayRequest, object> {
+namespace BeatLeader.API {
+
+    public class SendViewReplayRequest : PersistentSingletonWebRequestBase<byte[], RawResponseParser> {
         // /watched/{scoreId}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/watched/{0}";
 
-        protected override bool KeepState => false;
-
-        public static void SendRequest(int scoreId) {
-            var requestDescriptor = new SendViewReplayRequestDescriptor(scoreId);
-            Instance.Send(requestDescriptor);
+        public static void Send(int scoreId) {
+            var url = string.Format(Endpoint, scoreId);
+            SendRet(url, HttpMethod.Get);
         }
-
-        #region RequestDescriptor
-
-        private class SendViewReplayRequestDescriptor : IWebRequestDescriptor<object> {
-            private readonly int _scoreId;
-
-            public SendViewReplayRequestDescriptor(int scoreId) {
-                _scoreId = scoreId;
-            }
-
-            public UnityWebRequest CreateWebRequest() {
-                var url = string.Format(Endpoint, _scoreId);
-                return UnityWebRequest.Get(url);
-            }
-
-            public object ParseResponse(UnityWebRequest request) {
-                return null; // ignores response
-            }
-        }
-
-        #endregion
     }
 }

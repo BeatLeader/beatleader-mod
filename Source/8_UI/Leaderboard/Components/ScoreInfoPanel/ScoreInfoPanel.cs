@@ -1,5 +1,5 @@
 ﻿using System;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -71,14 +71,14 @@ namespace BeatLeader.Components {
             _middlePanel.raycastTarget = true;
             _bottomPanel.raycastTarget = true;
 
-            ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.StateChangedEvent += OnScoreStatsRequestStateChanged;
             LeaderboardState.ScoreInfoPanelTabChangedEvent += OnTabWasSelected;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += RefreshPlayer;
             OnTabWasSelected(LeaderboardState.ScoreInfoPanelTab);
         }
 
         protected override void OnDispose() {
-            ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.StateChangedEvent -= OnScoreStatsRequestStateChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= RefreshPlayer;
             LeaderboardState.ScoreInfoPanelTabChangedEvent -= OnTabWasSelected;
         }
@@ -164,8 +164,9 @@ namespace BeatLeader.Components {
         private bool _scoreStatsUpdateRequired;
         private Score? _score;
 
-        private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
-            if (_score == null || state is not API.RequestState.Finished) return;
+        private void OnScoreStatsRequestStateChanged(WebRequests.IWebRequest<ScoreStats> instance, WebRequests.RequestState state, string? failReason) {
+            if (_score == null || state is not WebRequests.RequestState.Finished) return;
+            var result = instance.Result;
             _scoreOverviewPage2.SetScoreAndStats(_score, result);
             _accuracyDetails.SetScoreStats(result);
             _accuracyGrid.SetScoreStats(result);

@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
-using BeatLeader.API.RequestDescriptors;
-using BeatLeader.API.RequestHandlers;
+using System.Net.Http;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    internal class VoteRequest : PersistentSingletonRequestHandler<VoteRequest, VoteStatus> {
+namespace BeatLeader.API {
+    internal class VoteRequest : PersistentSingletonWebRequestBase<VoteStatus, JsonResponseParser<VoteStatus>> {
         // /vote/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/vote/{0}/{1}/{2}?{3}";
 
-        protected override bool KeepState => false;
-
-        public static void SendRequest(
+        public static void Send(
             string mapHash,
             string mapDiff,
             string mapMode,
@@ -24,8 +22,7 @@ namespace BeatLeader.API.Methods {
             if (vote.HasMapType) query["type"] = (int)vote.MapType;
 
             var url = string.Format(Endpoint, mapHash, mapDiff, mapMode, NetworkingUtils.ToHttpParams(query));
-            var requestDescriptor = new JsonPostRequestDescriptor<VoteStatus>(url);
-            Instance.Send(requestDescriptor);
+            SendRet(url, HttpMethod.Post);
         }
     }
 }

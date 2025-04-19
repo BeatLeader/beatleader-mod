@@ -1,56 +1,39 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Text;
-using BeatLeader.API.RequestHandlers;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
-using Newtonsoft.Json;
-using UnityEngine.Networking;
+using System.Net.Http;
+using BeatLeader.WebRequests;
+using System.Net.Http.Headers;
 
-namespace BeatLeader.API.Methods {
-    public class UploadReplayRequest : PersistentSingletonRequestHandler<UploadReplayRequest, Score> {
+namespace BeatLeader.API {
+    public class UploadReplayRequest : PersistentSingletonWebRequestBase<Score, JsonResponseParser<Score>> {
         private static string WithCookieEndpoint => BLConstants.BEATLEADER_API_URL + "/replayoculus";
 
-        private const int UploadRetryCount = 3;
-        private const int UploadTimeoutSeconds = 120;
+        public static void Send(Replay replay) {
 
-        protected override bool KeepState => false;
+            var compressedData = CompressReplay(replay);
+            var content = new ByteArrayContent(compressedData);
 
-        public static void SendRequest(Replay replay) {
-            var requestDescriptor = new UploadWithCookieRequestDescriptor(replay);
-            Instance.Send(requestDescriptor, UploadRetryCount, UploadTimeoutSeconds);
+            SendRet(WithCookieEndpoint, HttpMethod.Put, content, 
+                new WebRequestParams {
+                    RetryCount = 3,
+                    TimeoutSeconds = 120
+                }, (HttpRequestHeaders headers) => {
+                headers.Add("Content-Encoding", "gzip");
+            });
         }
 
-        #region RequestDescriptor
-
-        private class UploadWithCookieRequestDescriptor : IWebRequestDescriptor<Score> {
-            private readonly byte[] _compressedData;
-
-            public UploadWithCookieRequestDescriptor(Replay replay) {
-                _compressedData = CompressReplay(replay);
+        private static byte[] CompressReplay(Replay replay) {
+            MemoryStream stream = new();
+            using (var compressedStream = new GZipStream(stream, CompressionLevel.Optimal)) {
+                ReplayEncoder.Encode(replay, new BinaryWriter(compressedStream, Encoding.UTF8));
             }
 
-            public UnityWebRequest CreateWebRequest() {
-                var request = UnityWebRequest.Put(WithCookieEndpoint, _compressedData);
-                request.SetRequestHeader("Content-Encoding", "gzip");
-                return request;
-            }
-
-            public Score ParseResponse(UnityWebRequest request) {
-                return JsonConvert.DeserializeObject<Score>(request.downloadHandler.text, NetworkingUtils.SerializerSettings);
-            }
-
-            private static byte[] CompressReplay(Replay replay) {
-                MemoryStream stream = new();
-                using (var compressedStream = new GZipStream(stream, CompressionLevel.Optimal)) {
-                    ReplayEncoder.Encode(replay, new BinaryWriter(compressedStream, Encoding.UTF8));
-                }
-
-                return stream.ToArray();
-            }
+            return stream.ToArray();
         }
-
-        #endregion
     }
 }

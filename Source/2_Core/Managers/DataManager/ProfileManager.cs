@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BeatLeader.API;
-using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using JetBrains.Annotations;
@@ -108,24 +107,24 @@ namespace BeatLeader.DataManager {
         private static bool _initialized;
         
         public void Initialize() {
-            UserRequest.AddStateListener(OnUserRequestStateChanged);
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
-            AddFriendRequest.AddStateListener(OnAddFriendRequestStateChanged);
-            RemoveFriendRequest.AddStateListener(OnRemoveFriendRequestStateChanged);
+            UserRequest.StateChangedEvent += OnUserRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+            AddFriendRequest.StateChangedEvent += OnAddFriendRequestStateChanged;
+            RemoveFriendRequest.StateChangedEvent += OnRemoveFriendRequestStateChanged;
             LeaderboardEvents.AddFriendWasPressedEvent += OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent += OnRemoveFriendWasPressed;
 
             _initialized = true;
-            UserRequest.SendRequest();
+            UserRequest.Send();
         }
 
         public void Dispose() {
             _profileLoadTaskCompletionSource = null;
             _initialized = false;
-            UserRequest.RemoveStateListener(OnUserRequestStateChanged);
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
-            AddFriendRequest.RemoveStateListener(OnAddFriendRequestStateChanged);
-            RemoveFriendRequest.RemoveStateListener(OnRemoveFriendRequestStateChanged);
+            UserRequest.StateChangedEvent -= OnUserRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+            AddFriendRequest.StateChangedEvent -= OnAddFriendRequestStateChanged;
+            RemoveFriendRequest.StateChangedEvent -= OnRemoveFriendRequestStateChanged;
             LeaderboardEvents.AddFriendWasPressedEvent -= OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent -= OnRemoveFriendWasPressed;
         }
@@ -136,52 +135,52 @@ namespace BeatLeader.DataManager {
         
         private void OnMainServerChanged(BeatLeaderServer value) {
             Authentication.ResetLogin();
-            UserRequest.SendRequest();
+            UserRequest.Send();
         }
 
         private static void OnAddFriendWasPressed(Player player) {
-            AddFriendRequest.SendRequest(player);
+            AddFriendRequest.Send(player);
         }
 
         private static void OnRemoveFriendWasPressed(Player player) {
-            RemoveFriendRequest.SendRequest(player);
+            RemoveFriendRequest.Send(player);
         }
 
-        private static void OnAddFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
+        private static void OnAddFriendRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
                     break;
-                case API.RequestState.Finished:
-                    AddFriend(result);
+                case WebRequests.RequestState.Finished:
+                    AddFriend(instance.Result);
                     break;
             }
         }
 
-        private static void OnRemoveFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
+        private static void OnRemoveFriendRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
                     break;
-                case API.RequestState.Finished:
-                    RemoveFriend(result);
+                case WebRequests.RequestState.Finished:
+                    RemoveFriend(instance.Result);
                     break;
             }
         }
 
-        private static void OnUserRequestStateChanged(API.RequestState state, User result, string failReason) {
-            if (state is API.RequestState.Failed) FinishTask();
-            if (state is not API.RequestState.Finished) return;
-
+        private static void OnUserRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is WebRequests.RequestState.Failed) FinishTask();
+            if (state is not WebRequests.RequestState.Finished) return;
+            var result = instance.Result;
             Profile = result.player;
             Roles = FormatUtils.ParsePlayerRoles(result.player.role);
             SetFriends(result.friends);
             FinishTask();
         }
 
-        private static void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
-            Profile = result.Player;
+        private static void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) return;
+            Profile = instance.Result.Player;
         }
 
         #endregion

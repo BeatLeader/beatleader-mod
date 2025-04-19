@@ -1,4 +1,4 @@
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -26,7 +26,7 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             base.OnInitialize();
 
-            ClanScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            ClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
 
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
@@ -37,7 +37,7 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             base.OnDispose();
 
-            ClanScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
 
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
@@ -47,13 +47,13 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not API.RequestState.Finished) {
+        private void OnScoresRequestStateChanged(WebRequests.IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) {
                 PresentContent(null);
                 return;
             }
 
-            PresentContent(result);
+            PresentContent(instance.Result);
         }
 
         private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {

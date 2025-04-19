@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using BeatLeader.API;
-using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -26,7 +25,9 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             base.OnInitialize();
 
-            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+
             LeaderboardState.IsVisibleChangedEvent += OnLeaderboardVisibleChanged;
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
@@ -40,7 +41,9 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             base.OnDispose();
 
-            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+
             LeaderboardState.IsVisibleChangedEvent -= OnLeaderboardVisibleChanged;
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
@@ -118,13 +121,14 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnScoresRequestStateChanged(RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not RequestState.Finished) {
+        private void OnScoresRequestStateChanged(WebRequests.IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
+            Plugin.Log.Error($"OnScoresRequestStateChanged {state}");
+            if (state is not WebRequests.RequestState.Finished) {
                 PresentContent(null);
                 return;
             }
 
-            PresentContent(result);
+            PresentContent(instance.Result);
         }
 
         private void OnLeaderboardVisibleChanged(bool isVisible) {

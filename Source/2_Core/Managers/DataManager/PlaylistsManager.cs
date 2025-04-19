@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using BeatLeader.API.Methods;
+using System.Threading.Tasks;
+using BeatLeader.API;
 using BeatLeader.Interop;
 using BeatLeader.Manager;
 using BeatLeader.Utils;
@@ -85,7 +86,7 @@ namespace BeatLeader.DataManager {
 
         #region VerifyPlaylistVersion
 
-        private void VerifyPlaylistVersion(PlaylistType playlistType) {
+        private async Task VerifyPlaylistVersion(PlaylistType playlistType) {
             if (!TryGetPlaylistInfo(playlistType, out var playlistInfo)) return;
 
             if (!FileManager.TryReadPlaylist(playlistInfo.FileName, out var stored)) {
@@ -93,15 +94,12 @@ namespace BeatLeader.DataManager {
                 return;
             }
 
-            void OnSuccess(byte[] bytes) {
-                SetPlaylistState(playlistType, ComparePlaylists(bytes, stored) ? PlaylistState.UpToDate : PlaylistState.Outdated);
+            var result = await PlaylistRequest.Send(playlistInfo.PlaylistId).Join();
+            if (result.RequestState == WebRequests.RequestState.Finished) {
+                SetPlaylistState(playlistType, ComparePlaylists(result.Result, stored) ? PlaylistState.UpToDate : PlaylistState.Outdated);
+            } else if (result.RequestState == WebRequests.RequestState.Failed) {
+                Plugin.Log.Debug($"{playlistType} playlist check failed: {result.FailReason}");
             }
-
-            void OnFail(string reason) {
-                Plugin.Log.Debug($"{playlistType} playlist check failed: {reason}");
-            }
-
-            StartCoroutine(PlaylistRequest.SendRequest(playlistInfo.PlaylistId, OnSuccess, OnFail));
         }
 
         private static bool ComparePlaylists(byte[] a, byte[] b) {
@@ -121,28 +119,30 @@ namespace BeatLeader.DataManager {
         public static event Action<PlaylistType> PlaylistUpdateStartedEvent;
         public static event Action<PlaylistType> PlaylistUpdateFinishedEvent;
 
-        public void UpdatePlaylist(PlaylistType playlistType) {
+        public async Task UpdatePlaylistAsync(PlaylistType playlistType) {
             if (!TryGetPlaylistInfo(playlistType, out var playlistInfo)) return;
             PlaylistUpdateStartedEvent?.Invoke(playlistType);
 
-            void OnSuccess(byte[] bytes) {
+            var result = await PlaylistRequest.Send(playlistInfo.PlaylistId).Join();
+
+            if (result.RequestState == WebRequests.RequestState.Finished) {
                 FileManager.DeletePlaylist(playlistInfo.FileName);
 
-                if (FileManager.TrySaveRankedPlaylist(playlistInfo.FileName, bytes)) {
+                if (FileManager.TrySaveRankedPlaylist(playlistInfo.FileName, result.Result)) {
                     PlaylistsLibInterop.TryRefreshPlaylists(true);
                     SongCore.Loader.Instance.RefreshSongs(false);
                     SetPlaylistState(playlistType, PlaylistState.UpToDate);
                 }
 
                 PlaylistUpdateFinishedEvent?.Invoke(playlistType);
-            }
-
-            void OnFail(string reason) {
-                Plugin.Log.Debug($"{playlistType} playlist update failed: {reason}");
+            } else if (result.RequestState == WebRequests.RequestState.Failed) {
+                Plugin.Log.Debug($"{playlistType} playlist update failed: {result.FailReason}");
                 PlaylistUpdateFinishedEvent?.Invoke(playlistType);
             }
+        }
 
-            StartCoroutine(PlaylistRequest.SendRequest(playlistInfo.PlaylistId, OnSuccess, OnFail));
+        public void UpdatePlaylist(PlaylistType playlistType) {
+            UpdatePlaylistAsync(playlistType).RunCatching();
         }
 
         #endregion

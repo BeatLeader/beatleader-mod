@@ -7,6 +7,7 @@ using IPA;
 using IPA.Config;
 using IPA.Loader;
 using JetBrains.Annotations;
+using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
 namespace BeatLeader {
@@ -19,6 +20,8 @@ namespace BeatLeader {
         internal const string PluginId = "BeatLeader";
         internal const string HarmonyId = "BeatLeader";
         internal const string FancyName = "BeatLeader";
+
+        internal static string UserAgent = "PC mod";
 
         internal static Version Version { get; private set; }
 
@@ -54,6 +57,8 @@ namespace BeatLeader {
             OnEnabledChanged(PluginConfig.Enabled);
             MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             InteropLoader.Init();
+
+            UserAgent = $"PC mod {Plugin.Version} / {Application.version}";
         }
 
         public static void MainMenuInit() {

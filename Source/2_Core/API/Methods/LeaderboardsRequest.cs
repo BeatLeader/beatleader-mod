@@ -1,47 +1,34 @@
-﻿using System;
-using System.Collections;
-using BeatLeader.API.RequestDescriptors;
+﻿using System.Net.Http;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using Hive.Versioning;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    internal static class LeaderboardsRequest {
-        #region Single
+namespace BeatLeader.API {
+    public class LeaderboardRequest : PersistentSingletonWebRequestBase<HashLeaderboardsInfoResponse, JsonResponseParser<HashLeaderboardsInfoResponse>> {
 
         // /leaderboards/hash/{hash}
         private static string SingleEndpoint => BLConstants.BEATLEADER_API_URL + "/leaderboards/hash/{0}";
 
-        public static IEnumerator SendSingleRequest(
-            string mapHash,
-            Action<HashLeaderboardsInfoResponse> onSuccess,
-            Action<string> onFail
+        public static void Send(
+            string mapHash
         ) {
             var url = string.Format(SingleEndpoint, mapHash);
-            var requestDescriptor = new JsonGetRequestDescriptor<HashLeaderboardsInfoResponse>(url);
-            yield return NetworkingUtils.SimpleRequestCoroutine(requestDescriptor, onSuccess, onFail);
+            SendRet(url, HttpMethod.Get);
         }
+    }
 
-        #endregion
-
-        #region Ranking
-
+    public class LeaderboardsRequest : PersistentWebRequestBase<Paged<MassLeaderboardsInfoResponse>, JsonResponseParser<Paged<MassLeaderboardsInfoResponse>>> {
         // /leaderboards?page={pageIndex}&count={itemsPerPage}&date_from={unixTime}&type=ranking&sortBy=timestamp
         private static string RankingEndpoint => BLConstants.BEATLEADER_API_URL + "/leaderboards?page={0}&count={1}&date_from={2}&type=ranking&sortBy=timestamp";
 
-        public static IEnumerator SendRankingRequest(
+        public static IWebRequest<Paged<MassLeaderboardsInfoResponse>> Send(
             long unixDateFrom,
             int page,
-            int itemsPerPage,
-            Action<Paged<MassLeaderboardsInfoResponse>> onSuccess,
-            Action<string> onFail
+            int itemsPerPage
         ) {
             var isUpdated = Plugin.Version > Hive.Versioning.Version.Parse(ConfigFileData.Instance.LastSessionModVersion);
             var url = string.Format(RankingEndpoint, page, itemsPerPage, isUpdated ? 0 : unixDateFrom);
-            var requestDescriptor = new JsonGetRequestDescriptor<Paged<MassLeaderboardsInfoResponse>>(url);
-            yield return NetworkingUtils.SimpleRequestCoroutine(requestDescriptor, onSuccess, onFail);
+            return SendRet(url, HttpMethod.Get);
         }
-
-        #endregion
     }
 }

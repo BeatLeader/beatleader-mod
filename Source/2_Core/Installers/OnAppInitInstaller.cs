@@ -26,6 +26,7 @@ namespace BeatLeader.Installers {
                 Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);
                 Container.BindInterfacesAndSelfTo<OculusMigrationManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             }
+            Authentication.LogIn();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                 OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);

@@ -31,7 +31,7 @@ namespace BeatLeader.UI.Hub {
         #region Cover
 
         private async Task RefreshMapCoverAsync(string url) {
-            var task = RawDataRequest.SendRequest(url);
+            var task = RawDataRequest.Send(url);
             _cover.Sprite = BundleLoader.UnknownIcon;
             _coverContainer.Loading = true;
             await task.Join();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -27,10 +27,10 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnRootStateChange(bool active) {
             if (active) {
-                PlatformEventsRequest.SendRequest();
-                PlatformEventsRequest.AddStateListener(OnRequestStateChanged);
+                PlatformEventsRequest.Send();
+                PlatformEventsRequest.StateChangedEvent += OnRequestStateChanged;
             } else {
-                PlatformEventsRequest.RemoveStateListener(OnRequestStateChanged);
+                PlatformEventsRequest.StateChangedEvent -= OnRequestStateChanged;
             }
         }
 
@@ -38,28 +38,28 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Events
 
-        private void OnRequestStateChanged(API.RequestState state, Paged<PlatformEvent> result, string failReason) {
+        private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<PlatformEvent>> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Uninitialized:
-                case API.RequestState.Started:
+                case WebRequests.RequestState.Uninitialized:
+                case WebRequests.RequestState.Started:
                 default: {
                     _loadingIndicator.SetActive(true);
                     _emptyText.gameObject.SetActive(false);
                     DisposeList();
                     break;
                 }
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     _loadingIndicator.SetActive(false);
                     _emptyText.gameObject.SetActive(true);
                     _emptyText.text = "<color=#ff8888>Failed to load";
                     DisposeList();
                     break;
-                case API.RequestState.Finished: {
+                case WebRequests.RequestState.Finished: {
                     _loadingIndicator.SetActive(false);
 
-                    if (result.data is { Count: > 0 }) {
+                    if (instance.Result.data is { Count: > 0 }) {
                         _emptyText.gameObject.SetActive(false);
-                        PresentList(result.data);
+                        PresentList(instance.Result.data);
                     } else {
                         _emptyText.gameObject.SetActive(true);
                         _emptyText.text = "There is no events";

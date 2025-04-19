@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 using System.Collections;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -14,17 +14,17 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             LeaderboardEvents.StatusMessageEvent += OnStatusMessage;
 
-            UserRequest.AddStateListener(OnProfileRequestStateChanged);
-            VoteRequest.AddStateListener(OnVoteRequestStateChanged);
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+            UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
+            VoteRequest.StateChangedEvent += OnVoteRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
         }
 
         protected override void OnDispose() {
             LeaderboardEvents.StatusMessageEvent -= OnStatusMessage;
 
-            UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
-            VoteRequest.RemoveStateListener(OnVoteRequestStateChanged);
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+            UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
+            VoteRequest.StateChangedEvent -= OnVoteRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
         }
 
         private void OnDisable() {
@@ -36,31 +36,31 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnVoteRequestStateChanged(API.RequestState state, VoteStatus result, string failReason) {
+        private void OnVoteRequestStateChanged(WebRequests.IWebRequest<VoteStatus> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Finished:
+                case WebRequests.RequestState.Finished:
                     ShowGoodNews("Your vote has been accepted!");
                     break;
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     ShowBadNews($"Vote failed! {failReason}");
                     break;
             }
         }
 
-        private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
+        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     ShowBadNews($"Profile update failed! {failReason}");
                     break;
             }
         }
 
-        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Finished:
+                case WebRequests.RequestState.Finished:
                     ShowGoodNews("Score uploaded!");
                     break;
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     ShowBadNews($"Score upload failed! {failReason}");
                     break;
             }

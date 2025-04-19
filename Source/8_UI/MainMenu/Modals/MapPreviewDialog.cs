@@ -160,7 +160,7 @@ namespace BeatLeader.UI.MainMenu {
 
             // Load cover image
             if (!string.IsNullOrEmpty(Context.song.coverImage)) {
-                _ = LoadCoverImage();
+                LoadCoverImage().RunCatching();
             }
         }
 
@@ -210,7 +210,7 @@ namespace BeatLeader.UI.MainMenu {
             if (!string.IsNullOrEmpty(Context.song.hash)) {
                 _downloadCancellationSource?.Cancel();
                 _downloadCancellationSource = new CancellationTokenSource();
-                _ = LoadAndPlayPreview(_downloadCancellationSource.Token);
+                LoadAndPlayPreview(_downloadCancellationSource.Token).RunCatching();
             }
         }
 
@@ -231,7 +231,7 @@ namespace BeatLeader.UI.MainMenu {
 
         private async Task Download() {
             try {
-                var bytes = await RawDataRequest.SendRequest(Context.song.downloadUrl!).Join();
+                var bytes = await RawDataRequest.Send(Context.song.downloadUrl!).Join();
 
                 if (bytes.RequestStatusCode is not HttpStatusCode.OK) {
                     return;

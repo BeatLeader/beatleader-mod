@@ -1,4 +1,4 @@
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -9,11 +9,11 @@ namespace BeatLeader.Components {
         #region Initialize
 
         protected override void OnInitialize() {
-            ScoreStatsRequest.AddStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.StateChangedEvent += OnScoreStatsRequestStateChanged;
         }
 
         protected override void OnDispose() {
-            ScoreStatsRequest.RemoveStateListener(OnScoreStatsRequestStateChanged);
+            ScoreStatsRequest.StateChangedEvent -= OnScoreStatsRequestStateChanged;
         }
 
         #endregion
@@ -23,10 +23,10 @@ namespace BeatLeader.Components {
         private const string FailMessage = "<color=#FF8888>Oops!\n<size=60%>Something went wrong";
         private const string LoadingMessage = "Loading...";
 
-        private void OnScoreStatsRequestStateChanged(API.RequestState state, ScoreStats result, string failReason) {
+        private void OnScoreStatsRequestStateChanged(WebRequests.IWebRequest<ScoreStats> instance, WebRequests.RequestState state, string? failReason) {
             Text = state switch {
-                API.RequestState.Started => LoadingMessage,
-                API.RequestState.Failed => FailMessage,
+                WebRequests.RequestState.Started => LoadingMessage,
+                WebRequests.RequestState.Failed => FailMessage,
                 _ => ""
             };
         }

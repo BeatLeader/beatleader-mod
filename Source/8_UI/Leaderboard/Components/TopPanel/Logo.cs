@@ -1,6 +1,7 @@
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.WebRequests;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -114,17 +115,19 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterial();
 
-            UserRequest.AddStateListener(OnProfileRequestStateChanged);
-            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
-            ClanScoresRequest.AddStateListener(OnClanScoresRequestStateChanged);
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+            UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
+            ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent += OnClanScoresRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
         }
 
         protected override void OnDispose() {
-            UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
-            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
-            ClanScoresRequest.RemoveStateListener(OnClanScoresRequestStateChanged);
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+            UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
+            ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent -= OnClanScoresRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
         }
 
         #endregion
@@ -136,23 +139,24 @@ namespace BeatLeader.Components {
             LeaderboardEvents.NotifyLogoWasPressed();
         }
 
-        private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
-            _loadingProfile = state is API.RequestState.Started;
+        private void OnProfileRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+            _loadingProfile = state is WebRequests.RequestState.Started;
             UpdateState();
         }
 
-        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            _loadingScores = state is API.RequestState.Started;
+        private void OnScoresRequestStateChanged(IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
+            _loadingScores = state is WebRequests.RequestState.Started;
             UpdateState();
         }
 
-        private void OnClanScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            _loadingClanScores = state is API.RequestState.Started;
+        private void OnClanScoresRequestStateChanged(IWebRequest<ScoresTableContent> instance, RequestState state, string? failReason) {
+            _loadingClanScores = state is WebRequests.RequestState.Started;
             UpdateState();
         }
 
-        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
-            _uploadingScore = state is API.RequestState.Started;
+        
+        private void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+            _uploadingScore = state is WebRequests.RequestState.Started;
             UpdateState();
         }
 

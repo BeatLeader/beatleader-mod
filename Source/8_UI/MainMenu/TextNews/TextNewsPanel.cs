@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -17,39 +17,39 @@ namespace BeatLeader.UI.MainMenu {
         protected override void OnInitialize() {
             base.OnInitialize();
             NewsRequest.SendRequest();
-            NewsRequest.AddStateListener(OnRequestStateChanged);
+            NewsRequest.StateChangedEvent += OnRequestStateChanged;
         }
 
         protected override void OnDispose() {
-            NewsRequest.RemoveStateListener(OnRequestStateChanged);
+            NewsRequest.StateChangedEvent -= OnRequestStateChanged;
         }
 
         #endregion
 
         #region Request
 
-        private void OnRequestStateChanged(API.RequestState state, Paged<NewsPost> result, string failReason) {
+        private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<NewsPost>> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Uninitialized:
-                case API.RequestState.Started:
+                case WebRequests.RequestState.Uninitialized:
+                case WebRequests.RequestState.Started:
                 default: {
                     _loadingIndicator.SetActive(true);
                     _emptyText.gameObject.SetActive(false);
                     DisposeList();
                     break;
                 }
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     _loadingIndicator.SetActive(false);
                     _emptyText.gameObject.SetActive(true);
                     _emptyText.text = "<color=#ff8888>Failed to load";
                     DisposeList();
                     break;
-                case API.RequestState.Finished: {
+                case WebRequests.RequestState.Finished: {
                     _loadingIndicator.SetActive(false);
 
-                    if (result.data is { Count: > 0 }) {
+                    if (instance.Result.data is { Count: > 0 }) {
                         _emptyText.gameObject.SetActive(false);
-                        PresentList(result.data);
+                        PresentList(instance.Result.data);
                     } else {
                         _emptyText.gameObject.SetActive(true);
                         _emptyText.text = "There is no news";

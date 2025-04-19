@@ -10,13 +10,13 @@ namespace BeatLeader.WebRequests {
         private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer };
         private static readonly HttpClient httpClient = new(httpClientHandler);
 
-        public static IWebRequest Send(
+        public static IWebRequest<object> Send(
             HttpRequestMessage requestMessage,
             WebRequestParams? requestParams = null,
             CancellationToken token = default
         ) {
             requestParams ??= new();
-            return new WebRequestProcessor(SendInternal, requestMessage, requestParams, token);
+            return new WebRequestProcessor<object>(SendInternal, requestMessage, requestParams, null, token);
         }
 
         public static IWebRequest<T> Send<T>(
@@ -38,7 +38,7 @@ namespace BeatLeader.WebRequests {
         }
 
         private static void ApplyDefaultHeaders(HttpRequestMessage requestMessage) {
-            requestMessage.Headers.Add("User-Agent", $"PC mod {Plugin.Version} / {Application.version}");
+            requestMessage.Headers.Add("User-Agent", Plugin.UserAgent);
         }
     }
 }

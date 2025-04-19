@@ -97,7 +97,7 @@ namespace BeatLeader.UI {
             ) {
                 var layout = new Background()
                     .Export(out background)
-                    .AsBackground(pixelsPerUnit: 12f)
+                    .AsBlurBackground(pixelsPerUnit: 12f)
                     .AsFlexGroup(
                         padding: new() { left = 1f, right = 1f },
                         gap: new() { x = 1f }

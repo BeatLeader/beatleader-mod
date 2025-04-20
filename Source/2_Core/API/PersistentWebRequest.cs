@@ -90,7 +90,6 @@ namespace BeatLeader.WebRequests {
                 Instance.StateChangedEvent += Instance_StateChangedEvent;
                 Instance.ProgressChangedEvent += Instance_ProgressChangedEvent;
                 Instance_StateChangedEvent(Instance, RequestState, FailReason);
-                await Instance.Join();
             }).RunCatching();
         }
 

@@ -69,19 +69,15 @@ namespace BeatLeader.Components {
             _tabSelector._hideCellBackground = false;
             _tabSelector.SetTexts(new[] { "Scores", "Players" });
 
-            PageClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
-            PageSeekClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ScoresOfClanRequest.StateChangedEvent += OnScoresRequestStateChanged;
 
             ClanPlayersRequest.StateChangedEvent += OnScoresRequestStateChanged;
-            ClanPlayersSeekRequest.StateChangedEvent += OnScoresRequestStateChanged;
         }
 
         protected override void OnDispose() {
-            PageClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
-            PageSeekClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ScoresOfClanRequest.StateChangedEvent -= OnScoresRequestStateChanged;
 
             ClanPlayersRequest.StateChangedEvent -= OnScoresRequestStateChanged;
-            ClanPlayersSeekRequest.StateChangedEvent -= OnScoresRequestStateChanged;
         }
 
         private void Update() {
@@ -189,7 +185,7 @@ namespace BeatLeader.Components {
         private void SendScoresRequest() {
             switch (_paginationType) {
                 case PaginationType.Page: {
-                    PageClanScoresRequest.Send(
+                    ScoresOfClanRequest.SendPage(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag,
@@ -199,7 +195,7 @@ namespace BeatLeader.Components {
                     break;
                 }
                 case PaginationType.Seek: {
-                    PageSeekClanScoresRequest.Send(
+                    ScoresOfClanRequest.SendSeek(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag,
@@ -213,7 +209,7 @@ namespace BeatLeader.Components {
         private void SendPlayersRequest() {
             switch (_paginationType) {
                 case PaginationType.Page: {
-                    ClanPlayersRequest.Send(
+                    ClanPlayersRequest.SendPage(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag,
@@ -222,7 +218,7 @@ namespace BeatLeader.Components {
                     break;
                 }
                 case PaginationType.Seek: {
-                    ClanPlayersSeekRequest.Send(
+                    ClanPlayersRequest.SendSeek(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag

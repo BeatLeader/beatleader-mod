@@ -6,8 +6,8 @@ using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
     public class ReplayResponseParser : IWebRequestResponseParser<Replay> {
-        public Task<Replay?> ParseResponse(byte[] bytes) {
-            return Task.Run(() => ReplayDecoder.DecodeReplay(bytes))!;
+        public Replay? ParseResponse(byte[] bytes) {
+            return ReplayDecoder.DecodeReplay(bytes);
         }
     }
 

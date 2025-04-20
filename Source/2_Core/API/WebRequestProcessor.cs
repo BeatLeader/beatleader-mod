@@ -54,7 +54,7 @@ namespace BeatLeader.WebRequests {
             if (token.IsCancellationRequested) return RequestState.Failed;
             try {
                 if (_requestResponseParser != null) {
-                    Result = await _requestResponseParser.ParseResponse(contentBuffer);
+                    Result = _requestResponseParser.ParseResponse(contentBuffer);
                 }
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to parse web request response!\n{ex}");

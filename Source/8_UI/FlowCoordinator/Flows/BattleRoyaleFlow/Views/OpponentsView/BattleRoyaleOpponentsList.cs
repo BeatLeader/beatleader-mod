@@ -17,7 +17,7 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleOpponentsList : Table<BattleRoyaleReplay, BattleRoyaleOpponentsList.Cell> {
         #region Cells
 
-        public class Cell : TableComponentCell<BattleRoyaleReplay> {
+        public class Cell : TableCell<BattleRoyaleReplay> {
             #region Construct
 
             private Image _backgroundImage = null!;

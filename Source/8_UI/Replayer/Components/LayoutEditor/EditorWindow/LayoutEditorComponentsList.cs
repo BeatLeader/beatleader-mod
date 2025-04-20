@@ -11,10 +11,10 @@ using ImageButton = Reactive.BeatSaber.Components.ImageButton;
 using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.Components {
-    internal class LayoutEditorComponentsList : Reactive.BeatSaber.Components.Table<ILayoutComponent, LayoutEditorComponentsList.Cell> {
+    internal class LayoutEditorComponentsList : Table<ILayoutComponent, LayoutEditorComponentsList.Cell> {
         #region Cell
 
-        public class Cell : TableComponentCell<ILayoutComponent> {
+        public class Cell : TableCell<ILayoutComponent> {
             #region Setup
 
             private ILayoutComponent _layoutComponent = null!;

@@ -116,7 +116,7 @@ namespace BeatLeader.UI.Replayer {
 
         #region ViewSegmentedControl
 
-        private class ViewSegmentedControlCell : KeyedControlComponentCell<string, Sprite> {
+        private class ViewSegmentedControlCell : KeyedControlCell<string, Sprite> {
             #region Setup
 
             private SegmentedControlButton _button = null!;

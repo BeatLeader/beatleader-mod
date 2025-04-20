@@ -26,7 +26,7 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaysList : Table<IReplayHeader, ReplaysList.Cell>, IReplaysList {
         #region Cell
 
-        public class Cell : TableComponentCell<IReplayHeader> {
+        public class Cell : TableCell<IReplayHeader> {
             #region Colors
 
             private static readonly StateColorSet colorSet = new() {

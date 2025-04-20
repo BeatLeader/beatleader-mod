@@ -137,7 +137,7 @@ namespace BeatLeader.UI.Hub {
 
         #region FiltersModal
 
-        private class FiltersModal : ModalComponentBase {
+        private class FiltersModal : ModalBase {
             #region Filter Dependencies
 
             private readonly Dictionary<IPanelListFilter<T>, List<IPanelListFilter<T>>> _dependencies = new();

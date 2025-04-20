@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListSettingsPanel : ReactiveComponent {
-        private class SortOptionsModal : ModalComponentBase {
+        private class SortOptionsModal : ModalBase {
             #region Setup
 
             private IReplaysList? _replaysList;

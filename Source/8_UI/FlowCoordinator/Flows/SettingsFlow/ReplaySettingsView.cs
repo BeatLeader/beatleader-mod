@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaySettingsView : ReactiveComponent {
         #region DeletionModal
 
-        private class DeletionModal : ModalComponentBase {
+        private class DeletionModal : ModalBase {
             #region Visuals
 
             private enum DeletionStage {

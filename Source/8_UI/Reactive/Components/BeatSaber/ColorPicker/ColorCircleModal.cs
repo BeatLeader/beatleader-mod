@@ -5,7 +5,7 @@ using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class ColorCircleModal : ModalComponentBase {
+    internal class ColorCircleModal : ModalBase {
         public ColorCircle ColorCircle { get; } = new();
 
         protected override GameObject Construct() {

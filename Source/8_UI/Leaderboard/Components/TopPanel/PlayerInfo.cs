@@ -76,7 +76,6 @@ namespace BeatLeader.Components {
         }
 
         private void OnProfileUpdated(Player player) {
-            Plugin.Log.Error($"PLAYER NAME!!! {player.name}");
             _countryFlag.SetCountry(player.country);
             _avatar.SetAvatar(player.avatar, player.profileSettings);
 

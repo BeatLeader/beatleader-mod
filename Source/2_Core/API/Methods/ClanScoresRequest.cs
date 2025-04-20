@@ -22,7 +22,7 @@ namespace BeatLeader.API {
     }
 
     public class ClanScoresRequest : PersistentSingletonWebRequestBase<ScoresTableContent, ClanScoreResponseParser> {
-        public const int ScoresPerPage = 10;
+        private const int ScoresPerPage = 10;
 
         // /v1/clanScores/{hash}/{diff}/{mode}/page?page={page}&count={count}
         private static string ClanScoresPageEndpoint => BLConstants.BEATLEADER_API_URL + "/v1/clanScores/{0}/{1}/{2}/page?{3}";

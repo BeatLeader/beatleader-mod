@@ -89,6 +89,7 @@ namespace BeatLeader.WebRequests {
                 Instance = WebRequestFactory.Send(requestMessage, descriptor, requestParams, tokenSource.Token);
                 Instance.StateChangedEvent += Instance_StateChangedEvent;
                 Instance.ProgressChangedEvent += Instance_ProgressChangedEvent;
+                Instance_StateChangedEvent(Instance, RequestState, FailReason);
                 await Instance.Join();
             }).RunCatching();
         }
@@ -101,7 +102,7 @@ namespace BeatLeader.WebRequests {
 
         public static TResult? Result => Instance != null ? Instance.Result : default;
 
-        public static RequestState RequestState => Instance != null ? Instance.RequestState : default;
+        public static RequestState RequestState => Instance != null ? Instance.RequestState : RequestState.Uninitialized;
 
         public static HttpStatusCode RequestStatusCode => Instance != null ?  Instance.RequestStatusCode : default;
 
@@ -117,7 +118,7 @@ namespace BeatLeader.WebRequests {
         public static event WebRequestStateChangedDelegate<IWebRequest<TResult>>? StateChangedEvent {
             add {
                 StateChangedEventInternal += value;
-                if (Instance != null) value?.Invoke(Instance, RequestState, FailReason);
+                value?.Invoke(Instance, Instance != null ? RequestState : RequestState.Uninitialized, Instance != null ? FailReason : null);
             }
             remove {
                 StateChangedEventInternal -= value;

@@ -8,7 +8,7 @@ namespace BeatLeader.Components {
     internal class ClanScoresTable : AbstractScoresTable<ScoreRow> {
         #region Properties
 
-        protected override int RowsCount => ClanScoresRequest.ScoresPerPage;
+        protected override int RowsCount => PageClanScoresRequest.ScoresPerPage;
         protected override float RowWidth => 77;
         protected override float Spacing => 1.3f;
         protected override ScoreRowCellType CellTypeMask {
@@ -26,7 +26,11 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             base.OnInitialize();
 
-            ClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            PageClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            PageSeekClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+
+            ClanPlayersRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanPlayersSeekRequest.StateChangedEvent += OnScoresRequestStateChanged;
 
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
@@ -37,7 +41,11 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             base.OnDispose();
 
-            ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            PageClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            PageSeekClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+
+            ClanPlayersRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanPlayersSeekRequest.StateChangedEvent -= OnScoresRequestStateChanged;
 
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;

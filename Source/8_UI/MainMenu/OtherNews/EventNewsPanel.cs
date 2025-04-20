@@ -23,14 +23,16 @@ namespace BeatLeader.UI.MainMenu {
         protected override void OnInitialize() {
             base.OnInitialize();
             header.Setup("BeatLeader Events");
+            PlatformEventsRequest.StateChangedEvent += OnRequestStateChanged;
+        }
+
+        protected override void OnDispose() {
+            PlatformEventsRequest.StateChangedEvent -= OnRequestStateChanged;
         }
 
         protected override void OnRootStateChange(bool active) {
             if (active) {
                 PlatformEventsRequest.Send();
-                PlatformEventsRequest.StateChangedEvent += OnRequestStateChanged;
-            } else {
-                PlatformEventsRequest.StateChangedEvent -= OnRequestStateChanged;
             }
         }
 

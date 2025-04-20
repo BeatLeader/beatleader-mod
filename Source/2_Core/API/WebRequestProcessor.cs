@@ -45,10 +45,14 @@ namespace BeatLeader.WebRequests {
             var contentLength = message.Content.Headers.ContentLength;
             if (contentLength is null or 0) return RequestState.Finished;
 
-            var contentBuffer = await DownloadContent(message.Content, token);
-            if (token.IsCancellationRequested) return RequestState.Cancelled;
+            byte[] contentBuffer;
+            if (contentLength < 1000) {
+                contentBuffer = await message.Content.ReadAsByteArrayAsync();
+            } else {
+                contentBuffer = await DownloadContent(message.Content, token);
+            }
+            if (token.IsCancellationRequested) return RequestState.Failed;
             try {
-                RequestState = RequestState.Parsing;
                 if (_requestResponseParser != null) {
                     Result = await _requestResponseParser.ParseResponse(contentBuffer);
                 }

@@ -122,7 +122,6 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnScoresRequestStateChanged(WebRequests.IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
-            Plugin.Log.Error($"OnScoresRequestStateChanged {state}");
             if (state is not WebRequests.RequestState.Finished) {
                 PresentContent(null);
                 return;

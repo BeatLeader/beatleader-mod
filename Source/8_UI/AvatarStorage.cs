@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using B83.Image.GIF;
 using BeatLeader.API;
@@ -25,18 +26,19 @@ namespace BeatLeader {
 
         #region GetPlayerAvatarCoroutine
 
-        public static IEnumerator GetPlayerAvatarCoroutine(
+        public static async Task GetPlayerAvatarCoroutine(
             string url,
             bool forceUpdate,
             Action<AvatarImage> onSuccessCallback,
-            Action<string> onFailCallback
+            Action<string> onFailCallback,
+            CancellationToken token
         ) {
             if (!forceUpdate && Cache.ContainsKey(url)) {
                 onSuccessCallback.Invoke(Cache[url]);
-                yield break;
+                return;
             }
 
-            yield return TryDownload(url, onSuccessCallback, onFailCallback);
+            await TryDownload(url, onSuccessCallback, onFailCallback, token);
         }
 
         #endregion
@@ -46,49 +48,49 @@ namespace BeatLeader {
         private static async Task TryDownload(
             string url,
             Action<AvatarImage> onSuccessCallback,
-            Action<string> onFailCallback
+            Action<string> onFailCallback,
+            CancellationToken token
         ) {
-            await Task.Run(async () => {
-                var request = await RawDataRequest.Send(url).Join();
+            var request = await RawDataRequest.Send(url, token).Join();
+            if (token.IsCancellationRequested) return;
 
-                if (request.RequestState != WebRequests.RequestState.Finished) {
-                    await UnityMainThreadTaskScheduler.Factory.StartNew(() => {
-                        onFailCallback?.Invoke(request.FailReason ?? "");
-                    });
-                    return;
-                }
+            if (request.RequestState != WebRequests.RequestState.Finished) {
+                onFailCallback?.Invoke(request.FailReason ?? "");
+                return;
+            }
 
-                var data = request.Result;
-                GIFImage? gif = null;
+            var data = request.Result;
+            GIFImage? gif = await Task.Run(async () => {
                 try {
                     using (var reader = new BinaryReader(new MemoryStream(data))) {
-                        gif = new GIFLoader().Load(reader);
+                        return new GIFLoader().Load(reader);
                     }
-                } catch (Exception e) { }
-                
-                await UnityMainThreadTaskScheduler.Factory.StartNew(() => {
-                    AvatarImage avatarImage;
-                    if (gif != null) {
-                        var tex = new Texture2D(
-                            gif.screen.width,
-                            gif.screen.height,
-                            TextureFormat.RGBA32,
-                            false
-                        );
-
-                        avatarImage = AvatarImage.Animated(tex, gif);
-                        Cache[url] = avatarImage;
-                    } else {
-                        var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
-                        var loaded = texture.LoadImage(data);
-
-                        avatarImage = AvatarImage.Static(loaded ? texture : BundleLoader.FileError.texture);
-                        if (loaded) Cache[url] = avatarImage;
-                    }
-
-                    onSuccessCallback.Invoke(avatarImage);
-                });
+                } catch (Exception e) { return null; }
             });
+
+            if (token.IsCancellationRequested) return;
+
+            AvatarImage avatarImage;
+            if (gif != null) {
+                var tex = new Texture2D(
+                    gif.screen.width,
+                    gif.screen.height,
+                    TextureFormat.RGBA32,
+                    false
+                );
+
+                avatarImage = AvatarImage.Animated(tex, gif);
+                Cache[url] = avatarImage;
+            } else {
+                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
+                var loaded = texture.LoadImage(data);
+
+                avatarImage = AvatarImage.Static(loaded ? texture : BundleLoader.FileError.texture);
+                if (loaded) Cache[url] = avatarImage;
+            }
+
+            if (token.IsCancellationRequested) return;
+            onSuccessCallback.Invoke(avatarImage);
         }
 
         #endregion

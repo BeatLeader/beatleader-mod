@@ -3,6 +3,8 @@ using BeatLeader.Themes;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
+using System.Collections;
+using System.Threading;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
@@ -90,6 +92,7 @@ namespace BeatLeader.Components {
         #region SetAvatar
 
         private string? _url = "";
+        private CancellationTokenSource? tokenSource = null;
 
         public void SetLoading() {
             if (_url == null) return;
@@ -114,10 +117,18 @@ namespace BeatLeader.Components {
                 ShowTexture(BundleLoader.DefaultAvatar.texture);
                 return;
             }
+
             ShowSpinner();
             StopAllCoroutines();
-            var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url, false, OnAvatarLoadSuccess, OnAvatarLoadFailed);
-            StartCoroutine(loadTask);
+
+            tokenSource?.Cancel();
+            tokenSource = new CancellationTokenSource();
+            StartCoroutine(LoadImage());
+        }
+
+        private IEnumerator LoadImage() {
+            var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url, false, OnAvatarLoadSuccess, OnAvatarLoadFailed, tokenSource.Token);
+            yield return loadTask;
         }
 
         private void OnAvatarLoadSuccess(AvatarImage avatarImage) {

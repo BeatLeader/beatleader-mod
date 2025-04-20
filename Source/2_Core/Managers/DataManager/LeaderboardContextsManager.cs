@@ -41,24 +41,20 @@ namespace BeatLeader.DataManager {
         }
         
         private static async Task LoadIconCoroutine(string url, Action<Sprite> onLoaded) {
-            await Task.Run(async () => {
-                var request = await RawDataRequest.Send(url).Join();
+            var request = await RawDataRequest.Send(url).Join();
             
-                if (request.RequestState != WebRequests.RequestState.Finished) {
-                    Plugin.Log.Debug($"Failed to load icon from {url}: {request.FailReason}");
-                    return;
-                }
+            if (request.RequestState != WebRequests.RequestState.Finished) {
+                Plugin.Log.Debug($"Failed to load icon from {url}: {request.FailReason}");
+                return;
+            }
                 
-                await UnityMainThreadTaskScheduler.Factory.StartNew(() => {
-                    var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
-                    var loaded = texture.LoadImage(request.Result);
-                    if (loaded) {
-                        var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), 
-                            new Vector2(0.5f, 0.5f));
-                        onLoaded(sprite);
-                    }
-                });
-            });
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
+            var loaded = texture.LoadImage(request.Result);
+            if (loaded) {
+                var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), 
+                    new Vector2(0.5f, 0.5f));
+                onLoaded(sprite);
+            }
         }
 
         private IEnumerator WaitImages(List<Task> tasks) {

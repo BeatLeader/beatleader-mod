@@ -8,32 +8,35 @@ using BeatLeader.Utils;
 using System.Net.Http;
 using BeatLeader.WebRequests;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace BeatLeader.API {
     internal class UploadPlayRequest : PersistentSingletonWebRequestBase<Score, JsonResponseParser<Score>> {
         private static string WithCookieEndpoint => BLConstants.BEATLEADER_API_URL + "/replayoculus?{0}";
 
         public static void Send(Replay replay, PlayEndData data) {
-            var query = new Dictionary<string, object>() {
-                { "type", (int)data.EndType },
-                { "time", data.Time }
-            };
-            var url = string.Format(WithCookieEndpoint, NetworkingUtils.ToHttpParams(query));
+            Task.Run(() => {
+                var query = new Dictionary<string, object>() {
+                    { "type", (int)data.EndType },
+                    { "time", data.Time }
+                };
+                var url = string.Format(WithCookieEndpoint, NetworkingUtils.ToHttpParams(query));
 
-            var compressedData = CompressReplay(replay);
-            var content = new ByteArrayContent(compressedData);
+                var compressedData = CompressReplay(replay);
+                var content = new ByteArrayContent(compressedData);
 
-            SendRet(url, 
-                HttpMethod.Put, 
-                content, 
-                new WebRequestParams {
-                    RetryCount = 1,
-                    TimeoutSeconds = 15
-                }, 
-                (HttpRequestHeaders headers) => {
-                    headers.Add("Content-Encoding", "gzip");
-                }
-            );
+                SendRet(url, 
+                    HttpMethod.Put, 
+                    content, 
+                    new WebRequestParams {
+                        RetryCount = 1,
+                        TimeoutSeconds = 15
+                    }, 
+                    (HttpRequestHeaders headers) => {
+                        headers.Add("Content-Encoding", "gzip");
+                    }
+                );
+            }).RunCatching();
         }
 
         private static byte[] CompressReplay(Replay replay) {

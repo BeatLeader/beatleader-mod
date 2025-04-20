@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Hub {
-    internal class ReplayDeletionDialog : DialogComponentBase {
+    internal class ReplayDeletionDialog : DialogBase {
         #region Setup
 
         private IReplayHeader? _header;

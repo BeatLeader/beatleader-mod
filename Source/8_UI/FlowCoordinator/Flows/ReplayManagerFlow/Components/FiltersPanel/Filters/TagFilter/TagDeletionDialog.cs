@@ -5,7 +5,7 @@ using Reactive;
 using Reactive.BeatSaber.Components;
 
 namespace BeatLeader.UI.Hub {
-    internal class TagDeletionDialog : DialogComponentBase {
+    internal class TagDeletionDialog : DialogBase {
         #region Setup
 
         private ReplayTag? _replayTag;

@@ -2,7 +2,7 @@ using System;
 using Reactive;
 
 namespace BeatLeader.UI.Reactive.Components {
-    internal class Dialog<T> : DialogComponentBase where T : IReactiveComponent, ILayoutItem, new() {
+    internal class Dialog<T> : DialogBase where T : IReactiveComponent, ILayoutItem, new() {
         #region UI Props
 
         public new string Title {

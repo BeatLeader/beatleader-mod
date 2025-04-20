@@ -3,7 +3,7 @@ using BeatLeader.Utils;
 using Reactive;
 
 namespace BeatLeader.UI.Hub {
-    internal class TagCreationDialog : DialogComponentBase {
+    internal class TagCreationDialog : DialogBase {
         #region Construct
 
         private TagEditorPanel _tagEditorPanel = null!;

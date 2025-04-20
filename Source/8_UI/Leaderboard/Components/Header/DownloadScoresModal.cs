@@ -18,7 +18,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class DownloadScoresModal : DialogComponentBase {
+    internal class DownloadScoresModal : DialogBase {
         #region Download
 
         public IReadOnlyCollection<IReplayHeader> Headers => _headers;

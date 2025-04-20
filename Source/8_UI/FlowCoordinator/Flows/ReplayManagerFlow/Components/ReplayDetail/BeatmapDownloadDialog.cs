@@ -14,7 +14,7 @@ using UnityEngine;
 using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Hub {
-    internal class BeatmapDownloadDialog : DialogComponentBase {
+    internal class BeatmapDownloadDialog : DialogBase {
         #region Tokens
 
         private const string GreetingsText = "Press proceed to let Monke visit BeatSaver and steal some maps for further actions.";

@@ -158,6 +158,8 @@ namespace BeatLeader.Components {
 
             switch (state) {
                 case WebRequests.RequestState.Started:
+                    _downloadText.text = "<alpha=#66>Starting...";
+
                     RefreshPlayButton(_isWaitingToStart ? PlayButtonState.Downloading : PlayButtonState.Unavailable);
                     RefreshDownloadButton(_isWaitingToStart ? DownloadButtonState.Unavailable : DownloadButtonState.Downloading);
 

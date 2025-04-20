@@ -72,7 +72,8 @@ namespace BeatLeader.WebRequests {
             HttpMethod method,
             HttpContent? content = null,
             WebRequestParams? requestParams = null,
-            Action<HttpRequestHeaders>? headersCallback = null
+            Action<HttpRequestHeaders>? headersCallback = null,
+            TDescriptor? customParser = default
         ) {
             var requestMessage = CreateAndValidateRequestMessage(url, method, content, headersCallback);
 
@@ -86,7 +87,7 @@ namespace BeatLeader.WebRequests {
             Task.Run(async () => {
                 await Authentication.WaitLogin();
 
-                Instance = WebRequestFactory.Send(requestMessage, descriptor, requestParams, tokenSource.Token);
+                Instance = WebRequestFactory.Send(requestMessage, customParser ?? descriptor, requestParams, tokenSource.Token);
                 Instance.StateChangedEvent += Instance_StateChangedEvent;
                 Instance.ProgressChangedEvent += Instance_ProgressChangedEvent;
                 Instance_StateChangedEvent(Instance, RequestState, FailReason);

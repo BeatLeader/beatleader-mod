@@ -41,12 +41,12 @@ namespace BeatLeader.WebRequests {
             CancellationToken token
         ) {
             Headers = message.Content.Headers;
-
             var contentLength = message.Content.Headers.ContentLength;
-            if (contentLength is null or 0) return RequestState.Finished;
 
             byte[] contentBuffer;
-            if (contentLength < 1000) {
+            if (contentLength == null || contentLength == 0) { 
+                contentBuffer = new byte[] { };
+            } else if (contentLength < 1000) {
                 contentBuffer = await message.Content.ReadAsByteArrayAsync();
             } else {
                 contentBuffer = await DownloadContent(message.Content, token);

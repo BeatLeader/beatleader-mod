@@ -2,9 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using B83.Image.GIF;
+using BeatLeader.API;
 using BeatLeader.Models;
+using BeatLeader.Utils;
+using IPA.Utilities.Async;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -22,68 +26,70 @@ namespace BeatLeader {
 
         #region GetPlayerAvatarCoroutine
 
-        public static IEnumerator GetPlayerAvatarCoroutine(
+        public static async Task GetPlayerAvatarCoroutine(
             string url,
             bool forceUpdate,
             Action<AvatarImage> onSuccessCallback,
-            Action<string> onFailCallback
+            Action<string> onFailCallback,
+            CancellationToken token
         ) {
             if (!forceUpdate && Cache.ContainsKey(url)) {
                 onSuccessCallback.Invoke(Cache[url]);
-                yield break;
+                return;
             }
 
-            yield return TryDownload(url, onSuccessCallback, onFailCallback);
+            await TryDownload(url, onSuccessCallback, onFailCallback, token);
         }
 
         #endregion
 
         #region TryDownload
 
-        private static IEnumerator TryDownload(
+        private static async Task TryDownload(
             string url,
             Action<AvatarImage> onSuccessCallback,
-            Action<string> onFailCallback
+            Action<string> onFailCallback,
+            CancellationToken token
         ) {
-            var handler = new DownloadHandlerTexture();
-            var request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET);
-            request.downloadHandler = handler;
-            yield return request.SendWebRequest();
+            var request = await RawDataRequest.Send(url, token).Join();
+            if (token.IsCancellationRequested) return;
 
-            if (request.isHttpError || request.isNetworkError) {
-                onFailCallback?.Invoke(request.error);
-                yield break;
+            if (request.RequestState != WebRequests.RequestState.Finished) {
+                onFailCallback?.Invoke(request.FailReason ?? "");
+                return;
             }
 
-            var data = handler.data;
-            
-            var task = Task.Run(() => {
-                using var reader = new BinaryReader(new MemoryStream(data));
-                return new GIFLoader().Load(reader);
+            var data = request.Result;
+            GIFImage? gif = await Task.Run(async () => {
+                try {
+                    using (var reader = new BinaryReader(new MemoryStream(data))) {
+                        return new GIFLoader().Load(reader);
+                    }
+                } catch (Exception e) { return null; }
             });
-            
-            yield return new WaitUntil(() => task.Status is TaskStatus.Faulted or TaskStatus.RanToCompletion);
-            
+
+            if (token.IsCancellationRequested) return;
+
             AvatarImage avatarImage;
-
-            if (task.Status is TaskStatus.RanToCompletion && task.Result != null) {
-                var gifImage = task.Result;
-
+            if (gif != null) {
                 var tex = new Texture2D(
-                    gifImage.screen.width,
-                    gifImage.screen.height,
+                    gif.screen.width,
+                    gif.screen.height,
                     TextureFormat.RGBA32,
                     false
                 );
 
-                avatarImage = AvatarImage.Animated(tex, gifImage);
+                avatarImage = AvatarImage.Animated(tex, gif);
                 Cache[url] = avatarImage;
             } else {
-                var isUsableTexture = handler.texture != null && handler.texture.width != 8;
-                avatarImage = AvatarImage.Static(isUsableTexture ? handler.texture : BundleLoader.FileError.texture);
-                if (isUsableTexture) Cache[url] = avatarImage;
+                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
+                var loaded = texture.LoadImage(data);
+
+                avatarImage = AvatarImage.Static(loaded ? texture : BundleLoader.FileError.texture);
+                if (loaded) Cache[url] = avatarImage;
             }
 
+            if (token.IsCancellationRequested) return;
             onSuccessCallback.Invoke(avatarImage);
         }
 

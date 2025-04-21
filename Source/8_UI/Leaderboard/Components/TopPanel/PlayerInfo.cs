@@ -1,4 +1,4 @@
-﻿using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
@@ -25,14 +25,14 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
-            UserRequest.AddStateListener(OnProfileRequestStateChanged);
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+            UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
         }
 
         protected override void OnDispose() {
-            UserRequest.RemoveStateListener(OnProfileRequestStateChanged);
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+            UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
         }
 
@@ -40,26 +40,26 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
-            OnProfileUpdated(result.Player);
-            user.player.contextExtensions = result.Player.contextExtensions;
+        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) return;
+            OnProfileUpdated(instance.Result.Player);
+            user.player.contextExtensions = instance.Result.Player.contextExtensions;
         }
 
-        private void OnProfileRequestStateChanged(API.RequestState state, User result, string failReason) {
+        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Uninitialized:
+                case WebRequests.RequestState.Uninitialized:
                     OnProfileRequestFailed("Error");
                     break;
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     OnProfileRequestFailed(failReason);
                     break;
-                case API.RequestState.Started:
+                case WebRequests.RequestState.Started:
                     OnProfileRequestStarted();
                     break;
-                case API.RequestState.Finished:
-                    user = result;
-                    OnProfileUpdated(result.player);
+                case WebRequests.RequestState.Finished:
+                    user = instance.Result;
+                    OnProfileUpdated(instance.Result.player);
                     break;
                 default: return;
             }

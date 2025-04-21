@@ -24,7 +24,7 @@ namespace BeatLeader.Components {
         public IReadOnlyCollection<IReplayHeader> Headers => _headers;
         public Action? DownloadingFinishedCallback { get; set; }
 
-        private readonly List<IWebRequest<Replay>> _requests = new();
+        private readonly List<Task<IWebRequest<Replay>>> _requests = new();
         private readonly List<IReplayHeader> _headers = new();
 
         private CancellationTokenSource _tokenSource = new();
@@ -69,7 +69,7 @@ namespace BeatLeader.Components {
                     continue;
                 }
 
-                var task = DownloadReplayRequest.SendRequest(score.replay, token);
+                var task = Task.Run(async () => await DownloadReplayRequest.SendRequest(score.replay, token).Join());
                 _requests.Add(task);
             }
 
@@ -82,10 +82,10 @@ namespace BeatLeader.Components {
 
             if (_requests.Count > 0) {
                 foreach (var request in _requests) {
-                    var req = await request.Join();
+                    var result = await request;
 
-                    if (req.RequestStatusCode != HttpStatusCode.OK) {
-                        FailDownloading(req.FailReason!);
+                    if (result.RequestStatusCode != HttpStatusCode.OK) {
+                        FailDownloading(result.FailReason!);
                         return;
                     }
 
@@ -99,7 +99,7 @@ namespace BeatLeader.Components {
 
                 SetSaving();
                 foreach (var request in _requests) {
-                    var header = await ReplayManager.SaveAnyReplayAsync(request.Result!, null, token);
+                    var header = await ReplayManager.SaveAnyReplayAsync(request.Result.Result!, null, token);
 
                     if (header == null) {
                         FailDownloading("Failed to save the replay");

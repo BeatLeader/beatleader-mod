@@ -1,36 +1,25 @@
-﻿using System;
-using BeatLeader.API.RequestHandlers;
-using BeatLeader.Models;
+﻿using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using BeatLeader.Models.Replay;
-using UnityEngine.Networking;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    internal class DownloadReplayRequest : PersistentSingletonRequestHandler<DownloadReplayRequest, Replay> {
-        protected override bool KeepState => false;
-
-        public static void SendRequest(string replayUrl) {
-            var requestDescriptor = new RequestDescriptor(replayUrl);
-            Instance.Send(requestDescriptor);
+namespace BeatLeader.API {
+    public class ReplayResponseParser : IWebRequestResponseParser<Replay> {
+        public Replay? ParseResponse(byte[] bytes) {
+            return ReplayDecoder.DecodeReplay(bytes);
         }
+    }
 
-        private class RequestDescriptor : IWebRequestDescriptor<Replay> {
-            private readonly string _url;
+    public class DownloadReplayRequest : PersistentWebRequestBase<Replay, ReplayResponseParser> {
+        public static IWebRequest<Replay> SendRequest(string url, CancellationToken token = default) {
+            return SendRet(url, HttpMethod.Get, token: token);
+        }
+    }
 
-            public RequestDescriptor(string url) {
-                _url = url;
-            }
-
-            public UnityWebRequest CreateWebRequest() {
-                return UnityWebRequest.Get(_url);
-            }
-
-            public Replay ParseResponse(UnityWebRequest request) {
-                if (!ReplayDecoder.TryDecodeReplay(request.downloadHandler.data, out var replay)) {
-                    throw new Exception("Unable to decode replay!");
-                }
-
-                return replay;
-            }
+    public class StaticReplayRequest : PersistentSingletonWebRequestBase<Replay, ReplayResponseParser> {
+        public static void Send(string url) {
+            SendRet(url, HttpMethod.Get);
         }
     }
 }

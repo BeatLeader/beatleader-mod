@@ -1,5 +1,5 @@
 ﻿using System;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Models;
 using JetBrains.Annotations;
 using Zenject;
@@ -56,21 +56,25 @@ namespace BeatLeader.DataManager {
         #region Start
 
         public void Initialize() {
-            LatestReleasesRequest.AddStateListener(OnLatestReleasesRequestStateChanged);
-            LatestReleasesRequest.SendRequest();
+            LatestReleasesRequest.StateChangedEvent += OnLatestReleasesRequestStateChanged;
+            LatestReleasesRequest.Send();
+        }
+
+        private void LatestReleasesRequest_StateChangedEvent(WebRequests.IWebRequest<LatestReleases> instance, WebRequests.RequestState state, string? failReason) {
+            throw new NotImplementedException();
         }
 
         public void Dispose() {
-            LatestReleasesRequest.RemoveStateListener(OnLatestReleasesRequestStateChanged);
+            LatestReleasesRequest.StateChangedEvent -= OnLatestReleasesRequestStateChanged;
         }
 
         #endregion
 
         #region OnLatestReleasesRequestStateChanged
 
-        private static void OnLatestReleasesRequestStateChanged(API.RequestState state, LatestReleases result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
-            LatestReleaseInfo = result.pc;
+        private static void OnLatestReleasesRequestStateChanged(WebRequests.IWebRequest<LatestReleases> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) return;
+            LatestReleaseInfo = instance.Result.pc;
         }
 
         #endregion

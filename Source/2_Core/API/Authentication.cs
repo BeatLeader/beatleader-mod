@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Linq;
@@ -14,8 +13,6 @@ using UnityEngine.Networking;
 namespace BeatLeader.API {
 
     internal static class Authentication {
-        #region AuthPlatform
-
         public static AuthPlatform Platform { get; private set; }
 
         public static void SetPlatform(AuthPlatform platform) {
@@ -27,10 +24,6 @@ namespace BeatLeader.API {
             Steam,
             OculusPC
         }
-
-        #endregion
-
-        #region Ticket
 
         public static async Task<string> PlatformTicket() {
             await GetUserInfo.GetUserAsync();
@@ -46,58 +39,34 @@ namespace BeatLeader.API {
             };
         }
 
-        #endregion
-
-        #region Login
-
-        private static bool _locked;
         private static bool _signedIn;
+        public static string? authError = null;
 
         public static void ResetLogin() {
-            UnityWebRequest.ClearCookieCache(new Uri(BLConstants.BEATLEADER_API_URL));
+            WebRequestFactory.CookieContainer.SetCookies(new Uri(BLConstants.BEATLEADER_API_URL), "");
             _signedIn = false;
         }
 
-        public static IEnumerator EnsureLoggedIn(Action onSuccess, Action<string> onFail) {
-            while (true) {
-                if (!_locked) {
-                    _locked = true;
-                    break;
-                }
-
-                yield return new WaitUntil(() => !_locked);
-            }
-
-            try {
-                if (_signedIn) {
-                    onSuccess();
-                    yield break;
-                }
-
-                yield return DoLogin(() => {
-                    _signedIn = true;
-                    onSuccess();
-                }, onFail);
-            } finally {
-                _locked = false;
-            }
+        private static TaskCompletionSource<bool> TaskSource = new TaskCompletionSource<bool>();
+        public static Task<bool> WaitLogin() {
+            return TaskSource.Task;
         }
 
-        private static IEnumerator DoLogin(Action onSuccess, Action<string> onFail, int count = 1) {
+        public static async Task LogIn() {
+            if (_signedIn) return;
+
             if (!TryGetPlatformProvider(Platform, out var provider)) {
                 Plugin.Log.Debug("Login failed! Unknown platform");
-                onFail("Unknown platform");
-                yield break;
+                authError = "Unknown platform";
+                return;
             }
 
-            var ticketTask = PlatformTicket();
-            yield return new WaitUntil(() => ticketTask.IsCompleted);
+            var authToken = await PlatformTicket();
 
-            var authToken = ticketTask.Result;
             if (authToken == null) {
                 Plugin.Log.Debug("Login failed! No auth token");
-                onFail("No auth token");
-                yield break;
+                authError = "No auth token";
+                return;
             }
 
             var form = new List<IMultipartFormSection> {
@@ -105,30 +74,24 @@ namespace BeatLeader.API {
                 new MultipartFormDataSection("provider", provider),
                 new MultipartFormDataSection("returnUrl", "/")
             };
-
-            var request = UnityWebRequest.Post(BLConstants.SIGNIN_WITH_TICKET, form);
             
-            yield return request.SendWebRequest();
+            var result = await AuthRequest.Send(authToken, provider).Join();
 
-            switch (request.responseCode) {
+            switch ((int)result.RequestStatusCode) {
                 case 200:
                     Plugin.Log.Info("Login successful!");
-                    onSuccess();
-                    var cookies = request.GetResponseHeader("Set-Cookie");
+                    _signedIn = true;
+                    TaskSource.SetResult(true);
+                    var cookies = result.Headers.GetValues("Set-Cookie").First();
                     SetAuthCookie(cookies);
                     break;
                 case BLConstants.MaintenanceStatus:
                     Plugin.Log.Debug("Login failed! Maintenance");
-                    onFail("Maintenance");
+                    authError = "Maintenance";
                     break;
                 default:
-                    if (count == 4) {
-                        Plugin.Log.Debug($"Login failed! status: {request.responseCode} error: {request.error}");
-                        onFail($"NetworkError: {request.responseCode}");
-                    } else {
-                        Plugin.Log.Debug($"Retrying login #{count}! status: {request.responseCode} error: {request.error}");
-                        yield return DoLogin(onSuccess, onFail, count++);
-                    }
+                    Plugin.Log.Debug($"Login failed! status: {result.RequestStatusCode} error: {result.FailReason}");
+                    authError = $"NetworkError: {result.RequestStatusCode}";
                     break;
             }
         }
@@ -165,7 +128,5 @@ namespace BeatLeader.API {
                     return false;
             }
         }
-
-        #endregion
     }
 }

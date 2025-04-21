@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.API.Methods;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -15,6 +14,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = Reactive.BeatSaber.Components.Image;
+using BeatLeader.API;
 
 namespace BeatLeader.Components {
     internal class ReplayPanel : ReeUIComponentV2 {
@@ -83,13 +83,16 @@ namespace BeatLeader.Components {
 
             _downloadButtonImage.Use(_downloadButtonText.transform.parent);
 
-            DownloadReplayRequest.AddProgressListener(OnDownloadProgressChanged);
-            DownloadReplayRequest.AddStateListener(OnDownloadRequestStateChanged);
+            StaticReplayRequest.ProgressChangedEvent += OnDownloadProgressChanged;
+            StaticReplayRequest.StateChangedEvent += OnDownloadRequestStateChanged;
+
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
         protected override void OnDispose() {
-            DownloadReplayRequest.RemoveProgressListener(OnDownloadProgressChanged);
+            StaticReplayRequest.ProgressChangedEvent -= OnDownloadProgressChanged;
+            StaticReplayRequest.StateChangedEvent -= OnDownloadRequestStateChanged;
+
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
@@ -114,7 +117,7 @@ namespace BeatLeader.Components {
         private async Task StartReplay(Replay replay) {
             await _replayerNavigator!.NavigateToReplayAsync(replay, _score!.Player, true).RunCatching();
 
-            SendViewReplayRequest.SendRequest(_score.id);
+            SendViewReplayRequest.Send(_score.id);
         }
 
         private async Task LoadAndStartReplay() {
@@ -138,28 +141,30 @@ namespace BeatLeader.Components {
             _playCanBeInteractable = SongCoreInterop.ValidateRequirements(new(level, key));
         }
 
-        private void OnDownloadProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
+        private void OnDownloadProgressChanged(WebRequests.IWebRequest<Replay> instance, float downloadProgress, float uploadProgress, float overallProgress) {
             if (_blockIncomingEvents) {
                 return;
             }
             _downloadText.text = $"<alpha=#66>Downloading: {downloadProgress * 100:F0}%";
         }
 
-        private void OnDownloadRequestStateChanged(API.RequestState state, Replay result, string failReason) {
+        private void OnDownloadRequestStateChanged(WebRequests.IWebRequest<Replay> instance, WebRequests.RequestState state, string? failReason) {
             if (_blockIncomingEvents) {
                 return;
             }
 
-            _isDownloading = state is API.RequestState.Started;
+            _isDownloading = state is WebRequests.RequestState.Started;
             NotifyDownloadStateChanged(_isDownloading);
 
             switch (state) {
-                case API.RequestState.Started:
+                case WebRequests.RequestState.Started:
+                    _downloadText.text = "<alpha=#66>Starting...";
+
                     RefreshPlayButton(_isWaitingToStart ? PlayButtonState.Downloading : PlayButtonState.Unavailable);
                     RefreshDownloadButton(_isWaitingToStart ? DownloadButtonState.Unavailable : DownloadButtonState.Downloading);
 
                     return;
-                case API.RequestState.Finished:
+                case WebRequests.RequestState.Finished:
                     _downloadText.text = "<alpha=#66>Finished!";
 
                     // When initiated using the play button
@@ -167,13 +172,13 @@ namespace BeatLeader.Components {
                         RefreshDownloadButton(DownloadButtonState.Unavailable);
                         RefreshPlayButton(PlayButtonState.Unavailable);
 
-                        StartReplay(result).RunCatching();
+                        StartReplay(instance.Result).RunCatching();
                     }
                     // When initiated using the download button
                     else {
                         Task.Run(
                             async () => {
-                                _replayHeader = await ReplayManager.SaveAnyReplayAsync(result, null, CancellationToken.None);
+                                _replayHeader = await ReplayManager.SaveAnyReplayAsync(instance.Result, null, CancellationToken.None);
                             }
                         ).RunCatching();
 
@@ -182,7 +187,7 @@ namespace BeatLeader.Components {
                     }
 
                     return;
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     ResetButtons();
 
                     _downloadText.text = FormatFailString(failReason);
@@ -249,7 +254,7 @@ namespace BeatLeader.Components {
             _blockIncomingEvents = false;
             _downloadText.gameObject.SetActive(true);
 
-            DownloadReplayRequest.SendRequest(_score!.replay);
+            StaticReplayRequest.Send(_score!.replay);
         }
 
         private static string FormatFailString(string failReason) {

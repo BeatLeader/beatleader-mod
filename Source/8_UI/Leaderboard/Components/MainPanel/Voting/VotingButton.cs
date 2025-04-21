@@ -1,5 +1,5 @@
-using System;
-using BeatLeader.API.Methods;
+﻿using System;
+using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -14,13 +14,13 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             SetMaterial();
 
-            VoteRequest.AddStateListener(OnVoteRequestStateChanged);
-            VoteStatusRequest.AddStateListener(OnVoteStatusRequestStateChanged);
+            VoteRequest.StateChangedEvent += OnVoteRequestStateChanged;
+            VoteStatusRequest.StateChangedEvent += OnVoteStatusRequestStateChanged;
         }
 
         protected override void OnDispose() {
-            VoteRequest.RemoveStateListener(OnVoteRequestStateChanged);
-            VoteStatusRequest.RemoveStateListener(OnVoteStatusRequestStateChanged);
+            VoteRequest.StateChangedEvent -= OnVoteRequestStateChanged;
+            VoteStatusRequest.StateChangedEvent -= OnVoteStatusRequestStateChanged;
         }
 
         #endregion
@@ -122,15 +122,15 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnVoteStatusRequestStateChanged(API.RequestState state, VoteStatus result, string failReason) {
-            _loadingStatus = state is API.RequestState.Started;
-            if (state is API.RequestState.Finished) _voteStatus = result;
+        private void OnVoteStatusRequestStateChanged(WebRequests.IWebRequest<VoteStatus?> instance, WebRequests.RequestState state, string? failReason) {
+            _loadingStatus = state is WebRequests.RequestState.Started;
+            if (state is WebRequests.RequestState.Finished) _voteStatus = instance.Result ?? VoteStatus.CantVote;
             UpdateState();
         }
 
-        private void OnVoteRequestStateChanged(API.RequestState state, VoteStatus result, string failReason) {
-            _sendingVote = state is API.RequestState.Started;
-            if (state is API.RequestState.Finished) _voteStatus = result;
+        private void OnVoteRequestStateChanged(WebRequests.IWebRequest<VoteStatus> instance, WebRequests.RequestState state, string? failReason) {
+            _sendingVote = state is WebRequests.RequestState.Started;
+            if (state is WebRequests.RequestState.Finished) _voteStatus = instance.Result;
             UpdateState();
         }
 

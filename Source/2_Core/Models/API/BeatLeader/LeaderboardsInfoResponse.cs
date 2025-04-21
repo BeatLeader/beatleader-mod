@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace BeatLeader.Models {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    internal struct MassLeaderboardsInfoResponse {
+    public struct MassLeaderboardsInfoResponse {
         public string id;
         public SongInfo song;
         public DiffInfo difficulty;
@@ -14,13 +14,13 @@ namespace BeatLeader.Models {
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    internal struct HashLeaderboardsInfoResponse {
+    public struct HashLeaderboardsInfoResponse {
         public SongInfo song;
         public HashLeaderboardInfo[] leaderboards;
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    internal struct HashLeaderboardInfo {
+    public struct HashLeaderboardInfo {
         public string id;
         public DiffInfo difficulty;
         public QualificationInfo qualification;
@@ -29,13 +29,13 @@ namespace BeatLeader.Models {
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    internal struct SongInfo {
+    public struct SongInfo {
         public string id;
         public string hash;
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    internal struct DiffInfo {
+    public struct DiffInfo {
         public int id;
         public int value;
         public int mode;
@@ -56,7 +56,7 @@ namespace BeatLeader.Models {
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    internal class ModifiersRating {
+    public class ModifiersRating {
         public float fsPassRating;
         public float fsAccRating;
         public float fsTechRating;
@@ -73,7 +73,7 @@ namespace BeatLeader.Models {
         public float sfStars;
     }
 
-    internal struct QualificationInfo {
+    public struct QualificationInfo {
         public int id;
         public int timeset;
         public string rtMember;

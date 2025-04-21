@@ -1,4 +1,4 @@
-﻿using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
@@ -16,14 +16,14 @@ namespace BeatLeader.Components {
             InitializeComponents();
 
             ScoreUtil.ReplayUploadStartedEvent += OnReplayUploadStarted;
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
-            UploadReplayRequest.AddProgressListener(OnUploadRequestProgressChanged);
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+            UploadReplayRequest.ProgressChangedEvent += OnUploadRequestProgressChanged;
         }
 
         protected override void OnDispose() {
             ScoreUtil.ReplayUploadStartedEvent -= OnReplayUploadStarted;
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
-            UploadReplayRequest.RemoveProgressListener(OnUploadRequestProgressChanged);
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+            UploadReplayRequest.ProgressChangedEvent -= OnUploadRequestProgressChanged;
         }
 
         #endregion
@@ -35,19 +35,19 @@ namespace BeatLeader.Components {
             FailsCount = 0;
         }
 
-        private void OnUploadRequestProgressChanged(float uploadProgress, float downloadProgress, float overallProgress) {
+        private void OnUploadRequestProgressChanged(WebRequests.IWebRequest<Score> instance, float downloadProgress, float uploadProgress, float overallProgress) {
             _textComponent.text = $"{(uploadProgress * 100):F2}<size=60%>%";
         }
 
-        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
-            _textRoot.gameObject.SetActive(state is API.RequestState.Started);
+        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+            _textRoot.gameObject.SetActive(state is WebRequests.RequestState.Started);
 
             switch (state) {
-                case API.RequestState.Finished:
+                case WebRequests.RequestState.Finished:
                     _lastReplay = null;
                     FailsCount = 0;
                     break;
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     FailsCount += 1;
                     break;
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 
@@ -61,11 +61,11 @@ namespace BeatLeader.Utils {
 
         public static void UploadReplay(Replay replay) {
             ReplayUploadStartedEvent?.Invoke(replay);
-            UploadReplayRequest.SendRequest(replay);
+            UploadReplayRequest.Send(replay);
         }
 
         public static void UploadPlay(Replay replay, PlayEndData data) {
-            UploadPlayRequest.SendRequest(replay, data);
+            UploadPlayRequest.Send(replay, data);
         }
 
         #endregion

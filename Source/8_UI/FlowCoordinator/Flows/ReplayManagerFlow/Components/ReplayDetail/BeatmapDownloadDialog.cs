@@ -190,7 +190,7 @@ namespace BeatLeader.UI.Hub {
                 var request = await DownloadMapRequest.SendRequest(_beatmapHash!).Join();
                 bytes = request.Result;
             } else {
-                var request = RawDataRequest.SendRequest(downloadUrl);
+                var request = RawDataRequest.Send(downloadUrl);
                 await request.Join();
                 if (request.RequestStatusCode is HttpStatusCode.OK) {
                     bytes = request.Result;

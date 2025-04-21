@@ -24,9 +24,12 @@ namespace BeatLeader.DataManager {
             return true;
         }
 
-        public static void PutLeaderboardInfo(SongInfo songInfo, string leaderboardId, DiffInfo diffInfo, QualificationInfo qualificationInfo, Clan clan, bool clanRankingContested) {
+        public static LeaderboardCacheEntry PutLeaderboardInfo(SongInfo songInfo, string leaderboardId, DiffInfo diffInfo, QualificationInfo qualificationInfo, Clan clan, bool clanRankingContested) {
             var key = LeaderboardKey.FromSongDiff(songInfo, diffInfo);
-            LeaderboardInfoCache[key] = new LeaderboardCacheEntry(leaderboardId, songInfo, diffInfo, qualificationInfo, clan, clanRankingContested);
+            var value = new LeaderboardCacheEntry(leaderboardId, songInfo, diffInfo, qualificationInfo, clan, clanRankingContested);
+
+            LeaderboardInfoCache[key] = value;
+            return value;
         }
 
         public readonly struct LeaderboardCacheEntry {
@@ -53,20 +56,32 @@ namespace BeatLeader.DataManager {
 
         private static readonly Dictionary<string, SortEntry> SortingCache = new();
 
-        private static void RecalculateSortingCache() {
-            SortingCache.Clear();
+        private static void RecalculateSortingCache(LeaderboardCacheEntry[]? updates = null) {
+            if (updates != null) {
+                foreach (var entry in updates) {
+                    var hash = entry.SongInfo.hash;
 
-            foreach (var pair in LeaderboardInfoCache) {
-                var hash = pair.Key.Hash;
+                    var sortEntry = SortingCache.ContainsKey(hash) ? SortingCache[hash] : new SortEntry();
+                    sortEntry.Update(entry.DifficultyInfo);
+                    SortingCache[hash] = sortEntry;
+                }
+            } else {
+                foreach (var pair in LeaderboardInfoCache) {
+                    var hash = pair.Key.Hash;
 
-                var sortEntry = SortingCache.ContainsKey(hash) ? SortingCache[hash] : new SortEntry();
-                sortEntry.Update(pair.Value.DifficultyInfo);
-                SortingCache[hash] = sortEntry;
+                    var sortEntry = SortingCache.ContainsKey(hash) ? SortingCache[hash] : new SortEntry();
+                    sortEntry.Update(pair.Value.DifficultyInfo);
+                    SortingCache[hash] = sortEntry;
+                }
             }
         }
 
         public static SortEntry? GetSortingInfo(string hash) {
-            return SortingCache.ContainsKey(hash) ? SortingCache[hash] : null;
+            if (SortingCache.TryGetValue(hash, out SortEntry result)) {
+                return result;
+            } else {
+                return null;
+            }
         }
 
         public class SortEntry {
@@ -147,8 +162,8 @@ namespace BeatLeader.DataManager {
 
         public static event Action CacheWasChangedEvent;
 
-        public static void NotifyCacheWasChanged() {
-            RecalculateSortingCache();
+        public static void NotifyCacheWasChanged(LeaderboardCacheEntry[]? leaderboards = null) {
+            RecalculateSortingCache(leaderboards);
             CacheWasChangedEvent?.Invoke();
         }
 

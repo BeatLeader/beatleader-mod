@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using BeatLeader.API;
-using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Utils;
 using UnityEngine;
@@ -29,7 +28,17 @@ namespace BeatLeader.DataManager {
 
         private void Start() {
             LeaderboardEvents.OculusMigrationButtonWasPressedAction += OnOculusMigrationButtonWasPressed;
+            GetOculusUserRequest.StateChangedEvent += GetOculusUserRequest_StateChangedEvent;
+
             CheckMigrationState();
+        }
+
+        private void GetOculusUserRequest_StateChangedEvent(WebRequests.IWebRequest<Models.OculusUserInfo> instance, WebRequests.RequestState state, string? failReason) {
+            if (state == WebRequests.RequestState.Finished) {
+                IsMigrationRequired = !instance.Result.migrated;
+            } else if (state == WebRequests.RequestState.Failed) {
+                Plugin.Log.Debug($"CheckMigrationState failed: {failReason}");
+            }
         }
 
         private void OnDestroy() {
@@ -40,19 +49,8 @@ namespace BeatLeader.DataManager {
 
         #region CheckMigrationState
 
-        private Coroutine _checkTask;
-
         private void CheckMigrationState() {
-            if (_checkTask != null) {
-                StopCoroutine(_checkTask);
-            }
-
-            _checkTask = StartCoroutine(
-                GetOculusUserRequest.SendRequest(
-                    userInfo => IsMigrationRequired = !userInfo.migrated,
-                    (reason) => Plugin.Log.Debug($"CheckMigrationState failed: {reason}")
-                )
-            );
+            GetOculusUserRequest.Send().RunCatching();
         }
 
         #endregion

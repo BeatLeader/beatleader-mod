@@ -1,7 +1,8 @@
 ﻿using System;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.WebRequests;
 using JetBrains.Annotations;
 using LeaderboardCore.Interfaces;
 using UnityEngine;
@@ -28,9 +29,11 @@ namespace BeatLeader.DataManager {
         public void Start() {
             SetFakeBloomProperty();
 
-            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
-            UserRequest.AddStateListener(OnUserRequestStateChanged);
+            ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+            UserRequest.StateChangedEvent += OnUserRequestStateChanged;
 
             PluginConfig.ScoresContextChangedEvent += OnScoresContextWasChanged;
             LeaderboardState.ScoresScopeChangedEvent += OnScoresScopeWasSelected;
@@ -46,10 +49,16 @@ namespace BeatLeader.DataManager {
             _selectedScoreScope = LeaderboardState.ScoresScope;
         }
 
+        private void UploadReplayRequest_StateChangedEvent() {
+            throw new NotImplementedException();
+        }
+
         private void OnDestroy() {
-            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
-            UserRequest.RemoveStateListener(OnUserRequestStateChanged);
+            ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+            UserRequest.StateChangedEvent -= OnUserRequestStateChanged;
 
             PluginConfig.ScoresContextChangedEvent -= OnScoresContextWasChanged;
             LeaderboardState.ScoresScopeChangedEvent -= OnScoresScopeWasSelected;
@@ -111,16 +120,16 @@ namespace BeatLeader.DataManager {
 
         private void LoadPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPlayerScoresPageRequest(_lastSelectedBeatmap, userId, Context, Scope, _lastSelectedPage);
+            ScoresRequest.SendPage(_lastSelectedBeatmap, userId, Context, Scope, _lastSelectedPage);
         }
 
         private void SeekPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPlayerScoresSeekRequest(_lastSelectedBeatmap, userId, Context, Scope);
+            ScoresRequest.SendSeek(_lastSelectedBeatmap, userId, Context, Scope);
         }
 
         private void LoadClanScores() {
-            ScoresRequest.SendClanScoresPageRequest(_lastSelectedBeatmap, _lastSelectedPage);
+            ClanScoresRequest.Send(_lastSelectedBeatmap, _lastSelectedPage);
         }
 
         #endregion
@@ -129,27 +138,27 @@ namespace BeatLeader.DataManager {
 
         private LeaderboardKey _uploadLeaderboardKey;
 
-        private void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
+        private void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
             if (!_lastSelectedBeatmap.IsValid()) return;
 
             switch (state) {
-                case API.RequestState.Started:
+                case WebRequests.RequestState.Started:
                     _uploadLeaderboardKey = LeaderboardKey.FromBeatmap(_lastSelectedBeatmap);
                     break;
-                case API.RequestState.Finished:
+                case WebRequests.RequestState.Finished:
                     if (!_uploadLeaderboardKey.Equals(LeaderboardKey.FromBeatmap(_lastSelectedBeatmap))) return;
                     TryUpdateScores();
                     break;
             }
         }
 
-        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not API.RequestState.Finished || LeaderboardState.leaderboardType is not LeaderboardType.SongDiffPlayerScores) return;
-            _lastSelectedPage = result.CurrentPage;
+        private void OnScoresRequestStateChanged(IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished || LeaderboardState.leaderboardType is not LeaderboardType.SongDiffPlayerScores) return;
+            _lastSelectedPage = instance.Result?.CurrentPage ?? 1;
         }
 
-        private void OnUserRequestStateChanged(API.RequestState state, User result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
+        private void OnUserRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) return;
             TryUpdateScores();
         }
 

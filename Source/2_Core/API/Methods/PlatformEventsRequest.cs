@@ -1,13 +1,12 @@
-﻿using BeatLeader.API.RequestDescriptors;
-using BeatLeader.API.RequestHandlers;
+﻿using System.Net.Http;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    public class PlatformEventsRequest : PersistentSingletonRequestHandler<PlatformEventsRequest, Paged<PlatformEvent>> {
-        public static void SendRequest() {
-            var descriptor = new JsonGetRequestDescriptor<Paged<PlatformEvent>>($"{BLConstants.BEATLEADER_API_URL}/mod/events");
-            Instance.Send(descriptor);
+namespace BeatLeader.API {
+    public class PlatformEventsRequest : PersistentSingletonWebRequestBase<Paged<PlatformEvent>, JsonResponseParser<Paged<PlatformEvent>>> {
+        public static void Send() {
+            SendRet($"{BLConstants.BEATLEADER_API_URL}/mod/events", HttpMethod.Get);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using JetBrains.Annotations;
@@ -11,13 +11,13 @@ namespace BeatLeader.DataManager {
         #region Initialize / Dispose
 
         public void Initialize() {
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
             LeaderboardEvents.SubmitVoteEvent += SubmitVote;
         }
 
         public void Dispose() {
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
             LeaderboardEvents.SubmitVoteEvent -= SubmitVote;
         }
@@ -26,8 +26,8 @@ namespace BeatLeader.DataManager {
 
         #region Events
         
-        private static void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
+        private static void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) return;
             UpdateVoteStatus();
         }
 
@@ -37,7 +37,7 @@ namespace BeatLeader.DataManager {
 
         private static void SubmitVote(Vote vote) {
             if (!TryGetKey(out var key)) return;
-            VoteRequest.SendRequest(key.Hash, key.Diff, key.Mode, vote);
+            VoteRequest.Send(key.Hash, key.Diff, key.Mode, vote);
         }
 
         private static void UpdateVoteStatus() {

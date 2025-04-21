@@ -2,6 +2,6 @@
 
 namespace BeatLeader.WebRequests {
     public interface IWebRequestResponseParser<T> {
-        Task<T?> ParseResponse(byte[] bytes);
+        T? ParseResponse(byte[] bytes);
     }
 }

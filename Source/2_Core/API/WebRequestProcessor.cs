@@ -4,78 +4,68 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 
 namespace BeatLeader.WebRequests {
     internal delegate Task<HttpResponseMessage?> SendRequestDelegate(HttpRequestMessage request, CancellationToken token);
 
-    internal class WebRequestProcessor<T> : WebRequestProcessor, IWebRequest<T> {
+    internal class WebRequestProcessor<T> : IWebRequest<T>, IIoOperationDescriptor, IDisposable {
         public WebRequestProcessor(
             SendRequestDelegate sendCallback,
             HttpRequestMessage requestMessage,
             WebRequestParams requestParams,
-            IWebRequestResponseParser<T> requestResponseParser,
-            CancellationToken cancellationToken
-        ) : base(
-            sendCallback,
-            requestMessage,
-            requestParams,
-            cancellationToken
+            IWebRequestResponseParser<T>? requestResponseParser,
+            CancellationToken token
         ) {
+            ValidateHttpMessage(requestMessage);
+            _sendCallback = sendCallback;
+            _requestMessage = requestMessage;
+            RequestParams = requestParams;
+            _requestTask = SendWebRequest(sendCallback, token);
+            _processTask = ProcessWebRequest(token);
             _requestResponseParser = requestResponseParser;
+            _cancellationToken = token;
         }
-
-        #region WebRequest
 
         public T? Result { get; private set; }
 
-        public new event WebRequestStateChangedDelegate<IWebRequest<T>>? StateChangedEvent {
-            add => base.StateChangedEvent += (WebRequestStateChangedDelegate<IWebRequest>)value!;
-            remove => base.StateChangedEvent -= (WebRequestStateChangedDelegate<IWebRequest>)value!;
-        }
+        private readonly IWebRequestResponseParser<T>? _requestResponseParser;
 
-        public new event WebRequestProgressChangedDelegate<IWebRequest<T>>? ProgressChangedEvent {
-            add => base.ProgressChangedEvent += (WebRequestProgressChangedDelegate<IWebRequest>)value!;
-            remove => base.ProgressChangedEvent += (WebRequestProgressChangedDelegate<IWebRequest>)value!;
-        }
-
-        public new async Task<IWebRequest<T>> Join() {
-            await base.Join();
-            return this;
-        }
-
-        #endregion
-
-        #region ProcessResponse
-
-        private readonly IWebRequestResponseParser<T> _requestResponseParser;
-
-        protected override async Task<RequestState?> ProcessResponse(
+        protected async Task<RequestState?> ProcessResponse(
             HttpResponseMessage message,
             CancellationToken token
         ) {
+            Headers = message.Content.Headers;
             var contentLength = message.Content.Headers.ContentLength;
-            if (contentLength is null or 0) return RequestState.Finished;
 
-            var contentBuffer = await DownloadContent(message.Content, token);
-            if (token.IsCancellationRequested) return RequestState.Cancelled;
+            byte[] contentBuffer;
+            if (contentLength == null || contentLength == 0) { 
+                contentBuffer = new byte[] { };
+            } else if (contentLength < 1000) {
+                contentBuffer = await message.Content.ReadAsByteArrayAsync();
+            } else {
+                contentBuffer = await DownloadContent(message.Content, token);
+            }
+            if (token.IsCancellationRequested) return RequestState.Failed;
             try {
-                RequestState = RequestState.Parsing;
-                Result = await _requestResponseParser.ParseResponse(contentBuffer);
+                if (_requestResponseParser != null) {
+                    Result = _requestResponseParser.ParseResponse(contentBuffer);
+                }
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to parse web request response!\n{ex}");
             }
-            return null;
+            return RequestState.Finished;
         }
 
         private async Task<byte[]> DownloadContent(
             HttpContent content,
             CancellationToken token
         ) {
-            RequestState = RequestState.Downloading;
             _treatReceivedProgressAsDownload = true;
 
             var descriptor = (IIoOperationDescriptor)this;
@@ -94,48 +84,7 @@ namespace BeatLeader.WebRequests {
             return memoryStream.ToArray();
         }
 
-        #endregion
-
-        #region Request Progress
-
-        public override float DownloadProgress => _downloadProgress;
-        public override float OverallProgress => (UploadProgress + DownloadProgress) / 2;
-
-        private bool _treatReceivedProgressAsDownload;
-        private float _downloadProgress;
-
-        protected override void OnProgressChanged(float progress) {
-            if (_treatReceivedProgressAsDownload) {
-                _downloadProgress = progress;
-            } else {
-                base.OnProgressChanged(progress);
-            }
-        }
-
-        protected override long AdjustBufferSize(long size) {
-            if (_treatReceivedProgressAsDownload) {
-                return (long)(size / RequestParams.DownloadTrackingPrecision);
-            } else {
-                return base.AdjustBufferSize(size);
-            }
-        }
-
-        #endregion
-    }
-
-    internal class WebRequestProcessor : IWebRequest, IIoOperationDescriptor, IDisposable {
-        public WebRequestProcessor(
-            SendRequestDelegate sendCallback,
-            HttpRequestMessage requestMessage,
-            WebRequestParams requestParams,
-            CancellationToken token
-        ) {
-            ValidateHttpMessage(requestMessage);
-            _requestMessage = requestMessage;
-            RequestParams = requestParams;
-            _requestTask = SendWebRequest(sendCallback, token);
-            _processTask = ProcessWebRequest(token);
-        }
+        
 
         #region Validation
 
@@ -149,6 +98,28 @@ namespace BeatLeader.WebRequests {
 
         #region Request Progress
 
+        public float DownloadProgress => _downloadProgress;
+        public float OverallProgress => (UploadProgress + DownloadProgress) / 2;
+
+        private bool _treatReceivedProgressAsDownload;
+        private float _downloadProgress;
+
+        protected void OnProgressChanged(float progress) {
+            if (_treatReceivedProgressAsDownload) {
+                _downloadProgress = progress;
+            } else {
+                UploadProgress = progress;
+            }
+        }
+
+        protected long AdjustBufferSize(long size) {
+            if (_treatReceivedProgressAsDownload) {
+                return (long)(size / RequestParams.DownloadTrackingPrecision);
+            } else {
+                return (long)(size / RequestParams.UploadTrackingPrecision);;
+            }
+        }
+
         public float UploadProgress {
             get => _uploadProgress;
             private set {
@@ -156,9 +127,6 @@ namespace BeatLeader.WebRequests {
                 InvokeProgressEvent();
             }
         }
-
-        public virtual float DownloadProgress => 0;
-        public virtual float OverallProgress => UploadProgress;
 
         private float _uploadProgress;
 
@@ -179,17 +147,19 @@ namespace BeatLeader.WebRequests {
 
         private RequestState _requestState = RequestState.Uninitialized;
 
-        public async Task<IWebRequest> Join() {
+        public async Task<IWebRequest<T>> Join() {
             await _processTask;
             return this;
         }
+
+        public int RetryAttempt = 0;
 
         #endregion
 
         #region Request Events
 
-        public event WebRequestStateChangedDelegate<IWebRequest>? StateChangedEvent;
-        public event WebRequestProgressChangedDelegate<IWebRequest>? ProgressChangedEvent;
+        public event WebRequestStateChangedDelegate<IWebRequest<T>>? StateChangedEvent;
+        public event WebRequestProgressChangedDelegate<IWebRequest<T>>? ProgressChangedEvent;
 
         private void InvokeStateEvent() {
             StateChangedEvent?.Invoke(this, RequestState, FailReason);
@@ -204,15 +174,15 @@ namespace BeatLeader.WebRequests {
         #region SendWebRequest
 
         private async Task<HttpResponseMessage?> SendWebRequest(SendRequestDelegate sendCallback, CancellationToken token) {
-            var timeout = RequestParams.Timeout;
-            var timeoutTokenSource = GetTimeoutTokenSource(RequestParams.Timeout, token);
+            var timeout = RequestParams.TimeoutSeconds;
+            var timeoutTokenSource = GetTimeoutTokenSource(TimeSpan.FromSeconds(timeout), token);
             //
             try {
-                return await sendCallback(_requestMessage, timeoutTokenSource?.Token ?? token);
+                return await sendCallback(_requestMessage, CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource?.Token ?? CancellationToken.None).Token);
                 //
             } catch (OperationCanceledException) when (!token.IsCancellationRequested) {
                 //
-                throw new TimeoutException($"The request has failed after {timeout.TotalSeconds}s");
+                throw new TimeoutException($"The request has failed after {timeout}s");
             }
         }
 
@@ -229,43 +199,68 @@ namespace BeatLeader.WebRequests {
 
         protected WebRequestParams RequestParams { get; }
 
-        private readonly Task<HttpResponseMessage?> _requestTask;
+        private Task<HttpResponseMessage?> _requestTask;
         private readonly HttpRequestMessage _requestMessage;
+        private readonly SendRequestDelegate _sendCallback;
+        private readonly CancellationToken _cancellationToken;
         private readonly Task _processTask;
 
         private async Task ProcessWebRequest(CancellationToken token) {
             try {
-                Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
+                Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
 
-                RequestState = RequestState.Uploading;
+                RequestState = RequestState.Started;
                 var result = await _requestTask;
                 if (_requestTask.IsFaulted || result is null) {
-                    throw _requestTask.Exception ?? new Exception("Request task faulted for unknown reason");
+                    if (RetryAttempt < RequestParams.RetryCount) {
+                        await Retry();
+                        return;
+                    } else {
+                        throw _requestTask.Exception ?? new Exception("Request task faulted for unknown reason");
+                    }
                 }
 
                 UploadProgress = 1;
                 RequestStatusCode = result.StatusCode;
-                if (!result.IsSuccessStatusCode) {
-                    throw new WebException($"Unsuccessful request. Status code: {result.StatusCode}");
+                if (result.IsSuccessStatusCode) {
+                    var newState = await ProcessResponse(result, token);
+
+                    RequestState = newState ?? RequestState.Finished;
+
+                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
+                } else {
+                    await ProcessFailure(result, null);
                 }
-
-                var newState = await ProcessResponse(result, token);
-                RequestState = newState ?? RequestState.Finished;
-
-                Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
             } catch (Exception ex) {
-                RequestState = RequestState.Failed;
-                FailReason = ex.Message;
-                Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Fail reason: {FailReason}");
+                await ProcessFailure(null, ex);
             }
             Dispose();
         }
 
-        protected virtual Task<RequestState?> ProcessResponse(
-            HttpResponseMessage message,
-            CancellationToken token
-        ) {
-            return Task.FromResult(default(RequestState?));
+        private async Task ProcessFailure(HttpResponseMessage? httpResponse, Exception? ex) {
+            if (ex != null) {
+                RequestState = RequestState.Failed;
+                FailReason = "Exception occured, please report on Discord";
+                Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Exception: {ex}");
+            } else if (httpResponse != null) {
+                NetworkingUtils.GetRequestFailReason(httpResponse, out string failReason, out bool shouldRetry);
+
+                if (shouldRetry && RetryAttempt < RequestParams.RetryCount) {
+                    await Retry();
+                    return;
+                } else {
+                    RequestState = RequestState.Failed;
+                    FailReason = failReason;
+                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Fail reason: {failReason}");
+                }
+            }
+        }
+
+        private async Task Retry() {
+            RetryAttempt++;
+
+            _requestTask = SendWebRequest(_sendCallback, _cancellationToken);
+            await ProcessWebRequest(_cancellationToken);
         }
 
         #endregion
@@ -282,6 +277,8 @@ namespace BeatLeader.WebRequests {
             set => ReloadBuffer(value);
         }
 
+        public HttpContentHeaders? Headers { get; private set; }
+
         private byte[]? _buffer;
 
         private void ReloadBuffer(long size) {
@@ -294,10 +291,6 @@ namespace BeatLeader.WebRequests {
                 buffer = new byte[size];
             }
             _buffer = buffer;
-        }
-
-        protected virtual long AdjustBufferSize(long size) {
-            return (long)(size / RequestParams.UploadTrackingPrecision);
         }
 
         private void ReleaseBufferIfNeeded() {
@@ -315,10 +308,6 @@ namespace BeatLeader.WebRequests {
         void IIoOperationDescriptor.OnProgressChanged(long bytesRead, long totalBytes) {
             var progress = bytesRead / (float)totalBytes;
             OnProgressChanged(progress);
-        }
-
-        protected virtual void OnProgressChanged(float progress) {
-            UploadProgress = progress;
         }
 
         #endregion

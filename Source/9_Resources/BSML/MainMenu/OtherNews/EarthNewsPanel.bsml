@@ -1,0 +1,8 @@
+<vertical id="background" pad="1" spacing="1" vertical-fit="PreferredSize" horizontal-fit="Unconstrained" bg="round-rect-panel" bg-color="#ffffff55">
+    <macro.as-host host="header">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+    <macro.as-host host="preview-panel">
+        <macro.reparent transform="ui-component"/>
+    </macro.as-host>
+</vertical>

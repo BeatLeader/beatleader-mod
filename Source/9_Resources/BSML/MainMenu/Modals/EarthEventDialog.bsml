@@ -1,0 +1,5 @@
+<vertical bg="round-rect-panel" preferred-width="70" preferred-height="40" pad="2">
+    <text text="&lt;color=green&gt;Score recycling initiative" font-size="5" bold="true" align="Center" rich-text="true"/>
+    <text text="Score recycling initiative is the event that allows you to compress and recycle all of your scores. The following button will generate a map consisting all of your scores. Let's make the earth healthier!" font-size="3.5" align="Center" word-wrapping="true"/>
+    <button id="button" on-click="button-click" pref-width="20"/>
+</vertical>

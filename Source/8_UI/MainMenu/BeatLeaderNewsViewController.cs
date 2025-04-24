@@ -13,6 +13,8 @@ namespace BeatLeader.UI.MainMenu {
         [UIValue("map-news-panel"), UsedImplicitly] private MapNewsPanel _mapNewsPanel = null!;
 
         [UIValue("event-news-panel"), UsedImplicitly] private EventNewsPanel _eventNewsPanel = null!;
+        
+        [UIValue("earth-news-panel"), UsedImplicitly] private EarthNewsPanel _earthNewsPanel = null!;
 
         #endregion
 
@@ -22,6 +24,7 @@ namespace BeatLeader.UI.MainMenu {
             _textNewsPanel = ReeUIComponentV2.Instantiate<TextNewsPanel>(transform);
             _mapNewsPanel = ReeUIComponentV2.Instantiate<MapNewsPanel>(transform);
             _eventNewsPanel = ReeUIComponentV2.Instantiate<EventNewsPanel>(transform);
+            _earthNewsPanel = ReeUIComponentV2.Instantiate<EarthNewsPanel>(transform);
         }
 
         [UIAction("#post-parse"), UsedImplicitly]

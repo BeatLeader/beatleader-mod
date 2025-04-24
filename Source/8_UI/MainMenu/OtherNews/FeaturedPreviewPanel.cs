@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BeatLeader.Components;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
@@ -31,6 +32,7 @@ namespace BeatLeader.UI.MainMenu {
 
         private Action? _buttonAction;
         private Action? _backgroundAction;
+        private Color _accentColor = Color.black;
 
         public async void Setup(string previewUrl, string topText, string bottomText, string buttonText, Action buttonAction, Action backgroundAction) {
             _topText.text = $" {topText}";
@@ -43,12 +45,17 @@ namespace BeatLeader.UI.MainMenu {
             }
         }
 
+        public void SetAccentColor(Color color) {
+            _accentColor = color;
+        }
+
         public void UpdateBottomText(string bottomText) {
             _bottomText.text = bottomText;
         }
 
         protected override void OnInitialize() {
             _background._skew = 0.18f;
+            _background.material = Resources.FindObjectsOfTypeAll<Material>().Last(x => x.name == "UINoGlow");
             
             _image.material = BundleLoader.RoundTexture10Material;
             _image._skew = 0.18f;
@@ -71,7 +78,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private void OnBackgroundHover(bool hovered, float progress) {
-            _background.color = new Color(0, 0, 0, 0.5f + 0.4f * progress);
+            _background.color = _accentColor.ColorWithAlpha(0.5f + 0.4f * progress);
         }
 
         #endregion

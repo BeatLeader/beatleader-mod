@@ -2,7 +2,7 @@
     <macro.as-host host="header">
         <macro.reparent transform="ui-component"/>
     </macro.as-host>
-    <scroll-view id="scroll-view" pref-width="70" pref-height="39" pad-right="4" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel">
+    <scroll-view id="scroll-view" pref-width="70" pref-height="26" pad-right="4" horizontal-fit="PreferredSize" vertical-fit="PreferredSize" bg="round-rect-panel">
         <horizontal id="height-wrapper" min-height="39" horizontal-fit="PreferredSize">
             <vertical spacing="1" id="main-container" vertical-fit="PreferredSize">
                 <loading-indicator id="loading-indicator" preserve-aspect="true" pref-height="8" pref-width="8"/>

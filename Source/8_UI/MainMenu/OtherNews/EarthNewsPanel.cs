@@ -31,7 +31,7 @@ namespace BeatLeader.UI.MainMenu {
                 EarthUrl,
                 "Earth day event",
                 "",
-                "View",
+                "Join",
                 openModal,
                 openModal
             );

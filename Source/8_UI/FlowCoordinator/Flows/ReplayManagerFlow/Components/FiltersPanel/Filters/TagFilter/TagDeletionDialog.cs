@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Hub {
         protected override ILayoutItem ConstructContent() {
             return new Label {
                 EnableWrapping = true
-            }.Bind(ref _label).AsFlexItem(grow: 1f);
+            }.Bind(ref _label).AsFlexItem(flexGrow: 1f);
         }
 
         protected override void OnInitialize() {

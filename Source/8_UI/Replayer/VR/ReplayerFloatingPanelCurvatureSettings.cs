@@ -104,7 +104,7 @@ namespace BeatLeader.UI.Replayer {
                         direction: FlexDirection.Column,
                         padding: new() { top = 1f, bottom = 1f, right = 2f, left = 2f }
                     ).AsFlexItem(
-                        grow: 1f,
+                        flexGrow: 1f,
                         margin: new() { top = 1f }
                     )
                 }

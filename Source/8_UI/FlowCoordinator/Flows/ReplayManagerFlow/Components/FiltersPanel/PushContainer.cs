@@ -75,7 +75,7 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new Background()
                         .AsFlexGroup()
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .AsBlurBackground()
                         .Bind(ref _backgroundImage),
                 }

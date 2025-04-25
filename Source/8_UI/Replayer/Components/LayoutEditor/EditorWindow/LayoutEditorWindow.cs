@@ -136,9 +136,9 @@ namespace BeatLeader.Components {
                         Children = {
                             new LayoutEditorComponentsList()
                                 .Bind(ref _layoutEditorComponentsList)
-                                .AsFlexItem(grow: 1f),
+                                .AsFlexItem(flexGrow: 1f),
                         }
-                    }.AsFlexGroup(padding: 1f).AsFlexItem(grow: 1f),
+                    }.AsFlexGroup(padding: 1f).AsFlexItem(flexGrow: 1f),
                     //buttons
                     new Layout {
                         Children = {
@@ -171,7 +171,7 @@ namespace BeatLeader.Components {
                                     }.AsFlexGroup(
                                         direction: FlexDirection.Column,
                                         gap: 0.5f
-                                    ).AsFlexItem(grow: 1f),
+                                    ).AsFlexItem(flexGrow: 1f),
                                     //exit & apply buttons
                                     new Layout {
                                         Children = {
@@ -197,12 +197,12 @@ namespace BeatLeader.Components {
                                         direction: FlexDirection.Column,
                                         padding: new() { left = 2f },
                                         gap: 0.5f
-                                    ).AsFlexItem(grow: 2f)
+                                    ).AsFlexItem(flexGrow: 2f)
                                 }
                             }.AsFlexGroup(
                                 padding: 2f
                             ).AsFlexItem(
-                                grow: 1f,
+                                flexGrow: 1f,
                                 size: new() { x = 7f }
                             )
                         }

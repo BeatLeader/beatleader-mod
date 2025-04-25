@@ -57,7 +57,7 @@ namespace BeatLeader.UI.Hub {
                                                 Alignment = TextAlignmentOptions.Left,
                                                 FontStyle = FontStyles.Italic
                                             }
-                                            .AsFlexItem(grow: 1f)
+                                            .AsFlexItem(flexGrow: 1f)
                                             .Bind(ref _playerNameText),
                                         //replay date
                                         new Label {
@@ -67,11 +67,11 @@ namespace BeatLeader.UI.Hub {
                                                 Alignment = TextAlignmentOptions.Right,
                                                 FontStyle = FontStyles.Italic
                                             }
-                                            .AsFlexItem(grow: 1f)
+                                            .AsFlexItem(flexGrow: 1f)
                                             .Bind(ref _dateText),
                                     }
                                 }.AsFlexGroup().AsFlexItem(
-                                    grow: 1f,
+                                    flexGrow: 1f,
                                     margin: new() { left = 2f, right = 2f }
                                 ),
                                 //remove button
@@ -101,7 +101,7 @@ namespace BeatLeader.UI.Hub {
                             padding: 1f,
                             gap: 1f
                         ).AsFlexItem(
-                            grow: 1f,
+                            flexGrow: 1f,
                             margin: new() { right = 1f, left = 1f }
                         ).Bind(ref _backgroundImage)
                     }

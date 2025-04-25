@@ -111,7 +111,7 @@ namespace BeatLeader.UI.Hub {
                             BackgroundImage = {
                                 Color = (Color.white * 0.9f).ColorWithAlpha(1f)
                             }
-                        }.AsFlexItem(grow: 1f).Bind(ref _filterContainer),
+                        }.AsFlexItem(flexGrow: 1f).Bind(ref _filterContainer),
                         //
                         new Background {
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
@@ -280,7 +280,7 @@ namespace BeatLeader.UI.Hub {
                                 Offset = new(0f, 32f)
                             }
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .WithListener(
                             x => x.Text,
                             _ => FilterUpdatedEvent?.Invoke()
@@ -305,7 +305,7 @@ namespace BeatLeader.UI.Hub {
                                 FilterUpdatedEvent?.Invoke();
                             }
                         )
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _filtersTextArea)
                 }
             }.AsFlexGroup(gap: 1f).Use();

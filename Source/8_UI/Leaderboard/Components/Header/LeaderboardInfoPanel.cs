@@ -58,7 +58,7 @@ namespace BeatLeader.Components {
                                     LeaderboardEvents.NotifyMenuButtonWasPressed
                                 ).Bind(ref _menuButton),
                             }
-                        }.AsFlexItem(grow: 1f).AsFlexGroup(justifyContent: Justify.FlexStart),
+                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexStart),
 
                         new Layout {
                             Children = {
@@ -102,7 +102,7 @@ namespace BeatLeader.Components {
                                     LeaderboardEvents.NotifyLeaderboardSettingsButtonWasPressed
                                 )
                             }
-                        }.AsFlexItem(grow: 1f).AsFlexGroup(justifyContent: Justify.FlexEnd, gap: 1f)
+                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexEnd, gap: 1f)
                     }
                 }.AsFlexGroup(
                     alignItems: Align.Center,

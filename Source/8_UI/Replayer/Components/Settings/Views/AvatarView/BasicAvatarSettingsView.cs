@@ -71,10 +71,10 @@ namespace BeatLeader.UI.Replayer {
                                             Control = _segmentedControl
                                         }
                                         .AsFlexGroup()
-                                        .AsFlexItem(size: new() { y = "auto" })
+                                        .AsFlexItem(size: new() { x = "auto" })
                                         .Bind(ref _keyedContainer)
                                 }
-                                .AsFlexItem(grow: 1f)
+                                .AsFlexItem(flexGrow: 1f)
                                 .Export(out var area)
                                 .Bind(ref _scrollArea),
 
@@ -82,7 +82,7 @@ namespace BeatLeader.UI.Replayer {
                                 WithinLayoutIfDisabled = false
                             }.With(x => area.Scrollbar = x)
                         }
-                    }.AsFlexGroup(gap: 1f).AsFlexItem(grow: 1f)
+                    }.AsFlexGroup(gap: 1f).AsFlexItem(flexGrow: 1f)
                 }
             }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f).Use();
         }

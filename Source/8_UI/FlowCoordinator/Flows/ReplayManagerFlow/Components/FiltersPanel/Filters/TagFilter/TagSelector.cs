@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Hub {
         public event Action<ReplayTag>? SelectedTagRemovedEvent;
 
         private readonly HashSet<ReplayTag> _selectedTags = new();
-        
+
         public void SelectTags(ICollection<ReplayTag> tags) {
             foreach (var (tag, panel) in _tagsPool.SpawnedComponents) {
                 var selected = tags.Contains(tag);
@@ -50,7 +50,7 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             ReplayMetadataManager.TagCreatedEvent += HandleTagCreated;
             ReplayMetadataManager.TagDeletedEvent += HandleTagDeleted;
-            
+
             SetTags(ReplayMetadataManager.Tags.Values);
         }
 
@@ -136,16 +136,15 @@ namespace BeatLeader.UI.Hub {
                     new ScrollArea {
                         ScrollOrientation = ScrollOrientation.Vertical,
                         ScrollContent = new Layout()
-                            .AsRootFlexGroup(
+                            .AsFlexGroup(
                                 padding: 2f,
                                 wrap: Wrap.Wrap,
-                                overflow: Overflow.Scroll,
                                 alignItems: Align.FlexStart,
                                 gap: new() { x = 1.5f, y = 2f }
                             )
                             .AsFlexItem(size: new() { y = "auto" })
                             .Bind(ref _tagsContainer)
-                    }.AsFlexItem(grow: 1f, margin: new() { top = 1f }),
+                    }.AsFlexItem(flexGrow: 1f, margin: new() { top = 1f }),
                     //action buttons
                     new Background {
                         Sprite = BundleLoader.Sprites.backgroundBottom,

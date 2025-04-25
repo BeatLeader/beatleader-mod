@@ -129,14 +129,14 @@ namespace BeatLeader.UI.Hub {
             protected override void OnInit(IReplayHeader item) {
                 RefreshTexts();
                 RefreshTags();
-                
+
                 if (_prevItem != null) {
                     _prevItem.ReplayMetadata.TagAddedEvent -= HandleTagAddedOrRemoved;
                     _prevItem.ReplayMetadata.TagRemovedEvent -= HandleTagAddedOrRemoved;
                 }
                 item.ReplayMetadata.TagAddedEvent += HandleTagAddedOrRemoved;
                 item.ReplayMetadata.TagRemovedEvent += HandleTagAddedOrRemoved;
-                
+
                 _prevItem = item;
             }
 
@@ -256,7 +256,7 @@ namespace BeatLeader.UI.Hub {
                                                 padding: new() { top = 0.7f, left = 0.7f },
                                                 gap: new() { x = 0.5f }
                                             )
-                                            .AsFlexItem(grow: 1f)
+                                            .AsFlexItem(flexGrow: 1f)
                                             .Bind(ref _tagsContainer)
                                     }
                                 }.AsFlexGroup(alignItems: Align.Stretch).AsFlexItem(
@@ -296,11 +296,13 @@ namespace BeatLeader.UI.Hub {
                                 )
                             }
                         }.AsFlexGroup().AsFlexItem(
-                            grow: 1f,
+                            flexGrow: 1f,
                             margin: new() { right = 1f }
                         ).Bind(ref _button)
                     }
-                }.AsFlexGroup().WithSizeDelta(0f, 8f).Use();
+                }.AsFlexGroup().WithSizeDelta(0f, 8f).AsFlexItem(
+                    size: new() { y = 8f }
+                ).Use();
             }
 
             #endregion
@@ -384,6 +386,8 @@ namespace BeatLeader.UI.Hub {
         #endregion
 
         #region Setup
+
+        protected override float CellSize => 8f;
 
         public readonly HashSet<IReplayHeader> HighlightedItems = new();
 

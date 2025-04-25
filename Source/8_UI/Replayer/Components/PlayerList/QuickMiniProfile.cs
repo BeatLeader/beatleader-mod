@@ -18,12 +18,10 @@ namespace BeatLeader.UI {
             set {
                 switch (value) {
                     case Justify.FlexStart:
-                        //_railsLayoutController.UseIndependentLayout = true;
                         _railsLayoutModifier.FlexGrow = 1;
                         _railsLayoutModifier.Size = new() { x = YogaValue.Undefined };
                         break;
                     case Justify.Center:
-                        //_railsLayoutController.UseIndependentLayout = false;
                         _railsLayoutModifier.FlexGrow = 0;
                         _railsLayoutModifier.Size = new() { x = "auto" };
                         break;
@@ -35,7 +33,6 @@ namespace BeatLeader.UI {
         }
 
         public bool UseAlternativeBlur {
-            get => _useAlternativeBlur;
             set {
                 var mat = value ? 
                     BundleLoader.Materials.tintedBlurredBackgroundMaterial :
@@ -45,8 +42,6 @@ namespace BeatLeader.UI {
                 _ppFitterBackground.Material = mat;
             }
         }
-
-        private bool _useAlternativeBlur;
 
         #endregion
 
@@ -84,7 +79,6 @@ namespace BeatLeader.UI {
         private Label _playerGlobalRankLabel = null!;
         private Label _playerPpLabel = null!;
         private YogaLayoutController _layoutController = null!;
-        private YogaLayoutController _railsLayoutController = null!;
         private YogaModifier _railsLayoutModifier = null!;
         private Image _nameFitterBackground = null!;
         private Image _rankFitterBackground = null!;
@@ -169,13 +163,11 @@ namespace BeatLeader.UI {
                         direction: FlexDirection.Column,
                         justifyContent: Justify.Center,
                         alignItems: Align.FlexStart,
-                        gap: new() { y = 1f },
-                        layoutController: out _railsLayoutController
-                    ).AsFlexItem(
-                        modifier: out _railsLayoutModifier
-                    )
+                        gap: new() { y = 1f }
+                    ).AsFlexItem(modifier: out _railsLayoutModifier)
                 }
             }.AsFlexGroup(
+                direction: FlexDirection.Row,
                 gap: new() { x = 2f },
                 padding: 1f,
                 layoutController: out _layoutController
@@ -183,8 +175,8 @@ namespace BeatLeader.UI {
         }
 
         protected override void OnInitialize() {
-            //JustifyContent = Justify.FlexStart;
-            //UseAlternativeBlur = false;
+            JustifyContent = Justify.FlexStart;
+            UseAlternativeBlur = false;
         }
 
         #endregion

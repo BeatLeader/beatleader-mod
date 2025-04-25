@@ -62,7 +62,7 @@ namespace BeatLeader.UI.Hub {
             return new Layout {
                 Children = {
                     new ReeWrapperV2<BeatLeader.Components.BeatmapCharacteristicPanel>()
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .BindRee(ref _characteristicPanel)
                 }
             }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();

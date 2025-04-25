@@ -80,7 +80,7 @@ namespace BeatLeader.UI.Hub {
                 x => {
                     x.AsBlurBackground();
                     x.WithEffect(_scale, static (x, y) => x.ContentTransform.localScale = y);
-                    x.AsRootFlexGroup(
+                    x.AsFlexGroup(
                         direction: FlexDirection.Column,
                         padding: new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
                         alignItems: Align.Center,

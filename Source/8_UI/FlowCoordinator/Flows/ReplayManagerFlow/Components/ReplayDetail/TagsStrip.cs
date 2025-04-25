@@ -152,9 +152,8 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
-                    new TagSelectorModal {
-                            BuildImmediate = true
-                        }
+                    new TagSelectorModal()
+                        .With(x => x.BuildImmediate())
                         .WithAnchor(this, RelativePlacement.BottomCenter)
                         .WithOpenListener(HandleTagSelectorOpened)
                         .WithCloseListener(HandleTagSelectorClosed)
@@ -170,7 +169,7 @@ namespace BeatLeader.UI.Hub {
                                         alignItems: Align.Center,
                                         padding: new() { left = 1f }
                                     )
-                                    .AsFlexItem(grow: 1f)
+                                    .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _tagsContainer),
                                 //tags label
                                 new Label {
@@ -185,7 +184,7 @@ namespace BeatLeader.UI.Hub {
                         }
                         .AsBlurBackground()
                         .AsFlexGroup()
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _contentContainer),
                     //
                     new Background {

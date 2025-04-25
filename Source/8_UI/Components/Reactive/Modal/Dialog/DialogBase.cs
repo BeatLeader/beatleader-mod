@@ -61,7 +61,7 @@ namespace BeatLeader.UI.Reactive.Components {
                         .AsFlexItem(basis: 6f)
                         .Bind(ref _header),
                     //content
-                    ConstructContent().AsFlexItem(grow: 1f),
+                    ConstructContent().AsFlexItem(flexGrow: 1f),
                     //
                     new Layout {
                         Children = {
@@ -69,13 +69,13 @@ namespace BeatLeader.UI.Reactive.Components {
                                 Text = "Cancel",
                                 Skew = 0f,
                                 OnClick = OnCancelButtonClicked
-                            }.AsFlexItem(grow: 1f).Bind(ref _cancelButton),
+                            }.AsFlexItem(flexGrow: 1f).Bind(ref _cancelButton),
                             //
                             new BsPrimaryButton {
                                 Text = "OK",
                                 Skew = 0f,
                                 OnClick = OnOkButtonClicked
-                            }.AsFlexItem(grow: 1f).Bind(ref _okButton)
+                            }.AsFlexItem(flexGrow: 1f).Bind(ref _okButton)
                         }
                     }.AsFlexItem(basis: 8f).AsFlexGroup(padding: 1f, gap: 1f)
                 }

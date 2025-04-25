@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using BeatLeader.Models;
 using Reactive;
@@ -72,7 +72,7 @@ namespace BeatLeader.UI.Replayer {
                     new ExitButton {
                             OnClick = HandleExitButtonClicked
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .InBackground(
                             color: new(0.1f, 0.1f, 0.1f, 1f),
                             pixelsPerUnit: 7f
@@ -96,7 +96,7 @@ namespace BeatLeader.UI.Replayer {
                             ),
                             //timeline
                             new Timeline().Bind(ref _timeline).AsFlexItem(
-                                grow: 1f,
+                                flexGrow: 1f,
                                 alignSelf: Align.Center
                             ),
                             //text
@@ -129,7 +129,7 @@ namespace BeatLeader.UI.Replayer {
                     ).AsFlexGroup(
                         padding: new() { top = 2f, bottom = 2f, left = 1f, right = 1.5f },
                         gap: 1f
-                    ).AsFlexItem(grow: 1f)
+                    ).AsFlexItem(flexGrow: 1f)
                 }
             }.AsFlexGroup(gap: 1f).Use();
         }

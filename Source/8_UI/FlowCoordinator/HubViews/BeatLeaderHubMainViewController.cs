@@ -46,15 +46,16 @@ namespace BeatLeader.UI.Hub {
                         new Image {
                             Sprite = icon,
                             PreserveAspect = true
-                        }.AsFlexItem(grow: 1f),
+                        }.AsFlexItem(flex: 1f),
                         //label
                         new Label {
-                            Text = text
-                        }.AsFlexItem(size: new() { y = "auto" })
+                            Text = text,
+                            FontSize = 4.5f
+                        }.AsFlexItem()
                     }
                 }.WithScaleAnimation(1f, 1.2f).AsFlexGroup(
                     direction: FlexDirection.Column,
-                    padding: new() { left = 2f, right = 2f, top = iconMargin, bottom = 1f },
+                    padding: new() { left = 2f, right = 2f, top = iconMargin },
                     gap: gap
                 ).AsFlexItem(size: 30f, position: position);
             }

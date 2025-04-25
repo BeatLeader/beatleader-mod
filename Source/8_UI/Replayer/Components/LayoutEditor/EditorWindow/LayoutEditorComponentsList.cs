@@ -49,7 +49,7 @@ namespace BeatLeader.Components {
                                         new Label {
                                             FontSize = 3.5f,
                                             Alignment = TextAlignmentOptions.MidlineLeft
-                                        }.AsFlexItem(grow: 1f).Bind(ref _componentNameText),
+                                        }.AsFlexItem(flexGrow: 1f).Bind(ref _componentNameText),
                                         new Label {
                                             FontSize = 2.6f,
                                             Alignment = TextAlignmentOptions.TopRight
@@ -58,7 +58,7 @@ namespace BeatLeader.Components {
                                             margin: new() { right = 1f }
                                         ).Bind(ref _componentLayerText)
                                     }
-                                }.AsFlexGroup().AsFlexItem(grow: 1f),
+                                }.AsFlexGroup().AsFlexItem(flexGrow: 1f),
                                 //
                                 new Background {
                                     Sprite = BundleLoader.Sprites.background,
@@ -76,7 +76,7 @@ namespace BeatLeader.Components {
                                                 Sprite = BundleLoader.EyeIcon,
                                                 PreserveAspect = true
                                             }
-                                        }.AsFlexItem(grow: 1f).Bind(
+                                        }.AsFlexItem(flexGrow: 1f).Bind(
                                             ref _componentStateButton
                                         )
                                     }
@@ -86,7 +86,7 @@ namespace BeatLeader.Components {
                         }.AsFlexGroup(
                             padding: 1f,
                             justifyContent: Justify.FlexStart
-                        ).AsFlexItem(grow: 1f).Bind(ref _backgroundImage)
+                        ).AsFlexItem(flexGrow: 1f).Bind(ref _backgroundImage)
                     }
                 }.AsFlexGroup(padding: new() { bottom = 1f }).WithSizeDelta(0f, 9.5f).Use();
             }

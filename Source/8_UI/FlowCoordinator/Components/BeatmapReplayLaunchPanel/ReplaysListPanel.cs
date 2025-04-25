@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Hub {
             var go = new Layout {
                 Children = {
                     new ReplaysList()
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         // ReSharper disable once InconsistentlySynchronizedField
                         .Bind(ref _replaysList),
                     new ReplaysListSettingsPanel()

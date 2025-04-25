@@ -107,7 +107,7 @@ namespace BeatLeader.UI.Hub {
                     FontSizeMax = maxFontSize,
                     EnableAutoSizing = true,
                     Color = color
-                }.AsFlexItem(grow: size).Bind(ref variable);
+                }.AsFlexItem(flexGrow: size).Bind(ref variable);
             }
 
             var primaryColor = Color.white;
@@ -207,7 +207,7 @@ namespace BeatLeader.UI.Hub {
                         direction: FlexDirection.Column,
                         justifyContent: Justify.Center
                     ).AsFlexItem(
-                        grow: 1f,
+                        flexGrow: 1f,
                         minSize: new() { y = 8f },
                         maxSize: new() { y = "100%" },
                         size: new() { y = 12f },

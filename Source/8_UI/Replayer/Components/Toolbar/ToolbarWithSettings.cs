@@ -101,7 +101,7 @@ namespace BeatLeader.UI.Replayer {
                             }
                         }
                         .WithNativeComponent(out RectMask2D _)
-                        .AsFlexItem(grow: 1f),
+                        .AsFlexItem(flexGrow: 1f),
                     //toolbar
                     new Toolbar().AsFlexItem(size: new() { y = 10f }).Bind(ref _toolbar)
                 }

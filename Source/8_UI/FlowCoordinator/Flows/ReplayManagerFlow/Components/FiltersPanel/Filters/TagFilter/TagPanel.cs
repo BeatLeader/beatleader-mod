@@ -244,7 +244,7 @@ namespace BeatLeader.UI.Hub {
                             //minus icon
                             new Image {
                                 Sprite = BundleLoader.Sprites.minusIcon
-                            }.AsFlexItem(grow: 1f)
+                            }.AsFlexItem(flexGrow: 1f)
                         }
                     }.AsFlexGroup(padding: 1f).AsFlexItem(
                         size: 3.5f,

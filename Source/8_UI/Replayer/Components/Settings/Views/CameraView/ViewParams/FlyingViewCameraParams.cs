@@ -67,7 +67,7 @@ namespace BeatLeader.UI.Replayer {
                             Skew = 0f,
                             OnClick = HandlePositionReset
                         }
-                        .AsFlexItem()
+                        .AsFlexItem(size: new() { x = 12f })
                         .InNamedRail("Reset Position"),
                     //hint
                     new Label {

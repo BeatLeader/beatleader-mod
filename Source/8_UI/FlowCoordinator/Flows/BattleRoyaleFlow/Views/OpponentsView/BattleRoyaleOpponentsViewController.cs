@@ -28,7 +28,7 @@ namespace BeatLeader.UI.Hub {
                     },
                     //list
                     new BattleRoyaleOpponentsList()
-                        .AsFlexItem(grow: 1f, margin: new() { top = 10f })
+                        .AsFlexItem(flexGrow: 1f, margin: new() { top = 10f })
                         .Bind(ref _opponentsList)
                 }
             }.AsFlexGroup(direction: FlexDirection.Column).WithNativeComponent(out _localCanvasGroup).Use(transform);

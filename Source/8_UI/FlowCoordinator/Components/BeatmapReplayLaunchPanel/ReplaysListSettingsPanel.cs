@@ -105,7 +105,7 @@ namespace BeatLeader.UI.Hub {
                         Text = "List settings",
                         Alignment = TextAlignmentOptions.MidlineLeft,
                         FontSize = 3f
-                    }.AsFlexItem(grow: 1f),
+                    }.AsFlexItem(flexGrow: 1f),
                     //refresh button
                     new ImageButton {
                         Image = {

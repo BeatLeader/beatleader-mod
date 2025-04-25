@@ -42,17 +42,18 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _replayDeletionDialog),
                     //
                     new BsButton {
-                            Text = BLLocalization.GetTranslation("ls-delete"),
-                            OnClick = HandleDeleteButtonClicked
-                        }.AsFlexItem(grow: 1f),
+                        Text = BLLocalization.GetTranslation("ls-delete"),
+                        OnClick = HandleDeleteButtonClicked
+                    }.AsFlexItem(flexGrow: 1f),
                     //
                     new BsPrimaryButton {
                             Text = BLLocalization.GetTranslation(WatchTextToken),
                             OnClick = HandleWatchButtonClicked
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _watchButton)
                         .InLoadingContainer()
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _watchButtonContainer)
                 }
             }.AsFlexGroup(gap: 2f).AsFlexItem(size: new() { y = 8f });
@@ -99,7 +100,7 @@ namespace BeatLeader.UI.Hub {
         private void HandleReplayLoadingFinished() {
             _watchButton.Interactable = true;
         }
-        
+
         private void HandleDownloadBeatmapDialogClosed(IModal modal, bool closed) {
             if (closed) return;
             SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);

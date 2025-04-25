@@ -274,7 +274,7 @@ namespace BeatLeader.UI.Replayer {
                             _pointerEventsHandler.PointerUpEvent += HandlePointerUp;
                         }
                     ).AsFlexItem(
-                        grow: 1f,
+                        flexGrow: 1f,
                         size: new() { y = "120%" }
                     ).Bind(ref _slidingArea)
                 }

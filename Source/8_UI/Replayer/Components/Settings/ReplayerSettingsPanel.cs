@@ -92,12 +92,12 @@ namespace BeatLeader.UI.Replayer {
                                     ["UI"] = new SettingsUIView().WithRectExpand().Bind(ref _uiView),
                                     ["Other"] = new SettingsOtherView().WithRectExpand().Bind(ref _otherView)
                                 }
-                            }.AsFlexItem(grow: 1f, margin: 2f).Bind(ref _selectorContainer),
+                            }.AsFlexItem(flexGrow: 1f, margin: 2f).Bind(ref _selectorContainer),
 
                             //pop-up with quick settings
                             new QuickSettingsPanel().Bind(ref _quickSettingsPanel)
                         }
-                    }.AsFlexItem(grow: 1f).AsBackground(
+                    }.AsFlexItem(flexGrow: 1f).AsBackground(
                         sprite: BundleLoader.Sprites.backgroundRight,
                         pixelsPerUnit: 7f
                     ).AsFlexGroup(
@@ -163,12 +163,12 @@ namespace BeatLeader.UI.Replayer {
                 private Label _text = null!;
 
                 protected override GameObject Construct() {
-                    var Layout = new Layout {
+                    var layout = new Layout {
                         Children = {
                             new Image {
                                 Material = BundleLoader.UIAdditiveGlowMaterial,
                                 PreserveAspect = true
-                            }.AsFlexItem(grow: 1f).Bind(ref _icon).In<Layout>().AsFlexGroup(
+                            }.AsFlexItem(flex: 1f).Bind(ref _icon).In<Layout>().AsFlexGroup(
                                 padding: 1f
                             ).AsFlexItem(
                                 minSize: new() { y = 9f },
@@ -185,8 +185,10 @@ namespace BeatLeader.UI.Replayer {
                         justifyContent: Justify.Center,
                         padding: 1f
                     );
-                    Construct(Layout.ContentTransform);
-                    return Layout.Use();
+                    
+                    Construct(layout.ContentTransform);
+                    
+                    return layout.Use();
                 }
 
                 #endregion

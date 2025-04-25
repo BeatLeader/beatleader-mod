@@ -138,11 +138,11 @@ namespace BeatLeader.UI.Replayer {
                                 Text = "Monke has nothing to show here"
                             }
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _viewContainer)
                         .InBackground(color: (Color.white * 0.1f).ColorWithAlpha(1f))
                         .AsFlexGroup(padding: 2f)
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,

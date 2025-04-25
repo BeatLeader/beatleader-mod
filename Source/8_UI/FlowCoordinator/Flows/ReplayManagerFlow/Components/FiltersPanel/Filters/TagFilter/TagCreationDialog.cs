@@ -14,7 +14,7 @@ namespace BeatLeader.UI.Hub {
                     x => x.IsValid,
                     x => OkButtonInteractable = x
                 )
-                .AsFlexItem(grow: 1f, margin: 2f)
+                .AsFlexItem(flexGrow: 1f, margin: 2f)
                 .Bind(ref _tagEditorPanel);
         }
 

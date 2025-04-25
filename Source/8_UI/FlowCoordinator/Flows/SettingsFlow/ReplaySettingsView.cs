@@ -60,7 +60,7 @@ namespace BeatLeader.UI.Hub {
                         new Label {
                                 EnableWrapping = true
                             }
-                            .AsFlexItem(grow: 1f, size: new() { y = "auto" })
+                            .AsFlexItem(flexGrow: 1f, size: new() { y = "auto" })
                             .Bind(ref _messageLabel),
                         //
                         new Layout {
@@ -70,14 +70,14 @@ namespace BeatLeader.UI.Hub {
                                         Text = "OK",
                                         OnClick = HandleOkButtonClicked
                                     }
-                                    .AsFlexItem(grow: 1f)
+                                    .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _okButton),
                                 //cancel button
                                 new BsButton {
                                         Text = "Cancel",
                                         OnClick = () => CloseInternal()
                                     }
-                                    .AsFlexItem(grow: 1f)
+                                    .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _cancelButton)
                             }
                         }.AsFlexGroup(padding: 1f, gap: 1f).AsFlexItem(size: new() { y = 8f })
@@ -193,7 +193,7 @@ namespace BeatLeader.UI.Hub {
                         }
                         .WithModal(_deletionModal)
                         .AsFlexItem(
-                            size: new() { x = 30f },
+                            size: new() { x = 30f, y = 7f },
                             alignSelf: Align.Center
                         )
                 }

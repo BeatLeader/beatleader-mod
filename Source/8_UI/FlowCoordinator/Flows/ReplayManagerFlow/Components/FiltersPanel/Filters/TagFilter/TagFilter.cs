@@ -69,7 +69,7 @@ namespace BeatLeader.UI.Hub {
                         }
                         .WithListener(x => x.Text, HandleTextAreaTextChanged)
                         .WithListener(x => x.Focused, HandleTextAreaFocusChanged)
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _textArea)
                 }
             }.AsFlexGroup(

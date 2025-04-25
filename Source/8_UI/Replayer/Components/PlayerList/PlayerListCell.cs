@@ -38,7 +38,7 @@ namespace BeatLeader.UI.Replayer {
                                 UseAlternativeBlur = true
                             }
                             .Bind(ref _miniProfile)
-                            .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
+                            .AsFlexItem(flexGrow: 1f, minSize: new() { x = 38f }),
                         //overview
                         new Layout {
                             Children = {
@@ -61,7 +61,7 @@ namespace BeatLeader.UI.Replayer {
                                         right = 2f,
                                         bottom = 1f
                                     }
-                                ).Bind(ref _scoreBackground).AsFlexItem(grow: 1f),
+                                ).Bind(ref _scoreBackground).AsFlexItem(flexGrow: 1f),
                                 //replay overview
                                 new QuickReplayOverview()
                                     .Bind(ref _replayOverview)

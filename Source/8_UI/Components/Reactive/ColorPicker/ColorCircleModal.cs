@@ -10,6 +10,10 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override GameObject Construct() {
             return new Background {
+                LayoutModifier = new YogaModifier {
+                    Size = new() { x = 54f, y = 59f }
+                },
+                
                 Children = {
                     new DialogHeader {
                         Text = "Select Color"
@@ -17,9 +21,7 @@ namespace BeatLeader.UI.Reactive.Components {
                     //content
                     ColorCircle.AsFlexItem(size: 54f)
                 }
-            }.AsBlurBackground().AsFlexGroup(
-                direction: FlexDirection.Column
-            ).WithSizeDelta(54f, 59f).Use();
+            }.AsBlurBackground().AsFlexGroup(direction: FlexDirection.Column).Use();
         }
 
         protected override void OnInitialize() {

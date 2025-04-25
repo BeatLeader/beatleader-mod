@@ -57,7 +57,7 @@ namespace BeatLeader.UI.Hub {
                                 .WithRectExpand()
                                 .BindRee(ref _replaySettingsPanel)
                         }
-                    }.AsBlurBackground().AsFlexItem(grow: 1f),
+                    }.AsBlurBackground().AsFlexItem(flexGrow: 1f),
 
                     new ReeWrapperV2<ScoreInfoPanelControls>()
                         .With(
@@ -68,7 +68,7 @@ namespace BeatLeader.UI.Hub {
                                 ree.TabChangedEvent += SwitchTab;
                             }
                         )
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .BindRee(ref _panelControls)
                         .InBlurBackground()
                         .AsFlexGroup(padding: 1f)

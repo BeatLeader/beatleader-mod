@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.API.Methods;
 using BeatLeader.DataManager;
@@ -74,6 +75,7 @@ namespace BeatLeader.Components {
 
         public void SetScore(Score score) {
             _score = score;
+            _currentIsEarthDayMap = null;
         }
 
         #endregion
@@ -88,7 +90,7 @@ namespace BeatLeader.Components {
 
         #region Callbacks
 
-        private bool? _earthDayMap;
+        private bool? _currentIsEarthDayMap;
         private bool _blockIncomingEvents = true;
         private bool _isDownloading;
         private BeatmapKey _beatmapKey;
@@ -122,7 +124,9 @@ namespace BeatLeader.Components {
         }
 
         private async void OnPlayButtonClicked() {
-            if (_earthDayMap == null) {
+            Plugin.Log.Error("HAS MAP: " + _currentIsEarthDayMap);
+
+            if (_currentIsEarthDayMap == null) {
                 SetPlayButtonInteractable(false);
 
                 var earthMap = EarthDayRequest.Instance.Result;
@@ -142,11 +146,13 @@ namespace BeatLeader.Components {
                     }
                 }
 
-                _earthDayMap = _beatmapKey.levelId == earthMap?.hash;
+                _currentIsEarthDayMap = _beatmapKey.levelId.Replace(CustomLevelLoader.kCustomLevelPrefixId, "") == earthMap.hash;
             }
 
-            if (!_earthDayMap.Value) {
-                _downloadText.text = "Downloading the map...";
+            Plugin.Log.Error("HAS MAP 2: " + _currentIsEarthDayMap);
+
+            if (_currentIsEarthDayMap.Value) {
+                _downloadText.text = "<alpha=#66>Fetching map data...";
                 _downloadText.gameObject.SetActive(true);
 
                 try {
@@ -156,16 +162,18 @@ namespace BeatLeader.Components {
                     }
 
                     if (!SongCore.Collections.songWithHashPresent(map.hash)) {
-                        // Download the map if needed
+                        _downloadText.text = "<alpha=#66>Downloading the map...";
+                        
                         var bytes = await EarthDayRequest.SendDownloadRequestAsync(map);
                         if (bytes == null) {
                             throw new Exception("Failed to download the map data");
                         }
 
-                        await FileManager.InstallBeatmap(bytes, "EarthDayMap");
+                        var folderName = $"EarthDayMap_{_score.originalPlayer.id}_{map.timeset}";
+                        await FileManager.InstallBeatmap(bytes, folderName);
                     }
 
-                    _earthDayMap = true;
+                    _currentIsEarthDayMap = true;
                 } catch (Exception e) {
                     Plugin.Log.Critical(e);
                 }

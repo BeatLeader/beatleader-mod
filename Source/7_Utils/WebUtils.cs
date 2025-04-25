@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -8,7 +9,9 @@ using Newtonsoft.Json;
 
 namespace BeatLeader.Utils {
     internal static class WebUtils {
-        public static readonly HttpClient HttpClient = new();
+        internal static readonly CookieContainer CookieContainer = new();
+        private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer };
+        private static readonly HttpClient httpClient = new(httpClientHandler);
 
         public static async Task<byte[]?> SendRawDataRequestAsync(
             string url,
@@ -37,7 +40,7 @@ namespace BeatLeader.Utils {
             Uri uri,
             string method = "GET",
             Action<HttpRequestHeaders>? headersCallback = null
-            ) {
+        ) {
             var res = await SendAsync(uri, method, headersCallback);
             if (res is not { IsSuccessStatusCode: true }) return default;
             try {
@@ -67,7 +70,7 @@ namespace BeatLeader.Utils {
             };
             headersCallback?.Invoke(request.Headers);
             try {
-                return await HttpClient.SendAsync(request);
+                return await httpClient.SendAsync(request);
             } catch (Exception ex) {
                 Plugin.Log.Error("Web request failed:\n" + ex);
                 return null;

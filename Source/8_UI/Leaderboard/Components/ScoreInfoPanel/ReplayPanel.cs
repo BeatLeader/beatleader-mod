@@ -124,8 +124,6 @@ namespace BeatLeader.Components {
         }
 
         private async void OnPlayButtonClicked() {
-            Plugin.Log.Error("HAS MAP: " + _currentIsEarthDayMap);
-
             if (_currentIsEarthDayMap == null) {
                 SetPlayButtonInteractable(false);
 
@@ -148,8 +146,6 @@ namespace BeatLeader.Components {
 
                 _currentIsEarthDayMap = _beatmapKey.levelId.Replace(CustomLevelLoader.kCustomLevelPrefixId, "") == earthMap.hash;
             }
-
-            Plugin.Log.Error("HAS MAP 2: " + _currentIsEarthDayMap);
 
             if (_currentIsEarthDayMap.Value) {
                 _downloadText.text = "<alpha=#66>Fetching map data...";

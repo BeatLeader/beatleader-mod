@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BeatLeader.API.Methods;
+using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage;
@@ -7,6 +9,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using BeatLeader.Models.Replay;
 using BeatLeader.Replayer;
+using BeatLeader.Utils;
 using TMPro;
 using UnityEngine.UI;
 
@@ -19,7 +22,7 @@ namespace BeatLeader.Components {
 
         [UIComponent("play-button"), UsedImplicitly]
         private Button _playButton = null!;
-        
+
         [UIComponent("play-button"), UsedImplicitly]
         private TMP_Text _playButtonText = null!;
 
@@ -35,17 +38,17 @@ namespace BeatLeader.Components {
         private void RefreshDownloadState(bool state) {
             DownloadStateChangedEvent?.Invoke(state);
         }
-        
+
         #endregion
 
         #region Initialize/Dispose
 
         private IReplayerStarter? _replayerStarter;
-        
+
         public void Setup(IReplayerStarter starter) {
             _replayerStarter = starter;
         }
-        
+
         protected override void OnInstantiate() {
             _settingsPanel = Instantiate<ReplayerSettingsPanel>(transform);
         }
@@ -82,13 +85,16 @@ namespace BeatLeader.Components {
         }
 
         #endregion
-        
+
         #region Callbacks
 
+        private bool? _earthDayMap;
         private bool _blockIncomingEvents = true;
         private bool _isDownloading;
+        private BeatmapKey _beatmapKey;
 
         private void OnSelectedBeatmapChanged(bool selectedAny, LeaderboardKey leaderboardKey, BeatmapKey key, BeatmapLevel level) {
+            _beatmapKey = key;
             _buttonCanBeInteractable = SongCoreInterop.ValidateRequirements(level, key);
         }
 
@@ -115,23 +121,76 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnPlayButtonClicked() {
-            if (_isDownloading) {
+        private async void OnPlayButtonClicked() {
+            if (_earthDayMap == null) {
+                SetPlayButtonInteractable(false);
+
+                var earthMap = EarthDayRequest.Instance.Result;
+
+                if (earthMap == null) {
+                    EarthDayRequest.SendMapRequest(ProfileManager.Profile.id);
+
+                    // A kind of shenanigan, but didn't have enough time
+                    while (true) {
+                        earthMap = EarthDayRequest.Instance.Result;
+
+                        if (earthMap != null) {
+                            break;
+                        }
+
+                        await Task.Yield();
+                    }
+                }
+
+                _earthDayMap = _beatmapKey.levelId == earthMap?.hash;
+            }
+
+            if (!_earthDayMap.Value) {
+                _downloadText.text = "Downloading the map...";
+                _downloadText.gameObject.SetActive(true);
+
+                try {
+                    var map = await EarthDayRequest.SendMapRequestAsync(_score!.originalPlayer.id);
+                    if (map == null) {
+                        throw new Exception("Failed to fetch the map data");
+                    }
+
+                    if (!SongCore.Collections.songWithHashPresent(map.hash)) {
+                        // Download the map if needed
+                        var bytes = await EarthDayRequest.SendDownloadRequestAsync(map);
+                        if (bytes == null) {
+                            throw new Exception("Failed to download the map data");
+                        }
+
+                        await FileManager.InstallBeatmap(bytes, "EarthDayMap");
+                    }
+
+                    _earthDayMap = true;
+                } catch (Exception e) {
+                    Plugin.Log.Critical(e);
+                }
+            } else if (_isDownloading) {
+                // Cancel score downloading
                 _blockIncomingEvents = true;
                 _isDownloading = false;
                 _downloadText.gameObject.SetActive(false);
+
                 RefreshPlayButtonText(false);
                 RefreshDownloadState(false);
+
                 return;
             }
+
             if (_score is null) {
                 _downloadText.text = FormatFailString("Score is unavailable!");
                 return;
             }
+
             if (ReplayerCache.TryReadReplay(_score.id, out var storedReplay)) {
                 StartReplay(storedReplay);
                 return;
             }
+
             RefreshDownloadState(true);
             _blockIncomingEvents = false;
             _downloadText.gameObject.SetActive(true);

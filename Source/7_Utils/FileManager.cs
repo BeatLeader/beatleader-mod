@@ -21,9 +21,13 @@ namespace BeatLeader.Utils {
                 var path = Path.Combine(BeatmapsDirectory, folderName);
                 using var memoryStream = new MemoryStream(bytes);
                 using var archive = new ZipArchive(memoryStream);
+                
                 Directory.CreateDirectory(path);
                 await ExtractFiles(archive, path);
+                
                 SongCore.Loader.Instance.RefreshSongs(true);
+                await WaitForSongRefresh();
+                
                 return true;
             } catch (Exception ex) {
                 Plugin.Log.Error("Failed to install beatmap:\n" + ex);
@@ -31,20 +35,28 @@ namespace BeatLeader.Utils {
             }
         }
 
-        private static Task ExtractFiles(ZipArchive archive, string path)
-        {
-            return Task.Run(() =>
-            {
-                foreach (var entry in archive.Entries)
-                {
-                    var entryPath = Path.Combine(path, entry.FullName);
-                    entry.ExtractToFile(entryPath, true);
+        private static async Task WaitForSongRefresh() {
+            while (true) {
+                await Task.Yield();
+                
+                if (SongCore.Loader.AreSongsLoaded) {
+                    return;
                 }
-            });
+            }
         }
-        
+
+        private static Task ExtractFiles(ZipArchive archive, string path) {
+            return Task.Run(() => {
+                    foreach (var entry in archive.Entries) {
+                        var entryPath = Path.Combine(path, entry.FullName);
+                        entry.ExtractToFile(entryPath, true);
+                    }
+                }
+            );
+        }
+
         #endregion
-        
+
         #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
@@ -55,7 +67,7 @@ namespace BeatLeader.Utils {
         public static string GetAbsoluteReplayPath(string fileName) {
             return Path.Combine(replaysFolderPath, fileName);
         }
-        
+
         public static bool TryWriteReplay(string fileName, Replay replay) {
             try {
                 var path = GetAbsoluteReplayPath(fileName);
@@ -89,7 +101,7 @@ namespace BeatLeader.Utils {
         #endregion
 
         #region Directories
-        
+
         private static readonly string replaysFolderPath = Environment.CurrentDirectory + "\\UserData\\BeatLeader\\Replays\\";
         private static readonly string playlistsFolderPath = Environment.CurrentDirectory + "\\Playlists\\";
 

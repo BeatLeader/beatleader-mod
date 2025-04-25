@@ -35,7 +35,7 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnResume() {
             EarthDayRequest.AddStateListener(OnRequestStateChanged);
-            EarthDayRequest.SendRequest(ProfileManager.Profile.id);
+            EarthDayRequest.SendMapRequest(ProfileManager.Profile.id);
         }
 
         protected override void OnDispose() {
@@ -131,7 +131,7 @@ namespace BeatLeader.UI.MainMenu {
             }
 
             _generateButton.interactable = true;
-            EarthDayRequest.SendRequest(ProfileManager.Profile.id);
+            EarthDayRequest.SendMapRequest(ProfileManager.Profile.id);
         }
 
         [UIAction("play-click"), UsedImplicitly]
@@ -141,7 +141,7 @@ namespace BeatLeader.UI.MainMenu {
                 await PlayMap();
             } else {
                 try {
-                    var result = await WebUtils.SendRawDataRequestAsync($"https://cdn.songs.beatleader.com/EarthDayMap_{earthDayMap.playerId}_{earthDayMap.timeset}.zip");
+                    var result = await EarthDayRequest.SendDownloadRequestAsync(earthDayMap);
 
                     if (result == null) {
                         throw new Exception("Failed to make a map =(");

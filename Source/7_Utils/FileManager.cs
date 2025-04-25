@@ -23,7 +23,7 @@ namespace BeatLeader.Utils {
                 using var archive = new ZipArchive(memoryStream);
                 Directory.CreateDirectory(path);
                 await ExtractFiles(archive, path);
-                SongCore.Loader.Instance.RefreshSongs(false);
+                SongCore.Loader.Instance.RefreshSongs(true);
                 return true;
             } catch (Exception ex) {
                 Plugin.Log.Error("Failed to install beatmap:\n" + ex);

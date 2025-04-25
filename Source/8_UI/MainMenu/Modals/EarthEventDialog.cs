@@ -38,7 +38,7 @@ namespace BeatLeader.UI.MainMenu {
             EarthDayRequest.SendRequest(ProfileManager.Profile.id);
         }
 
-        protected override void OnClose() {
+        protected override void OnDispose() {
             EarthDayRequest.RemoveStateListener(OnRequestStateChanged);
         }
 
@@ -46,6 +46,7 @@ namespace BeatLeader.UI.MainMenu {
             if (state == API.RequestState.Finished) {
                 earthDayMap = result;
                 if (_downloadingMap) {
+                    _downloadingMap = false;
                     PlayMap();
                 } else {
                     RefreshMap();
@@ -113,7 +114,7 @@ namespace BeatLeader.UI.MainMenu {
         [UIAction("button-click"), UsedImplicitly]
         private async void OnButtonClick() {
             _downloadingMap = true;
-            
+
             _generateButton.interactable = false;
             _generateButtonText.text = "Working...";
 

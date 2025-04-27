@@ -155,6 +155,11 @@ namespace BeatLeader.Replayer {
         }
 
         public bool LoadEnvironment(ReplayLaunchData launchData, string environmentName) {
+            if (environmentName == "Multiplayer") { 
+               Plugin.Log.Notice("[ReplayerLoader] Map was played in MP. Skipping \"Multiplayer\" environment");
+               return false; 
+            }
+
             var environment = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
                 .FirstOrDefault(x => x.environmentName == environmentName);
             if (environment == null) {

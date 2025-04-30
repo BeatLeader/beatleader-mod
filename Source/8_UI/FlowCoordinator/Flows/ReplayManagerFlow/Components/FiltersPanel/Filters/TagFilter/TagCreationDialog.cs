@@ -1,6 +1,7 @@
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.Yoga;
 
 namespace BeatLeader.UI.Hub {
     internal class TagCreationDialog : DialogBase {
@@ -20,7 +21,7 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.WithSizeDelta(46f, 24f);
+            this.AsFlexItem(size: new() { x = 46.pt(), y = 24.pt() });
             Title = "Create Tag";
             _tagEditorPanel.ValidationContract = ReplayMetadataManager.ValidateTagName;
         }

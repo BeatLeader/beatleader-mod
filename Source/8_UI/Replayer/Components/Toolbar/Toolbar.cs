@@ -182,10 +182,10 @@ namespace BeatLeader.UI.Replayer {
                     OnClick = () => OnClick?.Invoke(),
                     Children = {
                         CreateImage(BundleLoader.ClosedDoorIcon)
-                            .WithEffect(progress, (x, y) => x.Color = Color.Lerp(color, Color.clear, y)),
+                            .Animate(progress, (x, y) => x.Color = Color.Lerp(color, Color.clear, y)),
 
                         CreateImage(BundleLoader.OpenedDoorIcon)
-                            .WithEffect(progress, (x, y) => x.Color = Color.Lerp(Color.clear, activeColor, y))
+                            .Animate(progress, (x, y) => x.Color = Color.Lerp(Color.clear, activeColor, y))
                     }
                 }.WithListener(
                     x => x.IsHovered,

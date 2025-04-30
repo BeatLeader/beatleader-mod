@@ -227,7 +227,7 @@ namespace BeatLeader.UI.Hub {
             }
 
             tagSelector.SelectTags(_metadata.Tags);
-            tagSelector.WithSizeDelta(50f, 36f);
+            tagSelector.AsFlexItem(size: new() { x = 50.pt(), y = 36.pt() });
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }

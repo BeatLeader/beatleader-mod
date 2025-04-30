@@ -1,9 +1,10 @@
+using Reactive.BeatSaber;
 using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI {
     internal static class UIStyle {
-        public static readonly float Skew = 0.18f;
+        public static float Skew => BeatSaberStyle.Skew;
 
         public static ReadOnlyColorSet InputColorSet => new() {
             HoveredColor = Color.magenta.ColorWithAlpha(0.5f),

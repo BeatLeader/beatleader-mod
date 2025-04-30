@@ -7,6 +7,7 @@ using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -33,7 +34,7 @@ namespace BeatLeader.UI.Hub {
                             Sprite = BundleLoader.Sprites.background,
                             Color = Color.white.ColorWithAlpha(0.2f),
                             PixelsPerUnit = 8f,
-                            Skew = UIStyle.Skew,
+                            Skew = BeatSaberStyle.Skew,
                             Children = {
                                 //rank
                                 new Label {
@@ -76,24 +77,14 @@ namespace BeatLeader.UI.Hub {
                                 ),
                                 //remove button
                                 new ImageBsButton {
-                                    Image = {
-                                        Sprite = BundleLoader.Sprites.crossIcon,
-                                        Color = UIStyle.SecondaryTextColor
-                                    },
-
+                                    Sprite = BundleLoader.Sprites.crossIcon,
                                     ShowUnderline = false,
-                                    Skew = UIStyle.Skew,
                                     OnClick = HandleRemoveButtonClicked
                                 }.AsFlexItem(basis: 6f),
                                 //navigate button
                                 new ImageBsButton {
-                                    Image = {
-                                        Sprite = BundleLoader.Sprites.rightArrowIcon,
-                                        Color = UIStyle.SecondaryTextColor
-                                    },
-
+                                    Sprite = BundleLoader.Sprites.rightArrowIcon,
                                     ShowUnderline = false,
-                                    Skew = UIStyle.Skew,
                                     OnClick = HandleNavigateButtonClicked
                                 }.AsFlexItem(basis: 6f)
                             }
@@ -105,7 +96,7 @@ namespace BeatLeader.UI.Hub {
                             margin: new() { right = 1f, left = 1f }
                         ).Bind(ref _backgroundImage)
                     }
-                }.AsFlexGroup().WithSizeDelta(0f, 10f).Use();
+                }.AsFlexGroup().AsFlexItem(size: new() { y = 10f }).Use();
             }
 
             #endregion
@@ -238,6 +229,8 @@ namespace BeatLeader.UI.Hub {
         #endregion
 
         #region Setup
+
+        protected override float CellSize => 10f;
 
         private IBattleRoyaleHost? _battleRoyaleHost;
 

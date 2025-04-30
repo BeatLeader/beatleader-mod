@@ -56,7 +56,6 @@ namespace BeatLeader.UI.Hub {
                     }
                     _component = value;
                     if (_component != null) {
-                        _component.WithoutModifier().WithRectExpand();
                         _component.Enabled = ShowComponent;
                         _backgroundButton.Children.Add(_component);
                     }
@@ -108,7 +107,7 @@ namespace BeatLeader.UI.Hub {
                             }.AsFlexItem(size: "auto").Bind(ref _emptyLabel),
                         }
                     }
-                    .AsFlexGroup(alignItems: Align.Center)
+                    .AsFlexGroup(justifyContent: Justify.Center, alignItems: Align.Stretch)
                     .Bind(ref _backgroundButton)
                     .Use();
             }
@@ -130,7 +129,13 @@ namespace BeatLeader.UI.Hub {
                     new ClickablePanel<BeatmapPreviewPanel> {
                             EmptyText = "NO LEVEL SELECTED",
                             OnClick = PresentLevelSelectionFlow,
+
                             Component = new BeatmapPreviewPanel {
+                                LayoutModifier = new YogaModifier {
+                                    Size = YogaVector.Auto,
+                                    FlexGrow = 1f
+                                },
+
                                 ShowDifficultyInsteadOfTime = true,
                                 Skew = UIStyle.Skew
                             }.Bind(ref _beatmapPreviewPanel)

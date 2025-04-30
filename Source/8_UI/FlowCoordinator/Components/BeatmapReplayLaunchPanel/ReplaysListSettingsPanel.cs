@@ -26,9 +26,19 @@ namespace BeatLeader.UI.Hub {
 
             private TextDropdown<ReplaysListSorter> _sortersDropdown = null!;
             private IconSegmentedControl<SortOrder> _sortOrderSelector = null!;
-            
+
             protected override GameObject Construct() {
                 return new Background {
+                    LayoutModifier = new YogaModifier {
+                        Size = new() { x = 60.pt(), y = 20.pt() }
+                    },
+                    
+                    LayoutController = new YogaLayoutController {
+                        FlexDirection = FlexDirection.Column,
+                        JustifyContent = Justify.SpaceEvenly,
+                        Padding = 2f.pt()
+                    },
+
                     Children = {
                         //sorter selector
                         new NamedRail {
@@ -77,12 +87,8 @@ namespace BeatLeader.UI.Hub {
                                 color: Color.white.ColorWithAlpha(0.8f)
                             )
                         }.AsFlexItem(basis: 6f)
-                        //named rail
                     }
-                }.AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    padding: 2f
-                ).AsBlurBackground().WithSizeDelta(60f, 20f).Use();
+                }.AsBlurBackground().Use();
             }
 
             #endregion

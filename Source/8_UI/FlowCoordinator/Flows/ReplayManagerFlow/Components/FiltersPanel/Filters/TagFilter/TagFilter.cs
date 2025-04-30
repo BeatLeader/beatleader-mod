@@ -92,7 +92,7 @@ namespace BeatLeader.UI.Hub {
             _tagSelectorModalOpened = true;
             var tagSelector = _tagSelectorModal.Component;
 
-            tagSelector.WithSizeDelta(50f, 40f);
+            tagSelector.AsFlexItem(size: new() { x = 50.pt(), y = 40.pt() });
             tagSelector.SelectTags(_selectedTags);
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;

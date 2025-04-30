@@ -228,7 +228,7 @@ namespace BeatLeader.UI.Hub {
                         gap: 1f
                     )
                     .AsBlurBackground()
-                    .WithSizeDelta(64f, 60f)
+                    .AsFlexItem(size: new() { x = 64.pt(), y = 60.pt() })
                     .Bind(ref _container)
                     .Use();
             }

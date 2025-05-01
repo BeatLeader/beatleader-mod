@@ -23,7 +23,7 @@ namespace BeatLeader.UI.Replayer {
         private RectTransform _actualContent = null!;
 
         protected override GameObject Construct() {
-            return new ImageButton {
+            return new BackgroundButton {
                     ContentTransform = {
                         pivot = new(1f, 0f)
                     },
@@ -38,12 +38,12 @@ namespace BeatLeader.UI.Replayer {
                                 UseAlternativeBlur = true
                             }
                             .Bind(ref _miniProfile)
-                            .AsFlexItem(grow: 1f, minSize: new() { x = 38f }),
+                            .AsFlexItem(flexGrow: 1f, minSize: new() { x = 38f }),
                         //overview
-                        new Dummy {
+                        new Layout {
                             Children = {
                                 //score background
-                                new Image {
+                                new Background {
                                     Sprite = BundleLoader.Sprites.background,
                                     Children = {
                                         //score label
@@ -61,7 +61,7 @@ namespace BeatLeader.UI.Replayer {
                                         right = 2f,
                                         bottom = 1f
                                     }
-                                ).Bind(ref _scoreBackground).AsFlexItem(grow: 1f),
+                                ).Bind(ref _scoreBackground).AsFlexItem(flexGrow: 1f),
                                 //replay overview
                                 new QuickReplayOverview()
                                     .Bind(ref _replayOverview)
@@ -80,7 +80,7 @@ namespace BeatLeader.UI.Replayer {
                 }.AsFlexGroup()
                 .Bind(ref _backgroundImage)
                 .Bind(ref _actualContent)
-                .WithSizeDelta(0f, CELL_SIZE)
+                .AsFlexItem(size: new() { y = CELL_SIZE })
                 .Use();
         }
 

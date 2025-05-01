@@ -24,7 +24,7 @@ namespace BeatLeader.UI.Hub {
         public event Action<ReplayTag>? SelectedTagRemovedEvent;
 
         private readonly HashSet<ReplayTag> _selectedTags = new();
-        
+
         public void SelectTags(ICollection<ReplayTag> tags) {
             foreach (var (tag, panel) in _tagsPool.SpawnedComponents) {
                 var selected = tags.Contains(tag);
@@ -50,7 +50,7 @@ namespace BeatLeader.UI.Hub {
         protected override void OnInitialize() {
             ReplayMetadataManager.TagCreatedEvent += HandleTagCreated;
             ReplayMetadataManager.TagDeletedEvent += HandleTagDeleted;
-            
+
             SetTags(ReplayMetadataManager.Tags.Values);
         }
 
@@ -115,11 +115,11 @@ namespace BeatLeader.UI.Hub {
 
         private TagCreationDialog _tagCreationDialog = null!;
         private TagDeletionDialog _tagDeletionDialog = null!;
-        private Dummy _tagsContainer = null!;
+        private Layout _tagsContainer = null!;
         private ImageButton _createTagButton = null!;
 
         protected override GameObject Construct() {
-            return new Image {
+            return new Background {
                 Children = {
                     new TagCreationDialog()
                         .WithJumpAnimation()
@@ -135,19 +135,19 @@ namespace BeatLeader.UI.Hub {
                     //
                     new ScrollArea {
                         ScrollOrientation = ScrollOrientation.Vertical,
-                        ScrollContent = new Dummy()
-                            .AsRootFlexGroup(
+                        ScrollContent = new Layout()
+                            .AsFlexGroup(
                                 padding: 2f,
                                 wrap: Wrap.Wrap,
-                                overflow: Overflow.Scroll,
                                 alignItems: Align.FlexStart,
+                                justifyContent: Justify.SpaceAround,
                                 gap: new() { x = 1.5f, y = 2f }
                             )
                             .AsFlexItem(size: new() { y = "auto" })
                             .Bind(ref _tagsContainer)
-                    }.AsFlexItem(grow: 1f, margin: new() { top = 1f }),
+                    }.AsFlexItem(flexGrow: 1f, margin: new() { top = 1f }),
                     //action buttons
-                    new Image {
+                    new Background {
                         Sprite = BundleLoader.Sprites.backgroundBottom,
                         Children = {
                             //delete button
@@ -171,7 +171,10 @@ namespace BeatLeader.UI.Hub {
                         }
                     }.AsBlurBackground(
                         color: Color.white.ColorWithAlpha(0.9f)
-                    ).AsFlexGroup(padding: 1f).AsFlexItem(size: new() { y = 6f })
+                    ).AsFlexGroup(
+                        padding: 1f,
+                        justifyContent: Justify.SpaceAround
+                    ).AsFlexItem(size: new() { y = 6f })
                 }
             }.AsBlurBackground().AsFlexGroup(
                 direction: FlexDirection.Column,

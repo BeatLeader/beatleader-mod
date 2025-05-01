@@ -234,7 +234,7 @@ namespace BeatLeader.UI.Replayer {
 
         protected override GameObject Construct() {
             //sliding area bg
-            return new ImageButton {
+            return new BackgroundButton {
                 Image = {
                     Sprite = BundleLoader.Sprites.background,
                     PixelsPerUnit = 12f,
@@ -243,13 +243,13 @@ namespace BeatLeader.UI.Replayer {
                 Colors = null,
                 Children = {
                     //sliding area
-                    new Image {
+                    new Background {
                         ContentTransform = {
                             pivot = new(0f, 0.5f)
                         },
                         Sprite = BundleLoader.TransparentPixel,
                         Children = {
-                            new Dummy {
+                            new Layout {
                                 ContentTransform = {
                                     pivot = Vector2.zero
                                 }
@@ -274,7 +274,7 @@ namespace BeatLeader.UI.Replayer {
                             _pointerEventsHandler.PointerUpEvent += HandlePointerUp;
                         }
                     ).AsFlexItem(
-                        grow: 1f,
+                        flexGrow: 1f,
                         size: new() { y = "120%" }
                     ).Bind(ref _slidingArea)
                 }

@@ -53,9 +53,9 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             _scale = RememberAnimated(Vector3.zero, 10.fact());
 
-            return new Image {
+            return new Background {
                 Children = {
-                    new Dummy {
+                    new Layout {
                         Children = {
                             new Label {
                                 FontSize = 3f
@@ -79,12 +79,14 @@ namespace BeatLeader.UI.Hub {
             }.With(
                 x => {
                     x.AsBlurBackground();
-                    x.WithEffect(_scale, static (x, y) => x.ContentTransform.localScale = y);
-                    x.AsRootFlexGroup(
+                    x.Animate(_scale, static (x, y) => x.ContentTransform.localScale = y);
+                    x.AsFlexGroup(
                         direction: FlexDirection.Column,
                         padding: new() { top = 1f, bottom = 0.3f, left = 2f, right = 2f },
                         alignItems: Align.Center,
-                        gap: 0.5f
+                        gap: 0.5f,
+                        constrainHorizontal: false,
+                        constrainVertical: false
                     );
                     x.AsFlexItem(size: "auto");
                 }

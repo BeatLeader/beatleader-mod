@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
     internal class ReplaysListSettingsPanel : ReactiveComponent {
-        private class SortOptionsModal : ModalComponentBase {
+        private class SortOptionsModal : ModalBase {
             #region Setup
 
             private IReplaysList? _replaysList;
@@ -26,9 +26,19 @@ namespace BeatLeader.UI.Hub {
 
             private TextDropdown<ReplaysListSorter> _sortersDropdown = null!;
             private IconSegmentedControl<SortOrder> _sortOrderSelector = null!;
-            
+
             protected override GameObject Construct() {
-                return new Image {
+                return new Background {
+                    LayoutModifier = new YogaModifier {
+                        Size = new() { x = 60.pt(), y = 20.pt() }
+                    },
+                    
+                    LayoutController = new YogaLayoutController {
+                        FlexDirection = FlexDirection.Column,
+                        JustifyContent = Justify.SpaceEvenly,
+                        Padding = 2f.pt()
+                    },
+
                     Children = {
                         //sorter selector
                         new NamedRail {
@@ -56,7 +66,7 @@ namespace BeatLeader.UI.Hub {
                             Label = {
                                 Text = "Order"
                             },
-                            Component = new Image {
+                            Component = new Background {
                                 Children = {
                                     new IconSegmentedControl<SortOrder> {
                                         Items = {
@@ -77,12 +87,8 @@ namespace BeatLeader.UI.Hub {
                                 color: Color.white.ColorWithAlpha(0.8f)
                             )
                         }.AsFlexItem(basis: 6f)
-                        //named rail
                     }
-                }.AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    padding: 2f
-                ).AsBlurBackground().WithSizeDelta(60f, 20f).Use();
+                }.AsBlurBackground().Use();
             }
 
             #endregion
@@ -94,7 +100,7 @@ namespace BeatLeader.UI.Hub {
         private ImageButton _settingsButton = null!;
 
         protected override GameObject Construct() {
-            return new Image {
+            return new Background {
                 Children = {
                     new SortOptionsModal()
                         .WithJumpAnimation()
@@ -105,7 +111,7 @@ namespace BeatLeader.UI.Hub {
                         Text = "List settings",
                         Alignment = TextAlignmentOptions.MidlineLeft,
                         FontSize = 3f
-                    }.AsFlexItem(grow: 1f),
+                    }.AsFlexItem(flexGrow: 1f),
                     //refresh button
                     new ImageButton {
                         Image = {

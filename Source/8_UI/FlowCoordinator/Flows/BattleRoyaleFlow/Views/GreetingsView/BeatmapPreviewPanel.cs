@@ -77,7 +77,7 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private Dummy _songDifficultyContainer = null!;
+        private Layout _songDifficultyContainer = null!;
         private Label _songDifficultyLabel = null!;
         private Image _songDifficultyImage = null!;
 
@@ -86,7 +86,7 @@ namespace BeatLeader.UI.Hub {
         private Label _songTimeLabel = null!;
         private Label _songBpmLabel = null!;
 
-        private Dummy _background = null!;
+        private Layout _background = null!;
         private Image _songImage = null!;
 
         protected override GameObject Construct() {
@@ -107,23 +107,23 @@ namespace BeatLeader.UI.Hub {
                     FontSizeMax = maxFontSize,
                     EnableAutoSizing = true,
                     Color = color
-                }.AsFlexItem(grow: size).Bind(ref variable);
+                }.AsFlexItem(flexGrow: size).Bind(ref variable);
             }
 
             var primaryColor = Color.white;
             var secondaryColor = Color.white.ColorWithAlpha(0.75f);
 
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Image {
                         Sprite = BundleLoader.UnknownIcon,
                         Material = GameResources.UINoGlowRoundEdgeMaterial
                     }.AsFlexItem(aspectRatio: 1f).Bind(ref _songImage),
                     //
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //top rail
-                            new Dummy {
+                            new Layout {
                                 Children = {
                                     //song name
                                     Label(
@@ -152,7 +152,7 @@ namespace BeatLeader.UI.Hub {
                                 margin: new() { left = 0.7f, right = 1.5f }
                             ),
                             //bottom rail
-                            new Dummy {
+                            new Layout {
                                 Children = {
                                     //song author
                                     Label(
@@ -181,7 +181,7 @@ namespace BeatLeader.UI.Hub {
                                 margin: new() { right = 2.5f }
                             ),
                             //difficulty
-                            new Dummy {
+                            new Layout {
                                 Children = {
                                     new Label {
                                         FontSize = 4f,
@@ -207,7 +207,7 @@ namespace BeatLeader.UI.Hub {
                         direction: FlexDirection.Column,
                         justifyContent: Justify.Center
                     ).AsFlexItem(
-                        grow: 1f,
+                        flexGrow: 1f,
                         minSize: new() { y = 8f },
                         maxSize: new() { y = "100%" },
                         size: new() { y = 12f },

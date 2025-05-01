@@ -21,10 +21,10 @@ namespace BeatLeader.UI.Hub {
         private ReplaysListSettingsPanel _settingsPanel = null!;
 
         protected override GameObject Construct() {
-            var go = new Dummy {
+            var go = new Layout {
                 Children = {
                     new ReplaysList()
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         // ReSharper disable once InconsistentlySynchronizedField
                         .Bind(ref _replaysList),
                     new ReplaysListSettingsPanel()

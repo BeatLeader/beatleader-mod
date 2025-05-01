@@ -99,15 +99,15 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
-        private Image _timelineTogglesContainer = null!;
+        private Background _timelineTogglesContainer = null!;
         private Toggle _watermarkToggle = null!;
         private Toggle _autoHideToggle = null!;
         private Toggle _quickSettingsToggle = null!;
         private NamedRail _layoutEditorRail = null!;
 
         protected override GameObject Construct() {
-            static Image CreateContainer(float gap, params ILayoutItem[] children) {
-                return new Image()
+            static Background CreateContainer(params ILayoutItem[] children) {
+                return new Background()
                     .With(x => x.Children.AddRange(children))
                     .AsBackground(
                         color: new(0.1f, 0.1f, 0.1f, 1f),
@@ -116,14 +116,13 @@ namespace BeatLeader.UI.Replayer {
                         direction: FlexDirection.Column,
                         padding: 2f,
                         justifyContent: Justify.FlexStart,
-                        gap: gap
+                        gap: 1f
                     ).AsFlexItem();
             }
 
-            return new Dummy {
+            return new Layout {
                 Children = {
                     CreateContainer(
-                        2f,
                         //layout editor
                         new ImageButton {
                             Colors = UIStyle.ButtonColorSet,
@@ -167,7 +166,7 @@ namespace BeatLeader.UI.Replayer {
                         ).Bind(ref _quickSettingsToggle).InNamedRail("Show quick settings")
                     ),
                     //timeline toggles
-                    CreateContainer(1f).Bind(ref _timelineTogglesContainer),
+                    CreateContainer().Bind(ref _timelineTogglesContainer),
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,

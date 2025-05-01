@@ -15,7 +15,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : ButtonBase, ILayoutDriver {
             return WithLocalizedLabel(
                 button,
                 out _,
@@ -33,7 +33,7 @@ namespace BeatLeader.UI.Reactive.Components {
             float fontSize = 4f,
             bool richText = true,
             TextOverflowModes overflow = TextOverflowModes.Overflow
-        ) where T : ButtonBase, IChildrenProvider {
+        ) where T : ButtonBase, ILayoutDriver {
             return button.WithLabel(
                 out label,
                 BLLocalization.GetTranslation(token),

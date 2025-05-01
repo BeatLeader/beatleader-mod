@@ -42,10 +42,10 @@ namespace BeatLeader.UI.Replayer {
         private ImageButton _snapButton = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //controls
-                    new Image {
+                    new Background {
                         Children = {
                             //pin button
                             new ImageButton {
@@ -85,7 +85,7 @@ namespace BeatLeader.UI.Replayer {
                         pixelsPerUnit: 7f
                     ).AsFlexItem(size: new() { y = 6f }),
                     //handle container
-                    new Dummy {
+                    new Layout {
                         ContentTransform = {
                             localScale = new(7f, 3f, 3f)
                         }

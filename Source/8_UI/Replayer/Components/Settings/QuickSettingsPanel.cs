@@ -32,9 +32,9 @@ namespace BeatLeader.UI.Replayer {
         protected override GameObject Construct() {
             _contentAnim = RememberAnimated(0f, 150f.ms(), AnimationCurve.EaseOut);
 
-            return new Image {
+            return new Background {
                 Children = {
-                    new Dummy {
+                    new Layout {
                         ContentTransform = {
                             sizeDelta = new(0f, Height)
                         },
@@ -53,11 +53,11 @@ namespace BeatLeader.UI.Replayer {
                 color: new(0.15f, 0.15f, 0.15f, 1f),
                 sprite: BundleLoader.Sprites.backgroundRightBottom,
                 pixelsPerUnit: 7f
-            ).WithEffect(
+            ).Animate(
                 _contentAnim,
-                (_, y) => {
+                () => {
                     var size = _modifier.Size;
-                    size.y = y;
+                    size.y = _contentAnim.CurrentValue;
                     _modifier.Size = size;
                 }
             ).WithNativeComponent(out Mask _).Use();

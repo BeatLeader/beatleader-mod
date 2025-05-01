@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaySettingsView : ReactiveComponent {
         #region DeletionModal
 
-        private class DeletionModal : ModalComponentBase {
+        private class DeletionModal : ModalBase {
             #region Visuals
 
             private enum DeletionStage {
@@ -32,9 +32,9 @@ namespace BeatLeader.UI.Hub {
                     _ => _messageLabel.Text
                 };
                 if (stage is DeletionStage.Warning2) {
-                    _okButton.WithAccentColor(Color.red);
+                    _okButton.Color = Color.red;
                 } else {
-                    _okButton.Colors = UIStyle.PrimaryButtonColorSet;
+                    //_okButton.Color = UIStyle.PrimaryButtonColorSet;
                 }
                 _cancelButton.Enabled = stage is not DeletionStage.Finish;
             }
@@ -55,29 +55,29 @@ namespace BeatLeader.UI.Hub {
             private BsButton _cancelButton = null!;
 
             protected override GameObject Construct() {
-                return new Image {
+                return new Background {
                     Children = {
                         new Label {
                                 EnableWrapping = true
                             }
-                            .AsFlexItem(grow: 1f, size: new() { y = "auto" })
+                            .AsFlexItem(flexGrow: 1f, size: new() { y = "auto" })
                             .Bind(ref _messageLabel),
                         //
-                        new Dummy {
+                        new Layout {
                             Children = {
                                 //ok button
                                 new BsPrimaryButton {
+                                        Text = "OK",
                                         OnClick = HandleOkButtonClicked
                                     }
-                                    .WithLabel("OK")
-                                    .AsFlexItem(grow: 1f)
+                                    .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _okButton),
                                 //cancel button
                                 new BsButton {
+                                        Text = "Cancel",
                                         OnClick = () => CloseInternal()
                                     }
-                                    .WithLabel("Cancel")
-                                    .AsFlexItem(grow: 1f)
+                                    .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _cancelButton)
                             }
                         }.AsFlexGroup(padding: 1f, gap: 1f).AsFlexItem(size: new() { y = 8f })
@@ -139,7 +139,7 @@ namespace BeatLeader.UI.Hub {
         private DeletionModal _deletionModal = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new DeletionModal()
                         .WithAlphaAnimation(() => Canvas!.gameObject)
@@ -152,7 +152,7 @@ namespace BeatLeader.UI.Hub {
                         .InBlurBackground()
                         .AsFlexItem(size: new() { x = 45f, y = 14f }),
                     //toggles
-                    new Image {
+                    new Background {
                         Children = {
                             //fail toggle
                             new Toggle()
@@ -187,12 +187,13 @@ namespace BeatLeader.UI.Hub {
                         padding: 2f
                     ).AsFlexItem(size: new() { x = 50f }),
                     //delete all button
-                    new BsPrimaryButton()
+                    new BsPrimaryButton {
+                            Text = "Delete All Replays",
+                            Color = Color.red
+                        }
                         .WithModal(_deletionModal)
-                        .WithLabel("Delete All Replays")
-                        .WithAccentColor(Color.red)
                         .AsFlexItem(
-                            size: new() { x = 30f },
+                            size: new() { x = 30f, y = 7f },
                             alignSelf: Align.Center
                         )
                 }

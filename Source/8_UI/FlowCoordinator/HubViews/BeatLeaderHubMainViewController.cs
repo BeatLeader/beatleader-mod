@@ -20,20 +20,16 @@ namespace BeatLeader.UI.Hub {
         private QuickMiniProfile _quickMiniProfile = null!;
 
         private void Awake() {
-            ButtonBase CreateButton(
+            AeroButtonLayout CreateButton(
                 string text,
                 Sprite icon,
                 IColorSet colorSet,
                 FlowCoordinator flowCoordinator,
-                Vector2 pivot,
                 YogaFrame position,
                 float iconMargin,
                 float gap
             ) {
-                return new AeroButton {
-                    ContentTransform = {
-                        pivot = pivot
-                    },
+                return new AeroButtonLayout {
                     Colors = colorSet,
                     OnClick = () => {
                         _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
@@ -46,22 +42,23 @@ namespace BeatLeader.UI.Hub {
                         new Image {
                             Sprite = icon,
                             PreserveAspect = true
-                        }.AsFlexItem(grow: 1f),
+                        }.AsFlexItem(flex: 1f),
                         //label
                         new Label {
-                            Text = text
-                        }.AsFlexItem(size: new() { y = "auto" })
+                            Text = text,
+                            FontSize = 4.5f
+                        }.AsFlexItem()
                     }
                 }.WithScaleAnimation(1f, 1.2f).AsFlexGroup(
                     direction: FlexDirection.Column,
-                    padding: new() { left = 2f, right = 2f, top = iconMargin, bottom = 1f },
+                    padding: new() { left = 2f, right = 2f, top = iconMargin },
                     gap: gap
                 ).AsFlexItem(size: 30f, position: position);
             }
 
             var menuButtonsTheme = _beatLeaderHubTheme.MenuButtonsTheme;
 
-            new Dummy {
+            new Layout {
                 Children = {
                     new QuickMiniProfile {
                             JustifyContent = Justify.Center
@@ -79,7 +76,7 @@ namespace BeatLeader.UI.Hub {
                         .AsFlexGroup(padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f })
                         .AsFlexItem(),
                     //buttons (use absolute pos for correct overlap)
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //
                             CreateButton(
@@ -87,7 +84,6 @@ namespace BeatLeader.UI.Hub {
                                 BundleLoader.BattleRoyaleIcon,
                                 menuButtonsTheme.BattleRoyaleButtonColors,
                                 _battleRoyaleFlowCoordinator,
-                                new() { x = 0.5f, y = 0f },
                                 YogaFrame.Undefined,
                                 3f,
                                 2f
@@ -98,7 +94,6 @@ namespace BeatLeader.UI.Hub {
                                 BundleLoader.ReplayerSettingsIcon,
                                 menuButtonsTheme.ReplayManagerButtonColors,
                                 _replayManagerFlowCoordinator,
-                                new() { x = 0f, y = 0f },
                                 new() { bottom = 0f, left = 0f },
                                 1f,
                                 1f
@@ -109,17 +104,17 @@ namespace BeatLeader.UI.Hub {
                                 BundleLoader.SettingsIcon,
                                 menuButtonsTheme.SettingsButtonColors,
                                 _settingsFlowCoordinator,
-                                new() { x = 1f, y = 0f },
                                 new() { bottom = 0f, right = 0f },
                                 2.7f,
                                 2f
                             )
                         }
-                    }.AsFlexGroup().AsFlexItem(size: new() { y = 30f, x = 96f })
+                    }.AsFlexGroup(justifyContent: Justify.SpaceAround).AsFlexItem(size: new() { y = 30f, x = 96f })
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
-                alignItems: Align.Center
+                alignItems: Align.Center,
+                justifyContent: Justify.SpaceAround
             ).WithRectExpand().Use(transform);
 
             OnInitialize();

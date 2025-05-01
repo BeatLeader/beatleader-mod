@@ -32,7 +32,7 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Label {
                         Text = "Did you see it?! Monke stole all players and mystically disappeared!\n" +

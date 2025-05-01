@@ -105,9 +105,9 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
-                    new ImageButton {
+                    new BackgroundButton {
                         Image = {
                             Color = Color.white,
                             Sprite = BundleLoader.Sprites.background,
@@ -125,11 +125,11 @@ namespace BeatLeader.UI.Hub {
                             new BeatmapPreviewPanel {
                                     Skew = UIStyle.Skew
                                 }
-                                .AsFlexItem(grow: 1f, margin: new() { right = 1f })
+                                .AsFlexItem(flexGrow: 1f, margin: new() { right = 1f })
                                 .Bind(ref _beatmapPreviewPanel)
                         }
                     }.AsFlexGroup().AsFlexItem(
-                        grow: 1f,
+                        flexGrow: 1f,
                         margin: new() { left = 1f, right = 1f }
                     )
                 }

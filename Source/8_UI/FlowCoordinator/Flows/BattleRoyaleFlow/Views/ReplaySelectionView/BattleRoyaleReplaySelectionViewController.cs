@@ -20,7 +20,7 @@ namespace BeatLeader.UI.Hub {
         private BeatmapReplayLaunchPanel _replayLaunchPanel = null!;
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     new ListFiltersPanel<IReplayHeader> {
                         SearchContract = x => {

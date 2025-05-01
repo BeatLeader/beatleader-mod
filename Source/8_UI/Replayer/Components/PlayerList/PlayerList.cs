@@ -193,8 +193,15 @@ namespace BeatLeader.UI.Replayer {
 
         #region Callbacks
 
+        private IVirtualPlayer? _selectedPlayer;
+        
         private void HandleCellSelected(PlayerListCell cell) {
+            if (cell.Player == _selectedPlayer) {
+                return;
+            }
+            
             _playersManager?.SetPrimaryPlayer(cell.Player);
+            _selectedPlayer = cell.Player;
         }
 
         private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {

@@ -15,8 +15,8 @@ namespace BeatLeader.UI.Replayer {
         private Label _songAuthorLabel = null!;
 
         protected override GameObject Construct() {
-            static ReactiveComponentBase CreateLabel(ref Label label) {
-                return new Image {
+            static ReactiveComponent CreateLabel(ref Label label) {
+                return new Background {
                     Children = {
                         new Label {
                             Overflow = TextOverflowModes.Ellipsis,
@@ -36,8 +36,8 @@ namespace BeatLeader.UI.Replayer {
                 );
             }
 
-            static ReactiveComponentBase CreateRail(ILayoutItem child) {
-                return new Dummy {
+            static ReactiveComponent CreateRail(ILayoutItem child) {
+                return new Layout {
                     Children = {
                         child
                     }
@@ -47,14 +47,14 @@ namespace BeatLeader.UI.Replayer {
                 ).AsFlexItem();
             }
 
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //song image
                     new Image {
                         Material = BundleLoader.RoundTextureMaterial
                     }.AsFlexItem(aspectRatio: 1f).Bind(ref _songPreviewImage),
                     //labels
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //song name
                             CreateRail(
@@ -69,9 +69,8 @@ namespace BeatLeader.UI.Replayer {
                         direction: FlexDirection.Column,
                         justifyContent: Justify.Center,
                         alignItems: Align.FlexStart,
-                        gap: new() { y = 1f },
-                        independentLayout: true
-                    ).AsFlexItem(grow: 1f)
+                        gap: new() { y = 1f }
+                    ).AsFlexItem(flexGrow: 1f)
                 }
             }.AsFlexGroup(padding: new() { top = 2f, bottom = 2f }, gap: 2f).Use();
         }

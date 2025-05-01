@@ -26,7 +26,7 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaysList : Table<IReplayHeader, ReplaysList.Cell>, IReplaysList {
         #region Cell
 
-        public class Cell : TableComponentCell<IReplayHeader> {
+        public class Cell : TableCell<IReplayHeader> {
             #region Colors
 
             private static readonly StateColorSet colorSet = new() {
@@ -129,14 +129,14 @@ namespace BeatLeader.UI.Hub {
             protected override void OnInit(IReplayHeader item) {
                 RefreshTexts();
                 RefreshTags();
-                
+
                 if (_prevItem != null) {
                     _prevItem.ReplayMetadata.TagAddedEvent -= HandleTagAddedOrRemoved;
                     _prevItem.ReplayMetadata.TagRemovedEvent -= HandleTagAddedOrRemoved;
                 }
                 item.ReplayMetadata.TagAddedEvent += HandleTagAddedOrRemoved;
                 item.ReplayMetadata.TagRemovedEvent += HandleTagAddedOrRemoved;
-                
+
                 _prevItem = item;
             }
 
@@ -201,7 +201,7 @@ namespace BeatLeader.UI.Hub {
             private Label _topRightLabel = null!;
             private Label _bottomRightLabel = null!;
             private ImageButton _button = null!;
-            private Dummy _tagsContainer = null!;
+            private Layout _tagsContainer = null!;
 
             protected override GameObject Construct() {
                 static Label CellLabel(
@@ -225,9 +225,9 @@ namespace BeatLeader.UI.Hub {
                     ).Bind(ref variable);
                 }
 
-                return new Dummy {
+                return new Layout {
                     Children = {
-                        new ImageButton {
+                        new BackgroundButton {
                             Image = {
                                 Sprite = BundleLoader.Sprites.background,
                                 PixelsPerUnit = 10f,
@@ -240,7 +240,7 @@ namespace BeatLeader.UI.Hub {
                             OnStateChanged = _ => SelectSelf(true),
                             Children = {
                                 //top left
-                                new Dummy {
+                                new Layout {
                                     Children = {
                                         new Label {
                                             Overflow = TextOverflowModes.Ellipsis,
@@ -250,13 +250,13 @@ namespace BeatLeader.UI.Hub {
                                             Color = textColor
                                         }.AsFlexItem(size: new() { x = "auto" }).Bind(ref _topLeftLabel),
 
-                                        new Dummy()
+                                        new Layout()
                                             .AsFlexGroup(
                                                 justifyContent: Justify.FlexStart,
                                                 padding: new() { top = 0.7f, left = 0.7f },
                                                 gap: new() { x = 0.5f }
                                             )
-                                            .AsFlexItem(grow: 1f)
+                                            .AsFlexItem(flexGrow: 1f)
                                             .Bind(ref _tagsContainer)
                                     }
                                 }.AsFlexGroup(alignItems: Align.Stretch).AsFlexItem(
@@ -296,11 +296,13 @@ namespace BeatLeader.UI.Hub {
                                 )
                             }
                         }.AsFlexGroup().AsFlexItem(
-                            grow: 1f,
+                            flexGrow: 1f,
                             margin: new() { right = 1f }
                         ).Bind(ref _button)
                     }
-                }.AsFlexGroup().WithSizeDelta(0f, 8f).Use();
+                }.AsFlexGroup().WithSizeDelta(0f, 8f).AsFlexItem(
+                    size: new() { y = 8f }
+                ).Use();
             }
 
             #endregion
@@ -384,6 +386,8 @@ namespace BeatLeader.UI.Hub {
         #endregion
 
         #region Setup
+
+        protected override float CellSize => 8f;
 
         public readonly HashSet<IReplayHeader> HighlightedItems = new();
 

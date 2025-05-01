@@ -27,7 +27,7 @@ namespace BeatLeader.Components {
 
         private DownloadScoresModal _downloadModal = null!;
         private Label _replaysLabel = null!;
-        private ButtonBase _proceedButton = null!;
+        private BsButton _proceedButton = null!;
 
         private ImageButton _menuButton = null!;
         private PushContainer _container = null!;
@@ -49,18 +49,18 @@ namespace BeatLeader.Components {
             }.WithAlphaAnimation(() => Canvas!.gameObject).WithJumpAnimation();
 
             return new PushContainer {
-                OpenedView = new Dummy {
+                OpenedView = new Layout {
                     Children = {
-                        new Dummy {
+                        new Layout {
                             Children = {
                                 CreateHeaderButton(
                                     BundleLoader.Sprites.homeIcon,
                                     LeaderboardEvents.NotifyMenuButtonWasPressed
                                 ).Bind(ref _menuButton),
                             }
-                        }.AsFlexItem(grow: 1f).AsFlexGroup(justifyContent: Justify.FlexStart),
+                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexStart),
 
-                        new Dummy {
+                        new Layout {
                             Children = {
                                 new ReeWrapperV2<MapStatus>().BindRee(ref _mapStatus),
 
@@ -82,7 +82,7 @@ namespace BeatLeader.Components {
                             }
                         ),
 
-                        new Dummy {
+                        new Layout {
                             Children = {
                                 CreateHeaderButton(
                                     BundleLoader.BattleRoyaleIcon,
@@ -104,7 +104,7 @@ namespace BeatLeader.Components {
                                     LeaderboardEvents.NotifyLeaderboardSettingsButtonWasPressed
                                 )
                             }
-                        }.AsFlexItem(grow: 1f).AsFlexGroup(justifyContent: Justify.FlexEnd, gap: 1f)
+                        }.AsFlexItem(flexGrow: 1f).AsFlexGroup(justifyContent: Justify.FlexEnd, gap: 1f)
                     }
                 }.AsFlexGroup(
                     alignItems: Align.Center,
@@ -112,27 +112,26 @@ namespace BeatLeader.Components {
                     gap: 1f
                 ).WithRectExpand(),
 
-                ClosedView = new Dummy {
+                ClosedView = new Layout {
                     Children = {
                         new BsButton {
+                            Text = "Cancel",
                             ShowUnderline = false,
                             OnClick = () => SetBattleRoyaleEnabled(false)
-                        }.WithLabel("Cancel").AsFlexItem(),
+                        }.AsFlexItem(),
 
                         new Label {
                             FontSize = 5f
                         }.AsFlexItem().Bind(ref _replaysLabel),
 
                         new BsButton {
-                                ShowUnderline = false,
-                                OnClick = () => {
-                                    ModalSystem.PresentModal(_downloadModal, Canvas!.transform);
-                                    _downloadModal.StartDownloading(_selectedScores);
-                                }
+                            Text = "Proceed",
+                            ShowUnderline = false,
+                            OnClick = () => {
+                                ModalSystem.PresentModal(_downloadModal, Canvas!.transform);
+                                _downloadModal.StartDownloading(_selectedScores);
                             }
-                            .WithLabel("Proceed")
-                            .AsFlexItem()
-                            .Bind(ref _proceedButton),
+                        }.AsFlexItem().Bind(ref _proceedButton),
                     }
                 }.AsFlexGroup(
                     alignItems: Align.Center,

@@ -18,7 +18,7 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     new TextSegmentedControl<string> {
                             CellConstructCallback = cell => {
@@ -30,7 +30,7 @@ namespace BeatLeader.UI.Hub {
                                 { "REPLAYS", "Replays" },
                             },
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Export(out var control)
                         //bg
                         .InBackground(
@@ -54,7 +54,7 @@ namespace BeatLeader.UI.Hub {
                             ["REPLAYS"] = new ReplaySettingsView()
                                 .WithRectExpand()
                         }
-                    }.AsFlexItem(grow: 1f, size: new() { x = 90f })
+                    }.AsFlexItem(flexGrow: 1f, size: new() { x = 90f })
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,

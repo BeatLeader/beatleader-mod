@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Components;
-using Reactive.Components.Basic;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
@@ -11,10 +11,10 @@ using ImageButton = Reactive.BeatSaber.Components.ImageButton;
 using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.Components {
-    internal class LayoutEditorComponentsList : Reactive.BeatSaber.Components.Table<ILayoutComponent, LayoutEditorComponentsList.Cell> {
+    internal class LayoutEditorComponentsList : Table<ILayoutComponent, LayoutEditorComponentsList.Cell> {
         #region Cell
 
-        public class Cell : TableComponentCell<ILayoutComponent> {
+        public class Cell : TableCell<ILayoutComponent> {
             #region Setup
 
             private ILayoutComponent _layoutComponent = null!;
@@ -36,20 +36,24 @@ namespace BeatLeader.Components {
             private Image _backgroundImage = null!;
 
             protected override GameObject Construct() {
-                return new Button {
+                return new Clickable {
+                    LayoutModifier = new YogaModifier {
+                        Size = new() { y = 9.5f.pt() }
+                    },
+                    
                     OnClick = () => SelectSelf(true),
                     Children = {
-                        new Image {
+                        new Background {
                             Sprite = BundleLoader.Sprites.background,
                             PixelsPerUnit = 8f,
                             Children = {
                                 //
-                                new Dummy {
+                                new Layout {
                                     Children = {
                                         new Label {
                                             FontSize = 3.5f,
                                             Alignment = TextAlignmentOptions.MidlineLeft
-                                        }.AsFlexItem(grow: 1f).Bind(ref _componentNameText),
+                                        }.AsFlexItem(flexGrow: 1f).Bind(ref _componentNameText),
                                         new Label {
                                             FontSize = 2.6f,
                                             Alignment = TextAlignmentOptions.TopRight
@@ -58,9 +62,9 @@ namespace BeatLeader.Components {
                                             margin: new() { right = 1f }
                                         ).Bind(ref _componentLayerText)
                                     }
-                                }.AsFlexGroup().AsFlexItem(grow: 1f),
+                                }.AsFlexGroup().AsFlexItem(flexGrow: 1f),
                                 //
-                                new Image {
+                                new Background {
                                     Sprite = BundleLoader.Sprites.background,
                                     PixelsPerUnit = 8f,
                                     Color = new(0.03f, 0.03f, 0.03f),
@@ -76,7 +80,7 @@ namespace BeatLeader.Components {
                                                 Sprite = BundleLoader.EyeIcon,
                                                 PreserveAspect = true
                                             }
-                                        }.AsFlexItem(grow: 1f).Bind(
+                                        }.AsFlexItem(flexGrow: 1f).Bind(
                                             ref _componentStateButton
                                         )
                                     }
@@ -86,9 +90,9 @@ namespace BeatLeader.Components {
                         }.AsFlexGroup(
                             padding: 1f,
                             justifyContent: Justify.FlexStart
-                        ).AsFlexItem(grow: 1f).Bind(ref _backgroundImage)
+                        ).AsFlexItem(flexGrow: 1f).Bind(ref _backgroundImage)
                     }
-                }.AsFlexGroup(padding: new() { bottom = 1f }).WithSizeDelta(0f, 9.5f).Use();
+                }.AsFlexGroup(padding: new() { bottom = 1f }).Use();
             }
 
             #endregion

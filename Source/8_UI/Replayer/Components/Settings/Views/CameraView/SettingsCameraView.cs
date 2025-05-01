@@ -102,7 +102,7 @@ namespace BeatLeader.UI.Replayer {
         private KeyedContainer<ICameraView> _viewContainer = null!;
         private Label _unavailableLabel = null!;
         private Slider _fovSlider = null!;
-        private Dummy _container = null!;
+        private Layout _container = null!;
 
         private void SetUnavailableTextActive(bool active) {
             foreach (var layoutItem in _container.Children) {
@@ -112,7 +112,7 @@ namespace BeatLeader.UI.Replayer {
         }
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Label {
                         Text = "Camera controls are not available while using an external camera",
@@ -138,11 +138,11 @@ namespace BeatLeader.UI.Replayer {
                                 Text = "Monke has nothing to show here"
                             }
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _viewContainer)
                         .InBackground(color: (Color.white * 0.1f).ColorWithAlpha(1f))
                         .AsFlexGroup(padding: 2f)
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,

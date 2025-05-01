@@ -51,7 +51,7 @@ namespace BeatLeader.UI.Hub {
         private Label _bsrLabel = null!;
 
         protected override GameObject Construct() {
-            return new Image {
+            return new Background {
                 Children = {
                     //cover
                     new Image {
@@ -62,18 +62,18 @@ namespace BeatLeader.UI.Hub {
                         .InLoadingContainer()
                         .Bind(ref _coverContainer),
                     //labels
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //author label
                             new Label {
                                 Alignment = TextAlignmentOptions.MidlineLeft
-                            }.AsFlexItem(grow: 1f).Bind(ref _authorLabel),
+                            }.AsFlexItem(flexGrow: 1f).Bind(ref _authorLabel),
                             //bsr label
                             new Label {
                                 Alignment = TextAlignmentOptions.MidlineLeft
-                            }.AsFlexItem(grow: 1f).Bind(ref _bsrLabel)
+                            }.AsFlexItem(flexGrow: 1f).Bind(ref _bsrLabel)
                         }
-                    }.AsFlexGroup(direction: FlexDirection.Column).AsFlexItem(grow: 1f)
+                    }.AsFlexGroup(direction: FlexDirection.Column).AsFlexItem(flexGrow: 1f)
                 }
             }.AsBlurBackground(
                 color: Color.white.ColorWithAlpha(0.9f)

@@ -33,21 +33,20 @@ namespace BeatLeader.UI.Hub {
 
         #region Construct
 
-        private Dummy _levelBarContainer = null!;
+        private Layout _levelBarContainer = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
-                    new Dummy()
+                    new Layout()
                         .AsFlexItem(size: new() { x = "100%", y = 14f })
                         .Bind(ref _levelBarContainer),
                     //
                     new BsPrimaryButton {
-                            Skew = UIStyle.Skew,
-                            OnClick = () => _detailView?.actionButton.onClick.Invoke()
-                        }
-                        .WithLabel("SELECT")
-                        .AsFlexItem(size: new() { x = 24f, y = 8f })
+                        Text = "SELECT",
+                        Skew = UIStyle.Skew,
+                        OnClick = () => _detailView?.actionButton.onClick.Invoke()
+                    }.AsFlexItem(size: new() { x = 24f, y = 8f })
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,

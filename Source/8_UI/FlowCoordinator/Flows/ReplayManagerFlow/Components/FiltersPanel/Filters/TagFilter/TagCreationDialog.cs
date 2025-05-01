@@ -1,9 +1,10 @@
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.Yoga;
 
 namespace BeatLeader.UI.Hub {
-    internal class TagCreationDialog : DialogComponentBase {
+    internal class TagCreationDialog : DialogBase {
         #region Construct
 
         private TagEditorPanel _tagEditorPanel = null!;
@@ -14,13 +15,13 @@ namespace BeatLeader.UI.Hub {
                     x => x.IsValid,
                     x => OkButtonInteractable = x
                 )
-                .AsFlexItem(grow: 1f, margin: 2f)
+                .AsFlexItem(flexGrow: 1f, margin: 2f)
                 .Bind(ref _tagEditorPanel);
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.WithSizeDelta(46f, 24f);
+            this.AsFlexItem(size: new() { x = 46.pt(), y = 24.pt() });
             Title = "Create Tag";
             _tagEditorPanel.ValidationContract = ReplayMetadataManager.ValidateTagName;
         }

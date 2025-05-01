@@ -18,12 +18,10 @@ namespace BeatLeader.UI {
             set {
                 switch (value) {
                     case Justify.FlexStart:
-                        _railsLayoutController.UseIndependentLayout = true;
                         _railsLayoutModifier.FlexGrow = 1;
                         _railsLayoutModifier.Size = new() { x = YogaValue.Undefined };
                         break;
                     case Justify.Center:
-                        _railsLayoutController.UseIndependentLayout = false;
                         _railsLayoutModifier.FlexGrow = 0;
                         _railsLayoutModifier.Size = new() { x = "auto" };
                         break;
@@ -35,7 +33,6 @@ namespace BeatLeader.UI {
         }
 
         public bool UseAlternativeBlur {
-            get => _useAlternativeBlur;
             set {
                 var mat = value ? 
                     BundleLoader.Materials.tintedBlurredBackgroundMaterial :
@@ -45,8 +42,6 @@ namespace BeatLeader.UI {
                 _ppFitterBackground.Material = mat;
             }
         }
-
-        private bool _useAlternativeBlur;
 
         #endregion
 
@@ -84,20 +79,19 @@ namespace BeatLeader.UI {
         private Label _playerGlobalRankLabel = null!;
         private Label _playerPpLabel = null!;
         private YogaLayoutController _layoutController = null!;
-        private YogaLayoutController _railsLayoutController = null!;
         private YogaModifier _railsLayoutModifier = null!;
         private Image _nameFitterBackground = null!;
         private Image _rankFitterBackground = null!;
         private Image _ppFitterBackground = null!;
 
         protected override GameObject Construct() {
-            static ReactiveComponentBase CreateFitter(
+            static ReactiveComponent CreateFitter(
                 out Image background,
                 params ILayoutItem[] children
             ) {
-                var dummy = new Image()
+                var layout = new Background()
                     .Export(out background)
-                    .AsBackground(pixelsPerUnit: 12f)
+                    .AsBlurBackground(pixelsPerUnit: 12f)
                     .AsFlexGroup(
                         padding: new() { left = 1f, right = 1f },
                         gap: new() { x = 1f }
@@ -105,30 +99,30 @@ namespace BeatLeader.UI {
                         size: "auto",
                         maxSize: "100%"
                     );
-                dummy.Children.AddRange(children);
-                return dummy;
+                layout.Children.AddRange(children);
+                return layout;
             }
 
-            static ReactiveComponentBase CreateRail(
+            static ReactiveComponent CreateRail(
                 params ILayoutItem[] children
             ) {
-                var dummy = new Dummy()
+                var layout = new Layout()
                     .AsFlexGroup(
                         justifyContent: Justify.FlexStart,
                         gap: new() { x = 0.5f }
                     );
-                dummy.Children.AddRange(children);
-                return dummy;
+                layout.Children.AddRange(children);
+                return layout;
             }
 
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //avatar
                     new ReeWrapperV2<PlayerAvatar>()
                         .AsFlexItem(aspectRatio: 1f)
                         .BindRee(ref _playerAvatar),
                     //infos
-                    new Dummy {
+                    new Layout {
                         Children = {
                             //player & country
                             CreateRail(
@@ -169,13 +163,11 @@ namespace BeatLeader.UI {
                         direction: FlexDirection.Column,
                         justifyContent: Justify.Center,
                         alignItems: Align.FlexStart,
-                        gap: new() { y = 1f },
-                        layoutController: out _railsLayoutController
-                    ).AsFlexItem(
-                        modifier: out _railsLayoutModifier
-                    )
+                        gap: new() { y = 1f }
+                    ).AsFlexItem(modifier: out _railsLayoutModifier)
                 }
             }.AsFlexGroup(
+                direction: FlexDirection.Row,
                 gap: new() { x = 2f },
                 padding: 1f,
                 layoutController: out _layoutController

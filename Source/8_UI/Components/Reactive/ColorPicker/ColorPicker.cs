@@ -28,14 +28,11 @@ namespace BeatLeader.UI.Reactive.Components {
 
         public RelativePlacement CirclePlacement { get; set; } = RelativePlacement.Center;
 
-        protected override float? DesiredHeight => 8f;
-        protected override float? DesiredWidth => 13f;
-
         private SharedModal<ColorCircleModal> _circleModal = null!;
         private Image _colorSampleImage = null!;
 
         protected override GameObject Construct() {
-            return new AeroButton {
+            return new AeroButtonLayout {
                 Children = {
                     //icon
                     new Image {

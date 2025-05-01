@@ -48,7 +48,7 @@ namespace BeatLeader.UI.Replayer {
         private Slider _smoothnessSlider = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Slider {
                         ValueRange = new() {
@@ -63,11 +63,11 @@ namespace BeatLeader.UI.Replayer {
                     ).Bind(ref _smoothnessSlider).InNamedRail("Speed"),
                     //
                     new BsButton {
+                            Text = "Reset",
                             Skew = 0f,
                             OnClick = HandlePositionReset
                         }
-                        .WithLabel("Reset")
-                        .AsFlexItem()
+                        .AsFlexItem(size: new() { x = 12f })
                         .InNamedRail("Reset Position"),
                     //hint
                     new Label {

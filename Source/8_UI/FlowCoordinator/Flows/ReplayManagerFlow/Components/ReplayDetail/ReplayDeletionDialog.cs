@@ -3,11 +3,12 @@ using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using UnityEngine;
 using UnityExtensions = BeatLeader.Utils.UnityExtensions;
 
 namespace BeatLeader.UI.Hub {
-    internal class ReplayDeletionDialog : DialogComponentBase {
+    internal class ReplayDeletionDialog : DialogBase {
         #region Setup
 
         private IReplayHeader? _header;
@@ -28,14 +29,15 @@ namespace BeatLeader.UI.Hub {
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.WithSizeDelta(60f, 28f);
+            this.AsFlexItem(size: new() { x = 60.pt(), y = 28.pt() });
+            
             Content.GetOrAddComponent<CanvasGroup>().ignoreParentGroups = true;
             Title = "Delete Replay";
         }
 
         protected override void OnOkButtonClicked() {
             base.OnOkButtonClicked();
-            
+
             if (_header != null) {
                 ReplayManager.DeleteReplay(_header);
                 _header = null;

@@ -54,7 +54,7 @@ namespace BeatLeader.UI.Hub {
         private bool _tagSelectorModalOpened;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new TagSelectorModal()
                         .WithShadow()
@@ -69,7 +69,7 @@ namespace BeatLeader.UI.Hub {
                         }
                         .WithListener(x => x.Text, HandleTextAreaTextChanged)
                         .WithListener(x => x.Focused, HandleTextAreaFocusChanged)
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _textArea)
                 }
             }.AsFlexGroup(
@@ -92,7 +92,7 @@ namespace BeatLeader.UI.Hub {
             _tagSelectorModalOpened = true;
             var tagSelector = _tagSelectorModal.Component;
 
-            tagSelector.WithSizeDelta(50f, 40f);
+            tagSelector.AsFlexItem(size: new() { x = 50.pt(), y = 40.pt() });
             tagSelector.SelectTags(_selectedTags);
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;

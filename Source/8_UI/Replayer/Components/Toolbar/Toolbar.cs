@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using BeatLeader.Models;
 using Reactive;
@@ -9,6 +9,7 @@ using Reactive.Yoga;
 using TMPro;
 using Image = Reactive.BeatSaber.Components.Image;
 using ImageButton = Reactive.BeatSaber.Components.ImageButton;
+using Background = Reactive.BeatSaber.Components.Background;
 using Label = Reactive.BeatSaber.Components.Label;
 
 namespace BeatLeader.UI.Replayer {
@@ -66,12 +67,12 @@ namespace BeatLeader.UI.Replayer {
         private ImageButton _playButton = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new ExitButton {
                             OnClick = HandleExitButtonClicked
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .InBackground(
                             color: new(0.1f, 0.1f, 0.1f, 1f),
                             pixelsPerUnit: 7f
@@ -79,7 +80,7 @@ namespace BeatLeader.UI.Replayer {
                         .AsFlexGroup(padding: new() { top = 1.5f, bottom = 1.5f, right = 1f })
                         .AsFlexItem(basis: 10f),
                     //toolbar
-                    new Image {
+                    new Background {
                         Children = {
                             //play button
                             new ImageButton {
@@ -95,7 +96,7 @@ namespace BeatLeader.UI.Replayer {
                             ),
                             //timeline
                             new Timeline().Bind(ref _timeline).AsFlexItem(
-                                grow: 1f,
+                                flexGrow: 1f,
                                 alignSelf: Align.Center
                             ),
                             //text
@@ -128,7 +129,7 @@ namespace BeatLeader.UI.Replayer {
                     ).AsFlexGroup(
                         padding: new() { top = 2f, bottom = 2f, left = 1f, right = 1.5f },
                         gap: 1f
-                    ).AsFlexItem(grow: 1f)
+                    ).AsFlexItem(flexGrow: 1f)
                 }
             }.AsFlexGroup(gap: 1f).Use();
         }
@@ -177,14 +178,14 @@ namespace BeatLeader.UI.Replayer {
                 var activeColor = UIStyle.ButtonColorSet.ActiveColor;
                 var progress = RememberAnimated(0f, 10.fact());
 
-                return new Button {
+                return new Clickable {
                     OnClick = () => OnClick?.Invoke(),
                     Children = {
                         CreateImage(BundleLoader.ClosedDoorIcon)
-                            .WithEffect(progress, (x, y) => x.Color = Color.Lerp(color, Color.clear, y)),
+                            .Animate(progress, (x, y) => x.Color = Color.Lerp(color, Color.clear, y)),
 
                         CreateImage(BundleLoader.OpenedDoorIcon)
-                            .WithEffect(progress, (x, y) => x.Color = Color.Lerp(Color.clear, activeColor, y))
+                            .Animate(progress, (x, y) => x.Color = Color.Lerp(Color.clear, activeColor, y))
                     }
                 }.WithListener(
                     x => x.IsHovered,

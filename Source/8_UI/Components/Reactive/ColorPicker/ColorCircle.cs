@@ -20,9 +20,6 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Construct
 
-        protected override float? DesiredHeight => 54f;
-        protected override float? DesiredWidth => 54f;
-
         private HSVPanelController _colorPicker = null!;
         private ColorPickerButtonController _pickerButton = null!;
 

@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 namespace BeatLeader.UI.Reactive {
+    [Obsolete("Use RememberAnimated instead")]
     internal class ValueAnimator {
         public float Progress {
             get => _progress;

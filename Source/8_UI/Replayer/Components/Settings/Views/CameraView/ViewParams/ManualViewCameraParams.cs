@@ -70,7 +70,7 @@ namespace BeatLeader.UI.Replayer {
                     .InNamedRail(name);
             }
 
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //
                     CreateAxisSlider("X", HandleXChanged, ref _xSlider),
@@ -93,10 +93,10 @@ namespace BeatLeader.UI.Replayer {
                     ).Bind(ref _rotationSlider).InNamedRail("Rotation"),
                     //
                     new BsButton {
+                            Text = "Reset",
                             Skew = 0f,
                             OnClick = HandlePositionReset
                         }
-                        .WithLabel("Reset")
                         .AsFlexItem()
                         .InNamedRail("Reset Pose"),
                 }

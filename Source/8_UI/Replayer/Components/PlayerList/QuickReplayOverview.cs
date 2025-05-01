@@ -13,7 +13,7 @@ namespace BeatLeader.UI.Replayer {
         private Image _speedValueImage = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Image()
                         .WithRectExpand()

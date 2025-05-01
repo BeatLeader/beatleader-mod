@@ -56,7 +56,6 @@ namespace BeatLeader.UI.Hub {
                     }
                     _component = value;
                     if (_component != null) {
-                        _component.WithoutModifier().WithRectExpand();
                         _component.Enabled = ShowComponent;
                         _backgroundButton.Children.Add(_component);
                     }
@@ -88,11 +87,11 @@ namespace BeatLeader.UI.Hub {
             private T? _component;
             private bool _showComponent;
 
-            private ImageButton _backgroundButton = null!;
+            private BackgroundButton _backgroundButton = null!;
             private Label _emptyLabel = null!;
 
             protected override GameObject Construct() {
-                return new ImageButton {
+                return new BackgroundButton {
                         Image = {
                             Sprite = BundleLoader.Sprites.background,
                             Material = GameResources.UINoGlowMaterial,
@@ -108,7 +107,7 @@ namespace BeatLeader.UI.Hub {
                             }.AsFlexItem(size: "auto").Bind(ref _emptyLabel),
                         }
                     }
-                    .AsFlexGroup(alignItems: Align.Center)
+                    .AsFlexGroup(justifyContent: Justify.Center, alignItems: Align.Stretch)
                     .Bind(ref _backgroundButton)
                     .Use();
             }
@@ -122,15 +121,21 @@ namespace BeatLeader.UI.Hub {
         private ReplaysPreviewPanel _replaysPreviewPanel = null!;
         private ClickablePanel<ReplaysPreviewPanel> _replaysPanel = null!;
         private ClickablePanel<BeatmapPreviewPanel> _beatmapPanel = null!;
-        private ButtonBase _battleButton = null!;
+        private BsPrimaryButton _battleButton = null!;
 
         private void Construct() {
-            new Dummy {
+            new Layout {
                 Children = {
                     new ClickablePanel<BeatmapPreviewPanel> {
                             EmptyText = "NO LEVEL SELECTED",
                             OnClick = PresentLevelSelectionFlow,
+
                             Component = new BeatmapPreviewPanel {
+                                LayoutModifier = new YogaModifier {
+                                    Size = YogaVector.Auto,
+                                    FlexGrow = 1f
+                                },
+
                                 ShowDifficultyInsteadOfTime = true,
                                 Skew = UIStyle.Skew
                             }.Bind(ref _beatmapPreviewPanel)
@@ -148,11 +153,11 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _replaysPanel),
                     //
                     new BsPrimaryButton {
+                            Text = "BATTLE",
                             Skew = UIStyle.Skew,
                             Interactable = false,
                             OnClick = () => _battleRoyaleHost.LaunchBattle()
                         }
-                        .WithLabel("BATTLE")
                         .AsFlexItem(size: new() { x = 30f, y = 8f })
                         .Bind(ref _battleButton)
                 }

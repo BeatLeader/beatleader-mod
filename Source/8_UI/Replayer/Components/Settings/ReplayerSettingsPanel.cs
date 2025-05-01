@@ -51,24 +51,27 @@ namespace BeatLeader.UI.Replayer {
         private KeyedContainer<string> _selectorContainer = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //view selector
                     new SegmentedControl<string, Sprite, ViewSegmentedControlCell> {
-                        Direction = FlexDirection.Column,
-                        Items = {
-                            { "Camera", BundleLoader.CameraIcon },
-                            { "Avatar", BundleLoader.AvatarIcon },
-                            { "UI", BundleLoader.UIIcon },
-                            { "Other", BundleLoader.OtherIcon }
+                            Items = {
+                                { "Camera", BundleLoader.CameraIcon },
+                                { "Avatar", BundleLoader.AvatarIcon },
+                                { "UI", BundleLoader.UIIcon },
+                                { "Other", BundleLoader.OtherIcon }
+                            }
                         }
-                    }.Export(out var segmentedControl).InBackground(
-                        sprite: BundleLoader.Sprites.backgroundLeft,
-                        color: new(0.1f, 0.1f, 0.1f, 1f),
-                        pixelsPerUnit: 7f
-                    ).AsFlexItem(basis: 12f),
+                        .AsFlexGroup(direction: FlexDirection.Column)
+                        .Export(out var segmentedControl)
+                        .InBackground(
+                            sprite: BundleLoader.Sprites.backgroundLeft,
+                            color: new(0.1f, 0.1f, 0.1f, 1f),
+                            pixelsPerUnit: 7f
+                        )
+                        .AsFlexItem(basis: 12f),
                     //view container
-                    new Image {
+                    new Background {
                         ContentTransform = {
                             anchorMin = new Vector2(0f, 0f),
                             anchorMax = new Vector2(1f, 0f)
@@ -80,21 +83,21 @@ namespace BeatLeader.UI.Replayer {
                                 Items = {
                                     ["Camera"] = new SettingsCameraView {
                                         CameraViewParams = {
-                                            new PlayerViewCameraParams().WithRectExpand(),
-                                            new FlyingViewCameraParams().WithRectExpand(),
-                                            new ManualViewCameraParams().WithRectExpand()
+                                            new PlayerViewCameraParams().AsFlexItem(),
+                                            new FlyingViewCameraParams().AsFlexItem(),
+                                            new ManualViewCameraParams().AsFlexItem()
                                         }
                                     }.WithRectExpand().Bind(ref _cameraView),
 
-                                    ["UI"] = new SettingsUIView().WithRectExpand().Bind(ref _uiView),
-                                    ["Other"] = new SettingsOtherView().WithRectExpand().Bind(ref _otherView)
+                                    ["UI"] = new SettingsUIView().AsFlexItem().Bind(ref _uiView),
+                                    ["Other"] = new SettingsOtherView().AsFlexItem().Bind(ref _otherView)
                                 }
-                            }.AsFlexItem(grow: 1f, margin: 2f).Bind(ref _selectorContainer),
+                            }.AsFlexItem(flexGrow: 1f, margin: 2f).Bind(ref _selectorContainer),
 
                             //pop-up with quick settings
                             new QuickSettingsPanel().Bind(ref _quickSettingsPanel)
                         }
-                    }.AsFlexItem(grow: 1f).AsBackground(
+                    }.AsFlexItem(flexGrow: 1f).AsBackground(
                         sprite: BundleLoader.Sprites.backgroundRight,
                         pixelsPerUnit: 7f
                     ).AsFlexGroup(
@@ -113,7 +116,7 @@ namespace BeatLeader.UI.Replayer {
 
         #region ViewSegmentedControl
 
-        private class ViewSegmentedControlCell : KeyedControlComponentCell<string, Sprite> {
+        private class ViewSegmentedControlCell : KeyedControlCell<string, Sprite> {
             #region Setup
 
             private SegmentedControlButton _button = null!;
@@ -128,7 +131,7 @@ namespace BeatLeader.UI.Replayer {
                     Colors = UIStyle.ButtonColorSet,
                     Latching = true,
                     OnStateChanged = HandleButtonStateChanged
-                }.WithRectExpand().Bind(ref _button).Use();
+                }.AsFlexItem(flex: 1).Bind(ref _button).Use();
             }
 
             protected override void OnStart() {
@@ -160,12 +163,12 @@ namespace BeatLeader.UI.Replayer {
                 private Label _text = null!;
 
                 protected override GameObject Construct() {
-                    var dummy = new Dummy {
+                    var layout = new Layout {
                         Children = {
                             new Image {
                                 Material = BundleLoader.UIAdditiveGlowMaterial,
                                 PreserveAspect = true
-                            }.AsFlexItem(grow: 1f).Bind(ref _icon).In<Dummy>().AsFlexGroup(
+                            }.AsFlexItem(flex: 1f).Bind(ref _icon).In<Layout>().AsFlexGroup(
                                 padding: 1f
                             ).AsFlexItem(
                                 minSize: new() { y = 9f },
@@ -182,8 +185,10 @@ namespace BeatLeader.UI.Replayer {
                         justifyContent: Justify.Center,
                         padding: 1f
                     );
-                    Construct(dummy.ContentTransform);
-                    return dummy.Use();
+                    
+                    Construct(layout.ContentTransform);
+                    
+                    return layout.Use();
                 }
 
                 #endregion

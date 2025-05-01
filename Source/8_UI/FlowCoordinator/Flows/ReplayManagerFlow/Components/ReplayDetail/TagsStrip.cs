@@ -145,50 +145,49 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _containerGroup = null!;
         private TagSelectorModal _tagSelectorModal = null!;
         private Label _tagsLabel = null!;
-        private Dummy _tagsContainer = null!;
+        private Layout _tagsContainer = null!;
         private Image _contentContainer = null!;
         private Image _editButtonContainer = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
-                    new TagSelectorModal {
-                            BuildImmediate = true
-                        }
+                    new TagSelectorModal()
+                        .With(x => x.BuildImmediate())
                         .WithAnchor(this, RelativePlacement.BottomCenter)
                         .WithOpenListener(HandleTagSelectorOpened)
                         .WithCloseListener(HandleTagSelectorClosed)
                         .Bind(ref _tagSelectorModal),
                     //
-                    new Image {
+                    new Background {
                             Sprite = BundleLoader.Sprites.backgroundLeft,
                             Children = {
                                 //tags container
-                                new Dummy()
+                                new Layout()
                                     .AsFlexGroup(
                                         gap: 1f,
                                         alignItems: Align.Center,
+                                        justifyContent: Justify.SpaceAround,
                                         padding: new() { left = 1f }
                                     )
-                                    .AsFlexItem(grow: 1f)
+                                    .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _tagsContainer),
                                 //tags label
                                 new Label {
-                                    Color = UIStyle.SecondaryTextColor,
-                                    FontSize = 3.5f,
-                                    Alignment = TextAlignmentOptions.Capline
-                                }.AsFlexItem(
-                                    size: new() { x = "auto" },
-                                    margin: new() { left = 1f, right = 1f }
-                                ).Bind(ref _tagsLabel)
+                                        Color = UIStyle.SecondaryTextColor,
+                                        FontSize = 3.5f,
+                                        Alignment = TextAlignmentOptions.Capline
+                                    }
+                                    .AsFlexItem(margin: new() { left = 1f, right = 1f })
+                                    .Bind(ref _tagsLabel)
                             }
                         }
                         .AsBlurBackground()
-                        .AsFlexGroup()
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexGroup(justifyContent: Justify.SpaceAround)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _contentContainer),
                     //
-                    new Image {
+                    new Background {
                             Sprite = BundleLoader.Sprites.backgroundRight,
                             Children = {
                                 new ImageButton {
@@ -228,7 +227,7 @@ namespace BeatLeader.UI.Hub {
             }
 
             tagSelector.SelectTags(_metadata.Tags);
-            tagSelector.WithSizeDelta(50f, 36f);
+            tagSelector.AsFlexItem(size: new() { x = 50.pt(), y = 36.pt() });
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }

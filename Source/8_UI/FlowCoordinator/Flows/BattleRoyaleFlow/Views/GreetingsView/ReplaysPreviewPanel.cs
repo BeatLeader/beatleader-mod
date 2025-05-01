@@ -113,15 +113,15 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private YogaModifier _avatarsContainerModifier = null!;
-        private Dummy _avatarsContainer = null!;
+        private Layout _avatarsContainer = null!;
         private Label _replaysLabel = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
-                    new Dummy {
+                    new Layout {
                         Children = {
-                            new Dummy()
+                            new Layout()
                                 .AsFlexGroup()
                                 .AsFlexItem(modifier: out _avatarsContainerModifier)
                                 .Bind(ref _avatarsContainer)

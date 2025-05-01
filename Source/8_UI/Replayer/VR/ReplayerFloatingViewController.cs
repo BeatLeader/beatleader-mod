@@ -46,7 +46,7 @@ namespace BeatLeader.UI.Replayer {
         private ReplayerFloatingPanelControls _floatingPanelControls = null!;
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     new ToolbarWithSettings()
                         .AsFlexItem(size: new() { x = 80f, y = 70f })

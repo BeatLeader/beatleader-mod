@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
@@ -8,6 +7,7 @@ using BeatLeader.UI.Reactive;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -18,7 +18,7 @@ namespace BeatLeader.UI.Hub {
     internal class BattleRoyaleOpponentsList : Table<BattleRoyaleReplay, BattleRoyaleOpponentsList.Cell> {
         #region Cells
 
-        public class Cell : TableComponentCell<BattleRoyaleReplay> {
+        public class Cell : TableCell<BattleRoyaleReplay> {
             #region Construct
 
             private Image _backgroundImage = null!;
@@ -28,28 +28,32 @@ namespace BeatLeader.UI.Hub {
             private Label _dateText = null!;
 
             protected override GameObject Construct() {
-                return new Dummy {
+                return new Layout {
                     Children = {
-                        new Image {
+                        new Background {
                             Sprite = BundleLoader.Sprites.background,
                             Color = Color.white.ColorWithAlpha(0.2f),
                             PixelsPerUnit = 8f,
-                            Skew = UIStyle.Skew,
+                            Skew = BeatSaberStyle.Skew,
+                            
                             Children = {
                                 //rank
                                 new Label {
+                                    LayoutModifier = new YogaModifier {
+                                        Margin = new() { left = 1.pt(), right = 1.pt() },
+                                        AlignSelf = Align.Center
+                                    },
+                                    
                                     FontSize = 5f
-                                }.AsFlexItem(
-                                    size: "auto",
-                                    margin: new() { left = 1f, right = 1f },
-                                    alignSelf: Align.Center
-                                ).Bind(ref _rankText),
+                                }.Bind(ref _rankText),
+                                
                                 //avatar
                                 new ReeWrapperV2<PlayerAvatar>()
                                     .AsFlexItem(aspectRatio: 1f)
                                     .BindRee(ref _playerAvatar),
+                                
                                 //texts
-                                new Dummy {
+                                new Layout {
                                     Children = {
                                         //player name
                                         new Label {
@@ -58,8 +62,9 @@ namespace BeatLeader.UI.Hub {
                                                 Alignment = TextAlignmentOptions.Left,
                                                 FontStyle = FontStyles.Italic
                                             }
-                                            .AsFlexItem(grow: 1f)
+                                            .AsFlexItem(flexGrow: 1f)
                                             .Bind(ref _playerNameText),
+                                        
                                         //replay date
                                         new Label {
                                                 Color = UIStyle.SecondaryTextColor,
@@ -68,47 +73,45 @@ namespace BeatLeader.UI.Hub {
                                                 Alignment = TextAlignmentOptions.Right,
                                                 FontStyle = FontStyles.Italic
                                             }
-                                            .AsFlexItem(grow: 1f)
+                                            .AsFlexItem(flexGrow: 1f)
                                             .Bind(ref _dateText),
                                     }
                                 }.AsFlexGroup().AsFlexItem(
-                                    grow: 1f,
+                                    flexGrow: 1f,
                                     margin: new() { left = 2f, right = 2f }
                                 ),
+                                
                                 //remove button
-                                new BsButton {
-                                        ShowUnderline = false,
-                                        Skew = UIStyle.Skew,
-                                        OnClick = HandleRemoveButtonClicked
-                                    }
-                                    .AsFlexGroup(padding: 1f)
-                                    .WithImage(
-                                        sprite: BundleLoader.Sprites.crossIcon,
-                                        color: UIStyle.SecondaryTextColor
-                                    )
-                                    .AsFlexItem(basis: 6f),
+                                new ImageBsButton {
+                                    LayoutModifier = new YogaModifier {
+                                        Size = new() { x = 6.pt() }
+                                    },
+
+                                    Sprite = BundleLoader.Sprites.crossIcon,
+                                    ShowUnderline = false,
+                                    OnClick = HandleRemoveButtonClicked
+                                },
+                                
                                 //navigate button
-                                new BsButton {
-                                        ShowUnderline = false,
-                                        Skew = UIStyle.Skew,
-                                        OnClick = HandleNavigateButtonClicked
-                                    }
-                                    .AsFlexGroup(padding: 0.5f)
-                                    .WithImage(
-                                        sprite: BundleLoader.Sprites.rightArrowIcon,
-                                        color: UIStyle.SecondaryTextColor
-                                    )
-                                    .AsFlexItem(basis: 6f)
+                                new ImageBsButton {
+                                    LayoutModifier = new YogaModifier {
+                                        Size = new() { x = 6.pt() }
+                                    },
+                                    
+                                    Sprite = BundleLoader.Sprites.rightArrowIcon,
+                                    ShowUnderline = false,
+                                    OnClick = HandleNavigateButtonClicked
+                                }
                             }
                         }.AsFlexGroup(
                             padding: 1f,
                             gap: 1f
                         ).AsFlexItem(
-                            grow: 1f,
+                            flexGrow: 1f,
                             margin: new() { right = 1f, left = 1f }
                         ).Bind(ref _backgroundImage)
                     }
-                }.AsFlexGroup().WithSizeDelta(0f, 10f).Use();
+                }.AsFlexGroup().AsFlexItem(size: new() { y = 10f }).Use();
             }
 
             #endregion
@@ -176,12 +179,13 @@ namespace BeatLeader.UI.Hub {
                     _tokenSource.Cancel();
                     _tokenSource = new();
                 }
+
                 ResetColor();
                 RefreshOtherText();
-                
+
                 _refreshPlayerTask = RefreshPlayer(_tokenSource.Token).RunCatching();
                 _refreshColorTask = RefreshAccentColor(_tokenSource.Token).RunCatching();
-                
+
                 _prevReplay = item;
                 _prevRank = item.ReplayRank;
             }
@@ -192,28 +196,31 @@ namespace BeatLeader.UI.Hub {
 
             private async Task RefreshAccentColor(CancellationToken token) {
                 var data = await Item.GetBattleRoyaleDataAsync(false, token);
-                
+
                 if (token.IsCancellationRequested) {
+                    _refreshColorTask = null;
                     return;
                 }
-                _refreshColorTask = null;
-                //applying
+
                 var color = data.AccentColor ?? Color.white;
                 SetColor(color);
+
+                _refreshColorTask = null;
             }
 
             private async Task RefreshPlayer(CancellationToken token) {
                 var header = Item.ReplayHeader;
                 var player = await header.LoadPlayerAsync(false, token) as IPlayer;
-                
+
                 if (token.IsCancellationRequested) {
+                    _refreshPlayerTask = null;
                     return;
                 }
-                
-                _refreshPlayerTask = null;
-                //applying
+
                 _playerAvatar.SetAvatar(player);
                 _playerNameText.Text = player.Name;
+
+                _refreshPlayerTask = null;
             }
 
             private void RefreshOtherText() {
@@ -240,6 +247,8 @@ namespace BeatLeader.UI.Hub {
         #endregion
 
         #region Setup
+
+        protected override float CellSize => 10f;
 
         private IBattleRoyaleHost? _battleRoyaleHost;
 

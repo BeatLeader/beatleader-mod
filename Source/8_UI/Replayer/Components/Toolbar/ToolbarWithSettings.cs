@@ -84,10 +84,10 @@ namespace BeatLeader.UI.Replayer {
         private Toolbar _toolbar = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     //settings container
-                    new Dummy {
+                    new Layout {
                             ContentTransform = {
                                 pivot = new(0.5f, 0f)
                             },
@@ -101,7 +101,7 @@ namespace BeatLeader.UI.Replayer {
                             }
                         }
                         .WithNativeComponent(out RectMask2D _)
-                        .AsFlexItem(grow: 1f),
+                        .AsFlexItem(flexGrow: 1f),
                     //toolbar
                     new Toolbar().AsFlexItem(size: new() { y = 10f }).Bind(ref _toolbar)
                 }

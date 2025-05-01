@@ -16,7 +16,7 @@ namespace BeatLeader.UI.Hub {
         #region Setup
 
         private void Awake() {
-            new Dummy {
+            new Layout {
                 Children = {
                     //header
                     new BattleRoyaleViewHeader {
@@ -29,7 +29,10 @@ namespace BeatLeader.UI.Hub {
                         EnableWrapping = true
                     }.AsFlexItem()
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).Use(transform);
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                justifyContent: Justify.SpaceAround
+            ).Use(transform);
         }
 
         #endregion

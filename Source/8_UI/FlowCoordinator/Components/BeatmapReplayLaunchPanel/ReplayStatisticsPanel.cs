@@ -22,12 +22,12 @@ namespace BeatLeader.UI.Hub {
         private AccuracyGraphPanel _accuracyGraphPanel = null!;
         private ReplayerSettingsPanel _replaySettingsPanel = null!;
         private ScoreInfoPanelControls _panelControls = null!;
-        private ReactiveComponentBase _panelControlsContainer = null!;
+        private ReactiveComponent _panelControlsContainer = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
-                    new Image {
+                    new Background {
                         Children = {
                             new ReeWrapperV2<ScoreStatsLoadingScreen>()
                                 .WithRectExpand()
@@ -57,7 +57,7 @@ namespace BeatLeader.UI.Hub {
                                 .WithRectExpand()
                                 .BindRee(ref _replaySettingsPanel)
                         }
-                    }.AsBlurBackground().AsFlexItem(grow: 1f),
+                    }.AsBlurBackground().AsFlexItem(flexGrow: 1f),
 
                     new ReeWrapperV2<ScoreInfoPanelControls>()
                         .With(
@@ -68,7 +68,7 @@ namespace BeatLeader.UI.Hub {
                                 ree.TabChangedEvent += SwitchTab;
                             }
                         )
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .BindRee(ref _panelControls)
                         .InBlurBackground()
                         .AsFlexGroup(padding: 1f)

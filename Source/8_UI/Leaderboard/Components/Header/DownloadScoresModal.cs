@@ -18,7 +18,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.Components {
-    internal class DownloadScoresModal : DialogComponentBase {
+    internal class DownloadScoresModal : DialogBase {
         #region Download
 
         public IReadOnlyCollection<IReplayHeader> Headers => _headers;
@@ -125,7 +125,7 @@ namespace BeatLeader.Components {
         private ProgressBar _progressBar = null!;
 
         protected override ILayoutItem ConstructContent() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new Label {
                         Overflow = TextOverflowModes.Ellipsis

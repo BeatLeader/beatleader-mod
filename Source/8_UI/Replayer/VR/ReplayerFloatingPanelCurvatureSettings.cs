@@ -60,12 +60,12 @@ namespace BeatLeader.UI.Replayer {
         private float _radius;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 ContentTransform = {
                     pivot = new(0.5f, 1f)
                 },
                 Children = {
-                    new Image {
+                    new Background {
                         ContentTransform = {
                             pivot = new(0.5f, 1f)
                         },
@@ -93,8 +93,9 @@ namespace BeatLeader.UI.Replayer {
                             ).Bind(ref _radiusSlider).InNamedRail("Radius"),
                             //ok button
                             new BsPrimaryButton {
+                                Text = "OK",
                                 OnClick = () => CloseButtonClicked?.Invoke()
-                            }.WithLabel("OK").AsFlexItem()
+                            }.AsFlexItem()
                         }
                     }.AsBackground(
                         color: new(0.1f, 0.1f, 0.1f, 1f),
@@ -103,7 +104,7 @@ namespace BeatLeader.UI.Replayer {
                         direction: FlexDirection.Column,
                         padding: new() { top = 1f, bottom = 1f, right = 2f, left = 2f }
                     ).AsFlexItem(
-                        grow: 1f,
+                        flexGrow: 1f,
                         margin: new() { top = 1f }
                     )
                 }

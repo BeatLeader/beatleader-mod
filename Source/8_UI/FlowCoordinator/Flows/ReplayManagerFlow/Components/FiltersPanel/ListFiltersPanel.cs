@@ -103,7 +103,7 @@ namespace BeatLeader.UI.Hub {
             private CheckCircle _enableToggle = null!;
 
             protected override GameObject Construct() {
-                return new Dummy {
+                return new Layout {
                     Children = {
                         new PushContainer {
                             ClosedView = new Label()
@@ -111,9 +111,9 @@ namespace BeatLeader.UI.Hub {
                             BackgroundImage = {
                                 Color = (Color.white * 0.9f).ColorWithAlpha(1f)
                             }
-                        }.AsFlexItem(grow: 1f).Bind(ref _filterContainer),
+                        }.AsFlexItem(flexGrow: 1f).Bind(ref _filterContainer),
                         //
-                        new Image {
+                        new Background {
                             Color = (Color.white * 0.9f).ColorWithAlpha(1f),
                             Children = {
                                 new CheckCircle {
@@ -137,7 +137,7 @@ namespace BeatLeader.UI.Hub {
 
         #region FiltersModal
 
-        private class FiltersModal : ModalComponentBase {
+        private class FiltersModal : ModalBase {
             #region Filter Dependencies
 
             private readonly Dictionary<IPanelListFilter<T>, List<IPanelListFilter<T>>> _dependencies = new();
@@ -216,10 +216,10 @@ namespace BeatLeader.UI.Hub {
                 .Select(static x => x.Key);
 
             private readonly ReactivePool<IPanelListFilter<T>, FilterContainer> _filtersPool = new();
-            private Image _container = null!;
+            private Background _container = null!;
 
             protected override GameObject Construct() {
-                return new Image()
+                return new Background()
                     .AsFlexGroup(
                         direction: FlexDirection.Column,
                         justifyContent: Justify.FlexStart,
@@ -228,7 +228,7 @@ namespace BeatLeader.UI.Hub {
                         gap: 1f
                     )
                     .AsBlurBackground()
-                    .WithSizeDelta(64f, 60f)
+                    .AsFlexItem(size: new() { x = 64.pt(), y = 60.pt() })
                     .Bind(ref _container)
                     .Use();
             }
@@ -264,7 +264,7 @@ namespace BeatLeader.UI.Hub {
         private TextArea _filtersTextArea = null!;
 
         protected override GameObject Construct() {
-            return new Dummy {
+            return new Layout {
                 Children = {
                     new FiltersModal()
                         .WithShadow()
@@ -280,7 +280,7 @@ namespace BeatLeader.UI.Hub {
                                 Offset = new(0f, 32f)
                             }
                         }
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .WithListener(
                             x => x.Text,
                             _ => FilterUpdatedEvent?.Invoke()
@@ -305,7 +305,7 @@ namespace BeatLeader.UI.Hub {
                                 FilterUpdatedEvent?.Invoke();
                             }
                         )
-                        .AsFlexItem(grow: 1f)
+                        .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _filtersTextArea)
                 }
             }.AsFlexGroup(gap: 1f).Use();

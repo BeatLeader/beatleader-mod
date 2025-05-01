@@ -140,6 +140,7 @@ namespace BeatLeader.UI.Hub {
                                 padding: 2f,
                                 wrap: Wrap.Wrap,
                                 alignItems: Align.FlexStart,
+                                justifyContent: Justify.SpaceAround,
                                 gap: new() { x = 1.5f, y = 2f }
                             )
                             .AsFlexItem(size: new() { y = "auto" })
@@ -170,7 +171,10 @@ namespace BeatLeader.UI.Hub {
                         }
                     }.AsBlurBackground(
                         color: Color.white.ColorWithAlpha(0.9f)
-                    ).AsFlexGroup(padding: 1f).AsFlexItem(size: new() { y = 6f })
+                    ).AsFlexGroup(
+                        padding: 1f,
+                        justifyContent: Justify.SpaceAround
+                    ).AsFlexItem(size: new() { y = 6f })
                 }
             }.AsBlurBackground().AsFlexGroup(
                 direction: FlexDirection.Column,

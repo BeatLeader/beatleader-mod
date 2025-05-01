@@ -167,23 +167,23 @@ namespace BeatLeader.UI.Hub {
                                     .AsFlexGroup(
                                         gap: 1f,
                                         alignItems: Align.Center,
+                                        justifyContent: Justify.SpaceAround,
                                         padding: new() { left = 1f }
                                     )
                                     .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _tagsContainer),
                                 //tags label
                                 new Label {
-                                    Color = UIStyle.SecondaryTextColor,
-                                    FontSize = 3.5f,
-                                    Alignment = TextAlignmentOptions.Capline
-                                }.AsFlexItem(
-                                    size: new() { x = "auto" },
-                                    margin: new() { left = 1f, right = 1f }
-                                ).Bind(ref _tagsLabel)
+                                        Color = UIStyle.SecondaryTextColor,
+                                        FontSize = 3.5f,
+                                        Alignment = TextAlignmentOptions.Capline
+                                    }
+                                    .AsFlexItem(margin: new() { left = 1f, right = 1f })
+                                    .Bind(ref _tagsLabel)
                             }
                         }
                         .AsBlurBackground()
-                        .AsFlexGroup()
+                        .AsFlexGroup(justifyContent: Justify.SpaceAround)
                         .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _contentContainer),
                     //

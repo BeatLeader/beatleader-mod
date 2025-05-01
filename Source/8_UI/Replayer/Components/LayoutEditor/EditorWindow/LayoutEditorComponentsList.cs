@@ -37,6 +37,10 @@ namespace BeatLeader.Components {
 
             protected override GameObject Construct() {
                 return new Clickable {
+                    LayoutModifier = new YogaModifier {
+                        Size = new() { y = 9.5f.pt() }
+                    },
+                    
                     OnClick = () => SelectSelf(true),
                     Children = {
                         new Background {
@@ -88,7 +92,7 @@ namespace BeatLeader.Components {
                             justifyContent: Justify.FlexStart
                         ).AsFlexItem(flexGrow: 1f).Bind(ref _backgroundImage)
                     }
-                }.AsFlexGroup(padding: new() { bottom = 1f }).WithSizeDelta(0f, 9.5f).Use();
+                }.AsFlexGroup(padding: new() { bottom = 1f }).Use();
             }
 
             #endregion

@@ -113,6 +113,15 @@ namespace BeatLeader.Components {
                 Sprite = BundleLoader.Sprites.background,
                 PixelsPerUnit = 7f,
                 Color = new(0.14f, 0.14f, 0.14f),
+
+                LayoutModifier = new YogaModifier {
+                    Size = new() { x = 48.pt(), y = 70.pt() }
+                },
+
+                LayoutController = new YogaLayoutController {
+                    FlexDirection = FlexDirection.Column
+                },
+
                 Children = {
                     //handle
                     new Background {
@@ -131,6 +140,7 @@ namespace BeatLeader.Components {
                     }.Bind(ref _windowHandle).AsFlexGroup(
                         justifyContent: Justify.FlexStart
                     ).AsFlexItem(basis: 4f),
+                    
                     //list
                     new Layout {
                         Children = {
@@ -139,78 +149,79 @@ namespace BeatLeader.Components {
                                 .AsFlexItem(flexGrow: 1f),
                         }
                     }.AsFlexGroup(padding: 1f).AsFlexItem(flexGrow: 1f),
-                    //buttons
-                    new Layout {
-                        Children = {
-                            new Background {
-                                Sprite = BundleLoader.Sprites.background,
-                                Color = new(0.22f, 0.22f, 0.22f),
-                                PixelsPerUnit = 10f,
-                                Children = {
-                                    //layer buttons
-                                    new Layout {
-                                        Children = {
-                                            //layer up button
-                                            new BsButton {
-                                                    Text = "UP",
-                                                    Skew = 0f,
-                                                    OnClick = () => ModifySelectedComponentLayer(1)
-                                                }
-                                                .AsFlexItem(basis: 7f)
-                                                .Bind(ref _layerUpButton),
-                                            //layer down button
 
-                                            new BsButton {
-                                                    Text = "Down",
-                                                    Skew = 0f,
-                                                    OnClick = () => ModifySelectedComponentLayer(-1)
-                                                }
-                                                .AsFlexItem(basis: 7f)
-                                                .Bind(ref _layerDownButton),
+                    //buttons
+                    new Background {
+                        Sprite = BundleLoader.Sprites.background,
+                        Color = new(0.22f, 0.22f, 0.22f),
+                        PixelsPerUnit = 10f,
+
+                        LayoutModifier = new YogaModifier {
+                            FlexBasis = 18.pt(),
+                            Margin = 1.pt()
+                        },
+
+                        LayoutController = new YogaLayoutController {
+                            Padding = 2.pt()
+                        },
+
+                        Children = {
+                            //layer buttons
+                            new Layout {
+                                Children = {
+                                    //layer up button
+                                    new BsButton {
+                                            Text = "UP",
+                                            Skew = 0f,
+                                            OnClick = () => ModifySelectedComponentLayer(1)
                                         }
-                                    }.AsFlexGroup(
-                                        direction: FlexDirection.Column,
-                                        gap: 0.5f
-                                    ).AsFlexItem(flexGrow: 1f),
-                                    //exit & apply buttons
-                                    new Layout {
-                                        Children = {
-                                            //cancel button
-                                            new BsButton {
-                                                Text = "Cancel",
-                                                Skew = 0f,
-                                                OnClick = () => {
-                                                    _editor!.CancelChanges();
-                                                    _editor!.Mode = _editor.PreviousMode;
-                                                }
-                                            }.AsFlexItem(basis: 7f),
-                                            //apply button
-                                            new BsPrimaryButton {
-                                                Text = "Apply",
-                                                Skew = 0f,
-                                                OnClick = () => {
-                                                    _editor!.Mode = _editor.PreviousMode;
-                                                }
-                                            }.AsFlexItem(basis: 7f)
+                                        .AsFlexItem(basis: 6f)
+                                        .Bind(ref _layerUpButton),
+                                    
+                                    //layer down button
+                                    new BsButton {
+                                            Text = "Down",
+                                            Skew = 0f,
+                                            OnClick = () => ModifySelectedComponentLayer(-1)
                                         }
-                                    }.AsFlexGroup(
-                                        direction: FlexDirection.Column,
-                                        padding: new() { left = 2f },
-                                        gap: 0.5f
-                                    ).AsFlexItem(flexGrow: 2f)
+                                        .AsFlexItem(basis: 6f)
+                                        .Bind(ref _layerDownButton),
                                 }
                             }.AsFlexGroup(
-                                padding: 2f
-                            ).AsFlexItem(
-                                flexGrow: 1f,
-                                size: new() { x = 7f }
-                            )
+                                direction: FlexDirection.Column,
+                                gap: 0.5f
+                            ).AsFlexItem(flexGrow: 1f),
+                            //exit & apply buttons
+                            new Layout {
+                                Children = {
+                                    //cancel button
+                                    new BsButton {
+                                        Text = "Cancel",
+                                        Skew = 0f,
+                                        OnClick = () => {
+                                            _editor!.CancelChanges();
+                                            _editor!.Mode = _editor.PreviousMode;
+                                        }
+                                    }.AsFlexItem(basis: 6f),
+                                    
+                                    //apply button
+                                    new BsPrimaryButton {
+                                        Text = "Apply",
+                                        Skew = 0f,
+                                        OnClick = () => {
+                                            _editor!.Mode = _editor.PreviousMode;
+                                        }
+                                    }.AsFlexItem(basis: 6f)
+                                }
+                            }.AsFlexGroup(
+                                direction: FlexDirection.Column,
+                                padding: new() { left = 2f },
+                                gap: 0.5f
+                            ).AsFlexItem(flexGrow: 2f)
                         }
-                    }.AsFlexGroup(padding: 1f).AsFlexItem(basis: 18f)
+                    }
                 }
-            }.WithSizeDelta(48f, 70f).AsFlexGroup(
-                direction: FlexDirection.Column
-            ).Bind(ref _imageTransform).Use();
+            }.Bind(ref _imageTransform).Use();
         }
 
         protected override void OnInitialize() {

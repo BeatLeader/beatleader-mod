@@ -80,7 +80,7 @@ namespace BeatLeader.UI.Replayer {
                 }.AsFlexGroup()
                 .Bind(ref _backgroundImage)
                 .Bind(ref _actualContent)
-                .WithSizeDelta(0f, CELL_SIZE)
+                .AsFlexItem(size: new() { y = CELL_SIZE })
                 .Use();
         }
 

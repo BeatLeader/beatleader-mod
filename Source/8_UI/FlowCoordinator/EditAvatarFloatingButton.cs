@@ -46,8 +46,9 @@ namespace BeatLeader.UI.Hub {
             }.WithScaleAnimation(0.02f, 0.024f).WithNativeComponent(out _canvasGroup).AsFlexGroup(
                 justifyContent: Justify.Center,
                 padding: 2f,
-                gap: 2f
-            ).WithSizeDelta(40f, 14f).Bind(ref _button).Use();
+                gap: 2f,
+                constrainHorizontal: false
+            ).AsFlexItem(size: new() { y = 14f }).Bind(ref _button).Use();
         }
 
         protected override void OnInitialize() {

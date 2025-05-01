@@ -25,15 +25,11 @@ namespace BeatLeader.UI.Hub {
                 Sprite icon,
                 IColorSet colorSet,
                 FlowCoordinator flowCoordinator,
-                Vector2 pivot,
                 YogaFrame position,
                 float iconMargin,
                 float gap
             ) {
                 return new AeroButtonLayout {
-                    ContentTransform = {
-                        pivot = pivot
-                    },
                     Colors = colorSet,
                     OnClick = () => {
                         _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
@@ -88,7 +84,6 @@ namespace BeatLeader.UI.Hub {
                                 BundleLoader.BattleRoyaleIcon,
                                 menuButtonsTheme.BattleRoyaleButtonColors,
                                 _battleRoyaleFlowCoordinator,
-                                new() { x = 0.5f, y = 0f },
                                 YogaFrame.Undefined,
                                 3f,
                                 2f
@@ -99,7 +94,6 @@ namespace BeatLeader.UI.Hub {
                                 BundleLoader.ReplayerSettingsIcon,
                                 menuButtonsTheme.ReplayManagerButtonColors,
                                 _replayManagerFlowCoordinator,
-                                new() { x = 0f, y = 0f },
                                 new() { bottom = 0f, left = 0f },
                                 1f,
                                 1f
@@ -110,17 +104,17 @@ namespace BeatLeader.UI.Hub {
                                 BundleLoader.SettingsIcon,
                                 menuButtonsTheme.SettingsButtonColors,
                                 _settingsFlowCoordinator,
-                                new() { x = 1f, y = 0f },
                                 new() { bottom = 0f, right = 0f },
                                 2.7f,
                                 2f
                             )
                         }
-                    }.AsFlexGroup().AsFlexItem(size: new() { y = 30f, x = 96f })
+                    }.AsFlexGroup(justifyContent: Justify.SpaceAround).AsFlexItem(size: new() { y = 30f, x = 96f })
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
-                alignItems: Align.Center
+                alignItems: Align.Center,
+                justifyContent: Justify.SpaceAround
             ).WithRectExpand().Use(transform);
 
             OnInitialize();

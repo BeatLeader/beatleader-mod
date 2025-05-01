@@ -83,14 +83,14 @@ namespace BeatLeader.UI.Replayer {
                                 Items = {
                                     ["Camera"] = new SettingsCameraView {
                                         CameraViewParams = {
-                                            new PlayerViewCameraParams().WithRectExpand(),
-                                            new FlyingViewCameraParams().WithRectExpand(),
-                                            new ManualViewCameraParams().WithRectExpand()
+                                            new PlayerViewCameraParams().AsFlexItem(),
+                                            new FlyingViewCameraParams().AsFlexItem(),
+                                            new ManualViewCameraParams().AsFlexItem()
                                         }
                                     }.WithRectExpand().Bind(ref _cameraView),
 
-                                    ["UI"] = new SettingsUIView().WithRectExpand().Bind(ref _uiView),
-                                    ["Other"] = new SettingsOtherView().WithRectExpand().Bind(ref _otherView)
+                                    ["UI"] = new SettingsUIView().AsFlexItem().Bind(ref _uiView),
+                                    ["Other"] = new SettingsOtherView().AsFlexItem().Bind(ref _otherView)
                                 }
                             }.AsFlexItem(flexGrow: 1f, margin: 2f).Bind(ref _selectorContainer),
 
@@ -131,7 +131,7 @@ namespace BeatLeader.UI.Replayer {
                     Colors = UIStyle.ButtonColorSet,
                     Latching = true,
                     OnStateChanged = HandleButtonStateChanged
-                }.WithRectExpand().Bind(ref _button).Use();
+                }.AsFlexItem(flex: 1).Bind(ref _button).Use();
             }
 
             protected override void OnStart() {

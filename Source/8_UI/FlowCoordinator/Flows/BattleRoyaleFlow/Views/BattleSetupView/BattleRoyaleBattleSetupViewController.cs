@@ -29,7 +29,10 @@ namespace BeatLeader.UI.Hub {
                         EnableWrapping = true
                     }.AsFlexItem()
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).Use(transform);
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                justifyContent: Justify.SpaceAround
+            ).Use(transform);
         }
 
         #endregion

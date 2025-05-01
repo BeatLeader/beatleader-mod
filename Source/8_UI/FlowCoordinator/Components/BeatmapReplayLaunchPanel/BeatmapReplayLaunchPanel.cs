@@ -145,7 +145,7 @@ namespace BeatLeader.UI.Hub {
                         gap: 2f
                     ).WithRectExpand().Bind(ref _loadingContainer)
                 }
-            }.AsFlexGroup().Use();
+            }.AsFlexGroup(justifyContent: Justify.SpaceAround).Use();
         }
 
         protected override void OnInitialize() {

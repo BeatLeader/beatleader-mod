@@ -35,19 +35,23 @@ namespace BeatLeader.UI.Hub {
                             Color = Color.white.ColorWithAlpha(0.2f),
                             PixelsPerUnit = 8f,
                             Skew = BeatSaberStyle.Skew,
+                            
                             Children = {
                                 //rank
                                 new Label {
+                                    LayoutModifier = new YogaModifier {
+                                        Margin = new() { left = 1.pt(), right = 1.pt() },
+                                        AlignSelf = Align.Center
+                                    },
+                                    
                                     FontSize = 5f
-                                }.AsFlexItem(
-                                    size: "auto",
-                                    margin: new() { left = 1f, right = 1f },
-                                    alignSelf: Align.Center
-                                ).Bind(ref _rankText),
+                                }.Bind(ref _rankText),
+                                
                                 //avatar
                                 new ReeWrapperV2<PlayerAvatar>()
                                     .AsFlexItem(aspectRatio: 1f)
                                     .BindRee(ref _playerAvatar),
+                                
                                 //texts
                                 new Layout {
                                     Children = {
@@ -60,6 +64,7 @@ namespace BeatLeader.UI.Hub {
                                             }
                                             .AsFlexItem(flexGrow: 1f)
                                             .Bind(ref _playerNameText),
+                                        
                                         //replay date
                                         new Label {
                                                 Color = UIStyle.SecondaryTextColor,
@@ -75,18 +80,28 @@ namespace BeatLeader.UI.Hub {
                                     flexGrow: 1f,
                                     margin: new() { left = 2f, right = 2f }
                                 ),
+                                
                                 //remove button
                                 new ImageBsButton {
+                                    LayoutModifier = new YogaModifier {
+                                        Size = new() { x = 6.pt() }
+                                    },
+
                                     Sprite = BundleLoader.Sprites.crossIcon,
                                     ShowUnderline = false,
                                     OnClick = HandleRemoveButtonClicked
-                                }.AsFlexItem(basis: 6f),
+                                },
+                                
                                 //navigate button
                                 new ImageBsButton {
+                                    LayoutModifier = new YogaModifier {
+                                        Size = new() { x = 6.pt() }
+                                    },
+                                    
                                     Sprite = BundleLoader.Sprites.rightArrowIcon,
                                     ShowUnderline = false,
                                     OnClick = HandleNavigateButtonClicked
-                                }.AsFlexItem(basis: 6f)
+                                }
                             }
                         }.AsFlexGroup(
                             padding: 1f,
@@ -164,6 +179,7 @@ namespace BeatLeader.UI.Hub {
                     _tokenSource.Cancel();
                     _tokenSource = new();
                 }
+
                 ResetColor();
                 RefreshOtherText();
 
@@ -182,6 +198,7 @@ namespace BeatLeader.UI.Hub {
                 var data = await Item.GetBattleRoyaleDataAsync(false, token);
 
                 if (token.IsCancellationRequested) {
+                    _refreshColorTask = null;
                     return;
                 }
 
@@ -196,6 +213,7 @@ namespace BeatLeader.UI.Hub {
                 var player = await header.LoadPlayerAsync(false, token) as IPlayer;
 
                 if (token.IsCancellationRequested) {
+                    _refreshPlayerTask = null;
                     return;
                 }
 

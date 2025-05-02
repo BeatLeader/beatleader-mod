@@ -70,8 +70,8 @@ namespace BeatLeader.UI.Replayer {
                                     ScrollContent = new KeyedContainer<int> {
                                             Control = _segmentedControl
                                         }
-                                        .AsFlexGroup(justifyContent: Justify.FlexStart)
-                                        .AsFlexItem(size: new() { x = "auto" })
+                                        .AsFlexGroup(justifyContent: Justify.FlexStart, constrainVertical: false)
+                                        .AsFlexItem()
                                         .Bind(ref _keyedContainer)
                                 }
                                 .AsFlexItem(flexGrow: 1f)

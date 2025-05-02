@@ -50,8 +50,8 @@ namespace BeatLeader.UI.Replayer {
                 Children = {
                     new TextSegmentedControl<int> {
                             Items = {
-                                [0] = "Standard",
-                                [1] = "Battle Royale"
+                                [0] = "Main Player",
+                                [1] = "Other Players"
                             }
                         }
                         .WithRectExpand()

@@ -72,10 +72,13 @@ namespace BeatLeader.UI.Reactive.Components {
                             }.AsFlexItem(flexGrow: 1f).Bind(ref _cancelButton),
                             //
                             new BsPrimaryButton {
-                                Text = "OK",
-                                Skew = 0f,
-                                OnClick = OnOkButtonClicked
-                            }.AsFlexItem(flexGrow: 1f).Bind(ref _okButton)
+                                    Text = "OK",
+                                    Skew = 0f,
+                                    OnClick = OnOkButtonClicked
+                                }
+                                .AsFlexItem(flexGrow: 1f)
+                                .Bind(ref _okButton)
+                                .Bind(ref _okButtonLabel)
                         }
                     }.AsFlexItem(basis: 8f).AsFlexGroup(padding: 1f, gap: 1f)
                 }

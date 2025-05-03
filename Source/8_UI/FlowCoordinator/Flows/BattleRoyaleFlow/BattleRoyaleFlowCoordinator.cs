@@ -141,7 +141,9 @@ namespace BeatLeader.UI.Hub {
 
         public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
-            HostStateChangedEvent?.Invoke(false);
+            if (removedFromHierarchy) {
+                HostStateChangedEvent?.Invoke(false);
+            }
         }
 
         #endregion
@@ -186,14 +188,14 @@ namespace BeatLeader.UI.Hub {
 
         public async void LaunchBattle() {
             BattleLaunchStartedEvent?.Invoke();
-            
+
             await _replayerMenuLoader.StartBattleRoyaleAsync(
                 PendingReplays,
                 null,
                 null,
                 CancellationToken.None
             );
-            
+
             BattleLaunchFinishedEvent?.Invoke();
         }
 
@@ -201,12 +203,12 @@ namespace BeatLeader.UI.Hub {
             if (_replays.ContainsKey(header)) {
                 return;
             }
-            
+
             var replay = new BattleRoyaleReplay(header);
-            
+
             _replays.Add(header, replay);
             ReplayAddedEvent?.Invoke(replay, caller);
-            
+
             RecalculateReplayRanks();
             RefreshLaunchState();
         }
@@ -228,7 +230,7 @@ namespace BeatLeader.UI.Hub {
                 _replays.Remove(header);
                 ReplayRemovedEvent?.Invoke(replay, this);
             }
-            
+
             RecalculateReplayRanks();
             RefreshLaunchState();
         }
@@ -237,7 +239,7 @@ namespace BeatLeader.UI.Hub {
             if (!_replays.TryGetValue(header, out var replay)) {
                 return;
             }
-            
+
             ReplayNavigationRequestedEvent?.Invoke(replay);
         }
 

@@ -3,6 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -27,14 +28,14 @@ namespace BeatLeader.UI.Hub {
             private void RefreshVisuals(DeletionStage stage) {
                 _messageLabel.Text = stage switch {
                     DeletionStage.Warning1 => "This action will delete ALL of your local replays!",
-                    DeletionStage.Warning2 => "YOU WON'T BE ABLE TO RECOVER THE DATA! Do you REALLY want to proceed?",
+                    DeletionStage.Warning2 => "<color=red>YOU WON'T BE ABLE TO RECOVER THE DATA! Do you REALLY want to proceed?",
                     DeletionStage.Finish => $"Successfully deleted {_deletedReplaysCount} replays.",
                     _ => _messageLabel.Text
                 };
                 if (stage is DeletionStage.Warning2) {
                     _okButton.Color = Color.red;
                 } else {
-                    //_okButton.Color = UIStyle.PrimaryButtonColorSet;
+                    _okButton.Color = BeatSaberStyle.PrimaryButtonColor;
                 }
                 _cancelButton.Enabled = stage is not DeletionStage.Finish;
             }
@@ -62,20 +63,23 @@ namespace BeatLeader.UI.Hub {
                             }
                             .AsFlexItem(flexGrow: 1f, size: new() { y = "auto" })
                             .Bind(ref _messageLabel),
-                        //
+                        
                         new Layout {
                             Children = {
                                 //ok button
                                 new BsPrimaryButton {
                                         Text = "OK",
-                                        OnClick = HandleOkButtonClicked
+                                        OnClick = HandleOkButtonClicked,
+                                        Skew = 0f
                                     }
                                     .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _okButton),
+                                
                                 //cancel button
                                 new BsButton {
                                         Text = "Cancel",
-                                        OnClick = () => CloseInternal()
+                                        OnClick = () => CloseInternal(),
+                                        Skew = 0f
                                     }
                                     .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _cancelButton)
@@ -85,7 +89,7 @@ namespace BeatLeader.UI.Hub {
                 }.AsBlurBackground().AsFlexGroup(
                     direction: FlexDirection.Column,
                     padding: 1f
-                ).WithSizeDelta(58f, 24f).Use();
+                ).AsFlexItem(size: new() { x = 58f, y = 24f }).Use();
             }
 
             protected override void OnInitialize() {

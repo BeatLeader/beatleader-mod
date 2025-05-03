@@ -35,12 +35,15 @@ namespace BeatLeader.UI.Hub {
                                 .Bind(ref _tagsStrip),
                             //
                             new ReplayStatisticsPanel()
-                                .AsFlexItem(size: new() { y = 37f }, margin: new() { bottom = 1f })
+                                .AsFlexItem(size: new() { y = 37f })
                                 .Bind(ref _replayStatisticsPanel),
                             //
                             ConstructButtons()
                         }
-                    }.AsFlexGroup(direction: FlexDirection.Column).WithNativeComponent(out _contentGroup).WithRectExpand(),
+                    }.AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        gap: new() { y = 1f }
+                    ).WithNativeComponent(out _contentGroup).WithRectExpand(),
                     //empty label
                     new Label {
                         Text = "Select a replay to let Monke think on it",

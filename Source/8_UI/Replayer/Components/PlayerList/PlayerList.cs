@@ -25,7 +25,7 @@ namespace BeatLeader.UI.Replayer {
             RefreshHandle();
         }
 
-        protected override void OnUpdate() {
+        protected override void OnLateUpdate() {
             UpdateHandleAnimation();
             UpdateCellsAnimation();
         }
@@ -101,18 +101,22 @@ namespace BeatLeader.UI.Replayer {
             if (_timeController == null) {
                 return;
             }
+            
             foreach (var player in players) {
                 var cell = _cellsPool.Spawn();
                 var trans = cell.ContentTransform;
+                
                 trans.pivot = new(1f, 1f);
                 trans.anchorMin = new(0f, 1f);
                 trans.anchorMax = new(1f, 1f);
-                //
+                
                 cell.Setup(player, _timeController!, this);
                 cell.Use(ContentTransform);
                 cell.CellSelectedEvent += HandleCellSelected;
+                
                 _sortedCells.Add(cell);
             }
+            
             PlaceCells(false);
         }
 
@@ -125,18 +129,19 @@ namespace BeatLeader.UI.Replayer {
 
         private void PlaceCells(bool animated) {
             _sortedCells.Sort(_cellComparator);
+            
             for (var i = 0; i < _sortedCells.Count; i++) {
                 var cell = _sortedCells[i];
                 var trans = cell.ContentTransform;
                 var pos = -i * PlayerListCell.CELL_SIZE;
-                //
+               
                 trans.SetSiblingIndex(i);
                 if (animated) {
                     cell.MoveTo(pos);
                 } else {
                     trans.localPosition = new(0f, pos);
                 }
-                //
+                
                 if (cell.Player == _playersManager!.PrimaryPlayer) {
                     _primaryCellPos = pos;
                 }
@@ -146,6 +151,7 @@ namespace BeatLeader.UI.Replayer {
         private int FindPlayerIndex(IVirtualPlayer player) {
             for (var i = 0; i < _sortedCells.Count; i++) {
                 var cell = _sortedCells[i];
+                
                 if (cell.Player == player) {
                     return i;
                 }
@@ -157,32 +163,17 @@ namespace BeatLeader.UI.Replayer {
 
         #region Cell Animation
 
-        private readonly Dictionary<IVirtualPlayer, NoteEvent> _noteEvents = new();
         private float _lastReportedTime;
         private bool _cellUpdateRequired;
 
-        public void NotifyCellUpdateRequired(IVirtualPlayer player, NoteEvent noteEvent) {
-            _noteEvents[player] = noteEvent;
+        public void NotifyCellUpdateRequired() {
             _cellUpdateRequired = true;
-        }
-
-        private static bool CompareNoteEvents(NoteEvent x, NoteEvent y) {
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            return x.spawnTime == y.spawnTime && x.noteId == y.noteId;
-        }
-
-        private bool CanUpdate() {
-            NoteEvent? previousNoteEvent = null;
-            foreach (var (_, noteEvent) in _noteEvents) {
-                if (previousNoteEvent != null && !CompareNoteEvents(noteEvent, previousNoteEvent.Value)) return false;
-                previousNoteEvent = noteEvent;
-            }
-            return true;
         }
 
         private void UpdateCellsAnimation() {
             var time = Time.time;
-            if (_cellUpdateRequired && time - _lastReportedTime > 0.1f && CanUpdate()) {
+            
+            if (_cellUpdateRequired && time - _lastReportedTime > 0.5f) {
                 PlaceCells(true);
                 _lastReportedTime = time;
                 _cellUpdateRequired = false;

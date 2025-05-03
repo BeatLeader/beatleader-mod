@@ -225,9 +225,12 @@ namespace BeatLeader.UI.Replayer {
         private bool _fullCombo = true;
 
         private void RefreshScore(LinkedListNode<ScoreEvent>? node = null) {
-            if (_scoreEventsProcessor!.QueueIsBeingAdjusted) return;
+            if (_scoreEventsProcessor!.QueueIsBeingAdjusted) {
+                return;
+            }
+            
             RefreshScoreWithoutNotice(node);
-            _playerList!.NotifyCellUpdateRequired(Player, _currentNoteEvent);
+            _playerList!.NotifyCellUpdateRequired();
         }
 
         private void RefreshScoreWithoutNotice(LinkedListNode<ScoreEvent>? node = null) {
@@ -239,7 +242,6 @@ namespace BeatLeader.UI.Replayer {
 
         #region Callbacks
 
-        private NoteEvent _currentNoteEvent;
         private IVirtualPlayer? _player;
 
         private void HandleScoreEventDequeued(LinkedListNode<ScoreEvent> node) {
@@ -251,7 +253,6 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node) {
-            _currentNoteEvent = node.Value;
             if (node.Value.eventType is NoteEvent.NoteEventType.Miss) {
                 _fullCombo = false;
             }

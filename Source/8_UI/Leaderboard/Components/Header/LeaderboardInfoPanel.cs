@@ -38,7 +38,7 @@ namespace BeatLeader.Components {
                     Sprite = sprite,
                     Material = BundleLoader.UIAdditiveGlowMaterial
                 },
-                Colors = UIStyle.ButtonColorSet,
+                Colors = UIStyle.GlowingButtonColorSet,
                 OnClick = callback
             }.AsFlexItem(size: 4f);
         }

@@ -53,7 +53,7 @@ namespace BeatLeader.UI.Replayer {
                                     Sprite = BundleLoader.Sprites.pinIcon,
                                     Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
-                                Colors = UIStyle.ButtonColorSet,
+                                Colors = UIStyle.GlowingButtonColorSet,
                                 Latching = true,
                                 OnStateChanged = HandlePinStateChanged
                             }.AsFlexItem(size: 4f).Bind(ref _pinButton),
@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Replayer {
                                     Sprite = BundleLoader.Sprites.snapIcon,
                                     Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
-                                Colors = UIStyle.ButtonColorSet,
+                                Colors = UIStyle.GlowingButtonColorSet,
                                 Latching = true,
                                 OnStateChanged = HandleSnapStateChanged
                             }.AsFlexItem(size: 4f).Bind(ref _snapButton),
@@ -73,7 +73,7 @@ namespace BeatLeader.UI.Replayer {
                                     Sprite = BundleLoader.Sprites.curvatureIcon,
                                     Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
-                                Colors = UIStyle.ButtonColorSet,
+                                Colors = UIStyle.GlowingButtonColorSet,
                                 OnClick = HandleCurvatureButtonClicked
                             }.AsFlexItem(size: 4f),
                         }

@@ -156,7 +156,7 @@ namespace BeatLeader.UI.Hub {
                                     Sprite = BundleLoader.Sprites.trashIcon,
                                     Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
-                                Colors = UIStyle.ButtonColorSet,
+                                Colors = UIStyle.GlowingButtonColorSet,
                                 Latching = true,
                                 OnStateChanged = SetEditModeEnabled,
                             }.AsFlexItem(size: 4f),
@@ -166,7 +166,7 @@ namespace BeatLeader.UI.Hub {
                                     Sprite = BundleLoader.Sprites.plusIcon,
                                     Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                 },
-                                Colors = UIStyle.ButtonColorSet
+                                Colors = UIStyle.GlowingButtonColorSet
                             }.WithModal(_tagCreationDialog).AsFlexItem(size: 4f).Bind(ref _createTagButton),
                         }
                     }.AsBlurBackground(

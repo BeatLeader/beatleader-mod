@@ -19,8 +19,8 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private void RefreshColors(float t) {
-            var color = UIStyle.ButtonColorSet.Color;
-            var activeColor = UIStyle.ButtonColorSet.ActiveColor;
+            var color = UIStyle.GlowingButtonColorSet.Color;
+            var activeColor = UIStyle.GlowingButtonColorSet.ActiveColor;
 
             if (!Active) {
                 _inactiveImage.Color = Color.Lerp(color, Color.clear, t);

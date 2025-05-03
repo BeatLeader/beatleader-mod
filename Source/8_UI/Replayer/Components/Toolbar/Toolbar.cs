@@ -85,7 +85,7 @@ namespace BeatLeader.UI.Replayer {
                             //play button
                             new ImageButton {
                                 OnClick = HandlePlayButtonClicked,
-                                Colors = UIStyle.ButtonColorSet,
+                                Colors = UIStyle.GlowingButtonColorSet,
                                 Image = {
                                     PreserveAspect = true,
                                     Material = BundleLoader.Materials.uiAdditiveGlowMaterial
@@ -115,7 +115,7 @@ namespace BeatLeader.UI.Replayer {
                                     Material = BundleLoader.Materials.uiAdditiveGlowMaterial,
                                     PreserveAspect = true
                                 },
-                                Colors = UIStyle.ButtonColorSet,
+                                Colors = UIStyle.GlowingButtonColorSet,
                                 OnStateChanged = HandleSettingsButtonStateChanged,
                                 Latching = true
                             }.AsFlexItem(
@@ -174,8 +174,8 @@ namespace BeatLeader.UI.Replayer {
                     }.WithRectExpand();
                 }
 
-                var color = UIStyle.ButtonColorSet.Color;
-                var activeColor = UIStyle.ButtonColorSet.ActiveColor;
+                var color = UIStyle.GlowingButtonColorSet.Color;
+                var activeColor = UIStyle.GlowingButtonColorSet.ActiveColor;
                 var progress = RememberAnimated(0f, 10.fact());
 
                 return new Clickable {

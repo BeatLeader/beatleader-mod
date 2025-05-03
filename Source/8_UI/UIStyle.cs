@@ -5,48 +5,16 @@ using UnityEngine;
 namespace BeatLeader.UI {
     internal static class UIStyle {
         public static float Skew => BeatSaberStyle.Skew;
+        public static Color SecondaryTextColor => BeatSaberStyle.SecondaryTextColor;
 
-        public static ReadOnlyColorSet InputColorSet => new() {
-            HoveredColor = Color.magenta.ColorWithAlpha(0.5f),
-            Color = Color.black.ColorWithAlpha(0.5f),
-            NotInteractableColor = Color.black.ColorWithAlpha(0.2f)
-        };
+        public static ReadOnlyColorSet InputColorSet => BeatSaberStyle.InputColorSet;
+        public static ReadOnlyColorSet ControlColorSet => BeatSaberStyle.ControlColorSet;
+        public static ReadOnlyColorSet ControlButtonColorSet => BeatSaberStyle.ControlButtonColorSet;
 
-        public static ReadOnlyColorSet ControlColorSet => new() {
-            HoveredColor = Color.white.ColorWithAlpha(0.2f),
-            Color = Color.black.ColorWithAlpha(0.5f),
-            NotInteractableColor = Color.clear
-        };
-
-        public static ReadOnlyColorSet PrimaryButtonColorSet => new() {
-            NotInteractableColor = Color.black.ColorWithAlpha(0.3f),
-            ActiveColor = new(0, 0.75f, 0.75f),
-            HoveredColor = new(0, 0.75f, 1f),
-            Color = new(0, 0.5f, 1f)
-        };
-
-        public static ReadOnlyColorSet ControlButtonColorSet => new() {
-            ActiveColor = new(0f, 0.75f, 1f, 1f),
-            HoveredColor = Color.white.ColorWithAlpha(0.2f),
-            Color = Color.black.ColorWithAlpha(0.5f),
-            NotInteractableColor = Color.black.ColorWithAlpha(0.2f)
-        };
-
-        public static ReadOnlyColorSet ButtonColorSet => new() {
-            ActiveColor = new(0.0f, 0.4f, 1.0f, 1.0f),
-            HoveredColor = new(0.0f, 0.4f, 1.0f, 1.0f),
+        public static ReadOnlyColorSet GlowingButtonColorSet => new() {
+            ActiveColor = BeatSaberStyle.PrimaryButtonColor,
+            HoveredColor = BeatSaberStyle.PrimaryButtonColor,
             Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
         };
-        
-        public static SimpleColorSet SecondaryButtonColorSet => new() {
-            ActiveColor = new(0.0f, 0.4f, 1.0f, 1.0f),
-            HoveredColor = (Color.white * 0.5f).ColorWithAlpha(0.2f),
-            Color = (Color.white * 0.8f).ColorWithAlpha(0.2f)
-        };
-
-        public static readonly Color TextColor = Color.white;
-        public static readonly Color SelectedTextColor = new(0f, 0.75f, 1f, 1f);
-        public static readonly Color InactiveTextColor = Color.white.ColorWithAlpha(0.2f);
-        public static readonly Color SecondaryTextColor = Color.white * 0.9f;
     }
 }

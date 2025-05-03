@@ -118,7 +118,7 @@ namespace BeatLeader.UI.Hub {
                             Sprite = BundleLoader.RotateRightIcon,
                             Material = BundleLoader.UIAdditiveGlowMaterial
                         },
-                        Colors = UIStyle.ButtonColorSet,
+                        Colors = UIStyle.GlowingButtonColorSet,
                         OnClick = ReplayManager.StartLoading
                     }.AsFlexItem(aspectRatio: 1f),
                     //settings button
@@ -127,7 +127,7 @@ namespace BeatLeader.UI.Hub {
                             Sprite = BundleLoader.SettingsIcon,
                             Material = BundleLoader.UIAdditiveGlowMaterial
                         },
-                        Colors = UIStyle.ButtonColorSet
+                        Colors = UIStyle.GlowingButtonColorSet
                     }.WithModal(_sortOptionsModal).AsFlexItem(aspectRatio: 1f).Bind(ref _settingsButton)
                 }
             }.AsFlexGroup(padding: 0.6f, gap: 0.5f).AsBlurBackground().Use();

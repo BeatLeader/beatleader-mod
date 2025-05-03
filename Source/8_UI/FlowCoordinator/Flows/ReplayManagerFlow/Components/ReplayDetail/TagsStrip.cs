@@ -195,7 +195,7 @@ namespace BeatLeader.UI.Hub {
                                         Sprite = BundleLoader.Sprites.editIcon,
                                         Material = BundleLoader.Materials.uiAdditiveGlowMaterial
                                     },
-                                    Colors = UIStyle.ButtonColorSet
+                                    Colors = UIStyle.GlowingButtonColorSet
                                 }.WithModal(_tagSelectorModal).AsFlexItem(size: 3f)
                             }
                         }

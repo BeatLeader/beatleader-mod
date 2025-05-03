@@ -125,7 +125,7 @@ namespace BeatLeader.UI.Replayer {
                     CreateContainer(
                         //layout editor
                         new ImageButton {
-                            Colors = UIStyle.ButtonColorSet,
+                            Colors = UIStyle.GlowingButtonColorSet,
                             OnClick = HandleLayoutEditorButtonClicked,
                             Image = {
                                 Material = BundleLoader.UIAdditiveGlowMaterial,

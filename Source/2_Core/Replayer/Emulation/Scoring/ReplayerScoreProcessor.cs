@@ -26,6 +26,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Setup
 
+        private static bool isFailReplay = false;
+
         private void Awake() {
             var sortedList = CreateSortedNoteDataList(_beatmapData.allBeatmapDataItems);
             _generatedBeatmapNoteData = new LinkedList<NoteData>(sortedList);
@@ -35,6 +37,7 @@ namespace BeatLeader.Replayer.Emulation {
             _eventsProcessor.WallProcessRequestedEvent += HandleWallProcessRequested;
             _eventsProcessor.ReprocessRequestedEvent += HandleReprocessRequested;
             _eventsProcessor.ReprocessDoneEvent += HandleReprocessDone;
+            isFailReplay = _launchData.MainReplay.ReplayData.FailTime > 0;
         }
 
         private void OnDestroy() {
@@ -262,6 +265,7 @@ namespace BeatLeader.Replayer.Emulation {
             // <------ GameEnergyCounter -----------
             typeof(GameEnergyCounter).GetMethod(nameof(GameEnergyCounter.HandleNoteWasCut), ReflectionUtils.DefaultFlags),
             typeof(GameEnergyCounter).GetMethod(nameof(GameEnergyCounter.HandleNoteWasMissed), ReflectionUtils.DefaultFlags),
+            typeof(GameEnergyCounter).GetMethod(nameof(GameEnergyCounter.LateUpdate), ReflectionUtils.DefaultFlags),
             // <------ ComboController -------------
             typeof(ComboController).GetMethod(nameof(ComboController.HandleNoteWasCut), ReflectionUtils.DefaultFlags),
             typeof(ComboController).GetMethod(nameof(ComboController.HandleNoteWasMissed), ReflectionUtils.DefaultFlags),
@@ -327,13 +331,24 @@ namespace BeatLeader.Replayer.Emulation {
             _lastCutIsGood = false;
         }
 
+        private static void GameEnergyCounterLateUpdate(GameEnergyCounter instance) {
+            if (Mathf.Approximately(instance._nextFrameEnergyChange, 0.0f))
+                return;
+            if (instance._nextFrameEnergyChange < 0 && (instance.energy + instance._nextFrameEnergyChange) <= 0 && !isFailReplay)
+                return;
+            instance.ProcessEnergyChange(instance._nextFrameEnergyChange);
+            instance._nextFrameEnergyChange = 0.0f;
+        }
+
         private static void NoteWasProcessedPostfix(GameEnergyCounter __instance) {
             if (_lastNoteEvent == null) return;
             var currentTime = _lastNoteEvent.Value.eventTime;
             var prevTime = _lastNoteEvent.Previous?.Value.eventTime ?? 0;
             var nextTime = _lastNoteEvent.Next?.Value.eventTime ?? 0;
             //if does not have more notes on this frame updating the energy
-            if (Mathf.Abs(currentTime - nextTime) > 1e-6 && Mathf.Abs(currentTime - prevTime) > 1e-6) __instance.LateUpdate();
+            if (Mathf.Abs(currentTime - nextTime) > 1e-6 && Mathf.Abs(currentTime - prevTime) > 1e-6) {
+                GameEnergyCounterLateUpdate(__instance);
+            }
         }
 
         #endregion

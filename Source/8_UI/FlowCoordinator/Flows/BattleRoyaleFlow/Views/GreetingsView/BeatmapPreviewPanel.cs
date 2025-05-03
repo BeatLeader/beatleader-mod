@@ -148,7 +148,7 @@ namespace BeatLeader.UI.Hub {
                                 }
                             }.AsFlexGroup().AsFlexItem(
                                 position: new() { top = 0f },
-                                size: new() { x = "100%", y = "60%" },
+                                size: new() { x = 100.pct(), y = 70.pct() },
                                 margin: new() { left = 0.7f, right = 1.5f }
                             ),
                             //bottom rail
@@ -177,7 +177,7 @@ namespace BeatLeader.UI.Hub {
                                 }
                             }.AsFlexGroup().AsFlexItem(
                                 position: new() { bottom = 0f },
-                                size: new() { x = "100%", y = "60%" },
+                                size: new() { x = 100.pct(), y = 50.pct() },
                                 margin: new() { right = 2.5f }
                             ),
                             //difficulty

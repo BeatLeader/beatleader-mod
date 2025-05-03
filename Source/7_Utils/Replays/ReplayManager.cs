@@ -38,7 +38,7 @@ namespace BeatLeader.Utils {
             SynchronizationContext.Current.Send(
                 _ => {
                     var count = headers.Count;
-                    
+
                     for (var i = _lastBatchIndex; i < count; i++) {
                         ReplayAddedEvent?.Invoke(headers[i]);
                     }
@@ -86,7 +86,7 @@ namespace BeatLeader.Utils {
             }
 
             LoadingStartedEvent?.Invoke();
-            
+
             _loadHeadersTask = LoadReplayHeadersAsync(_loadHeadersCancellationSource.Token).RunCatching();
         }
 
@@ -144,7 +144,7 @@ namespace BeatLeader.Utils {
                 // This event is invoked before the async call so we can safely invoke it without wrappers
                 AllReplaysDeletedEvent?.Invoke();
             }
-            
+
             headers.Clear();
             hashedHeaders.Clear();
             tasks.Clear();
@@ -224,12 +224,12 @@ namespace BeatLeader.Utils {
         /// Writes a replay performing configuration checks.
         /// </summary>
         /// <param name="playEndData">Used for name formatting and validation checks, cannot be omitted.</param>
-        public static async Task<IReplayHeader?> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
+        public static async Task<ReplaySavingResult> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
             LastSavedReplay = null;
 
             if (!ShouldSaveReplay(replay, playEndData)) {
                 Plugin.Log.Info("[ReplayManager] Validation failed, replay will not be saved!");
-                return null;
+                return new(ReplaySavingError.ValidationFailed);
             }
 
             if (ConfigFileData.Instance.OverrideOldReplays) {
@@ -245,12 +245,20 @@ namespace BeatLeader.Utils {
         /// Writes a replay without any validity or config checks.
         /// </summary>
         /// <param name="playEndData">Used for name formatting, not too important.</param>
-        public static async Task<IReplayHeader?> SaveAnyReplayAsync(Replay replay, PlayEndData? playEndData, CancellationToken token) {
+        public static async Task<ReplaySavingResult> SaveAnyReplayAsync(Replay replay, PlayEndData? playEndData, CancellationToken token) {
+            var hash = replay.info.CalculateReplayHash();
+            
+            if (hashedHeaders.TryGetValue(hash, out _)) {
+                return new(ReplaySavingError.AlreadyExists);
+            }
+            
             var name = FormatFileName(replay, playEndData);
             Plugin.Log.Info($"[ReplayManager] Replay will be saved as: {name}");
 
             if (!await FileManager.WriteReplayAsync(name, replay, token)) {
-                return null;
+                Plugin.Log.Error("[ReplayManager] Failed to write replay");
+                
+                return new(ReplaySavingError.WritingFailed);
             }
 
             var absolutePath = FileManager.GetAbsoluteReplayPath(name);
@@ -258,12 +266,22 @@ namespace BeatLeader.Utils {
 
             LastSavedReplay = header;
             headers.Add(header);
-            hashedHeaders.Add(replay.info.CalculateReplayHash(), header);
+            hashedHeaders.Add(hash, header);
 
             ReplayHeadersCache.AddInfoByPath(header.FilePath, header.ReplayInfo);
             ReplayAddedEvent?.Invoke(header);
 
-            return header;
+            return new(header);
+        }
+
+        /// <summary>
+        /// Creates a temporary replay header without adding it to the headers list.
+        /// </summary>
+        /// <param name="replay">A replay to provide when calling <see cref="IReplayHeader.LoadReplayAsync"/>.</param>
+        /// <param name="player">A player to provide when calling <see cref="IReplayHeader.LoadPlayerAsync"/> or null to load it later.</param>
+        /// <returns>A temporary header.</returns>
+        public static IReplayHeader CreateTempReplayHeader(Replay replay, Player? player) {
+            return new TempReplayHeader(replay, player);
         }
 
         #endregion
@@ -309,7 +327,7 @@ namespace BeatLeader.Utils {
 
         private static void FinalizeReplayDeletion(IReplayHeader header) {
             headers.Remove(header);
-            (header as BeatLeaderReplayHeader)?.NotifyReplayDeleted();
+            (header as PhysicalReplayHeader)?.NotifyReplayDeleted();
             ReplayDeletedEvent?.Invoke(header);
         }
 
@@ -379,9 +397,9 @@ namespace BeatLeader.Utils {
                 && left.SongHash == right.SongHash;
         }
 
-        private static BeatLeaderReplayHeader CreateReplayHeader(string path, IReplayInfo replayInfo) {
+        private static PhysicalReplayHeader CreateReplayHeader(string path, IReplayInfo replayInfo) {
             var meta = ReplayMetadataManager.GetMetadata(path);
-            return new BeatLeaderReplayHeader(path, replayInfo, meta);
+            return new PhysicalReplayHeader(path, replayInfo, meta);
         }
 
         //TODO: remove after BSOR V2

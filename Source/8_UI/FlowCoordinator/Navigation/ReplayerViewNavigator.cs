@@ -27,14 +27,36 @@ namespace BeatLeader {
             _replayManagerFlowCoordinator.NavigateToReplay(header);
         }
 
-        public void NavigateToBattleRoyale(FlowCoordinator flowCoordinator, BeatmapLevelWithKey level, IReadOnlyCollection<IReplayHeader> plays) {
+        public void NavigateToBattleRoyale(
+            FlowCoordinator flowCoordinator,
+            BeatmapLevelWithKey level,
+            IReadOnlyCollection<IReplayHeader> plays,
+            bool allowChanges,
+            bool clearOnExit
+        ) {
             flowCoordinator.PresentFlowCoordinator(_battleRoyaleFlowCoordinator);
             _battleRoyaleFlowCoordinator.ReplayBeatmap = level;
-            
+            _battleRoyaleFlowCoordinator.CanMutateLobby = allowChanges;
+
             _battleRoyaleFlowCoordinator.RemoveAllReplays();
             foreach (var replay in plays) {
                 _battleRoyaleFlowCoordinator.AddReplay(replay, this);
             }
+
+            if (clearOnExit) {
+                _battleRoyaleFlowCoordinator.HostStateChangedEvent += HandleClearOnExit;
+            }
+        }
+
+        private void HandleClearOnExit(bool shown) {
+            if (shown) {
+                return;
+            }
+
+            _battleRoyaleFlowCoordinator.RemoveAllReplays();
+            _battleRoyaleFlowCoordinator.ReplayBeatmap = default;
+
+            _battleRoyaleFlowCoordinator.HostStateChangedEvent -= HandleClearOnExit;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage;
@@ -19,43 +20,47 @@ namespace BeatLeader.UI.Hub {
 
         private QuickMiniProfile _quickMiniProfile = null!;
 
-        private void Awake() {
-            AeroButtonLayout CreateButton(
-                string text,
-                Sprite icon,
-                IColorSet colorSet,
-                FlowCoordinator flowCoordinator,
-                YogaFrame position,
-                float iconMargin,
-                float gap
-            ) {
-                return new AeroButtonLayout {
-                    Colors = colorSet,
-                    OnClick = () => {
-                        _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
-                            flowCoordinator,
-                            animationDirection: AnimationDirection.Vertical
-                        );
-                    },
-                    Children = {
-                        //icon
-                        new Image {
-                            Sprite = icon,
-                            PreserveAspect = true
-                        }.AsFlexItem(flex: 1f),
-                        //label
-                        new Label {
-                            Text = text,
-                            FontSize = 4.5f
-                        }.AsFlexItem()
-                    }
-                }.WithScaleAnimation(1f, 1.2f).AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    padding: new() { left = 2f, right = 2f, top = iconMargin },
-                    gap: gap
-                ).AsFlexItem(size: 30f, position: position);
-            }
+        private AeroButtonLayout CreateActionButton(
+            string text,
+            Sprite icon,
+            IColorSet colorSet,
+            YogaFrame position,
+            float iconMargin,
+            float gap,
+            FlowCoordinator flowCoordinator,
+            Action? beforePresent = null
+        ) {
+            return new AeroButtonLayout {
+                Colors = colorSet,
+                OnClick = () => {
+                    beforePresent?.Invoke();
 
+                    _beatLeaderHubFlowCoordinator.PresentFlowCoordinator(
+                        flowCoordinator,
+                        animationDirection: AnimationDirection.Vertical
+                    );
+                },
+                Children = {
+                    // Icon
+                    new Image {
+                        Sprite = icon,
+                        PreserveAspect = true
+                    }.AsFlexItem(flex: 1f),
+                    
+                    // Label
+                    new Label {
+                        Text = text,
+                        FontSize = 4.5f
+                    }.AsFlexItem()
+                }
+            }.WithScaleAnimation(1f, 1.2f).AsFlexGroup(
+                direction: FlexDirection.Column,
+                padding: new() { left = 2f, right = 2f, top = iconMargin },
+                gap: gap
+            ).AsFlexItem(size: 30f, position: position);
+        }
+
+        private void Awake() {
             var menuButtonsTheme = _beatLeaderHubTheme.MenuButtonsTheme;
 
             new Layout {
@@ -65,7 +70,8 @@ namespace BeatLeader.UI.Hub {
                         }
                         .AsFlexItem(size: new() { y = 24f, x = 50f })
                         .Bind(ref _quickMiniProfile),
-                    //welcome label
+
+                    // Welcome label
                     new Label {
                             Text = "Welcome to the Beat Leader Hub!",
                             FontSize = 6f
@@ -75,38 +81,41 @@ namespace BeatLeader.UI.Hub {
                         .InBlurBackground()
                         .AsFlexGroup(padding: new() { left = 2f, top = 1f, right = 2f, bottom = 1f })
                         .AsFlexItem(),
-                    //buttons (use absolute pos for correct overlap)
+
+                    // Buttons (use absolute pos for correct overlap)
                     new Layout {
                         Children = {
-                            //
-                            CreateButton(
-                                "Battle Royale",
-                                BundleLoader.BattleRoyaleIcon,
-                                menuButtonsTheme.BattleRoyaleButtonColors,
+                            CreateActionButton(
+                                text: "Battle Royale",
+                                icon: BundleLoader.BattleRoyaleIcon,
+                                colorSet: menuButtonsTheme.BattleRoyaleButtonColors,
+                                position: YogaFrame.Undefined,
+                                iconMargin: 3f,
+                                gap: 2f,
                                 _battleRoyaleFlowCoordinator,
-                                YogaFrame.Undefined,
-                                3f,
-                                2f
+                                () => {
+                                    _battleRoyaleFlowCoordinator.CanMutateLobby = true;
+                                }
                             ),
-                            //
-                            CreateButton(
-                                "Replay Manager",
-                                BundleLoader.ReplayerSettingsIcon,
-                                menuButtonsTheme.ReplayManagerButtonColors,
-                                _replayManagerFlowCoordinator,
-                                new() { bottom = 0f, left = 0f },
-                                1f,
-                                1f
+
+                            CreateActionButton(
+                                text: "Replay Manager",
+                                icon: BundleLoader.ReplayerSettingsIcon,
+                                colorSet: menuButtonsTheme.ReplayManagerButtonColors,
+                                position: new() { bottom = 0f, left = 0f },
+                                iconMargin: 1f,
+                                gap: 1f,
+                                _replayManagerFlowCoordinator
                             ),
-                            //
-                            CreateButton(
-                                "Settings",
-                                BundleLoader.SettingsIcon,
-                                menuButtonsTheme.SettingsButtonColors,
-                                _settingsFlowCoordinator,
-                                new() { bottom = 0f, right = 0f },
-                                2.7f,
-                                2f
+
+                            CreateActionButton(
+                                text: "Settings",
+                                icon: BundleLoader.SettingsIcon,
+                                colorSet: menuButtonsTheme.SettingsButtonColors,
+                                position: new() { bottom = 0f, right = 0f },
+                                iconMargin: 2.7f,
+                                gap: 2f,
+                                _settingsFlowCoordinator
                             )
                         }
                     }.AsFlexGroup(justifyContent: Justify.SpaceAround).AsFlexItem(size: new() { y = 30f, x = 96f })

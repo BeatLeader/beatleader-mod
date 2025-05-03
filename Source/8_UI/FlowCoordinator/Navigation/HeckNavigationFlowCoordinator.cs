@@ -92,8 +92,14 @@ namespace BeatLeader {
             _replayerViewNavigator.NavigateToReplayManager(flowCoordinator, header);
         }
 
-        public void NavigateToBattleRoyale(FlowCoordinator flowCoordinator, BeatmapLevelWithKey level, IReadOnlyCollection<IReplayHeader> plays) {
-            _replayerViewNavigator.NavigateToBattleRoyale(flowCoordinator, level, plays);
+        public void NavigateToBattleRoyale(
+            FlowCoordinator flowCoordinator, 
+            BeatmapLevelWithKey level, 
+            IReadOnlyCollection<IReplayHeader> plays, 
+            bool allowChanges,
+            bool clearOnExit
+        ) {
+            _replayerViewNavigator.NavigateToBattleRoyale(flowCoordinator, level, plays, allowChanges, clearOnExit);
         }
 
         #endregion

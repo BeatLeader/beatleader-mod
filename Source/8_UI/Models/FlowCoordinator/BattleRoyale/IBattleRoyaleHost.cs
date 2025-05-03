@@ -9,6 +9,7 @@ namespace BeatLeader.UI.Hub {
         ITableFilter<IReplayHeader> ReplayFilter { get; }
         BeatmapLevelWithKey ReplayBeatmap { get; set; }
         bool CanLaunchBattle { get; }
+        bool CanMutateLobby { get; }
 
         event Action<BattleRoyaleReplay, object>? ReplayAddedEvent;
         event Action<BattleRoyaleReplay, object>? ReplayRemovedEvent;
@@ -18,6 +19,7 @@ namespace BeatLeader.UI.Hub {
         event Action<BeatmapLevelWithKey> ReplayBeatmapChangedEvent;
         event Action<bool>? HostStateChangedEvent;
         event Action<bool>? CanLaunchBattleStateChangedEvent;
+        event Action<bool>? CanMutateLobbyStateChangedEvent;
         event Action? BattleLaunchStartedEvent;
         event Action? BattleLaunchFinishedEvent;
 

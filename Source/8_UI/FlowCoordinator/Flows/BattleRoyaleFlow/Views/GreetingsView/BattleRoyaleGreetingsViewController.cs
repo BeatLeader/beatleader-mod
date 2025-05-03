@@ -28,6 +28,7 @@ namespace BeatLeader.UI.Hub {
             Construct();
             _battleRoyaleHost.ReplayBeatmapChangedEvent += HandleHostBeatmapChanged;
             _battleRoyaleHost.CanLaunchBattleStateChangedEvent += HandleHostCanLaunchStateChanged;
+            _battleRoyaleHost.CanMutateLobbyStateChangedEvent += HandleHostCanMutateStateChanged;
             _battleRoyaleHost.ReplayAddedEvent += HandleHostReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent += HandleHostReplayRemoved;
             _battleRoyaleHost.ReplayNavigationRequestedEvent += HandleHostNavigationRequested;
@@ -38,6 +39,7 @@ namespace BeatLeader.UI.Hub {
             base.OnDestroy();
             _battleRoyaleHost.ReplayBeatmapChangedEvent -= HandleHostBeatmapChanged;
             _battleRoyaleHost.CanLaunchBattleStateChangedEvent -= HandleHostCanLaunchStateChanged;
+            _battleRoyaleHost.CanMutateLobbyStateChangedEvent -= HandleHostCanMutateStateChanged;
             _battleRoyaleHost.ReplayAddedEvent -= HandleHostReplayAdded;
             _battleRoyaleHost.ReplayRemovedEvent -= HandleHostReplayRemoved;
             _battleRoyaleHost.ReplayNavigationRequestedEvent -= HandleHostNavigationRequested;
@@ -47,8 +49,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Panel
 
-        private class ClickablePanel<T> : ReactiveComponent where T : ILayoutItem, IReactiveComponent {
-            public T? Component {
+        private class ClickablePanel : ReactiveComponent {
+            public IReactiveComponent? Component {
                 get => _component;
                 set {
                     if (_component != null) {
@@ -84,7 +86,7 @@ namespace BeatLeader.UI.Hub {
 
             public Action? OnClick;
 
-            private T? _component;
+            private IReactiveComponent? _component;
             private bool _showComponent;
 
             private BackgroundButton _backgroundButton = null!;
@@ -119,14 +121,14 @@ namespace BeatLeader.UI.Hub {
 
         private BeatmapPreviewPanel _beatmapPreviewPanel = null!;
         private ReplaysPreviewPanel _replaysPreviewPanel = null!;
-        private ClickablePanel<ReplaysPreviewPanel> _replaysPanel = null!;
-        private ClickablePanel<BeatmapPreviewPanel> _beatmapPanel = null!;
+        private ClickablePanel _replaysPanel = null!;
+        private ClickablePanel _beatmapPanel = null!;
         private BsPrimaryButton _battleButton = null!;
 
         private void Construct() {
             new Layout {
                 Children = {
-                    new ClickablePanel<BeatmapPreviewPanel> {
+                    new ClickablePanel {
                             EmptyText = "NO LEVEL SELECTED",
                             OnClick = PresentLevelSelectionFlow,
 
@@ -142,8 +144,8 @@ namespace BeatLeader.UI.Hub {
                         }
                         .AsFlexItem(size: new() { x = 88f, y = 16f })
                         .Bind(ref _beatmapPanel),
-                    //
-                    new ClickablePanel<ReplaysPreviewPanel> {
+
+                    new ClickablePanel {
                             EmptyText = "NO REPLAYS",
                             Interactable = false,
                             OnClick = PresentReplaySelectionView,
@@ -151,7 +153,7 @@ namespace BeatLeader.UI.Hub {
                         }
                         .AsFlexItem(size: new() { x = 80f, y = 10f })
                         .Bind(ref _replaysPanel),
-                    //
+
                     new BsPrimaryButton {
                             Text = "BATTLE",
                             Skew = UIStyle.Skew,
@@ -231,11 +233,19 @@ namespace BeatLeader.UI.Hub {
         private void HandleHostBeatmapChanged(BeatmapLevelWithKey beatmap) {
             _replaysPanel.Interactable = beatmap.HasValue;
             _beatmapPanel.ShowComponent = beatmap.HasValue;
-            _beatmapPreviewPanel.SetBeatmap(beatmap).RunCatching();
+
+            if (beatmap.HasValue) {
+                _beatmapPreviewPanel.SetBeatmap(beatmap).RunCatching();
+            }
         }
 
         private void HandleHostCanLaunchStateChanged(bool canLaunch) {
             _battleButton.Interactable = canLaunch;
+        }
+
+        private void HandleHostCanMutateStateChanged(bool canMutate) {
+            _replaysPanel.Interactable = canMutate && _battleRoyaleHost.ReplayBeatmap.HasValue;
+            _beatmapPanel.Interactable = canMutate;
         }
 
         #endregion

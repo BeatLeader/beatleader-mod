@@ -161,6 +161,14 @@ namespace BeatLeader.UI.Hub {
 
         public bool CanLaunchBattle { get; private set; }
 
+        public bool CanMutateLobby {
+            get => _canMutateLobby;
+            set {
+                _canMutateLobby = value;
+                CanMutateLobbyStateChangedEvent?.Invoke(value);
+            }
+        }
+
         public event Action<BattleRoyaleReplay, object>? ReplayAddedEvent;
         public event Action<BattleRoyaleReplay, object>? ReplayRemovedEvent;
         public event Action<BattleRoyaleReplay>? ReplayNavigationRequestedEvent;
@@ -168,11 +176,13 @@ namespace BeatLeader.UI.Hub {
         public event Action<BeatmapLevelWithKey>? ReplayBeatmapChangedEvent;
         public event Action<bool>? HostStateChangedEvent;
         public event Action<bool>? CanLaunchBattleStateChangedEvent;
+        public event Action<bool>? CanMutateLobbyStateChangedEvent;
         public event Action? BattleLaunchStartedEvent;
         public event Action? BattleLaunchFinishedEvent;
 
         private readonly Dictionary<IReplayHeader, BattleRoyaleReplay> _replays = new();
         private readonly BeatmapReplayFilter _replayFilter = new();
+        private bool _canMutateLobby = true;
 
         public async void LaunchBattle() {
             BattleLaunchStartedEvent?.Invoke();

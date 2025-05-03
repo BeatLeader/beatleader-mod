@@ -178,7 +178,8 @@ namespace BeatLeader.Components {
                     else {
                         Task.Run(
                             async () => {
-                                _replayHeader = await ReplayManager.SaveAnyReplayAsync(instance.Result, null, CancellationToken.None);
+                                var result = await ReplayManager.SaveAnyReplayAsync(instance.Result!, null, CancellationToken.None);
+                                _replayHeader = result.Header;
                             }
                         ).RunCatching();
 

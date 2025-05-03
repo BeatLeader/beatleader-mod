@@ -27,6 +27,8 @@ namespace BeatLeader.UI.Hub {
             private Label _playerNameText = null!;
             private Label _rankText = null!;
             private Label _dateText = null!;
+            private BsButtonBase _removeButton = null!;
+            private BsButtonBase _navigateButton = null!;
 
             protected override GameObject Construct() {
                 return new Layout {
@@ -91,7 +93,7 @@ namespace BeatLeader.UI.Hub {
                                     Sprite = BundleLoader.Sprites.crossIcon,
                                     ShowUnderline = false,
                                     OnClick = HandleRemoveButtonClicked
-                                },
+                                }.Bind(ref _removeButton),
 
                                 //navigate button
                                 new ImageBsButton {
@@ -102,7 +104,7 @@ namespace BeatLeader.UI.Hub {
                                     Sprite = BundleLoader.Sprites.rightArrowIcon,
                                     ShowUnderline = false,
                                     OnClick = HandleNavigateButtonClicked
-                                }
+                                }.Bind(ref _navigateButton)
                             }
                         }.AsFlexGroup(
                             padding: 1f,
@@ -193,6 +195,8 @@ namespace BeatLeader.UI.Hub {
 
             public void Init(IBattleRoyaleHost battleRoyaleHost) {
                 _battleRoyaleHost = battleRoyaleHost;
+                _removeButton.Enabled = battleRoyaleHost.CanMutateLobby;
+                _navigateButton.Enabled = battleRoyaleHost.CanMutateLobby;
             }
 
             private async Task RefreshAccentColor(CancellationToken token) {
@@ -243,8 +247,6 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
-        protected override float CellSize => 10f;
-
         private IBattleRoyaleHost? _battleRoyaleHost;
 
         public void Setup(IBattleRoyaleHost? battleRoyaleHost) {
@@ -252,12 +254,18 @@ namespace BeatLeader.UI.Hub {
                 _battleRoyaleHost.ReplayAddedEvent -= HandleReplayAdded;
                 _battleRoyaleHost.ReplayRemovedEvent -= HandleReplayRemoved;
                 _battleRoyaleHost.ReplayRefreshRequestedEvent -= HandleRefreshRequested;
+                _battleRoyaleHost.CanMutateLobbyStateChangedEvent -= HandleCanMutateLobbyChangedEvent;
             }
+            
             _battleRoyaleHost = battleRoyaleHost;
+            
             if (_battleRoyaleHost != null) {
                 _battleRoyaleHost.ReplayAddedEvent += HandleReplayAdded;
                 _battleRoyaleHost.ReplayRemovedEvent += HandleReplayRemoved;
                 _battleRoyaleHost.ReplayRefreshRequestedEvent += HandleRefreshRequested;
+                _battleRoyaleHost.CanMutateLobbyStateChangedEvent += HandleCanMutateLobbyChangedEvent;
+                
+                HandleCanMutateLobbyChangedEvent(_battleRoyaleHost.CanMutateLobby);
             }
         }
 
@@ -298,6 +306,10 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleRefreshRequested() {
             Items.Sort(opponentComparator);
+            Refresh();
+        }
+
+        private void HandleCanMutateLobbyChangedEvent(bool canMutate) {
             Refresh();
         }
 

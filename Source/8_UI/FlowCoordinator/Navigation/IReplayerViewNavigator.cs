@@ -36,10 +36,14 @@ namespace BeatLeader {
         /// </summary>
         /// <param name="flowCoordinator">The flow coordinator to be presented from.</param>
         /// <param name="plays">The plays to use for the lobby.</param>
+        /// <param name="allowChanges">Determines whether beatmap and plays can be changed or not.</param>
+        /// <param name="clearOnExit">Determines whether the lobby should be cleared on exit or not.</param>
         void NavigateToBattleRoyale(
             FlowCoordinator flowCoordinator,
             BeatmapLevelWithKey level,
-            IReadOnlyCollection<IReplayHeader> plays
+            IReadOnlyCollection<IReplayHeader> plays,
+            bool allowChanges,
+            bool clearOnExit
         );
     }
 }

@@ -47,12 +47,18 @@ namespace BeatLeader.UI.Reactive.Components {
 
         #region Construct
 
+        protected ILayoutController? LayoutController {
+            get => _layout.LayoutController;
+            set => _layout.LayoutController = value;
+        }
+        
         protected override bool AllowExternalClose => false;
 
         private DialogHeader _header = null!;
         private BsButton _cancelButton = null!;
         private BsPrimaryButton _okButton = null!;
         private Label _okButtonLabel = null!;
+        private Layout _layout = null!;
 
         protected sealed override GameObject Construct() {
             return new Background {
@@ -82,7 +88,7 @@ namespace BeatLeader.UI.Reactive.Components {
                         }
                     }.AsFlexItem(basis: 8f).AsFlexGroup(padding: 1f, gap: 1f)
                 }
-            }.AsFlexGroup(direction: FlexDirection.Column).AsBlurBackground().Use();
+            }.AsFlexGroup(direction: FlexDirection.Column).AsBlurBackground().Bind(ref _layout).Use();
         }
 
         protected abstract ILayoutItem ConstructContent();

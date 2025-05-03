@@ -128,8 +128,8 @@ namespace BeatLeader.Components {
                             Text = "Proceed",
                             ShowUnderline = false,
                             OnClick = () => {
+                                _downloadModal.SetData(_selectedScores);
                                 ModalSystem.PresentModal(_downloadModal, Canvas!.transform);
-                                _downloadModal.StartDownloading(_selectedScores);
                             }
                         }.AsFlexItem().Bind(ref _proceedButton),
                     }
@@ -215,7 +215,7 @@ namespace BeatLeader.Components {
                 LeaderboardState.SelectedBeatmapKey
             );
 
-            _replayerNavigator?.NavigateToBattleRoyale(level, _downloadModal.Headers);
+            _replayerNavigator?.NavigateToBattleRoyale(level, _downloadModal.Headers, false, true);
         }
 
         #endregion

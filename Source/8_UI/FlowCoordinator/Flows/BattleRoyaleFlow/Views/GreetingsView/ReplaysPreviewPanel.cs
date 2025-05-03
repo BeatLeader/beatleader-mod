@@ -65,39 +65,36 @@ namespace BeatLeader.UI.Hub {
 
         private readonly ReactivePool<IReplayHeader, Avatar> _avatarsPool = new();
         private int _maxAvatarCount = 5;
-        private float _avatarSize;
+        private float _avatarSize = 6f;
 
         private void RefreshAvatarPlacement() {
             _avatarsPool.DespawnAll();
             _avatarsContainer.Children.Clear();
-            //uncomment for adaptivity
-            //_avatarSize = _avatarsContainer.ContentTransform.rect.height;
-            _avatarSize = 6f;
+            
             var lastIndex = Mathf.Min(_replays.Count, _maxAvatarCount);
             _avatarsContainerModifier.Size = new() { x = CalculateIndent(lastIndex) };
-            //
+            
             var index = 0;
             foreach (var replay in _replays) {
-                if (index >= _maxAvatarCount) return;
-                //
+                if (index >= _maxAvatarCount) {
+                    return;
+                }
+                
                 var wrapper = _avatarsPool.Spawn(replay);
                 wrapper.AsFlexItem(
                     aspectRatio: 1f,
                     size: new() { x = _avatarSize },
                     position: new() { left = CalculateIndent(index) }
                 );
+                
                 _avatarsContainer.Children.Add(wrapper);
-                //
+                
                 var avatar = wrapper.ReeComponent;
                 avatar.Setup(true);
                 wrapper.SetAvatar(replay);
-                //
+                
                 index++;
             }
-        }
-
-        protected override void OnLayoutApply() {
-            RefreshAvatarPlacement();
         }
 
         protected override void OnEnable() {

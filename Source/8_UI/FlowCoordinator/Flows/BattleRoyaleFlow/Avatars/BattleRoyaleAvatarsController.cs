@@ -119,7 +119,11 @@ namespace BeatLeader.UI.Hub {
         }
 
         private void HandleReplayRemoved(BattleRoyaleReplay replay, object caller) {
-            var avatar = _avatars[replay.ReplayHeader];
+            // Avatar count is limited, so not each replay necessarily have a bound avatar
+            if (!_avatars.TryGetValue(replay.ReplayHeader, out var avatar)) {
+                return;
+            }
+            
             _avatars.Remove(replay.ReplayHeader);
             _battleRoyaleAvatarPool.Despawn(avatar);
             RecalculateAvatarPositions();

@@ -159,9 +159,13 @@ namespace BeatLeader.Components {
             }
 
             foreach (var score in _scores) {
-                if (ReplayManager.FindReplayByHash(score) == null) {
+                var header = ReplayManager.FindReplayByHash(score);
+                
+                if (header == null) {
                     return false;
                 }
+                
+                _headers.Add(header);
             }
 
             return true;

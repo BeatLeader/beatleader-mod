@@ -1,6 +1,6 @@
-using BeatLeader.UI.Reactive.Components;
 using BeatLeader.Utils;
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
 
 namespace BeatLeader.UI.Hub {

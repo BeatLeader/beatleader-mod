@@ -16,7 +16,7 @@ using static BeatLeader.Models.AbstractReplay.NoteEvent.NoteEventType;
 using MathUtils = Reactive.MathUtils;
 
 namespace BeatLeader.UI.Replayer {
-    internal class Timeline : SliderComponentBase, IReplayTimeline {
+    internal class Timeline : SliderBase, IReplayTimeline {
         #region Setup
 
         private IReplayPauseController? _pauseController;

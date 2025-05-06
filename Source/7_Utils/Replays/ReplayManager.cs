@@ -374,6 +374,7 @@ namespace BeatLeader.Utils {
 
         internal static void LoadCache() {
             ReplayMetadataManager.LoadCache();
+            ReplayHeadersCache.LoadCache();
         }
 
         internal static void SaveCache() {

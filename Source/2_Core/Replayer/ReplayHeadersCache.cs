@@ -13,6 +13,10 @@ namespace BeatLeader {
             infoCache.Save();
         }
 
+        public static void LoadCache() {
+            infoCache.Load();
+        }
+
         #endregion
 
         #region Info

@@ -1,6 +1,7 @@
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -14,7 +15,7 @@ namespace BeatLeader.UI.Hub {
                     _backgroundImage.Children.Remove(_openedView);
                 }
                 _openedView = value;
-                if (_openedView != null) { 
+                if (_openedView != null) {
                     if (_openedView is ReactiveComponent comp) {
                         comp.WithinLayoutIfDisabled = true;
                     }
@@ -71,15 +72,12 @@ namespace BeatLeader.UI.Hub {
         private CanvasGroup _canvasGroup = null!;
 
         protected override GameObject Construct() {
-            return new Layout {
-                Children = {
-                    new Background()
-                        .AsFlexGroup()
-                        .AsFlexItem(flexGrow: 1f)
-                        .AsBlurBackground()
-                        .Bind(ref _backgroundImage),
-                }
-            }.AsFlexGroup().WithNativeComponent(out _canvasGroup).Use();
+            return new Background()
+                .AsFlexGroup(justifyContent: Justify.Center)
+                .AsBlurBackground()
+                .Bind(ref _backgroundImage)
+                .WithNativeComponent(out _canvasGroup)
+                .Use();
         }
 
         protected override void OnInitialize() {

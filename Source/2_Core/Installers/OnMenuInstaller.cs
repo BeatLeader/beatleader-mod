@@ -17,7 +17,7 @@ namespace BeatLeader.Installers {
         internal new static DiContainer Container => _container ?? throw new InvalidOperationException();
 
         private static DiContainer? _container;
-        
+
         public override void InstallBindings() {
             Plugin.Log.Debug("OnMenuInstaller");
 
@@ -38,7 +38,7 @@ namespace BeatLeader.Installers {
         private void BindLeaderboard() {
             Container.BindInterfacesAndSelfTo<LeaderboardView.PreParser>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<LeaderboardPanel.PreParser>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
+
             Container.BindInterfacesAndSelfTo<LeaderboardView>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardPanel>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
@@ -54,7 +54,7 @@ namespace BeatLeader.Installers {
             Container.Bind<BeatLeaderHubFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<BeatLeaderHubMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<BeatLeaderMiniScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
-            
+
             var go = Container.Resolve<LevelSelectionNavigationController>().gameObject;
             Container.Bind<LevelSelectionViewController>().FromNewComponentOn(go).AsSingle();
             Container.Bind<UI.Hub.LevelSelectionFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
@@ -75,9 +75,9 @@ namespace BeatLeader.Installers {
             //<--------------------------------Settings------------------------------->
             Container.Bind<BeatLeaderSettingsFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<BeatLeaderSettingsViewController>().FromNewComponentAsViewController().AsSingle();
-            
-            _ = BeatmapDifficultyPanel.BeatmapDifficultySegmentedControl;
-            _ = BeatmapCharacteristicPanel.BeatmapCharacteristicSegmentedControl;
+
+            BeatmapDifficultyPanel.TouchPrefab();
+            BeatmapCharacteristicPanel.TouchPrefab();
         }
     }
 }

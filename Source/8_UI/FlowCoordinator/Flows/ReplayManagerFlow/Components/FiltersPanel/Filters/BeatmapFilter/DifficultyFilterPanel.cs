@@ -55,23 +55,16 @@ namespace BeatLeader.UI.Hub {
             RefreshFilterStatus();
             _difficultyPanel.SetData(null);
             _difficultyPanel.DifficultySelectedEvent += HandleDifficultySelected;
-            this.AsFlexItem(size: new() { x = 52f, y = 8f });
         }
 
         #endregion
 
         #region Construct
 
-        private BeatLeader.Components.BeatmapDifficultyPanel _difficultyPanel = null!;
+        private BeatmapDifficultyPanel _difficultyPanel = null!;
 
         protected override GameObject Construct() {
-            return new Layout {
-                Children = {
-                    new ReeWrapperV2<BeatLeader.Components.BeatmapDifficultyPanel>()
-                        .AsFlexItem(flexGrow: 1f)
-                        .BindRee(ref _difficultyPanel)
-                }
-            }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
+            return new BeatmapDifficultyPanel().Bind(ref _difficultyPanel).Use();
         }
 
         #endregion

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BeatLeader.Models;
-using BeatLeader.UI.Reactive.Components;
 using Reactive;
-using Reactive.Components;
 using UnityEngine;
 
 namespace BeatLeader.UI.Hub {
@@ -49,23 +46,16 @@ namespace BeatLeader.UI.Hub {
             RefreshFilterStatus();
             _characteristicPanel.SetData(null);
             _characteristicPanel.CharacteristicSelectedEvent += HandleBeatmapCharacteristicSelected;
-            this.AsFlexItem(size: new() { x = 52f, y = 8f });
         }
 
         #endregion
 
         #region Construct
 
-        private BeatLeader.Components.BeatmapCharacteristicPanel _characteristicPanel = null!;
+        private BeatmapCharacteristicPanel _characteristicPanel = null!;
 
         protected override GameObject Construct() {
-            return new Layout {
-                Children = {
-                    new ReeWrapperV2<BeatLeader.Components.BeatmapCharacteristicPanel>()
-                        .AsFlexItem(flexGrow: 1f)
-                        .BindRee(ref _characteristicPanel)
-                }
-            }.AsFlexGroup(padding: new() { top = 1f, bottom = 1f }).Use();
+            return new BeatmapCharacteristicPanel().Bind(ref _characteristicPanel).Use();
         }
 
         #endregion

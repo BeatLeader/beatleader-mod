@@ -22,6 +22,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         private HSVPanelController _colorPicker = null!;
         private ColorPickerButtonController _pickerButton = null!;
+        private static HSVPanelController? _hsvPanelController;
 
         protected override GameObject Construct() {
             _colorPicker = InstantiateColorPicker();
@@ -35,12 +36,14 @@ namespace BeatLeader.UI.Reactive.Components {
         protected override void OnInitialize() {
             this.WithSizeDelta(54f, 54f);
         }
-
+        
         private static HSVPanelController InstantiateColorPicker() {
-            var original = Resources.FindObjectsOfTypeAll<HSVPanelController>()
-                .First(x => x.GetComponentInChildren<ColorPickerButtonController>() != null);
-            var clone = Object.Instantiate(original);
-            return clone;
+            if (_hsvPanelController == null) {
+                _hsvPanelController = Resources.FindObjectsOfTypeAll<HSVPanelController>()
+                    .First(x => x.GetComponentInChildren<ColorPickerButtonController>() != null);
+            }
+      
+            return Object.Instantiate(_hsvPanelController);
         }
 
         #endregion

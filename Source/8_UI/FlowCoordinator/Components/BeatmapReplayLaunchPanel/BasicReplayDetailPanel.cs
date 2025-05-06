@@ -35,14 +35,17 @@ namespace BeatLeader.UI.Hub {
                                 .Bind(ref _tagsStrip),
                             //
                             new ReplayStatisticsPanel()
-                                .AsFlexItem(size: new() { y = 37f })
+                                .AsFlexItem(
+                                    size: new() { y = 37f },
+                                    margin: new() { bottom = 1f }
+                                )
                                 .Bind(ref _replayStatisticsPanel),
                             //
                             ConstructButtons()
                         }
                     }.AsFlexGroup(
                         direction: FlexDirection.Column,
-                        gap: new() { y = 1f }
+                        gap: new() { y = 0.5f }
                     ).WithNativeComponent(out _contentGroup).WithRectExpand(),
                     //empty label
                     new Label {

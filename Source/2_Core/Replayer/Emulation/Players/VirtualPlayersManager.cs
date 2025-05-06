@@ -3,6 +3,7 @@ using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using BeatLeader.Models.AbstractReplay;
+using BeatLeader.Utils;
 using UnityEngine;
 using Zenject;
 
@@ -39,6 +40,9 @@ namespace BeatLeader.Replayer.Emulation {
 
             newPlayer.LateInit(_bodySpawner.SpawnBody(newPlayer));
             prevPlayer.LateInit(_bodySpawner.SpawnBody(prevPlayer));
+            
+            prevPlayer.RemoveListener(_poseApplicator);
+            newPlayer.AddListener(_poseApplicator);
 
             PrimaryPlayerWasChangedEvent?.Invoke(player);
         }
@@ -58,19 +62,6 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        //TODO: set transforms of the primary player
-        private void LoadDummyControllers() {
-            _playerTransforms.SetField("_headTransform", CreateDummyController());
-            _playerTransforms.SetField("_leftHandTransform", CreateDummyController());
-            _playerTransforms.SetField("_rightHandTransform", CreateDummyController());
-        }
-
-        private static Transform CreateDummyController() {
-            var go = new GameObject("DummyController");
-            go.AddComponent<VRController>().enabled = false;
-            return go.transform;
-        }
-
         #endregion
 
         #region Spawn & Despawn
@@ -83,6 +74,7 @@ namespace BeatLeader.Replayer.Emulation {
 
             if (setPrimary) {
                 PrimaryPlayer = virtualPlayer;
+                virtualPlayer.AddListener(_poseApplicator);
             }
 
             var body = _bodySpawner.SpawnBody(virtualPlayer);
@@ -95,6 +87,44 @@ namespace BeatLeader.Replayer.Emulation {
             _bodySpawner.DespawnBody(player.Body);
             _virtualPlayersPool.Despawn(player);
             _virtualPlayers.Remove(player);
+        }
+
+        #endregion
+
+        #region Dummies
+
+        private class PoseApplicator : IVirtualPlayerPoseReceiver {
+            private readonly Transform _head;
+            private readonly Transform _leftHand;
+            private readonly Transform _rightHand;
+
+            public PoseApplicator(PlayerTransforms transforms) {
+                _head = transforms._headTransform;
+                _leftHand = transforms._leftHandTransform;
+                _rightHand = transforms._rightHandTransform;
+            }
+
+            public void ApplyPose(Pose headPose, Pose leftHandPose, Pose rightHandPose) {
+                _head.SetLocalPose(headPose);
+                _leftHand.SetLocalPose(leftHandPose);
+                _rightHand.SetLocalPose(rightHandPose);
+            }
+        }
+
+        private PoseApplicator _poseApplicator = null!;
+
+        private void LoadDummyControllers() {
+            _playerTransforms._headTransform = CreateDummyController();
+            _playerTransforms._leftHandTransform = CreateDummyController();
+            _playerTransforms._rightHandTransform = CreateDummyController();
+
+            _poseApplicator = new(_playerTransforms);
+        }
+
+        private static Transform CreateDummyController() {
+            var go = new GameObject("DummyController");
+            go.AddComponent<VRController>().enabled = false;
+            return go.transform;
         }
 
         #endregion

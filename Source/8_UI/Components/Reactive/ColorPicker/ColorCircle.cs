@@ -37,7 +37,8 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         private static HSVPanelController InstantiateColorPicker() {
-            var original = Resources.FindObjectsOfTypeAll<HSVPanelController>().First();
+            var original = Resources.FindObjectsOfTypeAll<HSVPanelController>()
+                .First(x => x.GetComponentInChildren<ColorPickerButtonController>() != null);
             var clone = Object.Instantiate(original);
             return clone;
         }

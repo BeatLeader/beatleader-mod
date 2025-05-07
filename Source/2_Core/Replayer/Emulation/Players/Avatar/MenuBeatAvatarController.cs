@@ -2,6 +2,7 @@
 using BeatSaber.BeatAvatarAdapter.AvatarEditor;
 using BeatSaber.BeatAvatarSDK;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using UnityEngine;
 
@@ -22,7 +23,9 @@ namespace BeatLeader.Replayer.Emulation {
                 },
                 Enabled = false
             }.WithSizeDelta(13f, 13f);
-            ReactiveUtils.AddCanvas(_spinner);
+            
+            BeatSaberUtils.AddCanvas(_spinner);
+            
             _spinner.Use(transform);
             gameObject.SetActive(false);
             base.Awake();

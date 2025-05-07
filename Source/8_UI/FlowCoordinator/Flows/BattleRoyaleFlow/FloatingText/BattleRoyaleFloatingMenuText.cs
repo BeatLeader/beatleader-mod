@@ -2,6 +2,7 @@
 using BeatLeader.UI.Reactive.Components;
 using HMUI;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using UnityEngine;
@@ -45,9 +46,11 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            ReactiveUtils.AddCanvas(this);
+            BeatSaberUtils.AddCanvas(this);
+            
             Content.AddComponent<CurvedCanvasSettings>();
             ContentTransform.localScale = Vector3.one * 0.02f;
+            
             var floating = Content.AddComponent<FloatingObject>();
             floating.amplitude = 0.04f;
             floating.speed = 0.8f;

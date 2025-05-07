@@ -1,5 +1,6 @@
 ﻿using BeatLeader.Utils;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.Components;
 using UnityEngine;
 
@@ -34,7 +35,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            ReactiveUtils.AddCanvas(this);
+            BeatSaberUtils.AddCanvas(this);
             ContentTransform.localScale = Vector3.one * 0.025f;
         }
 

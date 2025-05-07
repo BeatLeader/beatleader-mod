@@ -1,5 +1,6 @@
 ﻿using HMUI;
 using Reactive;
+using Reactive.BeatSaber;
 using UnityEngine;
 using VRUIControls;
 using Zenject;
@@ -34,7 +35,7 @@ namespace BeatLeader.UI {
         private Screen _screen = null!;
 
         private void Awake() {
-            ReactiveUtils.AddCanvas(gameObject);
+            BeatSaberUtils.AddCanvas(gameObject);
             _screen = gameObject.AddComponent<Screen>();
             _curvedCanvasSettings = gameObject.AddComponent<CurvedCanvasSettings>();
             CurvatureRadius = 0f;

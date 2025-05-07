@@ -2,6 +2,7 @@
 using BeatLeader.Installers;
 using BeatLeader.UI.Reactive;
 using Reactive;
+using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
@@ -52,7 +53,7 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            ReactiveUtils.AddCanvas(this);
+            BeatSaberUtils.AddCanvas(this);
             var raycaster = Content.AddComponent<VRGraphicRaycaster>();
             OnMenuInstaller.Container.Inject(raycaster);
         }

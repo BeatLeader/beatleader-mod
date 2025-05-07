@@ -160,12 +160,15 @@ namespace BeatLeader.UI.Hub {
                     if (index == _maxTags) {
                         break;
                     }
+                    
                     var panel = _spawnedTags[index];
                     panel.Interactable = false;
-                    panel.Animated = false;
+                    panel.AnimateMovement = false;
                     panel.SetTag(tag);
-                    panel.AsFlexItem(size: new() { y = 4f });
+                    
+                    panel.FixedHeight = 4f;
                     panel.LayoutDriver = _tagsContainer;
+                    
                     index++;
                 }
             }

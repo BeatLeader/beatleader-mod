@@ -15,13 +15,13 @@ namespace BeatLeader.UI.Hub {
                     x => x.IsValid,
                     x => OkButtonInteractable = x
                 )
-                .AsFlexItem(flexGrow: 1f, margin: 2f)
+                .AsFlexItem(flexGrow: 1f, margin: new() { top = 2f, left = 2f, right = 2f, bottom = 1f})
                 .Bind(ref _tagEditorPanel);
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            this.AsFlexItem(size: new() { x = 46.pt(), y = 24.pt() });
+            this.AsFlexItem(size: new() { x = 46.pt() });
             Title = "Create Tag";
             _tagEditorPanel.ValidationContract = ReplayMetadataManager.ValidateTagName;
         }

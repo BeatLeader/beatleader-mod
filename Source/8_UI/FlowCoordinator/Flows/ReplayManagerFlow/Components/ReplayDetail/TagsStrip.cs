@@ -114,19 +114,24 @@ namespace BeatLeader.UI.Hub {
 
         private void SpawnTag(ReplayTag tag, bool animated) {
             if (_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
-                panel.StateAnimationFinishedEvent -= HandleTagStateAnimationFinished;
+                panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
             } else {
                 panel = _tagsPool.Spawn(tag);
+                panel.FixedHeight = 4f;
             }
-            panel.AsFlexItem(size: new() { y = 4f });
+
             panel.Interactable = false;
             panel.SetTag(tag, animated);
+
             _tagsContainer.Children.Add(panel);
         }
 
         private void DespawnTag(ReplayTag tag, bool animated) {
-            if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) return;
-            panel.StateAnimationFinishedEvent += HandleTagStateAnimationFinished;
+            if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
+                return;
+            }
+
+            panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
             panel.SetTagPresented(false, !animated);
         }
 
@@ -150,15 +155,15 @@ namespace BeatLeader.UI.Hub {
         private Image _editButtonContainer = null!;
 
         protected override GameObject Construct() {
+            new TagSelectorModal()
+                .With(x => x.BuildImmediate())
+                .WithAnchor(this, RelativePlacement.BottomCenter)
+                .WithOpenListener(HandleTagSelectorOpened)
+                .WithCloseListener(HandleTagSelectorClosed)
+                .Bind(ref _tagSelectorModal);
+
             return new Layout {
                 Children = {
-                    new TagSelectorModal()
-                        .With(x => x.BuildImmediate())
-                        .WithAnchor(this, RelativePlacement.BottomCenter)
-                        .WithOpenListener(HandleTagSelectorOpened)
-                        .WithCloseListener(HandleTagSelectorClosed)
-                        .Bind(ref _tagSelectorModal),
-                    //
                     new Background {
                             Sprite = BundleLoader.Sprites.backgroundLeft,
                             Children = {
@@ -239,11 +244,12 @@ namespace BeatLeader.UI.Hub {
             tagSelector.SelectedTagRemovedEvent -= HandleSelectedTagRemoved;
         }
 
-        private void HandleTagStateAnimationFinished(ReplayTag tag) {
+        private void HandleTagDisappearAnimationFinished(ReplayTag tag) {
             var panel = _tagsPool.SpawnedComponents[tag];
-            panel.StateAnimationFinishedEvent -= HandleTagStateAnimationFinished;
+            panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
             _tagsPool.Despawn(panel);
-            //spawning another tag if needed
+
+            // Spawning another tag if needed
             var spawned = _tagsPool.SpawnedComponents.Count;
             if (_metadata != null && spawned < ShownTagsCount && _metadata.Tags.Count > spawned) {
                 tag = _metadata.Tags.First(x => !_tagsPool.SpawnedComponents.ContainsKey(x));
@@ -262,7 +268,7 @@ namespace BeatLeader.UI.Hub {
         private void HandleTagAddedExternal(ReplayTag tag) {
             if (_tagsPool.SpawnedComponents.Count < ShownTagsCount ||
                 _tagsPool.SpawnedComponents.ContainsKey(tag)
-            ) {
+               ) {
                 SpawnTag(tag, true);
             }
             RefreshTagsLabel();

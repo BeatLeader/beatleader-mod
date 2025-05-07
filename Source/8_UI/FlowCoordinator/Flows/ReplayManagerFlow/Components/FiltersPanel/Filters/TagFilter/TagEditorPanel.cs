@@ -50,7 +50,7 @@ namespace BeatLeader.UI.Hub {
                             NotifyPropertyChanged(nameof(TagName));
                             NotifyPropertyChanged(nameof(IsValid));
                         }
-                    ).AsFlexItem(flexGrow: 1f, size: new() { y = 8f }).Bind(ref _inputField),
+                    ).AsFlexItem(flexGrow: 1f).Bind(ref _inputField),
                     //
                     new ColorPicker {
                         Color = ColorUtils.RandomColor()
@@ -60,9 +60,9 @@ namespace BeatLeader.UI.Hub {
                             TagColor = x;
                             NotifyPropertyChanged(nameof(TagColor));
                         }
-                    ).AsFlexItem(size: "auto").Bind(ref _colorPicker)
+                    ).AsFlexItem().Bind(ref _colorPicker)
                 }
-            }.AsFlexGroup(gap: 1f).Use();
+            }.AsFlexGroup(gap: 1f).AsFlexItem(size: new() { y = 8f }).Use();
         }
 
         #endregion

@@ -75,7 +75,6 @@ namespace BeatLeader.UI.Hub {
 
         private void SpawnTag(ReplayTag tag) {
             var panel = _tagsPool.Spawn(tag);
-            panel.AsFlexItem();
             panel.SetTag(tag);
             panel.TagStateChangedEvent += HandleTagStateChanged;
             panel.DeleteButtonClickedEvent += HandleTagDeleteButtonClicked;
@@ -90,7 +89,7 @@ namespace BeatLeader.UI.Hub {
             panel.TagStateChangedEvent -= HandleTagStateChanged;
             panel.DeleteButtonClickedEvent -= HandleTagDeleteButtonClicked;
             //starting disappear animation
-            panel.StateAnimationFinishedEvent += HandleTagStateAnimationFinished;
+            panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
             panel.SetTagPresented(false, !animated);
         }
 
@@ -191,12 +190,12 @@ namespace BeatLeader.UI.Hub {
             _tagDeletionDialog.Present(ContentTransform);
         }
 
-        private void HandleTagStateAnimationFinished(ReplayTag tag) {
+        private void HandleTagDisappearAnimationFinished(ReplayTag tag) {
             if (_selectedTags.Contains(tag)) {
                 HandleTagStateChanged(tag, false);
             }
             var panel = _tagsPool.SpawnedComponents[tag];
-            panel.StateAnimationFinishedEvent -= HandleTagStateAnimationFinished;
+            panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
             _tagsPool.Despawn(panel);
         }
 

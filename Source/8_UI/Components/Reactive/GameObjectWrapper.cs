@@ -4,12 +4,14 @@ using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal class GameObjectWrapper : ReactiveComponent {
-        public GameObjectWrapper(Func<GameObject> go) : base(false) {
+        public GameObjectWrapper(Func<GameObject> go, bool rename = true) : base(false) {
             _gameObject = go();
             var name = _gameObject.name;
-            
+
             ConstructAndInit();
-            Name = $"{name} (Wrapped)";
+            if (rename) {
+                Name = $"{name} (Wrapped)";
+            }
         }
 
         private readonly GameObject _gameObject;

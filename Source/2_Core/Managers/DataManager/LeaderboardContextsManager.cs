@@ -17,6 +17,10 @@ namespace BeatLeader.DataManager {
             ContextsRequest.Send();
         }
 
+        private void OnDestroy() {
+            ContextsRequest.StateChangedEvent -= ContextsRequest_StateChangedEvent;
+        }
+
         public void ContextsRequest_StateChangedEvent(WebRequests.IWebRequest<List<ServerScoresContext>> instance, WebRequests.RequestState state, string? failReason) {
             if (state == WebRequests.RequestState.Finished) {
                 var tasks = new List<Task>();

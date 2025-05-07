@@ -10,12 +10,14 @@ namespace BeatLeader.DataManager {
     public class LeaderboardInfoManager : MonoBehaviour {
         #region Start
 
-        private static TaskCompletionSource<bool> TaskSource = new TaskCompletionSource<bool>();
+        private static TaskCompletionSource<bool>? _taskSource;
+        
         public static Task RefreshTask() {
-            return TaskSource.Task;
+            return _taskSource?.Task ?? Task.CompletedTask;
         }
 
         private void Start() {
+            _taskSource = new();
             FullCacheUpdate().RunCatching();
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
             LeaderboardRequest.StateChangedEvent += LeaderboardRequest_StateChangedEvent;
@@ -103,7 +105,7 @@ namespace BeatLeader.DataManager {
                 }
             } while (!failed && page <= totalPages);
 
-            TaskSource.SetResult(true);
+            _taskSource!.SetResult(true);
 
             if (!failed) LeaderboardsCache.LastCheckTime = newTimestamp;
             LeaderboardsCache.NotifyCacheWasChanged();

@@ -50,7 +50,7 @@ namespace BeatLeader.UI.Hub {
                             NotifyPropertyChanged(nameof(TagName));
                             NotifyPropertyChanged(nameof(IsValid));
                         }
-                    ).AsFlexItem(flexGrow: 1f).Bind(ref _inputField),
+                    ).AsFlexItem(flexGrow: 1f, flexShrink: 1f).Bind(ref _inputField),
                     //
                     new ColorPicker {
                         Color = ColorUtils.RandomColor()

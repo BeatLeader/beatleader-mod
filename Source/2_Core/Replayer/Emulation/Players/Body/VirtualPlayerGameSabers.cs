@@ -8,7 +8,7 @@ namespace BeatLeader.Replayer.Emulation {
     internal class VirtualPlayerGameSabers : IVirtualPlayerBody {
         [Inject]
         private readonly PlayerVRControllersManager _vrControllersManager = null!;
-
+        
         private Transform _leftController = null!;
         private Transform _rightController = null!;
 
@@ -17,6 +17,7 @@ namespace BeatLeader.Replayer.Emulation {
             _leftController = _vrControllersManager.leftHandVRController.transform;
             _rightController = _vrControllersManager.rightHandVRController.transform;
 
+            _vrControllersManager.GetComponent<DeactivateVRControllersOnFocusCapture>().enabled = false;
             _vrControllersManager.DisableAllVRControllers();
         }
 

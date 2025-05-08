@@ -33,6 +33,7 @@ namespace BeatLeader.UI.Reactive.Components {
 
         protected override GameObject Construct() {
             var progress = RememberAnimated(0f, 10.fact());
+            progress.EvaluateNextFrame();
 
             progress.ValueChangedEvent += RefreshColors;
 

@@ -176,7 +176,9 @@ namespace BeatLeader.UI.Replayer {
 
                 var color = UIStyle.GlowingButtonColorSet.Color;
                 var activeColor = UIStyle.GlowingButtonColorSet.ActiveColor;
+                
                 var progress = RememberAnimated(0f, 10.fact());
+                progress.EvaluateNextFrame();
 
                 return new Clickable {
                     OnClick = () => OnClick?.Invoke(),

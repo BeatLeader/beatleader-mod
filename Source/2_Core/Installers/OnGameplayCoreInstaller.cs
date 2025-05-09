@@ -128,15 +128,15 @@ namespace BeatLeader.Installers {
         private void InitReplayerOverridable(ReplayerBindings? bindings) {
             // Comparator
             if (bindings?.ReplayComparator is { } comparator) {
-                BindConcrete(comparator);
+                LoadLazyBinding(comparator);
             } else {
-                BindConcrete(ReplayDataUtils.BasicReplayNoteComparator);
+                Container.Bind<IReplayNoteComparator>().FromInstance(ReplayDataUtils.BasicReplayNoteComparator).AsSingle();
             }
 
             // Body Settings 
             if (bindings?.BodySettingsFactory is { HasValue: true} bodySettings) {
                 if (bodySettings.Value != null) {
-                    BindConcrete(bodySettings.Value);
+                    LoadLazyBinding(bodySettings.Value);
                 } else {
                     Container.BindInterfacesTo<EmptyAvatarSettingsViewFactory>().AsSingle();
                 }
@@ -146,14 +146,15 @@ namespace BeatLeader.Installers {
             
             // Body
             if (bindings?.BodySpawner is { } bodySpawner) {
-                BindConcrete(bodySpawner);
+                LoadLazyBinding(bodySpawner);
             } else {
                 Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
             }
         }
 
-        private void BindConcrete<T>(T instance) {
-            Container.Bind<T>().To(instance!.GetType()).FromInstance(instance).AsSingle();
+        private void LoadLazyBinding<T>(LazyBinding<T> binding) {
+            var binder = Container.Bind<T>();
+            binding(binder);
         }
 
         #endregion

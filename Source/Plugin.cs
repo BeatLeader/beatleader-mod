@@ -32,19 +32,12 @@ namespace BeatLeader {
         internal static IPALogger Log { get; private set; }
 
         [Init]
-        public Plugin(IPALogger logger, PluginMetadata metadata, Config config) {
+        public Plugin(IPALogger logger, PluginMetadata metadata) {
             Log = logger;
             Version = metadata.HVersion;
-            InitializeConfig(config);
-            InitializeAssets();
-        }
-
-        private static void InitializeAssets() {
-            BundleLoader.Initialize();
-        }
-
-        private static void InitializeConfig(Config config) {
+            
             ConfigFileData.Initialize();
+            BundleLoader.Initialize();
         }
 
         #endregion

@@ -9,10 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Version = Hive.Versioning.Version;
 
-[assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
-
 namespace BeatLeader {
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal class ConfigFileData {
         #region Serialization
 
@@ -21,29 +18,37 @@ namespace BeatLeader {
         public static void Initialize() {
             if (File.Exists(ConfigPath)) {
                 var text = File.ReadAllText(ConfigPath);
+
                 try {
-                    Instance = JsonConvert.DeserializeObject<ConfigFileData>(text);
-                    Plugin.Log.Debug("BeatLeader config initialized");
+                    var instance = JsonConvert.DeserializeObject<ConfigFileData>(text);
+
+                    Instance = instance ?? throw new Exception("A deserialized instance was null");
+
+                    Plugin.Log.Debug("Config initialized");
                     return;
                 } catch (Exception ex) {
                     Plugin.Log.Error($"Failed to load config (default will be used):\n{ex}");
                 }
             }
+
             Instance = new();
         }
 
         public static void Save() {
             try {
                 var text = JsonConvert.SerializeObject(
-                    Instance, Formatting.Indented, new JsonSerializerSettings {
+                    Instance,
+                    Formatting.Indented,
+                    new JsonSerializerSettings {
                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                         Converters = {
                             new StringEnumConverter()
                         }
                     }
                 );
+
                 File.WriteAllText(ConfigPath, text);
-                Plugin.Log.Debug("BeatLeader config saved");
+                Plugin.Log.Debug("Config saved");
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to save configuration:\n{ex}");
             }
@@ -53,93 +58,33 @@ namespace BeatLeader {
 
         #endregion
 
-        #region ConfigVersion
-
-        public const string CurrentConfigVersion = "1.0";
-
-        [UsedImplicitly]
-        public virtual string ConfigVersion { get; set; } = CurrentConfigVersion;
-
-        #endregion
-
-        #region ModVersion
-
-        [UsedImplicitly]
-        public string LastSessionModVersion { get; set; } = Version.Zero.ToString();
-
-        #endregion
+        #region Config
         
-        #region Enabled
-
+        public string LastSessionModVersion = Version.Zero.ToString();
+        
         public bool Enabled = ConfigDefaults.Enabled;
         public bool NoticeboardEnabled = true;
-
-        #endregion
-        
-        #region MenuButtonEnabled
-
         public bool MenuButtonEnabled = ConfigDefaults.MenuButtonEnabled;
-
-        #endregion
-
-        #region BeatLeaderServer
         
+        // Accessibility
+        public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
         public BeatLeaderServer MainServer = ConfigDefaults.MainServer;
-
-        #endregion
-
-        #region ScoresContext
         
+        // Leaderboard
+        public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
+        public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
         public int ScoresContext = ConfigDefaults.ScoresContext;
 
-        #endregion
-
-        #region HubTheme
-
+        // Hub
         public BeatLeaderHubTheme HubTheme = ConfigDefaults.HubTheme;
-
-        #endregion
-
-        #region LeaderboardTableMask
         
-        public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
-
-        #endregion
-
-        #region LeaderboardDisplaySettings
-
-        public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
-
-        #endregion
-
-        #region ReplayerSettings
-
-        public ReplayerSettings ReplayerSettings { get; set; } = ConfigDefaults.ReplayerSettings;
-
-        #endregion
-
-        #region ReplaySavingSettings
-
-        public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;
-
+        // Replayer
+        public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
+        
+        // Replays
         public bool SaveLocalReplays = ConfigDefaults.SaveLocalReplays;
-        
+        public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;
         public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
-
-        #endregion
-
-        #region Language
-        
-        public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
-
-        #endregion
-
-        #region OnReload
-
-        [UsedImplicitly]
-        public virtual void OnReload() {
-            if (ConfigVersion != CurrentConfigVersion) ConfigVersion = CurrentConfigVersion;
-        }
 
         #endregion
     }

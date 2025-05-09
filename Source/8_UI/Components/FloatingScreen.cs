@@ -39,11 +39,10 @@ namespace BeatLeader.UI {
             _screen = gameObject.AddComponent<Screen>();
             _curvedCanvasSettings = gameObject.AddComponent<CurvedCanvasSettings>();
             CurvatureRadius = 0f;
-            //
+            
             _raycaster = gameObject.AddComponent<VRGraphicRaycaster>();
-            var context = FindObjectOfType<Context>();
-            context.Container.Inject(_raycaster);
-            //
+            BeatSaberUtils.MenuContainer.Inject(_raycaster);
+            
             transform.localScale = Vector3.one * 0.02f;
         }
 

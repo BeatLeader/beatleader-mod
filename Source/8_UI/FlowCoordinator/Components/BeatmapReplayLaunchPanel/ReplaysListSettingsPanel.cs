@@ -104,7 +104,7 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new SortOptionsModal()
                         .WithJumpAnimation()
-                        .WithAnchor(() => ContentTransform, RelativePlacement.TopRight)
+                        .WithAnchor(this, RelativePlacement.TopRight)
                         .Bind(ref _sortOptionsModal),
                     //label
                     new Label {

@@ -148,7 +148,7 @@ namespace BeatLeader.UI.Hub {
                     new DeletionModal()
                         .WithAlphaAnimation(() => Canvas!.gameObject)
                         .WithJumpAnimation()
-                        .WithAnchor(() => ContentTransform, RelativePlacement.Center)
+                        .WithAnchor(this, RelativePlacement.Center)
                         .Bind(ref _deletionModal),
                     //
                     new ReeWrapperV2<ReplayerSettingsPanel>()

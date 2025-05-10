@@ -60,7 +60,10 @@ namespace BeatLeader.UI.Hub {
                         .WithShadow()
                         .WithOpenListener(HandleTagSelectorOpened)
                         .WithCloseListener(HandleTagSelectorClosed)
-                        .WithAnchor(() => _textArea, RelativePlacement.BottomCenter)
+                        .WithAnchor(
+                            Lazy<IReactiveComponent>(() => _textArea),
+                            RelativePlacement.BottomCenter
+                        )
                         .Bind(ref _tagSelectorModal),
                     //text area
                     new TextArea {

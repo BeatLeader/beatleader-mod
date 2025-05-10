@@ -270,7 +270,7 @@ namespace BeatLeader.UI.Hub {
                         .WithShadow()
                         .WithJumpAnimation()
                         .WithCloseListener(() => _filtersTextArea.Focused = false)
-                        .WithAnchor(() => ContentTransform, RelativePlacement.BottomRight)
+                        .WithAnchor(this, RelativePlacement.BottomRight)
                         .Bind(ref _modal),
                     //
                     new InputField {

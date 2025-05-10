@@ -52,7 +52,11 @@ namespace BeatLeader.UI.Reactive.Components {
                     ).Bind(ref _colorSampleImage),
                     //color circle
                     new SharedModal<ColorCircleModal>()
-                        .WithAnchor(this, () => CirclePlacement, unbindOnceOpened: false)
+                        .WithAnchor(
+                            this,
+                            Lazy(() => CirclePlacement, false),
+                            unbindOnceOpened: false
+                        )
                         .WithShadow()
                         .WithOpenListener(HandleModalOpened)
                         .WithCloseListener(HandleModalClosed)

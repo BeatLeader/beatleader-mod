@@ -26,17 +26,19 @@ namespace BeatLeader.UI.Hub {
         private BsPrimaryButton _watchButton = null!;
 
         protected override ILayoutItem ConstructButtons() {
+            var canvasTransform = Lazy(() => (RectTransform)Canvas!.transform);
+            
             return new Layout {
                 Children = {
                     new BeatmapDownloadDialog()
                         .WithCloseListener(HandleDownloadBeatmapDialogClosed)
-                        .WithAnchor(() => (RectTransform)Canvas!.transform, RelativePlacement.Center)
+                        .WithAnchor(canvasTransform, RelativePlacement.Center)
                         .WithAlphaAnimation(() => Canvas!.gameObject)
                         .WithJumpAnimation()
                         .Bind(ref _beatmapDownloadDialog),
                     //
                     new ReplayDeletionDialog()
-                        .WithAnchor(() => (RectTransform)Canvas!.transform, RelativePlacement.Center)
+                        .WithAnchor(canvasTransform, RelativePlacement.Center)
                         .WithAlphaAnimation(() => Canvas!.gameObject)
                         .WithJumpAnimation()
                         .Bind(ref _replayDeletionDialog),

@@ -58,8 +58,10 @@ namespace BeatLeader.UI.Replayer {
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
-                gap: 1f
-            ).WithSizeDelta(80f, 83f /* toolbar + controls + gap */).Use(transform);
+                gap: 1f,
+                constrainHorizontal: false,
+                constrainVertical: false
+            ).Use(transform);
             //
             _toolbar.Setup(
                 _pauseController,

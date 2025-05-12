@@ -28,91 +28,100 @@ namespace BeatLeader.UI.Replayer {
 
         #endregion
 
-        #region Animation
-
-        private readonly ValueAnimator _valueAnimator = new() { LerpCoefficient = 15f };
+        #region Hide & Present
 
         public void Present() {
-            _valueAnimator.Push();
+            _panelScale.Value = Vector3.one;
+            _canvasAlpha.Value = 0.8f;
             _screen!.BlockRaycasts = true;
         }
 
         public void Hide() {
-            _valueAnimator.Pull();
+            _panelScale.Value = Vector3.zero;
+            _canvasAlpha.Value = 1f;
             _screen!.BlockRaycasts = false;
-        }
-
-        private void RefreshPanelAnimation(float progress) {
-            ContentTransform.localScale = Vector3.one * Mathf.Lerp(0f, 1f, progress);
-        }
-
-        protected override void OnUpdate() {
-            _valueAnimator.Update();
-            RefreshPanelAnimation(_valueAnimator.Progress);
         }
 
         #endregion
 
         #region Construct
 
+        private AnimatedValue<Vector3> _panelScale = null!;
+        private AnimatedValue<float> _canvasAlpha = null!;
+
         private Slider _radiusSlider = null!;
         private Toggle _radiusToggle = null!;
         private float _radius;
 
         protected override GameObject Construct() {
-            return new Layout {
-                ContentTransform = {
-                    pivot = new(0.5f, 1f)
-                },
-                Children = {
-                    new Background {
-                        ContentTransform = {
-                            pivot = new(0.5f, 1f)
-                        },
-                        Children = {
-                            //radius toggle
-                            new Toggle()
-                                .WithListener(
-                                    x => x.Active,
-                                    HandleRadiusStateChanged
-                                )
-                                .Bind(ref _radiusToggle)
-                                .InNamedRail("Enable Radius"),
-                            //radius slider
-                            new Slider {
-                                ValueRange = new() {
-                                    Start = 40f,
-                                    End = 120f
-                                },
-                                ValueStep = 10f
-                            }.WithListener(
-                                x => x.Value,
-                                HandleRadiusChanged
-                            ).AsFlexItem(
-                                size: new() { x = 36f, y = 6f }
-                            ).Bind(ref _radiusSlider).InNamedRail("Radius"),
-                            //ok button
-                            new BsPrimaryButton {
-                                Text = "OK",
-                                OnClick = () => CloseButtonClicked?.Invoke()
-                            }.AsFlexItem()
-                        }
-                    }.AsBackground(
-                        color: new(0.1f, 0.1f, 0.1f, 1f),
-                        pixelsPerUnit: 7f
-                    ).AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        padding: new() { top = 1f, bottom = 1f, right = 2f, left = 2f }
-                    ).AsFlexItem(
-                        flexGrow: 1f,
-                        margin: new() { top = 1f }
-                    )
-                }
-            }.AsFlexGroup().WithSizeDelta(50f, 24f).Use();
-        }
+            _panelScale = RememberAnimated(Vector3.zero, 15.fact());
+            _canvasAlpha = RememberAnimated(1f, 10.fact());
 
-        protected override void OnInitialize() {
-            Content.AddComponent<FloatingScreen>();
+            _canvasAlpha.ValueChangedEvent += x => {
+                if (_screen != null) {
+                    _screen.Alpha = x;
+                }
+            };
+
+            return new Layout {
+                    ContentTransform = {
+                        pivot = new(0.5f, 1f)
+                    },
+                    Children = {
+                        new Background {
+                            ContentTransform = {
+                                pivot = new(0.5f, 1f)
+                            },
+                            Children = {
+                                //radius toggle
+                                new Toggle()
+                                    .WithListener(
+                                        x => x.Active,
+                                        HandleRadiusStateChanged
+                                    )
+                                    .Bind(ref _radiusToggle)
+                                    .InNamedRail("Enable Radius"),
+                                //radius slider
+                                new Slider {
+                                    ValueRange = new() {
+                                        Start = 40f,
+                                        End = 120f
+                                    },
+                                    ValueStep = 10f
+                                }.WithListener(
+                                    x => x.Value,
+                                    HandleRadiusChanged
+                                ).AsFlexItem(
+                                    size: new() { x = 36f, y = 6f }
+                                ).Bind(ref _radiusSlider).InNamedRail("Radius"),
+                                //ok button
+                                new BsPrimaryButton {
+                                    Text = "OK",
+                                    Skew = 0f,
+                                    OnClick = () => CloseButtonClicked?.Invoke()
+                                }.AsFlexItem()
+                            }
+                        }.AsBackground(
+                            color: new(0.1f, 0.1f, 0.1f, 1f),
+                            pixelsPerUnit: 7f
+                        ).AsFlexGroup(
+                            direction: FlexDirection.Column,
+                            padding: new() { top = 1f, bottom = 1f, right = 2f, left = 2f },
+                            gap: 1f
+                        ).AsFlexItem(
+                            flexGrow: 1f,
+                            margin: new() { top = 1f }
+                        )
+                    }
+                }.AsFlexGroup(
+                    constrainHorizontal: false,
+                    constrainVertical: false
+                )
+                .WithNativeComponent(out CanvasGroup group)
+                .WithNativeComponent(out FloatingScreen _)
+                .Animate(_panelScale, x => x.ContentTransform.localScale)
+                .With(_ => group.ignoreParentGroups = true)
+                .Use();
         }
 
         #endregion

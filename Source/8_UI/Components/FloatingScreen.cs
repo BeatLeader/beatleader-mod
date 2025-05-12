@@ -25,6 +25,11 @@ namespace BeatLeader.UI {
             set => _curvedCanvasSettings.SetRadius(value);
         }
 
+        public float Alpha {
+            get => _canvasGroup.alpha;
+            set => _canvasGroup.alpha = value;
+        }
+
         #endregion
 
         #region Setup
@@ -33,10 +38,12 @@ namespace BeatLeader.UI {
         private VRGraphicRaycaster _raycaster = null!;
         private VRGraphicRaycaster _viewControllerRaycaster = null!;
         private Screen _screen = null!;
+        private CanvasGroup _canvasGroup = null!;
 
         private void Awake() {
             BeatSaberUtils.AddCanvas(gameObject);
             _screen = gameObject.AddComponent<Screen>();
+            _canvasGroup = gameObject.GetOrAddComponent<CanvasGroup>();
             _curvedCanvasSettings = gameObject.AddComponent<CurvedCanvasSettings>();
             CurvatureRadius = 0f;
             

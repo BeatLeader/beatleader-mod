@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using BeatLeader.Models;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -70,6 +71,7 @@ namespace BeatLeader.Utils {
             }
 
             tag.Color = newColor;
+            SynchronizationContext.Current.Send(_ => TagUpdatedEvent?.Invoke(tag), null);
         }
 
         /// <summary>
@@ -83,7 +85,7 @@ namespace BeatLeader.Utils {
                 var tag = new ReplayTag(name, color ?? Color.white);
 
                 MutableTags[name] = tag;
-                TagCreatedEvent?.Invoke(tag);
+                SynchronizationContext.Current.Send(_ => TagCreatedEvent?.Invoke(tag), null);
             }
 
             return val;
@@ -101,7 +103,7 @@ namespace BeatLeader.Utils {
             }
 
             MutableTags.Remove(name);
-            TagDeletedEvent?.Invoke(tag);
+            SynchronizationContext.Current.Send(_ => TagDeletedEvent?.Invoke(tag), null);
         }
 
         #endregion

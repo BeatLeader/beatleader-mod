@@ -60,10 +60,8 @@ namespace BeatLeader.UI.Hub {
                     }.AsBlurBackground().AsFlexItem(flexGrow: 1f),
 
                     new ReeWrapperV2<ScoreInfoPanelControls>()
-                        .With(
-                            x => {
+                        .With(x => {
                                 var ree = x.ReeComponent;
-                                ree.TabsMask &= ~ScoreInfoPanelTab.Replay;
                                 ree.followLeaderboardEvents = false;
                                 ree.TabChangedEvent += SwitchTab;
                             }
@@ -124,7 +122,7 @@ namespace BeatLeader.UI.Hub {
 
         public void SetLoading() {
             _panelControlsContainer.Enabled = false;
-            
+
             HideAllTabs();
             _scoreStatsLoadingScreen.SetActive(true);
             _scoreStatsLoadingScreen.SetFailed(false);
@@ -183,6 +181,9 @@ namespace BeatLeader.UI.Hub {
                     break;
                 case ScoreInfoPanelTab.Graph:
                     _accuracyGraphPanel.SetActive(!_scoreStatsUpdateRequired);
+                    break;
+                case ScoreInfoPanelTab.Replay:
+                    _replaySettingsPanel.SetActive(!_scoreStatsUpdateRequired);
                     break;
             }
 

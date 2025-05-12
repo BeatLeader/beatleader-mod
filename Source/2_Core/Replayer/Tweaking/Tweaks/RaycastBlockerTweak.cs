@@ -8,7 +8,7 @@ using VRUIControls;
 
 namespace BeatLeader.Replayer.Tweaking {
     internal class RaycastBlockerTweak : GameTweak {
-        public override bool CanBeInstalled => !InputUtils.IsInFPFC;
+        public override bool CanBeInstalled => !InputUtils.UsesFPFC;
 
         public static int BlockingMask = 1 << 5;
 

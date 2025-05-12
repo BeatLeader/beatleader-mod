@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BeatLeader.Replayer;
+using BeatLeader.Utils;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -34,7 +35,7 @@ namespace BeatLeader.Models {
             }
         };
 
-        public static IReadOnlyList<ICameraView> DefaultViews => EnvironmentUtils.UsesFPFC ? DefaultFpfcViews : DefaultVRViews;
+        public static IReadOnlyList<ICameraView> DefaultViews => InputUtils.UsesFPFC ? DefaultFpfcViews : DefaultVRViews;
 
         public int MaxCameraFOV { get; set; }
         public int MinCameraFOV { get; set; }

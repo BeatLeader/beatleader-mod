@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -81,7 +82,7 @@ namespace BeatLeader.UI.Replayer {
             if (_cameraController != null && cameraSettings != null) {
                 _fovSlider.ValueRange = new(cameraSettings.MinCameraFOV, cameraSettings.MaxCameraFOV);
                 _fovSlider.Value = cameraSettings.CameraFOV;
-                _fovSlider.Interactable = EnvironmentUtils.UsesFPFC;
+                _fovSlider.Interactable = InputUtils.UsesFPFC;
 
                 _cameraController.CameraFovChangedEvent += HandleCameraFovChanged;
                 _cameraController.CameraViewChangedEvent += HandleCameraViewChanged;

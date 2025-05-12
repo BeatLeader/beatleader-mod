@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 namespace BeatLeader.Models {
     internal class InternalReplayerCameraSettings : ReplayerCameraSettings {
         public override string? CameraView {
-            get => EnvironmentUtils.UsesFPFC ? FpfcCameraView : VRCameraView;
+            get => InputUtils.UsesFPFC ? FpfcCameraView : VRCameraView;
             set {
-                if (EnvironmentUtils.UsesFPFC) {
+                if (InputUtils.UsesFPFC) {
                     FpfcCameraView = value;
                 } else {
                     VRCameraView = value;
@@ -17,11 +17,11 @@ namespace BeatLeader.Models {
         }
 
         public override IReadOnlyList<ICameraView>? CameraViews {
-            get => EnvironmentUtils.UsesFPFC ?
+            get => InputUtils.UsesFPFC ?
                 FpfcCameraViews ??= DefaultFpfcViews.ToList() :
                 VRCameraViews ??= DefaultVRViews.ToList();
             set {
-                if (EnvironmentUtils.UsesFPFC) {
+                if (InputUtils.UsesFPFC) {
                     FpfcCameraViews = value?.ToList();
                 } else {
                     VRCameraViews = value?.ToList();

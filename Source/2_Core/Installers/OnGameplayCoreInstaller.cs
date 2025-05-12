@@ -112,7 +112,7 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //UI
-            if (EnvironmentUtils.UsesFPFC) {
+            if (InputUtils.UsesFPFC) {
                 Container.Bind<ReplayerDesktopScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
                 Container.Bind<ReplayerDesktopViewController>().FromNewComponentAsViewController().AsSingle();
                 Container.Bind<ReplayerDesktopUIRenderer>().FromNewComponentOnNewGameObject().AsSingle().Lazy();

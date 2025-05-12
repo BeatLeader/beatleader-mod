@@ -251,7 +251,7 @@ namespace BeatLeader.Replayer {
         public void StartReplayer(ReplayLaunchData data, Action? finishCallback) {
             data.ReplayWasFinishedEvent += HandleReplayWasFinished;
             if (!_launcher.StartReplay(data, finishCallback)) return;
-            InputUtils.forceFPFC = InputUtils.containsFPFCArg && _fpfcSettings.Ignore ? _fpfcSettings.Enabled : null;
+            InputUtils.OverrideUsesFPFC = InputUtils.HasFpfcArg && _fpfcSettings.Ignore ? _fpfcSettings.Enabled : null;
         }
 
         public async Task StartLastReplayAsync() {
@@ -268,9 +268,9 @@ namespace BeatLeader.Replayer {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
             _scenesManager.PopScenes(0.3f);
 
-            _fpfcSettings.Enabled = InputUtils.forceFPFC ?? InputUtils.containsFPFCArg;
-            InputUtils.forceFPFC = null;
-            InputUtils.EnableCursor(!InputUtils.containsFPFCArg);
+            _fpfcSettings.Enabled = InputUtils.OverrideUsesFPFC ?? InputUtils.HasFpfcArg;
+            InputUtils.OverrideUsesFPFC = null;
+            InputUtils.EnableCursor(!InputUtils.HasFpfcArg);
         }
 
         #endregion

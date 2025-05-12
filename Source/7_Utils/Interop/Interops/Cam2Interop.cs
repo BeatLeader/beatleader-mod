@@ -130,7 +130,7 @@ namespace BeatLeader.Interop {
         private static ReplayerCameraSettings? _cameraSettings;
 
         private static void HandleReplayWasStarted(ReplayLaunchData data) {
-            if (EnvironmentUtils.UsesFPFC) {
+            if (InputUtils.UsesFPFC) {
                 _cameraSettings = ReplayerLauncher.LaunchData!.Settings.CameraSettings;
                 ReplayerLauncher.LaunchData.Settings.CameraSettings = null; //disabling base camera
             }
@@ -138,7 +138,7 @@ namespace BeatLeader.Interop {
         }
 
         private static void HandleReplayWasFinished(ReplayLaunchData data) {
-            if (EnvironmentUtils.UsesFPFC) {
+            if (InputUtils.UsesFPFC) {
                 ReplayerLauncher.LaunchData!.Settings.CameraSettings = _cameraSettings;
                 _cameraSettings = null;
             }

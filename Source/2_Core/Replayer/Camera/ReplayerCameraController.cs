@@ -84,7 +84,7 @@ namespace BeatLeader.Replayer {
             camera.gameObject.SetActive(true);
             camera.name = "ReplayerViewCamera";
 
-            if (EnvironmentUtils.UsesFPFC) {
+            if (InputUtils.UsesFPFC) {
                 _smoothCamera.gameObject.SetActive(false);
                 camera.stereoTargetEye = StereoTargetEyeMask.None;
                 camera.fieldOfView = 90;
@@ -130,7 +130,7 @@ namespace BeatLeader.Replayer {
             if (cameraSettings.CameraView != null) {
                 _cameraView = views.FirstOrDefault(x => x.Name == cameraSettings.CameraView);
             }
-            if (EnvironmentUtils.UsesFPFC) {
+            if (InputUtils.UsesFPFC) {
                 Camera.fieldOfView = _launchData.Settings.CameraSettings!.CameraFOV;
             }
         }
@@ -163,7 +163,7 @@ namespace BeatLeader.Replayer {
 
         private void OnDestroy() {
             _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
-            if (!EnvironmentUtils.UsesFPFC) {
+            if (!InputUtils.UsesFPFC) {
                 UnpatchSmoothCamera();
             }
         }

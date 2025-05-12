@@ -2,36 +2,31 @@
 using UnityEngine;
 using System.Linq;
 
-namespace BeatLeader.Utils
-{
-    [Obsolete("This class is obsolete and will be removed in future updates. Use EnvironmentUtils instead.")]
-    public static class InputUtils
-    {
-        [Flags] public enum InputType
-        {
-            VR = 1,
-            FPFC = 2
-        }
+namespace BeatLeader.Utils {
+    internal static class InputUtils {
+        #region FPFC
 
-        public static bool IsInFPFC => forceFPFC ?? containsFPFCArg;
+        public static bool UsesFPFC => OverrideUsesFPFC ?? HasFpfcArg;
 
-        public static bool? forceFPFC = null;
+        public static bool? OverrideUsesFPFC { get; set; }
 
-        public static readonly bool containsFPFCArg = Environment
-            .GetCommandLineArgs().Contains("fpfc");
+        public static readonly bool HasFpfcArg = Environment
+            .GetCommandLineArgs()
+            .Contains("fpfc");
 
-        public static bool MatchesCurrentInput(InputType type)
-        {
-            return type.HasFlag(IsInFPFC ? InputType.FPFC : InputType.VR);
-        }
-        public static void SwitchCursor()
-        {
+        #endregion
+
+        #region Cursor
+
+        public static void SwitchCursor() {
             EnableCursor(!Cursor.visible);
         }
-        public static void EnableCursor(bool enable)
-        {
+
+        public static void EnableCursor(bool enable) {
             Cursor.visible = enable;
             Cursor.lockState = enable ? CursorLockMode.None : CursorLockMode.Locked;
         }
+
+        #endregion
     }
 }

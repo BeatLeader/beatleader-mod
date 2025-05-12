@@ -38,7 +38,7 @@ namespace BeatLeader.Replayer {
         }
 
         private void ApplyOffsets() {
-            if (InputUtils.IsInFPFC) return;
+            if (InputUtils.UsesFPFC) return;
             ReplayerCenterAdjust.localPosition = _posOffset;
             ReplayerCenterAdjust.localRotation = _rotOffset;
         }

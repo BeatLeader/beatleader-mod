@@ -29,8 +29,8 @@ namespace BeatLeader.UI.Hub {
                 _messageLabel.Text = stage switch {
                     DeletionStage.Warning1 => "This action will delete ALL of your local replays!",
                     DeletionStage.Warning2 => "<color=red>YOU WON'T BE ABLE TO RECOVER THE DATA! Do you REALLY want to proceed?",
-                    DeletionStage.Finish => $"Successfully deleted {_deletedReplaysCount} replays.",
-                    _ => _messageLabel.Text
+                    DeletionStage.Finish   => $"Successfully deleted {_deletedReplaysCount} replays.",
+                    _                      => _messageLabel.Text
                 };
                 if (stage is DeletionStage.Warning2) {
                     _okButton.Color = Color.red;
@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Hub {
                             }
                             .AsFlexItem(flexGrow: 1f, size: new() { y = "auto" })
                             .Bind(ref _messageLabel),
-                        
+
                         new Layout {
                             Children = {
                                 //ok button
@@ -74,7 +74,7 @@ namespace BeatLeader.UI.Hub {
                                     }
                                     .AsFlexItem(flexGrow: 1f)
                                     .Bind(ref _okButton),
-                                
+
                                 //cancel button
                                 new BsButton {
                                         Text = "Cancel",
@@ -143,53 +143,41 @@ namespace BeatLeader.UI.Hub {
         private DeletionModal _deletionModal = null!;
 
         protected override GameObject Construct() {
+            new DeletionModal()
+                .WithAlphaAnimation(() => Canvas!.gameObject)
+                .WithJumpAnimation()
+                .WithAnchor(this, RelativePlacement.Center)
+                .Bind(ref _deletionModal);
+            
             return new Layout {
                 Children = {
-                    new DeletionModal()
-                        .WithAlphaAnimation(() => Canvas!.gameObject)
-                        .WithJumpAnimation()
-                        .WithAnchor(this, RelativePlacement.Center)
-                        .Bind(ref _deletionModal),
-                    //
-                    new ReeWrapperV2<ReplayerSettingsPanel>()
-                        .WithRectExpand()
-                        .InBlurBackground()
-                        .AsFlexItem(size: new() { x = 45f, y = 14f }),
-                    //toggles
-                    new Background {
-                        Children = {
-                            //fail toggle
-                            new Toggle()
-                                .With(x => x.SetActive(GetReplaySaveFlag(ReplaySaveOption.Fail), false))
-                                .WithListener(
-                                    x => x.Active,
-                                    x => WriteReplaySaveFlag(ReplaySaveOption.Fail, x)
-                                )
-                                .InNamedRail("Save On Fail"),
+                    //fail toggle
+                    new Toggle()
+                        .With(x => x.SetActive(GetReplaySaveFlag(ReplaySaveOption.Fail), false))
+                        .WithListener(
+                            x => x.Active,
+                            x => WriteReplaySaveFlag(ReplaySaveOption.Fail, x)
+                        )
+                        .InNamedRail("Save On Fail"),
 
-                            //exit toggle
-                            new Toggle()
-                                .With(x => x.SetActive(GetReplaySaveFlag(ReplaySaveOption.Exit), false))
-                                .WithListener(
-                                    x => x.Active,
-                                    x => WriteReplaySaveFlag(ReplaySaveOption.Exit, x)
-                                )
-                                .InNamedRail("Save On Exit"),
+                    //exit toggle
+                    new Toggle()
+                        .With(x => x.SetActive(GetReplaySaveFlag(ReplaySaveOption.Exit), false))
+                        .WithListener(
+                            x => x.Active,
+                            x => WriteReplaySaveFlag(ReplaySaveOption.Exit, x)
+                        )
+                        .InNamedRail("Save On Exit"),
 
-                            //override old toggle
-                            new Toggle()
-                                .With(x => x.SetActive(ConfigFileData.Instance.OverrideOldReplays, false))
-                                .WithListener(
-                                    x => x.Active,
-                                    x => ConfigFileData.Instance.OverrideOldReplays = x
-                                )
-                                .InNamedRail("Keep Latest Only"),
-                        }
-                    }.AsBlurBackground().AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        gap: 1f,
-                        padding: 2f
-                    ).AsFlexItem(size: new() { x = 50f }),
+                    //override old toggle
+                    new Toggle()
+                        .With(x => x.SetActive(ConfigFileData.Instance.OverrideOldReplays, false))
+                        .WithListener(
+                            x => x.Active,
+                            x => ConfigFileData.Instance.OverrideOldReplays = x
+                        )
+                        .InNamedRail("Keep Latest Only"),
+
                     //delete all button
                     new BsPrimaryButton {
                             Text = "Delete All Replays",
@@ -204,7 +192,7 @@ namespace BeatLeader.UI.Hub {
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
                 justifyContent: Justify.FlexStart,
-                alignItems: Align.Center,
+                alignItems: Align.Stretch,
                 gap: 1f
             ).Use();
         }

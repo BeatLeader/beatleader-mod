@@ -38,23 +38,27 @@ namespace BeatLeader.UI.Hub {
 
         protected override GameObject Construct() {
             static ReactiveComponent CreateContainer(string name, params ILayoutItem[] children) {
-                return new Background {
-                    Children = {
-                        new Label {
-                            Text = name
-                        }.AsFlexItem(size: new() { y = "auto" })
+                return new Layout {
+                        Children = {
+                            new Label {
+                                    Text = name,
+                                    FontSize = 5f
+                                }
+                                .AsFlexItem(size: new() { y = "auto" })
+                        }
                     }
-                }.AsBlurBackground(pixelsPerUnit: 10f).With(
-                    x => x.Children.AddRange(children)
-                ).AsFlexGroup(
-                    direction: FlexDirection.Column,
-                    gap: 1f,
-                    padding: new() { left = 2f, bottom = 2f, right = 2f, top = 1f }
-                ).AsFlexItem();
+                    .With(x => x.Children.AddRange(children))
+                    .AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        gap: 1f,
+                        padding: new() { left = 2f, bottom = 2f, right = 2f, top = 1f }
+                    )
+                    .AsFlexItem();
             }
 
             static ReactiveComponent CreateColorPicker(string name, Action<Color> callback, ref ColorPicker picker) {
                 return new ColorPicker()
+                    .AsFlexItem(size: new() { y = 6f })
                     .WithListener(x => x.Color, callback)
                     .Bind(ref picker)
                     .InNamedRail(name);
@@ -63,7 +67,7 @@ namespace BeatLeader.UI.Hub {
             return new Layout {
                 Children = {
                     CreateContainer(
-                        "Hub Button Colors",
+                        "Hub Buttons",
                         //
                         CreateColorPicker(
                             "Replay Manager",
@@ -82,10 +86,10 @@ namespace BeatLeader.UI.Hub {
                             HandleSettingsButtonColorChanged,
                             ref _settingsButtonColorPicker
                         )
-                    ).AsFlexItem(size: new() { x = 60f }),
+                    ),
                     //
                     CreateContainer(
-                        "Replay Manager Search Highlight",
+                        "Replay Search",
                         //
                         CreateColorPicker(
                             "Color",
@@ -100,12 +104,12 @@ namespace BeatLeader.UI.Hub {
                             )
                             .Bind(ref _replayManagerSearchBoldToggle)
                             .InNamedRail("Bold")
-                    ).AsFlexItem(size: new() { x = 60f })
+                    )
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
                 justifyContent: Justify.FlexStart,
-                alignItems: Align.Center,
+                alignItems: Align.Stretch,
                 gap: 1f
             ).Use();
         }

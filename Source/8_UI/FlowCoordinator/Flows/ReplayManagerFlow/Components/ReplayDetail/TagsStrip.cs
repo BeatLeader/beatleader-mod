@@ -118,6 +118,7 @@ namespace BeatLeader.UI.Hub {
             } else {
                 panel = _tagsPool.Spawn(tag);
                 panel.FixedHeight = 4f;
+                panel.RefreshContainerSize(false);
             }
 
             panel.Interactable = false;
@@ -158,6 +159,7 @@ namespace BeatLeader.UI.Hub {
             new TagSelectorModal()
                 .With(x => x.BuildImmediate())
                 .WithAnchor(this, RelativePlacement.BottomCenter)
+                .WithBeforeOpenListener(x => x.AsFlexItem(size: new() { x = 50.pt(), y = 36.pt() }))
                 .WithOpenListener(HandleTagSelectorOpened)
                 .WithCloseListener(HandleTagSelectorClosed)
                 .Bind(ref _tagSelectorModal);
@@ -232,7 +234,6 @@ namespace BeatLeader.UI.Hub {
             }
 
             tagSelector.SelectTags(_metadata.Tags);
-            tagSelector.AsFlexItem(size: new() { x = 50.pt(), y = 36.pt() });
             tagSelector.SelectedTagAddedEvent += HandleSelectedTagAdded;
             tagSelector.SelectedTagRemovedEvent += HandleSelectedTagRemoved;
         }

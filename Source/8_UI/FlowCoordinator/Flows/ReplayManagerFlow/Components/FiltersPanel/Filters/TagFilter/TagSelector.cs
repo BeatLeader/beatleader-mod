@@ -9,7 +9,6 @@ using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
-using Image = Reactive.BeatSaber.Components.Image;
 using ImageButton = Reactive.BeatSaber.Components.ImageButton;
 using ScrollArea = Reactive.BeatSaber.Components.ScrollArea;
 using ScrollOrientation = Reactive.Components.Basic.ScrollOrientation;
@@ -48,15 +47,15 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            ReplayMetadataManager.TagCreatedEvent += HandleTagCreated;
-            ReplayMetadataManager.TagDeletedEvent += HandleTagDeleted;
+            ReplayMetadataManager.TagCreatedEvent += SpawnTag;
+            ReplayMetadataManager.TagDeletedEvent += DespawnTag;
 
             SetTags(ReplayMetadataManager.Tags.Values);
         }
 
         protected override void OnDestroy() {
-            ReplayMetadataManager.TagCreatedEvent -= HandleTagCreated;
-            ReplayMetadataManager.TagDeletedEvent -= HandleTagDeleted;
+            ReplayMetadataManager.TagCreatedEvent -= SpawnTag;
+            ReplayMetadataManager.TagDeletedEvent -= DespawnTag;
         }
 
         #endregion
@@ -75,13 +74,19 @@ namespace BeatLeader.UI.Hub {
 
         private void SpawnTag(ReplayTag tag) {
             var panel = _tagsPool.Spawn(tag);
+            
             panel.SetTag(tag);
+            
+            panel.SetTagPresented(false, true);
+            panel.SetTagPresented(true, false);
+            
             panel.TagStateChangedEvent += HandleTagStateChanged;
             panel.DeleteButtonClickedEvent += HandleTagDeleteButtonClicked;
+            
             _tagsContainer.Children.Add(panel);
         }
 
-        private void DespawnTag(ReplayTag tag, bool animated) {
+        private void DespawnTag(ReplayTag tag) {
             if (!_tagsPool.SpawnedComponents.TryGetValue(tag, out var panel)) {
                 return;
             }
@@ -90,7 +95,7 @@ namespace BeatLeader.UI.Hub {
             panel.DeleteButtonClickedEvent -= HandleTagDeleteButtonClicked;
             //starting disappear animation
             panel.DisappearAnimationFinishedEvent += HandleTagDisappearAnimationFinished;
-            panel.SetTagPresented(false, !animated);
+            panel.SetTagPresented(false, false);
         }
 
         private void DespawnAllTags() {
@@ -118,18 +123,20 @@ namespace BeatLeader.UI.Hub {
         private ImageButton _createTagButton = null!;
 
         protected override GameObject Construct() {
+            var lazyCanvas = Lazy(() => CanvasTransform);
+
             return new Background {
                 Children = {
                     new TagCreationDialog()
                         .WithJumpAnimation()
-                        .WithAnchor(this, RelativePlacement.Center, unbindOnceOpened: false)
-                        .WithShadow()
+                        .WithAnchor(lazyCanvas, RelativePlacement.Center, unbindOnceOpened: false)
+                        .WithAlphaAnimation()
                         .Bind(ref _tagCreationDialog),
                     //
                     new TagDeletionDialog()
                         .WithJumpAnimation()
-                        .WithAnchor(this, RelativePlacement.Center, unbindOnceOpened: false)
-                        .WithShadow()
+                        .WithAnchor(lazyCanvas, RelativePlacement.Center, unbindOnceOpened: false)
+                        .WithAlphaAnimation()
                         .Bind(ref _tagDeletionDialog),
                     //
                     new ScrollArea {
@@ -177,7 +184,9 @@ namespace BeatLeader.UI.Hub {
                 }
             }.AsBlurBackground().AsFlexGroup(
                 direction: FlexDirection.Column,
-                gap: 1f
+                gap: 1f,
+                constrainHorizontal: false,
+                constrainVertical: false
             ).Use();
         }
 
@@ -194,6 +203,7 @@ namespace BeatLeader.UI.Hub {
             if (_selectedTags.Contains(tag)) {
                 HandleTagStateChanged(tag, false);
             }
+
             var panel = _tagsPool.SpawnedComponents[tag];
             panel.DisappearAnimationFinishedEvent -= HandleTagDisappearAnimationFinished;
             _tagsPool.Despawn(panel);
@@ -208,20 +218,6 @@ namespace BeatLeader.UI.Hub {
                 SelectedTagRemovedEvent?.Invoke(tag);
             }
             NotifySelectedTagsChanged();
-        }
-
-        private void HandleTagCreated(ReplayTag tag) {
-            SynchronizationContext.Current.Send(
-                _ => SpawnTag(tag),
-                null
-            );
-        }
-
-        private void HandleTagDeleted(ReplayTag tag) {
-            SynchronizationContext.Current.Send(
-                _ => DespawnTag(tag, true),
-                null
-            );
         }
 
         #endregion

@@ -168,6 +168,7 @@ namespace BeatLeader.UI.Hub {
                     
                     panel.FixedHeight = 4f;
                     panel.LayoutDriver = _tagsContainer;
+                    panel.RefreshContainerSize(true);
                     
                     index++;
                 }
@@ -175,19 +176,25 @@ namespace BeatLeader.UI.Hub {
 
             private void RefreshTagPanels(ICollection<ReplayTag> tags) {
                 var delta = tags.Count - _spawnedTags.Count;
-                if (delta < 0) {
-                    for (var i = -delta - 1; i >= 0; i--) {
-                        var tag = _spawnedTags[i];
-                        _replaysList!._tagsPool.Despawn(tag);
-                        _spawnedTags.RemoveAt(i);
-                    }
-                } else if (delta > 0) {
-                    for (var i = 0; i < delta; i++) {
-                        if (_spawnedTags.Count == _maxTags) {
-                            break;
+                switch (delta) {
+                    case < 0: {
+                        for (var i = -delta - 1; i >= 0; i--) {
+                            var tag = _spawnedTags[i];
+                            _replaysList!._tagsPool.Despawn(tag);
+                            _spawnedTags.RemoveAt(i);
                         }
-                        var tag = _replaysList!._tagsPool.Spawn();
-                        _spawnedTags.Add(tag);
+                        break;
+                    }
+                    case > 0: {
+                        for (var i = 0; i < delta; i++) {
+                            if (_spawnedTags.Count == _maxTags) {
+                                break;
+                            }
+                            
+                            var tag = _replaysList!._tagsPool.Spawn();
+                            _spawnedTags.Add(tag);
+                        }
+                        break;
                     }
                 }
             }

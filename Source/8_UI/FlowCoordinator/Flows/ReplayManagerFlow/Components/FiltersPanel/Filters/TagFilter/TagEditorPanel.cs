@@ -13,8 +13,8 @@ namespace BeatLeader.UI.Hub {
 
         public Func<string, ReplayTagValidationResult>? ValidationContract { get; set; }
 
-        public string TagName { get; private set; } = string.Empty;
-        public Color TagColor { get; private set; }
+        public string TagName => _inputField.Text;
+        public Color TagColor => _colorPicker.Color;
         public bool IsValid => _validationResult?.Ok ?? false;
 
         public void Clear() {
@@ -34,33 +34,40 @@ namespace BeatLeader.UI.Hub {
             return new Layout {
                 Children = {
                     new InputField {
-                        Icon = GameResources.Sprites.EditIcon,
-                        Placeholder = "Enter Name",
-                        TextApplicationContract = x => {
-                            _validationResult = ValidationContract?.Invoke(x);
-                            NotifyPropertyChanged(nameof(IsValid));
-                            return _validationResult?.Ok ?? false;
-                        },
-                        Keyboard = new KeyboardModal<Keyboard, InputField>()
-                    }.WithListener(
-                        x => x.Text,
-                        x => {
-                            TagName = x;
-                            if (x.Length == 0) _validationResult = null;
-                            NotifyPropertyChanged(nameof(TagName));
-                            NotifyPropertyChanged(nameof(IsValid));
+                            Icon = GameResources.Sprites.EditIcon,
+                            Placeholder = "Enter Name",
+
+                            TextApplicationContract = x => {
+                                _validationResult = ValidationContract?.Invoke(x);
+                                NotifyPropertyChanged(nameof(IsValid));
+
+                                return _validationResult?.Ok ?? false;
+                            },
+
+                            Keyboard = new KeyboardModal<Keyboard, InputField>()
                         }
-                    ).AsFlexItem(flexGrow: 1f, flexShrink: 1f).Bind(ref _inputField),
-                    //
+                        .WithListener(
+                            x => x.Text,
+                            x => {
+                                if (x.Length == 0) {
+                                    _validationResult = null;
+                                }
+                                NotifyPropertyChanged(nameof(TagName));
+                                NotifyPropertyChanged(nameof(IsValid));
+                            }
+                        )
+                        .AsFlexItem(flexGrow: 1f, flexShrink: 1f)
+                        .Bind(ref _inputField),
+
                     new ColorPicker {
-                        Color = ColorUtils.RandomColor()
-                    }.WithListener(
-                        x => x.Color,
-                        x => {
-                            TagColor = x;
-                            NotifyPropertyChanged(nameof(TagColor));
+                            Color = ColorUtils.RandomColor()
                         }
-                    ).AsFlexItem().Bind(ref _colorPicker)
+                        .WithListener(
+                            x => x.Color,
+                            _ => NotifyPropertyChanged(nameof(TagColor))
+                        )
+                        .AsFlexItem()
+                        .Bind(ref _colorPicker)
                 }
             }.AsFlexGroup(gap: 1f).AsFlexItem(size: new() { y = 8f }).Use();
         }

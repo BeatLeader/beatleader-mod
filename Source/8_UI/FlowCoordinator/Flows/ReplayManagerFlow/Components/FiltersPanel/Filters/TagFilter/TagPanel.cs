@@ -86,10 +86,6 @@ namespace BeatLeader.UI.Hub {
         }
 
         public void SetTag(ReplayTag tag, bool animated = false) {
-            if (_replayTag == null) {
-                _setInitialValues = true;
-            }
-
             _replayTag = tag;
 
             SetEditModeEnabled(false, true);
@@ -107,20 +103,13 @@ namespace BeatLeader.UI.Hub {
         private float _wiggleReturnSpeed = 10f;
         private float _slideSpeed = 10f;
 
-        private bool _setInitialValues;
+        private bool _needToResetPos;
+        private Vector2 _prevContainerSize;
 
         private Vector3 _previousWorldContainerPos;
         private Vector2 _previousContainerPos;
 
         private void RefreshPanelSlideAnimation() {
-            if (_setInitialValues) {
-                _setInitialValues = false;
-                _buttonTransform.localPosition = Vector3.zero;
-                _previousContainerPos = ContentTransform.anchoredPosition;
-                _previousWorldContainerPos = ContentTransform.position;
-                return;
-            }
-
             // If tag container got moved not globally
             var containerPosition = ContentTransform.anchoredPosition;
             if (containerPosition != _previousContainerPos) {
@@ -150,6 +139,11 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
+        private void ResetInitialPosition() {
+            _previousContainerPos = ContentTransform.anchoredPosition;
+            _previousWorldContainerPos = ContentTransform.position;
+        }
+
         protected override void OnUpdate() {
             if (_tagPresented) {
                 RefreshPanelWiggleAnimation();
@@ -162,19 +156,31 @@ namespace BeatLeader.UI.Hub {
             }
         }
 
+        protected override void OnEnable() {
+            _needToResetPos = true;
+        }
+
+        protected override void OnLayoutApply() {
+            if (ContentTransform.parent is { } parent) {
+                var size = ((RectTransform)parent).rect.size;
+
+                if (_prevContainerSize != size) {
+                    _needToResetPos = true;
+                    _prevContainerSize = size;
+                }
+            }
+
+            if (_needToResetPos) {
+                _needToResetPos = false;
+                ResetInitialPosition();
+            }
+        }
+
         #endregion
 
         #region Visuals
 
-        public float FixedHeight {
-            get => _fixedHeight;
-            set {
-                _fixedHeight = value;
-                RefreshContainerSize();
-            }
-        }
-
-        private float _fixedHeight = 5f;
+        public float FixedHeight = 5f;
 
         private void RefreshVisuals() {
             _label.Text = _replayTag?.Name ?? "Tag";
@@ -188,14 +194,14 @@ namespace BeatLeader.UI.Hub {
             };
         }
 
-        private void RefreshContainerSize() {
+        public void RefreshContainerSize(bool recalculate) {
+            if (recalculate) {
+                ((ILayoutItem)_button).RecalculateLayoutImmediate();
+            }
+
             // Content is disconnected from the layout hierarchy, so we manually maintain the size
             var size = _button.ContentTransform.rect.size;
             _containerModifier.Size = new() { x = size.x, y = FixedHeight };
-        }
-
-        protected override void OnRectDimensionsChanged() {
-            RefreshContainerSize();
         }
 
         #endregion
@@ -283,14 +289,21 @@ namespace BeatLeader.UI.Hub {
                     constrainHorizontal: false
                 )
                 .Animate(_panelScale, x => x.ContentTransform.localScale)
-                .WithScaleAnimation(1f, 1.1f)
+                .With(x => x.WrappedButton
+                    .WithListener(
+                        y => y.IsHovered,
+                        y => _panelScale.Value = (y ? 1.1f : 1f) * Vector3.one
+                    )
+                )
                 .Bind(ref _button)
                 .Bind(ref _buttonTransform)
                 .Use(container.ContentTransform);
 
             // Helper to listen for content updates.
             new LayoutWrapper(() => _button.Content) {
-                OnLayoutRecalculated = RefreshContainerSize
+                OnLayoutRecalculated = () => {
+                    RefreshContainerSize(false);
+                }
             };
 
             return container.Content;

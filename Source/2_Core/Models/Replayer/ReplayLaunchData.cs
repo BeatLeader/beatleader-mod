@@ -42,7 +42,7 @@ namespace BeatLeader.Models {
         /// <summary>
         /// Specifies bindings to be used instead of the default ones.
         /// </summary>
-        public ReplayerBindings? ReplayerBindings { get; internal set; }
+        public ReplayerBindings? ReplayerBindings { get; set; }
 
         public IReplay MainReplay => Replays[0];
         public bool IsBattleRoyale => Replays.Count > 1;

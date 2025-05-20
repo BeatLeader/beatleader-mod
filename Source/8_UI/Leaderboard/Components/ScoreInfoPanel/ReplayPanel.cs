@@ -55,6 +55,7 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         private ReplayerViewNavigatorWrapper? _replayerNavigator;
+        private bool _blockedUntilLoaded;
 
         public void Setup(ReplayerViewNavigatorWrapper starter) {
             _replayerNavigator = starter;
@@ -73,8 +74,7 @@ namespace BeatLeader.Components {
                 Color = Color.white * 0.8f,
                 PreserveAspect = true,
                 Skew = UIStyle.Skew
-            }.With(
-                x => {
+            }.With(x => {
                     x.WithNativeComponent(out LayoutElement el);
                     el.preferredHeight = 6f;
                     el.preferredWidth = 6f;
@@ -96,6 +96,32 @@ namespace BeatLeader.Components {
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapChanged);
         }
 
+        protected override void OnRootStateChange(bool active) {
+            if (active && !_blockedUntilLoaded) {
+                var neverLoaded = ReplayManager.StartLoadingIfNeverLoaded();
+
+                if (neverLoaded) {
+                    _blockedUntilLoaded = true;
+                    BlockUntilLoaded().RunCatching();
+                }
+            }
+        }
+
+        private async Task BlockUntilLoaded() {
+            RefreshDownloadButton(DownloadButtonState.Unavailable);
+            RefreshPlayButton(PlayButtonState.Unavailable);
+
+            _blockIncomingEvents = true;
+            await ReplayManager.WaitForLoadingAsync();
+
+            _blockIncomingEvents = false;
+            _blockedUntilLoaded = false;
+
+            if (_score != null) {
+                SetScore(_score);
+            }
+        }
+
         #endregion
 
         #region SetScore
@@ -105,8 +131,13 @@ namespace BeatLeader.Components {
 
         public void SetScore(Score score) {
             _score = score;
-            _replayHeader = ReplayManager.FindReplayByHash(_score);
 
+            Plugin.Log.Error($"CHECK BLOCKED: {_blockedUntilLoaded}");
+            if (_blockedUntilLoaded) {
+                return;
+            }
+
+            _replayHeader = ReplayManager.FindReplayByHash(_score);
             ResetButtons();
         }
 
@@ -176,8 +207,7 @@ namespace BeatLeader.Components {
                     }
                     // When initiated using the download button
                     else {
-                        Task.Run(
-                            async () => {
+                        Task.Run(async () => {
                                 var result = await ReplayManager.SaveAnyReplayAsync(instance.Result!, null, CancellationToken.None);
                                 _replayHeader = result.Header;
                             }
@@ -283,8 +313,8 @@ namespace BeatLeader.Components {
             _playButton.interactable = true;
             _playButtonText.text = state switch {
                 PlayButtonState.ReadyToDownloadOrStart => "<bll>ls-watch-replay</bll>",
-                PlayButtonState.Downloading => "<bll>ls-cancel</bll>",
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+                PlayButtonState.Downloading            => "<bll>ls-cancel</bll>",
+                _                                      => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
 
@@ -314,8 +344,8 @@ namespace BeatLeader.Components {
             _downloadButtonText.text = state switch {
                 DownloadButtonState.ReadyToNavigate => "\u27a4",
                 DownloadButtonState.ReadyToDownload => "",
-                DownloadButtonState.Downloading => "<bll>ls-cancel</bll>",
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+                DownloadButtonState.Downloading     => "<bll>ls-cancel</bll>",
+                _                                   => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
 

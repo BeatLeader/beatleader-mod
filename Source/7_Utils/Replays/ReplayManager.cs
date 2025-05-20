@@ -60,6 +60,11 @@ namespace BeatLeader.Utils {
         /// </summary>
         public static IReadOnlyList<IReplayHeader> Headers => headers;
 
+        /// <summary>
+        /// Are headers being loaded or not.
+        /// </summary>
+        public static bool IsLoading => _loadHeadersTask != null;
+
         private static CancellationTokenSource _loadHeadersCancellationSource = new();
         private static Task? _loadHeadersTask;
         private static bool _everLoaded;

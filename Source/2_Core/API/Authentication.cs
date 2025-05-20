@@ -82,8 +82,6 @@ namespace BeatLeader.API {
                     Plugin.Log.Info("Login successful!");
                     _signedIn = true;
                     TaskSource.SetResult(true);
-                    var cookies = result.Headers.GetValues("Set-Cookie").First();
-                    SetAuthCookie(cookies);
                     break;
                 case BLConstants.MaintenanceStatus:
                     Plugin.Log.Debug("Login failed! Maintenance");
@@ -93,24 +91,6 @@ namespace BeatLeader.API {
                     Plugin.Log.Debug($"Login failed! status: {result.RequestStatusCode} error: {result.FailReason}");
                     authError = $"NetworkError: {result.RequestStatusCode}";
                     break;
-            }
-        }
-
-        private static void SetAuthCookie(string cookies) {
-            var cookieName = ".AspNetCore.Cookies";
-            var value = ParseValue(cookies, cookieName);
-            var domain = ParseValue(cookies, "domain");
-            var cookie = new Cookie(cookieName, value, "/", domain);
-            WebRequestFactory.CookieContainer.Add(cookie);
-            return;
-
-            static string ParseValue(string cookie, string param) {
-                param += "=";
-                var entry = cookie.IndexOf(param, StringComparison.Ordinal);
-                cookie = cookie.Remove(0, entry + param.Length);
-                //
-                var exit = cookie.IndexOf(";", StringComparison.Ordinal);
-                return cookie.Remove(exit, cookie.Length - exit);
             }
         }
 

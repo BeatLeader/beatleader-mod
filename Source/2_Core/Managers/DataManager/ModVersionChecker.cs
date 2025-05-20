@@ -60,10 +60,6 @@ namespace BeatLeader.DataManager {
             LatestReleasesRequest.Send();
         }
 
-        private void LatestReleasesRequest_StateChangedEvent(WebRequests.IWebRequest<LatestReleases> instance, WebRequests.RequestState state, string? failReason) {
-            throw new NotImplementedException();
-        }
-
         public void Dispose() {
             LatestReleasesRequest.StateChangedEvent -= OnLatestReleasesRequestStateChanged;
         }

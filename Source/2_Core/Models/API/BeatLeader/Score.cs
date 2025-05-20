@@ -8,8 +8,6 @@ namespace BeatLeader.Models {
         [JsonIgnore]
         public Player Player => HiddenPlayersCache.HidePlayerIfNeeded(originalPlayer);
 
-        public Player ActualPlayer => originalPlayer;
-        
         public int TotalMistakes => missedNotes + badCuts + bombCuts + wallsHit;
 
         [JsonProperty("player")]

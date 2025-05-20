@@ -49,10 +49,6 @@ namespace BeatLeader.DataManager {
             _selectedScoreScope = LeaderboardState.ScoresScope;
         }
 
-        private void UploadReplayRequest_StateChangedEvent() {
-            throw new NotImplementedException();
-        }
-
         private void OnDestroy() {
             ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
             ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;

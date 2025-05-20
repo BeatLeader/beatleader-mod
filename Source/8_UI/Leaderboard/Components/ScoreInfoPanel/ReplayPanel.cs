@@ -132,7 +132,6 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             _score = score;
 
-            Plugin.Log.Error($"CHECK BLOCKED: {_blockedUntilLoaded}");
             if (_blockedUntilLoaded) {
                 return;
             }

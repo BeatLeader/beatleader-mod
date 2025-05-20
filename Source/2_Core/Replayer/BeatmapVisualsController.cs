@@ -74,7 +74,7 @@ namespace BeatLeader.Replayer {
             _beatmapTimeController.SongSpeedWasChangedEvent += HandleSongSpeedChanged;
             _comboController.comboBreakingEventHappenedEvent += HandleComboDidBreak;
             _beatmapEventsProcessor.NoteEventDequeuedEvent += HandleNoteBeatmapEventDequeued;
-            _beatmapEventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStartedStarted;
+            _beatmapEventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStarted;
         }
 
         private void Start() {
@@ -88,7 +88,7 @@ namespace BeatLeader.Replayer {
             _beatmapTimeController.SongSpeedWasChangedEvent -= HandleSongSpeedChanged;
             _comboController.comboBreakingEventHappenedEvent -= HandleComboDidBreak;
             _beatmapEventsProcessor.NoteEventDequeuedEvent -= HandleNoteBeatmapEventDequeued;
-            _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleQueueAdjustStartedStarted;
+            _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleQueueAdjustStarted;
         }
 
         #endregion
@@ -174,7 +174,7 @@ namespace BeatLeader.Replayer {
             _comboWasBroke = true;
         }
 
-        private void HandleQueueAdjustStartedStarted() {
+        private void HandleQueueAdjustStarted() {
             _wasInProcess = _beatmapEventsProcessor.CurrentEventHasTimeMismatch;
             _comboWasBroke = false;
             PauseCutScoreSpawner(true);

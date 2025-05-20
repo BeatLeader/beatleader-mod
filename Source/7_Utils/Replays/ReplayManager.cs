@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace BeatLeader.Utils {
     [PublicAPI]
     public static class ReplayManager {
         public const string ReplayFileExtension = ".bsor";
+        private const string ReplayFilePattern = "*.bsor";
 
         #region Events
 
@@ -247,17 +249,17 @@ namespace BeatLeader.Utils {
         /// <param name="playEndData">Used for name formatting, not too important.</param>
         public static async Task<ReplaySavingResult> SaveAnyReplayAsync(Replay replay, PlayEndData? playEndData, CancellationToken token) {
             var hash = replay.info.CalculateReplayHash();
-            
+
             if (hashedHeaders.TryGetValue(hash, out _)) {
                 return new(ReplaySavingError.AlreadyExists);
             }
-            
+
             var name = FormatFileName(replay, playEndData);
             Plugin.Log.Info($"[ReplayManager] Replay will be saved as: {name}");
 
             if (!await FileManager.WriteReplayAsync(name, replay, token)) {
                 Plugin.Log.Error("[ReplayManager] Failed to write replay");
-                
+
                 return new(ReplaySavingError.WritingFailed);
             }
 
@@ -298,9 +300,9 @@ namespace BeatLeader.Utils {
             ReplayMetadataManager.ClearMetadata();
 
             var deletedReplays = 0;
-            foreach (var replay in Headers) {
+            foreach (var path in FileManager.GetAllReplayPaths()) {
                 try {
-                    File.Delete(replay.FilePath);
+                    File.Delete(path);
                 } catch (Exception ex) {
                     Plugin.Log.Error($"Failed to delete a replay:\n{ex}");
                     continue;
@@ -427,10 +429,10 @@ namespace BeatLeader.Utils {
             var options = ConfigFileData.Instance.ReplaySavingOptions;
 
             return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
-                LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
+                LevelEndType.Fail                         => options.HasFlag(ReplaySaveOption.Fail),
                 LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
-                LevelEndType.Clear => true,
-                _ => false
+                LevelEndType.Clear                        => true,
+                _                                         => false
             } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0);
         }
 

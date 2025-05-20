@@ -55,7 +55,6 @@ namespace BeatLeader {
         }
 
         public static void MainMenuInit() {
-            SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
             ReplayManager.LoadCache();
         }

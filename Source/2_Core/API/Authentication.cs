@@ -45,9 +45,10 @@ namespace BeatLeader.API {
         public static void ResetLogin() {
             WebRequestFactory.CookieContainer.SetCookies(new Uri(BLConstants.BEATLEADER_API_URL), "");
             _signedIn = false;
+            TaskSource = new();
         }
 
-        private static TaskCompletionSource<bool> TaskSource = new TaskCompletionSource<bool>();
+        private static TaskCompletionSource<bool> TaskSource = new();
         public static Task<bool> WaitLogin() {
             return TaskSource.Task;
         }

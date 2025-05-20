@@ -309,6 +309,7 @@ namespace BeatLeader.Utils {
             }
 
             headers.Clear();
+            hashedHeaders.Clear();
             AllReplaysDeletedEvent?.Invoke();
 
             return deletedReplays;

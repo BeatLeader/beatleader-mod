@@ -204,6 +204,10 @@ namespace BeatLeader.UI.Hub {
             _containerModifier.Size = new() { x = size.x, y = FixedHeight };
         }
 
+        protected override void OnStart() {
+            RefreshContainerSize(true);
+        }
+
         #endregion
 
         #region Construct
@@ -286,7 +290,8 @@ namespace BeatLeader.UI.Hub {
                 .AsFlexGroup(
                     padding: new() { left = 1f, right = 1f },
                     alignItems: Align.Center,
-                    constrainHorizontal: false
+                    constrainHorizontal: false,
+                    constrainVertical: false
                 )
                 .Animate(_panelScale, x => x.ContentTransform.localScale)
                 .With(x => x.WrappedButton

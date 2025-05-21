@@ -18,6 +18,7 @@ namespace BeatLeader.UI.Hub {
             _replayManagerButtonColorPicker.Color = _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor;
             _battleRoyaleButtonColorPicker.Color = _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor;
             _settingsButtonColorPicker.Color = _menuButtonsTheme.SettingsButtonColors.HoveredColor;
+            _avatarButtonColorPicker.Color = _menuButtonsTheme.EditAvatarButtonColors.HoveredColor;
             //
             _replayManagerTheme = theme.ReplayManagerSearchTheme;
             _replayManagerSearchColorPicker.Color = _replayManagerTheme.SearchHighlightColor;
@@ -32,6 +33,7 @@ namespace BeatLeader.UI.Hub {
         private ColorPicker _replayManagerButtonColorPicker = null!;
         private ColorPicker _battleRoyaleButtonColorPicker = null!;
         private ColorPicker _settingsButtonColorPicker = null!;
+        private ColorPicker _avatarButtonColorPicker = null!;
 
         private ColorPicker _replayManagerSearchColorPicker = null!;
         private Toggle _replayManagerSearchBoldToggle = null!;
@@ -68,23 +70,33 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     CreateContainer(
                         "Hub Buttons",
-                        //
+                        
+                        // Replay Manager button
                         CreateColorPicker(
                             "Replay Manager",
                             HandleReplayManagerButtonColorChanged,
                             ref _replayManagerButtonColorPicker
                         ),
-                        //
+                        
+                        // Battle Royale button
                         CreateColorPicker(
                             "Battle Royale",
                             HandleBattleRoyaleButtonColorChanged,
                             ref _battleRoyaleButtonColorPicker
                         ),
-                        //
+
+                        // Settings button
                         CreateColorPicker(
                             "Settings",
                             HandleSettingsButtonColorChanged,
                             ref _settingsButtonColorPicker
+                        ),
+
+                        // Edit avatar button
+                        CreateColorPicker(
+                            "Edit Avatar",
+                            HandleAvatarButtonColorChanged,
+                            ref _avatarButtonColorPicker
                         )
                     ),
                     //
@@ -145,6 +157,11 @@ namespace BeatLeader.UI.Hub {
         private void HandleSettingsButtonColorChanged(Color color) {
             if (_menuButtonsTheme == null) return;
             _menuButtonsTheme.SettingsButtonColors.HoveredColor = color;
+        }
+
+        private void HandleAvatarButtonColorChanged(Color color) {
+            if (_menuButtonsTheme == null) return;
+            _menuButtonsTheme.EditAvatarButtonColors.HoveredColor = color;
         }
 
         #endregion

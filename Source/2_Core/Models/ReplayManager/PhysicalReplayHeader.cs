@@ -33,29 +33,49 @@ namespace BeatLeader.Models {
         public event Action<FileStatus>? StatusChangedEvent;
 
         private readonly SemaphoreSlim _loadReplaySemaphore = new(1, 1);
-        
+
         private FileStatus _status;
-        private Replay.Replay? _cachedReplay;
+        private WeakReference<WeakRefWrapper<Replay.Replay>>? _cachedReplay;
 
         public async Task<Replay.Replay?> LoadReplayAsync(CancellationToken token) {
             await _loadReplaySemaphore.WaitAsync(token);
 
-            if (_cachedReplay != null) {
-                _loadReplaySemaphore.Release();
-                return _cachedReplay;
+            if (_status is FileStatus.Corrupted) {
+                return null;
             }
 
+            if (_cachedReplay?.TryGetTarget(out var replayHolder) ?? false) {
+                _loadReplaySemaphore.Release();
+                return replayHolder.Object;
+            }
+            
             FileStatus = FileStatus.Loading;
-            _cachedReplay = await ReplayManager.LoadReplayAsync(this, token);
-            FileStatus = _cachedReplay == null ? FileStatus.Corrupted : FileStatus.Loaded;
+            var replay = await ReplayManager.LoadReplayAsync(this, token);
+            
+            FileStatus = replay == null ? FileStatus.Corrupted : FileStatus.Loaded;
+
+            if (replay != null) {
+                var wrapper = new WeakRefWrapper<Replay.Replay>(replay);
+                wrapper.ObjectDestroyedEvent += HandleReplayUnloaded;
+
+                if (_cachedReplay == null) {
+                    _cachedReplay = new(wrapper);
+                } else {
+                    _cachedReplay.SetTarget(wrapper);
+                }
+            }
 
             _loadReplaySemaphore.Release();
 
-            return _cachedReplay;
+            return replay;
         }
 
         public void NotifyReplayDeleted() {
             FileStatus = FileStatus.Deleted;
+        }
+
+        private void HandleReplayUnloaded() {
+            FileStatus = FileStatus.Unloaded;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace BeatLeader.Replayer.Emulation {
                 if (!_avatarPrefab) {
                     _avatarPrefab = Resources
                         .FindObjectsOfTypeAll<AvatarTweenController>()
-                        .First(static x => x.name == "AnimatedAvatar")
+                        .First(static x => x && x.name == "AnimatedAvatar")
                         .gameObject;
                 }
                 return _avatarPrefab;

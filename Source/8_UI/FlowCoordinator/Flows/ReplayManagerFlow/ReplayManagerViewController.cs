@@ -34,8 +34,7 @@ namespace BeatLeader.UI.Hub {
         public async void NavigateToReplay(IReplayHeader header) {
             await ReplayManager.WaitForLoadingAsync();
             
-            _replayPanel.ReplaysList.Select(header);
-            _replayPanel.ReplaysList.ScrollTo(header, false);
+            _replayPanel.ReplaysListPanel.QueueNavigation(header);
         }
 
         private void Awake() {

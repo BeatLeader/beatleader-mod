@@ -58,18 +58,33 @@ namespace BeatLeader.UI.Hub {
         #region List Update
 
         private readonly object _locker = new();
+        private IReplayHeader? _navigateHeader;
         private bool _listIsDirty;
 
         protected override void OnLateUpdate() {
-            if (!_listIsDirty) return;
+            if (!_listIsDirty) {
+                return;
+            }
+
             lock (_locker) {
                 _replaysList.Refresh();
+
+                if (_navigateHeader != null) {
+                    _replaysList.Select(_navigateHeader);
+                    _replaysList.ScrollTo(_navigateHeader);
+                }
             }
+
             _listIsDirty = false;
         }
 
         private void SetListIsDirty() {
             _listIsDirty = true;
+        }
+
+        public void QueueNavigation(IReplayHeader header) {
+            _navigateHeader = header;
+            SetListIsDirty();
         }
 
         #endregion

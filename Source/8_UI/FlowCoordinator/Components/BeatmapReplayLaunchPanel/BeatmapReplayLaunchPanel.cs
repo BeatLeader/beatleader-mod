@@ -33,6 +33,7 @@ namespace BeatLeader.UI.Hub {
 
         IReadOnlyCollection<IReplayHeader> IBeatmapReplayLaunchPanel.SelectedReplays => ReplaysList.HighlightedItems;
         public ReplaysList ReplaysList => _replaysListPanel.ReplaysList;
+        public ReplaysListPanel ReplaysListPanel => _replaysListPanel;
 
         public event Action? SelectedReplaysUpdatedEvent;
 

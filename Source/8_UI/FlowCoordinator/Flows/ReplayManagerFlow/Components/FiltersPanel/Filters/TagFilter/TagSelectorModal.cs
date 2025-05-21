@@ -6,7 +6,7 @@ namespace BeatLeader.UI.Hub {
         public TagSelector Component => Modal.Component;
 
         protected override void OnSpawn() {
-            Modal.WithJumpAnimation();
+            this.WithJumpAnimation();
         }
     }
 }

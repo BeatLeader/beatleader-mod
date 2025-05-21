@@ -1,4 +1,5 @@
 using System;
+using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.ViewControllers;
@@ -20,6 +21,8 @@ namespace BeatLeader.Installers {
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnMenuInstaller");
+            
+            Authentication.Login().RunCatching();
 
             _container = base.Container;
             BindLeaderboard();

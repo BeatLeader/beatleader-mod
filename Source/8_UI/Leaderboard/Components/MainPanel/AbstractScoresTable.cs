@@ -233,11 +233,13 @@ namespace BeatLeader.Components {
 
         #region ExtraRowUtils
 
+        protected virtual bool AllowExtraRow => true;
+
         private int BottomSiblingIndex => RowsCount + 2;
         private const int TopSiblingIndex = 0;
 
         private ExtraRowState UpdateExtraRowState(ScoresTableContent content) {
-            if (content.ExtraRowContent != null && content.ExtraRowContent.ContainsValue(ScoreRowCellType.Rank)) {
+            if (AllowExtraRow && content.ExtraRowContent != null && content.ExtraRowContent.ContainsValue(ScoreRowCellType.Rank)) {
                 var extraRowRank = (int)(content.ExtraRowContent.GetValue(ScoreRowCellType.Rank) ?? 0);
 
                 var firstRowRank = (int)(content.MainRowContents.First()?.GetValue(ScoreRowCellType.Rank) ?? 0);

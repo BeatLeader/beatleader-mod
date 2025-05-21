@@ -55,7 +55,9 @@ namespace BeatLeader.Components {
         #endregion
 
         #region BattleRoyale
-        
+
+        protected override bool AllowExtraRow => !_battleRoyaleEnabled;
+
         private readonly HashSet<IScoreRowContent> _selectedContents = new();
         private bool _battleRoyaleEnabled;
         

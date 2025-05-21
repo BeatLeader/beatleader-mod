@@ -170,6 +170,7 @@ namespace BeatLeader.Components {
         void ILayoutComponentWrapperHandler.OnCornerPointerUp(Vector2 corner) {
             _isScaling = false;
             SetPivot(_componentTransform, new Vector2(0.5f, 0.5f));
+            _layoutData.position = (Vector2)_componentTransform.localPosition;
         }
 
         void ILayoutComponentWrapperHandler.OnCornerPointerDown(Vector2 corner) {

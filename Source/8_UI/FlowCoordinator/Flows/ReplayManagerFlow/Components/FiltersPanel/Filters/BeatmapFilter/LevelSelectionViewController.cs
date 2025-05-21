@@ -115,7 +115,6 @@ namespace BeatLeader.UI.Hub {
                 _originalBeatmapLevel,
                 true
             );
-            NavigateToBeatmap(_originalBeatmapLevel, _originalLevelCategory);
         }
 
         #endregion
@@ -159,7 +158,11 @@ namespace BeatLeader.UI.Hub {
         public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             _levelDetailViewController.didChangeContentEvent -= HandleContentChanged;
             _levelDetailView.actionButton.onClick = _lastClickedEvent;
-            //
+
+            if (_originalBeatmapLevel != null) {
+                SetSelectedLevel(_originalBeatmapLevel);
+            }
+            
             _lastSelectedLevelCategory = _levelSelectionNavigationController.selectedLevelCategory;
             _lastSelectedBeatmapLevelPack = _levelSelectionNavigationController.selectedBeatmapLevelPack;
             UnpatchLevelNavigationController();
@@ -194,6 +197,23 @@ namespace BeatLeader.UI.Hub {
             _levelCollectionNavigationController.HandleLevelCollectionViewControllerDidSelectLevel(null, level);
         }
 
+        private void SetSelectedLevel(BeatmapLevel level) {
+            var controller = _levelCollectionNavigationController;
+            var detail = _levelDetailViewController;
+
+            _levelCollectionNavigationController._beatmapLevelToBeSelectedAfterPresent = level;
+            _levelCollectionNavigationController._levelCollectionViewController._beatmapLevelToBeSelected = level;
+
+            detail._canBuyPack = controller._levelPack != null;
+            detail._pack = controller._levelPack ?? detail._beatmapLevelsModel.GetLevelPackForLevelId(level.levelID);
+            detail._standardLevelDetailView.hidePracticeButton = !controller._showPracticeButtonInDetailView;
+            detail._standardLevelDetailView.actionButtonText = controller._actionButtonTextInDetailView;
+            detail._allowedBeatmapDifficultyMask = controller._allowedBeatmapDifficultyMask;
+            detail._notAllowedCharacteristics = new(controller._notAllowedCharacteristics);
+            detail._notAllowedCharacteristics.UnionWith(detail._beatmapCharacteristicCollection.disabledBeatmapCharacteristics);
+            detail._contentIsOwnedAndReady = false;
+        }
+        
         #endregion
 
         #region Callbacks

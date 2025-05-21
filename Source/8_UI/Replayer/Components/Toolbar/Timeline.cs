@@ -125,7 +125,7 @@ namespace BeatLeader.UI.Replayer {
         public IReadOnlyCollection<string> AvailableMarkers => markerNames;
 
         private static readonly string[] markerNames = {
-            "Miss", "Bomb", "Pause"
+            "Miss", "Bomb", "Pause", "Wall"
         };
 
         private static readonly MarkerData[] markers = {
@@ -150,6 +150,12 @@ namespace BeatLeader.UI.Replayer {
                 color = Color.blue,
                 sprite = BundleLoader.PauseIcon,
                 getTimesDelegate = x => x.PauseEvents.Select(y => y.time)
+            },
+            new() {
+                name = "Wall",
+                color = Color.magenta,
+                sprite = BundleLoader.Sprites.background,
+                getTimesDelegate = x => x.WallEvents.Select(y => y.time)
             }
         };
 
@@ -161,19 +167,21 @@ namespace BeatLeader.UI.Replayer {
             group.Enabled = enable;
             var mask = _uiSettings!.MarkersMask;
             _uiSettings!.MarkersMask = name switch {
-                "Miss" => mask | TimelineMarkersMask.Miss,
-                "Bomb" => mask | TimelineMarkersMask.Bomb,
+                "Miss"  => mask | TimelineMarkersMask.Miss,
+                "Bomb"  => mask | TimelineMarkersMask.Bomb,
                 "Pause" => mask | TimelineMarkersMask.Pause,
-                _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
+                "Wall"  => mask | TimelineMarkersMask.Wall,
+                _       => throw new ArgumentOutOfRangeException(nameof(name), name, null)
             };
         }
 
         public bool GetMarkersEnabled(string name) {
             var mask = _uiSettings!.MarkersMask;
             return name switch {
-                "Miss" => (TimelineMarkersMask.Miss & mask) != 0,
-                "Bomb" => (TimelineMarkersMask.Bomb & mask) != 0,
+                "Miss"  => (TimelineMarkersMask.Miss & mask) != 0,
+                "Bomb"  => (TimelineMarkersMask.Bomb & mask) != 0,
                 "Pause" => (TimelineMarkersMask.Pause & mask) != 0,
+                "Wall"  => (TimelineMarkersMask.Wall & mask) != 0,
                 _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
             };
         }
@@ -267,8 +275,7 @@ namespace BeatLeader.UI.Replayer {
                                 Color = Color.white.ColorWithAlpha(0.8f)
                             }.Bind(ref _handle)
                         }
-                    }.WithNativeComponent(out _pointerEventsHandler).With(
-                        _ => {
+                    }.WithNativeComponent(out _pointerEventsHandler).With(_ => {
                             _pointerEventsHandler.PointerUpdatedEvent += HandlePointerUpdated;
                             _pointerEventsHandler.PointerDownEvent += HandlePointerDown;
                             _pointerEventsHandler.PointerUpEvent += HandlePointerUp;

@@ -87,10 +87,13 @@ namespace BeatLeader.UI.Replayer {
 
         private void ReloadTimelineMarkerToggles() {
             _markerTogglesPool.DespawnAll();
+
             foreach (var marker in _timeline!.AvailableMarkers) {
                 var toggle = _markerTogglesPool.Spawn();
+
                 toggle.Setup(_timeline, marker);
                 toggle.AsFlexItem();
+
                 _timelineTogglesContainer.Children.Add(toggle);
             }
         }
@@ -105,25 +108,25 @@ namespace BeatLeader.UI.Replayer {
         private Toggle _quickSettingsToggle = null!;
         private NamedRail _layoutEditorRail = null!;
 
-        protected override GameObject Construct() {
-            static Background CreateContainer(params ILayoutItem[] children) {
-                return new Background()
-                    .With(x => x.Children.AddRange(children))
-                    .AsBackground(
-                        color: new(0.1f, 0.1f, 0.1f, 1f),
-                        pixelsPerUnit: 7f
-                    ).AsFlexGroup(
-                        direction: FlexDirection.Column,
-                        padding: 2f,
-                        justifyContent: Justify.FlexStart,
-                        gap: 1f
-                    ).AsFlexItem();
-            }
+        private static Background CreateContainer(params ILayoutItem[] children) {
+            return new Background()
+                .With(x => x.Children.AddRange(children))
+                .AsBackground(
+                    color: new(0.1f, 0.1f, 0.1f, 1f),
+                    pixelsPerUnit: 7f
+                ).AsFlexGroup(
+                    direction: FlexDirection.Column,
+                    padding: 2f,
+                    justifyContent: Justify.FlexStart,
+                    gap: 1f
+                ).AsFlexItem();
+        }
 
+        private Layout CreateContent() {
             return new Layout {
                 Children = {
                     CreateContainer(
-                        //layout editor
+                        // Layout editor
                         new ImageButton {
                             Colors = UIStyle.GlowingButtonColorSet,
                             OnClick = HandleLayoutEditorButtonClicked,
@@ -137,7 +140,7 @@ namespace BeatLeader.UI.Replayer {
                             alignSelf: Align.Center
                         ).InNamedRail("Open Layout Editor").Bind(ref _layoutEditorRail),
 
-                        //watermark
+                        // Watermark
                         new Toggle().WithListener(
                             x => x.Active,
                             x => {
@@ -146,7 +149,7 @@ namespace BeatLeader.UI.Replayer {
                             }
                         ).Bind(ref _watermarkToggle).InNamedRail("Show watermark"),
 
-                        //auto-hide
+                        // Auto-hide
                         new Toggle().WithListener(
                             x => x.Active,
                             x => {
@@ -156,7 +159,7 @@ namespace BeatLeader.UI.Replayer {
                             text: "Show UI on Pause"
                         ).With(x => x.Label.RichText = true),
 
-                        //quick settings
+                        // Quick settings
                         new Toggle().WithListener(
                             x => x.Active,
                             x => {
@@ -165,14 +168,32 @@ namespace BeatLeader.UI.Replayer {
                             }
                         ).Bind(ref _quickSettingsToggle).InNamedRail("Show quick settings")
                     ),
-                    //timeline toggles
+                    
+                    // Timeline toggles
                     CreateContainer().Bind(ref _timelineTogglesContainer),
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Column,
                 justifyContent: Justify.FlexStart,
-                gap: 2f
-            ).Use();
+                gap: 2f,
+                constrainVertical: false
+            ).AsFlexItem(
+                size: new() { x = 100.pct() }
+            );
+        }
+
+        protected override GameObject Construct() {
+            return new Layout {
+                Children = {
+                    new ScrollArea {
+                        ScrollContent = CreateContent(),
+                    }.AsFlexItem(flexGrow: 1f).Export(out var scrollArea),
+                    
+                    new Scrollbar()
+                        .AsFlexItem()
+                        .With(x => scrollArea.Scrollbar = x)
+                }
+            }.AsFlexGroup(gap: 2f).AsFlexItem().Use();
         }
 
         protected override void OnInitialize() {

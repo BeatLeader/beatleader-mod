@@ -89,15 +89,20 @@ namespace BeatLeader.UI.Replayer {
                                         }
                                     }.WithRectExpand().Bind(ref _cameraView),
 
-                                    ["UI"] = new SettingsUIView().AsFlexItem().Bind(ref _uiView),
-                                    ["Other"] = new SettingsOtherView().AsFlexItem().Bind(ref _otherView)
+                                    ["UI"] = new SettingsUIView()
+                                        .AsFlexItem(size: 100.pct())
+                                        .Bind(ref _uiView),
+                                    
+                                    ["Other"] = new SettingsOtherView()
+                                        .AsFlexItem(size: 100.pct())
+                                        .Bind(ref _otherView)
                                 }
-                            }.AsFlexItem(flexGrow: 1f, margin: 2f).Bind(ref _selectorContainer),
+                            }.AsFlexItem(flexGrow: 1f, margin: 2f).AsFlexGroup().Bind(ref _selectorContainer),
 
                             //pop-up with quick settings
                             new QuickSettingsPanel().Bind(ref _quickSettingsPanel)
                         }
-                    }.AsFlexItem(flexGrow: 1f).AsBackground(
+                    }.AsFlexItem(flex: 1f).AsBackground(
                         sprite: BundleLoader.Sprites.backgroundRight,
                         pixelsPerUnit: 7f
                     ).AsFlexGroup(

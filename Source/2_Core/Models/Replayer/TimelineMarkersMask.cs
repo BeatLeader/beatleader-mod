@@ -2,6 +2,7 @@
     public enum TimelineMarkersMask {
         Miss = 1,
         Bomb = 2,
-        Pause = 4
+        Pause = 4,
+        Wall = 8
     }
 }

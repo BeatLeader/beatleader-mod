@@ -21,7 +21,7 @@ namespace BeatLeader.UI.Hub {
             new Layout {
                 Children = {
                     new TextSegmentedControl<string> {
-                            CellConstructCallback = cell => {
+                            CellSpawnedCb = (_, cell) => {
                                 cell.Label.FontStyle |= FontStyles.Italic;
                             },
                             Items = {

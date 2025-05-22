@@ -16,7 +16,7 @@ namespace BeatLeader.API {
             return _player;
         }
     }
-    public class RemoveFriendRequest : PersistentSingletonWebRequestBase<Player, RemoveFriendRequestCustomParser> {
+    public class RemoveFriendRequest : PersistentSingletonWebRequestBase<RemoveFriendRequest, Player, RemoveFriendRequestCustomParser> {
         // /user/friend?playerId={playerId}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/user/friend?playerId={0}";
 

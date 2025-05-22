@@ -59,7 +59,8 @@ namespace BeatLeader.WebRequests {
     }
 
     [PublicAPI]
-    public abstract class PersistentSingletonWebRequestBase<TResult, TDescriptor> : PersistentWebRequestBase
+    public abstract class PersistentSingletonWebRequestBase<T, TResult, TDescriptor> : PersistentWebRequestBase
+        where T : PersistentSingletonWebRequestBase<T, TResult, TDescriptor>
         where TDescriptor : IWebRequestResponseParser<TResult>, new() {
 
         private static readonly TDescriptor descriptor = new();

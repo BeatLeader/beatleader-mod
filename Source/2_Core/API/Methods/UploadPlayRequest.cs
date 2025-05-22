@@ -11,7 +11,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace BeatLeader.API {
-    internal class UploadPlayRequest : PersistentSingletonWebRequestBase<Score, JsonResponseParser<Score>> {
+    internal class UploadPlayRequest : PersistentSingletonWebRequestBase<UploadPlayRequest, Score, JsonResponseParser<Score>> {
         private static string WithCookieEndpoint => BLConstants.BEATLEADER_API_URL + "/replayoculus?{0}";
 
         public static void Send(Replay replay, PlayEndData data) {
@@ -24,6 +24,7 @@ namespace BeatLeader.API {
 
                 var compressedData = CompressReplay(replay);
                 var content = new ByteArrayContent(compressedData);
+                content.Headers.ContentEncoding.Add("gzip");
 
                 SendRet(url, 
                     HttpMethod.Put, 
@@ -31,9 +32,6 @@ namespace BeatLeader.API {
                     new WebRequestParams {
                         RetryCount = 1,
                         TimeoutSeconds = 15
-                    }, 
-                    (HttpRequestHeaders headers) => {
-                        headers.Add("Content-Encoding", "gzip");
                     }
                 );
             }).RunCatching();

@@ -7,7 +7,7 @@ using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
 
-    internal class GetOculusUserRequest : PersistentSingletonWebRequestBase<OculusUserInfo, JsonResponseParser<OculusUserInfo>> {
+    internal class GetOculusUserRequest : PersistentSingletonWebRequestBase<GetOculusUserRequest, OculusUserInfo, JsonResponseParser<OculusUserInfo>> {
         // /oculususer
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/oculususer";
 

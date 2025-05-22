@@ -5,7 +5,7 @@ using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
-    internal class VoteRequest : PersistentSingletonWebRequestBase<VoteStatus, JsonResponseParser<VoteStatus>> {
+    internal class VoteRequest : PersistentSingletonWebRequestBase<VoteRequest, VoteStatus, JsonResponseParser<VoteStatus>> {
         // /vote/{hash}/{diff}/{mode}?rankability={rankability}&stars={stars}&type={type}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/vote/{0}/{1}/{2}?{3}";
 

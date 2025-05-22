@@ -5,7 +5,7 @@ using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
 
-    internal class UserRequest : PersistentSingletonWebRequestBase<User, JsonResponseParser<User>> {
+    internal class UserRequest : PersistentSingletonWebRequestBase<UserRequest, User, JsonResponseParser<User>> {
         // /user
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/user";
 

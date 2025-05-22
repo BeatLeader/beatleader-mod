@@ -17,7 +17,7 @@ namespace BeatLeader.API {
         }
     }
 
-    public class StaticReplayRequest : PersistentSingletonWebRequestBase<Replay, ReplayResponseParser> {
+    public class StaticReplayRequest : PersistentSingletonWebRequestBase<StaticReplayRequest, Replay, ReplayResponseParser> {
         public static void Send(string url) {
             SendRet(url, HttpMethod.Get);
         }

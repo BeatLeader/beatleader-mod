@@ -4,7 +4,7 @@ using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
-    internal class LatestReleasesRequest : PersistentSingletonWebRequestBase<LatestReleases, JsonResponseParser<LatestReleases>> {
+    internal class LatestReleasesRequest : PersistentSingletonWebRequestBase<LatestReleasesRequest, LatestReleases, JsonResponseParser<LatestReleases>> {
         // /mod/lastVersions
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/mod/lastVersions";
 

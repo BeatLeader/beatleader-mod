@@ -17,7 +17,7 @@ namespace BeatLeader.API {
         }
     }
 
-    public class AddFriendRequest : PersistentSingletonWebRequestBase<Player, AddFriendRequestCustomParser> {
+    public class AddFriendRequest : PersistentSingletonWebRequestBase<AddFriendRequest, Player, AddFriendRequestCustomParser> {
         // /user/friend?playerId={playerId}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/user/friend?playerId={0}";
 

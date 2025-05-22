@@ -19,7 +19,7 @@ namespace BeatLeader.API {
         }
     }
 
-    public class ScoresOfClanRequest : PersistentSingletonWebRequestBase<ScoresTableContent, ScoresOfClanResponseParser> {
+    public class ScoresOfClanRequest : PersistentSingletonWebRequestBase<ScoresOfClanRequest, ScoresTableContent, ScoresOfClanResponseParser> {
         public const int ScoresPerPage = 8;
 
         // /v3/scores/{hash}/{diff}/{mode}/{context}/{scope}/page?player={playerId}&page={page}&count={count}

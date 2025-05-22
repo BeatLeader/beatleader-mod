@@ -5,7 +5,7 @@ using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
 
-    public class SendViewReplayRequest : PersistentSingletonWebRequestBase<byte[], RawResponseParser> {
+    public class SendViewReplayRequest : PersistentSingletonWebRequestBase<SendViewReplayRequest, byte[], RawResponseParser> {
         // /watched/{scoreId}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/watched/{0}";
 

@@ -1,112 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.UI.Reactive.Components;
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
-using IPA.Utilities;
 using Reactive;
 using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
 using TMPro;
 using UnityEngine;
-using Zenject;
 
 namespace BeatLeader.UI.Hub {
     internal class BeatmapDifficultyPanel : ReactiveComponent {
-        #region Prefab
-
-        private static Transform SegmentedControlPrefab {
-            get {
-                TouchPrefab();
-                return _segmentedControlPrefab!;
-            }
-        }
-
-        public static void TouchPrefab() {
-            if (_segmentedControlPrefab == null) {
-                _segmentedControlPrefab = Resources.FindObjectsOfTypeAll<BeatmapDifficultySegmentedControlController>().First().transform.parent;
-            }
-        }
-
-        private static Transform? _segmentedControlPrefab;
-
-        #endregion
-
         #region Construct
         
         public event Action<BeatmapDifficulty>? DifficultySelectedEvent;
 
-        private BeatmapDifficultySegmentedControlController _segmentedControl = null!;
+        private TextSegmentedControl<BeatmapDifficulty> _segmentedControl = null!;
         private Label _emptyLabel = null!;
 
         protected override GameObject Construct() {
-            return new Layout {
-                Children = {
-                    new GameObjectWrapper(() => {
-                            var panel = (RectTransform)UnityEngine.Object.Instantiate(SegmentedControlPrefab);
+            return new Background {
+                    Children = {
+                        new TextSegmentedControl<BeatmapDifficulty> {
+                            KeySelectedCb = x => DifficultySelectedEvent?.Invoke(x),
+                            CellSpawnedCb = (_, cell) => {
+                                cell.Colors = BeatSaberStyle.TextColorSet.With(
+                                    color: Color.white.ColorWithAlpha(0.9f),
+                                    hoveredColor: Color.white
+                                );
 
-                            var control = panel.GetComponentInChildren<SegmentedControl>(true);
-                            control.SetField("_container", BeatSaberUtils.MenuContainer);
+                                cell.Alignment = TextAlignmentOptions.Capline;
+                                cell.FontSize = 3.5f;
+                                cell.EnableAutoSizing = false;
+                                cell.FontStyle |= FontStyles.Italic;
+                            }
+                        }.AsFlexGroup(padding: 1f).Bind(ref _segmentedControl),
 
-                            _segmentedControl = panel.GetComponentInChildren<BeatmapDifficultySegmentedControlController>(true);
-
-                            return panel.gameObject;
-                        }
-                    ).AsFlexItem(
-                        margin: 0.5f,
-                        size: new() { x = 52f, y = 6f }
-                    ),
-
-                    new Label {
-                        Text = "No Difficulties",
-                        Alignment = TextAlignmentOptions.Midline,
-                        Color = BeatSaberStyle.SecondaryTextColor
-                    }.AsFlexItem(position: 0f).Bind(ref _emptyLabel)
+                        new Label {
+                            Text = "No Difficulties",
+                            Alignment = TextAlignmentOptions.Midline,
+                            Color = BeatSaberStyle.SecondaryTextColor
+                        }.AsFlexItem(position: 0f).Bind(ref _emptyLabel)
+                    }
                 }
-            }.AsFlexGroup().Use();
-        }
-
-        protected override void OnInitialize() {
-            this.AsFlexItem();
-            _segmentedControl.didSelectDifficultyEvent += HandleBeatmapDifficultySelected;
-            _difficulties = _segmentedControl._difficulties;
+                .AsBlurBackground(color: Color.black.ColorWithAlpha(0.55f))
+                .AsFlexGroup()
+                .AsFlexItem(
+                    size: new() { x = 52f, y = 6f },
+                    margin: 0.5f
+                )
+                .Use();
         }
 
         #endregion
 
         #region SetData
 
-        private List<BeatmapDifficulty> _difficulties = null!;
-        
         public void SetData(IReadOnlyList<BeatmapDifficulty>? difficulties) {
             var empty = difficulties == null;
             _emptyLabel.Enabled = empty;
-            _segmentedControl.gameObject.SetActive(!empty);
+            _segmentedControl.Enabled = !empty;
             
             if (!empty) {
-                _segmentedControl.SetData(
-                    difficulties,
-                    difficulties!.First(),
-                    BeatmapDifficultyMask.All
-                );
+                var items = _segmentedControl.Items;
+                items.Clear();
+
+                // ReSharper disable PossibleMultipleEnumeration
+                foreach (var characteristic in difficulties!) {
+                    items.Add(characteristic, characteristic.Name());
+                }
+
+                _segmentedControl.Select(difficulties.First());
             }
-
-            if (_difficulties.Count > 0) {
-                _segmentedControl.HandleDifficultySegmentedControlDidSelectCell(null, 0);
-            }
-        }
-
-        #endregion
-
-        #region Callbacks
-
-        private void HandleBeatmapDifficultySelected(
-            BeatmapDifficultySegmentedControlController self,
-            BeatmapDifficulty beatmapDifficulty
-        ) {
-            DifficultySelectedEvent?.Invoke(beatmapDifficulty);
         }
 
         #endregion

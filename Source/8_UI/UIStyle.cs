@@ -7,9 +7,9 @@ namespace BeatLeader.UI {
         public static float Skew => BeatSaberStyle.Skew;
         public static Color SecondaryTextColor => BeatSaberStyle.SecondaryTextColor;
 
-        public static ReadOnlyColorSet InputColorSet => BeatSaberStyle.InputColorSet;
-        public static ReadOnlyColorSet ControlColorSet => BeatSaberStyle.ControlColorSet;
-        public static ReadOnlyColorSet ControlButtonColorSet => BeatSaberStyle.ControlButtonColorSet;
+        public static SimpleColorSet InputColorSet => BeatSaberStyle.InputColorSet;
+        public static SimpleColorSet ControlColorSet => BeatSaberStyle.ControlColorSet;
+        public static SimpleColorSet ControlButtonColorSet => BeatSaberStyle.ControlButtonColorSet;
 
         public static ReadOnlyColorSet GlowingButtonColorSet => new() {
             ActiveColor = BeatSaberStyle.PrimaryButtonColor,

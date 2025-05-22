@@ -78,9 +78,6 @@ namespace BeatLeader.Installers {
             //<--------------------------------Settings------------------------------->
             Container.Bind<BeatLeaderSettingsFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             Container.Bind<BeatLeaderSettingsViewController>().FromNewComponentAsViewController().AsSingle();
-
-            BeatmapDifficultyPanel.TouchPrefab();
-            BeatmapCharacteristicPanel.TouchPrefab();
         }
     }
 }

@@ -22,7 +22,7 @@ namespace BeatLeader.UI.Hub {
                 Children = {
                     new TextSegmentedControl<string> {
                             CellSpawnedCb = (_, cell) => {
-                                cell.Label.FontStyle |= FontStyles.Italic;
+                                cell.FontStyle |= FontStyles.Italic;
                             },
                             Items = {
                                 { "GLOBAL", "Global" },

@@ -88,8 +88,8 @@ namespace BeatLeader.UI.Hub {
             if (_flowCoordinator == null || _selectionFlowCoordinator == null) {
                 throw new UninitializedComponentException();
             }
-            _flowCoordinator.PresentFlowCoordinator(_selectionFlowCoordinator);
             _selectionFlowCoordinator.AllowDifficultySelection = false;
+            _flowCoordinator.PresentFlowCoordinator(_selectionFlowCoordinator);
             _selectionFlowCoordinator.FlowCoordinatorDismissedEvent += HandleFlowCoordinatorDismissed;
             _selectionFlowCoordinator.BeatmapSelectedEvent += HandleBeatmapSelected;
         }

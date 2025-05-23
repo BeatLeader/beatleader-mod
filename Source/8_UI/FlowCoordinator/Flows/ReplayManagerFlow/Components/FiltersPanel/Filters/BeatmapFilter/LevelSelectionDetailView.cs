@@ -1,15 +1,17 @@
-﻿using BeatLeader.UI.Reactive.Components;
+﻿using System;
 using IPA.Utilities;
 using Reactive;
 using Reactive.BeatSaber.Components;
-using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BeatLeader.UI.Hub {
     internal class LevelSelectionDetailView : ReactiveComponent {
         #region Setup
 
+        public Action? OnClick { get; set; }
+        
         private StandardLevelDetailView? _detailView;
         private LevelBar? _levelBar;
         private bool _isInitialized;
@@ -45,7 +47,7 @@ namespace BeatLeader.UI.Hub {
                     new BsPrimaryButton {
                         Text = "SELECT",
                         Skew = UIStyle.Skew,
-                        OnClick = () => _detailView?.actionButton.onClick.Invoke()
+                        OnClick = () => OnClick?.Invoke()
                     }.AsFlexItem(size: new() { x = 24f, y = 8f })
                 }
             }.AsFlexGroup(

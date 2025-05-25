@@ -5,6 +5,9 @@ using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
 using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
+using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
@@ -46,15 +49,45 @@ namespace BeatLeader.UI.Hub {
             Init(_levelSelectionNavigationController);
             _levelFilteringNavigationController.SetupBeatmapLevelPacks();
             var levelCategories = _levelFilteringNavigationController._enabledLevelCategories;
-            //
+
             _levelCategoryViewController.Setup(levelCategories[0], levelCategories);
             _levelCategorySegmentedControl = _levelCategoryViewController.GetComponentInChildren<IconSegmentedControl>(true);
             _levelDetailView = _levelDetailViewController._standardLevelDetailView;
-            //construct selection detail view
-            _selectionDetailView = new() { Enabled = false };
-            _selectionDetailView.WithRectExpand().Use(_levelDetailViewController.transform);
+
+            var levelDetailTransform = _levelDetailView.transform;
+            _detailViewButtons = levelDetailTransform.Find("ActionButtons").gameObject;
+
+            // Custom button to avoid messing with base game callbacks
+            new Layout {
+                    ContentTransform = {
+                        pivot = new Vector2(0.5f, 0f)
+                    },
+                    Children = {
+                        new BsPrimaryButton {
+                            OnClick = HandleActionButtonPressed,
+                            Text = "SELECT"
+                        }.AsFlexItem(size: new() { x = 24f })
+                    }
+                }
+                .AsFlexItem(size: new() { y = 10f })
+                .AsFlexGroup(
+                    justifyContent: Justify.Center,
+                    alignItems: Align.Stretch,
+                    padding: 1f
+                )
+                .Bind(ref _detailViewCustomButtons)
+                .Use(levelDetailTransform);
+
+            // Custom selector for cases when characteristic and difficulty selectors are not needed 
+            new LevelSelectionDetailView {
+                    Enabled = false,
+                    OnClick = HandleActionButtonPressed
+                }
+                .Bind(ref _selectionDetailView)
+                .WithRectExpand()
+                .Use(_levelDetailViewController.transform);
+
             _selectionDetailView.Setup(_levelDetailView);
-            _selectionDetailView.OnClick = HandleActionButtonPressed;
         }
 
         #endregion
@@ -76,12 +109,12 @@ namespace BeatLeader.UI.Hub {
             _originalBeatmapLevel = _levelCollectionNavigationController.beatmapLevel;
             _originalAllowedBeatmapDifficultyMask = _levelSelectionNavigationController._allowedBeatmapDifficultyMask;
             _originalHidePacksIfOneOrNone = _levelSelectionNavigationController._hidePacksIfOneOrNone;
-            _originalBeatmapLevelPack =_levelSelectionNavigationController.selectedBeatmapLevelPack;
+            _originalBeatmapLevelPack = _levelSelectionNavigationController.selectedBeatmapLevelPack;
             //presenting
             _levelCollectionNavigationController._levelCollectionViewController._levelCollectionTableView.ClearSelection();
             _levelSelectionNavigationController._notAllowedCharacteristics = Array.Empty<BeatmapCharacteristicSO>();
             _levelSelectionNavigationController._allowedBeatmapDifficultyMask = BeatmapDifficultyMask.All;
-            
+
             _levelFilteringNavigationController.Setup(
                 SongPackMask.all,
                 _lastSelectedBeatmapLevelPack,
@@ -95,7 +128,7 @@ namespace BeatLeader.UI.Hub {
             //restoring initial values
             _levelSelectionNavigationController._allowedBeatmapDifficultyMask = _originalAllowedBeatmapDifficultyMask;
             _levelSelectionNavigationController._hidePacksIfOneOrNone = _originalHidePacksIfOneOrNone;
-            
+
             _levelFilteringNavigationController.Setup(
                 SongPackMask.all,
                 _originalBeatmapLevelPack,
@@ -114,16 +147,36 @@ namespace BeatLeader.UI.Hub {
         public bool allowDifficultySelection = true;
 
         private LevelSelectionDetailView _selectionDetailView = null!;
+        private GameObject _detailViewButtons = null!;
+        private Layout _detailViewCustomButtons = null!;
 
         private void PatchLevelDetail() {
-            if (allowDifficultySelection) return;
+            if (allowDifficultySelection) {
+                return;
+            }
+
             _levelDetailView.gameObject.SetActive(false);
             _selectionDetailView.Enabled = true;
             _selectionDetailView.Refresh();
         }
 
+        private void PatchLevelDetailDynamic() {
+            if (!allowDifficultySelection) {
+                return;
+            }
+
+            _detailViewCustomButtons.ContentTransform.localPosition = _detailViewButtons.transform.localPosition;
+            _detailViewButtons.SetActive(false);
+            _detailViewCustomButtons.Enabled = true;
+        }
+
         private void UnpatchLevelDetail() {
-            if (allowDifficultySelection) return;
+            if (allowDifficultySelection) {
+                _detailViewButtons.SetActive(true);
+                _detailViewCustomButtons.Enabled = false;
+                return;
+            }
+
             _levelDetailView.gameObject.SetActive(true);
             _selectionDetailView.Enabled = false;
         }
@@ -171,12 +224,12 @@ namespace BeatLeader.UI.Hub {
                 var cell = _levelCategorySegmentedControl.cells[(int)category - 1];
                 cell.SetSelected(true, SelectableCell.TransitionType.Instant, cell, true);
             }
-            
+
             if (level == null) {
                 _levelCollectionNavigationController.HideDetailViewController();
                 return;
             }
-            
+
             _levelCollectionNavigationController.SelectLevel(level);
             _levelCollectionNavigationController.HandleLevelCollectionViewControllerDidSelectLevel(null, level);
         }
@@ -186,12 +239,16 @@ namespace BeatLeader.UI.Hub {
         #region Callbacks
 
         private void HandleContentChanged(StandardLevelDetailViewController _, StandardLevelDetailViewController.ContentType contentType) {
-            if (allowDifficultySelection) return;
-            //
+            if (allowDifficultySelection) {
+                PatchLevelDetailDynamic();
+                return;
+            }
+
             if (contentType is not StandardLevelDetailViewController.ContentType.OwnedAndReady) {
                 _selectionDetailView.Enabled = false;
                 return;
             }
+
             _selectionDetailView.Enabled = true;
             _levelDetailView.gameObject.SetActive(false);
             _selectionDetailView.Refresh();

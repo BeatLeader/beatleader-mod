@@ -136,7 +136,12 @@ namespace BeatLeader.Replayer {
         }
 
         private void Awake() {
-            if (_launchData.Settings.CameraSettings == null) return;
+            if (_launchData.Settings.CameraSettings == null) {
+                // Prevent Start from being called
+                enabled = false;
+                return;
+            }
+            
             UnityResourcesHelper.LoadResources(this);
 
             Camera = CreateCamera();

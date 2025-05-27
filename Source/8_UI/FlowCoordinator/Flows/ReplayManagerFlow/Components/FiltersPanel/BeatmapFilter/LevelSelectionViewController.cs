@@ -59,6 +59,7 @@ namespace BeatLeader.UI.Hub {
 
             // Custom button to avoid messing with base game callbacks
             new Layout {
+                    Enabled = false,
                     ContentTransform = {
                         pivot = new Vector2(0.5f, 0f)
                     },

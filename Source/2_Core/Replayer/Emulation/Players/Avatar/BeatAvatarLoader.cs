@@ -57,10 +57,16 @@ namespace BeatLeader.Replayer.Emulation {
         private GameObject CreateAvatar(Transform? parent, float size) {
             var avatar = Instantiate(AvatarPrefab, parent, false);
             var trans = avatar.transform;
+
+            foreach (Transform child in trans) {
+                child.localScale = Vector3.one;
+            }
+            
             trans.localPosition = Vector3.zero;
             trans.localScale = size * Vector3.one;
             trans.localRotation = Quaternion.identity;
             _container.InjectGameObject(avatar);
+            
             // Forcibly enable to initiate Awake
             avatar.SetActive(true);
             return avatar;

@@ -193,7 +193,7 @@ namespace BeatLeader.UI.Replayer {
                         .AsFlexItem()
                         .With(x => scrollArea.Scrollbar = x)
                 }
-            }.AsFlexGroup(gap: 2f).AsFlexItem().Use();
+            }.AsFlexGroup(gap: 1f).AsFlexItem().Use();
         }
 
         protected override void OnInitialize() {

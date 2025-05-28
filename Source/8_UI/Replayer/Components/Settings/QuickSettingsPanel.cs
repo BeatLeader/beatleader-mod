@@ -43,6 +43,7 @@ namespace BeatLeader.UI.Replayer {
                         }
                     }.AsFlexItem(size: "100%").AsFlexGroup(
                         direction: FlexDirection.Column,
+                        justifyContent: Justify.Center,
                         padding: new() { top = 1f, bottom = 1f, left = 2f, right = 2f }
                     )
                 }

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using BeatLeader.API;
 using BeatLeader.DataManager;
+using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub;
 using BeatLeader.WebRequests;
@@ -125,13 +126,7 @@ namespace BeatLeader.Components {
         
         [UIAction("on-click"), UsedImplicitly]
         private void OnClick() {
-            _level = 5;
-            _levelUpCount = 10 - _level;
-            _levelUpValue = _levelUpCount;
-            _requiredExp = CalculateRequiredExperience(10, 0);
-            _targetValue = 500 / _requiredExp;
-            Animated = true;
-            // LeaderboardEvents.NotifyPrestigeWasPressed();
+            LeaderboardEvents.NotifyPrestigeWasPressed();
         }
 
         private void OnExperienceBarConfigChanged(bool enabled) {

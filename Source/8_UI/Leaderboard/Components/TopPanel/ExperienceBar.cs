@@ -108,9 +108,13 @@ namespace BeatLeader.Components {
             _initialized = false;
             SetMaterial();
             GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
-            UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
-            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
-            PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
+            if (ConfigFileData.Instance.ExperienceBarEnabled) {
+                UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
+                UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+                PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
+            } else {
+                _experienceBar.gameObject.SetActive(false);
+            }
         }
         
         protected override void OnDispose() {

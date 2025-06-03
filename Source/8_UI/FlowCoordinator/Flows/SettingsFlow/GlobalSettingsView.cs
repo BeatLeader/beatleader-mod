@@ -115,6 +115,7 @@ namespace BeatLeader.UI.Hub {
         }
         
         private void HandleEnableExperienceBar(bool enabled) {
+            ConfigFileData.Instance.ExperienceBarEnabled = enabled;
             ExperienceBarConfigEvent?.Invoke(enabled);
         }
         

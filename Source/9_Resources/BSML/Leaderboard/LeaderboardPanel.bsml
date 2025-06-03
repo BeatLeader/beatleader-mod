@@ -15,5 +15,11 @@
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
         </horizontal>
+        
+        <horizontal pref-height="5">
+            <macro.as-host host="experience-bar">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+        </horizontal>
     </vertical>
 </horizontal>

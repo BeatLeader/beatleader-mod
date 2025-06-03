@@ -1,4 +1,6 @@
-﻿using BeatLeader.Models;
+﻿using System;
+using BeatLeader.Components;
+using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -14,6 +16,12 @@ namespace BeatLeader.UI.Hub {
             _reloadNotice.Setup(transitionsHelper);
         }
 
+        #endregion
+        
+        #region Event
+        
+        public static event Action<bool> ExperienceBarConfigEvent;
+        
         #endregion
         
         #region Notice
@@ -54,6 +62,14 @@ namespace BeatLeader.UI.Hub {
                         )
                         .Bind(ref _serverDropdown)
                         .InNamedRail("Server"),
+                    //
+                    new Toggle()
+                        .With(x => x.SetActive(ConfigFileData.Instance.ExperienceBarEnabled, false))
+                        .WithListener(
+                            x => x.Active,
+                            HandleEnableExperienceBar
+                        )
+                        .InNamedRail("Experience Bar"),
                     //
                     new ReloadNotice()
                         .AsFlexItem(margin: new() { top = 4f })
@@ -96,6 +112,10 @@ namespace BeatLeader.UI.Hub {
         
         private void HandleServerChanged(BeatLeaderServer server) {
             PluginConfig.MainServer = server;
+        }
+        
+        private void HandleEnableExperienceBar(bool enabled) {
+            ExperienceBarConfigEvent?.Invoke(enabled);
         }
         
         #endregion

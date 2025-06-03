@@ -90,6 +90,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.ClanScoreInfoButtonWasPressed += PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent += PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent += PresentBeatLeaderInfoModal;
+            LeaderboardEvents.PrestigeWasPressedEvent += PresentPrestigeModal;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction += PresentContextsModal;
             LeaderboardEvents.BattleRoyaleEnabledEvent += HandleBattleRoyaleEnabled;
@@ -101,6 +102,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.ClanScoreInfoButtonWasPressed -= PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent -= PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent -= PresentBeatLeaderInfoModal;
+            LeaderboardEvents.PrestigeWasPressedEvent -= PresentPrestigeModal;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction -= PresentContextsModal;
             LeaderboardEvents.BattleRoyaleEnabledEvent -= HandleBattleRoyaleEnabled;
@@ -147,6 +149,10 @@ namespace BeatLeader.ViewControllers {
             ReeModalSystem.OpenModal<VotingPanel>(transform, 0);
         }
 
+        private void PresentPrestigeModal() {
+            ReeModalSystem.OpenModal<PrestigePanel>(transform, 0);
+        }
+        
         private void PresentContextsModal() {
             ReeModalSystem.OpenModal<ContextsModal>(transform, 0);
         }

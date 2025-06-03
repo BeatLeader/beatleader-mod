@@ -69,6 +69,7 @@ namespace BeatLeader {
         public static Material VotingButtonMaterial;
         public static Material MiniProfileBackgroundMaterial;
         public static Material SkillTriangleMaterial;
+        public static Material ExperienceBarMaterial;
 
         public static Material UIGridMaterial;
         public static Material TextureSplitterMaterial;
@@ -99,6 +100,7 @@ namespace BeatLeader {
             UIGridMaterial = assetBundle.LoadAsset<Material>("UIGridMaterial");
             TextureSplitterMaterial = assetBundle.LoadAsset<Material>("TextureSplitterMaterial");
             SkillTriangleMaterial = assetBundle.LoadAsset<Material>("UISkillTriangleMaterial");
+            ExperienceBarMaterial = assetBundle.LoadAsset<Material>("UIExperienceBarMaterial");
             OpponentBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentBackgroundMaterial");
             OpponentScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentScoreBackgroundMaterial");
             RoundTextureMaterial = assetBundle.LoadAsset<Material>("UIRoundTextureMaterial");

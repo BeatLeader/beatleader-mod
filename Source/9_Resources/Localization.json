@@ -375,6 +375,40 @@
         }
     },
     {
+      "Token": "ls-prestige-text",
+      "Translations": {
+        "English": "Do you want to Prestige? This will reset your level",
+        "Japanese": null,
+        "Russian": null,
+        "Chinese": null,
+        "Korean": null,
+        "French": "Est-ce que tu veux Prestige? Ceci va réinitialiser ton niveau",
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null,
+        "Swedish": null,
+        "Italian": null
+      }
+    },
+    {
+      "Token": "ls-prestige-text-2",
+      "Translations": {
+        "English": "You must be max level (100) to Prestige",
+        "Japanese": null,
+        "Russian": null,
+        "Chinese": null,
+        "Korean": null,
+        "French": "Il faut être au niveau maximum (100) pour Prestige",
+        "German": null,
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": null,
+        "Swedish": null,
+        "Italian": null
+      }
+    },
+    {
         "Token": "ls-oculus-signup-button",
         "Translations": {
             "English": "Sign up",

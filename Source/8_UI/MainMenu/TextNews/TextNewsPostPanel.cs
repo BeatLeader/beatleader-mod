@@ -1,54 +1,53 @@
 ﻿using BeatLeader.Models;
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
-using HMUI;
-using JetBrains.Annotations;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using TMPro;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class TextNewsPostPanel : ReeUIComponentV2 {
-        #region UI Components
-
-        [UIValue("header"), UsedImplicitly]
-        private TextNewsPostHeaderPanel _header = null!;
-
-        [UIComponent("body"), UsedImplicitly]
-        private TMP_Text _bodyText = null!;
-
-        [UIComponent("image"), UsedImplicitly]
-        private ImageView _image = null!;
-
-        #endregion
+    internal class TextNewsPostPanel : ListViewCell<NewsPost> {
 
         #region Setup
 
-        public async void Setup(NewsPost post) {
-            _bodyText.text = post.body;
-            _header.Setup(post.ownerIcon, post.owner, post.timepost);
-            var hasImage = !string.IsNullOrEmpty(post.image);
-            _image.gameObject.SetActive(hasImage);
-            if (hasImage) {
-                var options = new BeatSaberUI.ScaleOptions
-                {
-                    ShouldScale = true,
-                    MaintainRatio = true,
-                    Width = 512,
-                    Height = 400
-                };
-                await _image.SetImageAsync(post.image, false, options);
-            }
-        }
+        protected override GameObject Construct() {
+            return new Layout {
+                Children = {
+                    new TextNewsPostHeaderPanel()
+                    .Animate(ObservableItem, (panel, item) => {
+                        panel.Name = item.owner;
+                        panel.Timestamp = item.timepost;
+                        panel.AvatarUrl = item.ownerIcon;
+                    })
+                    .AsFlexItem(),
 
-        protected override void OnInstantiate() {
-            _header = Instantiate<TextNewsPostHeaderPanel>(transform);
-        }
+                    new Label {
+                        Text = "Loading...",
+                        FontSize = 3,
+                        EnableWrapping = true
+                    }
+                    .AsFlexItem(flexGrow: 1)
+                    .Animate(ObservableItem, (label, item) => {
+                        label.Text = item.body;
+                    }),
 
-        protected override void OnInitialize() {
-            _image.material = Instantiate(new Material(Resources.FindObjectsOfTypeAll<Material>().Last(x => x.name == "UINoGlow")));
+                    new WebImage {
+                        PreserveAspect = true,
+                        Material = GameResources.UINoGlowMaterial
+                    }
+                    .Animate(ObservableItem, (image, item) => {
+                        image.Enabled = !string.IsNullOrEmpty(item.image);
+                        image.Src = item.image;
+                    })
+                    .AsFlexItem(
+                        size: new() { y = 30 }
+                    )
+                }
+            }.AsFlexGroup(
+                gap: 2,
+                direction: FlexDirection.Column
+            ).AsFlexItem()
+            .Use();
         }
 
         #endregion

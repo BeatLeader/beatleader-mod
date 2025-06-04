@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using BeatLeader.API;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
+using Reactive;
+using Reactive.BeatSaber.Components;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using Reactive.Yoga;
+using ListView = Reactive.Components.Basic.ListView<BeatLeader.Models.NewsPost, BeatLeader.UI.MainMenu.TextNewsPostPanel>;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class TextNewsPanel : AbstractNewsPanel {
-        #region Components
+    internal class TextNewsPanel : ReactiveComponent {
 
-        [UIComponent("empty-text"), UsedImplicitly] private TextMeshProUGUI _emptyText = null!;
-
-        [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
+        private ObservableValue<WebRequests.RequestState> _requestState = null!;
+        private ObservableValue<List<NewsPost>> _list = null!;
 
         protected override void OnInitialize() {
             base.OnInitialize();
@@ -20,75 +21,72 @@ namespace BeatLeader.UI.MainMenu {
             NewsRequest.StateChangedEvent += OnRequestStateChanged;
         }
 
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
             NewsRequest.StateChangedEvent -= OnRequestStateChanged;
         }
 
-        #endregion
-
-        #region Request
-
         private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<NewsPost>> instance, WebRequests.RequestState state, string? failReason) {
-            switch (state) {
-                case WebRequests.RequestState.Uninitialized:
-                case WebRequests.RequestState.Started:
-                default: {
-                    _loadingIndicator.SetActive(true);
-                    _emptyText.gameObject.SetActive(false);
-                    DisposeList();
-                    break;
-                }
-                case WebRequests.RequestState.Failed:
-                    _loadingIndicator.SetActive(false);
-                    _emptyText.gameObject.SetActive(true);
-                    _emptyText.text = "<color=#ff8888>Failed to load";
-                    DisposeList();
-                    break;
-                case WebRequests.RequestState.Finished: {
-                    _loadingIndicator.SetActive(false);
+            _requestState.Value = state;
+            if (state == WebRequests.RequestState.Finished) {
+                _list.Value = instance.Result.data;
+            }
+        }
 
-                    if (instance.Result.data is { Count: > 0 }) {
-                        _emptyText.gameObject.SetActive(false);
-                        PresentList(instance.Result.data);
-                    } else {
-                        _emptyText.gameObject.SetActive(true);
-                        _emptyText.text = "There is no news";
-                        DisposeList();
+        protected override GameObject Construct() {
+            _requestState = Remember(WebRequests.RequestState.Uninitialized);
+            _list = Remember(new List<NewsPost>());
+
+            return new Background {
+                Children = {
+                    new ScrollArea {
+                        ScrollContent = new Layout {
+                            Children = {
+                                new Spinner()
+                                    .AsFlexItem(size: new() { x = 8, y = 8 })
+                                    .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Uninitialized || state == WebRequests.RequestState.Started),
+                                new Label { RichText = true }
+                                    .Animate(_list, (text, list) => {
+                                        if (_requestState == WebRequests.RequestState.Finished && list.Count == 0) {
+                                            text.Text = "There is no news";
+                                            text.Enabled = true;
+                                        } else if (_requestState == WebRequests.RequestState.Failed) {
+                                            text.Text = "<color=#ff8888>Failed to load";
+                                            text.Enabled = true;
+                                        } else {
+                                            text.Enabled = false;
+                                        }
+                                    }),
+                                
+                                new ListView()
+                                    .Animate(_list, (table, list) => {
+                                        if (list.Count == 0) {
+                                            table.Enabled = false;
+                                        } else {
+                                            table.Items = list;
+                                        }
+                                    })
+                                    .AsFlexItem(),
+                            }
+                        }
+                        .AsFlexItem()
+                        .AsFlexGroup(direction: FlexDirection.Column, constrainVertical: false),
                     }
-
-                    break;
+                    .AsFlexItem(size: new() { x = 60, y = 70 })
+                    .Export(out var scrollArea),
+                    
+                    new Scrollbar()
+                        .AsFlexItem()
+                        .With(x => scrollArea.Scrollbar = x)
                 }
             }
+            .AsFlexGroup(
+                gap: 1f,
+                padding: 1f
+            ).AsBackground(
+                color: Color.white.ColorWithAlpha(0.33f),
+                pixelsPerUnit: 7f
+            ).AsFlexItem(size: new() { x = 60, y = 70 })
+            .Use();
         }
-
-        #endregion
-
-        #region List
-
-        private readonly List<TextNewsPostPanel> _list = new List<TextNewsPostPanel>();
-
-        private void PresentList(IEnumerable<NewsPost> items) {
-            DisposeList();
-
-            foreach (var item in items) {
-                var component = Instantiate<TextNewsPostPanel>(transform);
-                component.ManualInit(mainContainer);
-                component.Setup(item);
-                _list.Add(component);
-            }
-
-            MarkScrollbarDirty();
-        }
-
-        private void DisposeList() {
-            foreach (var component in _list) {
-                Destroy(component.gameObject);
-            }
-
-            _list.Clear();
-            MarkScrollbarDirty();
-        }
-
-        #endregion
     }
 }

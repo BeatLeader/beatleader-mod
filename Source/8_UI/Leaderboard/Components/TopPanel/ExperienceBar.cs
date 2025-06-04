@@ -1,6 +1,6 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 using BeatLeader.API;
-using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub;
@@ -28,6 +28,7 @@ namespace BeatLeader.Components {
         private float _requiredExp;
         
         private bool _initialized;
+        private string _userID;
         private int _levelUpValue;
         private int _levelUpCount;
         private bool _isAnimated;
@@ -108,8 +109,8 @@ namespace BeatLeader.Components {
             _initialized = false;
             SetMaterial();
             GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
+            UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             if (ConfigFileData.Instance.ExperienceBarEnabled) {
-                UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
                 UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
             } else {
@@ -136,12 +137,10 @@ namespace BeatLeader.Components {
         private void OnExperienceBarConfigChanged(bool enabled) {
             _experienceBar.gameObject.SetActive(enabled);
             if (enabled && !_initialized) {
-                UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
                 UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
                 _initialized = enabled;
             } else if (_initialized) {
-                UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
                 UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
                 PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
                 LevelText = "";
@@ -153,15 +152,19 @@ namespace BeatLeader.Components {
         private void OnProfileRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
             if (!_initialized && state is WebRequests.RequestState.Finished) {
                 Player player = instance.Result.player;
+                _userID = player.id;
                 _level = player.level;
                 SetLevelText(_level);
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                 _gradientT = 0f;
                 _expProgress = player.experience / _requiredExp;
-                _initialized = true;
                 _isAnimated = false;
                 _levelUpCount = 0;
                 SetMaterialProperties();
+                if (ConfigFileData.Instance.ExperienceBarEnabled) {
+                    _experienceBar.gameObject.SetActive(ConfigFileData.Instance.ExperienceBarEnabled);
+                    _initialized = true;
+                }
             }
         }
 
@@ -184,12 +187,14 @@ namespace BeatLeader.Components {
         
         private async void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
             if (_level == 100) return;
-            
+
             if (state is WebRequests.RequestState.Finished or WebRequests.RequestState.Failed) {
-                ProfileManager.TryGetUserId(out var userId);
-                var request = PlayerRequest.SendRequest(userId);
+                // Need to give some time for the server to handle the upload, 5 seconds might not be enough.
+                await Task.Delay(5000);
+
+                var request = PlayerRequest.SendRequest(_userID);
                 await request.Join();
-                
+
                 if (request.RequestStatusCode == HttpStatusCode.OK) {
                     Player player = request.Result;
 
@@ -201,7 +206,7 @@ namespace BeatLeader.Components {
                         _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                         _targetValue = player.experience / _requiredExp;
                     }
-                    
+
                     Animated = true;
                 }
             }

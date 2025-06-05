@@ -11,19 +11,18 @@ namespace BeatLeader.UI.MainMenu {
         private void Awake() {
             new Layout {
                 Children = {
-                    new TextNewsPanel()
-                    //
-                    //new Layout {
-                    //    Children = {
-                    //        new MapNewsPanel(),
-                    //        new EventNewsPanel(),
-                    //    }
-                    //}.AsFlexGroup(
-                    //    direction: FlexDirection.Column,
-                    //    gap: 1f,
-                    //    constrainHorizontal: false,
-                    //    constrainVertical: false
-                    //).Use(transform)
+                    new TextNewsPanel(),
+                    new Layout {
+                        Children = {
+                            new EventNewsPanel(),
+                            new MapNewsPanel(),
+                        }
+                    }.AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        gap: 1f,
+                        constrainHorizontal: false,
+                        constrainVertical: false
+                    ).AsFlexItem()
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Row,

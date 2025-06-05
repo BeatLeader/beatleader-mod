@@ -7,9 +7,6 @@ using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
     internal class TextNewsPostPanel : ListViewCell<NewsPost> {
-
-        #region Setup
-
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
@@ -31,13 +28,13 @@ namespace BeatLeader.UI.MainMenu {
                         label.Text = item.body;
                     }),
 
-                    new WebImage {
+                    new Image {
                         PreserveAspect = true,
                         Material = GameResources.UINoGlowMaterial
                     }
                     .Animate(ObservableItem, (image, item) => {
                         image.Enabled = !string.IsNullOrEmpty(item.image);
-                        image.Src = item.image;
+                        image.WithWebSource(item.image);
                     })
                     .AsFlexItem(
                         size: new() { y = 30 }
@@ -46,10 +43,7 @@ namespace BeatLeader.UI.MainMenu {
             }.AsFlexGroup(
                 gap: 2,
                 direction: FlexDirection.Column
-            ).AsFlexItem()
-            .Use();
+            ).AsFlexItem().Use();
         }
-
-        #endregion
     }
 }

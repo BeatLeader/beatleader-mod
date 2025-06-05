@@ -2,113 +2,98 @@
 using System.Linq;
 using BeatLeader.API;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
-using TMPro;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class MapNewsPanel : AbstractNewsPanel {
-        #region UI Components
-
-        [UIComponent("empty-text"), UsedImplicitly] private TextMeshProUGUI _emptyText = null!;
-
-        [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
-
-        protected virtual void Awake() {
-            header = Instantiate<NewsHeader>(transform);
-        }
+    internal class MapNewsPanel : ReactiveComponent {
+        private ObservableValue<WebRequests.RequestState> _requestState = null!;
+        private ObservableValue<List<TrendingMapData>> _mapList = null!;
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            header.Setup("Trending Maps");
             TrendingMapsRequest.Send();
             TrendingMapsRequest.StateChangedEvent += OnRequestStateChanged;
         }
 
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
+            base.OnDestroy();
             TrendingMapsRequest.StateChangedEvent -= OnRequestStateChanged;
         }
 
-        #endregion
-
-        #region Request
-
         private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<TrendingMapData>> instance, WebRequests.RequestState state, string? failReason) {
-            switch (state) {
-                case WebRequests.RequestState.Uninitialized:
-                case WebRequests.RequestState.Started:
-                default: {
-                    _loadingIndicator.SetActive(true);
-                    _emptyText.gameObject.SetActive(false);
-                    DisposeList();
-                    break;
-                }
-                case WebRequests.RequestState.Failed:
-                    _loadingIndicator.SetActive(false);
-                    _emptyText.gameObject.SetActive(true);
-                    _emptyText.text = "<color=#ff8888>Failed to load";
-                    DisposeList();
-                    break;
-                case WebRequests.RequestState.Finished: {
-                    _loadingIndicator.SetActive(false);
+            _requestState.Value = state;
+            if (state == WebRequests.RequestState.Finished) {
+                _mapList.Value = instance.Result.data?.Where(m => m.difficulty?.status != 5).ToList() ?? new List<TrendingMapData>();
+            } else if (state == WebRequests.RequestState.Failed) {
+                _mapList.Value = new List<TrendingMapData>();
+            }
+        }
 
-                    if (instance.Result.data is { Count: > 0 }) {
-                        _emptyText.gameObject.SetActive(false);
-                        PresentList(instance.Result.data);
-                    } else {
-                        _emptyText.gameObject.SetActive(true);
-                        _emptyText.text = "There is no trending maps";
-                        DisposeList();
+        protected override GameObject Construct() {
+            _requestState = Remember(WebRequests.RequestState.Uninitialized);
+            _mapList = Remember(new List<TrendingMapData>());
+
+            return new Background() {
+                Children = {
+                    new NewsHeader {
+                        Text = "Trending Maps"
                     }
-
-                    break;
+                    .AsFlexItem(),
+                    new ScrollArea {
+                        ScrollContent = new Layout {
+                            Children = {
+                                new Spinner()
+                                    .AsFlexItem(size: new () { x = 8, y = 8 }, alignSelf: Align.Center)
+                                    .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Started || state == WebRequests.RequestState.Uninitialized),
+                                new Label()
+                                    .AsFlexItem(alignSelf: Align.Center)
+                                    .Animate(_mapList, (label, list) => {
+                                        if (_requestState.Value == WebRequests.RequestState.Failed) {
+                                            label.Text = "<color=#ff8888>Failed to load";
+                                            label.Enabled = true;
+                                        } else if (_requestState.Value == WebRequests.RequestState.Finished && list.Count == 0) {
+                                            label.Text = "There are no trending maps";
+                                            label.Enabled = true;
+                                        } else {
+                                            label.Enabled = false;
+                                        }
+                                    }),
+                                new ListView<TrendingMapData, FeaturedPreviewPanel>()
+                                {
+                                    CellConstructed = (cell) => {
+                                        cell.ButtonAction = (item) => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
+                                        cell.BackgroundAction = (item) => MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
+                                    }
+                                }
+                                .AsFlexItem()
+                                .Animate(_mapList, (listView, list) => {
+                                    listView.Items = list;
+                                    listView.Enabled = list.Count() > 0 && _requestState.Value == WebRequests.RequestState.Finished;
+                                })
+                            }
+                        }
+                        .AsFlexGroup(direction: FlexDirection.Column, gap: 1f, padding: 1f, constrainVertical: false)
+                        .AsFlexItem()
+                    }.AsFlexItem(size: new() { x = 70, y = 39 }
+                    ).Export(out var scrollArea),
                 }
             }
+            .AsFlexGroup(
+                gap: 1f,
+                padding: 1f,
+                direction: FlexDirection.Column
+            ).AsBackground(
+                color: Color.white.ColorWithAlpha(0.33f),
+                pixelsPerUnit: 7f
+            )
+            .AsFlexItem(
+                size: new() { x = 70, y = 39 }
+            )
+            .Use();
         }
-
-        #endregion
-
-        #region List
-
-        private readonly List<FeaturedPreviewPanel> _list = new List<FeaturedPreviewPanel>();
-
-        private void PresentList(IEnumerable<TrendingMapData> items) {
-            DisposeList();
-
-            foreach (var item in items.Where(m => m.difficulty?.status != 5)) {
-                var component = Instantiate<FeaturedPreviewPanel>(transform);
-                component.ManualInit(mainContainer);
-                SetupFeaturePreview(component, item);
-                _list.Add(component);
-            }
-
-            MarkScrollbarDirty();
-        }
-
-        private void SetupFeaturePreview(FeaturedPreviewPanel panel, TrendingMapData item) {
-            panel.Setup(item.song.coverImage, item.song.name, item.song.mapper, "Play", ButtonAction, BackgroundAction);
-            return;
-
-            void ButtonAction() {
-                MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
-            }
-
-            void BackgroundAction() {
-                MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
-            }
-        }
-
-
-        private void DisposeList() {
-            foreach (var post in _list) {
-                Destroy(post.gameObject);
-            }
-
-            _list.Clear();
-            MarkScrollbarDirty();
-        }
-
-        #endregion
     }
-}
+} 

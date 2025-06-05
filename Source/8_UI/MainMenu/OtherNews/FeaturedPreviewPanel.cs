@@ -1,79 +1,89 @@
 ﻿using System;
-using BeatLeader.Components;
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
-using HMUI;
-using JetBrains.Annotations;
+using BeatLeader.Models;
+using Reactive;
+using Reactive.BeatSaber;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class FeaturedPreviewPanel : ReeUIComponentV2 {
-        #region UI Components
+    internal class FeaturedPreviewPanel : ListViewCell<TrendingMapData> {
+        public Action<TrendingMapData>? ButtonAction { get; set; }
+        public Action<TrendingMapData>? BackgroundAction { get; set; }
 
-        [UIComponent("background"), UsedImplicitly] private ImageView _background = null!;
-        
-        [UIComponent("image"), UsedImplicitly] private ImageView _image = null!;
-
-        [UIComponent("top-text"), UsedImplicitly] private TMP_Text _topText = null!;
-
-        [UIComponent("bottom-text"), UsedImplicitly] private TMP_Text _bottomText = null!;
-
-        [UIComponent("button"), UsedImplicitly] private TMP_Text _buttonText = null!;
-
-        [UIComponent("button"), UsedImplicitly] private Button _button = null!;
-
-        #endregion
-
-        #region Setup
-
-        private Action? _buttonAction;
-        private Action? _backgroundAction;
-
-        public async void Setup(string previewUrl, string topText, string bottomText, string buttonText, Action buttonAction, Action backgroundAction) {
-            _topText.text = $" {topText}";
-            _bottomText.text = bottomText;
-            _buttonText.text = buttonText;
-            _buttonAction = buttonAction;
-            _backgroundAction = backgroundAction;
-            if (!string.IsNullOrEmpty(previewUrl)) {
-                await _image.SetImageAsync(previewUrl);
-            }
+        protected override GameObject Construct() {
+            return new BackgroundButton {
+                Colors = new StateColorSet {
+                    States = {
+                        GraphicState.None.WithColor(Color.clear),
+                        GraphicState.Active.WithColor(Color.white.ColorWithAlpha(0.53f)),
+                        GraphicState.Hovered.WithColor(new Color(0, 0, 0, 0.5f + 0.4f))
+                    }
+                },
+                Image = {
+                    Sprite = BeatSaberResources.Sprites.background
+                },
+                OnClick = () => BackgroundAction?.Invoke(Item),
+                Children = {
+                    new Image {
+                        Sprite = BundleLoader.UnknownIcon,
+                        Material = BundleLoader.RoundTextureMaterial,
+                        Skew = UIStyle.Skew
+                    }.AsFlexItem(
+                        size: new() { x = 10, y = 10 }
+                    ).Animate(ObservableItem, (img, item) => {
+                        if (item == null) return;
+                        if (string.IsNullOrEmpty(item.song.coverImage)) img.Sprite = BundleLoader.UnknownIcon;
+                        else img.WithWebSource(item.song.coverImage);
+                    }),
+                    new Layout {
+                        Children = {
+                            new Label {
+                                FontSize = 4f,
+                                Overflow = TextOverflowModes.Ellipsis,
+                                Alignment = TextAlignmentOptions.Left
+                            }.AsFlexItem()
+                            .Animate(ObservableItem, (lbl, item) => {
+                                if (item == null) return;
+                                lbl.Text = item.song.name;
+                            }),
+                            new Label {
+                                FontSize = 3f,
+                                Overflow = TextOverflowModes.Ellipsis,
+                                Alignment = TextAlignmentOptions.Left,
+                                Color = new Color(0.53f, 0.53f, 0.53f)
+                            }.AsFlexItem()
+                            .Animate(ObservableItem, (lbl, item) => {
+                                if (item == null) return;
+                                lbl.Text = item.song.mapper;
+                            })
+                        }
+                    }.AsFlexGroup(
+                        direction: FlexDirection.Column
+                    ).AsFlexItem(
+                        margin: new() { left = 1 }, 
+                        size: new() { x = 38 },
+                        flexGrow: 1
+                    ),
+                    new BsButton {
+                        Skew = UIStyle.Skew,
+                        OnClick = () => ButtonAction?.Invoke(Item)
+                    }.AsFlexItem(
+                        size: new() { x = 12, y = 8 }
+                    ).Animate(ObservableItem, (btn, item) => {
+                        if (item == null) return;
+                        btn.Text = "Play";
+                    })
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Row,
+                gap: 1f,
+                padding: 1f,
+                alignItems: Align.Center,
+                constrainHorizontal: false
+            ).AsFlexItem().Use();
         }
-
-        public void UpdateBottomText(string bottomText) {
-            _bottomText.text = bottomText;
-        }
-
-        protected override void OnInitialize() {
-            _background._skew = 0.18f;
-
-            _image.material = BundleLoader.RoundTextureMaterial;
-            _image._skew = 0.18f;
-            _image.__Refresh();
-
-            _topText.overflowMode = TextOverflowModes.Ellipsis;
-            _bottomText.overflowMode = TextOverflowModes.Ellipsis;
-
-            SimpleClickHandler.Custom(Content.gameObject, OnBackgroundPressed);
-            SmoothHoverController.Custom(Content.gameObject, OnBackgroundHover);
-        }
-
-        [UIAction("OnButtonPressed"), UsedImplicitly]
-        private void OnButtonPressed() {
-            _buttonAction?.Invoke();
-        }
-
-        private void OnBackgroundPressed() {
-            _backgroundAction?.Invoke();
-        }
-
-        private void OnBackgroundHover(bool hovered, float progress) {
-            _background.color = new Color(0, 0, 0, 0.5f + 0.4f * progress);
-        }
-
-        #endregion
     }
 }

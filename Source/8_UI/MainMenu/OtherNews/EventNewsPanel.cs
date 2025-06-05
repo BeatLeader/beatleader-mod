@@ -1,171 +1,94 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.API;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
-using TMPro;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class EventNewsPanel : AbstractNewsPanel {
-        #region UI Components
-
-        [UIComponent("empty-text"), UsedImplicitly] private TextMeshProUGUI _emptyText = null!;
-
-        [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
-
-        protected virtual void Awake() {
-            header = Instantiate<NewsHeader>(transform);
-        }
+    internal class EventNewsPanel : ReactiveComponent {
+        private ObservableValue<WebRequests.RequestState> _requestState = null!;
+        private ObservableValue<List<PlatformEvent>> _eventList = null!;
 
         protected override void OnInitialize() {
             base.OnInitialize();
-            header.Setup("BeatLeader Events");
+            PlatformEventsRequest.Send();
             PlatformEventsRequest.StateChangedEvent += OnRequestStateChanged;
         }
 
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
+            base.OnDestroy();
             PlatformEventsRequest.StateChangedEvent -= OnRequestStateChanged;
         }
 
-        protected override void OnRootStateChange(bool active) {
-            if (active) {
-                PlatformEventsRequest.Send();
-            }
-        }
-
-        #endregion
-
-        #region Events
-
         private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<PlatformEvent>> instance, WebRequests.RequestState state, string? failReason) {
-            switch (state) {
-                case WebRequests.RequestState.Uninitialized:
-                case WebRequests.RequestState.Started:
-                default: {
-                    _loadingIndicator.SetActive(true);
-                    _emptyText.gameObject.SetActive(false);
-                    DisposeList();
-                    break;
+            _requestState.Value = state;
+            if (state == WebRequests.RequestState.Finished) {
+                _eventList.Value = instance.Result.data ?? new List<PlatformEvent>();
+            } else if (state == WebRequests.RequestState.Failed) {
+                _eventList.Value = new List<PlatformEvent>();
+            }
+        }
+
+        protected override GameObject Construct() {
+            _requestState = Remember(WebRequests.RequestState.Uninitialized);
+            _eventList = Remember(new List<PlatformEvent>());
+
+            return new Background() {
+                Children = {
+                    new NewsHeader {
+                        Text = "BeatLeader Events"
+                    }.AsFlexItem(),
+                    new ScrollArea {
+                        ScrollContent = new Layout {
+                            Children = {
+                                new Spinner()
+                                    .AsFlexItem(size: new () { x = 8, y = 8 }, alignSelf: Align.Center)
+                                    .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Started || state == WebRequests.RequestState.Uninitialized),
+                                new Label()
+                                    .AsFlexItem(alignSelf: Align.Center)
+                                    .Animate(_eventList, (label, list) => {
+                                        if (_requestState.Value == WebRequests.RequestState.Failed) {
+                                            label.Text = "<color=#ff8888>Failed to load";
+                                            label.Enabled = true;
+                                        } else if (_requestState.Value == WebRequests.RequestState.Finished && !list.Any()) {
+                                            label.Text = "There are no events";
+                                            label.Enabled = true;
+                                        } else {
+                                            label.Enabled = false;
+                                        }
+                                    }),
+                                new ListView<PlatformEvent, EventPreviewPanel>() {
+                                    CellConstructed = (cell) => {
+                                        cell.ButtonAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
+                                        cell.BackgroundAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
+                                    }
+                                }
+                                .AsFlexItem()
+                                .Animate(_eventList, (listView, list) => {
+                                    listView.Items = list;
+                                    listView.Enabled = list.Any() && _requestState.Value == WebRequests.RequestState.Finished;
+                                })
+                            }
+                        }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f, padding: 1f, constrainVertical: false)
+                        .AsFlexItem()
+                    }.AsFlexItem(size: new() { x = 70, y = 26 } // Height from old EventNewsPanel.bsml
+                    ).Export(out var scrollArea),
                 }
-                case WebRequests.RequestState.Failed:
-                    _loadingIndicator.SetActive(false);
-                    _emptyText.gameObject.SetActive(true);
-                    _emptyText.text = "<color=#ff8888>Failed to load";
-                    DisposeList();
-                    break;
-                case WebRequests.RequestState.Finished: {
-                    _loadingIndicator.SetActive(false);
-
-                    if (instance.Result.data is { Count: > 0 }) {
-                        _emptyText.gameObject.SetActive(false);
-                        PresentList(instance.Result.data);
-                    } else {
-                        _emptyText.gameObject.SetActive(true);
-                        _emptyText.text = "There is no events";
-                        DisposeList();
-                    }
-
-                    break;
-                }
             }
+            .AsFlexGroup(
+                gap: 1f,
+                padding: 1f,
+                direction: FlexDirection.Column
+            ).AsBackground(
+                color: Color.white.ColorWithAlpha(0.33f),
+                pixelsPerUnit: 7f
+            ).AsFlexItem(
+                size: new() { x = 70, y = 26 } // Match height
+            ).Use();
         }
-
-        #endregion
-
-        #region List
-
-        private readonly List<FeaturedPreviewPanel> _list = new List<FeaturedPreviewPanel>();
-
-        private void PresentList(IEnumerable<PlatformEvent> items) {
-            DisposeList();
-
-            foreach (var item in items) {
-                var component = Instantiate<FeaturedPreviewPanel>(transform);
-                component.ManualInit(mainContainer);
-                SetupFeaturePreview(component, item);
-                _list.Add(component);
-            }
-
-            MarkScrollbarDirty();
-        }
-
-        private string FormatRemainingTime(TimeSpan span) {
-            if (span.TotalDays >= 1) {
-                return $"Ongoing! {(int)span.TotalDays} day{((int)span.TotalDays > 1 ? "s" : "")} left";
-            }
-            if (span.TotalHours >= 1) {
-                return $"Ongoing! {(int)span.TotalHours} hour{((int)span.TotalHours > 1 ? "s" : "")} left";
-            }
-            if (span.TotalMinutes >= 1) {
-                return $"Ongoing! {(int)span.TotalMinutes} minute{((int)span.TotalMinutes > 1 ? "s" : "")} left";
-            }
-            return $"Ongoing! {(int)span.TotalSeconds} second{((int)span.TotalSeconds > 1 ? "s" : "")} left";
-        }
-
-        private string ScheduleBottomText(FeaturedPreviewPanel panel, PlatformEvent item) {
-            string bottomText;
-            var timeSpan = FormatUtils.GetRelativeTime(item.endDate);
-            var remainingTime = timeSpan;
-            if (timeSpan < TimeSpan.Zero) {
-                bottomText = $"<color=#88FF88>{FormatRemainingTime(-timeSpan)}";
-                
-                // Calculate time until next significant change
-                remainingTime = -timeSpan;
-                
-            } else {
-                var date = FormatUtils.GetRelativeTimeString(timeSpan, false);
-                bottomText = $"<color=#884444>Ended {date}";
-            }
-
-            TimeSpan updateDelay;
-            if (remainingTime.TotalDays >= 1) {
-                updateDelay = TimeSpan.FromDays(Math.Ceiling(remainingTime.TotalDays)) - remainingTime;
-            }
-            else if (remainingTime.TotalHours >= 1) {
-                updateDelay = TimeSpan.FromHours(Math.Ceiling(remainingTime.TotalHours)) - remainingTime;
-            }
-            else if (remainingTime.TotalMinutes >= 1) {
-                updateDelay = TimeSpan.FromMinutes(Math.Ceiling(remainingTime.TotalMinutes)) - remainingTime;
-            }
-            else {
-                updateDelay = TimeSpan.FromSeconds(1);
-            }
-
-            // Schedule update
-            StartCoroutine(UpdateAfterDelay(updateDelay, panel, item));
-
-            return bottomText;
-        }
-
-        private void SetupFeaturePreview(FeaturedPreviewPanel panel, PlatformEvent item) {
-            
-            string bottomText = ScheduleBottomText(panel, item);
-            panel.Setup(item.image, item.name, bottomText, "Details", ButtonAction, ButtonAction);
-            return;
-
-            void ButtonAction() {
-                ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
-            }
-        }
-
-        private IEnumerator UpdateAfterDelay(TimeSpan delay, FeaturedPreviewPanel panel, PlatformEvent item) {
-            yield return new WaitForSeconds((float)delay.TotalSeconds);
-            string bottomText = ScheduleBottomText(panel, item);
-            panel.UpdateBottomText(bottomText);
-        }
-
-        private void DisposeList() {
-            foreach (var post in _list) {
-                Destroy(post.gameObject);
-            }
-
-            _list.Clear();
-            MarkScrollbarDirty();
-        }
-
-        #endregion
     }
-}
+} 

@@ -1,6 +1,7 @@
 ﻿using Reactive;
 using Reactive.BeatSaber;
 using Reactive.BeatSaber.Components;
+using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
 
@@ -23,10 +24,10 @@ namespace BeatLeader.UI.MainMenu {
 
         public string AvatarUrl {
             get => "";
-            set => _avatarImage.Src = value;
+            set => _avatarImage.WithWebSource(value);
         }
 
-        private WebImage _avatarImage = null!;
+        private Image _avatarImage = null!;
 
         protected override GameObject Construct() {
             return new Background {
@@ -37,7 +38,7 @@ namespace BeatLeader.UI.MainMenu {
                 Children = {
                     new Layout {
                         Children = {
-                            new WebImage {
+                            new Image {
                                 Sprite = BundleLoader.UnknownIcon,
                                 Material = BundleLoader.RoundTextureMaterial
                             }.AsFlexItem(

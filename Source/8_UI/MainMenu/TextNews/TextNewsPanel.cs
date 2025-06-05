@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using Reactive.Yoga;
-using ListView = Reactive.Components.Basic.ListView<BeatLeader.Models.NewsPost, BeatLeader.UI.MainMenu.TextNewsPostPanel>;
+using Reactive.Components;
 
 namespace BeatLeader.UI.MainMenu {
     internal class TextNewsPanel : ReactiveComponent {
@@ -57,7 +57,7 @@ namespace BeatLeader.UI.MainMenu {
                                         }
                                     }),
                                 
-                                new ListView()
+                                new ListView<NewsPost, TextNewsPostPanel>()
                                     .Animate(_list, (table, list) => {
                                         if (list.Count == 0) {
                                             table.Enabled = false;

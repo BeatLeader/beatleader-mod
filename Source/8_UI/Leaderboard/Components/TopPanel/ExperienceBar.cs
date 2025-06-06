@@ -32,61 +32,71 @@ namespace BeatLeader.Components {
         private string _userID;
         private int _levelUpValue;
         private int _levelUpCount;
+        private bool _isIdle;
+        private bool _reverse;
         private bool _isAnimated;
         private float _elapsedTime;
         private float _elapsedTime2;
-        private float _animationDuration = 3f;
+        private readonly float _animationDuration = 3f;
         private float _targetValue;
         
-        private float _highlight = 0f;
+        private float _highlight;
 
         #endregion
 
         #region Animation
-        
-        private bool Animated {
-            get => _isAnimated;
-            set {
-                if (_isAnimated.Equals(value)) return;
-                _isAnimated = value;
-            }
-        }
 
         private void Update() {
-            if (_initialized && _level != 100 && Animated) {
-                _elapsedTime2 += Time.deltaTime;
-                _gradientT = Mathf.Clamp01(_elapsedTime2 / _animationDuration);
-                if (_levelUpValue > 0) {
-                    _elapsedTime += Time.deltaTime;
-                    float t = Mathf.Clamp01(_elapsedTime / _animationDuration * (_levelUpValue + 1));
-                    float targetValue = 1 - _expProgress;
-                    if (_levelUpCount != 0) {
-                        _sessionProgress = Mathf.Lerp(0f, targetValue, t);
-                    } else {
-                        _sessionProgress = Mathf.Lerp(0f, _targetValue, t);
-                    }
-
-                    if (_elapsedTime >= _animationDuration / (_levelUpValue + 1)) {
-                        if (_levelUpCount == 0) {
-                            _expProgress = 0f;
-                            _sessionProgress = _targetValue;
-                            _elapsedTime = 0f;
-                        } else {
-                            _levelUpCount--;
-                            SetLevelText(_level++);
-                            _expProgress = 0f;
-                            _sessionProgress = 0f;
-                            _elapsedTime = 0f;
-                        }
-                    }
-                } else {
+            if (_initialized && _level != 100) {
+                if (_isIdle) {
                     _elapsedTime += Time.deltaTime;
                     float t = Mathf.Clamp01(_elapsedTime / _animationDuration);
-                    _sessionProgress = Mathf.Lerp(0, _targetValue, t);
+                    if (!_reverse) {
+                        _highlight = Mathf.Lerp(0f, 1f, t);
+                    } else {
+                        _highlight = Mathf.Lerp(1f, 0f, t);
+                    }
+
+                    if (_elapsedTime >= _animationDuration) {
+                        _elapsedTime = 0f;
+                        _reverse = !_reverse;
+                    }
+                }
+                else if (_isAnimated) {
+                    _elapsedTime2 += Time.deltaTime;
+                    _gradientT = Mathf.Clamp01(_elapsedTime2 / _animationDuration);
+                    if (_levelUpValue > 0) {
+                        _elapsedTime += Time.deltaTime;
+                        float t = Mathf.Clamp01(_elapsedTime / _animationDuration * (_levelUpValue + 1));
+                        float targetValue = 1 - _expProgress;
+                        if (_levelUpCount != 0) {
+                            _sessionProgress = Mathf.Lerp(0f, targetValue, t);
+                        } else {
+                            _sessionProgress = Mathf.Lerp(0f, _targetValue, t);
+                        }
+
+                        if (_elapsedTime >= _animationDuration / (_levelUpValue + 1)) {
+                            if (_levelUpCount == 0) {
+                                _expProgress = 0f;
+                                _sessionProgress = _targetValue;
+                                _elapsedTime = 0f;
+                            } else {
+                                _levelUpCount--;
+                                SetLevelText(_level++);
+                                _expProgress = 0f;
+                                _sessionProgress = 0f;
+                                _elapsedTime = 0f;
+                            }
+                        }
+                    } else {
+                        _elapsedTime += Time.deltaTime;
+                        float t = Mathf.Clamp01(_elapsedTime / _animationDuration);
+                        _sessionProgress = Mathf.Lerp(0, _targetValue, t);
                     
-                    if (_elapsedTime >= _animationDuration)
-                    {
-                        _sessionProgress = _targetValue;
+                        if (_elapsedTime >= _animationDuration)
+                        {
+                            _sessionProgress = _targetValue;
+                        }
                     }
                 }
 
@@ -100,7 +110,7 @@ namespace BeatLeader.Components {
                     _targetValue = 0f;
                     _sessionProgress = 0f;
                     _gradientT = 0f;
-                    Animated = false;
+                    _isAnimated = false;
                 }
             }
         }
@@ -209,7 +219,7 @@ namespace BeatLeader.Components {
             if (_level == 100) return;
 
             if (previousScene.name == SceneNames.Game && nextScene.name == SceneNames.Menu) {
-                if (Animated) {
+                if (_isAnimated) {
                     if (_levelUpValue == 0) {
                         _expProgress += _targetValue;
                     } else {
@@ -218,8 +228,13 @@ namespace BeatLeader.Components {
                     _targetValue = 0f;
                     _sessionProgress = 0f;
                     _gradientT = 0f;
-                    Animated = false;
+                    _isAnimated = false;
                 }
+
+                _isIdle = true;
+                _highlight = 0f;
+                _elapsedTime = 0f;
+                
                 SetMaterialProperties();
                 await Task.Delay(3000);
                 
@@ -233,19 +248,20 @@ namespace BeatLeader.Components {
                         if (target > 0) {
                             _targetValue = player.experience / _requiredExp - _expProgress;
                             _levelUpValue = 0;
-                            _elapsedTime = 0f;
-                            _elapsedTime2 = 0f;
-                            Animated = true;
                         }
                     } else {
                         _levelUpCount = player.level - _level;
                         _levelUpValue = _levelUpCount;
                         _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                         _targetValue = player.experience / _requiredExp;
-                        _elapsedTime = 0f;
-                        _elapsedTime2 = 0f;
-                        Animated = true;
                     }
+                    
+                    _isIdle = false;
+                    _highlight = 0f;
+                    _elapsedTime = 0f;
+                    _elapsedTime2 = 0f;
+                    _isAnimated = true;
+                    SetMaterialProperties();
                 }
             }
         }

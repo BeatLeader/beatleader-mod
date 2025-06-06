@@ -67,11 +67,17 @@ namespace BeatLeader.Components {
                     }
 
                     if (_elapsedTime >= _animationDuration / (_levelUpValue + 1)) {
-                        _levelUpCount--;
-                        SetLevelText(_level++);
-                        _expProgress = 0f;
-                        _sessionProgress = 0f;
-                        _elapsedTime = 0f;
+                        if (_levelUpCount == 0) {
+                            _expProgress = 0f;
+                            _sessionProgress = _targetValue;
+                            _elapsedTime = 0f;
+                        } else {
+                            _levelUpCount--;
+                            SetLevelText(_level++);
+                            _expProgress = 0f;
+                            _sessionProgress = 0f;
+                            _elapsedTime = 0f;
+                        }
                     }
                 } else {
                     _elapsedTime += Time.deltaTime;
@@ -86,7 +92,12 @@ namespace BeatLeader.Components {
 
                 SetMaterialProperties();
                 if (_elapsedTime2 >= _animationDuration) {
-                    _expProgress = _sessionProgress;
+                    if (_levelUpValue == 0) {
+                        _expProgress += _targetValue;
+                    } else {
+                        _expProgress = _targetValue;
+                    }
+                    _targetValue = 0f;
                     _sessionProgress = 0f;
                     _gradientT = 0f;
                     Animated = false;
@@ -198,6 +209,17 @@ namespace BeatLeader.Components {
             if (_level == 100) return;
 
             if (previousScene.name == SceneNames.Game && nextScene.name == SceneNames.Menu) {
+                if (Animated) {
+                    if (_levelUpValue == 0) {
+                        _expProgress += _targetValue;
+                    } else {
+                        _expProgress = _targetValue;
+                    }
+                    _targetValue = 0f;
+                    _sessionProgress = 0f;
+                    _gradientT = 0f;
+                    Animated = false;
+                }
                 SetMaterialProperties();
                 await Task.Delay(3000);
                 

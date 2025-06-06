@@ -1,15 +1,11 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using BeatLeader.API;
+﻿using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub;
 using BeatLeader.WebRequests;
 using BeatSaberMarkupLanguage.Attributes;
-using BS_Utils;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -29,7 +25,6 @@ namespace BeatLeader.Components {
         private float _requiredExp;
         
         private bool _initialized;
-        private string _userID;
         private int _levelUpValue;
         private int _levelUpCount;
         private bool _isIdle;
@@ -137,7 +132,9 @@ namespace BeatLeader.Components {
             GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             if (ConfigFileData.Instance.ExperienceBarEnabled) {
-                SceneManager.activeSceneChanged += OnActiveSceneChanged;
+                // Preferably, we would fuse those request together if possible.
+                UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
+                UploadPlayRequest.StateChangedEvent += OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
             } else {
                 LevelText = "";
@@ -149,7 +146,8 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             GlobalSettingsView.ExperienceBarConfigEvent -= OnExperienceBarConfigChanged;
             UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
-            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+            UploadReplayRequest.StateChangedEvent -= OnUploadStateChanged;
+            UploadPlayRequest.StateChangedEvent -= OnUploadStateChanged;
             PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
         }
 
@@ -165,13 +163,15 @@ namespace BeatLeader.Components {
         private void OnExperienceBarConfigChanged(bool enabled) {
             _experienceBar.gameObject.SetActive(enabled);
             if (enabled && !_initialized) {
-                SceneManager.activeSceneChanged += OnActiveSceneChanged;
+                UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
+                UploadPlayRequest.StateChangedEvent += OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
                 SetLevelText(_level);
                 SetMaterialProperties();
                 _initialized = enabled;
             } else if (_initialized) {
-                SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+                UploadReplayRequest.StateChangedEvent -= OnUploadStateChanged;
+                UploadPlayRequest.StateChangedEvent -= OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
                 LevelText = "";
                 NextLevelText = "";
@@ -179,10 +179,9 @@ namespace BeatLeader.Components {
             }
         }
         
-        private void OnProfileRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
-            if (!_initialized && state is WebRequests.RequestState.Finished) {
+        private void OnProfileRequestStateChanged(IWebRequest<User> instance, RequestState state, string? failReason) {
+            if (!_initialized && state is RequestState.Finished) {
                 Player player = instance.Result.player;
-                _userID = player.id;
                 _level = player.level;
                 SetLevelText(_level);
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
@@ -215,10 +214,22 @@ namespace BeatLeader.Components {
             }
         }
         
-        private async void OnActiveSceneChanged(Scene previousScene, Scene nextScene) {
+        private void OnUploadStateChanged(IWebRequest<Score> instance, RequestState state, string? failReason) {
             if (_level == 100) return;
-
-            if (previousScene.name == SceneNames.Game && nextScene.name == SceneNames.Menu) {
+            
+            if (state is RequestState.Started) {
+                _isIdle = true;
+                _highlight = 0f;
+                _elapsedTime = 0f;
+                SetMaterialProperties();
+            }
+            
+            if (state is RequestState.Finished) {
+                _isIdle = false;
+                _highlight = 0f;
+                _elapsedTime = 0f;
+                SetMaterialProperties();
+                
                 if (_isAnimated) {
                     if (_levelUpValue == 0) {
                         _expProgress += _targetValue;
@@ -231,18 +242,9 @@ namespace BeatLeader.Components {
                     _isAnimated = false;
                 }
 
-                _isIdle = true;
-                _highlight = 0f;
-                _elapsedTime = 0f;
-                
-                SetMaterialProperties();
-                await Task.Delay(3000);
-                
-                var request = PlayerRequest.SendRequest(_userID);
-                await request.Join();
-                
-                if (request.RequestStatusCode == HttpStatusCode.OK) {
-                    Player player = request.Result;
+                // UploadPlay currently doesn't return a Score.
+                if (instance.Result != null) {
+                    Player player = instance.Result.Player;
                     if (player.level == _level) {
                         float target = player.experience / _requiredExp - _expProgress;
                         if (target > 0) {
@@ -256,9 +258,6 @@ namespace BeatLeader.Components {
                         _targetValue = player.experience / _requiredExp;
                     }
                     
-                    _isIdle = false;
-                    _highlight = 0f;
-                    _elapsedTime = 0f;
                     _elapsedTime2 = 0f;
                     _isAnimated = true;
                     SetMaterialProperties();
@@ -266,8 +265,8 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnPrestigeRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
-            if (state is WebRequests.RequestState.Finished) {
+        private void OnPrestigeRequestStateChanged(IWebRequest<User> instance, RequestState state, string? failReason) {
+            if (state is RequestState.Finished) {
                 _level = 0;
                 SetLevelText(_level);
                 _expProgress = 0f;

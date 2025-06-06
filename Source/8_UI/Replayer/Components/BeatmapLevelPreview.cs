@@ -82,7 +82,7 @@ namespace BeatLeader.UI.Replayer {
         public void SetBeatmapLevel(BeatmapLevel level) {
             _songNameLabel.Text = level.songName;
             if (level.allMappers is { Length: > 0 }) {
-                _songAuthorLabel.Text = level.allMappers.Aggregate((x, y) => y.Length > 0 ? $", {y}" : "");
+                _songAuthorLabel.Text = string.Join(", ", level.allMappers);
             }
             LoadAndAssignImage(level);
         }

@@ -6,8 +6,10 @@ using BeatLeader.Models;
 using BeatLeader.UI.Hub;
 using BeatLeader.WebRequests;
 using BeatSaberMarkupLanguage.Attributes;
+using BS_Utils;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -23,7 +25,6 @@ namespace BeatLeader.Components {
         private int _level;
         private float _gradientT;
         private float _expProgress;
-        private float _lastSessionProgress;
         private float _sessionProgress;
         private float _requiredExp;
         
@@ -55,36 +56,41 @@ namespace BeatLeader.Components {
             if (_initialized && _level != 100 && Animated) {
                 _elapsedTime2 += Time.deltaTime;
                 _gradientT = Mathf.Clamp01(_elapsedTime2 / _animationDuration);
-                if (_levelUpCount > 0) {
+                if (_levelUpValue > 0) {
                     _elapsedTime += Time.deltaTime;
-                    float t = Mathf.Clamp01(_elapsedTime / _animationDuration * _levelUpValue);
+                    float t = Mathf.Clamp01(_elapsedTime / _animationDuration * (_levelUpValue + 1));
                     float targetValue = 1 - _expProgress;
-                    _sessionProgress = Mathf.Lerp(_lastSessionProgress, targetValue, t);
-                    
-                    if (_elapsedTime >= _animationDuration / _levelUpValue) {
+                    if (_levelUpCount != 0) {
+                        _sessionProgress = Mathf.Lerp(0f, targetValue, t);
+                    } else {
+                        _sessionProgress = Mathf.Lerp(0f, _targetValue, t);
+                    }
+
+                    if (_elapsedTime >= _animationDuration / (_levelUpValue + 1)) {
                         _levelUpCount--;
                         SetLevelText(_level++);
                         _expProgress = 0f;
-                        _lastSessionProgress = 0f;
                         _sessionProgress = 0f;
                         _elapsedTime = 0f;
                     }
                 } else {
                     _elapsedTime += Time.deltaTime;
-                    float t = Mathf.Clamp01(_elapsedTime / _animationDuration * _levelUpValue);
-                    _sessionProgress = Mathf.Lerp(_lastSessionProgress, _targetValue, t);
-                
-                    if (_elapsedTime >= _animationDuration / _levelUpValue)
+                    float t = Mathf.Clamp01(_elapsedTime / _animationDuration);
+                    _sessionProgress = Mathf.Lerp(0, _targetValue, t);
+                    
+                    if (_elapsedTime >= _animationDuration)
                     {
-                        Animated = false;
                         _sessionProgress = _targetValue;
-                        _lastSessionProgress = _targetValue;
-                        _elapsedTime = 0f;
-                        _elapsedTime2 = 0f;
                     }
                 }
 
                 SetMaterialProperties();
+                if (_elapsedTime2 >= _animationDuration) {
+                    _expProgress = _sessionProgress;
+                    _sessionProgress = 0f;
+                    _gradientT = 0f;
+                    Animated = false;
+                }
             }
         }
 
@@ -92,7 +98,6 @@ namespace BeatLeader.Components {
             if (_level == 100) {
                 _expProgress = 1;
                 _sessionProgress = 0f;
-                _lastSessionProgress = 0f;
             }
             
             _materialInstance.SetFloat(GradientTPropertyId, _gradientT);
@@ -111,9 +116,11 @@ namespace BeatLeader.Components {
             GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             if (ConfigFileData.Instance.ExperienceBarEnabled) {
-                UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+                SceneManager.activeSceneChanged += OnActiveSceneChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
             } else {
+                LevelText = "";
+                NextLevelText = "";
                 _experienceBar.gameObject.SetActive(false);
             }
         }
@@ -121,7 +128,7 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             GlobalSettingsView.ExperienceBarConfigEvent -= OnExperienceBarConfigChanged;
             UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
-            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
             PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
         }
 
@@ -137,11 +144,13 @@ namespace BeatLeader.Components {
         private void OnExperienceBarConfigChanged(bool enabled) {
             _experienceBar.gameObject.SetActive(enabled);
             if (enabled && !_initialized) {
-                UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+                SceneManager.activeSceneChanged += OnActiveSceneChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
+                SetLevelText(_level);
+                SetMaterialProperties();
                 _initialized = enabled;
             } else if (_initialized) {
-                UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+                SceneManager.activeSceneChanged -= OnActiveSceneChanged;
                 PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
                 LevelText = "";
                 NextLevelText = "";
@@ -185,29 +194,36 @@ namespace BeatLeader.Components {
             }
         }
         
-        private async void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+        private async void OnActiveSceneChanged(Scene previousScene, Scene nextScene) {
             if (_level == 100) return;
 
-            if (state is WebRequests.RequestState.Finished or WebRequests.RequestState.Failed) {
-                // Need to give some time for the server to handle the upload, 5 seconds might not be enough.
-                await Task.Delay(5000);
-
+            if (previousScene.name == SceneNames.Game && nextScene.name == SceneNames.Menu) {
+                SetMaterialProperties();
+                await Task.Delay(3000);
+                
                 var request = PlayerRequest.SendRequest(_userID);
                 await request.Join();
-
+                
                 if (request.RequestStatusCode == HttpStatusCode.OK) {
                     Player player = request.Result;
-
                     if (player.level == _level) {
-                        _targetValue = player.experience / _requiredExp - _expProgress;
+                        float target = player.experience / _requiredExp - _expProgress;
+                        if (target > 0) {
+                            _targetValue = player.experience / _requiredExp - _expProgress;
+                            _levelUpValue = 0;
+                            _elapsedTime = 0f;
+                            _elapsedTime2 = 0f;
+                            Animated = true;
+                        }
                     } else {
                         _levelUpCount = player.level - _level;
                         _levelUpValue = _levelUpCount;
                         _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                         _targetValue = player.experience / _requiredExp;
+                        _elapsedTime = 0f;
+                        _elapsedTime2 = 0f;
+                        Animated = true;
                     }
-
-                    Animated = true;
                 }
             }
         }
@@ -217,7 +233,6 @@ namespace BeatLeader.Components {
                 _level = 0;
                 SetLevelText(_level);
                 _expProgress = 0f;
-                _lastSessionProgress = 0f;
                 _sessionProgress = 0f;
                 _isAnimated = false;
                 _levelUpCount = 0;

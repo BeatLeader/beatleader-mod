@@ -6,7 +6,7 @@ using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class TextNewsPostPanel : ListViewCell<NewsPost> {
+    internal class TextNewsPostPanel : ListCell<NewsPost> {
         protected override GameObject Construct() {
             return new Layout {
                 Children = {

@@ -10,12 +10,11 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class EventPreviewPanel : ListViewCell<PlatformEvent> {
+    internal class EventPreviewPanel : ListCell<PlatformEvent> {
         public Action<PlatformEvent>? ButtonAction { get; set; }
         public Action<PlatformEvent>? BackgroundAction { get; set; }
 
         private ObservableValue<string> _bottomText = null!;
-        private IEnumerator? _updateCoroutine;
 
         protected override void OnDestroy() {
             StopAllCoroutines();

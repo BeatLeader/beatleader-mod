@@ -64,7 +64,7 @@ namespace BeatLeader.UI.MainMenu {
                                     }),
                                 new ListView<TrendingMapData, FeaturedPreviewPanel>()
                                 {
-                                    CellConstructed = (cell) => {
+                                    CellConstructedCb = (cell) => {
                                         cell.ButtonAction = (item) => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
                                         cell.BackgroundAction = (item) => MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
                                     }

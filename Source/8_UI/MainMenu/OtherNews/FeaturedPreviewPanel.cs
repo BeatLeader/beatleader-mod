@@ -9,7 +9,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class FeaturedPreviewPanel : ListViewCell<TrendingMapData> {
+    internal class FeaturedPreviewPanel : ListCell<TrendingMapData> {
         public Action<TrendingMapData>? ButtonAction { get; set; }
         public Action<TrendingMapData>? BackgroundAction { get; set; }
 

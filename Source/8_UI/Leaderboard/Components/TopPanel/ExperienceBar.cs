@@ -42,7 +42,7 @@ namespace BeatLeader.Components {
         #region Animation
 
         private void Update() {
-            if (_initialized && _level != 100) {
+            if (_initialized && _level != 100 && (_isIdle || _isAnimated)) {
                 if (_isIdle) {
                     _elapsedTime += Time.deltaTime;
                     float t = Mathf.Clamp01(_elapsedTime / _animationDuration);
@@ -62,7 +62,7 @@ namespace BeatLeader.Components {
                     _gradientT = Mathf.Clamp01(_elapsedTime2 / _animationDuration);
                     if (_levelUpValue > 0) {
                         _elapsedTime += Time.deltaTime;
-                        float t = Mathf.Clamp01(_elapsedTime / _animationDuration * (_levelUpValue + 1));
+                        float t = Mathf.Clamp01(_elapsedTime * (_levelUpValue + 1) / _animationDuration);
                         float targetValue = 1 - _expProgress;
                         if (_levelUpCount != 0) {
                             _sessionProgress = Mathf.Lerp(0f, targetValue, t);
@@ -70,9 +70,8 @@ namespace BeatLeader.Components {
                             _sessionProgress = Mathf.Lerp(0f, _targetValue, t);
                         }
 
-                        if (_elapsedTime >= _animationDuration / (_levelUpValue + 1)) {
+                        if (_elapsedTime * (_levelUpValue + 1) >= _animationDuration) {
                             if (_levelUpCount == 0) {
-                                _expProgress = 0f;
                                 _sessionProgress = _targetValue;
                                 _elapsedTime = 0f;
                             } else {
@@ -84,9 +83,7 @@ namespace BeatLeader.Components {
                             }
                         }
                     } else {
-                        _elapsedTime += Time.deltaTime;
-                        float t = Mathf.Clamp01(_elapsedTime / _animationDuration);
-                        _sessionProgress = Mathf.Lerp(0, _targetValue, t);
+                        _sessionProgress = Mathf.Lerp(0, _targetValue, _gradientT);
                     
                         if (_elapsedTime >= _animationDuration)
                         {
@@ -224,7 +221,7 @@ namespace BeatLeader.Components {
                 _highlight = 0f;
                 _elapsedTime = 0f;
                 SetMaterialProperties();
-                
+
                 if (_isAnimated) {
                     if (_levelUpValue == 0) {
                         _expProgress += _targetValue;
@@ -237,23 +234,25 @@ namespace BeatLeader.Components {
                     _isAnimated = false;
                 }
                 
-                Player player = instance.Result.Score.Player;
-                if (player.level == _level) {
-                    float target = player.experience / _requiredExp - _expProgress;
-                    if (target > 0) {
-                        _targetValue = player.experience / _requiredExp - _expProgress;
-                        _levelUpValue = 0;
+                if (instance.Result.Status != ScoreUploadStatus.Error) {
+                    Player player = instance.Result.Score.Player;
+                    if (player.level == _level) {
+                        float target = player.experience / _requiredExp - _expProgress;
+                        if (target > 0) {
+                            _targetValue = player.experience / _requiredExp - _expProgress;
+                            _levelUpValue = 0;
+                        }
+                    } else {
+                        _levelUpCount = player.level - _level;
+                        _levelUpValue = _levelUpCount;
+                        _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
+                        _targetValue = player.experience / _requiredExp;
                     }
-                } else {
-                    _levelUpCount = player.level - _level;
-                    _levelUpValue = _levelUpCount;
-                    _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
-                    _targetValue = player.experience / _requiredExp;
-                }
                     
-                _elapsedTime2 = 0f;
-                _isAnimated = true;
-                SetMaterialProperties();
+                    _elapsedTime2 = 0f;
+                    _isAnimated = true;
+                    SetMaterialProperties();
+                }
             }
         }
 

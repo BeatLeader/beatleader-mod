@@ -155,7 +155,7 @@ namespace BeatLeader.Components {
         }
 
         
-        private void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnUploadRequestStateChanged(IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             _uploadingScore = state is WebRequests.RequestState.Started;
             UpdateState();
         }

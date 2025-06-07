@@ -134,7 +134,7 @@ namespace BeatLeader.DataManager {
 
         private LeaderboardKey _uploadLeaderboardKey;
 
-        private void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnUploadRequestStateChanged(IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             if (!_lastSelectedBeatmap.IsValid()) return;
 
             switch (state) {

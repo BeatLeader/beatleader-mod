@@ -132,9 +132,7 @@ namespace BeatLeader.Components {
             GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             if (ConfigFileData.Instance.ExperienceBarEnabled) {
-                // Preferably, we would fuse those request together if possible.
                 UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
-                UploadPlayRequest.StateChangedEvent += OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
             } else {
                 LevelText = "";
@@ -147,7 +145,6 @@ namespace BeatLeader.Components {
             GlobalSettingsView.ExperienceBarConfigEvent -= OnExperienceBarConfigChanged;
             UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent -= OnUploadStateChanged;
-            UploadPlayRequest.StateChangedEvent -= OnUploadStateChanged;
             PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
         }
 
@@ -164,14 +161,12 @@ namespace BeatLeader.Components {
             _experienceBar.gameObject.SetActive(enabled);
             if (enabled && !_initialized) {
                 UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
-                UploadPlayRequest.StateChangedEvent += OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
                 SetLevelText(_level);
                 SetMaterialProperties();
                 _initialized = enabled;
             } else if (_initialized) {
                 UploadReplayRequest.StateChangedEvent -= OnUploadStateChanged;
-                UploadPlayRequest.StateChangedEvent -= OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
                 LevelText = "";
                 NextLevelText = "";
@@ -214,7 +209,7 @@ namespace BeatLeader.Components {
             }
         }
         
-        private void OnUploadStateChanged(IWebRequest<Score> instance, RequestState state, string? failReason) {
+        private void OnUploadStateChanged(IWebRequest<ScoreUploadResponse> instance, RequestState state, string? failReason) {
             if (_level == 100) return;
             
             if (state is RequestState.Started) {
@@ -241,27 +236,24 @@ namespace BeatLeader.Components {
                     _gradientT = 0f;
                     _isAnimated = false;
                 }
-
-                // UploadPlay currently doesn't return a Score.
-                if (instance.Result != null) {
-                    Player player = instance.Result.Player;
-                    if (player.level == _level) {
-                        float target = player.experience / _requiredExp - _expProgress;
-                        if (target > 0) {
-                            _targetValue = player.experience / _requiredExp - _expProgress;
-                            _levelUpValue = 0;
-                        }
-                    } else {
-                        _levelUpCount = player.level - _level;
-                        _levelUpValue = _levelUpCount;
-                        _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
-                        _targetValue = player.experience / _requiredExp;
+                
+                Player player = instance.Result.Score.Player;
+                if (player.level == _level) {
+                    float target = player.experience / _requiredExp - _expProgress;
+                    if (target > 0) {
+                        _targetValue = player.experience / _requiredExp - _expProgress;
+                        _levelUpValue = 0;
                     }
-                    
-                    _elapsedTime2 = 0f;
-                    _isAnimated = true;
-                    SetMaterialProperties();
+                } else {
+                    _levelUpCount = player.level - _level;
+                    _levelUpValue = _levelUpCount;
+                    _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
+                    _targetValue = player.experience / _requiredExp;
                 }
+                    
+                _elapsedTime2 = 0f;
+                _isAnimated = true;
+                SetMaterialProperties();
             }
         }
 

@@ -40,10 +40,10 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
-            if (state is not WebRequests.RequestState.Finished) return;
-            OnProfileUpdated(instance.Result.Player);
-            user.player.contextExtensions = instance.Result.Player.contextExtensions;
+        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished || instance.Result.Status != ScoreUploadStatus.Uploaded) return;
+            OnProfileUpdated(instance.Result.Score.Player);
+            user.player.contextExtensions = instance.Result.Score.Player.contextExtensions;
         }
 
         private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {

@@ -43,51 +43,70 @@ namespace BeatLeader.UI.MainMenu {
                         Text = "Trending Maps"
                     }
                     .AsFlexItem(),
-                    new ScrollArea {
-                        ScrollContent = new Layout {
-                            Children = {
-                                new Spinner()
-                                    .AsFlexItem(size: new () { x = 8, y = 8 }, alignSelf: Align.Center)
-                                    .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Started || state == WebRequests.RequestState.Uninitialized),
-                                new Label()
-                                    .AsFlexItem(alignSelf: Align.Center)
-                                    .Animate(_mapList, (label, list) => {
-                                        if (_requestState.Value == WebRequests.RequestState.Failed) {
-                                            label.Text = "<color=#ff8888>Failed to load";
-                                            label.Enabled = true;
-                                        } else if (_requestState.Value == WebRequests.RequestState.Finished && list.Count == 0) {
-                                            label.Text = "There are no trending maps";
-                                            label.Enabled = true;
-                                        } else {
-                                            label.Enabled = false;
+
+                    new Layout {
+                        Children = {
+                            new ScrollArea {
+                                ScrollContent = new Layout {
+                                    Children = {
+                                        new Spinner()
+                                            .AsFlexItem(
+                                                size: new () { x = 8, y = 8 }, 
+                                                alignSelf: Align.Center
+                                            )
+                                            .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Started || state == WebRequests.RequestState.Uninitialized),
+                                        new Label()
+                                            .AsFlexItem(alignSelf: Align.Center)
+                                            .Animate(_mapList, (label, list) => {
+                                                if (_requestState.Value == WebRequests.RequestState.Failed) {
+                                                    label.Text = "<color=#ff8888>Failed to load";
+                                                    label.Enabled = true;
+                                                } else if (_requestState.Value == WebRequests.RequestState.Finished && list.Count == 0) {
+                                                    label.Text = "There are no trending maps";
+                                                    label.Enabled = true;
+                                                } else {
+                                                    label.Enabled = false;
+                                                }
+                                            }),
+                                        new ListView<TrendingMapData, MapPreviewPanel>()
+                                        {
+                                            CellConstructedCb = (cell) => {
+                                                cell.ButtonAction = (item) => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
+                                                cell.BackgroundAction = (item) => MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
+                                            }
                                         }
-                                    }),
-                                new ListView<TrendingMapData, FeaturedPreviewPanel>()
-                                {
-                                    CellConstructedCb = (cell) => {
-                                        cell.ButtonAction = (item) => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
-                                        cell.BackgroundAction = (item) => MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
+                                        .AsFlexGroup(padding: 1f)
+                                        .AsFlexItem()
+                                        .Animate(_mapList, (listView, list) => {
+                                            listView.Items = list;
+                                            listView.Enabled = list.Count() > 0 && _requestState.Value == WebRequests.RequestState.Finished;
+                                        })
                                     }
                                 }
+                                .AsFlexGroup(
+                                    direction: FlexDirection.Column, 
+                                    gap: 1f, 
+                                    constrainVertical: false
+                                )
                                 .AsFlexItem()
-                                .Animate(_mapList, (listView, list) => {
-                                    listView.Items = list;
-                                    listView.Enabled = list.Count() > 0 && _requestState.Value == WebRequests.RequestState.Finished;
-                                })
                             }
+                            .AsFlexItem(flexGrow: 1)
+                            .Export(out var scrollArea),
+                    
+                            new Scrollbar()
+                            .AsFlexItem()
+                            .With(x => scrollArea.Scrollbar = x),
                         }
-                        .AsFlexGroup(direction: FlexDirection.Column, gap: 1f, padding: 1f, constrainVertical: false)
-                        .AsFlexItem()
-                    }.AsFlexItem(size: new() { x = 70, y = 39 }
-                    ).Export(out var scrollArea),
+                    }
+                    .AsFlexGroup()
+                    .AsFlexItem(size: new() { y = 33 })
                 }
             }
             .AsFlexGroup(
-                gap: 1f,
                 padding: 1f,
                 direction: FlexDirection.Column
             ).AsBackground(
-                color: Color.white.ColorWithAlpha(0.33f),
+                color: Color.black.ColorWithAlpha(0.33f),
                 pixelsPerUnit: 7f
             )
             .AsFlexItem(

@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using Reactive.Yoga;
 using Reactive.Components;
+using System.Collections;
 
 namespace BeatLeader.UI.MainMenu {
     internal class TextNewsPanel : ReactiveComponent {
@@ -26,10 +27,17 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<NewsPost>> instance, WebRequests.RequestState state, string? failReason) {
-            _requestState.Value = state;
             if (state == WebRequests.RequestState.Finished) {
                 _list.Value = instance.Result.data;
+                StartCoroutine(DelayedState());
+            } else {
+                _requestState.Value = state;
             }
+        }
+
+        private IEnumerator DelayedState(){
+            yield return new WaitForSeconds(1);
+            _requestState.Value = WebRequests.RequestState.Finished;
         }
 
         protected override GameObject Construct() {
@@ -56,7 +64,7 @@ namespace BeatLeader.UI.MainMenu {
                                             text.Enabled = false;
                                         }
                                     }),
-                                
+
                                 new ListView<NewsPost, TextNewsPostPanel>()
                                     .Animate(_list, (table, list) => {
                                         if (list.Count == 0) {
@@ -65,13 +73,17 @@ namespace BeatLeader.UI.MainMenu {
                                             table.Items = list;
                                         }
                                     })
+                                    .AsFlexGroup(gap: 1)
                                     .AsFlexItem(),
                             }
                         }
                         .AsFlexItem()
-                        .AsFlexGroup(direction: FlexDirection.Column, constrainVertical: false),
+                        .AsFlexGroup(
+                            direction: FlexDirection.Column, 
+                            constrainVertical: false
+                        ),
                     }
-                    .AsFlexItem(size: new() { x = 60, y = 70 })
+                    .AsFlexItem(flexGrow: 1)
                     .Export(out var scrollArea),
                     
                     new Scrollbar()
@@ -83,7 +95,7 @@ namespace BeatLeader.UI.MainMenu {
                 gap: 1f,
                 padding: 1f
             ).AsBackground(
-                color: Color.white.ColorWithAlpha(0.33f),
+                color: Color.black.ColorWithAlpha(0.33f),
                 pixelsPerUnit: 7f
             ).AsFlexItem(size: new() { x = 60, y = 70 })
             .Use();

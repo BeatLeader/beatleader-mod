@@ -33,7 +33,9 @@ namespace BeatLeader.UI.MainMenu {
                     }
                 },
                 Image = {
-                    Sprite = BeatSaberResources.Sprites.background
+                    Sprite = BeatSaberResources.Sprites.background,
+                    PixelsPerUnit = 10,
+                    Skew = UIStyle.Skew
                 },
                 OnClick = () => BackgroundAction?.Invoke(Item),
                 Children = {
@@ -68,7 +70,6 @@ namespace BeatLeader.UI.MainMenu {
                         direction: FlexDirection.Column
                     ).AsFlexItem(
                         margin: new() { left = 1 }, 
-                        size: new() { x = 38 },
                         flexGrow: 1
                     ),
                     new BsButton {

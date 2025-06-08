@@ -34,7 +34,6 @@ namespace BeatLeader.UI.MainMenu {
                 Sprite = BundleLoader.Sprites.background,
                 Color = Color.black.ColorWithAlpha(0.5f),
                 PixelsPerUnit = 10f,
-                Skew = BeatSaberStyle.Skew,
                 Children = {
                     new Layout {
                         Children = {
@@ -43,7 +42,7 @@ namespace BeatLeader.UI.MainMenu {
                                 Material = BundleLoader.RoundTextureMaterial
                             }.AsFlexItem(
                                 aspectRatio: 1f, 
-                                size: new() { x = 2, y = 2 }
+                                size: new() { x = 3, y = 3 }
                             ).Bind(ref _avatarImage),
                             new Label {
                                 FontSize = 3f,

@@ -11,6 +11,10 @@ namespace BeatLeader.UI.MainMenu {
         private void Awake() {
             new Layout {
                 Children = {
+                    // spacer
+                    new Layout()
+                    .AsFlexItem(
+                        size: new() { x = 30 }),
                     new TextNewsPanel(),
                     new Layout {
                         Children = {
@@ -20,12 +24,13 @@ namespace BeatLeader.UI.MainMenu {
                     }.AsFlexGroup(
                         direction: FlexDirection.Column,
                         gap: 1f,
-                        constrainHorizontal: false,
                         constrainVertical: false
                     ).AsFlexItem()
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Row,
+                constrainHorizontal: false,
+                constrainVertical: false,
                 gap: 1f
             )
             .AsFlexItem()

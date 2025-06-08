@@ -42,52 +42,70 @@ namespace BeatLeader.UI.MainMenu {
                     new NewsHeader {
                         Text = "BeatLeader Events"
                     }.AsFlexItem(),
-                    new ScrollArea {
-                        ScrollContent = new Layout {
-                            Children = {
-                                new Spinner()
-                                    .AsFlexItem(size: new () { x = 8, y = 8 }, alignSelf: Align.Center)
-                                    .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Started || state == WebRequests.RequestState.Uninitialized),
-                                new Label()
-                                    .AsFlexItem(alignSelf: Align.Center)
-                                    .Animate(_eventList, (label, list) => {
-                                        if (_requestState.Value == WebRequests.RequestState.Failed) {
-                                            label.Text = "<color=#ff8888>Failed to load";
-                                            label.Enabled = true;
-                                        } else if (_requestState.Value == WebRequests.RequestState.Finished && !list.Any()) {
-                                            label.Text = "There are no events";
-                                            label.Enabled = true;
-                                        } else {
-                                            label.Enabled = false;
+                    new Layout {
+                        Children = {
+                        new ScrollArea {
+                            ScrollContent = new Layout {
+                                Children = {
+                                    new Spinner()
+                                        .AsFlexItem(
+                                            size: new () { x = 8, y = 8 }, 
+                                            alignSelf: Align.Center
+                                        )
+                                        .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Started || state == WebRequests.RequestState.Uninitialized),
+                                    new Label()
+                                        .AsFlexItem(alignSelf: Align.Center)
+                                        .Animate(_eventList, (label, list) => {
+                                            if (_requestState.Value == WebRequests.RequestState.Failed) {
+                                                label.Text = "<color=#ff8888>Failed to load";
+                                                label.Enabled = true;
+                                            } else if (_requestState.Value == WebRequests.RequestState.Finished && !list.Any()) {
+                                                label.Text = "There are no events";
+                                                label.Enabled = true;
+                                            } else {
+                                                label.Enabled = false;
+                                            }
+                                        }),
+                                    new ListView<PlatformEvent, EventPreviewPanel>() {
+                                        CellConstructedCb = (cell) => {
+                                            cell.ButtonAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
+                                            cell.BackgroundAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
                                         }
-                                    }),
-                                new ListView<PlatformEvent, EventPreviewPanel>() {
-                                    CellConstructedCb = (cell) => {
-                                        cell.ButtonAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
-                                        cell.BackgroundAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
                                     }
+                                    .AsFlexGroup(padding: 1f)
+                                    .AsFlexItem()
+                                    .Animate(_eventList, (listView, list) => {
+                                        listView.Items = list;
+                                        listView.Enabled = list.Any() && _requestState.Value == WebRequests.RequestState.Finished;
+                                    })
                                 }
-                                .AsFlexItem()
-                                .Animate(_eventList, (listView, list) => {
-                                    listView.Items = list;
-                                    listView.Enabled = list.Any() && _requestState.Value == WebRequests.RequestState.Finished;
-                                })
                             }
-                        }.AsFlexGroup(direction: FlexDirection.Column, gap: 1f, padding: 1f, constrainVertical: false)
-                        .AsFlexItem()
-                    }.AsFlexItem(size: new() { x = 70, y = 26 } // Height from old EventNewsPanel.bsml
-                    ).Export(out var scrollArea),
+                            .AsFlexGroup(
+                                direction: FlexDirection.Column, 
+                                gap: 1f,
+                                constrainVertical: false
+                            )
+                            .AsFlexItem()
+                        }
+                        .AsFlexItem(flexGrow: 1)
+                        .Export(out var scrollArea),
+                        new Scrollbar()
+                            .AsFlexItem()
+                            .With(x => scrollArea.Scrollbar = x),
+                        }
+                    }
+                    .AsFlexGroup()
+                    .AsFlexItem(size: new() { y = 24 })
                 }
             }
             .AsFlexGroup(
-                gap: 1f,
                 padding: 1f,
                 direction: FlexDirection.Column
             ).AsBackground(
-                color: Color.white.ColorWithAlpha(0.33f),
+                color: Color.black.ColorWithAlpha(0.33f),
                 pixelsPerUnit: 7f
             ).AsFlexItem(
-                size: new() { x = 70, y = 26 } // Match height
+                size: new() { x = 70, y = 30 }
             ).Use();
         }
     }

@@ -15,15 +15,15 @@ namespace BeatLeader.UI.MainMenu {
                         panel.Name = item.owner;
                         panel.Timestamp = item.timepost;
                         panel.AvatarUrl = item.ownerIcon;
-                    })
-                    .AsFlexItem(),
+                    }),
 
                     new Label {
                         Text = "Loading...",
                         FontSize = 3,
-                        EnableWrapping = true
+                        EnableWrapping = true,
+                        Alignment = TMPro.TextAlignmentOptions.Left
                     }
-                    .AsFlexItem(flexGrow: 1)
+                    .AsFlexItem()
                     .Animate(ObservableItem, (label, item) => {
                         label.Text = item.body;
                     }),

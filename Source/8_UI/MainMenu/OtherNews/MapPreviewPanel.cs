@@ -9,7 +9,7 @@ using TMPro;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class FeaturedPreviewPanel : ListCell<TrendingMapData> {
+    internal class MapPreviewPanel : ListCell<TrendingMapData> {
         public Action<TrendingMapData>? ButtonAction { get; set; }
         public Action<TrendingMapData>? BackgroundAction { get; set; }
 
@@ -23,7 +23,9 @@ namespace BeatLeader.UI.MainMenu {
                     }
                 },
                 Image = {
-                    Sprite = BeatSaberResources.Sprites.background
+                    Sprite = BeatSaberResources.Sprites.background,
+                    PixelsPerUnit = 10,
+                    Skew = UIStyle.Skew
                 },
                 OnClick = () => BackgroundAction?.Invoke(Item),
                 Children = {
@@ -63,8 +65,7 @@ namespace BeatLeader.UI.MainMenu {
                     }.AsFlexGroup(
                         direction: FlexDirection.Column
                     ).AsFlexItem(
-                        margin: new() { left = 1 }, 
-                        size: new() { x = 38 },
+                        margin: new() { left = 1 },
                         flexGrow: 1
                     ),
                     new BsButton {

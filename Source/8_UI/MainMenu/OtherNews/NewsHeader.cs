@@ -24,7 +24,6 @@ namespace BeatLeader.UI.MainMenu {
                 Sprite = BundleLoader.Sprites.background,
                 Color = Color.black.ColorWithAlpha(0.5f),
                 PixelsPerUnit = 10f,
-                Skew = BeatSaberStyle.Skew,
                 Children = {
                     new Label {
                         Text = _textValue,

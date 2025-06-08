@@ -6,22 +6,18 @@ using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class PrestigePanel : AbstractReeModal<object> {
-        #region Components
-        
-        private User user;
-        
-        #endregion
-        
         #region Init / Dispose
 
         protected override void OnInitialize() {
             base.OnInitialize();
             InitializePrestigeButtons();
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
         }
 
         protected override void OnDispose() {
             UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent -= OnUploadStateChanged;
         }
 
         #endregion
@@ -31,11 +27,28 @@ namespace BeatLeader.Components {
         private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Finished:
-                    user = instance.Result;
-                    if (user.player.level == 100) {
+                    Player player = instance.Result.player;
+                    if (player.level == 100) {
                         _PrestigeYesButton.interactable = true;
                     } else {
                         _PrestigeYesButton.interactable = false;
+                    }
+                    break;
+                default: return;
+            }
+        }
+
+        private void OnUploadStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state,
+            string? failReason) {
+            switch (state) {
+                case WebRequests.RequestState.Finished:
+                    if (instance.Result.Status != ScoreUploadStatus.Error) {
+                        Player player = instance.Result.Score.Player;
+                        if (player.level == 100) {
+                            _PrestigeYesButton.interactable = true;
+                        } else {
+                            _PrestigeYesButton.interactable = false;
+                        }
                     }
                     break;
                 default: return;

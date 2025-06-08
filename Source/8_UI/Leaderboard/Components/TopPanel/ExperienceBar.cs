@@ -152,14 +152,13 @@ namespace BeatLeader.Components {
                 UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
                 SetLevelText(_level);
-                _initialized = enabled;
-            } else if (_initialized) {
+            } else if (!enabled && _initialized) {
                 UploadReplayRequest.StateChangedEvent -= OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
                 LevelText = "";
                 NextLevelText = "";
-                _initialized = enabled;
             }
+            _initialized = enabled;
         }
         
         private void OnProfileRequestStateChanged(IWebRequest<User> instance, RequestState state, string? failReason) {
@@ -265,7 +264,6 @@ namespace BeatLeader.Components {
         private void SetMaterial() {
             _materialInstance = Object.Instantiate(BundleLoader.ExperienceBarMaterial);
             _experienceBar.material = _materialInstance;
-            // _experienceBar.rectTransform.sizeDelta = new Vector2(40f, 3f);
         }
 
         #endregion

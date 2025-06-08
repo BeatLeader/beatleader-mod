@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using TMPro;
+using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class TextScoreRowCell : AbstractScoreRowCell {
@@ -42,7 +43,13 @@ namespace BeatLeader.Components {
         }
 
         public override void SetAlpha(float value) {
-            textComponent.alpha = value;
+            if (textComponent.overflowMode == TextOverflowModes.Ellipsis) {
+                var tmp = (Color)textComponent.faceColor;
+                tmp.a = value;
+                textComponent.faceColor = tmp;
+            } else {
+                textComponent.alpha = value;
+            }
         }
 
         protected override float CalculatePreferredWidth() {

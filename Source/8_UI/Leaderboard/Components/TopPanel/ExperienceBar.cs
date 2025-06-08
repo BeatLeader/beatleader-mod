@@ -74,6 +74,7 @@ namespace BeatLeader.Components {
                             if (_levelUpCount == 0) {
                                 _sessionProgress = _targetValue;
                                 _elapsedTime = 0f;
+                                _isAnimated = false;
                             } else {
                                 _levelUpCount--;
                                 SetLevelText(_level++);
@@ -88,22 +89,12 @@ namespace BeatLeader.Components {
                         if (_elapsedTime >= _animationDuration)
                         {
                             _sessionProgress = _targetValue;
+                            _isAnimated = false;
                         }
                     }
                 }
 
                 SetMaterialProperties();
-                if (_elapsedTime2 >= _animationDuration) {
-                    if (_levelUpValue == 0) {
-                        _expProgress += _targetValue;
-                    } else {
-                        _expProgress = _targetValue;
-                    }
-                    _targetValue = 0f;
-                    _sessionProgress = 0f;
-                    _gradientT = 0f;
-                    _isAnimated = false;
-                }
             }
         }
 
@@ -156,11 +147,11 @@ namespace BeatLeader.Components {
 
         private void OnExperienceBarConfigChanged(bool enabled) {
             _experienceBar.gameObject.SetActive(enabled);
+            ResetExperienceBarData();
             if (enabled && !_initialized) {
                 UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
                 PrestigeRequest.StateChangedEvent += OnPrestigeRequestStateChanged;
                 SetLevelText(_level);
-                SetMaterialProperties();
                 _initialized = enabled;
             } else if (_initialized) {
                 UploadReplayRequest.StateChangedEvent -= OnUploadStateChanged;
@@ -177,11 +168,8 @@ namespace BeatLeader.Components {
                 _level = player.level;
                 SetLevelText(_level);
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
-                _gradientT = 0f;
                 _expProgress = player.experience / _requiredExp;
-                _isAnimated = false;
-                _levelUpCount = 0;
-                SetMaterialProperties();
+                ResetExperienceBarData();
                 if (ConfigFileData.Instance.ExperienceBarEnabled) {
                     _experienceBar.gameObject.SetActive(ConfigFileData.Instance.ExperienceBarEnabled);
                     _initialized = true;
@@ -205,43 +193,44 @@ namespace BeatLeader.Components {
                 NextLevelText = "Prestige";
             }
         }
+
+        private void ResetExperienceBarData(bool refreshVisual = true) {
+            _levelUpCount = 0;
+            _levelUpValue = 0;
+            _targetValue = 0f;
+            _sessionProgress = 0f;
+            _gradientT = 0f;
+            _highlight = 0f;
+            _elapsedTime = 0f;
+            _elapsedTime2 = 0f;
+            _isAnimated = false;
+            _isIdle = false;
+            if (refreshVisual) {
+                SetMaterialProperties();
+            }
+        }
         
         private void OnUploadStateChanged(IWebRequest<ScoreUploadResponse> instance, RequestState state, string? failReason) {
             if (_level == 100) return;
-            
+
             if (state is RequestState.Started) {
+                if (_levelUpValue == 0) {
+                    _expProgress += _targetValue;
+                } else {
+                    _expProgress = _targetValue;
+                }
+                ResetExperienceBarData();
                 _isIdle = true;
-                _highlight = 0f;
-                _elapsedTime = 0f;
-                SetMaterialProperties();
             }
             
             if (state is RequestState.Finished) {
                 _isIdle = false;
-                _highlight = 0f;
-                _elapsedTime = 0f;
-                SetMaterialProperties();
-
-                if (_isAnimated) {
-                    if (_levelUpValue == 0) {
-                        _expProgress += _targetValue;
-                    } else {
-                        _expProgress = _targetValue;
-                    }
-                    _targetValue = 0f;
-                    _sessionProgress = 0f;
-                    _gradientT = 0f;
-                    _isAnimated = false;
-                }
                 
                 if (instance.Result.Status != ScoreUploadStatus.Error) {
                     Player player = instance.Result.Score.Player;
                     if (player.level == _level) {
-                        float target = player.experience / _requiredExp - _expProgress;
-                        if (target > 0) {
-                            _targetValue = player.experience / _requiredExp - _expProgress;
-                            _levelUpValue = 0;
-                        }
+                        _targetValue = player.experience / _requiredExp - _expProgress;
+                        _levelUpValue = 0;
                     } else {
                         _levelUpCount = player.level - _level;
                         _levelUpValue = _levelUpCount;
@@ -249,9 +238,7 @@ namespace BeatLeader.Components {
                         _targetValue = player.experience / _requiredExp;
                     }
                     
-                    _elapsedTime2 = 0f;
                     _isAnimated = true;
-                    SetMaterialProperties();
                 }
             }
         }
@@ -261,10 +248,7 @@ namespace BeatLeader.Components {
                 _level = 0;
                 SetLevelText(_level);
                 _expProgress = 0f;
-                _sessionProgress = 0f;
-                _isAnimated = false;
-                _levelUpCount = 0;
-                SetMaterialProperties();
+                ResetExperienceBarData();
             }
         }
         

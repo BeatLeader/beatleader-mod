@@ -225,6 +225,7 @@ namespace BeatLeader.Components {
             
             if (state is RequestState.Finished) {
                 _isIdle = false;
+                _highlight = 0f;
                 
                 if (instance.Result.Status != ScoreUploadStatus.Error) {
                     Player player = instance.Result.Score.Player;

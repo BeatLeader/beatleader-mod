@@ -47,7 +47,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Failed:
                     ShowBadNews($"Profile update failed! {failReason}");

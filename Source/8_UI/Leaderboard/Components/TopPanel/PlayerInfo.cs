@@ -13,7 +13,7 @@ namespace BeatLeader.Components {
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _countryFlag;
 
-        private User user;
+        private Player player;
 
         private void Awake() {
             _avatar = Instantiate<PlayerAvatar>(transform);
@@ -43,10 +43,10 @@ namespace BeatLeader.Components {
         private void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             if (state is not WebRequests.RequestState.Finished || instance.Result.Status != ScoreUploadStatus.Uploaded) return;
             OnProfileUpdated(instance.Result.Score.Player);
-            user.player.contextExtensions = instance.Result.Score.Player.contextExtensions;
+            player.contextExtensions = instance.Result.Score.Player.contextExtensions;
         }
 
-        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Uninitialized:
                     OnProfileRequestFailed("Error");
@@ -58,8 +58,8 @@ namespace BeatLeader.Components {
                     OnProfileRequestStarted();
                     break;
                 case WebRequests.RequestState.Finished:
-                    user = instance.Result;
-                    OnProfileUpdated(instance.Result.player);
+                    player = instance.Result;
+                    OnProfileUpdated(instance.Result);
                     break;
                 default: return;
             }
@@ -90,7 +90,7 @@ namespace BeatLeader.Components {
         #endregion
 
         private void ChangeScoreContext(int context) {
-            OnProfileUpdated(user.player);
+            OnProfileUpdated(player);
         }
 
         #region StatsActive

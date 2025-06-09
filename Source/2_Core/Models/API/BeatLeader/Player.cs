@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,14 +7,8 @@ using Newtonsoft.Json;
 using BeatLeader.Themes;
 using BeatLeader.Utils;
 using BeatSaber.BeatAvatarSDK;
-using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
-    public class User {
-        public Player player;
-        public Player[] friends;
-    }
-
     public class PlayerContextExtension {
         public int context;
         public float pp;
@@ -79,6 +72,7 @@ namespace BeatLeader.Models {
         public int prestige;
         public float pp;
         public string role;
+        public string[] friends;
         public Clan[] clans;
         public ServiceIntegration[] socials;
         public PlayerContextExtension[]? contextExtensions;

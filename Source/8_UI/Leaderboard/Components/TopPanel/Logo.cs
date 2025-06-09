@@ -139,7 +139,7 @@ namespace BeatLeader.Components {
             LeaderboardEvents.NotifyLogoWasPressed();
         }
 
-        private void OnProfileRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnProfileRequestStateChanged(IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             _loadingProfile = state is WebRequests.RequestState.Started;
             UpdateState();
         }

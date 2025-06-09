@@ -5,7 +5,7 @@ using BeatLeader.WebRequests;
 
 namespace BeatLeader.API {
 
-    internal class PrestigeRequest : PersistentSingletonWebRequestBase<PrestigeRequest, User, JsonResponseParser<User>> {
+    internal class PrestigeRequest : PersistentSingletonWebRequestBase<PrestigeRequest, Player, JsonResponseParser<Player>> {
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/experience/prestige";
 
         public static void Send() {

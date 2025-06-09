@@ -24,10 +24,10 @@ namespace BeatLeader.Components {
 
         #region Events
         
-        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Finished:
-                    Player player = instance.Result.player;
+                    Player player = instance.Result;
                     if (player.level == 100) {
                         _PrestigeYesButton.interactable = true;
                     } else {

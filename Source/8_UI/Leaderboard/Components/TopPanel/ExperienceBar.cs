@@ -161,9 +161,9 @@ namespace BeatLeader.Components {
             _initialized = enabled;
         }
         
-        private void OnProfileRequestStateChanged(IWebRequest<User> instance, RequestState state, string? failReason) {
+        private void OnProfileRequestStateChanged(IWebRequest<Player> instance, RequestState state, string? failReason) {
             if (!_initialized && state is RequestState.Finished) {
-                Player player = instance.Result.player;
+                Player player = instance.Result;
                 _level = player.level;
                 SetLevelText(_level);
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
@@ -243,7 +243,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnPrestigeRequestStateChanged(IWebRequest<User> instance, RequestState state, string? failReason) {
+        private void OnPrestigeRequestStateChanged(IWebRequest<Player> instance, RequestState state, string? failReason) {
             if (state is RequestState.Finished) {
                 _level = 0;
                 SetLevelText(_level);

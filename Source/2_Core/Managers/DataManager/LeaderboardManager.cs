@@ -153,7 +153,7 @@ namespace BeatLeader.DataManager {
             _lastSelectedPage = instance.Result?.CurrentPage ?? 1;
         }
 
-        private void OnUserRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnUserRequestStateChanged(IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             if (state is not WebRequests.RequestState.Finished) return;
             TryUpdateScores();
         }

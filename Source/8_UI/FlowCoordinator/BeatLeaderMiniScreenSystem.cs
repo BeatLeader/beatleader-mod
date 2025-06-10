@@ -101,6 +101,7 @@ namespace BeatLeader.UI.Hub {
 
         private void SetupScreenSystem() {
             _hierarchyManager = Instantiate(_originalHierarchyManager, transform, false);
+            _hierarchyManager.name = "BeatLeaderScreenSystem";
             _diContainer.InjectGameObject(_hierarchyManager.gameObject);
             transform.localScale = Vector3.one * 0.5f;
         }

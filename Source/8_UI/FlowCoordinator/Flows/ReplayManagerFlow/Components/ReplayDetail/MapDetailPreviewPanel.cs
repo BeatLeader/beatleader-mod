@@ -36,7 +36,7 @@ namespace BeatLeader.UI.Hub {
             _coverContainer.Loading = true;
             await task.Join();
             //loading sprite
-            var sprite = task.RequestStatusCode is HttpStatusCode.OK ? ReactiveUtils.CreateSprite(task.Result!) : null;
+            var sprite = task.RequestStatusCode is HttpStatusCode.OK ? SpriteUtils.CreateSprite(task.Result!) : null;
             _cover.Sprite = sprite ?? BundleLoader.FileError;
             _coverContainer.Loading = false;
         }

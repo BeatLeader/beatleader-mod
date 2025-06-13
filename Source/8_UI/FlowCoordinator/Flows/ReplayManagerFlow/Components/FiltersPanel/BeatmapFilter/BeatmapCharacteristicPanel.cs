@@ -20,8 +20,8 @@ namespace BeatLeader.UI.Hub {
             return new Background {
                     Children = {
                         new IconSegmentedControl<BeatmapCharacteristicSO> {
-                            KeySelectedCb = x => CharacteristicSelectedEvent?.Invoke(x),
-                            CellSpawnedCb = (_, cell) => {
+                            WhenKeySelected = x => CharacteristicSelectedEvent?.Invoke(x),
+                            WhenCellSpawned = (_, cell) => {
                                 cell.Colors = BeatSaberStyle.TextColorSet.With(
                                     color: Color.white.ColorWithAlpha(0.9f),
                                     hoveredColor: Color.white

@@ -67,7 +67,7 @@ namespace BeatLeader.UI.MainMenu {
                                             }
                                         }),
                                     new ListView<PlatformEvent, EventPreviewPanel>() {
-                                        CellConstructedCb = (cell) => {
+                                        WhenCellConstructed = (cell) => {
                                             cell.ButtonAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
                                             cell.BackgroundAction = (item) => ReeModalSystem.OpenModal<EventDetailsDialog>(Content.transform, item);
                                         }

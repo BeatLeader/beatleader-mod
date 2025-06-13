@@ -70,7 +70,7 @@ namespace BeatLeader.UI.MainMenu {
                                             }),
                                         new ListView<TrendingMapData, MapPreviewPanel>()
                                         {
-                                            CellConstructedCb = (cell) => {
+                                            WhenCellConstructed = (cell) => {
                                                 cell.ButtonAction = (item) => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
                                                 cell.BackgroundAction = (item) => MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
                                             }

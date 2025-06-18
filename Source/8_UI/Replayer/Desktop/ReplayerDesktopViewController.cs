@@ -28,26 +28,21 @@ namespace BeatLeader.UI.Replayer.Desktop {
             gameObject.layer = 5;
             gameObject.AddComponent<GraphicRaycaster>();
             Destroy(gameObject.GetComponent<BaseRaycaster>());
+            
+            _replayerUIPanel = new ReplayerUIPanel();
+            _replayerUIPanel.WithRectExpand().Use(transform);
+            _replayerUIPanel.Setup(
+                _pauseController,
+                _finishController,
+                _timeController,
+                _playersManager,
+                _cameraController,
+                _bodySettingsFactory,
+                _launchData,
+                _watermark
+            );
         }
-
-        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
-            if (firstActivation) {
-                _replayerUIPanel = new ReplayerUIPanel();
-                _replayerUIPanel.WithRectExpand().Use(transform);
-                _replayerUIPanel.Setup(
-                    _pauseController,
-                    _finishController,
-                    _timeController,
-                    _playersManager,
-                    _cameraController,
-                    _bodySettingsFactory,
-                    _launchData,
-                    _watermark
-                );
-            }
-            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-        }
-
+        
         #endregion
 
         #region LayoutEditor

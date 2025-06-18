@@ -13,6 +13,7 @@ using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine.EventSystems;
 using static BeatLeader.Models.AbstractReplay.NoteEvent.NoteEventType;
+using AnimationCurve = Reactive.AnimationCurve;
 using MathUtils = Reactive.MathUtils;
 
 namespace BeatLeader.UI.Replayer {
@@ -55,7 +56,6 @@ namespace BeatLeader.UI.Replayer {
         }
 
         protected override void OnUpdate() {
-            _valueAnimator.Update();
             if (_allowTimeUpdate) {
                 SetValueSilent(_timeController!.SongTime);
             }
@@ -167,21 +167,21 @@ namespace BeatLeader.UI.Replayer {
             group.Enabled = enable;
             var mask = _uiSettings!.MarkersMask;
             _uiSettings!.MarkersMask = name switch {
-                "Miss"  => mask | TimelineMarkersMask.Miss,
-                "Bomb"  => mask | TimelineMarkersMask.Bomb,
+                "Miss" => mask | TimelineMarkersMask.Miss,
+                "Bomb" => mask | TimelineMarkersMask.Bomb,
                 "Pause" => mask | TimelineMarkersMask.Pause,
-                "Wall"  => mask | TimelineMarkersMask.Wall,
-                _       => throw new ArgumentOutOfRangeException(nameof(name), name, null)
+                "Wall" => mask | TimelineMarkersMask.Wall,
+                _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
             };
         }
 
         public bool GetMarkersEnabled(string name) {
             var mask = _uiSettings!.MarkersMask;
             return name switch {
-                "Miss"  => (TimelineMarkersMask.Miss & mask) != 0,
-                "Bomb"  => (TimelineMarkersMask.Bomb & mask) != 0,
+                "Miss" => (TimelineMarkersMask.Miss & mask) != 0,
+                "Bomb" => (TimelineMarkersMask.Bomb & mask) != 0,
                 "Pause" => (TimelineMarkersMask.Pause & mask) != 0,
-                "Wall"  => (TimelineMarkersMask.Wall & mask) != 0,
+                "Wall" => (TimelineMarkersMask.Wall & mask) != 0,
                 _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
             };
         }
@@ -209,25 +209,6 @@ namespace BeatLeader.UI.Replayer {
 
         #endregion
 
-        #region Animation
-
-        private readonly ValueAnimator _valueAnimator = new();
-
-        private void HandleAnimationProgressChanged(float progress) {
-            var scale = 1f + progress * 0.4f;
-            _background.ContentTransform.localScale = new(1f, scale, 1f);
-            _background.Image.Color = Color.Lerp(
-                UIStyle.InputColorSet.Color,
-                UIStyle.InputColorSet.HoveredColor,
-                progress
-            );
-            foreach (var group in _markerGroupsPool.SpawnedComponents) {
-                group.MarkerScale = scale;
-            }
-        }
-
-        #endregion
-
         #region Construct
 
         protected override PointerEventsHandler SlidingAreaEventsHandler => _pointerEventsHandler;
@@ -240,63 +221,78 @@ namespace BeatLeader.UI.Replayer {
         private ImageButton _background = null!;
         private PointerEventsHandler _pointerEventsHandler = null!;
 
+        private AnimatedValue<float> _backgroundScale = null!;
+        private AnimatedValue<Color> _backgroundColor = null!;
+
         protected override GameObject Construct() {
-            //sliding area bg
-            return new BackgroundButton {
-                Image = {
-                    Sprite = BundleLoader.Sprites.background,
-                    PixelsPerUnit = 12f,
-                    Material = GameResources.UINoGlowMaterial
-                },
-                Colors = null,
-                Children = {
-                    //sliding area
-                    new Background {
-                        ContentTransform = {
-                            pivot = new(0f, 0.5f)
-                        },
-                        Sprite = BundleLoader.TransparentPixel,
-                        Children = {
-                            new Layout {
-                                ContentTransform = {
-                                    pivot = Vector2.zero
-                                }
-                            }.Bind(ref _groupsArea).WithRectExpand(),
-                            //handle
-                            new Image {
-                                ContentTransform = {
-                                    anchorMin = new(0.5f, 0f),
-                                    anchorMax = new(0.5f, 1f),
-                                    sizeDelta = new(1f, 0f),
-                                    pivot = new(0f, 0.5f)
-                                },
-                                Sprite = BundleLoader.Sprites.background,
-                                PixelsPerUnit = 30f,
-                                Color = Color.white.ColorWithAlpha(0.8f)
-                            }.Bind(ref _handle)
-                        }
-                    }.WithNativeComponent(out _pointerEventsHandler).With(_ => {
-                            _pointerEventsHandler.PointerUpdatedEvent += HandlePointerUpdated;
-                            _pointerEventsHandler.PointerDownEvent += HandlePointerDown;
-                            _pointerEventsHandler.PointerUpEvent += HandlePointerUp;
-                        }
-                    ).AsFlexItem(
-                        flexGrow: 1f,
-                        size: new() { y = "120%" }
-                    ).Bind(ref _slidingArea)
+            _backgroundScale = RememberAnimated(1f, 15.fact());
+            _backgroundColor = RememberAnimated(UIStyle.InputColorSet.Color, 15.fact());
+
+            _backgroundScale.ValueChangedEvent += x => {
+                foreach (var group in _markerGroupsPool.SpawnedComponents) {
+                    group.MarkerScale = x;
                 }
-            }.AsFlexGroup(
-                padding: new() { left = 1f, right = 1f },
-                overflow: Overflow.Visible,
-                alignItems: Align.Center
-            ).Bind(ref _background).Use();
+            };
+
+            return new BackgroundButton {
+                    Image = {
+                        Sprite = BundleLoader.Sprites.background,
+                        PixelsPerUnit = 12f,
+                        Material = GameResources.UINoGlowMaterial
+                    },
+                    Colors = null,
+                    Children = {
+                        //sliding area
+                        new Background {
+                            ContentTransform = {
+                                pivot = new(0f, 0.5f)
+                            },
+                            Sprite = BundleLoader.TransparentPixel,
+                            Children = {
+                                new Layout {
+                                    ContentTransform = {
+                                        pivot = Vector2.zero
+                                    }
+                                }.Bind(ref _groupsArea).WithRectExpand(),
+                                //handle
+                                new Image {
+                                    ContentTransform = {
+                                        anchorMin = new(0.5f, 0f),
+                                        anchorMax = new(0.5f, 1f),
+                                        sizeDelta = new(1f, 0f),
+                                        pivot = new(0f, 0.5f)
+                                    },
+                                    Sprite = BundleLoader.Sprites.background,
+                                    PixelsPerUnit = 30f,
+                                    Color = Color.white.ColorWithAlpha(0.8f)
+                                }.Bind(ref _handle)
+                            }
+                        }.WithNativeComponent(out _pointerEventsHandler).With(_ => {
+                                _pointerEventsHandler.PointerUpdatedEvent += HandlePointerUpdated;
+                                _pointerEventsHandler.PointerDownEvent += HandlePointerDown;
+                                _pointerEventsHandler.PointerUpEvent += HandlePointerUp;
+                            }
+                        ).AsFlexItem(
+                            flexGrow: 1f,
+                            size: new() { y = 120.pct() }
+                        ).Bind(ref _slidingArea)
+                    }
+                }
+                .AsFlexGroup(
+                    padding: new() { left = 1f, right = 1f },
+                    overflow: Overflow.Visible,
+                    alignItems: Align.Center
+                )
+                .Animate(_backgroundScale, (x, y) => x.ContentTransform.localScale = new(1f, y), true)
+                .Animate(_backgroundColor, x => x.Image.Color, true)
+                .Bind(ref _background)
+                .Use();
         }
 
         protected override void OnInitialize() {
             base.OnInitialize();
             this.AsFlexItem(size: new() { y = 4f });
             this.WithListener(x => x.Value, HandleSliderValueChanged);
-            _valueAnimator.ProgressChangedEvent += HandleAnimationProgressChanged;
         }
 
         #endregion
@@ -312,7 +308,10 @@ namespace BeatLeader.UI.Replayer {
         }
 
         private void HandlePointerUpdated(PointerEventsHandler handler, PointerEventData eventData) {
-            _valueAnimator.SetTarget(handler.IsPressed || handler.IsHovered ? 1f : 0f);
+            var dragging = handler.IsPressed || handler.IsHovered;
+
+            _backgroundScale.Value = dragging ? 1.4f : 1f;
+            _backgroundColor.Value = dragging ? UIStyle.InputColorSet.HoveredColor : UIStyle.InputColorSet.Color;
         }
 
         private void HandlePointerDown(PointerEventsHandler handler, PointerEventData eventData) {

@@ -10,6 +10,7 @@ using BeatSaber.BeatAvatarAdapter.AvatarEditor;
 using BeatSaber.BeatAvatarSDK;
 using HMUI;
 using IPA.Utilities;
+using Reactive.BeatSaber;
 using UnityEngine;
 using Zenject;
 

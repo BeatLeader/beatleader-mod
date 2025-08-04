@@ -23,7 +23,7 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override GameObject Construct() {
             _bottomText = Remember(string.Empty);
-            
+
             return new BackgroundButton {
                 Colors = new StateColorSet {
                     States = {
@@ -45,20 +45,26 @@ namespace BeatLeader.UI.MainMenu {
                         Skew = UIStyle.Skew
                     }.AsFlexItem(
                         size: new() { x = 10, y = 10 }
-                    ).Animate(ObservableItem, (img, item) => {
-                        if (item == null) return;
-                        img.WithWebSource(item.image);
-                    }),
+                    ).Animate(
+                        ObservableItem,
+                        (img, item) => {
+                            if (item == null) return;
+                            img.WithWebSource(item.image);
+                        }
+                    ),
                     new Layout {
                         Children = {
                             new Label {
                                 FontSize = 4f,
                                 Overflow = TextOverflowModes.Ellipsis,
                                 Alignment = TextAlignmentOptions.Left
-                            }.AsFlexItem().Animate(ObservableItem, (lbl, item) => {
-                                if (item == null) return;
-                                lbl.Text = item.name;
-                            }),
+                            }.AsFlexItem().Animate(
+                                ObservableItem,
+                                (lbl, item) => {
+                                    if (item == null) return;
+                                    lbl.Text = item.name;
+                                }
+                            ),
                             new Label {
                                 FontSize = 3f,
                                 Overflow = TextOverflowModes.Ellipsis,
@@ -69,7 +75,7 @@ namespace BeatLeader.UI.MainMenu {
                     }.AsFlexGroup(
                         direction: FlexDirection.Column
                     ).AsFlexItem(
-                        margin: new() { left = 1 }, 
+                        margin: new() { left = 1 },
                         flexGrow: 1
                     ),
                     new BsButton {
@@ -77,10 +83,13 @@ namespace BeatLeader.UI.MainMenu {
                         OnClick = () => ButtonAction?.Invoke(Item)
                     }.AsFlexItem(
                         size: new() { x = 12, y = 8 }
-                    ).Animate(ObservableItem, (btn, item) => {
-                        if (item == null) return;
-                        btn.Text = "Details";
-                    })
+                    ).Animate(
+                        ObservableItem,
+                        (btn, item) => {
+                            if (item == null) return;
+                            btn.Text = "Details";
+                        }
+                    )
                 }
             }.AsFlexGroup(
                 direction: FlexDirection.Row,
@@ -88,7 +97,9 @@ namespace BeatLeader.UI.MainMenu {
                 padding: 1f,
                 alignItems: Align.Center,
                 constrainHorizontal: false
-            ).AsFlexItem().Use();
+            ).AsFlexItem(
+                margin: new() { left = 1f, right = 1f }
+            ).Use();
         }
 
         #region Timer Logic
@@ -108,7 +119,7 @@ namespace BeatLeader.UI.MainMenu {
 
             var timeSpan = FormatUtils.GetRelativeTime(item.endDate);
             var remainingTime = timeSpan;
-            
+
             if (timeSpan < TimeSpan.Zero) {
                 _bottomText.Value = $"<color=#88FF88>{FormatRemainingTime(-timeSpan)}";
                 remainingTime = -timeSpan;
@@ -121,14 +132,11 @@ namespace BeatLeader.UI.MainMenu {
             TimeSpan updateDelay;
             if (remainingTime.TotalDays >= 1) {
                 updateDelay = TimeSpan.FromDays(Math.Ceiling(remainingTime.TotalDays)) - remainingTime;
-            }
-            else if (remainingTime.TotalHours >= 1) {
+            } else if (remainingTime.TotalHours >= 1) {
                 updateDelay = TimeSpan.FromHours(Math.Ceiling(remainingTime.TotalHours)) - remainingTime;
-            }
-            else if (remainingTime.TotalMinutes >= 1) {
+            } else if (remainingTime.TotalMinutes >= 1) {
                 updateDelay = TimeSpan.FromMinutes(Math.Ceiling(remainingTime.TotalMinutes)) - remainingTime;
-            }
-            else {
+            } else {
                 updateDelay = TimeSpan.FromSeconds(Math.Ceiling(remainingTime.TotalSeconds)) - remainingTime;
                 if (updateDelay <= TimeSpan.Zero) updateDelay = TimeSpan.FromSeconds(1);
             }
@@ -156,4 +164,4 @@ namespace BeatLeader.UI.MainMenu {
 
         #endregion
     }
-} 
+}

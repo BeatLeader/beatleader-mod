@@ -84,7 +84,9 @@ namespace BeatLeader.UI.MainMenu {
                 padding: 1f,
                 alignItems: Align.Center,
                 constrainHorizontal: false
-            ).AsFlexItem().Use();
+            ).AsFlexItem(
+                margin: new() { left = 1f, right = 1f }
+            ).Use();
         }
     }
 }

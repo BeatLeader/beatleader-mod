@@ -1,23 +1,17 @@
-﻿using System.Collections.Generic;
-using BeatLeader.API;
+﻿using BeatLeader.API;
 using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
-using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
 using Reactive.Yoga;
-using Reactive.Components;
-using System.Collections;
+
+#pragma warning disable CS0618
 
 namespace BeatLeader.UI.MainMenu {
     internal class TextNewsPanel : ReactiveComponent {
-
-        private ObservableValue<WebRequests.RequestState> _requestState = null!;
-        private ObservableValue<List<NewsPost>> _list = null!;
+        #region Request
 
         protected override void OnInitialize() {
-            base.OnInitialize();
             NewsRequest.SendRequest();
             NewsRequest.StateChangedEvent += OnRequestStateChanged;
         }
@@ -27,78 +21,40 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<NewsPost>> instance, WebRequests.RequestState state, string? failReason) {
-            if (state == WebRequests.RequestState.Finished) {
-                _list.Value = instance.Result.data;
-                StartCoroutine(DelayedState());
-            } else {
-                _requestState.Value = state;
-            }
+            _newsPanel.UpdateFromRequest(
+                state,
+                state is WebRequests.RequestState.Finished ? instance.Result!.data : new()
+            );
         }
 
-        private IEnumerator DelayedState(){
-            yield return new WaitForSeconds(1);
-            _requestState.Value = WebRequests.RequestState.Finished;
-        }
+        #endregion
+
+        #region Construct
+
+        private NewsPanel<NewsPost, TextNewsPostPanel> _newsPanel = null!;
 
         protected override GameObject Construct() {
-            _requestState = Remember(WebRequests.RequestState.Uninitialized);
-            _list = Remember(new List<NewsPost>());
-
             return new Background {
-                Children = {
-                    new ScrollArea {
-                        ScrollContent = new Layout {
-                            Children = {
-                                new Spinner()
-                                    .AsFlexItem(size: new() { x = 8, y = 8 })
-                                    .Animate(_requestState, (spinner, state) => spinner.Enabled = state == WebRequests.RequestState.Uninitialized || state == WebRequests.RequestState.Started),
-                                new Label { RichText = true }
-                                    .Animate(_list, (text, list) => {
-                                        if (_requestState == WebRequests.RequestState.Finished && list.Count == 0) {
-                                            text.Text = "There is no news";
-                                            text.Enabled = true;
-                                        } else if (_requestState == WebRequests.RequestState.Failed) {
-                                            text.Text = "<color=#ff8888>Failed to load";
-                                            text.Enabled = true;
-                                        } else {
-                                            text.Enabled = false;
-                                        }
-                                    }),
-
-                                new ListView<NewsPost, TextNewsPostPanel>()
-                                    .Animate(_list, (table, list) => {
-                                        if (list.Count == 0) {
-                                            table.Enabled = false;
-                                        } else {
-                                            table.Items = list;
-                                        }
-                                    })
-                                    .AsFlexGroup(gap: 1)
-                                    .AsFlexItem(),
+                    Children = {
+                        new NewsPanel<NewsPost, TextNewsPostPanel> {
+                                EmptyMessage = "There is no news"
                             }
-                        }
-                        .AsFlexItem()
-                        .AsFlexGroup(
-                            direction: FlexDirection.Column, 
-                            constrainVertical: false
-                        ),
+                            .AsFlexItem(flexGrow: 1f)
+                            .Bind(ref _newsPanel)
                     }
-                    .AsFlexItem(flexGrow: 1)
-                    .Export(out var scrollArea),
-                    
-                    new Scrollbar()
-                        .AsFlexItem()
-                        .With(x => scrollArea.Scrollbar = x)
                 }
-            }
-            .AsFlexGroup(
-                gap: 1f,
-                padding: 1f
-            ).AsBackground(
-                color: Color.black.ColorWithAlpha(0.33f),
-                pixelsPerUnit: 7f
-            ).AsFlexItem(size: new() { x = 60, y = 70 })
-            .Use();
+                .AsFlexGroup(
+                    padding: 1f,
+                    justifyContent: Justify.Center
+                )
+                .AsBackground(
+                    color: Color.black.ColorWithAlpha(0.33f),
+                    pixelsPerUnit: 7f
+                )
+                .AsFlexItem(size: new() { x = 60, y = 70 })
+                .Use();
         }
+
+        #endregion
     }
 }

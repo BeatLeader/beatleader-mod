@@ -12,14 +12,14 @@ namespace BeatLeader.Replayer.Tweaking {
             HandlePrimaryPlayerChanged(_playersManager.PrimaryPlayer);
             _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
             _beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
-            _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewound;
+            _beatmapTimeController.EarlySongWasRewoundEvent += HandleSongWasRewound;
         }
 
         public override void Dispose() {
             Cam2Interop.UnbindMovementProcessor();
             _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
             _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
-            _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewound;
+            _beatmapTimeController.EarlySongWasRewoundEvent -= HandleSongWasRewound;
         }
 
         private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {

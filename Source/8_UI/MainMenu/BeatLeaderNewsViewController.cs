@@ -1,31 +1,41 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.ViewControllers;
-using JetBrains.Annotations;
+﻿using HMUI;
+using Reactive;
+using Reactive.Yoga;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
-    [ViewDefinition(Plugin.ResourcesPath + ".BSML.MainMenu.NewsView.bsml")]
-    internal class BeatLeaderNewsViewController : BSMLAutomaticViewController {
-        #region UI Components
-
-        [UIValue("text-news-panel"), UsedImplicitly] private TextNewsPanel _textNewsPanel = null!;
-
-        [UIValue("map-news-panel"), UsedImplicitly] private MapNewsPanel _mapNewsPanel = null!;
-
-        [UIValue("event-news-panel"), UsedImplicitly] private EventNewsPanel _eventNewsPanel = null!;
-
-        #endregion
+    internal class BeatLeaderNewsViewController : ViewController {
 
         #region Setup
 
         private void Awake() {
-            _textNewsPanel = ReeUIComponentV2.Instantiate<TextNewsPanel>(transform);
-            _mapNewsPanel = ReeUIComponentV2.Instantiate<MapNewsPanel>(transform);
-            _eventNewsPanel = ReeUIComponentV2.Instantiate<EventNewsPanel>(transform);
-        }
+            new Layout {
+                Children = {
+                    // spacer
+                    new Layout()
+                    .AsFlexItem(
+                        size: new() { x = 30 }),
+                    new TextNewsPanel(),
+                    new Layout {
+                        Children = {
+                            new EventNewsPanel(),
+                            new MapNewsPanel(),
+                        }
+                    }.AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        gap: 1f,
+                        constrainVertical: false
+                    ).AsFlexItem()
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Row,
+                constrainHorizontal: false,
+                constrainVertical: false,
+                gap: 1f
+            )
+            .AsFlexItem()
+            .Use(transform);
 
-        [UIAction("#post-parse"), UsedImplicitly]
-        private void OnInitialize() {
             UpdateScreen();
         }
 
@@ -38,7 +48,7 @@ namespace BeatLeader.UI.MainMenu {
             RevertScreenChanges();
         }
 
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
+        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling) {
             ReeModalSystem.CloseAll();
             gameObject.SetActive(false);
         }

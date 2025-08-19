@@ -1,92 +1,58 @@
-﻿using System.Collections.Generic;
-using BeatLeader.API;
+﻿using BeatLeader.API;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
-using TMPro;
+using Reactive;
+using Reactive.BeatSaber.Components;
 using UnityEngine;
+using Reactive.Yoga;
+
+#pragma warning disable CS0618
 
 namespace BeatLeader.UI.MainMenu {
-    internal class TextNewsPanel : AbstractNewsPanel {
-        #region Components
-
-        [UIComponent("empty-text"), UsedImplicitly] private TextMeshProUGUI _emptyText = null!;
-
-        [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
+    internal class TextNewsPanel : ReactiveComponent {
+        #region Request
 
         protected override void OnInitialize() {
-            base.OnInitialize();
             NewsRequest.SendRequest();
             NewsRequest.StateChangedEvent += OnRequestStateChanged;
         }
 
-        protected override void OnDispose() {
+        protected override void OnDestroy() {
             NewsRequest.StateChangedEvent -= OnRequestStateChanged;
         }
 
-        #endregion
-
-        #region Request
-
         private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<NewsPost>> instance, WebRequests.RequestState state, string? failReason) {
-            switch (state) {
-                case WebRequests.RequestState.Uninitialized:
-                case WebRequests.RequestState.Started:
-                default: {
-                    _loadingIndicator.SetActive(true);
-                    _emptyText.gameObject.SetActive(false);
-                    DisposeList();
-                    break;
-                }
-                case WebRequests.RequestState.Failed:
-                    _loadingIndicator.SetActive(false);
-                    _emptyText.gameObject.SetActive(true);
-                    _emptyText.text = "<color=#ff8888>Failed to load";
-                    DisposeList();
-                    break;
-                case WebRequests.RequestState.Finished: {
-                    _loadingIndicator.SetActive(false);
-
-                    if (instance.Result.data is { Count: > 0 }) {
-                        _emptyText.gameObject.SetActive(false);
-                        PresentList(instance.Result.data);
-                    } else {
-                        _emptyText.gameObject.SetActive(true);
-                        _emptyText.text = "There is no news";
-                        DisposeList();
-                    }
-
-                    break;
-                }
-            }
+            _newsPanel.UpdateFromRequest(
+                state,
+                state is WebRequests.RequestState.Finished ? instance.Result!.data : new()
+            );
         }
 
         #endregion
 
-        #region List
+        #region Construct
 
-        private readonly List<TextNewsPostPanel> _list = new List<TextNewsPostPanel>();
+        private NewsPanel<NewsPost, TextNewsPostPanel> _newsPanel = null!;
 
-        private void PresentList(IEnumerable<NewsPost> items) {
-            DisposeList();
-
-            foreach (var item in items) {
-                var component = Instantiate<TextNewsPostPanel>(transform);
-                component.ManualInit(mainContainer);
-                component.Setup(item);
-                _list.Add(component);
-            }
-
-            MarkScrollbarDirty();
-        }
-
-        private void DisposeList() {
-            foreach (var component in _list) {
-                Destroy(component.gameObject);
-            }
-
-            _list.Clear();
-            MarkScrollbarDirty();
+        protected override GameObject Construct() {
+            return new Background {
+                    Children = {
+                        new NewsPanel<NewsPost, TextNewsPostPanel> {
+                                EmptyMessage = "There is no news"
+                            }
+                            .AsFlexItem(flexGrow: 1f)
+                            .Bind(ref _newsPanel)
+                    }
+                }
+                .AsFlexGroup(
+                    padding: 1f,
+                    justifyContent: Justify.Center
+                )
+                .AsBackground(
+                    color: Color.black.ColorWithAlpha(0.33f),
+                    pixelsPerUnit: 7f
+                )
+                .AsFlexItem(size: new() { x = 60, y = 70 })
+                .Use();
         }
 
         #endregion

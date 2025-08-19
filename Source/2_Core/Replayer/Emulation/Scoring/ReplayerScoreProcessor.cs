@@ -155,7 +155,7 @@ namespace BeatLeader.Replayer.Emulation {
             _scoreController.GetField<List<ScoringElement>, ScoreController>("_scoringElementsWithMultiplier").Clear();
             _scoreController.GetField<List<ScoringElement>, ScoreController>("_scoringElementsToRemove").Clear();
 
-            _gameEnergyCounter.SetField("_batteryLives", 4);
+            _gameEnergyCounter.SetField("_batteryLives", _gameEnergyCounter._initData.instaFail ? 1 : 4);
             _gameEnergyCounter.SetField("_didReach0Energy", false);
             _gameEnergyCounter.SetField("_nextFrameEnergyChange", 0f);
             _gameEnergyCounter.SetProperty("energy", _gameEnergyCounter.energyType != GameplayModifiers.EnergyType.Battery ? 0.5f : 1f);

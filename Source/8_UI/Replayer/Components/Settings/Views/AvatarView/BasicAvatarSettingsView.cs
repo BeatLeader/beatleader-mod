@@ -88,11 +88,11 @@ namespace BeatLeader.UI.Replayer {
         }
 
         protected override void OnInitialize() {
-            _segmentedControl.SelectedKeyChangedEvent += RefreshScrollArea;
+            _segmentedControl.WhenKeySelected += RefreshScrollArea;
         }
 
         protected override void OnDestroy() {
-            _segmentedControl.SelectedKeyChangedEvent -= RefreshScrollArea;
+            _segmentedControl.WhenKeySelected -= RefreshScrollArea;
         }
 
         private void RefreshScrollArea(int _) {

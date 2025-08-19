@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatLeader.Models;
 using HMUI;
+using Reactive.BeatSaber;
 using Zenject;
 
 namespace BeatLeader.UI.Hub {

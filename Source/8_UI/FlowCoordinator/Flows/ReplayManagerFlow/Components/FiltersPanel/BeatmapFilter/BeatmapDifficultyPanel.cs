@@ -20,8 +20,8 @@ namespace BeatLeader.UI.Hub {
             return new Background {
                     Children = {
                         new TextSegmentedControl<BeatmapDifficulty> {
-                            KeySelectedCb = x => DifficultySelectedEvent?.Invoke(x),
-                            CellSpawnedCb = (_, cell) => {
+                            WhenKeySelected = x => DifficultySelectedEvent?.Invoke(x),
+                            WhenCellSpawned = (_, cell) => {
                                 cell.Colors = BeatSaberStyle.TextColorSet.With(
                                     color: Color.white.ColorWithAlpha(0.9f),
                                     hoveredColor: Color.white

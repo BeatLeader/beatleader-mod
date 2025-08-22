@@ -1,4 +1,4 @@
-using BeatLeader.Components;
+﻿using BeatLeader.Components;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -90,6 +90,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.ClanScoreInfoButtonWasPressed += PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent += PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent += PresentBeatLeaderInfoModal;
+            LeaderboardEvents.PrestigeWasPressedEvent += PresentPrestigeModal;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction += PresentContextsModal;
             LeaderboardEvents.BattleRoyaleEnabledEvent += HandleBattleRoyaleEnabled;
@@ -101,6 +102,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.ClanScoreInfoButtonWasPressed -= PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent -= PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent -= PresentBeatLeaderInfoModal;
+            LeaderboardEvents.PrestigeWasPressedEvent -= PresentPrestigeModal;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction -= PresentContextsModal;
             LeaderboardEvents.BattleRoyaleEnabledEvent -= HandleBattleRoyaleEnabled;
@@ -112,16 +114,16 @@ namespace BeatLeader.ViewControllers {
         #region Events
 
         private bool _battleRoyaleEnabled;
-        
+
         private void HandleBattleRoyaleEnabled(bool brEnabled) {
             _battleRoyaleEnabled = brEnabled;
         }
-        
+
         private void PresentScoreInfoModal(Score score) {
             if (_battleRoyaleEnabled) {
                 return;
             }
-            
+
             ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _navigatorWrapper), false);
         }
 
@@ -145,6 +147,10 @@ namespace BeatLeader.ViewControllers {
 
         private void PresentVotingModal() {
             ReeModalSystem.OpenModal<VotingPanel>(transform, 0);
+        }
+
+        private void PresentPrestigeModal() {
+            ReeModalSystem.OpenModal<PrestigePanel>(transform, 0);
         }
 
         private void PresentContextsModal() {

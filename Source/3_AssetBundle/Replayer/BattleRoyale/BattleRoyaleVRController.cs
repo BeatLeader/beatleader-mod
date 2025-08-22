@@ -2,9 +2,16 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Zenject;
 
 namespace BeatLeader {
     internal abstract class BattleRoyaleVRController : VRController {
+        #region Injection
+        [Inject]
+        TimeHelper timeHelper;
+
+        #endregion
+
         #region Unity Events
 
         private void Awake() {
@@ -90,7 +97,7 @@ namespace BeatLeader {
         private void UpdateMovementData() {
             var bottomPos = transform.position;
             var topPos = transform.forward + bottomPos;
-            _movementData.AddNewData(topPos, bottomPos, TimeHelper.time);
+            _movementData.AddNewData(topPos, bottomPos, timeHelper.Time);
         }
 
         private static SaberTrailRenderer InstantiateTrailRenderer() {

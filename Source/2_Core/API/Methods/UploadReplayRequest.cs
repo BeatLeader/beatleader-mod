@@ -7,24 +7,28 @@ using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
 using System.Net.Http;
 using BeatLeader.WebRequests;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace BeatLeader.API {
-    public class UploadReplayRequest : PersistentSingletonWebRequestBase<UploadReplayRequest, Score, JsonResponseParser<Score>> {
-        private static string WithCookieEndpoint => BLConstants.BEATLEADER_API_URL + "/replayoculus";
+    public class UploadReplayRequest : PersistentSingletonWebRequestBase<UploadReplayRequest, ScoreUploadResponse, JsonResponseParser<ScoreUploadResponse>> {
+        private static string WithCookieEndpoint => BLConstants.BEATLEADER_API_URL + "/v2/replayoculus?{0}";
 
-        public static void Send(Replay replay) {
-
+        public static void Send(Replay replay, PlayEndData data) {
             Task.Run(() => {
+                var query = new Dictionary<string, object>() {
+                    { "time", data.Time },
+                    { "type", (int)data.EndType }
+                };
+                var url = string.Format(WithCookieEndpoint, NetworkingUtils.ToHttpParams(query));
+
                 var compressedData = CompressReplay(replay);
                 var content = new ByteArrayContent(compressedData);
                 content.Headers.ContentEncoding.Add("gzip");
 
-                SendRet(WithCookieEndpoint, HttpMethod.Put, content, 
+                SendRet(url, HttpMethod.Put, content,
                     new WebRequestParams {
                         RetryCount = 3,
-                        TimeoutSeconds = 120 
+                        TimeoutSeconds = 120
                     });
             }).RunCatching();
         }

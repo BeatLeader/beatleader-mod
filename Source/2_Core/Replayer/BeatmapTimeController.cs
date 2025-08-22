@@ -23,8 +23,8 @@ namespace BeatLeader.Replayer {
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController = null!;
         [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null!;
 
-        [FirstResource, UsedImplicitly]
-        protected readonly AudioManagerSO _audioManager = null!;
+        [Inject, UsedImplicitly]
+        protected readonly AudioManager _audioManager = null!;
 
         #endregion
 

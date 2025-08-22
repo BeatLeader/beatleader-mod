@@ -30,16 +30,17 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnReplayUploadStarted(Replay replay) {
+        private void OnReplayUploadStarted(Replay replay, PlayEndData data) {
             _lastReplay = replay;
+            _lastPlayEndData = data;
             FailsCount = 0;
         }
 
-        private void OnUploadRequestProgressChanged(WebRequests.IWebRequest<Score> instance, float downloadProgress, float uploadProgress, float overallProgress) {
+        private void OnUploadRequestProgressChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, float downloadProgress, float uploadProgress, float overallProgress) {
             _textComponent.text = $"{(uploadProgress * 100):F2}<size=60%>%";
         }
 
-        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             _textRoot.gameObject.SetActive(state is WebRequests.RequestState.Started);
 
             switch (state) {
@@ -59,6 +60,7 @@ namespace BeatLeader.Components {
 
         private int _failsCount;
         private Replay _lastReplay;
+        private PlayEndData _lastPlayEndData;
 
         private int FailsCount {
             get => _failsCount;
@@ -70,7 +72,7 @@ namespace BeatLeader.Components {
 
         private void OnRetryClicked() {
             if (_lastReplay == null) return;
-            ScoreUtil.UploadReplay(_lastReplay);
+            ScoreUtil.UploadReplay(_lastReplay, _lastPlayEndData);
         }
 
         #endregion

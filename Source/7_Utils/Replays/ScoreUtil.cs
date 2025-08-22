@@ -26,7 +26,7 @@ namespace BeatLeader.Utils {
 
         #region ProcessReplay
 
-        public static Action<Replay>? ReplayUploadStartedEvent;
+        public static Action<Replay, PlayEndData>? ReplayUploadStartedEvent;
 
         public static void ProcessReplay(Replay replay, PlayEndData data) {
             if (replay.info.speed != 0) {
@@ -41,14 +41,11 @@ namespace BeatLeader.Utils {
 
             Plugin.Log.Debug("Uploading replay");
             switch (data.EndType) {
-                case LevelEndType.Clear:
-                    UploadReplay(replay);
-                    break;
                 case LevelEndType.Unknown:
                     Plugin.Log.Debug("Unknown level end Type");
                     break;
                 default:
-                    UploadPlay(replay, data);
+                    UploadReplay(replay, data);
                     break;
             }
 
@@ -59,13 +56,9 @@ namespace BeatLeader.Utils {
             ReplayManager.SaveReplayAsync(replay, data, CancellationToken.None).RunCatching();
         }
 
-        public static void UploadReplay(Replay replay) {
-            ReplayUploadStartedEvent?.Invoke(replay);
-            UploadReplayRequest.Send(replay);
-        }
-
-        public static void UploadPlay(Replay replay, PlayEndData data) {
-            UploadPlayRequest.Send(replay, data);
+        public static void UploadReplay(Replay replay, PlayEndData data) {
+            ReplayUploadStartedEvent?.Invoke(replay, data);
+            UploadReplayRequest.Send(replay, data);
         }
 
         #endregion

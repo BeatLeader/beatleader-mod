@@ -47,7 +47,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnProfileRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Failed:
                     ShowBadNews($"Profile update failed! {failReason}");
@@ -55,10 +55,12 @@ namespace BeatLeader.Components {
             }
         }
 
-        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Finished:
-                    ShowGoodNews("Score uploaded!");
+                    if (instance.Result.Status == ScoreUploadStatus.Uploaded) {
+                        ShowGoodNews("Score uploaded!");
+                    }
                     break;
                 case WebRequests.RequestState.Failed:
                     ShowBadNews($"Score upload failed! {failReason}");

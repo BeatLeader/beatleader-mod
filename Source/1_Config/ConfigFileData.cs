@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using BeatLeader.Models;
@@ -59,28 +59,29 @@ namespace BeatLeader {
         #endregion
 
         #region Config
-        
+
         public string LastSessionModVersion = Version.Zero.ToString();
-        
+
         public bool Enabled = ConfigDefaults.Enabled;
         public bool NoticeboardEnabled = true;
         public bool MenuButtonEnabled = ConfigDefaults.MenuButtonEnabled;
-        
+
         // Accessibility
         public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
         public BeatLeaderServer MainServer = ConfigDefaults.MainServer;
-        
+
         // Leaderboard
         public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
         public int ScoresContext = ConfigDefaults.ScoresContext;
+        public bool ExperienceBarEnabled = true;
 
         // Hub
         public BeatLeaderHubTheme HubTheme = ConfigDefaults.HubTheme;
-        
+
         // Replayer
         public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
-        
+
         // Replays
         public bool SaveLocalReplays = ConfigDefaults.SaveLocalReplays;
         public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;

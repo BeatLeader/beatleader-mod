@@ -255,6 +255,26 @@ namespace BeatLeader {
 
         [UsedImplicitly] public static Sprite AlphaIcon;
 
+        [UsedImplicitly] public static Sprite PrestigeIcon1;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon2;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon3;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon4;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon5;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon6;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon7;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon8;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon9;
+
+        [UsedImplicitly] public static Sprite PrestigeIcon10;
+
         public static SpriteCollection Sprites;
 
         private static List<Sprite> _loadedSprites = null!;
@@ -340,6 +360,17 @@ namespace BeatLeader {
 
             HubIcon = assetBundle.LoadAsset<Sprite>("BL_HubIcon");
             Sprites = assetBundle.LoadAsset<SpriteCollection>("SpriteCollection");
+
+            PrestigeIcon1 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon1");
+            PrestigeIcon2 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon2");
+            PrestigeIcon3 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon3");
+            PrestigeIcon4 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon4");
+            PrestigeIcon5 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon5");
+            PrestigeIcon6 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon6");
+            PrestigeIcon7 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon7");
+            PrestigeIcon8 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon8");
+            PrestigeIcon9 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon9");
+            PrestigeIcon10 = assetBundle.LoadAsset<Sprite>("BL_PrestigeIcon10");
 
             _loadedSprites = assetBundle.LoadAllAssets<Sprite>().ToList();
         }

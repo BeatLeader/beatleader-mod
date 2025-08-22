@@ -1,7 +1,9 @@
 ﻿using BeatLeader.API;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace BeatLeader.Components {
     internal class PlayerInfo : ReeUIComponentV2 {
@@ -25,6 +27,8 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         protected override void OnInitialize() {
+            InitializeMaterial();
+
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
@@ -80,6 +84,7 @@ namespace BeatLeader.Components {
             _avatar.SetAvatar(player.avatar, player.profileSettings);
 
             var contextPlayer = player.ContextPlayer(PluginConfig.ScoresContext);
+            SwapPrestigeIcon(player.prestige);
             NameText = FormatUtils.FormatUserName(player.name);
             GlobalRankText = FormatUtils.FormatRank(contextPlayer.rank, true);
             CountryRankText = FormatUtils.FormatRank(contextPlayer.countryRank, true);
@@ -88,6 +93,48 @@ namespace BeatLeader.Components {
         }
 
         #endregion
+
+        private void SwapPrestigeIcon(int prestige) {
+            if (prestige != 0) {
+                _prestigeIcon.gameObject.SetActive(true);
+            }
+
+            switch (prestige) {
+                case 0:
+                    _prestigeIcon.gameObject.SetActive(false);
+                    break;
+                case 1:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon1;
+                    break;
+                case 2:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon2;
+                    break;
+                case 3:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon3;
+                    break;
+                case 4:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon4;
+                    break;
+                case 5:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon5;
+                    break;
+                case 6:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon6;
+                    break;
+                case 7:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon7;
+                    break;
+                case 8:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon8;
+                    break;
+                case 9:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon9;
+                    break;
+                case 10:
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon10;
+                    break;
+            }
+        }
 
         private void ChangeScoreContext(int context) {
             OnProfileUpdated(player);
@@ -106,6 +153,13 @@ namespace BeatLeader.Components {
                 NotifyPropertyChanged();
             }
         }
+
+        #endregion
+
+        #region PrestigeIcon
+
+        [UIComponent("prestige-icon"), UsedImplicitly]
+        private ImageView _prestigeIcon = null!;
 
         #endregion
 
@@ -169,6 +223,19 @@ namespace BeatLeader.Components {
                 _ppText = value;
                 NotifyPropertyChanged();
             }
+        }
+
+        #endregion
+
+        #region Material
+
+        private Material _materialInstance;
+
+        private void InitializeMaterial() {
+            _materialInstance = Material.Instantiate(BundleLoader.RoundTextureMaterial);
+            _prestigeIcon.material = _materialInstance;
+            _prestigeIcon.sprite = BundleLoader.TransparentPixel;
+            _prestigeIcon.gameObject.SetActive(false);
         }
 
         #endregion

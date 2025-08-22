@@ -58,13 +58,16 @@ namespace BeatLeader.DataManager {
 
         public static Player HidePlayerIfNeeded(Player player) {
             if (!IsHidden(player)) return player;
-            
+
             return new Player() {
                 id = player.id,
                 rank = 0,
                 name = "~hidden player~",
                 country = "not set",
                 countryRank = 0,
+                experience = 0,
+                level = 0,
+                prestige = 0,
                 pp = 0f,
                 role = "",
                 clans = Array.Empty<Clan>(),

@@ -12,7 +12,7 @@ namespace BeatLeader.Models {
 
         [JsonProperty("player")]
         public Player originalPlayer;
-        
+
         public int id;
         public float accuracy;
         public float fcAccuracy;
@@ -21,6 +21,7 @@ namespace BeatLeader.Models {
         public string modifiers;
         public float pp;
         public float fcPp;
+        public float experience;
         public int rank;
         public int badCuts;
         public int missedNotes;
@@ -35,7 +36,7 @@ namespace BeatLeader.Models {
         public string timeSet;
         public string replay;
         public string platform;
-        
+
         #region IScoreRowContent implementation
 
         public bool ContainsValue(ScoreRowCellType cellType) {

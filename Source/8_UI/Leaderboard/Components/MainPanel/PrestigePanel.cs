@@ -2,17 +2,25 @@
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace BeatLeader.Components {
     internal class PrestigePanel : AbstractReeModal<object> {
         #region Init / Dispose
 
+        private FireworksController fireworksController = null;
+
         protected override void OnInitialize() {
             base.OnInitialize();
             InitializePrestigeButtons();
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent += OnUploadStateChanged;
+
+            fireworksController = UnityEngine.Object.FindObjectsByType<FireworksController>(FindObjectsSortMode.None).FirstOrDefault();
         }
 
         protected override void OnDispose() {
@@ -61,7 +69,17 @@ namespace BeatLeader.Components {
 
         private void RequestPrestige() {
             PrestigeRequest.Send();
+            if (fireworksController != null) {
+                Task.Run(() => Fireworks(5));
+            }
             Close();
+        }
+
+        private async Task<bool> Fireworks(double duration) {
+            fireworksController.enabled = true;
+            await Task.Delay(TimeSpan.FromSeconds(duration));
+            fireworksController.enabled = false;
+            return true;
         }
 
         #endregion

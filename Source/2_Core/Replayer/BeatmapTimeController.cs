@@ -22,9 +22,7 @@ namespace BeatLeader.Replayer {
         [Inject] protected readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData = null!;
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController = null!;
         [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null!;
-
-        [FirstResource, UsedImplicitly]
-        protected readonly AudioManagerSO _audioManager = null!;
+        [Inject] protected readonly AudioManager _audioManager = null!;
 
         #endregion
 
@@ -61,7 +59,6 @@ namespace BeatLeader.Replayer {
                 NoteCutSoundEffectManagerStartPostfix), ReflectionUtils.StaticFlags));
 
         private void Awake() {
-            this.LoadResources();
             _beatmapAudioSource = _audioTimeSyncController
                 .GetField<AudioSource, AudioTimeSyncController>("_audioSource");
             _spawnedBeatmapObjectControllers = _beatmapObjectManager

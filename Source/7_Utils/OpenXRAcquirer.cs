@@ -76,7 +76,7 @@ namespace BeatLeader.Utils {
         }
 
         private const string DLLName = "openxr_loader";
-        private const long DLLGetLoaderInstanceFuncPtr = 0x00039480;
+        private const long DLLGetLoaderInstanceFuncPtr = 0x00038610;
 
         public static XrSystemProperties? SystemProperties { get; private set; }
         public static string? SystemName { get; private set; }
@@ -134,8 +134,8 @@ namespace BeatLeader.Utils {
             {
                 buffer[i] = Marshal.ReadByte(funcAddress, i);
             }
-            string result = Encoding.ASCII.GetString(buffer);
-            if (result != "H??(eH?") { return null; }
+            string result = Convert.ToBase64String(buffer);
+            if (result != "SIPsKIsNonA=") { return null; }
 
             var getLoaderInstanceFunc = Marshal.GetDelegateForFunctionPointer<XrInstanceFuncDelegate>(funcAddress);
             if (getLoaderInstanceFunc == null) throw new InvalidPointerException(funcAddress);

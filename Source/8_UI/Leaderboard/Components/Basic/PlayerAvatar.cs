@@ -63,7 +63,7 @@ namespace BeatLeader.Components {
         private bool _useSmallMaterialVersion;
 
         protected override void OnInitialize() {
-            _bufferTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.Default, 10);
+            _bufferTexture = new RenderTexture(Width, Height, 0, RenderTextureFormat.Default, 8);
             _bufferTexture.Create();
         }
 

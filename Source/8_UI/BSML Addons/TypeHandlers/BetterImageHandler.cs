@@ -27,17 +27,13 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
             { "pixelsPerUnit", new[] { "pixels-per-unit-multiplier", "pixels-per-unit", "ppu" } }
         };
 
-        public static IEnumerator SetImage(Image image, string imagePath) {
-            yield return image.SetImageAsync(imagePath);
-        }
-
         public static void HandleImage(Dictionary<string, string> data, Image image)
         {
             try
             {
                 if (data.TryGetValue("image", out string imagePath))
                 {
-                    image.StartCoroutine(SetImage(image, imagePath));
+                    _ = image.SetImageAsync(imagePath);
                 }
                 if (data.TryGetValue("imageColor", out string imageColor) && ColorUtility.TryParseHtmlString(imageColor, out Color color))
                 {

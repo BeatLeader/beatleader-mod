@@ -9,10 +9,10 @@ namespace BeatLeader {
     public static class BLLocalization {
         #region Initialize
 
-        private static Language _baseGameLanguage = Language.English;
+        private static LocalizationLanguage _baseGameLanguage = LocalizationLanguage.English;
 
         internal static void Initialize(SettingsManager settingsmanager) {
-            _baseGameLanguage = Localization.Instance.SupportedLanguages.FirstOrDefault(l => l.ToSerializedName() == settingsmanager.settings.misc.language);
+            _baseGameLanguage = Localization.Instance.supportedLanguages.FirstOrDefault(l => l.ToSerializedName() == settingsmanager.settings.misc.language);
             OnBaseGameLanguageDidChange();
         }
 
@@ -29,19 +29,19 @@ namespace BeatLeader {
         private static void OnBaseGameLanguageDidChange() {
 
             _blLanguageAnalog = _baseGameLanguage switch {
-                Language.English => BLLanguage.English,
-                Language.Russian => BLLanguage.Russian,
-                Language.Japanese => BLLanguage.Japanese,
-                Language.Simplified_Chinese => BLLanguage.Chinese,
-                Language.Traditional_Chinese => BLLanguage.Chinese,
-                Language.Korean => BLLanguage.Korean,
-                Language.French => BLLanguage.French,
-                Language.German => BLLanguage.German,
-                Language.Spanish => BLLanguage.Spanish,
-                Language.Norwegian => BLLanguage.Norwegian,
-                Language.Polish => BLLanguage.Polish,
-                Language.Swedish => BLLanguage.Swedish,
-                Language.Italian => BLLanguage.Italian,
+                LocalizationLanguage.English => BLLanguage.English,
+                LocalizationLanguage.Russian => BLLanguage.Russian,
+                LocalizationLanguage.Japanese => BLLanguage.Japanese,
+                LocalizationLanguage.Simplified_Chinese => BLLanguage.Chinese,
+                LocalizationLanguage.Traditional_Chinese => BLLanguage.Chinese,
+                LocalizationLanguage.Korean => BLLanguage.Korean,
+                LocalizationLanguage.French => BLLanguage.French,
+                LocalizationLanguage.German => BLLanguage.German,
+                LocalizationLanguage.Spanish => BLLanguage.Spanish,
+                LocalizationLanguage.Norwegian => BLLanguage.Norwegian,
+                LocalizationLanguage.Polish => BLLanguage.Polish,
+                LocalizationLanguage.Swedish => BLLanguage.Swedish,
+                LocalizationLanguage.Italian => BLLanguage.Italian,
                 _ => BLLanguage.English,
             };
         }

@@ -21,8 +21,7 @@ namespace BeatLeader.Replayer {
         [Inject] protected readonly BeatmapCallbacksController.InitData _beatmapCallbacksControllerInitData = null!;
         [Inject] protected readonly BeatmapCallbacksController _beatmapCallbacksController = null!;
         [Inject] protected readonly BeatmapCallbacksUpdater _beatmapCallbacksUpdater = null!;
-
-        [FirstResource] protected readonly AudioManagerSO _audioManagerSO = null!;
+        [Inject] protected readonly AudioManager _audioManager = null!;
 
         #endregion
 
@@ -59,7 +58,6 @@ namespace BeatLeader.Replayer {
                 NoteCutSoundEffectManagerStartPostfix), ReflectionUtils.StaticFlags));
 
         private void Awake() {
-            this.LoadResources();
             _beatmapAudioSource = _audioTimeSyncController
                 .GetField<AudioSource, AudioTimeSyncController>("_audioSource");
             _spawnedBeatmapObjectControllers = _beatmapObjectManager
@@ -141,7 +139,7 @@ namespace BeatLeader.Replayer {
             DespawnAllNoteControllerSounds();
             _audioTimeSyncController.SetField("_timeScale", speedMultiplier);
             _beatmapAudioSource.pitch = speedMultiplier;
-            _audioManagerSO.musicPitch = 1f / speedMultiplier;
+            _audioManager.musicPitch = 1f / speedMultiplier;
 
             SongSpeedWasChangedEvent?.Invoke(speedMultiplier);
 

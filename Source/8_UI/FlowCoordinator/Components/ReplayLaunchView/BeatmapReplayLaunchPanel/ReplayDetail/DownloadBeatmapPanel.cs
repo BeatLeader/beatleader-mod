@@ -100,7 +100,7 @@ namespace BeatLeader.Components {
             Downloaded
         }
 
-        private void UpdateVisibility(State state) {
+        private async Task UpdateVisibility(State state) {
             _infoPanelObject.SetActive(false);
             _searchingPanelObject.SetActive(false);
             _downloadPanelObject.SetActive(false);
@@ -118,7 +118,7 @@ namespace BeatLeader.Components {
                     _infoPanelObject.SetActive(true);
                     break;
                 case State.ReadyToDownload:
-                    _mapPreviewImage.SetImage(_mapDetail!.versions![0].coverURL);
+                    await _mapPreviewImage.SetImageAsync(_mapDetail!.versions![0].coverURL);
                     _mapText.text = "By " + _mapDetail.metadata!.levelAuthorName;
                     _mapBsrText.text = "BSR: " + _mapDetail.id;
                     _downloadInfoText.text = HelpText;
@@ -147,11 +147,11 @@ namespace BeatLeader.Components {
 
         protected override void OnRootStateChange(bool active) {
             if (_beatmapHash is null) {
-                UpdateVisibility(State.Idling);
+                _ = UpdateVisibility(State.Idling);
                 return;
             }
             if (_mapDetail is not null) {
-                UpdateVisibility(State.ReadyToDownload);
+                _ = UpdateVisibility(State.ReadyToDownload);
                 return;
             }
             if (!active) return;
@@ -191,31 +191,31 @@ namespace BeatLeader.Components {
         private async Task GetBeatmapAsync(CancellationToken token) {
             _backButton.interactable = false;
             DownloadAbilityChangedEvent?.Invoke(false);
-            UpdateVisibility(State.Searching);
+            await UpdateVisibility(State.Searching);
 
             _mapDetail = await BeatSaverUtils.GetMapByHashAsync(_beatmapHash!);
             if (token.IsCancellationRequested) return;
 
             _backButton.interactable = true;
             if (_mapDetail is null) {
-                UpdateVisibility(State.SearchFailed);
+                await UpdateVisibility(State.SearchFailed);
                 return;
             }
             DownloadAbilityChangedEvent?.Invoke(true);
-            UpdateVisibility(State.ReadyToDownload);
+            await UpdateVisibility(State.ReadyToDownload);
         }
 
         private async Task DownloadBeatmapAsync(CancellationToken token) {
             if (_mapDetail is null) return;
             _backButton.interactable = false;
             DownloadAbilityChangedEvent?.Invoke(false);
-            UpdateVisibility(State.Downloading);
+            await UpdateVisibility(State.Downloading);
             //download the map
             var bytes = default(byte[]?);
             var downloadUrl = _mapDetail.versions?.FirstOrDefault(
                 x => x.hash == _beatmapHash!.ToLower())?.downloadURL;
             if (downloadUrl is null) {
-                UpdateVisibility(State.DownloadForce);
+                await UpdateVisibility(State.DownloadForce);
                 var url = BeatSaverUtils.CreateDownloadMapUrl(_beatmapHash!);
                 Plugin.Log.Warn("BeatSaver response has no valid version! Sending force request to " + url);
                 bytes = await WebUtils.SendRawDataRequestAsync(url);
@@ -225,7 +225,7 @@ namespace BeatLeader.Components {
             //check is everything ok
             if (token.IsCancellationRequested) return;
             if (bytes is null) {
-                UpdateVisibility(downloadUrl is null ? State.DownloadInvalid : State.DownloadFailed);
+                await UpdateVisibility(downloadUrl is null ? State.DownloadInvalid : State.DownloadFailed);
                 _backButton.interactable = true;
                 return;
             }
@@ -233,12 +233,12 @@ namespace BeatLeader.Components {
             var mapMetadata = _mapDetail.metadata!;
             if (!await FileManager.InstallBeatmap(bytes, BeatSaverUtils.FormatBeatmapFolderName(
                 _mapDetail.id, mapMetadata.songName, mapMetadata.levelAuthorName, _beatmapHash))) {
-                UpdateVisibility(State.DownloadFailed);
+                await UpdateVisibility(State.DownloadFailed);
                 _backButton.interactable = true;
                 return;
             }
             if (token.IsCancellationRequested) return;
-            UpdateVisibility(State.Downloaded);
+            await UpdateVisibility(State.Downloaded);
             _backButton.interactable = true;
             _beatmapHash = null;
         }

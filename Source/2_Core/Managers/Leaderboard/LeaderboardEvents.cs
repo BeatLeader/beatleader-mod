@@ -171,10 +171,10 @@ namespace BeatLeader.Manager {
 
         #region PrestigeWasPressed
 
-        public static event Action PrestigeWasPressedEvent;
+        public static event Action ExperienceBarWasPressedEvent;
 
         public static void NotifyPrestigeWasPressed() {
-            PrestigeWasPressedEvent?.Invoke();
+            ExperienceBarWasPressedEvent?.Invoke();
         }
 
         #endregion

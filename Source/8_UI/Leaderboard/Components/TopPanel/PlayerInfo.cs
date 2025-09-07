@@ -31,12 +31,14 @@ namespace BeatLeader.Components {
 
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+            PrestigePanel.PrestigeWasPressedEvent += IncrementPrestigeIcon;
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
         }
 
         protected override void OnDispose() {
             UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+            PrestigePanel.PrestigeWasPressedEvent -= IncrementPrestigeIcon;
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
         }
 
@@ -63,7 +65,7 @@ namespace BeatLeader.Components {
                     break;
                 case WebRequests.RequestState.Finished:
                     player = instance.Result;
-                    OnProfileUpdated(instance.Result);
+                    OnProfileUpdated(player);
                     break;
                 default: return;
             }
@@ -94,11 +96,11 @@ namespace BeatLeader.Components {
 
         #endregion
 
-        private void SwapPrestigeIcon(int prestige) {
-            if (prestige != 0) {
-                _prestigeIcon.gameObject.SetActive(true);
-            }
+        private void IncrementPrestigeIcon() {
+            SwapPrestigeIcon(player.prestige + 1);
+        }
 
+        private void SwapPrestigeIcon(int prestige) {
             switch (prestige) {
                 case 0:
                     _prestigeIcon.gameObject.SetActive(false);
@@ -133,6 +135,10 @@ namespace BeatLeader.Components {
                 case 10:
                     _prestigeIcon.sprite = BundleLoader.PrestigeIcon10;
                     break;
+            }
+
+            if (prestige != 0) {
+                _prestigeIcon.gameObject.SetActive(true);
             }
         }
 

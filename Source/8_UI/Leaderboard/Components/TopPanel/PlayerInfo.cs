@@ -238,7 +238,7 @@ namespace BeatLeader.Components {
         private Material _materialInstance;
 
         private void InitializeMaterial() {
-            _materialInstance = Material.Instantiate(BundleLoader.RoundTextureMaterial);
+            _materialInstance = Material.Instantiate(BundleLoader.PrestigeIconMaterial);
             _prestigeIcon.material = _materialInstance;
             _prestigeIcon.sprite = BundleLoader.TransparentPixel;
             _prestigeIcon.gameObject.SetActive(false);

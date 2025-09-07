@@ -69,6 +69,7 @@ namespace BeatLeader.Components {
 
         private void RequestPrestige() {
             PrestigeRequest.Send();
+            _PrestigeYesButton.interactable = false;
             if (fireworksController != null) {
                 Task.Run(() => Fireworks(5));
             }

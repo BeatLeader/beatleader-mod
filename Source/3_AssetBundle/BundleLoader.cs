@@ -58,6 +58,7 @@ namespace BeatLeader {
         #region Materials
 
         public static Material LogoMaterial;
+        public static Material PrestigeIconMaterial;
         public static Material DefaultAvatarMaterial;
         public static Material UIAdditiveGlowMaterial;
         public static Material ScoreBackgroundMaterial;
@@ -86,6 +87,7 @@ namespace BeatLeader {
 
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
+            PrestigeIconMaterial = assetBundle.LoadAsset<Material>("UIPrestigeIconMaterial");
             DefaultAvatarMaterial = assetBundle.LoadAsset<Material>("DefaultAvatar");
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
             //UIAdditiveGlowMaterial.renderQueue = 4999;

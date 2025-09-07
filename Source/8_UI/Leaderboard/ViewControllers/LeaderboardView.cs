@@ -90,7 +90,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.ClanScoreInfoButtonWasPressed += PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent += PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent += PresentBeatLeaderInfoModal;
-            LeaderboardEvents.PrestigeWasPressedEvent += PresentPrestigeModal;
+            LeaderboardEvents.ExperienceBarWasPressedEvent += PresentPrestigeModal;
             LeaderboardEvents.VotingWasPressedEvent += PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction += PresentContextsModal;
             LeaderboardEvents.BattleRoyaleEnabledEvent += HandleBattleRoyaleEnabled;
@@ -102,7 +102,7 @@ namespace BeatLeader.ViewControllers {
             LeaderboardEvents.ClanScoreInfoButtonWasPressed -= PresentClanScoreInfoModal;
             LeaderboardEvents.LeaderboardSettingsButtonWasPressedEvent -= PresentSettingsModal;
             LeaderboardEvents.LogoWasPressedEvent -= PresentBeatLeaderInfoModal;
-            LeaderboardEvents.PrestigeWasPressedEvent -= PresentPrestigeModal;
+            LeaderboardEvents.ExperienceBarWasPressedEvent -= PresentPrestigeModal;
             LeaderboardEvents.VotingWasPressedEvent -= PresentVotingModal;
             LeaderboardEvents.ContextSelectorWasPressedAction -= PresentContextsModal;
             LeaderboardEvents.BattleRoyaleEnabledEvent -= HandleBattleRoyaleEnabled;

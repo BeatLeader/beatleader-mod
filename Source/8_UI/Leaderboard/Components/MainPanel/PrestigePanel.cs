@@ -63,12 +63,15 @@ namespace BeatLeader.Components {
             }
         }
 
+        public static event Action PrestigeWasPressedEvent;
+
         #endregion
 
         #region Prestige
 
         private void RequestPrestige() {
             PrestigeRequest.Send();
+            PrestigeWasPressedEvent?.Invoke();
             _PrestigeYesButton.interactable = false;
             if (fireworksController != null) {
                 Task.Run(() => Fireworks(5));

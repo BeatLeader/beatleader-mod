@@ -87,7 +87,6 @@ namespace BeatLeader.UI.MainMenu {
                                                 }
                                                 .Animate(_list, (table, items) => table.Items = items)
                                                 .AsFlexGroup(
-                                                    gap: 1,
                                                     direction: FlexDirection.Column,
                                                     constrainVertical: false
                                                 ),

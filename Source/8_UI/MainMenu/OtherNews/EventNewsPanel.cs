@@ -57,7 +57,7 @@ namespace BeatLeader.UI.MainMenu {
                     color: Color.black.ColorWithAlpha(0.33f),
                     pixelsPerUnit: 7f
                 )
-                .AsFlexItem(size: new() { x = 70, y = 30 })
+                .AsFlexItem(size: new() { x = 70 }, flexGrow: 1f)
                 .Use();
         }
 

@@ -12,7 +12,13 @@ namespace BeatLeader.UI.MainMenu {
             set => _textLabel.Text = value;
         }
 
+        public Color Accent {
+            get => _bg.Color;
+            set => _bg.Color = value;
+        }
+
         private Label _textLabel = null!;
+        private Background _bg = null!;
 
         protected override GameObject Construct() {
             return new Background {
@@ -32,6 +38,7 @@ namespace BeatLeader.UI.MainMenu {
                     alignItems: Align.Center,
                     padding: new() { left = 1, right = 1 }
                 )
+                .Bind(ref _bg)
                 .AsBlurBackground()
                 .AsFlexItem(
                     size: new() { y = 5 },

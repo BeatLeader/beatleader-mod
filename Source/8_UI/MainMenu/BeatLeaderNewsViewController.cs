@@ -28,11 +28,11 @@ namespace BeatLeader.UI.MainMenu {
                                     .AsFlexGroup(direction: FlexDirection.Column, gap: 1f)
                                     .AsFlexItem(size: 100.pct()),
                                     
-                                    ["seasonal"] = new Layout()
+                                    ["happening"] = new HappeningEventPanel()
                                 }
                             }
-                            .AsFlexGroup()
-                            .AsFlexItem(flex: 1f)
+                            .AsFlexGroup(direction: FlexDirection.Column)
+                            .AsFlexItem(flex: 1f, flexShrink: 1f)
                             .Export(out var container),
                             
                             // Selector
@@ -41,7 +41,7 @@ namespace BeatLeader.UI.MainMenu {
                                     new TextSegmentedControl<string> {
                                         Items = {
                                             ["default"] = "<i>Main",
-                                            ["seasonal"] = "<i>Seasonal"
+                                            ["happening"] = "<i>Happening"
                                         }
                                     }
                                     .With(x => container.Control = x)
@@ -56,7 +56,7 @@ namespace BeatLeader.UI.MainMenu {
                     .AsFlexGroup(direction: FlexDirection.Column)
                     .AsFlexItem(
                         flex: 1f, 
-                        size: new() { x = 70f }
+                        size: new() { y = 70f }
                     )
                 }
             }.AsFlexGroup(

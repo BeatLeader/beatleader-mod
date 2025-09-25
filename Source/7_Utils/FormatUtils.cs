@@ -132,6 +132,18 @@ namespace BeatLeader {
 
         #region GetRelativeTimeString
 
+        public static string GetRemainingTime(TimeSpan span) {
+            if (span.TotalHours >= 1) {
+                return $"{(int)span.TotalHours} hour{((int)span.TotalHours > 1 ? "s" : "")} left";
+            }
+            
+            if (span.TotalMinutes >= 1) {
+                return $"{(int)span.TotalMinutes} minute{((int)span.TotalMinutes > 1 ? "s" : "")} left";
+            }
+            
+            return $"{(int)span.TotalSeconds} second{((int)span.TotalSeconds > 1 ? "s" : "")} left";
+        }
+
         public static TimeSpan GetRelativeTime(string timeSet) {
             var dateTime = long.Parse(timeSet);
             return GetRelativeTime(dateTime);

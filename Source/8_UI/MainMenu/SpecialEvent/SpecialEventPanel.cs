@@ -1,5 +1,4 @@
-﻿using BeatLeader.API;
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -20,10 +19,9 @@ namespace BeatLeader.UI.MainMenu {
 
             return new Background {
                     Children = {
-                        new NewsHeader {
-                                Accent = Color.red.ColorWithAlpha(0.6f)
-                            }
-                            .Animate(_event, (x, y) => x.Text = y.headerText)
+                        new NewsHeader()
+                            .Animate(_event, (x, y) => x.Accent = y.eventDescription.MainColor() ?? x.Accent)
+                            .Animate(_event, (x, y) => x.Text = y.eventDescription.name)
                             .AsFlexItem(size: new() { y = 6.pt() }),
 
                         new Layout {
@@ -36,14 +34,14 @@ namespace BeatLeader.UI.MainMenu {
                                     new Image {
                                             Material = BundleLoader.RoundTextureMaterial
                                         }
-                                        .Animate(_event, (x, y) => x.WithWebSource(y.today.song.coverImage))
+                                        .Animate(_event, (x, y) => x.WithWebSource(y.today?.song.coverImage ?? ""))
                                         .AsFlexItem(size: 25.pt()),
 
                                     new Label {
                                             FontStyle = FontStyles.Italic,
                                             FontSize = 5f
                                         }
-                                        .Animate(_event, (x, y) => x.Text = y.today.song.name)
+                                        .Animate(_event, (x, y) => x.Text = y.today?.song.name ?? "")
                                         .AsFlexItem(),
 
                                     new Label {
@@ -51,7 +49,7 @@ namespace BeatLeader.UI.MainMenu {
                                             FontStyle = FontStyles.Italic,
                                             FontSize = 4f
                                         }
-                                        .Animate(_event, (x, y) => x.Text = y.today.song.author)
+                                        .Animate(_event, (x, y) => x.Text = y.today?.song.author ?? "")
                                         .AsFlexItem(margin: new() { top = -1.5f })
                                 }
                             }
@@ -71,13 +69,7 @@ namespace BeatLeader.UI.MainMenu {
 
         #endregion
 
-        #region Logic
-
-        protected override async void OnInitialize() {
-            var req = await PlatformEventStatusRequest.Send("75").Join();
-
-            SetData(req.Result!);
-        }
+        #region Public API
 
         public void SetData(PlatformEventStatus evt) {
             _event.Value = evt;

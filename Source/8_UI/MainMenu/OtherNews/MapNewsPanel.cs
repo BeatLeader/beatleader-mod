@@ -31,7 +31,7 @@ namespace BeatLeader.UI.MainMenu {
 
                 _newsPanel.UpdateFromRequest(state, list);
             } else {
-                _newsPanel.UpdateFromRequest(state, new());
+                _newsPanel.UpdateFromRequest(state, null);
             }
         }
 

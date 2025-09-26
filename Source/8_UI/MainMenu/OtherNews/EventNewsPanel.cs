@@ -1,5 +1,6 @@
-﻿using BeatLeader.API;
+﻿using System.Collections.Generic;
 using BeatLeader.Models;
+using BeatLeader.WebRequests;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
@@ -9,24 +10,12 @@ using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
     internal class EventNewsPanel : ReactiveComponent {
-        #region Request
+        #region Public API
 
-        protected override void OnInitialize() {
-            PlatformEventsRequest.Send();
-            PlatformEventsRequest.StateChangedEvent += OnRequestStateChanged;
+        public void SetData(RequestState state, IReadOnlyList<PlatformEvent>? events) {
+            _newsPanel.UpdateFromRequest(state, events);
         }
-
-        protected override void OnDestroy() {
-            PlatformEventsRequest.StateChangedEvent -= OnRequestStateChanged;
-        }
-
-        private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<PlatformEvent>> instance, WebRequests.RequestState state, string? failReason) {
-            _newsPanel.UpdateFromRequest(
-                state,
-                state is WebRequests.RequestState.Finished ? instance.Result!.data : new()
-            );
-        }
-
+            
         #endregion
 
         #region Construct

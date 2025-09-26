@@ -15,9 +15,9 @@ namespace BeatLeader.UI.MainMenu {
         public string EmptyMessage { get; set; } = "Nothing to show";
         public Action<TCell>? OnCellConstructed { get; set; }
 
-        public void UpdateFromRequest(RequestState state, List<TItem> items) {
+        public void UpdateFromRequest(RequestState state, IReadOnlyList<TItem>? items) {
             _requestState.Value = state;
-            _list.Value = items;
+            _list.Value = items ?? new List<TItem>(0);
         }
 
         #endregion
@@ -25,11 +25,11 @@ namespace BeatLeader.UI.MainMenu {
         #region Construct
 
         private ObservableValue<RequestState> _requestState = null!;
-        private ObservableValue<List<TItem>> _list = null!;
+        private ObservableValue<IReadOnlyList<TItem>> _list = null!;
 
         protected override GameObject Construct() {
             _requestState = Remember(Uninitialized);
-            _list = Remember(new List<TItem>());
+            _list = Remember<IReadOnlyList<TItem>>(new List<TItem>(0));
 
             var transitionAlpha = RememberAnimated(0f, 200.ms());
 

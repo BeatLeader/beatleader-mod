@@ -21,7 +21,6 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private void OnEnable() {
-            if (!_initialized) return;
             UpdateScreen();
         }
 
@@ -34,6 +33,12 @@ namespace BeatLeader.UI.MainMenu {
             ReeModalSystem.CloseAll();
 #pragma warning restore CS0618 // Type or member is obsolete
             gameObject.SetActive(false);
+        }
+
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+            if (addedToHierarchy) {
+                UpdateScreen();
+            }
         }
 
         #endregion

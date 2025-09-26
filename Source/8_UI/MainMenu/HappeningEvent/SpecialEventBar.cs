@@ -1,0 +1,127 @@
+﻿using System;
+using BeatLeader.Models;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
+using TMPro;
+using UnityEngine;
+using AnimationCurve = Reactive.AnimationCurve;
+
+namespace BeatLeader.UI.MainMenu;
+
+internal class SpecialEventBar : ReactiveComponent {
+    #region Public API
+
+    public Action? OnPlayClick { get; set; }
+
+    public void SetData(PlatformEventStatus status) {
+        _event.Value = status;
+    }
+
+    #endregion
+
+    #region Construct
+
+    private ObservableValue<PlatformEventStatus> _event = null!;
+    private ReactiveComponent _bar = null!;
+
+    protected override GameObject Construct() {
+        _event = Remember<PlatformEventStatus>(null!);
+
+        var initialCalendarButtonWidth = 8f;
+        var initialBgColor = Color.black.ColorWithAlpha(0.5f);
+
+        var calendarOpened = Remember(false);
+        var calendarHeight = RememberAnimated(0f, 200.ms(), AnimationCurve.Exponential);
+        var calendarButtonWidth = RememberAnimated(initialCalendarButtonWidth, 150.ms(), AnimationCurve.EaseInOut);
+
+        var itemsAlpha = RememberAnimated(1f, 150.ms(), AnimationCurve.EaseInOut);
+        var bgColor = RememberAnimated(initialBgColor, 150.ms(), AnimationCurve.EaseInOut);
+
+        var content = new Background {
+                Children = {
+                    // Bar
+                    new Layout {
+                        Children = {
+                            new Label {
+                                    Alignment = TextAlignmentOptions.Capline
+                                }
+                                .Animate(_event, (x, y) => x.Text = FormatUtils.GetRemainingTime(y.today.ExpiresIn()))
+                                .Animate(itemsAlpha, (x, y) => x.Color = Color.white * 0.7f * y, applyImmediately: true)
+                                .AsFlexItem(
+                                    position: new() { left = 0.pt() },
+                                    alignSelf: Align.Center
+                                ),
+
+                            new BsButton {
+                                    Text = " Play ",
+                                    OnClick = () => OnPlayClick?.Invoke()
+                                }
+                                .WithNativeComponent(out CanvasGroup playButtonGroup)
+                                .Animate(itemsAlpha, (_, y) => playButtonGroup.alpha = y)
+                                .AsFlexItem(),
+
+                            // Calendar button
+                            new Layout {
+                                Children = {
+                                    new BsButton {
+                                            Text = "📅",
+                                            ShowUnderline = false,
+                                            Skew = 0f,
+
+                                            OnClick = () => {
+                                                calendarOpened.Value = !calendarOpened;
+                                                calendarButtonWidth.Value = calendarOpened ? _bar.ContentTransform.rect.width - 2f : initialCalendarButtonWidth;
+                                                calendarHeight.Value = calendarOpened ? 20f : 0f;
+                                                itemsAlpha.Value = calendarOpened ? 0f : 1f;
+                                                bgColor.Value = calendarOpened ? Color.black.ColorWithAlpha(0.9f) : initialBgColor;
+                                            }
+                                        }
+                                        .AsFlexItem(
+                                            position: new() { right = 0.pt() },
+                                            modifier: out var buttonModifier
+                                        )
+                                        .Animate(
+                                            calendarButtonWidth,
+                                            (_, y) => buttonModifier.Size = new() { x = y.pt(), y = 100.pct() },
+                                            applyImmediately: true
+                                        )
+                                }
+                            }.AsFlexGroup().AsFlexItem(
+                                size: new() { x = initialCalendarButtonWidth.pt(), y = 90.pct() },
+                                position: new() { right = 0.pt() },
+                                alignSelf: Align.Center
+                            )
+                        }
+                    }.AsFlexGroup(
+                        justifyContent: Justify.Center,
+                        alignItems: Align.Stretch,
+                        gap: 2.pt()
+                    ).AsFlexItem(
+                        size: new() { x = 100.pct(), y = 8.pt() }
+                    ),
+
+                    // Calendar
+                    new EventCalendar()
+                        .AsFlexItem(modifier: out var calendarModifier)
+                        .Animate(calendarHeight, (_, y) => calendarModifier.Size = new() { y = y.pt() })
+                }
+            }
+            .AsBackground()
+            .Animate(bgColor, x => x.Color, applyImmediately: true)
+            .AsFlexGroup(direction: FlexDirection.Column, padding: 1f)
+            .AsFlexItem(minSize: 100.pct(), position: new() { bottom = 0.pt() })
+            .Bind(ref _bar);
+
+        return new Layout {
+                Children = {
+                    content
+                }
+            }
+            .AsFlexGroup()
+            .AsFlexItem(size: new() { x = 50.pt(), y = 10.pt() })
+            .Use();
+    }
+
+    #endregion
+}

@@ -58,45 +58,8 @@ namespace BeatLeader.UI.MainMenu {
                             .AsFlexGroup(direction: FlexDirection.Column, justifyContent: Justify.Center, alignItems: Align.Center)
                             .AsFlexItem(flex: 1),
 
-                        new Background {
-                                Children = {
-                                    new Label {
-                                            Color = Color.white * 0.7f,
-                                            Text = ""
-                                        }
-                                        .Animate(_event, (x, y) => x.Text = FormatUtils.GetRemainingTime(y.today.ExpiresIn()))
-                                        .AsFlexItem(),
-
-                                    new Layout {
-                                            Children = {
-                                                new BsButton {
-                                                    Text = " Play ",
-                                                    OnClick = () => { }
-                                                }.AsFlexItem(margin: 1.pt()),
-                                            }
-                                        }
-                                        .AsFlexGroup(justifyContent: Justify.Center)
-                                        .WithRectExpand(),
-
-                                    new BsButton {
-                                        Text = "📅",
-                                        ShowUnderline = false,
-                                        Skew = 0f,
-                                        OnClick = () => { }
-                                    }.AsFlexItem(aspectRatio: 1f)
-                                }
-                            }
-                            .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
-                            .AsFlexGroup(
-                                justifyContent: Justify.SpaceBetween,
-                                alignItems: Align.Stretch,
-                                padding: 1.pt(),
-                                gap: 2.pt()
-                            )
-                            .AsFlexItem(
-                                size: new() { y = 10.pt() },
-                                minSize: new() { x = 50.pt() }
-                            ),
+                        new SpecialEventBar()
+                            .Animate(_event, (x, y) => x.SetData(y))
                     }
                 }
                 .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
@@ -112,7 +75,7 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override async void OnInitialize() {
             var req = await PlatformEventStatusRequest.Send("75").Join();
-            
+
             SetData(req.Result!);
         }
 

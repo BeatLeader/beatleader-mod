@@ -17,7 +17,25 @@ namespace BeatLeader.UI.MainMenu {
                     
                     new Layout {
                         Children = {
-                            new KeyedContainer<string> {
+                            // Selector
+                            new Background {
+                                    Children = {
+                                        new TextSegmentedControl<string> {
+                                                Items = {
+                                                    ["default"] = "<i>Main",
+                                                    ["special"] = "<i>Special"
+                                                }
+                                        }
+                                        .AsFlexItem(size: new() { y = 5f }, flexGrow: 1f)
+                                        .Export(out var control)
+                                    }
+                                }
+                                .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
+                                .AsFlexItem(margin: new() { top = 1f })
+                                .AsFlexGroup(),
+                            
+                            new KeyedContainer<string> { 
+                                Control = control,
                                 Items = {
                                     ["default"] = new Layout {
                                         Children = {
@@ -28,29 +46,11 @@ namespace BeatLeader.UI.MainMenu {
                                     .AsFlexGroup(direction: FlexDirection.Column, gap: 1f)
                                     .AsFlexItem(size: 100.pct()),
                                     
-                                    ["happening"] = new HappeningEventPanel()
+                                    ["special"] = new HappeningEventPanel()
                                 }
                             }
                             .AsFlexGroup(direction: FlexDirection.Column)
                             .AsFlexItem(flex: 1f, flexShrink: 1f)
-                            .Export(out var container),
-                            
-                            // Selector
-                            new Background {
-                                Children = {
-                                    new TextSegmentedControl<string> {
-                                        Items = {
-                                            ["default"] = "<i>Main",
-                                            ["happening"] = "<i>Happening"
-                                        }
-                                    }
-                                    .With(x => container.Control = x)
-                                    .AsFlexItem(size: new() { y = 5f }, flexGrow: 1f)
-                                }
-                            }
-                            .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
-                            .AsFlexItem(margin: new() { top = 1f })
-                            .AsFlexGroup()
                         }
                     }
                     .AsFlexGroup(direction: FlexDirection.Column)

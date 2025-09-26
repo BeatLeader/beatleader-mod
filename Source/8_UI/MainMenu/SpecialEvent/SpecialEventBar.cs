@@ -50,7 +50,7 @@ internal class SpecialEventBar : ReactiveComponent {
                             new Label {
                                     Alignment = TextAlignmentOptions.Capline
                                 }
-                                .Animate(_event, (x, y) => x.Text = FormatUtils.GetRemainingTime(y.today.ExpiresIn()))
+                                .Animate(_event, (x, y) => { if (y.today != null) x.Text = FormatUtils.GetRemainingTime(y.today.ExpiresIn()); })
                                 .Animate(itemsAlpha, (x, y) => x.Color = Color.white * 0.7f * y, applyImmediately: true)
                                 .AsFlexItem(
                                     position: new() { left = 0.pt() },

@@ -50,14 +50,11 @@ namespace BeatLeader.UI.MainMenu {
             var eventsList = events.Result?.data;
 
             _newsPanel.SetEvents(events.RequestState, eventsList);
-
-            await Task.Delay(2000);
-            var specialEvent = eventsList?.FirstOrDefault(x => x.IsHappening());
+            
+            var specialEvent = eventsList?.FirstOrDefault(x => x.IsHappening() && x.eventType is 1);
             if (specialEvent != null) {
                 var req = await PlatformEventStatusRequest.Send(specialEvent.id).Join();
-                // TODO: remove when the server gets fixed
-                req.Result.eventDescription = specialEvent;
-
+ 
                 _newsPanel.SetSpecialEvent(req.Result);
             }
         }

@@ -12,6 +12,7 @@ namespace BeatLeader.Models {
         public required bool downloadable;
         public required int playerCount;
         public required int playlistId;
+        public required int eventType;
         
         public string? description;
         public string? mainColor;

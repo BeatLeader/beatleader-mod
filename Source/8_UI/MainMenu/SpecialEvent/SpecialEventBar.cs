@@ -29,17 +29,21 @@ internal class SpecialEventBar : ReactiveComponent {
         _event = Remember<PlatformEventStatus>(null!);
 
         var initialCalendarButtonWidth = 8f;
-        var initialBgColor = Color.black.ColorWithAlpha(0.5f);
 
         var calendarOpened = Remember(false);
         var calendarHeight = RememberAnimated(0f, 200.ms(), AnimationCurve.Exponential);
         var calendarButtonWidth = RememberAnimated(initialCalendarButtonWidth, 150.ms(), AnimationCurve.EaseInOut);
 
         var itemsAlpha = RememberAnimated(1f, 150.ms(), AnimationCurve.EaseInOut);
-        var bgColor = RememberAnimated(initialBgColor, 150.ms(), AnimationCurve.EaseInOut);
+        var bgAlpha = RememberAnimated(0f, 150.ms(), AnimationCurve.EaseInOut);
 
         var content = new Background {
                 Children = {
+                    new Image()
+                        .AsBlurBackground(pixelsPerUnit: 10f)
+                        .Animate(bgAlpha, (x, y) => x.Color = x.Color.ColorWithAlpha(y), applyImmediately: true)
+                        .AsFlexItem(position: 0.pt()),
+
                     // Bar
                     new Layout {
                         Children = {
@@ -74,7 +78,7 @@ internal class SpecialEventBar : ReactiveComponent {
                                                 calendarButtonWidth.Value = calendarOpened ? _bar.ContentTransform.rect.width - 2f : initialCalendarButtonWidth;
                                                 calendarHeight.Value = calendarOpened ? 20f : 0f;
                                                 itemsAlpha.Value = calendarOpened ? 0f : 1f;
-                                                bgColor.Value = calendarOpened ? Color.black.ColorWithAlpha(0.9f) : initialBgColor;
+                                                bgAlpha.Value = calendarOpened ? 1f : 0f;
                                             }
                                         }
                                         .AsFlexItem(
@@ -107,8 +111,7 @@ internal class SpecialEventBar : ReactiveComponent {
                         .Animate(calendarHeight, (_, y) => calendarModifier.Size = new() { y = y.pt() })
                 }
             }
-            .AsBackground()
-            .Animate(bgColor, x => x.Color, applyImmediately: true)
+            .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
             .AsFlexGroup(direction: FlexDirection.Column, padding: 1f)
             .AsFlexItem(minSize: 100.pct(), position: new() { bottom = 0.pt() })
             .Bind(ref _bar);

@@ -21,8 +21,7 @@ namespace BeatLeader.UI.MainMenu {
                     Children = {
                         new NewsHeader()
                             .Animate(_event, (x, y) => x.Accent = y.eventDescription.MainColor() ?? x.Accent)
-                            .Animate(_event, (x, y) => x.Text = y.eventDescription.name)
-                            .AsFlexItem(size: new() { y = 6.pt() }),
+                            .Animate(_event, (x, y) => x.Text = y.eventDescription.name),
 
                         new Layout {
                                 Children = {

@@ -23,13 +23,12 @@ namespace BeatLeader.UI.MainMenu {
         protected override GameObject Construct() {
             return new Background {
                     Sprite = BundleLoader.Sprites.background,
-                    Color = Color.black.ColorWithAlpha(0.5f),
                     PixelsPerUnit = 10f,
                     Children = {
                         new Label {
                             FontSize = 4f,
                             FontStyle = FontStyles.Italic,
-                            Alignment = TextAlignmentOptions.Center
+                            Alignment = TextAlignmentOptions.Capline
                         }.AsFlexItem().Bind(ref _textLabel)
                     }
                 }.AsFlexGroup(
@@ -39,7 +38,7 @@ namespace BeatLeader.UI.MainMenu {
                     padding: new() { left = 1, right = 1 }
                 )
                 .Bind(ref _bg)
-                .AsBlurBackground()
+                .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
                 .AsFlexItem(
                     size: new() { y = 5 },
                     margin: new() { bottom = 1f }

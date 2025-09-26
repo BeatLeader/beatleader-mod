@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class HappeningEventPanel : ReactiveComponent {
+    internal class SpecialEventPanel : ReactiveComponent {
         #region Construct
 
         private ObservableValue<PlatformEventStatus> _event = null!;

@@ -46,7 +46,7 @@ namespace BeatLeader.UI.MainMenu {
                                     .AsFlexGroup(direction: FlexDirection.Column, gap: 1f)
                                     .AsFlexItem(size: 100.pct()),
                                     
-                                    ["special"] = new HappeningEventPanel()
+                                    ["special"] = new SpecialEventPanel()
                                 }
                             }
                             .AsFlexGroup(direction: FlexDirection.Column)

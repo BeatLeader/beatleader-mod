@@ -29,7 +29,11 @@ namespace BeatLeader.Models {
         }
 
         public TimeSpan ExpiresIn() {
-            return endDate.AsUnixTime() - DateTime.UtcNow;
+            return EndDate() - DateTime.UtcNow;
+        }
+
+        public DateTime EndDate() {
+            return endDate.AsUnixTime();
         }
 
         public Color? MainColor() {

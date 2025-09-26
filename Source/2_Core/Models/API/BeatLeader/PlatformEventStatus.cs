@@ -12,7 +12,7 @@ public class PlatformEventStatus {
 
     private DateTime? _startTime;
 
-    public DateTime StartTime() {
+    public DateTime StartDate() {
         if (_startTime == null) {
             var minTime = previousDays.Min(x => x.startTime);
 

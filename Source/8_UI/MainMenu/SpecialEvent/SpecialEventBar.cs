@@ -5,7 +5,9 @@ using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using AnimationCurve = Reactive.AnimationCurve;
+using Image = Reactive.BeatSaber.Components.Image;
 
 namespace BeatLeader.UI.MainMenu;
 
@@ -24,6 +26,7 @@ internal class SpecialEventBar : ReactiveComponent {
 
     private ObservableValue<PlatformEventStatus> _event = null!;
     private ReactiveComponent _bar = null!;
+    private ReactiveComponent _calendar = null!;
 
     protected override GameObject Construct() {
         _event = Remember<PlatformEventStatus>(null!);
@@ -50,7 +53,12 @@ internal class SpecialEventBar : ReactiveComponent {
                             new Label {
                                     Alignment = TextAlignmentOptions.Capline
                                 }
-                                .Animate(_event, (x, y) => { if (y.today != null) x.Text = FormatUtils.GetRemainingTime(y.today.ExpiresIn()); })
+                                .Animate(
+                                    _event,
+                                    (x, y) => {
+                                        if (y.today != null) x.Text = FormatUtils.GetRemainingTime(y.today.ExpiresIn());
+                                    }
+                                )
                                 .Animate(itemsAlpha, (x, y) => x.Color = Color.white * 0.7f * y, applyImmediately: true)
                                 .AsFlexItem(
                                     position: new() { left = 0.pt() },
@@ -76,7 +84,8 @@ internal class SpecialEventBar : ReactiveComponent {
                                             OnClick = () => {
                                                 calendarOpened.Value = !calendarOpened;
                                                 calendarButtonWidth.Value = calendarOpened ? _bar.ContentTransform.rect.width - 2f : initialCalendarButtonWidth;
-                                                calendarHeight.Value = calendarOpened ? 20f : 0f;
+                                                calendarHeight.Value = calendarOpened ? _calendar.ContentTransform.rect.height + 3 : 0f;
+
                                                 itemsAlpha.Value = calendarOpened ? 0f : 1f;
                                                 bgAlpha.Value = calendarOpened ? 1f : 0f;
                                             }
@@ -106,14 +115,26 @@ internal class SpecialEventBar : ReactiveComponent {
                     ),
 
                     // Calendar
-                    new EventCalendar()
+                    new Layout {
+                            Children = {
+                                new EventCalendar()
+                                    .AsFlexItem(
+                                        position: new() { left = 0.pt(), top = 0.pt(), right = 0.pt() },
+                                        margin: new() { top = 1.pt(), bottom = 2.pt() }
+                                    )
+                                    .Animate(_event, (x, y) => x.SetData(y))
+                                    .Bind(ref _calendar)
+                            }
+                        }
+                        .AsFlexGroup()
                         .AsFlexItem(modifier: out var calendarModifier)
+                        .WithNativeComponent(out RectMask2D _)
                         .Animate(calendarHeight, (_, y) => calendarModifier.Size = new() { y = y.pt() })
                 }
             }
             .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
             .AsFlexGroup(direction: FlexDirection.Column, padding: 1f)
-            .AsFlexItem(minSize: 100.pct(), position: new() { bottom = 0.pt() })
+            .AsFlexItem(minSize: 100.pct(), size: new() { x = 100.pct() }, position: new() { bottom = 0.pt() })
             .Bind(ref _bar);
 
         return new Layout {

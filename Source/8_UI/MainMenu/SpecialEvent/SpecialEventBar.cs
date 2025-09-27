@@ -16,6 +16,7 @@ internal class SpecialEventBar : ReactiveComponent {
     #region Public API
 
     public Action? OnPlayClick { get; set; }
+    public Action<PlatformEventMap>? OnDayChanged { get; set; }
 
     public void SetData(PlatformEventStatus status) {
         _event.Value = status;
@@ -118,7 +119,9 @@ internal class SpecialEventBar : ReactiveComponent {
                     // Calendar
                     new Layout {
                             Children = {
-                                new EventCalendar()
+                                new EventCalendar {
+                                        OnDayChanged = x => OnDayChanged?.Invoke(x)
+                                    }
                                     .AsFlexItem(
                                         position: new() { left = 0.pt(), top = 0.pt(), right = 0.pt() },
                                         margin: new() { top = 1.pt(), bottom = 2.pt() }

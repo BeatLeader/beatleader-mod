@@ -144,11 +144,13 @@ namespace BeatLeader {
             return $"{(int)span.TotalSeconds} second{((int)span.TotalSeconds > 1 ? "s" : "")} left";
         }
 
+        [Obsolete("Prefer parsing directly in your model.")]
         public static TimeSpan GetRelativeTime(string timeSet) {
             var dateTime = long.Parse(timeSet);
             return GetRelativeTime(dateTime);
         }
 
+        [Obsolete("Prefer parsing directly in your model.")]
         public static TimeSpan GetRelativeTime(long timeSet) {
             return DateTime.UtcNow - timeSet.AsUnixTime();
         }
@@ -169,6 +171,13 @@ namespace BeatLeader {
 
         public static string GetDateTimeString(string timeSet) {
             return GetDateTimeString(long.Parse(timeSet));
+        }
+        
+        public static string GetRelativeTimeString(DateTime date, bool compact) {
+            var now = DateTime.UtcNow;
+            var span = now > date ? now - date : date - now;
+            
+            return GetRelativeTimeString(span, compact);
         }
 
         public static string GetRelativeTimeString(TimeSpan timeSpan, bool compact) {

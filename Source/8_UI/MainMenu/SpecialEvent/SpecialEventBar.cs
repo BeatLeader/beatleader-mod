@@ -1,5 +1,6 @@
 ﻿using System;
 using BeatLeader.Models;
+using BeatLeader.UI.Reactive;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
@@ -34,10 +35,10 @@ internal class SpecialEventBar : ReactiveComponent {
         var initialCalendarButtonWidth = 8f;
 
         var calendarOpened = Remember(false);
-        var calendarHeight = RememberAnimated(0f, 200.ms(), AnimationCurve.Exponential);
-        var calendarButtonWidth = RememberAnimated(initialCalendarButtonWidth, 150.ms(), AnimationCurve.EaseInOut);
+        var calendarHeight = RememberAnimated(0f, 250.ms(), AnimationCurve.EaseOutExpo);
+        var calendarButtonWidth = RememberAnimated(initialCalendarButtonWidth, 150.ms(), AnimationCurve.EaseOutExpo);
 
-        var itemsAlpha = RememberAnimated(1f, 150.ms(), AnimationCurve.EaseInOut);
+        var itemsAlpha = RememberAnimated(1f, 150.ms(), AnimationCurve.EaseOutExpo);
         var bgAlpha = RememberAnimated(0f, 150.ms(), AnimationCurve.EaseInOut);
 
         var content = new Background {
@@ -143,7 +144,7 @@ internal class SpecialEventBar : ReactiveComponent {
                 }
             }
             .AsFlexGroup()
-            .AsFlexItem(size: new() { x = 50.pt(), y = 10.pt() })
+            .AsFlexItem(size: new() { y = 10.pt() })
             .Use();
     }
 

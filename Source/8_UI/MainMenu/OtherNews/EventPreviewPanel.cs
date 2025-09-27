@@ -16,101 +16,78 @@ namespace BeatLeader.UI.MainMenu {
 
         private ObservableValue<string> _bottomText = null!;
 
-        protected override void OnDestroy() {
-            StopAllCoroutines();
-            base.OnDestroy();
-        }
-
         protected override GameObject Construct() {
             _bottomText = Remember(string.Empty);
 
             return new BackgroundButton {
-                Colors = new StateColorSet {
-                    States = {
-                        GraphicState.None.WithColor(Color.clear),
-                        GraphicState.Active.WithColor(Color.white.ColorWithAlpha(0.53f)),
-                        GraphicState.Hovered.WithColor(new Color(0, 0, 0, 0.5f + 0.4f))
-                    }
-                },
-                Image = {
-                    Sprite = BeatSaberResources.Sprites.background,
-                    PixelsPerUnit = 10,
-                    Skew = UIStyle.Skew
-                },
-                OnClick = () => BackgroundAction?.Invoke(Item),
-                Children = {
-                    new Image {
-                        Sprite = BundleLoader.UnknownIcon,
-                        Material = BundleLoader.RoundTextureMaterial,
+                    Colors = new StateColorSet {
+                        States = {
+                            GraphicState.None.WithColor(Color.clear),
+                            GraphicState.Hovered.WithColor(new Color(0, 0, 0, 0.5f + 0.4f))
+                        }
+                    },
+
+                    Image = {
+                        Sprite = BeatSaberResources.Sprites.background,
+                        PixelsPerUnit = 10,
                         Skew = UIStyle.Skew
-                    }.AsFlexItem(
-                        size: new() { x = 10, y = 10 }
-                    ).Animate(
-                        ObservableItem,
-                        (img, item) => {
-                            if (item == null) return;
-                            img.WithWebSource(item.image);
-                        }
-                    ),
-                    new Layout {
-                        Children = {
-                            new Label {
-                                FontSize = 4f,
-                                Overflow = TextOverflowModes.Ellipsis,
-                                Alignment = TextAlignmentOptions.Left
-                            }.AsFlexItem().Animate(
-                                ObservableItem,
-                                (lbl, item) => {
-                                    if (item == null) return;
-                                    lbl.Text = item.name;
+                    },
+
+                    OnClick = () => BackgroundAction?.Invoke(Item),
+
+                    Children = {
+                        new Image {
+                                Sprite = BundleLoader.UnknownIcon,
+                                Material = BundleLoader.RoundTextureMaterial,
+                                Skew = UIStyle.Skew
+                            }
+                            .AsFlexItem(size: new() { x = 10, y = 10 })
+                            .Animate(ObservableItem, (img, item) => img.WithWebSource(item.image)),
+
+                        new Layout {
+                                Children = {
+                                    new Label {
+                                            FontSize = 4f,
+                                            FontStyle = FontStyles.Italic,
+                                            Overflow = TextOverflowModes.Ellipsis,
+                                            Alignment = TextAlignmentOptions.CaplineLeft
+                                        }
+                                        .AsFlexItem()
+                                        .Animate(ObservableItem, (lbl, item) => lbl.Text = item.name),
+
+                                    new Label {
+                                            FontSize = 3.5f,
+                                            FontStyle = FontStyles.Italic,
+                                            Overflow = TextOverflowModes.Ellipsis,
+                                            Alignment = TextAlignmentOptions.TopLeft,
+                                            RichText = true, // For color tags
+                                        }
+                                        .AsFlexItem(margin: new() { left = -0.6f })
+                                        .Animate(_bottomText, (lbl, text) => lbl.Text = text)
                                 }
-                            ),
-                            new Label {
-                                FontSize = 3f,
-                                Overflow = TextOverflowModes.Ellipsis,
-                                Alignment = TextAlignmentOptions.Left,
-                                RichText = true, // For color tags
-                            }.AsFlexItem().Animate(_bottomText, (lbl, text) => lbl.Text = text)
-                        }
-                    }.AsFlexGroup(
-                        direction: FlexDirection.Column
-                    ).AsFlexItem(
-                        margin: new() { left = 1 },
-                        flexGrow: 1
-                    ),
-                    new BsButton {
-                        Skew = UIStyle.Skew,
-                        OnClick = () => ButtonAction?.Invoke(Item)
-                    }.AsFlexItem(
-                        size: new() { x = 12, y = 8 }
-                    ).Animate(
-                        ObservableItem,
-                        (btn, item) => {
-                            if (item == null) return;
-                            btn.Text = "Details";
-                        }
-                    )
+                            }
+                            .AsFlexGroup(direction: FlexDirection.Column)
+                            .AsFlexItem(margin: new() { left = 1 }, flexGrow: 1, flexShrink: 1),
+
+                        new BsButton {
+                            Text = "Details",
+                            OnClick = () => ButtonAction?.Invoke(Item)
+                        }.AsFlexItem(size: new() { x = 12, y = 8 })
+                    }
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Row,
-                gap: 1f,
-                padding: 1f,
-                alignItems: Align.Center,
-                constrainHorizontal: false
-            ).AsFlexItem(
-                margin: new() { left = 1f, right = 1f }
-            ).Use();
+                .AsFlexGroup(
+                    direction: FlexDirection.Row,
+                    gap: 1f,
+                    padding: new() { left = 1.5f, top = 1f, right = 2f, bottom = 1f },
+                    alignItems: Align.Center
+                )
+                .AsFlexItem(margin: new() { left = 1f, right = 1f })
+                .Use();
         }
 
         #region Timer Logic
 
         protected override void OnInit(PlatformEvent item) {
-            base.OnInit(item);
-
-            if (item == null) {
-                StopAllCoroutines();
-                return;
-            }
             UpdateBottomText(item);
         }
 

@@ -103,7 +103,7 @@ namespace BeatLeader.UI.MainMenu {
                                 FontSize = 3f
                             }
                             .Bind(ref _completedLabel)
-                            .AsFlexItem(position: new() { top = (-1.3f).pt(), left = (-0.8f).pt() }),
+                            .AsFlexItem(position: new() { top = (-1.3f).pt(), right = (-0.8f).pt() }),
                     }
                 }
                 .WithNativeComponent(out _pointerHandler)

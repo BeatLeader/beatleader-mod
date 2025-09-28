@@ -50,13 +50,6 @@ namespace BeatLeader.UI.MainMenu {
             var eventsList = events.Result?.data;
 
             _newsPanel.SetEvents(events.RequestState, eventsList);
-            
-            var specialEvent = eventsList?.FirstOrDefault(x => x.IsHappening() && x.eventType is 1);
-            if (specialEvent != null) {
-                var req = await PlatformEventStatusRequest.Send(specialEvent.id).Join();
- 
-                _newsPanel.SetSpecialEvent(req.Result);
-            }
         }
 
         #endregion

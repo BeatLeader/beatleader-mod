@@ -16,6 +16,7 @@ internal class SpecialEventBar : ReactiveComponent {
     #region Public API
 
     public Action? OnPlayClick { get; set; }
+    public Action? OnBackClick { get; set; }
     public Action<PlatformEventMap>? OnDayChanged { get; set; }
 
     public void SetData(PlatformEventStatus status) {
@@ -52,19 +53,17 @@ internal class SpecialEventBar : ReactiveComponent {
                     // Bar
                     new Layout {
                         Children = {
-                            new Label {
-                                    Alignment = TextAlignmentOptions.Capline
+                            new BsButton {
+                                    Text = "←",
+                                    ShowUnderline = false,
+                                    Skew = 0f,
+                                    OnClick = () => OnBackClick?.Invoke()
                                 }
-                                .Animate(
-                                    _event,
-                                    (x, y) => {
-                                        if (y.today != null) x.Text = FormatUtils.GetRemainingTime(y.today.ExpiresIn());
-                                    }
-                                )
-                                .Animate(itemsAlpha, (x, y) => x.Color = Color.white * 0.7f * y, applyImmediately: true)
+                                .WithNativeComponent(out CanvasGroup backButtonGroup)
+                                .Animate(itemsAlpha, (_, y) => backButtonGroup.alpha = y)
                                 .AsFlexItem(
-                                    position: new() { left = 0.pt() },
-                                    alignSelf: Align.Center
+                                    size: new() { y = 90.pct(), x = 8f },
+                                    position: new() { left = 0.pt() }
                                 ),
 
                             new BsButton {

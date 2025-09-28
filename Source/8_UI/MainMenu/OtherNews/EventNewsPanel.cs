@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BeatLeader.Models;
 using BeatLeader.WebRequests;
 using Reactive;
@@ -6,11 +7,11 @@ using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
 using UnityEngine;
 
-#pragma warning disable CS0618
-
 namespace BeatLeader.UI.MainMenu {
     internal class EventNewsPanel : ReactiveComponent {
         #region Public API
+
+        public Action<PlatformEvent>? OnEventSelected;
 
         public void SetData(RequestState state, IReadOnlyList<PlatformEvent>? events) {
             _newsPanel.UpdateFromRequest(state, events);
@@ -32,8 +33,7 @@ namespace BeatLeader.UI.MainMenu {
                         new NewsPanel<PlatformEvent, EventPreviewPanel> {
                             EmptyMessage = "No events",
                             OnCellConstructed = cell => {
-                                cell.ButtonAction = item => ReeModalSystem.OpenModal<EventDetailsDialog>(ContentTransform, item);
-                                cell.BackgroundAction = item => ReeModalSystem.OpenModal<EventDetailsDialog>(ContentTransform, item);
+                                cell.OnClick = x => OnEventSelected?.Invoke(x);
                             }
                         }.AsFlexItem(flexGrow: 1f).Bind(ref _newsPanel)
                     }

@@ -11,8 +11,7 @@ using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
     internal class EventPreviewPanel : ListCell<PlatformEvent> {
-        public Action<PlatformEvent>? ButtonAction { get; set; }
-        public Action<PlatformEvent>? BackgroundAction { get; set; }
+        public Action<PlatformEvent>? OnClick { get; set; }
 
         private ObservableValue<string> _bottomText = null!;
 
@@ -33,7 +32,7 @@ namespace BeatLeader.UI.MainMenu {
                         Skew = UIStyle.Skew
                     },
 
-                    OnClick = () => BackgroundAction?.Invoke(Item),
+                    OnClick = () => OnClick?.Invoke(Item),
 
                     Children = {
                         new Image {
@@ -71,7 +70,7 @@ namespace BeatLeader.UI.MainMenu {
 
                         new BsButton {
                             Text = "Details",
-                            OnClick = () => ButtonAction?.Invoke(Item)
+                            OnClick = () => OnClick?.Invoke(Item)
                         }.AsFlexItem(size: new() { x = 12, y = 8 })
                     }
                 }

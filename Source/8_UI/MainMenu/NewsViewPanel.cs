@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.WebRequests;
 using Reactive;
-using Reactive.BeatSaber.Components;
-using Reactive.Components;
 using Reactive.Yoga;
 using UnityEngine;
-using UnityEngine.UI;
-using AnimationCurve = Reactive.AnimationCurve;
+using BBillboard = BeatLeader.UI.Reactive.Components.Billboard;
 
 namespace BeatLeader.UI.MainMenu;
 
@@ -18,8 +16,49 @@ internal class NewsViewPanel : ReactiveComponent {
         _eventNewsPanel.SetData(state, events);
     }
 
-    public void SetSpecialEvent(PlatformEventStatus? status) {
-        _specialEvent.Value = status;
+    #endregion
+
+    #region Event Status
+
+    private readonly Dictionary<string, PlatformEventStatus> _cachedEvents = new();
+    private IWebRequest<PlatformEventStatus>? _statusRequest;
+
+    private void HandleEventSelected(PlatformEvent evt) {
+        if (evt.eventType != 1) {
+#pragma warning disable CS0618 // Type or member is obsolete
+            ReeModalSystem.OpenModal<EventDetailsDialog>(ContentTransform, evt);
+#pragma warning restore CS0618 // Type or member is obsolete
+            return;
+        }
+
+        _eventDetailsPresented.Value = true;
+
+        if (_cachedEvents.TryGetValue(evt.id, out var status)) {
+            _eventDetailsStatus.Value = status;
+        } else {
+            if (_statusRequest is { RequestState: RequestState.Started }) {
+                _statusRequest.StateChangedEvent -= HandleRequestUpdated;
+                _statusRequest.Cancel();
+            }
+
+            _eventDetailsStatus.Value = null;
+            _statusRequest = PlatformEventStatusRequest.Send(evt.id);
+            _statusRequest.StateChangedEvent += HandleRequestUpdated;
+        }
+    }
+
+    private void HandleRequestUpdated(IWebRequest<PlatformEventStatus> instance, RequestState state, string? failReason) {
+        switch (state) {
+            case RequestState.Finished:
+                var result = instance.Result!;
+
+                _eventDetailsStatus.Value = result;
+                _cachedEvents.Add(result.eventDescription.id, result);
+                break;
+            case RequestState.Failed:
+                _eventDetailsPresented.Value = false;
+                break;
+        }
     }
 
     #endregion
@@ -27,74 +66,55 @@ internal class NewsViewPanel : ReactiveComponent {
     #region Construct
 
     private EventNewsPanel _eventNewsPanel = null!;
-    private ObservableValue<PlatformEventStatus?> _specialEvent = null!;
+    private ObservableValue<PlatformEventStatus?> _eventDetailsStatus = null!;
+    private ObservableValue<bool> _eventDetailsPresented = null!;
 
     protected override GameObject Construct() {
-        var selectorHeight = RememberAnimated(0f, 150.ms(), AnimationCurve.EaseInOut);
+        _eventDetailsStatus = Remember<PlatformEventStatus?>(null);
+        _eventDetailsPresented = Remember(false);
 
-        _specialEvent = Remember<PlatformEventStatus?>(null);
-        _specialEvent.ValueChangedEvent += x => {
-            selectorHeight.Value = x != null ? 5f : 0f;
-        };
+        var eventNews = new Layout {
+                Children = {
+                    new EventNewsPanel {
+                        OnEventSelected = HandleEventSelected
+                    }.Bind(ref _eventNewsPanel),
+
+                    new MapNewsPanel(),
+                }
+            }
+            .AsFlexGroup(direction: FlexDirection.Column, gap: 1f)
+            .AsFlexItem(size: new() { x = 70f });
+
+        var specialNews = new SpecialEventPanel {
+                OnBackClick = () => _eventDetailsPresented.Value = false
+            }
+            .Animate(
+                _eventDetailsStatus,
+                (x, y) => {
+                    if (y == null) {
+                        x.SetLoading();
+                    } else {
+                        x.SetData(y);
+                    }
+                }
+            );
 
         return new Layout {
                 Children = {
                     new TextNewsPanel(),
 
-                    new Layout {
-                            Children = {
-                                // Selector
-                                new Background {
-                                        Children = {
-                                            new TextSegmentedControl<string> {
-                                                    Items = {
-                                                        ["default"] = "<i>Main",
-                                                        ["special"] = "<i>Special"
-                                                    }
-                                                }
-                                                .AsFlexItem(flexGrow: 1f)
-                                                .Export(out var control)
-                                        }
-                                    }
-                                    .WithNativeComponent(out RectMask2D _)
-                                    .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
-                                    .AsFlexGroup(alignItems: Align.Stretch)
-                                    .AsFlexItem(margin: new() { top = 1f }, modifier: out var modifier)
-                                    .Animate(
-                                        selectorHeight,
-                                        onEffect: (_, y) => modifier.Size = new() { y = y.pt() },
-                                        applyImmediately: true
-                                    ),
-
-                                new KeyedContainer<string> {
-                                        Control = control,
-                                        Items = {
-                                            ["default"] = new Layout {
-                                                    Children = {
-                                                        new EventNewsPanel().Bind(ref _eventNewsPanel),
-                                                        new MapNewsPanel(),
-                                                    }
-                                                }
-                                                .AsFlexGroup(direction: FlexDirection.Column, gap: 1f)
-                                                .AsFlexItem(size: 100.pct()),
-
-                                            ["special"] = new SpecialEventPanel()
-                                                .Animate(
-                                                    _specialEvent,
-                                                    (x, y) => {
-                                                        if (y != null) x.SetData(y);
-                                                    }
-                                                )
-                                        }
-                                    }
-                                    .AsFlexGroup(direction: FlexDirection.Column)
-                                    .AsFlexItem(flex: 1f, flexShrink: 1f)
+                    new BBillboard()
+                        .AsFlexItem(flex: 1, size: new() { y = 70f })
+                        .With(x => x.Push(eventNews))
+                        .Animate(
+                            _eventDetailsPresented,
+                            (billboard, y) => {
+                                if (y) {
+                                    billboard.Push(specialNews);
+                                } else {
+                                    billboard.Pop();
+                                }
                             }
-                        }
-                        .AsFlexGroup(direction: FlexDirection.Column)
-                        .AsFlexItem(
-                            flex: 1f,
-                            size: new() { y = 70f }
                         )
                 }
             }

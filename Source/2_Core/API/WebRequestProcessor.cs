@@ -29,7 +29,9 @@ namespace BeatLeader.WebRequests {
             _requestTask = SendWebRequest(sendCallback, token);
             _processTask = ProcessWebRequest(token);
             _requestResponseParser = requestResponseParser;
-            _cancellationToken = token;
+
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+            _cancellationToken = _cancellationTokenSource.Token;
         }
 
         public T? Result { get; private set; }
@@ -152,6 +154,10 @@ namespace BeatLeader.WebRequests {
             return this;
         }
 
+        public void Cancel() {
+            _cancellationTokenSource.Cancel();
+        }
+
         public int RetryAttempt = 0;
 
         #endregion
@@ -202,8 +208,10 @@ namespace BeatLeader.WebRequests {
         private Task<HttpResponseMessage?> _requestTask;
         private readonly HttpRequestMessage _requestMessage;
         private readonly SendRequestDelegate _sendCallback;
-        private readonly CancellationToken _cancellationToken;
         private readonly Task _processTask;
+        
+        private readonly CancellationToken _cancellationToken;
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         private async Task ProcessWebRequest(CancellationToken token) {
             try {

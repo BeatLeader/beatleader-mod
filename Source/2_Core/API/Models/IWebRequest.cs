@@ -13,7 +13,6 @@ namespace BeatLeader.WebRequests {
         new event WebRequestStateChangedDelegate<IWebRequest<TResult>>? StateChangedEvent;
         new event WebRequestProgressChangedDelegate<IWebRequest<TResult>>? ProgressChangedEvent;
         
-        new Task<IWebRequest<TResult>> Join();
         RequestState RequestState { get; }
         HttpStatusCode RequestStatusCode { get; }
         string? FailReason { get; }
@@ -22,5 +21,8 @@ namespace BeatLeader.WebRequests {
         float DownloadProgress { get; }
         float UploadProgress { get; }
         float OverallProgress { get; }
+        
+        Task<IWebRequest<TResult>> Join();
+        void Cancel();
     }
 }

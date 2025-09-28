@@ -53,7 +53,11 @@ namespace BeatLeader.UI.MainMenu {
                             .WithAlpha(_spinnerAlpha, invert: true)
                             .Animate(_event, (x, y) => x.SetData(y)),
 
-                        new Spinner()
+                        new Spinner {
+                                Image = {
+                                    RaycastTarget = false
+                                }
+                            }
                             .WithAlpha(_spinnerAlpha)
                             .AsFlexItem(
                                 position: new() { left = 0.pt(), right = 0.pt() },
@@ -63,7 +67,7 @@ namespace BeatLeader.UI.MainMenu {
                     }
                 }
                 .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
-                .WithNativeComponent(out RectMask2D _)
+                .AsRectMask()
                 .AsFlexGroup(direction: FlexDirection.Column, justifyContent: Justify.Center, padding: 1.pt())
                 .AsFlexItem(flex: 1f, size: new() { x = 52.pt() })
                 .Use();

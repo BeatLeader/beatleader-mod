@@ -3,6 +3,7 @@ using System.Linq;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
 using Reactive;
+using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
 using UnityEngine;
 using UnityEngine.UI;
@@ -112,7 +113,7 @@ public class Billboard : ReactiveComponent {
                         .Bind(ref _inner)
                 }
             }
-            .WithNativeComponent(out RectMask2D _)
+            .AsRectMask()
             .AsFlexItem(modifier: out _outerModifier)
             .Animate(_outerWidth, (_, y) => _outerModifier.Size = new() { x = y })
             .Use();

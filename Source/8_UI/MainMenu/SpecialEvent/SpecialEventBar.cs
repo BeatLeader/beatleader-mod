@@ -1,6 +1,7 @@
 ﻿using System;
 using BeatLeader.Models;
 using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Yoga;
@@ -63,7 +64,8 @@ internal class SpecialEventBar : ReactiveComponent {
                                 .Animate(itemsAlpha, (_, y) => backButtonGroup.alpha = y)
                                 .AsFlexItem(
                                     size: new() { y = 90.pct(), x = 8f },
-                                    position: new() { left = 0.pt() }
+                                    position: new() { left = 0.pt() },
+                                    alignSelf: Align.Center
                                 ),
 
                             new BsButton {
@@ -131,7 +133,7 @@ internal class SpecialEventBar : ReactiveComponent {
                         }
                         .AsFlexGroup()
                         .AsFlexItem(modifier: out var calendarModifier)
-                        .WithNativeComponent(out RectMask2D _)
+                        .AsRectMask()
                         .Animate(calendarHeight, (_, y) => calendarModifier.Size = new() { y = y.pt() })
                 }
             }

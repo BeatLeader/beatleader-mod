@@ -9,7 +9,7 @@ using UnityEngine;
 using static BeatLeader.WebRequests.RequestState;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class NewsPanel<TItem, TCell> : ReactiveComponent where TCell : IListCell<TItem>, IReactiveComponent, new() {
+    internal class NewsPanel<TItem, TCell> : ReactiveComponent, ILayoutDriver where TCell : IListCell<TItem>, IReactiveComponent, new() {
         #region Props
 
         public string EmptyMessage { get; set; } = "Nothing to show";
@@ -22,10 +22,22 @@ namespace BeatLeader.UI.MainMenu {
 
         #endregion
 
+        #region Layout Driver
+
+        public ICollection<ILayoutItem> Children => _listView.Children;
+        
+        public ILayoutController? LayoutController {
+            get => _listView.LayoutController;
+            set => _listView.LayoutController = value;
+        }
+
+        #endregion
+
         #region Construct
 
         private ObservableValue<RequestState> _requestState = null!;
         private ObservableValue<IReadOnlyList<TItem>> _list = null!;
+        private ILayoutDriver _listView = null!;
 
         protected override GameObject Construct() {
             _requestState = Remember(Uninitialized);
@@ -89,7 +101,8 @@ namespace BeatLeader.UI.MainMenu {
                                                 .AsFlexGroup(
                                                     direction: FlexDirection.Column,
                                                     constrainVertical: false
-                                                ),
+                                                )
+                                                .Bind(ref _listView),
                                     }
                                     .AsFlexItem(flexGrow: 1)
                                     .Export(out var scrollArea),

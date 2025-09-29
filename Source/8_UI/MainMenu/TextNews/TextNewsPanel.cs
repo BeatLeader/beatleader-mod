@@ -39,6 +39,7 @@ namespace BeatLeader.UI.MainMenu {
                         new NewsPanel<NewsPost, TextNewsPostPanel> {
                                 EmptyMessage = "There is no news"
                             }
+                            .AsFlexGroup(gap: 2f, constrainVertical: false)
                             .AsFlexItem(flexGrow: 1f)
                             .Bind(ref _newsPanel)
                     }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.WebRequests;
@@ -14,6 +15,11 @@ internal class NewsViewPanel : ReactiveComponent {
 
     public void SetEvents(RequestState state, IReadOnlyList<PlatformEvent>? events) {
         _eventNewsPanel.SetData(state, events);
+
+        var happening = events?.FirstOrDefault(x => x.eventType is 1 && x.IsHappening());
+        if (happening != null) {
+            PresentEventDetails(happening);
+        }
     }
 
     #endregion
@@ -31,6 +37,10 @@ internal class NewsViewPanel : ReactiveComponent {
             return;
         }
 
+        PresentEventDetails(evt);
+    }
+
+    private void PresentEventDetails(PlatformEvent evt) {
         _eventDetailsPresented.Value = true;
 
         if (_cachedEvents.TryGetValue(evt.id, out var status)) {

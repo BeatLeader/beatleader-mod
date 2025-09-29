@@ -119,9 +119,10 @@ internal class SpecialEventBar : ReactiveComponent {
 
                     // Calendar
                     new Layout {
+                            WithinLayoutIfDisabled = true,
                             Children = {
                                 new EventCalendar {
-                                        OnDayChanged = x => OnDayChanged?.Invoke(x)
+                                        OnDayChanged = x => OnDayChanged?.Invoke(x),
                                     }
                                     .AsFlexItem(
                                         position: new() { left = 0.pt(), top = 0.pt(), right = 0.pt() },
@@ -135,6 +136,7 @@ internal class SpecialEventBar : ReactiveComponent {
                         .AsFlexItem(modifier: out var calendarModifier)
                         .AsRectMask()
                         .Animate(calendarHeight, (_, y) => calendarModifier.Size = new() { y = y.pt() })
+                        .Animate(calendarOpened, (x, y) => x.Enabled = y, applyImmediately: true)
                 }
             }
             .AsBackground(color: Color.black.ColorWithAlpha(0.5f))

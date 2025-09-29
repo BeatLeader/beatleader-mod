@@ -13,12 +13,15 @@ namespace BeatLeader.UI.MainMenu;
 internal class NewsViewPanel : ReactiveComponent {
     #region Public API
 
+    private PlatformEvent? eventToAutoopen = null;
+
     public void SetEvents(RequestState state, IReadOnlyList<PlatformEvent>? events) {
         _eventNewsPanel.SetData(state, events);
 
         var happening = events?.FirstOrDefault(x => x.eventType is 1 && x.IsHappening());
         if (happening != null) {
-            PresentEventDetails(happening);
+            eventToAutoopen = happening;
+            FetchEventStatus(happening);
         }
     }
 
@@ -43,6 +46,10 @@ internal class NewsViewPanel : ReactiveComponent {
     private void PresentEventDetails(PlatformEvent evt) {
         _eventDetailsPresented.Value = true;
 
+        FetchEventStatus(evt);
+    }
+
+    private void FetchEventStatus(PlatformEvent evt) {
         if (_cachedEvents.TryGetValue(evt.id, out var status)) {
             _eventDetailsStatus.Value = status;
         } else {
@@ -64,6 +71,10 @@ internal class NewsViewPanel : ReactiveComponent {
 
                 _eventDetailsStatus.Value = result;
                 _cachedEvents.Add(result.eventDescription.id, result);
+                if (eventToAutoopen?.id == result.eventDescription.id && result.today?.score == null) {
+                    PresentEventDetails(eventToAutoopen);
+                    eventToAutoopen = null;
+                }
                 break;
             case RequestState.Failed:
                 _eventDetailsPresented.Value = false;

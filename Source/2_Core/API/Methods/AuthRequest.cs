@@ -18,7 +18,7 @@ namespace BeatLeader.API {
             });
             return Send(BLConstants.SIGNIN_WITH_TICKET, HttpMethod.Post, formContent, new WebRequestParams {
                 RetryCount = 3
-            });
+            }, waitForLogin: false);
         }
     }
 }

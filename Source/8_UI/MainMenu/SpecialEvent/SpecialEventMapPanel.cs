@@ -26,6 +26,10 @@ internal class SpecialEventMapPanel : ReactiveComponent {
         }
     }
 
+    public void CancelPreview() {
+        _songPreviewPlayer.FadeOut(1.2f);
+    }
+
     #endregion
 
     #region Constuct

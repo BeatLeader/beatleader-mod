@@ -22,6 +22,10 @@ namespace BeatLeader.UI.MainMenu {
         public void SetLoading() {
             _spinnerAlpha.Value = 1f;
         }
+        
+        public void CancelPreview() {
+            _mapPanel.CancelPreview();
+        }
 
         #endregion
 
@@ -29,6 +33,7 @@ namespace BeatLeader.UI.MainMenu {
 
         private ObservableValue<PlatformEventStatus> _event = null!;
         private AnimatedValue<float> _spinnerAlpha = null!;
+        private SpecialEventMapPanel _mapPanel = null!;
 
         protected override GameObject Construct() {
             _event = Remember<PlatformEventStatus>(null!);
@@ -44,6 +49,7 @@ namespace BeatLeader.UI.MainMenu {
                         new SpecialEventMapPanel()
                             .WithAlpha(_spinnerAlpha, invert: true)
                             .Animate(_event, (x, y) => x.SetData(y.today))
+                            .Bind(ref _mapPanel)
                             .Export(out var mapPanel),
 
                         new SpecialEventBar {

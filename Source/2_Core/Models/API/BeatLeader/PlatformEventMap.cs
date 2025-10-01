@@ -8,6 +8,7 @@ public class PlatformEventMap {
     public required long startTime;
     public required long endTime;
     public required MapDetail song;
+    public required int day;
     public Score? score;
     public PlatformEventPoints? points;
 

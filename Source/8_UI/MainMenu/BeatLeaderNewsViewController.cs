@@ -1,8 +1,9 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BeatLeader.API;
+using BeatLeader.Models;
 using BeatLeader.Utils;
 using HMUI;
+using Reactive;
 using UnityEngine;
 
 namespace BeatLeader.UI.MainMenu {
@@ -45,6 +46,12 @@ namespace BeatLeader.UI.MainMenu {
 
         #region Data
 
+        public INotifyValueChanged<PlatformEventStatus?> HappeningEvent => _newsPanel.HappeningEvent;
+        
+        public void RefreshEventsCache() {
+            _newsPanel.RefreshEventsCache();
+        }
+        
         private async Task LoadPlatformEvents() {
             var events = await PlatformEventsRequest.Send().Join();
             var eventsList = events.Result?.data;

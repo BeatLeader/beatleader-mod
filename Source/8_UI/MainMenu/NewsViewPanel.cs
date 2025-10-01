@@ -13,6 +13,9 @@ namespace BeatLeader.UI.MainMenu;
 internal class NewsViewPanel : ReactiveComponent {
     #region Public API
 
+    //TODO: Oh my god please forgive me for this
+    public INotifyValueChanged<PlatformEventStatus?> HappeningEvent => _eventDetailsStatus;
+
     private PlatformEvent? eventToAutoopen = null;
 
     public void SetEvents(RequestState state, IReadOnlyList<PlatformEvent>? events) {
@@ -22,6 +25,15 @@ internal class NewsViewPanel : ReactiveComponent {
         if (happening != null) {
             eventToAutoopen = happening;
             FetchEventStatus(happening);
+        }
+    }
+
+    public void RefreshEventsCache() {
+        _cachedEvents.Clear();
+
+        if (_eventDetailsStatus.Value is { } status) {
+            _eventDetailsStatus.Value = null;
+            FetchEventStatus(status.eventDescription);
         }
     }
 

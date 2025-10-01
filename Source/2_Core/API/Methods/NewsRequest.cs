@@ -1,13 +1,12 @@
-﻿using BeatLeader.API.RequestDescriptors;
-using BeatLeader.API.RequestHandlers;
+﻿using System.Net.Http;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    public class NewsRequest : PersistentSingletonRequestHandler<NewsRequest, Paged<NewsPost>> {
+namespace BeatLeader.API {
+    public class NewsRequest : PersistentSingletonWebRequestBase<NewsRequest, Paged<NewsPost>, JsonResponseParser<Paged<NewsPost>>> {
         public static void SendRequest() {
-            var descriptor = new JsonGetRequestDescriptor<Paged<NewsPost>>($"{BLConstants.BEATLEADER_API_URL}/mod/news");
-            Instance.Send(descriptor);
+            SendRet($"{BLConstants.BEATLEADER_API_URL}/mod/news", HttpMethod.Get);
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BeatLeader.API;
-using BeatLeader.API.Methods;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using JetBrains.Annotations;
@@ -13,39 +13,27 @@ namespace BeatLeader.DataManager {
     internal class ProfileManager : IInitializable, IDisposable {
         #region Roles
 
-        public static event Action<PlayerRole[]> RolesUpdatedEvent;
-
-        private static PlayerRole[] _roles = Array.Empty<PlayerRole>();
-
-        public static PlayerRole[] Roles {
-            get => _roles;
-            private set {
-                _roles = value;
-                RolesUpdatedEvent?.Invoke(value);
-            }
-        }
+        public static PlayerRole[] Roles { get; private set; } = Array.Empty<PlayerRole>();
 
         #endregion
 
         #region Profile
 
-        public static event Action<Player> ProfileUpdatedEvent;
+        public static bool HasProfile { get; private set; }
 
-        private static Player _profile;
-
-        public static bool HasProfile;
-
-        public static Player Profile {
+        public static Player? Profile {
             get => _profile;
             private set {
                 _profile = value;
                 HasProfile = true;
-                ProfileUpdatedEvent?.Invoke(value);
             }
         }
 
+        private static TaskCompletionSource<object?>? _profileLoadTaskCompletionSource;
+        private static Player? _profile;
+
         public static bool IsCurrentPlayer(string otherId) {
-            return HasProfile && string.Equals(Profile.id, otherId, StringComparison.Ordinal);
+            return HasProfile && string.Equals(Profile!.id, otherId, StringComparison.Ordinal);
         }
 
         public static bool IsCurrentPlayerInClan(Clan clan) {
@@ -55,68 +43,88 @@ namespace BeatLeader.DataManager {
         public static bool IsCurrentPlayerTopClan(Clan clan) {
             return HasProfile && Profile.clans.Length > 0 && Profile.clans[0].id == clan.id;
         }
-
-        public static bool TryGetUserId(out string userId) {
+        
+        public static bool TryGetUserId(out string? userId) {
             if (!HasProfile) {
                 userId = null;
                 return false;
             }
 
-            userId = Profile.id;
+            userId = Profile!.id;
             return true;
         }
+        
+        public static Task WaitUntilProfileLoad() {
+            AssignLoadProfileTaskIfNeeded();
+            return _profileLoadTaskCompletionSource!.Task;
+        }
 
+        private static void AssignLoadProfileTaskIfNeeded() {
+            _profileLoadTaskCompletionSource ??= new();
+        }
+
+        private static void FinishTask() {
+            if (!_initialized) return;
+            AssignLoadProfileTaskIfNeeded();
+            _profileLoadTaskCompletionSource!.SetResult(null);
+        }
+        
         #endregion
 
         #region Friends
 
-        public static event Action FriendsUpdatedEvent;
+        public static event Action? FriendsUpdatedEvent;
 
-        private static readonly Dictionary<string, Player> Friends = new();
+        private static readonly Dictionary<string, Player> friends = new();
 
         private static void SetFriends(Player[] players) {
-            Friends.Clear();
+            friends.Clear();
             foreach (var player in players) {
-                Friends[player.id] = player;
+                friends[player.id] = player;
             }
 
             FriendsUpdatedEvent?.Invoke();
         }
 
         private static void AddFriend(Player player) {
-            Friends[player.id] = player;
+            friends[player.id] = player;
             FriendsUpdatedEvent?.Invoke();
         }
 
         private static void RemoveFriend(Player player) {
-            Friends.Remove(player.id);
+            friends.Remove(player.id);
             FriendsUpdatedEvent?.Invoke();
         }
 
-        public static bool IsFriend(Player player) {
-            return player != null && Friends.ContainsKey(player.id);
+        public static bool IsFriend(Player? player) {
+            return player != null && friends.ContainsKey(player.id);
         }
 
         #endregion
 
         #region Initialize / Dispose
 
+        private static bool _initialized;
+        
         public void Initialize() {
-            UserRequest.AddStateListener(OnUserRequestStateChanged);
-            UploadReplayRequest.AddStateListener(OnUploadRequestStateChanged);
-            AddFriendRequest.AddStateListener(OnAddFriendRequestStateChanged);
-            RemoveFriendRequest.AddStateListener(OnRemoveFriendRequestStateChanged);
+            UserRequest.StateChangedEvent += OnUserRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
+            AddFriendRequest.StateChangedEvent += OnAddFriendRequestStateChanged;
+            RemoveFriendRequest.StateChangedEvent += OnRemoveFriendRequestStateChanged;
             LeaderboardEvents.AddFriendWasPressedEvent += OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent += OnRemoveFriendWasPressed;
 
-            UserRequest.SendRequest();
+            _initialized = true;
+            UserRequest.Send();
         }
 
         public void Dispose() {
-            UserRequest.RemoveStateListener(OnUserRequestStateChanged);
-            UploadReplayRequest.RemoveStateListener(OnUploadRequestStateChanged);
-            AddFriendRequest.RemoveStateListener(OnAddFriendRequestStateChanged);
-            RemoveFriendRequest.RemoveStateListener(OnRemoveFriendRequestStateChanged);
+            _profileLoadTaskCompletionSource = null;
+            _initialized = false;
+            UserRequest.StateChangedEvent -= OnUserRequestStateChanged;
+            UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
+            AddFriendRequest.StateChangedEvent -= OnAddFriendRequestStateChanged;
+            RemoveFriendRequest.StateChangedEvent -= OnRemoveFriendRequestStateChanged;
             LeaderboardEvents.AddFriendWasPressedEvent -= OnAddFriendWasPressed;
             LeaderboardEvents.RemoveFriendWasPressedEvent -= OnRemoveFriendWasPressed;
         }
@@ -127,50 +135,52 @@ namespace BeatLeader.DataManager {
         
         private void OnMainServerChanged(BeatLeaderServer value) {
             Authentication.ResetLogin();
-            UserRequest.SendRequest();
+            UserRequest.Send();
         }
 
         private static void OnAddFriendWasPressed(Player player) {
-            AddFriendRequest.SendRequest(player);
+            AddFriendRequest.Send(player);
         }
 
         private static void OnRemoveFriendWasPressed(Player player) {
-            RemoveFriendRequest.SendRequest(player);
+            RemoveFriendRequest.Send(player);
         }
 
-        private static void OnAddFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
+        private static void OnAddFriendRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
                     break;
-                case API.RequestState.Finished:
-                    AddFriend(result);
+                case WebRequests.RequestState.Finished:
+                    AddFriend(instance.Result);
                     break;
             }
         }
 
-        private static void OnRemoveFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
+        private static void OnRemoveFriendRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
                     break;
-                case API.RequestState.Finished:
-                    RemoveFriend(result);
+                case WebRequests.RequestState.Finished:
+                    RemoveFriend(instance.Result);
                     break;
             }
         }
 
-        private static void OnUserRequestStateChanged(API.RequestState state, User result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
-
+        private static void OnUserRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is WebRequests.RequestState.Failed) FinishTask();
+            if (state is not WebRequests.RequestState.Finished) return;
+            var result = instance.Result;
             Profile = result.player;
             Roles = FormatUtils.ParsePlayerRoles(result.player.role);
             SetFriends(result.friends);
+            FinishTask();
         }
 
-        private static void OnUploadRequestStateChanged(API.RequestState state, Score result, string failReason) {
-            if (state is not API.RequestState.Finished) return;
-            Profile = result.Player;
+        private static void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) return;
+            Profile = instance.Result.Player;
         }
 
         #endregion

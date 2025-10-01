@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage;
 using HarmonyLib;
 using HMUI;
+using Reactive.BeatSaber;
 
 namespace BeatLeader {
     [HarmonyPatch]

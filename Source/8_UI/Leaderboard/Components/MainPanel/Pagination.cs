@@ -1,5 +1,6 @@
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.Manager;
+using BeatLeader.WebRequests;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using JetBrains.Annotations;
@@ -11,24 +12,26 @@ namespace BeatLeader.Components {
 
         protected override void OnInitialize() {
             FlipUpButton();
-            ScoresRequest.AddStateListener(OnScoreRequestStateChanged);
+            ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
         }
 
         protected override void OnDispose() {
-            ScoresRequest.RemoveStateListener(OnScoreRequestStateChanged);
+            ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
         }
 
         #endregion
 
         #region Events
 
-        private void OnScoreRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not API.RequestState.Finished) {
+        private void OnScoresRequestStateChanged(IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) {
                 DisableAllInteraction();
                 return;
             }
 
-            OnScoresFetched(result);
+            OnScoresFetched(instance.Result);
         }
 
         private void OnScoresFetched(ScoresTableContent scoresData) {

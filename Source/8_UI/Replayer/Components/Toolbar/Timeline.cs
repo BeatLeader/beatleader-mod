@@ -1,221 +1,329 @@
-﻿using System.Linq;
-using System.Collections.Generic;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatLeader.Utils;
-using UnityEngine.UI;
-using UnityEngine;
+﻿using UnityEngine;
 using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
-using BeatLeader.Models.AbstractReplay;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using BeatLeader.Models.AbstractReplay;
+using BeatLeader.UI.Reactive;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
+using UnityEngine.EventSystems;
+using static BeatLeader.Models.AbstractReplay.NoteEvent.NoteEventType;
+using AnimationCurve = Reactive.AnimationCurve;
+using MathUtils = Reactive.MathUtils;
 
-namespace BeatLeader.Components {
-    internal class Timeline : ReeUIComponentV2, IReplayTimeline {
-        #region UI Components
-
-        [UIComponent("container")]
-        private readonly RectTransform _container = null!;
-
-        [UIComponent("fill-area")]
-        private readonly RectTransform _fillArea = null!;
-
-        [UIComponent("marks-area")]
-        private readonly RectTransform _marksArea = null!;
-
-        [UIComponent("marks-area-container")]
-        private readonly RectTransform _marksAreaContainer = null!;
-
-        [UIComponent("background")]
-        private readonly Image _background = null!;
-
-        [UIComponent("handle")]
-        private readonly Image _handle = null!;
-
-        [UIComponent("fill")]
-        private readonly Image _fill = null!;
-
-        private TimelineAnimator _timelineAnimator = null!;
-        private Slider _slider = null!;
-
-        #endregion
-
+namespace BeatLeader.UI.Replayer {
+    internal class Timeline : SliderBase, IReplayTimeline {
         #region Setup
 
-        private IReplayPauseController _pauseController = null!;
-        private IReplayTimeController _timeController = null!;
-        private IVirtualPlayersManager _playersManager = null!;
+        private IReplayPauseController? _pauseController;
+        private IReplayTimeController? _timeController;
+        private IVirtualPlayersManager? _playersManager;
+        private ReplayerUISettings? _uiSettings;
 
-        private bool _allowTimeUpdate = true;
-        private bool _allowRewind;
+        private bool _allowTimeUpdate;
         private bool _wasPausedBeforeRewind;
 
         public void Setup(
             IVirtualPlayersManager playersManager,
             IReplayPauseController pauseController,
-            IReplayTimeController timeController) {
-            OnDispose();
+            IReplayTimeController timeController,
+            ReplayerUISettings replayerSettings
+        ) {
+            if (_playersManager != null) {
+                _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChangedEvent;
+            }
             _playersManager = playersManager;
             _pauseController = pauseController;
             _timeController = timeController;
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChangedEvent;
+            _uiSettings = replayerSettings;
+            _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChangedEvent;
 
-            SetupSlider();
-            SetupMarkers();
-            _timelineAnimator.Setup(_background.rectTransform,
-                _handle.rectTransform, _marksAreaContainer, _fillArea);
-
-            HandlePriorityPlayerChangedEvent(playersManager.PriorityPlayer!);
-            _allowRewind = true;
+            ValueRange = new(_timeController.SongStartTime, _timeController.ReplayEndTime);
+            HandlePrimaryPlayerChangedEvent(playersManager.PrimaryPlayer);
+            ReloadMarkers();
+            _allowTimeUpdate = true;
         }
 
-        protected override void OnDispose() {
-            if (_playersManager != null)
-                _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChangedEvent;
+        protected override void OnDestroy() {
+            if (_playersManager != null) {
+                _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChangedEvent;
+            }
+        }
+
+        protected override void OnUpdate() {
+            if (_allowTimeUpdate) {
+                SetValueSilent(_timeController!.SongTime);
+            }
+        }
+
+        #endregion
+
+        #region Markers
+
+        private class MarkerGroup : ReactiveComponent {
+            public float MarkerScale {
+                set {
+                    foreach (var marker in _markersPool.SpawnedComponents) {
+                        marker.ContentTransform.localScale = new(value, 1f, 1f);
+                    }
+                }
+            }
+
+            private readonly ReactivePool<Image> _markersPool = new();
+            private readonly List<float> _markerTimes = new();
+            private float _totalTime;
+            private Sprite? _markerSprite;
+            private Color _markerColor;
+
+            public void Setup(float totalTime, IEnumerable<float> markerTimes, Sprite markerSprite, Color markerColor) {
+                _totalTime = totalTime;
+                _markerSprite = markerSprite;
+                _markerColor = markerColor;
+                _markerTimes.Clear();
+                _markerTimes.AddRange(markerTimes);
+                ReloadMarkers();
+            }
+
+            private void ReloadMarkers() {
+                var maxSize = ContentTransform.rect.width;
+                _markersPool.DespawnAll();
+                foreach (var time in _markerTimes) {
+                    //creating marker
+                    var marker = _markersPool.Spawn();
+                    marker.Material = GameResources.UINoGlowMaterial;
+                    marker.Sprite = _markerSprite;
+                    marker.Color = _markerColor;
+                    marker.Use(ContentTransform);
+                    marker.WithSizeDelta(2f, 2f);
+                    //placing marker
+                    var pos = MathUtils.Map(time, 0f, _totalTime, 0f, maxSize);
+                    marker.ContentTransform.localPosition = new(pos, 0f, 0f);
+                }
+            }
+
+            protected override void OnRectDimensionsChanged() {
+                ReloadMarkers();
+            }
+
+            protected override void OnInitialize() {
+                ContentTransform.pivot = new(0f, 0.5f);
+            }
+        }
+
+        private struct MarkerData {
+            public string name;
+            public Color color;
+            public Sprite sprite;
+            public Func<IReplay, IEnumerable<float>> getTimesDelegate;
+        }
+
+        public IReadOnlyCollection<string> AvailableMarkers => markerNames;
+
+        private static readonly string[] markerNames = {
+            "Miss", "Bomb", "Pause", "Wall"
+        };
+
+        private static readonly MarkerData[] markers = {
+            new() {
+                name = "Miss",
+                color = Color.red,
+                sprite = BundleLoader.CrossIcon,
+                getTimesDelegate = x => x.NoteEvents
+                    .Where(y => y.eventType is Miss or BadCut)
+                    .Select(y => y.CutTime)
+            },
+            new() {
+                name = "Bomb",
+                color = Color.yellow,
+                sprite = BundleLoader.CrossIcon,
+                getTimesDelegate = x => x.NoteEvents
+                    .Where(y => y.eventType is BombCut)
+                    .Select(y => y.CutTime)
+            },
+            new() {
+                name = "Pause",
+                color = Color.blue,
+                sprite = BundleLoader.PauseIcon,
+                getTimesDelegate = x => x.PauseEvents.Select(y => y.time)
+            },
+            new() {
+                name = "Wall",
+                color = Color.magenta,
+                sprite = BundleLoader.Sprites.background,
+                getTimesDelegate = x => x.WallEvents.Select(y => y.time)
+            }
+        };
+
+        private readonly Dictionary<string, MarkerGroup> _markerGroups = new();
+        private readonly ReactivePool<MarkerGroup> _markerGroupsPool = new();
+
+        public void SetMarkersEnabled(string name, bool enable = true) {
+            if (!_markerGroups.TryGetValue(name, out var group)) return;
+            group.Enabled = enable;
+            var mask = _uiSettings!.MarkersMask;
+            _uiSettings!.MarkersMask = name switch {
+                "Miss" => mask | TimelineMarkersMask.Miss,
+                "Bomb" => mask | TimelineMarkersMask.Bomb,
+                "Pause" => mask | TimelineMarkersMask.Pause,
+                "Wall" => mask | TimelineMarkersMask.Wall,
+                _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
+            };
+        }
+
+        public bool GetMarkersEnabled(string name) {
+            var mask = _uiSettings!.MarkersMask;
+            return name switch {
+                "Miss" => (TimelineMarkersMask.Miss & mask) != 0,
+                "Bomb" => (TimelineMarkersMask.Bomb & mask) != 0,
+                "Pause" => (TimelineMarkersMask.Pause & mask) != 0,
+                "Wall" => (TimelineMarkersMask.Wall & mask) != 0,
+                _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
+            };
+        }
+
+        private void ReloadMarkers() {
+            _markerGroupsPool.DespawnAll();
+            _markerGroups.Clear();
+            var replay = _playersManager!.PrimaryPlayer.Replay;
+            foreach (var marker in markers) {
+                var group = _markerGroupsPool.Spawn();
+                group.Use(_groupsArea);
+                group.WithRectExpand();
+                //setting the group up
+                group.Setup(
+                    _timeController!.ReplayEndTime,
+                    marker.getTimesDelegate(replay),
+                    marker.sprite,
+                    marker.color
+                );
+                group.Enabled = GetMarkersEnabled(marker.name);
+                //adding to the dict
+                _markerGroups[marker.name] = group;
+            }
+        }
+
+        #endregion
+
+        #region Construct
+
+        protected override PointerEventsHandler SlidingAreaEventsHandler => _pointerEventsHandler;
+        protected override RectTransform SlidingAreaTransform => _slidingArea;
+        protected override RectTransform HandleTransform => _handle;
+
+        private RectTransform _slidingArea = null!;
+        private RectTransform _handle = null!;
+        private RectTransform _groupsArea = null!;
+        private ImageButton _background = null!;
+        private PointerEventsHandler _pointerEventsHandler = null!;
+
+        private AnimatedValue<float> _backgroundScale = null!;
+        private AnimatedValue<Color> _backgroundColor = null!;
+
+        protected override GameObject Construct() {
+            _backgroundScale = RememberAnimated(1f, 15.fact());
+            _backgroundColor = RememberAnimated(UIStyle.InputColorSet.Color, 15.fact());
+
+            _backgroundScale.ValueChangedEvent += x => {
+                foreach (var group in _markerGroupsPool.SpawnedComponents) {
+                    group.MarkerScale = x;
+                }
+            };
+
+            return new BackgroundButton {
+                    Image = {
+                        Sprite = BundleLoader.Sprites.background,
+                        PixelsPerUnit = 12f,
+                        Material = GameResources.UINoGlowMaterial
+                    },
+                    Colors = null,
+                    Children = {
+                        //sliding area
+                        new Background {
+                            ContentTransform = {
+                                pivot = new(0f, 0.5f)
+                            },
+                            Sprite = BundleLoader.TransparentPixel,
+                            Children = {
+                                new Layout {
+                                    ContentTransform = {
+                                        pivot = Vector2.zero
+                                    }
+                                }.Bind(ref _groupsArea).WithRectExpand(),
+                                //handle
+                                new Image {
+                                    ContentTransform = {
+                                        anchorMin = new(0.5f, 0f),
+                                        anchorMax = new(0.5f, 1f),
+                                        sizeDelta = new(1f, 0f),
+                                        pivot = new(0f, 0.5f)
+                                    },
+                                    Sprite = BundleLoader.Sprites.background,
+                                    PixelsPerUnit = 30f,
+                                    Color = Color.white.ColorWithAlpha(0.8f)
+                                }.Bind(ref _handle)
+                            }
+                        }.WithNativeComponent(out _pointerEventsHandler).With(_ => {
+                                _pointerEventsHandler.PointerUpdatedEvent += HandlePointerUpdated;
+                                _pointerEventsHandler.PointerDownEvent += HandlePointerDown;
+                                _pointerEventsHandler.PointerUpEvent += HandlePointerUp;
+                            }
+                        ).AsFlexItem(
+                            flexGrow: 1f,
+                            size: new() { y = 120.pct() }
+                        ).Bind(ref _slidingArea)
+                    }
+                }
+                .AsFlexGroup(
+                    padding: new() { left = 1f, right = 1f },
+                    overflow: Overflow.Visible,
+                    alignItems: Align.Center
+                )
+                .Animate(_backgroundScale, (x, y) => x.ContentTransform.localScale = new(1f, y), true)
+                .Animate(_backgroundColor, x => x.Image.Color, true)
+                .Bind(ref _background)
+                .Use();
         }
 
         protected override void OnInitialize() {
-            _background.isMaskingGraphic = false;
-            _handle.transform.localScale = Vector2.zero;
-            _marksArea.sizeDelta = new Vector2(50, 2);
-
-            _slider = _container.gameObject.AddComponent<Slider>();
-            _slider.targetGraphic = _handle;
-            _slider.handleRect = _handle.rectTransform;
-            _slider.fillRect = _fill.rectTransform;
-            _slider.navigation = new() { mode = Navigation.Mode.None };
-            _slider.onValueChanged.AddListener(HandleSliderValueChanged);
-
-            _timelineAnimator = _slider.gameObject.AddComponent<TimelineAnimator>();
-            _timelineAnimator.HandlePressedEvent += HandleSliderPressed;
-            _timelineAnimator.HandleReleasedEvent += HandleSliderReleased;
-        }
-
-
-        private void SetupSlider() {
-            _slider.minValue = _timeController.SongStartTime;
-            _slider.maxValue = _timeController.ReplayEndTime;
+            base.OnInitialize();
+            this.AsFlexItem(size: new() { y = 4f });
+            this.WithListener(x => x.Value, HandleSliderValueChanged);
         }
 
         #endregion
 
         #region Callbacks
 
-        private void HandlePriorityPlayerChangedEvent(VirtualPlayer player) {
-            GenerateDefaultMarkersFromReplay(player.Replay!);
+        private void HandlePrimaryPlayerChangedEvent(IVirtualPlayer player) {
+            ReloadMarkers();
         }
 
         private void HandleSliderValueChanged(float value) {
-            if (_allowRewind)
-                _timeController?.Rewind(value, false);
+            _timeController?.Rewind(value, false);
         }
 
-        private void HandleSliderReleased() {
-            if (!_wasPausedBeforeRewind)
-                _pauseController?.Resume(true);
-            _allowTimeUpdate = true;
+        private void HandlePointerUpdated(PointerEventsHandler handler, PointerEventData eventData) {
+            var dragging = handler.IsPressed || handler.IsHovered;
+
+            _backgroundScale.Value = dragging ? 1.4f : 1f;
+            _backgroundColor.Value = dragging ? UIStyle.InputColorSet.HoveredColor : UIStyle.InputColorSet.Color;
         }
 
-        private void HandleSliderPressed() {
+        private void HandlePointerDown(PointerEventsHandler handler, PointerEventData eventData) {
             _wasPausedBeforeRewind = _pauseController?.IsPaused ?? false;
             _allowTimeUpdate = false;
         }
 
-        #endregion
-
-        #region UpdateTime
-
-        private void Update() {
-            if (_allowTimeUpdate) {
-                _slider.SetValueWithoutNotify(_timeController.SongTime);
+        private void HandlePointerUp(PointerEventsHandler handler, PointerEventData eventData) {
+            if (!_wasPausedBeforeRewind) {
+                _pauseController?.Resume();
             }
-        }
-
-        #endregion
-
-        #region Default Marks
-
-        private Image _missPrefab = null!;
-        private Image _bombPrefab = null!;
-        private Image _pausePrefab = null!;
-
-        private void SetupMarkers() {
-            _missPrefab = new GameObject("MissMark").AddComponent<Image>();
-            _missPrefab.sprite = BundleLoader.CrossIcon;
-            _missPrefab.color = Color.red;
-            _missPrefab.material = BundleLoader.UIAdditiveGlowMaterial;
-
-            _bombPrefab = new GameObject("BombMark").AddComponent<Image>();
-            _bombPrefab.sprite = BundleLoader.CrossIcon;
-            _bombPrefab.color = Color.yellow;
-            _bombPrefab.material = BundleLoader.UIAdditiveGlowMaterial;
-
-            _pausePrefab = new GameObject("PauseMark").AddComponent<Image>();
-            _pausePrefab.sprite = BundleLoader.PauseIcon;
-            _pausePrefab.color = Color.blue;
-            _pausePrefab.material = BundleLoader.UIAdditiveGlowMaterial;
-        }
-
-        private void GenerateDefaultMarkersFromReplay(IReplay replay) {
-            float firstNoteTime = replay.NoteEvents.FirstOrDefault().eventTime;
-            float lastNoteTime = replay.NoteEvents.LastOrDefault().eventTime;
-
-            GenerateMarkers(replay.NoteEvents
-                .Where(x => x.eventType is NoteEvent.NoteEventType.Miss
-                    or NoteEvent.NoteEventType.BadCut)
-                .Select(x => x.eventTime), _missPrefab.gameObject);
-
-            GenerateMarkers(replay.NoteEvents
-                .Where(x => x.eventType == NoteEvent.NoteEventType.BombCut)
-                .Select(x => x.eventTime), _bombPrefab.gameObject);
-
-            GenerateMarkers(replay.PauseEvents
-                .Where(x => x.time >= firstNoteTime && x.time <= lastNoteTime)
-                .Select(x => x.time), _pausePrefab.gameObject);
-        }
-
-        #endregion
-
-        #region Marks
-
-        public event Action? MarkersWereGeneratedEvent;
-
-        private readonly Dictionary<string, List<GameObject>> _marks = new();
-
-        private void GenerateMarkers(IEnumerable<float> times, GameObject prefab) {
-            if (_marks.TryGetValue(prefab.name, out var marks)) {
-                marks.ForEach(static x => DestroyImmediate(x));
-                marks.Clear();
-            } else marks = new();
-            foreach (var item in times) {
-                var instance = Instantiate(prefab, _marksArea, false);
-                var instanceRect = instance.GetComponent<RectTransform>();
-                instanceRect.localPosition = new(MapTimelineMarker(item), 0);
-                instanceRect.sizeDelta = CalculateMarkerSize();
-                marks.Add(instance);
-            }
-            _marks[prefab.name] = marks;
-            MarkersWereGeneratedEvent?.Invoke();
-        }
-
-        public void ShowMarkers(string name, bool show) {
-            if (!_marks.TryGetValue(name, out var marks)) return;
-            marks.ForEach(x => x.SetActive(show));
-        }
-
-        private Vector2 CalculateMarkerSize() {
-            return new(_marksArea.sizeDelta.y, _marksArea.sizeDelta.y);
-        }
-
-        private float MapTimelineMarker(float time) {
-            var marksArXDiv2 = _marksArea.sizeDelta.x / 2;
-            var markXDiv2 = CalculateMarkerSize().x / 2;
-            var val = MathUtils.Map(time, _timeController.SongStartTime,
-                _timeController.ReplayEndTime, -marksArXDiv2, marksArXDiv2);
-            if (marksArXDiv2 - Mathf.Abs(val) < markXDiv2) {
-                var pos = marksArXDiv2 - markXDiv2;
-                val = val < 0 ? (-pos) : pos;
-            }
-            return val;
+            _allowTimeUpdate = true;
         }
 
         #endregion

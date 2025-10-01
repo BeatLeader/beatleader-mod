@@ -1,6 +1,5 @@
 ﻿using BeatLeader.API;
 using BeatLeader.DataManager;
-using BeatLeader.SteamVR;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
 using System.Linq;
@@ -12,14 +11,15 @@ namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnAppInitInstaller : Installer<OnAppInitInstaller> {
         [Inject, UsedImplicitly]
-        private IVRPlatformHelper _vrPlatformHelper;
+        private IVRPlatformHelper _vrPlatformHelper = null!;
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
             
             var steamPlatformUserModel = Assembly.GetAssembly(typeof(IPlatformUserModel))
                 .GetTypes()
-                .FirstOrDefault(t => t.FullName.Contains("SteamPlatformUserModel"));
+                .FirstOrDefault(t => t.FullName!.Contains("SteamPlatformUserModel"));
+            
             if (steamPlatformUserModel != null) {
                 Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             } else {

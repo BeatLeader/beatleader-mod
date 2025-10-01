@@ -5,11 +5,11 @@ using Zenject;
 
 namespace BeatLeader {
     internal class BeatLeaderMenuButtonManager : MonoBehaviour {
-        [Inject] private readonly BeatLeaderFlowCoordinator _flowCoordinator = null!;
+        [Inject] private readonly BeatLeaderHubFlowCoordinator _hubFlowCoordinator = null!;
         
         #region MenuButton
 
-        private const string Description = "Opens BeatLeader replays panel";
+        private const string Description = "Opens BeatLeader Hub";
 
         public static bool MenuButtonEnabled {
             get => ConfigFileData.Instance.MenuButtonEnabled;
@@ -41,7 +41,7 @@ namespace BeatLeader {
         #region Callbacks
 
         private void HandleMenuButtonClicked() {
-            _flowCoordinator.Present(false);
+            _hubFlowCoordinator.Present(false);
         }
 
         #endregion

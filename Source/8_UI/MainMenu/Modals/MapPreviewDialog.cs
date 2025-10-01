@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.API;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
@@ -14,7 +16,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
 
 namespace BeatLeader.UI.MainMenu {
     internal class MapPreviewDialog : AbstractReeModal<TrendingMapData> {
@@ -31,6 +32,7 @@ namespace BeatLeader.UI.MainMenu {
         [UIComponent("play-button"), UsedImplicitly] private Button _playButton = null!;
 
         private string _mapName = string.Empty;
+
         [UIValue("map-name"), UsedImplicitly]
         private string MapName {
             get => _mapName;
@@ -42,6 +44,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private string _songAuthor = string.Empty;
+
         [UIValue("song-author"), UsedImplicitly]
         private string SongAuthor {
             get => _songAuthor;
@@ -53,6 +56,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private string _mapper = string.Empty;
+
         [UIValue("mapper"), UsedImplicitly]
         private string Mapper {
             get => _mapper;
@@ -64,6 +68,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private string _description = string.Empty;
+
         [UIValue("description"), UsedImplicitly]
         private string Description {
             get => _description;
@@ -75,6 +80,7 @@ namespace BeatLeader.UI.MainMenu {
         }
 
         private string _trendingValue = string.Empty;
+
         [UIValue("trending-value"), UsedImplicitly]
         private string TrendingValue {
             get => _trendingValue;
@@ -90,8 +96,8 @@ namespace BeatLeader.UI.MainMenu {
         #region OpenSongOrDownloadDialog
 
         public static async void OpenSongOrDownloadDialog(TrendingMapData mapDetail, Transform screenChild) {
-            BeatmapLevel? map = null; 
-            try {    
+            BeatmapLevel? map = null;
+            try {
                 map = await FetchMap(mapDetail.song);
             } catch (Exception) { }
 
@@ -145,16 +151,16 @@ namespace BeatLeader.UI.MainMenu {
 
         protected override void OnContextChanged() {
             _songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
-            
+
             MapName = Context.song.name;
             SongAuthor = Context.song.author;
             Mapper = $"Mapped by {Context.song.mapper}";
             Description = Context.description;
             TrendingValue = Context.trendingValue;
-            
+
             // Load cover image
             if (!string.IsNullOrEmpty(Context.song.coverImage)) {
-                _ = LoadCoverImage();
+                LoadCoverImage().RunCatching();
             }
         }
 
@@ -169,7 +175,7 @@ namespace BeatLeader.UI.MainMenu {
         private async Task LoadAndPlayPreview(CancellationToken cancellationToken) {
             try {
                 var previewUrl = $"https://eu.cdn.beatsaver.com/{Context.song.hash.ToLowerInvariant()}.mp3";
-                
+
                 using (var www = UnityWebRequestMultimedia.GetAudioClip(previewUrl, AudioType.MPEG)) {
                     var operation = www.SendWebRequest();
 
@@ -204,7 +210,7 @@ namespace BeatLeader.UI.MainMenu {
             if (!string.IsNullOrEmpty(Context.song.hash)) {
                 _downloadCancellationSource?.Cancel();
                 _downloadCancellationSource = new CancellationTokenSource();
-                _ = LoadAndPlayPreview(_downloadCancellationSource.Token);
+                LoadAndPlayPreview(_downloadCancellationSource.Token).RunCatching();
             }
         }
 
@@ -225,20 +231,24 @@ namespace BeatLeader.UI.MainMenu {
 
         private async Task Download() {
             try {
-                var bytes = await WebUtils.SendRawDataRequestAsync(Context.song.downloadUrl!);
-                if (bytes != null) {
-                    var basePath = Context.song.id + " (" + Context.song.name + " - " + Context.song.author + ")";
-                    basePath = string.Join("", basePath.Split(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()));
-                    await FileManager.InstallBeatmap(bytes, basePath);
-                    await Task.Delay(TimeSpan.FromSeconds(2));
+                var bytes = await RawDataRequest.Send(Context.song.downloadUrl!).Join();
 
-                    var map = await FetchMap(Context.song);
-                    _mapDownloaded = map != null;
+                if (bytes.RequestStatusCode is not HttpStatusCode.OK) {
+                    return;
+                }
 
-                    if (_mapDownloaded) {
-                        OpenMap(map, this);
-                        return;
-                    }
+                var basePath = Context.song.id + " (" + Context.song.name + " - " + Context.song.author + ")";
+                basePath = string.Join("", basePath.Split(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()));
+                
+                await FileManager.InstallBeatmap(bytes.Result!, basePath);
+                await Task.Delay(TimeSpan.FromSeconds(2));
+
+                var map = await FetchMap(Context.song);
+                _mapDownloaded = map != null;
+
+                if (_mapDownloaded) {
+                    OpenMap(map, this);
+                    return;
                 }
             } catch (Exception) {
                 _mapDownloaded = false;

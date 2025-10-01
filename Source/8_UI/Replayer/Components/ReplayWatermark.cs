@@ -1,5 +1,6 @@
 ﻿using BeatLeader.DataManager;
 using BeatLeader.Models;
+using BeatLeader.UI.Replayer;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -36,15 +37,15 @@ namespace BeatLeader.Components {
 
         public void RefreshText() {
             var text = $"<i><b><color=\"red\">REPLAY</color></b>   ";
-            var level = _launchData.BeatmapLevel;
+            var level = _launchData.BeatmapLevel.Level;
             text += $"{level.songName} - {level.songAuthorName}   ";
             if (_launchData.IsBattleRoyale) {
                 CanBeDisabled = true;
                 text += "<color=\"yellow\">BATTLE ROYALE</color>";
             } else {
                 var player = _launchData.MainReplay.ReplayData.Player;
-                CanBeDisabled = player != null && ProfileManager.IsCurrentPlayer(player.id);
-                text += $"Player:  {player?.name ?? "Unknown"}";
+                CanBeDisabled = player != null && ProfileManager.IsCurrentPlayer(player.Id);
+                text += $"Player:  {player?.Name ?? "Unknown"}";
             }
             text += "</i>";
             _text.text = text;

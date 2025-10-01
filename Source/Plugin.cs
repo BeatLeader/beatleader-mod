@@ -5,9 +5,9 @@ using BeatSaberMarkupLanguage.Util;
 using Hive.Versioning;
 using IPA;
 using IPA.Config;
-using IPA.Config.Stores;
 using IPA.Loader;
 using JetBrains.Annotations;
+using UnityEngine;
 using IPALogger = IPA.Logging.Logger;
 
 namespace BeatLeader {
@@ -21,6 +21,8 @@ namespace BeatLeader {
         internal const string HarmonyId = "BeatLeader";
         internal const string FancyName = "BeatLeader";
 
+        internal static string UserAgent = "PC mod";
+
         internal static Version Version { get; private set; }
 
         #endregion
@@ -30,19 +32,12 @@ namespace BeatLeader {
         internal static IPALogger Log { get; private set; }
 
         [Init]
-        public Plugin(IPALogger logger, PluginMetadata metadata, Config config) {
+        public Plugin(IPALogger logger, PluginMetadata metadata) {
             Log = logger;
             Version = metadata.HVersion;
-            InitializeConfig(config);
-            InitializeAssets();
-        }
-
-        private static void InitializeAssets() {
+            
+            ConfigFileData.Initialize();
             BundleLoader.Initialize();
-        }
-
-        private static void InitializeConfig(Config config) {
-            ConfigFileData.Instance = config.Generated<ConfigFileData>();
         }
 
         #endregion
@@ -55,11 +50,13 @@ namespace BeatLeader {
             OnEnabledChanged(PluginConfig.Enabled);
             MainMenuAwaiter.MainMenuInitializing += MainMenuInit;
             InteropLoader.Init();
+
+            UserAgent = $"PC mod {Plugin.Version} / {Application.version}";
         }
 
         public static void MainMenuInit() {
-            SettingsPanelUI.AddTab();
             BSMLAddonsLoader.LoadAddons();
+            ReplayManager.LoadCache();
         }
 
         private static void OnEnabledChanged(bool enabled) {
@@ -79,10 +76,10 @@ namespace BeatLeader {
         [OnExit]
         [UsedImplicitly]
         public void OnApplicationQuit() {
-            SerializableSingletons.SaveAll();
             LeaderboardsCache.Save();
-            ReplayHeadersCache.SaveCache();
+            ReplayManager.SaveCache();
             ConfigFileData.Instance.LastSessionModVersion = Version.ToString();
+            ConfigFileData.Save();
         }
 
         #endregion

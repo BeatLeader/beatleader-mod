@@ -1,31 +1,29 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using BeatLeader.API.RequestDescriptors;
+﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Utils;
-using UnityEngine;
-using UnityEngine.Networking;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    internal static class GetOculusUserRequest {
+namespace BeatLeader.API {
+
+    internal class GetOculusUserRequest : PersistentSingletonWebRequestBase<GetOculusUserRequest, OculusUserInfo, JsonResponseParser<OculusUserInfo>> {
         // /oculususer
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/oculususer";
 
-        public static IEnumerator SendRequest(Action<OculusUserInfo> onSuccess, Action<string> onFail) {
-            var ticketTask = Authentication.PlatformTicket();
-            yield return new WaitUntil(() => ticketTask.IsCompleted);
+        public static async Task Send() {
+            var authToken = await Authentication.PlatformTicket();
                 
-            var authToken = ticketTask.Result;
             if (authToken == null) {
-                onFail("Authentication failed");
-                yield break;
+                Instance_StateChangedEvent(null, WebRequests.RequestState.Failed, "Authentication failed");
+                return;
             }
 
-            var requestDescriptor = new JsonPostRequestDescriptor<OculusUserInfo>(Endpoint, new List<IMultipartFormSection> {
-                new MultipartFormDataSection("token", authToken),
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("token", authToken)
             });
-            yield return NetworkingUtils.SimpleRequestCoroutine(requestDescriptor, onSuccess, onFail);
+            SendRet(Endpoint, HttpMethod.Post, formContent);
         }
     }
 }

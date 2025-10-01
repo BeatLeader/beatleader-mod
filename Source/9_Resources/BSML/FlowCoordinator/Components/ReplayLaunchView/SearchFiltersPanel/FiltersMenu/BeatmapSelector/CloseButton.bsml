@@ -1,6 +1,0 @@
-﻿<icon-button id="button" 
-             icon="#bl-cross-icon" 
-             skew="0" 
-             on-click="click" 
-             pref-height="10" 
-             pref-width="8"/>

@@ -1,6 +1,5 @@
 ﻿using BeatLeader.Interop;
 using BeatLeader.Models;
-using BeatLeader.Replayer.Emulation;
 using Zenject;
 
 namespace BeatLeader.Replayer.Tweaking {
@@ -10,26 +9,28 @@ namespace BeatLeader.Replayer.Tweaking {
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
 
         public override void Initialize() {
-            HandlePriorityPlayerChanged(_playersManager.PriorityPlayer!);
-            _playersManager.PriorityPlayerWasChangedEvent += HandlePriorityPlayerChanged;
+            HandlePrimaryPlayerChanged(_playersManager.PrimaryPlayer);
+            _playersManager.PrimaryPlayerWasChangedEvent += HandlePrimaryPlayerChanged;
             _beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
-            _beatmapTimeController.SongWasRewoundEvent += HandleSongWasRewound;
-        }
-        public override void Dispose() {
-            Cam2Interop.HeadTransform = null;
-            _playersManager.PriorityPlayerWasChangedEvent -= HandlePriorityPlayerChanged;
-            _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
-            _beatmapTimeController.SongWasRewoundEvent -= HandleSongWasRewound;
+            _beatmapTimeController.EarlySongWasRewoundEvent += HandleSongWasRewound;
         }
 
-        private void HandlePriorityPlayerChanged(VirtualPlayer player) {
-            Cam2Interop.HeadTransform = player.ControllersProvider!.Head.transform;
+        public override void Dispose() {
+            Cam2Interop.UnbindMovementProcessor();
+            _playersManager.PrimaryPlayerWasChangedEvent -= HandlePrimaryPlayerChanged;
+            _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
+            _beatmapTimeController.EarlySongWasRewoundEvent -= HandleSongWasRewound;
         }
-        
+
+        private void HandlePrimaryPlayerChanged(IVirtualPlayer player) {
+            Cam2Interop.UnbindMovementProcessor();
+            Cam2Interop.BindMovementProcessor(player.MovementProcessor);
+        }
+
         private void HandleNoteWasDespawned(NoteController controller) {
             CustomNotesInterop.TryDespawnCustomObject(controller);
         }
-        
+
         private void HandleSongWasRewound(float time) {
             NoodleExtensionsInterop.RequestReprocess();
         }

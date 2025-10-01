@@ -1,115 +1,90 @@
-﻿using System.Runtime.CompilerServices;
+using System;
+using System.IO;
+using System.Runtime.CompilerServices;
 using BeatLeader.Models;
-using Hive.Versioning;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
-
-[assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Version = Hive.Versioning.Version;
 
 namespace BeatLeader {
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal class ConfigFileData {
-        public static ConfigFileData Instance { get; set; } = null!;
+        #region Serialization
 
-        #region ConfigVersion
+        private const string ConfigPath = "UserData\\BeatLeader.json";
 
-        public const string CurrentConfigVersion = "1.0";
+        public static void Initialize() {
+            if (File.Exists(ConfigPath)) {
+                var text = File.ReadAllText(ConfigPath);
 
-        [UsedImplicitly]
-        public virtual string ConfigVersion { get; set; } = CurrentConfigVersion;
+                try {
+                    var instance = JsonConvert.DeserializeObject<ConfigFileData>(text);
+
+                    Instance = instance ?? throw new Exception("A deserialized instance was null");
+
+                    Plugin.Log.Debug("Config initialized");
+                    return;
+                } catch (Exception ex) {
+                    Plugin.Log.Error($"Failed to load config (default will be used):\n{ex}");
+                }
+            }
+
+            Instance = new();
+        }
+
+        public static void Save() {
+            try {
+                var text = JsonConvert.SerializeObject(
+                    Instance,
+                    Formatting.Indented,
+                    new JsonSerializerSettings {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                        Converters = {
+                            new StringEnumConverter()
+                        }
+                    }
+                );
+
+                File.WriteAllText(ConfigPath, text);
+                Plugin.Log.Debug("Config saved");
+            } catch (Exception ex) {
+                Plugin.Log.Error($"Failed to save configuration:\n{ex}");
+            }
+        }
+
+        public static ConfigFileData Instance { get; private set; } = null!;
 
         #endregion
 
-        #region ModVersion
-
-        [UsedImplicitly]
-        public string LastSessionModVersion { get; set; } = Version.Zero.ToString();
-
-        #endregion
+        #region Config
         
-        #region Enabled
-
+        public string LastSessionModVersion = Version.Zero.ToString();
+        
         public bool Enabled = ConfigDefaults.Enabled;
         public bool NoticeboardEnabled = true;
-
-        #endregion
-        
-        #region MenuButtonEnabled
-
         public bool MenuButtonEnabled = ConfigDefaults.MenuButtonEnabled;
-
-        #endregion
-
-        #region BeatLeaderServer
-
-        [UseConverter]
+        
+        // Accessibility
+        public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
         public BeatLeaderServer MainServer = ConfigDefaults.MainServer;
-
-        #endregion
-
-        #region ScoresContext
-
-        [UseConverter]
+        
+        // Leaderboard
+        public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
+        public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
         public int ScoresContext = ConfigDefaults.ScoresContext;
 
-        #endregion
-
-        #region LeaderboardTableMask
-
-        [UseConverter]
-        public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
-
-        #endregion
-
-        #region LeaderboardDisplaySettings
-
-        public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
-
-        #endregion
-
-        #region ReplayerSettings
-
-        public InternalReplayerCameraSettings InternalReplayerCameraSettings { get; set; } = ConfigDefaults.InternalReplayerCameraSettings;
-
-        public ReplayerSettings ReplayerSettings {
-            get {
-                _replayerSettings.CameraSettings = InternalReplayerCameraSettings;
-                return _replayerSettings;
-            }
-            set => _replayerSettings = value;
-        }
+        // Hub
+        public BeatLeaderHubTheme HubTheme = ConfigDefaults.HubTheme;
         
-        private ReplayerSettings _replayerSettings = ConfigDefaults.ReplayerSettings;
-
-        #endregion
-
-        #region ReplaySavingSettings
-
-        public bool EnableReplayCaching = ConfigDefaults.EnableReplayCaching;
-
-        public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;
-
+        // Replayer
+        public ReplayerSettings ReplayerSettings = ConfigDefaults.ReplayerSettings;
+        
+        // Replays
         public bool SaveLocalReplays = ConfigDefaults.SaveLocalReplays;
-        
-        [UseConverter]
+        public bool OverrideOldReplays = ConfigDefaults.OverrideOldReplays;
         public ReplaySaveOption ReplaySavingOptions = ConfigDefaults.ReplaySavingOptions;
-
-        #endregion
-
-        #region Language
-
-        [UseConverter]
-        public BLLanguage SelectedLanguage = ConfigDefaults.SelectedLanguage;
-
-        #endregion
-
-        #region OnReload
-
-        [UsedImplicitly]
-        public virtual void OnReload() {
-            if (ConfigVersion != CurrentConfigVersion) ConfigVersion = CurrentConfigVersion;
-        }
 
         #endregion
     }

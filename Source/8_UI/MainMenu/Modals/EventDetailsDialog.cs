@@ -1,4 +1,4 @@
-﻿using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;
@@ -49,21 +49,14 @@ namespace BeatLeader.UI.MainMenu {
             _loadingContainer.SetActive(false);
         }
 
-        [UIAction("download-button-click"), UsedImplicitly]
-        private void HandleDownloadButtonClicked() {
-            _eventContainer.SetActive(false);
-            _loadingContainer.SetActive(true);
-            offClickCloses = false;
+        private async Task DownloadPlaylist() {
+            var result = await PlaylistRequest.Send(Context.playlistId.ToString()).Join();
 
-            StopAllCoroutines();
-            StartCoroutine(PlaylistRequest.SendRequest(Context.playlistId.ToString(), OnSuccess, OnFail));
-            return;
-
-            async void OnSuccess(byte[] bytes) {
+            if (result.RequestState == WebRequests.RequestState.Finished) {
                 var filename = Context.name.Replace(" ", "_");
                 FileManager.DeletePlaylist(filename);
 
-                if (FileManager.TrySaveRankedPlaylist(filename, bytes)) {
+                if (FileManager.TrySaveRankedPlaylist(filename, result.Result)) {
                     PlaylistsLibInterop.TryRefreshPlaylists(true);
                     SongCore.Loader.Instance.RefreshSongs(false);
                     await Task.Delay(TimeSpan.FromSeconds(2));
@@ -85,13 +78,20 @@ namespace BeatLeader.UI.MainMenu {
 
                 offClickCloses = true;
                 Close();
-            }
-
-            void OnFail(string reason) {
-                Plugin.Log.Debug($"Event {Context.name} playlist update failed: {reason}");
+            } else if (result.RequestState == WebRequests.RequestState.Failed) {
+                Plugin.Log.Debug($"Event {Context.name} playlist update failed: {result.FailReason}");
                 offClickCloses = true;
                 Close();
             }
+        }
+
+        [UIAction("download-button-click"), UsedImplicitly]
+        private void HandleDownloadButtonClicked() {
+            _eventContainer.SetActive(false);
+            _loadingContainer.SetActive(true);
+            offClickCloses = false;
+
+            DownloadPlaylist().RunCatching();
         }
 
         #endregion

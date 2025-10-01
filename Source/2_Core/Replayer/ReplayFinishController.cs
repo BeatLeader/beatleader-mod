@@ -2,6 +2,7 @@
 using BeatLeader.Utils;
 using IPA.Utilities;
 using System;
+using BeatLeader.Models.AbstractReplay;
 using UnityEngine;
 using Zenject;
 
@@ -17,7 +18,10 @@ namespace BeatLeader.Replayer {
         [Inject] private readonly IMenuButtonTrigger _pauseButtonTrigger = null!;
         [Inject] private readonly IReplayTimeController _timeController = null!;
 
-        public bool ExitAutomatically => _launchData.Settings.ExitReplayAutomatically;
+        public bool ExitAutomatically {
+            get => _launchData.Settings.ExitReplayAutomatically;
+            set => _launchData.Settings.ExitReplayAutomatically = value;
+        }
 
         public event Action? ReplayWasLeftEvent;
         public event Action? ReplayWasFinishedEvent;
@@ -60,7 +64,7 @@ namespace BeatLeader.Replayer {
         }
 
         private void HandleReplayFinished() {
-            if (_launchData.IsBattleRoyale || _launchData.MainReplay.ReplayData.FailTime != 0) return;
+            if (_launchData.IsBattleRoyale || _launchData.MainReplay.ReplayData.FinishType is ReplayFinishType.Failed) return;
             HandleLevelFinished();
         }
         

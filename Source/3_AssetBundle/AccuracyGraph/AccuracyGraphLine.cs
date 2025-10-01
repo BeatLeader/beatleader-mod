@@ -28,7 +28,9 @@ namespace BeatLeader {
             var screenRect = RectTransformUtility.PixelAdjustRect(rectTransform, canvas);
             var screenViewTransform = new ScreenViewTransform(screenRect, _viewRect);
 
-            _graphMeshHelper.SetPoints(_points);
+            if (_points != null) {
+                _graphMeshHelper.SetPoints(_points);
+            }
             _graphMeshHelper.PopulateMesh(vh, screenViewTransform, _canvasRadius);
         }
 
@@ -36,7 +38,7 @@ namespace BeatLeader {
 
         #region Setup
 
-        private List<Vector2> _points;
+        private List<Vector2>? _points;
         private float _canvasRadius;
         private Rect _viewRect = Rect.MinMaxRect(0, 0, 1, 1);
 

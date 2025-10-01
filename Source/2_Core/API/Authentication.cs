@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 using BS_Utils.Gameplay;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace BeatLeader.API {
-
     internal static class Authentication {
-        #region AuthPlatform
-
-        public static AuthPlatform Platform { get; private set; }
-
-        public static void SetPlatform(AuthPlatform platform) {
-            Platform = platform;
-        }
+        #region Platform
 
         public enum AuthPlatform {
             Undefined,
@@ -26,21 +17,27 @@ namespace BeatLeader.API {
             OculusPC
         }
 
-        #endregion
+        public static AuthPlatform Platform { get; private set; }
 
-        #region Ticket
+        public static void SetPlatform(AuthPlatform platform) {
+            Platform = platform;
+        }
 
-        public static async Task<string> PlatformTicket() {
+        public static async Task<string?> PlatformTicket() {
             await GetUserInfo.GetUserAsync();
-            var platformUserModel = Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>().Select(l => l._platformUserModel).LastOrDefault(p => p != null);
 
-            UserInfo userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
+            var platformUserModel = Resources
+                .FindObjectsOfTypeAll<PlatformLeaderboardsModel>()
+                .Select(l => l._platformUserModel)
+                .Last(x => x != null);
+
+            var userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
             var tokenProvider = new PlatformAuthenticationTokenProvider(platformUserModel, userInfo);
 
             return Platform switch {
-                AuthPlatform.Steam => (await tokenProvider.GetAuthenticationToken()).sessionToken,
+                AuthPlatform.Steam    => (await tokenProvider.GetAuthenticationToken()).sessionToken,
                 AuthPlatform.OculusPC => (await tokenProvider.GetXPlatformAccessToken(CancellationToken.None)).token,
-                _ => throw new ArgumentOutOfRangeException()
+                _                     => throw new ArgumentOutOfRangeException()
             };
         }
 
@@ -48,90 +45,62 @@ namespace BeatLeader.API {
 
         #region Login
 
-        private static bool _locked;
+        private static TaskCompletionSource<bool> _taskSource = new();
         private static bool _signedIn;
 
         public static void ResetLogin() {
-            UnityWebRequest.ClearCookieCache(new Uri(BLConstants.BEATLEADER_API_URL));
+            WebRequestFactory.CookieContainer.SetCookies(new Uri(BLConstants.BEATLEADER_API_URL), "");
             _signedIn = false;
+            _taskSource = new();
         }
 
-        public static IEnumerator EnsureLoggedIn(Action onSuccess, Action<string> onFail) {
-            while (true) {
-                if (!_locked) {
-                    _locked = true;
-                    break;
-                }
-
-                yield return new WaitUntil(() => !_locked);
-            }
-
-            try {
-                if (_signedIn) {
-                    onSuccess();
-                    yield break;
-                }
-
-                yield return DoLogin(() => {
-                    _signedIn = true;
-                    onSuccess();
-                }, onFail);
-            } finally {
-                _locked = false;
-            }
+        public static Task<bool> WaitLogin() {
+            return _taskSource.Task;
         }
 
-        private static IEnumerator DoLogin(Action onSuccess, Action<string> onFail) {
+        public static async Task Login() {
+            if (_signedIn) return;
+
             if (!TryGetPlatformProvider(Platform, out var provider)) {
                 Plugin.Log.Debug("Login failed! Unknown platform");
-                onFail("Unknown platform");
-                yield break;
+                return;
             }
-            
-            var ticketTask = PlatformTicket();
-            yield return new WaitUntil(() => ticketTask.IsCompleted);
 
-            var authToken = ticketTask.Result;
+            var authToken = await PlatformTicket();
             if (authToken == null) {
                 Plugin.Log.Debug("Login failed! No auth token");
-                onFail("No auth token");
-                yield break;
+                return;
             }
 
-            var form = new List<IMultipartFormSection> {
-                new MultipartFormDataSection("ticket", authToken),
-                new MultipartFormDataSection("provider", provider),
-                new MultipartFormDataSection("returnUrl", "/")
-            };
+            var result = await AuthRequest.Send(authToken, provider!).Join();
 
-            var request = UnityWebRequest.Post(BLConstants.SIGNIN_WITH_TICKET, form);
-            
-            yield return request.SendWebRequest();
-
-            switch (request.responseCode) {
+            switch ((int)result.RequestStatusCode) {
                 case 200:
                     Plugin.Log.Info("Login successful!");
-                    onSuccess();
+                    _signedIn = true;
+                    _taskSource.SetResult(true);
                     break;
+                
                 case BLConstants.MaintenanceStatus:
                     Plugin.Log.Debug("Login failed! Maintenance");
-                    onFail("Maintenance");
                     break;
+                
                 default:
-                    Plugin.Log.Debug($"Login failed! status: {request.responseCode} error: {request.error}");
-                    onFail($"NetworkError: {request.responseCode}");
+                    Plugin.Log.Debug($"Login failed! status: {result.RequestStatusCode} error: {result.FailReason}");
                     break;
             }
         }
 
-        private static bool TryGetPlatformProvider(AuthPlatform platform, out string provider) {
+        private static bool TryGetPlatformProvider(AuthPlatform platform, out string? provider) {
             switch (platform) {
                 case AuthPlatform.Steam:
                     provider = "steamTicket";
                     return true;
+                
                 case AuthPlatform.OculusPC:
                     provider = "oculusTicket";
                     return true;
+                
                 case AuthPlatform.Undefined:
                 default:
                     provider = null;

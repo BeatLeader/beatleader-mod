@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -54,16 +54,16 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             InitializeBackground();
 
-            AddFriendRequest.AddStateListener(OnAddFriendRequestStateChanged);
-            RemoveFriendRequest.AddStateListener(OnRemoveFriendRequestStateChanged);
+            AddFriendRequest.StateChangedEvent += OnAddFriendRequestStateChanged;
+            RemoveFriendRequest.StateChangedEvent += OnRemoveFriendRequestStateChanged;
             ProfileManager.FriendsUpdatedEvent += UpdateFriendButton;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateHideButton;
             UpdateLayout();
         }
 
         protected override void OnDispose() {
-            AddFriendRequest.RemoveStateListener(OnAddFriendRequestStateChanged);
-            RemoveFriendRequest.RemoveStateListener(OnRemoveFriendRequestStateChanged);
+            AddFriendRequest.StateChangedEvent -= OnAddFriendRequestStateChanged;
+            RemoveFriendRequest.StateChangedEvent -= OnRemoveFriendRequestStateChanged;
             ProfileManager.FriendsUpdatedEvent -= UpdateFriendButton;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateHideButton;
         }
@@ -98,13 +98,13 @@ namespace BeatLeader.Components {
             _friendButton.OnClick += FriendButtonOnClick;
         }
 
-        private void OnAddFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
-            _addingFriend = state is API.RequestState.Started;
+        private void OnAddFriendRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
+            _addingFriend = state is WebRequests.RequestState.Started;
             UpdateFriendButton();
         }
 
-        private void OnRemoveFriendRequestStateChanged(API.RequestState state, Player result, string failReason) {
-            _removingFriend = state is API.RequestState.Started;
+        private void OnRemoveFriendRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
+            _removingFriend = state is WebRequests.RequestState.Started;
             UpdateFriendButton();
         }
 

@@ -2,63 +2,48 @@
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using BeatLeader.API.RequestHandlers;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using BeatLeader.Utils;
-using UnityEngine.Networking;
+using System.Net.Http;
+using BeatLeader.WebRequests;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
-namespace BeatLeader.API.Methods {
-    internal class UploadPlayRequest : PersistentSingletonRequestHandler<UploadPlayRequest, Score> {
+namespace BeatLeader.API {
+    internal class UploadPlayRequest : PersistentSingletonWebRequestBase<UploadPlayRequest, Score, JsonResponseParser<Score>> {
         private static string WithCookieEndpoint => BLConstants.BEATLEADER_API_URL + "/replayoculus?{0}";
 
-        private const int UploadRetryCount = 1;
-        private const int UploadTimeoutSeconds = 15;
-
-        protected override bool KeepState => false;
-        protected override bool AllowConcurrentRequests => true;
-
-        public static void SendRequest(Replay replay, PlayEndData data) {
-            var requestDescriptor = new UploadWithCookieRequestDescriptor(replay, data);
-            Instance.Send(requestDescriptor, UploadRetryCount, UploadTimeoutSeconds);
-        }
-
-        #region RequestDescriptor
-
-        private class UploadWithCookieRequestDescriptor : IWebRequestDescriptor<Score> {
-            private readonly byte[] _compressedData;
-            private readonly PlayEndData _data;
-
-            public UploadWithCookieRequestDescriptor(Replay replay, PlayEndData data) {
-                _compressedData = CompressReplay(replay);
-                _data = data;
-            }
-
-            public UnityWebRequest CreateWebRequest() {
+        public static void Send(Replay replay, PlayEndData data) {
+            Task.Run(() => {
                 var query = new Dictionary<string, object>() {
-                    { "type", (int)_data.EndType },
-                    { "time", _data.Time }
+                    { "type", (int)data.EndType },
+                    { "time", data.Time }
                 };
                 var url = string.Format(WithCookieEndpoint, NetworkingUtils.ToHttpParams(query));
-                var request = UnityWebRequest.Put(url, _compressedData);
-                request.SetRequestHeader("Content-Encoding", "gzip");
-                return request;
-            }
 
-            public Score ParseResponse(UnityWebRequest request) {
-                return null;
-            }
+                var compressedData = CompressReplay(replay);
+                var content = new ByteArrayContent(compressedData);
+                content.Headers.ContentEncoding.Add("gzip");
 
-            private static byte[] CompressReplay(Replay replay) {
-                MemoryStream stream = new();
-                using (var compressedStream = new GZipStream(stream, CompressionLevel.Optimal)) {
-                    ReplayEncoder.Encode(replay, new BinaryWriter(compressedStream, Encoding.UTF8));
-                }
-
-                return stream.ToArray();
-            }
+                SendRet(url, 
+                    HttpMethod.Put, 
+                    content, 
+                    new WebRequestParams {
+                        RetryCount = 1,
+                        TimeoutSeconds = 15
+                    }
+                );
+            }).RunCatching();
         }
 
-        #endregion
+        private static byte[] CompressReplay(Replay replay) {
+            MemoryStream stream = new();
+            using (var compressedStream = new GZipStream(stream, CompressionLevel.Optimal)) {
+                ReplayEncoder.Encode(replay, new BinaryWriter(compressedStream, Encoding.UTF8));
+            }
+
+            return stream.ToArray();
+        }
     }
 }

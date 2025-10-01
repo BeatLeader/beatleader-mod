@@ -1,13 +1,12 @@
-﻿using BeatLeader.API.RequestDescriptors;
-using BeatLeader.API.RequestHandlers;
+﻿using System.Net.Http;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    public class TrendingMapsRequest : PersistentSingletonRequestHandler<TrendingMapsRequest, Paged<TrendingMapData>> {
-        public static void SendRequest() {
-            var descriptor = new JsonGetRequestDescriptor<Paged<TrendingMapData>>($"{BLConstants.BEATLEADER_API_URL}/mod/maps/trending");
-            Instance.Send(descriptor);
+namespace BeatLeader.API {
+    public class TrendingMapsRequest : PersistentSingletonWebRequestBase<TrendingMapsRequest, Paged<TrendingMapData>, JsonResponseParser<Paged<TrendingMapData>>> {
+        public static void Send() {
+            SendRet($"{BLConstants.BEATLEADER_API_URL}/mod/maps/trending", HttpMethod.Get);
         }
     }
 }

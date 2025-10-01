@@ -1,32 +1,31 @@
 ﻿using System;
-using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Models;
+using BeatLeader.Utils;
 using UnityEngine;
 
 namespace BeatLeader.DataManager {
     public class LeaderboardInfoManager : MonoBehaviour {
         #region Start
 
-        private static TaskCompletionSource<bool> TaskSource = new TaskCompletionSource<bool>();
+        private static TaskCompletionSource<bool>? _taskSource;
+        
         public static Task RefreshTask() {
-            return TaskSource.Task;
+            return _taskSource?.Task ?? Task.CompletedTask;
         }
 
         private void Start() {
-            StartCoroutine(RunCoroutine(FullCacheUpdateTask(), TaskSource));
+            _taskSource = new();
+            FullCacheUpdate().RunCatching();
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
-        }
-
-        private IEnumerator RunCoroutine(IEnumerator coroutine, TaskCompletionSource<bool> tcs) {
-            if (tcs.Task.IsCompleted) yield break;
-            yield return StartCoroutine(coroutine);
-            tcs.SetResult(true);
+            LeaderboardRequest.StateChangedEvent += LeaderboardRequest_StateChangedEvent;
         }
 
         private void OnDestroy() {
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapWasChanged);
+            LeaderboardRequest.StateChangedEvent -= LeaderboardRequest_StateChangedEvent;
         }
 
         #endregion
@@ -41,38 +40,33 @@ namespace BeatLeader.DataManager {
             UpdateLeaderboardsByHash(leaderboardKey.Hash);
         }
 
-        private Coroutine _selectedLeaderboardUpdateCoroutine;
-
         private void UpdateLeaderboardsByHash(string hash) {
-            if (_selectedLeaderboardUpdateCoroutine != null) StopCoroutine(_selectedLeaderboardUpdateCoroutine);
+            LeaderboardRequest.Send(hash);
+        }
 
-            void OnSuccess(HashLeaderboardsInfoResponse result) {
-                foreach (var leaderboardInfo in result.leaderboards) {
-                    LeaderboardsCache.PutLeaderboardInfo(
-                        result.song,
+        private void LeaderboardRequest_StateChangedEvent(WebRequests.IWebRequest<HashLeaderboardsInfoResponse> instance, WebRequests.RequestState state, string? failReason) {
+            if (state == WebRequests.RequestState.Finished) {
+                var updates = instance.Result.leaderboards.Select(leaderboardInfo => LeaderboardsCache.PutLeaderboardInfo(
+                        instance.Result.song,
                         leaderboardInfo.id,
                         leaderboardInfo.difficulty,
                         leaderboardInfo.qualification,
                         leaderboardInfo.clan,
                         leaderboardInfo.clanRankingContested
-                        );
-                }
+                        ))
+                    .ToArray();
 
-                LeaderboardsCache.NotifyCacheWasChanged();
+                LeaderboardsCache.NotifyCacheWasChanged(updates);
+            } else if (state == WebRequests.RequestState.Failed) {
+                Plugin.Log.Debug($"UpdateLeaderboardsByHash failed! {failReason}");
             }
-
-            void OnFail(string reason) {
-                Plugin.Log.Debug($"UpdateLeaderboardsByHash failed! {reason}");
-            }
-
-            _selectedLeaderboardUpdateCoroutine = StartCoroutine(LeaderboardsRequest.SendSingleRequest(hash, OnSuccess, OnFail));
         }
 
         #endregion
 
         #region FullCacheUpdate
 
-        private static IEnumerator FullCacheUpdateTask() {
+        private static async Task FullCacheUpdate() {
             var lastTimestamp = LeaderboardsCache.LastCheckTime;
             var newTimestamp = DateTime.UtcNow.ToUnixTime();
             
@@ -103,8 +97,15 @@ namespace BeatLeader.DataManager {
             }
 
             do {
-                yield return LeaderboardsRequest.SendRankingRequest(lastTimestamp, page, itemsPerPage, OnSuccess, OnFail);
+                var result = await LeaderboardsRequest.Send(lastTimestamp, page, itemsPerPage).Join();
+                if (result.RequestState == WebRequests.RequestState.Finished) {
+                    OnSuccess(result.Result);
+                } else if (result.RequestState == WebRequests.RequestState.Failed) {
+                    OnFail(result.FailReason);
+                }
             } while (!failed && page <= totalPages);
+
+            _taskSource!.SetResult(true);
 
             if (!failed) LeaderboardsCache.LastCheckTime = newTimestamp;
             LeaderboardsCache.NotifyCacheWasChanged();

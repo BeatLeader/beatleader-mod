@@ -1,45 +1,83 @@
-﻿using BeatLeader.DataManager;
+using System;
+using BeatLeader.API;
+using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.ViewControllers;
 using BeatLeader.Replayer;
+using BeatLeader.Replayer.Emulation;
+using BeatLeader.UI.Hub;
+using BeatLeader.Utils;
 using JetBrains.Annotations;
+using UnityEngine;
 using Zenject;
 using BeatLeader.Components;
 
 namespace BeatLeader.Installers {
     [UsedImplicitly]
     public class OnMenuInstaller : Installer<OnMenuInstaller> {
+        internal new static DiContainer Container => _container ?? throw new InvalidOperationException();
+
+        private static DiContainer? _container;
+
         public override void InstallBindings() {
             Plugin.Log.Debug("OnMenuInstaller");
+            
+            Authentication.Login().RunCatching();
 
+            _container = base.Container;
             BindLeaderboard();
+            BindHub();
             Container.Bind<ReplayerLauncher>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerMenuLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<ReplayerViewNavigator>().AsSingle();
             if (HeckInterop.IsInstalled) {
                 Container.BindInterfacesTo<HeckNavigationFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
             } else {
-                Container.Bind<IReplayerViewNavigator>().To<ReplayerMenuLoader>().FromResolve();
+                Container.Bind<IReplayerViewNavigator>().To<ReplayerViewNavigator>().FromResolve();
             }
             Container.BindInterfacesAndSelfTo<ModifiersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            // Container.BindInterfacesAndSelfTo<MonkeyHeadManager>().AsSingle();
         }
 
         private void BindLeaderboard() {
             Container.BindInterfacesAndSelfTo<LeaderboardView.PreParser>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<LeaderboardPanel.PreParser>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
+
             Container.BindInterfacesAndSelfTo<LeaderboardView>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardPanel>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<BeatLeaderCustomLeaderboard>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardHeaderManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardInfoManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+        }
 
+        private void BindHub() {
+            //<----------------------------------HUB---------------------------------->
+            Container.Bind<BeatLeaderHubTheme>().FromInstance(ConfigFileData.Instance.HubTheme).AsSingle();
             Container.Bind<BeatLeaderMenuButtonManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<BeatLeaderFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayLaunchViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<BeatLeaderHubAvatarController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatLeaderHubFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BeatLeaderHubMainViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<BeatLeaderMiniScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
 
-            _ = BeatmapDifficultyPanel.BeatmapDifficultySegmentedControl;
-            _ = BeatmapCharacteristicPanel.BeatmapCharacteristicSegmentedControl;
+            var go = Container.Resolve<LevelSelectionNavigationController>().gameObject;
+            Container.Bind<LevelSelectionViewController>().FromNewComponentOn(go).AsSingle();
+            Container.Bind<UI.Hub.LevelSelectionFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<ReplayPreviewLoader>().AsSingle();
+            //<-----------------------------Replay Manager---------------------------->
+            Container.Bind<ReplayManagerFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<ReplayManagerViewController>().FromNewComponentAsViewController().AsSingle();
+            //<-----------------------------Battle Royale----------------------------->
+            Container.Bind<BeatAvatarLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.Bind<BattleRoyaleAvatarsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindMemoryPool<BattleRoyaleAvatar, BattleRoyaleAvatar.Pool>().FromNewComponentOnNewPrefab(new GameObject("BattleRoyaleAvatar"));
+            Container.Bind<BattleRoyaleMenuStuffController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<BattleRoyaleFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<BattleRoyaleOpponentsViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<BattleRoyaleReplaySelectionViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<BattleRoyaleBattleSetupViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<BattleRoyaleGreetingsViewController>().FromNewComponentAsViewController().AsSingle();
+            //<--------------------------------Settings------------------------------->
+            Container.Bind<BeatLeaderSettingsFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<BeatLeaderSettingsViewController>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }

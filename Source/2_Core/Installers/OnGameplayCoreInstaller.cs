@@ -6,7 +6,6 @@ using BeatLeader.Utils;
 using HarmonyLib;
 using SiraUtil.Submissions;
 using Zenject;
-using UnityEngine;
 using BeatLeader.Replayer.Emulation;
 using BeatLeader.Components;
 using BeatLeader.ViewControllers;
@@ -16,6 +15,9 @@ using BeatLeader.Replayer.Tweaking;
 using BeatLeader.Replayer.Binding;
 using BeatLeader.UI;
 using BeatLeader.Models;
+using BeatLeader.Models.AbstractReplay;
+using BeatLeader.UI.Replayer;
+using BeatLeader.UI.Replayer.Desktop;
 using IPA.Loader;
 
 namespace BeatLeader.Installers {
@@ -37,6 +39,7 @@ namespace BeatLeader.Installers {
                 RecorderUtils.shouldRecord = false;
 
                 #region Gates
+
                 if (PluginManager.GetPluginFromId("ScoreSaber") != null && ScoreSaber_playbackEnabled != null && (bool)ScoreSaber_playbackEnabled.Invoke(null, null) == false) {
                     Plugin.Log.Debug("SS replay is running, BL Replay Recorder will not be started!");
                     return;
@@ -46,6 +49,7 @@ namespace BeatLeader.Installers {
                     Plugin.Log.Debug("Not allowed game mode, BL Replay Recorder will not be started!");
                     return;
                 }
+
                 #endregion
 
                 Plugin.Log.Debug("Starting a BL Replay Recorder...");
@@ -65,41 +69,92 @@ namespace BeatLeader.Installers {
             DisableScoreSubmission();
 
             //Dependencies
-            Container.Bind<ReplayLaunchData>().FromInstance(ReplayerLauncher.LaunchData!).AsSingle();
-            Container.Bind<ReplayerExtraObjectsProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            var launchData = ReplayerLauncher.LaunchData!;
+            var replaysCount = launchData.Replays.Count;
 
-            //Core logic(Playback)
+            Container.Bind<ReplayLaunchData>().FromInstance(launchData).AsSingle();
+            Container.BindInterfacesTo<ReplayBeatmapData>().AsSingle();
+            Container.Bind<ReplayerExtraObjectsProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.Bind<ZenjectMenuResolver>().AsSingle();
+
+            //Playback
             Container.BindInterfacesAndSelfTo<ReplayPauseController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayFinishController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayTimeController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
-            Container.BindInterfacesAndSelfTo<OriginalVRControllersProvider>().FromNewComponentOnNewGameObject().AsSingle();
+            //Controllers
+            Container.Bind<VirtualPlayerGameSabers>().AsSingle();
+            Container.BindMemoryPool<VirtualPlayerAvatarBody, VirtualPlayerAvatarBody.Pool>().WithInitialSize(replaysCount - 1);
+            Container.BindMemoryPool<VirtualPlayerBattleRoyaleSabers, VirtualPlayerBattleRoyaleSabers.Pool>().WithInitialSize(replaysCount - 1);
             Container.Bind<MenuControllersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<VRControllersInstantiator>().AsSingle();
-            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(2)
-                .FromComponentInNewPrefab(new GameObject("VirtualPlayerPrefab").AddComponent<VirtualPlayer>());
-            Container.BindInterfacesAndSelfTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
+            InitReplayerOverridable(launchData.ReplayerBindings);
+
+            //Players
+            Container.BindMemoryPool<VirtualPlayer, VirtualPlayer.Pool>().WithInitialSize(replaysCount);
+            Container.BindInterfacesTo<VirtualPlayersManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
+            //Event Processing
+            Container.BindMemoryPool<ReplayBeatmapEventsProcessor, ReplayBeatmapEventsProcessor.Pool>().WithInitialSize(replaysCount);
+            Container.BindMemoryPool<ReplayScoreEventsProcessor, ReplayScoreEventsProcessor.Pool>().WithInitialSize(replaysCount);
+            Container.BindInterfacesTo<ReplayBeatmapEventsProcessorProxy>().AsSingle();
             Container.Bind<ReplayHeightsProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                
-            //Core logic(Notes handling)
-            Container.BindInterfacesAndSelfTo<ReplayEventsProcessor>().AsSingle();
+
+            //Notes handling
             Container.Bind<ReplayerScoreProcessor>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerNotesCutter>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //Tweaks and tools
             Container.Bind<BeatmapVisualsController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            Container.Bind<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesTo<ReplayerCameraController>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<TweaksHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<HotkeysHandler>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<ReplayWatermark>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             //UI
-            Container.Bind<Replayer2DViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<ReplayerVRViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<ReplayerUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            if (InputUtils.UsesFPFC) {
+                Container.Bind<ReplayerDesktopScreenSystem>().FromNewComponentOnNewGameObject().AsSingle();
+                Container.Bind<ReplayerDesktopViewController>().FromNewComponentAsViewController().AsSingle();
+                Container.Bind<ReplayerDesktopUIRenderer>().FromNewComponentOnNewGameObject().AsSingle().Lazy();
+                Container.Bind<ReplayerDesktopUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            } else {
+                Container.Bind<ReplayerFloatingViewController>().FromNewComponentAsViewController().AsSingle();
+                Container.Bind<ReplayerFloatingUIBinder>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            }
 
             Plugin.Log.Notice("[Installer] Replays system successfully installed!");
+        }
+
+        private void InitReplayerOverridable(ReplayerBindings? bindings) {
+            // Comparator
+            if (bindings?.ReplayComparator is { } comparator) {
+                LoadLazyBinding(comparator);
+            } else {
+                Container.Bind<IReplayNoteComparator>().FromInstance(ReplayDataUtils.BasicReplayNoteComparator).AsSingle();
+            }
+
+            // Body Settings 
+            if (bindings?.BodySettingsFactory is { HasValue: true} bodySettings) {
+                if (bodySettings.Value != null) {
+                    LoadLazyBinding(bodySettings.Value);
+                } else {
+                    Container.BindInterfacesTo<EmptyAvatarSettingsViewFactory>().AsSingle();
+                }
+            } else {
+                Container.BindInterfacesTo<BasicAvatarSettingsViewFactory>().AsSingle();
+            }
+            
+            // Body
+            if (bindings?.BodySpawner is { } bodySpawner) {
+                LoadLazyBinding(bodySpawner);
+            } else {
+                Container.BindInterfacesTo<VirtualPlayerBodySpawner>().FromNewComponentOnNewGameObject().AsSingle();
+            }
+        }
+
+        private void LoadLazyBinding<T>(LazyBinding<T> binding) {
+            var binder = Container.Bind<T>();
+            binding(binder);
         }
 
         #endregion

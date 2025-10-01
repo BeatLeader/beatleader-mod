@@ -1,0 +1,63 @@
+﻿using System;
+using IPA.Utilities;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace BeatLeader.UI.Hub {
+    internal class LevelSelectionDetailView : ReactiveComponent {
+        #region Setup
+
+        public Action? OnClick { get; set; }
+        
+        private StandardLevelDetailView? _detailView;
+        private LevelBar? _levelBar;
+        private bool _isInitialized;
+
+        public void Refresh() {
+            if (!_isInitialized || _detailView!._beatmapLevel == null) return;
+            _levelBar!.Setup(_detailView.beatmapKey);
+            _detailView.RefreshContent();
+        }
+
+        public void Setup(StandardLevelDetailView levelDetailView) {
+            if (_isInitialized) return;
+            _detailView = levelDetailView;
+            _levelBar = levelDetailView._levelBar;
+            _levelBar = Object.Instantiate(_levelBar, _levelBarContainer.ContentTransform, false);
+            _levelBar.SetField("_beatmapLevelsModel", _detailView._beatmapLevelsModel);
+            _isInitialized = true;
+        }
+
+        #endregion
+
+        #region Construct
+
+        private Layout _levelBarContainer = null!;
+
+        protected override GameObject Construct() {
+            return new Layout {
+                Children = {
+                    new Layout()
+                        .AsFlexItem(size: new() { x = "100%", y = 14f })
+                        .Bind(ref _levelBarContainer),
+                    //
+                    new BsPrimaryButton {
+                        Text = "SELECT",
+                        Skew = UIStyle.Skew,
+                        OnClick = () => OnClick?.Invoke()
+                    }.AsFlexItem(size: new() { x = 24f, y = 8f })
+                }
+            }.AsFlexGroup(
+                direction: FlexDirection.Column,
+                justifyContent: Justify.Center,
+                alignItems: Align.Center,
+                gap: 2f
+            ).Use();
+        }
+
+        #endregion
+    }
+}

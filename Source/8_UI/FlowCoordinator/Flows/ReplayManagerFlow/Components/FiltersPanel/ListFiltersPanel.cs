@@ -1,0 +1,333 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Components;
+using Reactive.Yoga;
+using UnityEngine;
+
+namespace BeatLeader.UI.Hub {
+    internal interface IPanelListFilter<in T> : IReactiveComponent, ILayoutItem, ITableFilter<T> {
+        IEnumerable<IPanelListFilter<T>>? DependsOn { get; }
+        string FilterName { get; }
+        string FilterStatus { get; }
+    }
+
+    internal class ListFiltersPanel<T> : ReactiveComponent, ITextTableFilter<T> {
+        #region TableFilter
+
+        public Func<T, IEnumerable<string>>? SearchContract { get; set; }
+
+        public event Action? FilterUpdatedEvent;
+
+        private readonly Dictionary<T, string> _matchedItems = new();
+
+        bool ITableFilter<T>.Matches(T value) {
+            var filterMatches = _modal.ActiveFilters.All(x => x.Matches(value));
+            var text = _searchInputField.Text.ToLower();
+            if (!filterMatches) return false;
+            if (!string.IsNullOrEmpty(text) && SearchContract != null) {
+                var strings = SearchContract(value);
+                var matches = strings.Any(str => str.ToLower().Contains(text));
+                if (matches) _matchedItems[value] = text;
+                return matches;
+            }
+            return true;
+        }
+
+        public string? GetMatchedPhrase(T value) {
+            if (string.IsNullOrEmpty(_searchInputField.Text)) return null;
+            _matchedItems.TryGetValue(value, out var res);
+            return res;
+        }
+
+        #endregion
+
+        #region Filters
+
+        public ICollection<IPanelListFilter<T>> Filters => _filters;
+
+        private ObservableCollectionAdapter<IPanelListFilter<T>> _filters = null!;
+
+        #endregion
+
+        #region FilterContainer
+
+        private class FilterContainer : ReactiveComponent {
+            #region Setup
+
+            public bool FilterEnabled {
+                get => _enableToggle.Active;
+                set {
+                    _enableToggle.SetActive(value);
+                    HandleButtonClicked(true);
+                }
+            }
+
+            public event Action<IPanelListFilter<T>, bool>? FilterUpdatedEvent;
+
+            private IPanelListFilter<T>? _filter;
+
+            public void Setup(IPanelListFilter<T>? filter) {
+                if (_filter != null) {
+                    _filterContainer.OpenedView = null;
+                    _filter.FilterUpdatedEvent -= HandleFilterUpdated;
+                }
+                _filter = filter;
+                if (_filter != null) {
+                    _filterContainer.OpenedView = _filter;
+                    _filter.FilterUpdatedEvent += HandleFilterUpdated;
+                    _placeholder.Text = _filter.FilterName;
+                }
+            }
+
+            private void HandleButtonClicked(bool silent) {
+                _filterContainer.Opened = FilterEnabled;
+                if (silent) return;
+                FilterUpdatedEvent?.Invoke(_filter!, FilterEnabled);
+            }
+
+            private void HandleFilterUpdated() {
+                FilterUpdatedEvent?.Invoke(_filter!, FilterEnabled);
+            }
+
+            #endregion
+
+            #region Construct
+
+            private Label _placeholder = null!;
+            private PushContainer _filterContainer = null!;
+            private CheckCircle _enableToggle = null!;
+
+            protected override GameObject Construct() {
+                return new Layout {
+                    Children = {
+                        new PushContainer {
+                            ClosedView = new Label()
+                                .Bind(ref _placeholder),
+                            BackgroundImage = {
+                                Color = (Color.white * 0.9f).ColorWithAlpha(1f)
+                            }
+                        }.AsFlexItem(flexGrow: 1f).Bind(ref _filterContainer),
+                        //
+                        new Background {
+                            Color = (Color.white * 0.9f).ColorWithAlpha(1f),
+                            Children = {
+                                new CheckCircle {
+                                    OnStateChanged = _ => HandleButtonClicked(false)
+                                }.AsFlexItem(size: 3f).Bind(ref _enableToggle)
+                            }
+                        }.AsFlexGroup(
+                            alignItems: Align.Center,
+                            padding: 1f
+                        ).AsFlexItem(
+                            size: "auto"
+                        ).AsBlurBackground()
+                    }
+                }.AsFlexGroup(gap: 1f).Use();
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region FiltersModal
+
+        private class FiltersModal : ModalBase {
+            #region Filter Dependencies
+
+            private readonly Dictionary<IPanelListFilter<T>, List<IPanelListFilter<T>>> _dependencies = new();
+
+            private void AddDependentFilter(IEnumerable<IPanelListFilter<T>>? hosts, IPanelListFilter<T> dependent) {
+                if (hosts == null) return;
+                foreach (var host in hosts) {
+                    _dependencies.EnsureExistsAndDo(
+                        host,
+                        new(),
+                        x => x.Add(dependent)
+                    );
+                }
+            }
+
+            private void RemoveDependentFilter(IEnumerable<IPanelListFilter<T>>? hosts, IPanelListFilter<T> dependent) {
+                if (hosts == null) return;
+                foreach (var host in hosts) {
+                    _dependencies.DoIfExists(
+                        host,
+                        x => x.Remove(dependent)
+                    );
+                }
+            }
+
+            private void HandleFilterUpdated(IPanelListFilter<T> filter, bool state) {
+                FilterUpdatedEvent?.Invoke(filter);
+                if (state) return;
+                _dependencies.DoIfExists(
+                    filter,
+                    deps => {
+                        foreach (var dep in deps) {
+                            var comp = _filtersPool.SpawnedComponents[dep];
+                            comp.FilterEnabled = false;
+                        }
+                    }
+                );
+            }
+
+            #endregion
+
+            #region Filters
+
+            public event Action<IPanelListFilter<T>>? FilterUpdatedEvent;
+
+            public void AddFilter(IPanelListFilter<T> filter) {
+                var comp = _filtersPool.Spawn(filter);
+                comp.AsFlexItem();
+                comp.Setup(filter);
+                AddDependentFilter(filter.DependsOn, filter);
+                comp.FilterUpdatedEvent += HandleFilterUpdated;
+                _container.Children.Add(comp);
+            }
+
+            public void RemoveFilter(IPanelListFilter<T> filter) {
+                var comp = _filtersPool.SpawnedComponents[filter];
+                comp.Setup(null);
+                comp.Use();
+                RemoveDependentFilter(filter.DependsOn, filter);
+                comp.FilterUpdatedEvent -= HandleFilterUpdated;
+                _filtersPool.Despawn(comp);
+            }
+
+            public void DisableAllFilters() {
+                foreach (var (_, filter) in _filtersPool.SpawnedComponents) {
+                    filter.FilterEnabled = false;
+                }
+            }
+
+            #endregion
+
+            #region Construct
+
+            public IEnumerable<IPanelListFilter<T>> ActiveFilters => _filtersPool.SpawnedComponents
+                .Where(static x => x.Value.FilterEnabled)
+                .Select(static x => x.Key);
+
+            private readonly ReactivePool<IPanelListFilter<T>, FilterContainer> _filtersPool = new();
+            private Background _container = null!;
+
+            protected override GameObject Construct() {
+                return new Background()
+                    .AsFlexGroup(
+                        direction: FlexDirection.Column,
+                        justifyContent: Justify.FlexStart,
+                        alignItems: Align.Stretch,
+                        padding: 2f,
+                        gap: 1f
+                    )
+                    .AsBlurBackground()
+                    .AsFlexItem(size: new() { x = 64.pt(), y = 60.pt() })
+                    .Bind(ref _container)
+                    .Use();
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Setup
+
+        private void RefreshFiltersCaption() {
+            _filtersTextArea.WithItemsText(
+                _modal.ActiveFilters.Select(static x => x.FilterStatus)
+            );
+        }
+
+        protected override void OnInitialize() {
+            _modal.FilterUpdatedEvent += HandleFilterUpdated;
+            _filters = new(
+                new List<IPanelListFilter<T>>(),
+                HandleFilterAdded,
+                HandleFilterRemoved
+            );
+        }
+
+        #endregion
+
+        #region Construct
+
+        private FiltersModal _modal = null!;
+        private InputField _searchInputField = null!;
+        private TextArea _filtersTextArea = null!;
+
+        protected override GameObject Construct() {
+            return new Layout {
+                Children = {
+                    new FiltersModal()
+                        .WithShadow()
+                        .WithJumpAnimation()
+                        .WithCloseListener(() => _filtersTextArea.Focused = false)
+                        .WithAnchor(this, RelativePlacement.BottomRight)
+                        .Bind(ref _modal),
+                    //
+                    new InputField {
+                            Placeholder = "Search",
+                            Icon = GameResources.Sprites.SearchIcon,
+                            Keyboard = new KeyboardModal<Keyboard, InputField> {
+                                Offset = new(0f, 32f)
+                            }
+                        }
+                        .AsFlexItem(flexGrow: 1f)
+                        .WithListener(
+                            x => x.Text,
+                            _ => FilterUpdatedEvent?.Invoke()
+                        )
+                        .Bind(ref _searchInputField),
+                    //filter panel
+                    new TextArea {
+                            Placeholder = "Filters",
+                            Icon = GameResources.Sprites.FilterIcon
+                        }
+                        .WithListener(
+                            x => x.Focused,
+                            x => {
+                                if (x) _modal.Present(ContentTransform);
+                            }
+                        )
+                        .WithListener(
+                            x => x.Text,
+                            x => {
+                                if (!string.IsNullOrEmpty(x)) return;
+                                _modal.DisableAllFilters();
+                                FilterUpdatedEvent?.Invoke();
+                            }
+                        )
+                        .AsFlexItem(flexGrow: 1f)
+                        .Bind(ref _filtersTextArea)
+                }
+            }.AsFlexGroup(gap: 1f).Use();
+        }
+
+        #endregion
+
+        #region Callbacks
+
+        private void HandleFilterAdded(IPanelListFilter<T> filter) {
+            _modal.AddFilter(filter);
+        }
+
+        private void HandleFilterRemoved(IPanelListFilter<T> filter) {
+            _modal.RemoveFilter(filter);
+        }
+
+        private void HandleFilterUpdated(IPanelListFilter<T> filter) {
+            FilterUpdatedEvent?.Invoke();
+            RefreshFiltersCaption();
+        }
+
+        #endregion
+    }
+}

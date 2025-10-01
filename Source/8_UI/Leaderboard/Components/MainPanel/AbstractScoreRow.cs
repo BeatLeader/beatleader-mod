@@ -302,6 +302,7 @@ namespace BeatLeader.Components {
         private float _currentAlpha;
         private float _currentOffset;
         private bool _highlighted;
+        private Func<IScoreRowContent?, bool>? _customHighlight;
 
         public void MarkVisualsDirty() {
             _visualsDirty = true;
@@ -320,13 +321,19 @@ namespace BeatLeader.Components {
             _underline.DefaultColor = new Color(colorScheme.IdleHighlight, 0, 0, _currentAlpha);
             _underline.HighlightColor = new Color(colorScheme.HoverHighlight, 0, 0, _currentAlpha);
 
-            var bgColor = _highlighted ? new Color(0.7f, 0f, 0.7f, 0.3f) : new Color(0.07f, 0f, 0.14f, 0.05f);
+            var highlight = _customHighlight?.Invoke(ScoreRowContent) ?? _highlighted;
+            var bgColor = highlight ? new Color(0.7f, 0f, 0.7f, 0.3f) : new Color(0.07f, 0f, 0.14f, 0.05f);
             bgColor.a *= _currentAlpha;
             _background.color = bgColor;
         }
 
         private void SetHighlight(bool highlight) {
             _highlighted = highlight;
+            MarkVisualsDirty();
+        }
+
+        public void SetCustomHighlight(Func<IScoreRowContent?, bool>? func) {
+            _customHighlight = func;
             MarkVisualsDirty();
         }
 

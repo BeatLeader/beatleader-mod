@@ -73,7 +73,7 @@ namespace BeatLeader.DataManager {
             };
         }
 
-        public static bool IsHidden(Player player) {
+        public static bool IsHidden(Player? player) {
             return player != null && HiddenPlayers.Contains(player.id);
         }
 

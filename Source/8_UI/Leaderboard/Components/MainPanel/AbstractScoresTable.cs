@@ -1,8 +1,12 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BeatLeader.API;
+using BeatLeader.DataManager;
+using BeatLeader.Manager;
 using BeatLeader.Models;
+using BeatLeader.WebRequests;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -36,7 +40,7 @@ namespace BeatLeader.Components {
         [UIValue("score-rows"), UsedImplicitly]
         private protected readonly List<object> _scoreRowsObj = new List<object>();
 
-        private readonly List<T> _mainRows = new List<T>();
+        protected readonly List<T> _mainRows = new List<T>();
 
         private ScoresTableLayoutHelper _layoutHelper;
 
@@ -104,7 +108,7 @@ namespace BeatLeader.Components {
 
         #region Content
 
-        private ScoresTableContent? _content;
+        protected ScoresTableContent? _content;
 
         public void PresentContent(ScoresTableContent? content) {
             _content = content;
@@ -147,7 +151,7 @@ namespace BeatLeader.Components {
             }
         }
 
-        private IEnumerator FadeOutCoroutine() {
+        protected IEnumerator FadeOutCoroutine() {
             if (_lastExtraRowState == ExtraRowState.Top) {
                 _extraRow.FadeOut();
                 yield return new WaitForSeconds(DelayPerRow);
@@ -170,7 +174,7 @@ namespace BeatLeader.Components {
             _lastExtraRowState = ExtraRowState.Hidden;
         }
 
-        private IEnumerator FadeInCoroutine(ScoresTableContent content) {
+        protected IEnumerator FadeInCoroutine(ScoresTableContent content) {
             var extraRowState = UpdateExtraRowState(content);
 
             if (extraRowState == ExtraRowState.Top) {
@@ -229,11 +233,13 @@ namespace BeatLeader.Components {
 
         #region ExtraRowUtils
 
+        protected virtual bool AllowExtraRow => true;
+
         private int BottomSiblingIndex => RowsCount + 2;
         private const int TopSiblingIndex = 0;
 
         private ExtraRowState UpdateExtraRowState(ScoresTableContent content) {
-            if (content.ExtraRowContent != null && content.ExtraRowContent.ContainsValue(ScoreRowCellType.Rank)) {
+            if (AllowExtraRow && content.ExtraRowContent != null && content.ExtraRowContent.ContainsValue(ScoreRowCellType.Rank)) {
                 var extraRowRank = (int)(content.ExtraRowContent.GetValue(ScoreRowCellType.Rank) ?? 0);
 
                 var firstRowRank = (int)(content.MainRowContents.First()?.GetValue(ScoreRowCellType.Rank) ?? 0);

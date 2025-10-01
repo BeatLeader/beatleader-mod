@@ -28,7 +28,8 @@ namespace BeatLeader.ViewControllers {
         }
 
         public void Refresh() {
-            _replayButton.Interactable = ReplayManager.Instance.CachedReplay is not null;
+            //TODO: inject
+            //_replayButton.Interactable = ReplayManager.Instance.CachedReplay is not null;
         }
 
         #endregion
@@ -36,7 +37,7 @@ namespace BeatLeader.ViewControllers {
         #region Callbacks
 
         private void HandleReplayButtonClicked() {
-            _ = ReplayerMenuLoader.Instance!.StartLastReplayAsync();
+            ReplayerMenuLoader.Instance!.StartLastReplayAsync().RunCatching();
         }
 
         private void PresentVotingModal() {

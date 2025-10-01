@@ -1,16 +1,15 @@
-﻿using BeatLeader.API.RequestDescriptors;
-using BeatLeader.API.RequestHandlers;
+﻿using System.Net.Http;
 using BeatLeader.Models;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 
-namespace BeatLeader.API.Methods {
-    internal class LatestReleasesRequest : PersistentSingletonRequestHandler<LatestReleasesRequest, LatestReleases> {
+namespace BeatLeader.API {
+    internal class LatestReleasesRequest : PersistentSingletonWebRequestBase<LatestReleasesRequest, LatestReleases, JsonResponseParser<LatestReleases>> {
         // /mod/lastVersions
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/mod/lastVersions";
 
-        public static void SendRequest() {
-            var requestDescriptor = new JsonGetRequestDescriptor<LatestReleases>(Endpoint);
-            Instance.Send(requestDescriptor);
+        public static void Send() {
+            SendRet(Endpoint, HttpMethod.Get);
         }
     }
 }

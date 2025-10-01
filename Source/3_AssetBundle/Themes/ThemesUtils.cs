@@ -6,7 +6,7 @@ namespace BeatLeader.Themes {
         #region GetAvatarParams
 
         public static void GetAvatarParams(
-            ProfileSettings? profileSettings, bool useSmallMaterialVersion,
+            IPlayerProfileSettings? profileSettings, bool useSmallMaterialVersion,
             out Material baseMaterial, out float hueShift, out float saturation
         ) {
             if (profileSettings == null) {
@@ -16,17 +16,16 @@ namespace BeatLeader.Themes {
                 return;
             }
 
-            hueShift = (profileSettings.hue / 360.0f) * (Mathf.PI * 2);
-            saturation = profileSettings.saturation;
-            baseMaterial = GetAvatarMaterial(profileSettings.effectName, useSmallMaterialVersion);
+            hueShift = (profileSettings.EffectHue / 360.0f) * (Mathf.PI * 2);
+            saturation = profileSettings.EffectSaturation;
+            baseMaterial = GetAvatarMaterial(profileSettings.ThemeType, profileSettings.ThemeTier, useSmallMaterialVersion);
         }
 
         #endregion
 
         #region GetAvatarMaterial
 
-        public static Material GetAvatarMaterial(string effectName, bool smallVersion) {
-            ParseEffectName(effectName, out var themeType, out var themeTier);
+        public static Material GetAvatarMaterial(ThemeType themeType, ThemeTier themeTier,bool smallVersion) {
             if (themeType is ThemeType.Unknown || themeTier is ThemeTier.Unknown) return BundleLoader.DefaultAvatarMaterial;
             if (!BundleLoader.ThemesCollection.TryGetThemeMaterials(themeType, out var themeMaterials)) return BundleLoader.DefaultAvatarMaterial;
             return !themeMaterials.TryGetAvatarMaterial(themeTier, smallVersion, out var material) ? BundleLoader.DefaultAvatarMaterial : material;

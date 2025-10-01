@@ -1,112 +1,72 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Models;
-using BeatSaberMarkupLanguage.Attributes;
-using JetBrains.Annotations;
-using TMPro;
+using Reactive;
+using Reactive.BeatSaber.Components;
+using Reactive.Yoga;
 using UnityEngine;
+using static BeatLeader.WebRequests.RequestState;
+
+#pragma warning disable CS0618
 
 namespace BeatLeader.UI.MainMenu {
-    internal class MapNewsPanel : AbstractNewsPanel {
-        #region UI Components
-
-        [UIComponent("empty-text"), UsedImplicitly] private TextMeshProUGUI _emptyText = null!;
-
-        [UIObject("loading-indicator"), UsedImplicitly] private GameObject _loadingIndicator = null!;
-
-        protected virtual void Awake() {
-            header = Instantiate<NewsHeader>(transform);
-        }
-
-        protected override void OnInitialize() {
-            base.OnInitialize();
-            header.Setup("Trending Maps");
-            TrendingMapsRequest.SendRequest();
-            TrendingMapsRequest.AddStateListener(OnRequestStateChanged);
-        }
-
-        protected override void OnDispose() {
-            TrendingMapsRequest.RemoveStateListener(OnRequestStateChanged);
-        }
-
-        #endregion
-
+    internal class MapNewsPanel : ReactiveComponent {
         #region Request
 
-        private void OnRequestStateChanged(API.RequestState state, Paged<TrendingMapData> result, string failReason) {
-            switch (state) {
-                case API.RequestState.Uninitialized:
-                case API.RequestState.Started:
-                default: {
-                    _loadingIndicator.SetActive(true);
-                    _emptyText.gameObject.SetActive(false);
-                    DisposeList();
-                    break;
-                }
-                case API.RequestState.Failed:
-                    _loadingIndicator.SetActive(false);
-                    _emptyText.gameObject.SetActive(true);
-                    _emptyText.text = "<color=#ff8888>Failed to load";
-                    DisposeList();
-                    break;
-                case API.RequestState.Finished: {
-                    _loadingIndicator.SetActive(false);
+        protected override void OnInitialize() {
+            TrendingMapsRequest.Send();
+            TrendingMapsRequest.StateChangedEvent += OnRequestStateChanged;
+        }
 
-                    if (result.data is { Count: > 0 }) {
-                        _emptyText.gameObject.SetActive(false);
-                        PresentList(result.data);
-                    } else {
-                        _emptyText.gameObject.SetActive(true);
-                        _emptyText.text = "There is no trending maps";
-                        DisposeList();
-                    }
+        protected override void OnDestroy() {
+            TrendingMapsRequest.StateChangedEvent -= OnRequestStateChanged;
+        }
 
-                    break;
-                }
+        private void OnRequestStateChanged(WebRequests.IWebRequest<Paged<TrendingMapData>> instance, WebRequests.RequestState state, string? failReason) {
+            if (state == Finished) {
+                var list = instance.Result!.data?
+                    .Where(m => m.difficulty?.status != 5)
+                    .ToList() ?? new List<TrendingMapData>();
+
+                _newsPanel.UpdateFromRequest(state, list);
+            } else {
+                _newsPanel.UpdateFromRequest(state, new());
             }
         }
 
         #endregion
 
-        #region List
+        #region Construct
 
-        private readonly List<FeaturedPreviewPanel> _list = new List<FeaturedPreviewPanel>();
+        private NewsPanel<TrendingMapData, MapPreviewPanel> _newsPanel = null!;
 
-        private void PresentList(IEnumerable<TrendingMapData> items) {
-            DisposeList();
+        protected override GameObject Construct() {
+            return new Background {
+                    Children = {
+                        new NewsHeader {
+                            Text = "Trending Maps"
+                        }.AsFlexItem(),
 
-            foreach (var item in items.Where(m => m.difficulty?.status != 5)) {
-                var component = Instantiate<FeaturedPreviewPanel>(transform);
-                component.ManualInit(mainContainer);
-                SetupFeaturePreview(component, item);
-                _list.Add(component);
-            }
-
-            MarkScrollbarDirty();
-        }
-
-        private void SetupFeaturePreview(FeaturedPreviewPanel panel, TrendingMapData item) {
-            panel.Setup(item.song.coverImage, item.song.name, item.song.mapper, "Play", ButtonAction, BackgroundAction);
-            return;
-
-            void ButtonAction() {
-                MapDownloadDialog.OpenSongOrDownloadDialog(item.song, Content.transform);
-            }
-
-            void BackgroundAction() {
-                MapPreviewDialog.OpenSongOrDownloadDialog(item, Content.transform);
-            }
-        }
-
-
-        private void DisposeList() {
-            foreach (var post in _list) {
-                Destroy(post.gameObject);
-            }
-
-            _list.Clear();
-            MarkScrollbarDirty();
+                        new NewsPanel<TrendingMapData, MapPreviewPanel> {
+                            EmptyMessage = "No trending maps",
+                            OnCellConstructed = cell => {
+                                cell.ButtonAction = item => MapDownloadDialog.OpenSongOrDownloadDialog(item.song, ContentTransform);
+                                cell.BackgroundAction = item => MapPreviewDialog.OpenSongOrDownloadDialog(item, ContentTransform);
+                            }
+                        }.AsFlexItem(flexGrow: 1f).Bind(ref _newsPanel)
+                    }
+                }
+                .AsFlexGroup(
+                    padding: 1f,
+                    direction: FlexDirection.Column
+                )
+                .AsBackground(
+                    color: Color.black.ColorWithAlpha(0.33f),
+                    pixelsPerUnit: 7f
+                )
+                .AsFlexItem(size: new() { x = 70, y = 39 })
+                .Use();
         }
 
         #endregion

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 
 namespace BeatLeader.Models {
-    public interface IReplayInfo {
-        string PlayerID { get; }
+    [PublicAPI]
+    public interface IReplayInfo : IReplayHashProvider {
         string PlayerName { get; }
         
         string SongName { get; }
@@ -12,6 +12,6 @@ namespace BeatLeader.Models {
         LevelEndType LevelEndType { get; }
         
         float FailTime { get; }
-        long Timestamp { get; }
+        int Score { get; }
     }
 }

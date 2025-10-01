@@ -3,19 +3,28 @@ using BeatLeader.Components;
 using BeatLeader.ViewControllers;
 using HMUI;
 using JetBrains.Annotations;
+using Reactive;
 using TMPro;
 using UnityEngine;
 using Zenject;
 using Screen = HMUI.Screen;
 
+#nullable disable
+
 namespace BeatLeader {
     [UsedImplicitly]
     public class LeaderboardHeaderManager : IInitializable, ITickable, IDisposable {
         #region Initialize & Dispose
-
+        
         [Inject, UsedImplicitly]
         private LeaderboardView _leaderboardView;
 
+        [Inject, UsedImplicitly]
+        private IReplayerViewNavigator _viewNavigator;
+        
+        [Inject, UsedImplicitly] 
+        private SoloFreePlayFlowCoordinator _soloFlowCoordinator;
+        
         public void Initialize() {
             LeaderboardState.IsVisibleChangedEvent += OnVisibilityChanged;
         }
@@ -46,8 +55,13 @@ namespace BeatLeader {
 
                 _headerText = header.GetComponentInChildren<TextMeshProUGUI>();
                 _headerImage = header.GetComponentInChildren<ImageView>();
-                _infoPanel = ReeUIComponentV2.Instantiate<LeaderboardInfoPanel>(_headerImage.transform);
-                _infoPanel.ManualInit(_headerImage.transform);
+
+                _infoPanel = new LeaderboardInfoPanel().WithRectExpand();
+                _infoPanel.Use(_headerImage.transform);
+
+                var wrapper = new ReplayerViewNavigatorWrapper(_viewNavigator, _soloFlowCoordinator);
+                _infoPanel.Setup(wrapper);
+   
                 _boringColor0 = _headerImage.color0;
                 _boringColor1 = _headerImage.color1;
                 _initialized = true;
@@ -93,7 +107,7 @@ namespace BeatLeader {
             _idle = false;
             _toleranceCheck = 0;
             _headerText.enabled = false;
-            _infoPanel.IsActive = true;
+            _infoPanel.Enabled = true;
         }
 
         private void OnDisable() {
@@ -102,7 +116,7 @@ namespace BeatLeader {
             _idle = false;
             _toleranceCheck = 0;
             _headerText.enabled = true;
-            _infoPanel.IsActive = false;
+            _infoPanel.Enabled = false;
         }
 
         #endregion

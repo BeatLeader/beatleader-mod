@@ -1,4 +1,5 @@
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
+using BeatLeader.WebRequests;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using ModestTree;
@@ -10,12 +11,14 @@ namespace BeatLeader.Components {
         #region OnInitialize
 
         protected override void OnInitialize() {
-            ScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent += OnScoresRequestStateChanged;
             ApplyAlpha();
         }
 
         protected override void OnDispose() {
-            ScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            ScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanScoresRequest.StateChangedEvent -= OnScoresRequestStateChanged;
         }
 
         #endregion
@@ -26,16 +29,16 @@ namespace BeatLeader.Components {
         private const string BadNewsColor = "#FF8888";
         private const string DefaultErrorMessage = "An unexpected error occured";
 
-        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
+        private void OnScoresRequestStateChanged(IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
-                case API.RequestState.Started:
+                case WebRequests.RequestState.Started:
                     FadeOut();
                     break;
-                case API.RequestState.Failed:
+                case WebRequests.RequestState.Failed:
                     ShowError(failReason);
                     break;
-                case API.RequestState.Finished:
-                    OnScoresFetched(result);
+                case WebRequests.RequestState.Finished:
+                    OnScoresFetched(instance.Result);
                     break;
             }
         }

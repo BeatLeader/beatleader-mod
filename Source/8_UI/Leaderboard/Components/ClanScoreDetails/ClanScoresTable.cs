@@ -1,4 +1,4 @@
-using BeatLeader.API.Methods;
+﻿using BeatLeader.API;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -8,7 +8,7 @@ namespace BeatLeader.Components {
     internal class ClanScoresTable : AbstractScoresTable<ScoreRow> {
         #region Properties
 
-        protected override int RowsCount => ClanScoresRequest.ScoresPerPage;
+        protected override int RowsCount => ScoresOfClanRequest.ScoresPerPage;
         protected override float RowWidth => 77;
         protected override float Spacing => 1.3f;
         protected override ScoreRowCellType CellTypeMask {
@@ -26,7 +26,8 @@ namespace BeatLeader.Components {
         protected override void OnInitialize() {
             base.OnInitialize();
 
-            ClanScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            ScoresOfClanRequest.StateChangedEvent += OnScoresRequestStateChanged;
+            ClanPlayersRequest.StateChangedEvent += OnScoresRequestStateChanged;
 
             PluginConfig.LeaderboardTableMaskChangedEvent += OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent += UpdateLayout;
@@ -37,7 +38,8 @@ namespace BeatLeader.Components {
         protected override void OnDispose() {
             base.OnDispose();
 
-            ClanScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            ScoresOfClanRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+            ClanPlayersRequest.StateChangedEvent -= OnScoresRequestStateChanged;
 
             PluginConfig.LeaderboardTableMaskChangedEvent -= OnLeaderboardTableMaskChanged;
             HiddenPlayersCache.HiddenPlayersUpdatedEvent -= UpdateLayout;
@@ -47,13 +49,13 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnScoresRequestStateChanged(API.RequestState state, ScoresTableContent result, string failReason) {
-            if (state is not API.RequestState.Finished) {
+        private void OnScoresRequestStateChanged(WebRequests.IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished) {
                 PresentContent(null);
                 return;
             }
 
-            PresentContent(result);
+            PresentContent(instance.Result);
         }
 
         private void OnLeaderboardTableMaskChanged(ScoreRowCellType value) {

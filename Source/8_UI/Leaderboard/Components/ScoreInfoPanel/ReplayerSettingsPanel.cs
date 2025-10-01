@@ -19,9 +19,6 @@ namespace BeatLeader.Components {
 
         [UIValue("ignore-modifiers-toggle"), UsedImplicitly]
         private ReplayerSettingsToggle _ignoreModifiersToggle = null!;
-        
-        [UIValue("save-toggle"), UsedImplicitly]
-        private ReplayerSettingsToggle _saveToggle = null!;
 
         private void Awake() {
             _hintField = Instantiate<HintField>(transform);
@@ -29,7 +26,6 @@ namespace BeatLeader.Components {
             _loadEnvironmentToggle = Instantiate<ReplayerSettingsToggle>(transform);
             _loadJumpDistanceToggle = Instantiate<ReplayerSettingsToggle>(transform);
             _ignoreModifiersToggle = Instantiate<ReplayerSettingsToggle>(transform);
-            _saveToggle = Instantiate<ReplayerSettingsToggle>(transform);
         }
 
         #endregion
@@ -64,7 +60,7 @@ namespace BeatLeader.Components {
             _hintField.Setup("<alpha=#66><bll>ls-replayer-settings</bll>");
 
             _showUIToggle.Setup(BundleLoader.UIIcon, "<bll>ls-replayer-enable-ui</bll>", _hintField);
-            _showUIToggle.Value = !PluginConfig.ReplayerSettings.AutoHideUI;
+            _showUIToggle.Value = !PluginConfig.ReplayerSettings.UISettings.ShowUIOnPause;
             _showUIToggle.OnClick += _ => UpdateReplayerSettings();
 
             _loadEnvironmentToggle.Setup(BundleLoader.SceneIcon, "<bll>ls-replayer-load-environment</bll>", _hintField);
@@ -78,23 +74,15 @@ namespace BeatLeader.Components {
             _ignoreModifiersToggle.Setup(BundleLoader.NoModifiersIcon, "<bll>ls-replayer-ignore-modifiers</bll>", _hintField);
             _ignoreModifiersToggle.Value = PluginConfig.ReplayerSettings.IgnoreModifiers;
             _ignoreModifiersToggle.OnClick += _ => UpdateReplayerSettings();
-
-            _saveToggle.Setup(BundleLoader.SaveIcon, "<bll>ls-replayer-store-locally</bll>", _hintField);
-            _saveToggle.Value = PluginConfig.EnableReplayCaching;
-            _saveToggle.OnClick += OnSaveToggleValueChanged;
         }
 
         #endregion
 
         #region Callbacks
 
-        private static void OnSaveToggleValueChanged(bool value) {
-            PluginConfig.EnableReplayCaching = value;
-        }
-
         private void UpdateReplayerSettings() {
             var settings = PluginConfig.ReplayerSettings;
-            settings.AutoHideUI = !_showUIToggle.Value;
+            settings.UISettings.ShowUIOnPause = !_showUIToggle.Value;
             settings.LoadPlayerEnvironment = _loadEnvironmentToggle.Value;
             settings.LoadPlayerJumpDistance = _loadJumpDistanceToggle.Value;
             settings.IgnoreModifiers = _ignoreModifiersToggle.Value;

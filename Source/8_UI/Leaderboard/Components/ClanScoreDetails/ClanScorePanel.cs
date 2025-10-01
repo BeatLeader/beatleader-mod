@@ -1,5 +1,4 @@
 ﻿using BeatLeader.API;
-using BeatLeader.API.Methods;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -70,12 +69,15 @@ namespace BeatLeader.Components {
             _tabSelector._hideCellBackground = false;
             _tabSelector.SetTexts(new[] { "Scores", "Players" });
 
-            ClanScoresRequest.AddStateListener(OnScoresRequestStateChanged);
+            ScoresOfClanRequest.StateChangedEvent += OnScoresRequestStateChanged;
+
+            ClanPlayersRequest.StateChangedEvent += OnScoresRequestStateChanged;
         }
 
-
         protected override void OnDispose() {
-            ClanScoresRequest.RemoveStateListener(OnScoresRequestStateChanged);
+            ScoresOfClanRequest.StateChangedEvent -= OnScoresRequestStateChanged;
+
+            ClanPlayersRequest.StateChangedEvent -= OnScoresRequestStateChanged;
         }
 
         private void Update() {
@@ -87,16 +89,16 @@ namespace BeatLeader.Components {
 
         #region Events
 
-        private void OnScoresRequestStateChanged(RequestState state, ScoresTableContent result, string failReason) {
-            if (state != RequestState.Finished || result == null) {
+        private void OnScoresRequestStateChanged(WebRequests.IWebRequest<ScoresTableContent> instance, WebRequests.RequestState state, string? failReason) {
+            if (state != WebRequests.RequestState.Finished || instance.Result == null) {
                 _hasPreviousPage = false;
                 _canSeek = false;
                 _hasNextPage = false;
             } else {
-                _currentPage = result.CurrentPage;
-                _hasPreviousPage = result.HasPreviousPage;
-                _canSeek = result.SeekAvailable;
-                _hasNextPage = result.HasNextPage;
+                _currentPage = instance.Result.CurrentPage;
+                _hasPreviousPage = instance.Result.HasPreviousPage;
+                _canSeek = instance.Result.SeekAvailable;
+                _hasNextPage = instance.Result.HasNextPage;
             }
 
             MarkPaginationDirty();
@@ -183,7 +185,7 @@ namespace BeatLeader.Components {
         private void SendScoresRequest() {
             switch (_paginationType) {
                 case PaginationType.Page: {
-                    ClanScoresRequest.SendClanScoresPageRequest(
+                    ScoresOfClanRequest.SendPage(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag,
@@ -193,7 +195,7 @@ namespace BeatLeader.Components {
                     break;
                 }
                 case PaginationType.Seek: {
-                    ClanScoresRequest.SendClanScoresSeekRequest(
+                    ScoresOfClanRequest.SendSeek(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag,
@@ -207,7 +209,7 @@ namespace BeatLeader.Components {
         private void SendPlayersRequest() {
             switch (_paginationType) {
                 case PaginationType.Page: {
-                    ClanScoresRequest.SendClanPlayersPageRequest(
+                    ClanPlayersRequest.SendPage(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag,
@@ -216,7 +218,7 @@ namespace BeatLeader.Components {
                     break;
                 }
                 case PaginationType.Seek: {
-                    ClanScoresRequest.SendClanPlayersSeekRequest(
+                    ClanPlayersRequest.SendSeek(
                         Context.beatmapKey,
                         Context.clanPlayer.id,
                         Context.clanScore.clan.tag

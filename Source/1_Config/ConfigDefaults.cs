@@ -1,4 +1,8 @@
-﻿using BeatLeader.Models;
+﻿using System.Collections.Generic;
+using BeatLeader.Components;
+using BeatLeader.Models;
+using BeatLeader.UI;
+using BeatLeader.UI.Reactive;
 using UnityEngine;
 
 namespace BeatLeader {
@@ -40,54 +44,180 @@ namespace BeatLeader {
 
         #region LeaderboardDisplaySettings
 
-        public static LeaderboardDisplaySettings LeaderboardDisplaySettings = new()
-        {
+        public static LeaderboardDisplaySettings LeaderboardDisplaySettings = new() {
             ClanCaptureDisplay = true
+        };
+
+        #endregion
+
+        #region HubTheme
+
+        public static readonly BeatLeaderHubTheme HubTheme = new() {
+            MenuButtonsTheme = {
+                ReplayManagerButtonColors = {
+                    HoveredColor = new Color(1f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                },
+                BattleRoyaleButtonColors = {
+                    HoveredColor = Color.magenta,
+                    Color = UIStyle.InputColorSet.Color,
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                },
+                SettingsButtonColors = {
+                    HoveredColor = new Color(1f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                },
+                EditAvatarButtonColors = {
+                    HoveredColor = new Color(0f, 0.65f, 0f),
+                    Color = UIStyle.InputColorSet.Color,
+                    NotInteractableColor = UIStyle.InputColorSet.NotInteractableColor
+                }
+            },
+            ReplayManagerSearchTheme = {
+                SearchHighlightColor = Color.magenta,
+                SearchHighlightStyle = FontStyle.Normal
+            }
         };
 
         #endregion
 
         #region ReplayerSettings
 
-        public static readonly InternalReplayerCameraSettings InternalReplayerCameraSettings = new() {
-            MaxCameraFOV = 110,
-            MinCameraFOV = 70,
-            CameraFOV = 90,
-            FpfcCameraView = "PlayerView",
-            VRCameraView = "BehindView"
-        };
-
         public static readonly ReplayerSettings ReplayerSettings = new() {
-            AutoHideUI = false,
             LoadPlayerEnvironment = false,
             ExitReplayAutomatically = true,
 
-            ShowHead = false,
-            ShowLeftSaber = true,
-            ShowRightSaber = true,
             ShowWatermark = true,
 
-            ShowTimelineMisses = true,
-            ShowTimelineBombs = true,
-            ShowTimelinePauses = true,
+            CameraSettings = new InternalReplayerCameraSettings {
+                MaxCameraFOV = 110,
+                MinCameraFOV = 70,
+                CameraFOV = 90,
+                FpfcCameraView = "PlayerView",
+                VRCameraView = "BehindView"
+            },
 
-            CameraSettings = InternalReplayerCameraSettings,
+            BodySettings = {
+                Configs = {
+                    {
+                        typeof(BasicBodySettings), new BasicBodySettings {
+                            HeadEnabled = true,
+                            TorsoEnabled = false,
+                            LeftHandEnabled = true,
+                            RightHandEnabled = true,
+                            
+                            LeftSaberEnabled = true,
+                            RightSaberEnabled = true,
+                        }
+                    }, {
+                        typeof(BattleRoyaleBodySettings), new BattleRoyaleBodySettings {
+                            HeadEnabled = true,
+                            TorsoEnabled = false,
+                            LeftHandEnabled = false,
+                            RightHandEnabled = false,
+                            
+                            LeftSaberEnabled = true,
+                            RightSaberEnabled = true,
+                            
+                            TrailLength = 0.4f,
+                            TrailOpacity = 0.5f
+                        }
+                    }
+                }
+            },
 
-            Shortcuts = new() {
+            UISettings = {
+                ShowUIOnPause = false,
+                MarkersMask = TimelineMarkersMask.Miss | TimelineMarkersMask.Bomb,
+                FloatingSettings = new() {
+                    Pose = new() {
+                        position = new(0f, 1f, 2f),
+                        rotation = Quaternion.Euler(30f, 0f, 0f)
+                    },
+                    InitialPose = new() {
+                        position = new(0f, 1f, 2f),
+                        rotation = Quaternion.Euler(30f, 0f, 0f)
+                    },
+                    Pinned = true,
+                    SnapEnabled = true,
+                    CurvatureRadius = 90f,
+                    CurvatureEnabled = true
+                },
+                LayoutEditorSettings = new() {
+                    ReferenceResolution = new(1920f, 1200f),
+                    ReferenceScaleFactor = 5f,
+                    ComponentData = new() {
+                        {
+                            "Toolbar", new() {
+                                position = new() {
+                                    x = 0f,
+                                    y = -84f
+                                },
+                                size = new() {
+                                    x = 108f,
+                                    y = 72f
+                                },
+                                layer = 1,
+                                visible = false,
+                            }
+                        }, {
+                            "Beatmap Preview", new() {
+                                position = new() {
+                                    x = -150f,
+                                    y = 108f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 24f
+                                },
+                                layer = 2,
+                                visible = false,
+                            }
+                        }, {
+                            "Player List", new() {
+                                position = new() {
+                                    x = -165f,
+                                    y = 78f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 60f
+                                },
+                                layer = 3,
+                                visible = false,
+                            }
+                        }, {
+                            "Player Profile", new() {
+                                position = new() {
+                                    x = -150f,
+                                    y = 84f
+                                },
+                                size = new() {
+                                    x = 84f,
+                                    y = 24f
+                                },
+                                layer = 3,
+                                visible = false,
+                            }
+                        },
+                    }
+                }
+            },
+
+            Shortcuts = {
                 LayoutEditorPartialModeHotkey = KeyCode.H,
                 HideCursorHotkey = KeyCode.C,
                 PauseHotkey = KeyCode.Space,
                 RewindForwardHotkey = KeyCode.RightArrow,
                 RewindBackwardHotkey = KeyCode.LeftArrow,
-                LayoutEditorAntiSnapHotkey = KeyCode.LeftShift,
             }
         };
 
         #endregion
 
         #region ReplaySavingSettings
-
-        public const bool EnableReplayCaching = false;
 
         public const bool OverrideOldReplays = true;
 

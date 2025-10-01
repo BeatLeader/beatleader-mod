@@ -1,5 +1,5 @@
 ﻿using System;
-using BeatLeader.API.Methods;
+using BeatLeader.API;
 using BeatLeader.Manager;
 using JetBrains.Annotations;
 using Zenject;
@@ -16,7 +16,7 @@ namespace BeatLeader.DataManager {
         }
 
         private static void LoadStats(int scoreId) {
-            ScoreStatsRequest.SendRequest(scoreId);
+            ScoreStatsRequest.Send(scoreId);
         }
     }
 }

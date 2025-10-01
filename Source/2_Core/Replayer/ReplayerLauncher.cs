@@ -98,15 +98,17 @@ namespace BeatLeader.Replayer {
             var practiceSettings = launchData.IsBattleRoyale ? null : replay.ReplayData.PracticeSettings;
             var replayModifiers = replay.ReplayData.GameplayModifiers;
 
+            var level = launchData.BeatmapLevel;
+
             if (transitionData != null) {
                 transitionData.Init(
                     "Solo",
-                    launchData.BeatmapKey!.Value,
-                    launchData.BeatmapLevel,
+                    launchData.BeatmapLevel.Key,
+                    launchData.BeatmapLevel.Level,
                     envSettings,
                     playerData.colorSchemesSettings.GetOverrideColorScheme(),
                     playerData.colorSchemesSettings.ShouldOverrideLightshowColors(),
-                    launchData.BeatmapLevel?.GetColorScheme(launchData.BeatmapKey.Value.beatmapCharacteristic, launchData.BeatmapKey.Value.difficulty),
+                    level.Level.GetColorScheme(level.Key.beatmapCharacteristic, level.Key.difficulty),
                     launchData.Settings.IgnoreModifiers ? CreateDisabledModifiers(replayModifiers) : replayModifiers,
                     playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
                     practiceSettings,
@@ -144,7 +146,7 @@ namespace BeatLeader.Replayer {
         ) {
             transitionData.didFinishEvent -= HandleLevelFinish;
             LaunchData?.FinishReplay(transitionData);
-            ReplayWasFinishedEvent?.Invoke(LaunchData);
+            ReplayWasFinishedEvent?.Invoke(LaunchData!);
 
             LaunchData = null;
             IsStartedAsReplay = false;

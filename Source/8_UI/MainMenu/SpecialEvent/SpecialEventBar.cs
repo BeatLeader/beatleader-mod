@@ -80,13 +80,46 @@ internal class SpecialEventBar : ReactiveComponent {
                             new Layout {
                                 Children = {
                                     new BsButton {
+                                            Text = "💿",
+                                            ShowUnderline = false,
+                                            Skew = 0f,
+                                            Enabled = false,
+
+                                            OnClick = () => {
+                                                ReeModalSystem.OpenModal<EventDetailsDialog>(ContentTransform, _event.Value.eventDescription);
+                                            }
+                                        }
+                                        .AsFlexItem(
+                                            position: new() { left = 0.pt() },
+                                            modifier: out var playlistButtonModifier
+                                        )
+                                        .Animate(
+                                            calendarButtonWidth,
+                                            (_, y) => playlistButtonModifier.Size = new() { x = y.pt(), y = 100.pct() },
+                                            applyImmediately: true
+                                        )
+                                        .Animate(
+                                            calendarOpened,
+                                            (btn, y) => btn.Enabled = y,
+                                            applyImmediately: true
+                                        )
+                                }
+                            }.AsFlexGroup().AsFlexItem(
+                                size: new() { x = initialCalendarButtonWidth.pt(), y = 90.pct() },
+                                position: new() { left = 0.pt() },
+                                alignSelf: Align.Center
+                            ),
+
+                            new Layout {
+                                Children = {
+                                    new BsButton {
                                             Text = "📅",
                                             ShowUnderline = false,
                                             Skew = 0f,
 
                                             OnClick = () => {
                                                 calendarOpened.Value = !calendarOpened;
-                                                calendarButtonWidth.Value = calendarOpened ? _bar.ContentTransform.rect.width - 2f : initialCalendarButtonWidth;
+                                                calendarButtonWidth.Value = calendarOpened ? _bar.ContentTransform.rect.width / 2f - 2f : initialCalendarButtonWidth;
                                                 calendarHeight.Value = calendarOpened ? _calendar.ContentTransform.rect.height + 3 : 0f;
 
                                                 itemsAlpha.Value = calendarOpened ? 0f : 1f;
@@ -102,6 +135,9 @@ internal class SpecialEventBar : ReactiveComponent {
                                             (_, y) => buttonModifier.Size = new() { x = y.pt(), y = 100.pct() },
                                             applyImmediately: true
                                         )
+                                        .Animate(
+                                            calendarOpened,
+                                            (btn, y) => btn.Text = y ? "❌" : "📅")
                                 }
                             }.AsFlexGroup().AsFlexItem(
                                 size: new() { x = initialCalendarButtonWidth.pt(), y = 90.pct() },

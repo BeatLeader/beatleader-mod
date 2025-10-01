@@ -9,6 +9,7 @@ public class PlatformEventMap {
     public required long endTime;
     public required MapDetail song;
     public Score? score;
+    public PlatformEventPoints? points;
 
     public bool IsHappening() {
         var now = DateTime.UtcNow.ToUnixTime();

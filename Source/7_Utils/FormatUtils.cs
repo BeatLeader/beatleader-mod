@@ -169,6 +169,17 @@ namespace BeatLeader {
             static string Zero(int number) => number > 9 ? "" : "0";
         }
 
+        public static string GetDateOfMonthTimeString(long timestamp) {
+            var t = timestamp.AsUnixTime();
+            var suffix = t.Day switch {
+                1 or 21 or 31 => "st",
+                2 or 22 => "nd", 
+                3 or 23 => "rd",
+                _ => "th"
+            };
+            return $"{t:MMMM} {t.Day}{suffix}";
+        }
+
         public static string GetDateTimeString(string timeSet) {
             return GetDateTimeString(long.Parse(timeSet));
         }

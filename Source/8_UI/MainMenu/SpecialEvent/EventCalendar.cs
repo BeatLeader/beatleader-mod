@@ -20,14 +20,14 @@ namespace BeatLeader.UI.MainMenu {
 
             if (status.today == null) {
                 maps = status.previousDays;
-                lastMentionedDay = status.previousDays.Max(x => x.EndDate());
+                lastMentionedDay = status.previousDays.Max(x => x.StartDate());
             } else {
-                lastMentionedDay = status.today.EndDate().Date;
+                lastMentionedDay = status.today.StartDate().Date;
                 maps = [..status.previousDays, status.today];
             }
 
             var endDate = status.eventDescription.EndDate().Date;
-            var remainingDays = Mathf.Abs((endDate - lastMentionedDay).Days);
+            var remainingDays = Mathf.Abs((endDate - lastMentionedDay).Days) - 1;
 
             _accent = status.eventDescription.MainColor() ?? Color.cyan * 0.7f;
 
@@ -62,8 +62,8 @@ namespace BeatLeader.UI.MainMenu {
             DateTime lastDate = default;
 
             foreach (var map in maps) {
-                lastDate = map.EndDate();
-                SpawnCell(map.EndDate(), map.IsCompleted(), map);
+                lastDate = map.StartDate();
+                SpawnCell(map.StartDate(), map.IsCompleted(), map);
             }
 
             for (var i = 0; i < remainingDays; i++) {

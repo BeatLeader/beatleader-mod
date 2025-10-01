@@ -48,6 +48,7 @@ namespace BeatLeader.UI.MainMenu {
 
                         new SpecialEventBar {
                                 OnBackClick = () => OnBackClick?.Invoke(),
+                                OnPlayClick = () => MapDownloadDialog.OpenSongOrDownloadDialog(mapPanel._map.Value.song, ContentTransform),
                                 OnDayChanged = x => mapPanel.SetData(x)
                             }
                             .WithAlpha(_spinnerAlpha, invert: true)

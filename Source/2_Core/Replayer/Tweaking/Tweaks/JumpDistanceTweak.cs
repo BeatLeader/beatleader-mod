@@ -10,8 +10,8 @@ namespace BeatLeader.Replayer.Tweaking {
         public override bool CanBeInstalled => _launchData.Settings.LoadPlayerJumpDistance;
 
         private static readonly HarmonyPatchDescriptor _movementDataInitPatchDescriptor = new(
-            typeof(VariableMovementDataProvider).GetMethod(nameof(
-                VariableMovementDataProvider.Init), ReflectionUtils.DefaultFlags)!,
+            typeof(BeatmapObjectSpawnMovementData).GetMethod(nameof(
+                BeatmapObjectSpawnMovementData.Init), ReflectionUtils.DefaultFlags)!,
             typeof(JumpDistanceTweak).GetMethod(nameof(
                 MovementDataInitPrefix), ReflectionUtils.StaticFlags));
 
@@ -31,11 +31,10 @@ namespace BeatLeader.Replayer.Tweaking {
             JDFixerInterop.Enabled = true;
         }
 
-        private static void MovementDataInitPrefix(ref float noteJumpMovementSpeed, ref BeatmapObjectSpawnMovementData.NoteJumpValueType noteJumpValueType, ref float noteJumpValue) {
-            if (_desiredJumpDistance == 0) return;
+        private static void MovementDataInitPrefix(ref float startNoteJumpMovementSpeed, ref BeatmapObjectSpawnMovementData.NoteJumpValueType noteJumpValueType, ref float noteJumpValue) {
             noteJumpValueType = BeatmapObjectSpawnMovementData.NoteJumpValueType.JumpDuration;
-            noteJumpValue = _desiredJumpDistance / noteJumpMovementSpeed / 2;
-            Plugin.Log.Notice($"[JumpDistanceTweak] Applied JD: {_desiredJumpDistance} | NJS: {noteJumpMovementSpeed} | NJV: {noteJumpValue}");
+            noteJumpValue = _desiredJumpDistance / startNoteJumpMovementSpeed / 2;
+            Plugin.Log.Notice($"[JumpDistanceTweak] Applied JD: {_desiredJumpDistance} | NJS: {startNoteJumpMovementSpeed} | NJV: {noteJumpValue}");
         }
     }
 }

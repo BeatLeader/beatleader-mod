@@ -62,22 +62,22 @@ namespace BeatLeader.Utils {
         public static (int, int, int) CalculateCutScoresForNote(NoteEvent note, ScoringType scoringType) {
             var cut = note.noteCutInfo;
             double beforeCutRawScore = 0;
-            if (scoringType != ScoringType.ChainLink) {
+            if (scoringType != ScoringType.BurstSliderElement) {
                 beforeCutRawScore = scoringType switch {
-                    ScoringType.ArcTail => 70,
+                    ScoringType.SliderTail => 70,
                     _ => Mathf.Clamp(Mathf.Round(70 * note.beforeCutRating), 0, 70)
                 };
             }
             double afterCutRawScore = 0;
-            if (scoringType != ScoringType.ChainLink) {
+            if (scoringType != ScoringType.BurstSliderElement) {
                 afterCutRawScore = scoringType switch {
-                    ScoringType.ChainHead => 0,
-                    ScoringType.ArcHead => 30,
+                    ScoringType.BurstSliderHead => 0,
+                    ScoringType.SliderHead => 30,
                     _ => Mathf.Clamp(Mathf.Round(30 * note.afterCutRating), 0, 30)
                 };
             }
             double cutDistanceRawScore;
-            if (scoringType == ScoringType.ChainLink) {
+            if (scoringType == ScoringType.BurstSliderElement) {
                 cutDistanceRawScore = 20;
             } else {
                 double num = 1 - Mathf.Clamp01(cut.cutDistanceToCenter / 0.3f);

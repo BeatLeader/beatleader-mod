@@ -10,17 +10,7 @@ namespace BeatLeader
         static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(StandardLevelScenesTransitionSetupDataSO),
             m => m.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init) &&
                  m.GetParameters().All(p => p.ParameterType != typeof(IBeatmapLevelData)));
-        public static void Postfix(
-            in BeatmapKey beatmapKey, 
-            BeatmapLevel beatmapLevel, 
-            OverrideEnvironmentSettings overrideEnvironmentSettings,
-            ColorScheme playerOverrideColorScheme, 
-            bool playerOverrideLightshowColors, 
-            ColorScheme beatmapOverrideColorScheme, 
-            GameplayModifiers gameplayModifiers, 
-            PlayerSpecificSettings playerSpecificSettings, 
-            PracticeSettings practiceSettings, 
-            EnvironmentsListModel environmentsListModel) {
+        public static void Postfix(in BeatmapKey beatmapKey, BeatmapLevel beatmapLevel, OverrideEnvironmentSettings overrideEnvironmentSettings, ColorScheme overrideColorScheme, GameplayModifiers gameplayModifiers, PlayerSpecificSettings playerSpecificSettings, PracticeSettings practiceSettings, EnvironmentsListModel environmentsListModel) {
             Plugin.Log.Debug($"LevelDataEnhancerPatch.postfix {beatmapKey.levelId} {beatmapLevel.songName}");
             string environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
             EnvironmentInfoSO? environmentInfoSO = environmentsListModel.GetEnvironmentInfoBySerializedName(environmentName);
@@ -33,7 +23,7 @@ namespace BeatLeader
             MapEnhancer.playerSpecificSettings = playerSpecificSettings;
             MapEnhancer.practiceSettings = practiceSettings;
             MapEnhancer.environmentName = environmentName;
-            MapEnhancer.colorScheme = playerOverrideColorScheme;
+            MapEnhancer.colorScheme = overrideColorScheme;
         }
     }
 
@@ -43,18 +33,8 @@ namespace BeatLeader
         static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(StandardLevelScenesTransitionSetupDataSO),
             m => m.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init) &&
                  m.GetParameters().Any(p => p.ParameterType == typeof(IBeatmapLevelData)));
-        static void Postfix(
-            in BeatmapKey beatmapKey, 
-            BeatmapLevel beatmapLevel, 
-            OverrideEnvironmentSettings overrideEnvironmentSettings, 
-            ColorScheme playerOverrideColorScheme, 
-            bool playerOverrideLightshowColors,
-            ColorScheme beatmapOverrideColorScheme, 
-            GameplayModifiers gameplayModifiers, 
-            PlayerSpecificSettings playerSpecificSettings, 
-            PracticeSettings practiceSettings, 
-            EnvironmentsListModel environmentsListModel) {
-            LevelDataEnhancerPatch.Postfix(beatmapKey, beatmapLevel, overrideEnvironmentSettings, playerOverrideColorScheme, playerOverrideLightshowColors, beatmapOverrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, environmentsListModel);
+        static void Postfix(in BeatmapKey beatmapKey, BeatmapLevel beatmapLevel, OverrideEnvironmentSettings overrideEnvironmentSettings, ColorScheme overrideColorScheme, GameplayModifiers gameplayModifiers, PlayerSpecificSettings playerSpecificSettings, PracticeSettings practiceSettings, EnvironmentsListModel environmentsListModel) {
+            LevelDataEnhancerPatch.Postfix(beatmapKey, beatmapLevel, overrideEnvironmentSettings, overrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, environmentsListModel);
         }
     }
 }

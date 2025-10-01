@@ -75,9 +75,6 @@ namespace BeatLeader {
         private BeatmapObjectManager _beatmapObjectManager;
 
         [Inject, UsedImplicitly]
-        private VariableMovementDataProvider _movementDataProvider;
-
-        [Inject, UsedImplicitly]
         private BeatmapObjectSpawnController _beatSpawnController;
 
         [Inject, UsedImplicitly]
@@ -293,7 +290,7 @@ namespace BeatLeader {
 
         #region Note Events
 
-        private void OnNoteWasAdded(NoteData noteData, NoteSpawnData spawnData) {
+        private void OnNoteWasAdded(NoteData noteData, BeatmapObjectSpawnMovementData.NoteSpawnData spawnData) {
             if (_stopRecording) return;
 
             var noteId = _noteId++;
@@ -429,7 +426,7 @@ namespace BeatLeader {
         #region Misc. Events
 
         private void OnBeatSpawnControllerDidInit() {
-            _replay.info.jumpDistance = _movementDataProvider.jumpDistance;
+            _replay.info.jumpDistance = _beatSpawnController.jumpDistance;
         }
 
         private void OnPlayerHeightChange(float height) {

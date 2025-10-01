@@ -8,13 +8,13 @@ namespace BeatLeader.Interop {
     internal static class CustomNotesInterop {
         #region Init
 
-        [PluginType("CustomNotes.Components.CustomNoteController")]
+        [PluginType("CustomNotes.Managers.CustomNoteController")]
         private static readonly Type _customNoteControllerType;
 
-        [PluginType("CustomNotes.Components.CustomBombController")]
+        [PluginType("CustomNotes.Managers.CustomBombController")]
         private static readonly Type _customBombControllerType;
 
-        [PluginType("CustomNotes.Components.CustomBurstSliderController")]
+        [PluginType("CustomNotes.Managers.CustomBurstSliderController")]
         private static readonly Type _customSliderControllerType;
 
         [PluginState]
@@ -34,7 +34,7 @@ namespace BeatLeader.Interop {
             _finishBombControllerMethod = _customBombControllerType
                 .GetMethod("DidFinish", ReflectionUtils.DefaultFlags);
             _bombControllerContainerField = _customBombControllerType
-                .GetField("siraContainer", ReflectionUtils.DefaultFlags);
+                .GetField("container", ReflectionUtils.DefaultFlags);
         }
 
         #endregion

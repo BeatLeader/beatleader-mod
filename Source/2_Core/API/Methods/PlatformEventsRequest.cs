@@ -6,7 +6,7 @@ using BeatLeader.WebRequests;
 namespace BeatLeader.API {
     public class PlatformEventsRequest : PersistentWebRequestBase<Paged<PlatformEvent>, JsonResponseParser<Paged<PlatformEvent>>> {
         public static IWebRequest<Paged<PlatformEvent>> Send() {
-            return SendRet($"{BLConstants.BEATLEADER_API_URL}/mod-test/events", HttpMethod.Get);
+            return SendRet($"{BLConstants.BEATLEADER_API_URL}/mod/events", HttpMethod.Get);
         }
     }
 }

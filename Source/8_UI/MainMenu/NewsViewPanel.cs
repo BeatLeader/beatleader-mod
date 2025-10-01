@@ -146,6 +146,7 @@ internal class NewsViewPanel : ReactiveComponent {
                                     billboard.Push(specialNews);
                                 } else {
                                     billboard.Pop();
+                                    specialNews.CancelPreview();
                                 }
                             }
                         )

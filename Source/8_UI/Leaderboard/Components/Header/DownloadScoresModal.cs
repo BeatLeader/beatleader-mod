@@ -186,25 +186,9 @@ namespace BeatLeader.Components {
 
         #region Construct
 
-        private static readonly string[] easterStrings = {
-            "Cook a dinner?",
-            "Go to a zoo?",
-            "Gain some money?",
-            "Crash the game?",
-            "Surpass IlluminatiSalad?",
-            "Become a hacker?",
-            "Ping NSGolova?",
-            "Adopt Monke?",
-            "Migrate to China?",
-            "Make a twitter drama?",
-            "Meet Elon?",
-            "Get banned?"
-        };
-
         private Label _progressLabel = null!;
         private ProgressBar _progressBar = null!;
         private Toggle _saveReplaysToggle = null!;
-        private NamedRail _easterNamedRail = null!;
         private IReactiveComponent _saveReplaysContainer = null!;
 
         protected override ILayoutItem ConstructContent() {
@@ -219,11 +203,7 @@ namespace BeatLeader.Components {
                             new Toggle()
                                 .WithListener(x => x.Active, x => _saveReplays = x)
                                 .Bind(ref _saveReplaysToggle)
-                                .InNamedRail("Save replays?"),
-
-                            new Toggle()
-                                .InNamedRail("")
-                                .Bind(ref _easterNamedRail)
+                                .InNamedRail("Save replays?")
                         }
                     }.AsFlexGroup(
                         direction: FlexDirection.Column,
@@ -264,10 +244,6 @@ namespace BeatLeader.Components {
             if (opened) {
                 return;
             }
-
-            // Selecting a random easter egg
-            var idx = UnityEngine.Random.Range(0, easterStrings.Length);
-            _easterNamedRail.Label.Text = easterStrings[idx];
 
             _saveReplaysToggle.SetActive(false, false);
             CheckReplaysDownloaded().RunCatching();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using BeatLeader.Models;
 using UnityEngine;
@@ -52,6 +52,10 @@ namespace BeatLeader.Replayer.Emulation {
         private BodySettings BodySettings => _replayLaunchData.Settings.BodySettings;
 
         private void Awake() {
+            Plugin.Log.Error($"{_replayLaunchData == null}");
+            Plugin.Log.Error($"{_replayLaunchData?.Settings == null}");
+            Plugin.Log.Error($"{_replayLaunchData?.Settings?.BodySettings == null}");
+
             BodySettings.ConfigUpdatedEvent += HandleBodyConfigUpdated;
         }
 

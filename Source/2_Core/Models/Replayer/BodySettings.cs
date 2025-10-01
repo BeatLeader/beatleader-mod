@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
@@ -15,7 +15,7 @@ namespace BeatLeader.Models {
         public event Action<BodySettings, object>? ConfigUpdatedEvent;
         
         [JsonProperty("Configs")]
-        private readonly Dictionary<Type, string> _serializedConfigs = new();
+        private readonly Dictionary<string, string> _serializedConfigs = new();
         
         internal readonly Dictionary<Type, object> Configs = new();
 
@@ -33,6 +33,10 @@ namespace BeatLeader.Models {
         }
 
         public T RequireConfig<T>() where T : new() {
+            foreach (var item in Configs) {
+                Plugin.Log.Error($"{item.Key} {item.Value}");
+            }
+
             if (!Configs.TryGetValue(typeof(T), out var obj)) {
                 var instance = new T();
 
@@ -50,14 +54,14 @@ namespace BeatLeader.Models {
         [OnSerializing]
         internal void OnSerializing(StreamingContext context) {
             foreach (var (key, value) in Configs) {
-                _serializedConfigs[key] = JsonConvert.SerializeObject(value);
+                _serializedConfigs[key.ToString()] = JsonConvert.SerializeObject(value);
             }
         }
 
         [OnDeserialized]
         internal void OnDeserialized(StreamingContext context) {
             foreach (var (key, value) in _serializedConfigs) {
-                Configs[key] = JsonConvert.DeserializeObject(value, key)!;
+                Configs[Type.GetType(key)] = JsonConvert.DeserializeObject(value, Type.GetType(key))!;
             }
         }
     }

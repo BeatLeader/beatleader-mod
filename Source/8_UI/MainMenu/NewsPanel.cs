@@ -9,15 +9,26 @@ using UnityEngine;
 using static BeatLeader.WebRequests.RequestState;
 
 namespace BeatLeader.UI.MainMenu {
-    internal class NewsPanel<TItem, TCell> : ReactiveComponent where TCell : IListCell<TItem>, IReactiveComponent, new() {
+    internal class NewsPanel<TItem, TCell> : ReactiveComponent, ILayoutDriver where TCell : IListCell<TItem>, IReactiveComponent, new() {
         #region Props
 
         public string EmptyMessage { get; set; } = "Nothing to show";
         public Action<TCell>? OnCellConstructed { get; set; }
 
-        public void UpdateFromRequest(RequestState state, List<TItem> items) {
+        public void UpdateFromRequest(RequestState state, IReadOnlyList<TItem>? items) {
             _requestState.Value = state;
-            _list.Value = items;
+            _list.Value = items ?? new List<TItem>(0);
+        }
+
+        #endregion
+
+        #region Layout Driver
+
+        public ICollection<ILayoutItem> Children => _listView.Children;
+        
+        public ILayoutController? LayoutController {
+            get => _listView.LayoutController;
+            set => _listView.LayoutController = value;
         }
 
         #endregion
@@ -25,11 +36,12 @@ namespace BeatLeader.UI.MainMenu {
         #region Construct
 
         private ObservableValue<RequestState> _requestState = null!;
-        private ObservableValue<List<TItem>> _list = null!;
+        private ObservableValue<IReadOnlyList<TItem>> _list = null!;
+        private ILayoutDriver _listView = null!;
 
         protected override GameObject Construct() {
             _requestState = Remember(Uninitialized);
-            _list = Remember(new List<TItem>());
+            _list = Remember<IReadOnlyList<TItem>>(new List<TItem>(0));
 
             var transitionAlpha = RememberAnimated(0f, 200.ms());
 
@@ -87,10 +99,10 @@ namespace BeatLeader.UI.MainMenu {
                                                 }
                                                 .Animate(_list, (table, items) => table.Items = items)
                                                 .AsFlexGroup(
-                                                    gap: 1,
                                                     direction: FlexDirection.Column,
                                                     constrainVertical: false
-                                                ),
+                                                )
+                                                .Bind(ref _listView),
                                     }
                                     .AsFlexItem(flexGrow: 1)
                                     .Export(out var scrollArea),

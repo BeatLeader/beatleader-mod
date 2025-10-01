@@ -4,6 +4,7 @@ using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
 using TMPro;
+using UnityEngine;
 
 namespace BeatLeader.UI.Reactive.Components {
     internal static class ComponentsExtensions {
@@ -88,5 +89,12 @@ namespace BeatLeader.UI.Reactive.Components {
         }
 
         #endregion
+
+        public static T WithAlpha<T>(this T comp, INotifyValueChanged<float> alphaState, bool invert = false) where T : IReactiveComponent {
+            comp.WithNativeComponent(out CanvasGroup group);
+            comp.Animate(alphaState, (_, y) => group.alpha = invert ? 1f - y : y, applyImmediately: true);
+
+            return comp;
+        }
     }
 }

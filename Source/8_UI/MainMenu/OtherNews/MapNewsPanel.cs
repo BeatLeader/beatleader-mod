@@ -31,7 +31,7 @@ namespace BeatLeader.UI.MainMenu {
 
                 _newsPanel.UpdateFromRequest(state, list);
             } else {
-                _newsPanel.UpdateFromRequest(state, new());
+                _newsPanel.UpdateFromRequest(state, null);
             }
         }
 
@@ -65,7 +65,7 @@ namespace BeatLeader.UI.MainMenu {
                     color: Color.black.ColorWithAlpha(0.33f),
                     pixelsPerUnit: 7f
                 )
-                .AsFlexItem(size: new() { x = 70, y = 39 })
+                .AsFlexItem(size: new() { x = 70 }, flexGrow: 1f)
                 .Use();
         }
 

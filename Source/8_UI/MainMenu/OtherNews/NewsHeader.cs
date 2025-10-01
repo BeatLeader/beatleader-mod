@@ -12,18 +12,23 @@ namespace BeatLeader.UI.MainMenu {
             set => _textLabel.Text = value;
         }
 
+        public Color Accent {
+            get => _bg.Color;
+            set => _bg.Color = value;
+        }
+
         private Label _textLabel = null!;
+        private Background _bg = null!;
 
         protected override GameObject Construct() {
             return new Background {
                     Sprite = BundleLoader.Sprites.background,
-                    Color = Color.black.ColorWithAlpha(0.5f),
                     PixelsPerUnit = 10f,
                     Children = {
                         new Label {
                             FontSize = 4f,
                             FontStyle = FontStyles.Italic,
-                            Alignment = TextAlignmentOptions.Center
+                            Alignment = TextAlignmentOptions.Capline
                         }.AsFlexItem().Bind(ref _textLabel)
                     }
                 }.AsFlexGroup(
@@ -32,7 +37,8 @@ namespace BeatLeader.UI.MainMenu {
                     alignItems: Align.Center,
                     padding: new() { left = 1, right = 1 }
                 )
-                .AsBlurBackground()
+                .Bind(ref _bg)
+                .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
                 .AsFlexItem(
                     size: new() { y = 5 },
                     margin: new() { bottom = 1f }

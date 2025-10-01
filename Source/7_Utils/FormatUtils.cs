@@ -132,11 +132,25 @@ namespace BeatLeader {
 
         #region GetRelativeTimeString
 
+        public static string GetRemainingTime(TimeSpan span) {
+            if (span.TotalHours >= 1) {
+                return $"{(int)span.TotalHours} hour{((int)span.TotalHours > 1 ? "s" : "")} left";
+            }
+            
+            if (span.TotalMinutes >= 1) {
+                return $"{(int)span.TotalMinutes} minute{((int)span.TotalMinutes > 1 ? "s" : "")} left";
+            }
+            
+            return $"{(int)span.TotalSeconds} second{((int)span.TotalSeconds > 1 ? "s" : "")} left";
+        }
+
+        [Obsolete("Prefer parsing directly in your model.")]
         public static TimeSpan GetRelativeTime(string timeSet) {
             var dateTime = long.Parse(timeSet);
             return GetRelativeTime(dateTime);
         }
 
+        [Obsolete("Prefer parsing directly in your model.")]
         public static TimeSpan GetRelativeTime(long timeSet) {
             return DateTime.UtcNow - timeSet.AsUnixTime();
         }
@@ -155,8 +169,26 @@ namespace BeatLeader {
             static string Zero(int number) => number > 9 ? "" : "0";
         }
 
+        public static string GetDateOfMonthTimeString(long timestamp) {
+            var t = timestamp.AsUnixTime();
+            var suffix = t.Day switch {
+                1 or 21 or 31 => "st",
+                2 or 22 => "nd", 
+                3 or 23 => "rd",
+                _ => "th"
+            };
+            return $"{t:MMMM} {t.Day}{suffix}";
+        }
+
         public static string GetDateTimeString(string timeSet) {
             return GetDateTimeString(long.Parse(timeSet));
+        }
+        
+        public static string GetRelativeTimeString(DateTime date, bool compact) {
+            var now = DateTime.UtcNow;
+            var span = now > date ? now - date : date - now;
+            
+            return GetRelativeTimeString(span, compact);
         }
 
         public static string GetRelativeTimeString(TimeSpan timeSpan, bool compact) {

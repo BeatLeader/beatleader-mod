@@ -22,6 +22,10 @@ namespace BeatLeader.UI.MainMenu {
         public void SetLoading() {
             _spinnerAlpha.Value = 1f;
         }
+
+        public void PlayPreview() {
+            _mapPanel.PlayPreview();
+        }
         
         public void CancelPreview() {
             _mapPanel.CancelPreview();

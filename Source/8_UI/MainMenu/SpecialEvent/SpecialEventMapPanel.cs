@@ -22,12 +22,17 @@ internal class SpecialEventMapPanel : ReactiveComponent {
 
         if (map != null) {
             _mapDetail.Value = map.song;
-            LoadAndPlayPreview(CancellationToken.None).RunCatching();
         }
     }
 
+    public void PlayPreview() {
+        LoadAndPlayPreview(CancellationToken.None).RunCatching();
+    }
+
     public void CancelPreview() {
-        _songPreviewPlayer.FadeOut(1.2f);
+        if (_songPreviewPlayer != null) {
+            _songPreviewPlayer.CrossfadeToDefault();
+        }
     }
 
     #endregion
@@ -130,9 +135,7 @@ internal class SpecialEventMapPanel : ReactiveComponent {
     protected override void OnDisable() {
         base.OnDisable();
 
-        if (_songPreviewPlayer != null) {
-            _songPreviewPlayer.CrossfadeToDefault();
-        }
+        CancelPreview();
     }
 
     #endregion

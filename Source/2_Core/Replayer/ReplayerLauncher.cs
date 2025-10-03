@@ -110,7 +110,7 @@ namespace BeatLeader.Replayer {
                     playerData.colorSchemesSettings.ShouldOverrideLightshowColors(),
                     level.Level.GetColorScheme(level.Key.beatmapCharacteristic, level.Key.difficulty),
                     launchData.Settings.IgnoreModifiers ? CreateDisabledModifiers(replayModifiers) : replayModifiers,
-                    playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
+                    playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay, launchData.IsBattleRoyale ? false : null),
                     practiceSettings,
                     _environmentsListModel,
                     _audioClipAsyncLoader,

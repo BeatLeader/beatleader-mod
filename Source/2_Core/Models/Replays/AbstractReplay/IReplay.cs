@@ -5,6 +5,7 @@ namespace BeatLeader.Models.AbstractReplay {
     [PublicAPI]
     public interface IReplay {
         IReplayData ReplayData { get; }
+        IReplayNoteComparator NoteComparator { get; }
         BattleRoyaleReplayData? OptionalReplayData { get; }
 
         IReadOnlyList<PlayerMovementFrame> PlayerMovementFrames { get; }

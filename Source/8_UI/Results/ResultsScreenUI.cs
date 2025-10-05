@@ -23,11 +23,13 @@ namespace BeatLeader.ViewControllers {
         private ReplayButton _replayButton;
 
         private SpecialEventResultsPanel _eventResultsPanel = null!;
-        private BeatLeaderNewsViewController _newsViewController = null!;
+        private BeatLeaderNewsViewController? _newsViewController = null;
 
         private void Awake() {
-            _newsViewController = Resources.FindObjectsOfTypeAll<BeatLeaderNewsViewController>().First();
-            _newsViewController.HappeningEvent.ValueChangedEvent += HandleEventStatusUpdated;
+            _newsViewController = Resources.FindObjectsOfTypeAll<BeatLeaderNewsViewController>().FirstOrDefault();
+            if (_newsViewController != null) {
+                _newsViewController.HappeningEvent.ValueChangedEvent += HandleEventStatusUpdated;
+            }
 
             _eventResultsPanel = new();
             _eventResultsPanel.Use(transform);
@@ -47,12 +49,16 @@ namespace BeatLeader.ViewControllers {
         public void Setup(BeatmapLevel level) {
             _replayButton.Interactable = ReplayManager.LastSavedReplay is not null;
 
-            var evt = _newsViewController.HappeningEvent.Value;
-            var hash = CustomLevelLoader.kCustomLevelPrefixId + evt?.today?.song.hash.ToUpper();
+            if (_newsViewController != null) {
+                var evt = _newsViewController.HappeningEvent.Value;
+                var hash = CustomLevelLoader.kCustomLevelPrefixId + evt?.today?.song.hash.ToUpper();
 
-            if (level.levelID == hash) {
-                _newsViewController.RefreshEventsCache();
-                _eventResultsPanel.Enabled = true;
+                if (level.levelID == hash) {
+                    _newsViewController.RefreshEventsCache();
+                    _eventResultsPanel.Enabled = true;
+                } else {
+                    _eventResultsPanel.Enabled = false;
+                }
             } else {
                 _eventResultsPanel.Enabled = false;
             }

@@ -230,7 +230,7 @@ namespace BeatLeader {
 
             var frame = new Frame() {
                 time = _timeSyncController.songTime,
-                fps = Mathf.RoundToInt(1.0f / Time.deltaTime),
+                fps = Mathf.RoundToInt(Time.timeScale / Time.deltaTime),
                 head = new Models.Replay.Transform {
                     rotation = _origin.InverseTransformRotation(_head.rotation),
                     position = _origin.InverseTransformPoint(_head.position)

@@ -76,7 +76,7 @@ namespace BeatLeader.Components {
                                 _isAnimated = false;
                             } else {
                                 _levelUpCount--;
-                                SetLevelText(_level++);
+                                SetLevelText(++_level);
                                 _expProgress = 0f;
                                 _sessionProgress = 0f;
                                 _elapsedTime = 0f;
@@ -183,9 +183,9 @@ namespace BeatLeader.Components {
         }
 
         private void SetLevelText(int level) {
-            LevelText = _level.ToString();
+            LevelText = level.ToString();
             if (level != 100) {
-                NextLevelText = (_level + 1).ToString();
+                NextLevelText = (level + 1).ToString();
             } else {
                 NextLevelText = "Prestige";
             }

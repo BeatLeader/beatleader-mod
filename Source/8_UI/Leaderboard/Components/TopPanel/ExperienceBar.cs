@@ -19,6 +19,7 @@ namespace BeatLeader.Components {
         private static readonly int HighlightPropertyId = Shader.PropertyToID("_Highlight");
 
         private int _level;
+        private int _prestige;
         private float _gradientT;
         private float _expProgress;
         private float _sessionProgress;
@@ -163,6 +164,8 @@ namespace BeatLeader.Components {
             if (!_initialized && state is RequestState.Finished) {
                 Player player = instance.Result;
                 _level = player.level;
+                _prestige = player.prestige;
+                if (_prestige == 10) _experienceBar.raycastTarget = false;
                 SetLevelText(_level);
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                 _expProgress = player.experience / _requiredExp;
@@ -244,6 +247,8 @@ namespace BeatLeader.Components {
         private void OnPrestigeRequestStateChanged(IWebRequest<Player> instance, RequestState state, string? failReason) {
             if (state is RequestState.Finished) {
                 _level = 0;
+                _prestige++;
+                if (_prestige == 10) _experienceBar.raycastTarget = false;
                 SetLevelText(_level);
                 _expProgress = 0f;
                 ResetExperienceBarData();

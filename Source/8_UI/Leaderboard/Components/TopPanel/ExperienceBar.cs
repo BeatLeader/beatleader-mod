@@ -43,8 +43,9 @@ namespace BeatLeader.Components {
 
         private void Update() {
             if (_initialized && _level != 100 && (_isIdle || _isAnimated)) {
+                _elapsedTime += Time.deltaTime;
                 if (_isIdle) {
-                    _elapsedTime += Time.deltaTime;
+                    // Idle highlight animation, slowly pulses the highlight value
                     float t = Mathf.Clamp01(_elapsedTime / _animationDuration);
                     if (!_reverse) {
                         _highlight = Mathf.Lerp(0f, 1f, t);
@@ -57,33 +58,37 @@ namespace BeatLeader.Components {
                         _reverse = !_reverse;
                     }
                 } else if (_isAnimated) {
-                    _elapsedTime2 += Time.deltaTime;
-                    _gradientT = Mathf.Clamp01(_elapsedTime2 / _animationDuration);
-                    if (_levelUpValue > 0) {
-                        _elapsedTime += Time.deltaTime;
-                        float t = Mathf.Clamp01(_elapsedTime * (_levelUpValue + 1) / _animationDuration);
+                    // Experience filling the bar animation with wave effect
+                    if (_levelUpValue > 0) { // Level up animation
+                        _elapsedTime2 += Time.deltaTime;
+                        float t = Mathf.Clamp01(_elapsedTime2 * (_levelUpValue + 1) / _animationDuration);
                         float targetValue = 1 - _expProgress;
-                        if (_levelUpCount != 0) {
+                        if (_levelUpCount != 0) { // Before final level
                             _sessionProgress = Mathf.Lerp(0f, targetValue, t);
-                        } else {
+                        } else { // Final level
                             _sessionProgress = Mathf.Lerp(0f, _targetValue, t);
                         }
-
-                        if (_elapsedTime * (_levelUpValue + 1) >= _animationDuration) {
-                            if (_levelUpCount == 0) {
-                                _sessionProgress = _targetValue;
-                                _elapsedTime = 0f;
-                                _isAnimated = false;
-                            } else {
+                        // Consider the number of level ups to speed up the animation
+                        if (_elapsedTime2 * (_levelUpValue + 1) >= _animationDuration) {
+                            if (_levelUpCount != 0) { // Reset for next level up
                                 _levelUpCount--;
                                 SetLevelText(++_level);
                                 _expProgress = 0f;
                                 _sessionProgress = 0f;
-                                _elapsedTime = 0f;
+                                _elapsedTime2 = 0f;
                             }
                         }
-                    } else {
+                    } else { // Non-level up animation
+                        _gradientT = Mathf.Clamp01(_elapsedTime / _animationDuration);
                         _sessionProgress = Mathf.Lerp(0, _targetValue, _gradientT);
+                    }
+
+                    // Forcefully end animation if time exceeded
+                    if (_elapsedTime >= _animationDuration) {
+                        _level += _levelUpCount; // Add leftover level ups if still existing
+                        SetLevelText(_level);
+                        _sessionProgress = _targetValue;
+                        _isAnimated = false;
                     }
                 }
 
@@ -216,14 +221,12 @@ namespace BeatLeader.Components {
             }
 
             if (state is RequestState.Finished) {
-                _isIdle = false;
-                _highlight = 0f;
+                ResetExperienceBarData();
 
                 if (instance.Result.Status != ScoreUploadStatus.Error) {
                     Player player = instance.Result.Score.Player;
                     if (player.level == _level) {
                         _targetValue = player.experience / _requiredExp - _expProgress;
-                        _levelUpValue = 0;
                     } else {
                         _levelUpCount = player.level - _level;
                         _levelUpValue = _levelUpCount;

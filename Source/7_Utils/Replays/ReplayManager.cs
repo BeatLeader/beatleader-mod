@@ -428,6 +428,10 @@ namespace BeatLeader.Utils {
             if (path != null && Path.GetFileName(path).Contains("exit")) {
                 info.levelEndType = LevelEndType.Quit;
             }
+
+            if (path != null && Path.GetFileName(path).Contains("practice")) {
+                info.levelEndType = LevelEndType.Practice;
+            }
         }
 
         private static bool ShouldSaveReplay(Replay replay, PlayEndData endData) {
@@ -435,6 +439,7 @@ namespace BeatLeader.Utils {
 
             return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
                 LevelEndType.Fail                         => options.HasFlag(ReplaySaveOption.Fail),
+                LevelEndType.Practice                     => options.HasFlag(ReplaySaveOption.Practice),
                 LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
                 LevelEndType.Clear                        => true,
                 _                                         => false

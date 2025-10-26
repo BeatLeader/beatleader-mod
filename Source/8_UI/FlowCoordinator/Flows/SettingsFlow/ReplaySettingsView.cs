@@ -169,6 +169,14 @@ namespace BeatLeader.UI.Hub {
                         )
                         .InNamedRail("Save On Exit"),
 
+                    new Toggle()
+                        .With(x => x.SetActive(GetReplaySaveFlag(ReplaySaveOption.Practice), false))
+                        .WithListener(
+                            x => x.Active,
+                            x => WriteReplaySaveFlag(ReplaySaveOption.Practice, x)
+                        )
+                        .InNamedRail("Save On Practice"),
+
                     //override old toggle
                     new Toggle()
                         .With(x => x.SetActive(ConfigFileData.Instance.OverrideOldReplays, false))

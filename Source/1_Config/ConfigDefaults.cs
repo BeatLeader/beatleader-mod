@@ -223,7 +223,7 @@ namespace BeatLeader {
 
         public const bool SaveLocalReplays = true;
 
-        public const ReplaySaveOption ReplaySavingOptions = ReplaySaveOption.Exit | ReplaySaveOption.Fail | ReplaySaveOption.ZeroScore;
+        public const ReplaySaveOption ReplaySavingOptions = ReplaySaveOption.Exit | ReplaySaveOption.Fail | ReplaySaveOption.ZeroScore | ReplaySaveOption.OST | ReplaySaveOption.Practice;
 
         #endregion
 

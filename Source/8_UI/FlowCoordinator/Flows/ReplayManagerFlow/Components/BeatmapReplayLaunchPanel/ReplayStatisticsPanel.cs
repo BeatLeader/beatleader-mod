@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.Components;
 using BeatLeader.Models;
@@ -107,6 +108,7 @@ namespace BeatLeader.UI.Hub {
                     stats = await Task.Run(() => ReplayStatisticUtils.ComputeScoreStats(replay), token);
                     score = ReplayUtils.ComputeScore(replay);
                     score.fcAccuracy = stats?.accuracyTracker.fcAcc ?? 0;
+                    score.accuracy = stats?.scoreGraphTracker.graph.LastOrDefault() ?? 0;
                 }
 
                 StatsStorage.AddStats(header, score, stats);

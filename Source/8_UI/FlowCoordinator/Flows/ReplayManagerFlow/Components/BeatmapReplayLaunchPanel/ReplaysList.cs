@@ -114,7 +114,9 @@ namespace BeatLeader.UI.Hub {
             private static string FormatLevelEndType(LevelEndType levelEndType, float failTime) {
                 return levelEndType switch {
                     Clear => "Completed",
-                    Quit or Restart => "Unfinished",
+                    Practice => "Practice",
+                    Quit => "Quit",
+                    Restart => "Restart",
                     Fail => $"Failed at {FormatUtils.FormatTime(failTime)}",
                     _ => "Unknown"
                 };

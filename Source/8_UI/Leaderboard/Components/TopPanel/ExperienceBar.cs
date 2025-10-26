@@ -84,11 +84,6 @@ namespace BeatLeader.Components {
                         }
                     } else {
                         _sessionProgress = Mathf.Lerp(0, _targetValue, _gradientT);
-
-                        if (_elapsedTime >= _animationDuration) {
-                            _sessionProgress = _targetValue;
-                            _isAnimated = false;
-                        }
                     }
                 }
 

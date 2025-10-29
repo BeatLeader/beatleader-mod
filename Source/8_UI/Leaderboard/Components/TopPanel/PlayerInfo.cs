@@ -1,5 +1,6 @@
 ﻿using BeatLeader.API;
 using BeatLeader.Models;
+using BeatLeader.UI.Hub;
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using JetBrains.Annotations;
@@ -32,6 +33,7 @@ namespace BeatLeader.Components {
             UserRequest.StateChangedEvent += OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
             PrestigePanel.PrestigeWasPressedEvent += IncrementPrestigeIcon;
+            GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
         }
 
@@ -39,6 +41,7 @@ namespace BeatLeader.Components {
             UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
             PrestigePanel.PrestigeWasPressedEvent -= IncrementPrestigeIcon;
+            GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
         }
 
@@ -103,7 +106,7 @@ namespace BeatLeader.Components {
         private void SwapPrestigeIcon(int prestige) {
             switch (prestige) {
                 case 0:
-                    _prestigeIcon.gameObject.SetActive(false);
+                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon0;
                     break;
                 case 1:
                     _prestigeIcon.sprite = BundleLoader.PrestigeIcon1;
@@ -137,8 +140,18 @@ namespace BeatLeader.Components {
                     break;
             }
 
-            if (prestige != 0) {
+            if (ConfigFileData.Instance.ExperienceBarEnabled) {
                 _prestigeIcon.gameObject.SetActive(true);
+            } else {
+                _prestigeIcon.gameObject.SetActive(false);
+            }
+        }
+
+        private void OnExperienceBarConfigChanged(bool enable) {
+            if (enable) {
+                _prestigeIcon.gameObject.SetActive(true);
+            }else {
+                _prestigeIcon.gameObject.SetActive(false);
             }
         }
 

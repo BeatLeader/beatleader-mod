@@ -8,7 +8,7 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnEnable() {
-            if (_prestige != 0) UpdateImage();
+            UpdateImage();
         }
 
         private void OnDisable() {
@@ -27,9 +27,10 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateImage() {
-            if (_prestige == 0) return;
-
             switch (_prestige) {
+                case 0:
+                    SetSprite(BundleLoader.PrestigeIcon0 ?? BundleLoader.LocationIcon);
+                    break;
                 case 1:
                     SetSprite(BundleLoader.PrestigeIcon1 ?? BundleLoader.LocationIcon);
                     break;

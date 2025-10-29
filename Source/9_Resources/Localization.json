@@ -52,6 +52,23 @@
       }
     },
     {
+      "Token": "ls-prestige",
+      "Translations": {
+        "English": "Prestige",
+        "Japanese": "Prestige",
+        "Russian": "Prestige",
+        "Chinese": "Prestige",
+        "Korean": "Prestige",
+        "French": "Prestige",
+        "German": "Prestige",
+        "Spanish": null,
+        "Norwegian": null,
+        "Polish": "Prestige",
+        "Swedish": "Prestige",
+        "Italian": "Prestige"
+      }
+    },
+    {
       "Token": "ls-clans",
       "Translations": {
         "English": "Clans",

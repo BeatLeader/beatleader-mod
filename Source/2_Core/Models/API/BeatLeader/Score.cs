@@ -21,7 +21,7 @@ namespace BeatLeader.Models {
         public string modifiers;
         public float pp;
         public float fcPp;
-        public float experience;
+        public int experience;
         public int rank;
         public int badCuts;
         public int missedNotes;
@@ -53,6 +53,7 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Clans => true,
                 ScoreRowCellType.Time => true,
                 ScoreRowCellType.Pauses => true,
+                ScoreRowCellType.Prestige => true,
                 _ => false
             };
         }
@@ -71,6 +72,7 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Clans => Player.clans,
                 ScoreRowCellType.Time => timeSet,
                 ScoreRowCellType.Pauses => pauses,
+                ScoreRowCellType.Prestige => Player.prestige,
                 _ => default
             };
         }

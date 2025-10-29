@@ -30,6 +30,7 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Clans => false,
                 ScoreRowCellType.Time => true,
                 ScoreRowCellType.Pauses => true,
+                ScoreRowCellType.Prestige => true,
                 _ => false
             };
         }
@@ -48,6 +49,7 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Clans => Player.clans,
                 ScoreRowCellType.Time => score?.timeSet,
                 ScoreRowCellType.Pauses => score?.pauses,
+                ScoreRowCellType.Prestige => Player.prestige,
                 _ => default
             };
         }

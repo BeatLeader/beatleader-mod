@@ -1,4 +1,4 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -30,6 +30,18 @@ namespace BeatLeader.Components {
         #endregion
 
         #region Toggles
+
+        [UIValue("prestige-mask-value"), UsedImplicitly]
+        private bool PrestigeMaskValue {
+            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Prestige);
+            set {
+                if (value) {
+                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Prestige;
+                } else {
+                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Prestige;
+                }
+            }
+        }
 
         [UIValue("avatar-mask-value"), UsedImplicitly]
         private bool AvatarMaskValue {

@@ -18,6 +18,7 @@ namespace BeatLeader.Components {
 
         private void Awake() {
             _rankCell = InstantiateCell<TextScoreRowCell>(ScoreRowCellType.Rank);
+            InstantiateCell<PrestigeScoreRowCell>(ScoreRowCellType.Prestige);
             InstantiateCell<AvatarScoreRowCell>(ScoreRowCellType.Avatar);
             InstantiateCell<CountryScoreRowCell>(ScoreRowCellType.Country);
             _usernameCell = InstantiateCell<TextScoreRowCell>(ScoreRowCellType.Username);

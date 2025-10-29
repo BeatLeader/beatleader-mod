@@ -41,7 +41,7 @@ namespace BeatLeader.Components {
             UserRequest.StateChangedEvent -= OnProfileRequestStateChanged;
             UploadReplayRequest.StateChangedEvent -= OnUploadRequestStateChanged;
             PrestigePanel.PrestigeWasPressedEvent -= IncrementPrestigeIcon;
-            GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
+            GlobalSettingsView.ExperienceBarConfigEvent -= OnExperienceBarConfigChanged;
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
         }
 

@@ -104,42 +104,8 @@ namespace BeatLeader.Components {
         }
 
         private void SwapPrestigeIcon(int prestige) {
-            switch (prestige) {
-                case 0:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon0;
-                    break;
-                case 1:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon1;
-                    break;
-                case 2:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon2;
-                    break;
-                case 3:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon3;
-                    break;
-                case 4:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon4;
-                    break;
-                case 5:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon5;
-                    break;
-                case 6:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon6;
-                    break;
-                case 7:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon7;
-                    break;
-                case 8:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon8;
-                    break;
-                case 9:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon9;
-                    break;
-                case 10:
-                    _prestigeIcon.sprite = BundleLoader.PrestigeIcon10;
-                    break;
-            }
-
+            _prestigeIcon.sprite = PrestigeIcon.GetPrestigeSprite(prestige);
+           
             if (ConfigFileData.Instance.ExperienceBarEnabled) {
                 _prestigeIcon.gameObject.SetActive(true);
             } else {

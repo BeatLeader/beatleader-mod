@@ -19,49 +19,44 @@ namespace BeatLeader.Components {
 
         #region SetCountry
 
-        private int? _prestige = 0;
+        private int _prestige = 0;
 
-        public void SetPrestige(int? prestige) {
+        public void SetPrestige(int prestige) {
             _prestige = prestige;
             if (gameObject.activeInHierarchy) UpdateImage();
         }
 
-        private void UpdateImage() {
-            switch (_prestige) {
+        public static Sprite GetPrestigeSprite(int prestige) {
+            switch (prestige) {
                 case 0:
-                    SetSprite(BundleLoader.PrestigeIcon0 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon0 ?? BundleLoader.LocationIcon;
                 case 1:
-                    SetSprite(BundleLoader.PrestigeIcon1 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon1 ?? BundleLoader.LocationIcon;
                 case 2:
-                    SetSprite(BundleLoader.PrestigeIcon2 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon2 ?? BundleLoader.LocationIcon;
                 case 3:
-                    SetSprite(BundleLoader.PrestigeIcon3 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon3 ?? BundleLoader.LocationIcon;
                 case 4:
-                    SetSprite(BundleLoader.PrestigeIcon4 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon4 ?? BundleLoader.LocationIcon;
                 case 5:
-                    SetSprite(BundleLoader.PrestigeIcon5 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon5 ?? BundleLoader.LocationIcon;
                 case 6:
-                    SetSprite(BundleLoader.PrestigeIcon6 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon6 ?? BundleLoader.LocationIcon;
                 case 7:
-                    SetSprite(BundleLoader.PrestigeIcon7 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon7 ?? BundleLoader.LocationIcon;
                 case 8:
-                    SetSprite(BundleLoader.PrestigeIcon8 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon8 ?? BundleLoader.LocationIcon;
                 case 9:
-                    SetSprite(BundleLoader.PrestigeIcon9 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon9 ?? BundleLoader.LocationIcon;
                 case 10:
-                    SetSprite(BundleLoader.PrestigeIcon10 ?? BundleLoader.LocationIcon);
-                    break;
+                    return BundleLoader.PrestigeIcon10 ?? BundleLoader.LocationIcon;
+                default:
+                    return BundleLoader.LocationIcon;
             }
+        }
+
+        private void UpdateImage() {
+            SetSprite(GetPrestigeSprite(_prestige));
         }
 
         #endregion
@@ -76,7 +71,7 @@ namespace BeatLeader.Components {
         }
 
         private void SetSprite(Sprite sprite) {
-            _image.sprite = sprite;
+            if (_image != null) _image.sprite = sprite;
         }
 
         #endregion

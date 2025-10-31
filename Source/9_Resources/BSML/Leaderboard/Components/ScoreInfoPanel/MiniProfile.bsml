@@ -1,4 +1,4 @@
-<vertical spacing="1" vertical-fit="PreferredSize">
+﻿<vertical spacing="1" vertical-fit="PreferredSize">
     <horizontal spacing="1" horizontal-fit="PreferredSize">
         <horizontal ignore-layout="true" anchor-pos-y="13" pref-height="24">
             <vertical pref-width="24">
@@ -19,6 +19,9 @@
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
             <text text="~player-name" rich-text="false" align="Center"/>
+            <macro.as-host host="prestige-icon">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
         </horizontal>
         <horizontal pref-height="6" pad="1" bg="round-rect-panel" bg-color="#000000EE">
             <text text="~player-pp" align="Center"/>

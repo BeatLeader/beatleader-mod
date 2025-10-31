@@ -1,7 +1,0 @@
-﻿<vertical id="root-node">
-    <horizontal ignore-layout="true" pref-height="3">
-        <macro.as-host host="prestige-icon">
-            <macro.reparent transform="ui-component"/>
-        </macro.as-host>
-    </horizontal>
-</vertical>

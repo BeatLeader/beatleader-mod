@@ -14,7 +14,6 @@ namespace BeatLeader.Models {
         Mistakes = 128,
         Clans = 256,
         Time = 512,
-        Pauses = 1024,
-        Prestige = 2048
+        Pauses = 1024
     }
 }

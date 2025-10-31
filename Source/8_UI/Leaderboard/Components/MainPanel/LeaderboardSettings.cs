@@ -31,18 +31,6 @@ namespace BeatLeader.Components {
 
         #region Toggles
 
-        [UIValue("prestige-mask-value"), UsedImplicitly]
-        private bool PrestigeMaskValue {
-            get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Prestige);
-            set {
-                if (value) {
-                    PluginConfig.LeaderboardTableMask |= ScoreRowCellType.Prestige;
-                } else {
-                    PluginConfig.LeaderboardTableMask &= ~ScoreRowCellType.Prestige;
-                }
-            }
-        }
-
         [UIValue("avatar-mask-value"), UsedImplicitly]
         private bool AvatarMaskValue {
             get => PluginConfig.LeaderboardTableMask.HasFlag(ScoreRowCellType.Avatar);

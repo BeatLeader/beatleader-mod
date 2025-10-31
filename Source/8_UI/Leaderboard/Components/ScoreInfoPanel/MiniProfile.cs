@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -18,10 +18,14 @@ namespace BeatLeader.Components {
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _countryFlag;
 
+        [UIValue("prestige-icon"), UsedImplicitly]
+        private PrestigeIcon _prestigeIcon;
+
         private void Awake() {
             _playerAvatar = Instantiate<PlayerAvatar>(transform);
             _miniProfileButtons = Instantiate<MiniProfileButtons>(transform);
             _countryFlag = Instantiate<CountryFlag>(transform);
+            _prestigeIcon = Instantiate<PrestigeIcon>(transform);
         }
 
         #endregion
@@ -53,6 +57,7 @@ namespace BeatLeader.Components {
             _miniProfileButtons.SetPlayer(player);
             _playerAvatar.SetAvatar(player);
             _countryFlag.SetCountry(player.country);
+            _prestigeIcon.SetPrestige(player.prestige);
             SetMessage(player.profileSettings?.message ?? "");
 
             PlayerName = FormatUtils.FormatUserName(player.name);

@@ -38,13 +38,11 @@ namespace BeatLeader {
             var type = HeckInterop.SetterViewControllerType!;
             _initMethod = type.GetMethod("Init", ReflectionUtils.DefaultFlags)!;
             _finishedEventField = type.GetField("Finished", ReflectionUtils.DefaultFlags)!;
-            var controllers = _container.ResolveAll(HeckInterop.PlayViewControllerType);
-            foreach (var item in controllers) {
-                if (item is ViewController && item.GetType() == HeckInterop.SetterViewControllerType) {
-                    _setterViewController = (ViewController)item;
-                    break;
-                }
-            }
+            
+            _setterViewController = _container
+                .ResolveAll(HeckInterop.PlayViewControllerType)
+                .Cast<ViewController>()
+                .First(x => x.GetType() == HeckInterop.SetterViewControllerType);
         }
 
         public async Task NavigateToReplayAsync(FlowCoordinator flowCoordinator, Replay replay, Player player, bool tryLoadSelectedMap) {
@@ -97,9 +95,9 @@ namespace BeatLeader {
         }
 
         public void NavigateToBattleRoyale(
-            FlowCoordinator flowCoordinator, 
-            BeatmapLevelWithKey level, 
-            IReadOnlyCollection<IReplayHeader> plays, 
+            FlowCoordinator flowCoordinator,
+            BeatmapLevelWithKey level,
+            IReadOnlyCollection<IReplayHeader> plays,
             bool allowChanges,
             bool clearOnExit
         ) {

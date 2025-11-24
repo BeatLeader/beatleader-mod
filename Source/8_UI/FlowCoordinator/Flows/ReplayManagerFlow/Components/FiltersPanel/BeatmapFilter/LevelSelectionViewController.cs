@@ -47,10 +47,8 @@ namespace BeatLeader.UI.Hub {
         private void Awake() {
             //init
             Init(_levelSelectionNavigationController);
-            _levelFilteringNavigationController.SetupBeatmapLevelPacks();
             var levelCategories = _levelFilteringNavigationController._enabledLevelCategories;
 
-            _levelCategoryViewController.Setup(levelCategories[0], levelCategories);
             _levelCategorySegmentedControl = _levelCategoryViewController.GetComponentInChildren<IconSegmentedControl>(true);
             _levelDetailView = _levelDetailViewController._standardLevelDetailView;
 

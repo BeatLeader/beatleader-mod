@@ -5,7 +5,7 @@ using BeatLeader.Attributes;
 using BeatLeader.Utils;
 
 namespace BeatLeader.Interop {
-    [PluginInterop("_Heck")]
+    [PluginInterop("Heck")]
     internal static class HeckInterop {
         [PluginState]
         public static bool IsInstalled { get; private set; }
@@ -48,6 +48,7 @@ namespace BeatLeader.Interop {
                     beatmapKey,
                     beatmapLevel,
                     overrideEnvironmentSettings,
+                    null,
                     null,
                     null,
                     gameplayModifiers,

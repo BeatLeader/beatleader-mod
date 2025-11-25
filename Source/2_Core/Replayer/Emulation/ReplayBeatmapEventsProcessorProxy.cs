@@ -32,7 +32,7 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        public event Action<LinkedListNode<NoteEvent>>? NoteEventDequeuedEvent;
+        public event Action<LinkedListNode<NoteEvent>, IReplayNoteComparator>? NoteEventDequeuedEvent;
         public event Action<LinkedListNode<WallEvent>>? WallEventDequeuedEvent;
         public event Action? EventQueueAdjustStartedEvent;
         public event Action? EventQueueAdjustFinishedEvent;
@@ -64,8 +64,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Callbacks
 
-        private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node) {
-            NoteEventDequeuedEvent?.Invoke(node);
+        private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node, IReplayNoteComparator noteComparator) {
+            NoteEventDequeuedEvent?.Invoke(node, noteComparator);
         }
         
         private void HandleWallEventDequeued(LinkedListNode<WallEvent> node) {

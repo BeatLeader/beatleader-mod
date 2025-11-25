@@ -13,16 +13,37 @@ namespace BeatLeader.Utils {
         #region Encoding
 
         private class ReplayNoteComparator : IReplayNoteComparator {
-            bool IReplayNoteComparator.Compare(NoteEvent noteEvent, NoteData noteData) {
-                return ReplayDataUtils.Compare(noteEvent, noteData.ToLightData());
+            public virtual bool Compare(NoteEvent noteEvent, NoteData noteData) {
+                var id = noteEvent.noteId;
+                return id == noteData.ComputeNoteId()
+                    || id == noteData.ComputeNoteId(true, false)
+                    || id == noteData.ComputeNoteId(true, true)
+                    || id == noteData.ComputeNoteId(false, true)
+                    || id == noteData.ComputeNoteId(false, false, true);
+            }
+        }
+
+        private class MirroredReplayNoteComparator : ReplayNoteComparator {
+            public override bool Compare(NoteEvent noteEvent, NoteData noteData) {
+                var mirroredNoteData = noteData.CopyWith();
+
+                // It's hardcoded in game as 4 too on level JSON load.
+                // But it's a variable for BeatmapData, so could change in future!
+                mirroredNoteData.Mirror(4);
+
+                return base.Compare(noteEvent, mirroredNoteData);
             }
         }
 
         public static readonly IReplayNoteComparator BasicReplayNoteComparator = new ReplayNoteComparator();
+        public static readonly IReplayNoteComparator MirroringReplayNoteComparator = new MirroredReplayNoteComparator();
 
         public static IReplay ConvertToAbstractReplay(Replay replay, IPlayer? player, BattleRoyaleReplayData? optionalData, bool mirrorX) {
             var replayData = replay.info;
             var failed = replayData.failTime is not 0;
+            if (mirrorX) {
+                replay.info.leftHanded = false;
+            }
             var creplayData = new GenericReplayData(
                 failed ? replayData.failTime : replay.frames.LastOrDefault()?.time ?? 0,
                 failed ? ReplayFinishType.Failed : ReplayFinishType.Cleared,
@@ -68,7 +89,7 @@ namespace BeatLeader.Utils {
                         x.noteCutInfo != null ? RNoteCutInfo.Convert(x.noteCutInfo) : default
                     );
 
-                    return mirrorX ? evt : evt.MirrorX();
+                    return mirrorX ? evt.MirrorX() : evt;
                 }
             );
 
@@ -78,8 +99,7 @@ namespace BeatLeader.Utils {
             var heights = replay.heights.Count is 0 ? null :
                 replay.heights.Select(static x => new HeightEvent(x.time, x.height));
 
-            // TODO: add proper support
-            var comparator = mirrorX ? BasicReplayNoteComparator : BasicReplayNoteComparator;
+            var comparator = mirrorX ? MirroringReplayNoteComparator : BasicReplayNoteComparator;
 
             return new GenericReplay(
                 creplayData,
@@ -144,14 +164,13 @@ namespace BeatLeader.Utils {
         }
 
         public static int ComputeNoteId(
-            this in LightNoteData noteData,
-            bool noScoring = false,
-            bool altScoring = false,
-            bool legacyScoring = false
-        ) {
+                this NoteData noteData, 
+                bool noScoring = false, 
+                bool altScoring = false,
+                bool legacyScoring = false) {
             // Bombs may have both correct values as well as default.
             var colorType = altScoring && noteData.colorType == ColorType.None ? 3 : (int)noteData.colorType;
-
+            
             // Pre 1.20 replays has no scoring in ID
             var scoringPart = noScoring ? 0 : ((int)noteData.scoringType + 2) * 10000;
 
@@ -191,27 +210,7 @@ namespace BeatLeader.Utils {
                 + (int)noteData.cutDirection;
         }
 
-        public static bool Compare(NoteEvent noteEvent, in LightNoteData noteData) {
-            var id = noteEvent.noteId;
-            return id == noteData.ComputeNoteId()
-                || id == noteData.ComputeNoteId(true, false)
-                || id == noteData.ComputeNoteId(true, true)
-                || id == noteData.ComputeNoteId(false, true)
-                || id == noteData.ComputeNoteId(false, false, true);
-        }
-
-        public static LightNoteData ToLightData(this NoteData data) {
-            return new LightNoteData(
-                data.colorType,
-                data.scoringType,
-                data.gameplayType,
-                data.isArcHead,
-                data.isArcTail,
-                data.lineIndex,
-                data.noteLineLayer,
-                data.cutDirection
-            );
-        }
+        
 
         #endregion
     }

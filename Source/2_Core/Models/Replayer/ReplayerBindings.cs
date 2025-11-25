@@ -11,11 +11,6 @@ namespace BeatLeader.Models {
     /// </summary>
     [PublicAPI]
     public class ReplayerBindings {
-        /// <summary>
-        /// A comparator that is used to compare the actual note data with replay events.
-        /// When null is specified, replayer will use the default comparator meant for BeatLeader replays.
-        /// </summary>
-        public LazyBinding<IReplayNoteComparator>? ReplayComparator { get; set; }
         
         /// <summary>
         /// A body spawner. When null is specified, the base-game avatar will be used. 

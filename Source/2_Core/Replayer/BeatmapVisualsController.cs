@@ -192,7 +192,7 @@ namespace BeatLeader.Replayer {
             PauseCutScoreSpawner(false);
         }
 
-        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEventNode) {
+        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEventNode, IReplayNoteComparator noteComparator) {
             if (noteEventNode.Next?.Value.eventTime > _beatmapTimeController.SongTime) {
                 HandleQueueAdjustFinished();
             }

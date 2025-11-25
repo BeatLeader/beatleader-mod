@@ -62,7 +62,7 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        public event Action<LinkedListNode<NoteEvent>>? NoteEventDequeuedEvent;
+        public event Action<LinkedListNode<NoteEvent>, IReplayNoteComparator>? NoteEventDequeuedEvent;
         public event Action<LinkedListNode<WallEvent>>? WallEventDequeuedEvent;
         public event Action? EventQueueAdjustStartedEvent;
         public event Action? EventQueueAdjustFinishedEvent;
@@ -79,8 +79,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         public void Init(IReplay replay) {
             if (_allowProcess) return;
-            _noteEventsProcessor = new(replay.NoteEvents, static x => x.CutTime);
-            _wallEventsProcessor = new(replay.WallEvents, static x => x.time);
+            _noteEventsProcessor = new(replay.NoteEvents, replay.NoteComparator, static x => x.CutTime);
+            _wallEventsProcessor = new(replay.WallEvents, replay.NoteComparator, static x => x.time);
             _noteEventsProcessor.EventDequeuedEvent += HandleNoteEventDequeued;
             _noteEventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStarted;
             _noteEventsProcessor.EventQueueAdjustFinishedEvent += HandleQueueAdjustFinished;
@@ -112,11 +112,11 @@ namespace BeatLeader.Replayer.Emulation {
             _wallEventsProcessor?.AdjustQueue(newTime);
         }
 
-        private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node) {
-            NoteEventDequeuedEvent?.Invoke(node);
+        private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node, IReplayNoteComparator noteComparator) {
+            NoteEventDequeuedEvent?.Invoke(node, noteComparator);
         }
 
-        private void HandleWallEventDequeued(LinkedListNode<WallEvent> node) {
+        private void HandleWallEventDequeued(LinkedListNode<WallEvent> node, IReplayNoteComparator noteComparator) {
             WallEventDequeuedEvent?.Invoke(node);
         }
 

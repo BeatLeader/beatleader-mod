@@ -220,6 +220,8 @@ namespace BeatLeader.Replayer {
             var data = new ReplayLaunchData();
             var list = new List<IReplay>();
 
+            var shouldMirror = !replays.All(r => r.replay.info.leftHanded);
+
             //loading replays
             foreach (var replayData in replays) {
                 //adding extra info
@@ -232,14 +234,12 @@ namespace BeatLeader.Replayer {
                     LoadEnvironment(data, info.environment);
                 }
 
-                var shouldMirror = replays.Count > 1 && info.leftHanded;
-
                 //converting
                 var creplay = ReplayDataUtils.ConvertToAbstractReplay(
                     replayData.replay,
                     replayData.player,
                     replayData.optionalData,
-                    shouldMirror
+                    shouldMirror && info.leftHanded
                 );
                 list.Add(creplay);
             }

@@ -9,12 +9,8 @@ namespace BeatLeader.Utils {
     internal static class AbstractReplayUtils {
         #region Other
 
-        public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, IReplay replay, bool? overrideLeftHanded = null) {
-            return settings.CopyWith(
-                overrideLeftHanded ?? replay.ReplayData.LeftHanded,
-                replay.ReplayData.FixedHeight,
-                replay.ReplayData.FixedHeight is null
-            );
+        public static PlayerSpecificSettings GetPlayerSettingsByReplay(this PlayerSpecificSettings settings, IReplay replay) {
+            return settings.CopyWith(replay.ReplayData.LeftHanded, replay.ReplayData.FixedHeight, replay.ReplayData.FixedHeight is null);
         }
 
         #endregion

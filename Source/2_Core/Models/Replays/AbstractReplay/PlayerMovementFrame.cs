@@ -21,10 +21,18 @@
             var head = headPose;
             var leftHand = leftHandPose;
             var rightHand = rightHandPose;
-
+            
             head.position.x *= -1;
+            head.rotation.y *= -1;
+            head.rotation.z *= -1;
+
             leftHand.position.x *= -1;
+            leftHand.rotation.y *= -1;
+            leftHand.rotation.z *= -1;
+
             rightHand.position.x *= -1;
+            rightHand.rotation.y *= -1;
+            rightHand.rotation.z *= -1;
 
             return new PlayerMovementFrame(time, head, leftHand, rightHand);
         }

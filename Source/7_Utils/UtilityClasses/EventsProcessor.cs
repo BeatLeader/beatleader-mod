@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using BeatLeader.Models;
-using BeatLeader.Models.AbstractReplay;
 
 namespace BeatLeader {
     public class EventsProcessor<T> : IEventsProcessor where T : struct {
         public delegate float TimeSelectorDelegate(T item);
 
-        public EventsProcessor(IEnumerable<T> events, IReplayNoteComparator noteComparator, TimeSelectorDelegate timeSelector) {
+        public EventsProcessor(IEnumerable<T> events, TimeSelectorDelegate timeSelector) {
             _events = new(events);
             _timeSelectorDelegate = timeSelector;
-            _noteComparator = noteComparator;
             ResetNode();
         }
 
         public bool CurrentEventHasTimeMismatch { get; private set; }
         public bool QueueIsBeingAdjusted { get; private set; }
 
-        public event Action<LinkedListNode<T>, IReplayNoteComparator>? EventDequeuedEvent;
+        public event Action<LinkedListNode<T>>? EventDequeuedEvent;
         public event Action? EventQueueAdjustStartedEvent;
         public event Action? EventQueueAdjustFinishedEvent;
 
@@ -25,7 +23,6 @@ namespace BeatLeader {
         private readonly TimeSelectorDelegate _timeSelectorDelegate;
         private LinkedListNode<T>? _currentEvent;
         private float _lastTime;
-        private IReplayNoteComparator _noteComparator;
 
         public void Tick(float time) {
             do {
@@ -35,7 +32,7 @@ namespace BeatLeader {
                 var nextEventTime = _timeSelectorDelegate(nextEvent.Value);
                 if (nextEventTime > time) break;
 
-                EventDequeuedEvent?.Invoke(_currentEvent!, _noteComparator);
+                EventDequeuedEvent?.Invoke(_currentEvent!);
                 _currentEvent = _currentEvent!.Next;
             } while (true);
             

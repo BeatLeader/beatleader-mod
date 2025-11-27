@@ -60,7 +60,7 @@ namespace BeatLeader.Replayer.Emulation {
         public void Init(IReplay replay) {
             var scoreEvents = CalculateScoreEvents(replay);
             _scoreEvents.AddRange(scoreEvents);
-            _eventsProcessor = new(scoreEvents, replay.NoteComparator, static x => x.time);
+            _eventsProcessor = new(scoreEvents, static x => x.time);
             _eventsProcessor.EventDequeuedEvent += HandleScoreEventDequeued;
             _eventsProcessor.EventQueueAdjustStartedEvent += HandleQueueAdjustStarted;
             _eventsProcessor.EventQueueAdjustFinishedEvent += HandleQueueAdjustFinished;
@@ -113,7 +113,7 @@ namespace BeatLeader.Replayer.Emulation {
             _eventsProcessor?.AdjustQueue(time);
         } 
         
-        private void HandleScoreEventDequeued(LinkedListNode<ScoreEvent> node, IReplayNoteComparator noteComparator) {
+        private void HandleScoreEventDequeued(LinkedListNode<ScoreEvent> node) {
             CurrentScoreEvent = node;
             ScoreEventDequeuedEvent?.Invoke(node);
         }

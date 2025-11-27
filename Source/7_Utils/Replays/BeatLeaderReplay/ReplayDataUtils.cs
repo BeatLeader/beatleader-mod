@@ -13,14 +13,37 @@ namespace BeatLeader.Utils {
         #region Encoding
 
         private class ReplayNoteComparator : IReplayNoteComparator {
-            bool IReplayNoteComparator.Compare(NoteEvent noteEvent, NoteData noteData) => ReplayDataUtils.Compare(noteEvent, noteData);
+            public virtual bool Compare(NoteEvent noteEvent, NoteData noteData) {
+                var id = noteEvent.noteId;
+                return id == noteData.ComputeNoteId()
+                    || id == noteData.ComputeNoteId(true, false)
+                    || id == noteData.ComputeNoteId(true, true)
+                    || id == noteData.ComputeNoteId(false, true)
+                    || id == noteData.ComputeNoteId(false, false, true);
+            }
+        }
+
+        private class MirroredReplayNoteComparator : ReplayNoteComparator {
+            public override bool Compare(NoteEvent noteEvent, NoteData noteData) {
+                var mirroredNoteData = noteData.CopyWith();
+
+                // It's hardcoded in game as 4 too on level JSON load.
+                // But it's a variable for BeatmapData, so could change in future!
+                mirroredNoteData.Mirror(4);
+
+                return base.Compare(noteEvent, mirroredNoteData);
+            }
         }
 
         public static readonly IReplayNoteComparator BasicReplayNoteComparator = new ReplayNoteComparator();
+        public static readonly IReplayNoteComparator MirroringReplayNoteComparator = new MirroredReplayNoteComparator();
 
-        public static IReplay ConvertToAbstractReplay(Replay replay, IPlayer? player, BattleRoyaleReplayData? optionalData) {
+        public static IReplay ConvertToAbstractReplay(Replay replay, IPlayer? player, BattleRoyaleReplayData? optionalData, bool mirrorX) {
             var replayData = replay.info;
             var failed = replayData.failTime is not 0;
+            if (mirrorX) {
+                replay.info.leftHanded = false;
+            }
             var creplayData = new GenericReplayData(
                 failed ? replayData.failTime : replay.frames.LastOrDefault()?.time ?? 0,
                 failed ? ReplayFinishType.Failed : ReplayFinishType.Cleared,
@@ -29,41 +52,58 @@ namespace BeatLeader.Utils {
                 replayData.jumpDistance,
                 replay.heights.Count == 0 ? replayData.height : null,
                 replay.GetModifiersFromReplay(),
-                player, replay.info.GetPracticeSettingsFromInfo());
+                player,
+                replay.info.GetPracticeSettingsFromInfo()
+            );
 
-            var frames = replay.frames.Select(static x => new PlayerMovementFrame(
-                x.time, new() {
-                    position = (Vector3)x.head.position,
-                    rotation = (Quaternion)x.head.rotation
-                },
-                new() {
-                    position = (Vector3)x.leftHand.position,
-                    rotation = (Quaternion)x.leftHand.rotation
-                },
-                new() {
-                    position = (Vector3)x.rightHand.position,
-                    rotation = (Quaternion)x.rightHand.rotation
+            var frames = replay.frames.Select(x => {
+                    var frame = new PlayerMovementFrame(
+                        x.time,
+                        new() {
+                            position = (Vector3)x.head.position,
+                            rotation = (Quaternion)x.head.rotation
+                        },
+                        new() {
+                            position = (Vector3)x.leftHand.position,
+                            rotation = (Quaternion)x.leftHand.rotation
+                        },
+                        new() {
+                            position = (Vector3)x.rightHand.position,
+                            rotation = (Quaternion)x.rightHand.rotation
+                        }
+                    );
+
+                    return mirrorX ? frame.MirrorX() : frame;
                 }
-            ));
+            );
 
-            var notes = replay.notes.Select(static x => new NoteEvent(
-                x.noteID, x.eventTime, x.spawnTime, (NoteEvent.NoteEventType)x.eventType,
-                x.noteCutInfo?.beforeCutRating ?? 0, x.noteCutInfo?.afterCutRating ?? 0,
-                x.eventType == RNoteEventType.bomb ? RNoteCutInfo.BombNoteCutInfo :
-                x.noteCutInfo != null ? RNoteCutInfo.Convert(x.noteCutInfo) : default
-            ));
+            var notes = replay.notes.Select(x => {
+                    var evt = new NoteEvent(
+                        x.noteID,
+                        x.eventTime,
+                        x.spawnTime,
+                        (NoteEvent.NoteEventType)x.eventType,
+                        x.noteCutInfo?.beforeCutRating ?? 0,
+                        x.noteCutInfo?.afterCutRating ?? 0,
+                        x.eventType == RNoteEventType.bomb ? RNoteCutInfo.BombNoteCutInfo :
+                        x.noteCutInfo != null ? RNoteCutInfo.Convert(x.noteCutInfo) : default
+                    );
 
-            var walls = replay.walls.Select(static x =>
-                new WallEvent(x.wallID, x.energy, x.time, x.spawnTime));
+                    return mirrorX ? evt.MirrorX() : evt;
+                }
+            );
 
-            var pauses = replay.pauses.Select(static x =>
-                new PauseEvent(x.time, x.duration));
+            var walls = replay.walls.Select(static x => new WallEvent(x.wallID, x.energy, x.time, x.spawnTime));
+            var pauses = replay.pauses.Select(static x => new PauseEvent(x.time, x.duration));
 
             var heights = replay.heights.Count is 0 ? null :
                 replay.heights.Select(static x => new HeightEvent(x.time, x.height));
 
+            var comparator = mirrorX ? MirroringReplayNoteComparator : BasicReplayNoteComparator;
+
             return new GenericReplay(
                 creplayData,
+                comparator,
                 optionalData,
                 frames.ToArray(),
                 notes.ToArray(),
@@ -104,12 +144,15 @@ namespace BeatLeader.Utils {
                 ghostNotes: modifiers.Contains("GN"),
                 proMode: modifiers.Contains("PM"),
                 zenMode: false,
-                smallCubes: modifiers.Contains("SC"));
+                smallCubes: modifiers.Contains("SC")
+            );
         }
 
         private static PracticeSettings? GetPracticeSettingsFromInfo(this Models.Replay.ReplayInfo info) {
-            return info.failTime != 0 || info.startTime != 0 || info.speed != 0 ? new(info.startTime,
-                info.speed is var speed && speed == 0 ? 1 : speed) : null;
+            return info.failTime != 0 || info.startTime != 0 || info.speed != 0 ? new(
+                info.startTime,
+                info.speed is var speed && speed == 0 ? 1 : speed
+            ) : null;
         }
 
         #endregion
@@ -160,21 +203,14 @@ namespace BeatLeader.Utils {
                 }
             }
 
-            return scoringPart 
-                + noteData.lineIndex * 1000 
-                + (int)noteData.noteLineLayer * 100 
-                + colorType * 10 
+            return scoringPart
+                + noteData.lineIndex * 1000
+                + (int)noteData.noteLineLayer * 100
+                + colorType * 10
                 + (int)noteData.cutDirection;
         }
 
-        public static bool Compare(NoteEvent noteEvent, NoteData noteData) {
-            var id = noteEvent.noteId;
-            return id == noteData.ComputeNoteId()
-                || id == noteData.ComputeNoteId(true, false)
-                || id == noteData.ComputeNoteId(true, true)
-                || id == noteData.ComputeNoteId(false, true)
-                || id == noteData.ComputeNoteId(false, false, true);
-        }
+        
 
         #endregion
     }

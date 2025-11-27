@@ -4,6 +4,7 @@ namespace BeatLeader.Models.AbstractReplay {
     public class GenericReplay : IReplay {
         public GenericReplay(
             IReplayData replayData,
+            IReplayNoteComparator noteComparator,
             BattleRoyaleReplayData? optionalReplayData,
             IReadOnlyList<PlayerMovementFrame> movementFrames,
             IReadOnlyList<NoteEvent> noteEvents,
@@ -13,6 +14,7 @@ namespace BeatLeader.Models.AbstractReplay {
             IReadOnlyDictionary<string, byte[]> customData
         ) {
             ReplayData = replayData;
+            NoteComparator = noteComparator;
             OptionalReplayData = optionalReplayData;
             PlayerMovementFrames = movementFrames;
             NoteEvents = noteEvents;
@@ -23,6 +25,7 @@ namespace BeatLeader.Models.AbstractReplay {
         }
 
         public IReplayData ReplayData { get; }
+        public IReplayNoteComparator NoteComparator { get; }
         public BattleRoyaleReplayData? OptionalReplayData { get; }
         public IReadOnlyList<PlayerMovementFrame> PlayerMovementFrames { get; }
         public IReadOnlyList<NoteEvent> NoteEvents { get; }

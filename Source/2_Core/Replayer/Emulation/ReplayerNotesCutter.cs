@@ -11,7 +11,6 @@ namespace BeatLeader.Replayer.Emulation {
 
         [Inject] private readonly BeatmapObjectManager _beatmapObjectManager = null!;
         [Inject] private readonly IReplayBeatmapEventsProcessor _beatmapEventsProcessor = null!;
-        [Inject] private readonly IReplayNoteComparator _noteComparator = null!;
         
         #endregion
 
@@ -33,8 +32,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region ProcessNote
 
-        private void ProcessNote(NoteEvent noteEvent) {
-            if (!TryFindSpawnedNote(noteEvent, out var noteController)) {
+        private void ProcessNote(NoteEvent noteEvent, IReplayNoteComparator noteComparator) {
+            if (!TryFindSpawnedNote(noteEvent, noteComparator, out var noteController)) {
                 if (!_beatmapEventsProcessor.QueueIsBeingAdjusted) {
                     Plugin.Log.Error("[Replayer] Not found NoteController for id " + noteEvent.noteId);
                 }
@@ -54,11 +53,11 @@ namespace BeatLeader.Replayer.Emulation {
 
         private readonly HashSet<NoteController> _spawnedNotes = new();
 
-        private bool TryFindSpawnedNote(NoteEvent replayNote, out NoteController? noteController, float timeMargin = 0.2f) {
+        private bool TryFindSpawnedNote(NoteEvent replayNote, IReplayNoteComparator noteComparator, out NoteController? noteController, float timeMargin = 0.2f) {
             var minTimeDifference = float.MaxValue;
             noteController = null;
             foreach (var item in _spawnedNotes) {
-                if (!_noteComparator.Compare(replayNote, item.noteData)) continue;
+                if (!noteComparator.Compare(replayNote, item.noteData)) continue;
                 var timeDifference = Mathf.Abs(replayNote.spawnTime - item.noteData.time);
                 if (timeDifference > minTimeDifference) continue;
                 
@@ -74,8 +73,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Callbacks
         
-        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEvent) {
-            ProcessNote(noteEvent.Value);
+        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEvent, IReplayNoteComparator noteComparator) {
+            ProcessNote(noteEvent.Value, noteComparator);
         }
 
         private void HandleNoteWasSpawned(NoteController noteController) {

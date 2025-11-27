@@ -9,7 +9,6 @@ namespace BeatLeader.Replayer {
         #region Injection
 
         [Inject] private readonly IReadonlyBeatmapData _beatmapData = null!;
-        [Inject] private readonly IReplayNoteComparator _noteComparator = null!;
 
         #endregion
 
@@ -22,7 +21,7 @@ namespace BeatLeader.Replayer {
             }
         }
 
-        public int FindNoteDataForEvent(NoteEvent noteEvent, int startIndex, out NoteData? noteData) {
+        public int FindNoteDataForEvent(NoteEvent noteEvent, IReplayNoteComparator noteComparator, int startIndex, out NoteData? noteData) {
             Initialize();
             var index = 0;
             var lastNoteTime = 0f;
@@ -39,7 +38,7 @@ namespace BeatLeader.Replayer {
                 var timeDoesMatch = Mathf.Abs(noteEvent.spawnTime - data.time) < 1e-3;
                 if (!timeDoesMatch) continue;
 
-                var idDoesMatch = _noteComparator.Compare(noteEvent, data);
+                var idDoesMatch = noteComparator.Compare(noteEvent, data);
                 if (!idDoesMatch) continue;
 
                 noteData = data;

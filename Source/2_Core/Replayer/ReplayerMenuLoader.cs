@@ -159,7 +159,7 @@ namespace BeatLeader.Replayer {
 
         private static async Task<bool> LoadAndAppendReplay(IBattleRoyaleReplay royaleReplay, ICollection<ReplayData> collection) {
             var header = royaleReplay.ReplayHeader;
-            
+
             var replay = await header.LoadReplayAsync(CancellationToken.None);
 
             if (replay == null) {
@@ -203,7 +203,7 @@ namespace BeatLeader.Replayer {
                     replay = replay,
                     player = player,
                     optionalData = optionalData
-                }.Yield(),
+                }.Yield().ToArray(),
                 settings,
                 finishCallback,
                 token
@@ -212,28 +212,34 @@ namespace BeatLeader.Replayer {
 
         private void StartReplayer(
             BeatmapLevelWithKey beatmap,
-            IEnumerable<ReplayData> replays,
+            IReadOnlyCollection<ReplayData> replays,
             ReplayerSettings settings,
             Action? finishCallback,
             CancellationToken token
         ) {
             var data = new ReplayLaunchData();
             var list = new List<IReplay>();
+
+            var shouldMirror = !replays.All(r => r.replay.info.leftHanded);
+
             //loading replays
             foreach (var replayData in replays) {
                 //adding extra info
                 var info = replayData.replay.info;
                 Plugin.Log.Info("Attempting to load replay:\r\n" + info);
                 ReplayManager.SaturateReplayInfo(info, null);
+                
                 //loading environment
                 if (settings.LoadPlayerEnvironment) {
                     LoadEnvironment(data, info.environment);
                 }
+
                 //converting
                 var creplay = ReplayDataUtils.ConvertToAbstractReplay(
                     replayData.replay,
                     replayData.player,
-                    replayData.optionalData
+                    replayData.optionalData,
+                    shouldMirror && info.leftHanded
                 );
                 list.Add(creplay);
             }
@@ -307,9 +313,9 @@ namespace BeatLeader.Replayer {
         }
 
         public bool LoadEnvironment(ReplayLaunchData launchData, string environmentName) {
-            if (environmentName == "Multiplayer") { 
-               Plugin.Log.Notice("[ReplayerLoader] Map was played in MP. Skipping \"Multiplayer\" environment");
-               return false; 
+            if (environmentName == "Multiplayer") {
+                Plugin.Log.Notice("[ReplayerLoader] Map was played in MP. Skipping \"Multiplayer\" environment");
+                return false;
             }
 
             var environment = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>()
@@ -340,7 +346,7 @@ namespace BeatLeader.Replayer {
                 && _cachedBeatmapHash == hash
                 && _cachedBeatmapCharacteristic == mode
                 && _cachedBeatmap.Key.difficulty == cdifficulty
-            ) {
+               ) {
                 return _cachedBeatmap;
             }
 

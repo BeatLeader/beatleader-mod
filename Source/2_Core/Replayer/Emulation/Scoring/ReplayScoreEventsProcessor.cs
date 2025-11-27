@@ -87,7 +87,7 @@ namespace BeatLeader.Replayer.Emulation {
             for (var index = 0; index < noteEvents.Count; index++) {
                 var noteEvent = noteEvents[index];
 
-                startIndex = _replayBeatmapData.FindNoteDataForEvent(noteEvent, startIndex, out var noteData);
+                startIndex = _replayBeatmapData.FindNoteDataForEvent(noteEvent, replay.NoteComparator, startIndex, out var noteData);
                 if (noteData is null) continue;
 
                 totalScore += CalculateScoreForNote(noteEvent, noteData.scoringType) * _multiplierCounter.multiplier;

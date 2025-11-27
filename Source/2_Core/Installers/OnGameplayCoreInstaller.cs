@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using BeatLeader.Replayer;
 using BeatLeader.Core.Managers.ReplayEnhancer;
@@ -126,13 +126,6 @@ namespace BeatLeader.Installers {
         }
 
         private void InitReplayerOverridable(ReplayerBindings? bindings) {
-            // Comparator
-            if (bindings?.ReplayComparator is { } comparator) {
-                LoadLazyBinding(comparator);
-            } else {
-                Container.Bind<IReplayNoteComparator>().FromInstance(ReplayDataUtils.BasicReplayNoteComparator).AsSingle();
-            }
-
             // Body Settings 
             if (bindings?.BodySettingsFactory is { HasValue: true} bodySettings) {
                 if (bodySettings.Value != null) {

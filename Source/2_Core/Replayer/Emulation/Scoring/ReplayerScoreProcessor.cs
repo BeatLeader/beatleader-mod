@@ -44,8 +44,8 @@ namespace BeatLeader.Replayer.Emulation {
             _beatmapEventsProcessor.EventQueueAdjustStartedEvent -= HandleQueueAdjustStarted;
         }
 
-        private bool SetupEmulator(NoteEvent noteEvent) {
-            _lastEventIndex = _replayBeatmapData.FindNoteDataForEvent(noteEvent, _lastEventIndex, out var noteData);
+        private bool SetupEmulator(NoteEvent noteEvent, IReplayNoteComparator noteComparator) {
+            _lastEventIndex = _replayBeatmapData.FindNoteDataForEvent(noteEvent, noteComparator, _lastEventIndex, out var noteData);
             if (noteData is null) return false;
             var noteCutInfo = noteEvent.noteCutInfo.SaturateNoteCutInfo(noteData!);
             _noteControllerEmulator.Setup(noteData!, noteCutInfo);
@@ -63,8 +63,8 @@ namespace BeatLeader.Replayer.Emulation {
         private static float _lastCutAfterCutRating;
         private static LinkedListNode<NoteEvent>? _lastNoteEvent;
 
-        private void SimulateNoteWasCut(NoteEvent noteEvent, bool isGoodCut) {
-            if (!SetupEmulator(noteEvent)) return;
+        private void SimulateNoteWasCut(NoteEvent noteEvent, IReplayNoteComparator noteComparator, bool isGoodCut) {
+            if (!SetupEmulator(noteEvent, noteComparator)) return;
             if (isGoodCut) {
                 _lastCutBeforeCutRating = noteEvent.beforeCutRating;
                 _lastCutAfterCutRating = noteEvent.afterCutRating;
@@ -85,8 +85,8 @@ namespace BeatLeader.Replayer.Emulation {
             }
         }
 
-        private void SimulateNoteWasMissed(NoteEvent noteEvent) {
-            if (!SetupEmulator(noteEvent)) return;
+        private void SimulateNoteWasMissed(NoteEvent noteEvent, IReplayNoteComparator noteComparator) {
+            if (!SetupEmulator(noteEvent, noteComparator)) return;
             _scoringMultisilencer.Enabled = false;
             try {
                 _scoreController.HandleNoteWasSpawned(_noteControllerEmulator);
@@ -113,19 +113,19 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Callbacks
 
-        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEventNode) {
+        private void HandleNoteBeatmapEventDequeued(LinkedListNode<NoteEvent> noteEventNode, IReplayNoteComparator noteComparator) {
             _lastNoteEvent = noteEventNode;
             var noteEvent = noteEventNode.Value;
             switch (noteEvent.eventType) {
                 case NoteEvent.NoteEventType.GoodCut:
-                    SimulateNoteWasCut(noteEvent, true);
+                    SimulateNoteWasCut(noteEvent, noteComparator, true);
                     break;
                 case NoteEvent.NoteEventType.BadCut:
                 case NoteEvent.NoteEventType.BombCut:
-                    SimulateNoteWasCut(noteEvent, false);
+                    SimulateNoteWasCut(noteEvent, noteComparator, false);
                     break;
                 case NoteEvent.NoteEventType.Miss:
-                    SimulateNoteWasMissed(noteEvent);
+                    SimulateNoteWasMissed(noteEvent, noteComparator);
                     break;
             }
             if (!_beatmapEventsProcessor.QueueIsBeingAdjusted) return;

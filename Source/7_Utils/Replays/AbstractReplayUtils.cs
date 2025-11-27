@@ -48,10 +48,10 @@ namespace BeatLeader.Utils {
         public static int CalculateScoreForNote(NoteEvent note, ScoringType scoringType) {
             if (note.eventType != NoteEvent.NoteEventType.GoodCut) {
                 return note.eventType switch {
-                    NoteEvent.NoteEventType.BadCut => -2,
-                    NoteEvent.NoteEventType.Miss => -3,
+                    NoteEvent.NoteEventType.BadCut  => -2,
+                    NoteEvent.NoteEventType.Miss    => -3,
                     NoteEvent.NoteEventType.BombCut => -4,
-                    _ => -1
+                    _                               => -1
                 };
             }
 
@@ -65,15 +65,15 @@ namespace BeatLeader.Utils {
             if (scoringType != ScoringType.ChainLink) {
                 beforeCutRawScore = scoringType switch {
                     ScoringType.ArcTail => 70,
-                    _ => Mathf.Clamp(Mathf.Round(70 * note.beforeCutRating), 0, 70)
+                    _                   => Mathf.Clamp(Mathf.Round(70 * note.beforeCutRating), 0, 70)
                 };
             }
             double afterCutRawScore = 0;
             if (scoringType != ScoringType.ChainLink) {
                 afterCutRawScore = scoringType switch {
                     ScoringType.ChainHead => 0,
-                    ScoringType.ArcHead => 30,
-                    _ => Mathf.Clamp(Mathf.Round(30 * note.afterCutRating), 0, 30)
+                    ScoringType.ArcHead   => 30,
+                    _                     => Mathf.Clamp(Mathf.Round(30 * note.afterCutRating), 0, 30)
                 };
             }
             double cutDistanceRawScore;

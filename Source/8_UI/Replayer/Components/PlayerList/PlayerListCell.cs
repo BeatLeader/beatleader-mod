@@ -252,7 +252,7 @@ namespace BeatLeader.UI.Replayer {
             RefreshScore(_scoreEventsProcessor!.CurrentScoreEvent);
         }
 
-        private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node) {
+        private void HandleNoteEventDequeued(LinkedListNode<NoteEvent> node, IReplayNoteComparator noteComparator) {
             if (node.Value.eventType is NoteEvent.NoteEventType.Miss) {
                 _fullCombo = false;
             }

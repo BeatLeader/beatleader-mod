@@ -28,10 +28,17 @@ namespace BeatLeader.API {
 
             var platformUserModel = Resources
                 .FindObjectsOfTypeAll<PlatformLeaderboardsModel>()
-                .Select(l => l._platformUserModel)
+                .Select(l => l._platform)
                 .Last(x => x != null);
 
-            var userInfo = await platformUserModel.GetUserInfo(CancellationToken.None);
+            var userInfo = new UserInfo(platformUserModel.key switch {
+                "steam" => UserInfo.Platform.Steam,
+                "oculus" => UserInfo.Platform.Oculus,
+                "oculus-mock" => UserInfo.Platform.Oculus,
+                "mock" => UserInfo.Platform.Test,
+                _ => throw new NotImplementedException(),
+            }, platformUserModel.user.userId.ToString(), platformUserModel.user.displayName);
+
             var tokenProvider = new PlatformAuthenticationTokenProvider(platformUserModel, userInfo);
 
             return Platform switch {

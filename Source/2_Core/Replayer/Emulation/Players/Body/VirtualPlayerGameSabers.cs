@@ -18,7 +18,7 @@ namespace BeatLeader.Replayer.Emulation {
             _rightController = _vrControllersManager.rightHandVRController.transform;
 
             _vrControllersManager.GetComponent<DeactivateVRControllersOnFocusCapture>().enabled = false;
-            _vrControllersManager.DisableAllVRControllers();
+            _vrControllersManager.SetupAutoplayForAllControllers();
         }
 
         public void ApplySettings(BasicBodySettings basicBodySettings) {

@@ -15,18 +15,33 @@
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-      <Reference Include="Reactive.BeatSaber.Components">
-          <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.Components.dll</HintPath>
-          <Private>False</Private>
-      </Reference>
-      <Reference Include="Reactive.Components">
-          <HintPath>$(BeatSaberDir)\Libs\Reactive.Components.dll</HintPath>
-          <Private>False</Private>
-      </Reference>
-      <Reference Include="Reactive">
-          <HintPath>$(BeatSaberDir)\Libs\Reactive.dll</HintPath>
-          <Private>False</Private>
-      </Reference>
+    <Reference Include="BeatSaber.Multiplayer.Core">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.Multiplayer.Core.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="OculusStudios.Platform.Core">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\OculusStudios.Platform.Core.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="OculusStudios.Platform.Steam">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\OculusStudios.Platform.Steam.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Reactive.BeatSaber.Components">
+      <HintPath>$(BeatSaberDir)\Plugins\Reactive.BeatSaber.Components.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Reactive.Components">
+      <HintPath>$(BeatSaberDir)\Libs\Reactive.Components.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Reactive">
+      <HintPath>$(BeatSaberDir)\Libs\Reactive.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="AdditionalContentModel.Interfaces">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\AdditionalContentModel.Interfaces.dll</HintPath>
       <Private>False</Private>

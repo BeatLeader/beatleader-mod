@@ -102,26 +102,25 @@ namespace BeatLeader.Replayer {
 
             if (transitionData != null) {
                 transitionData.Init(
-                    "Solo",
-                    launchData.BeatmapLevel.Key,
-                    launchData.BeatmapLevel.Level,
-                    envSettings,
-                    playerData.colorSchemesSettings.GetOverrideColorScheme(),
-                    playerData.colorSchemesSettings.ShouldOverrideLightshowColors(),
-                    level.Level.GetColorScheme(level.Key.beatmapCharacteristic, level.Key.difficulty),
-                    launchData.Settings.IgnoreModifiers ? CreateDisabledModifiers(replayModifiers) : replayModifiers,
-                    playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
-                    practiceSettings,
-                    _environmentsListModel,
-                    _audioClipAsyncLoader,
-                    _beatmapDataLoader,
-                    _settingsManager,
-                    "Menu",
-                    _beatmapLevelsModel,
-                    _beatmapLevelsEntitlementModel,
-                    false,
-                    false,
-                    null
+                    gameMode: "Solo",
+                    beatmapKey: launchData.BeatmapLevel.Key,
+                    beatmapLevel: launchData.BeatmapLevel.Level,
+                    overrideEnvironmentSettings: envSettings,
+                    playerOverrideColorScheme: playerData.colorSchemesSettings.GetOverrideColorScheme(),
+                    playerOverrideLightshowColors: playerData.colorSchemesSettings.ShouldOverrideLightshowColors(),
+                    gameplayModifiers: launchData.Settings.IgnoreModifiers ? CreateDisabledModifiers(replayModifiers) : replayModifiers,
+                    playerSpecificSettings: playerData.playerSpecificSettings.GetPlayerSettingsByReplay(replay),
+                    practiceSettings: practiceSettings,
+                    environmentsListModel: _environmentsListModel,
+                    audioClipAsyncLoader: _audioClipAsyncLoader,
+                    settingsManager: _settingsManager,
+                    beatmapDataLoader: _beatmapDataLoader,
+                    beatmapLevelsEntitlementModel: _beatmapLevelsEntitlementModel,
+                    backButtonText: "Menu",
+                    useTestNoteCutSoundEffects: false,
+                    startPaused: false,
+                    beatmapLevelsModel: _beatmapLevelsModel,
+                    beatmapLevelData: null
                 );
             }
 

@@ -2,30 +2,30 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using IPA.Utilities;
+using OculusStudios.Platform.Core;
 using UnityEngine;
 
 namespace BeatLeader.Core.Managers.ReplayEnhancer
 {
     class UserEnhancer
     {
-        private static readonly FieldAccessor<PlatformLeaderboardsModel, IPlatformUserModel>.Accessor AccessPlatformUserModel;
+        private static readonly FieldAccessor<PlatformLeaderboardsModel, IPlatform>.Accessor AccessPlatformUserModel;
         private static readonly object getUserLock = new object();
 
         static string userName = null;
         static string userID = null;
         static string userPlatform = null;
 
-        private static Task<UserInfo> getUserTask;
-        private static IPlatformUserModel _platformUserModel;
+        private static UserInfo getUserTask;
+        private static IPlatform _platformUserModel;
 
         static UserEnhancer()
         {
             try
             {
-                AccessPlatformUserModel = FieldAccessor<PlatformLeaderboardsModel, IPlatformUserModel>.GetAccessor("_platformUserModel");
+                AccessPlatformUserModel = FieldAccessor<PlatformLeaderboardsModel, IPlatform>.GetAccessor("_platform");
             }
             catch (Exception ex)
             {
@@ -34,30 +34,30 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             }
         }
 
-        public static async void Enhance(Replay replay)
+        public static void Enhance(Replay replay)
         {
-            await GetUserAsync();
+            GetUser();
             replay.info.playerID = userID;
             replay.info.platform = userPlatform;
             replay.info.playerName = userName;
         }
 
-        public static async Task<UserInfo> GetUserAsync()
+        public static UserInfo GetUser()
         {
             try
             {
                 lock (getUserLock)
                 {
-                    IPlatformUserModel platformUserModel = GetPlatformUserModel();
+                    IPlatform platformUserModel = GetPlatformUserModel();
                     if (platformUserModel == null)
                     {
                         Plugin.Log.Error("IPlatformUserModel not found, cannot update user info.");
                         return null;
                     }
-                    if (getUserTask == null || getUserTask.Status == TaskStatus.Faulted)
-                        getUserTask = InternalGetUserAsync();
+                    if (getUserTask == null)
+                        getUserTask = InternalGetUser();
                 }
-                return await getUserTask;
+                return getUserTask;
             }
             catch (Exception ex)
             {
@@ -67,10 +67,16 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             }
         }
 
-        private static async Task<UserInfo> InternalGetUserAsync()
+        private static UserInfo InternalGetUser()
         {
-            CancellationToken cancellationToken = new CancellationToken();
-            UserInfo userInfo = await _platformUserModel.GetUserInfo(cancellationToken);
+            UserInfo userInfo = new UserInfo(_platformUserModel.key switch {
+                "steam" => UserInfo.Platform.Steam,
+                "oculus" => UserInfo.Platform.Oculus,
+                "oculus-mock" => UserInfo.Platform.Oculus,
+                "mock" => UserInfo.Platform.Test,
+                _ => throw new NotImplementedException(),
+            }, _platformUserModel.user.userId.ToString(), _platformUserModel.user.displayName);
+
             if (userInfo != null)
             {
                 Plugin.Log.Debug($"UserInfo found: {userInfo.platformUserId}: {userInfo.userName} on {userInfo.platform}");
@@ -86,7 +92,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             return userInfo;
         }
 
-        internal static IPlatformUserModel GetPlatformUserModel()
+        internal static IPlatform GetPlatformUserModel()
         {
             if (_platformUserModel != null)
                 return _platformUserModel;
@@ -94,7 +100,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             {
                 // Need to check for null because there's multiple PlatformLeaderboardsModels (at least sometimes), and one has a null IPlatformUserModel with 'vrmode oculus'
                 var leaderboardsModel = Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>().Where(p => AccessPlatformUserModel(ref p) != null).LastOrDefault();
-                IPlatformUserModel platformUserModel = null;
+                IPlatform platformUserModel = null;
                 if (leaderboardsModel == null)
                 {
                     Plugin.Log.Error("Could not find a 'PlatformLeaderboardsModel', GetUserInfo unavailable.");

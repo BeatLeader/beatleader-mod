@@ -91,7 +91,7 @@ namespace BeatLeader.Replayer {
             EarlySongWasRewoundEvent?.Invoke(time);
 
             var wasPausedBeforeRewind = _audioTimeSyncController
-                .state.Equals(AudioTimeSyncController.State.Paused);
+                .state.Equals(IAudioTimeSource.State.Paused);
             if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
 
             _beatmapCallbacksUpdater.Pause();
@@ -135,7 +135,7 @@ namespace BeatLeader.Replayer {
             if (Math.Abs(speedMultiplier - _audioTimeSyncController.timeScale) < 0.001f) return;
 
             var wasPausedBeforeRewind = _audioTimeSyncController
-                .state.Equals(AudioTimeSyncController.State.Paused);
+                .state.Equals(IAudioTimeSource.State.Paused);
             if (!wasPausedBeforeRewind) _audioTimeSyncController.Pause();
 
             DespawnAllNoteControllerSounds();

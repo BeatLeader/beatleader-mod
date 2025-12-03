@@ -20,7 +20,7 @@ namespace BeatLeader.Replayer.Tweaking {
         }
 
         private static bool AudioTimeSyncControllerUpdatePrefix(AudioTimeSyncController __instance) {
-            return !__instance.state.Equals(AudioTimeSyncController.State.Paused);
+            return !__instance.state.Equals(IAudioTimeSource.State.Paused);
         }
     }
 }

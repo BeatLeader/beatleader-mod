@@ -163,11 +163,11 @@ namespace BeatLeader.Components {
             if (!_initialized && state is RequestState.Finished) {
                 Player player = instance.Result;
                 _level = player.level;
-                SetLevelText(_level);
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                 _expProgress = player.experience / _requiredExp;
                 ResetExperienceBarData();
                 if (ConfigFileData.Instance.ExperienceBarEnabled) {
+                    SetLevelText(_level);
                     _experienceBar.gameObject.SetActive(ConfigFileData.Instance.ExperienceBarEnabled);
                     _initialized = true;
                 }

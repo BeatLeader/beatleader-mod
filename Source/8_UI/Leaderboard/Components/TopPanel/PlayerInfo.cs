@@ -1,4 +1,5 @@
 ﻿using BeatLeader.API;
+using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatLeader.UI.Hub;
 using BeatSaberMarkupLanguage.Attributes;
@@ -35,6 +36,7 @@ namespace BeatLeader.Components {
             PrestigePanel.PrestigeWasPressedEvent += IncrementPrestigeIcon;
             GlobalSettingsView.ExperienceBarConfigEvent += OnExperienceBarConfigChanged;
             PluginConfig.ScoresContextChangedEvent += ChangeScoreContext;
+            PrestigeLevelsManager.IconsLoadedEvent += OnPrestigeIconsLoaded;
         }
 
         protected override void OnDispose() {
@@ -43,6 +45,7 @@ namespace BeatLeader.Components {
             PrestigePanel.PrestigeWasPressedEvent -= IncrementPrestigeIcon;
             GlobalSettingsView.ExperienceBarConfigEvent -= OnExperienceBarConfigChanged;
             PluginConfig.ScoresContextChangedEvent -= ChangeScoreContext;
+            PrestigeLevelsManager.IconsLoadedEvent -= OnPrestigeIconsLoaded;
         }
 
         #endregion
@@ -103,8 +106,14 @@ namespace BeatLeader.Components {
             SwapPrestigeIcon(player.prestige + 1);
         }
 
+        private void OnPrestigeIconsLoaded() {
+            if (player != null) {
+                SwapPrestigeIcon(player.prestige);
+            }
+        }
+
         private void SwapPrestigeIcon(int prestige) {
-            _prestigeIcon.sprite = PrestigeIcon.GetPrestigeSprite(prestige);
+            _prestigeIcon.sprite = PrestigeIcon.GetBigPrestigeSprite(prestige);
            
             if (ConfigFileData.Instance.ExperienceBarEnabled) {
                 _prestigeIcon.gameObject.SetActive(true);

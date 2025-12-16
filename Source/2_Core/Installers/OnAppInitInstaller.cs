@@ -31,6 +31,8 @@ namespace BeatLeader.Installers {
             Container.BindInterfacesAndSelfTo<LeaderboardContextsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            
+            PrestigeLevelsManager.Initialize();
 
             Container.BindInterfacesAndSelfTo<ProfileManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<ScoreStatsManager>().AsSingle();

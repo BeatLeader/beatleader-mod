@@ -1,4 +1,5 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatLeader.DataManager;
+using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,16 +9,22 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnEnable() {
+            PrestigeLevelsManager.IconsLoadedEvent += OnIconsLoaded;
             UpdateImage();
         }
 
         private void OnDisable() {
+            PrestigeLevelsManager.IconsLoadedEvent -= OnIconsLoaded;
             StopAllCoroutines();
+        }
+
+        private void OnIconsLoaded() {
+            UpdateImage();
         }
 
         #endregion
 
-        #region SetCountry
+        #region SetPrestige
 
         private int _prestige = 0;
 
@@ -26,33 +33,18 @@ namespace BeatLeader.Components {
             if (gameObject.activeInHierarchy) UpdateImage();
         }
 
+        /// <summary>
+        /// Gets the small prestige icon sprite for score rows
+        /// </summary>
         public static Sprite GetPrestigeSprite(int prestige) {
-            switch (prestige) {
-                case 0:
-                    return BundleLoader.PrestigeIcon0 ?? BundleLoader.LocationIcon;
-                case 1:
-                    return BundleLoader.PrestigeIcon1 ?? BundleLoader.LocationIcon;
-                case 2:
-                    return BundleLoader.PrestigeIcon2 ?? BundleLoader.LocationIcon;
-                case 3:
-                    return BundleLoader.PrestigeIcon3 ?? BundleLoader.LocationIcon;
-                case 4:
-                    return BundleLoader.PrestigeIcon4 ?? BundleLoader.LocationIcon;
-                case 5:
-                    return BundleLoader.PrestigeIcon5 ?? BundleLoader.LocationIcon;
-                case 6:
-                    return BundleLoader.PrestigeIcon6 ?? BundleLoader.LocationIcon;
-                case 7:
-                    return BundleLoader.PrestigeIcon7 ?? BundleLoader.LocationIcon;
-                case 8:
-                    return BundleLoader.PrestigeIcon8 ?? BundleLoader.LocationIcon;
-                case 9:
-                    return BundleLoader.PrestigeIcon9 ?? BundleLoader.LocationIcon;
-                case 10:
-                    return BundleLoader.PrestigeIcon10 ?? BundleLoader.LocationIcon;
-                default:
-                    return BundleLoader.LocationIcon;
-            }
+            return PrestigeLevelsManager.GetSmallIcon(prestige);
+        }
+
+        /// <summary>
+        /// Gets the big prestige icon sprite for player info
+        /// </summary>
+        public static Sprite GetBigPrestigeSprite(int prestige) {
+            return PrestigeLevelsManager.GetBigIcon(prestige);
         }
 
         private void UpdateImage() {

@@ -48,7 +48,7 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateImage() {
-            SetSprite(GetPrestigeSprite(_prestige));
+            SetSprite(GetBigPrestigeSprite(_prestige));
         }
 
         #endregion

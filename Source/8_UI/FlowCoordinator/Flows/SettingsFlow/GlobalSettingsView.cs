@@ -10,28 +10,52 @@ namespace BeatLeader.UI.Hub {
     internal class GlobalSettingsView : ReactiveComponent {
         #region Setup
 
-        public void Setup(MenuTransitionsHelper transitionsHelper) {
-            _reloadNotice.Setup(transitionsHelper);
+        public void Setup(MenuTransitionsHelper? transitionsHelper) {
+            if (transitionsHelper != null) {
+                _reloadNotice.Setup(transitionsHelper);
+            }
         }
 
         #endregion
         
         #region Notice
 
+        private bool _initialMenuButtonEnabled;
+        private bool _initialNoticeboardEnabled;
         private BLLanguage _initialLanguage;
+        private BeatLeaderServer _initialServer;
+
+        public void CancelSelection() {
+            BeatLeaderMenuButtonManager.MenuButtonEnabled = _initialMenuButtonEnabled;
+            PluginConfig.NoticeboardEnabled = _initialNoticeboardEnabled;
+            PluginConfig.SelectedLanguage = _initialLanguage;
+            PluginConfig.MainServer = _initialServer;
+
+            _menuButtonToggle.SetActive(_initialMenuButtonEnabled);
+            _noticeboardToggle.SetActive(_initialNoticeboardEnabled);
+            _languageDropdown.Select(_initialLanguage);
+            _serverDropdown.Select(_initialServer);
+        }
 
         private void SaveInitialValues() {
+            _initialMenuButtonEnabled = BeatLeaderMenuButtonManager.MenuButtonEnabled;
+            _initialNoticeboardEnabled = PluginConfig.NoticeboardEnabled;
             _initialLanguage = PluginConfig.SelectedLanguage;
+            _initialServer = PluginConfig.MainServer;
         }
         
         private void RefreshNotice() {
-            _reloadNotice.Enabled = _initialLanguage != PluginConfig.SelectedLanguage;
+            if (_reloadNotice.CanBeEnabled()) {
+                _reloadNotice.Enabled = _initialLanguage != PluginConfig.SelectedLanguage;
+            }
         }
 
         #endregion
 
         #region Construct
 
+        private Toggle _menuButtonToggle = null!;
+        private Toggle _noticeboardToggle = null;
         private TextDropdown<BLLanguage> _languageDropdown = null!;
         private TextDropdown<BeatLeaderServer> _serverDropdown = null!;
         private ReloadNotice _reloadNotice = null!;
@@ -39,6 +63,22 @@ namespace BeatLeader.UI.Hub {
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
+                    new Toggle()
+                        .With(x => x.SetActive(BeatLeaderMenuButtonManager.MenuButtonEnabled, false))
+                        .WithListener(
+                            x => x.Active,
+                            x => BeatLeaderMenuButtonManager.MenuButtonEnabled = x
+                        )
+                        .Bind(ref _menuButtonToggle)
+                        .InNamedRail("Menu Button Enabled"),
+                    new Toggle()
+                        .With(x => x.SetActive(PluginConfig.NoticeboardEnabled, false))
+                        .WithListener(
+                            x => x.Active,
+                            x => PluginConfig.NoticeboardEnabled = x
+                        )
+                        .Bind(ref _noticeboardToggle)
+                        .InNamedRail("Show Noticeboard"),
                     new TextDropdown<BLLanguage>()
                         .WithListener(
                             x => x.SelectedKey,

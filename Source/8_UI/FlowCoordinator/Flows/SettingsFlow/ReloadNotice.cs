@@ -9,9 +9,7 @@ namespace BeatLeader.UI.Hub {
 
         private MenuTransitionsHelper? _transitionsHelper;
 
-        public bool CanBeEnabled() {
-            return _transitionsHelper != null;
-        }
+        public bool CanBeEnabled => _transitionsHelper != null;
 
         public void Setup(MenuTransitionsHelper transitionsHelper) {
             _transitionsHelper = transitionsHelper;
@@ -25,11 +23,11 @@ namespace BeatLeader.UI.Hub {
             return new BsPrimaryButton {
                     Text = "Reload Now",
                     Skew = UIStyle.Skew,
+                    Enabled = false,
                     OnClick = () => _transitionsHelper?.RestartGame()
                 }
                 .AsFlexItem(size: new() { x = 20f })
                 .InNamedRail("These changes will be applied after game reload ")
-                .With(x => x.Enabled = false)
                 .Use();
         }
 

@@ -142,7 +142,6 @@ namespace BeatLeader.UI.Hub {
         private bool _initialOverrideOldReplays;
 
         public void CancelSelection() {
-
             ConfigFileData.Instance.ReplaySavingOptions = _initialReplaySavingOptions;
             ConfigFileData.Instance.OverrideOldReplays = _initialOverrideOldReplays;
 

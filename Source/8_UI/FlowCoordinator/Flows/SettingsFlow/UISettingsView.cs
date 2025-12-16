@@ -13,6 +13,13 @@ namespace BeatLeader.UI.Hub {
         private BeatLeaderHubMenuButtonsTheme? _menuButtonsTheme;
         private ReplayManagerSearchTheme? _replayManagerTheme;
 
+        private Color _initialReplayManagerButtonColor;
+        private Color _initialBattleRoyaleButtonColor;
+        private Color _initialSettingsButtonColor;
+        private Color _initialAvatarButtonColor;
+        private Color _initialSearchHighlightColor;
+        private FontStyle _initialSearchHighlightStyle;
+
         public void Setup(BeatLeaderHubTheme theme) {
             _menuButtonsTheme = theme.MenuButtonsTheme;
             _replayManagerButtonColorPicker.Color = _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor;
@@ -24,6 +31,41 @@ namespace BeatLeader.UI.Hub {
             _replayManagerSearchColorPicker.Color = _replayManagerTheme.SearchHighlightColor;
             var bold = _replayManagerTheme.SearchHighlightStyle.HasFlag(FontStyle.Bold);
             _replayManagerSearchBoldToggle.SetActive(bold, false, true);
+            //
+            SaveInitialValues();
+        }
+
+        public void CancelSelection() {
+            if (_menuButtonsTheme != null) {
+                _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor = _initialReplayManagerButtonColor;
+                _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor = _initialBattleRoyaleButtonColor;
+                _menuButtonsTheme.SettingsButtonColors.HoveredColor = _initialSettingsButtonColor;
+                _menuButtonsTheme.EditAvatarButtonColors.HoveredColor = _initialAvatarButtonColor;
+            }
+            if (_replayManagerTheme != null) {
+                _replayManagerTheme.SearchHighlightColor = _initialSearchHighlightColor;
+                _replayManagerTheme.SearchHighlightStyle = _initialSearchHighlightStyle;
+            }
+
+            _replayManagerButtonColorPicker.Color = _initialReplayManagerButtonColor;
+            _battleRoyaleButtonColorPicker.Color = _initialBattleRoyaleButtonColor;
+            _settingsButtonColorPicker.Color = _initialSettingsButtonColor;
+            _avatarButtonColorPicker.Color = _initialAvatarButtonColor;
+            _replayManagerSearchColorPicker.Color = _initialSearchHighlightColor;
+            _replayManagerSearchBoldToggle.SetActive(_initialSearchHighlightStyle.HasFlag(FontStyle.Bold), false, true);
+        }
+
+        private void SaveInitialValues() {
+            if (_menuButtonsTheme != null) {
+                _initialReplayManagerButtonColor = _menuButtonsTheme.ReplayManagerButtonColors.HoveredColor;
+                _initialBattleRoyaleButtonColor = _menuButtonsTheme.BattleRoyaleButtonColors.HoveredColor;
+                _initialSettingsButtonColor = _menuButtonsTheme.SettingsButtonColors.HoveredColor;
+                _initialAvatarButtonColor = _menuButtonsTheme.EditAvatarButtonColors.HoveredColor;
+            }
+            if (_replayManagerTheme != null) {
+                _initialSearchHighlightColor = _replayManagerTheme.SearchHighlightColor;
+                _initialSearchHighlightStyle = _replayManagerTheme.SearchHighlightStyle;
+            }
         }
 
         #endregion
@@ -66,64 +108,79 @@ namespace BeatLeader.UI.Hub {
                     .InNamedRail(name);
             }
 
-            return new Layout {
-                Children = {
-                    CreateContainer(
-                        "Hub Buttons",
+            return 
+                new Layout {
+                    Children = {
+                        new ScrollArea {
+                            ScrollContent = new Layout {
+                                Children = {
+                                    CreateContainer(
+                                        "Hub Buttons",
                         
-                        // Replay Manager button
-                        CreateColorPicker(
-                            "Replay Manager",
-                            HandleReplayManagerButtonColorChanged,
-                            ref _replayManagerButtonColorPicker
-                        ),
+                                        // Replay Manager button
+                                        CreateColorPicker(
+                                            "Replay Manager",
+                                            HandleReplayManagerButtonColorChanged,
+                                            ref _replayManagerButtonColorPicker
+                                        ),
                         
-                        // Battle Royale button
-                        CreateColorPicker(
-                            "Battle Royale",
-                            HandleBattleRoyaleButtonColorChanged,
-                            ref _battleRoyaleButtonColorPicker
-                        ),
+                                        // Battle Royale button
+                                        CreateColorPicker(
+                                            "Battle Royale",
+                                            HandleBattleRoyaleButtonColorChanged,
+                                            ref _battleRoyaleButtonColorPicker
+                                        ),
 
-                        // Settings button
-                        CreateColorPicker(
-                            "Settings",
-                            HandleSettingsButtonColorChanged,
-                            ref _settingsButtonColorPicker
-                        ),
+                                        // Settings button
+                                        CreateColorPicker(
+                                            "Settings",
+                                            HandleSettingsButtonColorChanged,
+                                            ref _settingsButtonColorPicker
+                                        ),
 
-                        // Edit avatar button
-                        CreateColorPicker(
-                            "Edit Avatar",
-                            HandleAvatarButtonColorChanged,
-                            ref _avatarButtonColorPicker
-                        )
-                    ),
-                    //
-                    CreateContainer(
-                        "Replay Search",
-                        //
-                        CreateColorPicker(
-                            "Color",
-                            HandleReplayManagerSearchColorChanged,
-                            ref _replayManagerSearchColorPicker
-                        ),
-                        //
-                        new Toggle()
-                            .WithListener(
-                                x => x.Active,
-                                HandleReplayManagerSearchBoldChanged
-                            )
-                            .Bind(ref _replayManagerSearchBoldToggle)
-                            .InNamedRail("Bold")
-                    )
+                                        // Edit avatar button
+                                        CreateColorPicker(
+                                            "Edit Avatar",
+                                            HandleAvatarButtonColorChanged,
+                                            ref _avatarButtonColorPicker
+                                        )
+                                    ),
+                                    //
+                                    CreateContainer(
+                                        "Replay Search",
+                                        //
+                                        CreateColorPicker(
+                                            "Color",
+                                            HandleReplayManagerSearchColorChanged,
+                                            ref _replayManagerSearchColorPicker
+                                        ),
+                                        //
+                                        new Toggle()
+                                            .WithListener(
+                                                x => x.Active,
+                                                HandleReplayManagerSearchBoldChanged
+                                            )
+                                            .Bind(ref _replayManagerSearchBoldToggle)
+                                            .InNamedRail("Bold")
+                                    )
+                                }
+                            }.AsFlexGroup(
+                                direction: FlexDirection.Column,
+                                justifyContent: Justify.FlexStart,
+                                alignItems: Align.Stretch,
+                                gap: 1f,
+                                constrainVertical: false
+                            ),
+                        }.AsFlexItem(flexGrow: 1f).Export(out var scrollArea),
+                    
+                        new Scrollbar()
+                            .AsFlexItem()
+                            .With(x => scrollArea.Scrollbar = x)
+                    }
                 }
-            }.AsFlexGroup(
-                direction: FlexDirection.Column,
-                justifyContent: Justify.FlexStart,
-                alignItems: Align.Stretch,
-                gap: 1f
-            ).Use();
+                .AsFlexGroup(gap: 1f)
+                .AsFlexItem()
+                .Use();
         }
 
         #endregion

@@ -114,16 +114,16 @@ namespace BeatLeader.ViewControllers {
         #region Events
 
         private bool _battleRoyaleEnabled;
-
+        
         private void HandleBattleRoyaleEnabled(bool brEnabled) {
             _battleRoyaleEnabled = brEnabled;
         }
-
+        
         private void PresentScoreInfoModal(Score score) {
             if (_battleRoyaleEnabled) {
                 return;
             }
-
+            
             ReeModalSystem.OpenModal<ScoreInfoPanel>(transform, (score, _navigatorWrapper), false);
         }
 

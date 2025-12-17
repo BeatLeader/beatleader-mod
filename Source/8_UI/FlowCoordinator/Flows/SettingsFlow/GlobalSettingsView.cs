@@ -149,7 +149,7 @@ namespace BeatLeader.UI.Hub {
             PluginConfig.SelectedLanguage = language;
             RefreshNotice();
         }
-
+        
         private void HandleServerChanged(BeatLeaderServer server) {
             PluginConfig.MainServer = server;
         }

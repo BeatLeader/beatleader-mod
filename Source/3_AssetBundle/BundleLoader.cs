@@ -252,13 +252,13 @@ namespace BeatLeader {
         [UsedImplicitly] public static Sprite OtherIcon;
 
         [UsedImplicitly] public static Sprite AvatarIcon;
-
+        
         [UsedImplicitly] public static Sprite HubIcon;
-
+        
         [UsedImplicitly] public static Sprite AlphaIcon;
 
         public static SpriteCollection Sprites;
-
+        
         private static List<Sprite> _loadedSprites = null!;
 
         public static Sprite? GetSpriteFromBundle(string name) {
@@ -335,11 +335,11 @@ namespace BeatLeader {
             SkullIcon = assetBundle.LoadAsset<Sprite>("BL_SkullIcon");
             QuestionIcon = assetBundle.LoadAsset<Sprite>("BL_QuestionIcon");
             AlphaIcon = assetBundle.LoadAsset<Sprite>("BL_OpacityIcon");
-
+            
             CameraIcon = assetBundle.LoadAsset<Sprite>("BL_CameraIcon");
             OtherIcon = assetBundle.LoadAsset<Sprite>("BL_OtherSettingsIcon");
             AvatarIcon = assetBundle.LoadAsset<Sprite>("BL_AvatarIcon");
-
+            
             HubIcon = assetBundle.LoadAsset<Sprite>("BL_HubIcon");
             Sprites = assetBundle.LoadAsset<SpriteCollection>("SpriteCollection");
 

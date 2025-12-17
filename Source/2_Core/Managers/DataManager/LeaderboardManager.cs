@@ -103,13 +103,13 @@ namespace BeatLeader.DataManager {
 
             switch (LeaderboardState.leaderboardType) {
                 case LeaderboardType.SongDiffPlayerScores: {
-                        LoadPlayerScores();
-                        break;
-                    }
+                    LoadPlayerScores();
+                    break;
+                }
                 case LeaderboardType.SongDiffClanScores: {
-                        LoadClanScores();
-                        break;
-                    }
+                    LoadClanScores();
+                    break;
+                }
                 default: break;
             }
         }

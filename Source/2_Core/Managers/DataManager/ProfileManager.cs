@@ -43,7 +43,7 @@ namespace BeatLeader.DataManager {
         public static bool IsCurrentPlayerTopClan(Clan clan) {
             return HasProfile && Profile.clans.Length > 0 && Profile.clans[0].id == clan.id;
         }
-
+        
         public static bool TryGetUserId(out string? userId) {
             if (!HasProfile) {
                 userId = null;
@@ -53,7 +53,7 @@ namespace BeatLeader.DataManager {
             userId = Profile!.id;
             return true;
         }
-
+        
         public static Task WaitUntilProfileLoad() {
             AssignLoadProfileTaskIfNeeded();
             return _profileLoadTaskCompletionSource!.Task;
@@ -68,7 +68,7 @@ namespace BeatLeader.DataManager {
             AssignLoadProfileTaskIfNeeded();
             _profileLoadTaskCompletionSource!.SetResult(null);
         }
-
+        
         #endregion
 
         #region Friends
@@ -105,7 +105,7 @@ namespace BeatLeader.DataManager {
         #region Initialize / Dispose
 
         private static bool _initialized;
-
+        
         public void Initialize() {
             UserRequest.StateChangedEvent += OnUserRequestStateChanged;
             UploadReplayRequest.StateChangedEvent += OnUploadRequestStateChanged;
@@ -132,7 +132,7 @@ namespace BeatLeader.DataManager {
         #endregion
 
         #region Events
-
+        
         private void OnMainServerChanged(BeatLeaderServer value) {
             Authentication.ResetLogin();
             UserRequest.Send();

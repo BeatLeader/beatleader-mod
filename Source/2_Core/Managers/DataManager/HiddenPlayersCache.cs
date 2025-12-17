@@ -58,7 +58,7 @@ namespace BeatLeader.DataManager {
 
         public static Player HidePlayerIfNeeded(Player player) {
             if (!IsHidden(player)) return player;
-
+            
             return new Player() {
                 id = player.id,
                 rank = 0,

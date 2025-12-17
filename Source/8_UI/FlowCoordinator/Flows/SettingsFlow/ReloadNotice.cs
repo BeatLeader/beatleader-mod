@@ -9,6 +9,8 @@ namespace BeatLeader.UI.Hub {
 
         private MenuTransitionsHelper? _transitionsHelper;
 
+        public bool CanBeEnabled => _transitionsHelper != null;
+
         public void Setup(MenuTransitionsHelper transitionsHelper) {
             _transitionsHelper = transitionsHelper;
         }
@@ -21,6 +23,7 @@ namespace BeatLeader.UI.Hub {
             return new BsPrimaryButton {
                     Text = "Reload Now",
                     Skew = UIStyle.Skew,
+                    Enabled = false,
                     OnClick = () => _transitionsHelper?.RestartGame()
                 }
                 .AsFlexItem(size: new() { x = 20f })

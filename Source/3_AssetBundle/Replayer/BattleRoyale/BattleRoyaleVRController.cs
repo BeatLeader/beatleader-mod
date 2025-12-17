@@ -97,7 +97,7 @@ namespace BeatLeader {
         private void UpdateMovementData() {
             var bottomPos = transform.position;
             var topPos = transform.forward + bottomPos;
-            _movementData.AddNewData(topPos, bottomPos, Time.time);
+            _movementData.AddNewData(topPos, bottomPos, TimeHelper.GetShaderTimeValue());
         }
 
         private static SaberTrailRenderer InstantiateTrailRenderer() {

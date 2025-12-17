@@ -138,9 +138,27 @@ namespace BeatLeader.UI.Hub {
 
         #endregion
 
+        private ReplaySaveOption _initialReplaySavingOptions;
+        private bool _initialOverrideOldReplays;
+
+        public void CancelSelection() {
+            ConfigFileData.Instance.ReplaySavingOptions = _initialReplaySavingOptions;
+            ConfigFileData.Instance.OverrideOldReplays = _initialOverrideOldReplays;
+
+            _saveOnFailToggle.SetActive(GetReplaySaveFlag(ReplaySaveOption.Fail), false);
+            _saveOnExitToggle.SetActive(GetReplaySaveFlag(ReplaySaveOption.Exit), false);
+            _saveOnPracticeToggle.SetActive(GetReplaySaveFlag(ReplaySaveOption.Practice), false);
+            _keepLatestToggle.SetActive(ConfigFileData.Instance.OverrideOldReplays, false);
+
+        }
+
         #region Construct
 
         private DeletionModal _deletionModal = null!;
+        private Toggle _saveOnFailToggle = null!;
+        private Toggle _saveOnExitToggle = null!;
+        private Toggle _saveOnPracticeToggle = null!;
+        private Toggle _keepLatestToggle = null!;
 
         protected override GameObject Construct() {
             new DeletionModal()
@@ -158,6 +176,7 @@ namespace BeatLeader.UI.Hub {
                             x => x.Active,
                             x => WriteReplaySaveFlag(ReplaySaveOption.Fail, x)
                         )
+                        .Bind(ref _saveOnFailToggle)
                         .InNamedRail("Save On Fail"),
 
                     //exit toggle
@@ -167,6 +186,7 @@ namespace BeatLeader.UI.Hub {
                             x => x.Active,
                             x => WriteReplaySaveFlag(ReplaySaveOption.Exit, x)
                         )
+                        .Bind(ref _saveOnExitToggle)
                         .InNamedRail("Save On Exit"),
 
                     new Toggle()
@@ -175,6 +195,7 @@ namespace BeatLeader.UI.Hub {
                             x => x.Active,
                             x => WriteReplaySaveFlag(ReplaySaveOption.Practice, x)
                         )
+                        .Bind(ref _saveOnPracticeToggle)
                         .InNamedRail("Save On Practice"),
 
                     //override old toggle
@@ -184,6 +205,7 @@ namespace BeatLeader.UI.Hub {
                             x => x.Active,
                             x => ConfigFileData.Instance.OverrideOldReplays = x
                         )
+                        .Bind(ref _keepLatestToggle)
                         .InNamedRail("Keep Latest Only"),
 
                     //delete all button
@@ -203,6 +225,11 @@ namespace BeatLeader.UI.Hub {
                 alignItems: Align.Stretch,
                 gap: 1f
             ).Use();
+        }
+
+        protected override void OnInitialize() {
+            _initialReplaySavingOptions = ConfigFileData.Instance.ReplaySavingOptions;
+            _initialOverrideOldReplays = ConfigFileData.Instance.OverrideOldReplays;
         }
 
         #endregion

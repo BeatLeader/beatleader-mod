@@ -116,9 +116,10 @@ namespace BeatLeader.Replayer {
                     settingsManager: _settingsManager,
                     beatmapDataLoader: _beatmapDataLoader,
                     beatmapLevelsEntitlementModel: _beatmapLevelsEntitlementModel,
+                    gameplayAdditionalInformation: new GameplayAdditionalInformation(
                     backButtonText: "Menu",
                     useTestNoteCutSoundEffects: false,
-                    startPaused: false,
+                    startPaused: false),
                     beatmapLevelsModel: _beatmapLevelsModel,
                     beatmapLevelData: null
                 );

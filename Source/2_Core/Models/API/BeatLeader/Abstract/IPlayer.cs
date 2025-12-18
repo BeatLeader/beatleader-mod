@@ -11,6 +11,9 @@ namespace BeatLeader.Models {
         string? AvatarUrl { get; }
         int Rank { get; }
         int CountryRank { get; }
+        int Level { get; }
+        int Experience { get; }
+        int Prestige { get; }
         string Country { get; }
         float PerformancePoints { get; }
         IPlayerProfileSettings? ProfileSettings { get; }

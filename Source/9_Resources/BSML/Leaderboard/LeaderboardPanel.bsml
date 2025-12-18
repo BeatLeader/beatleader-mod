@@ -1,4 +1,4 @@
-<horizontal pref-height="20" min-height="20" anchor-pos-y="2" pad-left="0" pad-right="5">
+﻿<horizontal pref-height="20" min-height="20" anchor-pos-y="2" pad-left="0" pad-right="5">
     <vertical pref-width="90" min-width="90" spacing="1">
         <horizontal pref-height="5">
             <macro.as-host host="status-bar">
@@ -12,6 +12,12 @@
             </macro.as-host>
 
             <macro.as-host host="player-info">
+                <macro.reparent transform="ui-component"/>
+            </macro.as-host>
+        </horizontal>
+
+        <horizontal pref-height="5">
+            <macro.as-host host="experience-bar">
                 <macro.reparent transform="ui-component"/>
             </macro.as-host>
         </horizontal>

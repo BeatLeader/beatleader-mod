@@ -1,4 +1,4 @@
-using BeatLeader.Components;
+﻿using BeatLeader.Components;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
@@ -17,11 +17,13 @@ namespace BeatLeader.ViewControllers {
             public StatusBar statusBar;
             public Logo logo;
             public PlayerInfo playerInfo;
+            public ExperienceBar experienceBar;
 
             private void Awake() {
                 statusBar = ReeUIComponentV2.InstantiateOnSceneRoot<StatusBar>();
                 logo = ReeUIComponentV2.InstantiateOnSceneRoot<Logo>();
                 playerInfo = ReeUIComponentV2.InstantiateOnSceneRoot<PlayerInfo>();
+                experienceBar = ReeUIComponentV2.InstantiateOnSceneRoot<ExperienceBar>();
             }
         }
 
@@ -38,10 +40,14 @@ namespace BeatLeader.ViewControllers {
         [UIValue("player-info"), UsedImplicitly]
         private PlayerInfo PlayerInfo => _preParser.playerInfo;
 
+        [UIValue("experience-bar"), UsedImplicitly]
+        private ExperienceBar ExperienceBar => _preParser.experienceBar;
+
         private void Awake() {
             StatusBar.SetParent(transform);
             Logo.SetParent(transform);
             PlayerInfo.SetParent(transform);
+            ExperienceBar.SetParent(transform);
         }
 
         #endregion

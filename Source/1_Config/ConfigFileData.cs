@@ -74,6 +74,7 @@ namespace BeatLeader {
         public LeaderboardDisplaySettings LeaderboardDisplaySettings = ConfigDefaults.LeaderboardDisplaySettings;
         public ScoreRowCellType LeaderboardTableMask = ConfigDefaults.LeaderboardTableMask;
         public int ScoresContext = ConfigDefaults.ScoresContext;
+        public bool ExperienceBarEnabled = true;
 
         // Hub
         public BeatLeaderHubTheme HubTheme = ConfigDefaults.HubTheme;

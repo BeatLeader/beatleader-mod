@@ -75,19 +75,19 @@ namespace BeatLeader.DataManager {
 
         public static event Action? FriendsUpdatedEvent;
 
-        private static readonly Dictionary<string, Player> friends = new();
+        private static readonly List<string> friends = new();
 
-        private static void SetFriends(Player[] players) {
+        private static void SetFriends(string[] players) {
             friends.Clear();
             foreach (var player in players) {
-                friends[player.id] = player;
+                friends.Add(player);
             }
 
             FriendsUpdatedEvent?.Invoke();
         }
 
         private static void AddFriend(Player player) {
-            friends[player.id] = player;
+            friends.Add(player.id);
             FriendsUpdatedEvent?.Invoke();
         }
 
@@ -97,7 +97,7 @@ namespace BeatLeader.DataManager {
         }
 
         public static bool IsFriend(Player? player) {
-            return player != null && friends.ContainsKey(player.id);
+            return player != null && friends.Contains(player.id);
         }
 
         #endregion
@@ -168,19 +168,19 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        private static void OnUserRequestStateChanged(WebRequests.IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private static void OnUserRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             if (state is WebRequests.RequestState.Failed) FinishTask();
             if (state is not WebRequests.RequestState.Finished) return;
             var result = instance.Result;
-            Profile = result.player;
-            Roles = FormatUtils.ParsePlayerRoles(result.player.role);
+            Profile = result;
+            Roles = FormatUtils.ParsePlayerRoles(result.role);
             SetFriends(result.friends);
             FinishTask();
         }
 
-        private static void OnUploadRequestStateChanged(WebRequests.IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
-            if (state is not WebRequests.RequestState.Finished) return;
-            Profile = instance.Result.Player;
+        private static void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
+            if (state is not WebRequests.RequestState.Finished || instance.Result.Status != ScoreUploadStatus.Uploaded) return;
+            Profile = instance.Result.Score.Player;
         }
 
         #endregion

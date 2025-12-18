@@ -1,0 +1,7 @@
+﻿<vertical>
+    <horizontal pref-height="5" pad-top="2" spacing="2">
+        <text text="~level-text" font-size="3.5" pref-width="3" align="Left" bold="true"/>
+        <clickable-image id="experience-bar" src="#BeatLeaderLogoGradient" preserve-aspect="false" pref-width="40" on-click="on-click"/>
+        <text text="~next-level-text" font-size="3.5" pref-width="3" align="Left" bold="true"/>
+    </horizontal>
+</vertical>

@@ -139,7 +139,7 @@ namespace BeatLeader.Components {
             LeaderboardEvents.NotifyLogoWasPressed();
         }
 
-        private void OnProfileRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnProfileRequestStateChanged(IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             _loadingProfile = state is WebRequests.RequestState.Started;
             UpdateState();
         }
@@ -154,8 +154,8 @@ namespace BeatLeader.Components {
             UpdateState();
         }
 
-        
-        private void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+
+        private void OnUploadRequestStateChanged(IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             _uploadingScore = state is WebRequests.RequestState.Started;
             UpdateState();
         }

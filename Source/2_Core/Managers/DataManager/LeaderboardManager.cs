@@ -134,7 +134,7 @@ namespace BeatLeader.DataManager {
 
         private LeaderboardKey _uploadLeaderboardKey;
 
-        private void OnUploadRequestStateChanged(IWebRequest<Score> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnUploadRequestStateChanged(IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             if (!_lastSelectedBeatmap.IsValid()) return;
 
             switch (state) {
@@ -153,7 +153,7 @@ namespace BeatLeader.DataManager {
             _lastSelectedPage = instance.Result?.CurrentPage ?? 1;
         }
 
-        private void OnUserRequestStateChanged(IWebRequest<User> instance, WebRequests.RequestState state, string? failReason) {
+        private void OnUserRequestStateChanged(IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             if (state is not WebRequests.RequestState.Finished) return;
             TryUpdateScores();
         }

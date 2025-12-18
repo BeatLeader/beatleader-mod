@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,14 +7,8 @@ using Newtonsoft.Json;
 using BeatLeader.Themes;
 using BeatLeader.Utils;
 using BeatSaber.BeatAvatarSDK;
-using Newtonsoft.Json;
 
 namespace BeatLeader.Models {
-    public class User {
-        public Player player;
-        public Player[] friends;
-    }
-
     public class PlayerContextExtension {
         public int context;
         public float pp;
@@ -32,6 +25,9 @@ namespace BeatLeader.Models {
         string? IPlayer.AvatarUrl => avatar;
         int IPlayer.Rank => rank;
         int IPlayer.CountryRank => countryRank;
+        int IPlayer.Level => level;
+        int IPlayer.Experience => experience;
+        int IPlayer.Prestige => prestige;
         string IPlayer.Country => country;
         float IPlayer.PerformancePoints => pp;
         IPlayerProfileSettings? IPlayer.ProfileSettings => profileSettings;
@@ -71,8 +67,12 @@ namespace BeatLeader.Models {
         public string? avatar;
         public string country;
         public int countryRank;
+        public int level;
+        public int experience;
+        public int prestige;
         public float pp;
         public string role;
+        public string[] friends;
         public Clan[] clans;
         public ServiceIntegration[] socials;
         public PlayerContextExtension[]? contextExtensions;
@@ -88,6 +88,9 @@ namespace BeatLeader.Models {
                 avatar = avatar,
                 country = country,
                 countryRank = contextPlayer.countryRank,
+                level = level,
+                experience = experience,
+                prestige = prestige,
                 pp = contextPlayer.pp,
                 role = role,
                 clans = clans,

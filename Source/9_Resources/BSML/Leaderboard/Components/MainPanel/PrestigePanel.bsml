@@ -1,0 +1,17 @@
+﻿<vertical spacing="1" pad="1" vertical-fit="PreferredSize" bg="round-rect-panel">
+    <macro.define name="image-width" value="18"/>
+    <horizontal pref-height="20">
+        <vertical spacing="0.5" vertical-fit="PreferredSize">
+            <horizontal pref-height="5">
+                <text text="&lt;bll&gt;ls-prestige-text&lt;/bll&gt;" font-size="5" font-color="#999999" align="Center"/>
+            </horizontal>
+            <horizontal pref-height="5">
+                <text text="&lt;bll&gt;ls-prestige-text-2&lt;/bll&gt;" font-size="5" font-color="#999999" align="Center"/>
+            </horizontal>
+            <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
+                <button pref-width="16" id="prestige-yes-button" text="&lt;bll&gt;ls-yes&lt;/bll&gt;"/>
+                <button pref-width="16" id="prestige-no-button" text="&lt;bll&gt;ls-no&lt;/bll&gt;"/>
+            </horizontal>
+        </vertical>
+    </horizontal>
+</vertical>

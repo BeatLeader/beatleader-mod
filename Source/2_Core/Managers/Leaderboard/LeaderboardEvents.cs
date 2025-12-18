@@ -169,6 +169,16 @@ namespace BeatLeader.Manager {
 
         #endregion
 
+        #region PrestigeWasPressed
+
+        public static event Action ExperienceBarWasPressedEvent;
+
+        public static void NotifyPrestigeWasPressed() {
+            ExperienceBarWasPressedEvent?.Invoke();
+        }
+
+        #endregion
+
         #region AddFriendWasPressed
 
         public static event Action<Player> AddFriendWasPressedEvent;

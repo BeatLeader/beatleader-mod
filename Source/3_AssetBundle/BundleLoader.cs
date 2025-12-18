@@ -58,6 +58,7 @@ namespace BeatLeader {
         #region Materials
 
         public static Material LogoMaterial;
+        public static Material PrestigeIconMaterial;
         public static Material DefaultAvatarMaterial;
         public static Material UIAdditiveGlowMaterial;
         public static Material ScoreBackgroundMaterial;
@@ -69,6 +70,7 @@ namespace BeatLeader {
         public static Material VotingButtonMaterial;
         public static Material MiniProfileBackgroundMaterial;
         public static Material SkillTriangleMaterial;
+        public static Material ExperienceBarMaterial;
 
         public static Material UIGridMaterial;
         public static Material TextureSplitterMaterial;
@@ -85,6 +87,7 @@ namespace BeatLeader {
 
         private static void LoadMaterials(AssetBundle assetBundle) {
             LogoMaterial = assetBundle.LoadAsset<Material>("LogoMaterial");
+            PrestigeIconMaterial = assetBundle.LoadAsset<Material>("UIPrestigeIconMaterial");
             DefaultAvatarMaterial = assetBundle.LoadAsset<Material>("DefaultAvatar");
             UIAdditiveGlowMaterial = assetBundle.LoadAsset<Material>("UIAdditiveGlow");
             //UIAdditiveGlowMaterial.renderQueue = 4999;
@@ -99,6 +102,7 @@ namespace BeatLeader {
             UIGridMaterial = assetBundle.LoadAsset<Material>("UIGridMaterial");
             TextureSplitterMaterial = assetBundle.LoadAsset<Material>("TextureSplitterMaterial");
             SkillTriangleMaterial = assetBundle.LoadAsset<Material>("UISkillTriangleMaterial");
+            ExperienceBarMaterial = assetBundle.LoadAsset<Material>("UIExperienceBarMaterial");
             OpponentBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentBackgroundMaterial");
             OpponentScoreBackgroundMaterial = assetBundle.LoadAsset<Material>("UIOpponentScoreBackgroundMaterial");
             RoundTextureMaterial = assetBundle.LoadAsset<Material>("UIRoundTextureMaterial");

@@ -1,4 +1,6 @@
-﻿using BeatLeader.Models;
+﻿using System;
+using BeatLeader.Components;
+using BeatLeader.Models;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
 using Reactive.BeatSaber.Components;
@@ -17,7 +19,13 @@ namespace BeatLeader.UI.Hub {
         }
 
         #endregion
-        
+
+        #region Event
+
+        public static event Action<bool> ExperienceBarConfigEvent;
+
+        #endregion
+
         #region Notice
 
         private bool _initialMenuButtonEnabled;
@@ -43,9 +51,9 @@ namespace BeatLeader.UI.Hub {
             _initialLanguage = PluginConfig.SelectedLanguage;
             _initialServer = PluginConfig.MainServer;
         }
-        
+
         private void RefreshNotice() {
-            if (_reloadNotice.CanBeEnabled()) {
+            if (_reloadNotice.CanBeEnabled) {
                 _reloadNotice.Enabled = _initialLanguage != PluginConfig.SelectedLanguage;
             }
         }
@@ -95,6 +103,14 @@ namespace BeatLeader.UI.Hub {
                         .Bind(ref _serverDropdown)
                         .InNamedRail("Server"),
                     //
+                    new Toggle()
+                        .With(x => x.SetActive(ConfigFileData.Instance.ExperienceBarEnabled, false))
+                        .WithListener(
+                            x => x.Active,
+                            HandleEnableExperienceBar
+                        )
+                        .InNamedRail("Experience Bar"),
+                    //
                     new ReloadNotice()
                         .AsFlexItem(margin: new() { top = 4f })
                         .Bind(ref _reloadNotice)
@@ -137,7 +153,12 @@ namespace BeatLeader.UI.Hub {
         private void HandleServerChanged(BeatLeaderServer server) {
             PluginConfig.MainServer = server;
         }
-        
+
+        private void HandleEnableExperienceBar(bool enabled) {
+            ConfigFileData.Instance.ExperienceBarEnabled = enabled;
+            ExperienceBarConfigEvent?.Invoke(enabled);
+        }
+
         #endregion
     }
 }

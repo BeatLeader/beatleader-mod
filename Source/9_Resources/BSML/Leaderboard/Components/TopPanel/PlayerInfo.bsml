@@ -1,8 +1,9 @@
-<vertical pref-width="70">
+﻿<vertical pref-width="70">
     <horizontal pref-height="14" spacing="2">
         <vertical pref-width="54">
-            <horizontal>
-                <text text="~name-text" rich-text="false" overflow-mode="Ellipsis" word-wrapping="false" font-size="6" align="Center"/>
+            <horizontal horizontal-fit="PreferredSize" spacing="0.5">
+                <image pref-height="5" pref-width="5" preserve-aspect="true" id="prestige-icon"/>
+                <text text="~name-text" rich-text="false" overflow-mode="Ellipsis" word-wrapping="false" font-size="6" align="Left"/>
             </horizontal>
 
             <horizontal active="~stats-active" spacing="4" pref-height="4" horizontal-fit="PreferredSize">

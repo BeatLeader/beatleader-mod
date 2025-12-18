@@ -2,9 +2,16 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Zenject;
 
 namespace BeatLeader {
     internal abstract class BattleRoyaleVRController : VRController {
+        #region Injection
+        [Inject]
+        TimeHelper timeHelper;
+
+        #endregion
+
         #region Unity Events
 
         private void Awake() {

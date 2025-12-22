@@ -1,4 +1,4 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
@@ -45,8 +45,6 @@ namespace BeatLeader.UI.Replayer {
 
         #region Construct
 
-        private Slider _smoothnessSlider = null!;
-
         protected override GameObject Construct() {
             return new Layout {
                 Children = {
@@ -60,7 +58,7 @@ namespace BeatLeader.UI.Replayer {
                     }.WithListener(
                         x => x.Value,
                         HandleSpeedChanged
-                    ).Bind(ref _smoothnessSlider).InNamedRail("Speed"),
+                    ).InNamedRail("Speed"),
                     //
                     new BsButton {
                             Text = "Reset",

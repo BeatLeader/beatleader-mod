@@ -7,10 +7,12 @@ namespace BeatLeader.Replayer {
     public class PlayerViewCameraView : CameraView {
         [Inject] private readonly IVirtualPlayerBodySpawner _bodySpawner = null!;
 
+        public static float SMOOTHNESS_MAX => 10;
+
         public override string Name { get; init; } = "PlayerView";
 
         public SerializableVector3 PositionOffset { get; set; } = new(0, 0, -1);
-        public float Smoothness { get; set; } = 8;
+        public float Smoothness { get; set; }
         public bool KeepUpright { get; set; }
         public bool KeepStraight { get; set; }
         
@@ -18,8 +20,8 @@ namespace BeatLeader.Replayer {
         private Quaternion _lastHeadRot = Quaternion.identity;
 
         public override Pose ProcessPose(Pose headPose) {
-            var position = headPose.position + PositionOffset;
             var rotation = headPose.rotation;
+            var position = headPose.position + rotation * new Vector3(0, 0, PositionOffset.z);
             if (KeepUpright) {
                 rotation.z = 0f;
                 rotation.Normalize();
@@ -29,9 +31,11 @@ namespace BeatLeader.Replayer {
                 rotation.Normalize();
             }
 
-            var f = Time.deltaTime * Smoothness;
-            position = Vector3.Lerp(_lastHeadPos, position, f);
-            rotation = Quaternion.Lerp(_lastHeadRot, rotation, f);
+            if (Smoothness > 0 && Smoothness <= SMOOTHNESS_MAX) {
+                var f = Time.deltaTime * (SMOOTHNESS_MAX - Smoothness + 1);
+                position = Vector3.Lerp(_lastHeadPos, position, f);
+                rotation = Quaternion.Lerp(_lastHeadRot, rotation, f);
+            }
 
             _lastHeadPos = position;
             _lastHeadRot = rotation;

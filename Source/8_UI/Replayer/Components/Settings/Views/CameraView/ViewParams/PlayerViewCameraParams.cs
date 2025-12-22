@@ -1,4 +1,4 @@
-using BeatLeader.Models;
+﻿using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.UI.Reactive.Components;
 using Reactive;
@@ -64,10 +64,10 @@ namespace BeatLeader.UI.Replayer {
                 Children = {
                     new Slider {
                         ValueRange = new() {
-                            Start = 0.1f,
-                            End = 10f
+                            Start = 0.0f,
+                            End = PlayerViewCameraView.SMOOTHNESS_MAX
                         },
-                        Value = 1f,
+                        Value = 9f,
                         ValueStep = 0.1f
                     }.WithListener(
                         x => x.Value,

@@ -280,7 +280,7 @@ namespace BeatLeader {
 
             var xrRigTransform = new ReeTransform(xrRigOrigin.position, xrRigOrigin.rotation);
 
-            _vrPlatformHelper.GetNodePose(vrController._node, vrController._nodeIdx, out var controllerPos, out var controllerRot);
+            _vrPlatformHelper.GetNodePose(vrController._node, vrController._nodeIndex, out var controllerPos, out var controllerRot);
             controllerPos = xrRigTransform.LocalToWorldPosition(controllerPos);
             controllerRot = xrRigTransform.LocalToWorldRotation(controllerRot);
             var controllerTransform = new ReeTransform(controllerPos, controllerRot);

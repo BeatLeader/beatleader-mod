@@ -8,8 +8,11 @@ namespace BeatLeader.Replayer.Emulation {
         #region Pool
 
         public class Pool : MemoryPool<IVirtualPlayer, VirtualPlayerBattleRoyaleSabers> {
+            [Inject]
+            private new DiContainer? _container;
+
             public override void OnCreated(VirtualPlayerBattleRoyaleSabers item) {
-                item.Initialize();
+                item.Initialize(_container);
             }
 
             public override void Reinitialize(IVirtualPlayer player, VirtualPlayerBattleRoyaleSabers item) {
@@ -21,13 +24,16 @@ namespace BeatLeader.Replayer.Emulation {
 
         #region Setup
 
-        private void Initialize() {
+        private void Initialize(DiContainer? container) {
             _leftHandTransform = Object.Instantiate(BundleLoader.SaberPrefab, null, false).transform;
             _rightHandTransform = Object.Instantiate(BundleLoader.SaberPrefab, null, false).transform;
 
             _leftHand = _leftHandTransform.GetComponent<BattleRoyaleVRController>();
             _rightHand = _rightHandTransform.GetComponent<BattleRoyaleVRController>();
-
+            if (container != null) {
+                _leftHand.Init(container);
+                _rightHand.Init(container);
+            }
             _leftHand.CoreIntensity = 1f;
             _rightHand.CoreIntensity = 1f;
         }

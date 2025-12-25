@@ -1,24 +1,16 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace BeatLeader {
     internal abstract class BattleRoyaleVRController : VRController {
-        #region Injection
-        [Inject]
-        TimeHelper timeHelper;
-
-        #endregion
-
         #region Unity Events
 
         private void Awake() {
             gameObject.SetActive(false);
             _propertyBlock = new MaterialPropertyBlock();
             _saberTrail = gameObject.AddComponent<SaberTrail>();
-            _saberTrail._trailRendererPrefab = InstantiateTrailRenderer();
             _saberTrail._trailDuration = 0.4f;
             _saberTrail._whiteSectionMaxDuration = 0.001f;
             _saberTrail._samplingFrequency = 120;
@@ -69,11 +61,20 @@ namespace BeatLeader {
 
         #region Trail
 
+        public void Init(DiContainer container) {
+            container.Inject(_saberTrail);
+        }
+
         public float TrailLength {
             get => _saberTrail._trailDuration;
             set {
                 _saberTrail._trailDuration = value;
-                _saberTrail.Init();
+
+                if (_saberTrail._container != null && _saberTrail._timeHelper != null) {
+                    _saberTrail._trailRendererPrefab = Resources.FindObjectsOfTypeAll<SaberTrailRenderer>().First(x => x.name == "SaberTrailRenderer");
+                    _saberTrail.Start();
+                    _saberTrail.Init();
+                }
             }
         }
 
@@ -98,13 +99,6 @@ namespace BeatLeader {
             var bottomPos = transform.position;
             var topPos = transform.forward + bottomPos;
             _movementData.AddNewData(topPos, bottomPos, TimeHelper.GetShaderTimeValue());
-        }
-
-        private static SaberTrailRenderer InstantiateTrailRenderer() {
-            var prefab = Resources
-                .FindObjectsOfTypeAll<SaberTrailRenderer>()
-                .First(x => x.name == "SaberTrailRenderer");
-            return Instantiate(prefab);
         }
 
         #endregion

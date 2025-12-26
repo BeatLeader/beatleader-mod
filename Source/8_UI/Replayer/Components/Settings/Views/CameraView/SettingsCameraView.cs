@@ -136,7 +136,8 @@ namespace BeatLeader.UI.Replayer {
                     //
                     new KeyedContainer<ICameraView> {
                             DummyView = new Label {
-                                Text = "Monke has nothing to show here"
+                                Text = "Monke has nothing to show here",
+                                RaycastTarget = false
                             }
                         }
                         .AsFlexItem(flexGrow: 1f)

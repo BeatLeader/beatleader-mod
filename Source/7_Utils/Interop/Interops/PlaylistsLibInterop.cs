@@ -35,10 +35,10 @@ namespace BeatLeader.Interop {
                 var defaultManagerField = playlistManagerType.GetProperty("DefaultManager", BindingFlags.Static | BindingFlags.Public);
                 
                 var getAllMethodInfo = playlistManagerType.GetMethod("GetAllPlaylists", 
-                    ReflectionUtils.DefaultFlags, new Type[] { });
+                    ReflectionUtils.DefaultFlags, Array.Empty<Type>());
 
                 var manager = defaultManagerField!.GetValue(null);
-                var playlists = (object[])getAllMethodInfo!.Invoke(manager, new object[] {});
+                var playlists = (object[])getAllMethodInfo!.Invoke(manager, Array.Empty<object>());
 
                 var playlistType = assembly!.GetType("BeatSaberPlaylistsLib.Types.Playlist");
                 var filenameField = playlistType.GetProperty("Filename", BindingFlags.Instance | BindingFlags.Public);

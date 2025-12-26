@@ -47,7 +47,7 @@ namespace BeatLeader.WebRequests {
 
             byte[] contentBuffer;
             if (contentLength == null || contentLength == 0) { 
-                contentBuffer = new byte[] { };
+                contentBuffer = Array.Empty<byte>();
             } else if (contentLength < 1000) {
                 contentBuffer = await message.Content.ReadAsByteArrayAsync();
             } else {
@@ -118,7 +118,7 @@ namespace BeatLeader.WebRequests {
             if (_treatReceivedProgressAsDownload) {
                 return (long)(size / RequestParams.DownloadTrackingPrecision);
             } else {
-                return (long)(size / RequestParams.UploadTrackingPrecision);;
+                return (long)(size / RequestParams.UploadTrackingPrecision);
             }
         }
 

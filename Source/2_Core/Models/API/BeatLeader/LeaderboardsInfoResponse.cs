@@ -1,6 +1,7 @@
 ﻿using BeatLeader.Utils;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using System.Runtime.InteropServices;
 
 namespace BeatLeader.Models {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
@@ -89,6 +90,7 @@ namespace BeatLeader.Models {
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    [StructLayout(LayoutKind.Auto)]
     public struct ModifiersMap {
         public float da;
         public float fs;

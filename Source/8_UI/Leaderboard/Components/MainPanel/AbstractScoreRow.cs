@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using BeatLeader.DataManager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
@@ -13,6 +14,7 @@ namespace BeatLeader.Components {
     internal abstract class AbstractScoreRow : ReeUIComponentV2 {
         #region ColorSchemes
 
+        [StructLayout(LayoutKind.Auto)]
         protected readonly struct ColorScheme {
             private static readonly int RimColorPropertyId = Shader.PropertyToID("_RimColor");
             private static readonly int HaloColorPropertyId = Shader.PropertyToID("_HaloColor");

@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace BeatLeader.Models {
+    [StructLayout(LayoutKind.Auto)]
     public struct SerializablePose {
         public SerializablePose(SerializableVector3 position, SerializableQuaternion rotation) {
             this.position = position; 

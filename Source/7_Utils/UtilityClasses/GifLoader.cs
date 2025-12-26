@@ -31,6 +31,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace B83.Image.GIF
@@ -99,6 +100,7 @@ namespace B83.Image.GIF
     #endregion Enums and interfaces
 
     #region Header structs
+    [StructLayout(LayoutKind.Auto)]
     public struct GIFHeader
     {
         public static uint MAGIC = 0x464947; // GIF
@@ -257,7 +259,7 @@ namespace B83.Image.GIF
          * 15       15
          * */
 
-        public void DrawTo(Color32[] aData, int aWidth, int aHeight, int aXOffset, int aYOffset)
+        public void DrawTo(Color32[] aData, int aWidth, int aHeight, int aXOffset = 0, int aYOffset = 0)
         {
 
             if (usedColorTable == null || data == null || aData == null)
@@ -304,7 +306,7 @@ namespace B83.Image.GIF
                 }
             }
         }
-        public void Dispose(Color32[] aData, int aWidth, int aHeight, int aXOffset, int aYOffset)
+        public void Dispose(Color32[] aData, int aWidth, int aHeight, int aXOffset = 0, int aYOffset = 0)
         {
             if (graphicControl.DisposalMethod == EDisposalMethod.RestoreBackgroundColor && Parent.screen.HasGlobalColorTable)
             {
@@ -341,11 +343,11 @@ namespace B83.Image.GIF
         public byte colorIndex;
         public byte bgColorIndex;
         public string text;
-        public void DrawTo(Color32[] aData, int aWidth, int aHeight, int aXOffset, int aYOffset)
+        public void DrawTo(Color32[] aData, int aWidth, int aHeight, int aXOffset = 0, int aYOffset = 0)
         {
             throw new NotImplementedException();
         }
-        public void Dispose(Color32[] aData, int aWidth, int aHeight, int aXOffset, int aYOffset)
+        public void Dispose(Color32[] aData, int aWidth, int aHeight, int aXOffset = 0, int aYOffset = 0)
         {
             throw new NotImplementedException();
         }

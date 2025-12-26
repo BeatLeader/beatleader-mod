@@ -1,4 +1,7 @@
-﻿namespace BeatLeader.Models.AbstractReplay {
+﻿using System.Runtime.InteropServices;
+
+namespace BeatLeader.Models.AbstractReplay {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct WallEvent {
         public WallEvent(int wallId, float energy, float time, float spawnTime) {
             this.wallId = wallId;

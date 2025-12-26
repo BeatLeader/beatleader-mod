@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace BeatLeader.Models {
+    [StructLayout(LayoutKind.Auto)]
     public struct SerializableVector2 {
         public SerializableVector2(Vector2 unityVector) {
             x = unityVector.x;

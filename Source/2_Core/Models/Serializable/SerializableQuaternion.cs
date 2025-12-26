@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace BeatLeader.Models {
+    [StructLayout(LayoutKind.Auto)]
     public struct SerializableQuaternion {
         public SerializableQuaternion(Quaternion unityQuaternion) {
             x = unityQuaternion.x;

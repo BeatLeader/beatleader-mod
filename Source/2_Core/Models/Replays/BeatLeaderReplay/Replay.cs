@@ -7,6 +7,7 @@ using GameNoteCutInfo = NoteCutInfo;
 using UVector3 = UnityEngine.Vector3;
 using UQuaternion = UnityEngine.Quaternion;
 using BeatLeader.Utils;
+using System.Runtime.InteropServices;
 
 namespace BeatLeader.Models.Replay {
     public class Replay
@@ -240,6 +241,8 @@ namespace BeatLeader.Models.Replay {
         saberOffsets = 6,
         customData = 7
     }
+
+    [StructLayout(LayoutKind.Auto)]
     public struct Vector3
     {
         public Vector3(UVector3 unityVector)
@@ -262,6 +265,8 @@ namespace BeatLeader.Models.Replay {
         public float y;
         public float z;
     }
+
+    [StructLayout(LayoutKind.Auto)]
     public struct Quaternion
     {
         public Quaternion(UQuaternion unityQuaternion)

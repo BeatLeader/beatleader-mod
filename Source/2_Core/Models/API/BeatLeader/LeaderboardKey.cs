@@ -1,5 +1,5 @@
 ﻿namespace BeatLeader.Models {
-    internal readonly struct LeaderboardKey {
+    internal readonly struct LeaderboardKey : System.IEquatable<LeaderboardKey> {
         public readonly string Hash;
         public readonly string Diff;
         public readonly string Mode;

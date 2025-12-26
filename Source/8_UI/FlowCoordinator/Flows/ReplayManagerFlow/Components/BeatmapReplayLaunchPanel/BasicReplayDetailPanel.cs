@@ -50,6 +50,7 @@ namespace BeatLeader.UI.Hub {
                     //empty label
                     new Label {
                         Text = "Select a replay to let Monke think on it",
+                        RaycastTarget = false,
                         EnableWrapping = true
                     }.WithRectExpand().Bind(ref _emptyLabel)
                 }

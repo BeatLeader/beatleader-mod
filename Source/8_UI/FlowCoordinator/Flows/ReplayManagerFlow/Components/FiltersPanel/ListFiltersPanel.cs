@@ -107,7 +107,9 @@ namespace BeatLeader.UI.Hub {
                     Children = {
                         new PushContainer {
                             ClosedView = new Label()
+                                .WithRectExpand()
                                 .Bind(ref _placeholder),
+                            
                             BackgroundImage = {
                                 Color = (Color.white * 0.9f).ColorWithAlpha(1f)
                             }

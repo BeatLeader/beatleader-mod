@@ -54,7 +54,7 @@ namespace BeatLeader.Components {
         private LayoutData _layoutData;
         private bool _wrapperActive;
 
-        public void ApplyLayoutData(bool notify) {
+        public void ApplyLayoutData(bool notify = true) {
             // Applying values
             _wrapper.SetComponentActive(_layoutData.visible);
             _componentTransform.sizeDelta = _layoutData.size;

@@ -1,4 +1,7 @@
+using System.Runtime.InteropServices;
+
 namespace BeatLeader.Models.AbstractReplay {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct HeightEvent {
         public HeightEvent(float time, float height) {
             this.time = time;

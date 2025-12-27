@@ -54,7 +54,7 @@ namespace BeatLeader.Components {
 
         private LayoutData _layoutData;
 
-        public void ApplyLayoutData(bool notify) {
+        public void ApplyLayoutData(bool notify = true) {
             // do nothing because why would we
         }
 

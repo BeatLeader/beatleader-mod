@@ -13,7 +13,7 @@ namespace BeatLeader.Replayer.Tweaking {
         public static int BlockingMask = 1 << 5;
 
         private static readonly HarmonyPatchDescriptor raycasterPatchDescriptor = new(
-            typeof(VRGraphicRaycaster).GetConstructor(new Type[] { }), postfix:
+            typeof(VRGraphicRaycaster).GetConstructor(Array.Empty<Type>()), postfix:
             typeof(RaycastBlockerTweak).GetMethod(nameof(RaycasterConstructorPostfix), ReflectionUtils.StaticFlags));
 
         private HarmonyAutoPatch _raycasterConstructorPatch = null!;

@@ -36,6 +36,7 @@ namespace BeatLeader.Utils {
         }
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+        [StructLayout(LayoutKind.Auto)]
         private struct XrSystemGetInfo {
             public XrStructureType type;
             public void* next;
@@ -43,6 +44,7 @@ namespace BeatLeader.Utils {
         }
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+        [StructLayout(LayoutKind.Auto)]
         public struct XrSystemProperties {
             public XrStructureType type;
             public void* next;
@@ -54,6 +56,7 @@ namespace BeatLeader.Utils {
         }
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+        [StructLayout(LayoutKind.Auto)]
         public struct XrSystemGraphicsProperties {
             public uint maxSwapchainImageHeight;
             public uint maxSwapchainImageWidth;
@@ -61,6 +64,7 @@ namespace BeatLeader.Utils {
         }
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+        [StructLayout(LayoutKind.Auto)]
         public struct XrSystemTrackingProperties {
             public uint orientationTracking;
             public uint positionTracking;

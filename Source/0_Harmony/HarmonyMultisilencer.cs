@@ -45,7 +45,7 @@ namespace BeatLeader {
                 if (selectedSilencers.Contains(item)) {
                     silenceList.Remove(item);
                 }
-            };
+            }
 
             silenceList.ForEach(x => _silencers.Add(new(x, Enabled)));
         }

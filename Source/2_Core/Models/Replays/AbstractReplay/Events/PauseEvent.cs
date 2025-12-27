@@ -1,4 +1,7 @@
-﻿namespace BeatLeader.Models.AbstractReplay {
+﻿using System.Runtime.InteropServices;
+
+namespace BeatLeader.Models.AbstractReplay {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct PauseEvent {
         public PauseEvent(float time, long duration) {
             this.time = time;

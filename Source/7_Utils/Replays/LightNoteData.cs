@@ -1,5 +1,8 @@
-﻿namespace BeatLeader.Utils;
+﻿using System.Runtime.InteropServices;
 
+namespace BeatLeader.Utils;
+
+[StructLayout(LayoutKind.Auto)]
 public readonly struct LightNoteData {
     public readonly ColorType colorType;
     public readonly NoteData.ScoringType scoringType;

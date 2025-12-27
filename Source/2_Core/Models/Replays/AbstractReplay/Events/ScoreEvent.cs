@@ -1,4 +1,7 @@
-﻿namespace BeatLeader.Models.AbstractReplay {
+﻿using System.Runtime.InteropServices;
+
+namespace BeatLeader.Models.AbstractReplay {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct ScoreEvent {
         public ScoreEvent(int score, float time) {
             this.score = score;

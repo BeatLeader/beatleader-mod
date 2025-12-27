@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace BeatLeader.Models {
+    [StructLayout(LayoutKind.Auto)]
     public struct SerializableColor {
         public SerializableColor(float r, float g, float b, float a) {
             this.r = r;

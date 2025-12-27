@@ -1,6 +1,8 @@
-﻿using BeatLeader.Models;
+﻿using System.Runtime.InteropServices;
+using BeatLeader.Models;
 
 namespace BeatLeader.Components {
+    [StructLayout(LayoutKind.Auto)]
     public struct LayoutData {
         public SerializableVector2 position;
         public SerializableVector2 size;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace BeatLeader.Models {
     internal enum VoteStatus {
@@ -7,6 +8,7 @@ namespace BeatLeader.Models {
         Voted = 3,
     }
 
+    [StructLayout(LayoutKind.Auto)]
     internal readonly struct Vote {
         public readonly float Rankability;
         public readonly float StarRating;

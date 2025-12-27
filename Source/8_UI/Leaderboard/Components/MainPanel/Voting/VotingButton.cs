@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using BeatLeader.API;
 using BeatLeader.Manager;
 using BeatLeader.Models;
@@ -55,6 +56,7 @@ namespace BeatLeader.Components {
             }
         }
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct ColorScheme {
             private readonly float _spinnerValue;
             private readonly float _gradientValue;

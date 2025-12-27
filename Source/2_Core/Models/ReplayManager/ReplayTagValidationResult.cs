@@ -1,7 +1,9 @@
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace BeatLeader.Models {
     [PublicAPI]
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct ReplayTagValidationResult {
         public ReplayTagValidationResult(bool hasValidSignature, bool exclusive) {
             HasValidSignature = hasValidSignature;

@@ -11,7 +11,6 @@ namespace BeatLeader {
         private static void Postfix(MainSettingsMenuViewControllersInstaller __instance) {
             try {
                 OnMenuInstaller.Install(__instance.Container);
-                BLLocalization.InitializeFonts();
             } catch (Exception ex) {
                 Plugin.Log.Critical($"---\nMenuInstaller exception: {ex.Message}\n{ex.StackTrace}\n---");
             }

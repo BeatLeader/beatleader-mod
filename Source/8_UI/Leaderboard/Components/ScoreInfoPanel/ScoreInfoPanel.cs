@@ -56,10 +56,15 @@ namespace BeatLeader.Components {
             _accuracyDetails = Instantiate<AccuracyDetails>(transform);
             _accuracyGrid = Instantiate<AccuracyGrid>(transform);
             _accuracyGraphPanel = Instantiate<AccuracyGraphPanel>(transform);
-            _replayPanel = Instantiate<ReplayPanel>(transform);
             _controls = Instantiate<ScoreInfoPanelControls>(transform);
 
-            _replayPanel.DownloadStateChangedEvent += OnReplayDownloadStateChangedEvent;
+            _replayPanel = new ReplayPanel {
+                OnCanCloseChanged = x => {
+                    offClickCloses = !x;
+                },
+                Navigator = null! // Will be initialized when the modal will get opened
+            };
+            _replayPanel.Use();
         }
 
         #endregion
@@ -89,11 +94,7 @@ namespace BeatLeader.Components {
 
         protected override void OnResume() {
             SetScore(Context.Item1);
-            _replayPanel.Setup(Context.Item2);
-        }
-
-        private void OnReplayDownloadStateChangedEvent(bool state) {
-            offClickCloses = !state;
+            _replayPanel.Navigator = Context.Item2;
         }
 
         private void OnTabWasSelected(ScoreInfoPanelTab tab) {
@@ -128,7 +129,7 @@ namespace BeatLeader.Components {
             _accuracyDetails.SetActive(false);
             _accuracyGrid.SetActive(false);
             _accuracyGraphContainer.SetActive(false);
-            _replayPanel.SetActive(false);
+            _replayPanel.Enabled = false;
 
             switch (LeaderboardState.ScoreInfoPanelTab) {
                 case ScoreInfoPanelTab.OverviewPage1:
@@ -151,7 +152,7 @@ namespace BeatLeader.Components {
                     _scoreStatsLoadingScreen.SetActive(_scoreStatsUpdateRequired);
                     break;
                 case ScoreInfoPanelTab.Replay:
-                    _replayPanel.SetActive(true);
+                    _replayPanel.Enabled = true;
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }

@@ -31,6 +31,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Init
 
+        // TODO: rework, the replay manager should load replays on the background thread
+        // TODO: and expose an API to push the action after replays loaded
         public async void NavigateToReplay(IReplayHeader header) {
             await ReplayManager.WaitForLoadingAsync();
             

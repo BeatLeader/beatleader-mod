@@ -20,6 +20,7 @@ namespace BeatLeader.Models {
         public int modifiedScore;
         public string modifiers;
         public float pp;
+        public bool withPp;
         public float fcPp;
         public int experience;
         public int rank;
@@ -47,7 +48,7 @@ namespace BeatLeader.Models {
                 ScoreRowCellType.Username => true,
                 ScoreRowCellType.Modifiers => true,
                 ScoreRowCellType.Accuracy => true,
-                ScoreRowCellType.PerformancePoints => pp > 0,
+                ScoreRowCellType.PerformancePoints => withPp,
                 ScoreRowCellType.Score => true,
                 ScoreRowCellType.Mistakes => true,
                 ScoreRowCellType.Clans => true,

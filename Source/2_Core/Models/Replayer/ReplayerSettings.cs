@@ -17,8 +17,6 @@ namespace BeatLeader.Models {
         public ReplayerShortcuts Shortcuts { get; set; } = new();
         public ReplayerUISettings UISettings { get; set; } = new();
         public BodySettings BodySettings { get; set; } = new();
-        
-        [JsonConverter(typeof(ImplicitTypeConverter<InternalReplayerCameraSettings>))]
-        public ReplayerCameraSettings? CameraSettings { get; set; }
+        public ReplayerCameraSettings CameraSettings { get; set; } = new();
     }
 }

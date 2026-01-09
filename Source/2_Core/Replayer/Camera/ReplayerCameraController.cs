@@ -121,8 +121,8 @@ namespace BeatLeader.Replayer {
 
         private void LoadSettings() {
             var cameraSettings = _launchData.Settings.CameraSettings;
-            var views = cameraSettings!.CameraViews;
-            if (views == null) return;
+            var views = cameraSettings.CameraViews;
+           
             foreach (var view in views) {
                 _diContainer.Inject(view);
                 _views.Add(view);
@@ -136,7 +136,7 @@ namespace BeatLeader.Replayer {
         }
 
         private void Awake() {
-            if (_launchData.Settings.CameraSettings == null) {
+            if (_launchData.DisableBuiltinCamera) {
                 // Prevent Start from being called
                 enabled = false;
                 return;

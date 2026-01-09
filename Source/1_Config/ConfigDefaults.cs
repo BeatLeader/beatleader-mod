@@ -91,7 +91,7 @@ namespace BeatLeader {
 
             ShowWatermark = true,
 
-            CameraSettings = new InternalReplayerCameraSettings {
+            CameraSettings = new ReplayerCameraSettings {
                 MaxCameraFOV = 110,
                 MinCameraFOV = 70,
                 CameraFOV = 90,

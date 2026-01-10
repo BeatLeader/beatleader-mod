@@ -20,10 +20,14 @@ namespace BeatLeader.Models {
         public BodySettings BodySettings { get; set; } = new();
         
         // This property exists as a fix for previous versions that were broken because of the camera settings being null
-        public ReplayerCameraSettings CameraSettings => OriginalCameraSettings ??= ConfigDefaults.ReplayerSettings.CameraSettings;
+        public ReplayerCameraSettings CameraSettings {
+            get => _originalCameraSettings ??= ConfigDefaults.ReplayerSettings.CameraSettings;
+            set => _originalCameraSettings = value;
+        }
 
         // TODO: remove in the next release
-        [JsonProperty("CameraSettings")]
-        public ReplayerCameraSettings? OriginalCameraSettings { get; set; } = new();
+        // ReSharper disable once ReplaceWithFieldKeyword
+        [JsonProperty("CameraSettings"), UsedImplicitly]
+        private ReplayerCameraSettings? _originalCameraSettings = new();
     }
 }

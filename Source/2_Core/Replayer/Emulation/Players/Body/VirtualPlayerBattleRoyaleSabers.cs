@@ -8,11 +8,8 @@ namespace BeatLeader.Replayer.Emulation {
         #region Pool
 
         public class Pool : MemoryPool<IVirtualPlayer, VirtualPlayerBattleRoyaleSabers> {
-            [Inject]
-            private new DiContainer? _container;
-
             public override void OnCreated(VirtualPlayerBattleRoyaleSabers item) {
-                item.Initialize(_container);
+                item.Initialize(Container);
             }
 
             public override void Reinitialize(IVirtualPlayer player, VirtualPlayerBattleRoyaleSabers item) {
@@ -65,8 +62,8 @@ namespace BeatLeader.Replayer.Emulation {
             BattleRoyaleVRController controller,
             BattleRoyaleBodySettings basicBodySettings
         ) {
-            controller.TrailEnabled = basicBodySettings.TrailEnabled;
             controller.TrailLength = basicBodySettings.TrailLength;
+            controller.TrailEnabled = basicBodySettings.TrailEnabled;
             controller.TrailOpacity = basicBodySettings.TrailOpacity;
         }
 

@@ -11,6 +11,8 @@ namespace BeatLeader {
             gameObject.SetActive(false);
             _propertyBlock = new MaterialPropertyBlock();
             _saberTrail = gameObject.AddComponent<SaberTrail>();
+            _saberTrail._trailRendererPrefab = InstantiateTrailRenderer();
+            _saberTrail.name = "BattleRoyaleTrail";
             _saberTrail._trailDuration = 0.4f;
             _saberTrail._whiteSectionMaxDuration = 0.001f;
             _saberTrail._samplingFrequency = 120;
@@ -69,10 +71,7 @@ namespace BeatLeader {
             get => _saberTrail._trailDuration;
             set {
                 _saberTrail._trailDuration = value;
-
-                if (_saberTrail._container != null && _saberTrail._timeHelper != null) {
-                    _saberTrail._trailRendererPrefab = Resources.FindObjectsOfTypeAll<SaberTrailRenderer>().First(x => x.name == "SaberTrailRenderer");
-                    _saberTrail.Start();
+                if (_saberTrail._trailRenderer != null) {
                     _saberTrail.Init();
                 }
             }
@@ -89,7 +88,21 @@ namespace BeatLeader {
 
         public bool TrailEnabled {
             get => _saberTrail.enabled;
-            set => _saberTrail.enabled = value;
+            set {
+                _saberTrail.enabled = value;
+                if (value) {
+                    if (_saberTrail._trailRenderer == null && _saberTrail._container != null) {
+                        _saberTrail.Start();
+                        _saberTrail.Init();
+                    }
+                } else {
+                    if (_saberTrail._trailRenderer != null) {
+                        _saberTrail.OnDestroy();
+                        _saberTrail._inited = false;
+                        _saberTrail._trailRenderer = null;
+                    }
+                }
+            }
         }
 
         private readonly SaberMovementData _movementData = new();
@@ -99,6 +112,20 @@ namespace BeatLeader {
             var bottomPos = transform.position;
             var topPos = transform.forward + bottomPos;
             _movementData.AddNewData(topPos, bottomPos, TimeHelper.GetShaderTimeValue());
+        }
+
+        private static SaberTrailRenderer? saberTrailRendererPrefab;
+
+        private static SaberTrailRenderer InstantiateTrailRenderer() {
+            if (saberTrailRendererPrefab == null) {
+                var prefab = Resources
+                    .FindObjectsOfTypeAll<SaberTrailRenderer>()
+                    .First(x => x.name == "SaberTrailRenderer");
+                saberTrailRendererPrefab = Instantiate(prefab);
+                saberTrailRendererPrefab.name = "BattleRoyaleTrailRenderer";
+            }
+
+            return saberTrailRendererPrefab;
         }
 
         #endregion

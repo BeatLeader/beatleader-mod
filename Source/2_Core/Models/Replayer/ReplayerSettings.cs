@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace BeatLeader.Models {
     [PublicAPI]
@@ -17,6 +18,12 @@ namespace BeatLeader.Models {
         public ReplayerShortcuts Shortcuts { get; set; } = new();
         public ReplayerUISettings UISettings { get; set; } = new();
         public BodySettings BodySettings { get; set; } = new();
-        public ReplayerCameraSettings CameraSettings { get; set; } = new();
+        
+        // This property exists as a fix for previous versions that were broken because of the camera settings being null
+        public ReplayerCameraSettings CameraSettings => OriginalCameraSettings ??= ConfigDefaults.ReplayerSettings.CameraSettings;
+
+        // TODO: remove in the next release
+        [JsonProperty("CameraSettings")]
+        public ReplayerCameraSettings? OriginalCameraSettings { get; set; } = new();
     }
 }

@@ -8,17 +8,17 @@ namespace BeatLeader {
         #region Unity Events
 
         private void Awake() {
-            gameObject.SetActive(false);
             _propertyBlock = new MaterialPropertyBlock();
             _saberTrail = gameObject.AddComponent<SaberTrail>();
-            _saberTrail._trailRendererPrefab = InstantiateTrailRenderer();
-            _saberTrail.name = "BattleRoyaleTrail";
+            _saberTrail._trailRendererPrefab = TrailRendererPrefab;
             _saberTrail._trailDuration = 0.4f;
             _saberTrail._whiteSectionMaxDuration = 0.001f;
             _saberTrail._samplingFrequency = 120;
             _saberTrail._granularity = 45;
             _saberTrail.Setup(coreColor, _movementData);
-            gameObject.SetActive(true);
+
+            // Disabling so the trail won't initialize until turned back on
+            _saberTrail.enabled = false;
         }
 
         private new void Update() {
@@ -34,11 +34,9 @@ namespace BeatLeader {
 
         #region Properties
 
-        [SerializeField]
-        private Color coreColor = Color.red;
+        [SerializeField] private Color coreColor = Color.red;
 
-        [SerializeField]
-        private float coreIntensity = 1f;
+        [SerializeField] private float coreIntensity = 1f;
 
         public Color CoreColor {
             get => coreColor;
@@ -63,8 +61,16 @@ namespace BeatLeader {
 
         #region Trail
 
+        private bool _initialized;
+
         public void Init(DiContainer container) {
             container.Inject(_saberTrail);
+            // Will be initialized later if not yet turned on
+            if (TrailEnabled) {
+                _saberTrail.enabled = true;
+            }
+
+            _initialized = true;
         }
 
         public float TrailLength {
@@ -87,21 +93,14 @@ namespace BeatLeader {
         }
 
         public bool TrailEnabled {
-            get => _saberTrail.enabled;
+            get;
             set {
-                _saberTrail.enabled = value;
-                if (value) {
-                    if (_saberTrail._trailRenderer == null && _saberTrail._container != null) {
-                        _saberTrail.Start();
-                        _saberTrail.Init();
-                    }
-                } else {
-                    if (_saberTrail._trailRenderer != null) {
-                        _saberTrail.OnDestroy();
-                        _saberTrail._inited = false;
-                        _saberTrail._trailRenderer = null;
-                    }
+                if (_initialized) {
+                    // SaberTrail disables the renderer automatically
+                    _saberTrail.enabled = value;
                 }
+
+                field = value;
             }
         }
 
@@ -114,18 +113,16 @@ namespace BeatLeader {
             _movementData.AddNewData(topPos, bottomPos, TimeHelper.GetShaderTimeValue());
         }
 
-        private static SaberTrailRenderer? saberTrailRendererPrefab;
+        private static SaberTrailRenderer? TrailRendererPrefab {
+            get {
+                if (field == null) {
+                    field = Resources
+                        .FindObjectsOfTypeAll<SaberTrailRenderer>()
+                        .First(x => x.name == "SaberTrailRenderer");
+                }
 
-        private static SaberTrailRenderer InstantiateTrailRenderer() {
-            if (saberTrailRendererPrefab == null) {
-                var prefab = Resources
-                    .FindObjectsOfTypeAll<SaberTrailRenderer>()
-                    .First(x => x.name == "SaberTrailRenderer");
-                saberTrailRendererPrefab = Instantiate(prefab);
-                saberTrailRendererPrefab.name = "BattleRoyaleTrailRenderer";
+                return field;
             }
-
-            return saberTrailRendererPrefab;
         }
 
         #endregion

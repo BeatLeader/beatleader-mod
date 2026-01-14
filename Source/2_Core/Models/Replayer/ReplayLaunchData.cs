@@ -43,6 +43,11 @@ namespace BeatLeader.Models {
         /// Specifies bindings to be used instead of the default ones.
         /// </summary>
         public ReplayerBindings? ReplayerBindings { get; set; }
+        
+        /// <summary>
+        /// Specifies whether the builtin camera should be disabled or not.
+        /// </summary>
+        public bool DisableBuiltinCamera { get; set; }
 
         public IReplay MainReplay => Replays[0];
         public bool IsBattleRoyale => Replays.Count > 1;

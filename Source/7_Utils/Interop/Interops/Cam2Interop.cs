@@ -127,21 +127,14 @@ namespace BeatLeader.Interop {
 
         #region Callbacks
 
-        private static ReplayerCameraSettings? _cameraSettings;
-
         private static void HandleReplayWasStarted(ReplayLaunchData data) {
             if (InputUtils.UsesFPFC) {
-                _cameraSettings = ReplayerLauncher.LaunchData!.Settings.CameraSettings;
-                ReplayerLauncher.LaunchData.Settings.CameraSettings = null; //disabling base camera
+                ReplayerLauncher.LaunchData!.DisableBuiltinCamera = true;
             }
             SetReplayState(true);
         }
 
         private static void HandleReplayWasFinished(ReplayLaunchData data) {
-            if (InputUtils.UsesFPFC) {
-                ReplayerLauncher.LaunchData!.Settings.CameraSettings = _cameraSettings;
-                _cameraSettings = null;
-            }
             SetReplayState(false);
         }
 

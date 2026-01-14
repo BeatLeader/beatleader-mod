@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BeatLeader.Replayer;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
@@ -41,10 +42,38 @@ namespace BeatLeader.Models {
         public int MinCameraFOV { get; set; }
         public int CameraFOV { get; set; }
 
-        [JsonIgnore]
-        public virtual string? CameraView { get; set; }
+        public string? CameraView {
+            get => InputUtils.UsesFPFC ? FpfcCameraView : VRCameraView;
+            set {
+                if (InputUtils.UsesFPFC) {
+                    FpfcCameraView = value;
+                } else {
+                    VRCameraView = value;
+                }
+            }
+        }
 
-        [JsonIgnore]
-        public virtual IReadOnlyList<ICameraView>? CameraViews { get; set; }
+        public IReadOnlyList<ICameraView> CameraViews {
+            get => InputUtils.UsesFPFC ?
+                FpfcCameraViews ??= DefaultFpfcViews.ToList() :
+                VRCameraViews ??= DefaultVRViews.ToList();
+            set {
+                var views = value.ToList();
+                
+                if (InputUtils.UsesFPFC) {
+                    FpfcCameraViews = views;
+                } else {
+                    VRCameraViews = views;
+                }
+            }
+        }
+
+#pragma warning disable MA0016
+        public List<ICameraView>? VRCameraViews { get; set; }
+        public List<ICameraView>? FpfcCameraViews { get; set; }
+#pragma warning restore MA0016
+
+        public string? VRCameraView { get; set; }
+        public string? FpfcCameraView { get; set; }
     }
 }

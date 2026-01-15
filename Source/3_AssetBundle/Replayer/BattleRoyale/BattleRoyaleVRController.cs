@@ -116,9 +116,13 @@ namespace BeatLeader {
         private static SaberTrailRenderer? TrailRendererPrefab {
             get {
                 if (field == null) {
-                    field = Resources
+                    var prefab = Resources
                         .FindObjectsOfTypeAll<SaberTrailRenderer>()
                         .First(x => x.name == "SaberTrailRenderer");
+
+                    // We create a renamed prefab to avoid shenanigans
+                    field = Instantiate(prefab);
+                    field.name = "BattleRoyaleTrailRenderer";
                 }
 
                 return field;

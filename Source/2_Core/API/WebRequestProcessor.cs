@@ -215,7 +215,7 @@ namespace BeatLeader.WebRequests {
 
         private async Task ProcessWebRequest(CancellationToken token) {
             try {
-                Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
+                Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
 
                 RequestState = RequestState.Started;
                 var result = await _requestTask;
@@ -235,7 +235,7 @@ namespace BeatLeader.WebRequests {
 
                     RequestState = newState ?? RequestState.Finished;
 
-                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
+                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
                 } else {
                     await ProcessFailure(result, null);
                 }
@@ -248,8 +248,13 @@ namespace BeatLeader.WebRequests {
         private async Task ProcessFailure(HttpResponseMessage? httpResponse, Exception? ex) {
             if (ex != null) {
                 RequestState = RequestState.Failed;
-                FailReason = "Exception occured, please report on Discord";
-                Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Exception: {ex}");
+                if (ex is TaskCanceledException) {
+                    FailReason = "Request cancelled";
+                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Cancelled");
+                } else {
+                    FailReason = "Exception occured, please report on Discord";
+                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Exception: {ex}");
+                }
             } else if (httpResponse != null) {
                 NetworkingUtils.GetRequestFailReason(httpResponse, out string failReason, out bool shouldRetry);
 

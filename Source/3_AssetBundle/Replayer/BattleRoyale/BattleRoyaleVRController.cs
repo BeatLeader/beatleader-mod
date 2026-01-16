@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace BeatLeader {
     internal abstract class BattleRoyaleVRController : VRController {
-        #region Injection
-        [Inject]
-        TimeHelper timeHelper;
-
-        #endregion
-
         #region Unity Events
 
         private void Awake() {
-            gameObject.SetActive(false);
             _propertyBlock = new MaterialPropertyBlock();
             _saberTrail = gameObject.AddComponent<SaberTrail>();
-            _saberTrail._trailRendererPrefab = InstantiateTrailRenderer();
+            _saberTrail._trailRendererPrefab = TrailRendererPrefab;
             _saberTrail._trailDuration = 0.4f;
             _saberTrail._whiteSectionMaxDuration = 0.001f;
             _saberTrail._samplingFrequency = 120;
             _saberTrail._granularity = 45;
             _saberTrail.Setup(coreColor, _movementData);
-            gameObject.SetActive(true);
+
+            // Disabling so the trail won't initialize until turned back on
+            _saberTrail.enabled = false;
         }
 
         private new void Update() {
@@ -40,11 +34,9 @@ namespace BeatLeader {
 
         #region Properties
 
-        [SerializeField]
-        private Color coreColor = Color.red;
+        [SerializeField] private Color coreColor = Color.red;
 
-        [SerializeField]
-        private float coreIntensity = 1f;
+        [SerializeField] private float coreIntensity = 1f;
 
         public Color CoreColor {
             get => coreColor;
@@ -69,11 +61,25 @@ namespace BeatLeader {
 
         #region Trail
 
+        private bool _initialized;
+
+        public void Init(DiContainer container) {
+            container.Inject(_saberTrail);
+            // Will be initialized later if not yet turned on
+            if (TrailEnabled) {
+                _saberTrail.enabled = true;
+            }
+
+            _initialized = true;
+        }
+
         public float TrailLength {
             get => _saberTrail._trailDuration;
             set {
                 _saberTrail._trailDuration = value;
-                _saberTrail.Init();
+                if (_saberTrail._trailRenderer != null) {
+                    _saberTrail.Init();
+                }
             }
         }
 
@@ -87,8 +93,15 @@ namespace BeatLeader {
         }
 
         public bool TrailEnabled {
-            get => _saberTrail.enabled;
-            set => _saberTrail.enabled = value;
+            get;
+            set {
+                if (_initialized) {
+                    // SaberTrail disables the renderer automatically
+                    _saberTrail.enabled = value;
+                }
+
+                field = value;
+            }
         }
 
         private readonly SaberMovementData _movementData = new();
@@ -100,11 +113,20 @@ namespace BeatLeader {
             _movementData.AddNewData(topPos, bottomPos, TimeHelper.GetShaderTimeValue());
         }
 
-        private static SaberTrailRenderer InstantiateTrailRenderer() {
-            var prefab = Resources
-                .FindObjectsOfTypeAll<SaberTrailRenderer>()
-                .First(x => x.name == "SaberTrailRenderer");
-            return Instantiate(prefab);
+        private static SaberTrailRenderer? TrailRendererPrefab {
+            get {
+                if (field == null) {
+                    var prefab = Resources
+                        .FindObjectsOfTypeAll<SaberTrailRenderer>()
+                        .First(x => x.name == "SaberTrailRenderer");
+
+                    // We create a renamed prefab to avoid shenanigans
+                    field = Instantiate(prefab);
+                    field.name = "BattleRoyaleTrailRenderer";
+                }
+
+                return field;
+            }
         }
 
         #endregion

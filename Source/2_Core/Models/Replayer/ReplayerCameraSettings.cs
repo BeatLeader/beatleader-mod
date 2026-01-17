@@ -41,7 +41,8 @@ namespace BeatLeader.Models {
         public int MaxCameraFOV { get; set; }
         public int MinCameraFOV { get; set; }
         public int CameraFOV { get; set; }
-
+        
+        [JsonIgnore]
         public string? CameraView {
             get => InputUtils.UsesFPFC ? FpfcCameraView : VRCameraView;
             set {
@@ -53,6 +54,7 @@ namespace BeatLeader.Models {
             }
         }
 
+        [JsonIgnore]
         public IReadOnlyList<ICameraView> CameraViews {
             get => InputUtils.UsesFPFC ?
                 FpfcCameraViews ??= DefaultFpfcViews.ToList() :

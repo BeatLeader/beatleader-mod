@@ -236,6 +236,7 @@ namespace BeatLeader.Utils {
 
             if (!ShouldSaveReplay(replay, playEndData)) {
                 Plugin.Log.Info("[ReplayManager] Validation failed, replay will not be saved!");
+                LastSavedReplay = ReplayManager.CreateTempReplayHeader(replay, null);
                 return new(ReplaySavingError.ValidationFailed);
             }
 

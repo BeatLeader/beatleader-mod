@@ -69,6 +69,8 @@ namespace BeatLeader.Replayer.Emulation {
             
             // Forcibly enable to initiate Awake
             avatar.SetActive(true);
+            avatar.name = "AnimatedAvatar (BL)";
+            
             return avatar;
         }
 

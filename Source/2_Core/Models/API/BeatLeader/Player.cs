@@ -35,17 +35,30 @@ namespace BeatLeader.Models {
         private static readonly Dictionary<string, AvatarSettings?> avatarSettingsCache = new();
         private static readonly Dictionary<string, SemaphoreSlim?> semaphores = new();
 
-        public async Task<AvatarData> GetBeatAvatarAsync(bool bypassCache, CancellationToken token) {
-            var semaphore = semaphores.GetOrAdd(id, new SemaphoreSlim(1, 1))!;
-            await semaphore.WaitAsync(token);
+        private static readonly object locker = new();
 
-            if (!avatarSettingsCache.TryGetValue(id, out var avatarSettings) || bypassCache) {
-                var request = await GetAvatarRequest.Send(id).Join();
-                avatarSettings = request.Result;
-                avatarSettingsCache[id] = avatarSettings;
+        public async Task<AvatarData> GetBeatAvatarAsync(bool bypassCache, CancellationToken token) {
+            SemaphoreSlim semaphore;
+
+            lock (locker) {
+                if (!semaphores.TryGetValue(id, out semaphore!)) {
+                    semaphore = new(1, 1);
+                    semaphores[id] = semaphore;
+                }
             }
 
-            semaphore.Release();
+            await semaphore.WaitAsync(token);
+            
+            AvatarSettings? avatarSettings;
+            try {
+                if (!avatarSettingsCache.TryGetValue(id, out avatarSettings) || bypassCache) {
+                    var request = await GetAvatarRequest.Send(id).Join();
+                    avatarSettings = request.Result;
+                    avatarSettingsCache[id] = avatarSettings;
+                }
+            } finally {
+                semaphore.Release();
+            }
 
             return avatarSettings?.ToAvatarData() ?? AvatarUtils.DefaultAvatarData;
         }

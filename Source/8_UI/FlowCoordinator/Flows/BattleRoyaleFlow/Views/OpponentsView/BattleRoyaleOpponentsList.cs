@@ -137,7 +137,7 @@ namespace BeatLeader.UI.Hub {
                         _valueAnimator.SetTarget(1f);
                     }
                 }
-                //
+
                 var targetColor = _colorShouldBeSet ? _targetColor : Color.white.ColorWithAlpha(0.3f);
                 var color = Color.Lerp(
                     Color.white.ColorWithAlpha(0.1f),
@@ -178,7 +178,7 @@ namespace BeatLeader.UI.Hub {
                     return;
                 }
 
-                if (_refreshColorTask?.Status is TaskStatus.Running || _refreshPlayerTask?.Status is TaskStatus.Running) {
+                if (_refreshColorTask != null || _refreshPlayerTask != null) {
                     _tokenSource.Cancel();
                     _tokenSource = new();
                 }
@@ -186,8 +186,10 @@ namespace BeatLeader.UI.Hub {
                 ResetColor();
                 RefreshOtherText();
 
-                _refreshPlayerTask = RefreshPlayer(_tokenSource.Token).RunCatching();
-                _refreshColorTask = RefreshAccentColor(_tokenSource.Token).RunCatching();
+                var token = _tokenSource.Token;
+
+                _refreshPlayerTask = RefreshPlayer(item, token).RunCatching();
+                _refreshColorTask = RefreshAccentColor(item, token).RunCatching();
 
                 _prevReplay = item;
                 _prevRank = item.ReplayRank;
@@ -199,8 +201,8 @@ namespace BeatLeader.UI.Hub {
                 _navigateButton.Enabled = battleRoyaleHost.CanMutateLobby;
             }
 
-            private async Task RefreshAccentColor(CancellationToken token) {
-                var data = await Item.GetBattleRoyaleDataAsync(false, token);
+            private async Task RefreshAccentColor(BattleRoyaleReplay replay, CancellationToken token) {
+                var data = await replay.GetBattleRoyaleDataAsync(false, token);
 
                 if (token.IsCancellationRequested) {
                     return;
@@ -208,11 +210,11 @@ namespace BeatLeader.UI.Hub {
 
                 var color = data.AccentColor ?? Color.white;
                 SetColor(color);
+                _refreshColorTask = null;
             }
 
-            private async Task RefreshPlayer(CancellationToken token) {
-                var header = Item.ReplayHeader;
-                var player = await header.LoadPlayerAsync(false, token) as IPlayer;
+            private async Task RefreshPlayer(BattleRoyaleReplay replay, CancellationToken token) {
+                var player = await replay.ReplayHeader.LoadPlayerAsync(false, token) as IPlayer;
 
                 if (token.IsCancellationRequested) {
                     return;
@@ -220,6 +222,7 @@ namespace BeatLeader.UI.Hub {
 
                 _playerAvatar.SetAvatar(player);
                 _playerNameText.Text = player.Name;
+                _refreshPlayerTask = null;
             }
 
             private void RefreshOtherText() {
@@ -256,15 +259,15 @@ namespace BeatLeader.UI.Hub {
                 _battleRoyaleHost.ReplayRefreshRequestedEvent -= HandleRefreshRequested;
                 _battleRoyaleHost.CanMutateLobbyStateChangedEvent -= HandleCanMutateLobbyChangedEvent;
             }
-            
+
             _battleRoyaleHost = battleRoyaleHost;
-            
+
             if (_battleRoyaleHost != null) {
                 _battleRoyaleHost.ReplayAddedEvent += HandleReplayAdded;
                 _battleRoyaleHost.ReplayRemovedEvent += HandleReplayRemoved;
                 _battleRoyaleHost.ReplayRefreshRequestedEvent += HandleRefreshRequested;
                 _battleRoyaleHost.CanMutateLobbyStateChangedEvent += HandleCanMutateLobbyChangedEvent;
-                
+
                 HandleCanMutateLobbyChangedEvent(_battleRoyaleHost.CanMutateLobby);
             }
         }

@@ -261,7 +261,7 @@ namespace BeatLeader.Replayer {
         }
 
         public async Task StartLastReplayAsync() {
-            if (Instance == null || ReplayManager.LastSavedReplay is not { } header) {
+            if (Instance == null || ReplayManager.LastPlayedReplay is not { } header) {
                 return;
             }
 

@@ -225,17 +225,18 @@ namespace BeatLeader.Utils {
 
         #region ReplayManager SaveReplay
 
-        public static IReplayHeader? LastSavedReplay { get; private set; }
+        public static IReplayHeader? LastPlayedReplay { get; private set; }
 
         /// <summary>
         /// Writes a replay performing configuration checks.
         /// </summary>
         /// <param name="playEndData">Used for name formatting and validation checks, cannot be omitted.</param>
         public static async Task<ReplaySavingResult> SaveReplayAsync(Replay replay, PlayEndData playEndData, CancellationToken token) {
-            LastSavedReplay = null;
+            LastPlayedReplay = null;
 
             if (!ShouldSaveReplay(replay, playEndData)) {
                 Plugin.Log.Info("[ReplayManager] Validation failed, replay will not be saved!");
+                LastPlayedReplay = ReplayManager.CreateTempReplayHeader(replay, null);
                 return new(ReplaySavingError.ValidationFailed);
             }
 
@@ -271,7 +272,7 @@ namespace BeatLeader.Utils {
             var absolutePath = FileManager.GetAbsoluteReplayPath(name);
             var header = CreateReplayHeader(absolutePath, replay.info);
 
-            LastSavedReplay = header;
+            LastPlayedReplay = header;
             headers.Add(header);
             hashedHeaders.Add(hash, header);
 

@@ -47,7 +47,7 @@ namespace BeatLeader.ViewControllers {
         }
 
         public void Setup(BeatmapLevel level) {
-            _replayButton.Interactable = ReplayManager.LastSavedReplay is not null;
+            _replayButton.Interactable = ReplayManager.LastPlayedReplay is not null;
 
             if (_newsViewController != null) {
                 var evt = _newsViewController.HappeningEvent.Value;

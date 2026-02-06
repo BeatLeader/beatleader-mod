@@ -21,16 +21,18 @@ namespace BeatLeader.UI.Hub {
         public async Task<BattleRoyaleReplayData> GetBattleRoyaleDataAsync(bool bypassCache, CancellationToken token) {
             if (_replayData == null || bypassCache) {
                 await _semaphoreSlim.WaitAsync(token);
-
-                var player = await ReplayHeader.LoadPlayerAsync(false, token);
-                var avatarData = await player.GetBeatAvatarAsync(false, token);
                 
-                var info = ReplayHeader.ReplayInfo;
-                var accentColor = GetReplayColor(info);
+                try {
+                    var player = await ReplayHeader.LoadPlayerAsync(false, token);
+                    var avatarData = await player.GetBeatAvatarAsync(false, token);
 
-                _replayData = new BattleRoyaleReplayData(avatarData, accentColor);
+                    var info = ReplayHeader.ReplayInfo;
+                    var accentColor = GetReplayColor(info);
 
-                _semaphoreSlim.Release();
+                    _replayData = new BattleRoyaleReplayData(avatarData, accentColor);
+                } finally {
+                    _semaphoreSlim.Release();
+                }
             }
 
             return _replayData.Value;

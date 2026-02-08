@@ -48,21 +48,19 @@ namespace BeatLeader.Interop {
                     beatmapKey,
                     beatmapLevel,
                     overrideEnvironmentSettings,
-                    null,
-                    null,
-                    null,
+                    null, // overrideColorScheme
+                    null, // playerOverrideLightshowColors
                     gameplayModifiers,
                     playerSpecificSettings,
-                    null,
-                    null,
-                    string.Empty,
-                    false,
-                    false,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
+                    null, // practiceSettings
+                    null, // environmentsListModel
+                    null, // gameplayAdditionalInformation
+                    null, // beforeSceneSwitchToGameplayCallback
+                    null, // afterSceneSwitchToGameplayCallback
+                    null, // levelFinishedCallback
+                    null, // levelRestartedCallback
+                    null, // beatmapLevelData
+                    null  // recordingToolData
                 }
             );
         }

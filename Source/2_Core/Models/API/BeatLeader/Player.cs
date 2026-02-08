@@ -6,7 +6,9 @@ using BeatLeader.API;
 using Newtonsoft.Json;
 using BeatLeader.Themes;
 using BeatLeader.Utils;
+using BeatLeader.WebRequests;
 using BeatSaber.BeatAvatarSDK;
+using UnityEngine;
 
 namespace BeatLeader.Models {
     public class PlayerContextExtension {
@@ -32,34 +34,28 @@ namespace BeatLeader.Models {
         float IPlayer.PerformancePoints => pp;
         IPlayerProfileSettings? IPlayer.ProfileSettings => profileSettings;
 
-        private static readonly Dictionary<string, AvatarSettings?> avatarSettingsCache = new();
+        private static readonly Dictionary<string, AvatarSettings> avatarSettingsCache = new();
         private static readonly Dictionary<string, SemaphoreSlim?> semaphores = new();
 
-        private static readonly object locker = new();
-
         public async Task<AvatarData> GetBeatAvatarAsync(bool bypassCache, CancellationToken token) {
-            SemaphoreSlim semaphore;
-
-            lock (locker) {
-                if (!semaphores.TryGetValue(id, out semaphore!)) {
-                    semaphore = new(1, 1);
-                    semaphores[id] = semaphore;
-                }
+            if (!semaphores.TryGetValue(id, out var semaphore)) {
+                semaphore = new(1, 1);
+                semaphores[id] = semaphore;
             }
 
-            await semaphore.WaitAsync(token);
-            
-            AvatarSettings? avatarSettings;
+            await semaphore!.WaitAsync(token);
+
+            AvatarSettings avatarSettings;
             try {
                 if (!avatarSettingsCache.TryGetValue(id, out avatarSettings) || bypassCache) {
-                    var request = await GetAvatarRequest.Send(id).Join();
-                    avatarSettings = request.Result;
+                    var request = await GetAvatarRequest.Send(id, token).Join();
+                    avatarSettings = request.Result!;
                     avatarSettingsCache[id] = avatarSettings;
                 }
             } finally {
                 semaphore.Release();
             }
-
+            
             return avatarSettings?.ToAvatarData() ?? AvatarUtils.DefaultAvatarData;
         }
 
@@ -151,11 +147,9 @@ namespace BeatLeader.Models {
             set => saturation = value ?? 0;
         }
 
-        [JsonIgnore]
-        public int hue;
+        [JsonIgnore] public int hue;
 
-        [JsonIgnore]
-        public float saturation;
+        [JsonIgnore] public float saturation;
 
         public string message;
 

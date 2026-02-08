@@ -12,7 +12,8 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 
 namespace BeatLeader.WebRequests {
-    internal delegate Task<HttpResponseMessage?> SendRequestDelegate(HttpRequestMessage request, CancellationToken token);
+    internal delegate Task<HttpResponseMessage?> SendRequestDelegate(HttpRequestMessage request,
+        CancellationToken token);
 
     internal class WebRequestProcessor<T> : IWebRequest<T>, IIoOperationDescriptor, IDisposable {
         public WebRequestProcessor(
@@ -46,13 +47,14 @@ namespace BeatLeader.WebRequests {
             var contentLength = message.Content.Headers.ContentLength;
 
             byte[] contentBuffer;
-            if (contentLength == null || contentLength == 0) { 
+            if (contentLength == null || contentLength == 0) {
                 contentBuffer = Array.Empty<byte>();
             } else if (contentLength < 1000) {
                 contentBuffer = await message.Content.ReadAsByteArrayAsync();
             } else {
                 contentBuffer = await DownloadContent(message.Content, token);
             }
+
             if (token.IsCancellationRequested) return RequestState.Failed;
             try {
                 if (_requestResponseParser != null) {
@@ -61,6 +63,7 @@ namespace BeatLeader.WebRequests {
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to parse web request response!\n{ex}");
             }
+
             return RequestState.Finished;
         }
 
@@ -85,8 +88,6 @@ namespace BeatLeader.WebRequests {
             await StreamUtils.CopyToByBufferAsync(stream, memoryStream, descriptor, token);
             return memoryStream.ToArray();
         }
-
-        
 
         #region Validation
 
@@ -150,7 +151,7 @@ namespace BeatLeader.WebRequests {
         private RequestState _requestState = RequestState.Uninitialized;
 
         public async Task<IWebRequest<T>> Join() {
-            await _processTask;
+            await _requestTask;
             return this;
         }
 
@@ -179,12 +180,15 @@ namespace BeatLeader.WebRequests {
 
         #region SendWebRequest
 
-        private async Task<HttpResponseMessage?> SendWebRequest(SendRequestDelegate sendCallback, CancellationToken token) {
+        private async Task<HttpResponseMessage?> SendWebRequest(SendRequestDelegate sendCallback,
+            CancellationToken token) {
             var timeout = RequestParams.TimeoutSeconds;
             var timeoutTokenSource = GetTimeoutTokenSource(TimeSpan.FromSeconds(timeout), token);
             //
             try {
-                return await sendCallback(_requestMessage, CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource?.Token ?? CancellationToken.None).Token);
+                return await sendCallback(_requestMessage,
+                    CancellationTokenSource
+                        .CreateLinkedTokenSource(token, timeoutTokenSource?.Token ?? CancellationToken.None).Token);
                 //
             } catch (OperationCanceledException) when (!token.IsCancellationRequested) {
                 //
@@ -192,7 +196,8 @@ namespace BeatLeader.WebRequests {
             }
         }
 
-        private static CancellationTokenSource? GetTimeoutTokenSource(TimeSpan timeout, CancellationToken cancellationToken) {
+        private static CancellationTokenSource? GetTimeoutTokenSource(TimeSpan timeout,
+            CancellationToken cancellationToken) {
             if (timeout == Timeout.InfiniteTimeSpan) return null;
             var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(timeout);
@@ -209,7 +214,7 @@ namespace BeatLeader.WebRequests {
         private readonly HttpRequestMessage _requestMessage;
         private readonly SendRequestDelegate _sendCallback;
         private readonly Task _processTask;
-        
+
         private readonly CancellationToken _cancellationToken;
         private readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -239,10 +244,13 @@ namespace BeatLeader.WebRequests {
                 } else {
                     await ProcessFailure(result, null);
                 }
+            } catch (TaskCanceledException) {
+                // do nothing, let it populate
             } catch (Exception ex) {
                 await ProcessFailure(null, ex);
+            } finally {
+                Dispose();
             }
-            Dispose();
         }
 
         private async Task ProcessFailure(HttpResponseMessage? httpResponse, Exception? ex) {
@@ -303,6 +311,7 @@ namespace BeatLeader.WebRequests {
             } else {
                 buffer = new byte[size];
             }
+
             _buffer = buffer;
         }
 

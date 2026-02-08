@@ -49,13 +49,16 @@ namespace BeatLeader.Models {
             try {
                 if (!avatarSettingsCache.TryGetValue(id, out avatarSettings) || bypassCache) {
                     var request = await GetAvatarRequest.Send(id, token).Join();
-                    avatarSettings = request.Result!;
-                    avatarSettingsCache[id] = avatarSettings;
+
+                    if (request.Result != null) {
+                        avatarSettings = request.Result!;
+                        avatarSettingsCache[id] = avatarSettings;
+                    }
                 }
             } finally {
                 semaphore.Release();
             }
-            
+
             return avatarSettings?.ToAvatarData() ?? AvatarUtils.DefaultAvatarData;
         }
 

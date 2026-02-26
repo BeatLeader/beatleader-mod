@@ -12,7 +12,7 @@ namespace BeatLeader.UI.Replayer {
         #region Setup
 
         public void Setup(
-            ReplayerSettings settings,
+            ReplayLaunchData launchData,
             IBeatmapTimeController timeController,
             IReplayFinishController finishController,
             ICameraController cameraController,
@@ -22,10 +22,14 @@ namespace BeatLeader.UI.Replayer {
             IReplayWatermark watermark,
             bool useAlternativeBlur
         ) {
+            var settings = launchData.Settings;
+            
             _quickSettingsPanel.Setup(timeController);
             _quickSettingsPanel.SetShown(settings.UISettings.QuickSettingsEnabled, true);
 
-            _cameraView.Setup(cameraController, settings.CameraSettings);
+            var cameraContr = launchData.DisableBuiltinCamera ? null : cameraController;
+            _cameraView.Setup(cameraContr, settings.CameraSettings);
+            
             _uiView.Setup(settings.UISettings, _quickSettingsPanel, layoutEditor, timeline, watermark);
             _otherView.Setup(timeController, finishController);
 

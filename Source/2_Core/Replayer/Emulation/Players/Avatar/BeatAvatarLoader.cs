@@ -9,6 +9,7 @@ using Zenject;
 
 namespace BeatLeader.Replayer.Emulation {
     public class BeatAvatarLoader : MonoBehaviour {
+
         #region Setup
 
         [Inject] private readonly AvatarSystemCollection _avatarSystemCollection = null!;
@@ -40,10 +41,8 @@ namespace BeatLeader.Replayer.Emulation {
 
         public BeatAvatarController CreateGameplayAvatar(Transform? parent = null) {
             var avatar = CreateAvatar(parent, 1f);
-            // For camera2 support
-            foreach (var item in avatar.transform.GetChildren(false)) {
-                item.gameObject.layer = 10;
-            }
+            ApplyCam2Shenanigans(avatar);
+
             avatar.GetComponent<Animator>().enabled = false;
             return avatar.AddComponent<BeatAvatarController>();
         }
@@ -61,17 +60,30 @@ namespace BeatLeader.Replayer.Emulation {
             foreach (Transform child in trans) {
                 child.localScale = Vector3.one;
             }
-            
+
             trans.localPosition = Vector3.zero;
             trans.localScale = size * Vector3.one;
             trans.localRotation = Quaternion.identity;
             _container.InjectGameObject(avatar);
-            
+
             // Forcibly enable to initiate Awake
             avatar.SetActive(true);
             avatar.name = "AnimatedAvatar (BL)";
-            
+
             return avatar;
+        }
+
+        private static readonly int cullModeProp = Shader.PropertyToID("_CullMode");
+        
+        private static void ApplyCam2Shenanigans(GameObject avatar) {
+            // For camera2 support
+            foreach (var item in avatar.transform.GetChildren(false)) {
+                if (item.name == "Eyes" && item.GetComponent<SpriteRenderer>() is { } renderer) {
+                    renderer.material.SetInt(cullModeProp, 2);
+                }
+                
+                item.gameObject.layer = 10;
+            }
         }
 
         #endregion

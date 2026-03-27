@@ -1,5 +1,6 @@
 ﻿using BeatLeader.API;
 using BeatLeader.Utils;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -41,7 +42,7 @@ namespace BeatLeader.WebRequests {
             return httpClient.SendAsync(requestMessage, token);
         }
 
-        private static Task<HttpResponseMessage> SendInternalLogin(
+        private static Task<HttpResponseMessage?> SendInternalLogin(
             HttpRequestMessage requestMessage,
             CancellationToken token
         ) {
@@ -49,7 +50,14 @@ namespace BeatLeader.WebRequests {
 
             return Task.Run(async () => {
                 await Authentication.WaitLogin();
-                return await httpClient.SendAsync(requestMessage, token);
+                HttpResponseMessage? response = null;
+                try {
+                    response = await httpClient.SendAsync(requestMessage, token);
+                } catch (Exception e) {
+                    response?.Dispose();
+                    response = null;
+                }
+                return response;
             }).RunCatching();
         }
 

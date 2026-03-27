@@ -214,11 +214,12 @@ namespace BeatLeader.WebRequests {
         private readonly CancellationTokenSource _cancellationTokenSource;
 
         private async Task ProcessWebRequest(CancellationToken token) {
+            HttpResponseMessage? result = null;
             try {
                 Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
 
                 RequestState = RequestState.Started;
-                var result = await _requestTask;
+                result = await _requestTask;
                 if (_requestTask.IsFaulted || result is null) {
                     if (RetryAttempt < RequestParams.RetryCount) {
                         await Retry();
@@ -241,7 +242,10 @@ namespace BeatLeader.WebRequests {
                 }
             } catch (Exception ex) {
                 await ProcessFailure(null, ex);
+            } finally {
+                result?.Dispose();   // important
             }
+
             Dispose();
         }
 

@@ -9,12 +9,13 @@ using UnityEngine;
 namespace BeatLeader.WebRequests {
     public static class WebRequestFactory {
         internal static readonly CookieContainer CookieContainer = new();
-        private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer };
+        private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer};
         private static readonly HttpClient httpClient = new(httpClientHandler);
 
         static WebRequestFactory() {
-            //ServicePointManager.DefaultConnectionLimit = 32;
-            ServicePointManager.MaxServicePointIdleTime = 30000;
+            // ServicePointManager.DefaultConnectionLimit = 10;
+            ServicePointManager.MaxServicePointIdleTime = 10_000;
+            httpClient.Timeout = System.Threading.Timeout.InfiniteTimeSpan;
         }
 
         public static IWebRequest<object> Send(
@@ -50,11 +51,16 @@ namespace BeatLeader.WebRequests {
             HttpRequestMessage requestMessage,
             CancellationToken token
         ) {
-            ApplyDefaultHeaders(requestMessage);
+            var sp = ServicePointManager.FindServicePoint(new Uri("https://api.beatleader.com/"));
 
+            Plugin.Log.Warn($"CurrentConnections: {sp.CurrentConnections.ToString()}");
+            Plugin.Log.Warn($"ConnectionLimit: {sp.ConnectionLimit.ToString()}");
+
+            ApplyDefaultHeaders(requestMessage);
             return Task.Run(async () => {
-                await Authentication.WaitLogin();
-                return await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseContentRead, token);
+                var loggedIn = await Authentication.WaitLogin();
+                if (!loggedIn) return null;
+                return await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, token);
             }).RunCatching();
         }
 

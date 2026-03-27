@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,12 +26,13 @@ namespace BeatLeader.WebRequests {
             _sendCallback = sendCallback;
             _requestMessage = requestMessage;
             RequestParams = requestParams;
-            _requestTask = SendWebRequest(sendCallback, token);
-            _processTask = ProcessWebRequest(token);
             _requestResponseParser = requestResponseParser;
 
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
             _cancellationToken = _cancellationTokenSource.Token;
+
+            _requestTask = SendWebRequest(sendCallback, _cancellationToken);
+            _processTask = ProcessWebRequest(_cancellationToken);
         }
 
         public T? Result { get; private set; }
@@ -46,10 +47,9 @@ namespace BeatLeader.WebRequests {
             var contentLength = message.Content.Headers.ContentLength;
 
             byte[] contentBuffer;
-            if (contentLength == null || contentLength == 0) { 
+            if (contentLength == 0) {
                 contentBuffer = Array.Empty<byte>();
-            } else if (contentLength < 1000) {
-                if (token.IsCancellationRequested) return RequestState.Failed;
+            } else if (contentLength != null && contentLength < 1000) {
                 contentBuffer = await message.Content.ReadAsByteArrayAsync();
             } else {
                 contentBuffer = await DownloadContent(message.Content, token);
@@ -72,18 +72,27 @@ namespace BeatLeader.WebRequests {
             _treatReceivedProgressAsDownload = true;
 
             var descriptor = (IIoOperationDescriptor)this;
-            descriptor.ContentSize = content.Headers.ContentLength!.Value;
-            return await TransferContent(content, descriptor, token);
+            var knownLength = content.Headers.ContentLength;
+            if (knownLength != null) {
+                descriptor.ContentSize = knownLength.Value;
+                return await TransferContent(content, descriptor, knownLength.Value, token);
+            }
+
+            using var stream = await content.ReadAsStreamAsync();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream, 81920, token);
+            return memoryStream.ToArray();
         }
 
         private static async Task<byte[]> TransferContent(
             HttpContent content,
             IIoOperationDescriptor descriptor,
+            long totalBytes,
             CancellationToken token
         ) {
             using var stream = await content.ReadAsStreamAsync();
             using var memoryStream = new MemoryStream();
-            await StreamUtils.CopyToByBufferAsync(stream, memoryStream, descriptor, token);
+            await StreamUtils.CopyToByBufferAsync(stream, memoryStream, descriptor, totalBytes, token);
             return memoryStream.ToArray();
         }
 
@@ -182,13 +191,16 @@ namespace BeatLeader.WebRequests {
 
         private async Task<HttpResponseMessage?> SendWebRequest(SendRequestDelegate sendCallback, CancellationToken token) {
             var timeout = RequestParams.TimeoutSeconds;
-            var timeoutTokenSource = GetTimeoutTokenSource(TimeSpan.FromSeconds(timeout), token);
-            //
+            using var timeoutTokenSource = GetTimeoutTokenSource(TimeSpan.FromSeconds(timeout), token);
+            var linkedToken = timeoutTokenSource?.Token ?? token;
             try {
-                return await sendCallback(_requestMessage, CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource?.Token ?? CancellationToken.None).Token);
-                //
+                return await sendCallback(_requestMessage, linkedToken);
             } catch (OperationCanceledException) when (!token.IsCancellationRequested) {
-                //
+                throw new TimeoutException($"The request has failed after {timeout}s");
+            } catch (WebException ex) when (
+                !token.IsCancellationRequested &&
+                ex.Status == WebExceptionStatus.RequestCanceled
+            ) {
                 throw new TimeoutException($"The request has failed after {timeout}s");
             }
         }

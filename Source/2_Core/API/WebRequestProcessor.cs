@@ -49,6 +49,7 @@ namespace BeatLeader.WebRequests {
             if (contentLength == null || contentLength == 0) { 
                 contentBuffer = Array.Empty<byte>();
             } else if (contentLength < 1000) {
+                if (token.IsCancellationRequested) return RequestState.Failed;
                 contentBuffer = await message.Content.ReadAsByteArrayAsync();
             } else {
                 contentBuffer = await DownloadContent(message.Content, token);

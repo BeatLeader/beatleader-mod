@@ -12,12 +12,17 @@ namespace BeatLeader.WebRequests {
         private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer };
         private static readonly HttpClient httpClient = new(httpClientHandler);
 
+        static WebRequestFactory() {
+            //ServicePointManager.DefaultConnectionLimit = 32;
+            ServicePointManager.MaxServicePointIdleTime = 30000;
+        }
+
         public static IWebRequest<object> Send(
-            HttpRequestMessage requestMessage,
-            WebRequestParams? requestParams = null,
-            CancellationToken token = default,
-            bool waitForLogin = true
-        ) {
+                HttpRequestMessage requestMessage,
+                WebRequestParams? requestParams = null,
+                CancellationToken token = default,
+                bool waitForLogin = true
+            ) {
             requestParams ??= new();
             return new WebRequestProcessor<object>(waitForLogin ? SendInternalLogin : SendInternal, requestMessage, requestParams, null, token);
         }
@@ -38,7 +43,7 @@ namespace BeatLeader.WebRequests {
             CancellationToken token
         ) {
             ApplyDefaultHeaders(requestMessage);
-            return httpClient.SendAsync(requestMessage, token);
+            return httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, token);
         }
 
         private static Task<HttpResponseMessage> SendInternalLogin(
@@ -49,12 +54,15 @@ namespace BeatLeader.WebRequests {
 
             return Task.Run(async () => {
                 await Authentication.WaitLogin();
-                return await httpClient.SendAsync(requestMessage, token);
+                return await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseContentRead, token);
             }).RunCatching();
         }
 
         private static void ApplyDefaultHeaders(HttpRequestMessage requestMessage) {
-            requestMessage.Headers.Add("User-Agent", Plugin.UserAgent);
+            if (!requestMessage.Headers.Contains("User-Agent")) {
+                requestMessage.Headers.Add("User-Agent", Plugin.UserAgent);
+            }
+            ServicePointManager.FindServicePoint(requestMessage.RequestUri).ConnectionLeaseTimeout = 30000;
         }
     }
 }

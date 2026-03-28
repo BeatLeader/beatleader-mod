@@ -226,11 +226,12 @@ namespace BeatLeader.WebRequests {
         private readonly CancellationTokenSource _cancellationTokenSource;
 
         private async Task ProcessWebRequest(CancellationToken token) {
+            HttpResponseMessage? result = null;
             try {
-                Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
+                Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
 
                 RequestState = RequestState.Started;
-                var result = await _requestTask;
+                result = await _requestTask;
                 if (_requestTask.IsFaulted || result is null) {
                     if (RetryAttempt < RequestParams.RetryCount) {
                         await Retry();
@@ -247,13 +248,17 @@ namespace BeatLeader.WebRequests {
 
                     RequestState = newState ?? RequestState.Finished;
 
-                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
+                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
                 } else {
                     await ProcessFailure(result, null);
                 }
             } catch (Exception ex) {
                 await ProcessFailure(null, ex);
+            } finally {
+                result?.Dispose();   // important
+                _requestMessage.Dispose();
             }
+
             Dispose();
         }
 
@@ -262,7 +267,7 @@ namespace BeatLeader.WebRequests {
                 RequestState = RequestState.Failed;
                 if (ex is TaskCanceledException) {
                     FailReason = "Request cancelled";
-                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Cancelled");
+                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Cancelled");
                 } else {
                     FailReason = "Exception occured, please report on Discord";
                     Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Exception: {ex}");

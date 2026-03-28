@@ -10,7 +10,6 @@ namespace BeatLeader.Replayer {
     internal class ReplayFinishController : MonoBehaviour, IReplayFinishController {
         [Inject] private readonly StandardLevelGameplayManager.InitData _gameplayManagerInitData = null!;
         [Inject] private readonly StandardLevelGameplayManager _gameplayManager = null!;
-        [Inject] private readonly PauseMenuManager _pauseMenuManager = null!;
         [Inject] private readonly PauseController _pauseController = null!;
         [Inject] private readonly ReplayLaunchData _launchData = null!;
         [Inject] private readonly GameSongController _songController = null!;
@@ -28,7 +27,6 @@ namespace BeatLeader.Replayer {
 
         private void Start() {
             this.LoadResources();
-            _pauseMenuManager.didPressMenuButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressMenuButton;
             _pauseButtonTrigger.menuButtonTriggeredEvent -= _pauseController.HandleMenuButtonTriggered;
             _gameEnergyCounter.gameEnergyDidReach0Event -= _gameplayManager.HandleGameEnergyDidReach0;
             _songController.songDidFinishEvent -= _gameplayManager.HandleSongDidFinish;
@@ -44,7 +42,6 @@ namespace BeatLeader.Replayer {
             _songController.songDidFinishEvent -= HandleLevelFinished;
             _timeController.SongReachedReplayEndEvent -= HandleReplayFinished;
             if (_pauseController != null) {
-                _pauseMenuManager.didPressMenuButtonEvent += _pauseController.HandlePauseMenuManagerDidPressMenuButton;
                 _pauseButtonTrigger.menuButtonTriggeredEvent += _pauseController.HandleMenuButtonTriggered;
             }
             if (_gameplayManager != null) {

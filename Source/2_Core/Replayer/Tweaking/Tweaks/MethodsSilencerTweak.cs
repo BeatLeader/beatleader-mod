@@ -12,10 +12,9 @@ namespace BeatLeader.Replayer.Tweaking
             typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.Update), ReflectionUtils.DefaultFlags),
             typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.StartResumeAnimation), ReflectionUtils.DefaultFlags),
             typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.RestartButtonPressed), ReflectionUtils.DefaultFlags),
-            typeof(PauseMenuManager).GetMethod(nameof(PauseMenuManager.ContinueButtonPressed), ReflectionUtils.DefaultFlags),
 
             typeof(StandardLevelGameplayManager).GetMethod(nameof(StandardLevelGameplayManager.Update), ReflectionUtils.DefaultFlags),
-            typeof(CuttingManager).GetMethod(nameof(CuttingManager.HandleSaberManagerDidUpdateSaberPositions), ReflectionUtils.DefaultFlags)
+            typeof(CuttingManager).GetMethod(nameof(CuttingManager.HandleSaberManagerDidUpdateSaberPositions), ReflectionUtils.DefaultFlags),
         };
 
         private HarmonyMultisilencer _multisilencer;

@@ -13,6 +13,11 @@ namespace BeatLeader.WebRequests {
         private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer };
         private static readonly HttpClient httpClient = new(httpClientHandler);
 
+        static WebRequestFactory() {
+            ServicePointManager.DefaultConnectionLimit = 1;
+            //ServicePointManager.MaxServicePointIdleTime = 30000;
+        }
+
         public static IWebRequest<object> Send(
             HttpRequestMessage requestMessage,
             WebRequestParams? requestParams = null,
@@ -42,23 +47,28 @@ namespace BeatLeader.WebRequests {
             return httpClient.SendAsync(requestMessage, token);
         }
 
-        private static Task<HttpResponseMessage?> SendInternalLogin(
+        private static Task<HttpResponseMessage> SendInternalLogin(
             HttpRequestMessage requestMessage,
             CancellationToken token
         ) {
             ApplyDefaultHeaders(requestMessage);
 
+            var sp = ServicePointManager.FindServicePoint(new Uri("https://api.beatleader.com/"));
+
+            Plugin.Log.Warn($"CurrentConnections: {sp.CurrentConnections.ToString()}");
+            Plugin.Log.Warn($"ConnectionLimit: {sp.ConnectionLimit.ToString()}");
+
             return Task.Run(async () => {
                 await Authentication.WaitLogin();
                 HttpResponseMessage? response = null;
-                try {
+                //try {
                     response = await httpClient.SendAsync(requestMessage, token);
-                } catch (Exception e) {
-                    response?.Dispose();
-                    response = null;
-                }
+                //} catch (Exception e) {
+                //    response?.Dispose();
+                //    response = null;
+                //}
                 return response;
-            }).RunCatching();
+            });
         }
 
         private static void ApplyDefaultHeaders(HttpRequestMessage requestMessage) {

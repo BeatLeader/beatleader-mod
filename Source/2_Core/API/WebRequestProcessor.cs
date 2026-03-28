@@ -186,8 +186,9 @@ namespace BeatLeader.WebRequests {
             try {
                 return await sendCallback(_requestMessage, CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource?.Token ?? CancellationToken.None).Token);
                 //
-            } catch (OperationCanceledException) when (!token.IsCancellationRequested) {
+            } catch (OperationCanceledException e) when (!token.IsCancellationRequested) {
                 //
+                Plugin.Log.Error(e);
                 throw new TimeoutException($"The request has failed after {timeout}s");
             }
         }
@@ -216,7 +217,7 @@ namespace BeatLeader.WebRequests {
         private async Task ProcessWebRequest(CancellationToken token) {
             HttpResponseMessage? result = null;
             try {
-                Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
+                Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
 
                 RequestState = RequestState.Started;
                 result = await _requestTask;
@@ -236,7 +237,7 @@ namespace BeatLeader.WebRequests {
 
                     RequestState = newState ?? RequestState.Finished;
 
-                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
+                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
                 } else {
                     await ProcessFailure(result, null);
                 }
@@ -244,6 +245,7 @@ namespace BeatLeader.WebRequests {
                 await ProcessFailure(null, ex);
             } finally {
                 result?.Dispose();   // important
+                _requestMessage.Dispose();
             }
 
             Dispose();
@@ -254,7 +256,7 @@ namespace BeatLeader.WebRequests {
                 RequestState = RequestState.Failed;
                 if (ex is TaskCanceledException) {
                     FailReason = "Request cancelled";
-                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Cancelled");
+                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Cancelled");
                 } else {
                     FailReason = "Exception occured, please report on Discord";
                     Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Exception: {ex}");

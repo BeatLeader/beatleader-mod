@@ -14,9 +14,8 @@ namespace BeatLeader.WebRequests {
         private static readonly HttpClient httpClient = new(httpClientHandler);
 
         static WebRequestFactory() {
-            // ServicePointManager.DefaultConnectionLimit = 10;
+            ServicePointManager.DefaultConnectionLimit = 20;
             ServicePointManager.MaxServicePointIdleTime = 10_000;
-            httpClient.Timeout = System.Threading.Timeout.InfiniteTimeSpan;
         }
 
         public static IWebRequest<object> Send(
@@ -48,16 +47,12 @@ namespace BeatLeader.WebRequests {
             return httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, token);
         }
 
-        private static Task<HttpResponseMessage> SendInternalLogin(
+        private static Task<HttpResponseMessage?> SendInternalLogin(
             HttpRequestMessage requestMessage,
             CancellationToken token
         ) {
-            var sp = ServicePointManager.FindServicePoint(new Uri("https://api.beatleader.com/"));
-
-            Plugin.Log.Warn($"CurrentConnections: {sp.CurrentConnections.ToString()}");
-            Plugin.Log.Warn($"ConnectionLimit: {sp.ConnectionLimit.ToString()}");
-
             ApplyDefaultHeaders(requestMessage);
+
             return Task.Run(async () => {
                 var loggedIn = await Authentication.WaitLogin();
                 if (!loggedIn) return null;
@@ -66,10 +61,7 @@ namespace BeatLeader.WebRequests {
         }
 
         private static void ApplyDefaultHeaders(HttpRequestMessage requestMessage) {
-            if (!requestMessage.Headers.Contains("User-Agent")) {
-                requestMessage.Headers.Add("User-Agent", Plugin.UserAgent);
-            }
-            ServicePointManager.FindServicePoint(requestMessage.RequestUri).ConnectionLeaseTimeout = 30000;
+            requestMessage.Headers.Add("User-Agent", Plugin.UserAgent);
         }
     }
 }

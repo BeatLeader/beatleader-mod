@@ -228,7 +228,7 @@ namespace BeatLeader.WebRequests {
         private async Task ProcessWebRequest(CancellationToken token) {
             HttpResponseMessage? result = null;
             try {
-                Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
+                Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})]: {_requestMessage.RequestUri}");
 
                 RequestState = RequestState.Started;
                 result = await _requestTask;
@@ -248,7 +248,7 @@ namespace BeatLeader.WebRequests {
 
                     RequestState = newState ?? RequestState.Finished;
 
-                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
+                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Status code: {RequestStatusCode}");
                 } else {
                     await ProcessFailure(result, null);
                 }
@@ -267,7 +267,7 @@ namespace BeatLeader.WebRequests {
                 RequestState = RequestState.Failed;
                 if (ex is TaskCanceledException) {
                     FailReason = "Request cancelled";
-                    Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Cancelled");
+                    Plugin.Log.Debug($"[Request({_requestTask.GetHashCode()})] Cancelled");
                 } else {
                     FailReason = "Exception occured, please report on Discord";
                     Plugin.Log.Info($"[Request({_requestTask.GetHashCode()})] Exception: {ex}");

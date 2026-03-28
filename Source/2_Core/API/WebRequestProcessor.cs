@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -49,9 +49,8 @@ namespace BeatLeader.WebRequests {
             byte[] contentBuffer;
             if (contentLength == 0) {
                 contentBuffer = Array.Empty<byte>();
-            } else if (contentLength != null && contentLength < 1000) {
-                contentBuffer = await message.Content.ReadAsByteArrayAsync();
             } else {
+                if (token.IsCancellationRequested) return RequestState.Failed;
                 contentBuffer = await DownloadContent(message.Content, token);
             }
             if (token.IsCancellationRequested) return RequestState.Failed;

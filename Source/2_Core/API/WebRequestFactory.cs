@@ -1,4 +1,5 @@
-﻿using BeatLeader.API;
+﻿using System;
+using BeatLeader.API;
 using BeatLeader.Utils;
 using System.Net;
 using System.Net.Http;

@@ -1,5 +1,4 @@
 ﻿using BeatLeader.DataManager;
-using BeatLeader.UI.BSML_Addons;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Util;
 using Hive.Versioning;
@@ -55,7 +54,6 @@ namespace BeatLeader {
         }
 
         public static void MainMenuInit() {
-            BSMLAddonsLoader.LoadAddons();
             ReplayManager.LoadCache();
             SettingsPanelUI.AddTab();
         }

@@ -13,7 +13,7 @@ namespace BeatLeader.UI.BSML_Addons.Extensions {
         };
 
         public override void HandleType(BSMLParser.ComponentTypeWithData componentType, BSMLParserParams parserParams) {
-            Graphic graphic;
+            Graphic? graphic;
             if ((graphic = componentType.Component as Graphic) != null
                 && componentType.Data.TryGetValue("useMask", out string asMaskStr) 
                 && bool.TryParse(asMaskStr, out bool asMask) && asMask) {

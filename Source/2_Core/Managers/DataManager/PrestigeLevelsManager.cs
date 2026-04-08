@@ -26,10 +26,10 @@ namespace BeatLeader.DataManager {
         private static void OnPrestigeLevelsRequestStateChanged(
             WebRequests.IWebRequest<List<PrestigeLevel>> instance,
             WebRequests.RequestState state,
-            string failReason
+            string? failReason
         ) {
             if (state == WebRequests.RequestState.Finished) {
-                LoadAllIcons(instance.Result);
+                LoadAllIcons(instance.Result!);
             } else if (state == WebRequests.RequestState.Failed) {
                 Plugin.Log.Debug($"Prestige levels retrieval failed! {failReason}");
                 _loading = false;

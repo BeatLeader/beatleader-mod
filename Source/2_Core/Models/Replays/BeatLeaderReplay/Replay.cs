@@ -549,7 +549,7 @@ namespace BeatLeader.Models.Replay {
             return DecodeInfo(buffer, ref pointer);
         }
         
-        public static Models.Replay.Replay DecodeReplay(byte[] buffer)
+        public static Models.Replay.Replay? DecodeReplay(byte[] buffer)
         {
             int arrayLength = (int)buffer.Length;
 

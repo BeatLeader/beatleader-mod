@@ -49,7 +49,7 @@ namespace BeatLeader {
             List<float> ____sortedNoteTimesWithoutScoringElements,
             List<ScoringElement> ____sortedScoringElementsWithoutMultiplier
         ) {
-            _instance.OnBeforeScoreControllerLateUpdate(
+            _instance!.OnBeforeScoreControllerLateUpdate(
                 ____audioTimeSyncController,
                 ____sortedNoteTimesWithoutScoringElements,
                 ____sortedScoringElementsWithoutMultiplier

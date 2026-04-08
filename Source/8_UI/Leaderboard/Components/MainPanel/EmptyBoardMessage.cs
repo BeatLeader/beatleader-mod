@@ -35,10 +35,10 @@ namespace BeatLeader.Components {
                     FadeOut();
                     break;
                 case WebRequests.RequestState.Failed:
-                    ShowError(failReason);
+                    ShowError(failReason!);
                     break;
                 case WebRequests.RequestState.Finished:
-                    OnScoresFetched(instance.Result);
+                    OnScoresFetched(instance.Result!);
                     break;
             }
         }

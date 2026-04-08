@@ -63,7 +63,7 @@ namespace BeatLeader.UI.Hub {
         #region Construct
 
         private Toggle _menuButtonToggle = null!;
-        private Toggle _noticeboardToggle = null;
+        private Toggle _noticeboardToggle = null!;
         private TextDropdown<BLLanguage> _languageDropdown = null!;
         private TextDropdown<BeatLeaderServer> _serverDropdown = null!;
         private ReloadNotice _reloadNotice = null!;

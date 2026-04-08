@@ -50,17 +50,17 @@ namespace BeatLeader.Components {
 
         private void OnPlaylistUpdateStarted(PlaylistsManager.PlaylistType playlistType) {
             if (!TryGetPlaylistButtonForType(playlistType, out var button)) return;
-            button.interactable = false;
+            button!.interactable = false;
         }
 
         private void OnPlaylistUpdateFinished(PlaylistsManager.PlaylistType playlistType) {
             if (!TryGetPlaylistButtonForType(playlistType, out var button)) return;
-            button.interactable = true;
+            button!.interactable = true;
         }
 
         private void OnPlaylistStateChanged(PlaylistsManager.PlaylistType playlistType, PlaylistsManager.PlaylistState playlistState) {
             if (!TryGetPlaylistButtonForType(playlistType, out var button)) return;
-            UpdatePlaylistButton(button, playlistType, playlistState);
+            UpdatePlaylistButton(button!, playlistType, playlistState);
         }
 
         private void OnModIsUpToDateChanged(bool value) {
@@ -114,15 +114,15 @@ namespace BeatLeader.Components {
         #region PlaylistButtons
 
         [UIComponent("nominated-playlist-button"), UsedImplicitly]
-        private Button _nominatedPlaylistButton;
+        private Button _nominatedPlaylistButton = null!;
 
         [UIComponent("qualified-playlist-button"), UsedImplicitly]
-        private Button _qualifiedPlaylistButton;
+        private Button _qualifiedPlaylistButton = null!;
 
         [UIComponent("ranked-playlist-button"), UsedImplicitly]
-        private Button _rankedPlaylistButton;
+        private Button _rankedPlaylistButton = null!;
 
-        private bool TryGetPlaylistButtonForType(PlaylistsManager.PlaylistType playlistType, out Button button) {
+        private bool TryGetPlaylistButtonForType(PlaylistsManager.PlaylistType playlistType, out Button? button) {
             switch (playlistType) {
                 case PlaylistsManager.PlaylistType.Nominated:
                     button = _nominatedPlaylistButton;

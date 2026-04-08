@@ -33,8 +33,8 @@ namespace BeatLeader.UI.Hub {
             false,
             "",
             "Click to select",
-            null,
-            null,
+            null!,
+            null!,
             Array.Empty<string>(),
             Array.Empty<string>(),
             0f,
@@ -45,7 +45,7 @@ namespace BeatLeader.UI.Hub {
             0f,
             PlayerSensitivityFlag.Safe,
             new NotSelectedPreviewMediaData(),
-            null
+            null!
         );
 
         #endregion

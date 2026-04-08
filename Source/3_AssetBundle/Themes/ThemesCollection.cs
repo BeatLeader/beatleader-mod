@@ -3,14 +3,18 @@
 namespace BeatLeader.Themes {
     [CreateAssetMenu(fileName = "ThemesCollection", menuName = "ThemesCollection")]
     public class ThemesCollection : ScriptableObject {
+        #nullable disable
+        
         public ThemeMaterials booster;
         public ThemeMaterials theSun;
         public ThemeMaterials theMoon;
         public ThemeMaterials theStar;
         public ThemeMaterials sparks;
         public ThemeMaterials special;
+        
+        #nullable enable
 
-        public bool TryGetThemeMaterials(ThemeType themeType, out ThemeMaterials themeMaterials) {
+        public bool TryGetThemeMaterials(ThemeType themeType, out ThemeMaterials? themeMaterials) {
             switch (themeType) {
                 case ThemeType.Booster:
                     themeMaterials = booster;

@@ -8,9 +8,9 @@ using UnityEngine;
 
 namespace BeatLeader.Components {
     internal struct ClanScorePanelContext {
-        public BeatmapKey beatmapKey;
-        public ClanScore clanScore;
-        public Player clanPlayer;
+        public required BeatmapKey beatmapKey;
+        public required ClanScore clanScore;
+        public required Player clanPlayer;
     }
 
     internal class ClanScorePanel : AbstractReeModal<ClanScorePanelContext> {

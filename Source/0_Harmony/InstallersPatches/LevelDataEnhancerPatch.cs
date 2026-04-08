@@ -27,7 +27,7 @@ namespace BeatLeader
                 environmentName = overrideEnvironmentSettings
                     .GetOverrideEnvironmentInfoForType(
                         environmentsListModel
-                            .GetEnvironmentInfoBySerializedName(environmentName)
+                            .GetEnvironmentInfoBySerializedName(environmentName)!
                             .environmentType)
                     .environmentName;
             }
@@ -36,9 +36,9 @@ namespace BeatLeader
             MapEnhancer.beatmapLevel = beatmapLevel;
             MapEnhancer.gameplayModifiers = gameplayModifiers;
             MapEnhancer.playerSpecificSettings = playerSpecificSettings;
-            MapEnhancer.practiceSettings = practiceSettings;
+            MapEnhancer.practiceSettings = practiceSettings!;
             MapEnhancer.environmentName = environmentName;
-            MapEnhancer.colorScheme = playerOverrideColorScheme;
+            MapEnhancer.colorScheme = playerOverrideColorScheme!;
         }
     }
 }

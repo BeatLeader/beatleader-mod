@@ -37,11 +37,11 @@ namespace BeatLeader.DataManager {
         }
 
         public static bool IsCurrentPlayerInClan(Clan clan) {
-            return HasProfile && Profile.clans.Any(profileClan => profileClan.id == clan.id);
+            return HasProfile && (Profile?.clans.Any(profileClan => profileClan.id == clan.id) ?? false);
         }
 
         public static bool IsCurrentPlayerTopClan(Clan clan) {
-            return HasProfile && Profile.clans.Length > 0 && Profile.clans[0].id == clan.id;
+            return HasProfile && Profile?.clans.Length > 0 && Profile.clans[0].id == clan.id;
         }
         
         public static bool TryGetUserId(out string? userId) {
@@ -152,7 +152,7 @@ namespace BeatLeader.DataManager {
                     LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
                     break;
                 case WebRequests.RequestState.Finished:
-                    AddFriend(instance.Result);
+                    AddFriend(instance.Result!);
                     break;
             }
         }
@@ -163,7 +163,7 @@ namespace BeatLeader.DataManager {
                     LeaderboardEvents.ShowStatusMessage(failReason, LeaderboardEvents.StatusMessageType.Bad);
                     break;
                 case WebRequests.RequestState.Finished:
-                    RemoveFriend(instance.Result);
+                    RemoveFriend(instance.Result!);
                     break;
             }
         }
@@ -171,15 +171,15 @@ namespace BeatLeader.DataManager {
         private static void OnUserRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             if (state is WebRequests.RequestState.Failed) FinishTask();
             if (state is not WebRequests.RequestState.Finished) return;
-            var result = instance.Result;
+            var result = instance.Result!;
             Profile = result;
-            Roles = FormatUtils.ParsePlayerRoles(result.role);
-            SetFriends(result.friends);
+            Roles = FormatUtils.ParsePlayerRoles(result.role!);
+            SetFriends(result.friends!);
             FinishTask();
         }
 
         private static void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
-            if (state is not WebRequests.RequestState.Finished || instance.Result.Status != ScoreUploadStatus.Uploaded) return;
+            if (state is not WebRequests.RequestState.Finished || instance.Result!.Status != ScoreUploadStatus.Uploaded) return;
             Profile = instance.Result.Score.Player;
         }
 

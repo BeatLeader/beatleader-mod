@@ -122,7 +122,7 @@ namespace B83.Image.GIF
         public EScreenDescriptorFlags flags;
         public byte bgColorIndex;
         public byte pixelAspectRatio;
-        public Color32[] globalColorTable;
+        public Color32[]? globalColorTable;
         public bool HasGlobalColorTable
         {
             get { return (flags & EScreenDescriptorFlags.GlobalColorTableFlag) > 0; }
@@ -180,8 +180,8 @@ namespace B83.Image.GIF
         public ushort width;
         public ushort height;
         public EImageDescriptorFlags flags;
-        public Color32[] colorTable;
-        public Color32[] usedColorTable;
+        public Color32[]? colorTable;
+        public Color32[]? usedColorTable;
         public List<byte> data;
         public int packedSize;
         internal int _Interlaced81 = 0; // count of lines of stage 1
@@ -279,7 +279,7 @@ namespace B83.Image.GIF
             }
             if (IsInterlaced)
                 CalcInterlacedLimits();
-            var bgColor = Parent.screen.globalColorTable[bgColorIndex];
+            var bgColor = Parent.screen.globalColorTable![bgColorIndex];
             if (Parent.BackgroundTransparent)
                 bgColor.a = 0;
             for (int y = 0; y < height; y++)
@@ -310,7 +310,7 @@ namespace B83.Image.GIF
         {
             if (graphicControl.DisposalMethod == EDisposalMethod.RestoreBackgroundColor && Parent.screen.HasGlobalColorTable)
             {
-                var col = Parent.screen.globalColorTable[Parent.screen.bgColorIndex];
+                var col = Parent.screen.globalColorTable![Parent.screen.bgColorIndex];
                 if (Parent.BackgroundTransparent)
                     col.a = 0;
                 for (int y = 0; y < height; y++)
@@ -425,21 +425,21 @@ namespace B83.Image.GIF
     public class GIFLoader
     {
         byte[] buf = new byte[255];
-        GIFGraphicControlExt lastGrCtrl = null;
+        GIFGraphicControlExt? lastGrCtrl = null;
 
-        public GIFImage Load(string aFileName)
+        public GIFImage? Load(string aFileName)
         {
             using (var stream = File.OpenRead(aFileName))
                 return Load(stream);
         }
 
-        public GIFImage Load(Stream aStream)
+        public GIFImage? Load(Stream aStream)
         {
             using (var reader = new BinaryReader(aStream))
                 return Load(reader);
         }
 
-        public GIFImage Load(BinaryReader aReader)
+        public GIFImage? Load(BinaryReader aReader)
         {
             GIFImage img = new GIFImage();
             if (!ReadFileHeader(aReader, img))
@@ -487,7 +487,7 @@ namespace B83.Image.GIF
             return img.screen.HasGlobalColorTable ^ img.screen.globalColorTable == null;
         }
 
-        private IGIFBlock ReadBlock(BinaryReader aReader, GIFImage aImage)
+        private IGIFBlock? ReadBlock(BinaryReader aReader, GIFImage aImage)
         {
             byte blockType = aReader.ReadByte();
             switch ((EBlockType)blockType)

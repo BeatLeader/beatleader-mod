@@ -99,9 +99,9 @@ namespace BeatLeader.DataManager {
             do {
                 var result = await LeaderboardsRequest.Send(lastTimestamp, page, itemsPerPage).Join();
                 if (result.RequestState == WebRequests.RequestState.Finished) {
-                    OnSuccess(result.Result);
+                    OnSuccess(result.Result!);
                 } else if (result.RequestState == WebRequests.RequestState.Failed) {
-                    OnFail(result.FailReason);
+                    OnFail(result.FailReason!);
                 }
             } while (!failed && page <= totalPages);
 

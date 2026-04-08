@@ -11,7 +11,7 @@ namespace BeatLeader.Utils {
             Utilities.SpriteCache.Add(name, sprite);
         }
         public static Sprite LoadSprite(string location) {
-            Sprite sprite = null;
+            Sprite? sprite = null;
             if (location.Length > 1 && location.StartsWith("#")) {
                 string text = location.Substring(1);
                 sprite = FindSpriteCached(text);
@@ -25,7 +25,7 @@ namespace BeatLeader.Utils {
             }
             return sprite;
         }
-        public static Sprite FindSpriteCached(string name) {
+        public static Sprite? FindSpriteCached(string name) {
             if (Utilities.SpriteCache.TryGetValue(name, out var value) && value != null) {
                 return value;
             }

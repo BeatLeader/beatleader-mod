@@ -161,7 +161,7 @@ namespace BeatLeader.Components {
 
         private void OnProfileRequestStateChanged(IWebRequest<Player> instance, RequestState state, string? failReason) {
             if (!_initialized && state is RequestState.Finished) {
-                Player player = instance.Result;
+                var player = instance.Result!;
                 _level = player.level;
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                 _expProgress = player.experience / _requiredExp;
@@ -223,7 +223,7 @@ namespace BeatLeader.Components {
             if (state is RequestState.Finished) {
                 ResetExperienceBarData();
 
-                if (instance.Result.Status != ScoreUploadStatus.Error) {
+                if (instance.Result!.Status != ScoreUploadStatus.Error) {
                     Player player = instance.Result.Score.Player;
                     if (player.level == _level) {
                         _targetValue = player.experience / _requiredExp - _expProgress;

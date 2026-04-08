@@ -8,7 +8,7 @@ namespace BeatLeader {
         protected TC Context;
 
         public void ClearContext() {
-            Context = default;
+            Context = default!;
         }
 
         public void SetContext(TC context) {

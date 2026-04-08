@@ -17,7 +17,7 @@ namespace BeatLeader.DataManager {
             { PlaylistType.Ranked, new PlaylistInfo("ranked", "BeatLeader ranked") },
         };
 
-        private static bool TryGetPlaylistInfo(PlaylistType playlistType, out PlaylistInfo playlistInfo) {
+        private static bool TryGetPlaylistInfo(PlaylistType playlistType, out PlaylistInfo? playlistInfo) {
             if (!Playlists.ContainsKey(playlistType)) {
                 playlistInfo = null;
                 return false;
@@ -54,17 +54,17 @@ namespace BeatLeader.DataManager {
 
         #region PlaylistState
 
-        public static event Action<PlaylistType, PlaylistState> PlaylistStateChangedEvent;
+        public static event Action<PlaylistType, PlaylistState>? PlaylistStateChangedEvent;
 
         private static void SetPlaylistState(PlaylistType playlistType, PlaylistState state) {
             if (!TryGetPlaylistInfo(playlistType, out var playlistInfo)) return;
-            if (playlistInfo.State == state) return;
+            if (playlistInfo!.State == state) return;
             playlistInfo.State = state;
             PlaylistStateChangedEvent?.Invoke(playlistType, state);
         }
 
         public static PlaylistState GetPlaylistState(PlaylistType playlistType) {
-            return !TryGetPlaylistInfo(playlistType, out var playlistInfo) ? PlaylistState.NotFound : playlistInfo.State;
+            return !TryGetPlaylistInfo(playlistType, out var playlistInfo) ? PlaylistState.NotFound : playlistInfo!.State;
         }
 
         #endregion
@@ -89,14 +89,14 @@ namespace BeatLeader.DataManager {
         private async Task VerifyPlaylistVersion(PlaylistType playlistType) {
             if (!TryGetPlaylistInfo(playlistType, out var playlistInfo)) return;
 
-            if (!FileManager.TryReadPlaylist(playlistInfo.FileName, out var stored)) {
+            if (!FileManager.TryReadPlaylist(playlistInfo!.FileName, out var stored)) {
                 SetPlaylistState(playlistType, PlaylistState.NotFound);
                 return;
             }
 
             var result = await PlaylistRequest.Send(playlistInfo.PlaylistId).Join();
             if (result.RequestState == WebRequests.RequestState.Finished) {
-                SetPlaylistState(playlistType, ComparePlaylists(result.Result, stored) ? PlaylistState.UpToDate : PlaylistState.Outdated);
+                SetPlaylistState(playlistType, ComparePlaylists(result.Result!, stored) ? PlaylistState.UpToDate : PlaylistState.Outdated);
             } else if (result.RequestState == WebRequests.RequestState.Failed) {
                 Plugin.Log.Debug($"{playlistType} playlist check failed: {result.FailReason}");
             }
@@ -116,19 +116,19 @@ namespace BeatLeader.DataManager {
 
         #region UpdatePlaylist
 
-        public static event Action<PlaylistType> PlaylistUpdateStartedEvent;
-        public static event Action<PlaylistType> PlaylistUpdateFinishedEvent;
+        public static event Action<PlaylistType>? PlaylistUpdateStartedEvent;
+        public static event Action<PlaylistType>? PlaylistUpdateFinishedEvent;
 
         public async Task UpdatePlaylistAsync(PlaylistType playlistType) {
             if (!TryGetPlaylistInfo(playlistType, out var playlistInfo)) return;
             PlaylistUpdateStartedEvent?.Invoke(playlistType);
 
-            var result = await PlaylistRequest.Send(playlistInfo.PlaylistId).Join();
+            var result = await PlaylistRequest.Send(playlistInfo!.PlaylistId).Join();
 
             if (result.RequestState == WebRequests.RequestState.Finished) {
                 FileManager.DeletePlaylist(playlistInfo.FileName);
 
-                if (FileManager.TrySaveRankedPlaylist(playlistInfo.FileName, result.Result)) {
+                if (FileManager.TrySaveRankedPlaylist(playlistInfo.FileName, result.Result!)) {
                     PlaylistsLibInterop.TryRefreshPlaylists(true);
                     SongCore.Loader.Instance.RefreshSongs(false);
                     SetPlaylistState(playlistType, PlaylistState.UpToDate);

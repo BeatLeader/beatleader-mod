@@ -199,7 +199,7 @@ namespace BeatLeader.Components {
             switch (ScoreRowContent) {
                 case Score playerScore: {
                     var player = playerScore.Player;
-                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
+                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role!);
 
                     SetHighlight(ProfileManager.IsCurrentPlayer(player.id));
 
@@ -209,7 +209,7 @@ namespace BeatLeader.Components {
                 }
                 case ClanPlayer clanPlayer: {
                     var player = clanPlayer.Player;
-                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role);
+                    var playerRoles = FormatUtils.ParsePlayerRoles(player.role!);
 
                     SetHighlight(ProfileManager.IsCurrentPlayer(player.id));
 

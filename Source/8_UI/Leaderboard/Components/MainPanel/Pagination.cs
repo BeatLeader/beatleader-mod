@@ -31,7 +31,7 @@ namespace BeatLeader.Components {
                 return;
             }
 
-            OnScoresFetched(instance.Result);
+            OnScoresFetched(instance.Result!);
         }
 
         private void OnScoresFetched(ScoresTableContent scoresData) {

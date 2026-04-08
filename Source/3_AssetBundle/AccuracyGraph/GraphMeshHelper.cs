@@ -39,7 +39,7 @@ namespace BeatLeader {
 
         #region SetPoints
 
-        private GraphSpline _spline;
+        private GraphSpline? _spline;
 
         public void SetPoints(List<Vector2> points) {
             if (points.Count <= 1) {

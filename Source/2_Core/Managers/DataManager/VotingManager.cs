@@ -27,7 +27,7 @@ namespace BeatLeader.DataManager {
         #region Events
 
         private static void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
-            if (state is not WebRequests.RequestState.Finished || instance.Result.Status != ScoreUploadStatus.Uploaded) return;
+            if (state is not WebRequests.RequestState.Finished || instance.Result!.Status != ScoreUploadStatus.Uploaded) return;
             UpdateVoteStatus();
         }
 
@@ -43,7 +43,7 @@ namespace BeatLeader.DataManager {
         private static void UpdateVoteStatus() {
             if (!TryGetKey(out var key)) return;
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            VoteStatusRequest.SendRequest(key.Hash, key.Diff, key.Mode, userId);
+            VoteStatusRequest.SendRequest(key.Hash, key.Diff, key.Mode, userId!);
         }
 
         #endregion

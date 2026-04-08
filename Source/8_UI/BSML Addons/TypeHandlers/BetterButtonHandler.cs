@@ -44,7 +44,7 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
         {
             try
             {
-                BetterButton button;
+                BetterButton? button;
                 if (button = componentType.Component as BetterButton)
                 {
                     if (componentType.Data.TryGetValue("transition", out string transition) && transition != "Animation")

@@ -15,7 +15,7 @@ namespace BeatLeader {
 
         private static readonly Dictionary<int, ReeModalSystem> ActiveModals = new Dictionary<int, ReeModalSystem>();
 
-        private static event Action InterruptAllEvent;
+        private static event Action? InterruptAllEvent;
 
         [PublicAPI]
         public static void OpenModal<T>(Transform screenChild, object state, bool interruptActiveModals = true) where T : IReeModal {
@@ -110,8 +110,8 @@ namespace BeatLeader {
         #region Stack
 
         private readonly Stack<(IReeModal, object)> _stack = new Stack<(IReeModal, object)>();
-        private IReeModal _activeModal;
-        private object _activeModalState;
+        private IReeModal? _activeModal;
+        private object? _activeModalState;
         private bool _hasActiveModal;
 
         private void OpenModal<T>(object context) where T : IReeModal {
@@ -134,7 +134,7 @@ namespace BeatLeader {
                 _stack.Push((modal, state));
                 OpenImmediately();
             } else {
-                _stack.Push((_activeModal, _activeModalState));
+                _stack.Push((_activeModal, _activeModalState)!);
                 _stack.Push((modal, state));
                 CloseOrPop();
             }
@@ -171,7 +171,7 @@ namespace BeatLeader {
         private void InterruptAll() {
             if (!_hasActiveModal) return;
 
-            _activeModal.Interrupt();
+            _activeModal!.Interrupt();
 
             while (_stack.Count > 0) {
                 var (modal, state) = _stack.Pop();
@@ -200,7 +200,7 @@ namespace BeatLeader {
         #region ModalView
 
         [UIComponent("modal-view"), UsedImplicitly]
-        private ModalView _modalView;
+        private ModalView _modalView = null!;
 
         private void InitializeModal() {
             var background = _modalView.GetComponentInChildren<ImageView>();
@@ -214,7 +214,7 @@ namespace BeatLeader {
 
         private void OnBlockerClicked() {
             if (!_hasActiveModal) return;
-            _activeModal.HandleOffClick();
+            _activeModal!.HandleOffClick();
         }
 
         private void ShowModal(bool animated = true) {

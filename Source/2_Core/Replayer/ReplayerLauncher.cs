@@ -113,7 +113,7 @@ namespace BeatLeader.Replayer {
                     practiceSettings: practiceSettings,
                     environmentsListModel: _environmentsListModel,
                     audioClipAsyncLoader: _audioClipAsyncLoader,
-                    settingsManager: _settingsManager,
+                    settingsManager: _settingsManager!,
                     beatmapDataLoader: _beatmapDataLoader,
                     beatmapLevelsEntitlementModel: _beatmapLevelsEntitlementModel,
                     gameplayAdditionalInformation: new GameplayAdditionalInformation(

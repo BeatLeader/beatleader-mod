@@ -62,7 +62,7 @@ namespace BeatLeader.Models {
             return cellType switch {
                 ScoreRowCellType.Rank => rank,
                 ScoreRowCellType.Country => Player.country,
-                ScoreRowCellType.Avatar => new AvatarScoreRowCell.Data(Player.avatar, Player.profileSettings),
+                ScoreRowCellType.Avatar => new AvatarScoreRowCell.Data(Player.avatar!, Player.profileSettings),
                 ScoreRowCellType.Username => Player.name,
                 ScoreRowCellType.Modifiers => modifiers,
                 ScoreRowCellType.Accuracy => accuracy,

@@ -154,11 +154,11 @@ namespace BeatLeader.Installers {
 
         #region Submission
 
-        private static Ticket _submissionTicket;
+        private static Ticket? _submissionTicket;
 
         private void DisableScoreSubmission() {
             _submissionTicket = Container.Resolve<Submission>()?.DisableScoreSubmission("BeatLeaderReplayer", "Playback");
-            ReplayerLauncher.LaunchData.ReplayWasFinishedEvent += HandleReplayWasFinished;
+            ReplayerLauncher.LaunchData!.ReplayWasFinishedEvent += HandleReplayWasFinished;
         }
         private void HandleReplayWasFinished(StandardLevelScenesTransitionSetupDataSO data, Models.ReplayLaunchData launchData) {
             launchData.ReplayWasFinishedEvent -= HandleReplayWasFinished;
@@ -172,11 +172,11 @@ namespace BeatLeader.Installers {
 
         #region Game mode stuff
 
-        private string GetGameMode() {
-            string singleGM = GetStandardDataSO()?.gameMode;
-            string multiGM = GetMultiDataSO()?.gameMode;
+        private string? GetGameMode() {
+            var singleGM = GetStandardDataSO()?.gameMode;
+            var multiGM = GetMultiDataSO()?.gameMode;
 
-            foreach (string mode in new[] { singleGM, multiGM }) {
+            foreach (var mode in new[] { singleGM, multiGM }) {
                 if (mode != null && mode.Length > 0) {
                     return mode;
                 }
@@ -185,14 +185,14 @@ namespace BeatLeader.Installers {
             return null;
         }
 
-        private StandardLevelScenesTransitionSetupDataSO GetStandardDataSO() {
+        private StandardLevelScenesTransitionSetupDataSO? GetStandardDataSO() {
             try {
                 return Container.TryResolve<StandardLevelScenesTransitionSetupDataSO>();
             } catch {
                 return null;
             }
         }
-        private MultiplayerLevelScenesTransitionSetupDataSO GetMultiDataSO() {
+        private MultiplayerLevelScenesTransitionSetupDataSO? GetMultiDataSO() {
             try {
                 return Container.TryResolve<MultiplayerLevelScenesTransitionSetupDataSO>();
             } catch {

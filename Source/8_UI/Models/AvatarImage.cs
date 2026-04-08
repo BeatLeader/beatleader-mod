@@ -9,12 +9,12 @@ namespace BeatLeader.Models {
 
         public readonly bool IsAnimated;
         private readonly Texture2D _originalTexture;
-        private readonly GIFImage _gifImage;
+        private readonly GIFImage? _gifImage;
 
         private AvatarImage(
             Texture2D originalTexture,
             bool isAnimated,
-            GIFImage gifImage
+            GIFImage? gifImage
         ) {
             IsAnimated = isAnimated;
             _originalTexture = originalTexture;
@@ -39,7 +39,7 @@ namespace BeatLeader.Models {
                 yield break;
             }
 
-            if (_gifImage.imageData.Count == 0) yield break;
+            if (_gifImage!.imageData.Count == 0) yield break;
 
             var colors = _originalTexture.GetPixels32();
             for (var i = 0; i < colors.Length; i++) {

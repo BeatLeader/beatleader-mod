@@ -59,8 +59,8 @@ namespace BeatLeader.Components {
         #region Retry logic
 
         private int _failsCount;
-        private Replay _lastReplay;
-        private PlayEndData _lastPlayEndData;
+        private Replay? _lastReplay;
+        private PlayEndData? _lastPlayEndData;
 
         private int FailsCount {
             get => _failsCount;
@@ -72,7 +72,7 @@ namespace BeatLeader.Components {
 
         private void OnRetryClicked() {
             if (_lastReplay == null) return;
-            ScoreUtil.UploadReplay(_lastReplay, _lastPlayEndData);
+            ScoreUtil.UploadReplay(_lastReplay, _lastPlayEndData!);
         }
 
         #endregion

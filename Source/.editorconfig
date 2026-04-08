@@ -142,10 +142,17 @@ dotnet_style_namespace_match_folder = true:suggestion
 dotnet_diagnostic.MA0002.severity = none
 dotnet_diagnostic.MA0004.severity = none
 dotnet_diagnostic.MA0006.severity = none
+dotnet_diagnostic.MA0011.severity = none
 dotnet_diagnostic.MA0021.severity = none
 dotnet_diagnostic.MA0037.severity = warning
 dotnet_diagnostic.MA0048.severity = none
+dotnet_diagnostic.MA0046.severity = none
 dotnet_diagnostic.MA0049.severity = none
+dotnet_diagnostic.MA0051.severity = none
+dotnet_diagnostic.MA0055.severity = none
+dotnet_diagnostic.MA0069.severity = none
 dotnet_diagnostic.MA0074.severity = none
+dotnet_diagnostic.MA0099.severity = none
 
 dotnet_diagnostic.CS8618.severity = suggestion
+dotnet_diagnostic.CS0436.severity = none

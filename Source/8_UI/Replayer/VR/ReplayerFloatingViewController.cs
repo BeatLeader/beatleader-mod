@@ -36,7 +36,7 @@ namespace BeatLeader.UI.Replayer {
             _floatingPanelControls.Setup(
                 _floatingScreen!,
                 _cameraController.Camera,
-                _launchData.Settings.UISettings.FloatingSettings ?? throw new ArgumentException(
+                _launchData.Settings.UISettings.FloatingSettings ?? throw new InvalidOperationException(
                     "Floating settings cannot be null when using floating view"
                 )
             );

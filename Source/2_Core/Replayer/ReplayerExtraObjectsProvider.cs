@@ -6,7 +6,7 @@ namespace BeatLeader.Replayer {
         [FirstResource]
         private readonly MainSystemInit _mainSystemInit = null!;
 
-        [FirstResource("VRGameCore", requireActiveInHierarchy: true)]
+        [FirstResource(Name = "VRGameCore", RequireActiveInHierarchy = true)]
         private readonly Transform _origin = null!;
 
         public Transform ReplayerCore => transform;

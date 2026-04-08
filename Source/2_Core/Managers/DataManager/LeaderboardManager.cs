@@ -116,12 +116,12 @@ namespace BeatLeader.DataManager {
 
         private void LoadPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendPage(_lastSelectedBeatmap, userId, Context, Scope, _lastSelectedPage);
+            ScoresRequest.SendPage(_lastSelectedBeatmap, userId!, Context, Scope, _lastSelectedPage);
         }
 
         private void SeekPlayerScores() {
             if (!ProfileManager.TryGetUserId(out var userId)) return;
-            ScoresRequest.SendSeek(_lastSelectedBeatmap, userId, Context, Scope);
+            ScoresRequest.SendSeek(_lastSelectedBeatmap, userId!, Context, Scope);
         }
 
         private void LoadClanScores() {

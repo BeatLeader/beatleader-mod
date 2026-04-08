@@ -126,7 +126,7 @@ namespace BeatLeader.DataManager {
 
                 var serialized = File.ReadAllText(CacheFileName);
                 var fileData = JsonConvert.DeserializeObject<CacheFileData>(serialized, SerializerSettings);
-                LastCheckTime = fileData.LastCheckTime;
+                LastCheckTime = fileData!.LastCheckTime;
                 foreach (var entry in fileData.Entries) {
                     LeaderboardInfoCache[LeaderboardKey.FromSongDiff(entry.SongInfo, entry.DifficultyInfo)] = entry;
                 }

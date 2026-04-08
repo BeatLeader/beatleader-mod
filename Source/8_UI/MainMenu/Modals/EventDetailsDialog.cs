@@ -56,7 +56,7 @@ namespace BeatLeader.UI.MainMenu {
                 var filename = Context.name.Replace(" ", "_");
                 FileManager.DeletePlaylist(filename);
 
-                if (FileManager.TrySaveRankedPlaylist(filename, result.Result)) {
+                if (FileManager.TrySaveRankedPlaylist(filename, result.Result!)) {
                     PlaylistsLibInterop.TryRefreshPlaylists(true);
                     SongCore.Loader.Instance.RefreshSongs(false);
                     await Task.Delay(TimeSpan.FromSeconds(2));

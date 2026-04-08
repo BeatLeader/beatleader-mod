@@ -11,15 +11,15 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 {
     class UserEnhancer
     {
-        private static readonly FieldAccessor<PlatformLeaderboardsModel, IPlatform>.Accessor AccessPlatformUserModel;
+        private static readonly FieldAccessor<PlatformLeaderboardsModel, IPlatform>.Accessor? AccessPlatformUserModel;
         private static readonly object getUserLock = new object();
 
-        static string userName = null;
-        static string userID = null;
-        static string userPlatform = null;
+        static string? userName = null;
+        static string? userID = null;
+        static string? userPlatform = null;
 
-        private static UserInfo getUserTask;
-        private static IPlatform _platformUserModel;
+        private static UserInfo? getUserTask;
+        private static IPlatform? _platformUserModel;
 
         static UserEnhancer()
         {
@@ -37,18 +37,18 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
         public static void Enhance(Replay replay)
         {
             GetUser();
-            replay.info.playerID = userID;
-            replay.info.platform = userPlatform;
-            replay.info.playerName = userName;
+            replay.info.playerID = userID!;
+            replay.info.platform = userPlatform!;
+            replay.info.playerName = userName!;
         }
 
-        public static UserInfo GetUser()
+        public static UserInfo? GetUser()
         {
             try
             {
                 lock (getUserLock)
                 {
-                    IPlatform platformUserModel = GetPlatformUserModel();
+                    IPlatform? platformUserModel = GetPlatformUserModel();
                     if (platformUserModel == null)
                     {
                         Plugin.Log.Error("IPlatformUserModel not found, cannot update user info.");
@@ -69,7 +69,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
 
         private static UserInfo InternalGetUser()
         {
-            UserInfo userInfo = new UserInfo(_platformUserModel.key switch {
+            UserInfo userInfo = new UserInfo(_platformUserModel!.key switch {
                 "steam" => UserInfo.Platform.Steam,
                 "oculus" => UserInfo.Platform.Oculus,
                 "oculus-mock" => UserInfo.Platform.Oculus,
@@ -77,7 +77,7 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
                 _ => throw new NotImplementedException(),
             }, _platformUserModel.user.userId.ToString(), _platformUserModel.user.displayName);
 
-            if (userInfo != null)
+            if (true)
             {
                 Plugin.Log.Debug($"UserInfo found: {userInfo.platformUserId}: {userInfo.userName} on {userInfo.platform}");
                 userName = userInfo.userName;
@@ -92,15 +92,15 @@ namespace BeatLeader.Core.Managers.ReplayEnhancer
             return userInfo;
         }
 
-        internal static IPlatform GetPlatformUserModel()
+        internal static IPlatform? GetPlatformUserModel()
         {
             if (_platformUserModel != null)
                 return _platformUserModel;
             try
             {
                 // Need to check for null because there's multiple PlatformLeaderboardsModels (at least sometimes), and one has a null IPlatformUserModel with 'vrmode oculus'
-                var leaderboardsModel = Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>().Where(p => AccessPlatformUserModel(ref p) != null).LastOrDefault();
-                IPlatform platformUserModel = null;
+                var leaderboardsModel = Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>().Where(p => AccessPlatformUserModel!(ref p) != null).LastOrDefault();
+                IPlatform platformUserModel;
                 if (leaderboardsModel == null)
                 {
                     Plugin.Log.Error("Could not find a 'PlatformLeaderboardsModel', GetUserInfo unavailable.");

@@ -131,7 +131,7 @@ namespace BeatLeader.ViewControllers {
             var context = new ClanScorePanelContext {
                 beatmapKey = LeaderboardState.SelectedBeatmapKey,
                 clanScore = score,
-                clanPlayer = ProfileManager.Profile
+                clanPlayer = ProfileManager.Profile!
             };
 
             ReeModalSystem.OpenModal<ClanScorePanel>(transform, context, false);

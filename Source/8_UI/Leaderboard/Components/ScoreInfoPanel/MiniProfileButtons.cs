@@ -72,12 +72,12 @@ namespace BeatLeader.Components {
 
         #region Player
 
-        private Player _player;
+        private Player? _player;
         private bool _isMe;
 
-        public void SetPlayer(Player player) {
+        public void SetPlayer(Player? player) {
             _player = player;
-            _isMe = ProfileManager.IsCurrentPlayer(player?.id);
+            _isMe = ProfileManager.IsCurrentPlayer(player?.id ?? "");
 
             UpdateFriendButton();
             UpdateHideButton();
@@ -165,9 +165,9 @@ namespace BeatLeader.Components {
 
         private void HideButtonOnClick() {
             if (_isHidden) {
-                HiddenPlayersCache.RevealPlayer(_player);
+                HiddenPlayersCache.RevealPlayer(_player!);
             } else {
-                HiddenPlayersCache.HidePlayer(_player);
+                HiddenPlayersCache.HidePlayer(_player!);
             }
         }
 
@@ -182,7 +182,7 @@ namespace BeatLeader.Components {
         }
 
         private void OnProfileButtonClick() {
-            EnvironmentUtils.OpenBrowserPage(BLConstants.PlayerProfilePage(_player.id));
+            EnvironmentUtils.OpenBrowserPage(BLConstants.PlayerProfilePage(_player!.id));
         }
 
         #endregion
@@ -213,11 +213,11 @@ namespace BeatLeader.Components {
         }
 
         private void UpdateLinkButtons() {
-            var playerRoles = FormatUtils.ParsePlayerRoles(_player.role);
+            var playerRoles = FormatUtils.ParsePlayerRoles(_player!.role!);
             var showSocials = playerRoles.Any(role => role.IsAnySupporter());
 
             foreach (var buttonInfo in _socialsButtons.Values) {
-                buttonInfo.Button.SetState(showSocials ? MiniProfileButton.State.NonInteractable : MiniProfileButton.State.Hidden);
+                buttonInfo.Button!.SetState(showSocials ? MiniProfileButton.State.NonInteractable : MiniProfileButton.State.Hidden);
                 buttonInfo.Integration = null;
             }
 
@@ -227,13 +227,13 @@ namespace BeatLeader.Components {
                 if (!_socialsButtons.ContainsKey(integration.service)) continue;
                 var info = _socialsButtons[integration.service];
                 info.Integration = integration;
-                info.Button.SetState(MiniProfileButton.State.InteractableGlowing);
+                info.Button!.SetState(MiniProfileButton.State.InteractableGlowing);
             }
         }
 
         private class SocialsButtonInfo {
-            public ServiceIntegration Integration;
-            public MiniProfileButton Button;
+            public ServiceIntegration? Integration;
+            public MiniProfileButton? Button;
 
             public void OpenLink() {
                 if (Integration == null) return;

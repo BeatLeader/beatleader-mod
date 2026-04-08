@@ -64,7 +64,7 @@ namespace BeatLeader.WebRequests {
         where TDescriptor : IWebRequestResponseParser<TResult>, new() {
         private static readonly TDescriptor descriptor = new();
 
-        private static IWebRequest<TResult>? Instance = null;
+        private static IWebRequest<TResult>? Instance;
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         protected static void SendRet(
@@ -131,7 +131,7 @@ namespace BeatLeader.WebRequests {
         public static event WebRequestStateChangedDelegate<IWebRequest<TResult>>? StateChangedEvent {
             add {
                 StateChangedEventInternal += value;
-                value?.Invoke(Instance, Instance != null ? RequestState : RequestState.Uninitialized, Instance != null ? FailReason : null);
+                value?.Invoke(Instance!, Instance != null ? RequestState : RequestState.Uninitialized, Instance != null ? FailReason : null);
             }
             remove {
                 StateChangedEventInternal -= value;

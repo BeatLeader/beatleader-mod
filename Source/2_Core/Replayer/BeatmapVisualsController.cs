@@ -24,16 +24,16 @@ namespace BeatLeader.Replayer {
         [FirstResource]
         private readonly ComboUIController _comboUIController = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)] 
+        [FirstResource(RequireActiveInHierarchy = true)]
         private readonly GameEnergyUIPanel? _gameEnergyUIPanel;
 
-        [FirstResource(requireActiveInHierarchy: true)]
+        [FirstResource(RequireActiveInHierarchy = true)]
         private readonly ObstacleSaberSparkleEffectManager _sparkleEffectManager = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)]
+        [FirstResource(RequireActiveInHierarchy = true)]
         private readonly NoteDebrisSpawner _noteDebrisSpawner = null!;
 
-        [FirstResource(requireActiveInHierarchy: true)]
+        [FirstResource(RequireActiveInHierarchy = true)]
         private readonly SaberBurnMarkSparkles _saberBurnMarkSparkles = null!;
 
         [FirstResource]
@@ -62,7 +62,6 @@ namespace BeatLeader.Replayer {
             if (images != null) {
                 _energyIconEmpty = images.FirstOrDefault(x => x.name == "EnergyIconEmpty");
                 _energyIconFull = images.FirstOrDefault(x => x.name == "EnergyIconFull");
-                
             }
             _laser = _gameEnergyUIPanel?.transform.Find("Laser").gameObject;
 

@@ -17,7 +17,7 @@ namespace BeatLeader.Components {
         [UIValue("country-flag"), UsedImplicitly]
         private CountryFlag _countryFlag;
 
-        private Player player;
+        private Player? player;
 
         private void Awake() {
             _avatar = Instantiate<PlayerAvatar>(transform);
@@ -53,9 +53,9 @@ namespace BeatLeader.Components {
         #region Events
 
         private void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
-            if (state is not WebRequests.RequestState.Finished || instance.Result.Status != ScoreUploadStatus.Uploaded) return;
+            if (state is not WebRequests.RequestState.Finished || instance.Result!.Status != ScoreUploadStatus.Uploaded) return;
             OnProfileUpdated(instance.Result.Score.Player);
-            player.contextExtensions = instance.Result.Score.Player.contextExtensions;
+            player!.contextExtensions = instance.Result.Score.Player.contextExtensions;
         }
 
         private void OnProfileRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
@@ -64,13 +64,13 @@ namespace BeatLeader.Components {
                     OnProfileRequestFailed("Error");
                     break;
                 case WebRequests.RequestState.Failed:
-                    OnProfileRequestFailed(failReason);
+                    OnProfileRequestFailed(failReason!);
                     break;
                 case WebRequests.RequestState.Started:
                     OnProfileRequestStarted();
                     break;
                 case WebRequests.RequestState.Finished:
-                    player = instance.Result;
+                    player = instance.Result!;
                     OnProfileUpdated(player);
                     break;
                 default: return;
@@ -103,7 +103,7 @@ namespace BeatLeader.Components {
         #endregion
 
         private void IncrementPrestigeIcon() {
-            SwapPrestigeIcon(player.prestige + 1);
+            SwapPrestigeIcon(player!.prestige + 1);
         }
 
         private void OnPrestigeIconsLoaded() {
@@ -131,7 +131,7 @@ namespace BeatLeader.Components {
         }
 
         private void ChangeScoreContext(int context) {
-            OnProfileUpdated(player);
+            OnProfileUpdated(player!);
         }
 
         #region StatsActive

@@ -58,7 +58,7 @@ namespace BeatLeader.Components {
         private void OnUploadRequestStateChanged(WebRequests.IWebRequest<ScoreUploadResponse> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Finished:
-                    if (instance.Result.Status == ScoreUploadStatus.Uploaded) {
+                    if (instance.Result!.Status == ScoreUploadStatus.Uploaded) {
                         ShowGoodNews("Score uploaded!");
                     }
                     break;

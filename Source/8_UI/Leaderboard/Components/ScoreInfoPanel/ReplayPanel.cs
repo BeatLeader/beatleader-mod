@@ -202,7 +202,7 @@ namespace BeatLeader.Components {
                         RefreshDownloadButton(DownloadButtonState.Unavailable);
                         RefreshPlayButton(PlayButtonState.Unavailable);
 
-                        StartReplay(instance.Result).RunCatching();
+                        StartReplay(instance.Result!).RunCatching();
                     }
                     // When initiated using the download button
                     else {
@@ -220,7 +220,7 @@ namespace BeatLeader.Components {
                 case WebRequests.RequestState.Failed:
                     ResetButtons();
 
-                    _downloadText.text = FormatFailString(failReason);
+                    _downloadText.text = FormatFailString(failReason!);
                     return;
             }
         }

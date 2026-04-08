@@ -166,7 +166,7 @@ namespace BeatLeader.Components {
 
         private void OnScoreStatsRequestStateChanged(WebRequests.IWebRequest<ScoreStats> instance, WebRequests.RequestState state, string? failReason) {
             if (_score == null || state is not WebRequests.RequestState.Finished) return;
-            var result = instance.Result;
+            var result = instance.Result!;
             _scoreOverviewPage2.SetScoreAndStats(_score, result);
             _accuracyDetails.SetScoreStats(result);
             _accuracyGrid.SetScoreStats(result);
@@ -186,7 +186,7 @@ namespace BeatLeader.Components {
         }
 
         private void RefreshPlayer() {
-            _miniProfile.SetPlayer(_score.Player);
+            _miniProfile.SetPlayer(_score!.Player);
         }
 
         #endregion

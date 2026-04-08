@@ -134,7 +134,7 @@ namespace BeatLeader.Utils {
             return value is not null;
         }
 
-        public static bool SetValueImplicitly(this MemberInfo member, object obj, object? value) {
+        public static bool SetValueImplicitly(this MemberInfo member, object? obj, object? value) {
             switch (member) {
                 case FieldInfo fld:
                     fld.SetValue(obj, value);

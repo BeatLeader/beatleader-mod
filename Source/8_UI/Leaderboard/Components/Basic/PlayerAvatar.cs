@@ -92,7 +92,7 @@ namespace BeatLeader.Components {
         #region SetAvatar
 
         private string? _url = "";
-        private CancellationTokenSource? tokenSource = null;
+        private CancellationTokenSource? tokenSource;
 
         public void SetLoading() {
             if (_url == null) return;
@@ -127,7 +127,7 @@ namespace BeatLeader.Components {
         }
 
         private IEnumerator LoadImage() {
-            var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url, false, OnAvatarLoadSuccess, OnAvatarLoadFailed, tokenSource.Token);
+            var loadTask = AvatarStorage.GetPlayerAvatarCoroutine(_url!, false, OnAvatarLoadSuccess, OnAvatarLoadFailed, tokenSource!.Token);
             yield return loadTask;
         }
 

@@ -229,7 +229,7 @@ namespace BeatLeader {
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
-        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null) {
+        protected void NotifyPropertyChanged([CallerMemberName] string? propertyName = null) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

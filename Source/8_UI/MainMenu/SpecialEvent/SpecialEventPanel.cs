@@ -52,14 +52,14 @@ namespace BeatLeader.UI.MainMenu {
 
                         new SpecialEventMapPanel()
                             .WithAlpha(_spinnerAlpha, invert: true)
-                            .Animate(_event, (x, y) => x.SetData(y.today))
+                            .Animate(_event, (x, y) => x.Map = y.today)
                             .Bind(ref _mapPanel)
                             .Export(out var mapPanel),
 
                         new SpecialEventBar {
                                 OnBackClick = () => OnBackClick?.Invoke(),
-                                OnPlayClick = () => MapDownloadDialog.OpenSongOrDownloadDialog(mapPanel._map.Value.song, ContentTransform),
-                                OnDayChanged = x => mapPanel.SetData(x)
+                                OnPlayClick = () => MapDownloadDialog.OpenSongOrDownloadDialog(mapPanel.Map!.song, ContentTransform),
+                                OnDayChanged = x => mapPanel.Map = x
                             }
                             .WithAlpha(_spinnerAlpha, invert: true)
                             .Animate(_event, (x, y) => x.SetData(y)),

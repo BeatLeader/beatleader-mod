@@ -6,8 +6,11 @@ namespace BeatLeader.Replayer.Tweaking {
     internal class GarbageDisablerTweak : GameTweak {
         [Inject] private readonly MainCamera _mainCamera;
 
-        [FirstResource(requireActiveInHierarchy: true)] private readonly SaberBurnMarkArea _burnMarkArea;
-        [FirstResource] private readonly VRLaserPointer _pointer;
+        [FirstResource(RequireActiveInHierarchy = true)] 
+        private readonly SaberBurnMarkArea _burnMarkArea;
+        
+        [FirstResource] 
+        private readonly VRLaserPointer _pointer;
 
         public override void Initialize() {
             this.LoadResources();

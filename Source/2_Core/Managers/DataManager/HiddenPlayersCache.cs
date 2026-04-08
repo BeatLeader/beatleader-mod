@@ -21,7 +21,7 @@ namespace BeatLeader.DataManager {
             try {
                 if (!File.Exists(CacheFileName)) return;
 
-                HiddenPlayers = JsonConvert.DeserializeObject<HashSet<string>>(File.ReadAllText(CacheFileName), SerializerSettings);
+                HiddenPlayers = JsonConvert.DeserializeObject<HashSet<string>>(File.ReadAllText(CacheFileName), SerializerSettings)!;
             } catch (Exception e) {
                 Plugin.Log.Debug($"HiddenPlayers cache load failed! {e}");
             }

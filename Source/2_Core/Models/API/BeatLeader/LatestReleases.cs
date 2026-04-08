@@ -8,7 +8,7 @@ namespace BeatLeader.Models {
     }
 
     internal struct ReleaseInfo {
-        public string version;
-        public string link;
+        public string? version;
+        public string? link;
     }
 }

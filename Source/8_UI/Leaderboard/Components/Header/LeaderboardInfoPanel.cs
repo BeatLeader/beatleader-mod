@@ -25,6 +25,11 @@ namespace BeatLeader.Components {
         private CaptorClan _captorClan = null!;
         private MapStatus _mapStatus = null!;
 
+        private MapTypePanel _mapTypePanel1 = null!;
+        private MapTypePanel _mapTypePanel2 = null!;
+        private MapTypePanel _mapTypePanel3 = null!;
+        private List<MapTypePanel>? _mapTypePanels = null;
+
         private DownloadScoresModal _downloadModal = null!;
         private Label _replaysLabel = null!;
         private BsButton _proceedButton = null!;
@@ -63,6 +68,10 @@ namespace BeatLeader.Components {
                         new Layout {
                             Children = {
                                 new ReeWrapperV2<MapStatus>().BindRee(ref _mapStatus),
+
+                                new ReeWrapperV2<MapTypePanel>().BindRee(ref _mapTypePanel1),
+                                new ReeWrapperV2<MapTypePanel>().BindRee(ref _mapTypePanel2),
+                                new ReeWrapperV2<MapTypePanel>().BindRee(ref _mapTypePanel3),
 
                                 new ReeWrapperV2<CaptorClan>().BindRee(ref _captorClan),
 
@@ -246,6 +255,7 @@ namespace BeatLeader.Components {
         #region SetBeatmap
 
         private RankedStatus _rankedStatus;
+        private int _mapType;
         private DiffInfo _difficultyInfo;
         private bool _displayCaptorClan = PluginConfig.LeaderboardDisplaySettings.ClanCaptureDisplay;
         private string? _websiteLink;
@@ -253,6 +263,7 @@ namespace BeatLeader.Components {
         private void SetBeatmap(BeatmapKey beatmap) {
             if (!beatmap.IsValid()) {
                 _rankedStatus = RankedStatus.Unknown;
+                _mapType = 0;
                 _websiteLink = null;
                 UpdateVisuals();
                 return;
@@ -261,6 +272,7 @@ namespace BeatLeader.Components {
             var key = LeaderboardKey.FromBeatmap(beatmap);
             if (!LeaderboardsCache.TryGetLeaderboardInfo(key, out var data)) {
                 _rankedStatus = RankedStatus.Unknown;
+                _mapType = 0;
                 _websiteLink = null;
                 UpdateVisuals();
                 return;
@@ -268,6 +280,7 @@ namespace BeatLeader.Components {
 
             _difficultyInfo = data.DifficultyInfo;
             _rankedStatus = FormatUtils.GetRankedStatus(data.DifficultyInfo);
+            _mapType = data.DifficultyInfo.type;
             _websiteLink = BLConstants.LeaderboardPage(data.LeaderboardId);
             if (_rankedStatus is RankedStatus.Ranked) {
                 _captorClan.SetValues(data);
@@ -328,6 +341,8 @@ namespace BeatLeader.Components {
         private void UpdateVisuals() {
             _mapStatus.SetActive(_rankedStatus is not RankedStatus.Unknown);
             _mapStatus.SetValues(_rankedStatus, _difficultyInfo);
+            
+            UpdateMapTypes();
             _captorClan.SetActive(_displayCaptorClan && _rankedStatus is RankedStatus.Ranked);
 
             var qualificationActive = _rankedStatus is RankedStatus.Nominated or RankedStatus.Qualified or RankedStatus.Unrankable;
@@ -335,6 +350,30 @@ namespace BeatLeader.Components {
             _approvalCheckbox.Enabled = qualificationActive;
 
             _menuButton.Enabled = EnvironmentManagerPatch.EnvironmentType is not MenuEnvironmentManager.MenuEnvironmentType.Lobby;
+        }
+
+        private void UpdateMapTypes() {
+            if (_mapTypePanels == null) {
+                _mapTypePanels = new List<MapTypePanel> { _mapTypePanel1, _mapTypePanel2, _mapTypePanel3 };
+            }
+            
+            int typeIndex = 0;
+            int knownTypes = MapTypesManager.MapsTypes?.Count ?? 0;
+            foreach (var mapTypePanel in _mapTypePanels) {
+                for (; typeIndex < knownTypes; typeIndex++) {
+                    var typeDescriptiopn = MapTypesManager.MapsTypes![typeIndex];
+                    if ((_mapType & typeDescriptiopn.Id) == typeDescriptiopn.Id) {
+                        mapTypePanel.SetActive(true);
+                        mapTypePanel.SetValues(typeDescriptiopn);
+                        typeIndex++;
+                        break;
+                    }
+                }
+
+                if (typeIndex == knownTypes) {
+                    mapTypePanel.SetActive(false);
+                }
+            }
         }
 
         #endregion

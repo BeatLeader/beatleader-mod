@@ -1,0 +1,3 @@
+﻿<horizontal id="background" pref-height="6" pad-left="1" pad-right="1" horizontal-fit="PreferredSize" bg="round-rect-panel" bg-color="#FFFFFFDD" hover-hint="~hover-hint">
+    <image id="icon" src="#PlayerIcon" pref-width="3.0" pref-height="3.0" preserve-aspect="true" />
+</horizontal>

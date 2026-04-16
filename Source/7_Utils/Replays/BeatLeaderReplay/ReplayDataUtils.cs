@@ -186,12 +186,6 @@ namespace BeatLeader.Utils {
                     case NoteData.ScoringType.ChainLinkArcHead:
                         scoringPart = ((int)NoteData.ScoringType.ChainLink + 2) * 10000;
                         break;
-                    case NoteData.ScoringType.ChainHeadArcHead:
-                        scoringPart = ((int)NoteData.ScoringType.ArcHead + 2) * 10000;
-                        break;
-                    case NoteData.ScoringType.ChainHeadArcHeadArcTail:
-                        scoringPart = ((int)NoteData.ScoringType.ArcTail + 2) * 10000;
-                        break;
                     default:
                         break;
                 }
@@ -199,13 +193,13 @@ namespace BeatLeader.Utils {
 
             // Notes that are both chain and arc head have undefined scoring type priority
             // Bools are reused for compactness
-            if (altScoring) {
-                if (noteData.scoringType == NoteData.ScoringType.ChainHeadArcHead) {
-                    scoringPart = ((int)NoteData.ScoringType.ChainHead + 2) * 10000;
-                }
-
-                if (noteData.scoringType == NoteData.ScoringType.ChainHeadArcHeadArcTail) {
+            if (legacyScoring) {
+                if (noteData.scoringType == NoteData.ScoringType.ChainHead && noteData.isArcHead) {
                     scoringPart = ((int)NoteData.ScoringType.ArcHead + 2) * 10000;
+                }
+            } else if (altScoring) {
+                if (noteData.scoringType == NoteData.ScoringType.ArcHead && noteData.gameplayType == NoteData.GameplayType.BurstSliderHead) {
+                    scoringPart = ((int)NoteData.ScoringType.ChainHead + 2) * 10000;
                 }
             }
 

@@ -6,7 +6,6 @@ using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage;
 using UnityEngine.UI;
 using UnityEngine;
-using System.Collections;
 
 namespace BeatLeader.UI.BSML_Addons.TypeHandlers
 {
@@ -33,7 +32,7 @@ namespace BeatLeader.UI.BSML_Addons.TypeHandlers
             {
                 if (data.TryGetValue("image", out string imagePath))
                 {
-                    _ = image.SetImageAsync(imagePath);
+                    image.SetImage(imagePath);
                 }
                 if (data.TryGetValue("imageColor", out string imageColor) && ColorUtility.TryParseHtmlString(imageColor, out Color color))
                 {

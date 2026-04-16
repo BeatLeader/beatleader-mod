@@ -2,7 +2,8 @@
 using BeatLeader.DataManager;
 using BeatLeader.Utils;
 using JetBrains.Annotations;
-using OculusStudios.Platform.Core;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Zenject;
 
@@ -11,13 +12,15 @@ namespace BeatLeader.Installers {
     public class OnAppInitInstaller : Installer<OnAppInitInstaller> {
         [Inject, UsedImplicitly]
         private IVRPlatformHelper _vrPlatformHelper = null!;
-        [Inject, UsedImplicitly]
-        private IPlatform _platform = null!;
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
-
-            if (_platform != null && _platform.vendor == Vendor.Valve) {
+            
+            var steamPlatformUserModel = Assembly.GetAssembly(typeof(IPlatformUserModel))
+                .GetTypes()
+                .FirstOrDefault(t => t.FullName!.Contains("SteamPlatformUserModel"));
+            
+            if (steamPlatformUserModel != null) {
                 Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             } else {
                 Authentication.SetPlatform(Authentication.AuthPlatform.OculusPC);

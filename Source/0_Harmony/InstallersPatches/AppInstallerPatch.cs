@@ -1,15 +1,14 @@
-﻿using BeatLeader.Installers;
-using BGLib.AppFlow;
+﻿using System;
+using BeatLeader.Installers;
 using HarmonyLib;
 using JetBrains.Annotations;
-using System;
 
 namespace BeatLeader {
-    [HarmonyPatch(typeof(FeatureAsyncInstaller), "InstallBindings")]
+    [HarmonyPatch(typeof(PCAppInit), "InstallBindings")]
     public static class AppInstallerPatch {
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static void Postfix(FeatureAsyncInstaller __instance) {
+        private static void Postfix(PCAppInit __instance) {
             try {
                 OnAppInitInstaller.Install(__instance.Container);
             } catch (Exception ex) {

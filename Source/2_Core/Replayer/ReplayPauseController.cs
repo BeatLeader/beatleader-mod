@@ -59,6 +59,7 @@ namespace BeatLeader.Replayer {
             _pauseMenuManager.didPressContinueButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressContinueButton;
             _pauseMenuManager.didPressRestartButtonEvent -= _pauseController.HandlePauseMenuManagerDidPressRestartButton;
             _levelStartController.levelDidStartEvent -= _pauseController.HandleLevelDidStart;
+            _levelStartController.levelWillStartIntroEvent -= _pauseController.HandleLevelWillStartIntro;
         }
 
         #endregion

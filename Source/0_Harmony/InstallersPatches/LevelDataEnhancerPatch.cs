@@ -7,36 +7,26 @@ namespace BeatLeader
 {
     [HarmonyPatch]
     class LevelDataEnhancerPatch {
-        static MethodInfo TargetMethod() {
-            return AccessTools.GetDeclaredMethods(typeof(StandardLevelScenesTransitionSetupDataSO))
-            .FirstOrDefault(m => m.Name == "Init" &&
-                                 m.GetParameters().Length == 20);
-        }
-
+        static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(StandardLevelScenesTransitionSetupDataSO),
+            m => m.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init) &&
+                 m.GetParameters().All(p => p.ParameterType != typeof(IBeatmapLevelData)));
         public static void Postfix(
-        string gameMode,
-        ref BeatmapKey beatmapKey,
-        BeatmapLevel beatmapLevel,
-        OverrideEnvironmentSettings? overrideEnvironmentSettings,
-        ColorScheme? playerOverrideColorScheme,
-        bool playerOverrideLightshowColors,
-        GameplayModifiers gameplayModifiers,
-        PlayerSpecificSettings playerSpecificSettings,
-        PracticeSettings? practiceSettings,
-        EnvironmentsListModel environmentsListModel) {
+            in BeatmapKey beatmapKey, 
+            BeatmapLevel beatmapLevel, 
+            OverrideEnvironmentSettings overrideEnvironmentSettings,
+            ColorScheme playerOverrideColorScheme, 
+            bool playerOverrideLightshowColors, 
+            ColorScheme beatmapOverrideColorScheme, 
+            GameplayModifiers gameplayModifiers, 
+            PlayerSpecificSettings playerSpecificSettings, 
+            PracticeSettings practiceSettings, 
+            EnvironmentsListModel environmentsListModel) {
             Plugin.Log.Debug($"LevelDataEnhancerPatch.postfix {beatmapKey.levelId} {beatmapLevel.songName}");
-
             string environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
-
-            if (overrideEnvironmentSettings?.overrideEnvironments == true) {
-                environmentName = overrideEnvironmentSettings
-                    .GetOverrideEnvironmentInfoForType(
-                        environmentsListModel
-                            .GetEnvironmentInfoBySerializedName(environmentName)
-                            .environmentType)
-                    .environmentName;
+            EnvironmentInfoSO? environmentInfoSO = environmentsListModel.GetEnvironmentInfoBySerializedName(environmentName);
+            if (environmentInfoSO != null && overrideEnvironmentSettings is { overrideEnvironments: true }) {
+                environmentName = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environmentInfoSO.environmentType).environmentName;
             }
-
             MapEnhancer.beatmapKey = beatmapKey;
             MapEnhancer.beatmapLevel = beatmapLevel;
             MapEnhancer.gameplayModifiers = gameplayModifiers;
@@ -50,34 +40,21 @@ namespace BeatLeader
     [HarmonyPatch]
     class LevelDataEnhancerPatch2 {
 
-        static MethodInfo TargetMethod() {
-            return AccessTools.GetDeclaredMethods(typeof(StandardLevelScenesTransitionSetupDataSO))
-                .FirstOrDefault(m => m.Name == "Init" &&
-                                     m.GetParameters().Length == 20);
-        }
-
+        static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(StandardLevelScenesTransitionSetupDataSO),
+            m => m.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init) &&
+                 m.GetParameters().Any(p => p.ParameterType == typeof(IBeatmapLevelData)));
         static void Postfix(
-            string gameMode,
-            ref BeatmapKey beatmapKey,
-            BeatmapLevel beatmapLevel,
-            OverrideEnvironmentSettings? overrideEnvironmentSettings,
-            ColorScheme? playerOverrideColorScheme,
+            in BeatmapKey beatmapKey, 
+            BeatmapLevel beatmapLevel, 
+            OverrideEnvironmentSettings overrideEnvironmentSettings, 
+            ColorScheme playerOverrideColorScheme, 
             bool playerOverrideLightshowColors,
-            GameplayModifiers gameplayModifiers,
-            PlayerSpecificSettings playerSpecificSettings,
-            PracticeSettings? practiceSettings,
+            ColorScheme beatmapOverrideColorScheme, 
+            GameplayModifiers gameplayModifiers, 
+            PlayerSpecificSettings playerSpecificSettings, 
+            PracticeSettings practiceSettings, 
             EnvironmentsListModel environmentsListModel) {
-            LevelDataEnhancerPatch.Postfix(
-                gameMode,
-                ref beatmapKey,
-                beatmapLevel,
-                overrideEnvironmentSettings,
-                playerOverrideColorScheme,
-                playerOverrideLightshowColors,
-                gameplayModifiers,
-                playerSpecificSettings,
-                practiceSettings,
-                environmentsListModel);
+            LevelDataEnhancerPatch.Postfix(beatmapKey, beatmapLevel, overrideEnvironmentSettings, playerOverrideColorScheme, playerOverrideLightshowColors, beatmapOverrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, environmentsListModel);
         }
     }
 }

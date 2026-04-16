@@ -26,7 +26,7 @@ namespace BeatLeader.UI.MainMenu {
                     PixelsPerUnit = 10f,
                     Children = {
                         new Label {
-                            FontSize = 4f,
+                            FontSize = 3.5f,
                             FontStyle = FontStyles.Italic,
                             Alignment = TextAlignmentOptions.Capline
                         }.AsFlexItem().Bind(ref _textLabel)
@@ -41,7 +41,7 @@ namespace BeatLeader.UI.MainMenu {
                 .AsBackground(color: Color.black.ColorWithAlpha(0.5f))
                 .AsFlexItem(
                     size: new() { y = 5 },
-                    margin: new() { bottom = 1f }
+                    margin: new() { bottom = 0.5f }
                 ).Use();
         }
     }

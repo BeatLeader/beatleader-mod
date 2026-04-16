@@ -36,7 +36,7 @@ namespace BeatLeader.UI.MainMenu {
                                 Material = BundleLoader.RoundTextureMaterial,
                                 Skew = UIStyle.Skew
                             }
-                            .AsFlexItem(size: new() { x = 10, y = 10 })
+                            .AsFlexItem(size: new() { x = 8, y = 8 })
                             .Animate(
                                 ObservableItem,
                                 (img, item) => {
@@ -51,7 +51,7 @@ namespace BeatLeader.UI.MainMenu {
                         new Layout {
                                 Children = {
                                     new Label {
-                                            FontSize = 4f,
+                                            FontSize = 3f,
                                             FontStyle = FontStyles.Italic,
                                             Overflow = TextOverflowModes.Ellipsis,
                                             Alignment = TextAlignmentOptions.CaplineLeft
@@ -60,7 +60,7 @@ namespace BeatLeader.UI.MainMenu {
                                         .Animate(ObservableItem, (lbl, item) => lbl.Text = item.song.name),
 
                                     new Label {
-                                            FontSize = 3.5f,
+                                            FontSize = 2.5f,
                                             FontStyle = FontStyles.Italic,
                                             Overflow = TextOverflowModes.Ellipsis,
                                             Alignment = TextAlignmentOptions.TopLeft,

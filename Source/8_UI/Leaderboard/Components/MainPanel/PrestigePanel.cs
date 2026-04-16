@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,12 @@ namespace BeatLeader.Components {
         #region Init / Dispose
 
         private FireworksController fireworksController = null;
+
+        [UIComponent("primaryText"), UsedImplicitly]
+        private TextMeshProUGUI primaryText;
+
+        [UIComponent("secondaryText"), UsedImplicitly]
+        private TextMeshProUGUI secondaryText;
 
         protected override void OnInitialize() {
             base.OnInitialize();
@@ -35,12 +42,7 @@ namespace BeatLeader.Components {
         private void OnProfileRequestStateChanged(WebRequests.IWebRequest<Player> instance, WebRequests.RequestState state, string? failReason) {
             switch (state) {
                 case WebRequests.RequestState.Finished:
-                    Player player = instance.Result;
-                    if (player.level == 100) {
-                        _PrestigeYesButton.interactable = true;
-                    } else {
-                        _PrestigeYesButton.interactable = false;
-                    }
+                    UpdatePanelContent(instance.Result);
                     break;
                 default: return;
             }
@@ -51,16 +53,30 @@ namespace BeatLeader.Components {
             switch (state) {
                 case WebRequests.RequestState.Finished:
                     if (instance.Result.Status != ScoreUploadStatus.Error) {
-                        Player player = instance.Result.Score.Player;
-                        if (player.level == 100) {
-                            _PrestigeYesButton.interactable = true;
-                        } else {
-                            _PrestigeYesButton.interactable = false;
-                        }
+                        UpdatePanelContent(instance.Result.Score.Player);
                     }
                     break;
                 default: return;
             }
+        }
+
+        private void UpdatePanelContent(Player player) {
+            bool canPrestige = player.level == 100;
+
+            primaryText.SetText(
+                    canPrestige
+                        ? "Congratulations! You reached level 100 and ready to Prestige."
+                        : "Gain experience points by playing any maps, even for failing! Reach level 100 to be able to prestige into the next iteration.");
+
+            secondaryText.SetText(
+                    canPrestige
+                        ? $"This will reset your level and you will reach the Prestige {player.prestige + 1}. Are you ready?"
+                        : "To get more points, pass maps always with 95+% accuracy. But even playing with 90% accuracy will give you almost the full xp for the time played.\nJust play more!");
+
+            _PrestigeYesButton.gameObject.active = canPrestige;
+            _PrestigeYesButton.interactable = canPrestige;
+
+            _PrestigeNoButton.GetComponentInChildren<TextMeshProUGUI>().SetText(canPrestige ? "No" : "Close");
         }
 
         public static event Action PrestigeWasPressedEvent;

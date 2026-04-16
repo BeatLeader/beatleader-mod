@@ -58,7 +58,7 @@ namespace BeatLeader.UI.MainMenu {
                     }
                 }
                 .AsFlexGroup(
-                    padding: 1f,
+                    padding: 0.5f,
                     direction: FlexDirection.Column
                 )
                 .AsBackground(

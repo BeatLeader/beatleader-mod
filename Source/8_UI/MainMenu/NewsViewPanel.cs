@@ -110,7 +110,8 @@ internal class NewsViewPanel : ReactiveComponent {
                 Children = {
                     new EventNewsPanel {
                         OnEventSelected = HandleEventSelected
-                    }.Bind(ref _eventNewsPanel),
+                    }.Bind(ref _eventNewsPanel)
+                    .AsFlexItem(size: new() { y = 12f }),
 
                     new MapNewsPanel(),
                 }

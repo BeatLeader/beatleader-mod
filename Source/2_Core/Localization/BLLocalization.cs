@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BeatSaberMarkupLanguage;
 using BGLib.Polyglot;
 using Newtonsoft.Json.Linq;
 using TMPro;
@@ -15,6 +16,10 @@ namespace BeatLeader {
             OnBaseGameLanguageDidChange();
         }
 
+        internal static void InitializeFonts() {
+            BeatSaberUI.MainTextFont.material.shader = BundleLoader.NotoSansFontAsset.material.shader;
+        }
+
         #endregion
 
         #region Language
@@ -26,6 +31,7 @@ namespace BeatLeader {
         }
 
         private static void OnBaseGameLanguageDidChange() {
+
             _blLanguageAnalog = _baseGameLanguage switch {
                 Language.English => BLLanguage.English,
                 Language.Russian => BLLanguage.Russian,

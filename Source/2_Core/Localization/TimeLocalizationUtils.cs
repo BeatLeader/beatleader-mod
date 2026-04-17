@@ -11,7 +11,12 @@ namespace BeatLeader {
         private const int Month = 30 * Day;
 
         public static string GetRelativeTimeStringLocalizedWithFont(TimeSpan timeSpan, bool compact) {
-            return $"<bll>{GetRelativeTimeStringLocalized(timeSpan, compact)}</bll>";
+            var font = BLLocalization.GetLanguageFont();
+            if (font != null) {
+                return $"<font={font.name}>{GetRelativeTimeStringLocalized(timeSpan, compact)}</font>";
+            }
+
+            return GetRelativeTimeStringLocalized(timeSpan, compact);
         }
 
         public static string GetRelativeTimeStringLocalized(TimeSpan timeSpan, bool compact) {

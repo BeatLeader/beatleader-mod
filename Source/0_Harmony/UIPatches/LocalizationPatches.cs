@@ -3,20 +3,13 @@ using JetBrains.Annotations;
 using TMPro;
 
 namespace BeatLeader {
-    [HarmonyPatch(typeof(TMP_Text), "set_text")]
-    public static class SetTextPatch {
+    [HarmonyPatch(typeof(TMP_Text), "PopulateTextBackingArray", typeof(string))]
+    public static class PreProcessTextPatch {
         [UsedImplicitly]
-        private static void Prefix(TMP_Text __instance, ref string value) {
-            if (value == null) return;
-
-            var changeFont = false;
+        private static void Prefix(ref string sourceText) {
+            if (sourceText == null) return;
             while (true) {
-                if (!ProcessLocalizationTag(ref value)) break;
-                changeFont = true;
-            }
-
-            if (changeFont) {
-                __instance.font = BLLocalization.GetLanguageFont();
+                if (!ProcessLocalizationTag(ref sourceText)) break;
             }
         }
 
@@ -34,7 +27,7 @@ namespace BeatLeader {
 
             var token = sourceText.Substring(openIndexB, closeIndexA - openIndexB);
             sourceText = sourceText.Remove(openIndexA, closeIndexB - openIndexA);
-            sourceText = sourceText.Insert(openIndexA, BLLocalization.GetTranslation(token));
+            sourceText = sourceText.Insert(openIndexA, BLLocalization.GetTranslationWithFont(token));
             return true;
         }
 

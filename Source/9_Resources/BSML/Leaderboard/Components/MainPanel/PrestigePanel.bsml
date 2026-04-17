@@ -1,7 +1,7 @@
-﻿<vertical spacing="2" pad="2" pref-width="70" vertical-fit="PreferredSize" bg="round-rect-panel">
-    <vertical spacing="1" pref-width="66" vertical-fit="PreferredSize">
-        <text id="primaryText" pref-width="66" word-wrapping="true" font-size="4.25" font-color="#999999" align="Center"/>
-        <text id="secondaryText" pref-width="66" word-wrapping="true" font-size="3.75" font-color="#999999" align="Center"/>
+﻿<vertical spacing="2" pad="2" pref-width="72" vertical-fit="PreferredSize" bg="round-rect-panel">
+    <vertical spacing="1" pref-width="70" vertical-fit="PreferredSize">
+        <text id="primaryText" word-wrapping="true" font-size="4.25" font-color="#999999" align="Center"/>
+        <text id="secondaryText" word-wrapping="true" font-size="3.75" font-color="#999999" align="Center"/>
         <horizontal pref-height="5" spacing="2" horizontal-fit="PreferredSize">
             <button pref-width="16" id="prestige-yes-button" text="&lt;bll&gt;ls-yes&lt;/bll&gt;"/>
             <button pref-width="16" id="prestige-no-button" text="&lt;bll&gt;ls-no&lt;/bll&gt;"/>

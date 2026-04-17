@@ -4,12 +4,16 @@ using BeatLeader.WebRequests;
 
 namespace BeatLeader.API { 
     public class DownloadMapRequest : PersistentWebRequestBase<byte[], RawResponseParser> {
+        private static readonly WebRequestParams RequestParams = new() {
+            ResponseCompletionOption = HttpCompletionOption.ResponseContentRead
+        };
+
         public static IWebRequest<byte[]> SendRequest(string mapHash) {
-            return SendRet(BeatSaverUtils.CreateDownloadMapUrl(mapHash), HttpMethod.Get);
+            return SendRet(BeatSaverUtils.CreateDownloadMapUrl(mapHash), HttpMethod.Get, requestParams: RequestParams);
         }
         
         public static IWebRequest<byte[]> SendRequestWithUrl(string downloadUrl) {
-            return SendRet(downloadUrl, HttpMethod.Get);
+            return SendRet(downloadUrl, HttpMethod.Get, requestParams: RequestParams);
         }
     }
 }

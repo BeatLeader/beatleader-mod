@@ -25,7 +25,11 @@ namespace BeatLeader.WebRequests {
                 bool waitForLogin = true
             ) {
             requestParams ??= new();
-            return new WebRequestProcessor<object>(waitForLogin ? SendInternalLogin : SendInternal, requestMessage, requestParams, null, token);
+            SendRequestDelegate sendCallback = waitForLogin
+                ? (message, requestToken) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken)
+                : (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
+
+            return new WebRequestProcessor<object>(sendCallback, requestMessage, requestParams, null, token);
         }
 
         public static IWebRequest<T> Send<T>(
@@ -36,19 +40,25 @@ namespace BeatLeader.WebRequests {
             bool waitForLogin = true
         ) {
             requestParams ??= new();
-            return new WebRequestProcessor<T>(waitForLogin ? SendInternalLogin : SendInternal, requestMessage, requestParams, responseParser, token);
+            SendRequestDelegate sendCallback = waitForLogin
+                ? (message, requestToken) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken)
+                : (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
+
+            return new WebRequestProcessor<T>(sendCallback, requestMessage, requestParams, responseParser, token);
         }
 
         private static Task<HttpResponseMessage?> SendInternal(
             HttpRequestMessage requestMessage,
+            HttpCompletionOption completionOption,
             CancellationToken token
         ) {
             ApplyDefaultHeaders(requestMessage);
-            return httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, token);
+            return httpClient.SendAsync(requestMessage, completionOption, token);
         }
 
         private static Task<HttpResponseMessage?> SendInternalLogin(
             HttpRequestMessage requestMessage,
+            HttpCompletionOption completionOption,
             CancellationToken token
         ) {
             ApplyDefaultHeaders(requestMessage);
@@ -56,7 +66,7 @@ namespace BeatLeader.WebRequests {
             return Task.Run(async () => {
                 var loggedIn = await Authentication.WaitLogin();
                 if (!loggedIn) return null;
-                return await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, token);
+                return await httpClient.SendAsync(requestMessage, completionOption, token);
             }).RunCatching();
         }
 

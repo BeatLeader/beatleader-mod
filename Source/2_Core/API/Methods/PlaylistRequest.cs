@@ -7,10 +7,13 @@ namespace BeatLeader.API {
     internal class PlaylistRequest : PersistentWebRequestBase<byte[], RawResponseParser> {
         // /playlist/{playlistId}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/playlist/{0}";
+        private static readonly WebRequestParams RequestParams = new() {
+            ResponseCompletionOption = HttpCompletionOption.ResponseContentRead
+        };
 
         public static IWebRequest<byte[]> Send(string playlistId) {
             var url = string.Format(Endpoint, playlistId);
-            return SendRet(url, HttpMethod.Get);
+            return SendRet(url, HttpMethod.Get, requestParams: RequestParams);
         }
     }
 }

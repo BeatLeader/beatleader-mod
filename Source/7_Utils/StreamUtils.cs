@@ -9,11 +9,11 @@ namespace BeatLeader.Utils {
             Stream stream,
             Stream targetStream,
             IIoOperationDescriptor ioOperationDescriptor,
+            long totalBytes,
             CancellationToken cancellationToken = default
         ) {
             var buffer = ioOperationDescriptor.Buffer;
             var totalBytesRead = 0L;
-            var totalBytes = stream.Length;
             var bytesRead = 0;
             while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0) {
                 await targetStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);

@@ -26,7 +26,7 @@ namespace BeatLeader.WebRequests {
             using var inputStream = await _content.ReadAsStreamAsync();
             var contentLength = _content.Headers.ContentLength!.Value;
             _descriptor.ContentSize = contentLength;
-            await StreamUtils.CopyToByBufferAsync(inputStream, stream, _descriptor, contentLength);
+            await StreamUtils.CopyToByBufferAsync(inputStream, stream, _descriptor);
         }
 
         protected override bool TryComputeLength(out long length) {

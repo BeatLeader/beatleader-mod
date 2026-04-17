@@ -79,11 +79,9 @@ namespace BeatLeader.WebRequests {
 
             if (Instance != null) {
                 tokenSource.Cancel();
-                tokenSource.Dispose();
                 tokenSource = new CancellationTokenSource();
                 Instance.StateChangedEvent -= Instance_StateChangedEvent;
                 Instance.ProgressChangedEvent -= Instance_ProgressChangedEvent;
-                Instance.Dispose();
             }
 
             Task.Run(async () => {

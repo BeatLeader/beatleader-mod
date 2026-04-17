@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
@@ -8,7 +7,7 @@ namespace BeatLeader.WebRequests {
 
     public delegate void WebRequestProgressChangedDelegate<in T>(T instance, float downloadProgress, float uploadProgress, float overallProgress);
 
-    public interface IWebRequest<TResult> : IDisposable {
+    public interface IWebRequest<TResult> {
         TResult? Result { get; }
         
         new event WebRequestStateChangedDelegate<IWebRequest<TResult>>? StateChangedEvent;

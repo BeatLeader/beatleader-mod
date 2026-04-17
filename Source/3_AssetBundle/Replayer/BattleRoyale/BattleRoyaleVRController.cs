@@ -9,16 +9,22 @@ namespace BeatLeader {
 
         private void Awake() {
             _propertyBlock = new MaterialPropertyBlock();
-            _saberTrail = gameObject.AddComponent<SaberTrail>();
+            // SaberTrail.Awake instantiates its serialized prefab immediately,
+            // so we configure it on an inactive host first.
+            var trailHost = new GameObject("BattleRoyaleSaberTrail");
+            trailHost.transform.SetParent(transform, false);
+            trailHost.layer = gameObject.layer;
+            trailHost.SetActive(false);
+
+            _saberTrail = trailHost.AddComponent<SaberTrail>();
+            _saberTrail.enabled = false;
             _saberTrail._trailRendererPrefab = TrailRendererPrefab;
             _saberTrail._trailDuration = 0.4f;
             _saberTrail._whiteSectionMaxDuration = 0.001f;
             _saberTrail._samplingFrequency = 120;
             _saberTrail._granularity = 45;
+            trailHost.SetActive(true);
             _saberTrail.Setup(coreColor, _movementData);
-
-            // Disabling so the trail won't initialize until turned back on
-            _saberTrail.enabled = false;
         }
 
         private new void Update() {

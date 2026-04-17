@@ -31,13 +31,29 @@ namespace BeatLeader.Utils {
             }
         }
 
-        private static Task ExtractFiles(ZipArchive archive, string path)
-        {
-            return Task.Run(() =>
-            {
-                foreach (var entry in archive.Entries)
-                {
-                    var entryPath = Path.Combine(path, entry.FullName);
+        private static Task ExtractFiles(ZipArchive archive, string path) {
+            return Task.Run(() => {
+                var rootPath = Path.GetFullPath(path);
+                if (!rootPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)) {
+                    rootPath += Path.DirectorySeparatorChar;
+                }
+
+                foreach (var entry in archive.Entries) {
+                    var entryPath = Path.GetFullPath(Path.Combine(rootPath, entry.FullName));
+                    if (!entryPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase)) {
+                        throw new IOException($"Archive entry '{entry.FullName}' resolves outside of '{rootPath}'");
+                    }
+
+                    if (string.IsNullOrEmpty(entry.Name)) {
+                        Directory.CreateDirectory(entryPath);
+                        continue;
+                    }
+
+                    var entryDirectory = Path.GetDirectoryName(entryPath);
+                    if (!string.IsNullOrEmpty(entryDirectory)) {
+                        Directory.CreateDirectory(entryDirectory);
+                    }
+
                     entry.ExtractToFile(entryPath, true);
                 }
             });

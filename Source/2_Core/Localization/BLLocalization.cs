@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using BeatSaberMarkupLanguage;
-using BGLib.Polyglot;
 using Newtonsoft.Json.Linq;
+using BGLib.Polyglot;
 using TMPro;
+using UnityEngine;
+using System.Linq;
 
 namespace BeatLeader {
     public static class BLLocalization {
@@ -14,10 +14,6 @@ namespace BeatLeader {
         internal static void Initialize(SettingsManager settingsmanager) {
             _baseGameLanguage = Localization.Instance.SupportedLanguages.FirstOrDefault(l => l.ToSerializedName() == settingsmanager.settings.misc.language);
             OnBaseGameLanguageDidChange();
-        }
-
-        internal static void InitializeFonts() {
-            BeatSaberUI.MainTextFont.material.shader = BundleLoader.NotoSansFontAsset.material.shader;
         }
 
         #endregion
@@ -135,6 +131,25 @@ namespace BeatLeader {
         #endregion
 
         #region Fonts
+
+        private static Material _defaultFontMaterial;
+        private static bool _defaultFontInitialized;
+
+        private static void LazyInitDefaultFont(TMP_Text textComponent) {
+            if (_defaultFontInitialized) return;
+            _defaultFontMaterial = textComponent.fontSharedMaterial;
+            _defaultFontInitialized = true;
+        }
+
+        public static void UpdateFontAsset(TMP_Text textComponent) {
+            LazyInitDefaultFont(textComponent);
+
+            var fontAsset = GetLanguageFont();
+            textComponent.font = fontAsset;
+            if (fontAsset == null) {
+                textComponent.fontSharedMaterial = _defaultFontMaterial;
+            }
+        }
 
         public static TMP_FontAsset? GetLanguageFont() {
             return GetCurrentLanguage() switch {

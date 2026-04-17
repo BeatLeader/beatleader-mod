@@ -177,7 +177,7 @@ namespace BeatLeader.Components {
         private int CalculateRequiredExperience(int level, int prestige) {
             int requiredExp = 500 + (50 * level);
             if (prestige != 0) {
-                requiredExp = (int)Mathf.Round(requiredExp * Mathf.Pow(1.33f, prestige));
+                requiredExp = (int)Mathf.Round(requiredExp * Mathf.Pow(1.2f, prestige));
             }
             return requiredExp;
         }

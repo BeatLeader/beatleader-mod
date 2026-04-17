@@ -65,12 +65,12 @@ namespace BeatLeader.Components {
 
             primaryText.SetText(
                     canPrestige
-                        ? "Congratulations! You reached level 100 and ready to Prestige."
+                        ? "Congratulations!\nYou've reached level 100 and are now ready to Prestige."
                         : "Gain experience points by playing any maps, even for failing! Reach level 100 to be able to prestige into the next iteration.");
 
             secondaryText.SetText(
                     canPrestige
-                        ? $"This will reset your level and you will reach the Prestige {player.prestige + 1}. Are you ready?"
+                        ? $"This will reset your level and you will reach Prestige {player.prestige + 1}. Are you ready?"
                         : "To get more points, pass maps always with 95+% accuracy. But even playing with 90% accuracy will give you almost the full xp for the time played.\nJust play more!");
 
             _PrestigeYesButton.gameObject.active = canPrestige;

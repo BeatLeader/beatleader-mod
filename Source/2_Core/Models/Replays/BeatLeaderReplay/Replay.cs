@@ -415,7 +415,7 @@ namespace BeatLeader.Models.Replay {
                 stream.Write(note.eventTime);
                 stream.Write(note.spawnTime);
                 stream.Write((int)note.eventType);
-                if (note.eventType != NoteEventType.miss)
+                if (note.eventType == NoteEventType.good || note.eventType == NoteEventType.bad)
                 {
                     EncodeNoteInfo(note.noteCutInfo, stream);
                 }

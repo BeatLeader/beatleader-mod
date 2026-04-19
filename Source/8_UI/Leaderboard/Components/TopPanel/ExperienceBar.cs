@@ -22,6 +22,7 @@ namespace BeatLeader.Components {
         private float _gradientT;
         private float _expProgress;
         private float _sessionProgress;
+        private float _currentExperience;
         private float _requiredExp;
 
         private bool _initialized;
@@ -123,6 +124,7 @@ namespace BeatLeader.Components {
             } else {
                 LevelText = "";
                 NextLevelText = "";
+                HoverHint = "";
                 _experienceBar.gameObject.SetActive(false);
             }
         }
@@ -155,6 +157,7 @@ namespace BeatLeader.Components {
                 PrestigeRequest.StateChangedEvent -= OnPrestigeRequestStateChanged;
                 LevelText = "";
                 NextLevelText = "";
+                HoverHint = "";
             }
             _initialized = enabled;
         }
@@ -163,6 +166,7 @@ namespace BeatLeader.Components {
             if (!_initialized && state is RequestState.Finished) {
                 Player player = instance.Result;
                 _level = player.level;
+                _currentExperience = player.experience;
                 _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
                 _expProgress = player.experience / _requiredExp;
                 ResetExperienceBarData();
@@ -186,8 +190,10 @@ namespace BeatLeader.Components {
             LevelText = level.ToString();
             if (level != 100) {
                 NextLevelText = (level + 1).ToString();
+                HoverHint = $"{_currentExperience} | {_requiredExp} to level {level + 1}";
             } else {
                 NextLevelText = "Prestige";
+                HoverHint = "You can prestige now!";
             }
         }
 
@@ -225,13 +231,14 @@ namespace BeatLeader.Components {
 
                 if (instance.Result.Status != ScoreUploadStatus.Error) {
                     Player player = instance.Result.Score.Player;
+                    _currentExperience = player.experience;
                     if (player.level == _level) {
-                        _targetValue = player.experience / _requiredExp - _expProgress;
+                        _targetValue = _currentExperience / _requiredExp - _expProgress;
                     } else {
                         _levelUpCount = player.level - _level;
                         _levelUpValue = _levelUpCount;
                         _requiredExp = CalculateRequiredExperience(player.level, player.prestige);
-                        _targetValue = player.experience / _requiredExp;
+                        _targetValue = _currentExperience / _requiredExp;
                     }
 
                     _isAnimated = true;
@@ -286,6 +293,18 @@ namespace BeatLeader.Components {
             set {
                 if (_nextLevelText.Equals(value)) return;
                 _nextLevelText = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _hoverHint = "";
+
+        [UIValue("hover-hint"), UsedImplicitly]
+        public string HoverHint {
+            get => _hoverHint;
+            set {
+                if (_hoverHint.Equals(value)) return;
+                _hoverHint = value;
                 NotifyPropertyChanged();
             }
         }

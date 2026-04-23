@@ -5,7 +5,7 @@ using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 using Newtonsoft.Json;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     internal class UpdateAvatarRequest : PersistentWebRequestBase {
         public static IWebRequest<object> Send(string playerId, AvatarSettings avatarSettings) {
             var body = JsonConvert.SerializeObject(avatarSettings);

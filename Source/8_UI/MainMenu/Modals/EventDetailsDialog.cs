@@ -1,4 +1,4 @@
-﻿using BeatLeader.API;
+﻿using BeatLeader.APIV2;
 using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Utils;

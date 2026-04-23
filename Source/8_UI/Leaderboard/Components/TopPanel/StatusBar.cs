@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;

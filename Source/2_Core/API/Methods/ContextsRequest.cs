@@ -4,7 +4,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     public class ContextsRequest : PersistentSingletonWebRequestBase<ContextsRequest, List<ServerScoresContext>, JsonResponseParser<List<ServerScoresContext>>> {
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/mod/leaderboardContexts";
 

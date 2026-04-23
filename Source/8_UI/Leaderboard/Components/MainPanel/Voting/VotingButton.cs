@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using BeatLeader.Manager;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;

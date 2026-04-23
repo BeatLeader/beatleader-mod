@@ -1,5 +1,5 @@
-using System;
-using BeatLeader.API;
+﻿using System;
+using BeatLeader.APIV2;
 using BeatLeader.DataManager;
 using BeatLeader.Interop;
 using BeatLeader.ViewControllers;

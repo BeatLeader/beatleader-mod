@@ -2,7 +2,7 @@
 using System.Threading;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     internal class RawDataRequest : PersistentWebRequestBase<byte[], RawResponseParser> {
         private static readonly WebRequestParams RequestParams = new() {
             ResponseCompletionOption = HttpCompletionOption.ResponseContentRead

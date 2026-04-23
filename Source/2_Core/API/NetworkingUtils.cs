@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     internal static class NetworkingUtils {
 
         public static readonly JsonSerializerSettings SerializerSettings = new() {

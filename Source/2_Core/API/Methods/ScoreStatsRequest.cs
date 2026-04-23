@@ -3,7 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     internal class ScoreStatsRequest : PersistentSingletonWebRequestBase<ScoreStatsRequest, ScoreStats, JsonResponseParser<ScoreStats>> {
         // score/statistic/{scoreId}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/score/statistic/{0}";

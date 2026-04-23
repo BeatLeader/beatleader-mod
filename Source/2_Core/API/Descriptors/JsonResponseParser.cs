@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using Newtonsoft.Json;
 
 namespace BeatLeader.WebRequests {

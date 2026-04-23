@@ -7,7 +7,7 @@ using BeatLeader.WebRequests;
 using BS_Utils.Gameplay;
 using UnityEngine;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     internal static class Authentication {
         #region Platform
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using BeatLeader.Models;
 using BeatLeader.WebRequests;
 using Reactive;

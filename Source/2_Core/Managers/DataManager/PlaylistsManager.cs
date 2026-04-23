@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using BeatLeader.Interop;
 using BeatLeader.Manager;
 using BeatLeader.Utils;

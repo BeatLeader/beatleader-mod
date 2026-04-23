@@ -14,7 +14,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = Reactive.BeatSaber.Components.Image;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 
 namespace BeatLeader.Components {
     internal class ReplayPanel : ReeUIComponentV2 {

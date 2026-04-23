@@ -3,7 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     internal class PlaylistRequest : PersistentWebRequestBase<byte[], RawResponseParser> {
         // /playlist/{playlistId}
         private static string Endpoint => BLConstants.BEATLEADER_API_URL + "/playlist/{0}";

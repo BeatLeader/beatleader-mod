@@ -3,7 +3,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     public class RemoveFriendRequestCustomParser : IWebRequestResponseParser<Player> {
         private Player? _player;
         public RemoveFriendRequestCustomParser() {

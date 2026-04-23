@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using BeatLeader.DataManager;
 using BeatLeader.Manager;
 using BeatLeader.Models;

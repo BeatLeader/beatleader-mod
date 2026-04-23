@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using B83.Image.GIF;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Utilities.Async;

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using BeatLeader.Models.Replay;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     public class ReplayResponseParser : IWebRequestResponseParser<Replay> {
         public Replay? ParseResponse(byte[] bytes) {
             return ReplayDecoder.DecodeReplay(bytes);

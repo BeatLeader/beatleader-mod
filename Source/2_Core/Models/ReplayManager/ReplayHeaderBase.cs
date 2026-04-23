@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using BeatLeader.Utils;
 
 namespace BeatLeader.Models {

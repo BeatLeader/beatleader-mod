@@ -2,7 +2,7 @@
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API { 
+namespace BeatLeader.APIV2 { 
     public class DownloadMapRequest : PersistentWebRequestBase<byte[], RawResponseParser> {
         private static readonly WebRequestParams RequestParams = new() {
             ResponseCompletionOption = HttpCompletionOption.ResponseContentRead

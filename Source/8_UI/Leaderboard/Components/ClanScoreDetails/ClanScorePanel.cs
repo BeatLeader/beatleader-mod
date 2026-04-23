@@ -1,4 +1,4 @@
-﻿using BeatLeader.API;
+﻿using BeatLeader.APIV2;
 using BeatLeader.Models;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;

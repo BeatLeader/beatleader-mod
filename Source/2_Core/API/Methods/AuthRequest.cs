@@ -4,7 +4,7 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     internal class AuthRequest : PersistentWebRequestBase {
         public static IWebRequest<object> Send(
             string authToken,

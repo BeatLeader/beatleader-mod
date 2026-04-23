@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatLeader.API;
+using BeatLeader.APIV2;
 using Newtonsoft.Json;
 using BeatLeader.Themes;
 using BeatLeader.Utils;

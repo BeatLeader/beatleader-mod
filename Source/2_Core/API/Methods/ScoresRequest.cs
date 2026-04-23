@@ -6,7 +6,7 @@ using BeatLeader.Utils;
 using System.Net.Http;
 using BeatLeader.WebRequests;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     public class ScoreResponseParser : JsonResponseParser<Paged<Score>>, IWebRequestResponseParser<ScoresTableContent> {
         public new ScoresTableContent? ParseResponse(byte[] bytes) {
             var result = base.ParseResponse(bytes);

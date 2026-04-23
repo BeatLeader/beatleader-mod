@@ -1,4 +1,4 @@
-﻿using BeatLeader.API;
+﻿using BeatLeader.APIV2;
 using BeatLeader.WebRequests;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;

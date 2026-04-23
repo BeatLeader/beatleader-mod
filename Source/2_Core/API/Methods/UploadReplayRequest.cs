@@ -9,7 +9,7 @@ using System.Net.Http;
 using BeatLeader.WebRequests;
 using System.Threading.Tasks;
 
-namespace BeatLeader.API {
+namespace BeatLeader.APIV2 {
     public class UploadReplayRequest : PersistentSingletonWebRequestBase<UploadReplayRequest, ScoreUploadResponse, JsonResponseParser<ScoreUploadResponse>> {
         private static string WithCookieEndpoint => BLConstants.BEATLEADER_API_URL + "/v2/replayoculus?{0}";
 

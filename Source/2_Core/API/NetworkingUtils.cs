@@ -29,7 +29,7 @@ namespace BeatLeader.API {
             IWebRequestDescriptor<T> requestDescriptor,
             Action<T> onSuccess, Action<string> onFail,
             int retries = 1,
-            int timeoutSeconds = 30
+            int timeoutSeconds = 120
         ) {
             var handler = new SimpleRequestHandler<T>(onSuccess, onFail);
             yield return ProcessRequestCoroutine(requestDescriptor, handler, retries, timeoutSeconds);
@@ -43,7 +43,7 @@ namespace BeatLeader.API {
             IWebRequestDescriptor<T> requestDescriptor,
             IWebRequestHandler<T> requestHandler,
             int retries = 1,
-            int timeoutSeconds = 30
+            int timeoutSeconds = 120
         ) {
             for (var i = 1; i <= retries; i++) {
                 requestHandler.OnRequestStarted();

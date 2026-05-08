@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -142,10 +143,6 @@ namespace BeatLeader.Utils {
         private static readonly Dictionary<int, IReplayHeader> hashedHeaders = new();
         private static readonly List<IReplayHeader> headers = new();
 
-        // Replay manager does not allow running more than one simultaneous
-        // headers task, so we can simply store such things statically
-        private static readonly List<Task> tasks = new();
-
         private static async Task LoadReplayHeadersAsync(CancellationToken token) {
             if (headers.Count != 0) {
                 // This event is invoked before the async call so we can safely invoke it without wrappers
@@ -154,15 +151,29 @@ namespace BeatLeader.Utils {
 
             headers.Clear();
             hashedHeaders.Clear();
-            tasks.Clear();
             _lastBatchIndex = 0;
-
+            
             var paths = FileManager.GetAllReplayPaths();
-            foreach (var path in paths) {
-                tasks.Add(LoadReplayHeaderAsync(path, token));
-            }
-
-            await Task.WhenAll(tasks);
+            var queue = new ConcurrentQueue<string>(paths);
+            
+            var worker = async () => {
+                while (queue.TryDequeue(out var path)) {
+                    try {
+                        await LoadReplayHeaderAsync(path, token);
+                    }
+                    catch (Exception ex) {
+                        Plugin.Log.Error($"Failed to load {path}: {ex.Message}");
+                    }
+                }
+            };
+            
+            var workerCount = 8;
+            var workerTasks = Enumerable
+                .Range(0, workerCount)
+                .Select(_ => Task.Run(worker, token))
+                .ToArray();
+            
+            await Task.WhenAll(workerTasks);
 
             ReplayHeadersCache.SaveCache();
 

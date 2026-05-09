@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using BeatLeader.Models;
 
 namespace BeatLeader {
     internal static class ReplayHeadersCache {
         #region Cache
 
-        private static readonly AppCache<Dictionary<string, SerializableReplayInfo>> infoCache = new("ReplayInfoCache");
+        private static readonly AppCache<ConcurrentDictionary<string, SerializableReplayInfo>> infoCache = new("ReplayInfoCache");
 
         public static void SaveCache() {
             infoCache.Save();
@@ -35,7 +34,7 @@ namespace BeatLeader {
         }
 
         public static void RemoveInfoByPath(string path) {
-            infoCache.Cache.Remove(Path.GetFileName(path));
+            infoCache.Cache.TryRemove(Path.GetFileName(path), out _);
         }
 
         public static void ClearInfo() {

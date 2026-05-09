@@ -369,7 +369,7 @@ namespace BeatLeader.UI.Hub {
             get => _headerComparator.sorter;
             set {
                 _headerComparator.sorter = value;
-                RefreshSorting();
+                Sort();
                 Refresh();
             }
         }
@@ -378,7 +378,7 @@ namespace BeatLeader.UI.Hub {
             get => _sortOrder;
             set {
                 _sortOrder = value;
-                RefreshSorting();
+                Sort();
                 Refresh();
             }
         }
@@ -386,13 +386,9 @@ namespace BeatLeader.UI.Hub {
         private readonly HeaderComparator _headerComparator = new();
         private SortOrder _sortOrder;
 
-        private void RefreshSorting() {
+        public void Sort() {
             Items.Sort(_headerComparator);
             if (_sortOrder is SortOrder.Descending) Items.Reverse();
-        }
-
-        protected override void OnEarlyRefresh() {
-            RefreshSorting();
         }
 
         #endregion

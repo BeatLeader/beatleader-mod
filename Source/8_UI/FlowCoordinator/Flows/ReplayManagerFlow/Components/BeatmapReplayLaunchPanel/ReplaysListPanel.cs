@@ -45,12 +45,14 @@ namespace BeatLeader.UI.Hub {
             ReplayManager.ReplayAddedEvent += HandleReplayAdded;
             ReplayManager.ReplayDeletedEvent += HandleReplayRemoved;
             ReplayManager.AllReplaysDeletedEvent += HandleAllReplaysRemoved;
+            ReplayManager.LoadingFinishedEvent += HandleLoadingFinished;
         }
 
         protected override void OnDestroy() {
             ReplayManager.ReplayAddedEvent -= HandleReplayAdded;
             ReplayManager.ReplayDeletedEvent -= HandleReplayRemoved;
             ReplayManager.AllReplaysDeletedEvent -= HandleAllReplaysRemoved;
+            ReplayManager.LoadingFinishedEvent -= HandleLoadingFinished;
         }
 
         #endregion
@@ -108,6 +110,13 @@ namespace BeatLeader.UI.Hub {
         private void HandleAllReplaysRemoved() {
             lock (_locker) {
                 _replaysList.Items.Clear();
+            }
+            SetListIsDirty();
+        }
+
+        private void HandleLoadingFinished(bool _) {
+            lock (_locker) {
+                _replaysList.Sort();
             }
             SetListIsDirty();
         }

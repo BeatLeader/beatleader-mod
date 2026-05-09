@@ -109,7 +109,6 @@ namespace BeatLeader.Components {
 
         private async Task BlockUntilLoaded() {
             RefreshDownloadButton(DownloadButtonState.Unavailable);
-            RefreshPlayButton(PlayButtonState.Unavailable);
 
             _blockIncomingEvents = true;
             await ReplayManager.WaitForLoadingAsync();
@@ -118,7 +117,7 @@ namespace BeatLeader.Components {
             _blockedUntilLoaded = false;
 
             if (_score != null) {
-                SetScore(_score);
+                _replayHeader = ReplayManager.FindReplayByHash(_score);
             }
         }
 
@@ -132,11 +131,10 @@ namespace BeatLeader.Components {
         public void SetScore(Score score) {
             _score = score;
 
-            if (_blockedUntilLoaded) {
-                return;
+            if (!_blockedUntilLoaded) {
+                _replayHeader = ReplayManager.FindReplayByHash(_score);
             }
 
-            _replayHeader = ReplayManager.FindReplayByHash(_score);
             ResetButtons();
         }
 
@@ -202,7 +200,7 @@ namespace BeatLeader.Components {
                         RefreshDownloadButton(DownloadButtonState.Unavailable);
                         RefreshPlayButton(PlayButtonState.Unavailable);
 
-                        StartReplay(instance.Result).RunCatching();
+                        StartReplay(instance.Result!).RunCatching();
                     }
                     // When initiated using the download button
                     else {
@@ -267,7 +265,10 @@ namespace BeatLeader.Components {
         #region Other
 
         private void ResetButtons() {
-            RefreshDownloadButton(_replayHeader != null ? DownloadButtonState.ReadyToNavigate : DownloadButtonState.ReadyToDownload);
+            if (!_blockedUntilLoaded) {
+                RefreshDownloadButton(_replayHeader != null ? DownloadButtonState.ReadyToNavigate : DownloadButtonState.ReadyToDownload);
+            }
+            
             RefreshPlayButton(PlayButtonState.ReadyToDownloadOrStart);
         }
 
@@ -312,8 +313,8 @@ namespace BeatLeader.Components {
             _playButton.interactable = true;
             _playButtonText.text = state switch {
                 PlayButtonState.ReadyToDownloadOrStart => "<bll>ls-watch-replay</bll>",
-                PlayButtonState.Downloading            => "<bll>ls-cancel</bll>",
-                _                                      => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+                PlayButtonState.Downloading => "<bll>ls-cancel</bll>",
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
 
@@ -343,8 +344,8 @@ namespace BeatLeader.Components {
             _downloadButtonText.text = state switch {
                 DownloadButtonState.ReadyToNavigate => "\u27a4",
                 DownloadButtonState.ReadyToDownload => "",
-                DownloadButtonState.Downloading     => "<bll>ls-cancel</bll>",
-                _                                   => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+                DownloadButtonState.Downloading => "<bll>ls-cancel</bll>",
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
 

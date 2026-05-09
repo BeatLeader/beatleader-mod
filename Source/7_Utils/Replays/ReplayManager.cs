@@ -33,20 +33,28 @@ namespace BeatLeader.Utils {
         public static event Action<bool>? LoadingFinishedEvent;
 
         private static int _lastBatchIndex;
+        private static SynchronizationContext? _mainThreadSynchronizationContext;
 
         /// <summary>
         /// Ensures that invocations always happen on the main thread and do not overlap.
         /// </summary>
         private static void SyncNotifyReplaysAdded() {
-            SynchronizationContext.Current.Send(
-                _ => {
-                    var count = headers.Count;
+            if (_mainThreadSynchronizationContext == null) {
+                Plugin.Log.Error("Failed to invoke ReplayAddedEvent because SynchronizationContext was null");
+                return;
+            }
 
-                    for (var i = _lastBatchIndex; i < count; i++) {
-                        ReplayAddedEvent?.Invoke(headers[i]);
+            _mainThreadSynchronizationContext.Send(
+                static _ => {
+                    lock (headersLocker) {
+                        var count = headers.Count;
+
+                        for (var i = _lastBatchIndex; i < count; i++) {
+                            ReplayAddedEvent?.Invoke(headers[i]);
+                        }
+
+                        _lastBatchIndex = count;
                     }
-
-                    _lastBatchIndex = count;
                 },
                 null
             );
@@ -78,8 +86,8 @@ namespace BeatLeader.Utils {
                 return false;
             }
 
-            _everLoaded = true;
             StartLoading();
+            _everLoaded = true;
 
             return true;
         }
@@ -88,12 +96,17 @@ namespace BeatLeader.Utils {
         /// Starts headers loading.
         /// </summary>
         public static void StartLoading() {
+            if (Thread.CurrentThread.ManagedThreadId != 1) {
+                throw new InvalidOperationException("StartLoading must be called from the main thread");
+            }
+
             if (_loadHeadersTask != null) {
                 _loadHeadersCancellationSource.Cancel();
                 _loadHeadersCancellationSource = new CancellationTokenSource();
             }
 
             LoadingStartedEvent?.Invoke();
+            _mainThreadSynchronizationContext = SynchronizationContext.Current;
 
             _loadHeadersTask = LoadReplayHeadersAsync(_loadHeadersCancellationSource.Token).RunCatching();
         }
@@ -140,39 +153,42 @@ namespace BeatLeader.Utils {
 
         #region Replays Loading Logic
 
-        private static readonly Dictionary<int, IReplayHeader> hashedHeaders = new();
+        private static readonly ConcurrentDictionary<int, IReplayHeader> hashedHeaders = new();
         private static readonly List<IReplayHeader> headers = new();
+        private static readonly object headersLocker = new();
 
         private static async Task LoadReplayHeadersAsync(CancellationToken token) {
-            if (headers.Count != 0) {
-                // This event is invoked before the async call so we can safely invoke it without wrappers
-                AllReplaysDeletedEvent?.Invoke();
+            lock (headersLocker) {
+                if (headers.Count != 0) {
+                    // This event is invoked before the async call so we can safely invoke it without wrappers
+                    AllReplaysDeletedEvent?.Invoke();
+                }
+
+                headers.Clear();
             }
 
-            headers.Clear();
             hashedHeaders.Clear();
             _lastBatchIndex = 0;
-            
+
             var paths = FileManager.GetAllReplayPaths();
             var queue = new ConcurrentQueue<string>(paths);
-            
+
             var worker = async () => {
                 while (queue.TryDequeue(out var path)) {
                     try {
                         await LoadReplayHeaderAsync(path, token);
-                    }
-                    catch (Exception ex) {
-                        Plugin.Log.Error($"Failed to load {path}: {ex.Message}");
+                    } catch (Exception ex) {
+                        Plugin.Log.Error($"Failed to load {path}: {ex}");
                     }
                 }
             };
-            
+
             var workerCount = 8;
             var workerTasks = Enumerable
                 .Range(0, workerCount)
                 .Select(_ => Task.Run(worker, token))
                 .ToArray();
-            
+
             await Task.WhenAll(workerTasks);
 
             ReplayHeadersCache.SaveCache();
@@ -199,8 +215,10 @@ namespace BeatLeader.Utils {
 
             var header = CreateReplayHeader(path, replayInfo);
 
-            headers.Add(header);
-            hashedHeaders.Add(hash, header);
+            lock (headersLocker) {
+                headers.Add(header);
+            }
+            hashedHeaders.TryAdd(hash, header);
 
             SyncNotifyReplaysAdded();
         }
@@ -284,8 +302,10 @@ namespace BeatLeader.Utils {
             var header = CreateReplayHeader(absolutePath, replay.info);
 
             LastPlayedReplay = header;
-            headers.Add(header);
-            hashedHeaders.Add(hash, header);
+            lock (headersLocker) {
+                headers.Add(header);
+            }
+            hashedHeaders.TryAdd(hash, header);
 
             ReplayHeadersCache.AddInfoByPath(header.FilePath, header.ReplayInfo);
             ReplayAddedEvent?.Invoke(header);
@@ -327,7 +347,9 @@ namespace BeatLeader.Utils {
                 deletedReplays++;
             }
 
-            headers.Clear();
+            lock (headersLocker) {
+                headers.Clear();
+            }
             hashedHeaders.Clear();
             AllReplaysDeletedEvent?.Invoke();
 
@@ -346,7 +368,10 @@ namespace BeatLeader.Utils {
         #region Delete Internal
 
         private static void FinalizeReplayDeletion(IReplayHeader header) {
-            headers.Remove(header);
+            lock (headersLocker) {
+                headers.Remove(header);
+            }
+
             (header as PhysicalReplayHeader)?.NotifyReplayDeleted();
             ReplayDeletedEvent?.Invoke(header);
         }
@@ -450,11 +475,11 @@ namespace BeatLeader.Utils {
             var options = ConfigFileData.Instance.ReplaySavingOptions;
 
             return ConfigFileData.Instance.SaveLocalReplays && endData.EndType switch {
-                LevelEndType.Fail                         => options.HasFlag(ReplaySaveOption.Fail),
-                LevelEndType.Practice                     => options.HasFlag(ReplaySaveOption.Practice),
+                LevelEndType.Fail => options.HasFlag(ReplaySaveOption.Fail),
+                LevelEndType.Practice => options.HasFlag(ReplaySaveOption.Practice),
                 LevelEndType.Quit or LevelEndType.Restart => options.HasFlag(ReplaySaveOption.Exit),
-                LevelEndType.Clear                        => true,
-                _                                         => false
+                LevelEndType.Clear => true,
+                _ => false
             } && (options.HasFlag(ReplaySaveOption.ZeroScore) || replay.info.score != 0);
         }
 

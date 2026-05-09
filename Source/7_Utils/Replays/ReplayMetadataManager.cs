@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -110,7 +111,7 @@ namespace BeatLeader.Utils {
 
         #region Metadata
 
-        internal static Dictionary<string, ReplayMetadata> MutableMetadatas => metaCache.Cache;
+        internal static ConcurrentDictionary<string, ReplayMetadata> MutableMetadatas => metaCache.Cache;
 
         internal static ReplayMetadata GetMetadata(string path) {
             var name = Path.GetFileName(path);
@@ -124,7 +125,7 @@ namespace BeatLeader.Utils {
         }
 
         internal static void DeleteMetadata(string path) {
-            MutableMetadatas.Remove(Path.GetFileName(path));
+            MutableMetadatas.TryRemove(Path.GetFileName(path), out _);
         }
 
         internal static void ClearMetadata() {
@@ -135,8 +136,8 @@ namespace BeatLeader.Utils {
 
         #region Serialization
 
-        private static readonly AppCache<Dictionary<string, ReplayTag>> tagsCache = new("ReplayTagsCache");
-        private static readonly AppCache<Dictionary<string, ReplayMetadata>> metaCache = new("ReplayMetadataCache");
+        private static readonly AppCache<ConcurrentDictionary<string, ReplayTag>> tagsCache = new("ReplayTagsCache");
+        private static readonly AppCache<ConcurrentDictionary<string, ReplayMetadata>> metaCache = new("ReplayMetadataCache");
 
         internal static void LoadCache() {
             tagsCache.Load();

@@ -172,11 +172,11 @@ namespace BeatLeader.Utils {
 
             var paths = FileManager.GetAllReplayPaths();
             var queue = new ConcurrentQueue<string>(paths);
-
-            var worker = async () => {
+            
+            var worker = () => {
                 while (queue.TryDequeue(out var path)) {
                     try {
-                        await LoadReplayHeaderAsync(path, token);
+                        LoadReplayHeader(path);
                     } catch (Exception ex) {
                         Plugin.Log.Error($"Failed to load {path}: {ex}");
                     }
@@ -198,9 +198,9 @@ namespace BeatLeader.Utils {
 
             _loadHeadersTask = null;
         }
-
-        private static async Task LoadReplayHeaderAsync(string path, CancellationToken token) {
-            var replayInfo = await LoadReplayInfoAsync(path, token);
+        
+        private static void LoadReplayHeader(string path) {
+            var replayInfo = LoadReplayInfo(path);
 
             if (replayInfo == null) {
                 Plugin.Log.Error($"[ReplayManager] Failed to read replay info: {path}");
@@ -223,12 +223,12 @@ namespace BeatLeader.Utils {
             SyncNotifyReplaysAdded();
         }
 
-        private static async Task<IReplayInfo?> LoadReplayInfoAsync(string path, CancellationToken token) {
+        private static IReplayInfo? LoadReplayInfo(string path) {
             if (ReplayHeadersCache.TryGetInfoByPath(path, out var info)) {
                 return info;
             }
 
-            var replayInfo = await FileManager.ReadReplayInfoAsync(path, token);
+            var replayInfo = FileManager.ReadReplayInfo(path);
 
             if (replayInfo != null) {
                 SaturateReplayInfo(replayInfo, path);

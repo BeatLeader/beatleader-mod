@@ -17,6 +17,7 @@ namespace BeatLeader.Utils {
     public static class ReplayManager {
         public const string ReplayFileExtension = ".bsor";
         private const string ReplayFilePattern = "*.bsor";
+        private const int ReplayHeaderReadWorkers = 4;
 
         #region Events
 
@@ -31,24 +32,14 @@ namespace BeatLeader.Utils {
         /// </summary>
         public static event Action<bool>? LoadingFinishedEvent;
 
-        private static int _lastBatchIndex;
+        private readonly struct ReplayHeaderInfoScanResult {
+            public ReplayHeaderInfoScanResult(string path, IReplayInfo? replayInfo) {
+                Path = path;
+                ReplayInfo = replayInfo;
+            }
 
-        /// <summary>
-        /// Ensures that invocations always happen on the main thread and do not overlap.
-        /// </summary>
-        private static void SyncNotifyReplaysAdded() {
-            SynchronizationContext.Current.Send(
-                _ => {
-                    var count = headers.Count;
-
-                    for (var i = _lastBatchIndex; i < count; i++) {
-                        ReplayAddedEvent?.Invoke(headers[i]);
-                    }
-
-                    _lastBatchIndex = count;
-                },
-                null
-            );
+            public string Path { get; }
+            public IReplayInfo? ReplayInfo { get; }
         }
 
         #endregion
@@ -142,10 +133,6 @@ namespace BeatLeader.Utils {
         private static readonly Dictionary<int, IReplayHeader> hashedHeaders = new();
         private static readonly List<IReplayHeader> headers = new();
 
-        // Replay manager does not allow running more than one simultaneous
-        // headers task, so we can simply store such things statically
-        private static readonly List<Task> tasks = new();
-
         private static async Task LoadReplayHeadersAsync(CancellationToken token) {
             if (headers.Count != 0) {
                 // This event is invoked before the async call so we can safely invoke it without wrappers
@@ -154,17 +141,56 @@ namespace BeatLeader.Utils {
 
             headers.Clear();
             hashedHeaders.Clear();
-            tasks.Clear();
-            _lastBatchIndex = 0;
+            var paths = FileManager.GetAllReplayPaths().ToArray();
+            var replayInfos = new ReplayHeaderInfoScanResult[paths.Length];
 
-            var paths = FileManager.GetAllReplayPaths();
-            foreach (var path in paths) {
-                tasks.Add(LoadReplayHeaderAsync(path, token));
+            for (var i = 0; i < paths.Length; i++) {
+                replayInfos[i] = new ReplayHeaderInfoScanResult(paths[i], null);
             }
 
-            await Task.WhenAll(tasks);
+            var nextIndex = -1;
+            var workerCount = Math.Min(ReplayHeaderReadWorkers, paths.Length);
+            var workers = new Task[workerCount];
+
+            for (var workerIndex = 0; workerIndex < workerCount; workerIndex++) {
+                workers[workerIndex] = Task.Run(() => {
+                    while (!token.IsCancellationRequested) {
+                        var index = Interlocked.Increment(ref nextIndex);
+                        if (index >= paths.Length) {
+                            return;
+                        }
+
+                        replayInfos[index] = ScanReplayHeader(paths[index]);
+                    }
+                });
+            }
+
+            await Task.WhenAll(workers);
 
             ReplayHeadersCache.SaveCache();
+
+            if (token.IsCancellationRequested) {
+                _loadHeadersTask = null;
+                return;
+            }
+
+            foreach (var replayInfo in replayInfos) {
+                if (replayInfo.ReplayInfo == null) {
+                    //Plugin.Log.Error($"[ReplayManager] Failed to read replay info: {replayInfo.Path}");
+                    continue;
+                }
+
+                var hash = replayInfo.ReplayInfo.CalculateReplayHash();
+                if (hashedHeaders.ContainsKey(hash)) {
+                    Plugin.Log.Debug($"[ReplayManager] Replay info with the same hash already exists. Hash: {hash}");
+                    continue;
+                }
+
+                var header = CreateReplayHeader(replayInfo.Path, replayInfo.ReplayInfo);
+                headers.Add(header);
+                hashedHeaders.Add(hash, header);
+                ReplayAddedEvent?.Invoke(header);
+            }
 
             // Safely invoke the event on main thread
             await TaskExtensions.RunOnMainThread(() => LoadingFinishedEvent?.Invoke(true));
@@ -172,42 +198,18 @@ namespace BeatLeader.Utils {
             _loadHeadersTask = null;
         }
 
-        private static async Task LoadReplayHeaderAsync(string path, CancellationToken token) {
-            var replayInfo = await LoadReplayInfoAsync(path, token);
-
-            if (replayInfo == null) {
-                Plugin.Log.Error($"[ReplayManager] Failed to read replay info: {path}");
-                return;
-            }
-
-            var hash = replayInfo.CalculateReplayHash();
-            if (hashedHeaders.ContainsKey(hash)) {
-                Plugin.Log.Debug($"[ReplayManager] Replay info with the same hash already exists. Hash: {hash}");
-                return;
-            }
-
-            var header = CreateReplayHeader(path, replayInfo);
-
-            headers.Add(header);
-            hashedHeaders.Add(hash, header);
-
-            SyncNotifyReplaysAdded();
-        }
-
-        private static async Task<IReplayInfo?> LoadReplayInfoAsync(string path, CancellationToken token) {
+        private static ReplayHeaderInfoScanResult ScanReplayHeader(string path) {
             if (ReplayHeadersCache.TryGetInfoByPath(path, out var info)) {
-                return info;
+                return new ReplayHeaderInfoScanResult(path, info);
             }
 
-            var replayInfo = await FileManager.ReadReplayInfoAsync(path, token);
-
+            var replayInfo = FileManager.ReadReplayInfo(path);
             if (replayInfo != null) {
                 SaturateReplayInfo(replayInfo, path);
                 ReplayHeadersCache.AddInfoByPath(path, replayInfo);
-                info = replayInfo;
             }
 
-            return info;
+            return new ReplayHeaderInfoScanResult(path, replayInfo);
         }
 
         internal static async Task<Replay?> LoadReplayAsync(IReplayHeader header, CancellationToken token) {

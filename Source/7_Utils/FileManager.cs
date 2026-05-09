@@ -111,24 +111,25 @@ namespace BeatLeader.Utils {
             return replay;
         }
 
-        public static async Task<ReplayInfo?> ReadReplayInfoAsync(string path, CancellationToken token) {
-            if (!File.Exists(path)) {
+        public static ReplayInfo? ReadReplayInfo(string path) {
+            try {
+                using var fileStream = new FileStream(
+                    path,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite | FileShare.Delete,
+                    32 * 1024,
+                    FileOptions.SequentialScan
+                );
+                return AsyncReplayDecoder.DecodeInfoOnly(fileStream);
+            } catch (Exception ex) {
+                Plugin.Log.Debug(ex);
                 return null;
             }
+        }
 
-            // Here we load the whole file as we don't have neither a stop byte
-            // nor an implementation that would use streams instead of a byte array.
-            // Implementing such thing could lead to a significant performance boost
-            // when caching for the first time or reloading the cache.
-
-            // According to my tests, this way seems to be significantly faster when
-            // loading lots of small files (exactly our case) as the runtime don't need to 
-            // switch contexts: it simply borrows the whole thread until the task is finished
-            var bytes = await Task.Run(() => File.ReadAllBytes(path), token);
-
-            ReplayDecoder.TryDecodeReplayInfo(bytes, out var replayInfo);
-
-            return replayInfo;
+        public static Task<ReplayInfo?> ReadReplayInfoAsync(string path, CancellationToken token) {
+            return Task.Run(() => ReadReplayInfo(path), token);
         }
 
         #endregion

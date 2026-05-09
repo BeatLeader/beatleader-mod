@@ -8,13 +8,18 @@ namespace BeatLeader {
         #region Cache
 
         private static readonly AppCache<Dictionary<string, SerializableReplayInfo>> infoCache = new("ReplayInfoCache");
+        private static readonly object infoCacheLock = new();
 
         public static void SaveCache() {
-            infoCache.Save();
+            lock (infoCacheLock) {
+                infoCache.Save();
+            }
         }
 
         public static void LoadCache() {
-            infoCache.Load();
+            lock (infoCacheLock) {
+                infoCache.Load();
+            }
         }
 
         #endregion
@@ -22,24 +27,33 @@ namespace BeatLeader {
         #region Info
 
         public static bool TryGetInfoByPath(string path, out IReplayInfo? info) {
-            if (!infoCache.Cache.TryGetValue(Path.GetFileName(path), out var serInfo)) {
-                info = null;
-                return false;
+            lock (infoCacheLock) {
+                if (!infoCache.Cache.TryGetValue(Path.GetFileName(path), out var serInfo)) {
+                    info = null;
+                    return false;
+                }
+
+                info = serInfo;
+                return true;
             }
-            info = serInfo;
-            return true;
         }
 
         public static void AddInfoByPath(string path, IReplayInfo info) {
-            infoCache.Cache[Path.GetFileName(path)] = ToSerializableReplayInfo(info);
+            lock (infoCacheLock) {
+                infoCache.Cache[Path.GetFileName(path)] = ToSerializableReplayInfo(info);
+            }
         }
 
         public static void RemoveInfoByPath(string path) {
-            infoCache.Cache.Remove(Path.GetFileName(path));
+            lock (infoCacheLock) {
+                infoCache.Cache.Remove(Path.GetFileName(path));
+            }
         }
 
         public static void ClearInfo() {
-            infoCache.Cache.Clear();
+            lock (infoCacheLock) {
+                infoCache.Cache.Clear();
+            }
         }
 
         private static SerializableReplayInfo ToSerializableReplayInfo(IReplayInfo info) {

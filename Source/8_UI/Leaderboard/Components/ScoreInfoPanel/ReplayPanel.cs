@@ -15,6 +15,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Image = Reactive.BeatSaber.Components.Image;
 using BeatLeader.API;
+using Reactive.BeatSaber.Components;
 
 namespace BeatLeader.Components {
     internal class ReplayPanel : ReeUIComponentV2 {
@@ -36,6 +37,7 @@ namespace BeatLeader.Components {
         private TMP_Text _downloadButtonText = null!;
 
         private Image _downloadButtonImage = null!;
+        private Spinner _downloadButtonSpinner = null!;
 
         [UIValue("settings-panel"), UsedImplicitly]
         private ReplayerSettingsPanel _settingsPanel = null!;
@@ -55,7 +57,7 @@ namespace BeatLeader.Components {
         #region Initialize/Dispose
 
         private ReplayerViewNavigatorWrapper? _replayerNavigator;
-        private bool _blockedUntilLoaded;
+        private bool _isWaitingForReplayInfos;
 
         public void Setup(ReplayerViewNavigatorWrapper starter) {
             _replayerNavigator = starter;
@@ -83,10 +85,22 @@ namespace BeatLeader.Components {
 
             _downloadButtonImage.Use(_downloadButtonText.transform.parent);
 
+            _downloadButtonSpinner = new Spinner().With(x => {
+                    x.WithNativeComponent(out LayoutElement el);
+                    el.preferredHeight = 4.5f;
+                    el.preferredWidth = 4.5f;
+                }
+            );
+            _downloadButtonSpinner.Use(_downloadButtonText.transform.parent);
+            _downloadButtonSpinner.Enabled = false;
+
             StaticReplayRequest.ProgressChangedEvent += OnDownloadProgressChanged;
             StaticReplayRequest.StateChangedEvent += OnDownloadRequestStateChanged;
 
             LeaderboardState.AddSelectedBeatmapListener(OnSelectedBeatmapChanged);
+            ReplayManager.LoadingStartedEvent += OnReplayInfosLoadingStarted;
+            ReplayManager.LoadingFinishedEvent += OnReplayInfosLoadingFinished;
+            ReplayManager.ReplayAddedEvent += OnReplayAdded;
         }
 
         protected override void OnDispose() {
@@ -94,31 +108,24 @@ namespace BeatLeader.Components {
             StaticReplayRequest.StateChangedEvent -= OnDownloadRequestStateChanged;
 
             LeaderboardState.RemoveSelectedBeatmapListener(OnSelectedBeatmapChanged);
+            ReplayManager.LoadingStartedEvent -= OnReplayInfosLoadingStarted;
+            ReplayManager.LoadingFinishedEvent -= OnReplayInfosLoadingFinished;
+            ReplayManager.ReplayAddedEvent -= OnReplayAdded;
         }
 
         protected override void OnRootStateChange(bool active) {
-            if (active && !_blockedUntilLoaded) {
-                var neverLoaded = ReplayManager.StartLoadingIfNeverLoaded();
-
-                if (neverLoaded) {
-                    _blockedUntilLoaded = true;
-                    BlockUntilLoaded().RunCatching();
-                }
+            if (!active) {
+                return;
             }
-        }
 
-        private async Task BlockUntilLoaded() {
-            RefreshDownloadButton(DownloadButtonState.Unavailable);
-            RefreshPlayButton(PlayButtonState.Unavailable);
-
-            _blockIncomingEvents = true;
-            await ReplayManager.WaitForLoadingAsync();
-
-            _blockIncomingEvents = false;
-            _blockedUntilLoaded = false;
+            ReplayManager.StartLoadingIfNeverLoaded();
+            SyncReplayInfoLoadingState();
 
             if (_score != null) {
                 SetScore(_score);
+            } else {
+                RefreshDownloadButton(_isWaitingForReplayInfos ? DownloadButtonState.LoadingReplayInfos : DownloadButtonState.ReadyToDownload);
+                RefreshPlayButton(PlayButtonState.ReadyToDownloadOrStart);
             }
         }
 
@@ -131,12 +138,8 @@ namespace BeatLeader.Components {
 
         public void SetScore(Score score) {
             _score = score;
-
-            if (_blockedUntilLoaded) {
-                return;
-            }
-
             _replayHeader = ReplayManager.FindReplayByHash(_score);
+            SyncReplayInfoLoadingState();
             ResetButtons();
         }
 
@@ -225,6 +228,45 @@ namespace BeatLeader.Components {
             }
         }
 
+        private void OnReplayInfosLoadingStarted() {
+            SyncReplayInfoLoadingState();
+
+            if (_score == null || _isDownloading) {
+                return;
+            }
+
+            ResetButtons();
+        }
+
+        private void OnReplayInfosLoadingFinished(bool _) {
+            if (_score != null) {
+                _replayHeader = ReplayManager.FindReplayByHash(_score);
+            }
+
+            SyncReplayInfoLoadingState();
+
+            if (_score == null || _isDownloading) {
+                return;
+            }
+
+            ResetButtons();
+        }
+
+        private void OnReplayAdded(IReplayHeader _) {
+            if (_score == null || _replayHeader != null || _isDownloading) {
+                return;
+            }
+
+            var replayHeader = ReplayManager.FindReplayByHash(_score);
+            if (replayHeader == null) {
+                return;
+            }
+
+            _replayHeader = replayHeader;
+            SyncReplayInfoLoadingState();
+            ResetButtons();
+        }
+
         #endregion
 
         #region Button Callbacks
@@ -267,7 +309,13 @@ namespace BeatLeader.Components {
         #region Other
 
         private void ResetButtons() {
-            RefreshDownloadButton(_replayHeader != null ? DownloadButtonState.ReadyToNavigate : DownloadButtonState.ReadyToDownload);
+            var downloadState = _replayHeader != null
+                ? DownloadButtonState.ReadyToNavigate
+                : _isWaitingForReplayInfos
+                    ? DownloadButtonState.LoadingReplayInfos
+                    : DownloadButtonState.ReadyToDownload;
+
+            RefreshDownloadButton(downloadState);
             RefreshPlayButton(PlayButtonState.ReadyToDownloadOrStart);
         }
 
@@ -289,6 +337,10 @@ namespace BeatLeader.Components {
 
         private static string FormatFailString(string failReason) {
             return $"<color=red>Fail: {failReason}</color>";
+        }
+
+        private void SyncReplayInfoLoadingState() {
+            _isWaitingForReplayInfos = ReplayManager.IsLoading && _replayHeader == null;
         }
 
         #endregion
@@ -324,6 +376,7 @@ namespace BeatLeader.Components {
         private enum DownloadButtonState {
             ReadyToNavigate,
             ReadyToDownload,
+            LoadingReplayInfos,
             Downloading,
             Unavailable
         }
@@ -331,18 +384,25 @@ namespace BeatLeader.Components {
         private void RefreshDownloadButton(DownloadButtonState state) {
             if (state is DownloadButtonState.Unavailable) {
                 _downloadButton.interactable = false;
+                _downloadButtonImage.Enabled = false;
+                _downloadButtonSpinner.Enabled = false;
+                _downloadButtonText.gameObject.SetActive(false);
                 return;
             }
 
-            _downloadButton.interactable = true;
-
             var readyToDownload = state is DownloadButtonState.ReadyToDownload;
+            var loadingReplayInfos = state is DownloadButtonState.LoadingReplayInfos;
+
+            _downloadButton.interactable = state is not DownloadButtonState.LoadingReplayInfos;
+
             _downloadButtonImage.Enabled = readyToDownload;
-            _downloadButtonText.gameObject.SetActive(!readyToDownload);
+            _downloadButtonSpinner.Enabled = loadingReplayInfos;
+            _downloadButtonText.gameObject.SetActive(!readyToDownload && !loadingReplayInfos);
 
             _downloadButtonText.text = state switch {
                 DownloadButtonState.ReadyToNavigate => "\u27a4",
                 DownloadButtonState.ReadyToDownload => "",
+                DownloadButtonState.LoadingReplayInfos => "",
                 DownloadButtonState.Downloading     => "<bll>ls-cancel</bll>",
                 _                                   => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };

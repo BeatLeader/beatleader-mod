@@ -875,4 +875,293 @@ namespace BeatLeader.Models.Replay {
             return result;
         }
     }
+
+    public static class AsyncReplayDecoder
+    {
+        private const int ReplayMagic = 0x442d3d69;
+        private const byte ReplayVersion = 1;
+        private const int MaxStringLength = 300;
+
+        public sealed class Session
+        {
+            public readonly BufferedReplayStreamReader reader;
+
+            public Session(Stream stream)
+            {
+                reader = new BufferedReplayStreamReader(stream ?? throw new ArgumentNullException(nameof(stream)));
+            }
+        }
+
+        public static ReplayInfo? DecodeInfoOnly(Stream stream) => DecodeInfoOnly(new Session(stream));
+
+        public static ReplayInfo? DecodeInfoOnly(Session session)
+        {
+            var reader = GetReader(session);
+            int magic = DecodeInt(reader);
+            byte version = DecodeByte(reader);
+
+            if (magic != ReplayMagic || version != ReplayVersion)
+            {
+                return null;
+            }
+
+            var type = (StructType)DecodeByte(reader);
+            return type == StructType.info
+                ? DecodeInfo(reader)
+                : null;
+        }
+
+        public static ReplayInfo DecodeInfo(Stream stream) => DecodeInfo(new Session(stream));
+
+        public static ReplayInfo DecodeInfo(Session session) => DecodeInfo(GetReader(session));
+
+        private static BufferedReplayStreamReader GetReader(Session session)
+        {
+            if (session == null) throw new ArgumentNullException(nameof(session));
+            return session.reader;
+        }
+
+        private static ReplayInfo DecodeInfo(BufferedReplayStreamReader reader)
+        {
+            ReplayInfo result = new ReplayInfo();
+
+            result.version = DecodeString(reader);
+            result.gameVersion = DecodeString(reader);
+            result.timestamp = DecodeString(reader);
+
+            result.playerID = DecodeString(reader);
+            result.playerName = DecodeName(reader);
+            result.platform = DecodeString(reader);
+
+            result.trackingSytem = DecodeString(reader);
+            result.hmd = DecodeString(reader);
+            result.controller = DecodeString(reader);
+
+            result.hash = DecodeString(reader);
+            result.songName = DecodeString(reader);
+            result.mapper = DecodeString(reader);
+            result.difficulty = DecodeString(reader);
+
+            result.score = DecodeInt(reader);
+            result.mode = DecodeString(reader);
+            result.environment = DecodeString(reader);
+            result.modifiers = DecodeString(reader);
+            result.jumpDistance = DecodeFloat(reader);
+            result.leftHanded = DecodeBool(reader);
+            result.height = DecodeFloat(reader);
+
+            result.startTime = DecodeFloat(reader);
+            result.failTime = DecodeFloat(reader);
+            result.speed = DecodeFloat(reader);
+
+            return result;
+        }
+
+        private static long DecodeLong(BufferedReplayStreamReader reader) => reader.ReadInt64();
+
+        private static int DecodeInt(BufferedReplayStreamReader reader) => reader.ReadInt32();
+
+        private static byte DecodeByte(BufferedReplayStreamReader reader) => reader.ReadByte();
+
+        private static string DecodeName(BufferedReplayStreamReader reader)
+        {
+            int length = reader.PeekInt32(0);
+            if (length < 0 || length > MaxStringLength)
+            {
+                return DecodeString(reader);
+            }
+
+            int lengthOffset = 0;
+            if (length > 0)
+            {
+                while (true)
+                {
+                    int platformLength = reader.PeekInt32(length + 4 + lengthOffset);
+                    if (platformLength == 6 || platformLength == 5 || platformLength == 8)
+                    {
+                        break;
+                    }
+
+                    lengthOffset++;
+                }
+            }
+
+            reader.Skip(4);
+            return reader.ReadUtf8String(length + lengthOffset);
+        }
+
+        private static string DecodeString(BufferedReplayStreamReader reader)
+        {
+            while (true)
+            {
+                int length = reader.PeekInt32(0);
+                if (length >= 0 && length <= MaxStringLength)
+                {
+                    reader.Skip(4);
+                    return reader.ReadUtf8String(length);
+                }
+
+                reader.Skip(1);
+            }
+        }
+
+        private static float DecodeFloat(BufferedReplayStreamReader reader) => reader.ReadSingle();
+
+        private static bool DecodeBool(BufferedReplayStreamReader reader) => reader.ReadByte() != 0;
+
+        public class BufferedReplayStreamReader
+        {
+            private const int DefaultBufferSize = 32 * 1024;
+
+            private readonly Stream stream;
+            private byte[] buffer;
+            private int offset;
+            private int count;
+
+            public BufferedReplayStreamReader(Stream stream)
+            {
+                this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
+                buffer = new byte[DefaultBufferSize];
+            }
+
+            private int Available => count - offset;
+
+            public byte ReadByte()
+            {
+                EnsureAvailable(1);
+                byte result = buffer[offset++];
+                if (offset == count)
+                {
+                    offset = 0;
+                    count = 0;
+                }
+                return result;
+            }
+
+            public int ReadInt32()
+            {
+                EnsureAvailable(4);
+                int result = BitConverter.ToInt32(buffer, offset);
+                offset += 4;
+                if (offset == count)
+                {
+                    offset = 0;
+                    count = 0;
+                }
+                return result;
+            }
+
+            public long ReadInt64()
+            {
+                EnsureAvailable(8);
+                long result = BitConverter.ToInt64(buffer, offset);
+                offset += 8;
+                if (offset == count)
+                {
+                    offset = 0;
+                    count = 0;
+                }
+                return result;
+            }
+
+            public float ReadSingle()
+            {
+                EnsureAvailable(4);
+                float result = BitConverter.ToSingle(buffer, offset);
+                offset += 4;
+                if (offset == count)
+                {
+                    offset = 0;
+                    count = 0;
+                }
+                return result;
+            }
+
+            public int PeekInt32(int relativeOffset)
+            {
+                if (relativeOffset < 0) throw new ArgumentOutOfRangeException(nameof(relativeOffset));
+                EnsureAvailable(relativeOffset + 4);
+                return BitConverter.ToInt32(buffer, offset + relativeOffset);
+            }
+
+            public void Skip(int bytesToSkip)
+            {
+                if (bytesToSkip < 0) throw new ArgumentOutOfRangeException(nameof(bytesToSkip));
+                if (bytesToSkip == 0) return;
+
+                EnsureAvailable(bytesToSkip);
+                offset += bytesToSkip;
+                if (offset == count)
+                {
+                    offset = 0;
+                    count = 0;
+                }
+            }
+
+            public string ReadUtf8String(int length)
+            {
+                if (length < 0) throw new ArgumentOutOfRangeException(nameof(length));
+                if (length == 0) return string.Empty;
+
+                EnsureAvailable(length);
+                string result = Encoding.UTF8.GetString(buffer, offset, length);
+                offset += length;
+                if (offset == count)
+                {
+                    offset = 0;
+                    count = 0;
+                }
+                return result;
+            }
+
+            private void EnsureAvailable(int requiredBytes)
+            {
+                if (Available >= requiredBytes)
+                {
+                    return;
+                }
+
+                if (offset > 0)
+                {
+                    int available = Available;
+                    if (available > 0)
+                    {
+                        Buffer.BlockCopy(buffer, offset, buffer, 0, available);
+                    }
+                    offset = 0;
+                    count = available;
+                }
+
+                EnsureCapacity(requiredBytes);
+                while (count < requiredBytes)
+                {
+                    int read = stream.Read(buffer, count, buffer.Length - count);
+                    if (read == 0)
+                    {
+                        throw new EndOfStreamException();
+                    }
+                    count += read;
+                    if (count < requiredBytes && count == buffer.Length)
+                    {
+                        EnsureCapacity(requiredBytes);
+                    }
+                }
+            }
+
+            private void EnsureCapacity(int requiredBytes)
+            {
+                if (buffer.Length >= requiredBytes)
+                {
+                    return;
+                }
+
+                int newSize = buffer.Length;
+                while (newSize < requiredBytes)
+                {
+                    newSize *= 2;
+                }
+                Array.Resize(ref buffer, newSize);
+            }
+        }
+    }
 }

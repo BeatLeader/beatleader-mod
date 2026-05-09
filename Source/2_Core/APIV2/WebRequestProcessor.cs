@@ -12,7 +12,9 @@ using BeatLeader.Models;
 using BeatLeader.Utils;
 
 namespace BeatLeader.WebRequests {
-    internal delegate Task<HttpResponseMessage?> SendRequestDelegate(HttpRequestMessage request, CancellationToken token);
+    // startTimeout is invoked by the callback once it's actually about to dispatch the HTTP request,
+    // so any pre-flight wait (e.g. login) doesn't eat into the per-request timeout budget.
+    internal delegate Task<HttpResponseMessage?> SendRequestDelegate(HttpRequestMessage request, CancellationToken token, Action startTimeout);
 
     internal class WebRequestProcessor<T> : IWebRequest<T>, IIoOperationDescriptor, IDisposable {
         public WebRequestProcessor(
@@ -190,10 +192,17 @@ namespace BeatLeader.WebRequests {
 
         private async Task<HttpResponseMessage?> SendWebRequest(SendRequestDelegate sendCallback, CancellationToken token) {
             var timeout = RequestParams.TimeoutSeconds;
-            using var timeoutTokenSource = GetTimeoutTokenSource(TimeSpan.FromSeconds(timeout), token);
-            var linkedToken = timeoutTokenSource?.Token ?? token;
+            // Linked CTS WITHOUT CancelAfter — the callback arms the timer via startTimeout()
+            // once it has finished any pre-flight work (login wait, etc).
+            using var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+            var linkedToken = timeoutTokenSource.Token;
+            void StartTimeout() {
+                if (timeout > 0) {
+                    timeoutTokenSource.CancelAfter(TimeSpan.FromSeconds(timeout));
+                }
+            }
             try {
-                return await sendCallback(_requestMessage, linkedToken);
+                return await sendCallback(_requestMessage, linkedToken, StartTimeout);
             } catch (OperationCanceledException) when (!token.IsCancellationRequested) {
                 throw new TimeoutException($"The request has failed after {timeout}s");
             } catch (WebException ex) when (
@@ -202,13 +211,6 @@ namespace BeatLeader.WebRequests {
             ) {
                 throw new TimeoutException($"The request has failed after {timeout}s");
             }
-        }
-
-        private static CancellationTokenSource? GetTimeoutTokenSource(TimeSpan timeout, CancellationToken cancellationToken) {
-            if (timeout == Timeout.InfiniteTimeSpan) return null;
-            var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            cts.CancelAfter(timeout);
-            return cts;
         }
 
         #endregion

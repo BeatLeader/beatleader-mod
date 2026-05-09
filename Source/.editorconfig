@@ -1,4 +1,4 @@
-root = true
+﻿root = true
 
 [*]
 charset = utf-8-bom
@@ -147,5 +147,6 @@ dotnet_diagnostic.MA0037.severity = warning
 dotnet_diagnostic.MA0048.severity = none
 dotnet_diagnostic.MA0049.severity = none
 dotnet_diagnostic.MA0074.severity = none
+dotnet_diagnostic.MA0039.severity = none
 
 dotnet_diagnostic.CS8618.severity = suggestion

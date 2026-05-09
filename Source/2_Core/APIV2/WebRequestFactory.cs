@@ -10,8 +10,17 @@ using UnityEngine;
 namespace BeatLeader.WebRequests {
     public static class WebRequestFactory {
         internal static readonly CookieContainer CookieContainer = new();
-        private static readonly HttpClientHandler httpClientHandler = new() { CookieContainer = CookieContainer};
-        private static readonly HttpClient httpClient = new(httpClientHandler);
+
+        // The inner handler does NOT manage cookies — Ipv4PreferringHandler attaches and
+        // captures them against the ORIGINAL hostname so auth keeps working after the URI
+        // is rewritten to an IP literal.
+        private static readonly HttpClientHandler httpClientHandler = new() {
+            UseCookies = false,
+            ServerCertificateCustomValidationCallback = Ipv4PreferringHandler.ValidateServerCertificate
+        };
+
+        private static readonly Ipv4PreferringHandler ipv4Handler = new(httpClientHandler, CookieContainer);
+        private static readonly HttpClient httpClient = new(ipv4Handler);
 
         static WebRequestFactory() {
             ServicePointManager.DefaultConnectionLimit = 20;
@@ -26,8 +35,8 @@ namespace BeatLeader.WebRequests {
             ) {
             requestParams ??= new();
             SendRequestDelegate sendCallback = waitForLogin
-                ? (message, requestToken) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken)
-                : (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
+                ? (message, requestToken, startTimeout) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken, startTimeout)
+                : (message, requestToken, startTimeout) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken, startTimeout);
 
             return new WebRequestProcessor<object>(sendCallback, requestMessage, requestParams, null, token);
         }
@@ -41,8 +50,8 @@ namespace BeatLeader.WebRequests {
         ) {
             requestParams ??= new();
             SendRequestDelegate sendCallback = waitForLogin
-                ? (message, requestToken) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken)
-                : (message, requestToken) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken);
+                ? (message, requestToken, startTimeout) => SendInternalLogin(message, requestParams.ResponseCompletionOption, requestToken, startTimeout)
+                : (message, requestToken, startTimeout) => SendInternal(message, requestParams.ResponseCompletionOption, requestToken, startTimeout);
 
             return new WebRequestProcessor<T>(sendCallback, requestMessage, requestParams, responseParser, token);
         }
@@ -50,22 +59,28 @@ namespace BeatLeader.WebRequests {
         private static Task<HttpResponseMessage?> SendInternal(
             HttpRequestMessage requestMessage,
             HttpCompletionOption completionOption,
-            CancellationToken token
+            CancellationToken token,
+            Action startTimeout
         ) {
             ApplyDefaultHeaders(requestMessage);
+            startTimeout();
             return httpClient.SendAsync(requestMessage, completionOption, token);
         }
 
         private static Task<HttpResponseMessage?> SendInternalLogin(
             HttpRequestMessage requestMessage,
             HttpCompletionOption completionOption,
-            CancellationToken token
+            CancellationToken token,
+            Action startTimeout
         ) {
             ApplyDefaultHeaders(requestMessage);
 
             return Task.Run(async () => {
                 var loggedIn = await Authentication.WaitLogin();
                 if (!loggedIn) return null;
+                // Arm the per-request timeout only now that login is complete — otherwise queued
+                // requests created long before login finishes are dead on arrival.
+                startTimeout();
                 return await httpClient.SendAsync(requestMessage, completionOption, token);
             }).RunCatching();
         }

@@ -170,6 +170,8 @@ namespace BeatLeader.Utils {
             hashedHeaders.Clear();
             _lastBatchIndex = 0;
 
+            await ReplayHeadersCache.WaitForLoading();
+
             var paths = FileManager.GetAllReplayPaths();
             var queue = new ConcurrentQueue<string>(paths);
             

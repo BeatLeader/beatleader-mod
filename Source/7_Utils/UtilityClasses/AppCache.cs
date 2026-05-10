@@ -8,8 +8,9 @@ using Newtonsoft.Json;
 
 namespace BeatLeader {
     internal class AppCache<T> where T : new() {
-        public AppCache(string path) {
+        public AppCache(string path, JsonSerializerSettings? settings = null) {
             _path = Path.Combine(basePath, path);
+            _serializerSettings = settings;
         }
 
         public T Cache {
@@ -23,6 +24,7 @@ namespace BeatLeader {
 
         private readonly TaskCompletionSource<byte> _completionSource = new();
         private readonly string _path;
+        private readonly JsonSerializerSettings? _serializerSettings;
         private T? _cache;
         private bool _initialized;
         private bool _isLoading;
@@ -57,7 +59,7 @@ namespace BeatLeader {
                     Plugin.Log.Info($"Reading file took: {stopwatch.Elapsed} {typeof(T)}");
                     stopwatch.Restart();
 
-                    _cache = JsonConvert.DeserializeObject<T>(content);
+                    _cache = JsonConvert.DeserializeObject<T>(content, _serializerSettings);
 
                     Plugin.Log.Info($"Parsing json took: {stopwatch.Elapsed} {typeof(T)}");
                 }

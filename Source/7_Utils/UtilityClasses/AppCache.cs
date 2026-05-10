@@ -1,8 +1,7 @@
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
+using BeatLeader.Utils;
 using IPA.Utilities;
 using Newtonsoft.Json;
 
@@ -22,66 +21,80 @@ namespace BeatLeader {
 
         private static readonly string basePath = Path.Combine(UnityGame.UserDataPath, "BeatLeader");
 
-        private readonly TaskCompletionSource<byte> _completionSource = new();
-        private readonly string _path;
         private readonly JsonSerializerSettings? _serializerSettings;
+        private readonly string _path;
         private T? _cache;
+
+        private Task? _saveTask;
+        private Task? _loadTask;
         private bool _initialized;
-        private bool _isLoading;
 
         public Task WaitForLoading() {
-            return _completionSource.Task;
+            return _loadTask ?? Task.CompletedTask;
         }
 
         public void LoadDetached() {
-            if (_initialized || _isLoading) {
+            if (_initialized || _loadTask != null) {
                 return;
             }
 
-            new Thread(Load) { IsBackground = true }.Start();
-            Plugin.Log.Info($"Got past Task.Run {typeof(T)}");
+            _loadTask = Task.Run(() => Load(join: false)).RunCatching();
         }
 
-        public void Load() {
-            if (_initialized || _isLoading) {
+        public void Load(bool join = true) {
+            if (join && _loadTask != null) {
+                _loadTask.Wait();
                 return;
             }
 
-            _isLoading = true;
-            Plugin.Log.Info($"Thread {Thread.CurrentThread.ManagedThreadId} {typeof(T)}");
+            if (_initialized) {
+                return;
+            }
 
             try {
                 if (File.Exists(_path)) {
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-
                     var content = File.ReadAllText(_path);
-                    Plugin.Log.Info($"Reading file took: {stopwatch.Elapsed} {typeof(T)}");
-                    stopwatch.Restart();
-
                     _cache = JsonConvert.DeserializeObject<T>(content, _serializerSettings);
-
-                    Plugin.Log.Info($"Parsing json took: {stopwatch.Elapsed} {typeof(T)}");
+                    
+                    Plugin.Log.Debug($"Loaded cache ({typeof(T).Name})");
                 }
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to initialize cache ({typeof(T).Name})\n{ex}");
             }
 
             _cache ??= new();
-
             _initialized = true;
-            _isLoading = false;
-            _completionSource.SetResult(0);
+            _loadTask = null;
         }
 
-        public void Save() {
-            if (!_initialized) return;
+        public void SaveDetached() {
+            if (!_initialized || _saveTask != null) {
+                return;
+            }
+
+            _saveTask = Task.Run(() => Save(join: false)).RunCatching();
+        }
+
+        public void Save(bool join = true) {
+            if (join && _saveTask != null) {
+                _saveTask.Wait();
+                return;
+            }
+
+            if (!_initialized) {
+                return;
+            }
+
             try {
                 var ser = JsonConvert.SerializeObject(_cache, Formatting.Indented);
                 File.WriteAllText(_path, ser);
+
+                Plugin.Log.Debug($"Saved cache ({typeof(T).Name})");
             } catch (Exception ex) {
                 Plugin.Log.Error($"Failed to save cache ({typeof(T).Name})\n{ex}");
             }
+
+            _saveTask = null;
         }
     }
 }

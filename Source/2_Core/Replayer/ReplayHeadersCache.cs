@@ -17,7 +17,7 @@ namespace BeatLeader {
 
         public static void SaveCache() {
             lock (locker) {
-                infoCache.Save();
+                infoCache.SaveDetached();
             }
         }
 

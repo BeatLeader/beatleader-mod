@@ -3,6 +3,7 @@ using System.Linq;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using BeatSaberMarkupLanguage.Attributes;
+using HMUI;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -31,9 +32,14 @@ namespace BeatLeader.Components {
 
         #region Components
 
-        [UIComponent("root"), UsedImplicitly] private Transform _root;
+        [UIComponent("root"), UsedImplicitly]
+        private Transform _root = null!;
 
-        [UIValue("skill-triangle"), UsedImplicitly] private SkillTriangle _skillTriangle;
+        [UIComponent("bg"), UsedImplicitly]
+        private ImageView _bg = null!;
+        
+        [UIValue("skill-triangle"), UsedImplicitly]
+        private SkillTriangle _skillTriangle = null!;
 
         private void Awake() {
             _skillTriangle = Instantiate<SkillTriangle>(transform);
@@ -75,7 +81,24 @@ namespace BeatLeader.Components {
         }
 
         #endregion
+        
+        #region Interactable
 
+        public bool Interactable {
+            get;
+            set {
+                if (field == value) {
+                    return;
+                }
+                
+                field = value;
+                _bg.raycastTarget = value;
+                _skillTriangle.Interactable = value;
+            }
+        }
+
+        #endregion
+        
         #region Events
 
         private bool _hoverEnabled;
@@ -94,6 +117,7 @@ namespace BeatLeader.Components {
             }
 
             IsActive = true;
+            Interactable = Mathf.Approximately(progress, 1f);
 
             var scale = Mathf.Pow(progress, isHovered ? 0.5f : 2.0f);
             _root.localScale = new Vector3(0.5f + 0.5f * scale, scale, 1.0f);

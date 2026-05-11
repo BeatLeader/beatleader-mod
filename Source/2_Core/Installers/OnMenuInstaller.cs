@@ -31,7 +31,7 @@ namespace BeatLeader.Installers {
             Container.Bind<ReplayerMenuLoader>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.Bind<ReplayerViewNavigator>().AsSingle();
             if (HeckInterop.IsInstalled) {
-                Container.BindInterfacesTo<HeckNavigationFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+                Container.BindInterfacesTo<HeckNavigationController>().AsSingle();
             } else {
                 Container.Bind<IReplayerViewNavigator>().To<ReplayerViewNavigator>().FromResolve();
             }

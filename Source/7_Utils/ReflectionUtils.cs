@@ -83,10 +83,22 @@ namespace BeatLeader.Utils {
 
         #endregion
 
+        #region GetField
+
+        public static FieldInfo GetFieldThrowable(this Type type, string name) {
+            return type.GetField(name, UniversalFlags) ?? throw new MissingFieldException(type.Name, name);
+        }
+
+        #endregion
+
         #region GetMethod
         
         public static MethodInfo? GetMethod<TDeclarator>(string name) {
             return typeof(TDeclarator).GetMethod(name, UniversalFlags);
+        }
+        
+        public static MethodInfo GetMethodThrowable(this Type type, string name) {
+            return type.GetMethod(name, UniversalFlags) ?? throw new MissingMethodException(type.Name, name);
         }
         
         public static MethodInfo GetMethod(

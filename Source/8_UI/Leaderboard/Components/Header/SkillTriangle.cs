@@ -21,26 +21,7 @@ namespace BeatLeader.Components {
         private TextMeshProUGUI _textComponentC;
 
         #endregion
-        
-        #region Interactable
 
-        public bool Interactable {
-            get;
-            set {
-                if (field == value) {
-                    return;
-                }
-                
-                field = value;
-                _triangleImage.raycastTarget = value;
-                _textComponentA.raycastTarget = value;
-                _textComponentB.raycastTarget = value;
-                _textComponentC.raycastTarget = value;
-            }
-        }
-
-        #endregion
-        
         #region Initialize / Dispose
 
         protected override void OnInitialize() {

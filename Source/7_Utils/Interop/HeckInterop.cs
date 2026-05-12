@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using BeatLeader.Attributes;
-using BeatLeader.Utils;
 
 namespace BeatLeader.Interop {
     [PluginInterop("Heck")]
@@ -15,10 +14,13 @@ namespace BeatLeader.Interop {
 
         [PluginType("Heck.PlayView.IPlayViewController")]
         public static Type? PlayViewControllerType { get; private set; }
-
-        [PluginType("Heck.SettingsSetter.SettingsSetterViewController")]
-        public static Type? SetterViewControllerType { get; private set; }
-
+        
+        [PluginType("Heck.PlayView.PlayViewManager")]
+        public static Type? PlayViewManagerType { get; private set; }
+        
+        [PluginType("Heck.PlayView.PlayViewManager+PlayViewControllerData")]
+        public static Type? PlayViewControllerDataType { get; private set; }
+        
         [PluginType("Heck.PlayView.StartStandardLevelParameters")]
         private static Type _startParametersType = null!;
 

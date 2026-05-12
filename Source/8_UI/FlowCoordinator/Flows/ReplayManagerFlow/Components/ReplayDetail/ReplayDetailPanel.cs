@@ -4,6 +4,7 @@ using BeatLeader.Interop;
 using BeatLeader.Models;
 using BeatLeader.Replayer;
 using BeatLeader.UI.Reactive.Components;
+using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -50,7 +51,7 @@ namespace BeatLeader.UI.Hub {
                     //
                     new BsPrimaryButton {
                             Text = BLLocalization.GetTranslation(WatchTextToken),
-                            OnClick = HandleWatchButtonClicked
+                            OnClick = () => _ = HandleWatchButtonClicked().RunCatching()
                         }
                         .AsFlexItem(flexGrow: 1f)
                         .Bind(ref _watchButton)
@@ -68,10 +69,12 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
+        private ReplayerViewNavigatorWrapper? _replayerNavigator;
         private ReplayerMenuLoader? _replayerMenuLoader;
 
-        public void Setup(ReplayerMenuLoader menuLoader) {
-            _replayerMenuLoader = menuLoader;
+        public void Setup(ReplayerViewNavigatorWrapper replayerNavigator, ReplayerMenuLoader replayerMenuLoader) {
+            _replayerNavigator = replayerNavigator;
+            _replayerMenuLoader = replayerMenuLoader;
         }
 
         #endregion
@@ -99,10 +102,6 @@ namespace BeatLeader.UI.Hub {
 
         #region Callbacks
 
-        private void HandleReplayLoadingFinished() {
-            _watchButton.Interactable = true;
-        }
-
         private void HandleDownloadBeatmapDialogClosed(IModal modal, bool closed) {
             if (closed) return;
             SetDataInternalAsync(Header!, CancellationToken).ConfigureAwait(true);
@@ -113,19 +112,24 @@ namespace BeatLeader.UI.Hub {
             _replayDeletionDialog.Present(ContentTransform);
         }
 
-        private async void HandleWatchButtonClicked() {
+        private async Task HandleWatchButtonClicked() {
             if (Header == null) {
                 throw new UninitializedComponentException("Replay header was null");
             }
+            
             if (_needToDownloadBeatmap) {
                 _beatmapDownloadDialog.SetHash(Header.ReplayInfo.SongHash);
                 _beatmapDownloadDialog.Present(ContentTransform);
                 return;
             }
+            
             _watchButton.Interactable = false;
+            
             var replay = await Header.LoadReplayAsync(CancellationToken.None);
             var player = await Header.LoadPlayerAsync(false, CancellationToken.None);
-            await _replayerMenuLoader!.StartReplayAsync(replay!, player, finishCallback: HandleReplayLoadingFinished);
+            
+            await _replayerNavigator!.NavigateToReplayAsync(replay!, player, false);
+            _watchButton.Interactable = true;
         }
 
         #endregion

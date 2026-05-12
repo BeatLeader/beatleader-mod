@@ -70,15 +70,18 @@ namespace BeatLeader {
         private static MethodInfo? _playViewDataOnPlayMethod;
         private static MethodInfo? _playViewManagerStartMethod;
         private static MethodInfo? _playViewManagerEarlyDismissMethod;
+        private static MethodInfo? _playViewManagerActivateMethod;
         private static MethodInfo? _playViewManagerInitMethod;
         private static FieldInfo? _playViewManagerFlowCoordinatorField;
         private static FieldInfo? _playViewManagerViewControllersField;
 
         private HarmonyAutoPatch _playViewManagerStartPatch = null!;
         private HarmonyAutoPatch _playViewManagerDismissPatch = null!;
+        private HarmonyAutoPatch _playViewManagerActivatePatch = null!;
 
         private static HeckNavigationController? _heckNavigationController;
         private static object? _originalFlowCoordinator;
+        private static object? _customFlowCoordinator;
         private object _playViewManager = null!;
         private static bool _presentingHeck;
 
@@ -88,6 +91,8 @@ namespace BeatLeader {
             _playViewManagerStartMethod ??= type.GetMethodThrowable("StartStandard");
             _playViewManagerEarlyDismissMethod ??= type.GetMethodThrowable("EarlyDismiss");
             _playViewManagerInitMethod ??= type.GetMethodThrowable("Init");
+            _playViewManagerActivateMethod ??= type.GetMethodThrowable("Activate");
+            
             _playViewManagerFlowCoordinatorField ??= type.GetFieldThrowable("_flowCoordinator");
             _playViewManagerViewControllersField ??= type.GetFieldThrowable("_viewControllers");
 
@@ -102,6 +107,11 @@ namespace BeatLeader {
                 _playViewManagerEarlyDismissMethod,
                 postfix: typeof(HeckNavigationController).GetMethodThrowable(nameof(HeckEarlyDismissPostfix))
             );
+            
+            _playViewManagerActivatePatch = new HarmonyPatchDescriptor(
+                _playViewManagerActivateMethod,
+                prefix: typeof(HeckNavigationController).GetMethodThrowable(nameof(HeckActivatePrefix))
+            );
 
             _playViewManager = _container.Resolve(HeckInterop.PlayViewManagerType);
             _heckNavigationController = this;
@@ -115,18 +125,27 @@ namespace BeatLeader {
 
         private void HeckInitViewManager(FlowCoordinator flowCoordinator, object data) {
             _presentingHeck = true;
-
-            _originalFlowCoordinator = _playViewManagerFlowCoordinatorField!.GetValue(_playViewManager);
-            _playViewManagerFlowCoordinatorField.SetValue(_playViewManager, flowCoordinator);
+            _customFlowCoordinator = flowCoordinator;
 
             _playViewManagerInitMethod!.Invoke(_playViewManager, [data, false]);
+        }
+
+        private static void HeckActivatePrefix(object __instance) {
+            if (!_presentingHeck) {
+                return;
+            }
+            
+            _originalFlowCoordinator = _playViewManagerFlowCoordinatorField!.GetValue(__instance);
+            _playViewManagerFlowCoordinatorField.SetValue(__instance, _customFlowCoordinator);
         }
 
         private static bool HeckStartStandardPrefix(object __instance) {
             if (!_presentingHeck) {
                 return true;
             }
+            
             _presentingHeck = false;
+            _playViewManagerFlowCoordinatorField!.SetValue(__instance, _originalFlowCoordinator);
             
             var viewControllers = (object[])_playViewManagerViewControllersField!.GetValue(__instance);
 

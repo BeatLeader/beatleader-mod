@@ -19,6 +19,7 @@ namespace BeatLeader.UI.Hub {
         [Inject] private readonly LevelSelectionFlowCoordinator _levelSelectionFlowCoordinator = null!;
         [Inject] private readonly ReplayManagerFlowCoordinator _replayManagerFlowCoordinator = null!;
         [Inject] private readonly BeatLeaderHubTheme _hubTheme = null!;
+        [Inject] private readonly IReplayerViewNavigator _replayerViewNavigator = null!;
 
         #endregion
 
@@ -72,8 +73,10 @@ namespace BeatLeader.UI.Hub {
                 gap: 2f
             ).WithRectExpand().Use(transform);
 
+            var navigator = new ReplayerViewNavigatorWrapper(_replayerViewNavigator, _replayManagerFlowCoordinator);
+
             _replayDetailPanel = new ReplayDetailPanel();
-            _replayDetailPanel.Setup(_replayerLoader);
+            _replayDetailPanel.Setup(navigator, _replayerLoader);
             _replayPanel.Setup(_previewLoader);
             _replayPanel.DetailPanel = _replayDetailPanel;
             _replayPanel.ReplaysList.Setup(_hubTheme.ReplayManagerSearchTheme);

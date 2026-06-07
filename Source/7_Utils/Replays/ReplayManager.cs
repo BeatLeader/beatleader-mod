@@ -44,7 +44,7 @@ namespace BeatLeader.Utils {
                 return;
             }
 
-            _mainThreadSynchronizationContext.Send(
+            _mainThreadSynchronizationContext.Post(
                 static _ => {
                     lock (headersLocker) {
                         var count = headers.Count;

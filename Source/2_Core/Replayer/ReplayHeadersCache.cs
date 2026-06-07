@@ -46,7 +46,7 @@ namespace BeatLeader {
 
         public static void AddInfoByPath(string path, IReplayInfo? info) {
             lock (locker) {
-                infoCache.Cache[Path.GetFileName(path)] = ToSerializableReplayInfo(info);
+                infoCache.Cache[Path.GetFileName(path)] = info == null ? null : ToSerializableReplayInfo(info);
             }
         }
 

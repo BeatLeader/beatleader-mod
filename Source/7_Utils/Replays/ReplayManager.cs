@@ -174,7 +174,7 @@ namespace BeatLeader.Utils {
 
             var paths = FileManager.GetAllReplayPaths();
             var queue = new ConcurrentQueue<string>(paths);
-            
+
             var worker = () => {
                 while (queue.TryDequeue(out var path)) {
                     try {
@@ -200,12 +200,9 @@ namespace BeatLeader.Utils {
 
             _loadHeadersTask = null;
         }
-        
-        private static void LoadReplayHeader(string path) {
-            var replayInfo = LoadReplayInfo(path);
 
-            if (replayInfo == null) {
-                Plugin.Log.Error($"[ReplayManager] Failed to read replay info: {path}");
+        private static void LoadReplayHeader(string path) {
+            if (LoadReplayInfo(path) is not { } replayInfo) {
                 return;
             }
 
@@ -231,11 +228,13 @@ namespace BeatLeader.Utils {
             }
 
             var replayInfo = FileManager.ReadReplayInfo(path);
+            ReplayHeadersCache.AddInfoByPath(path, replayInfo);
 
             if (replayInfo != null) {
                 SaturateReplayInfo(replayInfo, path);
-                ReplayHeadersCache.AddInfoByPath(path, replayInfo);
                 info = replayInfo;
+            } else {
+                Plugin.Log.Error($"[ReplayManager] Failed to read replay info: {path}");
             }
 
             return info;

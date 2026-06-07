@@ -7,7 +7,7 @@ namespace BeatLeader {
     internal static class ReplayHeadersCache {
         #region Cache
 
-        private static readonly AppCache<Dictionary<string, SerializableReplayInfo>> infoCache = new("ReplayInfoCache");
+        private static readonly AppCache<Dictionary<string, SerializableReplayInfo?>> infoCache = new("ReplayInfoCache");
         private static readonly object locker = new();
 
         public static Task WaitForLoading() {
@@ -44,7 +44,7 @@ namespace BeatLeader {
             return true;
         }
 
-        public static void AddInfoByPath(string path, IReplayInfo info) {
+        public static void AddInfoByPath(string path, IReplayInfo? info) {
             lock (locker) {
                 infoCache.Cache[Path.GetFileName(path)] = ToSerializableReplayInfo(info);
             }

@@ -403,6 +403,8 @@ namespace BeatLeader.UI.Hub {
 
         #region Setup
 
+        public int VisibleCells => (int)(ContentTransform.rect.height / CellSize);
+
         protected override float CellSize => 8f;
 
         public readonly HashSet<IReplayHeader> HighlightedItems = new();

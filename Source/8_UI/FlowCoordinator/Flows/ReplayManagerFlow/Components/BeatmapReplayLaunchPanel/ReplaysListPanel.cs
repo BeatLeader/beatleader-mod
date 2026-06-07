@@ -60,7 +60,7 @@ namespace BeatLeader.UI.Hub {
             if (!_listIsDirty) {
                 return;
             }
-
+            
             _replaysList.Refresh();
 
             if (_navigateHeader != null) {
@@ -71,8 +71,12 @@ namespace BeatLeader.UI.Hub {
             _listIsDirty = false;
         }
 
-        private void SetListIsDirty() {
-            _listIsDirty = true;
+        private void SetListIsDirty(bool force = false) {
+            const int multiplier = 30;
+
+            if (force || _replaysList.Items.Count < _replaysList.VisibleCells * multiplier) {
+                _listIsDirty = true;
+            }
         }
 
         public void QueueNavigation(IReplayHeader header) {
@@ -101,7 +105,7 @@ namespace BeatLeader.UI.Hub {
 
         private void HandleLoadingFinished(bool _) {
             _replaysList.Sort();
-            SetListIsDirty();
+            SetListIsDirty(true);
         }
 
         #endregion

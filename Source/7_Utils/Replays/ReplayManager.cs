@@ -242,8 +242,6 @@ namespace BeatLeader.Utils {
             if (replayInfo != null) {
                 SaturateReplayInfo(replayInfo, path);
                 info = replayInfo;
-            } else {
-                Plugin.Log.Error($"[ReplayManager] Failed to read replay info: {path}");
             }
 
             return info;

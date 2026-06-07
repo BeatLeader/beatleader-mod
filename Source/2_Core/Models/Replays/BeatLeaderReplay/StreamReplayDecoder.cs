@@ -5,7 +5,7 @@ public static class StreamReplayDecoder {
     private const byte ReplayVersion = 1;
     private const int MaxStringLength = 300;
 
-    public static ReplayInfo? DecodeReplayInfo(BufferedReplayStreamReader reader) {
+    public static ReplayInfo? DecodeReplayInfo(UnmanagedFileReader reader) {
         if (!TryDecodeHeader(reader)) {
             return null;
         }
@@ -16,14 +16,14 @@ public static class StreamReplayDecoder {
             : null;
     }
 
-    private static bool TryDecodeHeader(BufferedReplayStreamReader reader) {
+    private static bool TryDecodeHeader(UnmanagedFileReader reader) {
         var magic = reader.ReadInt32();
         var version = reader.ReadByte();
 
         return magic == ReplayMagic && version == ReplayVersion;
     }
 
-    private static ReplayInfo DecodeInfo(BufferedReplayStreamReader reader) {
+    private static ReplayInfo DecodeInfo(UnmanagedFileReader reader) {
         var result = new ReplayInfo();
 
         result.version = DecodeString(reader);
@@ -58,7 +58,7 @@ public static class StreamReplayDecoder {
         return result;
     }
 
-    private static string DecodeName(BufferedReplayStreamReader reader) {
+    private static string DecodeName(UnmanagedFileReader reader) {
         var length = reader.PeekInt32(0);
         if (length is < 0 or > MaxStringLength) {
             return DecodeString(reader);
@@ -81,7 +81,7 @@ public static class StreamReplayDecoder {
         return reader.ReadUtf8String(length + lengthOffset);
     }
 
-    private static string DecodeString(BufferedReplayStreamReader reader) {
+    private static string DecodeString(UnmanagedFileReader reader) {
         while (true) {
             var length = reader.PeekInt32(0);
 

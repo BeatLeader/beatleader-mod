@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using BeatLeader.Models;
 using BeatLeader.Models.Replay;
 using JetBrains.Annotations;
+using UnityEngine.Scripting;
 
 namespace BeatLeader.Utils {
     /// <summary>
@@ -167,6 +169,11 @@ namespace BeatLeader.Utils {
                 headers.Clear();
             }
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            
+            Plugin.Log.Error($"[GC] Incremental: {GarbageCollector.isIncremental} | Ms: {GarbageCollector.incrementalTimeSliceNanoseconds} | Mode: {GarbageCollector.GCMode}");
+
             hashedHeaders.Clear();
             _lastBatchIndex = 0;
 
@@ -198,6 +205,8 @@ namespace BeatLeader.Utils {
             // Safely invoke the event on main thread
             await TaskExtensions.RunOnMainThread(() => LoadingFinishedEvent?.Invoke(true));
 
+            Plugin.Log.Info($"[ReplayManager] Loading took {stopwatch.Elapsed}");
+            
             _loadHeadersTask = null;
         }
 
@@ -426,6 +435,10 @@ namespace BeatLeader.Utils {
         internal static void SaveCache() {
             ReplayMetadataManager.SaveCache();
             ReplayHeadersCache.SaveCache();
+        }
+
+        public static void ClearHeadersCache() {
+            ReplayHeadersCache.ClearInfo();
         }
 
         #endregion

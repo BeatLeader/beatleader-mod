@@ -113,23 +113,9 @@ namespace BeatLeader.Utils {
 
         public static ReplayInfo? ReadReplayInfo(string path) {
             try {
-                using var fileStream = new FileStream(
-                    path,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.ReadWrite | FileShare.Delete,
-                    BufferedReplayStreamReader.DefaultBufferSize,
-                    FileOptions.SequentialScan
-                );
+                using var reader = new UnmanagedFileReader(path, 4096);
 
-                var buffer = BufferPool.Borrow(BufferedReplayStreamReader.DefaultBufferSize);
-                var reader = new BufferedReplayStreamReader(fileStream, buffer);
-
-                try {
-                    return StreamReplayDecoder.DecodeReplayInfo(reader);
-                } finally {
-                    BufferPool.Release(buffer);
-                }
+                return StreamReplayDecoder.DecodeReplayInfo(reader);
             } catch (Exception ex) {
                 Plugin.Log.Error(ex);
                 return null;

@@ -171,8 +171,6 @@ namespace BeatLeader.Utils {
 
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            
-            Plugin.Log.Error($"[GC] Incremental: {GarbageCollector.isIncremental} | Ms: {GarbageCollector.incrementalTimeSliceNanoseconds} | Mode: {GarbageCollector.GCMode}");
 
             hashedHeaders.Clear();
             _lastBatchIndex = 0;
@@ -181,7 +179,11 @@ namespace BeatLeader.Utils {
 
             var paths = FileManager.GetAllReplayPaths();
             var queue = new ConcurrentQueue<string>(paths);
-
+            
+            // NOTE: Pay close attention to how replays are read from the disk. Filesystems typically cache data
+            // using an LRU buffer, so the very first read (cold cache) can be up to 50x slower than subsequent reads,
+            // averaging ~86s vs. ~2s on a 20k dataset.
+            // This is something we cannot and should not optimize.
             var worker = () => {
                 while (queue.TryDequeue(out var path)) {
                     try {

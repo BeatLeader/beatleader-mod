@@ -76,7 +76,7 @@ namespace BeatLeader.Utils {
                 }
 
                 tag.Color = newColor;
-                SynchronizationContext.Current.Send(_ => TagUpdatedEvent?.Invoke(tag), null);
+                SynchronizationContext.Current.Post(static x => TagUpdatedEvent?.Invoke((ReplayTag)x), tag);
             }
         }
 
@@ -94,7 +94,7 @@ namespace BeatLeader.Utils {
                     MutableTags[name] = tag;
                 }
 
-                SynchronizationContext.Current.Send(_ => TagCreatedEvent?.Invoke(tag), null);
+                NotifyTagCreated(tag);
             }
 
             return val;
@@ -113,8 +113,28 @@ namespace BeatLeader.Utils {
                 }
 
                 MutableTags.Remove(name);
-                SynchronizationContext.Current.Send(_ => TagDeletedEvent?.Invoke(tag), null);
+                NotifyTagDeleted(tag);
             }
+        }
+
+        #endregion
+
+        #region Events
+
+        private static void NotifyTagCreated(ReplayTag tag) {
+            SynchronizationContext.Current.Post(static x => TagCreatedEvent?.Invoke((ReplayTag)x), tag);
+        }
+
+        private static void NotifyTagDeleted(ReplayTag tag) {
+            SynchronizationContext.Current.Post(static x => {
+                var tag = (ReplayTag)x;
+
+                TagDeletedEvent?.Invoke(tag);
+
+                foreach (var metadata in MutableMetadatas.Values) {
+                    metadata.NotifyTagDeleted(tag);
+                }
+            }, tag);
         }
 
         #endregion

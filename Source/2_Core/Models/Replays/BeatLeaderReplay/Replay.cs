@@ -318,7 +318,7 @@ namespace BeatLeader.Models.Replay {
     }
     static class ReplayEncoder
     {
-        public static void Encode(Models.Replay.Replay replay, BinaryWriter stream)
+        public static void Encode(Replay replay, BinaryWriter stream)
         {
             stream.Write(0x442d3d69);
             stream.Write((byte)1);
@@ -358,7 +358,7 @@ namespace BeatLeader.Models.Replay {
             }
         }
 
-        static void EncodeInfo(ReplayInfo info, BinaryWriter stream)
+        public static void EncodeInfo(ReplayInfo info, BinaryWriter stream)
         {
             EncodeString(info.version, stream);
             EncodeString(info.gameVersion, stream);
@@ -390,68 +390,78 @@ namespace BeatLeader.Models.Replay {
             stream.Write(info.speed);
         }
 
-        static void EncodeFrames(List<Frame> frames, BinaryWriter stream)
+        public static void EncodeFrame(Frame frame, BinaryWriter stream)
+        {
+            stream.Write(frame.time);
+            stream.Write(frame.fps);
+            EncodeVector(frame.head.position, stream);
+            EncodeQuaternion(frame.head.rotation, stream);
+            EncodeVector(frame.leftHand.position, stream);
+            EncodeQuaternion(frame.leftHand.rotation, stream);
+            EncodeVector(frame.rightHand.position, stream);
+            EncodeQuaternion(frame.rightHand.rotation, stream);
+        }
+
+        public static void EncodeFrames(List<Frame> frames, BinaryWriter stream)
         {
             stream.Write((uint)frames.Count);
-            foreach (var frame in frames)
+            foreach (var frame in frames) EncodeFrame(frame, stream);
+        }
+
+        public static void EncodeNote(NoteEvent note, BinaryWriter stream)
+        {
+            stream.Write(note.noteID);
+            stream.Write(note.eventTime);
+            stream.Write(note.spawnTime);
+            stream.Write((int)note.eventType);
+            if (note.eventType == NoteEventType.good || note.eventType == NoteEventType.bad)
             {
-                stream.Write(frame.time);
-                stream.Write(frame.fps);
-                EncodeVector(frame.head.position, stream);
-                EncodeQuaternion(frame.head.rotation, stream);
-                EncodeVector(frame.leftHand.position, stream);
-                EncodeQuaternion(frame.leftHand.rotation, stream);
-                EncodeVector(frame.rightHand.position, stream);
-                EncodeQuaternion(frame.rightHand.rotation, stream);
+                EncodeNoteInfo(note.noteCutInfo, stream);
             }
         }
 
-        static void EncodeNotes(List<NoteEvent> notes, BinaryWriter stream)
+        public static void EncodeNotes(List<NoteEvent> notes, BinaryWriter stream)
         {
             stream.Write((uint)notes.Count);
-            foreach (var note in notes)
-            {
-                stream.Write(note.noteID);
-                stream.Write(note.eventTime);
-                stream.Write(note.spawnTime);
-                stream.Write((int)note.eventType);
-                if (note.eventType == NoteEventType.good || note.eventType == NoteEventType.bad)
-                {
-                    EncodeNoteInfo(note.noteCutInfo, stream);
-                }
-            }
+            foreach (var note in notes) EncodeNote(note, stream);
         }
 
-        static void EncodeWalls(List<WallEvent> walls, BinaryWriter stream)
+        public static void EncodeWall(WallEvent wall, BinaryWriter stream)
+        {
+            stream.Write(wall.wallID);
+            stream.Write(wall.energy);
+            stream.Write(wall.time);
+            stream.Write(wall.spawnTime);
+        }
+
+        public static void EncodeWalls(List<WallEvent> walls, BinaryWriter stream)
         {
             stream.Write((uint)walls.Count);
-            foreach (var wall in walls)
-            {
-                stream.Write(wall.wallID);
-                stream.Write(wall.energy);
-                stream.Write(wall.time);
-                stream.Write(wall.spawnTime);
-            }
+            foreach (var wall in walls) EncodeWall(wall, stream);
         }
 
-        static void EncodeHeights(List<AutomaticHeight> heights, BinaryWriter stream)
+        public static void EncodeHeight(AutomaticHeight height, BinaryWriter stream)
+        {
+            stream.Write(height.height);
+            stream.Write(height.time);
+        }
+
+        public static void EncodeHeights(List<AutomaticHeight> heights, BinaryWriter stream)
         {
             stream.Write((uint)heights.Count);
-            foreach (var height in heights)
-            {
-                stream.Write(height.height);
-                stream.Write(height.time);
-            }
+            foreach (var height in heights) EncodeHeight(height, stream);
         }
 
-        static void EncodePauses(List<Pause> pauses, BinaryWriter stream)
+        public static void EncodePause(Pause pause, BinaryWriter stream)
+        {
+            stream.Write(pause.duration);
+            stream.Write(pause.time);
+        }
+
+        public static void EncodePauses(List<Pause> pauses, BinaryWriter stream)
         {
             stream.Write((uint)pauses.Count);
-            foreach (var pause in pauses)
-            {
-                stream.Write(pause.duration);
-                stream.Write(pause.time);
-            }
+            foreach (var pause in pauses) EncodePause(pause, stream);
         }
 
         static void EncodeSaberOffsets(SaberOffsets saberOffsets, BinaryWriter stream)

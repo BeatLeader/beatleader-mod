@@ -23,6 +23,7 @@ namespace BeatLeader.Installers {
             Plugin.Log.Debug("OnMenuInstaller");
             
             Authentication.Login().RunCatching();
+            ReplaySocket.ConnectAfterAuth();
 
             _container = base.Container;
             BindLeaderboard();

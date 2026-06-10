@@ -10,7 +10,7 @@ namespace BeatLeader {
             Plugin.Log.Debug("MultiplayerLevelDataEnhancerPatch.postfix");
             MapEnhancer.beatmapKey = beatmapKey;
             MapEnhancer.beatmapLevel = beatmapLevel;
-            MapEnhancer.gameplayModifiers = gameplayModifiers;
+            ModifiersEnhancer.gameplayModifiers = gameplayModifiers;
             MapEnhancer.playerSpecificSettings = playerSpecificSettings;
             MapEnhancer.environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
             MapEnhancer.colorScheme = overrideColorScheme;

@@ -34,7 +34,7 @@ namespace BeatLeader
 
             MapEnhancer.beatmapKey = beatmapKey;
             MapEnhancer.beatmapLevel = beatmapLevel;
-            MapEnhancer.gameplayModifiers = gameplayModifiers;
+            ModifiersEnhancer.gameplayModifiers = gameplayModifiers;
             MapEnhancer.playerSpecificSettings = playerSpecificSettings;
             MapEnhancer.practiceSettings = practiceSettings;
             MapEnhancer.environmentName = environmentName;

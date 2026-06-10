@@ -33,6 +33,8 @@ namespace BeatLeader.Utils {
                 data = new PlayEndData(LevelEndType.Practice, data.Time);
             }
 
+            ReplaySocket.FinishedMap(replay, data, ShouldSubmit());
+
             if (!ShouldSubmit()) {
                 Plugin.Log.Debug("Score submission was disabled");
                 SaveReplay(replay, data);

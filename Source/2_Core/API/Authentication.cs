@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using BeatLeader.Utils;
 using BeatLeader.WebRequests;
 using BS_Utils.Gameplay;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BeatLeader.API {
     internal static class Authentication {

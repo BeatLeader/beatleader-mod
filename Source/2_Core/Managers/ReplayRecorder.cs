@@ -132,6 +132,8 @@ namespace BeatLeader {
             _instance = this;
 
             UserEnhancer.Enhance(_replay);
+            MapEnhancer.Enhance(_replay);
+            ModifiersEnhancer.Enhance(_replay);
 
             var metaData = PluginManager.GetPluginFromId("BeatLeader");
             _replay.info.version = metaData.HVersion.ToString();
@@ -139,6 +141,8 @@ namespace BeatLeader {
             _replay.info.timestamp = Convert.ToString((int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
 
             _stopRecording = false;
+
+            ReplaySocket.LaunchedMap(_replay.info);
         }
 
         #endregion
@@ -194,7 +198,8 @@ namespace BeatLeader {
         public void LateTick() {
             if (_timeSyncController == null || _playerTransforms == null || _currentPause != null || _stopRecording) return;
 
-            RecordFrame();
+            var frame = RecordFrame();
+            ReplaySocket.SendFrame(frame);
 
             if (_currentWallEvent != null) {
                 if (_phaoi != null && !_phaoi.playerHeadIsInObstacle) {
@@ -225,7 +230,7 @@ namespace BeatLeader {
             _framesInitialized = true;
         }
 
-        private void RecordFrame() {
+        private Frame RecordFrame() {
             LazyInitFrames();
 
             var frame = new Frame() {
@@ -246,6 +251,7 @@ namespace BeatLeader {
             };
 
             _replay.frames.Add(frame);
+            return frame;
         }
 
         #endregion
@@ -372,6 +378,8 @@ namespace BeatLeader {
                     break;
                 }
             }
+
+            ReplaySocket.SendNote(noteEvent);
         }
 
         #endregion
@@ -401,6 +409,8 @@ namespace BeatLeader {
             wallEvent.time = _timeSyncController.songTime;
             _replay.walls.Add(wallEvent);
             _currentWallEvent = wallEvent;
+
+            ReplaySocket.SendWall(_currentWallEvent);
         }
 
         #endregion
@@ -413,6 +423,7 @@ namespace BeatLeader {
             _currentPause = new Pause {
                 time = _timeSyncController.songTime
             };
+            ReplaySocket.SendPause(_currentPause);
             _pauseStartTime = DateTime.Now;
         }
 
@@ -421,6 +432,7 @@ namespace BeatLeader {
 
             _currentPause.duration = DateTime.Now.ToUnixTime() - _pauseStartTime.ToUnixTime();
             _replay.pauses.Add(_currentPause);
+            ReplaySocket.SendPause(_currentPause);
             _currentPause = null;
         }
 
@@ -440,6 +452,7 @@ namespace BeatLeader {
             automaticHeight.time = _timeSyncController.songTime;
 
             _replay.heights.Add(automaticHeight);
+            ReplaySocket.SendHeight(automaticHeight);
         }
 
         #endregion
@@ -481,8 +494,8 @@ namespace BeatLeader {
             _replay.notes.RemoveAll(note => note.eventType == NoteEventType.unknown);
 
             _replay.info.score = results.multipliedScore;
-            MapEnhancer.energy = results.energy;
-            MapEnhancer.Enhance(_replay);
+            ModifiersEnhancer.energy = results.energy;
+            ModifiersEnhancer.Enhance(_replay);
             _trackingDeviceEnhancer.Enhance(_replay);
 
             PlayEndData playEndData = new(results);

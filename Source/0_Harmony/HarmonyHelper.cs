@@ -20,6 +20,7 @@ namespace BeatLeader {
             PatchScoreSubmission();
             PatchCustomCampaigns();
             PatchTournamentAssistant();
+            PatchMenuStatus();
         }
 
         private static void PatchScoreSubmission() {
@@ -46,6 +47,15 @@ namespace BeatLeader {
                 RecorderTournamentAssistantUtilPatch.ApplyPatch(_harmony);
             } catch (Exception e) {
                 Plugin.Log.Warn("Can't patch Tournament Assistant methods");
+                Plugin.Log.Warn(e);
+            }
+        }
+
+        private static void PatchMenuStatus() {
+            try {
+                MenuStatusPatch.ApplyManualPatches(_harmony);
+            } catch (Exception e) {
+                Plugin.Log.Warn("Can't patch menu status methods");
                 Plugin.Log.Warn(e);
             }
         }

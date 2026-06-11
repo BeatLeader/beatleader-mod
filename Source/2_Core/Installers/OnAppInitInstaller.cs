@@ -31,10 +31,10 @@ namespace BeatLeader.Installers {
                 OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);
             }
 
-            Container.BindInterfacesAndSelfTo<MapTypesManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
+            MapTypesManager.Initialize();
             LeaderboardContextsManager.Initialize();
             PrestigeLevelsManager.Initialize();
 

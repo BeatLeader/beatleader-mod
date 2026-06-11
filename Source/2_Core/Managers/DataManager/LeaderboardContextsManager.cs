@@ -1,72 +1,57 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BeatLeader.APIV2;
 using BeatLeader.Models;
-using IPA.Utilities.Async;
-using UnityEngine;
-using UnityEngine.Networking;
+using BeatLeader.Utils;
+using Reactive.Components;
 
 namespace BeatLeader.DataManager {
-    public class LeaderboardContextsManager : MonoBehaviour {
-
-        private void Start() {
-            ContextsRequest.StateChangedEvent += ContextsRequest_StateChangedEvent;
-            ContextsRequest.Send();
+    public static class LeaderboardContextsManager {
+        public static void Initialize() {
+            ContextsRequest.Send().StateChangedEvent += HandleStateChanged;
         }
 
-        private void OnDestroy() {
-            ContextsRequest.StateChangedEvent -= ContextsRequest_StateChangedEvent;
-        }
+        private static void HandleStateChanged(WebRequests.IWebRequest<ServerScoresContext[]> instance, WebRequests.RequestState state, string? failReason) {
+            switch (state) {
+                case WebRequests.RequestState.Finished: 
+                    var tasks = new List<Task>(instance.Result!.Length);
 
-        public void ContextsRequest_StateChangedEvent(WebRequests.IWebRequest<List<ServerScoresContext>> instance, WebRequests.RequestState state, string? failReason) {
-            if (state == WebRequests.RequestState.Finished) {
-                var tasks = new List<Task>();
-                ScoresContexts.AllContexts = instance.Result.Select(s => {
-                    var context = new ScoresContext {
-                        Id = s.Id,
-                        Icon = BundleLoader.GeneralContextIcon,
-                        Name = s.Name,
-                        Description = s.Description,
-                        Key = s.Key,
-                    };
-                    
-                    tasks.Add(LoadIconCoroutine(s.Icon, sprite => context.Icon = sprite));
-                    
-                    return context;
-                }).ToList();
+                    ScoresContexts.allContexts = instance.Result.Select(s => {
+                        var context = new ScoresContext {
+                            Id = s.Id,
+                            Icon = BundleLoader.GeneralContextIcon,
+                            Name = s.Name,
+                            Description = s.Description,
+                            Key = s.Key,
+                        };
 
-                StartCoroutine(WaitImages(tasks));
-            } else if (state == WebRequests.RequestState.Failed) {
-                Plugin.Log.Debug($"Contexts retrieval failed! {failReason}");
-            }
-        }
-        
-        private static async Task LoadIconCoroutine(string url, Action<Sprite> onLoaded) {
-            var request = await RawDataRequest.Send(url).Join();
-            
-            if (request.RequestState != WebRequests.RequestState.Finished) {
-                Plugin.Log.Debug($"Failed to load icon from {url}: {request.FailReason}");
-                return;
-            }
-                
-            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false);
-            var loaded = texture.LoadImage(request.Result);
-            if (loaded) {
-                var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), 
-                    new Vector2(0.5f, 0.5f));
-                onLoaded(sprite);
+                        tasks.Add(LoadIconAsync(s.Icon, context));
+
+                        return context;
+                    }).ToArray();
+
+                    _ = Task.WhenAll(tasks)
+                        .ContinueWith(_ => PluginConfig.NotifyScoresContextListWasChanged())
+                        .RunCatching();
+
+                    break;
+
+                case WebRequests.RequestState.Failed:
+                    Plugin.Log.Debug($"Contexts retrieval failed! {failReason}");
+                    break;
             }
         }
 
-        private IEnumerator WaitImages(List<Task> tasks) {
-            foreach (var task in tasks) {
-                yield return task;
-            }
+        private static async Task LoadIconAsync(string url, ScoresContext context) {
+            var image = await ImageLoader.LoadImage(url, CancellationToken.None);
 
-            PluginConfig.NotifyScoresContextListWasChanged();
+            if (image != null) {
+                context.Icon = image.Sprite;
+            } else {
+                Plugin.Log.Error("Failed to load context icon");
+            }
         }
     }
 }

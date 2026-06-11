@@ -15,11 +15,11 @@ namespace BeatLeader.Installers {
 
         public override void InstallBindings() {
             Plugin.Log.Debug("OnAppInitInstaller");
-            
+
             var steamPlatformUserModel = Assembly.GetAssembly(typeof(IPlatformUserModel))
                 .GetTypes()
                 .FirstOrDefault(t => t.FullName!.Contains("SteamPlatformUserModel"));
-            
+
             if (steamPlatformUserModel != null) {
                 Authentication.SetPlatform(Authentication.AuthPlatform.Steam);
             } else {
@@ -31,11 +31,11 @@ namespace BeatLeader.Installers {
                 OpenXRAcquirer.Init(_vrPlatformHelper.vrPlatformSDK);
             }
 
-            Container.BindInterfacesAndSelfTo<LeaderboardContextsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<MapTypesManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<PlaylistsManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            
+
+            LeaderboardContextsManager.Initialize();
             PrestigeLevelsManager.Initialize();
 
             Container.BindInterfacesAndSelfTo<ProfileManager>().AsSingle();

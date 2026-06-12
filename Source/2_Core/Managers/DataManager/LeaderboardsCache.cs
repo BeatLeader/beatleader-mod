@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BeatLeader.Models;
 using BeatLeader.Utils;
 using IPA.Utilities;
@@ -24,7 +25,14 @@ namespace BeatLeader.DataManager {
             return true;
         }
 
-        public static LeaderboardCacheEntry PutLeaderboardInfo(SongInfo songInfo, string leaderboardId, DiffInfo diffInfo, QualificationInfo qualificationInfo, Clan clan, bool clanRankingContested) {
+        public static LeaderboardCacheEntry PutLeaderboardInfo(
+            SongInfo songInfo,
+            string leaderboardId,
+            DiffInfo diffInfo,
+            QualificationInfo qualificationInfo,
+            Clan clan,
+            bool clanRankingContested
+        ) {
             var key = LeaderboardKey.FromSongDiff(songInfo, diffInfo);
             var value = new LeaderboardCacheEntry(leaderboardId, songInfo, diffInfo, qualificationInfo, clan, clanRankingContested);
 
@@ -84,7 +92,7 @@ namespace BeatLeader.DataManager {
             }
         }
 
-        public class SortEntry {
+        public struct SortEntry {
             public float HighestStars;
             public float HighestTechStars;
             public float HighestAccStars;
@@ -113,47 +121,28 @@ namespace BeatLeader.DataManager {
 
         #region CacheFile
 
-        private static string CacheFileName => Path.Combine(UnityGame.UserDataPath, "BeatLeader", "LeaderboardsCache");
+        private static readonly AppCache<CacheFileData> cache = new("LeaderboardsCache");
 
-        private static JsonSerializerSettings SerializerSettings => new() {
-            MissingMemberHandling = MissingMemberHandling.Ignore,
-            NullValueHandling = NullValueHandling.Ignore
-        };
+        public static void Save() {
+            cache.Save();
+        }
 
-        static LeaderboardsCache() {
-            try {
-                if (!File.Exists(CacheFileName)) return;
+        public static void Load() {
+            cache.Load();
+            var fileData = cache.Cache;
 
-                var serialized = File.ReadAllText(CacheFileName);
-                var fileData = JsonConvert.DeserializeObject<CacheFileData>(serialized, SerializerSettings);
-                LastCheckTime = fileData.LastCheckTime;
+            LastCheckTime = fileData.LastCheckTime;
+
+            if (fileData.Entries != null) {
                 foreach (var entry in fileData.Entries) {
                     LeaderboardInfoCache[LeaderboardKey.FromSongDiff(entry.SongInfo, entry.DifficultyInfo)] = entry;
                 }
-            } catch (Exception e) {
-                Plugin.Log.Debug($"LeaderboardsCache load failed! {e}");
             }
         }
-
-        public static void Save() {
-            try {
-                var fileData = new CacheFileData(LeaderboardInfoCache.Values.ToList(), LastCheckTime);
-                var serialized = JsonConvert.SerializeObject(fileData, SerializerSettings);
-                FileManager.EnsureDirectoryExists(CacheFileName);
-                File.WriteAllText(CacheFileName, serialized);
-            } catch (Exception e) {
-                Plugin.Log.Debug($"LeaderboardsCache save failed! {e}");
-            }
-        }
-
+        
         private class CacheFileData {
-            public readonly List<LeaderboardCacheEntry> Entries;
-            public readonly long LastCheckTime;
-
-            public CacheFileData(List<LeaderboardCacheEntry> entries, long lastCheckTime) {
-                Entries = entries;
-                LastCheckTime = lastCheckTime;
-            }
+            public List<LeaderboardCacheEntry>? Entries;
+            public long LastCheckTime;
         }
 
         #endregion

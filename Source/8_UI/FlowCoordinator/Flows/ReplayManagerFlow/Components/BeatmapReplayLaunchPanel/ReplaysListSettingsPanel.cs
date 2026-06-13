@@ -119,7 +119,10 @@ namespace BeatLeader.UI.Hub {
                             Material = BundleLoader.UIAdditiveGlowMaterial
                         },
                         Colors = UIStyle.GlowingButtonColorSet,
-                        OnClick = ReplayManager.StartLoading
+                        OnClick = () => {
+                            ReplayManager.ClearHeadersCache();
+                            ReplayManager.StartLoading();
+                        }
                     }.AsFlexItem(aspectRatio: 1f),
                     //settings button
                     new ImageButton {

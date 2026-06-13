@@ -9,13 +9,7 @@ namespace BeatLeader.UI.Hub {
     internal class ReplaysListPanel : ReactiveComponent {
         #region Construct
 
-        public ReplaysList ReplaysList {
-            get {
-                lock (_locker) {
-                    return _replaysList;
-                }
-            }
-        }
+        public ReplaysList ReplaysList => _replaysList;
 
         private ReplaysList _replaysList = null!;
         private ReplaysListSettingsPanel _settingsPanel = null!;
@@ -36,28 +30,29 @@ namespace BeatLeader.UI.Hub {
         }
 
         protected override void OnInitialize() {
-            lock (_locker) {
-                _settingsPanel.Setup(_replaysList);
-                CollectionExtensions.AddRange(_replaysList.Items, ReplayManager.Headers);
-                _replaysList.Refresh();
-            }
+            _settingsPanel.Setup(_replaysList);
+            CollectionExtensions.AddRange(_replaysList.Items, ReplayManager.Headers);
+
+            _replaysList.Sort();
+            _replaysList.Refresh();
 
             ReplayManager.ReplayAddedEvent += HandleReplayAdded;
             ReplayManager.ReplayDeletedEvent += HandleReplayRemoved;
             ReplayManager.AllReplaysDeletedEvent += HandleAllReplaysRemoved;
+            ReplayManager.LoadingFinishedEvent += HandleLoadingFinished;
         }
 
         protected override void OnDestroy() {
             ReplayManager.ReplayAddedEvent -= HandleReplayAdded;
             ReplayManager.ReplayDeletedEvent -= HandleReplayRemoved;
             ReplayManager.AllReplaysDeletedEvent -= HandleAllReplaysRemoved;
+            ReplayManager.LoadingFinishedEvent -= HandleLoadingFinished;
         }
 
         #endregion
 
         #region List Update
 
-        private readonly object _locker = new();
         private IReplayHeader? _navigateHeader;
         private bool _listIsDirty;
 
@@ -65,21 +60,23 @@ namespace BeatLeader.UI.Hub {
             if (!_listIsDirty) {
                 return;
             }
+            
+            _replaysList.Refresh();
 
-            lock (_locker) {
-                _replaysList.Refresh();
-
-                if (_navigateHeader != null) {
-                    _replaysList.Select(_navigateHeader);
-                    _replaysList.ScrollTo(_navigateHeader);
-                }
+            if (_navigateHeader != null) {
+                _replaysList.Select(_navigateHeader);
+                _replaysList.ScrollTo(_navigateHeader);
             }
 
             _listIsDirty = false;
         }
 
-        private void SetListIsDirty() {
-            _listIsDirty = true;
+        private void SetListIsDirty(bool force = false) {
+            const int multiplier = 30;
+
+            if (force || _replaysList.Items.Count < _replaysList.VisibleCells * multiplier) {
+                _listIsDirty = true;
+            }
         }
 
         public void QueueNavigation(IReplayHeader header) {
@@ -92,24 +89,23 @@ namespace BeatLeader.UI.Hub {
         #region Callbacks
 
         private void HandleReplayAdded(IReplayHeader header) {
-            lock (_locker) {
-                _replaysList.Items.Add(header);
-            }
+            _replaysList.Items.Add(header);
             SetListIsDirty();
         }
 
         private void HandleReplayRemoved(IReplayHeader header) {
-            lock (_locker) {
-                _replaysList.Items.Remove(header);
-            }
+            _replaysList.Items.Remove(header);
             SetListIsDirty();
         }
 
         private void HandleAllReplaysRemoved() {
-            lock (_locker) {
-                _replaysList.Items.Clear();
-            }
+            _replaysList.Items.Clear();
             SetListIsDirty();
+        }
+
+        private void HandleLoadingFinished(bool _) {
+            _replaysList.Sort();
+            SetListIsDirty(true);
         }
 
         #endregion

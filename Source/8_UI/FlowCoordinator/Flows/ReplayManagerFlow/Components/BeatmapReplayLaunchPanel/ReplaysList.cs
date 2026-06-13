@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using BeatLeader.Models;
-using BeatLeader.Utils;
 using Reactive;
 using Reactive.BeatSaber.Components;
 using Reactive.Components;
@@ -162,16 +162,16 @@ namespace BeatLeader.UI.Hub {
                     if (index == _maxTags) {
                         break;
                     }
-                    
+
                     var panel = _spawnedTags[index];
                     panel.Interactable = false;
                     panel.AnimateMovement = false;
                     panel.SetTag(tag);
-                    
+
                     panel.FixedHeight = 4f;
                     panel.LayoutDriver = _tagsContainer;
                     panel.RefreshContainerSize(true);
-                    
+
                     index++;
                 }
             }
@@ -192,7 +192,7 @@ namespace BeatLeader.UI.Hub {
                             if (_spawnedTags.Count == _maxTags) {
                                 break;
                             }
-                            
+
                             var tag = _replaysList!._tagsPool.Spawn();
                             _spawnedTags.Add(tag);
                         }
@@ -340,24 +340,27 @@ namespace BeatLeader.UI.Hub {
 
         #region Sorting
 
-        private class HeaderComparator : IComparer<IReplayHeader> {
+        private class HeaderComparator : IComparer {
             public ReplaysListSorter sorter;
 
-            public int Compare(IReplayHeader x, IReplayHeader y) {
-                var xi = x.ReplayInfo;
-                var yi = y.ReplayInfo;
+            public int Compare(object? x, object? y) {
+                if (x is not IReplayHeader { ReplayInfo: var xi }) {
+                    return 0;
+                }
+
+                if (y is not IReplayHeader { ReplayInfo: var yi }) {
+                    return 0;
+                }
+
                 return sorter switch {
                     ReplaysListSorter.Difficulty =>
                         -CompareLong(
                             (int)Enum.Parse(typeof(BeatmapDifficulty), xi.SongDifficulty),
                             (int)Enum.Parse(typeof(BeatmapDifficulty), yi.SongDifficulty)
                         ),
-                    ReplaysListSorter.Player =>
-                        string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
-                    ReplaysListSorter.Completion =>
-                        CompareLong((int)xi.LevelEndType, (int)yi.LevelEndType),
-                    ReplaysListSorter.Date =>
-                        -CompareLong(xi.Timestamp, yi.Timestamp),
+                    ReplaysListSorter.Player => string.CompareOrdinal(xi.PlayerName, yi.PlayerName),
+                    ReplaysListSorter.Completion => CompareLong((int)xi.LevelEndType, (int)yi.LevelEndType),
+                    ReplaysListSorter.Date => -CompareLong(xi.Timestamp, yi.Timestamp),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
@@ -369,7 +372,7 @@ namespace BeatLeader.UI.Hub {
             get => _headerComparator.sorter;
             set {
                 _headerComparator.sorter = value;
-                RefreshSorting();
+                Sort();
                 Refresh();
             }
         }
@@ -378,7 +381,7 @@ namespace BeatLeader.UI.Hub {
             get => _sortOrder;
             set {
                 _sortOrder = value;
-                RefreshSorting();
+                Sort();
                 Refresh();
             }
         }
@@ -386,18 +389,21 @@ namespace BeatLeader.UI.Hub {
         private readonly HeaderComparator _headerComparator = new();
         private SortOrder _sortOrder;
 
-        private void RefreshSorting() {
-            Items.Sort(_headerComparator);
-            if (_sortOrder is SortOrder.Descending) Items.Reverse();
-        }
+        public void Sort() {
+            var arrayList = ArrayList.Adapter((IList)Items);
+            
+            arrayList.Sort(_headerComparator);
 
-        protected override void OnEarlyRefresh() {
-            RefreshSorting();
+            if (_sortOrder is SortOrder.Descending) {
+                arrayList.Reverse();
+            }
         }
 
         #endregion
 
         #region Setup
+
+        public int VisibleCells => (int)(ContentTransform.rect.height / CellSize);
 
         protected override float CellSize => 8f;
 

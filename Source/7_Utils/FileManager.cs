@@ -58,9 +58,9 @@ namespace BeatLeader.Utils {
                 }
             });
         }
-        
+
         #endregion
-        
+
         #region Replays
 
         public static IEnumerable<string> GetAllReplayPaths() {
@@ -71,7 +71,7 @@ namespace BeatLeader.Utils {
         public static string GetAbsoluteReplayPath(string fileName) {
             return Path.Combine(replaysFolderPath, fileName);
         }
-        
+
         public static async Task<bool> WriteReplayAsync(string fileName, Replay replay, CancellationToken token) {
             try {
                 var path = GetAbsoluteReplayPath(fileName);
@@ -82,11 +82,11 @@ namespace BeatLeader.Utils {
                 }
 
                 Plugin.Log.Debug("[FileManager] Replay saved");
-                
+
                 return true;
             } catch (Exception ex) {
                 Plugin.Log.Error($"[FileManager] Failed to save replay: {ex.Message}");
-                
+
                 return false;
             }
         }
@@ -111,24 +111,19 @@ namespace BeatLeader.Utils {
             return replay;
         }
 
-        public static async Task<ReplayInfo?> ReadReplayInfoAsync(string path, CancellationToken token) {
-            if (!File.Exists(path)) {
+        public static ReplayInfo? ReadReplayInfo(string path) {
+            try {
+                using var reader = new UnmanagedFileReader(path, 4096);
+
+                return StreamReplayDecoder.DecodeReplayInfo(reader);
+            } catch (Exception ex) {
+                Plugin.Log.Error(ex);
                 return null;
             }
+        }
 
-            // Here we load the whole file as we don't have neither a stop byte
-            // nor an implementation that would use streams instead of a byte array.
-            // Implementing such thing could lead to a significant performance boost
-            // when caching for the first time or reloading the cache.
-
-            // According to my tests, this way seems to be significantly faster when
-            // loading lots of small files (exactly our case) as the runtime don't need to 
-            // switch contexts: it simply borrows the whole thread until the task is finished
-            var bytes = await Task.Run(() => File.ReadAllBytes(path), token);
-
-            ReplayDecoder.TryDecodeReplayInfo(bytes, out var replayInfo);
-
-            return replayInfo;
+        public static Task<ReplayInfo?> ReadReplayInfoAsync(string path, CancellationToken token) {
+            return Task.Run(() => ReadReplayInfo(path), token);
         }
 
         #endregion

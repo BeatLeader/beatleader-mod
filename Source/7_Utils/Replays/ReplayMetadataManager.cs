@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using BeatLeader.Models;
-using IPA.Utilities;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace BeatLeader.Utils {
@@ -30,10 +30,12 @@ namespace BeatLeader.Utils {
         /// <param name="name">A name to validate.</param>
         /// <returns>A struct containing validation results.</returns>
         public static ReplayTagValidationResult ValidateTagName(string name) {
-            return new(
-                name.Length is >= 2 and <= 10,
-                !MutableTags.ContainsKey(name)
-            );
+            lock (tagsLocker) {
+                return new(
+                    name.Length is >= 2 and <= 10,
+                    !MutableTags.ContainsKey(name)
+                );
+            }
         }
 
         /// <summary>
@@ -47,14 +49,16 @@ namespace BeatLeader.Utils {
             var val = ValidateTagName(newName);
 
             if (val.Ok) {
-                if (!MutableTags.TryGetValue(name, out var tag)) {
-                    throw new InvalidOperationException("The tag does not exist");
+                lock (tagsLocker) {
+                    if (!MutableTags.TryGetValue(name, out var tag)) {
+                        throw new InvalidOperationException("The tag does not exist");
+                    }
+
+                    tag.Name = newName;
+
+                    MutableTags.Remove(name);
+                    MutableTags.Add(newName, tag);
                 }
-
-                tag.Name = newName;
-
-                MutableTags.Remove(name);
-                MutableTags.Add(newName, tag);
             }
 
             return val;
@@ -66,12 +70,14 @@ namespace BeatLeader.Utils {
         /// <param name="name">The name of the tag to update.</param>
         /// <exception cref="InvalidOperationException">If the tag does not exist.</exception>
         public static void UpdateTagColor(string name, Color newColor) {
-            if (!MutableTags.TryGetValue(name, out var tag)) {
-                throw new InvalidOperationException("The tag does not exist");
-            }
+            lock (tagsLocker) {
+                if (!MutableTags.TryGetValue(name, out var tag)) {
+                    throw new InvalidOperationException("The tag does not exist");
+                }
 
-            tag.Color = newColor;
-            SynchronizationContext.Current.Send(_ => TagUpdatedEvent?.Invoke(tag), null);
+                tag.Color = newColor;
+                SynchronizationContext.Current.Post(static x => TagUpdatedEvent?.Invoke((ReplayTag)x), tag);
+            }
         }
 
         /// <summary>
@@ -84,8 +90,11 @@ namespace BeatLeader.Utils {
             if (val.Ok) {
                 var tag = new ReplayTag(name, color ?? Color.white);
 
-                MutableTags[name] = tag;
-                SynchronizationContext.Current.Send(_ => TagCreatedEvent?.Invoke(tag), null);
+                lock (tagsLocker) {
+                    MutableTags[name] = tag;
+                }
+
+                NotifyTagCreated(tag);
             }
 
             return val;
@@ -98,12 +107,34 @@ namespace BeatLeader.Utils {
         /// <exception cref="InvalidOperationException">If the tag does not exist.</exception>
         /// <returns>True if the tag was removed, otherwise False.</returns>
         public static void DeleteTag(string name) {
-            if (!MutableTags.TryGetValue(name, out var tag)) {
-                throw new InvalidOperationException("The tag does not exist");
-            }
+            lock (tagsLocker) {
+                if (!MutableTags.TryGetValue(name, out var tag)) {
+                    throw new InvalidOperationException("The tag does not exist");
+                }
 
-            MutableTags.Remove(name);
-            SynchronizationContext.Current.Send(_ => TagDeletedEvent?.Invoke(tag), null);
+                MutableTags.Remove(name);
+                NotifyTagDeleted(tag);
+            }
+        }
+
+        #endregion
+
+        #region Events
+
+        private static void NotifyTagCreated(ReplayTag tag) {
+            SynchronizationContext.Current.Post(static x => TagCreatedEvent?.Invoke((ReplayTag)x), tag);
+        }
+
+        private static void NotifyTagDeleted(ReplayTag tag) {
+            SynchronizationContext.Current.Post(static x => {
+                var tag = (ReplayTag)x;
+
+                TagDeletedEvent?.Invoke(tag);
+
+                foreach (var metadata in MutableMetadatas.Values) {
+                    metadata.NotifyTagDeleted(tag);
+                }
+            }, tag);
         }
 
         #endregion
@@ -115,38 +146,112 @@ namespace BeatLeader.Utils {
         internal static ReplayMetadata GetMetadata(string path) {
             var name = Path.GetFileName(path);
 
-            if (!MutableMetadatas.TryGetValue(name, out var metadata)) {
-                metadata = new ReplayMetadata();
-                MutableMetadatas[name] = metadata;
-            }
+            lock (metaLocker) {
+                if (!MutableMetadatas.TryGetValue(name, out var metadata)) {
+                    metadata = new ReplayMetadata();
+                    MutableMetadatas[name] = metadata;
+                }
 
-            return metadata;
+                return metadata;
+            }
         }
 
         internal static void DeleteMetadata(string path) {
-            MutableMetadatas.Remove(Path.GetFileName(path));
+            lock (metaLocker) {
+                MutableMetadatas.Remove(Path.GetFileName(path));
+            }
         }
 
         internal static void ClearMetadata() {
-            MutableMetadatas.Clear();
+            lock (metaLocker) {
+                MutableMetadatas.Clear();
+            }
         }
 
         #endregion
 
         #region Serialization
 
+        private class MetadataConverter : JsonConverter {
+            public override bool CanConvert(Type objectType) {
+                return objectType == typeof(Dictionary<string, ReplayMetadata>);
+            }
+
+            public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) {
+                var dict = (Dictionary<string, ReplayMetadata>)value!;
+
+                writer.WriteStartObject();
+                foreach (var pair in dict) {
+                    // Only write the key if the Tags collection has items
+                    if (pair.Value.Tags is { Count: > 0 }) {
+                        writer.WritePropertyName(pair.Key);
+                        serializer.Serialize(writer, pair.Value);
+                    }
+                }
+                writer.WriteEndObject();
+            }
+
+            public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) {
+                if (reader.TokenType == JsonToken.Null) {
+                    return null;
+                }
+
+                var result = new Dictionary<string, ReplayMetadata>();
+
+                while (reader.Read()) {
+                    if (reader.TokenType == JsonToken.EndObject) {
+                        break;
+                    }
+
+                    if (reader.TokenType == JsonToken.PropertyName) {
+                        var key = reader.Value!.ToString()!;
+
+                        reader.Read();
+
+                        var jo = JObject.Load(reader);
+                        var tagsToken = jo["Tags"];
+
+                        if (tagsToken is not { HasValues: true }) {
+                            continue;
+                        }
+
+                        var metadata = jo.ToObject<ReplayMetadata>(serializer);
+
+                        if (metadata != null) {
+                            result.Add(key, metadata);
+                        }
+                    }
+                }
+
+                return result;
+            }
+        }
+
         private static readonly AppCache<Dictionary<string, ReplayTag>> tagsCache = new("ReplayTagsCache");
-        private static readonly AppCache<Dictionary<string, ReplayMetadata>> metaCache = new("ReplayMetadataCache");
+        private static readonly AppCache<Dictionary<string, ReplayMetadata>> metaCache = new("ReplayMetadataCache", new() {
+            Converters = [new MetadataConverter()]
+        });
+
+        private static readonly object tagsLocker = new();
+        private static readonly object metaLocker = new();
 
         internal static void LoadCache() {
-            tagsCache.Load();
+            lock (tagsLocker) {
+                tagsCache.Load();
+            }
             // Important to load after tags as it takes tags instances from ReplayMetadataManager
-            metaCache.Load();
+            lock (metaLocker) {
+                metaCache.Load();
+            }
         }
 
         internal static void SaveCache() {
-            tagsCache.Save();
-            metaCache.Save();
+            lock (tagsCache) {
+                tagsCache.Save();
+            }
+            lock (metaLocker) {
+                metaCache.Save();
+            }
         }
 
         #endregion

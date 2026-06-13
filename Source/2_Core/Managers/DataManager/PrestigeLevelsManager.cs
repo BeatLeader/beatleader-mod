@@ -17,8 +17,7 @@ namespace BeatLeader.DataManager {
 
         private record struct PrestigeRequest(
             UnityWebRequest Request,
-            int Level,
-            Dictionary<int, Sprite> Cache
+            int Level
         );
 
         private static bool _initialized;
@@ -54,17 +53,12 @@ namespace BeatLeader.DataManager {
                     var levels = instance.Result!;
 
                     foreach (var level in levels) {
-                        if (!string.IsNullOrEmpty(level.BigIcon)) {
-                            _totalLevels++;
-
-                            _ = LoadIconAsync(level.BigIcon, level.Id, BigIcons).RunCatching();
+                        if (string.IsNullOrEmpty(level.BigIcon)) {
+                            continue;
                         }
-
-                        if (!string.IsNullOrEmpty(level.SmallIcon)) {
-                            _totalLevels++;
-
-                            _ = LoadIconAsync(level.SmallIcon, level.Id, SmallIcons).RunCatching();
-                        }
+                        
+                        _totalLevels++;
+                        _ = LoadIconAsync(level.BigIcon, level.Level).RunCatching();
                     }
                     break;
 
@@ -76,7 +70,7 @@ namespace BeatLeader.DataManager {
             _loading = false;
         }
 
-        private static async Task LoadIconAsync(string url, int level, Dictionary<int, Sprite> cache) {
+        private static async Task LoadIconAsync(string url, int level) {
             var request = UnityWebRequestTexture.GetTexture(url);
             var result = await request.SendWebRequestAsync();
 
@@ -86,7 +80,7 @@ namespace BeatLeader.DataManager {
                 return;
             }
 
-            var req = new PrestigeRequest(request, level, cache);
+            var req = new PrestigeRequest(request, level);
             _requestsQueue.Enqueue(req);
 
             EnqueueSpriteJob();
@@ -108,7 +102,7 @@ namespace BeatLeader.DataManager {
                         var texture = DownloadHandlerTexture.GetContent(request.Request);
                         var sprite = SpriteUtils.CreateSprite(texture);
 
-                        request.Cache[request.Level] = sprite!;
+                        _icons[request.Level] = sprite!;
                     } finally {
                         request.Request.Dispose();
                         _processedLevels++;
@@ -124,7 +118,7 @@ namespace BeatLeader.DataManager {
                     _initialized = true;
                     _loading = false;
 
-                    IconsLoadedEvent?.Invoke();
+                    _iconsLoaded?.Invoke();
                 }
             }, null);
         }
@@ -133,27 +127,28 @@ namespace BeatLeader.DataManager {
 
         #region Public API
 
-        public static event Action? IconsLoadedEvent;
-
-        private static readonly Dictionary<int, Sprite> BigIcons = new();
-        private static readonly Dictionary<int, Sprite> SmallIcons = new();
-
-        public static Sprite GetBigIcon(int level) {
-            if (BigIcons.TryGetValue(level, out var sprite)) {
-                return sprite;
+        public static event Action? IconsLoadedEvent {
+            add {
+                if (_initialized) {
+                    value?.Invoke();
+                }
+                _iconsLoaded += value;
             }
-            return BundleLoader.TransparentPixel;
+            remove => _iconsLoaded -= value;
         }
 
-        public static Sprite GetSmallIcon(int level) {
-            if (SmallIcons.TryGetValue(level, out var sprite)) {
+        private static Action? _iconsLoaded;
+        private static readonly Dictionary<int, Sprite> _icons = new();
+
+        public static Sprite GetIcon(int level) {
+            if (_icons.TryGetValue(level, out var sprite)) {
                 return sprite;
             }
             return BundleLoader.TransparentPixel;
         }
 
         public static bool HasIcon(int level) {
-            return BigIcons.ContainsKey(level) || SmallIcons.ContainsKey(level);
+            return _icons.ContainsKey(level);
         }
 
         #endregion
